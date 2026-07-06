@@ -15,7 +15,7 @@ Verify sub-issue structure and phase tracking gate for multi-task plans before i
 
 ## Exit Criteria
 
-- Sub-issues verified present under plan (multi-task) OR exemption confirmed (work-of-1)
+- Sub-issues verified present under plan
 - Phase tracking state in `{project_root}/tmp/{N}/work.md` matches requested subtask
 - Auto-create performed if needed
 

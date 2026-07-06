@@ -381,7 +381,7 @@ SAFE_BRANCH=$(echo "$CLEANUP_BRANCH_NAME" | tr '/' '-')
 rm -f .issues/workflow/task-"$SAFE_BRANCH".marker
 ```
 
-This marker was created by `assemble-work` Step 1.5 as task() entry proof for the pre-commit hook.
+This marker was created by the implementation-pipeline per the SKILL.md Trigger Dispatch Table as task() entry proof for the pre-commit hook.
 
 ### Step 3.3: Delete Checkpoint Tags
 
@@ -413,7 +413,7 @@ git remote prune origin
 
 ### Step 3.5: Work Branch Cleanup
 
-When the merged branch was a work branch (created by `assemble-work`):
+When the merged branch was a work branch (created by the implementation-pipeline per the SKILL.md Trigger Dispatch Table):
 
 1. Delete individual feature branches that were squash-merged into the work branch
 2. Delete the work branch itself

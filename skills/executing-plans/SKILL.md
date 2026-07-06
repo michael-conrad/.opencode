@@ -9,7 +9,7 @@ compatibility: opencode
 
 ## Overview
 
-Thin routing layer routing plan execution to `implementation-pipeline`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → assemble-work → work branch → one PR.
+Thin routing layer routing plan execution to `implementation-pipeline`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → implementation-pipeline per the SKILL.md Trigger Dispatch Table → work branch → one PR.
 
 No single-issue bypass — single = work of one = one sub-agent.
 
@@ -27,8 +27,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
-- [ ] 4. Sub-agents must not dispatch sub-agents
-- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 
@@ -59,8 +58,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 1. **Requires plan_issue** in task context. HALT if absent.
 - [ ] 2. **Route to implementation-pipeline** with full context.
 - [ ] 3. **Track phase progress** against plan sub-issues.
-- [ ] 4. **Unified path:** no single-task exemption.
-- [ ] 5. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+- [ ] 4. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Received Context
 

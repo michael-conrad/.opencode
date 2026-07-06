@@ -113,6 +113,7 @@ Each item is tagged with dispatch scope and chain dependency.
 
 - Spec is approved and stored in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
+- **Mandatory step completeness enforced:** All steps in the implementation-pipeline SKILL.md Trigger Dispatch Table MUST be included in the generated plan with correct skill/task references. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected at validation. This is non-waivable — no exception for any reason.
 
 ## Exit Criteria
 

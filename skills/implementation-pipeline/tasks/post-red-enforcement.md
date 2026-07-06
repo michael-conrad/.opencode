@@ -52,5 +52,5 @@ per_criterion:
 ## Related Files
 
 - `skills/implementation-pipeline/SKILL.md` — dispatch routing table
-- `skills/implementation-pipeline/tasks/pipeline-executor.md` — pipeline step definitions
+- `skills/implementation-pipeline/SKILL.md` — Trigger Dispatch Table (pipeline step definitions)
 - `skills/test-driven-development/tasks/red.md` — RED persona enforcement block

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Present the execution plan (informative only, no confirmation), verify the no-questions checkpoint, and execute immediately to `assemble-work`. Contains post-analysis task rules, prohibited actions, and developer involvement triggers.
+Present the execution plan (informative only, no confirmation), verify the no-questions checkpoint, and execute immediately to the implementation-pipeline per the SKILL.md Trigger Dispatch Table. Contains post-analysis task rules, prohibited actions, and developer involvement triggers.
 
 ## Entry Criteria
 
@@ -14,8 +14,8 @@ Present the execution plan (informative only, no confirmation), verify the no-qu
 
 - Execution plan presented in chat (informative, not a decision prompt)
 - No-questions checkpoint verified
-- Agent proceeds immediately to `implementation-pipeline --task assemble-work`
-- No HALT between plan presentation and `assemble-work`
+- Agent proceeds immediately to the implementation-pipeline per the SKILL.md Trigger Dispatch Table
+- No HALT between plan presentation and the implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table
 
 ## Procedure
 
@@ -78,19 +78,19 @@ Each parallel issue includes task context:
 Proceeding with execution plan.
 ```
 
-**Checkpoint (MANDATORY):** Before proceeding to `assemble-work`, verify NO `question` tool calls have been made at ANY point during the pre-implementation-analysis flow (not just since plan presentation). If any were made, remove them and proceed autonomously. The execution plan is presented for informational purposes — no confirmation is requested or awaited. If any were made, the answers are irrelevant — the agent should have resolved the questions autonomously.
+**Checkpoint (MANDATORY):** Before proceeding to the implementation-pipeline per the SKILL.md Trigger Dispatch Table, verify NO `question` tool calls have been made at ANY point during the pre-implementation-analysis flow (not just since plan presentation). If any were made, remove them and proceed autonomously. The execution plan is presented for informational purposes — no confirmation is requested or awaited. If any were made, the answers are irrelevant — the agent should have resolved the questions autonomously.
 
 ### Step 10: Execute Immediately
 
-After presenting the plan, proceed immediately to `assemble-work`. Do not HALT. Do not ask for confirmation. Do not wait.
+After presenting the plan, proceed immediately to the implementation-pipeline per the SKILL.md Trigger Dispatch Table. Do not HALT. Do not ask for confirmation. Do not wait.
 
-Yield control to `implementation-pipeline --task assemble-work`:
+Yield control to the implementation-pipeline SKILL.md Trigger Dispatch Table:
 
 ```text
-`skill({name: "implementation-pipeline"})` then `task(..., prompt: "execute assemble-work task from implementation-pipeline")`
+`skill({name: "implementation-pipeline"})` then dispatch per the SKILL.md Trigger Dispatch Table
 ```
 
-**assemble-work** reads the work state file and handles:
+The implementation-pipeline reads the work state file and handles:
 
 - Creating worktrees for the work set
 - task()ing sub-agents for each issue
@@ -106,17 +106,17 @@ This handoff ensures:
 
 ### Post-Analysis Task (MANDATORY)
 
-After producing the execution plan and dependency graph, the agent MUST proceed directly to the next step in the pipeline chain (typically `assemble-work`). The analysis result IS the decision — no separate user confirmation is required. Key rules:
+After producing the execution plan and dependency graph, the agent MUST proceed directly to the next step in the pipeline chain per the implementation-pipeline SKILL.md Trigger Dispatch Table. The analysis result IS the decision — no separate user confirmation is required. Key rules:
 
 1. **Presentation is a status report, not a decision prompt.** The execution plan presentation (Step 6) is informational. It does NOT create a decision point.
 2. **No HALT after analysis unless `requires_developer: true`.** The only valid halt after pre-implementation-analysis is when screening sub-agents returned `requires_developer: true` per the exhaustive 5-condition list in `screen-issue.md`. When `requires_developer: false`, proceed without halting.
-3. **"Yield" means "produce output and continue," NOT "present output and wait."** The pipeline chain from pre-implementation-analysis to assemble-work is automatic. No user interaction is expected or allowed between them.
+3. **"Yield" means "produce output and continue," NOT "present output and wait."** The pipeline chain from pre-implementation-analysis to the implementation-pipeline is automatic per the SKILL.md Trigger Dispatch Table. No user interaction is expected or allowed between them.
 4. **Halting to "present" results as a decision point is functionally identical to asking a question** — both violate `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" and `020-go-prohibitions.md` §1.
 
 ### Prohibited Actions
 
 - **No `question` tool invocation** after plan presentation
-- **No HALT** between plan presentation and `assemble-work`
+- **No HALT** between plan presentation and the implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table
 - **No "Proceed?" / "Shall I?" / any confirmation solicitation**
 - **No "awaiting approval" / "waiting for GO" / any pending-state marker**
 

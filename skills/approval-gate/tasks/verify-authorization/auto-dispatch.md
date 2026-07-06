@@ -132,7 +132,7 @@ When cascade does NOT apply (conditions not met):
 
 **When `authorization_scope` is `for_implementation` or `for_pr`:**
 
-Before routing to `implementation-pipeline --task assemble-work`, verify that the orchestrator context is not bloated with non-routing data:
+Before routing to the implementation-pipeline per the SKILL.md Trigger Dispatch Table, verify that the orchestrator context is not bloated with non-routing data:
 
 1. **Verify routing-only dispatch:** Confirm the orchestrator holds only routing metadata (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Any cached analysis artifacts, task file contents, or prior sub-agent reasoning traces indicate context bloat.
 2. **If context bloat detected:** Do NOT proceed to dispatch. The orchestrator must task a clean sub-agent from the current pipeline phase — do NOT attempt recovery via state cleanup.

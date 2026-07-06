@@ -2,7 +2,7 @@
 
 ## Live State Verification Table
 
-When `assemble-work` records claims about work state (e.g., "sub-agent completed", "issue linked"), each claim MUST be verified against live state before the orchestration proceeds.
+When the implementation-pipeline per the SKILL.md Trigger Dispatch Table records claims about work state (e.g., "sub-agent completed", "issue linked"), each claim MUST be verified against live state before the orchestration proceeds.
 
 ### Verification Table
 

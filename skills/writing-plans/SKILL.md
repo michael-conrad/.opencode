@@ -20,9 +20,8 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. All pipeline steps execute at orchestrator level — no `task()` calls within the pipeline
-- [ ] 4. Sub-agents must not dispatch sub-agents
-- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
-- [ ] 6. **No optimizing out mandatory steps** — All implementation-pipeline gate steps are mandatory regardless of perceived simplicity. Optimizing out steps because they appear "not needed" is defective behavior and produces plans that must be discarded as incomplete and error-ridden.
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 5. **All implementation-pipeline steps are mandatory — no exceptions.** Every step in the implementation-pipeline SKILL.md Trigger Dispatch Table MUST be included in generated plans with the correct skill/task reference. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected at the plan validation gate. This applies regardless of scope, authorization level, or perceived simplicity. "Continue" does not waive this requirement. There is no exception for any reason.
 
 ## Trigger Dispatch Table
 

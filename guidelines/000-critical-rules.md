@@ -324,7 +324,7 @@ For URLs to resources that have been **created by an API call** (PR URL, Issue U
 - `issue-operations/tasks/creation.md` — Issue URL extraction from `github_issue_write`
 - `issue-operations/tasks/completion.md` — Issue URL extraction from `github_issue_write`
 - `verification-before-completion/tasks/completion.md` — Issue URL extraction from `github_issue_write`
-- `implementation-pipeline/tasks/assemble-work.md` — PR URL extraction after PR creation
+- `implementation-pipeline/SKILL.md` Trigger Dispatch Table — PR URL extraction after PR creation
 - `finishing-a-development-branch/tasks/checklist.md` — URL extraction checklist verification
 
 - **PR URL:** Extract from `github_create_pull_request` response `html_url` field
@@ -407,11 +407,11 @@ Professional engineers check for superseding open issues before implementing —
 
 
 ### [critical-rules-025] Main Agent Implements Directly
-Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `implementation-pipeline --task assemble-work`. Orchestrator tasks sub-agents via task() only.
+Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `implementation-pipeline/SKILL.md` Trigger Dispatch Table. Orchestrator tasks sub-agents via task() only.
 
 
 ### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
-Pipeline chain: pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep. Skipping any step means accepting undiscovered defects into every deliverable downstream. Each step MANDATORY.
+Pipeline chain: pre-work → implementation-pipeline (Trigger Dispatch Table) → verification-before-completion → finishing-checklist → review-prep. Skipping any step means accepting undiscovered defects into every deliverable downstream. Each step MANDATORY.
 
 
 ### [critical-rules-016] Skill Bypass = Critical Violation
@@ -680,7 +680,7 @@ See `approval-gate` skill → Authorization Scope Model.
 
 ### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
 
-A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped. `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md` governs this coercion.
+A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped. `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The bright-line coercion rule in `implementation-pipeline/SKILL.md` Trigger Dispatch Table governs this coercion.
 
 **Remediation-first sequence (mandated by #763):**
 1. **Remediate** the root cause — diagnose what produced the FAIL
@@ -908,9 +908,6 @@ Close children first, then parent. See `git-workflow --task cleanup`.
 ### [critical-rules-039] Parent Issue Left Open After All Children Closed
 Must close parent plan when all children verified complete.
 
-
-### [critical-rules-018] Unified Pipeline Path — no single-task exemption
-Single issue = work-of-1. See `assemble-work`.
 
 
 ### [critical-rules-039] Process Gaps Are Bugs — completed issues not auto-closed

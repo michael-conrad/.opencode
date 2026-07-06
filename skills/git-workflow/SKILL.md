@@ -20,8 +20,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
-- [ ] 4. Sub-agents must not dispatch sub-agents
-- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 
@@ -116,9 +115,9 @@ All git tags in this project follow a unified naming convention. The suffix rule
 
 **Cross-references:**
 - Spec #950 — canonical suffix derivation rule
-- Spec #391 — checkpoint tag lifecycle (create during assemble-work, delete during cleanup)
+- Spec #391 — checkpoint tag lifecycle (create during implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table, delete during cleanup)
 - `pre-work.md` Step 3.5 — hash permanence tag creation
-- `pipeline-executor.md` — checkpoint creation and rollback substeps
+- `implementation-pipeline/SKILL.md` Trigger Dispatch Table — checkpoint creation and rollback substeps
 - `branch-cleanup.md` Step 3.3 — checkpoint tag deletion
 
 ## Sub-Agent Routing
