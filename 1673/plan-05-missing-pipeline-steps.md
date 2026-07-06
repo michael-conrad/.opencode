@@ -39,22 +39,22 @@
 
 - [ ] 50. **VbC (**clean-room**).** Verify: SC-18 (adversarial-audit in Operating Protocol), SC-19 (adversarial-audit in write.md Step 40), SC-20 (change-control in Trigger Dispatch Table), SC-21 (spec-to-plan in Trigger Dispatch Table). **→ SC-18, SC-19, SC-20, SC-21**
 
-**Concern transition:** Leaving missing pipeline steps → entering global post-steps. All 5 phases complete.
+**Concern transition:** Leaving missing pipeline steps → entering Phase 6 (pipeline enforcement gates). Phase 6 depends on Phase 4 (same files — writing-plans SKILL.md and create.md).
 
 ---
 
 ## Global Post-Steps
 
-- [ ] 51. **Adversarial audit (**clean-room**).** Dispatch `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit")` for the spec. Dispatch `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute plan-fidelity task from adversarial-audit")` for the plan. Collect findings and remediate any FAIL verdicts. **→ All SCs**
+- [ ] 64. **Adversarial audit (**clean-room**).** Dispatch `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit")` for the spec. Dispatch `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute plan-fidelity task from adversarial-audit")` for the plan. Collect findings and remediate any FAIL verdicts. **→ All SCs**
 
-- [ ] 52. **Cross-validate (**clean-room**).** Dispatch `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute cross-validate task from adversarial-audit")`. Verify that all SC evidence artifacts match the declared evidence types. Downgrade any EVIDENCE_TYPE_MISMATCH to FAIL. **→ All SCs**
+- [ ] 65. **Cross-validate (**clean-room**).** Dispatch `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute cross-validate task from adversarial-audit")`. Verify that all SC evidence artifacts match the declared evidence types. Downgrade any EVIDENCE_TYPE_MISMATCH to FAIL. **→ All SCs**
 
-- [ ] 53. **Regression check (**clean-room**).** Run `uvx ruff check .opencode/skills/` and `uvx pyright .opencode/skills/` (if Python files exist). Run `uvx pymarkdownlnt scan -r .opencode/skills/` for markdown files. Fix any regressions. **→ All SCs**
+- [ ] 66. **Regression check (**clean-room**).** Run `uvx ruff check .opencode/skills/` and `uvx pyright .opencode/skills/` (if Python files exist). Run `uvx pymarkdownlnt scan -r .opencode/skills/` for markdown files. Fix any regressions. **→ All SCs**
 
-- [ ] 54. **Finishing checklist (**clean-room**).** Dispatch `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`. Verify: all changes committed, no uncommitted files, branch is up to date with dev, all SCs verified PASS. **→ All SCs**
+- [ ] 67. **Finishing checklist (**clean-room**).** Dispatch `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`. Verify: all changes committed, no uncommitted files, branch is up to date with dev, all SCs verified PASS. **→ All SCs**
 
-- [ ] 55. **Review-prep (**clean-room**).** Dispatch `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`. Generate compare URL, diff summary, and reviewer context. **→ All SCs**
+- [ ] 68. **Review-prep (**clean-room**).** Dispatch `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`. Generate compare URL, diff summary, and reviewer context. **→ All SCs**
 
-- [ ] 56. **Cleanup (**clean-room**).** Dispatch `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`. Delete merged branches, close issues, sync dev. **→ All SCs**
+- [ ] 69. **Cleanup (**clean-room**).** Dispatch `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`. Delete merged branches, close issues, sync dev. **→ All SCs**
 
-- [ ] 57. **Executive summary (**inline**).** Report: all 21 SCs verified PASS across 5 phases. Plan file paths: `.opencode/.issues/1673/plan.md` (index), `.opencode/.issues/1673/plan-01-*` through `plan-05-*` (phase files). HALT. **→ All SCs**
+- [ ] 70. **Executive summary (**inline**).** Report: all 29 SCs verified PASS across 6 phases. Plan file paths: `.opencode/.issues/1673/plan.md` (index), `.opencode/.issues/1673/plan-01-*` through `plan-06-*` (phase files). HALT. **→ All SCs**

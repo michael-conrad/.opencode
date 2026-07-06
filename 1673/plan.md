@@ -2,13 +2,14 @@
 
 **Goal:** Fix structural defects in spec-creation and writing-plans skills that prevent correct dispatch routing, task invocation, and plan output format.
 
-**Architecture:** Five independent/dependent phases across two skill directories. Phases 1, 2, 4 are independent. Phases 3 and 5 depend on Phase 2 (same files). Each phase follows RED/GREEN TDD with behavioral enforcement tests.
+**Architecture:** Six phases across two skill directories. Phases 1, 2, 4 are independent. Phase 3 depends on Phase 2. Phase 5 depends on Phase 2. Phase 6 depends on Phase 4. Each phase follows RED/GREEN TDD with behavioral enforcement tests.
 
 **Files:**
 - `.opencode/skills/spec-creation/SKILL.md` — Phases 1, 2, 5
 - `.opencode/skills/spec-creation/tasks/write.md` — Phases 3, 5
-- `.opencode/skills/writing-plans/SKILL.md` — Phases 1, 4, 5
-- `.opencode/skills/writing-plans/tasks/create.md` — Phase 4 (consistency check)
+- `.opencode/skills/writing-plans/SKILL.md` — Phases 1, 4, 5, 6
+- `.opencode/skills/writing-plans/tasks/create.md` — Phases 4, 6
+- `.opencode/skills/writing-plans/contracts/` — Phase 6 (22 existing YAML contract files)
 - `.opencode/tests/behaviors/` — Behavioral enforcement tests for all phases
 
 > **Compliance requirement:** This plan is a routing document. Every dispatch step MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> from <skill>")` form. Plan steps MUST NOT contain inline procedure text. The full implementation pipeline MUST be enumerated with no skipped or combined steps.
@@ -26,6 +27,8 @@
 | 3 | write.md Structural Renumbering | Fix labels, ordering, content templates, Plan Format Requirements | SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14 | Phase 2 | 19–30 |
 | 4 | Execution Model Contradiction | Remove "no task()" language, update sub-agent dispatch model | SC-15, SC-16, SC-17 | None | 31–40 |
 | 5 | Missing Pipeline Steps | Add adversarial-audit, change-control, spec-to-plan dispatch paths | SC-18, SC-19, SC-20, SC-21 | Phase 2 | 41–52 |
+| 6 | Pipeline Enforcement Gates | Mandatory Z3 contracts, clean-room enforcement, readiness independence, sub-agent output verification, pipeline discipline, sequential ordering | SC-22, SC-23, SC-24, SC-25, SC-26, SC-27, SC-28, SC-29 | Phase 4 | 51–63 |
+| — | Global Post-Steps | Adversarial audit, cross-validate, regression, finishing checklist, review-prep, cleanup, exec summary | All SCs | All phases | 64–70 |
 
 > **Compliance requirement:** This plan is a routing document. Every dispatch step MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> from <skill>")` form. Plan steps MUST NOT contain inline procedure text. The full implementation pipeline MUST be enumerated with no skipped or combined steps.
 
@@ -54,3 +57,11 @@
 - [ ] C19: write.md Step 40 references adversarial-audit skill (SC-19)
 - [ ] C20: spec-creation Trigger Dispatch Table includes change-control row (SC-20)
 - [ ] C21: writing-plans Trigger Dispatch Table includes spec-to-plan row (SC-21)
+- [ ] C22: All 7 Z3 check steps reference correct contract paths (SC-22)
+- [ ] C23: Behavioral test passes for solve check invocation (SC-23)
+- [ ] C24: Step 11 is a mandatory gate — pipeline halts if skipped (SC-24)
+- [ ] C25: Readiness gate requires independent sub-agent artifact (SC-25)
+- [ ] C26: Post-dispatch file verification exists (SC-26)
+- [ ] C27: Mandatory Task Discipline includes todowrite, pipeline_phase, branch, commit, sync (SC-27)
+- [ ] C28: create.md states sequential step ordering (SC-28)
+- [ ] C29: Behavioral test passes for Z3 non-skip (SC-29)
