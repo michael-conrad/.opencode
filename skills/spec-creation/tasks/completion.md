@@ -14,7 +14,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 
 - [ ] 1. **Spec issue** (if not already created):
    - Check evidence for spec issue creation with [SPEC] prefix
-   - If missing: invoke `spec-creation --task write` as remediation
+   - If missing: invoke `spec-creation --task create` as remediation
 
 - [ ] 2. **spec-auditor** (if not already invoked):
    - Check evidence for spec-auditor invocation

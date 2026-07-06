@@ -214,7 +214,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `resolve-models` task — auditor model resolution (adversarial-audit --task resolve-models)
 - `verification-before-completion/SKILL.md` — VbC artifact format
-- `spec-creation/tasks/write.md` — Step 4: Determinism Gate
-- `spec-creation/tasks/write.md` — SC verification methods
+- `spec-creation/tasks/create.md` — Step 4: Determinism Gate
+- `spec-creation/tasks/create.md` — SC verification methods
 - `080-code-standards.md` — Behavioral Enforcement Tests
 
