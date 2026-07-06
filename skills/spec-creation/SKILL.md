@@ -1,6 +1,6 @@
 ---
 name: spec-creation
-description: "Use when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also use when decomposing a problem into success criteria, extracting requirements, or documenting change control. Invoke for: spec writing, specification creation, requirements documentation, feature specification, problem decomposition, success criteria definition, change control documentation, spec drafting, requirements extraction. Spec creation is REQUIRED before implementation. Trigger phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, write requirements, create requirements doc, decompose problem, define success criteria, extract requirements, document change control."
+description: "Use when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also use when decomposing a problem into success criteria, extracting requirements, or documenting change control. Invoke for: spec writing, specification creation, requirements documentation, feature specification, problem decomposition, success criteria definition, change control documentation, spec drafting, requirements extraction. Spec creation is REQUIRED before implementation. Trigger phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, write requirements, create requirements doc, decompose problem, define success criteria, extract requirements, document change control, create a spec, write a spec, draft a spec, create a specification, write a specification, draft a specification, author a spec, make a spec, make specification, spec it out."
 license: MIT
 compatibility: opencode
 ---
@@ -28,7 +28,15 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "write spec" / "create spec" / "draft spec" / "write specification" / "create specification" / "draft specification" / "spec out" / "author spec" / "document requirements" / "specify feature" / "write requirements" / "create requirements doc" | `create` | `sub-task` | {spec_context} |
+| "write spec" / "create spec" / "draft spec" / "write specification" / "create specification" / "draft specification" / "spec out" / "author spec" / "document requirements" / "specify feature" / "write requirements" / "create requirements doc" / "create a spec" / "write a spec" / "draft a spec" / "create a specification" / "write a specification" / "draft a specification" / "author a spec" / "make a spec" / "make specification" / "spec it out" | `write` | `sub-task` | {spec_context} |
+| "extract requirements" / "requirements extraction" | `requirements` | `sub-task` | {spec_context} |
+| "decompose problem" / "problem decomposition" | `decompose` | `sub-task` | {spec_context} |
+| "traceability" / "trace requirements" | `traceability` | `sub-task` | {spec_context} |
+| "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
+| "risk analysis" / "risk assessment" | `risk` | `sub-task` | {spec_context} |
+| "write spec" / "assemble spec" | `write` | `sub-task` | {spec_context} |
+| "completion" / "spec complete" | `completion` | `sub-task` | {spec_context} |
+| "change control" / "revision" / "spec revision" | `change-control` | `sub-task` | {spec_context} |
 
 ## Persona
 
@@ -36,9 +44,16 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Tasks
 
-| Task       |
-| ---------- |
-| `create`   |
+| Task                      |
+| ------------------------- |
+| `requirements`            |
+| `decompose`               |
+| `traceability`            |
+| `pipeline-readiness-gate` |
+| `risk`                    |
+| `write`                   |
+| `completion`              |
+| `change-control`          |
 
 ## Invocation
 
@@ -46,9 +61,16 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 **DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
-| Task     | Call via task()                                                       |
-| -------- | --------------------------------------------------------------------- |
-| `create` | `task(..., prompt: "execute create task from spec-creation")`         |
+| Task                      | Call via task()                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| `requirements`            | `task(..., prompt: "execute requirements task from spec-creation")`                    |
+| `decompose`               | `task(..., prompt: "execute decompose task from spec-creation")`                       |
+| `traceability`            | `task(..., prompt: "execute traceability task from spec-creation")`                    |
+| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`         |
+| `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                             |
+| `write`                   | `task(..., prompt: "execute write task from spec-creation")`                            |
+| `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                      |
+| `change-control`          | `task(..., prompt: "execute change-control task from spec-creation")`                  |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "spec-creation"})` ``
 
@@ -65,7 +87,8 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 - [ ] 9. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_8`
 - [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/write-input.yaml`, output: `{project_root}/tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_6, step_9`
 - [ ] 11. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/completion-input.yaml`, output: `{project_root}/tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_10`
-- [ ] 12. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+- [ ] 12. [sub-task: spec-audit] `task(..., prompt: "execute spec-audit task from adversarial-audit")` — chain: `step_10`
+- [ ] 13. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 
