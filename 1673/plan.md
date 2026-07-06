@@ -1,41 +1,56 @@
-# Implementation Plan — [.opencode#1673](https://github.com/michael-conrad/.opencode/issues/1673) — Fix spec-creation and writing-plans dispatch and task structure
+# Implementation Plan — [#1673](https://github.com/michael-conrad/.opencode/issues/1673) — Fix spec-creation and writing-plans dispatch and task structure
 
-**Goal:** Fix spec-creation and writing-plans skills so they are invoked correctly when triggered, produce correct remote body format, have consistent execution models, and produce plans that route to implementation skill task cards rather than inlining procedure text.
+**Goal:** Fix structural defects in spec-creation and writing-plans skills that prevent correct dispatch routing, task invocation, and plan output format.
 
-**Architecture:** Six phases targeting specific defect categories across two skill files and one task file. Phases 1-2 are independent; Phases 3-6 depend on Phase 2 (same file — `write.md`).
+**Architecture:** Five independent/dependent phases across two skill directories. Phases 1, 2, 4 are independent. Phases 3 and 5 depend on Phase 2 (same files). Each phase follows RED/GREEN TDD with behavioral enforcement tests.
 
 **Files:**
-- `.opencode/skills/spec-creation/SKILL.md` — trigger phrases, dispatch table, Operating Protocol
-- `.opencode/skills/spec-creation/tasks/write.md` — step numbering, content templates, 7r ordering, Plan Format Requirements
-- `.opencode/skills/writing-plans/SKILL.md` — execution model contradiction
-- `.opencode/skills/writing-plans/tasks/create.md` — sub-agent dispatch pattern (reference only)
-- `.opencode/tests/behaviors/` — behavioral enforcement tests
+- `.opencode/skills/spec-creation/SKILL.md` — Phases 1, 2, 5
+- `.opencode/skills/spec-creation/tasks/write.md` — Phases 3, 5
+- `.opencode/skills/writing-plans/SKILL.md` — Phases 1, 4, 5
+- `.opencode/skills/writing-plans/tasks/create.md` — Phase 4 (consistency check)
+- `.opencode/tests/behaviors/` — Behavioral enforcement tests for all phases
 
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+> **Compliance requirement:** This plan is a routing document. Every dispatch step MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> from <skill>")` form. Plan steps MUST NOT contain inline procedure text. The full implementation pipeline MUST be enumerated with no skipped or combined steps.
 
-> **One-step-at-a-time protocol:** Execute exactly one step at a time. After each step, verify its output before proceeding. Do not batch steps, do not skip ahead, do not combine steps. Each step is an atomic unit. If a step fails, remediate before proceeding to the next step. There is no valid reason to skip, compress, reorder, or omit any step.
+> **One-step-at-a-time protocol:** Execute exactly one step at a time. After each step, verify the result before proceeding. Do NOT batch, combine, or skip steps. Each step is a discrete unit of work with its own verification.
 
-> **Step Status:** Each step MUST be marked with its status as it is executed. Use `- [x]` for completed steps, `- [-]` for skipped steps (with rationale), and `- [ ]` for pending steps. This checklist is the source of truth for pipeline progress.
+> **Step Status instruction:** Each step MUST be tracked with `todowrite` status: `pending` → `in_progress` → `completed`. Clear all items with `todowrite(todos=[])` before halting.
 
 ## Phase Table
 
 | Phase | Name | Concern | SCs | Dependencies | Step Range |
 |-------|------|---------|-----|--------------|------------|
-| 1 | Trigger Phrase Expansion | Skill card description fields | SC-1, SC-2, SC-3, SC-4 | None | 1-11 |
-| 2 | Dispatch Table Fixes | spec-creation SKILL.md dispatch table | SC-5, SC-6, SC-7 | None | 12-22 |
-| 3 | write.md Structural Renumbering + Plan Format | Task file step numbering + plan routing mandate | SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14 | Phase 2 | 23-37 |
-| 4 | writing-plans Execution Model | SKILL.md vs create.md contradiction | SC-15, SC-16, SC-17 | None | 38-46 |
-| 5 | Missing Pipeline Steps | spec-creation pipeline gaps | SC-18, SC-19, SC-20, SC-21 | Phase 2 | 47-62 |
+| 1 | Trigger Phrase Expansion | Add article-variant triggers to skill descriptions | SC-1, SC-2, SC-3, SC-4 | None | 1–10 |
+| 2 | Dispatch Table Fixes | Expand Tasks table, Invocation, Trigger Dispatch Table | SC-5, SC-6, SC-7 | None | 11–18 |
+| 3 | write.md Structural Renumbering | Fix labels, ordering, content templates, Plan Format Requirements | SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14 | Phase 2 | 19–30 |
+| 4 | Execution Model Contradiction | Remove "no task()" language, update sub-agent dispatch model | SC-15, SC-16, SC-17 | None | 31–40 |
+| 5 | Missing Pipeline Steps | Add adversarial-audit, change-control, spec-to-plan dispatch paths | SC-18, SC-19, SC-20, SC-21 | Phase 2 | 41–52 |
 
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+> **Compliance requirement:** This plan is a routing document. Every dispatch step MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> from <skill>")` form. Plan steps MUST NOT contain inline procedure text. The full implementation pipeline MUST be enumerated with no skipped or combined steps.
 
-> **Self-remediation protocol:** If a step fails, the agent MUST attempt remediation before escalating. Diagnose the root cause, fix it, and re-verify. Only after 2+ remediation attempts may the agent HALT with a blocker report. Do not skip, reclassify, or soft-pass failures.
+> **Self-remediation protocol:** When a step fails, the orchestrator MUST NOT inline-fix. The orchestrator MUST re-task a clean-room sub-agent with the same scoped context. If re-task also fails, report double-failure and HALT.
 
 ## Exit Criteria
 
-- [ ] C1. All 5 phases complete with verified PASS for their SCs
-- [ ] C2. Behavioral tests pass for trigger phrase dispatch (SC-3, SC-4)
-- [ ] C3. Behavioral test passes for writing-plans sub-agent dispatch (SC-17)
-- [ ] C4. Behavioral test passes for local-issues sync discipline (SC-14)
-- [ ] C5. All string/structural SCs verified via grep or file check
-- [ ] C6. No regressions in existing skill functionality
+- [ ] C1: spec-creation SKILL.md description includes all article-variant triggers (SC-1)
+- [ ] C2: writing-plans SKILL.md description includes all article-variant triggers (SC-2)
+- [ ] C3: Behavioral test passes for spec-creation article-variant dispatch (SC-3)
+- [ ] C4: Behavioral test passes for writing-plans article-variant dispatch (SC-4)
+- [ ] C5: spec-creation Tasks table lists all 8 task files (SC-5)
+- [ ] C6: Invocation section references `execute write task from spec-creation` (SC-6)
+- [ ] C7: Trigger Dispatch Table has rows for all 7 sub-tasks (SC-7)
+- [ ] C8: No duplicate Step 1a/1b labels in write.md (SC-8)
+- [ ] C9: Step 7r appears before Step 7 in write.md (SC-9)
+- [ ] C10: No Pre-Step / Step 0.x naming in write.md (SC-10)
+- [ ] C11: Content templates are sub-bullets under Assemble Spec (SC-11)
+- [ ] C12: Plan Format Requirements mandates skill/task routing form (SC-12)
+- [ ] C13: Plan Format Requirements mandates full pipeline enumeration (SC-13)
+- [ ] C14: Behavioral test passes for local-issues sync discipline (SC-14)
+- [ ] C15: No "no task()" language in writing-plans SKILL.md (SC-15)
+- [ ] C16: writing-plans Mandatory Task Discipline states sub-agent dispatch (SC-16)
+- [ ] C17: Behavioral test passes for writing-plans sub-agent dispatch (SC-17)
+- [ ] C18: spec-creation Operating Protocol includes adversarial-audit step (SC-18)
+- [ ] C19: write.md Step 40 references adversarial-audit skill (SC-19)
+- [ ] C20: spec-creation Trigger Dispatch Table includes change-control row (SC-20)
+- [ ] C21: writing-plans Trigger Dispatch Table includes spec-to-plan row (SC-21)
