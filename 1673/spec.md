@@ -4,7 +4,7 @@
 
 ## Problem
 
-The spec-creation and writing-plans skills have structural defects that prevent them from being invoked correctly. Two distinct failure modes:
+The spec-creation and writing-plans skills have structural defects that prevent them from being invoked correctly. Three distinct failure modes:
 
 **Problem 1 — Dispatch bypass:** Phrases like "create a spec" or "brainstorm for a spec" don't trigger the spec-creation skill. The agent inlines the work instead — creating the issue directly via `github_issue_write` without going through the skill's pipeline (no requirements extraction, no decomposition, no traceability, no risk analysis, no write task).
 
@@ -12,7 +12,18 @@ The spec-creation and writing-plans skills have structural defects that prevent 
 
 **Problem 3 — Plan output lacks skill/task routing:** The plan writer produces steps with inline procedure text instead of referencing the canonical `skill({name: "..."})` → `task(..., prompt: "...")` form. Plans must be routing documents that dispatch to implementation skill task cards, not re-implementations of those procedures. The full implementation pipeline (coherence gate, pre-red-baseline, RED/GREEN per item, VbC, adversarial audit, cross-validate, regression check, finishing checklist, review-prep, cleanup) must be enumerated with no skipped or combined steps, each referencing the correct skill/task combination.
 
-Root cause analysis identified 6 defect categories across both skills.
+**Problem 4 — Pipeline enforcement gaps (discovered during plan creation for this spec):** The writing-plans pipeline has no structural enforcement for mandatory steps. During plan creation for this spec, the following defects occurred:
+- All 7 Z3 checks were skipped with the false rationalization "no contract files found" — contract files exist at `.opencode/skills/writing-plans/contracts/` (22 YAML files)
+- Step 11 (clean-room plan generation) was skipped entirely until the downstream audit-fidelity gate caught the omission
+- The orchestrator self-certified the readiness gate by creating `sc-pipeline-readiness.yaml` inline instead of dispatching to the pipeline-readiness-gate task
+- The write sub-agent returned DONE without writing files to disk (empty result), requiring a re-task
+- `todowrite` lifecycle was not used during pipeline execution
+- `pipeline_phase` was not tracked through the pipeline
+- No feature branch was created for plan artifacts
+- Plan files were not committed to git
+- `local-issues sync` was run only once at the end, not before `.issues/` writes
+
+Root cause analysis identified 6 defect categories across both skills, plus 9 pipeline enforcement gaps.
 
 ## Scope
 
@@ -22,6 +33,7 @@ Root cause analysis identified 6 defect categories across both skills.
 - write.md Plan Format Requirements: mandate skill/task routing in plan steps, full implementation pipeline enumeration
 - writing-plans SKILL.md execution model contradiction (SKILL.md says "no task()" but create.md dispatches sub-agents)
 - Missing pipeline steps (adversarial-audit dispatch, orphan task files)
+- Pipeline enforcement gates: mandatory Z3 contract verification, clean-room plan generation enforcement, readiness gate independence, sub-agent output verification, todowrite lifecycle, pipeline_phase tracking, feature branch for plan artifacts, plan file commit discipline, local-issues sync discipline
 - Behavioral enforcement tests for all changes
 
 **Out of scope:**
@@ -29,6 +41,8 @@ Root cause analysis identified 6 defect categories across both skills.
 - `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1208 — separate concern
 - `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #202 — separate concern
 - `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #211 — separate concern
+- Z3 contract schema redesign (#1222) — separate concern, this spec only adds mandatory invocation of existing contracts
+- Routing-only SKILL.md restructuring (#1407) — separate concern, this spec only adds enforcement within existing structure
 
 ## Approach
 
@@ -94,6 +108,32 @@ Five phases. Phases 1-2 are independent; Phases 3-5 depend on 2.
 - Add dispatch path for `change-control.md` in spec-creation SKILL.md Trigger Dispatch Table and Operating Protocol
 - Add dispatch path for `handoffs/spec-to-plan.md` in writing-plans SKILL.md Trigger Dispatch Table
 
+### Phase 6: Pipeline Enforcement Gates
+
+**Affected files:**
+- `.opencode/skills/writing-plans/tasks/create.md` — Operating Protocol (add Z3 contract paths, add clean-room plan enforcement, add sub-agent output verification)
+- `.opencode/skills/writing-plans/SKILL.md` — Mandatory Task Discipline (add pipeline enforcement rules)
+- `.opencode/skills/writing-plans/contracts/` — 22 existing YAML contract files (no changes needed, but must be referenced correctly)
+
+**Changes:**
+
+- **C7: Mandatory Z3 contract verification** — Every Z3 check step in create.md MUST include the exact `solve check` command with the correct contract path. The current steps say "Z3 check — `solve check` verify ... per `contracts/create-output-template.yaml:research`" but the contract files exist at `.opencode/skills/writing-plans/contracts/`. Fix all 7 Z3 check steps to reference the correct absolute or relative path to the contract files. Add a behavioral test that verifies the agent runs `solve check` (not skips it) during pipeline execution.
+
+- **C8: Clean-room plan generation enforcement** — Step 11 (clean-room plan generation) MUST be a mandatory gate that cannot be skipped. The orchestrator MUST NOT proceed past Step 10 without dispatching Step 11. Add a structural check: if Step 11 is skipped, the pipeline MUST halt. The clean-room sub-agent MUST receive ONLY the spec body — no existing plan context, no orchestrator reasoning.
+
+- **C9: Readiness gate independence** — The readiness gate (Step 4) MUST read `sc-pipeline-readiness.yaml` that was created by an independent sub-agent (pipeline-readiness-gate task), NOT by the orchestrator. Add a check: if the file was created by the orchestrator (same session, no sub-agent dispatch), the gate MUST return BLOCKED. The orchestrator MUST NOT self-certify any gate.
+
+- **C10: Sub-agent output verification** — Every sub-agent that claims to have written files MUST have those files verified on disk before the orchestrator accepts the result. Add a post-dispatch check: after every sub-agent returns DONE with a file path, run `ls` or `file-exists` to confirm the file exists. If the file does not exist, re-task clean-room (do not accept the empty result).
+
+- **C11: Pipeline execution discipline** — Add to writing-plans Mandatory Task Discipline:
+  - `todowrite` lifecycle MUST be maintained throughout pipeline execution (CREATE with status, UPDATE on transition, CLEAR before HALT)
+  - `pipeline_phase` MUST be tracked and updated after each step
+  - A feature branch MUST be created before any plan artifacts are written
+  - Plan artifacts MUST be committed to the feature branch after creation
+  - `local-issues sync` MUST be run before any `.issues/` writes and after each write
+
+- **C12: Sequential step ordering enforcement** — Add to create.md Operating Protocol that every step with a chain dependency MUST execute sequentially. No parallel dispatch of chain-dependent steps. Each step's output is the next step's input. The "sub-agent dispatch implies independence" rationalization is explicitly prohibited. (This complements #1688 which adds the prohibition to SKILL.md.)
+
 ## local-issues sync Discipline
 
 The `.issues/` directory is gitignored in the main branch (`.gitignore:/.issues/`) so that `git -C */..issues/` worktree operations function correctly. Persistence is handled by the `issues-data` branch via `local-issues sync`.
@@ -130,6 +170,14 @@ The `.issues/` directory is gitignored in the main branch (`.gitignore:/.issues/
 | SC-19 | 5 | write.md Step 40 references `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit")` instead of `spec-auditor` | `string` | `grep -q "execute spec-audit task from adversarial-audit" .opencode/skills/spec-creation/tasks/write.md` |
 | SC-20 | 5 | spec-creation SKILL.md Trigger Dispatch Table includes a row for `change-control` task with canonical dispatch string | `string` | `grep -q "change-control" .opencode/skills/spec-creation/SKILL.md` |
 | SC-21 | 5 | writing-plans SKILL.md Trigger Dispatch Table includes a row for `handoffs/spec-to-plan` task with canonical dispatch string | `string` | `grep -q "spec-to-plan" .opencode/skills/writing-plans/SKILL.md` |
+| SC-22 | 6 | All 7 Z3 check steps in create.md reference correct contract file paths (`.opencode/skills/writing-plans/contracts/`) | `string` | `grep -c "contracts/" .opencode/skills/writing-plans/tasks/create.md` >= 7 |
+| SC-23 | 6 | Behavioral test: agent runs `solve check` during pipeline execution (does not skip Z3 steps) | `behavioral` | `opencode-cli run` with plan creation prompt → stderr shows `solve check` calls |
+| SC-24 | 6 | Step 11 (clean-room plan generation) is a mandatory gate — pipeline halts if skipped | `string` | `grep -q "MUST" .opencode/skills/writing-plans/tasks/create.md` in Step 11 section |
+| SC-25 | 6 | Readiness gate (Step 4) requires `sc-pipeline-readiness.yaml` created by independent sub-agent, not orchestrator | `string` | `grep -q "independent" .opencode/skills/writing-plans/tasks/create.md` in readiness section |
+| SC-26 | 6 | Post-dispatch file verification: sub-agent file claims are verified on disk before acceptance | `string` | `grep -q "file-exists\|ls" .opencode/skills/writing-plans/tasks/create.md` in post-dispatch section |
+| SC-27 | 6 | writing-plans Mandatory Task Discipline includes todowrite lifecycle, pipeline_phase tracking, feature branch, commit discipline, local-issues sync | `string` | `grep -q "todowrite" .opencode/skills/writing-plans/SKILL.md` in Mandatory Task Discipline |
+| SC-28 | 6 | create.md Operating Protocol states sequential step ordering — no parallel dispatch of chain-dependent steps | `string` | `grep -q "sequential" .opencode/skills/writing-plans/tasks/create.md` |
+| SC-29 | 6 | Behavioral test: agent does NOT skip Z3 checks when contract files exist | `behavioral` | `opencode-cli run` with plan creation prompt → stderr shows `solve check` for each Z3 step, not skipped |
 
 ## Dependencies
 
@@ -138,12 +186,16 @@ The `.issues/` directory is gitignored in the main branch (`.gitignore:/.issues/
 - Phase 3: Depends on Phase 2 (same file — write.md)
 - Phase 4: None (independent — different skill)
 - Phase 5: Depends on Phase 2 (same file — spec-creation SKILL.md)
+- Phase 6: Depends on Phase 4 (same file — writing-plans SKILL.md and create.md)
 
 ## Edge Cases
 
 - **Existing specs/plans are not affected** — trigger phrase changes only affect future invocations
 - `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1407 modifies the same files — coordinate merge order. This spec's Phase 2 (dispatch table expansion) is compatible with #1407's routing-only template. Implement this spec first, then #1407 will restructure the same content
 - `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1208 also modifies dispatch tables — this spec's Phase 2 is a subset of #1208 Workstream B. If #1208 is implemented first, Phase 2 may be partially redundant
+- **Phase 6 overlaps with #1222 (Z3 contract schema)** — #1222 redesigns the contract schema and Z3 gate architecture. Phase 6 only adds mandatory invocation of existing contracts, not schema redesign. If #1222 is implemented first, Phase 6's Z3 steps may need to be updated to match the new schema. If Phase 6 is implemented first, #1222 will replace the contract paths.
+- **Phase 6 overlaps with #1688 (parallel execution prohibition)** — #1688 adds the prohibition to SKILL.md Mandatory Task Discipline. Phase 6 C12 adds the same prohibition to create.md Operating Protocol. These are complementary — implement #1688 first (SKILL.md), then Phase 6 C12 (create.md).
+- **Phase 6 overlaps with #1407 (routing-only SKILL.md)** — #1407 restructures SKILL.md files to remove procedure text. Phase 6 adds enforcement rules to SKILL.md Mandatory Task Discipline. If #1407 is implemented first, Phase 6's SKILL.md changes must be in the routing-only format. If Phase 6 is implemented first, #1407 will migrate the enforcement rules to the new format.
 
 ## Documentation Sources
 
