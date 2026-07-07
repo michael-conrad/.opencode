@@ -42,7 +42,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` | {issue_number} |
 | "spec summary" / "PR summary" | `spec-summary` | `sub-task` | {issue_number} |
 | "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` | {pr_number} |
-| "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {auditor_1_verdict, auditor_2_verdict} |
+| "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {spec_local_dir, artifact_evidence_dir} |
 | "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
 | "content audit" / "audit content claims" | `content-audit` | `sub-task` | {document_section, source_data_paths} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
@@ -61,7 +61,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `drift-detection` | Detect documentation-code drift |
 | `spec-summary` | Summarize spec for PR body |
 | `closure-verification` | Verify issue closure criteria |
-| `cross-validate` | Compute dual-auditor consensus from YAML artifacts |
+| `cross-validate` | Path Provider (Judger) — reads upstream artifacts, produces final judgment |
 | `test-quality-audit` | Audit test coverage and quality against spec SCs |
 | `content-audit` | Audit of factual claims in generated content — verification of quantitative claims, file references, and assertions against local source data |
 | `completion` | Complete audit workflow with output |
@@ -94,3 +94,15 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
+
+## DiMo Role Chain Dispatch
+
+Each audit task follows a sequential role chain dispatched via `task(subagent_type="general")`. The orchestrator dispatches roles in order, passing artifact paths between them:
+
+1. **Generator** — writes `evidence.yaml` with raw evidence and initial findings
+2. **Knowledge Supporter** — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
+3. **Evaluator** — reads `evidence.yaml` + `reasoning.yaml`, writes `verdict.yaml` with per-criterion PASS/FAIL
+4. **Path Provider (Judger)** — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`
+
+Artifact directory: `./tmp/{issue-N}/artifacts/{task-name}/`
+

@@ -2,13 +2,22 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: coherence-maintenance
 
 ## Purpose
 
 Detect drift between baseline coherence state and current guidelines/skills. Identifies rules added, removed, or modified since baseline generation.
+
+> **DiMo Role: Evaluator.** This task evaluates drift between baseline and current state. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
+>
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
+> 
+> 
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-evaluate evidence that Knowledge Supporter already validated
+> - MUST write `verdict.yaml` as the primary output artifact
+> 
 
 ## Dispatch Contract
 
@@ -27,13 +36,12 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 - FAIL if uncontrolled drift detected
 - Migration candidates identified
 
-> **DiMo Role: Evaluator.** This task evaluates drift between baseline and current state. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Coherence Maintenance Checklist
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/coherence-maintenance/`
+- [ ] 0a. Knowledge Supporter — read `evidence.yaml` from `./tmp/{issue-N}/artifacts/coherence-maintenance/evidence.yaml`, validate each evidence item against source data, write `reasoning.yaml`
 - [ ] 1. Load Baseline — find latest baseline JSON, parse rules and behaviors
 - [ ] 2. Extract Current State — re-extract guideline rules and skill behaviors
 - [ ] 3. Compare Against Baseline — rules_added/removed/modified, behaviors drift
@@ -41,9 +49,7 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 - [ ] 5. Identify Migration Candidates — procedural workflows suitable for extraction
 - [ ] 6. Build Evaluation Criteria — define CM table with evidence types
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
-- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-- [ ] 10. Build Result Contract — YAML verdict with drift analysis
+- [ ] 8. Build Result Contract — YAML verdict with drift analysis
 
 ### Step 1: Load Baseline
 
@@ -141,12 +147,7 @@ for skill_behavior in current_state["skills"]["behaviors"]:
 
 Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
 
-### Step 8: Dispatch Judger
-
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Build Result Contract
+### Step 8: Build Result Contract
 
 ```yaml
 {
@@ -166,14 +167,20 @@ Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
   },
   "migration_candidates": [...],
   "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "exec_summary": "Coherence check: {controlled_count} controlled, {uncontrolled_count} uncontrolled drift. Consensus: {overall}."
+  "overall_verdict": "PASS | FAIL",
+  "exec_summary": "Coherence check: {controlled_count} controlled, {uncontrolled_count} uncontrolled drift. Verdict: {overall}."
 }
 ```
 
-## Remediation
+## Result Contract
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+```yaml
+status: DONE | FAIL
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-coherence-maintenance-PASS-{timestamp}.yaml"
+summary: "Coherence check: {controlled_count} controlled, {uncontrolled_count} uncontrolled drift. Verdict: {overall}."
+all_criteria_pass: false
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
+```
 
 ## Error Handling
 
@@ -194,14 +201,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 6 (Build Evaluation Criteria) → INVALID if skipped
 - Step 7 (Cross-Validate) → INVALID if skipped
 - Step 8 (Build Result Contract) → INVALID if skipped
-
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After coherence-maintenance completes:
-- If consensus PASS: proceed to guideline-audit or coherence_gate completion
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 

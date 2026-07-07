@@ -1,10 +1,19 @@
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: coherence-extraction
 
 ## Purpose
 
 Generate baseline coherence state from guidelines and skills. Captures current rule-behavior alignment for later drift detection during `coherence-maintenance` runs.
+
+> **DiMo Role: Generator.** This task generates baseline coherence data. Writes `evidence.yaml` with extracted rules and behaviors.
+>
+> You are the Generator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You just collect.
+> 
+> 
+> - MUST extract all evidence without filtering by perceived relevance
+> - MUST NOT produce any PASS/FAIL judgment
+> - MUST NOT evaluate whether evidence is "correct" — record what exists
+> - MUST write `evidence.yaml` as the only output artifact
+> 
 
 ## Dispatch Contract
 
@@ -25,8 +34,6 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 - Cross-references validated
 - Z3 solve check PASS — SC evidence type constraints structurally consistent
 - No evidence type mismatches — all SC prose-to-declared-type classifications verified
-
-> **DiMo Role: Knowledge Supporter.** This task generates baseline coherence data. Writes `evidence.yaml` with extracted rules and behaviors.
 
 ## Procedure
 
@@ -246,9 +253,14 @@ Write extracted data to `./tmp/{issue-N}/artifacts/coherence-extraction/evidence
 }
 ```
 
-## Remediation
+## Result Contract
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+```yaml
+status: DONE | FAIL
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-coherence-extraction-PASS-{timestamp}.yaml"
+summary: "Baseline generated: {K} rules, {coverage} coverage, {orphan_rules} orphan rules."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
+```
 
 ## Error Handling
 
@@ -263,7 +275,6 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 
 ## Cross-References
 
-- `resolve-models` task — auditor model resolution (audit --task resolve-models)
 - `tasks/coherence-maintenance.md` — drift detection
 - `tasks/coherence-extraction.md` — this file (self-reference for pipeline dispatch)
 - `000-critical-rules.md` — baseline requirement

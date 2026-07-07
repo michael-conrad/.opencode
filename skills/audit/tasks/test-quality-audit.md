@@ -10,6 +10,17 @@ provenance: AI-generated
 
 Structural test quality audit — reader-only checks on test files. Evaluates test quality through five criteria without executing tests.
 
+> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
+>
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
+> 
+> 
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-evaluate evidence that Knowledge Supporter already validated
+> - MUST write `verdict.yaml` as the primary output artifact
+> 
+
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files
@@ -40,15 +51,19 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 - Verdict produced in standard YAML block format per criterion
 - Remediation recommended as FIX_TEST, FIX_CODE, or SPEC_GAP
 
-> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/test-quality-audit/`
 
-### Step 0a: Pre-Flight Validation Gate
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
+
+### Step 0b: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -178,19 +193,12 @@ recommendation: "<prose>"
 
 Write verdict to `./tmp/{issue-N}/artifacts/test-quality-audit/verdict.yaml`
 
-### Step 4a: Dispatch Judger
-
-- [ ] 4a. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 4b. If FAIL: remediate, restart from step 0
-
-### Step 4c: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 4b: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-test-quality-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: test_quality
 auditor_type: test-quality-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -207,9 +215,10 @@ exec_summary: "Test quality audit: X/Y criteria passed."
 ### Step 5: Return Frugal Result Contract
 
 ```yaml
-status: DONE
+status: DONE | FAIL
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-test-quality-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ## Completion Dependency Chain
@@ -224,7 +233,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 
@@ -236,7 +244,6 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 
 ## Cross-References
 
-- `resolve-models` task — auditor model resolution (audit --task resolve-models)
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `spec-creation/tasks/create.md` — Step 4: Determinism Gate
 - `spec-creation/tasks/create.md` — SC verification methods
