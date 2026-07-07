@@ -12,10 +12,14 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - Spec issue number provided
-- `audit_phase: sub_issue_creation` OR `plan_creation`
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -25,19 +29,23 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 - Deployment independence assessed
 - PASS/FAIL consensus achieved
 
+> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
 ## Concern Separation Checklist
 
-- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
-- [ ] 1. Load Spec — glob spec_local_dir for .md files, read all, extract phases
-- [ ] 2. Build Evaluation Criteria — define CS table with evidence types
-- [ ] 3. Analyze Phase Structure — per-phase concern/risk/independence/blast radius
-- [ ] 4. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/concern-separation/`
+- [ ] 1. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 2. Load Spec — glob spec_local_dir for .md files, read all, extract phases
+- [ ] 3. Build Evaluation Criteria — define CS table with evidence types
+- [ ] 4. Analyze Phase Structure — per-phase concern/risk/independence/blast radius
 - [ ] 5. Classify Findings — map to finding types
 - [ ] 6. Verify Boundary Claims — live tool-call verification per claim
-- [ ] 7. Write Verdict Artifact to Disk — YAML output
-- [ ] 8. Return Frugal Result Contract
+- [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
+- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
+- [ ] 9. If FAIL: remediate, restart from step 0
+- [ ] 10. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -147,10 +155,6 @@ scope_creep:
     findings: ["<description of each gap>"]
 ```
 
-### Step 4: Cross-Validate
-
-Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
-
 ### Step 5: Classify Findings
 
 | Finding Type | Problem Class | Classification |
@@ -176,7 +180,16 @@ Each boundary claim must be verified:
 - [ ] 2. If dependents span multiple phases, flag as `BLAST_RADIUS_GAP` with `cross_phase_impact`
 - [ ] 3. If dependents exist outside the spec's scope, flag as `BLAST_RADIUS_GAP` with `unexpected_downstream_impact`
 
-### Step 7: Write Verdict Artifact to Disk
+### Step 7: Write verdict.yaml
+
+Write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
+
+### Step 8: Dispatch Judger
+
+- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 9. If FAIL: remediate, restart from step 0
+
+### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
 
@@ -211,7 +224,11 @@ all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
-### Step 8: Return Frugal Result Contract
+### Step 11: Return Frugal Result Contract
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
 status: DONE

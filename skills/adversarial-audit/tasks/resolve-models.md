@@ -4,6 +4,21 @@
 
 # Task: resolve-models
 
+> **DiMo Role: Path Provider.** This task resolves which models are available for the audit pipeline. It provides the path (model selection) for downstream roles.
+
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files (unused by this task, passed through for pipeline consistency)
+- `artifact_evidence_dir`: Directory for evidence artifacts (unused by this task, passed through for pipeline consistency)
+
+## Procedure
+
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/resolve-models/`
+
+### Step 1: Resolve Models
+
 Invoke `.opencode/tools/resolve-models` to select two auditors from different model families.
 
 Flags: `--orchestrator-model <model>` (required), `--re-task` (fresh randomization), `--excluded-pair <fam1>,<fam2>` (exclude specific families), `--test-insufficient-families` (force error for testing).

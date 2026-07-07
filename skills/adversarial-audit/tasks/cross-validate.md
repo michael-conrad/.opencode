@@ -10,6 +10,11 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - `spec_local_dir`: Local directory containing Markdown spec files
@@ -105,9 +110,15 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 
 These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: resolve-models → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
 
+> **DiMo Role: Judger.** This task produces the final judgment by cross-referencing all auditor verdicts. Reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`.
+
 ## Procedure
 
-### Step 0: Pre-Flight Validation Gate
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/cross-validate/`
+
+### Step 0a: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with cross-validation:
 
@@ -154,7 +165,7 @@ Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-age
 - If `artifact_evidence_dir` is missing or null: return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }`.
 - If `artifact_evidence_dir` has fewer than 2 YAML files: return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }`.
 - If artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
-- If both files share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
+- If both files share the same `family`: return `{ status: "BLOCKED", error: "SAME_FAMILY" }`.
 
 ### Step 4: Read and Parse Auditor Verdicts from Disk
 
@@ -388,6 +399,14 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 
 Create `{project_root}/tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
 
+### Step 8: Write judgment.yaml
+
+Write final judgment to `./tmp/{issue-N}/artifacts/cross-validate/judgment.yaml`
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+
 ### Step 7: Return Frugal YAML Result Contract
 
 Return ONLY this YAML as the final response — no preamble, no commentary, no markdown fences:
@@ -467,7 +486,7 @@ rules:
     title: "Cross-family verification — auditor families in verdicts must differ"
     conditions:
       all: ["family_1 == family_2"]
-    actions: [RETURN_BLOCKED, REPORT_INSUFFICIENT_FAMILIES]
+    actions: [RETURN_BLOCKED, REPORT_SAME_FAMILY]
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-004

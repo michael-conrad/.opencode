@@ -12,10 +12,14 @@
 
 Verify merge evidence after PR merge. Ensures spec issue properly closed, success criteria verified, and all follow-up actions documented.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - PR merged (status: `merged`)
-- `audit_phase: post_merge`
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -25,9 +29,15 @@ Verify merge evidence after PR merge. Ensures spec issue properly closed, succes
 - Follow-up issues created if needed
 - PASS if verified, FAIL if evidence missing
 
+> **DiMo Role: Evaluator.** This task evaluates closure evidence against criteria. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
-### Step 0: Pre-Flight Validation Gate
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/closure-verification/`
+
+### Step 0a: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -146,9 +156,9 @@ for criterion in success_criteria:
         })
 ```
 
-### Step 8: Cross-Validate
+### Step 8: Write Verdict Artifact
 
-Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
+Write verdict to `./tmp/{issue-N}/artifacts/closure-verification/verdict.yaml`
 
 ### Step 9: Check for Open Blockers
 
@@ -194,7 +204,12 @@ if follow_up_issues:
 | OPEN_BLOCKERS | HIGH | Blocking issues remain |
 | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-### Step 12: Write Verdict Artifact to Disk
+### Step 10: Dispatch Judger
+
+- [ ] 10. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 11. If FAIL: remediate, restart from step 0
+
+### Step 12: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
 
@@ -228,6 +243,10 @@ all_criteria_pass: false
 ```
 
 ### Step 13: Return Frugal Result Contract
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
 status: DONE

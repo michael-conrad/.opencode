@@ -83,19 +83,17 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
-| `adversarial-audit` | **Orchestrator multi-dispatch:** resolve-models → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with auditor_1 (remediate + restart on non-clean-pass) → same audit task with auditor_2 (remediate + restart on non-clean-pass) | dual-auditor YAML verdicts per auditor |
+| `adversarial-audit` | **Orchestrator multi-dispatch:** dimo-dispatch → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with DiMo role chain (Knowledge Supporter → Path Provider → Evaluator → Judger) | DiMo role-chain YAML verdict |
 | `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary |
 
-**Note:** The `adversarial-audit` step is a multi-dispatch sequence with remediation loop-back. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
-- [ ] 1. Run `.opencode/tools/resolve-models` to select cross-family auditors
-- [ ] 2. Dispatch the appropriate audit task with `subagent_type` from `auditor_1`
-- [ ] 3. If auditor 1 returned non-clean-pass (FAIL): remediate the root cause, then restart from step 1 (re-run resolve-models). Do NOT dispatch auditor 2. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Dispatch Routing Table.
-- [ ] 4. Dispatch the same audit task with `subagent_type` from `auditor_2`
-- [ ] 5. If auditor 2 returned non-clean-pass: remediate the root cause, then restart from step 1 (re-run resolve-models).
-- [ ] 6. Both auditors clean PASS. Collect both `artifact_path` values and pass as `auditor_artifact_paths` context to `cross-validate`.
+**Note:** The `adversarial-audit` step uses DiMo role-differentiated chaining. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
+- [ ] 1. Dispatch `dimo-dispatch` from adversarial-audit skill with {spec_local_dir, artifact_evidence_dir}
+- [ ] 2. The dimo-dispatch sub-agent executes the sequential role chain: Knowledge Supporter → Path Provider → Evaluator → Judger
+- [ ] 3. If the DiMo chain returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Dispatch Routing Table.
+- [ ] 4. On clean PASS: collect the `artifact_path` from the DiMo verdict and pass as `auditor_artifact_paths` context to `cross-validate`.
 
 ## Pre-Flight
 
@@ -108,7 +106,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `dimo-dispatch`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -127,12 +125,9 @@ All steps in the Trigger Dispatch Table with `sub-task` dispatch are called via:
 `task(..., prompt: "execute <step_label> from implementation-pipeline. Read \`implementation-pipeline/tasks/<step_label>.md\` first")`
 
 **Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
-1. `resolve-models` (inline) — run `.opencode/tools/resolve-models`
-2. `auditor-1 dispatch` (sub-agent) — dispatch audit task with auditor_1
-3. `auditor-1 remediate` (inline) — if non-clean-pass, remediate and restart
-4. `auditor-2 dispatch` (sub-agent) — dispatch audit task with auditor_2
-5. `auditor-2 remediate` (inline) — if non-clean-pass, remediate and restart
-6. `cross-validate` (clean-room) — produce cross-validate findings
+1. `dimo-dispatch` (sub-agent) — dispatch DiMo role chain: Knowledge Supporter → Path Provider → Evaluator → Judger
+2. `remediate` (inline) — if non-clean-pass, remediate and restart from step 1
+3. `cross-validate` (clean-room) — produce cross-validate findings
 
 Every task context MUST include the authorization context block:
 
@@ -148,9 +143,9 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 **Orchestrator entry point:** The orchestrator reads the plan, creates branches, and dispatches sub-agents per the Trigger Dispatch Table. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include `audit_phase` in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use the DiMo role chain dispatched via `dimo-dispatch` — NOT `general`. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
-**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (resolve-models inline, auditor-1 sub-agent, auditor-1 remediate inline, auditor-2 sub-agent, auditor-2 remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
+**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dimo-dispatch sub-agent, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
 
 Exclusions: implementation context, agent memory, cached verification results.
 

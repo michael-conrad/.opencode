@@ -10,10 +10,14 @@
 
 Detect drift between baseline coherence state and current guidelines/skills. Identifies rules added, removed, or modified since baseline generation.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - Baseline file exists at `{project_root}/tmp/{issue-N}/artifacts/baseline-*.json`
-- `audit_phase: coherence_gate`
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -23,18 +27,23 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 - FAIL if uncontrolled drift detected
 - Migration candidates identified
 
+> **DiMo Role: Evaluator.** This task evaluates drift between baseline and current state. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
 ## Coherence Maintenance Checklist
 
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/coherence-maintenance/`
 - [ ] 1. Load Baseline — find latest baseline JSON, parse rules and behaviors
 - [ ] 2. Extract Current State — re-extract guideline rules and skill behaviors
 - [ ] 3. Compare Against Baseline — rules_added/removed/modified, behaviors drift
 - [ ] 4. Classify Drift — controlled vs uncontrolled per severity
 - [ ] 5. Identify Migration Candidates — procedural workflows suitable for extraction
 - [ ] 6. Build Evaluation Criteria — define CM table with evidence types
-- [ ] 7. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
-- [ ] 8. Build Result Contract — YAML verdict with drift analysis
+- [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
+- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
+- [ ] 9. If FAIL: remediate, restart from step 0
+- [ ] 10. Build Result Contract — YAML verdict with drift analysis
 
 ### Step 1: Load Baseline
 
@@ -128,11 +137,16 @@ for skill_behavior in current_state["skills"]["behaviors"]:
 | CM-4 | Cross-refs consistent | Guideline ↔ skill mapping valid |
 | CM-5 | Migration candidates identified | Procedural workflows flagged |
 
-### Step 7: Cross-Validate
+### Step 7: Write verdict.yaml
 
-Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
+Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
 
-### Step 8: Build Result Contract
+### Step 8: Dispatch Judger
+
+- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 9. If FAIL: remediate, restart from step 0
+
+### Step 10: Build Result Contract
 
 ```yaml
 {
@@ -156,6 +170,10 @@ Cross-validate will be called by the orchestrator with pre-resolved auditor_arti
   "exec_summary": "Coherence check: {controlled_count} controlled, {uncontrolled_count} uncontrolled drift. Consensus: {overall}."
 }
 ```
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 

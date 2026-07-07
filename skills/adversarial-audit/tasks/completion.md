@@ -4,7 +4,20 @@
 
 # Task: completion
 
+> **DiMo Role: Judger.** This task produces the final judgment on audit workflow completion. Reads all artifacts, writes `judgment.yaml`.
+
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran regardless of where the workflow halted.
+
+## Procedure
+
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/completion/`
 
 ## State Check Phase
 
@@ -70,6 +83,14 @@ Reference `skills/completion-core/completion-core.md` for reporting:
 - [ ] 3. Why the halt occurred
 
 This is the completion guarantee: NO adversarial-audit workflow ends without a status message.
+
+### Write judgment.yaml
+
+Write final judgment to `./tmp/{issue-N}/artifacts/completion/judgment.yaml`
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Report Phase
 

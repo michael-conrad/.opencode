@@ -10,6 +10,11 @@ provenance: AI-generated
 
 Structural test quality audit — reader-only checks on test files. Evaluates test quality through five criteria without executing tests.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - VbC evidence artifact completed
@@ -35,9 +40,15 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 - Verdict produced in standard YAML block format per criterion
 - Remediation recommended as FIX_TEST, FIX_CODE, or SPEC_GAP
 
+> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
-### Step 0: Pre-Flight Validation Gate
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/test-quality-audit/`
+
+### Step 0a: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -163,7 +174,16 @@ remediation: FIX_TEST|SPEC_GAP
 recommendation: "<prose>"
 ```
 
-### Step 4: Write Verdict Artifact to Disk
+### Step 4: Write verdict.yaml
+
+Write verdict to `./tmp/{issue-N}/artifacts/test-quality-audit/verdict.yaml`
+
+### Step 4a: Dispatch Judger
+
+- [ ] 4a. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 4b. If FAIL: remediate, restart from step 0
+
+### Step 4c: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-test-quality-{STATUS}-{timestamp}.yaml`:
 
@@ -201,6 +221,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 3 (Produce Verdict) → INVALID if skipped
 - Step 4 (Write Verdict Artifact to Disk) → INVALID if skipped
 - Step 5 (Return Frugal Result Contract) → INVALID if skipped
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 

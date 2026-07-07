@@ -6,6 +6,11 @@
 
 Generate baseline coherence state from guidelines and skills. Captures current rule-behavior alignment for later drift detection during `coherence-maintenance` runs.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - Baseline not yet generated OR refresh requested
@@ -21,7 +26,13 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 - Z3 solve check PASS — SC evidence type constraints structurally consistent
 - No evidence type mismatches — all SC prose-to-declared-type classifications verified
 
+> **DiMo Role: Knowledge Supporter.** This task generates baseline coherence data. Writes `evidence.yaml` with extracted rules and behaviors.
+
 ## Procedure
+
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/coherence-extraction/`
 
 ### Step 1: Initialize Baseline Structure
 
@@ -213,7 +224,11 @@ baseline_path = f"{project_root}/tmp/{issue-N}/artifacts/baseline-coherence-{dat
 write(baseline_path, json.dumps(baseline, indent=2))
 ```
 
-### Step 7: Build Result Contract
+### Step 7: Write evidence.yaml
+
+Write extracted data to `./tmp/{issue-N}/artifacts/coherence-extraction/evidence.yaml`
+
+### Step 8: Build Result Contract
 
 ```yaml
 {
@@ -230,6 +245,10 @@ write(baseline_path, json.dumps(baseline, indent=2))
   "exec_summary": "Baseline generated: {K} rules, {coverage} coverage, {orphan_rules} orphan rules."
 }
 ```
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 
