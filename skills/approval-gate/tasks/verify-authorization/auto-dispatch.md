@@ -7,9 +7,8 @@ After all verification gates (Steps 1-5) pass, determine the approval context an
 ## Authorization Context
 
 ```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -72,16 +71,16 @@ When `authorization_scope == "for_analysis"`:
    - Issue title format: `[SPEC` prefix = spec approval
    - Labels: presence of `spec` label
    - Plan detection is via local file existence at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` (NOT via GitHub Issue labels or title prefixes)
-2. Determine scope from Step 2.0 result (`authorization_scope`, `halt_at`, `pr_strategy`)
+2. Determine scope from Step 2.0 result (`authorization_scope`, `halt_at`)
 3. Execute gap-fill from Step 5c if scope >= `for_plan`
 5. **If spec approval:** Invoke `writing-plans --task create` with context:
    - `spec_issue=#N` (the approved spec issue number)
-   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`, `pipeline_phase=<phase>`
+   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
 5. **If plan approval:** Invoke `executing-plans --task start` with context:
    - `plan_issue=#N` (the approved plan issue number)
    - `spec_issue=#M` (extracted from plan body — the spec reference)
-   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`, `pipeline_phase=<phase>`
+   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
 6. **Chat output:** Clearly indicate the transition and scope:
    - Spec approval: "Verification passed → Creating implementation plan (scope: <scope>)"
@@ -104,7 +103,7 @@ Numeric format: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`
 - **Multi-task plan with missing sub-issues:** Step 5 sub-issue verification gate fails → HALT, no dispatch
 - **Authorization set dispatch:** Each plan in the work set gets its own dispatch cycle after work state is established
 - **Scope requires gap-fill but artifact exists:** Skip gap-fill for that artifact (check before creating)
-- **`for_pr_only` or `for_review_only` scope with no existing branch/PR:** HALT and report — these scopes assume existing work
+
 
 ## Authorization Cascade by Output Lineage (Step 2.1)
 
@@ -134,7 +133,7 @@ When cascade does NOT apply (conditions not met):
 
 Before routing to the implementation-pipeline per the SKILL.md Trigger Dispatch Table, verify that the orchestrator context is not bloated with non-routing data:
 
-1. **Verify routing-only dispatch:** Confirm the orchestrator holds only routing metadata (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Any cached analysis artifacts, task file contents, or prior sub-agent reasoning traces indicate context bloat.
+1. **Verify routing-only dispatch:** Confirm the orchestrator holds only routing metadata (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase, pipeline_history). Any cached analysis artifacts, task file contents, or prior sub-agent reasoning traces indicate context bloat.
 2. **If context bloat detected:** Do NOT proceed to dispatch. The orchestrator must task a clean sub-agent from the current pipeline phase — do NOT attempt recovery via state cleanup.
 3. **Evidence artifact:** Before dispatch, the halt message must include: "Orchestrator context discipline verified: routing-only data held, no task file content cached, no prior sub-agent reasoning retained."
 

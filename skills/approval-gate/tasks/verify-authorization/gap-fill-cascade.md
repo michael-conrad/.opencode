@@ -14,8 +14,7 @@ SCOPE_HORIZON = {
     "for_plan":         "plan_created",
     "for_implementation": "verification_complete",
     "for_pr":           "pr_created",
-    "for_pr_only":      "pr_created",
-    "for_review_only":  "code_review_ready",
+
 }
 
 # From Step 2.0 result
@@ -32,8 +31,7 @@ GAP_FILL = {
     "for_plan": ["auto_create_spec"],  # Missing spec is gap-filled
     "for_implementation": ["auto_create_spec", "auto_create_plan", "auto_approve_plan"],
     "for_pr": ["auto_create_spec", "auto_create_plan", "auto_approve_plan", "auto_create_pr"],
-    "for_pr_only": [],  # Assumes branch exists; no gap-fill
-    "for_review_only": [],  # Assumes code exists; no gap-fill
+
     "for_review_prep": [],  # No gap-fill; all artifacts must pre-exist
 }
 ```

@@ -1,6 +1,6 @@
 ---
 name: changelog-generator
-description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Also use when comparing diffs between releases or generating structured version history. Invoke for: release note creation, changelog generation, version diff analysis, release documentation. Changelog generation is REQUIRED before every release — not optional. Trigger phrases: create changelog, generate release notes, document changes, version history, release diff."
+description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Also use when comparing diffs between releases or generating structured version history. Invoke for: release note creation, changelog generation, version diff analysis, release documentation. Changelog generation is REQUIRED before every release — not optional. Trigger phrases: create changelog, generate release notes, document changes, version history, release diff, release PR, release notes."
 license: MIT
 compatibility: opencode
 ---
@@ -31,6 +31,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | "changelog" / "since last release" | `since-last-release` | `sub-task` | {date_range} |
+| "release PR" / "release notes" | `since-last-release` | `sub-task` | {date_range} |
 | "changelog date range" / "changes between dates" | `date-range` | `sub-task` | {from_date, to_date} |
 | "backfill changelog" | `backfill` | `sub-task` | {date_range} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
@@ -86,7 +87,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.

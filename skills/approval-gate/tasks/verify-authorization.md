@@ -24,7 +24,7 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | Step | Sub-Task | Purpose |
 |------|----------|---------|
 | 0 | Re-task guard | If sub-agent returns empty, re-task with original scoped context (max 2 retries); on exhaustion, fall through to double-failure protocol |
-| 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
+| 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
 | 2 | Label write (advisory-only, asynchronous) | Write authorization-scope label after work state file is written; labels are visibility markers, not gates. Remove prior scope and `needs-approval` labels as advisory cleanup. |
 | 3 | Authorization decision (inline) | Route based on authorization result |
@@ -84,10 +84,9 @@ gates_passed: [gate_name]
 blocking_reason: <reason|null>
 cascade_type: plan_cascade | output_lineage_cascade | none
 cascade_parent: <issue_number | null>
-authorization_scope: for_review_prep | for_spec | for_analysis | for_plan | for_implementation | for_pr | for_pr_only | for_review_only
+authorization_scope: for_review_prep | for_spec | for_analysis | for_plan | for_implementation | for_pr
 scope_source: parsed | default
 halt_at: <pipeline_stage>
-pr_strategy: stacked | none
 gap_fill_actions: [<action_list>]
 pipeline_phase: <current_phase_name>
 ```

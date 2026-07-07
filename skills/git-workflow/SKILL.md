@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Use when creating a branch, committing, pushing, or creating a PR. Also use when handling rebase/merge conflicts (invoke conflict-resolution), checking PR state and cleanup, or running provenance tracking. Invoke for: branch creation, commit, push, PR creation, rebase, merge, conflict resolution dispatch, PR state verification, cleanup, provenance tracking, submodule sync. Branch-and-PR discipline is REQUIRED — always follow the workflow. Trigger phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs, pr merged, provenance, sync submodules."
+description: "Use when creating a branch, committing, pushing, or creating a PR. Also use when handling rebase/merge conflicts (invoke conflict-resolution), checking PR state and cleanup, or running provenance tracking. Invoke for: branch creation, commit, push, PR creation, rebase, merge, conflict resolution dispatch, PR state verification, cleanup, provenance tracking, submodule sync. Branch-and-PR discipline is REQUIRED — always follow the workflow. Trigger phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs, pr merged, provenance, sync submodules, release PR."
 license: MIT
 compatibility: opencode
 ---
@@ -35,6 +35,8 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
+| "release" / "release/v" | `pre-work` | `sub-task` | {branch_name: release/v{semver}} |
+| "release PR" / "is_release" | `pr-creation` | `sub-task` | {branch_name, spec_summary, is_release: true} |
 | "pre-commit-pointer-check" / "check submodule pointers" | `pre-commit-pointer-check` | `sub-task` | {branch_name} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -98,8 +100,9 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 - [ ] 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 - [ ] 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
 - [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
-- [ ] 9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
-- [ ] 10. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+- [ ] 9. **Release branches:** use `release/v{semver}` naming convention. Release PRs use `compare/main...<target>` compare URL.
+- [ ] 10. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
+- [ ] 11. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ### Tag Convention (Canonical)
 
@@ -165,7 +168,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.

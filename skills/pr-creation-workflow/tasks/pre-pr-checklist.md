@@ -34,7 +34,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 # Read scope fields from work state file if present
-# authorization_scope, halt_at, pr_strategy
+# authorization_scope, halt_at
 
 # Check commit count between dev and HEAD
 git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
@@ -52,13 +52,12 @@ git log origin/"$DEFAULT_BRANCH"..HEAD --oneline | wc -l
 
 **If commit count mismatch → SQUASH NOW (single-issue) or VERIFY NOW (work branch).** This is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR — creating a PR with incorrect commit count is forbidden.
 
-**Scope check:** If `pr_strategy == none` or `halt_at < pr_created`, HALT — PR creation is not authorized by the current scope. The scope boundary is a hard wall.
+**Scope check:** If `halt_at < pr_created`, HALT — PR creation is not authorized by the current scope. The scope boundary is a hard wall.
 
 **Authorization context:**
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

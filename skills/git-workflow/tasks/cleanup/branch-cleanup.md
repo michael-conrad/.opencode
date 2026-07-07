@@ -49,7 +49,7 @@ blocked_reason: "Spec issue #N not closed after PR merge"  # if BLOCKED
 
 | Element | Value |
 |---------|-------|
-| `must_receive` | `github.owner`, `github.repo`, PR number, `audit_phase: post_merge`, `spec_local_dir`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` |
+| `must_receive` | `github.owner`, `github.repo`, PR number, `audit_phase: post_merge`, `spec_local_dir`, `authorization_scope`, `halt_at`, `pipeline_phase` |
 | `must_not_receive` | Orchestrator reasoning, expected verdicts, pre-determined findings, cached git state, inline file paths to task files |
 
 **🚫 CRITICAL: If closure-verification returns BLOCKED (issue not closed or SCs unverified), do NOT proceed to branch deletion. HALT and report findings for remediation.**

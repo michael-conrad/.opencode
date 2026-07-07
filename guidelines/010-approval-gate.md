@@ -20,7 +20,7 @@ load_when: sub-agent
 | 6 | Human-only merge | approval-gate-005 | GitHub branch protection |
 | 7 | Silent halt — no prompts | — | `000-critical-rules.md` |
 | 8 | Search before halt (no spec found) | — | `000-critical-rules.md` §Silent Halt |
-| 9 | PR requires explicit instruction (except `for_pr`/`for_pr_only`) | critical-rules-019 | `pr-creation-workflow` skill |
+| 9 | PR requires explicit instruction (except `for_pr` scope) | critical-rules-019 | `pr-creation-workflow` skill |
 | 10 | Close issues only after PR merge confirmed | critical-rules-013 | `git-workflow cleanup` |
 | 11 | Spec-to-Plan cascade (auto-approve faithful plan) | approval-gate-001a-cascade | `approval-gate` skill |
 | 12 | Pipeline-scoped authorization with hard HALT at boundary | approval-gate-010/011 | `approval-gate` skill |
@@ -35,6 +35,7 @@ load_when: sub-agent
 - **Explicit authorization:** "approved" or "go" — implicit, rhetorical, or complaint-based authorization is invalid
 - **Label application:** Apply `approved-for-*` label on authorization
 - **Human-only merge:** Agent never merges PRs
+- **Release PR gate:** When `authorization_scope >= for_pr` and context is a release PR, agent MUST evaluate the skill deck before any action.
 
 ### Issue Creation Is Reporting, Not Implementation (CRITICAL)
 
@@ -110,16 +111,15 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 
 #### Key Scope Values
 
-| Scope | HALT After | Gap-Fill | PR Strategy |
-|-------|-----------|----------|-------------|
-| `for_review_prep` | review-prep | None | none |
-| `for_spec` | spec_created | None | none |
-| `for_plan` | plan_created | auto-create spec | none |
-| `for_implementation` | verification_complete | auto-create spec+plan+auto-approve | none |
-| `for_pr` | pr_created | auto-create spec+plan+auto-approve+auto-PR | stacked |
-| `for_pr_only` | pr_created | None | stacked |
-| `for_review_only` | code_review_ready | None | none |
-| `for_analysis` | analysis_complete | None | none |
+| Scope | HALT After | PR Strategy |
+|-------|-----------|-------------|
+| `for_review_prep` | review-prep | none |
+| `for_spec` | spec_created | none |
+| `for_plan` | plan_created | none |
+| `for_implementation` | verification_complete | none |
+| `for_pr` | pr_created | stacked |
+| `for_release_pr` | pr_created | stacked |
+| `for_analysis` | analysis_complete | none |
 
 
 #### Scope-Dependent PR Strategy
@@ -129,11 +129,7 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 
 #### Gap-Fill Cascade
 
-When scope includes gap-fill, the agent auto-creates missing artifacts:
-
-1. `for_plan` scope: auto-create spec before plan
-2. `for_implementation` scope: auto-create spec → auto-create plan → auto-approve
-3. `for_pr` scope: auto-create spec → auto-create plan → auto-approve → auto-create PR
+Authorization always triggers dispatch of `gap-fill-cascade`, which reads the scope and walks its per-scope state-verification checklist. The checklist verifies each state sequentially and reports the first missing state or that all states are verified. See `skills/approval-gate/tasks/gap-fill-cascade.md` for the dispatcher and `skills/approval-gate/tasks/gap-fill-cascade/` for per-scope checklist files.
 
 ### Multi-Task Plan Authorization (CRITICAL)
 
@@ -201,7 +197,7 @@ Non-substantive GitHub Issue body formatting fixes found during deliberately-inv
 | Create feature branch (`feature/*`, `spec/*`) | Yes (requires `for_implementation` or above) |
 | Create investigation branch (`observe/*`) | No (must discard before HALT under `for_analysis`) |
 | Write code, modify files | Yes |
-| Create PR | Yes (except `for_pr`/`for_pr_only` scope) |
+| Create PR | Yes (except `for_pr` scope) |
 | Merge PR | No — human-only |
 | Close issues | Yes (after PR merge confirmed) |
 | Delete branches | Yes |

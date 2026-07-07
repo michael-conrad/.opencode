@@ -24,8 +24,7 @@ When a spec is approved, the auto-route chain determines which downstream action
 | `for_plan` | Auto-create spec (gap-fill), HALT after plan_created |
 | `for_implementation` | Auto-create spec+plan (gap-fill), auto-approve, proceed through implementation |
 | `for_pr` | Auto-create spec+plan, auto-approve, proceed through PR creation, stacked PR |
-| `for_pr_only` | Skip to PR creation, stacked PR |
-| `for_review_only` | Skip to code review readiness |
+
 
 ## Dispatch Order (Mandatory)
 

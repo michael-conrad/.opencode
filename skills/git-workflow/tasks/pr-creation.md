@@ -23,6 +23,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - User says "create a PR", "make a PR", "push and create PR", or similar
 - Implementation is complete
 - Developer has reviewed changes via compare URL
+- Pre-Response Gate evaluation completed (skill deck evaluated against current context)
 
 ## Exit Criteria
 
