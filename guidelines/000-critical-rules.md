@@ -934,6 +934,8 @@ No `question` tool for structural decisions when `halt_at >= pr_created`.
 
 Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
 
+**Scope clarification:** This prohibition applies to PR creation only. It does NOT exempt the agent from dispatching `git-workflow --task cleanup` on "pr merged" triggers. The cleanup sub-agent independently determines which cleanup actions apply — including whether to leave the submodule pointer dirty. Using this prohibition as a rationalization to skip the entire cleanup workflow is a routing-bypass self-authorization violation (critical-rules-006).
+
 
 ### [critical-rules-039] Parent Issue Left Open After All Children Closed
 See verify-already-implemented Step 6, cleanup Step 2.8.
