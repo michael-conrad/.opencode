@@ -24,7 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="gap-fill-cascade-for-pr"
-SCENARIO_PROMPT="approved for PR: .opencode#1421"
+SCENARIO_PROMPT="approved for PR: .opencode#42"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
