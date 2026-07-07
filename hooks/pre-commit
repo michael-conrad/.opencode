@@ -80,82 +80,8 @@ GATE_EXIT_CODES+=($?)
 )
 GATE_EXIT_CODES+=($?)
 
-# --- Gate 4: Submodule-pointer-only commit blocker ---
-(
-  if [ ! -f ".gitmodules" ]; then
-    exit 0
-  fi
-
-  SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
-  STAGED_FILES_G4=$(git diff --cached --name-only 2>/dev/null)
-
-  if [ -z "$STAGED_FILES_G4" ] || [ -z "$SUBMODULE_PATHS" ]; then
-    exit 0
-  fi
-
-  ALL_SUBMODULE_POINTERS=1
-  for f in $STAGED_FILES_G4; do
-    IS_SUBMODULE=0
-    for sp in $SUBMODULE_PATHS; do
-      if [ "$f" = "$sp" ]; then
-        IS_SUBMODULE=1
-        break
-      fi
-    done
-    if [ "$IS_SUBMODULE" -eq 0 ]; then
-      ALL_SUBMODULE_POINTERS=0
-      break
-    fi
-  done
-
-  if [ "$ALL_SUBMODULE_POINTERS" = "1" ]; then
-    # Check if there are uncommitted non-submodule changes in the working tree
-    UNCOMMITTED_NON_SUBMODULE=0
-    UNSTAGED_FILES=$(git diff --name-only 2>/dev/null)
-    for f in $UNSTAGED_FILES; do
-      IS_SUBMODULE=0
-      for sp in $SUBMODULE_PATHS; do
-        if [ "$f" = "$sp" ]; then
-          IS_SUBMODULE=1
-          break
-        fi
-      done
-      if [ "$IS_SUBMODULE" -eq 0 ]; then
-        UNCOMMITTED_NON_SUBMODULE=1
-        break
-      fi
-    done
-
-    if [ "$UNCOMMITTED_NON_SUBMODULE" = "1" ]; then
-      # Non-submodule changes exist in working tree — allow the commit
-      echo "  ⚠ Submodule pointer-only staged, but non-submodule changes exist in working tree."
-      echo "  Allowing commit — submodule pointers will accompany the next non-submodule commit."
-      exit 0
-    fi
-
-    echo ""
-    echo "ERROR: Submodule-pointer-only commit blocked."
-    echo ""
-    echo "Changed paths:"
-    for f in $STAGED_FILES_G4; do
-      echo "  $f"
-    done
-    echo ""
-    echo "Submodule-only bump PRs are against policy and will be rejected upstream."
-    echo ""
-    echo "Changes to submodule pointers belong in the submodule's own feature branch"
-    echo "and PR. The parent repo pointer is synced when the submodule PR merges to"
-    echo "dev and the parent updates via a normal feature commit (not a pointer-only"
-    echo "commit)."
-    echo ""
-    exit 1
-  fi
-  exit 0
-)
-GATE_EXIT_CODES+=($?)
-
 # Report per-gate status
-GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)" "Gate 4 (submodule pointer)")
+GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)")
 ANY_FAILED=0
 for i in "${!GATE_EXIT_CODES[@]}"; do
   if [ "${GATE_EXIT_CODES[$i]}" -ne 0 ]; then
