@@ -219,6 +219,7 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   - 🚫 FORBIDDEN: Any PR whose only changed files are submodule pointer updates (regardless of submodule count)
   - 🚫 FORBIDDEN: Committing dirty pointer(s) to dev
   - 🚫 FORBIDDEN: Rationalizing "this is just a pointer update, not real code"
+  - 🚫 FORBIDDEN: Using critical-rules-049 (submodule-only-PR prohibition) as a rationalization to skip `git-workflow --task cleanup` dispatch on "pr merged" triggers. The prohibition applies to PR creation only — it does NOT exempt cleanup dispatch.
   - ✅ CORRECT: Leave dirty pointer(s) untouched — they resolve on next pre-work cycle
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
