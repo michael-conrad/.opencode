@@ -92,7 +92,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ spec_context, worktree.path, github.owner, github.repo }`. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ spec_context, worktree.path, github.owner, github.repo }`. Auditor tasks use `task(subagent_type="general")` — same as all other tasks. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

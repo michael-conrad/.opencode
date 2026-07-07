@@ -69,7 +69,7 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Sub-Agent Routing
 
-`verify` runs with `{ section_evidence_table, claim_list, worktree.path, github.owner, github.repo }`. `revisit` receives `{ generated_content, ⚠️ UNVERIFIED markers, worktree.path, github.owner, github.repo }`. `enforce` receives `{ sub_agent_output, evidence_artifact_list, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior verification. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+`verify` runs with `{ section_evidence_table, claim_list, worktree.path, github.owner, github.repo }`. `revisit` receives `{ generated_content, ⚠️ UNVERIFIED markers, worktree.path, github.owner, github.repo }`. `enforce` receives `{ sub_agent_output, evidence_artifact_list, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior verification. Auditor tasks use `task(subagent_type="general")` — same as all other tasks. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

@@ -65,7 +65,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Sub-Agent Routing
 
-`draft` runs with `{ context, audience_tier, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+`draft` runs with `{ context, audience_tier, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use `task(subagent_type="general")` — same as all other tasks. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

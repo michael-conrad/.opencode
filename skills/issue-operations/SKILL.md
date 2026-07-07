@@ -118,7 +118,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo, github.platform }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo, github.platform }`, excluding implementation context and agent memory. Auditor tasks use `task(subagent_type="general")` — same as all other tasks. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

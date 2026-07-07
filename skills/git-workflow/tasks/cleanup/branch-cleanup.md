@@ -31,7 +31,7 @@ Invoke `audit --task closure-verification --pr <N>`. The dual-auditor dispatch m
 The orchestrator dispatches the audit pipeline:
 
 1. **`skill({name: "audit"})`** — load the audit skill
-2. **DiMo role chain dispatch** — the audit skill's DiMo role chain handles model selection internally; no separate `resolve-models` invocation needed
+2. **Single-agent dispatch** — the audit skill uses `task(subagent_type="general")`; no separate model selection needed
 3. **Task `closure-verification`** — dispatch two auditor sub-agents in parallel (each receives `spec_local_dir`, `artifact_evidence_dir`, PR number, and the standard dispatch fields only — no orchestrator reasoning, no pre-loaded findings)
 4. **Task `cross-validate`** — dispatch a sub-agent with the pre-resolved `auditor_artifact_paths` to compute consensus
 5. **Evaluate result contract** — if `status: BLOCKED` (issue not closed, SCs unverified), HALT and report findings. If `status: DONE` with PASS consensus, proceed to Step 1.

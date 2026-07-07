@@ -74,7 +74,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Sub-Agent Routing
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use `task(subagent_type="general")` — same as all other tasks. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
 Exclusions: implementation context, agent memory, cached verification results.
 
