@@ -173,7 +173,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ## Error Handling
 
@@ -199,7 +199,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 After coherence-maintenance completes:
 - If consensus PASS: proceed to guideline-audit or coherence_gate completion
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
 
 This step is MANDATORY — the pipeline does not terminate early.
 

@@ -175,7 +175,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/verification-audit/verdict.yaml`
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-verification-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: verification
+audit_type: verification-audit
 auditor_type: verification-audit
 family: <family>
 issue_number: <N>
@@ -201,7 +201,7 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ```yaml
 status: DONE
@@ -245,7 +245,7 @@ After verification-audit completes:
 
 - `tasks/spec-audit.md` — spec-phase audit (pre-implementation)
 - `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — cross-family selection
+- `tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate

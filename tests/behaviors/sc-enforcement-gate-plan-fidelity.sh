@@ -1,7 +1,7 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC Enforcement Gate — Plan Fidelity
 #
-# Verifies that the plan fidelity auditor (adversarial-audit/tasks/plan-fidelity.md)
+# Verifies that the plan fidelity auditor (audit/tasks/plan-fidelity.md)
 # checks PF-7 (gate language preserved) and PF-3 updated with "ALL" wording.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
@@ -20,7 +20,7 @@ WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
 SCENARIO_NAME="sc-enforcement-gate-plan-fidelity"
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-PLAN_FIDELITY_FILE="$WORKTREE_ROOT/.opencode/skills/adversarial-audit/tasks/plan-fidelity.md"
+PLAN_FIDELITY_FILE="$WORKTREE_ROOT/.opencode/skills/audit/tasks/plan-fidelity.md"
 SC_GATE_TAG="<!-- Fragment ID: sc-enforcement-gate -->"
 
 OVERALL_RESULT=0

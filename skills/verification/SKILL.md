@@ -56,7 +56,7 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 ## Sub-Agent Routing
 
-`verify` runs via `task(subagent_type="general")` with `{ claims, modalities, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+`verify` runs via `task(subagent_type="general")` with `{ claims, modalities, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

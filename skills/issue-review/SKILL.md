@@ -74,7 +74,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

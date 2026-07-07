@@ -22,8 +22,8 @@ Create an implementation plan from an approved spec. The orchestrator reads this
 | write step in pipeline | `write` | `sub-agent` | `{ spec_issue_number, solve_output }` |
 | revisit step in pipeline | `revisit` | `sub-agent` | `{ spec_issue_number, write_output }` |
 | validate step in pipeline | `validate` | `sub-agent` | `{ spec_issue_number, plan_file_path }` |
-| audit-fidelity step in pipeline | `audit-fidelity` | `sub-agent` | `{ spec_issue_number, plan_file_path, audit_phase }` |
-| audit-concern step in pipeline | `audit-concern` | `sub-agent` | `{ spec_issue_number, plan_file_path, audit_phase }` |
+| audit-fidelity step in pipeline | `audit-fidelity` | `sub-agent` | `{ spec_issue_number, plan_file_path }` |
+| audit-concern step in pipeline | `audit-concern` | `sub-agent` | `{ spec_issue_number, plan_file_path }` |
 | completion step in pipeline | `completion` | `sub-agent` | `{ workflow_state }` |
 
 ## Operating Protocol — 21-Step Pipeline

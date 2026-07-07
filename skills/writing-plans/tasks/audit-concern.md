@@ -26,4 +26,4 @@ Load the `audit` skill and execute `--task concern-separation` inline with audit
 ## Context Required
 
 - Related skills: `audit`
-- Related tools: `resolve-models` for auditor sub-agent type selection
+- Related tools: DiMo role chain for auditor sub-agent type selection

@@ -20,9 +20,9 @@ SCENARIO_NAME="1246-sc3-resolve-models-preflight"
 echo "=== Behavioral Test (Artifact-Only Generator): $SCENARIO_NAME ==="
 echo ""
 
-# Prompt: ask the agent to execute the adversarial-audit pipeline step
+# Prompt: ask the agent to execute the audit pipeline step
 # Include issue number context so the agent doesn't halt asking for clarification
-SCENARIO_PROMPT="Execute the adversarial-audit step from the implementation-pipeline for issue #1246. First run .opencode/tools/resolve-models to select two cross-family auditors, then dispatch verification-audit with subagent_type=auditor_1 and subagent_type=auditor_2. Use the implementation-pipeline SKILL.md dispatch routing table as your guide."
+SCENARIO_PROMPT="Execute the audit step from the implementation-pipeline for issue #1246. First run .opencode/tools/resolve-models to select two cross-family auditors, then dispatch verification-audit with subagent_type=auditor_1 and subagent_type=auditor_2. Use the implementation-pipeline SKILL.md dispatch routing table as your guide."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 

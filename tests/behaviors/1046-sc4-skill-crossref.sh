@@ -13,7 +13,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="1046-sc4-skill-crossref"
 # Prompt: verify the cleanup ordering cross-reference in git-workflow SKILL.md
-SCENARIO_PROMPT="Verify the cleanup ordering cross-reference in .opencode/skills/git-workflow/SKILL.md. Find the line in the cleanup section that specifies when adversarial-audit closure-verification runs. Confirm the wording says 'after issue closure, before branch cleanup'."
+SCENARIO_PROMPT="Verify the cleanup ordering cross-reference in .opencode/skills/git-workflow/SKILL.md. Find the line in the cleanup section that specifies when audit closure-verification runs. Confirm the wording says 'after issue closure, before branch cleanup'."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0

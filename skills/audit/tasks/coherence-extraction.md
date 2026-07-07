@@ -248,7 +248,7 @@ Write extracted data to `./tmp/{issue-N}/artifacts/coherence-extraction/evidence
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ## Error Handling
 
@@ -263,7 +263,7 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 
 ## Cross-References
 
-- `resolve-models` task — auditor model resolution (audit --task resolve-models)
+- Path Provider role — model selection and routing rationale (DiMo role chain)
 - `tasks/coherence-maintenance.md` — drift detection
 - `tasks/coherence-extraction.md` — this file (self-reference for pipeline dispatch)
 - `000-critical-rules.md` — baseline requirement

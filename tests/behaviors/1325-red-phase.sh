@@ -5,7 +5,7 @@
 set -euo pipefail
 
 OVERALL_RESULT=0
-TASK_DIR=".opencode/skills/adversarial-audit/tasks"
+TASK_DIR=".opencode/skills/audit/tasks"
 FILES=(
   "verification-audit.md"
   "cross-validate.md"

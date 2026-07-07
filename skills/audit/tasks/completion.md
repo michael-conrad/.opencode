@@ -21,7 +21,7 @@ Idempotent completion subtask for audit. Ensures mandatory steps ran regardless 
 
 ## State Check Phase
 
-- [ ] 1. **Auditor models resolved:** Check whether `resolve-models` successfully returned two cross-family auditor selections
+- [ ] 1. **Auditor models resolved:** Check whether the DiMo role chain successfully returned two cross-family auditor selections
 - [ ] 2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="auditor-*")` for both auditor-1 and auditor-2
 - [ ] 3. **Verdict artifacts written:** Check whether auditor YAML verdict artifacts exist on disk at the reported `artifact_path` locations
 - [ ] 4. **Cross-validation computed:** Check whether cross-validate produced a definitive PASS or FAIL result with `next_step` field
@@ -30,19 +30,19 @@ Idempotent completion subtask for audit. Ensures mandatory steps ran regardless 
 
 The dispatch chain is orchestrated by the main agent (orchestrator), NOT by individual sub-tasks. The flow is:
 
-- [ ] 1. **Orchestrator dispatches** `task(general)` ← resolve-models → receives `{ auditor_1, auditor_2 }` pair
+- [ ] 1. **Orchestrator dispatches** `task(general)` ← Path Provider (DiMo role chain) → receives `{ auditor_1, auditor_2 }` pair
 - [ ] 2. **Orchestrator dispatches** `task(auditor-1)` and `task(auditor-2)` in parallel → receives frugal contracts with `artifact_path` from both auditors
 - [ ] 3. **Orchestrator dispatches** `task(general)` ← cross-validate with `auditor_artifact_paths` (pre-resolved artifact path array, NOT auditor model names) → receives cross-validation result
 - [ ] 4. **Orchestrator routes** based on `next_step` field: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
 
-cross-validate does NOT dispatch auditors — it receives pre-resolved artifact paths from the orchestrator and reads YAMLs from disk. resolve-models does NOT dispatch auditors — it returns model pairs for the orchestrator to dispatch.
+cross-validate does NOT dispatch auditors — it receives pre-resolved artifact paths from the orchestrator and reads YAMLs from disk. The Path Provider role does NOT dispatch auditors — it returns model pairs for the orchestrator to dispatch.
 
 ## Skill-Specific Completion
 
 - [ ] 1. **Auditor model resolution verification** (if not already performed):
-   - Confirm that `resolve-models` returned two different-family auditor selections
+   - Confirm that the DiMo role chain returned two different-family auditor selections
    - Confirm neither auditor shares the orchestrator's model family
-   - If incorrect: flag STRUCTURE-VIOLATION for orchestrator retry via `resolve-models`
+   - If incorrect: flag STRUCTURE-VIOLATION for orchestrator retry via DiMo role chain
 
 - [ ] 2. **Verdict artifact integrity check** (if not already performed):
    - Each auditor YAML verdict artifact MUST exist at the reported `artifact_path` location on disk
@@ -59,12 +59,12 @@ cross-validate does NOT dispatch auditors — it receives pre-resolved artifact 
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| No auditors resolved | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must re-invoke `resolve-models` |
+| No auditors resolved | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must re-invoke DiMo role chain |
 | Single auditor invoked | MISSING-ELEMENT | flag-for-review | HALT — dual-auditor invariant violated |
 | Malformed verdict | VERDICT-INTEGRITY | flag-for-review | HALT — cannot fabricate consensus from bad data |
 | Consensus not computed | CONSENSUS-GAP | auto-fix | Compute from collected verdicts |
-| Both auditors same family | STRUCTURE-VIOLATION | flag-for-review | HALT — orchestrator must re-invoke `resolve-models` |
-| Missing `resolve-models` invocation | MISSING-ELEMENT | flag-for-review | HALT — resolve-models is mandatory entry point per audit-013 |
+| Both auditors same family | STRUCTURE-VIOLATION | flag-for-review | HALT — orchestrator must re-invoke DiMo role chain |
+| Missing DiMo role chain invocation | MISSING-ELEMENT | flag-for-review | HALT — DiMo role chain is mandatory entry point |
 | Missing auditor task() dispatch | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must task() both auditors |
 | Missing cross-validate invocation with verdicts | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must task() cross-validate with verdicts |
 
@@ -90,7 +90,7 @@ Write final judgment to `./tmp/{issue-N}/artifacts/completion/judgment.yaml`
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ## Report Phase
 
@@ -132,7 +132,7 @@ HALT
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Cross-family auditors selected" | Verify two different families selected | Check `resolve-models` result contract | MISSING-ELEMENT |
+| "Cross-family auditors selected" | Verify two different families selected | Check DiMo role chain result contract | MISSING-ELEMENT |
 | "Auditors tasked" | Verify task() occurred | Check `task()` call logs in work state file | MISSING-ELEMENT |
 | "YAML verdict artifacts on disk" | Verify artifact files exist | Read `artifact_path` from auditor result contracts | VERDICT-INTEGRITY |
 | "Consensus evaluated" | Verify PASS/FAIL determination | Cross-reference both YAML artifacts on disk per cross-validate result | CONSENSUS-GAP |
@@ -143,7 +143,7 @@ HALT
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `auditor_dispatch_status`, `resolve_models_result`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a task() routing task | NO |
+| `auditor_dispatch_status`, `dimo_role_chain_result`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a task() routing task | NO |
 
 ### Authorization Context
 ```

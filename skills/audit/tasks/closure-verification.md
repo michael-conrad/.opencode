@@ -214,7 +214,7 @@ if follow_up_issues:
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: post_merge
+audit_type: closure-verification
 auditor_type: closure-verification
 family: <family>
 issue_number: <N>
@@ -246,7 +246,7 @@ all_criteria_pass: false
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ```yaml
 status: DONE
@@ -285,7 +285,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 After closure-verification completes:
 - If consensus PASS: proceed to post-merge verification or pipeline end
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
 
 This step is MANDATORY — the pipeline does not terminate early.
 

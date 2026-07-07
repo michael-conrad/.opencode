@@ -64,7 +64,7 @@ SC-7: A critical violation `critical-rules-046` prohibits mechanical-only audit 
 |------|--------|
 | `.opencode/agents/auditor-*.md` (7 files) | Add MANDATORY FIRST CHECK, semantic depth mandate, CONTEXT_TAINTED refusal, clean_room output block |
 | `.opencode/skills/spec-auditor/SKILL.md` | Add audit phase identity (phase: spec) to Persona/Operating Protocol |
-| `.opencode/skills/adversarial-audit/SKILL.md` | Add audit phase identity + ensure task context includes audit_phase |
+| `.opencode/skills/audit/SKILL.md` | Add audit phase identity + ensure task context includes audit_phase |
 | `.opencode/guidelines/000-critical-rules.md` | Add critical-rules-046 yaml+symbolic block |
 SPEC
 

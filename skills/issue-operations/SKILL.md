@@ -113,12 +113,12 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 - [ ] 3. **spec.md mirror:** every `issue-operations -> read-issue` MUST be followed by `sync-pull-to-local` to mirror the body to `.issues/<N>/spec.md` (root repo) or `{project_root}/{path}/.issues/<N>/spec.md` (submodule/sub-repo). <!-- Enforced by sync-pull-to-local task per issue #764 -->
 - [ ] 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 - [ ] 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
-- [ ] 6. **Adversarial-audit call:** after sub-issue creation, call `audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
+- [ ] 6. **Adversarial-audit call:** after sub-issue creation, call `audit --task concern-separation --issue <N>`.
 - [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo, github.platform }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo, github.platform }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

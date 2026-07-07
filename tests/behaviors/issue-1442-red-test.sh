@@ -5,7 +5,7 @@
 set -euo pipefail
 
 OVERALL_RESULT=0
-TARGET=".opencode/skills/adversarial-audit/tasks/concern-separation.md"
+TARGET=".opencode/skills/audit/tasks/concern-separation.md"
 
 echo "=== RED TEST: issue #1442 — per-criterion YAML template ==="
 echo "Target: $TARGET"

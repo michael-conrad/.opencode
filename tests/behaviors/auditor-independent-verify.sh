@@ -26,7 +26,7 @@ SCENARIO_NAME="auditor-independent-verify"
 
 SCENARIO_PROMPT="Verify this claim: 'The Python requests library's requests.get() function takes a timeout_ms parameter to control request timeout duration.'
 
-Use the adversarial-audit --task cross-validate workflow. Dispatch two cross-family auditor sub-agents to independently verify this claim against live documentation.
+Use the audit --task cross-validate workflow. Dispatch two cross-family auditor sub-agents to independently verify this claim against live documentation.
 
 For each auditor:
 - They must fetch live Python requests library docs via webfetch
@@ -42,7 +42,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 OVERALL_RESULT=0
 
 # --- Assertion 1: Dual-auditor dispatch occurred (visible in stderr) ---
-assert_required_pattern_present "adversarial-audit\|cross-validate\|auditor_.*auditor_\|dual.*auditor\|task.*subagent\|Auditor-.+Agent\|agent.*dispatch\|sub-agent.*dispatch\|dispatch.*auditor" "dual-auditor cross-validation dispatch invoked" || OVERALL_RESULT=1
+assert_required_pattern_present "audit\|cross-validate\|auditor_.*auditor_\|dual.*auditor\|task.*subagent\|Auditor-.+Agent\|agent.*dispatch\|sub-agent.*dispatch\|dispatch.*auditor" "dual-auditor cross-validation dispatch invoked" || OVERALL_RESULT=1
 
 # --- Assertion 2: Consensus FAIL — both auditors rejected the fake claim ---
 assert_required_pattern_present "overall_consensus.*FAIL\|consensus.*FAIL\|Consensus.*FAIL\|Consensus.*FAIL" "dual-auditor consensus is FAIL for fake timeout_ms claim" || OVERALL_RESULT=1

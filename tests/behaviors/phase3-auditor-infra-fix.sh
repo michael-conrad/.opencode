@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="phase3-auditor-infra-fix"
-SCENARIO_PROMPT="Does the helpers.sh behavior_adversarial_eval function exist and use adversarial-audit dispatch in Phase 2? Check the helpers.sh file in the project."
+SCENARIO_PROMPT="Does the helpers.sh behavior_adversarial_eval function exist and use audit dispatch in Phase 2? Check the helpers.sh file in the project."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0

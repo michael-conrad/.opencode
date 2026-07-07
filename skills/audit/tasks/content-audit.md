@@ -128,7 +128,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/content-audit/verdict.yaml`
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-content-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: content
+audit_type: content-audit
 auditor_type: content-audit
 family: <family>
 issue_number: <N>
@@ -164,7 +164,7 @@ mandatory_remediation: "Remit for mandatory remediation. Any FABRICATED or FAIL 
 
 ## Clean-Room Protocol
 
-- **Dual cross-family auditors**: Dispatched via `resolve-models`. Each auditor is a clean-room sub-agent from a different model family. No single model family can dominate the verdict.
+- **Dual cross-family auditors**: Dispatched via DiMo role chain. Each auditor is a clean-room sub-agent from a different model family. No single model family can dominate the verdict.
 - **No orchestrator preload**: Auditors receive only `{ document_section, source_data_paths }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the auditor MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 - **Independent verification**: Each auditor independently runs tool calls against source data to verify claims. The two auditors do not share context, reasoning, or intermediate results.
@@ -191,7 +191,7 @@ After content-audit completes:
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ## Error Handling
 
@@ -207,7 +207,7 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 ## Cross-References
 
 - `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — cross-family selection
+- `tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol

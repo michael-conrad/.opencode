@@ -188,7 +188,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/test-quality-audit/verdict.yaml`
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-test-quality-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: test_quality
+audit_type: test-quality-audit
 auditor_type: test-quality-audit
 family: <family>
 issue_number: <N>
@@ -224,7 +224,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ## Error Handling
 
@@ -236,7 +236,7 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 
 ## Cross-References
 
-- `resolve-models` task — auditor model resolution (audit --task resolve-models)
+- Path Provider role — model selection and routing rationale (DiMo role chain)
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `spec-creation/tasks/create.md` — Step 4: Determinism Gate
 - `spec-creation/tasks/create.md` — SC verification methods

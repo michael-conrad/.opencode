@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="auditor-disk-offload-spec-read"
-SCENARIO_PROMPT="Read .opencode/skills/adversarial-audit/tasks/spec-audit.md. Show the exact heading and content of Step 6 and Step 7. Also check if Step 6 writes to ./tmp/artifacts/ and Step 7 returns exactly status, artifact_path, summary. Respond with the evidence found."
+SCENARIO_PROMPT="Read .opencode/skills/audit/tasks/spec-audit.md. Show the exact heading and content of Step 6 and Step 7. Also check if Step 6 writes to ./tmp/artifacts/ and Step 7 returns exactly status, artifact_path, summary. Respond with the evidence found."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0

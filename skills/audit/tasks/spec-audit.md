@@ -511,7 +511,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: spec_creation
+audit_type: spec-audit
 auditor_type: spec-audit
 family: <family>
 issue_number: <N>
@@ -549,7 +549,7 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ## Completion Dependency Chain
 
@@ -572,7 +572,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 After spec-audit completes:
 - If consensus PASS: proceed to `concern-separation` or next pipeline step
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
 
 This step is MANDATORY — the pipeline does not terminate early.
 
@@ -588,7 +588,7 @@ This step is MANDATORY — the pipeline does not terminate early.
 ## Cross-References
 
 - `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — cross-family selection (orchestrator dispatches, then passes results)
+- `tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `spec-auditor/SKILL.md` — original task breakdown
 - `spec-auditor/tasks/fidelity.md` — plan fidelity check
 - `000-critical-rules.md` — co-authored requirement

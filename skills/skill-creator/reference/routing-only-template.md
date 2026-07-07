@@ -76,7 +76,7 @@ provenance: AI-generated
 
 - Standard context: `{worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase}`
 - Exclusions: orchestrator reasoning, expected outcomes, inline file paths, agent memory, cached verification results
-- Auditor tasks use subagent_type from `resolve-models` result contract — NOT `general`
+- Auditor tasks use subagent_type from the DiMo role chain dispatch — NOT `general`. Dispatch contracts carry 2 fields: `spec_local_dir` and `artifact_evidence_dir`.
 - `pre-analysis` receives only `{issue_number, task_description, github.owner, github.repo}`
 
 ## Cross-References

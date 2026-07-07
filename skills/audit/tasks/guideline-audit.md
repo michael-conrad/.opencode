@@ -207,7 +207,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: guideline_update
+audit_type: guideline-audit
 auditor_type: guideline-audit
 family: <family>
 issue_number: <N>
@@ -238,7 +238,7 @@ exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ```yaml
 status: DONE
@@ -271,7 +271,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 After guideline-audit completes:
 - If consensus PASS: proceed to next audit type or guideline_update pipeline
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
 
 This step is MANDATORY — the pipeline does not terminate early.
 

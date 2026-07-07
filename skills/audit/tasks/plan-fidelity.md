@@ -249,7 +249,7 @@ Write verdict to `./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml`
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-plan-fidelity-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: plan_creation
+audit_type: plan-fidelity
 auditor_type: plan-fidelity
 family: <family>
 issue_number: <N>
@@ -278,7 +278,7 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ```yaml
 status: DONE
@@ -305,7 +305,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 After plan-fidelity completes:
 - If consensus PASS: proceed to next audit type or pipeline continuation
-- If consensus FAIL: remediate discrepancies, then re-audit (resolve-models → auditors → cross-validate)
+- If consensus FAIL: remediate discrepancies, then re-audit (DiMo role chain → auditors → cross-validate)
 
 This step is MANDATORY — the pipeline does not terminate early.
 

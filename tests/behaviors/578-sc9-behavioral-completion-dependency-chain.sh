@@ -20,7 +20,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="578-sc9-behavioral-completion-dependency-chain"
 
-SCENARIO_PROMPT="Run the completion task from the adversarial-audit skill. You are the orchestrator. The spec-audit task just completed with status DONE and all criteria passed. Read .opencode/skills/adversarial-audit/tasks/completion.md and execute it. Answer explicitly: (1) Can you halt after the audit result comes back, or must you proceed? (2) What is the next step after a successful audit? (3) What is the Completion Dependency Chain?"
+SCENARIO_PROMPT="Run the completion task from the audit skill. You are the orchestrator. The spec-audit task just completed with status DONE and all criteria passed. Read .opencode/skills/audit/tasks/completion.md and execute it. Answer explicitly: (1) Can you halt after the audit result comes back, or must you proceed? (2) What is the next step after a successful audit? (3) What is the Completion Dependency Chain?"
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"

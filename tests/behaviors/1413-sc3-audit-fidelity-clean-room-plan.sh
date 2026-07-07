@@ -15,7 +15,7 @@
 # RED BEHAVIOR (current — test FAILS)
 # ===================================
 # audit-fidelity.md does NOT accept or pass clean_room_plan to plan-fidelity.
-# The agent loads adversarial-audit and dispatches plan-fidelity without
+# The agent loads audit and dispatches plan-fidelity without
 # clean_room_plan in the task context. Stderr shows: plan-fidelity sub-agent
 # dispatch WITHOUT clean_room_plan in context. Plan-fidelity returns BLOCKED
 # with MISSING_CLEAN_ROOM_PLAN.

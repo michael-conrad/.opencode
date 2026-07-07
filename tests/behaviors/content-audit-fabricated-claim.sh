@@ -4,7 +4,7 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-9: Behavioral enforcement test: auditor catches fabricated numerical claim.
-# Uses the trigger phrase "content audit" from the adversarial-audit dispatch table
+# Uses the trigger phrase "content audit" from the audit dispatch table
 # to dispatch the content-audit task. The document section claims 12 models were
 # tested but source data only lists 8. Dual cross-family auditors should detect
 # the fabricated count and return FABRICATED.

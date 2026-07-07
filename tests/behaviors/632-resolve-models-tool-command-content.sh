@@ -18,8 +18,8 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
 TOOL="$PROJECT_DIR/.opencode/tools/resolve-models"
-TASK_DIR="$PROJECT_DIR/.opencode/skills/adversarial-audit/tasks"
-SKILL_FILE="$PROJECT_DIR/.opencode/skills/adversarial-audit/SKILL.md"
+TASK_DIR="$PROJECT_DIR/.opencode/skills/audit/tasks"
+SKILL_FILE="$PROJECT_DIR/.opencode/skills/audit/SKILL.md"
 HELPERS_FILE="$PROJECT_DIR/.opencode/tests/behaviors/helpers.sh"
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests/with-test-home"
 RESOLVE_MODELS_MD="$TASK_DIR/resolve-models.md"
@@ -251,27 +251,27 @@ else
     OVERALL_RESULT=1
 fi
 
-# --- SC-11a: adversarial-audit-013 rule ---
-echo "--- SC-11a: adversarial-audit-013 rule ---"
-SC11A_ID=$(grep -A1 'id: adversarial-audit-013' "$SKILL_FILE" 2>/dev/null || true)
-SC11A_TITLE=$(grep -A2 'id: adversarial-audit-013' "$SKILL_FILE" | grep 'title:' || true)
-SC11A_ACTIONS=$(grep -A10 'id: adversarial-audit-013' "$SKILL_FILE" | grep 'actions:' || true)
+# --- SC-11a: audit-013 rule ---
+echo "--- SC-11a: audit-013 rule ---"
+SC11A_ID=$(grep -A1 'id: audit-013' "$SKILL_FILE" 2>/dev/null || true)
+SC11A_TITLE=$(grep -A2 'id: audit-013' "$SKILL_FILE" | grep 'title:' || true)
+SC11A_ACTIONS=$(grep -A10 'id: audit-013' "$SKILL_FILE" | grep 'actions:' || true)
 if echo "$SC11A_TITLE" | grep -qi 'resolve-models' && echo "$SC11A_ACTIONS" | grep -qi 'task\|route\|CALL'; then
-    echo "PASS: SC-11a — adversarial-audit-013 found with resolve-models in title and task action"
+    echo "PASS: SC-11a — audit-013 found with resolve-models in title and task action"
 else
-    echo "FAIL: SC-11a — adversarial-audit-013 check: id=$SC11A_ID, title=$SC11A_TITLE, actions=$SC11A_ACTIONS"
+    echo "FAIL: SC-11a — audit-013 check: id=$SC11A_ID, title=$SC11A_TITLE, actions=$SC11A_ACTIONS"
     OVERALL_RESULT=1
 fi
 
-# --- SC-11b: adversarial-audit-022 rule ---
-echo "--- SC-11b: adversarial-audit-022 rule ---"
-SC11B_ID=$(grep -A1 'id: adversarial-audit-022' "$SKILL_FILE" 2>/dev/null || true)
-SC11B_TITLE=$(grep -A2 'id: adversarial-audit-022' "$SKILL_FILE" | grep 'title:' || true)
-SC11B_COND=$(grep -A10 'id: adversarial-audit-022' "$SKILL_FILE" | grep 'conditions:' -A3 || true)
+# --- SC-11b: audit-022 rule ---
+echo "--- SC-11b: audit-022 rule ---"
+SC11B_ID=$(grep -A1 'id: audit-022' "$SKILL_FILE" 2>/dev/null || true)
+SC11B_TITLE=$(grep -A2 'id: audit-022' "$SKILL_FILE" | grep 'title:' || true)
+SC11B_COND=$(grep -A10 'id: audit-022' "$SKILL_FILE" | grep 'conditions:' -A3 || true)
 if echo "$SC11B_TITLE" | grep -qi 'resolve-models' && echo "$SC11B_COND" | grep -qi 'resolve_models_called'; then
-    echo "PASS: SC-11b — adversarial-audit-022 found with resolve-models in title and resolve_models_called in conditions"
+    echo "PASS: SC-11b — audit-022 found with resolve-models in title and resolve_models_called in conditions"
 else
-    echo "FAIL: SC-11b — adversarial-audit-022 check: id=$SC11B_ID, title=$SC11B_TITLE, cond=$SC11B_COND"
+    echo "FAIL: SC-11b — audit-022 check: id=$SC11B_ID, title=$SC11B_TITLE, cond=$SC11B_COND"
     OVERALL_RESULT=1
 fi
 

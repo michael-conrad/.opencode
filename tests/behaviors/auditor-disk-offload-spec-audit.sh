@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="auditor-disk-offload-spec-audit"
-SCENARIO_PROMPT="Execute the spec-audit task from adversarial-audit for issue .opencode#932. spec_issue_number: 932. github.owner: michael-conrad. github.repo: .opencode. audit_phase: implementation_verification. Fetch the spec independently from GitHub. Evaluate all success criteria. Write your full verdict YAML artifact to ./tmp/artifacts/ using the naming convention pipeline-{issue}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml per spec #932. Return ONLY a frugal YAML contract with status, artifact_path, and summary."
+SCENARIO_PROMPT="Execute the spec-audit task from audit for issue .opencode#932. spec_issue_number: 932. github.owner: michael-conrad. github.repo: .opencode. audit_phase: implementation_verification. Fetch the spec independently from GitHub. Evaluate all success criteria. Write your full verdict YAML artifact to ./tmp/artifacts/ using the naming convention pipeline-{issue}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml per spec #932. Return ONLY a frugal YAML contract with status, artifact_path, and summary."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0

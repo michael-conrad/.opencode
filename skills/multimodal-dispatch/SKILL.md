@@ -59,7 +59,7 @@ Produced by `probe` task: maps model names → modalities (text, vision, audio) 
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ task_description, content_modality, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ task_description, content_modality, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

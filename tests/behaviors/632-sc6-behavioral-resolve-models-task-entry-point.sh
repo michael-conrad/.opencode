@@ -26,7 +26,7 @@ if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
     exit 0
 fi
 
-SCENARIO_PROMPT="Start a spec audit for the feature request describing the implementation approach in issue #999. Use the adversarial-audit skill. First resolve two auditor models from different families, then run scan, then cross-validate. What two auditor models did you select and from what families?"
+SCENARIO_PROMPT="Start a spec audit for the feature request describing the implementation approach in issue #999. Use the audit skill. First resolve two auditor models from different families, then run scan, then cross-validate. What two auditor models did you select and from what families?"
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"

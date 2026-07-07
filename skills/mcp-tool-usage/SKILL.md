@@ -44,7 +44,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
-| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, audit_phase, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `selection-guide` | When tool selection guidance is needed for file operations, notebooks, or code search | Operation type, file extension, project context | Implementation context, agent memory | NO |
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol

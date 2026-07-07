@@ -1,7 +1,7 @@
 #!/bin/bash
-# Phase 2 RED: adversarial-audit skill file existence test (Items 11-14)
+# Phase 2 RED: audit skill file existence test (Items 11-14)
 #
-# Verifies that the adversarial-audit skill directory and all required
+# Verifies that the audit skill directory and all required
 # task files exist. This test MUST FAIL in RED phase (no skill exists yet).
 #
 # Co-authored with AI: <AgentName> (<ModelId>)
@@ -14,8 +14,8 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 
-SCENARIO_NAME="adversarial-audit-skill-exists"
-SKILL_DIR="$PROJECT_DIR/skills/adversarial-audit"
+SCENARIO_NAME="audit-skill-exists"
+SKILL_DIR="$PROJECT_DIR/skills/audit"
 
 echo "=== Content-Verification Test: $SCENARIO_NAME ==="
 

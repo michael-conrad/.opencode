@@ -7,9 +7,9 @@
 # reject structural-only evidence for behavioral SCs with STRUCTURAL_EVIDENCE
 # classification.
 #
-# Authority: adversarial-audit/tasks/spec-audit.md §SC-STRUCTURAL-FAIL
-#            adversarial-audit/tasks/plan-fidelity.md §PF-STRUCTURAL-FAIL
-#            adversarial-audit/tasks/drift-detection.md §DD-STRUCTURAL-FAIL
+# Authority: audit/tasks/spec-audit.md §SC-STRUCTURAL-FAIL
+#            audit/tasks/plan-fidelity.md §PF-STRUCTURAL-FAIL
+#            audit/tasks/drift-detection.md §DD-STRUCTURAL-FAIL
 # Spec: #765 — Structural Evidence Must FAIL for Behavioral SCs (Auditor Gate)
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 

@@ -2,7 +2,7 @@
 # SC-14/SC-15: SKILL.md symbolic rules and cross-validate non-recovery gates
 #
 # Content-verification test for spec #578 dark pattern additions + revised defects.
-# SC-14: SKILL.md includes adversarial-audit-013 through adversarial-audit-018 symbolic rules.
+# SC-14: SKILL.md includes audit-013 through audit-018 symbolic rules.
 # SC-15: cross-validate.md has Non-Recovery Gates section with terminal BLOCKED language.
 #
 # RED: Expect FAIL against dev baseline (rules 013-018 don't exist; no non-recovery gates).
@@ -23,24 +23,24 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
-SKILL_FILE="$PROJECT_DIR/.opencode/skills/adversarial-audit/SKILL.md"
-CV_FILE="$PROJECT_DIR/.opencode/skills/adversarial-audit/tasks/cross-validate.md"
+SKILL_FILE="$PROJECT_DIR/.opencode/skills/audit/SKILL.md"
+CV_FILE="$PROJECT_DIR/.opencode/skills/audit/tasks/cross-validate.md"
 
 echo "=== Content-Verification Test: $SCENARIO_NAME ==="
 
 OVERALL_RESULT=0
 
-# SC-14: Six new symbolic rules (adversarial-audit-013 through -018)
+# SC-14: Six new symbolic rules (audit-013 through -018)
 if [ ! -f "$SKILL_FILE" ]; then
     echo "FAIL: SC-14 — SKILL.md not found at $SKILL_FILE"
     OVERALL_RESULT=1
 else
     RULE_COUNT=0
     for RULE_NUM in 013 014 015 016 017 018; do
-        if grep -q "adversarial-audit-${RULE_NUM}" "$SKILL_FILE"; then
+        if grep -q "audit-${RULE_NUM}" "$SKILL_FILE"; then
             RULE_COUNT=$((RULE_COUNT + 1))
         else
-            echo "FAIL: SC-14 — adversarial-audit-${RULE_NUM} not found in SKILL.md"
+            echo "FAIL: SC-14 — audit-${RULE_NUM} not found in SKILL.md"
             OVERALL_RESULT=1
         fi
     done

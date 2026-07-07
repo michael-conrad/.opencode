@@ -24,15 +24,15 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 
 **⚠️ Before any branch operations, verify issue closure via audit.**
 
-Invoke `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`. The dual-auditor dispatch must complete with a PASS consensus before any branch operations proceed.
+Invoke `audit --task closure-verification --pr <N>`. The dual-auditor dispatch must complete with a PASS consensus before any branch operations proceed.
 
 #### Dispatch Procedure (Orchestrator)
 
 The orchestrator dispatches the audit pipeline:
 
 1. **`skill({name: "audit"})`** — load the audit skill
-2. **Task `resolve-models`** — dispatch a clean-room sub-agent to resolve two cross-family auditor models via capability probe
-3. **Task `closure-verification`** — dispatch two auditor sub-agents in parallel (each receives `spec_local_dir`, `audit_phase: post_merge`, PR number, and the standard dispatch fields only — no orchestrator reasoning, no pre-loaded findings)
+2. **DiMo role chain dispatch** — the audit skill's DiMo role chain handles model selection internally; no separate `resolve-models` invocation needed
+3. **Task `closure-verification`** — dispatch two auditor sub-agents in parallel (each receives `spec_local_dir`, `artifact_evidence_dir`, PR number, and the standard dispatch fields only — no orchestrator reasoning, no pre-loaded findings)
 4. **Task `cross-validate`** — dispatch a sub-agent with the pre-resolved `auditor_artifact_paths` to compute consensus
 5. **Evaluate result contract** — if `status: BLOCKED` (issue not closed, SCs unverified), HALT and report findings. If `status: DONE` with PASS consensus, proceed to Step 1.
 
@@ -49,7 +49,7 @@ blocked_reason: "Spec issue #N not closed after PR merge"  # if BLOCKED
 
 | Element | Value |
 |---------|-------|
-| `must_receive` | `github.owner`, `github.repo`, PR number, `audit_phase: post_merge`, `spec_local_dir`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` |
+| `must_receive` | `github.owner`, `github.repo`, PR number, `spec_local_dir`, `artifact_evidence_dir`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` |
 | `must_not_receive` | Orchestrator reasoning, expected verdicts, pre-determined findings, cached git state, inline file paths to task files |
 
 **🚫 CRITICAL: If closure-verification returns BLOCKED (issue not closed or SCs unverified), do NOT proceed to branch deletion. HALT and report findings for remediation.**

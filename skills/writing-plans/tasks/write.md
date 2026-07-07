@@ -132,7 +132,7 @@ Every step MUST use one of three dispatch indicators:
 - **No shared cross-references** — each phase is self-contained. Do not reference steps from other phases.
 - **No zero-indexed numbering** — phases start at 1, steps start at 1.
 - **No line number references** — use stable anchors (function names, section headers).
-- **No multi-dispatch steps** — every step dispatches exactly one sub-agent or executes inline. A step MUST NOT bundle multiple dispatches (e.g., "resolve-models → dispatch auditor_1 → remediate → dispatch auditor_2"). Each dispatch is a separate numbered step with its own dispatch indicator.
+- **No multi-dispatch steps** — every step dispatches exactly one sub-agent or executes inline. A step MUST NOT bundle multiple dispatches (e.g., "DiMo role chain → dispatch auditor_1 → remediate → dispatch auditor_2"). Each dispatch is a separate numbered step with its own dispatch indicator.
 - **No non-standard dispatch indicators** — only `(**sub-agent**)`, `(**clean-room**)`, and `(**inline**)` are valid. `(**orchestrator**)`, `(**orchestrator**)`, or any other indicator is prohibited.
 - **No omitted mandatory gates** — All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are mandatory. No step may be omitted because the plan writer judges it "not needed." If a step appears unnecessary, include it anyway — skipping a step produces defective deliverables that must be discarded, requiring full rework.
 

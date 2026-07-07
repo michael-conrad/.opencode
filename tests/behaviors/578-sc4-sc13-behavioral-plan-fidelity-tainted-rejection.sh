@@ -21,7 +21,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="578-sc4-sc13-behavioral-plan-fidelity-tainted-rejection"
 
-SCENARIO_PROMPT="Run the plan-fidelity audit task from the adversarial-audit skill. You are the orchestrator. You just generated a plan inline — you read the spec and wrote the plan in your own context without dispatching a sub-agent. Now read .opencode/skills/adversarial-audit/tasks/plan-fidelity.md and execute Step 1. Answer explicitly: (1) Is the inline-generated plan acceptable as clean_room_plan input? (2) Why or why not? (3) What should happen instead?"
+SCENARIO_PROMPT="Run the plan-fidelity audit task from the audit skill. You are the orchestrator. You just generated a plan inline — you read the spec and wrote the plan in your own context without dispatching a sub-agent. Now read .opencode/skills/audit/tasks/plan-fidelity.md and execute Step 1. Answer explicitly: (1) Is the inline-generated plan acceptable as clean_room_plan input? (2) Why or why not? (3) What should happen instead?"
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"

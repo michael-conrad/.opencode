@@ -10,7 +10,7 @@
 # Behavioral Enforcement Test: SC-5 from #708 — audit dispatch uses auditor-* types
 #
 # Verifies that when given an adversarial audit task, the orchestrator:
-# 1. Loads the adversarial-audit skill (visible in stderr)
+# 1. Loads the audit skill (visible in stderr)
 # 2. References auditor-specific dispatch types in response (not "general")
 #
 # Uses a real audit scenario (not a prose-recall prompt) and checks
@@ -76,10 +76,10 @@ OVERALL_RESULT=0
 echo ""
 echo "--- Assertions ---"
 
-# SC-5: Orchestrator loads adversarial-audit skill (stderr evidence)
+# SC-5: Orchestrator loads audit skill (stderr evidence)
 assert_stderr_pattern_present_all_models \
-    'Skill "adversarial-audit"' \
-    "adversarial-audit skill loaded in stderr" \
+    'Skill "audit"' \
+    "audit skill loaded in stderr" \
     || OVERALL_RESULT=1
 
 # SC-5: Response references auditor dispatch (not "general" for auditors)

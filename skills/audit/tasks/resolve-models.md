@@ -2,14 +2,18 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: resolve-models
+# Task: resolve-models (Path Provider — Reference)
 
 > **DiMo Role: Path Provider.** This task resolves which models are available for the audit pipeline. It provides the path (model selection) for downstream roles.
 
+## Purpose
+
+Reference document for the Path Provider role in the DiMo role chain. Model selection is embedded in each task's sequential dispatch — no separate `resolve-models` invocation is needed.
+
 ## Dispatch Contract
 
-- `spec_local_dir`: Local directory containing spec files (unused by this task, passed through for pipeline consistency)
-- `artifact_evidence_dir`: Directory for evidence artifacts (unused by this task, passed through for pipeline consistency)
+- `spec_local_dir`: Local directory containing spec files (passed through for pipeline consistency)
+- `artifact_evidence_dir`: Directory for evidence artifacts (passed through for pipeline consistency)
 
 ## Procedure
 
@@ -17,24 +21,31 @@
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/resolve-models/`
 
-### Step 1: Resolve Models
+### Step 1: Write reasoning.yaml
 
-Invoke `.opencode/tools/resolve-models` to select two auditors from different model families.
+Write model selection and routing rationale to `./tmp/{issue-N}/artifacts/resolve-models/reasoning.yaml`:
 
-Flags: `--orchestrator-model <model>` (required), `--re-task` (fresh randomization), `--excluded-pair <fam1>,<fam2>` (exclude specific families), `--test-insufficient-families` (force error for testing).
-
-Output is YAML with 4 keys on success (`auditor_1`, `auditor_2`, `family_1`, `family_2`) or 3 keys on error (`error`, `reason`, `eligible_count`). The orchestrator uses `auditor_1` and `auditor_2` as `subagent_type` values for task() dispatch. Each auditor sub-agent writes its YAML verdict artifact to disk and returns a frugal contract with `artifact_path`. The orchestrator passes these `artifact_path` values to `cross-validate`.
-
-resolve-models is the ONLY authorized entry point for auditor model resolution per audit-013.
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-15T00:00:00Z"
-rules:
-  - id: resolve-models-001
-    title: "resolve-models tool command is the single source of truth"
-    conditions:
-      all: ["resolve_models_invoked == false"]
-    actions: [HALT, CALL(.opencode/tools/resolve-models)]
-    source: "resolve-models.md"
+```yaml
+role: Path Provider
+model_selection:
+  evaluator_model: "<model>"
+  judger_model: "<model>"
+  rationale: "Cross-family auditor selection for independent evaluation"
+artifact_paths:
+  evidence_yaml: "./tmp/{issue-N}/artifacts/{task}/evidence.yaml"
+  reasoning_yaml: "./tmp/{issue-N}/artifacts/resolve-models/reasoning.yaml"
+  verdict_yaml: "./tmp/{issue-N}/artifacts/{task}/verdict.yaml"
+  judgment_yaml: "./tmp/{issue-N}/artifacts/cross-validate/judgment.yaml"
 ```
+
+### Step 2: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/{issue-N}/artifacts/resolve-models/reasoning.yaml"
+summary: "Model selection and routing rationale written to reasoning.yaml"
+```
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean).

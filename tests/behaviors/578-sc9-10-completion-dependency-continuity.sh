@@ -23,7 +23,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
-TASK_DIR="$PROJECT_DIR/.opencode/skills/adversarial-audit/tasks"
+TASK_DIR="$PROJECT_DIR/.opencode/skills/audit/tasks"
 
 echo "=== Content-Verification Test: $SCENARIO_NAME ==="
 

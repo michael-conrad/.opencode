@@ -42,7 +42,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` | {issue_number} |
 | "spec summary" / "PR summary" | `spec-summary` | `sub-task` | {issue_number} |
 | "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` | {pr_number} |
-| "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {auditor_1_verdict, auditor_2_verdict} |
+| "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {spec_local_dir, artifact_evidence_dir} |
 | "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
 | "content audit" / "audit content claims" | `content-audit` | `sub-task` | {document_section, source_data_paths} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
@@ -94,3 +94,14 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
+
+## DiMo Role Chain Dispatch
+
+Each audit task follows a sequential role chain. The orchestrator dispatches roles in order, passing artifact paths between them:
+
+1. **Knowledge Supporter** (coherence-extraction) — writes `evidence.yaml` with extracted rules and behaviors
+2. **Path Provider** (resolve-models) — writes `reasoning.yaml` with model selection and routing rationale
+3. **Evaluator** (all audit tasks) — reads `evidence.yaml` and `reasoning.yaml`, writes `verdict.yaml`
+4. **Judger** (cross-validate) — reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+
+The `resolve-models` task is replaced by the DiMo role chain. Model selection is embedded in the Path Provider role within each task's sequential dispatch. No separate `resolve-models` invocation is needed.

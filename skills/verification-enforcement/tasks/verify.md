@@ -19,7 +19,7 @@ The orchestrator begins by identifying the content sections that the generating 
 For each content section, the orchestrator dispatches an content audit via `audit --task content-audit`. This replaces the previous single-sub-agent approach with independent verification:
 
 1. The orchestrator calls `skill({name: "audit"})` then tasks `content-audit` with `{ document_section, source_data_paths }` — clean-room, no orchestrator preload, no GitHub routing fields
-2. The `content-audit` task dispatches two cross-family auditors (via `resolve-models`) who independently verify every numerical claim, file reference, and factual assertion against local source data
+2. The `content-audit` task dispatches two cross-family auditors (via the DiMo role chain) who independently verify every numerical claim, file reference, and factual assertion against local source data
 3. Each auditor returns per-claim verdicts: PASS (verified), FAIL (contradicted by source), or FABRICATED (no source evidence exists)
 4. The two auditor verdicts are cross-validated for consensus
 5. The result contract returns per-claim verdicts and evidence artifact paths

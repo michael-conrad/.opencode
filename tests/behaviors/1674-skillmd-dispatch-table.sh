@@ -40,7 +40,7 @@ The dispatch table shows these entries (among others):
 | "post-green-enforcement" / "GREEN gate" | post-green-enforcement | sub-task | "execute post-green-enforcement from implementation-pipeline. Read `implementation-pipeline/tasks/post-green-enforcement.md` first" |
 | "structural-checks" / "lint/typecheck" | structural-checks | sub-task | "execute structural-checks from implementation-pipeline. Read `implementation-pipeline/tasks/structural-checks.md` first" |
 | "green-vbc" / "verification before completion" | green-vbc | sub-task | "execute green-vbc from implementation-pipeline. Read `implementation-pipeline/tasks/green-vbc.md` first" |
-| "adversarial-audit" / "audit step" | adversarial-audit | orchestrator | orchestrator multi-dispatch: resolve-models -> auditor-1 -> auditor-2 -> cross-validate |
+| "audit" / "audit step" | audit | orchestrator | orchestrator multi-dispatch: resolve-models -> auditor-1 -> auditor-2 -> cross-validate |
 | "review-prep" / "prepare review" | review-prep | sub-task | "execute review-prep from implementation-pipeline. Read `implementation-pipeline/tasks/review-prep.md` first" |
 | "exec-summary" / "completion" | exec-summary | sub-task | "execute exec-summary from implementation-pipeline. Read `implementation-pipeline/tasks/exec-summary.md` first" |
 

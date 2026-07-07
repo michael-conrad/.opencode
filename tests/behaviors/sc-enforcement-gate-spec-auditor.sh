@@ -1,7 +1,7 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC Enforcement Gate — Spec Auditor
 #
-# Verifies that the spec auditor (adversarial-audit/tasks/spec-audit.md)
+# Verifies that the spec auditor (audit/tasks/spec-audit.md)
 # checks for the all-or-nothing SC enforcement gate (SC-14).
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
@@ -20,7 +20,7 @@ WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
 SCENARIO_NAME="sc-enforcement-gate-spec-auditor"
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-SPEC_AUDIT_FILE="$WORKTREE_ROOT/.opencode/skills/adversarial-audit/tasks/spec-audit.md"
+SPEC_AUDIT_FILE="$WORKTREE_ROOT/.opencode/skills/audit/tasks/spec-audit.md"
 SC_GATE_TAG="<!-- Fragment ID: sc-enforcement-gate -->"
 
 OVERALL_RESULT=0

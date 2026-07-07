@@ -46,7 +46,7 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
-| `analyze` | Before any sub-agent routing | Issue number, task description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `analyze` | Before any sub-agent routing | Issue number, task description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state, authorization_scope, halt_at | Implementation context, agent memory | NO |
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol

@@ -108,7 +108,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 | ARTIFACT_UNREADABLE | Auditor YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
 | INSUFFICIENT_ARTIFACTS | Each auditor produces fewer than 1 verdict OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
 
-These gates are **non-recovery** per audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: resolve-models → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
+These gates are **non-recovery** per audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: DiMo role chain → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
 
 > **DiMo Role: Judger.** This task produces the final judgment by cross-referencing all auditor verdicts. Reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`.
 
@@ -232,7 +232,7 @@ Track disagreements explicitly in the result contract for transparency: a `PASS`
 
 #### FAIL Is Terminal — No Reclassification (MANDATORY)
 
-FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors and fresh resolve-models.
+FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors and fresh DiMo role chain.
 
 The following rationalization patterns are enumerated as explicit violations:
 
@@ -405,7 +405,7 @@ Write final judgment to `./tmp/{issue-N}/artifacts/cross-validate/judgment.yaml`
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+If any step FAILs, restart from step 0 (pre-clean).
 
 ### Step 7: Return Frugal YAML Result Contract
 
@@ -431,7 +431,7 @@ The `next_step` field:
 
 - `spec_local_dir`: Local directory containing Markdown spec files
 - `artifact_evidence_dir`: Path(s) to directories containing auditor YAML verdict artifacts
-- `audit_phase`: Current audit phase for task context
+- `audit_type`: Current audit type for task context
 
 ## Red Flags
 
@@ -441,7 +441,7 @@ The `next_step` field:
 - Never fabricate verdicts when auditor YAML artifact is unreadable or unparseable — missing data = FAIL per audit-005
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
-- Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
+- Never resolve auditors inline — DiMo role chain is dispatched by orchestrator before this task
 - Never bypass dark pattern enforcement — Step 6 checks are MANDATORY per audit-013 through audit-018
 - Never attempt recovery from BLOCKED status — Non-Recovery Gates are terminal per audit-017
 - Never pass YAML verdict content inline through orchestrator context — verdict artifacts stay on disk; only artifact_path reaches orchestrator
@@ -449,7 +449,7 @@ The `next_step` field:
 ## Cross-References
 
 - `audit/SKILL.md` — skill-level operating protocol and enforcement rules
-- `audit/tasks/resolve-models.md` — cross-family auditor model selection (orchestrator calls this, not cross-validate)
+- `audit/tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `audit/tasks/completion.md` — halt guarantee
 - `.opencode/agents/auditor-*.md` — auditor agent files with model and permission definitions
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
@@ -462,7 +462,7 @@ The `next_step` field:
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
-| `spec_local_dir`, `artifact_evidence_dir`, `audit_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate discovers artifacts via evidence dir, does not dispatch auditors | NO |
+| `spec_local_dir`, `artifact_evidence_dir`, `audit_type` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate discovers artifacts via evidence dir, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

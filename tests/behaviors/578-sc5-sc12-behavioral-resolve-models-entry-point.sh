@@ -20,7 +20,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="578-sc5-sc12-behavioral-resolve-models-entry-point"
 
-SCENARIO_PROMPT="Start a spec audit for issue #456 which describes a config schema change. Use the adversarial-audit skill. You are the orchestrator and need to: (1) resolve the auditor models, (2) run scan, (3) run cross-validate. Begin with step 1 — resolve the models. Report what you did."
+SCENARIO_PROMPT="Start a spec audit for issue #456 which describes a config schema change. Use the audit skill. You are the orchestrator and need to: (1) resolve the auditor models, (2) run scan, (3) run cross-validate. Begin with step 1 — resolve the models. Report what you did."
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"
@@ -34,7 +34,7 @@ OVERALL_RESULT=0
 assert_stderr_pattern_present_all_models "resolve-models" "stderr: resolve-models dispatched for auditor resolution" || OVERALL_RESULT=1
 
 # SC-5: stderr shows no direct tool path invocation
-assert_stderr_pattern_absent_all_models "adversarial-audit --task resolve-models" "stderr: no direct tool path invocation" || OVERALL_RESULT=1
+assert_stderr_pattern_absent_all_models "audit --task resolve-models" "stderr: no direct tool path invocation" || OVERALL_RESULT=1
 
 # SC-12: stderr shows no unconditional general dispatch
 assert_stderr_pattern_absent_all_models "task(subagent_type=\"general\")" "stderr: no unconditional general dispatch" || OVERALL_RESULT=1

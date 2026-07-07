@@ -7,7 +7,7 @@
 set -euo pipefail
 
 OVERALL_RESULT=0
-TASK_FILE=".opencode/skills/adversarial-audit/tasks/plan-fidelity.md"
+TASK_FILE=".opencode/skills/audit/tasks/plan-fidelity.md"
 
 echo "=== RED Phase: Content-Verification Test ==="
 echo "Verifying per-criterion YAML template has unconditional next_step: proceed"

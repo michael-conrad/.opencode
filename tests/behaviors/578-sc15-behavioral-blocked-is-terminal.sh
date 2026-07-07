@@ -20,7 +20,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="578-sc15-behavioral-blocked-is-terminal"
 
-SCENARIO_PROMPT="Run the cross-validate task from the adversarial-audit skill. You are the orchestrator. Cross-validate returned status: BLOCKED with error: MISSING_VERDICTS — auditor_verdicts were absent or empty. Read .opencode/skills/adversarial-audit/tasks/cross-validate.md, specifically the Non-Recovery Gates section. Answer explicitly: (1) Is BLOCKED a terminal state with no fallback? (2) Can you proceed with just one auditor or skip cross-validation? (3) What is the ONLY valid recovery action?"
+SCENARIO_PROMPT="Run the cross-validate task from the audit skill. You are the orchestrator. Cross-validate returned status: BLOCKED with error: MISSING_VERDICTS — auditor_verdicts were absent or empty. Read .opencode/skills/audit/tasks/cross-validate.md, specifically the Non-Recovery Gates section. Answer explicitly: (1) Is BLOCKED a terminal state with no fallback? (2) Can you proceed with just one auditor or skip cross-validation? (3) What is the ONLY valid recovery action?"
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"

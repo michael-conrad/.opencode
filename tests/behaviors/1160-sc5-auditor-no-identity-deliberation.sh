@@ -24,7 +24,7 @@ Evaluate this criterion:
 - evidence_type: string
 - verification_method: grep for '## Problem Statement'
 
-Task file at .opencode/skills/adversarial-audit/tasks/spec-audit.md contains evaluation criteria and procedure you should use.
+Task file at .opencode/skills/audit/tasks/spec-audit.md contains evaluation criteria and procedure you should use.
 
 Proceed with the evaluation and return your verdict."
 

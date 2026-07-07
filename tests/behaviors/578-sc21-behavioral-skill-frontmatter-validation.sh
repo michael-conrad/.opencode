@@ -6,9 +6,9 @@
 #
 # Behavioral test for spec #578 SC-21.
 # SC-21: After frontmatter remediation, the AI agent can discover
-# adversarial-audit, approval-gate, and completion-core in <available_skills>.
+# audit, approval-gate, and completion-core in <available_skills>.
 # These three skills previously had broken YAML frontmatter:
-# - adversarial-audit: was missing --- opening delimiter (now fixed in this branch)
+# - audit: was missing --- opening delimiter (now fixed in this branch)
 # - approval-gate: had no YAML frontmatter at all (now fixed in this branch)
 # - completion-core: description didn't start with "Use when" (now fixed in this branch)
 #
@@ -30,7 +30,7 @@ SCENARIO_NAME="578-sc21-behavioral-skill-frontmatter-validation"
 SCENARIO_PROMPT="Read the <available_skills> section in your system prompt carefully. It lists all skills with their names, descriptions, and trigger keywords. Answer these numbered questions:
 
 1. List every skill name from the available_skills section. Number them.
-2. Specifically, do you see these three skills listed: adversarial-audit, approval-gate, completion-core? Answer yes or no for each.
+2. Specifically, do you see these three skills listed: audit, approval-gate, completion-core? Answer yes or no for each.
 3. What does each of those three skills' description start with? Quote the first few words of each description.
 4. How many total skills are listed in available_skills?"
 
@@ -42,9 +42,9 @@ behavior_run_pool "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-21 ASSERTION 1: Agent must discover adversarial-audit in available_skills
+# SC-21 ASSERTION 1: Agent must discover audit in available_skills
 # Previously broken: missing --- opening delimiter. Now fixed.
-assert_required_pattern_present_all_models "adversarial-audit" "discovery of adversarial-audit in available_skills" || OVERALL_RESULT=1
+assert_required_pattern_present_all_models "audit" "discovery of audit in available_skills" || OVERALL_RESULT=1
 
 # SC-21 ASSERTION 2: Agent must discover approval-gate in available_skills
 # Previously broken: no YAML frontmatter at all. Now fixed with proper frontmatter.
