@@ -39,7 +39,7 @@ def _read_frontmatter(tmpdir, number, status="open"):
     import yaml
     open_dir = os.path.join(tmpdir, ".issues", status)
     for entry in os.listdir(open_dir):
-        if entry.startswith(f"{number:03d}-"):
+        if entry == str(number):
             spec_path = os.path.join(open_dir, entry, "spec.md")
             with open(spec_path) as f:
                 content = f.read()

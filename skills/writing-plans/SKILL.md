@@ -63,12 +63,12 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 **All plans are local artifacts.** Plans use a split file convention:
 
 - **Index file:** `{N}/plan.md` — contains Goal, Architecture, Files, Phase table, Exit criteria, all admonishments, and self-review evidence. No implementation steps.
-- **Phase files:** `{N}/plan-{NN}-{short-slug}.md` — one per phase, with full step-by-step instructions, dispatch indicators, RED/GREEN chains, Z3 checks, VbC blocks, phase completion block, and concern transition.
+- **Phase files:** `{N}/plan-{NN}.md` — one per phase, with full step-by-step instructions, dispatch indicators, RED/GREEN chains, Z3 checks, VbC blocks, phase completion block, and concern transition.
 
 **Numbering rules:**
 - Steps are globally sequential across all phase files
 - Phase 2's first step continues from Phase 1's last step
-- Phase file naming: `plan-{NN}-{short-slug}.md` where NN is zero-padded phase number
+- Phase file naming: `plan-{NN}.md` where NN is zero-padded phase number
 
 **Single-task plans** (one phase) use `{N}/plan.md` as the sole file (no split needed).
 
