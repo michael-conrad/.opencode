@@ -7,6 +7,11 @@
 # dispatches writing-plans via next_action routing from the gap-fill
 # state-verification checklist.
 #
+# NOTE: This is a full-pipeline integration test. It tests the entire
+# authorization pipeline (approval-gate → verify-authorization →
+# gap-fill-cascade). For a scoped unit test that directly invokes
+# gap-fill-cascade, see gap-fill-cascade-direct.sh.
+#
 # RED phase: The gap-fill cascade is a flat action list. When the agent
 # receives "approved for PR" with missing plan, it skips to PR creation
 # without dispatching writing-plans. The test MUST FAIL at this point.
