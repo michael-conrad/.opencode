@@ -42,6 +42,8 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 This skill produces specs by dispatching sub-agents. The orchestrator routes; sub-agents write. An orchestrator that writes a spec inline instead of dispatching to a sub-agent has stopped being a router and started being a contaminant — every inline-written spec carries the orchestrator's preloaded bias through every downstream verification gate, and the pipeline is poisoned from the first byte. Sub-agents are intelligent agents, not dumb terminals — they read specs and use skills autonomously. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW. Professional orchestrators route to sub-agents. Inlining the write task means the spec was never independently produced — it was authored by the same context that will later verify it, making every subsequent gate a self-review.
 
+> **Micro-management prohibition:** The sub-agents that implement this spec/plan are intelligent agents, not dumb terminals. They read specs and use skills autonomously. Do not prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW. The implementing agent discovers scope independently and produces its own result contract.
+
 ## Tasks
 
 | Task                      |
