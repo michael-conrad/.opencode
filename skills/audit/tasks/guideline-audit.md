@@ -8,7 +8,7 @@
 
 Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies problems one at a time with concise prompts. Uses independent verification for each finding.
 
-> **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -40,6 +40,12 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - [ ] 6. Write Audit Report — markdown report to artifacts directory
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
 - [ ] 8. Return Frugal Result Contract
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0: Pre-Flight Validation Gate
 

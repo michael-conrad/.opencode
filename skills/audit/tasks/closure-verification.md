@@ -10,7 +10,7 @@
 
 Verify merge evidence after PR merge. Ensures spec issue properly closed, success criteria verified, and all follow-up actions documented.
 
-> **DiMo Role: Evaluator.** This task evaluates closure evidence against criteria. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates closure evidence against criteria. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -34,6 +34,12 @@ Verify merge evidence after PR merge. Ensures spec issue properly closed, succes
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/closure-verification/`
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0b: Pre-Flight Validation Gate
 

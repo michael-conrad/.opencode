@@ -8,7 +8,7 @@
 
 Audit a plan for fidelity against its spec using clean-room comparison and independent cross-validation. Compares existing plan against a clean-room plan and identifies discrepancies.
 
-> **DiMo Role: Evaluator.** This task evaluates plan fidelity against spec. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates plan fidelity against spec. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
@@ -47,6 +47,12 @@ Audit a plan for fidelity against its spec using clean-room comparison and indep
 - [ ] 6. Generate Bidirectional Findings — FAIL/DISAGREE with revision options
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml`
 - [ ] 8. Return Frugal Result Contract
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0: Pre-Flight Validation Gate
 

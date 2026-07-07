@@ -10,7 +10,7 @@ provenance: AI-generated
 
 Structural test quality audit — reader-only checks on test files. Evaluates test quality through five criteria without executing tests.
 
-> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -47,6 +47,12 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/test-quality-audit/`
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0b: Pre-Flight Validation Gate
 

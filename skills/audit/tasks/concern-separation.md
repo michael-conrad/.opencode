@@ -8,7 +8,7 @@
 
 Audit spec phase structure for concern separation quality using independent verification. Checks deployment independence, risk profile, and blast radius per phase.
 
-> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
@@ -42,6 +42,12 @@ Audit spec phase structure for concern separation quality using independent veri
 - [ ] 6. Verify Boundary Claims — live tool-call verification per claim
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
 - [ ] 8. Return Frugal Result Contract
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0: Pre-Flight Validation Gate
 

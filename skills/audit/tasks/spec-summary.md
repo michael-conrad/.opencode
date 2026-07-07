@@ -8,7 +8,7 @@
 
 Verify PR/spec consistency before merge. Ensures PR description matches spec, all success criteria documented, and spec-linked issues properly closed.
 
-> **DiMo Role: Evaluator.** This task evaluates PR/spec consistency. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates PR/spec consistency. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -33,6 +33,12 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/spec-summary/`
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0b: Pre-Flight Validation Gate
 

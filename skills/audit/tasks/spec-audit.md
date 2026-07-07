@@ -8,7 +8,7 @@
 
 Audit a spec for quality, structure, and completeness. Each criterion is evaluated against the spec's declared evidence types with clean-room context.
 
-> **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
@@ -46,6 +46,12 @@ Audit a spec for quality, structure, and completeness. Each criterion is evaluat
 - [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
 - [ ] 8. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
 - [ ] 9. Return Frugal Result Contract
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0: Pre-Flight Validation Gate
 

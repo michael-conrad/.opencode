@@ -8,7 +8,7 @@
 
 Detect drift between baseline coherence state and current guidelines/skills. Identifies rules added, removed, or modified since baseline generation.
 
-> **DiMo Role: Evaluator.** This task evaluates drift between baseline and current state. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates drift between baseline and current state. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -32,6 +32,7 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 ## Coherence Maintenance Checklist
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/coherence-maintenance/`
+- [ ] 0a. Knowledge Supporter — read `evidence.yaml` from `./tmp/{issue-N}/artifacts/coherence-maintenance/evidence.yaml`, validate each evidence item against source data, write `reasoning.yaml`
 - [ ] 1. Load Baseline — find latest baseline JSON, parse rules and behaviors
 - [ ] 2. Extract Current State — re-extract guideline rules and skill behaviors
 - [ ] 3. Compare Against Baseline — rules_added/removed/modified, behaviors drift

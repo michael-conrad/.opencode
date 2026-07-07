@@ -8,7 +8,7 @@
 
 Detect drift between spec/code reality and expected state. Identifies cases where implementation diverged from spec, or spec outpaced implementation, using independent verification.
 
-> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -43,6 +43,12 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
 - [ ] 9. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
 - [ ] 10. Build Result Contract — YAML verdict with drift summary
+
+### Step 0a: Knowledge Supporter — Validate Evidence
+
+- [ ] 0a. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/{task-name}/evidence.yaml`
+- [ ] 0b. Validate each evidence item against source data — check accuracy, completeness, relevance
+- [ ] 0c. Write validated evidence to `./tmp/{issue-N}/artifacts/{task-name}/reasoning.yaml`
 
 ### Step 0: Pre-Flight Validation Gate
 
