@@ -22,7 +22,7 @@ Idempotent completion subtask for audit. Ensures mandatory steps ran regardless 
 ## State Check Phase
 
 - [ ] 1. **Auditor models resolved:** Check whether the DiMo role chain successfully returned two cross-family auditor selections
-- [ ] 2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="auditor-*")` for both auditor-1 and auditor-2
+- [ ] 2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="general")` for both auditor roles (auditor-1 and auditor-2)
 - [ ] 3. **Verdict artifacts written:** Check whether auditor YAML verdict artifacts exist on disk at the reported `artifact_path` locations
 - [ ] 4. **Cross-validation computed:** Check whether cross-validate produced a definitive PASS or FAIL result with `next_step` field
 
@@ -31,7 +31,7 @@ Idempotent completion subtask for audit. Ensures mandatory steps ran regardless 
 The dispatch chain is orchestrated by the main agent (orchestrator), NOT by individual sub-tasks. The flow is:
 
 - [ ] 1. **Orchestrator dispatches** `task(general)` ← Path Provider (DiMo role chain) → receives `{ auditor_1, auditor_2 }` pair
-- [ ] 2. **Orchestrator dispatches** `task(auditor-1)` and `task(auditor-2)` in parallel → receives frugal contracts with `artifact_path` from both auditors
+- [ ] 2. **Orchestrator dispatches** `task(general)` for auditor-1 and `task(general)` for auditor-2 in parallel → receives frugal contracts with `artifact_path` from both auditors
 - [ ] 3. **Orchestrator dispatches** `task(general)` ← cross-validate with `auditor_artifact_paths` (pre-resolved artifact path array, NOT auditor model names) → receives cross-validation result
 - [ ] 4. **Orchestrator routes** based on `next_step` field: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
 

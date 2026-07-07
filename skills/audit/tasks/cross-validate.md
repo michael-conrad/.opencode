@@ -451,7 +451,6 @@ The `next_step` field:
 - `audit/SKILL.md` — skill-level operating protocol and enforcement rules
 - `audit/tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `audit/tasks/completion.md` — halt guarantee
-- `.opencode/agents/auditor-*.md` — auditor agent files with model and permission definitions
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
 - `000-critical-rules.md` — clean-room task() protocol, orchestrator purity
 - Spec #578, Plan #382
