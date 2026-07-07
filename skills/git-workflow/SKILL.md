@@ -97,7 +97,7 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 - [ ] 5. **Compare URL base:** feature → `compare/<target>...<branch>`. Release → `compare/main...<target>`.
 - [ ] 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 - [ ] 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
-- [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
+- [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 - [ ] 9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
 - [ ] 10. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
@@ -122,7 +122,7 @@ All git tags in this project follow a unified naming convention. The suffix rule
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 Submodule operations are standard tasks dispatched via `task(subagent_type="general")` with scoped context. All are clean-room runs — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
 
@@ -197,7 +197,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `pre-analysis`, `adversarial-audit --task closure-verification`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `pre-analysis`, `audit --task closure-verification`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

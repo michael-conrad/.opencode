@@ -139,7 +139,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 ### 🚫 NEVER DO
 
 - **ZERO TOLERANCE — NEVER use or access any other folder (e.g., `/tmp/`, `.tmp/`, etc.) for any reason.** Only `{project_root}/tmp/` is permitted.
-- **NEVER delete `{project_root}/tmp/behavioral-evidence-*` files before PR merge cleanup.** These artifacts are required for adversarial audit cross-validation. Deleting them before the auditor inspects them produces a false "no behavioral evidence found" — indistinguishable from "evidence was never produced."
+- **NEVER delete `{project_root}/tmp/behavioral-evidence-*` files before PR merge cleanup.** These artifacts are required for audit cross-validation. Deleting them before the auditor inspects them produces a false "no behavioral evidence found" — indistinguishable from "evidence was never produced."
 
 ## 4. Command Restrictions & Quality
 
@@ -355,6 +355,6 @@ rules:
       - BLOCK_DELETION
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, git-workflow]
+    triggers: [verification-before-completion, audit, git-workflow]
     source: "060-tool-usage.md §3 Temp Files & Cleanliness"
 ```

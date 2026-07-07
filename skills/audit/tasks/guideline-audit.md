@@ -8,12 +8,16 @@
 
 ## Purpose
 
-Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies problems one at a time with concise prompts. Uses dual-adversarial verification for each finding.
+Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies problems one at a time with concise prompts. Uses independent verification for each finding.
+
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
 
 ## Entry Criteria
 
 - Target guideline file(s) specified OR full audit requested
-- `audit_phase: guideline_update` OR `spec_creation`
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -23,19 +27,23 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - PASS/FAIL consensus for each problem class
 - Findings written to `{project_root}/tmp/{issue-N}/artifacts/audit-guideline.md`
 
+> **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
 ## Guideline Audit Checklist
 
-- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
-- [ ] 1. Identify Target Files — specific files or full glob of guidelines/
-- [ ] 2. Build Evaluation Criteria — define GA table with evidence types
-- [ ] 3. Scan for Problem Classes — per-file ambiguous/conflicting/unenforceable/redundant/missing/overflow
-- [ ] 4. One Problem At a Time — present single findings per interaction
-- [ ] 5. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/guideline-audit/`
+- [ ] 1. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 2. Identify Target Files — specific files or full glob of guidelines/
+- [ ] 3. Build Evaluation Criteria — define GA table with evidence types
+- [ ] 4. Scan for Problem Classes — per-file ambiguous/conflicting/unenforceable/redundant/missing/overflow
+- [ ] 5. One Problem At a Time — present single findings per interaction
 - [ ] 6. Write Audit Report — markdown report to artifacts directory
-- [ ] 7. Write Verdict Artifact to Disk — YAML output
-- [ ] 8. Return Frugal Result Contract
+- [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
+- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
+- [ ] 9. If FAIL: remediate, restart from step 0
+- [ ] 10. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -157,10 +165,6 @@ Fix? (fix/skip/stop)
 
 Do NOT batch multiple problems in one message.
 
-### Step 5: Cross-Validate
-
-Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
-
 ### Step 6: Write Audit Report
 
 Append findings to `{project_root}/tmp/{issue-N}/artifacts/audit-guideline.md`:
@@ -189,7 +193,16 @@ Fix: <fix_action>
 ...
 ```
 
-### Step 7: Write Verdict Artifact to Disk
+### Step 7: Write verdict.yaml
+
+Write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
+
+### Step 8: Dispatch Judger
+
+- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 9. If FAIL: remediate, restart from step 0
+
+### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
 
@@ -221,7 +234,11 @@ all_criteria_pass: false
 exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 ```
 
-### Step 8: Return Frugal Result Contract
+### Step 11: Return Frugal Result Contract
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
 status: DONE

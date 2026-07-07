@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Load the `adversarial-audit` skill and execute `--task plan-fidelity` inline with auditor sub-agent type context. Verifies the plan faithfully reflects the spec.
+Load the `audit` skill and execute `--task plan-fidelity` inline with auditor sub-agent type context. Verifies the plan faithfully reflects the spec.
 
 ## Entry Criteria
 
@@ -18,7 +18,7 @@ Load the `adversarial-audit` skill and execute `--task plan-fidelity` inline wit
 
 ## Procedure
 
-- [ ] 1. Load `adversarial-audit` skill: `skill({name: "adversarial-audit"})`
+- [ ] 1. Load `audit` skill: `skill({name: "audit"})`
 - [ ] 2. Execute `--task plan-fidelity` inline with auditor sub-agent type context, passing `clean_room_plan` as context
 - [ ] 3. Collect audit artifact path
 - [ ] 4. If PASS: return PASS with artifact_path
@@ -26,5 +26,5 @@ Load the `adversarial-audit` skill and execute `--task plan-fidelity` inline wit
 
 ## Context Required
 
-- Related skills: `adversarial-audit`
+- Related skills: `audit`
 - Related tools: `resolve-models` for auditor sub-agent type selection

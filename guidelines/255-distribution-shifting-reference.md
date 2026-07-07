@@ -217,7 +217,7 @@ To add a distribution-shifting pattern (dist-shift-009+):
 1. **Analyze existing landscape** — Determine whether the proposed pattern overlaps with, extends, or supersedes any existing pattern listed in Section 1.
 2. **Create a spec issue** — Define the new pattern (mechanism, formula, strength level, structure examples, content types). The spec body must follow agency-respecting guidelines: define WHAT the pattern achieves and WHY, trust the implementing agent to determine HOW.
 3. **Reference annotation** — The spec body must include annotation references to this reference card rather than prescriptive prose. The implementing agent reads the card and derives correct catalog entries autonomously.
-4. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify the pattern conforms to the agency-respecting constraint and does not conflict with existing patterns.
+4. **Adversarial audit** — Audit through the audit dual-auditor pipeline. Auditors verify the pattern conforms to the agency-respecting constraint and does not conflict with existing patterns.
 5. **Implement** — Apply the pattern in affected files.
 6. **Update the reference card**:
    - Add pattern row to Section 1 (Pattern ID Allocation table)

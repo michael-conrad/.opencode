@@ -93,7 +93,7 @@ The guard prevents catastrophic failure when an agent or user invokes `bash <scr
 - Line 10: `# fmt: on` (ruff protection guard off)
 - After: blank line, then optional `from __future__` or `__doc__ = ` or imports
 
-This error was discovered during adversarial audit of issue #980. Both `tools/plan` and `tools/solve` were affected.
+This error was discovered during audit of issue #980. Both `tools/plan` and `tools/solve` were affected.
 
 Scripts that print `__doc__` at runtime MUST use `__doc__ = """..."""` assignment (not bare `"""..."""`) because the bash guard string captures the first docstring slot.
 

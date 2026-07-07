@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Run the pre-generation verification gate. Before a content-generating skill produces any output, this task dispatches adversarial content audits for every factual claim the agent intends to make. The agent declares its intended claims, dispatches dual cross-family adversarial auditors to verify each content section against local source data, and assembles the results. Claims that cannot be verified are marked for later resolution.
+Run the pre-generation verification gate. Before a content-generating skill produces any output, this task dispatches content audits for every factual claim the agent intends to make. The agent declares its intended claims, dispatches independent auditors to verify each content section against local source data, and assembles the results. Claims that cannot be verified are marked for later resolution.
 
 ## Entry Criteria
 
@@ -16,9 +16,9 @@ Evidence artifacts have been collected for all claims, or unverifiable claims ha
 
 The orchestrator begins by identifying the content sections that the generating skill intends to produce. These sections correspond to the natural divisions of the output — for a spec, this might be objectives, constraints, success criteria, and affected files; for a runbook, this might be environment context, diagnosis, mitigation steps, and verification criteria. The orchestrator does not need to know the exact content yet — it needs to know the claims that will be made, broadly categorized.
 
-For each content section, the orchestrator dispatches an adversarial content audit via `adversarial-audit --task content-audit`. This replaces the previous single-sub-agent approach with dual cross-family adversarial verification:
+For each content section, the orchestrator dispatches an content audit via `audit --task content-audit`. This replaces the previous single-sub-agent approach with independent verification:
 
-1. The orchestrator calls `skill({name: "adversarial-audit"})` then tasks `content-audit` with `{ document_section, source_data_paths }` — clean-room, no orchestrator preload, no GitHub routing fields
+1. The orchestrator calls `skill({name: "audit"})` then tasks `content-audit` with `{ document_section, source_data_paths }` — clean-room, no orchestrator preload, no GitHub routing fields
 2. The `content-audit` task dispatches two cross-family auditors (via `resolve-models`) who independently verify every numerical claim, file reference, and factual assertion against local source data
 3. Each auditor returns per-claim verdicts: PASS (verified), FAIL (contradicted by source), or FABRICATED (no source evidence exists)
 4. The two auditor verdicts are cross-validated for consensus
@@ -44,4 +44,4 @@ No claim appears in generated content without an evidence artifact. If the agent
 - Invoked by: content-generating skills as their first substantive step
 - Followed by: the content generation steps of the invoking skill
 - Related tasks: `revisit` (post-generation resolution), `enforce` (orchestrator gate)
-- Related skills: `adversarial-audit --task content-audit` (adversarial verification of claims)
+- Related skills: `audit --task content-audit` (verification of claims)

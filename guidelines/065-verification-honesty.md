@@ -564,7 +564,7 @@ rules:
       - REQUIRE_CLEAN_PASS
     conflicts_with: [critical-rules-hard-fail]
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, implementation-pipeline, git-workflow]
+    triggers: [verification-before-completion, audit, implementation-pipeline, git-workflow]
     source: "065-verification-honesty.md §Hard Failure Discipline"
 
   - id: verification-honesty-008a
@@ -580,7 +580,7 @@ rules:
       - REQUIRE_TOOL_CALL_EVIDENCE
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, adversarial-audit]
+    triggers: [verification-before-completion, audit]
     source: "065-verification-honesty.md §Anti-Evasion Rules"
 
   - id: verification-honesty-008b
@@ -595,7 +595,7 @@ rules:
       - REQUIRE_EXECUTION
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, adversarial-audit]
+    triggers: [verification-before-completion, audit]
     source: "065-verification-honesty.md §Anti-Evasion Rules"
 
   - id: verification-honesty-008c
@@ -610,6 +610,6 @@ rules:
       - REQUIRE_BEHAVIORAL_TEST
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, adversarial-audit]
+    triggers: [verification-before-completion, audit]
     source: "065-verification-honesty.md §Anti-Evasion Rules"
 ```

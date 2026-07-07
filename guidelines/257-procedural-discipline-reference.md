@@ -276,7 +276,7 @@ To add a procedural discipline pattern (p-dis-007+):
 
 3. **Reference annotation** — The spec body must include annotation references to this reference card rather than prescriptive prose. The implementing agent reads the reference card and derives correct catalog entries autonomously.
 
-4. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify (a) the pattern does not overlap with any existing pattern, (b) the formula produces deterministic enforcement, and (c) the prose passes the agency-respecting test from `250-dark-prose-reference.md`.
+4. **Adversarial audit** — Audit through the audit dual-auditor pipeline. Auditors verify (a) the pattern does not overlap with any existing pattern, (b) the formula produces deterministic enforcement, and (c) the prose passes the agency-respecting test from `250-dark-prose-reference.md`.
 
 5. **Implement** — Apply the pattern in affected files.
 

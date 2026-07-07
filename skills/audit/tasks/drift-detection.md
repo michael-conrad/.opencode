@@ -8,13 +8,17 @@
 
 ## Purpose
 
-Detect drift between spec/code reality and expected state. Identifies cases where implementation diverged from spec, or spec outpaced implementation, using dual-adversarial verification.
+Detect drift between spec/code reality and expected state. Identifies cases where implementation diverged from spec, or spec outpaced implementation, using independent verification.
+
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
 
 ## Entry Criteria
 
 - Target file(s) specified OR full codebase scan requested
 - Spec issue number provided
-- `audit_phase: implementation_verification`
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -24,20 +28,25 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - PASS if synchronized, FAIL if significant drift
 - Bidirectional findings presented
 
+> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
 ## Drift Detection Checklist
 
-- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
-- [ ] 1. Load Spec Requirements — glob spec_local_dir, extract problem, SCs, phases, files
-- [ ] 2. Identify Target Files — specific files or full scan from spec
-- [ ] 3. Build Evaluation Criteria — define DD table with evidence types
-- [ ] 4. Scan Implementation — per-file existence, signatures, extra code
-- [ ] 5. Check Untracked Files — code files not in spec
-- [ ] 6. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/drift-detection/`
+- [ ] 1. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 2. Load Spec Requirements — glob spec_local_dir, extract problem, SCs, phases, files
+- [ ] 3. Identify Target Files — specific files or full scan from spec
+- [ ] 4. Build Evaluation Criteria — define DD table with evidence types
+- [ ] 5. Scan Implementation — per-file existence, signatures, extra code
+- [ ] 6. Check Untracked Files — code files not in spec
 - [ ] 7. Classify Drift Severity — map drift to HIGH/MEDIUM/LOW
 - [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
-- [ ] 9. Build Result Contract — YAML verdict with drift summary
+- [ ] 9. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
+- [ ] 10. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
+- [ ] 11. If FAIL: remediate, restart from step 0
+- [ ] 12. Build Result Contract — YAML verdict with drift summary
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -160,10 +169,6 @@ for untracked in untracked_files:
     })
 ```
 
-### Step 6: Cross-Validate
-
-Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
-
 ### Step 7: Classify Drift Severity
 
 | Drift Type | Severity | Classification |
@@ -186,7 +191,16 @@ For each drift:
 
 Present options for developer decision.
 
-### Step 9: Build Result Contract
+### Step 9: Write verdict.yaml
+
+Write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
+
+### Step 10: Dispatch Judger
+
+- [ ] 10. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 11. If FAIL: remediate, restart from step 0
+
+### Step 12: Build Result Contract
 
 ```yaml
 {
@@ -217,6 +231,10 @@ Present options for developer decision.
   "exec_summary": "Drift detection: {spec_drift} spec drift, {code_drift} code drift. Consensus: {overall}."
 }
 ```
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 

@@ -11,7 +11,7 @@ compatibility: opencode
 
 Structured discipline for spec writing. Enforces requirements extraction, problem decomposition, interface-first thinking, constraints ledgers, risk analysis, traceability, and change control. Invoked after brainstorming exploration.
 
-Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-audit → approval-gate → writing-plans`
+Pipeline: `brainstorming → spec-creation → audit --task spec-audit → approval-gate → writing-plans`
 
 ## Worktree Mode
 
@@ -87,12 +87,12 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 - [ ] 9. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_8`
 - [ ] 10. [sub-task: create] `task(..., prompt: "execute create task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/write-input.yaml`, output: `{project_root}/tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_6, step_9`
 - [ ] 11. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/completion-input.yaml`, output: `{project_root}/tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_10`
-- [ ] 12. [sub-task: spec-audit] `task(..., prompt: "execute spec-audit task from adversarial-audit")` — chain: `step_10`
+- [ ] 12. [sub-task: spec-audit] `task(..., prompt: "execute spec-audit task from audit")` — chain: `step_10`
 - [ ] 13. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ spec_context, worktree.path, github.owner, github.repo }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ spec_context, worktree.path, github.owner, github.repo }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
@@ -154,7 +154,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Skills: `brainstorming`, `verification-enforcement`, `issue-operations`, `adversarial-audit --task spec-audit`. References: `skill-card-change-types.md`. Guidelines: `015-pre-spec-inspection.md`, `000-critical-rules.md`.
+Skills: `brainstorming`, `verification-enforcement`, `issue-operations`, `audit --task spec-audit`. References: `skill-card-change-types.md`. Guidelines: `015-pre-spec-inspection.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

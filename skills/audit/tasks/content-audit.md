@@ -14,11 +14,15 @@ Adversarial audit of factual claims in generated content (reports, runbooks, cor
 
 > **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation, (4) both auditors independently agree.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - `document_section` provided — the generated content section containing claims to verify
 - `source_data_paths` provided — local file paths to source data (spec files, project files, evidence artifacts, config files) that the claims reference. No GitHub routing fields — verification is against local source data only.
-- Audit phase context: `audit_phase: content`
 
 ## Exit Criteria
 
@@ -27,9 +31,15 @@ Adversarial audit of factual claims in generated content (reports, runbooks, cor
 - Verdict artifact written to disk
 - Consensus PASS/FAIL/FABRICATED per claim
 
+> **DiMo Role: Evaluator.** This task evaluates factual claims in generated content. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
-### Step 0: Pre-Flight Validation Gate
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/content-audit/`
+
+### Step 0a: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -104,7 +114,16 @@ For each claim, produce a finding with evidence reference:
   next_step: "remediate"
 ```
 
-### Step 5: Write Verdict Artifact to Disk
+### Step 5: Write verdict.yaml
+
+Write verdict to `./tmp/{issue-N}/artifacts/content-audit/verdict.yaml`
+
+### Step 5a: Dispatch Judger
+
+- [ ] 5a. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 5b. If FAIL: remediate, restart from step 0
+
+### Step 5c: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-content-audit-{STATUS}-{timestamp}.yaml`:
 
@@ -169,6 +188,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 After content-audit completes:
 - If consensus PASS on all claims: proceed to `cross-validate` or next pipeline step
 - If any claim is FAIL or FABRICATED: remediate findings, then re-run content-audit
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 

@@ -167,5 +167,5 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Context Required
 
-- Related skills: `verification-enforcement`, `issue-operations`, `spec-creation`, `adversarial-audit`, `solve`, `plan`
+- Related skills: `verification-enforcement`, `issue-operations`, `spec-creation`, `audit`, `solve`, `plan`
 - Related tasks: `research`, `readiness`, `structure`, `solve`, `write`, `revisit`, `validate`, `audit-fidelity`, `audit-concern`, `completion`

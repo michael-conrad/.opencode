@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Load the `adversarial-audit` skill and execute `--task concern-separation` inline with auditor sub-agent type context. Verifies each phase addresses exactly one concern.
+Load the `audit` skill and execute `--task concern-separation` inline with auditor sub-agent type context. Verifies each phase addresses exactly one concern.
 
 ## Entry Criteria
 
@@ -17,7 +17,7 @@ Load the `adversarial-audit` skill and execute `--task concern-separation` inlin
 
 ## Procedure
 
-- [ ] 1. Load `adversarial-audit` skill: `skill({name: "adversarial-audit"})`
+- [ ] 1. Load `audit` skill: `skill({name: "audit"})`
 - [ ] 2. Execute `--task concern-separation` inline with auditor sub-agent type context
 - [ ] 3. Collect audit artifact path
 - [ ] 4. If PASS: return PASS with artifact_path
@@ -25,5 +25,5 @@ Load the `adversarial-audit` skill and execute `--task concern-separation` inlin
 
 ## Context Required
 
-- Related skills: `adversarial-audit`
+- Related skills: `audit`
 - Related tools: `resolve-models` for auditor sub-agent type selection

@@ -1060,7 +1060,7 @@ rules:
       - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
     conflicts_with: []
     requires: [critical-rules-020, critical-rules-060]
-    triggers: [verification-before-completion, adversarial-audit]
+    triggers: [verification-before-completion, audit]
     source: "080-code-standards.md §Evidence Type Taxonomy"
 
   - id: code-standards-017

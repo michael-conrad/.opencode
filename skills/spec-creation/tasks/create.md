@@ -466,7 +466,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - Every dispatch step in a plan MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> task from <skill>")` form
     - Plan steps MUST NOT contain inline procedure text — the plan is a routing document, not a re-implementation of skill task cards
     - The full implementation pipeline must be enumerated with no skipped or combined steps, each referencing the correct skill/task combination
-    - The full pipeline enumeration includes: coherence gate, pre-red-baseline, RED/GREEN per item, VbC, adversarial audit, cross-validate, regression check, finishing checklist, review-prep, cleanup
+    - The full pipeline enumeration includes: coherence gate, pre-red-baseline, RED/GREEN per item, VbC, audit, cross-validate, regression check, finishing checklist, review-prep, cleanup
 
 - [ ] 24. **Step 6: Self-Review** — After writing the spec, review with fresh eyes:
 
@@ -702,7 +702,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - If user approves the spec on the issue: proceed to Step 9
     - Do NOT re-dump the spec to chat for any reason
 
-- [ ] 34. **Step 9: Transition** — After user approval of the spec on the issue, invoke `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit")` for quality audit.
+- [ ] 34. **Step 9: Transition** — After user approval of the spec on the issue, invoke `skill({name: "audit"})` then `task(..., prompt: "execute spec-audit task from audit")` for quality audit.
 
 ## Context Required
 

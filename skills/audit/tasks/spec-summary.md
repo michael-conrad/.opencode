@@ -10,11 +10,15 @@
 
 Verify PR/spec consistency before merge. Ensures PR description matches spec, all success criteria documented, and spec-linked issues properly closed.
 
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
 ## Entry Criteria
 
 - PR number provided
 - Spec issue number provided (linked from PR)
-- `audit_phase: pr_creation`
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -24,9 +28,15 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 - Spec issue properly closed
 - PASS if consistent, FAIL if mismatch
 
+> **DiMo Role: Evaluator.** This task evaluates PR/spec consistency. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+
 ## Procedure
 
-### Step 0: Pre-Flight Validation Gate
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/spec-summary/`
+
+### Step 0a: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -110,10 +120,6 @@ comparison = {
 }
 ```
 
-### Step 6: Cross-Validate
-
-Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
-
 ### Step 7: Verify Closing Keywords
 
 Check for proper closing keywords:
@@ -152,7 +158,16 @@ else:
 | LINK_MISSING | MEDIUM | Should reference spec issue |
 | CLOSING_MISSING | MEDIUM | PR won't auto-close spec issue |
 
-### Step 10: Build Result Contract
+### Step 10: Write verdict.yaml
+
+Write verdict to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`
+
+### Step 11: Dispatch Judger
+
+- [ ] 11. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
+- [ ] 12. If FAIL: remediate, restart from step 0
+
+### Step 13: Build Result Contract
 
 ```yaml
 {
@@ -182,6 +197,10 @@ else:
   "exec_summary": "PR/Spec consistency: {match_percentage}% matched. Consensus: {overall}."
 }
 ```
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Error Handling
 

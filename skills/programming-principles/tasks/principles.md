@@ -83,7 +83,7 @@ ______________________________________________________________________
 
 **Core idea:** Keep domains isolated. UI ≠ business logic ≠ data access.
 
-**Enforcement:** "Non-Monolithic: Break large blocks into cohesive, independent components." (Also enforced in `080-code-standards.md` as "Non-Monolithic" and in `adversarial-audit --task concern-separation`)
+**Enforcement:** "Non-Monolithic: Break large blocks into cohesive, independent components." (Also enforced in `080-code-standards.md` as "Non-Monolithic" and in `audit --task concern-separation`)
 
 **Apply strongly when:**
 
@@ -441,7 +441,7 @@ ______________________________________________________________________
 
 **Core idea:** Isolate failures. Isolate deployments. Isolate data ownership. Isolate scaling concerns.
 
-**Enforcement:** "Isolate failures. Isolate deployments. Isolate data ownership. Isolate scaling concerns." (Also in `adversarial-audit --task concern-separation`)
+**Enforcement:** "Isolate failures. Isolate deployments. Isolate data ownership. Isolate scaling concerns." (Also in `audit --task concern-separation`)
 
 **Apply strongly when:**
 

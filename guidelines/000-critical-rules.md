@@ -690,7 +690,7 @@ A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup 
 
 **Prohibited patterns:**
 - **Reclassification** — turning a FAIL into "PASS with caveats" or "functionally equivalent" is soft-passing by another name (see `000-critical-rules.md` §critical-rules-020)
-- **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic PASS/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `adversarial-audit` task files
+- **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic PASS/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `audit` task files
 - **HALT without remediation attempt** — a FAIL that halts the pipeline without any remediation attempt is abandoning the root cause instead of fixing it. Professional engineers always attempt remediation before escalation. See `763-remediation-first`
 
 Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. See `065-verification-honesty.md` → "Hard Failure Discipline".
@@ -1726,7 +1726,7 @@ rules:
       - REQUIRE_SEMANTIC_EXPLORATION
     conflicts_with: []
     requires: [verification-honesty-001, verification-honesty-003]
-    triggers: [adversarial-audit --task spec-audit, adversarial-audit --task plan-fidelity, adversarial-audit --task concern-separation, adversarial-audit --task coherence-maintenance, adversarial-audit --task guideline-audit]
+    triggers: [audit --task spec-audit, audit --task plan-fidelity, audit --task concern-separation, audit --task coherence-maintenance, audit --task guideline-audit]
     source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
 
   - id: critical-rules-046a
@@ -1845,7 +1845,7 @@ rules:
       - HALT
     conflicts_with: [critical-rules-034]
     requires: []
-    triggers: [implementation-pipeline, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
+    triggers: [implementation-pipeline, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, test-driven-development, skill-creator, sync-guidelines, audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
     source: "default.txt §Skill Dispatch Mandate"
 
   - id: critical-rules-049
@@ -1896,22 +1896,22 @@ rules:
     triggers: [git-workflow]
     source: "000-critical-rules.md §Content Verification Before Branch Deletion"
 
-  - id: adversarial-audit-008
+  - id: audit-008
     tier: 2
-    title: "All audits must be adversarial — single-auditor or orchestrator-evaluation is prohibited"
+    title: "All audits must be independent — single-auditor or orchestrator-evaluation is prohibited"
     conditions:
       all:
         - "audit_requested == true"
-        - "adversarial_mode == false"
+        - "independent_mode == false"
     actions:
       - HALT
       - REQUIRE_ADVERSARIAL_DISPATCH
     conflicts_with: []
     requires: []
     triggers: [spec-creation, writing-plans, issue-operations, implementation-pipeline, verification-before-completion, pr-creation-workflow, git-workflow]
-    source: "adversarial-audit/SKILL.md §adversarial-audit-008"
+    source: "audit/SKILL.md §audit-008"
 
-  - id: adversarial-audit-009
+  - id: audit-009
     tier: 2
     title: "Consensus required at pipeline gates — PASS gate requires dual cross-family auditor consensus"
     conditions:
@@ -1926,9 +1926,9 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [spec-creation, writing-plans, issue-operations, implementation-pipeline, verification-before-completion, pr-creation-workflow, git-workflow]
-    source: "adversarial-audit/SKILL.md §adversarial-audit-009"
+    source: "audit/SKILL.md §audit-009"
 
-  - id: adversarial-audit-010
+  - id: audit-010
     tier: 2
     title: "Bidirectional findings presented before revision — FAIL/DISAGREE must show revision options"
     conditions:
@@ -1941,9 +1941,9 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [verification-before-completion, git-workflow]
-    source: "adversarial-audit/SKILL.md §adversarial-audit-010"
+    source: "audit/SKILL.md §audit-010"
 
-  - id: adversarial-audit-011
+  - id: audit-011
     tier: 2
     title: "Cleanroom task() for scan phase — scan sub-agent has NO verifier context"
     conditions:
@@ -1955,10 +1955,10 @@ rules:
       - STRIP_VERIFIER_CONTEXT
     conflicts_with: []
     requires: []
-    triggers: [adversarial-audit]
-    source: "adversarial-audit/SKILL.md §adversarial-audit-011"
+    triggers: [audit]
+    source: "audit/SKILL.md §audit-011"
 
-  - id: adversarial-audit-012
+  - id: audit-012
     tier: 2
     title: "Live-source verification mandatory — memory-cached evidence is rejected"
     conditions:
@@ -1971,8 +1971,8 @@ rules:
       - REQUIRE_LIVE_VERIFICATION
     conflicts_with: []
     requires: [verification-honesty-001]
-    triggers: [adversarial-audit, verification-before-completion]
-    source: "adversarial-audit/SKILL.md §adversarial-audit-012"
+    triggers: [audit, verification-before-completion]
+    source: "audit/SKILL.md §audit-012"
 
   - id: critical-rules-051
     tier: 2
@@ -2122,7 +2122,7 @@ rules:
       - RE_VERIFY
     conflicts_with: [critical-rules-020]
     requires: []
-    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
+    triggers: [audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-accountability-ownership"
 
   - id: critical-rules-platform-routing-bypass
@@ -2179,7 +2179,7 @@ rules:
       - RE_VERIFY
     conflicts_with: [critical-rules-020]
     requires: []
-    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
+    triggers: [audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-hard-fail"
 
   - id: critical-rules-test-integrity
@@ -2200,7 +2200,7 @@ rules:
       - REMEDIATE
     conflicts_with: [critical-rules-060, critical-rules-020]
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    triggers: [verification-before-completion, audit, test-driven-development]
     source: "080-code-standards.md §Test Integrity Mandate"
 
   - id: critical-rules-061
@@ -2217,7 +2217,7 @@ rules:
       - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
     conflicts_with: [critical-rules-060, critical-rules-020]
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    triggers: [verification-before-completion, audit, test-driven-development]
     source: "080-code-standards.md §Rule 5: Agent Output MUST Be Verified by Clean-Room Semantic Inspection"
 
   - id: critical-rules-062
@@ -2232,7 +2232,7 @@ rules:
       - RETURN_BLOCKED(reason=SC_CONFLICT)
     conflicts_with: []
     requires: []
-    triggers: [adversarial-audit]
+    triggers: [audit]
     source: "000-critical-rules.md §critical-rules-062"
 
   - id: critical-rules-BEH-EV
@@ -2249,7 +2249,7 @@ rules:
       - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
     conflicts_with: [critical-rules-060, critical-rules-020]
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    triggers: [verification-before-completion, audit, test-driven-development]
     source: "000-critical-rules.md §Runtime-Behavioral Evidence Classification Gate"
 
   - id: critical-rules-pipeline-reprime

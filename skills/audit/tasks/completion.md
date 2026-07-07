@@ -4,7 +4,20 @@
 
 # Task: completion
 
-Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran regardless of where the workflow halted.
+> **DiMo Role: Judger.** This task produces the final judgment on audit workflow completion. Reads all artifacts, writes `judgment.yaml`.
+
+## Dispatch Contract
+
+- `spec_local_dir`: Local directory containing spec files
+- `artifact_evidence_dir`: Directory for evidence artifacts
+
+Idempotent completion subtask for audit. Ensures mandatory steps ran regardless of where the workflow halted.
+
+## Procedure
+
+### Step 0: Pre-clean
+
+- [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/completion/`
 
 ## State Check Phase
 
@@ -51,7 +64,7 @@ cross-validate does NOT dispatch auditors — it receives pre-resolved artifact 
 | Malformed verdict | VERDICT-INTEGRITY | flag-for-review | HALT — cannot fabricate consensus from bad data |
 | Consensus not computed | CONSENSUS-GAP | auto-fix | Compute from collected verdicts |
 | Both auditors same family | STRUCTURE-VIOLATION | flag-for-review | HALT — orchestrator must re-invoke `resolve-models` |
-| Missing `resolve-models` invocation | MISSING-ELEMENT | flag-for-review | HALT — resolve-models is mandatory entry point per adversarial-audit-013 |
+| Missing `resolve-models` invocation | MISSING-ELEMENT | flag-for-review | HALT — resolve-models is mandatory entry point per audit-013 |
 | Missing auditor task() dispatch | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must task() both auditors |
 | Missing cross-validate invocation with verdicts | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must task() cross-validate with verdicts |
 
@@ -69,7 +82,15 @@ Reference `skills/completion-core/completion-core.md` for reporting:
 - [ ] 2. What was attempted but not completed
 - [ ] 3. Why the halt occurred
 
-This is the completion guarantee: NO adversarial-audit workflow ends without a status message.
+This is the completion guarantee: NO audit workflow ends without a status message.
+
+### Write judgment.yaml
+
+Write final judgment to `./tmp/{issue-N}/artifacts/completion/judgment.yaml`
+
+## Remediation
+
+If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Report Phase
 
