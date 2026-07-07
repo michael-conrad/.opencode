@@ -107,7 +107,7 @@ Authorization scope determines what the agent is authorized to do between approv
 
 ### Authorization Scope Model (CRITICAL)
 
-Defines where the pipeline halts after a given authorization scope, what gap-fill actions to auto-perform, and the PR strategy.
+Defines where the pipeline halts after a given authorization scope and the PR strategy.
 
 #### Key Scope Values
 
