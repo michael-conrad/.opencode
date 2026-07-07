@@ -139,6 +139,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
+| "gap-fill cascade" / "run gap-fill" / "check gap-fill state" | `gap-fill-cascade` | `sub-task` | {authorization_scope, issue_number} |
 | "verify authorization" / "check approval" | `verify-authorization` | `sub-task` | {issue_number, authorization_scope} |
 | "screen issue" / "triage" | `screen-issue` | `sub-task` | {issue_number} |
 | "pre-implementation analysis" | `pre-implementation-analysis` | `sub-task` | {issue_numbers} |
