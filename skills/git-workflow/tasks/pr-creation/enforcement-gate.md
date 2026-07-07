@@ -154,18 +154,35 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 ### Step 1.5: Check Existing PR State
 
-Query GitHub API for existing PRs on this branch:
+Query GitHub API for **open** PRs on this branch using `state=open` filter:
 
-- **Open PR:** Update existing PR (push new commits)
-- **Closed PR (not merged):** Check reason, proceed with caution
-- **Merged PR:** Rebase branch on dev, check for remaining changes
+```bash
+# Query ONLY open PRs — never query all PRs
+gh pr list --head <branch_name> --state open --json number,html_url
+```
 
-If branch already merged (no remaining changes):
-```
-✅ BRANCH ALREADY MERGED
-The branch '{branch_name}' has already been merged via PR #{pr_number}.
-No new PR needed.
-```
+**If an OPEN PR exists on this branch:**
+- Update existing PR (push new commits)
+- This is the correct behavior — an open PR is in-flight work
+
+**If NO open PR exists (but a closed PR exists on the branch):**
+- **Do NOT re-open the closed PR.**
+- **Create a new PR.**
+- A closed (unmerged) PR is an indicator that the previous attempt was defective — the developer closed it. Do not re-use defective code.
+- The developer must explicitly say "use the closed PR" for it to be considered.
+
+**If a MERGED PR exists on this branch:**
+- Rebase branch on dev, check for remaining changes
+- If branch already merged (no remaining changes):
+  ```
+  ✅ BRANCH ALREADY MERGED
+  The branch '{branch_name}' has already been merged via PR #{pr_number}.
+  No new PR needed.
+  ```
+
+**Developer override:**
+- If the developer explicitly says "use the closed PR" or equivalent, consider the closed PR.
+- Without explicit instruction, always create a new PR when no open PR exists.
 
 ### Step 1.5d: Merge Conflict Detection
 
