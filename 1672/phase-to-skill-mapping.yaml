@@ -1,0 +1,22 @@
+schema_version: "1.0"
+mappings:
+  - phase: 1
+    skill: "implementation-pipeline"
+    task: "pre-work"
+    description: "Delete cross-model infrastructure files"
+  - phase: 2
+    skill: "implementation-pipeline"
+    task: "execute"
+    description: "Create DiMo role-differentiated auditor card"
+  - phase: 3
+    skill: "implementation-pipeline"
+    task: "execute"
+    description: "Refactor 15 task files with DiMo roles"
+  - phase: 4
+    skill: "implementation-pipeline"
+    task: "execute"
+    description: "Update SKILL.md and dispatch logic"
+  - phase: 5
+    skill: "test-driven-development"
+    task: "behavioral-test"
+    description: "Write behavioral enforcement tests"

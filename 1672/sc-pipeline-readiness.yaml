@@ -1,0 +1,18 @@
+status: PASS
+sc_summary: "Spec #1672 approved with for_pr scope. 5 phases defined: (1) Eliminate Cross-Model Infrastructure, (2) Create DiMo Role-Differentiated Auditor Card, (3) Refactor 15 Task Files, (4) Update SKILL.md and Dispatch Logic, (5) Behavioral Tests. 14 success criteria (SC-1 through SC-14). Change control covers 4 deletes, 1 create, 15 modifies, 2 creates."
+phase_dependencies:
+  - phase: 1
+    depends_on: []
+    concern: "Eliminate cross-model infrastructure"
+  - phase: 2
+    depends_on: [1]
+    concern: "Create DiMo role card"
+  - phase: 3
+    depends_on: [1, 2]
+    concern: "Refactor task files"
+  - phase: 4
+    depends_on: [1, 2, 3]
+    concern: "Update SKILL.md"
+  - phase: 5
+    depends_on: [1, 2, 3, 4]
+    concern: "Behavioral tests"

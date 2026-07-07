@@ -15,7 +15,7 @@ source: github.com
   - Rename all existing dirs via migration: risk of data loss, not worth it when prefix matching handles backward compat.
   - Keep zero-padding without slug: padding adds no value when git and filesystem handle arbitrary integers.
 - **Key Design Decisions:**
-  - `_find_issue_dir()` and `_parse_number()` must continue to resolve BOTH `NNN/` and `NNN-slug/` formats (backward compatibility).
+  - `_find_issue_dir()` does exact match on `str(number)` only — NO backward compatibility for slug-padded or zero-padded directories. The agent remediates defective folder names (renames `NNN-slug/` → `NNN/`) before the tool needs to find them.
   - `get_issue_path()` stops calling `_slug()` for new directories but `_slug()` function is preserved as an available utility.
   - Model-slug in test helpers (`helpers.sh __model_slug()`) is NOT in scope — separate concern.
 
@@ -47,7 +47,7 @@ Cost is measured in defect-discovery-latency (DDL), not model roundtrips. Behavi
 | SC-6 | `import-remote.md` no longer uses zero-padding (`:03d`) or slug in directory names | `string` | grep for `:03d` or `NNN-slug` in `import-remote.md` returns zero |
 | SC-7 | Existing local-issue behavioral tests pass after directory naming change | `behavioral` | Run a local-issue create+resolve sequence via `opencode-cli run`: create issue, find issue, verify directories are bare `NNN` |
 | SC-8 | Content-verification enforcement tests pass (when guideline/skill changes exist) | `behavioral` | `bash .opencode/tests/test-enforcement.sh --changed` passes |
-| SC-9 | `_find_issue_dir()` in `local-issues` successfully resolves BOTH `.issues/NNN/` AND `.issues/NNN-slug/` formats | `behavioral` | Create one dir as `NNN-slug/` and one as `NNN/` manually; verify `local-issues` resolves both by number |
+| SC-9 | Agent remediates existing `.issues/NNN-slug/` directories by renaming to `.issues/NNN/` before tool operations | `behavioral` | Create a `NNN-slug/` dir manually; verify agent renames it to `NNN/` before calling `local-issues` |
 | SC-10 | All behavioral test fixtures use `NNN/` format instead of `NNN-slug/` (excluding `__model_slug` in helpers.sh) | `string` | grep for `NNN-slug` across `.opencode/tests/` returns zero matches (excluding helpers.sh `__model_slug`) |
 | SC-11 | `get_issue_path()` creates `.issues/NNN/` directories without slug suffix when no existing dir found | `behavioral` | `opencode-cli run`: create issue with title, verify directory is bare `NNN` not `NNN-slug` |
 
@@ -58,7 +58,7 @@ Cost is measured in defect-discovery-latency (DDL), not model roundtrips. Behavi
 | SC-1 behavioral | Dir is `NNN` not `NNN-slug` | `ls .issues/NNN/` succeeds | Dir created with slug suffix | Fix `get_issue_path()` to skip `_slug()` call |
 | SC-2 behavioral | Resolve `NNN/` by number | Correct path returned | Path not found | Fix `_find_issue_dir()` prefix matching |
 | SC-3 behavioral | Parse bare `NNN` | Integer returned | ValueError or wrong int | Fix `_parse_number()` |
-| SC-9 behavioral | Both formats resolvable | Both found by number | One format fails | Fix `_find_issue_dir()` matching logic |
+| SC-9 behavioral | Agent renames slug dirs | Agent renames before tool call | Agent skips remediation | Add agent remediation step to pre-work |
 | SC-11 behavioral | No slug on create | Dir is bare `NNN` | Dir is `NNN-slug` | Fix `get_issue_path()` |
 | SC-4/5/6/10 string | Zero grep matches | grep returns empty | grep returns hits | Edit remaining reference files |
 | SC-7/8 behavioral | Tests pass | Exit code 0 | Exit code non-zero | Fix test fixtures or implementation |
@@ -71,14 +71,20 @@ Cost is measured in defect-discovery-latency (DDL), not model roundtrips. Behavi
 
 - NOT changing `__model_slug()` in `helpers.sh` — model identifier slug is a separate concern
 - NOT changing `./tmp/{issue-N}/artifacts/` template placeholders — those never had slugs
-- NOT renaming existing `.issues/NNN-slug/` directories — backward compatibility maintained via `_find_issue_dir()` prefix matching (SC-9)
 - NOT changing `{issue-N}` placeholder variables — these are bare number references, not slug paths
+- NOT providing backward compatibility in `_find_issue_dir()` for slug-padded or zero-padded directories — the agent remediates defective folder names before tool operations
+
+## Interdependencies
+
+- **Supersedes:** `.opencode#1100` (zero-padded dir bug) — #1156 covers the same `_find_issue_dir()` and `get_issue_path()` changes. Closed as superseded.
+- **Depended-on by:** `.opencode#1102` (init+sync verbs) — #1102's `init` and `sync` commands create and resolve issue directories. The directory naming change in #1156 must be implemented first or coordinated so #1102 creates bare `NNN/` dirs from the start.
+- **Superseded by:** None. This is the canonical spec for directory naming normalization.
 
 ## Risk Analysis
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| Existing `.issues/NNN-slug/` dirs become unreadable | Medium | High | SC-9: `_find_issue_dir()` maintains backward compat; `_parse_number()` splits on `-` for integer prefix |
+| Existing `.issues/NNN-slug/` dirs become unreadable | Low | Low | SC-9: Agent renames slug dirs to bare `NNN/` before tool operations; `_parse_number()` splits on `-` for integer prefix |
 | Behavioral tests fail due to path format change | Medium | Medium | SC-10: Update fixtures in same pass; SC-7: re-run all behavioral tests |
 | Missed references in skill/guideline files | Low | Medium | SC-4/SC-5: Global grep for `-slug` before any edit; verify zero post-edit |
 | `_parse_number()` breaks on non-standard names | Low | Medium | Existing `try/except ValueError` guards non-numeric prefixes; SC-3 covers bare `NNN` case |

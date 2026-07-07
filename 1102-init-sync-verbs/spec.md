@@ -60,4 +60,10 @@ Currently, worktree initialization is an implicit side effect of the first `list
 - Mutation auto-commit + push unchanged
 - No git jargon in agent-facing interface
 
+## Interdependencies
+
+- **Canonical spec** for the init+sync+qualified-mutations feature. Duplicates closed: `opencode-config#1099` (test stub), `.opencode#1102` (init-sync slug variant).
+- **Depends on:** `.opencode#1156` (slug padding removal) — #1156 changes directory naming from `NNN-slug/` to `NNN/`, which affects how `init` and `sync` create and resolve issue directories. Implement #1156 first or coordinate directory naming.
+- **Superseded by:** None. This is the canonical spec.
+
 🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)

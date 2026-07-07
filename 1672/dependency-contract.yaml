@@ -1,0 +1,43 @@
+schema_version: "1.0"
+phases:
+  - id: 1
+    name: "Eliminate Cross-Model Infrastructure"
+    concern: "Delete 4 auditor cards, resolve-models tool, qualified-auditor-pool.sh, and INSUFFICIENT_FAMILIES references"
+    depends_on: []
+    files:
+      - ".opencode/agents/auditor-deepseek-flash.md"
+      - ".opencode/agents/auditor-gemma4.md"
+      - ".opencode/agents/auditor-mistral-large.md"
+      - ".opencode/agents/auditor-qwen3.5.md"
+      - ".opencode/tools/resolve-models"
+      - ".opencode/tests/qualification/qualified-auditor-pool.sh"
+      - ".opencode/skills/adversarial-audit/tasks/cross-validate.md"
+    scs: ["SC-1", "SC-2", "SC-3", "SC-12"]
+  - id: 2
+    name: "Create DiMo Role-Differentiated Auditor Card"
+    concern: "Create single auditor-role.md with all 4 DiMo roles, interaction protocols, and Judger role"
+    depends_on: [1]
+    files:
+      - ".opencode/agents/auditor-role.md"
+    scs: ["SC-4"]
+  - id: 3
+    name: "Refactor 15 Task Files"
+    concern: "Remove audit_phase, embed DiMo roles, add pre-clean step, artifact paths, Judger integration"
+    depends_on: [1, 2]
+    files:
+      - ".opencode/skills/adversarial-audit/tasks/*.md"
+    scs: ["SC-5", "SC-6", "SC-7", "SC-8", "SC-9", "SC-10", "SC-11"]
+  - id: 4
+    name: "Update SKILL.md and Dispatch Logic"
+    concern: "Update SKILL.md to reference DiMo architecture, remove resolve-models from dispatch routing"
+    depends_on: [1, 2, 3]
+    files:
+      - ".opencode/skills/adversarial-audit/SKILL.md"
+    scs: ["SC-5"]
+  - id: 5
+    name: "Behavioral Tests"
+    concern: "Write behavioral enforcement tests for SC-13 and SC-14"
+    depends_on: [1, 2, 3, 4]
+    files:
+      - ".opencode/tests/behaviors/"
+    scs: ["SC-13", "SC-14"]
