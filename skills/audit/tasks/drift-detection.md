@@ -2,13 +2,13 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: drift-detection
 
 ## Purpose
 
 Detect drift between spec/code reality and expected state. Identifies cases where implementation diverged from spec, or spec outpaced implementation, using independent verification.
+
+> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -28,8 +28,6 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - PASS if synchronized, FAIL if significant drift
 - Bidirectional findings presented
 
-> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Drift Detection Checklist
@@ -44,9 +42,7 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - [ ] 7. Classify Drift Severity — map drift to HIGH/MEDIUM/LOW
 - [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
 - [ ] 9. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
-- [ ] 10. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 11. If FAIL: remediate, restart from step 0
-- [ ] 12. Build Result Contract — YAML verdict with drift summary
+- [ ] 10. Build Result Contract — YAML verdict with drift summary
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -195,12 +191,7 @@ Present options for developer decision.
 
 Write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
 
-### Step 10: Dispatch Judger
-
-- [ ] 10. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 11. If FAIL: remediate, restart from step 0
-
-### Step 12: Build Result Contract
+### Step 10: Build Result Contract
 
 ```yaml
 {
@@ -227,14 +218,20 @@ Write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
     }
   ],
   "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "exec_summary": "Drift detection: {spec_drift} spec drift, {code_drift} code drift. Consensus: {overall}."
+  "overall_verdict": "PASS | FAIL",
+  "exec_summary": "Drift detection: {spec_drift} spec drift, {code_drift} code drift. Verdict: {overall}."
 }
 ```
 
-## Remediation
+## Result Contract
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+```yaml
+status: DONE | FAIL
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-drift-detection-PASS-{timestamp}.yaml"
+summary: "Drift detection: {spec_drift} spec drift, {code_drift} code drift. Verdict: {overall}."
+all_criteria_pass: false
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
+```
 
 ## Error Handling
 
@@ -257,14 +254,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 7 (Classify Drift Severity) → INVALID if skipped
 - Step 8 (Generate Bidirectional Findings) → INVALID if skipped
 - Step 9 (Build Result Contract) → INVALID if skipped
-
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After drift-detection completes:
-- If consensus PASS: proceed to concern-separation or next pipeline step
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 

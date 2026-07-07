@@ -2,13 +2,13 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: spec-summary
 
 ## Purpose
 
 Verify PR/spec consistency before merge. Ensures PR description matches spec, all success criteria documented, and spec-linked issues properly closed.
+
+> **DiMo Role: Evaluator.** This task evaluates PR/spec consistency. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -28,15 +28,13 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 - Spec issue properly closed
 - PASS if consistent, FAIL if mismatch
 
-> **DiMo Role: Evaluator.** This task evaluates PR/spec consistency. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/spec-summary/`
 
-### Step 0a: Pre-Flight Validation Gate
+### Step 0b: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -162,12 +160,7 @@ else:
 
 Write verdict to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`
 
-### Step 11: Dispatch Judger
-
-- [ ] 11. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 12. If FAIL: remediate, restart from step 0
-
-### Step 13: Build Result Contract
+### Step 11: Build Result Contract
 
 ```yaml
 {
@@ -188,19 +181,24 @@ Write verdict to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`
     "closing_keywords": true | false
   },
   "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
+  "overall_verdict": "PASS | FAIL",
   "recommendations": [
     "Add closing keyword: 'Closes #<spec_issue>'",
     "Document success criteria in PR body",
     "Explain extra files: <files>"
   ],
-  "exec_summary": "PR/Spec consistency: {match_percentage}% matched. Consensus: {overall}."
+  "exec_summary": "PR/Spec consistency: {match_percentage}% matched. Verdict: {overall}."
 }
 ```
 
-## Remediation
+## Result Contract
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
+```yaml
+status: DONE | FAIL
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-spec-summary-PASS-{timestamp}.yaml"
+summary: "PR/Spec consistency: {match_percentage}% matched. Verdict: {overall}."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
+```
 
 ## Error Handling
 
@@ -224,14 +222,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 8 (Check Spec Issue Status) → INVALID if skipped
 - Step 9 (Classify Mismatches) → INVALID if skipped
 - Step 10 (Build Result Contract) → INVALID if skipped
-
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After spec-summary completes:
-- If consensus PASS: proceed to closure-verification or pr_creation
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 

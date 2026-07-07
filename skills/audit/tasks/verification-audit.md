@@ -2,17 +2,15 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
->
-> **Auditors are read-only evaluators.** You inspect behavioral evidence artifacts produced by the orchestrator's `opencode-cli run` invocations. You do NOT run behavioral tests yourself. Reading a behavioral evidence artifact (timeline.yaml, stderr.log, session.yaml) with `read` is valid behavioral evidence inspection — the evidence type is determined by the artifact's provenance (the orchestrator ran `opencode-cli run`), not by the inspection tool you use.
-
 # Task: verification-audit
 
 ## Purpose
 
-Verify implementation against spec success criteria using independent cross-validation. Each SC is independently verified by two cross-family auditors against live behavioral evidence. Unlike spec-audit (which reviews spec quality), verification-audit confirms the implemented code satisfies the spec's declared acceptance criteria.
+Verify implementation against spec success criteria. Each SC is evaluated against live behavioral evidence. Unlike spec-audit (which reviews spec quality), verification-audit confirms the implemented code satisfies the spec's declared acceptance criteria.
 
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
 ## Dispatch Contract
 
@@ -33,26 +31,24 @@ Verify implementation against spec success criteria using independent cross-vali
 - Verdict artifact written to disk
 - Consensus PASS/FAIL per SC
 
-> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/verification-audit/`
 
-### Step 0a: Pre-Flight Validation Gate
+### Step 0b: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
 - [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
-- [ ] 2. Verify `artifact_evidence_dir` is present and contains at least 2 YAML files — if fewer than 2, return BLOCKED:
+- [ ] 2. Verify `artifact_evidence_dir` is present and non-empty — if empty, return BLOCKED:
 
 ```yaml
 status: BLOCKED
-error: INSUFFICIENT_ARTIFACTS
+error: MISSING_EVIDENCE_DIR
 missing: "artifact_evidence_dir"
-remediation: "At least 2 YAML evidence files are required in artifact_evidence_dir. Ensure both auditors have written their verdict artifacts before dispatching verification-audit."
+remediation: "artifact_evidence_dir is required for verification-audit. The orchestrator must provide a directory containing upstream YAML verdict artifacts."
 ```
 
 - [ ] 3. If `spec_local_dir` is missing or empty, return BLOCKED:
@@ -83,7 +79,6 @@ remediation: "artifact_evidence_dir is required for verification-audit. The orch
 - [ ] 6. Generate Findings — per-SC PASS/FAIL with evidence references
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/verification-audit/verdict.yaml`
 - [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
 - [ ] 10. Return Frugal Result Contract
 
 ### Step 1: Load Spec Content
@@ -165,19 +160,12 @@ For each FAIL criterion, produce a finding with evidence reference:
 
 Write verdict to `./tmp/{issue-N}/artifacts/verification-audit/verdict.yaml`
 
-### Step 8: Dispatch Judger
-
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 8: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-verification-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: verification
 auditor_type: verification-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -194,21 +182,20 @@ per_criterion:
     remediation: ""
     next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ### Step 11: Return Frugal Result Contract
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
-status: DONE
+status: DONE | FAIL
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-verification-audit-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ## Completion Dependency Chain
@@ -225,12 +212,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 7. Generate findings → INVALID if skipped
 - [ ] 8. Build result contract → INVALID if skipped
 
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After verification-audit completes:
-- If consensus PASS: proceed to `cross-validate` or next pipeline step
-- If consensus FAIL: remediate findings, then re-run verification-audit
-
 ## Error Handling
 
 | Error | Action |
@@ -245,7 +226,6 @@ After verification-audit completes:
 
 - `tasks/spec-audit.md` — spec-phase audit (pre-implementation)
 - `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — cross-family selection
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate

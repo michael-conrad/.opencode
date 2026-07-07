@@ -2,15 +2,15 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: spec-audit
 
 ## Purpose
 
-Audit a spec for quality, structure, and completeness using independent cross-validation. Each criterion is independently verified by two cross-family auditors with clean-room context.
+Audit a spec for quality, structure, and completeness. Each criterion is evaluated against the spec's declared evidence types with clean-room context.
 
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
 ## Dispatch Contract
 
@@ -31,8 +31,6 @@ Audit a spec for quality, structure, and completeness using independent cross-va
 - Bidirectional findings reported
 - Executive summary generated
 
-> **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Spec Audit Checklist
@@ -47,9 +45,7 @@ Audit a spec for quality, structure, and completeness using independent cross-va
 - [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
 - [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
 - [ ] 8. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
-- [ ] 9. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 10. If FAIL: remediate, restart from step 0
-- [ ] 11. Return Frugal Result Contract
+- [ ] 9. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -501,19 +497,12 @@ Present revision options for developer decision.
 
 Write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
 
-### Step 9: Dispatch Judger
-
-- [ ] 9. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 10. If FAIL: remediate, restart from step 0
-
-### Step 11: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 9: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: spec_creation
 auditor_type: spec-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -534,22 +523,21 @@ per_criterion:
       - read
       - grep
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ### Step 12: Return Frugal Result Contract
 
 ```yaml
-status: DONE
+status: DONE | FAIL
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ## Completion Dependency Chain
 
@@ -568,14 +556,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 7. Generate bidirectional findings → INVALID if skipped
 - [ ] 8. Build result contract → INVALID if skipped
 
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After spec-audit completes:
-- If consensus PASS: proceed to `concern-separation` or next pipeline step
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
-
 ## Error Handling
 
 | Error | Action |
@@ -588,7 +568,6 @@ This step is MANDATORY — the pipeline does not terminate early.
 ## Cross-References
 
 - `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — cross-family selection (orchestrator dispatches, then passes results)
 - `spec-auditor/SKILL.md` — original task breakdown
 - `spec-auditor/tasks/fidelity.md` — plan fidelity check
 - `000-critical-rules.md` — co-authored requirement
@@ -612,9 +591,9 @@ rules:
     source: "spec-audit.md §Step 3"
 
   - id: spec-audit-003
-    title: "Disagreement requires bidirectional finding"
+    title: "Bidirectional finding required for contested criteria"
     conditions:
-      all: ["auditor_1_result != auditor_2_result", "bidirectional_finding == null"]
+      all: ["criterion_contested == true", "bidirectional_finding == null"]
     actions: [APPEND_BIDIRECTIONAL_FINDING]
     source: "spec-audit.md §Step 5"
 

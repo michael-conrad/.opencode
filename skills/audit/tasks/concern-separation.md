@@ -2,15 +2,15 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: concern-separation
 
 ## Purpose
 
 Audit spec phase structure for concern separation quality using independent verification. Checks deployment independence, risk profile, and blast radius per phase.
 
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
+
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
 ## Dispatch Contract
 
@@ -29,8 +29,6 @@ Audit spec phase structure for concern separation quality using independent veri
 - Deployment independence assessed
 - PASS/FAIL consensus achieved
 
-> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Concern Separation Checklist
@@ -43,9 +41,7 @@ Audit spec phase structure for concern separation quality using independent veri
 - [ ] 5. Classify Findings — map to finding types
 - [ ] 6. Verify Boundary Claims — live tool-call verification per claim
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
-- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-- [ ] 10. Return Frugal Result Contract
+- [ ] 8. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -184,19 +180,12 @@ Each boundary claim must be verified:
 
 Write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
 
-### Step 8: Dispatch Judger
-
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 8: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: concern_separation
 auditor_type: concern-separation
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -221,21 +210,20 @@ findings:
     recommendation: "<recommendation>"
 exec_summary: "Concern separation: X/Y criteria. N phases need review."
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ### Step 11: Return Frugal Result Contract
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
-status: DONE
+status: DONE | FAIL
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ## Edge Cases
@@ -257,14 +245,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 5 (Classify Findings) → INVALID if skipped
 - Step 6 (Verify Boundary Claims) → INVALID if skipped
 - Step 7 (Build Result Contract) → INVALID if skipped
-
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After concern-separation completes:
-- If consensus PASS: proceed to plan-fidelity or sub_issue_creation pipeline
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 

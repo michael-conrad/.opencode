@@ -2,13 +2,13 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
 # Task: guideline-audit
 
 ## Purpose
 
 Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies problems one at a time with concise prompts. Uses independent verification for each finding.
+
+> **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -27,8 +27,6 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - PASS/FAIL consensus for each problem class
 - Findings written to `{project_root}/tmp/{issue-N}/artifacts/audit-guideline.md`
 
-> **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Guideline Audit Checklist
@@ -41,9 +39,7 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - [ ] 5. One Problem At a Time — present single findings per interaction
 - [ ] 6. Write Audit Report — markdown report to artifacts directory
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
-- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-- [ ] 10. Return Frugal Result Contract
+- [ ] 8. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -197,19 +193,12 @@ Fix: <fix_action>
 
 Write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
 
-### Step 8: Dispatch Judger
-
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 8: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: guideline_update
 auditor_type: guideline-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -238,13 +227,13 @@ exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
-status: DONE
+status: DONE | FAIL
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-PASS-{timestamp}.yaml"
 summary: "N files audited, M problems found. X/Y criteria PASS."
 all_criteria_pass: false
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ## Error Handling
@@ -266,14 +255,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 5 (Cross-Validate) → INVALID if skipped
 - Step 6 (Write Audit Report) → INVALID if skipped
 - Step 7 (Build Result Contract) → INVALID if skipped
-
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After guideline-audit completes:
-- If consensus PASS: proceed to next audit type or guideline_update pipeline
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 

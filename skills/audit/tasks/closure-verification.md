@@ -2,15 +2,15 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
-
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
 # Task: closure-verification
 
 ## Purpose
 
 Verify merge evidence after PR merge. Ensures spec issue properly closed, success criteria verified, and all follow-up actions documented.
+
+> **DiMo Role: Evaluator.** This task evaluates closure evidence against criteria. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), writes `verdict.yaml`.
 
 ## Dispatch Contract
 
@@ -29,15 +29,13 @@ Verify merge evidence after PR merge. Ensures spec issue properly closed, succes
 - Follow-up issues created if needed
 - PASS if verified, FAIL if evidence missing
 
-> **DiMo Role: Evaluator.** This task evaluates closure evidence against criteria. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/closure-verification/`
 
-### Step 0a: Pre-Flight Validation Gate
+### Step 0b: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding with the audit:
 
@@ -204,19 +202,12 @@ if follow_up_issues:
 | OPEN_BLOCKERS | HIGH | Blocking issues remain |
 | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-### Step 10: Dispatch Judger
-
-- [ ] 10. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 11. If FAIL: remediate, restart from step 0
-
 ### Step 12: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
-audit_phase: post_merge
 auditor_type: closure-verification
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -240,20 +231,20 @@ per_criterion:
     next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
 exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
 all_criteria_pass: false
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ### Step 13: Return Frugal Result Contract
 
 ## Remediation
 
-If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-models.
 
 ```yaml
-status: DONE
+status: DONE | FAIL
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
 ## Error Handling
@@ -280,14 +271,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 10 (Check Follow-up Issues) → INVALID if skipped
 - Step 11 (Classify Verification Gaps) → INVALID if skipped
 - Step 12 (Build Result Contract) → INVALID if skipped
-
-## Next Pipeline Step (MANDATORY CONTINUATION)
-
-After closure-verification completes:
-- If consensus PASS: proceed to post-merge verification or pipeline end
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
-
-This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
