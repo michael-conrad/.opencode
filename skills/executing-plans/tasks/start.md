@@ -41,7 +41,7 @@ This makes the implementation phase resilient to branch switching, worktree recr
 `skill({name: "implementation-pipeline"})` then dispatch per the SKILL.md Trigger Dispatch Table
 ```
 
-When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipeline_phase` alongside `plan_issue`, `spec_issue`, `<github.owner>`, `<github.repo>`, and `<worktree.path>`. The implementation-pipeline uses these fields for scope-aware task() boundary enforcement per the SKILL.md Trigger Dispatch Table.
+When task()ing, pass only the fields the sub-agent needs to do its work. The implementation-pipeline uses these fields for scope-aware task() boundary enforcement per the SKILL.md Trigger Dispatch Table.
 
 **Authorization context:**
 ```
