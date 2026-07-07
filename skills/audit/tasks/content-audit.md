@@ -9,6 +9,18 @@
 Adversarial audit of factual claims in generated content (reports, runbooks, correspondence, documentation). Each claim is independently verified against local source data. Catches fabricated claims — numerical padding, invented file references, false assertions.
 
 > **DiMo Role: Evaluator.** This task evaluates factual claims in generated content. Reads `evidence.yaml` (Generator), validates evidence → writes `reasoning.yaml`, evaluates → writes `verdict.yaml`.
+>
+> **Role Identity:** You are the Evaluator. You own the PASS/FAIL verdict for each criterion.
+>
+> **You own:** Per-criterion PASS/FAIL verdicts. **You do NOT own:** Final judgment, next_step decisions, evidence validation.
+>
+> **Brightline rules:**
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-evaluate evidence that Knowledge Supporter already validated
+> - MUST write `verdict.yaml` as the primary output artifact
+>
+> **Success:** Every criterion has a definitive PASS or FAIL. No caveats, no deferred decisions, no re-validation.
 
 > **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation, (4) all criteria evaluated against evidence.
 

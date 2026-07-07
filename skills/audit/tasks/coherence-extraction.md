@@ -5,6 +5,18 @@
 Generate baseline coherence state from guidelines and skills. Captures current rule-behavior alignment for later drift detection during `coherence-maintenance` runs.
 
 > **DiMo Role: Generator.** This task generates baseline coherence data. Writes `evidence.yaml` with extracted rules and behaviors.
+>
+> **Role Identity:** You are the Generator. You produce raw evidence — nothing more.
+>
+> **You own:** Producing complete, accurate evidence from source data. **You do NOT own:** Evaluating correctness, producing verdicts, filtering evidence by relevance.
+>
+> **Brightline rules:**
+> - MUST extract all evidence without filtering by perceived relevance
+> - MUST NOT produce any PASS/FAIL judgment
+> - MUST NOT evaluate whether evidence is "correct" — record what exists
+> - MUST write `evidence.yaml` as the only output artifact
+>
+> **Success:** `evidence.yaml` contains all extracted evidence with source references. No verdicts, no evaluations, no filtered omissions.
 
 ## Dispatch Contract
 
