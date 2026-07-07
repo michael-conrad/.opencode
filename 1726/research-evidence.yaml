@@ -1,0 +1,17 @@
+evidence_artifacts:
+  - claim: "30 files contain yaml+symbolic blocks"
+    verified: true
+    method: "grep -rl 'yaml+symbolic' .opencode/guidelines/ | wc -l"
+    result: "30"
+  - claim: "3 excluded files (250, 255, 257) and INDEX.md have no yaml+symbolic blocks"
+    verified: true
+    method: "grep -rl 'yaml+symbolic' on excluded files"
+    result: "0 matches"
+  - claim: "Total ~3,500 lines of dead YAML"
+    verified: true
+    method: "grep -rn 'yaml+symbolic' .opencode/guidelines/ --count"
+    result: "30 files, blocks range from 16 to 1,372 lines"
+  - claim: "No runtime engine consumes these blocks"
+    verified: true
+    method: "Codebase inspection — session-enforcement.ts and pre-commit hooks do all enforcement"
+    result: "Confirmed — no yaml+symbolic parser exists"

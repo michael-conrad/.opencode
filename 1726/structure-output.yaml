@@ -1,0 +1,53 @@
+status: PASS
+combined_or_separate: combined
+rationale: "Single concern — removing dead yaml+symbolic blocks from 30 guideline files. All files are in the same directory, same operation type, same verification method."
+phase_count: 2
+phases:
+  - phase_number: 1
+    name: "Remove yaml+symbolic blocks"
+    concern: "Delete trailing yaml+symbolic code fence blocks from 30 guideline files"
+    files:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/guidelines/010-approval-gate.md"
+      - ".opencode/guidelines/015-pre-spec-inspection.md"
+      - ".opencode/guidelines/016-srclight-preference.md"
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/045-open-questions.md"
+      - ".opencode/guidelines/050-scope-autonomy.md"
+      - ".opencode/guidelines/060-tool-usage.md"
+      - ".opencode/guidelines/065-verification-honesty.md"
+      - ".opencode/guidelines/067-context-completeness.md"
+      - ".opencode/guidelines/070-environment.md"
+      - ".opencode/guidelines/075-docs-verification.md"
+      - ".opencode/guidelines/080-code-standards.md"
+      - ".opencode/guidelines/085-project-local-tools.md"
+      - ".opencode/guidelines/086-http-requests.md"
+      - ".opencode/guidelines/087-no-backward-compat.md"
+      - ".opencode/guidelines/090-data-integrity.md"
+      - ".opencode/guidelines/091-incremental-build.md"
+      - ".opencode/guidelines/100-persistence.md"
+      - ".opencode/guidelines/115-branch-naming.md"
+      - ".opencode/guidelines/116-pair-mode.md"
+      - ".opencode/guidelines/117-session-trigger-behavior.md"
+      - ".opencode/guidelines/130-authority-source.md"
+      - ".opencode/guidelines/140-planning-spec-creation.md"
+      - ".opencode/guidelines/141-planning-status-tracking.md"
+      - ".opencode/guidelines/142-planning-archive-workflow.md"
+      - ".opencode/guidelines/143-planning-spec-templates.md"
+      - ".opencode/guidelines/144-planning-spec-examples.md"
+      - ".opencode/guidelines/200-errors.md"
+      - ".opencode/guidelines/210-scripting.md"
+    tdd_red: "grep -q 'yaml+symbolic' each file — must find block (RED)"
+    tdd_green: "grep -q 'yaml+symbolic' each file — must NOT find block (GREEN)"
+    dependency: none
+  - phase_number: 2
+    name: "Verify"
+    concern: "Confirm all yaml+symbolic blocks removed, prose and frontmatter intact"
+    files:
+      - ".opencode/guidelines/*.md"
+    tdd_red: "grep -r 'yaml+symbolic' .opencode/guidelines/ returns > 0 (RED)"
+    tdd_green: "grep -r 'yaml+symbolic' .opencode/guidelines/ returns 0 (GREEN)"
+    dependency: phase_1
+dependency_contract:
+  phase_order: ["phase_1", "phase_2"]
+  phase_2_depends_on: ["phase_1"]

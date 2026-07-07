@@ -1,0 +1,4 @@
+status: PASS
+sc_summary: "Remove yaml+symbolic blocks from 30 guideline files. 2 phases: removal then verification. All SCs are string-type (grep-based verification). No runtime behavior changes."
+phase_dependencies: []
+created_at: "2026-07-07T13:40:00Z"

@@ -1,0 +1,8 @@
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+constraints:
+  - "phase_2_complete => phase_1_complete"
+  - "phase_1_complete"

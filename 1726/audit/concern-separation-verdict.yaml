@@ -1,0 +1,29 @@
+status: PASS
+all_criteria_pass: true
+finding_summary: "Concern separation is clean. Single concern (remove dead yaml+symbolic blocks) with 2 sequential phases. No scope mixing, no deployment dependencies, bounded blast radius."
+artifact_path: ".opencode/.issues/1726/audit/concern-separation-verdict.yaml"
+criteria:
+  - id: CS-1
+    name: "Phase names are concern-specific"
+    result: PASS
+    detail: "Phase 1: 'Remove yaml+symbolic blocks'. Phase 2: 'Verify'. Both are specific, not boilerplate."
+  - id: CS-2
+    name: "Single concern per phase"
+    result: PASS
+    detail: "Phase 1: only removal. Phase 2: only verification. No mixing of concerns."
+  - id: CS-3
+    name: "Dependency order correct"
+    result: PASS
+    detail: "Phase 2 depends on Phase 1 (must remove before verifying). No circular or inverted dependencies."
+  - id: CS-4
+    name: "Risk levels grouped appropriately"
+    result: PASS
+    detail: "Both phases are LOW risk (string-only changes, no runtime behavior). No risk mixing needed."
+  - id: CS-5
+    name: "Deployment independence"
+    result: PASS
+    detail: "Phase 1 can be deployed independently (removal is self-contained). Phase 2 is verification-only."
+  - id: CS-6
+    name: "Blast radius bounded"
+    result: PASS
+    detail: "Changes confined to .opencode/guidelines/ directory. No impact on skills, tools, tests, or source code."
