@@ -65,9 +65,8 @@ Plans use a split file format:
   - All admonishments (compliance, one-step-at-a-time, step status, self-remediation)
   - Self-review evidence section
 
-- **`{N}/plan-{NN}-{slug}.md`** — Phase files (one per phase)
+- **`{N}/plan-{NN}.md`** — Phase files (one per phase)
   - `{NN}` is zero-padded phase number (01, 02, ...)
-  - `{slug}` is short kebab-case descriptor (e.g., `frontmatter`, `farmage`)
   - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
   - Full step-by-step with globally sequential numbering
   - Dispatch indicators, RED/GREEN chains, Z3 checks, VbC blocks

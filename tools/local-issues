@@ -91,12 +91,7 @@ def get_issue_path(
     dir_path = _find_issue_dir(number, repo_path)
     if dir_path is not None:
         return dir_path
-    name = f"{number}"
-    if title:
-        slug = _slug(title)
-        if slug:
-            name = f"{name}-{slug}"
-    return (repo_path or PROJECT_DIR) / ISSUES_DIR / name
+    return (repo_path or PROJECT_DIR) / ISSUES_DIR / str(number)
 
 
 def read_file(path: Path) -> str:
@@ -1315,7 +1310,7 @@ def cmd_delete(args: argparse.Namespace) -> None:
 
 
 def _parse_number(entry: Path) -> int | None:
-    """Extract issue number from directory name (NNN or NNN-slug)."""
+    """Extract issue number from directory name (NNN)."""
     if not entry.is_dir():
         return None
     parts = entry.name.split("-", 1)

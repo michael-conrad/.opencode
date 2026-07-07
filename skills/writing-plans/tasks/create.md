@@ -127,7 +127,7 @@ Each item is tagged with dispatch scope and chain dependency.
 ## Exit Criteria
 
 - Plan index stored at `{N}/plan.md` with phase table
-- Phase files stored at `{N}/plan-{NN}-{slug}.md` (one per phase)
+- Phase files stored at `{N}/plan-{NN}.md` (one per phase)
 - All validation passed
 - Plan reported in chat with `{N}/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
