@@ -263,7 +263,7 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 
 ## Cross-References
 
-- `resolve-models` task — auditor model resolution (adversarial-audit --task resolve-models)
+- `resolve-models` task — auditor model resolution (audit --task resolve-models)
 - `tasks/coherence-maintenance.md` — drift detection
 - `tasks/coherence-extraction.md` — this file (self-reference for pipeline dispatch)
 - `000-critical-rules.md` — baseline requirement

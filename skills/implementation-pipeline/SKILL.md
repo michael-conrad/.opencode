@@ -55,7 +55,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `sub-task` | {issue_number} |
 | "green-vbc" / "verification before completion" | `green-vbc` | `sub-task` | {issue_number} |
-| "adversarial-audit" / "audit step" | `adversarial-audit` | `orchestrator` | {issue_number} |
+| "audit" / "audit step" | `audit` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `sub-task` | {issue_number} |
 | "behavioral-test-remediation" / "remediate behavioral test" | `behavioral-test-remediation` | `sub-task` | {issue_number, test_artifact_path, sc_list} |
@@ -66,7 +66,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Step Label | Dispatches To | Artifact Produced |
 |------------|---------------|-------------------|
-| `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | coherence check results + uplift verdict |
+| `sc-coherence-gate` | `audit --task coherence-extraction` (evidence-type uplift + substrate classification) | coherence check results + uplift verdict |
 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | solution state file + source currency report |
 | `red-phase` | `test-driven-development --task red` | test code + execution result |
 | `z3-check-red` | `solve check` against red-phase output contract (`contracts/red-phase-output-template.yaml`) | SAT/UNSAT result |
@@ -83,14 +83,14 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
-| `adversarial-audit` | **Orchestrator dispatch:** dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | YAML verdict artifact |
-| `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
+| `audit` | **Orchestrator dispatch:** dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | YAML verdict artifact |
+| `cross-validate` | `audit --task cross-validate` (receives `auditor_artifact_paths` from audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary |
 
-**Note:** The `adversarial-audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
-- [ ] 1. Dispatch the audit task from adversarial-audit skill with {spec_local_dir, artifact_evidence_dir}
+**Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
+- [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
 - [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Dispatch Routing Table.
 - [ ] 3. On clean PASS: collect the `artifact_path` and pass as `auditor_artifact_paths` context to `cross-validate`.
 
@@ -105,7 +105,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -123,7 +123,7 @@ All steps in the Trigger Dispatch Table with `sub-task` dispatch are called via:
 
 `task(..., prompt: "execute <step_label> from implementation-pipeline. Read \`implementation-pipeline/tasks/<step_label>.md\` first")`
 
-**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
+**Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
 1. Dispatch audit task (sub-agent) — dispatch the appropriate audit task via `task(subagent_type="general")`
 2. `remediate` (inline) — if non-clean-pass, remediate and restart from step 1
 3. `cross-validate` (clean-room) — produce cross-validate findings
@@ -142,9 +142,9 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 **Orchestrator entry point:** The orchestrator reads the plan, creates branches, and dispatches sub-agents per the Trigger Dispatch Table. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
-**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
+**Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
 
 Exclusions: implementation context, agent memory, cached verification results.
 
@@ -282,7 +282,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
 | `green-vbc` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
-| `adversarial-audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
+| `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
 | `cross-validate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
 | `regression-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
 | `behavioral-test-remediation` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-behavioral-test-remediation-*` |
@@ -316,7 +316,7 @@ The lifecycle manifest is append-only. Never delete or edit existing entries —
 
 ## Cross-References
 
-Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `adversarial-audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `research`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
+Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `research`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "3.0"
@@ -380,7 +380,7 @@ rules:
     title: "Coherence gate — verify spec/plan coherence before RED routing"
     conditions:
       all: ["red_routing_pending == true", "spec_plan_coherence_verified == false"]
-    actions: [CALL(adversarial-audit --task coherence-maintenance), VERIFY_COHERENCE]
+    actions: [CALL(audit --task coherence-maintenance), VERIFY_COHERENCE]
     source: "implementation-pipeline/SKILL.md"
 
   - id: implementation-pipeline-013
@@ -414,9 +414,9 @@ rules:
     source: "implementation-pipeline/SKILL.md"
 
   - id: implementation-pipeline-017
-    title: "Completeness gate required after RED/GREEN before adversarial audit"
+    title: "Completeness gate required after RED/GREEN before audit"
     conditions:
-      all: ["sub_agent_result_collected == true", "completeness_gate_run == false", "adversarial_audit_routing_pending == true"]
+      all: ["sub_agent_result_collected == true", "completeness_gate_run == false", "audit_routing_pending == true"]
     actions: [CALL(completeness-gate --task check)]
     source: "implementation-pipeline/SKILL.md"
 ```

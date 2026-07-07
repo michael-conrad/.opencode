@@ -62,7 +62,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: adversarial-audit --task plan-fidelity,concern-separation
+CONTINUE: audit --task plan-fidelity,concern-separation
 HALT
 ```
 

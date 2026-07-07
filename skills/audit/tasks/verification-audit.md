@@ -10,7 +10,7 @@
 
 ## Purpose
 
-Verify implementation against spec success criteria using dual-adversarial cross-validation. Each SC is independently verified by two cross-family auditors against live behavioral evidence. Unlike spec-audit (which reviews spec quality), verification-audit confirms the implemented code satisfies the spec's declared acceptance criteria.
+Verify implementation against spec success criteria using independent cross-validation. Each SC is independently verified by two cross-family auditors against live behavioral evidence. Unlike spec-audit (which reviews spec quality), verification-audit confirms the implemented code satisfies the spec's declared acceptance criteria.
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
 

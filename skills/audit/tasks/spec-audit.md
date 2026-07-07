@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Audit a spec for quality, structure, and completeness using dual-adversarial cross-validation. Each criterion is independently verified by two cross-family auditors with clean-room context.
+Audit a spec for quality, structure, and completeness using independent cross-validation. Each criterion is independently verified by two cross-family auditors with clean-room context.
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
 

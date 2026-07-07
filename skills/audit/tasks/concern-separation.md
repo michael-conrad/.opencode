@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Audit spec phase structure for concern separation quality using dual-adversarial verification. Checks deployment independence, risk profile, and blast radius per phase.
+Audit spec phase structure for concern separation quality using independent verification. Checks deployment independence, risk profile, and blast radius per phase.
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
 

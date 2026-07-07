@@ -6,7 +6,7 @@ Idempotent completion subtask for issue-review. Ensures mandatory steps ran rega
 
 - [ ] 1. **Full workflow completion:** Gather → triage → all tasks completed for target issue
 - [ ] 2. **Fix spec sub-issue:** If analyze-and-spec path, fix spec sub-issue was created
-- [ ] 3. **Adversarial-audit invocation:** If audit path, `adversarial-audit --task spec-audit` was invoked
+- [ ] 3. **Adversarial-audit invocation:** If audit path, `audit --task spec-audit` was invoked
 - [ ] 4. **Executive summary channel:** Output routed to correct channel (chat for audit, issue for qa)
 
 ## Skill-Specific Completion
@@ -63,7 +63,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: adversarial-audit --task spec-audit
+CONTINUE: audit --task spec-audit
 HALT
 ```
 

@@ -22,15 +22,15 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 
 ### Step 0: Closure-Verification (Adversarial Audit)
 
-**⚠️ Before any branch operations, verify issue closure via adversarial audit.**
+**⚠️ Before any branch operations, verify issue closure via audit.**
 
-Invoke `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`. The dual-auditor dispatch must complete with a PASS consensus before any branch operations proceed.
+Invoke `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`. The dual-auditor dispatch must complete with a PASS consensus before any branch operations proceed.
 
 #### Dispatch Procedure (Orchestrator)
 
-The orchestrator dispatches the adversarial audit pipeline:
+The orchestrator dispatches the audit pipeline:
 
-1. **`skill({name: "adversarial-audit"})`** — load the adversarial-audit skill
+1. **`skill({name: "audit"})`** — load the audit skill
 2. **Task `resolve-models`** — dispatch a clean-room sub-agent to resolve two cross-family auditor models via capability probe
 3. **Task `closure-verification`** — dispatch two auditor sub-agents in parallel (each receives `spec_local_dir`, `audit_phase: post_merge`, PR number, and the standard dispatch fields only — no orchestrator reasoning, no pre-loaded findings)
 4. **Task `cross-validate`** — dispatch a sub-agent with the pre-resolved `auditor_artifact_paths` to compute consensus

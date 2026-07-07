@@ -61,7 +61,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. **Base branch = target branch** for feature PRs.
 - [ ] 3. **Squash verified** before PR (single commit for single-issue).
 - [ ] 4. **Changelog generated** before PR.
-- [ ] 5. **Adversarial-audit call:** after pre-pr-checklist, call `adversarial-audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
+- [ ] 5. **Adversarial-audit call:** after pre-pr-checklist, call `audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
 - [ ] 6. **No agent merge** — human-only operation.
 - [ ] 7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
 - [ ] 8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
@@ -69,7 +69,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```
@@ -142,7 +142,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Skills: `git-workflow`, `changelog-generator`, `adversarial-audit --task spec-summary`. Guidelines: `000-critical-rules.md` (Step 0.5 enforcement gate).
+Skills: `git-workflow`, `changelog-generator`, `audit --task spec-summary`. Guidelines: `000-critical-rules.md` (Step 0.5 enforcement gate).
 
 ```yaml+symbolic
 schema_version: "2.0"

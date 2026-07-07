@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Detect drift between spec/code reality and expected state. Identifies cases where implementation diverged from spec, or spec outpaced implementation, using dual-adversarial verification.
+Detect drift between spec/code reality and expected state. Identifies cases where implementation diverged from spec, or spec outpaced implementation, using independent verification.
 
 ## Dispatch Contract
 

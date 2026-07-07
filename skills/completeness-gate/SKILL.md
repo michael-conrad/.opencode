@@ -1,6 +1,6 @@
 ---
 name: completeness-gate
-description: "Use when running a non-adversarial completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to adversarial auditor. Also use when verifying that a deliverable covers all success criteria from the spec. Invoke for: completeness check, deliverable verification, SC coverage check, pre-audit readiness check. Completeness check is MANDATORY before routing to adversarial audit — not optional. Trigger phrases: check completeness, verify deliverable, SC coverage, pre-audit check, readiness check."
+description: "Use when running a non-audit completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to auditor. Also use when verifying that a deliverable covers all success criteria from the spec. Invoke for: completeness check, deliverable verification, SC coverage check, pre-audit readiness check. Completeness check is MANDATORY before routing to audit — not optional. Trigger phrases: check completeness, verify deliverable, SC coverage, pre-audit check, readiness check."
 license: MIT
 compatibility: opencode
 ---
@@ -9,7 +9,7 @@ compatibility: opencode
 
 ## Overview
 
-Non-adversarial completeness check that runs after a RED/GREEN sub-agent returns and before the adversarial audit. Verifies the deliverable against the spec's success criteria — checking that the deliverable exists, is structurally sound, and addresses each criterion. This is a completeness gate, not an adversarial audit: it verifies presence and coverage, not correctness depth.
+Completeness check that runs after a RED/GREEN sub-agent returns and before the audit. Verifies the deliverable against the spec's success criteria — checking that the deliverable exists, is structurally sound, and addresses each criterion. This is a completeness gate, not an audit: it verifies presence and coverage, not correctness depth.
 
 ## Mandatory Task Discipline
 
@@ -112,7 +112,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Operating Protocol
 
-- [ ] 1. **Mandatory call:** The orchestrator MUST call this skill after every RED/GREEN sub-agent result and before routing to the adversarial auditor
+- [ ] 1. **Mandatory call:** The orchestrator MUST call this skill after every RED/GREEN sub-agent result and before routing to the auditor
 - [ ] 2. **Single pass:** The check runs once per handoff — no internal loop, no re-checking
 - [ ] 3. **Read-only:** No remediation, no routing advice, no fix suggestions
 - [ ] 4. **Evidence-based:** All findings require tool-call evidence from live sources
@@ -121,7 +121,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 ## Routing Decision
 
 After the completeness gate returns:
-- **PASS** → proceed to adversarial auditor
+- **PASS** → proceed to auditor
 - **FAIL + remediable only** → re-task RED/GREEN with completeness findings
 - **FAIL + structural** → route to `writing-plans` or `spec-creation`
 
@@ -175,7 +175,7 @@ rules:
     source: "completeness-gate/SKILL.md §Operating Protocol"
 
   - id: completeness-gate-004
-    title: "Non-adversarial — single sub-agent, not dual cross-family"
+    title: "Non-audit — single sub-agent, not dual cross-family"
     conditions:
       all:
         - "completeness_check_in_progress == true"
@@ -183,7 +183,7 @@ rules:
     actions:
       - HALT
       - REDUCE_TO_SINGLE_SUB_AGENT
-    conflicts_with: [adversarial-audit-001]
+    conflicts_with: [audit-001]
     requires: []
     triggers: [implementation-pipeline]
     source: "completeness-gate/SKILL.md §Operating Protocol"

@@ -77,7 +77,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: adversarial-audit --task spec-audit
+CONTINUE: audit --task spec-audit
 HALT
 ```
 

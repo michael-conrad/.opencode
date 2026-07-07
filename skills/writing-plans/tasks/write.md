@@ -109,7 +109,7 @@ Every plan document MUST use a three-tier structure:
 | 2 — Per-Phase | Phase sections | `## Phase N — <name>` | Phase metadata + per-file RED+green chains |
 | 3 — Per-Item | Item chains | `- [ ] N.M.` (sub-steps) | RED → GREEN → doublecheck → commit per item |
 
-**Tier 1 (Global):** Steps numbered sequentially across the entire plan. Includes global pre-steps (coherence gate, pre-red-baseline) and global post-steps (collect behavioral evidence from `{project_root}/tmp/behavioral-evidence-*/` into `{project_root}/tmp/{issue-N}/artifacts/`, adversarial audit, cross-validate, regression check, review-prep, exec-summary).
+**Tier 1 (Global):** Steps numbered sequentially across the entire plan. Includes global pre-steps (coherence gate, pre-red-baseline) and global post-steps (collect behavioral evidence from `{project_root}/tmp/behavioral-evidence-*/` into `{project_root}/tmp/{issue-N}/artifacts/`, audit, cross-validate, regression check, review-prep, exec-summary).
 
 **Tier 2 (Per-Phase):** Each phase section contains phase metadata and per-file RED+green item chains. Phase steps continue the global sequence number.
 

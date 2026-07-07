@@ -30,7 +30,7 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 3 | Authorization decision (inline) | Route based on authorization result |
 | 4.5 | `verify-authorization/item-decomposition-check` | Verify item enumeration, dependency ordering, TDD steps |
 | 4.6 | `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability, RED-phase ordering |
-| 5 | `verify-authorization/sub-issue-verification` | Sub-issue phase count, adversarial verification, closed-issue check |
+| 5 | `verify-authorization/sub-issue-verification` | Sub-issue phase count, verification, closed-issue check |
 | 5b | `verify-authorization/spec-to-plan-cascade` | Spec-to-plan approval cascade |
 | 5b.5+5c | `verify-authorization/gap-fill-cascade` | Gap-fill precedence and cascade execution |
 | 5d.1 | `verify-authorization/verify-codebase` | Staleness detection, superseding issue check |

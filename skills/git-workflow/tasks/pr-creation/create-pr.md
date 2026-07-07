@@ -36,7 +36,7 @@ When invoked with `--release` flag, this task performs post-merge steps after PR
 
 Before reading any artifacts or assembling the PR body, verify that the work was produced through the proper dispatch chain:
 
-1. Check the dispatch log for `skill({name: "verification-before-completion"})` and `skill({name: "adversarial-audit"})` calls
+1. Check the dispatch log for `skill({name: "verification-before-completion"})` and `skill({name: "audit"})` calls
 2. If either `skill()` call is MISSING from the dispatch log: return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
 3. If both `skill()` calls are present: proceed to Step 4.75
 
@@ -101,7 +101,7 @@ Blockers:
   - [FAIL] {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
     SC-1: Auditor 1 PASS, Auditor 2 FAIL
     Remediation: Re-audit SC-1 with fresh model pair
-remediation: "Run verification-before-completion --task verify, then adversarial-audit before retrying PR creation"
+remediation: "Run verification-before-completion --task verify, then audit before retrying PR creation"
 next_step: "remediate then re-audit"
 ```
 
@@ -208,7 +208,7 @@ A Summary sourced from the issue ticket through the issue-operations dispatcher 
 
 ### ❌ WRONG (Implementation Details)
 ```
-Add adversarial-audit --task plan-fidelity as the first auditor in the mandatory audit chain. It generates independent clean-room plans from problem statements and compares them against existing spec plans to identify substantive gaps.
+Add audit --task plan-fidelity as the first auditor in the mandatory audit chain. It generates independent clean-room plans from problem statements and compares them against existing spec plans to identify substantive gaps.
 ```
 
 ### ✅ CORRECT (Executive Summary)

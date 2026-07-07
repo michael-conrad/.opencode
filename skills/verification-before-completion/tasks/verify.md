@@ -91,7 +91,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 - [ ] 1. Check the dispatch log for `skill()` calls matching the current pipeline stage:
    - `skill({name: "spec-creation"})` or `skill({name: "writing-plans"})` for plan/spec stages
    - `skill({name: "verification-before-completion"})` for this verification stage
-   - `skill({name: "adversarial-audit"})` for audit stages
+   - `skill({name: "audit"})` for audit stages
 - [ ] 2. If the dispatch log is empty (no `skill()` calls recorded): return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
 - [ ] 3. If the dispatch log has `skill()` calls but none match the current pipeline stage: return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
 - [ ] 4. If the dispatch log has matching `skill()` calls: proceed to Step 0.5a

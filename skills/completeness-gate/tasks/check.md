@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Non-adversarial completeness check after RED/GREEN sub-agent returns. Verifies the deliverable against the spec's success criteria — checking existence, structural soundness, and criterion coverage. Runs once per handoff with no internal loop. Read-only: no remediation, no routing advice.
+Completeness check after RED/GREEN sub-agent returns. Verifies the deliverable against the spec's success criteria — checking existence, structural soundness, and criterion coverage. Runs once per handoff with no internal loop. Read-only: no remediation, no routing advice.
 
 ## Entry Criteria
 
@@ -109,7 +109,7 @@ This is a single-pass gate. Do NOT loop back to re-check after findings. Each ha
 
 ## Non-Adversarial Boundary
 
-This gate does NOT replace the adversarial auditor. It checks completeness — presence and coverage against SCs. Correctness depth, cross-validation, and model-family independence remain the adversarial auditor's domain.
+This gate does NOT replace the auditor. It checks completeness — presence and coverage against SCs. Correctness depth, cross-validation, and model-family independence remain the auditor's domain.
 
 ```yaml+symbolic
   - id: completeness-gate-check-001

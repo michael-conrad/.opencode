@@ -176,7 +176,7 @@ This pattern reframes the agent's internal cost model from tool-call-accounting 
 
 **DEFERRED**
 
-Non-compliance handling for dark prose violations is deferred to #641 (Dark Prose Compliance Gate). The compliance gate implements enforcement through the adversarial-audit dual-auditor pipeline with a dedicated `dark-prose-compliance` task. Until #641 is implemented, dark prose compliance is verified manually through spec review.
+Non-compliance handling for dark prose violations is deferred to #641 (Dark Prose Compliance Gate). The compliance gate implements enforcement through the audit dual-auditor pipeline with a dedicated `dark-prose-compliance` task. Until #641 is implemented, dark prose compliance is verified manually through spec review.
 
 ## Section 5: Conflict Resolution
 
@@ -215,7 +215,7 @@ To add a dark prose pattern (dark-prose-006+):
 1. **Analyze existing landscape** — Determine whether the proposed pattern overlaps with, extends, or supersedes any existing pattern listed in Section 1.
 2. **Create a spec issue** — Define the new pattern (mechanism, formula, strength level, prose examples, content types). The spec body must follow dark-prose-006 guidelines: define WHAT the pattern achieves and WHY, trust the implementing agent to determine HOW.
 3. **Reference annotation** — The spec body must include annotation references to #627 rather than prescriptive prose. The implementing agent reads the reference card and derives correct catalog entries autonomously.
-4. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify the pattern conforms to the agency-respecting constraint.
+4. **Adversarial audit** — Audit through the audit dual-auditor pipeline. Auditors verify the pattern conforms to the agency-respecting constraint.
 5. **Implement** — Apply the pattern in affected files.
 6. **Update the reference card**:
    - Add pattern row to Section 1 (Pattern ID Allocation table)
@@ -295,7 +295,7 @@ When the agent detects that it has violated a bright-line rule:
 
 ---
 
-Adherence to bright-line rules is verified through the adversarial-audit pipeline. A bright-line violation found during audit is a FAIL with mandatory remediation before proceeding.
+Adherence to bright-line rules is verified through the audit pipeline. A bright-line violation found during audit is a FAIL with mandatory remediation before proceeding.
 
 ---
 

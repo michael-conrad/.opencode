@@ -11,7 +11,7 @@ compatibility: opencode
 
 Shared verification gate for ALL content-generating skills. Pre-generation: task section-based sub-agents to collect evidence artifacts for every claim. Post-generation: scan for unverified markers, attempt resolution, escalate unresolvable claims. Orchestrator level: reject sub-agent output without evidence artifacts.
 
-Spec content that makes factual claims must include a **Documentation Sources** section documenting live-source verification used for each claim. This section is mandatory for standard and complex specs and is enforced by `adversarial-audit --task spec-audit` criterion SC-11. Simple specs may omit it.
+Spec content that makes factual claims must include a **Documentation Sources** section documenting live-source verification used for each claim. This section is mandatory for standard and complex specs and is enforced by `audit --task spec-audit` criterion SC-11. Simple specs may omit it.
 
 ## Worktree Mode
 
@@ -129,7 +129,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`. Skills: `spec-creation`, `writing-plans`, `sre-runbook`, `skill-creator`, `correspondence`, `adversarial-audit --task guideline-audit`.
+Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`. Skills: `spec-creation`, `writing-plans`, `sre-runbook`, `skill-creator`, `correspondence`, `audit --task guideline-audit`.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -76,7 +76,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 `skill({name: "writing-plans"})` — orchestrator dispatches pipeline steps to sub-agents via `task()`.
 
-**DISPATCH GATE — Pipeline steps dispatch to sub-agents.** The orchestrator routes each step to a clean-room sub-agent via `task()`. The orchestrator reads each step procedure from its task file and dispatches it. When external skills are needed (e.g., adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
+**DISPATCH GATE — Pipeline steps dispatch to sub-agents.** The orchestrator routes each step to a clean-room sub-agent via `task()`. The orchestrator reads each step procedure from its task file and dispatches it. When external skills are needed (e.g., audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
 
 | Task | Execution |
 |------|-----------|
@@ -112,9 +112,9 @@ Each item is tagged with chain dependency and contract paths.
 - [ ] 14. Z3 check — run `solve check` — verify revisit output has resolution_status — chain: `step_13`
 - [ ] 15. Validate — execute validate procedure from tasks/validate.md — chain: `step_14`
 - [ ] 16. Z3 check — run `solve check` — verify validate output has PASS status — chain: `step_15`
-- [ ] 17. Audit fidelity — execute audit-fidelity procedure from adversarial-audit task plan-fidelity — chain: `step_16`
+- [ ] 17. Audit fidelity — execute audit-fidelity procedure from audit task plan-fidelity — chain: `step_16`
 - [ ] 18. Z3 check — run `solve check` — verify audit-fidelity output has PASS — chain: `step_17`
-- [ ] 19. Audit concern — execute audit-concern procedure from adversarial-audit task concern-separation — chain: `step_18`
+- [ ] 19. Audit concern — execute audit-concern procedure from audit task concern-separation — chain: `step_18`
 - [ ] 20. Z3 check — run `solve check` — verify audit-concern output has PASS — chain: `step_19`
 - [ ] 21. Completion — execute completion procedure from tasks/completion.md — chain: `step_20`
 - [ ] 22. Z3 check — run `solve check` — verify completion output has lifecycle event — chain: `step_21`
@@ -125,11 +125,11 @@ When the `retroactive` task is dispatched, the pipeline is the same 22-step sequ
 
 ## Sub-Agent Routing
 
-Pipeline steps dispatch to sub-agents via `task()` for independent execution. The orchestrator routes each step to a clean-room sub-agent. When external skills are needed (adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
+Pipeline steps dispatch to sub-agents via `task()` for independent execution. The orchestrator routes each step to a clean-room sub-agent. When external skills are needed (audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
 
 ## Cross-References
 
-Skills: `approval-gate`, `issue-operations`, `executing-plans`, `adversarial-audit --task plan-fidelity`, `adversarial-audit --task concern-separation`, `verification-enforcement`, `solve`, `plan`. References: `skill-card-change-types.md`. Guidelines: `010-approval-gate.md`, `140-planning-spec-creation.md`.
+Skills: `approval-gate`, `issue-operations`, `executing-plans`, `audit --task plan-fidelity`, `audit --task concern-separation`, `verification-enforcement`, `solve`, `plan`. References: `skill-card-change-types.md`. Guidelines: `010-approval-gate.md`, `140-planning-spec-creation.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

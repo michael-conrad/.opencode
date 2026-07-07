@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies problems one at a time with concise prompts. Uses dual-adversarial verification for each finding.
+Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies problems one at a time with concise prompts. Uses independent verification for each finding.
 
 ## Dispatch Contract
 

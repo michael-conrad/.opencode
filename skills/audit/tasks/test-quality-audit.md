@@ -236,7 +236,7 @@ If any step FAILs, restart from step 0 (pre-clean). Do NOT restart from resolve-
 
 ## Cross-References
 
-- `resolve-models` task — auditor model resolution (adversarial-audit --task resolve-models)
+- `resolve-models` task — auditor model resolution (audit --task resolve-models)
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `spec-creation/tasks/create.md` — Step 4: Determinism Gate
 - `spec-creation/tasks/create.md` — SC verification methods
