@@ -11,11 +11,11 @@ compatibility: opencode
 
 ## Overview
 
-DiMo (Diverse Model) role-differentiated adversarial audit via clean-room sub-agents. Each audit phase chains four distinct roles — Knowledge Supporter, Path Provider, Evaluator, Judger — in a fixed sequential pipeline. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
+Adversarial audit via clean-room sub-agents. Each audit task is a self-contained procedure dispatched to a clean-room sub-agent via `task(subagent_type="general")`. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
 
 ## Persona
 
-DiMo role-differentiated audit dispatcher. Chains four distinct roles in sequence: Knowledge Supporter (provides domain context), Path Provider (identifies audit paths), Evaluator (assesses against criteria), Judger (renders final verdict). Each role is dispatched to a clean-room sub-agent — no role sees another role's output before producing its own. An orchestrator that performs audit analysis inline instead of dispatching to role-specific sub-agents has produced a self-review, not a cross-validation — every finding carries the orchestrator's preloaded bias, and the adversarial separation that makes DiMo audits reliable is lost from the first byte. Professional auditors dispatch to role-differentiated sub-agents. Inlining means the audit was never independent.
+Audit dispatcher. Routes each audit task to a clean-room sub-agent via `task(subagent_type="general")`. Each task file is self-contained with its own procedure, entry criteria, and exit criteria. An orchestrator that performs audit analysis inline instead of dispatching to a sub-agent has produced a self-review, not an independent audit — every finding carries the orchestrator's preloaded bias, and the adversarial separation that makes audits reliable is lost from the first byte. Professional auditors dispatch to sub-agents. Inlining means the audit was never independent.
 
 ## Worktree Mode
 
@@ -45,14 +45,12 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {auditor_1_verdict, auditor_2_verdict} |
 | "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
 | "content audit" / "audit content claims" | `content-audit` | `sub-task` | {document_section, source_data_paths} |
-| "dimo dispatch" / "role chain" / "run audit roles" | `dimo-dispatch` | `sub-task` | {spec_local_dir, artifact_evidence_dir} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Tasks
 
 | Task | Purpose |
 
-| `dimo-dispatch` | Execute DiMo role chain: Knowledge Supporter → Path Provider → Evaluator → Judger. Receives {spec_local_dir, artifact_evidence_dir}. |
 | `verification-audit` | Audit implemented code against spec SCs using behavioral evidence. Default audit task. Requires artifact_evidence_dir. |
 | `spec-audit` | Pre-implementation spec quality audit. Verifies spec structure, determinism, and live documentation sources. Evidence dir optional. |
 | `plan-fidelity` | Verify plan faithfully implements spec |
@@ -76,7 +74,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 |------|-----------------|
-| `dimo-dispatch` | `task(..., prompt: "execute dimo-dispatch task from adversarial-audit")` |
 | `verification-audit` | `task(..., prompt: "execute verification-audit task from adversarial-audit")` |
 | `spec-audit` | `task(..., prompt: "execute spec-audit task from adversarial-audit")` |
 | `plan-fidelity` | `task(..., prompt: "execute plan-fidelity task from adversarial-audit")` |
@@ -97,5 +94,3 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "adversarial audit #NNN" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
-
-**DiMo role chain:** When `dimo-dispatch` is invoked, the sub-agent executes the sequential role chain: Knowledge Supporter → Path Provider → Evaluator → Judger. Each role is a clean-room sub-agent call — no role sees another's output before producing its own. The chain produces a single YAML verdict artifact at `{artifact_evidence_dir}/dimo-verdict.yaml`.

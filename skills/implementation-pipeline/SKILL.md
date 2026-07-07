@@ -83,17 +83,16 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
-| `adversarial-audit` | **Orchestrator multi-dispatch:** dimo-dispatch → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with DiMo role chain (Knowledge Supporter → Path Provider → Evaluator → Judger) | DiMo role-chain YAML verdict |
+| `adversarial-audit` | **Orchestrator dispatch:** dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | YAML verdict artifact |
 | `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary |
 
-**Note:** The `adversarial-audit` step uses DiMo role-differentiated chaining. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
-- [ ] 1. Dispatch `dimo-dispatch` from adversarial-audit skill with {spec_local_dir, artifact_evidence_dir}
-- [ ] 2. The dimo-dispatch sub-agent executes the sequential role chain: Knowledge Supporter → Path Provider → Evaluator → Judger
-- [ ] 3. If the DiMo chain returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Dispatch Routing Table.
-- [ ] 4. On clean PASS: collect the `artifact_path` from the DiMo verdict and pass as `auditor_artifact_paths` context to `cross-validate`.
+**Note:** The `adversarial-audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
+- [ ] 1. Dispatch the audit task from adversarial-audit skill with {spec_local_dir, artifact_evidence_dir}
+- [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Dispatch Routing Table.
+- [ ] 3. On clean PASS: collect the `artifact_path` and pass as `auditor_artifact_paths` context to `cross-validate`.
 
 ## Pre-Flight
 
@@ -106,7 +105,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `dimo-dispatch`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -125,7 +124,7 @@ All steps in the Trigger Dispatch Table with `sub-task` dispatch are called via:
 `task(..., prompt: "execute <step_label> from implementation-pipeline. Read \`implementation-pipeline/tasks/<step_label>.md\` first")`
 
 **Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
-1. `dimo-dispatch` (sub-agent) — dispatch DiMo role chain: Knowledge Supporter → Path Provider → Evaluator → Judger
+1. Dispatch audit task (sub-agent) — dispatch the appropriate audit task via `task(subagent_type="general")`
 2. `remediate` (inline) — if non-clean-pass, remediate and restart from step 1
 3. `cross-validate` (clean-room) — produce cross-validate findings
 
@@ -143,9 +142,9 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 **Orchestrator entry point:** The orchestrator reads the plan, creates branches, and dispatches sub-agents per the Trigger Dispatch Table. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use the DiMo role chain dispatched via `dimo-dispatch` — NOT `general`. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
-**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dimo-dispatch sub-agent, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
+**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
 
 Exclusions: implementation context, agent memory, cached verification results.
 
