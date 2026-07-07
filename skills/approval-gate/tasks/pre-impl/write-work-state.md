@@ -114,7 +114,6 @@ mkdir -p {project_root}/tmp/{issue-N}/artifacts
 
 - **authorization_scope:** <scope_value>
 - **halt_at:** <pipeline_stage>
-- **pr_strategy:** <stacked|none>
 - **gap_fill:** <list of gap-fill actions executed or pending>
 
 ## Pre-Analysis Results

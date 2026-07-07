@@ -127,10 +127,6 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 - **stacked:** Feature PR targets dev. No PR for spec/plan-only scopes.
 - **none:** No PR — only spec or plan creation.
 
-#### Gap-Fill Cascade
-
-Authorization always triggers dispatch of `gap-fill-cascade`, which reads the scope and walks its per-scope state-verification checklist. The checklist verifies each state sequentially and reports the first missing state or that all states are verified. See `skills/approval-gate/tasks/gap-fill-cascade.md` for the dispatcher and `skills/approval-gate/tasks/gap-fill-cascade/` for per-scope checklist files.
-
 ### Multi-Task Plan Authorization (CRITICAL)
 
 When a parent issue has sub-issues with different `halt_at` values, authorization for the parent cascades to ALL sub-issues. The agent completes ALL phases in sequence without halting between them, reporting ONCE after all phases complete.

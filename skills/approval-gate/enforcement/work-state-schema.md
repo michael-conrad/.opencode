@@ -10,7 +10,6 @@ Define the work state file schema extension for chain-of-responsibility orchestr
 ## chain-context
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
-pr_strategy: stacked | none
 pipeline_phase: <current_phase_name>
 issue_numbers: [<N>]
 created_at: <ISO-8601>
