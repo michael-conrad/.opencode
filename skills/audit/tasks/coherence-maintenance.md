@@ -27,8 +27,6 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 - FAIL if uncontrolled drift detected
 - Migration candidates identified
 
-> **DiMo Role: Evaluator.** This task evaluates drift between baseline and current state. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Coherence Maintenance Checklist
@@ -41,9 +39,8 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 - [ ] 5. Identify Migration Candidates — procedural workflows suitable for extraction
 - [ ] 6. Build Evaluation Criteria — define CM table with evidence types
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
-- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-- [ ] 10. Build Result Contract — YAML verdict with drift analysis
+- [ ] 8. If FAIL: remediate, restart from step 0
+- [ ] 9. Build Result Contract — YAML verdict with drift analysis
 
 ### Step 1: Load Baseline
 
@@ -141,12 +138,7 @@ for skill_behavior in current_state["skills"]["behaviors"]:
 
 Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
 
-### Step 8: Dispatch Judger
-
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Build Result Contract
+### Step 8: Build Result Contract
 
 ```yaml
 {
@@ -165,9 +157,8 @@ Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
     "uncontrolled_count": <L>
   },
   "migration_candidates": [...],
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "exec_summary": "Coherence check: {controlled_count} controlled, {uncontrolled_count} uncontrolled drift. Consensus: {overall}."
+  "overall_verdict": "PASS | FAIL",
+  "exec_summary": "Coherence check: {controlled_count} controlled, {uncontrolled_count} uncontrolled drift. Verdict: {overall}."
 }
 ```
 
@@ -192,28 +183,24 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 4 (Classify Drift) → INVALID if skipped
 - Step 5 (Identify Migration Candidates) → INVALID if skipped
 - Step 6 (Build Evaluation Criteria) → INVALID if skipped
-- Step 7 (Cross-Validate) → INVALID if skipped
-- Step 8 (Build Result Contract) → INVALID if skipped
+- Step 7 (Build Result Contract) → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After coherence-maintenance completes:
-- If consensus PASS: proceed to guideline-audit or coherence_gate completion
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to guideline-audit or coherence_gate completion
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
 - `tasks/coherence-extraction.md` — baseline generation
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `coherence-auditor/tasks/maintenance-detect.md` — original drift detection
-- `coherence-auditor/tasks/maintenance-verify.md` — original verification
 - `000-critical-rules.md` — coherence maintenance requirement
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: coherence-maintenance-001
     title: "Uncontrolled drift must be flagged before merge"

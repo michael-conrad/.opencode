@@ -28,8 +28,6 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 - Spec issue properly closed
 - PASS if consistent, FAIL if mismatch
 
-> **DiMo Role: Evaluator.** This task evaluates PR/spec consistency. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ### Step 0: Pre-clean
@@ -162,12 +160,9 @@ else:
 
 Write verdict to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`
 
-### Step 11: Dispatch Judger
+### Step 11: If FAIL: remediate, restart from step 0
 
-- [ ] 11. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 12. If FAIL: remediate, restart from step 0
-
-### Step 13: Build Result Contract
+### Step 12: Build Result Contract
 
 ```yaml
 {
@@ -187,14 +182,13 @@ Write verdict to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`
     "link_present": true | false,
     "closing_keywords": true | false
   },
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
+  "overall_verdict": "PASS | FAIL",
   "recommendations": [
     "Add closing keyword: 'Closes #<spec_issue>'",
     "Document success criteria in PR body",
     "Explain extra files: <files>"
   ],
-  "exec_summary": "PR/Spec consistency: {match_percentage}% matched. Consensus: {overall}."
+  "exec_summary": "PR/Spec consistency: {match_percentage}% matched. Verdict: {overall}."
 }
 ```
 
@@ -219,30 +213,28 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 3 (Extract PR Content) → INVALID if skipped
 - Step 4 (Build Evaluation Criteria) → INVALID if skipped
 - Step 5 (Compare PR to Spec) → INVALID if skipped
-- Step 6 (Cross-Validate) → INVALID if skipped
-- Step 7 (Verify Closing Keywords) → INVALID if skipped
-- Step 8 (Check Spec Issue Status) → INVALID if skipped
-- Step 9 (Classify Mismatches) → INVALID if skipped
-- Step 10 (Build Result Contract) → INVALID if skipped
+- Step 6 (Verify Closing Keywords) → INVALID if skipped
+- Step 7 (Check Spec Issue Status) → INVALID if skipped
+- Step 8 (Classify Mismatches) → INVALID if skipped
+- Step 9 (Build Result Contract) → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After spec-summary completes:
-- If consensus PASS: proceed to closure-verification or pr_creation
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to closure-verification or pr_creation
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
 - `pr-creation-workflow` skill — PR creation
 - `git-workflow` skill — closing keywords
 - `000-critical-rules.md` — PR completion requirements
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: spec-summary-001
     title: "Success criteria must be documented in PR body"

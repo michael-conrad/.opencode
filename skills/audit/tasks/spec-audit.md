@@ -8,9 +8,9 @@
 
 ## Purpose
 
-Audit a spec for quality, structure, and completeness using independent cross-validation. Each criterion is independently verified by two cross-family auditors with clean-room context.
+Audit a spec for quality, structure, and completeness using independent verification. Each criterion is independently verified by a single clean-room sub-agent.
 
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 
 ## Dispatch Contract
 
@@ -27,11 +27,9 @@ Audit a spec for quality, structure, and completeness using independent cross-va
 
 ## Exit Criteria
 
-- All subtask criteria evaluated with PASS/FAIL consensus (no INCONCLUSIVE verdicts)
+- All subtask criteria evaluated with PASS/FAIL verdicts (no INCONCLUSIVE verdicts)
 - Bidirectional findings reported
 - Executive summary generated
-
-> **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
 
 ## Procedure
 
@@ -43,13 +41,12 @@ Audit a spec for quality, structure, and completeness using independent cross-va
 - [ ] 3. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
 - [ ] 4. Build Evaluation Criteria — define SC table with evidence types
 - [ ] 4a. Evaluate Semantic Auditor Criteria (SC-SEM) — evaluate skill card description quality (skip if not a skill card audit)
-- [ ] 5. Process Verdicts — per-criterion PASS/FAIL consensus
+- [ ] 5. Process Verdicts — per-criterion PASS/FAIL
 - [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
-- [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
+- [ ] 7. Generate Bidirectional Findings — FAIL criteria with revision options
 - [ ] 8. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
-- [ ] 9. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 10. If FAIL: remediate, restart from step 0
-- [ ] 11. Return Frugal Result Contract
+- [ ] 9. If FAIL: remediate, restart from step 0
+- [ ] 10. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -135,8 +132,6 @@ Define audit criteria based on spec-auditor task structure:
 | SC-SEM-004 | Full coverage of dispatch conditions | Would an agent reading only the description know to invoke this skill in all conditions listed in the dispatch table? Sub-agent reads the description, then reads the table, and judges whether every table trigger is represented in the description. **Severity: WARNING.** Failure: one or more table triggers are not reflected in the description. |
 | SC-SEM-005 | No optional/discretionary language | Does the description contain any language that could be interpreted as making dispatch optional or discretionary? Sub-agent reads the description and identifies phrases that imply choice ("you can", "you may", "optionally", "if desired", "consider using"). **Severity: WARNING.** Failure: description contains optional/discretionary language. |
 | SC-SEM-006 | Dispatch table sub-item type correctness | Do dispatch table sub-items use the correct semantic type — sub-bullets for parameter metadata, sub-checkboxes for actionable sub-steps? Sub-agent reads the Trigger Dispatch Table and classifies each sub-item as parameter metadata (context fields, task file paths, dispatch type) or actionable sub-step (must be performed). Verifies sub-bullets used for metadata, sub-checkboxes used for actions. **Severity: WARNING.** Failure: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata. |
-
-<!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 3a: Evaluate Reasoning Soundness (A1)
 
@@ -447,9 +442,8 @@ Record each SC-SEM criterion result in the per_criterion array with the same for
 ### Step 4: Process Verdicts
 
 For each criterion:
-- Both auditors PASS → criterion consensus PASS
-- Either auditor FAIL → criterion consensus FAIL
-- Auditors disagree → mark as DISAGREE, present bidirectional finding
+- PASS → criterion PASS
+- FAIL → criterion FAIL
 
 ### Step 4.5: Evaluate SC Determinism (SC-DET)
 
@@ -479,14 +473,14 @@ For each success criterion in the spec, evaluate determinism:
       "executable_verification": "..."
     }
   ],
-  "consensus": "PASS | FAIL",
+  "verdict": "PASS | FAIL",
   "evidence": "<tool-call reference>"
 }
 ```
 
 ### Step 5: Generate Bidirectional Findings
 
-For FAIL/DISAGREE criteria:
+For FAIL criteria:
 
 | Finding Type | Direction | Description |
 |-------------|-----------|-------------|
@@ -501,19 +495,15 @@ Present revision options for developer decision.
 
 Write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
 
-### Step 9: Dispatch Judger
+### Step 9: If FAIL: remediate, restart from step 0
 
-- [ ] 9. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 10. If FAIL: remediate, restart from step 0
-
-### Step 11: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 10: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_type: spec-audit
 auditor_type: spec-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -537,7 +527,7 @@ all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
-### Step 12: Return Frugal Result Contract
+### Step 11: Return Frugal Result Contract
 
 ```yaml
 status: DONE
@@ -562,17 +552,16 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 3a. Evaluate reasoning soundness (A1) → INVALID if skipped
 - [ ] 3b. Evaluate claim accuracy (A2) → INVALID if skipped
 - [ ] 3c. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
-- [ ] 4. Cross-validate with verdicts → INVALID if skipped
-- [ ] 5. Process verdicts → INVALID if skipped
-- [ ] 6. Evaluate SC determinism → INVALID if skipped
-- [ ] 7. Generate bidirectional findings → INVALID if skipped
-- [ ] 8. Build result contract → INVALID if skipped
+- [ ] 4. Process verdicts → INVALID if skipped
+- [ ] 5. Evaluate SC determinism → INVALID if skipped
+- [ ] 6. Generate bidirectional findings → INVALID if skipped
+- [ ] 7. Build result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After spec-audit completes:
-- If consensus PASS: proceed to `concern-separation` or next pipeline step
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to `concern-separation` or next pipeline step
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
@@ -582,50 +571,32 @@ This step is MANDATORY — the pipeline does not terminate early.
 |-------|--------|
 | Spec issue not found | Return BLOCKED with issue number |
 | Spec body empty | Return FAIL for SC-1, continue remaining |
-| Cross-validate fails | Return OVERFLOW, log error |
-| Auditor unavailable | Use fallback chain per multimodal-dispatch |
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `spec-auditor/SKILL.md` — original task breakdown
 - `spec-auditor/tasks/fidelity.md` — plan fidelity check
 - `000-critical-rules.md` — co-authored requirement
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: spec-audit-001
-    title: "Dual auditors required — no single-auditor evaluation"
-    conditions:
-      all: ["auditor_count < 2"]
-    actions: [HALT, RESOLVE_SECOND_AUDITOR]
-    source: "spec-audit.md §Step 3"
-
-  - id: spec-audit-002
     title: "Clean-room task() — no orchestrator reasoning leaked to auditors"
     conditions:
       all: ["auditor_context contains 'expected' OR 'should' OR 'correct'"]
     actions: [HALT, STRIP_BIASED_CONTEXT]
     source: "spec-audit.md §Step 3"
 
-  - id: spec-audit-003
-    title: "Disagreement requires bidirectional finding"
-    conditions:
-      all: ["auditor_1_result != auditor_2_result", "bidirectional_finding == null"]
-    actions: [APPEND_BIDIRECTIONAL_FINDING]
-    source: "spec-audit.md §Step 5"
-
-  - id: spec-audit-004
+  - id: spec-audit-002
     title: "Documentation Sources section required and populated"
     conditions:
       all: ["doc_sources_missing_or_empty == true"]
     actions: [FAIL_CRITERION(SC-11)]
     source: "spec-audit.md §Step 2"
 
-  - id: spec-audit-005
+  - id: spec-audit-003
     title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
     conditions:
       any:
@@ -634,7 +605,7 @@ rules:
     actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
     source: "spec-audit.md §Step 6 — conditional next_step enforcement"
 
-  - id: spec-audit-006
+  - id: spec-audit-004
     title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
     conditions:
       any:

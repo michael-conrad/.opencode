@@ -28,8 +28,6 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - PASS if synchronized, FAIL if significant drift
 - Bidirectional findings presented
 
-> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ## Drift Detection Checklist
@@ -44,9 +42,8 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - [ ] 7. Classify Drift Severity — map drift to HIGH/MEDIUM/LOW
 - [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
 - [ ] 9. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
-- [ ] 10. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 11. If FAIL: remediate, restart from step 0
-- [ ] 12. Build Result Contract — YAML verdict with drift summary
+- [ ] 10. If FAIL: remediate, restart from step 0
+- [ ] 11. Build Result Contract — YAML verdict with drift summary
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -195,12 +192,9 @@ Present options for developer decision.
 
 Write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
 
-### Step 10: Dispatch Judger
+### Step 10: If FAIL: remediate, restart from step 0
 
-- [ ] 10. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 11. If FAIL: remediate, restart from step 0
-
-### Step 12: Build Result Contract
+### Step 11: Build Result Contract
 
 ```yaml
 {
@@ -226,9 +220,8 @@ Write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
       }
     }
   ],
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "exec_summary": "Drift detection: {spec_drift} spec drift, {code_drift} code drift. Consensus: {overall}."
+  "overall_verdict": "PASS | FAIL",
+  "exec_summary": "Drift detection: {spec_drift} spec drift, {code_drift} code drift. Verdict: {overall}."
 }
 ```
 
@@ -253,29 +246,27 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 3 (Build Evaluation Criteria) → INVALID if skipped
 - Step 4 (Scan Implementation) → INVALID if skipped
 - Step 5 (Check Untracked Files) → INVALID if skipped
-- Step 6 (Cross-Validate) → INVALID if skipped
-- Step 7 (Classify Drift Severity) → INVALID if skipped
-- Step 8 (Generate Bidirectional Findings) → INVALID if skipped
-- Step 9 (Build Result Contract) → INVALID if skipped
+- Step 6 (Classify Drift Severity) → INVALID if skipped
+- Step 7 (Generate Bidirectional Findings) → INVALID if skipped
+- Step 8 (Build Result Contract) → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After drift-detection completes:
-- If consensus PASS: proceed to concern-separation or next pipeline step
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to concern-separation or next pipeline step
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
 - `verification-before-completion` skill — verification gate
 - `srclight` tools — code analysis
 - `000-critical-rules.md` — spec-code alignment
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: drift-detection-001
     title: "Spec drift must be reported before merge"

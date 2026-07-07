@@ -4,7 +4,7 @@
 
 > **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
 
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 
 # Task: closure-verification
 
@@ -28,8 +28,6 @@ Verify merge evidence after PR merge. Ensures spec issue properly closed, succes
 - Success criteria verified via tool calls
 - Follow-up issues created if needed
 - PASS if verified, FAIL if evidence missing
-
-> **DiMo Role: Evaluator.** This task evaluates closure evidence against criteria. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
 
 ## Procedure
 
@@ -204,19 +202,13 @@ if follow_up_issues:
 | OPEN_BLOCKERS | HIGH | Blocking issues remain |
 | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-### Step 10: Dispatch Judger
-
-- [ ] 10. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 11. If FAIL: remediate, restart from step 0
-
-### Step 12: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 12: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_type: closure-verification
 auditor_type: closure-verification
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -238,7 +230,7 @@ per_criterion:
     explanation: "<reasoning>"
     remediation: ""
     next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
-exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
+exec_summary: "Closure verification: X/Y criteria. Verdict: PASS|FAIL."
 all_criteria_pass: false
 ```
 
@@ -275,30 +267,28 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 5 (Build Evaluation Criteria) → INVALID if skipped
 - Step 6 (Extract Success Criteria) → INVALID if skipped
 - Step 7 (Verify Each Criterion) → INVALID if skipped
-- Step 8 (Cross-Validate) → INVALID if skipped
-- Step 9 (Check for Open Blockers) → INVALID if skipped
-- Step 10 (Check Follow-up Issues) → INVALID if skipped
-- Step 11 (Classify Verification Gaps) → INVALID if skipped
-- Step 12 (Build Result Contract) → INVALID if skipped
+- Step 8 (Check for Open Blockers) → INVALID if skipped
+- Step 9 (Check Follow-up Issues) → INVALID if skipped
+- Step 10 (Classify Verification Gaps) → INVALID if skipped
+- Step 11 (Build Result Contract) → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After closure-verification completes:
-- If consensus PASS: proceed to post-merge verification or pipeline end
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to post-merge verification or pipeline end
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
 - `git-workflow` skill — merge completion
 - `verification-before-completion` skill — verification gate
 - `000-critical-rules.md` — merge evidence requirements
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: closure-verification-001
     title: "Spec issue must be closed after PR merge"

@@ -24,10 +24,8 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 
 - All guideline files scanned
 - Problems identified with LLM compliance check
-- PASS/FAIL consensus for each problem class
+- PASS/FAIL verdict for each problem class
 - Findings written to `{project_root}/tmp/{issue-N}/artifacts/audit-guideline.md`
-
-> **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
 
 ## Procedure
 
@@ -41,9 +39,8 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - [ ] 5. One Problem At a Time — present single findings per interaction
 - [ ] 6. Write Audit Report — markdown report to artifacts directory
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
-- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-- [ ] 10. Return Frugal Result Contract
+- [ ] 8. If FAIL: remediate, restart from step 0
+- [ ] 9. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -176,7 +173,7 @@ Append findings to `{project_root}/tmp/{issue-N}/artifacts/audit-guideline.md`:
 
 Files audited: <N>
 Problems found: <M>
-Consensus: PASS | FAIL
+Verdict: PASS | FAIL
 
 ## Findings
 
@@ -186,7 +183,7 @@ Consensus: PASS | FAIL
 
 Rule: <rule_id>
 Problem: <description>
-Consensus: PASS | FAIL
+Verdict: PASS | FAIL
 Evidence: <tool-call reference>
 Fix: <fix_action>
 
@@ -197,19 +194,15 @@ Fix: <fix_action>
 
 Write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
 
-### Step 8: Dispatch Judger
+### Step 8: If FAIL: remediate, restart from step 0
 
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 9: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_type: guideline-audit
 auditor_type: guideline-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -231,10 +224,10 @@ per_criterion:
     next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
 report_path: "{project_root}/tmp/{issue-N}/artifacts/audit-guideline.md"
 all_criteria_pass: false
-exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
+exec_summary: "Guideline audit: N files, M problems. Verdict: PASS|FAIL."
 ```
 
-### Step 11: Return Frugal Result Contract
+### Step 10: Return Frugal Result Contract
 
 ## Remediation
 
@@ -263,28 +256,25 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 2 (Build Evaluation Criteria) → INVALID if skipped
 - Step 3 (Scan for Problem Classes) → INVALID if skipped
 - Step 4 (One Problem At a Time) → INVALID if skipped
-- Step 5 (Cross-Validate) → INVALID if skipped
-- Step 6 (Write Audit Report) → INVALID if skipped
-- Step 7 (Build Result Contract) → INVALID if skipped
+- Step 5 (Write Audit Report) → INVALID if skipped
+- Step 6 (Build Result Contract) → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After guideline-audit completes:
-- If consensus PASS: proceed to next audit type or guideline_update pipeline
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to next audit type or guideline_update pipeline
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `guideline-auditor/tasks/audit.md` — original procedure
 - `000-critical-rules.md` — guideline standards
 - `065-verification-honesty.md` — live verification requirement
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: guideline-audit-001
     title: "One problem at a time — no batching"

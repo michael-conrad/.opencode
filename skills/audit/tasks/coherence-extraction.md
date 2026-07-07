@@ -26,8 +26,6 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 - Z3 solve check PASS — SC evidence type constraints structurally consistent
 - No evidence type mismatches — all SC prose-to-declared-type classifications verified
 
-> **DiMo Role: Knowledge Supporter.** This task generates baseline coherence data. Writes `evidence.yaml` with extracted rules and behaviors.
-
 ## Procedure
 
 ### Step 0: Pre-clean
@@ -263,7 +261,6 @@ If any step FAILs, restart from step 0 (pre-clean).
 
 ## Cross-References
 
-- Path Provider role — model selection and routing rationale (DiMo role chain)
 - `tasks/coherence-maintenance.md` — drift detection
 - `tasks/coherence-extraction.md` — this file (self-reference for pipeline dispatch)
 - `000-critical-rules.md` — baseline requirement
@@ -273,7 +270,7 @@ If any step FAILs, restart from step 0 (pre-clean).
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: coherence-extraction-001
     title: "Baseline must include all guideline rules"

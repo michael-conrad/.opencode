@@ -40,8 +40,6 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 - Verdict produced in standard YAML block format per criterion
 - Remediation recommended as FIX_TEST, FIX_CODE, or SPEC_GAP
 
-> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
-
 ## Procedure
 
 ### Step 0: Pre-clean
@@ -178,19 +176,13 @@ recommendation: "<prose>"
 
 Write verdict to `./tmp/{issue-N}/artifacts/test-quality-audit/verdict.yaml`
 
-### Step 4a: Dispatch Judger
-
-- [ ] 4a. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 4b. If FAIL: remediate, restart from step 0
-
-### Step 4c: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 4a: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-test-quality-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_type: test-quality-audit
 auditor_type: test-quality-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -236,9 +228,7 @@ If any step FAILs, restart from step 0 (pre-clean).
 
 ## Cross-References
 
-- Path Provider role — model selection and routing rationale (DiMo role chain)
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `spec-creation/tasks/create.md` — Step 4: Determinism Gate
 - `spec-creation/tasks/create.md` — SC verification methods
 - `080-code-standards.md` — Behavioral Enforcement Tests
-

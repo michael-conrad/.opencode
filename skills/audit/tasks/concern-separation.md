@@ -10,7 +10,7 @@
 
 Audit spec phase structure for concern separation quality using independent verification. Checks deployment independence, risk profile, and blast radius per phase.
 
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 
 ## Dispatch Contract
 
@@ -27,9 +27,7 @@ Audit spec phase structure for concern separation quality using independent veri
 - All phases analyzed for concern boundaries
 - Risk classification verified
 - Deployment independence assessed
-- PASS/FAIL consensus achieved
-
-> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+- PASS/FAIL verdict achieved
 
 ## Procedure
 
@@ -43,9 +41,8 @@ Audit spec phase structure for concern separation quality using independent veri
 - [ ] 5. Classify Findings — map to finding types
 - [ ] 6. Verify Boundary Claims — live tool-call verification per claim
 - [ ] 7. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
-- [ ] 8. Dispatch Judger → reads all artifacts, writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-- [ ] 10. Return Frugal Result Contract
+- [ ] 8. If FAIL: remediate, restart from step 0
+- [ ] 9. Return Frugal Result Contract
 
 ### Step 0: Pre-Flight Validation Gate
 
@@ -184,19 +181,15 @@ Each boundary claim must be verified:
 
 Write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
 
-### Step 8: Dispatch Judger
+### Step 8: If FAIL: remediate, restart from step 0
 
-- [ ] 8. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 9. If FAIL: remediate, restart from step 0
-
-### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 9: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_type: concern-separation
 auditor_type: concern-separation
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -224,7 +217,7 @@ all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
-### Step 11: Return Frugal Result Contract
+### Step 10: Return Frugal Result Contract
 
 ## Remediation
 
@@ -253,29 +246,26 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 1 (Load Spec) → INVALID if skipped
 - Step 2 (Build Evaluation Criteria) → INVALID if skipped
 - Step 3 (Analyze Phase Structure) → INVALID if skipped
-- Step 4 (Cross-Validate) → INVALID if skipped
-- Step 5 (Classify Findings) → INVALID if skipped
-- Step 6 (Verify Boundary Claims) → INVALID if skipped
-- Step 7 (Build Result Contract) → INVALID if skipped
+- Step 4 (Classify Findings) → INVALID if skipped
+- Step 5 (Verify Boundary Claims) → INVALID if skipped
+- Step 6 (Build Result Contract) → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After concern-separation completes:
-- If consensus PASS: proceed to plan-fidelity or sub_issue_creation pipeline
-- If consensus FAIL: remediate findings, then re-audit (DiMo role chain → auditors → cross-validate)
+- If verdict PASS: proceed to plan-fidelity or sub_issue_creation pipeline
+- If verdict FAIL: remediate findings, then re-audit
 
 This step is MANDATORY — the pipeline does not terminate early.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `concern-separation-auditor/tasks/audit-phases.md` — original procedure
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: concern-separation-001
     title: "Boilerplate phase names require justification"

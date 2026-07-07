@@ -11,7 +11,9 @@ compatibility: opencode
 
 ## Overview
 
-Audit via clean-room sub-agents. Each audit task is a self-contained procedure dispatched to a clean-room sub-agent via `task(subagent_type="general")`. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
+Audit via clean-room sub-agents. Each audit task is a self-contained procedure dispatched to a single clean-room sub-agent via `task(subagent_type="general")`. The sub-agent writes a YAML verdict to disk and returns a frugal result contract. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
+
+There is no dual-auditor cross-validation. The `task()` tool only supports `subagent_type="general"` — there are no `auditor-1`, `auditor-2`, or cross-family auditor types. Each audit task dispatches exactly one sub-agent, which produces one verdict. Cross-validation of one agent against itself is not meaningful, so the `cross-validate` task is a single-verdict sanity check.
 
 ## Persona
 
@@ -50,7 +52,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 ## Tasks
 
 | Task | Purpose |
-
 | `verification-audit` | Audit implemented code against spec SCs using behavioral evidence. Default audit task. Requires artifact_evidence_dir. |
 | `spec-audit` | Pre-implementation spec quality audit. Verifies spec structure, determinism, and live documentation sources. Evidence dir optional. |
 | `plan-fidelity` | Verify plan faithfully implements spec |
@@ -61,7 +62,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `drift-detection` | Detect documentation-code drift |
 | `spec-summary` | Summarize spec for PR body |
 | `closure-verification` | Verify issue closure criteria |
-| `cross-validate` | Compute dual-auditor consensus from YAML artifacts |
+| `cross-validate` | Single-verdict sanity check on audit YAML artifacts |
 | `test-quality-audit` | Audit test coverage and quality against spec SCs |
 | `content-audit` | Audit of factual claims in generated content — verification of quantitative claims, file references, and assertions against local source data |
 | `completion` | Complete audit workflow with output |
@@ -94,14 +95,3 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
-
-## DiMo Role Chain Dispatch
-
-Each audit task follows a sequential role chain. The orchestrator dispatches roles in order, passing artifact paths between them:
-
-1. **Knowledge Supporter** (coherence-extraction) — writes `evidence.yaml` with extracted rules and behaviors
-2. **Path Provider** (resolve-models) — writes `reasoning.yaml` with model selection and routing rationale
-3. **Evaluator** (all audit tasks) — reads `evidence.yaml` and `reasoning.yaml`, writes `verdict.yaml`
-4. **Judger** (cross-validate) — reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-
-The `resolve-models` task is replaced by the DiMo role chain. Model selection is embedded in the Path Provider role within each task's sequential dispatch. No separate `resolve-models` invocation is needed.

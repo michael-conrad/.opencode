@@ -10,9 +10,9 @@
 
 ## Purpose
 
-Adversarial audit of factual claims in generated content (reports, runbooks, correspondence, documentation). Each claim is independently verified by two cross-family auditors against local source data. Catches fabricated claims — numerical padding, invented file references, false assertions — that a single sub-agent could produce with fabricated evidence artifacts.
+Adversarial audit of factual claims in generated content (reports, runbooks, correspondence, documentation). Each claim is independently verified against local source data. Catches fabricated claims — numerical padding, invented file references, false assertions.
 
-> **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation, (4) both auditors independently agree.
+> **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation.
 
 ## Dispatch Contract
 
@@ -29,9 +29,7 @@ Adversarial audit of factual claims in generated content (reports, runbooks, cor
 - All claims in the document section evaluated against source data
 - Per-claim verdicts: PASS (verified), FAIL (contradicted by source), or FABRICATED (no source evidence exists)
 - Verdict artifact written to disk
-- Consensus PASS/FAIL/FABRICATED per claim
-
-> **DiMo Role: Evaluator.** This task evaluates factual claims in generated content. Reads `evidence.yaml` (Knowledge Supporter) and `reasoning.yaml` (Path Provider), writes `verdict.yaml`.
+- Verdict PASS/FAIL/FABRICATED per claim
 
 ## Procedure
 
@@ -118,19 +116,13 @@ For each claim, produce a finding with evidence reference:
 
 Write verdict to `./tmp/{issue-N}/artifacts/content-audit/verdict.yaml`
 
-### Step 5a: Dispatch Judger
-
-- [ ] 5a. Dispatch Judger → reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`
-- [ ] 5b. If FAIL: remediate, restart from step 0
-
-### Step 5c: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 5a: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-content-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_type: content-audit
 auditor_type: content-audit
-family: <family>
 issue_number: <N>
 generated_at: "<timestamp>"
 orchestrator_model: "<model>"
@@ -164,12 +156,10 @@ mandatory_remediation: "Remit for mandatory remediation. Any FABRICATED or FAIL 
 
 ## Clean-Room Protocol
 
-- **Dual cross-family auditors**: Dispatched via DiMo role chain. Each auditor is a clean-room sub-agent from a different model family. No single model family can dominate the verdict.
-- **No orchestrator preload**: Auditors receive only `{ document_section, source_data_paths }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
+- **Single auditor**: Dispatched via `task(subagent_type="general")`. One sub-agent, one verdict.
+- **No orchestrator preload**: Auditor receives only `{ document_section, source_data_paths }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the auditor MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
-- **Independent verification**: Each auditor independently runs tool calls against source data to verify claims. The two auditors do not share context, reasoning, or intermediate results.
-- **Cross-validation**: After both auditors return verdicts, `cross-validate` computes consensus. Disagreement (PASS vs FAIL/FABRICATED) blocks the claim from shipping and escalates to the developer.
-- **Evidence artifacts on disk**: Each auditor writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).
+- **Evidence artifacts on disk**: The auditor writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).
 
 ## Completion Dependency Chain
 
@@ -186,7 +176,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
 After content-audit completes:
-- If consensus PASS on all claims: proceed to `cross-validate` or next pipeline step
+- If verdict PASS on all claims: proceed to next pipeline step
 - If any claim is FAIL or FABRICATED: remediate findings, then re-run content-audit
 
 ## Remediation
@@ -201,20 +191,16 @@ If any step FAILs, restart from step 0 (pre-clean).
 | `source_data_paths` absent | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | GitHub routing fields present | Return BLOCKED with PRELOADED_CONTEXT_REJECTED |
 | Source data file not found | Record as FABRICATED evidence for affected claims |
-| Cross-validate fails | Return OVERFLOW, log error |
-| Auditor unavailable | Use fallback chain per multimodal-dispatch |
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
-- `tasks/resolve-models.md` — Path Provider role reference (DiMo role chain)
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-07-01T00:00:00Z"
+last_updated: "2026-07-07T00:00:00Z"
 rules:
   - id: content-audit-001
     title: "document_section required — BLOCK on absent input"
@@ -238,20 +224,13 @@ rules:
     source: "content-audit.md §Step 0"
 
   - id: content-audit-004
-    title: "Dual auditors required — no single-auditor evaluation"
-    conditions:
-      all: ["auditor_count < 2"]
-    actions: [HALT, RESOLVE_SECOND_AUDITOR]
-    source: "content-audit.md §Clean-Room Protocol"
-
-  - id: content-audit-005
     title: "Clean-room task() — no orchestrator reasoning leaked to auditors"
     conditions:
       all: ["auditor_context contains 'expected' OR 'should' OR 'correct'"]
     actions: [HALT, STRIP_BIASED_CONTEXT]
     source: "content-audit.md §Clean-Room Protocol"
 
-  - id: content-audit-006
+  - id: content-audit-005
     title: "next_step MUST be 'remediate' when result is 'FAIL' or 'FABRICATED', 'proceed' when result is 'PASS'"
     conditions:
       any:
@@ -260,7 +239,7 @@ rules:
     actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
     source: "content-audit.md §Step 5 — conditional next_step enforcement"
 
-  - id: content-audit-007
+  - id: content-audit-006
     title: "all_claims_verified MUST be true when every claim result is 'PASS', false otherwise"
     conditions:
       any:
