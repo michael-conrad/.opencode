@@ -1,6 +1,6 @@
 ---
 name: pr-creation-workflow
-description: "Use when asking about when to create a PR or whether PR creation is authorized. Also use when verifying PR authorization scope, preparing PR body, or determining PR strategy. Invoke for: PR authorization check, PR readiness verification, PR body preparation, PR strategy determination, PR creation decision. Every PR MUST be an authorized, intentional delivery. Trigger phrases: create PR, PR authorized, ready for PR, PR strategy, when to create PR."
+description: "Use when asking about when to create a PR or whether PR creation is authorized. Also use when verifying PR authorization scope, preparing PR body, or determining PR strategy. Invoke for: PR authorization check, PR readiness verification, PR body preparation, PR strategy determination, PR creation decision. Every PR MUST be an authorized, intentional delivery. Trigger phrases: create PR, PR authorized, ready for PR, PR strategy, when to create PR, release PR, release."
 license: MIT
 compatibility: opencode
 ---
@@ -33,6 +33,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | "pre-pr-checklist" / "PR checklist" | `pre-pr-checklist` | `sub-task` | {branch_name} |
+| "release PR" / "release" | `pre-pr-checklist` | `sub-task` | {branch_name, is_release: true} |
 | "sub-issue-collection" / "collect sub-issues" | `sub-issue-collection` | `sub-task` | {issue_number} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -66,16 +67,16 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
 - [ ] 8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
 - [ ] 9. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+- [ ] 10. **Release PR body format:** version summary line + changelog entries + compare link.
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -110,7 +111,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.

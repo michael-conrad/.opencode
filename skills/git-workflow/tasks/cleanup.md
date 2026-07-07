@@ -90,6 +90,15 @@ Before any cleanup operations, detect and build routing context for submodules u
 
 Verifies PR merge via GitHub API, runs SC-verification gate, phase-completion gate, and rebase pending PRs.
 
+
+### Step 1.5: Post-Merge Release Detection
+
+If the merged PR was a release PR (detected via branch name pattern `release/` or PR label), dispatch release-promoter tasks:
+
+- [ ] 1. Check if merged branch name starts with `release/` or PR has a `release` label
+- [ ] 2. If release PR detected: dispatch `release-promoter --task tag` then `release-promoter --task create-release`
+- [ ] 3. If not a release PR: proceed normally (no release promotion)
+
 ### Step 2: Hierarchical Issue Closure
 
 **Route to:** `cleanup/issue-closure`

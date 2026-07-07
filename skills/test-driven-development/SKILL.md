@@ -169,7 +169,7 @@ If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s 
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
@@ -197,7 +197,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
@@ -229,9 +228,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ### Authorization Context
 ```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

@@ -12,8 +12,6 @@ Authorization phrases carry implicit scope — the pipeline stage the developer 
 | `"approved #N for plan"` or `"#N approved for plan"` | for_plan | plan_created | auto-create spec | none |
 | `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | verification_complete | auto-create spec+plan, auto-approve | none |
 | `"approved #N to PR"` or `"#N approved to PR"` | for_pr | pr_created | auto-create spec+plan, auto-approve, auto-PR | stacked |
-| `"approved #N pr only"` or `"#N approved for pr only"` | for_pr_only | pr_created | None | stacked |
-| `"approved #N for review"` or `"#N approved for review only"` | for_review_only | code_review_ready | None | none |
 | `"approved for next phase"` or `"approved #N for next phase"` | for_next_phase | next_phase_complete | auto-approve next phase | none |
 | `"approved for phase N"` or `"approved #N for phase N"` | for_phase_N | phase_N_complete | auto-approve up to phase N | none |
 
@@ -86,7 +84,5 @@ def resolve_phase_n(phase_number, total_phases):
 | for_plan | none |
 | for_implementation | none |
 | for_pr | stacked |
-| for_pr_only | stacked |
-| for_review_only | none |
 | for_next_phase | none |
 | for_phase_N | none |

@@ -1,107 +1,65 @@
-# Task: verify-authorization — Step 5c: Scope-Aware Gap-Fill Cascade
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
+# Task: Gap-Fill Cascade Dispatcher
 
 ## Purpose
 
-When `authorization_scope` from Step 2.0 is >= `for_plan`, missing intermediate artifacts are gap-filled automatically. This eliminates the "catch-22" where pipeline authorization says "go to PR" but the plan doesn't exist yet — the scope horizon authorizes its creation.
+Routing dispatcher for the gap-fill state-verification checklist model. Reads `authorization_scope` from context, loads the corresponding per-scope checklist file, walks items sequentially, and reports the first missing state or that all states are verified.
 
-## 5c.1 Detect Scope Horizon
+## Context Received
 
-```python
-SCOPE_HORIZON = {
-    "for_review_prep":  "review_prep",
-    "for_spec":         "spec_created",
-    "for_analysis":     "analysis_complete",
-    "for_plan":         "plan_created",
-    "for_implementation": "verification_complete",
-    "for_pr":           "pr_created",
-    "for_pr_only":      "pr_created",
-    "for_review_only":  "code_review_ready",
-}
-
-# From Step 2.0 result
-scope = verification_result["authorization_scope"]
-halt_at = SCOPE_HORIZON[scope]
+```yaml
+authorization_scope: <scope_value>
+issue_number: <N>
+github.owner: <owner>
+github.repo: <repo>
 ```
 
-## 5c.2 Gap-Fill Actions by Scope
+## Scope-to-Checklist Mapping
 
-```python
-GAP_FILL = {
-    "for_spec": [],  # Spec is the target; no upstream gap
-    "for_analysis": [],  # No gap-fill; for_analysis is read-only investigation
-    "for_plan": ["auto_create_spec"],  # Missing spec is gap-filled
-    "for_implementation": ["auto_create_spec", "auto_create_plan", "auto_approve_plan"],
-    "for_pr": ["auto_create_spec", "auto_create_plan", "auto_approve_plan", "auto_create_pr"],
-    "for_pr_only": [],  # Assumes branch exists; no gap-fill
-    "for_review_only": [],  # Assumes code exists; no gap-fill
-    "for_review_prep": [],  # No gap-fill; all artifacts must pre-exist
-}
+| Scope | Checklist File | Behavior |
+|-------|---------------|----------|
+| `for_pr` | `gap-fill-cascade/for-pr.md` | 5-item checklist (spec → plan → approval → implementation → PR) |
+| `for_implementation` | `gap-fill-cascade/for-implementation.md` | 4-item checklist (spec → plan → approval → implementation) |
+| `for_plan` | `gap-fill-cascade/for-plan.md` | 2-item checklist (spec → plan) |
+| `for_spec` | None | Report all states verified immediately — spec is the target |
+| `for_analysis` | None | Report all states verified immediately — read-only investigation |
+| `for_review_prep` | None | Report all states verified immediately — all artifacts must pre-exist |
+
+## Procedure
+
+1. Read `authorization_scope` from context
+2. If scope has a checklist file (for_pr, for_implementation, for_plan):
+   a. Load the corresponding checklist file from `gap-fill-cascade/{scope-file}.md`
+   b. Walk items sequentially — process each item's verify step
+   c. On first FAIL: report `next_action` with reason, stop walking
+   d. If all items PASS: report `all_states_verified: true`
+3. If scope has no checklist (for_spec, for_analysis, for_review_prep):
+   a. Report `all_states_verified: true` immediately
+
+## Result Contract
+
+```yaml
+status: DONE|BLOCKED
+all_states_verified: true|false
+next_action: <skill-name>|null
+reason: "<explanation if blocked or next_action set>"
+checklist_progress:
+  items_checked: <N>
+  items_passed: <N>
+  first_fail_item: <item-name>|null
 ```
 
-## 5c.3 Execute Gap-Fill
+## Orchestrator Loop Integration
 
-```python
-def execute_gap_fill(scope, issue_number, issue_labels, issue_title):
-    """Auto-create missing artifacts when scope authorizes it."""
-    actions = GAP_FILL.get(scope, [])
-    results = []
+After this task returns, the orchestrator:
 
-    if "auto_create_spec" in actions:
-        # Check if spec already exists
-        is_spec = "spec" in [l["name"] for l in issue_labels] or issue_title.startswith("[SPEC")
-        if not is_spec:
-            # Invoke brainstorming --task explore to create spec
-            results.append({"action": "auto_create_spec", "status": "dispatched", "target": "brainstorming"})
-        else:
-            results.append({"action": "auto_create_spec", "status": "skipped", "reason": "spec_exists"})
+- If `all_states_verified: true`: proceed to the halt boundary
+- If `next_action` is set: dispatch that action, then re-dispatch this task
+- If BLOCKED with no `next_action`: HALT with blocker report
 
-    if "auto_create_plan" in actions:
-        # Check if plan already exists as local file
-        plan_paths = [f".issues/{issue_number}/plan.md", f"{project_root}/{path}/.issues/{issue_number}/plan.md"]
-        plan_exists = any(glob.glob(p) for p in plan_paths)
-        if not plan_exists:
-            # Invoke writing-plans --task create to create plan
-            results.append({"action": "auto_create_plan", "status": "dispatched", "target": "writing-plans"})
-        else:
-            results.append({"action": "auto_create_plan", "status": "skipped", "reason": "plan_exists"})
+---
 
-    if "auto_approve_plan" in actions:
-        # Cascade approval already handled by Step 5b for existing plans
-        # For gap-filled plans, writing-plans auto-approves when scope >= for_plan
-        results.append({"action": "auto_approve_plan", "status": "delegated", "target": "writing-plans"})
-
-    if "auto_create_pr" in actions:
-        # PR creation is handled by git-workflow scope awareness after implementation
-        results.append({"action": "auto_create_pr", "status": "deferred", "target": "git-workflow"})
-
-    return results
-```
-
-## 5c.4 PR Strategy Determination
-
-PR strategy is derived from scope, NOT from issue count. See `enforcement/auto-dispatch-table.md` for the complete PR strategy mapping.
-
-## Gap-Fill Precedence Principle (Step 5b.5)
-
-**Before evaluating any blocking gate in Steps 5 through 5c, the agent MUST apply this precedence principle:**
-
-> When `authorization_scope`'s gap-fill actions cover a missing artifact requirement, that requirement is a gap-fill trigger, not a blocking gate. Hard gates only apply to artifacts outside the scope's gap-fill coverage.
-
-**Application to Bug Reports:**
-
-The critical rule "Bug Reports Without Fix Spec" requires a fix-spec sub-issue before implementation. When `authorization_scope >= for_implementation` (which includes `for_implementation` and `for_pr`), the gap-fill actions include `auto_create_spec`. This means:
-
-- **Missing fix-spec for a bug report + `for_pr` authorization** → Gap-fill trigger: proceed to Step 5c. NOT a blocking gate.
-- **Missing fix-spec for a bug report + `for_implementation` authorization** → Gap-fill trigger: same as above. NOT a blocking gate.
-- **Missing fix-spec for a bug report + `for_plan` authorization** → Gap-fill trigger: `for_plan` includes `auto_create_spec`. NOT a blocking gate.
-- **Missing fix-spec for a bug report + `for_spec` authorization** → Gap-fill trigger: `for_spec` targets spec creation. NOT a blocking gate.
-- **Missing fix-spec for a bug report + `for_review_prep` authorization** → Blocking gate: `for_review_prep` scope has NO gap-fill actions, so the fix-spec must already exist. HALT and report missing fix-spec.
-
-**Evidence artifact:** The agent's verification report MUST note when a blocking gate was overridden by the Gap-Fill Precedence Principle, citing the specific gate, the missing artifact, and the covering gap-fill action.
-
-## Work State I/O
-
-- **Reads from:** `## spec-to-plan-cascade`, `## scope-auto-resolve`
-- **Writes to:** `## gap-fill-cascade`
-
-After completing this task, write results to the work state file under section `## gap-fill-cascade` using the YAML format defined in `enforcement/work-state-schema.md`.
+Co-authored with AI: OpenCode (deepseek-v4-flash)

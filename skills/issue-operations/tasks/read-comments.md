@@ -66,9 +66,8 @@ This task exists because `067-context-completeness.md` mandates reading ALL comm
 ## Authorization Context
 
 ```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

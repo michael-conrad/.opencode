@@ -74,7 +74,7 @@ provenance: AI-generated
 
 [Routing rules: what context fields to pass, what to exclude, any special dispatch instructions.]
 
-- Standard context: `{worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase}`
+- Standard context: `{worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase}`
 - Exclusions: orchestrator reasoning, expected outcomes, inline file paths, agent memory, cached verification results
 - Auditor tasks use subagent_type from `resolve-models` result contract — NOT `general`
 - `pre-analysis` receives only `{issue_number, task_description, github.owner, github.repo}`

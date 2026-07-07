@@ -39,6 +39,9 @@ skip it are not "fast" — they produce lower-quality work by definition.
 
 4. **If no skill applies directly: proceed without dispatch, but justify in one sentence.** This is the exception. Treat it like one. The one-sentence justification is the audit trail that proves you considered — and correctly dismissed — the skill deck. Every agent who skips this produces silent bypass. Do not be that agent.
 
+
+**Release PR constraint:** When the context is a release PR (user says "release PR", "release", "is_release", or authorization scope includes release PR), "no skill applies directly" is NOT a valid justification. The agent MUST dispatch at minimum `changelog-generator` and `git-workflow` before proceeding. This constraint is non-waivable.
+
 ### This Gate Fires On
 
 | Trigger | Example User Message |

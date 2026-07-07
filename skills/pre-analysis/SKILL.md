@@ -46,7 +46,7 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
-| `analyze` | Before any sub-agent routing | Issue number, task description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `analyze` | Before any sub-agent routing | Issue number, task description, audit_phase, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state, authorization_scope, halt_at | Implementation context, agent memory | NO |
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
@@ -75,7 +75,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
@@ -121,7 +120,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 ## Operating Protocol
 
 - [ ] 1. **Mandatory call:** The orchestrator MUST call this skill before ANY sub-agent routing
-- [ ] 2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`
+- [ ] 2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`
 - [ ] 3. **Autonomous discovery:** Independently search the codebase to discover affected files
 - [ ] 4. **Return task plan:** Return a structured plan with task partitions and file scope
 - [ ] 5. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.

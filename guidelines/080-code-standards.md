@@ -762,6 +762,17 @@ See `process_data()` in `file.py` for the function definition.
 See `"Cross-Reference Standards"` section in `guidelines.md` for the rule.
 ```
 
+## YAML Standard for LLM-to-LLM Data Transfers
+
+All structured data exchanged between AI agents (result contracts, work state files, task context, evidence artifacts) MUST use YAML format. JSON is prohibited for LLM-to-LLM communication.
+
+**Exceptions:**
+- External API calls (GitHub API, GitBucket API)
+- Configuration files that require JSON (`opencode.jsonc`)
+- Data interchange with non-LLM systems
+
+**Rationale:** YAML is more readable for AI agents in multi-line contexts. JSON is error-prone when embedded in agent prompts due to brace/quote escaping issues.
+
 ## Mandatory Triple Co-Application
 
 ### Scope

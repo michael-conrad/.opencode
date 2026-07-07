@@ -18,6 +18,17 @@ Squash implementation commits or verify existing commit structure for all branch
 
 ## Procedure
 
+### Step 1: Pre-Response Gate — Skill Deck Evaluation (MANDATORY)
+
+Before proceeding to changelog generation, evaluate ALL available skills against the current context per `.opencode/AGENTS.md` §Universal Skill Dispatch Gate.
+
+1. Read the `<available_skills>` list from the system prompt
+2. Evaluate each skill's description and trigger phrases against the current context (release PR creation)
+3. If one or more skills match: call `skill({name: "..."})` before proceeding
+4. If no skill applies directly: provide a one-sentence justification in chat
+
+**Release PR context:** When `{is_release: true}` or the context is a release PR, the agent MUST dispatch at minimum `changelog-generator` and `git-workflow` before proceeding. "No skill applies directly" is NOT a valid justification for release PR contexts.
+
 ### Step 2: Changelog Generation (MANDATORY)
 
 Check for `[skip changelog]` in last commit message or PR title. If present, skip.

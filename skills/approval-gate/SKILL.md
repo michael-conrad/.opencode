@@ -22,13 +22,12 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 Sub-Agent Task Context Audit
 
-All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }` with zero file paths. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in the implementation-pipeline SKILL.md Trigger Dispatch Table.
+All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }` with zero file paths. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in the implementation-pipeline SKILL.md Trigger Dispatch Table.
 
 ### Authorization Context Template
 ```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -103,7 +102,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
@@ -157,6 +155,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
 | "verify plan pipeline" / "check pipeline completeness" | `verify-plan-pipeline` | `sub-task` | {issue_number} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "release PR" / "release authorization" | `verify-authorization` | `sub-task` | {issue_number, authorization_scope, is_release: true} |
 
 Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
 

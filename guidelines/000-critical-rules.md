@@ -890,7 +890,7 @@ See `approval-gate --task verify-closed-issue` and `--task reconcile-issue-graph
 
 
 ### [critical-rules-019] Creating PRs Without Explicit Instruction
-Exception: `for_pr`/`for_pr_only` scope authorizes PR creation.
+Exception: `for_pr` scope authorizes PR creation.
 
 
 ### [critical-rules-018] Ignoring Spec-to-Plan Approval Cascade

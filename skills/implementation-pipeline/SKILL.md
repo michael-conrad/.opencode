@@ -37,7 +37,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatches To | Dispatch | Context passed |
 |---------------------|------|---------------|----------|----------------|
-| "execute plan" / "implement spec" / "run pipeline" / "assemble work" | `assemble-work` | Orchestrator entry — reads plan, creates branches, dispatches sub-agents | `orchestrator` | {issue_number, plan_path, authorization_scope, halt_at, pr_strategy} |
+| "execute plan" / "implement spec" / "run pipeline" / "assemble work" | `assemble-work` | Orchestrator entry — reads plan, creates branches, dispatches sub-agents | `orchestrator` | {issue_number, plan_path, authorization_scope, halt_at} |
 | "sc-coherence-gate" / "coherence gate" | `sc-coherence-gate` | `audit --task coherence-extraction` | `sub-task` | {issue_number} |
 | "pre-red-baseline" / "baseline check" | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` | `sub-task` | {issue_number} |
 | "red-phase" / "write failing test" | `red-phase` | `test-driven-development --task red` | `sub-task` | {issue_number} |
@@ -55,6 +55,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `finishing-a-development-branch --task checklist` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
 | "green-vbc" / "verification before completion" | `green-vbc` | `verification-before-completion --task completion` | `sub-task` | {issue_number} |
+| "pre-pr-gate" / "pre-PR gate" | `pre-pr-gate` | `verification-before-completion --task verify` — reads all SC verdicts, BLOCKs if any FAIL | `sub-task` | {issue_number} |
 | "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `audit --task cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
@@ -78,7 +79,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `exec-summary`
+`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `pre-pr-gate`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -108,6 +109,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 | `structural-checks` | `task(..., prompt: "execute checklist from finishing-a-development-branch. Read \`finishing-a-development-branch/tasks/checklist.md\` first")` |
 | `green-doublecheck` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
 | `green-vbc` | `task(..., prompt: "execute completion from verification-before-completion. Read \`verification-before-completion/tasks/completion.md\` first")` |
+| `pre-pr-gate` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` — reads all SC verdicts, BLOCKs if any FAIL |
 | `cross-validate` | `task(..., prompt: "execute cross-validate from audit. Read \`audit/tasks/cross-validate.md\` first")` |
 | `regression-check` | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
 | `behavioral-test-remediation` | `task(..., prompt: "execute behavioral-test-remediation from implementation-pipeline. Read \`implementation-pipeline/tasks/behavioral-test-remediation.md\` first")` |
@@ -122,9 +124,8 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 Every task context MUST include the authorization context block:
 
 ```yaml
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -178,7 +179,6 @@ Every `task()` call MUST include only:
 - `github.repo`
 - `authorization_scope`
 - `halt_at`
-- `pr_strategy`
 - `pipeline_phase`
 
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
@@ -273,6 +273,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
 | `green-vbc` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
+| `pre-pr-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-pr-gate-*` |
 | `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
 | `cross-validate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
 | `regression-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-*` |

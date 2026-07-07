@@ -27,13 +27,13 @@ If a qualifier matches, set `authorization_scope` to the corresponding scope val
 
 If the message does NOT contain authorization language (question, bug report, factual claim, investigation request), set `authorization_scope = "for_analysis"` with `scope_source = "self-assigned"`. This is the ONLY scope the agent may self-assign.
 
-Derive `halt_at`, `pr_strategy`, and `gap_fill_actions` from the resolved scope per the Auto-Dispatch Table Module (`enforcement/auto-dispatch-table.md`).
+Derive `halt_at` and `gap_fill_actions` from the resolved scope per the Auto-Dispatch Table Module (`enforcement/auto-dispatch-table.md`).
 
 Record the parsed result as an evidence artifact — no human input is solicited.
 
 ## Evidence Artifact
 
-The parsed authorization text, matched regex pattern (or default fallback), and resulting `(authorization_scope, scope_source, halt_at, pr_strategy, gap_fill_actions)` tuple MUST be recorded in the verification report without soliciting human input.
+The parsed authorization text, matched regex pattern (or default fallback), and resulting `(authorization_scope, scope_source, halt_at, gap_fill_actions)` tuple MUST be recorded in the verification report without soliciting human input.
 
 ## Work State I/O
 
