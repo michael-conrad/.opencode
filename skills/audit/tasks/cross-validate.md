@@ -14,7 +14,7 @@ Path Provider (Judger) role. Reads all upstream artifacts (`evidence.yaml`, `rea
 >
 > **You own:** overall_verdict, next_step. **You do NOT own:** Per-criterion verdicts, evidence validation, new evidence production.
 >
-> **Brightline rules:**
+> **Rules:**
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
 > - MUST NOT overrule a PASS/FAIL from the Evaluator
 > - MUST NOT produce new evidence or re-validate existing evidence

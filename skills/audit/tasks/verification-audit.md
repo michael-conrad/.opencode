@@ -14,7 +14,7 @@ Verify implementation against spec success criteria. Each SC is evaluated agains
 >
 > **You own:** Per-criterion PASS/FAIL verdicts. **You do NOT own:** Final judgment, next_step decisions, evidence validation.
 >
-> **Brightline rules:**
+> **Rules:**
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
 > - MUST NOT defer to upstream roles — the verdict is yours alone
 > - MUST NOT re-evaluate evidence that Knowledge Supporter already validated

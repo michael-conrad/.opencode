@@ -10,7 +10,7 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 >
 > **You own:** Producing complete, accurate evidence from source data. **You do NOT own:** Evaluating correctness, producing verdicts, filtering evidence by relevance.
 >
-> **Brightline rules:**
+> **Rules:**
 > - MUST extract all evidence without filtering by perceived relevance
 > - MUST NOT produce any PASS/FAIL judgment
 > - MUST NOT evaluate whether evidence is "correct" — record what exists
