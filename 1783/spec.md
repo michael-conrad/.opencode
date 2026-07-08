@@ -1,7 +1,8 @@
 # [SPEC] Replace Skill Dispatch Mandate prose with structured 5-item checklist in prompts/default.txt
 
-**STATUS:** DRAFT
+**STATUS:** 1.0 (REVISED - NEEDS APPROVAL)
 **CREATED:** 2026-07-07
+**REVISED:** 2026-07-07
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -13,13 +14,13 @@ After this spec is approved, invoke `writing-plans` to create `.opencode/.issues
 |-------|-------|
 | Problem Statement | The dispatch gate in `prompts/default.txt` is self-enforced prose that the agent bypasses through rationalization, context hoarding, and session momentum drift. The enforcement mechanism depends on the same cognitive system that produces the defect. |
 | Root Cause / Motivation | Seven cognitive drivers: immediacy bias, context hoarding, "just this once" rationalization, identity drift, session momentum decay, fear of appearing inefficient, and self-enforcement failure. Prose is easy to rationalize past; a structured checklist with confirmshaming identity-frame is harder to bypass. |
-| Approach Chosen | Replace the current prose "Skill Dispatch Mandate" section with a structured 5-item checklist using confirmshaming identity-frame patterns (dark-prose-001). Each item is a discrete, checkable step. |
+| Approach Chosen | Replace the current prose "Skill Dispatch Mandate" section with a structured 5-item checklist using confirmshaming identity-frame patterns (dark-prose-001). Each item is a discrete, checkable step. Additionally, add an Orchestrator Identity section, a Dispatch Cost Model section, and three additional bright-line mandates to close remaining rationalization gaps. |
 | Alternatives Considered & Why Discarded | (1) Plugin-level enforcement via `session-enforcement.ts` — requires runtime changes, out of scope. (2) Per-turn structural enforcement — requires plugin changes, out of scope. (3) Adding more prose — same defect vector, no improvement. |
-| Key Design Decisions | DEC-1: Checklist format over prose — discrete items harder to rationalize past. DEC-2: Confirmshaming identity-frame (professional/amateur contrast) in item 5 — leverages identity anchoring. DEC-3: Single-file change only — minimizes blast radius. |
+| Key Design Decisions | DEC-1: Checklist format over prose — discrete items harder to rationalize past. DEC-2: Confirmshaming identity-frame (professional/amateur contrast) in item 5 — leverages identity anchoring. DEC-3: Single-file change only — minimizes blast radius. DEC-4: Orchestrator Identity section — establishes role boundary before the checklist. DEC-5: Dispatch Cost Model section — reframes dispatch as cheaper than rework. DEC-6: Additional bright-line mandates — closes "simple enough", "already know", and "looks inefficient" rationalization gaps. |
 
 ## Objective
 
-Replace the prose "Skill Dispatch Mandate" section in `prompts/default.txt` with a structured 5-item checklist that uses confirmshaming identity-frame patterns to make the dispatch gate harder to rationalize past.
+Replace the prose "Skill Dispatch Mandate" section in `prompts/default.txt` with a structured 5-item checklist that uses confirmshaming identity-frame patterns to make the dispatch gate harder to rationalize past. Additionally, add an Orchestrator Identity section, a Dispatch Cost Model section, and three additional bright-line mandates to close remaining rationalization gaps.
 
 ## Problem
 
@@ -58,11 +59,13 @@ This prose is self-enforced — the same cognitive system that produces the bypa
 
 - **Affected file:** `prompts/default.txt` in the `.opencode` repository
 - **Current state:** Prose "Skill Dispatch Mandate" section (lines containing "Skill Dispatch Mandate" through "defects reach the consumer")
-- **Target state:** Structured 5-item checklist with confirmshaming identity-frame
+- **Target state:** Structured 5-item checklist with confirmshaming identity-frame, plus Orchestrator Identity section, Dispatch Cost Model section, and additional bright-line mandates
 
 ## Fix Approach
 
 Replace the prose section with a 5-item checklist. Each item is a discrete, checkable instruction. The checklist format is harder to rationalize past because each item demands a yes/no answer — there is no prose to reinterpret.
+
+Additionally, add three supporting sections that close remaining rationalization gaps: an Orchestrator Identity section that establishes role boundaries before the checklist, a Dispatch Cost Model section that reframes dispatch as cheaper than rework, and three additional bright-line mandates that close specific rationalization patterns.
 
 ### Checklist Items
 
@@ -76,9 +79,49 @@ Replace the prose section with a 5-item checklist. Each item is a discrete, chec
 
 5. **Re-read this checklist before every response.** Professionals re-check the entire checklist before every response. Amateurs read it once and never look at it again.
 
+### Orchestrator Identity Section
+
+Add the following section to `prompts/default.txt` after the Startup Mode section:
+
+```
+## Orchestrator Identity — Route, Don't Do
+
+Your job is to route work to sub-agents, not to perform it. When you read a file, analyze content, compose prose, or make a decision — you are doing a sub-agent's job. The orchestrator holds routing metadata only. Everything else goes to a sub-agent.
+
+Professionals route. Amateurs inline.
+```
+
+**Rationale:** The orchestrator's identity as a router (not a doer) must be established before the checklist. Without this identity anchor, the checklist items are rules without a role — the agent can rationalize "I'm not inlining, I'm just understanding." The identity section closes this gap by defining what the orchestrator IS before defining what it DOES.
+
+### Dispatch Cost Frame
+
+Add the following section to `prompts/default.txt` after the existing cost model section:
+
+```
+## Dispatch Cost Model — Dispatch Is Cheaper Than Rework
+
+Dispatching to a sub-agent costs one roundtrip. Inline work that gets rejected costs the full rework cycle: diagnosis, fix, re-review, re-dispatch. The roundtrip is always cheaper than the rework.
+
+Professionals dispatch first. Amateurs inline and redo.
+```
+
+**Rationale:** The "fear of appearing inefficient" cognitive driver (item 6 in the root cause analysis) is a cost miscalculation. The agent perceives dispatch as overhead and inline work as efficiency. This section reframes the cost model: dispatch is the cheaper path because inline work that gets rejected costs exponentially more. The confirmshaming identity-frame (professional/amateur contrast) reinforces the cost argument.
+
+### Additional Bright-Line Mandates
+
+Add the following three items to the existing forbidden rationalizations list in `prompts/default.txt`:
+
+```
+- "This is simple enough to handle inline"
+- "I already know what the sub-agent would do"
+- "Dispatching would look inefficient here"
+```
+
+**Rationale:** These three rationalizations are the most common bypass patterns observed in agent behavior. "Simple enough" exploits the immediacy bias (driver 1). "Already know" exploits context hoarding (driver 2). "Looks inefficient" exploits fear of appearing inefficient (driver 6). Making each a named, forbidden pattern closes the rationalization gap — the agent cannot claim it didn't know these were bypasses.
+
 ## Scope
 
-- **In scope:** `prompts/default.txt` — replace the "Skill Dispatch Mandate" section with the 5-item checklist
+- **In scope:** `prompts/default.txt` — replace the "Skill Dispatch Mandate" section with the 5-item checklist, add Orchestrator Identity section, add Dispatch Cost Model section, add three bright-line mandates
 - **Out of scope:** Changes to `session-enforcement.ts` (plugin), agent runtime, skill cards, guidelines
 
 ## Affected Files
@@ -86,6 +129,9 @@ Replace the prose section with a 5-item checklist. Each item is a discrete, chec
 | File | Anchor | Change |
 |------|--------|--------|
 | `prompts/default.txt` | "Skill Dispatch Mandate" section | Replace prose with 5-item checklist |
+| `prompts/default.txt` | After "Startup Mode" section | Add Orchestrator Identity section |
+| `prompts/default.txt` | After existing cost model section | Add Dispatch Cost Model section |
+| `prompts/default.txt` | Forbidden rationalizations list | Add three bright-line mandates |
 
 ## Decomposition Classification
 
@@ -104,6 +150,12 @@ Replace the prose section with a 5-item checklist. Each item is a discrete, chec
 | SC-5 | Checklist item 5 uses confirmshaming identity-frame (professional/amateur contrast) | `string` | `grep -E 'Professional.*Amateur' prompts/default.txt` matches in item 5 context | Add professional/amateur contrast to item 5 | RED/GREEN | `.opencode/.issues/1783/` | REQ-5: Identity-frame | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
 | SC-6 | Behavioral test: agent dispatches skill when trigger matches (not inlines) | `behavioral` | `opencode-cli run` with trigger-matching prompt; assert `assert_stderr_pattern_present 'Skill "'` and `assert_semantic` confirms dispatch not inline | Fix prompt to ensure trigger match; re-run behavioral test | RED/GREEN | `.opencode/.issues/1783/behavioral/` | REQ-6: Dispatch behavior | Phase 1 | pre-commit | standalone | — | — | `.opencode/tests/behaviors/dispatch-gate-checklist.sh` | Phase 1 |
 | SC-7 | Behavioral test: agent re-checks skills on subsequent messages (not just first turn) | `behavioral` | `opencode-cli run` with multi-turn session; assert `assert_stderr_pattern_present 'Skill "'` on second message and `assert_semantic` confirms re-check | Fix prompt to ensure multi-turn dispatch; re-run behavioral test | RED/GREEN | `.opencode/.issues/1783/behavioral/` | REQ-7: Multi-turn dispatch | Phase 1 | pre-commit | standalone | — | — | `.opencode/tests/behaviors/dispatch-gate-checklist.sh` | Phase 1 |
+| SC-8 | `prompts/default.txt` contains an "Orchestrator Identity" section with "Route, Don't Do" heading | `string` | `grep 'Orchestrator Identity' prompts/default.txt` matches and `grep 'Route, Don.t Do' prompts/default.txt` matches | Add Orchestrator Identity section after Startup Mode | RED/GREEN | `.opencode/.issues/1783/` | REQ-8: Orchestrator identity section | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-9 | Orchestrator Identity section uses confirmshaming identity-frame (professional/amateur contrast) | `string` | `grep -E 'Professionals route.*Amateurs inline' prompts/default.txt` matches in Orchestrator Identity section | Add professional/amateur contrast to identity section | RED/GREEN | `.opencode/.issues/1783/` | REQ-9: Identity-frame in orchestrator section | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-10 | `prompts/default.txt` contains a "Dispatch Cost Model" section with "Dispatch Is Cheaper Than Rework" heading | `string` | `grep 'Dispatch Cost Model' prompts/default.txt` matches and `grep 'Dispatch Is Cheaper Than Rework' prompts/default.txt` matches | Add Dispatch Cost Model section after existing cost model | RED/GREEN | `.opencode/.issues/1783/` | REQ-10: Dispatch cost model section | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-11 | Dispatch Cost Model section uses confirmshaming identity-frame (professional/amateur contrast) | `string` | `grep -E 'Professionals dispatch first.*Amateurs inline and redo' prompts/default.txt` matches in Dispatch Cost Model section | Add professional/amateur contrast to cost model section | RED/GREEN | `.opencode/.issues/1783/` | REQ-11: Identity-frame in cost model section | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-12 | `prompts/default.txt` contains all three additional bright-line mandates in the forbidden rationalizations list | `string` | `grep 'simple enough to handle inline' prompts/default.txt` matches AND `grep 'already know what the sub-agent would do' prompts/default.txt` matches AND `grep 'Dispatching would look inefficient' prompts/default.txt` matches | Add three bright-line mandates to forbidden rationalizations list | RED/GREEN | `.opencode/.issues/1783/` | REQ-12: Bright-line mandates | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-13 | Behavioral test: agent does not use "simple enough" rationalization to bypass dispatch | `behavioral` | `opencode-cli run` with simple-task prompt; assert `assert_semantic` confirms agent dispatched despite task simplicity | Fix prompt to ensure simple-task trigger; re-run behavioral test | RED/GREEN | `.opencode/.issues/1783/behavioral/` | REQ-13: No "simple enough" bypass | Phase 1 | pre-commit | standalone | — | — | `.opencode/tests/behaviors/dispatch-gate-checklist.sh` | Phase 1 |
 
 ### Semantic Intent
 
@@ -114,25 +166,36 @@ Replace the prose section with a 5-item checklist. Each item is a discrete, chec
 - **SC-5:** Confirmshaming identity-frame (professional/amateur contrast) leverages identity anchoring — the agent's self-concept as "professional" makes it harder to accept amateur-classified behavior. This is the dark-prose-001 pattern.
 - **SC-6:** Behavioral evidence is required because the change affects runtime agent behavior (dispatch decisions). String evidence (grep for checklist text) proves the text exists but not that the agent follows it.
 - **SC-7:** Session momentum decay is one of the seven cognitive drivers — the agent dispatches on the first message but stops on subsequent messages. This SC verifies the checklist is re-read, not just read once.
+- **SC-8:** The Orchestrator Identity section establishes role boundaries before the checklist. Without it, the checklist items are rules without a role — the agent can rationalize "I'm not inlining, I'm just understanding." The identity section closes this gap.
+- **SC-9:** The confirmshaming identity-frame in the Orchestrator Identity section ("Professionals route. Amateurs inline.") anchors the agent's self-concept to the router role. This is the same dark-prose-001 pattern as SC-5.
+- **SC-10:** The Dispatch Cost Model section reframes the cost calculation. The agent perceives dispatch as overhead and inline work as efficiency — this section corrects that miscalculation by showing that inline work that gets rejected costs exponentially more.
+- **SC-11:** The confirmshaming identity-frame in the Dispatch Cost Model section ("Professionals dispatch first. Amateurs inline and redo.") reinforces the cost argument with identity anchoring.
+- **SC-12:** The three bright-line mandates close specific rationalization gaps: "simple enough" (immediacy bias), "already know" (context hoarding), and "looks inefficient" (fear of appearing inefficient). Making each a named, forbidden pattern closes the rationalization gap.
+- **SC-13:** Behavioral evidence is required because the bright-line mandates affect runtime agent behavior. The agent must actually refrain from using "simple enough" as a bypass rationalization — string evidence only proves the text exists.
 
 ### Cost-Frame Reformation
 
-- **SC-1 through SC-5 (string):** A grep check costs seconds of execution time — a bounded delay that confirms the text exists. Skipping this check costs the full pipeline of rework when the text is missing and the agent has no checklist to follow. The cost of the grep is zero compared to the cost of discovering the missing text at runtime.
-- **SC-6 through SC-7 (behavioral):** A behavioral test costs minutes of execution time — a bounded delay that surfaces dispatch defects before they reach production. Skipping this test costs the full pipeline of rework when the agent bypasses the gate in a real session: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped test would have consumed. Behavioral PASS is a break (zero downstream cost); string-only PASS is a death spiral (compounding exponential cost).
+- **SC-1 through SC-5, SC-8 through SC-12 (string):** A grep check costs seconds of execution time — a bounded delay that confirms the text exists. Skipping this check costs the full pipeline of rework when the text is missing and the agent has no checklist to follow. The cost of the grep is zero compared to the cost of discovering the missing text at runtime.
+- **SC-6 through SC-7, SC-13 (behavioral):** A behavioral test costs minutes of execution time — a bounded delay that surfaces dispatch defects before they reach production. Skipping this test costs the full pipeline of rework when the agent bypasses the gate in a real session: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped test would have consumed. Behavioral PASS is a break (zero downstream cost); string-only PASS is a death spiral (compounding exponential cost).
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 ## Edge Cases
 
-- **Checklist text is present but agent still bypasses:** This is expected — the checklist reduces but does not eliminate bypass. Full elimination requires plugin-level enforcement (out of scope). The behavioral tests (SC-6, SC-7) measure the reduction.
+- **Checklist text is present but agent still bypasses:** This is expected — the checklist reduces but does not eliminate bypass. Full elimination requires plugin-level enforcement (out of scope). The behavioral tests (SC-6, SC-7, SC-13) measure the reduction.
 - **Checklist format conflicts with existing prose style:** The checklist replaces the prose section entirely — no style conflict.
 - **Agent interprets checklist items as suggestions:** The confirmshaming identity-frame in item 5 is designed to counter this — "amateurs read it once" makes non-compliance identity-threatening.
+- **Orchestrator Identity section placement:** The section is placed after Startup Mode to establish role identity early in the prompt. If Startup Mode is moved or renamed, the placement anchor must be updated.
+- **Dispatch Cost Model section placement:** The section is placed after the existing cost model section to extend the cost argument. If the existing cost model section is moved or removed, the placement anchor must be updated.
 
 ## Regression Invariants
 
 - [ ] 1. All other sections of `prompts/default.txt` MUST remain unchanged
 - [ ] 2. The `# Skill Dispatch Mandate` heading MUST be preserved (or replaced with equivalent heading)
 - [ ] 3. No other prompt files or system prompt fragments MUST be modified
+- [ ] 4. The Orchestrator Identity section MUST be placed after the Startup Mode section
+- [ ] 5. The Dispatch Cost Model section MUST be placed after the existing cost model section
+- [ ] 6. The three bright-line mandates MUST be added to the existing forbidden rationalizations list (not as a separate list)
 
 ## Revision Policy
 
@@ -140,6 +203,13 @@ Replace the prose section with a 5-item checklist. Each item is a discrete, chec
 |----------|----------------|---------------------------|
 | Implementation plan | MUST | Revise to match revised spec |
 | Behavioral tests | SHOULD | Review for continued validity |
+
+## Change Log
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 (DRAFT) | 2026-07-07 | Initial spec: 5-item checklist replacement |
+| 1.0 (REVISED - NEEDS APPROVAL) | 2026-07-07 | Added Orchestrator Identity section (REQ-8, REQ-9, SC-8, SC-9), Dispatch Cost Model section (REQ-10, REQ-11, SC-10, SC-11), three bright-line mandates (REQ-12, SC-12), and behavioral test for "simple enough" bypass (REQ-13, SC-13). Updated Affected Files, Objective, Approach Chosen, Key Design Decisions, Edge Cases, and Regression Invariants. |
 
 ## Documentation Sources
 
