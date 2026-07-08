@@ -24,6 +24,11 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - Implementation is complete
 - Developer has reviewed changes via compare URL
 - Pre-Response Gate evaluation completed (skill deck evaluated against current context)
+- **Release PR pre-validation:** When `{is_release: true}` or context is a release PR, verify:
+  - Clean working tree (`git status --porcelain` is empty)
+  - No pending rebase (no `.git/REBASE_HEAD`)
+  - All changes committed
+  - No uncommitted submodule changes
 
 ## Exit Criteria
 
