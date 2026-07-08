@@ -48,6 +48,7 @@ The following project-specific code structure rules are enforced in this reposit
 - **Top-Level Documentation**: Every Python source file must include a brief top-level comment identifying the package's or class's purpose. Use a module docstring (preferred) or a leading `#` comment. Keep it to one or two concise sentences — enough for `.opencode/tools/py ls` to display alongside the filename.
 - **Docstring/Comment Determinism**: Pydoc/docstrings and code comments must use deterministic wording. Avoid ambiguous hedge/alternative phrasing such as `maybe`, `if ... or ...`, `and/or`, or `A + B or C` when describing required behavior, validation paths, or implementation intent.
 - **Labels Over Index Numbers**: When editing structured artifacts (notebooks, migration lists, cell arrays, ordered configs), add and use stable labels/names so that inserts, deletes, and moves which change index numbers do not cause edit failures. Reference items by label, not by positional index.
+- **Derivation Provenance**: Every element in agent output must trace to a specific consumer or first-principles derivation. See `000-critical-rules.md` §critical-rules-XXX. "Because it's there in the other location" is not a valid justification.
 
 ## Modern Python
 

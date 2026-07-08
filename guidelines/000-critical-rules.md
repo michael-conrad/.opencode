@@ -830,6 +830,42 @@ When a sub-agent returns a defective deliverable, the orchestrator MUST NOT atte
 
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
+### [critical-rules-XXX] Derivation Provenance — every element must have a consumer or first-principles justification
+
+Adding a parameter, field, method, class, configuration key, contract entry, routing scope variable, or code block whose sole justification is "it exists in another location" is a process-integrity failure. Every element must trace to:
+
+1. A specific consumer (task file, function call, code path) that reads or branches on it, OR
+2. A first-principles derivation from the problem statement, spec SC, or requirements
+
+"Because it's there in the other file/service/spec/plan" is NOT a valid justification.
+
+#### Applies to ALL agent output
+
+| Artifact Type | Examples of Cargo Cult | Correct Pattern |
+|---------------|----------------------|-----------------|
+| Code (Java, Python, etc.) | Copying method params, imports, class structure from another file | Derive from consumer callsites or API contract |
+| Specs | Adding contract fields without identifying consuming task file | Each field must name at least one consumer |
+| Plans | Applying three-tier phase structure without evaluating fit | Derive phase structure from spec SCs |
+| Contracts | Propagating fields through dispatch pipelines with no reader | Field without consumer = dead weight |
+| Routing tables | Adding scope variables no sub-agent branches on | Each scope variable must be read by ≥1 task file |
+| Config files | Copying keys from another environment without verifying consumer | Each key must be read by at least one code path |
+
+#### Remediation
+
+When a derivation-provenance violation is detected (by the agent during self-review, or by an auditor):
+- Remove the unjustified element
+- If the element is needed, identify the consumer or first-principles derivation
+- Do NOT add a placeholder consumer to satisfy the rule — the consumer must be real
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Adding contract field without consumer | Dead weight in every dispatch — context overhead with zero behavioral effect |
+| Copying method params from reference class | Wrong parameter set for the new domain — produces incorrect API |
+| Propagating routing scope variable no task reads | Every sub-agent receives unused context — routing complexity with no benefit |
+| Applying template structure without evaluation | Every artifact looks the same regardless of problem shape — misses domain-specific concerns |
+
 Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
 ### [critical-rules-005] Direct-Branch Default — feature branch without worktree is the norm
 Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTREE_REQUIRED` set. See `git-workflow --task pre-work`.
