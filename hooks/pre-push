@@ -4,8 +4,6 @@
 # stdin format per git pre-push protocol:
 #   <local-ref> SP <local-sha> SP <remote-ref> SP <remote-sha> LF
 
-set -e
-
 SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
 
 # Read stdin refspecs. For each line, evaluate all gates.
@@ -140,20 +138,6 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
             done
 
             if [ "$ALL_SUBMODULE_POINTERS" = "1" ]; then
-                ISSUE_NUM=$(echo "$LOCAL_BRANCH" | grep -oP '^\w+/\K\d+')
-                TAG=""
-                TAG_MSG=""
-                for sp in $SUBMODULE_PATHS; do
-                    if [ -d "$sp" ]; then
-                        _TAG=$(cd "$sp" && git tag -l "*/$ISSUE_NUM" --sort=-version:refname 2>/dev/null | head -1)
-                        if [ -n "$_TAG" ]; then
-                            TAG="$_TAG"
-                            TAG_MSG="The submodule SHA is already tracked via tag '$_TAG' on the submodule remote. Nothing is lost."
-                            break
-                        fi
-                    fi
-                done
-
                 echo ""
                 echo "BLOCKED: Submodule-pointer-only push prevented."
                 echo ""
@@ -163,20 +147,14 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
                 echo ""
                 echo "Local submodule pointer commits are fine — keep them."
                 echo ""
-
-                if [ -n "$TAG" ]; then
-                    echo "$TAG_MSG"
-                else
-                    echo "⚠ Submodule tag missing. Create one before continuing:"
-                    for sp in $SUBMODULE_PATHS; do
-                        if [ -d "$sp" ]; then
-                            echo "  cd $sp"
-                            echo "  git tag -a \"$LOCAL_BRANCH/$ISSUE_NUM\" -m \"Track submodule SHA for issue $ISSUE_NUM\""
-                            echo "  git push origin \"$LOCAL_BRANCH/$ISSUE_NUM\""
-                        fi
-                    done
-                fi
-
+                echo "⚠ Submodule tag missing. Create one before continuing:"
+                for sp in $SUBMODULE_PATHS; do
+                    if [ -d "$sp" ]; then
+                        echo "  cd $sp"
+                        echo "  git tag -a \"$LOCAL_BRANCH\" -m \"Track submodule SHA for branch $LOCAL_BRANCH\""
+                        echo "  git push origin \"$LOCAL_BRANCH\""
+                    fi
+                done
                 echo ""
                 echo "To proceed:"
                 echo "  1. Continue implementation on this branch (edit source files)"
