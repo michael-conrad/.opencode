@@ -63,9 +63,11 @@ This was demonstrated in session `ses_0ffeba217ffeyz4dmcrgle5cLK` (and previousl
 | `skills/approval-gate/enforcement/auto-dispatch-table.md` | Remove `for_pr_only` and `for_review_only` entries |
 | `skills/approval-gate/tasks/verify-authorization/scope-auto-resolve.md` | Remove `for_pr_only` and `for_review_only` from parsing table |
 | `skills/approval-gate/tasks/verify-authorization/gap-fill-cascade.md` | Remove (replaced by `gap-fill-cascade/` directory) |
+| `skills/approval-gate/tasks/verify-authorization/auto-dispatch.md` | Remove `for_pr_only` and `for_review_only` from scope enum (lines 10, 107) |
 | `guidelines/000-critical-rules.md` | Remove obsolete scope references |
 | `guidelines/080-code-standards.md` | Add YAML-only rule for LLM-to-LLM data transfers |
-| All skill task files with `authorization_scope` template blocks (~29 files) | Remove `pr_strategy` from template; remove `for_pr_only` and `for_review_only` from enum |
+| `guidelines/020-go-prohibitions.md` | Remove `for_review_only` from scope resolution table (line 245) |
+| All skill task files with `authorization_scope` template blocks (~71 files) | Remove `pr_strategy` from template; remove `for_pr_only` and `for_review_only` from enum |
 
 ## Design
 
@@ -182,7 +184,7 @@ All structured data exchanged between AI agents (result contracts, work state fi
 | RISK-1 | Per-scope checklist files drift from skill task structure | Low | Medium | Each checklist item routes to a skill's public entry point — never duplicates procedural logic | SC-2, SC-3, SC-4 |
 | RISK-2 | Removing for_pr_only breaks existing workflows | Low | Medium | for_pr with existing artifacts behaves identically. No behavioral change for any real use case | SC-6 |
 | RISK-3 | 010-approval-gate.md loses too much information | Low | Low | Guideline states principles; enforcement files define mechanics. Correct separation of concerns | SC-7 |
-| RISK-4 | Bulk update of ~29 task files misses some files | Medium | High | Use grep to enumerate all files with authorization_scope template blocks before applying changes. Verify with grep after | SC-10 |
+| RISK-4 | Bulk update of ~71 task files misses some files | Medium | High | Use grep to enumerate all files with authorization_scope template blocks before applying changes. Verify with grep after | SC-10 |
 
 ## Revision Policy
 
@@ -207,6 +209,7 @@ All structured data exchanged between AI agents (result contracts, work state fi
 ## Changelog
 
 - 2026-06-25: Initial draft
+- 2026-07-07: Revision 1.1 — Added `auto-dispatch.md` and `020-go-prohibitions.md` to Modified Files; corrected `pr_strategy` scope from ~29 to ~71 files; updated RISK-4 and Documentation Sources
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -290,6 +293,8 @@ None — all SCs are phase-specific.
 | Direct source search | `grep -r "gap-fill" skills/approval-gate/` | Identify all gap-fill references |
 | Direct source search | `grep -r "for_pr_only\|for_review_only" skills/ guidelines/` | Identify all scope references to remove |
 | Direct source search | `grep -r "pr_strategy" skills/` | Identify all template blocks with pr_strategy |
+| Direct source search | `grep -rn "for_pr_only\|for_review_only" skills/approval-gate/tasks/verify-authorization/auto-dispatch.md` | Identify scope references in auto-dispatch file |
+| Direct source search | `grep -rn "for_review_only" guidelines/020-go-prohibitions.md` | Identify scope reference in go-prohibitions |
 | Local docs | `guidelines/010-approval-gate.md` | Understand current scope table structure |
 | Local docs | `guidelines/080-code-standards.md` | Identify insertion point for YAML-only rule |
 | Session evidence | Session `ses_0ffeba217ffeyz4dmcrgle5cLK` | Root cause analysis of gap-fill regression |
