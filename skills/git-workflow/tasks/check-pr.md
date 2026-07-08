@@ -36,9 +36,65 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] Report all merged PRs found with PR number, title, branch, and merged_at timestamp
 - [ ] If no merged PRs found: report and HALT
 
-## Phase 2: Verify Each Merge
+## Phase 2: Verify Each Merge — Full Mergeability Diagnosis
 
-- [ ] For each merged PR, confirm merge state via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get)` check `merged_at`, `gitbucket` → `gb pr view` check `merged`, `local` → N/A)
+For each merged PR, perform a full mergeability diagnosis using the 6-field check (SC-1 through SC-5). This replaces the simple `state`/`merged`-only check with the same mergeability logic used in `pr-creation/create-pr.md` Step 7.2.
+
+**Data Sources:**
+
+| Field | Source | Purpose |
+|-------|--------|---------|
+| `mergeable` | PR API response | Mergeability status (`true`, `false`, or `null`) |
+| `base.sha` | PR API response | Base branch SHA at PR creation time |
+| `updated_at` | PR API response | Last update timestamp |
+| `created_at` | PR API response | Creation timestamp |
+| `state` | PR API response | PR state (`open`, `closed`) |
+| `merged` | PR API response | Whether PR was already merged |
+
+### Step 2.1: Read Mergeability Fields
+
+- [ ] For each merged PR, read all 6 fields via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get, pullNumber=<N>)` for `mergeable`, `base.sha`, `updated_at`, `created_at`, `state`, `merged`; `gitbucket` → `gb pr view <N>` for equivalent fields; `local` → N/A)
+
+### Step 2.2: Diagnose `mergeable` Status
+
+- [ ] If `mergeable` is `null` (mergeability computation not yet complete):
+  - **Stale base check:** Compare `base.sha` against the current remote base tip (`git rev-parse origin/<target>`). If they differ, the base has advanced since PR creation — proceed to Step 2.3.
+  - **Conflict check:** If `base.sha` matches remote base tip but `mergeable` is still `null`, the PR may have a conflict that GitHub hasn't computed yet — proceed to Step 2.4.
+  - **Pending computation:** If neither stale base nor conflict is confirmed, the mergeability computation is still pending — proceed to Step 2.4.
+- [ ] If `mergeable` is `false`: Report that the PR has a merge conflict. Include the conflicting files from `git diff origin/<target>...HEAD --name-only --diff-filter=U`.
+- [ ] If `mergeable` is `true`: Confirm mergeability and proceed.
+
+### Step 2.3: Rebase on Stale Base
+
+- [ ] If `base.sha` differs from the current remote base tip:
+  ```bash
+  git fetch origin <target>
+  git rebase origin/<target>
+  ```
+- [ ] After rebase, force-push the updated branch:
+  ```bash
+  git push --force-with-lease origin HEAD:<branch_name>
+  ```
+
+### Step 2.4: Trigger Mergeability Computation
+
+- [ ] If `updated_at` equals `created_at` (PR has never been updated since creation), the mergeability computation may not have triggered. Trigger it by:
+  1. **Comment method:** Add a comment to the PR via `github_add_issue_comment` with a no-op message (e.g., "Triggering mergeability check").
+  2. **No-op push method (fallback):** If commenting is insufficient, push a no-op change: `git commit --allow-empty -m "trigger mergeability" && git push origin HEAD:<branch_name>`.
+- [ ] After triggering, wait 15 seconds and re-read the PR's `mergeable` field via `github_pull_request_read(method=get, pullNumber=<N>)`. If still `null`, report that mergeability computation is pending.
+
+### Step 2.5: Report Mergeability Diagnosis
+
+- [ ] **Never report "PR is open" as terminal status.** Always include mergeability diagnosis in the output:
+  ```
+  **Mergeability Diagnosis:**
+  - State: open|closed
+  - Merged: true|false
+  - Mergeable: true|false|null
+  - Base SHA match: yes|no (rebased if stale)
+  - Computation triggered: yes|no (if updated_at == created_at)
+  - Action required: <none|rebase needed|conflict resolution|wait for computation>
+  ```
 - [ ] Verify the merge commit exists in local dev history: `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>`
 - [ ] Report PASS/FAIL per PR with evidence artifact
 
