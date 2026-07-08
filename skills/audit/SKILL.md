@@ -91,7 +91,12 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Blind Dispatch
 
-Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
+Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry:
+  - `spec_local_dir` (required) — path to spec directory
+  - `artifact_evidence_dir` (required) — path to evidence artifacts directory
+  - `audit_phase` (optional) — pipeline phase identifier for phase-aware audit tasks
+
+Auditors independently discover SCs and evidence from these directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
 
