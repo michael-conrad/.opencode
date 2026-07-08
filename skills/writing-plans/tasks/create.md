@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. The orchestrator reads this task file and executes the 21-step pipeline, dispatching sub-agents for sub-task steps and running z3-check steps inline.
+Create an implementation plan from an approved spec. The orchestrator dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps, dispatching sub-agents for sub-task steps and running z3-check steps inline.
 
 ## Prerequisites
 

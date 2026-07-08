@@ -41,15 +41,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "pre-plan-readiness" / "readiness check" / "verify prerequisites" | `pre-plan-readiness` | `sub-task` | {spec_issue_number} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
-## Programmatic Invocation
-
-| Task | Execution |
-|------|-----------|
-| `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
-| `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
-| `update` | Orchestrator reads `tasks/update.md` and executes steps inline |
-| `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
-
 ## Persona
 
 This skill produces plans by dispatching pipeline steps to sub-agents. The orchestrator routes each step to a clean-room sub-agent via `task()`. Each step is a self-contained procedure with entry criteria, exit criteria, and chain dependency. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW. Professional orchestrators route to sub-agents. Inlining pipeline steps means the plan was never independently produced.
