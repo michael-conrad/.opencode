@@ -1,8 +1,8 @@
-# Adversarial Audit SC-695-9 Verification Report
+# Audit SC-695-9 Verification Report
 
 **Issue:** #695 — Adversarial audit: content classification gate PR
 
-**Audit Finding:** SC-695-9 UNVERIFIED — Full enforcement test suite was not run during initial implementation. mistral-large fabricated a PASS using non-existent `--tag adversarial-audit` flag. kimi-k2 correctly flagged UNVERIFIED. PARTIAL consensus required remediation.
+**Audit Finding:** SC-695-9 UNVERIFIED — Full enforcement test suite was not run during initial implementation. mistral-large fabricated a PASS using non-existent `--tag audit` flag. kimi-k2 correctly flagged UNVERIFIED. PARTIAL consensus required remediation.
 
 **Verification Date:** 2026-05-18
 
@@ -18,7 +18,7 @@ bash .opencode/tests/test-enforcement.sh
 
 **Result:** EXIT CODE 0 — ALL 182 SCENARIOS PASS
 
-All scenarios including spec-auditor, verification-before-completion, git-workflow, approval-gate, and adversarial-audit scenarios pass successfully.
+All scenarios including spec-auditor, verification-before-completion, git-workflow, approval-gate, and audit scenarios pass successfully.
 
 **Note:** Pre-existing bug: `EXPECTED_SKILLS[$scenario_name]: unbound variable` at line 824 in results aggregation. This is an associative array key mismatch — some scenario names in the run list lack entries in `EXPECTED_SKILLS`. Does not affect test outcomes (exit code 0).
 
@@ -41,4 +41,4 @@ Models available: `qwen3.6:35b`, `qwen3.6:27b` (local, too large), `mistral-larg
 - Content-verification (182 scenarios): PASS ✓
 - Behavioral tests: INCONCLUSIVE (pre-existing infra limitation, not regression) ⚠️
 
-The adversarial audit finding is resolved. All content-verification tests pass, confirming that PR #702 changes did not break any existing functionality.
+The audit finding is resolved. All content-verification tests pass, confirming that PR #702 changes did not break any existing functionality.

@@ -14,7 +14,7 @@ The `.opencode` skilldeck is hard-wired to use **Ollama** as its model provider 
 | **Behavioral tests** (`tests/behaviors/`) | Default test model: `ollama/ornith:35b-256k`; `helpers.sh` sources `default-model.sh` |
 | **Content-verification tests** (`test-enforcement.sh`) | Default model: `ollama/ornith:35b-256k` |
 | **Auditor pool** (`tests/qualification/qualified-auditor-pool.sh`) | 4 audited models, all `:cloud`-suffixed via Ollama |
-| **Adversarial audit** (`skills/adversarial-audit/`) | Cross-family cross-validation dispatches dual Ollama models per audit via `resolve-models` |
+| **Audit** (`skills/audit/`) | Cross-family cross-validation dispatches dual Ollama models per audit via `resolve-models` |
 | **Tooling** (`tools/ollama-probe`, `tools/resolve-models`) | Dedicated tools for probing local Ollama server and resolving auditor model pairs |
 | **Guidelines** (`020-go-prohibitions.md`) | References `ollama-probe hw` as mandatory hardware assessment step |
 

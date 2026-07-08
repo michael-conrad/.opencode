@@ -201,12 +201,12 @@ purged:
         line_range:
           start: 32
           end: 50
-      - path: .opencode/skills/adversarial-audit/tasks/spec-audit.md
+      - path: .opencode/skills/audit/tasks/spec-audit.md
         hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
         line_range:
           start: 40
           end: 58
-      - path: .opencode/skills/adversarial-audit/tasks/plan-fidelity.md
+      - path: .opencode/skills/audit/tasks/plan-fidelity.md
         hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
         line_range:
           start: 50
