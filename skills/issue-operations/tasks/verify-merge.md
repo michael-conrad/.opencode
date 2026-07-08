@@ -46,11 +46,18 @@ gb pr list -R <github.owner>/<github.repo> --state all | jq '.[] | select(.numbe
 
 ### Step 2: Verify Merge
 
-| PR State | Merged | Action |
-|----------|--------|--------|
-| `closed` | `true` | ✅ Proceed with issue closure |
-| `closed` | `false` | ❌ PR was closed without merge — do NOT close issue |
-| `open` | `false` | ❌ PR still open — do NOT close issue |
+| state | merged | mergeable | base.sha | updated_at | created_at | Action |
+|-------|--------|-----------|----------|------------|------------|--------|
+| `closed` | `true` | — | — | — | — | ✅ Proceed with issue closure |
+| `closed` | `false` | — | — | — | — | ❌ PR was closed without merge — do NOT close issue |
+| `open` | `false` | `true` | — | — | — | ❌ PR still open — do NOT close issue |
+| `open` | `false` | `false` | — | — | — | ❌ PR has merge conflicts — do NOT close issue |
+| `open` | `false` | `null` | — | — | — | ❌ Mergeability not computed — diagnose root cause (stale base, conflict, or pending) |
+| `open` | `false` | — | — | matches created_at | — | ❌ No mergeability computation has occurred — trigger computation (comment or no-op push) |
+| `open` | `true` | `true` | — | — | — | ⚠️ PR merged but state open — verify via API |
+| — | — | — | mismatches target | — | — | ❌ PR targets wrong base branch — do NOT close |
+| — | — | — | — | stale (>30d) | — | ⚠️ PR is stale — verify intent before closing |
+| — | — | — | — | — | after issue creation | ⚠️ PR predates issue — verify association |
 
 ### Step 3: Search Fallback (GitBucket)
 
