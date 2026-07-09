@@ -4,7 +4,7 @@ per_check_results:
     check_name: string  # e.g., "Placeholder detection"
     status: string  # PASS | FAIL
     evidence_type: string  # structural | string | semantic | behavioral
-    finding_classification: string  # auto-fix | conditional | flag-for-review
+    finding_classification: string  # auto-fix | FAIL
     action: string  # description of action taken or required
 artifact_path: string  # path to full evidence on disk
 summary: string  # 1-3 sentence summary

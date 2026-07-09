@@ -64,10 +64,10 @@ If staleness detected:
 
 ### Verification Checklist
 
-- **File existence:** Use `glob` or `read` to verify each file mentioned in the spec exists at its specified path. If missing → VERIFICATION-GAP (flag-for-review).
-- **Code references:** Use `srclight_get_signature` or `srclight_search_symbols` to verify each symbol mentioned in the spec exists and signatures match. If mismatch → CONFLICTING (flag-for-review).
+- **File existence:** Use `glob` or `read` to verify each file mentioned in the spec exists at its specified path. If missing → VERIFICATION-GAP (FAIL).
+- **Code references:** Use `srclight_get_signature` or `srclight_search_symbols` to verify each symbol mentioned in the spec exists and signatures match. If mismatch → CONFLICTING (FAIL).
 - **Superseding issues:** Use `issue-operations -> read-issue (github_issue_read` to verify each candidate superseding issue is still open and covers the current spec's scope. Closed as `not_planned` → NOT superseding. <!-- Routes through issue-operations per SPEC #683 -->
-- **Staleness:** Use `srclight_recent_changes` or `git log --since=<spec-date>` to verify referenced files are unchanged since spec creation. If changed → VERIFICATION-GAP (conditional: re-verify).
+- **Staleness:** Use `srclight_recent_changes` or `git log --since=<spec-date>` to verify referenced files are unchanged since spec creation. If changed → VERIFICATION-GAP (FAIL: re-verify).
 
 ## Enforcement References
 

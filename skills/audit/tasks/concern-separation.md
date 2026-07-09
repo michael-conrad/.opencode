@@ -241,7 +241,7 @@ self_consistency:
 findings:
   - type: "BOILERPLATE_TITLE"
     phase: "<phase>"
-    verdict: "FAIL"
+verdict: "FAIL"
     recommendation: "<recommendation>"
 exec_summary: "Concern separation: X/Y criteria. N phases need review."
 all_criteria_pass: false
@@ -320,7 +320,7 @@ rules:
         - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
         - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
     actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
-    source: "concern-separation.md §Step 7 — conditional next_step enforcement"
+    source: "concern-separation.md §Step 7 — FAIL next_step enforcement"
 
   - id: concern-separation-005
     title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"

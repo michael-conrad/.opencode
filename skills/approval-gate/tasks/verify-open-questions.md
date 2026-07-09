@@ -80,14 +80,14 @@ comments = issue-operations -> read-comments (github_issue_read(method="get_comm
 
 - Check ALL comments for questions not listed in the spec's "Open Questions" section
 - Developer may have raised new questions in comments
-- If new questions found → MISSING-ELEMENT (conditional: add to open questions)
+- If new questions found → MISSING-ELEMENT (FAIL: add to open questions)
 ```
 
 **Evidence artifact:** Comment scan results showing any unlisted questions.
 
 ### Task-Specific Findings
 
-See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Context Required
 

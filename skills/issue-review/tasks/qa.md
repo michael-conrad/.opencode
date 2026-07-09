@@ -117,5 +117,5 @@ HALT after posting the summary. Wait for the developer to act on the outcomes.
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | Bug language found in Q/A path | CONFLICTING | auto-fix | Re-triage to `analyze-and-spec` |
-| Existing spec found for topic | MISSING-ELEMENT | conditional | Offer to link to existing spec |
-| New comments since Q/A | VERIFICATION-GAP | conditional | Re-read and consider new context |
+| Existing spec found for topic | MISSING-ELEMENT | FAIL | Offer to link to existing spec |
+| New comments since Q/A | VERIFICATION-GAP | FAIL | Re-read and consider new context |

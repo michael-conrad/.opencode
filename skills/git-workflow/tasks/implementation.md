@@ -148,10 +148,10 @@ When `worktree.path` is set, ALL file operation tool calls (`read`, `edit`, `wri
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| On `main` or `$DEFAULT_BRANCH` | CONFLICTING | flag-for-review | HALT — must be in worktree on feature branch |
+| On `main` or `$DEFAULT_BRANCH` | CONFLICTING | FAIL | HALT — must be in worktree on feature branch |
 | Wrong toplevel path | STRUCTURE-VIOLATION | auto-fix | HALT — not in worktree, re-invoke pre-work |
-| No changes to commit | MISSING-ELEMENT | conditional | Verify changes were saved — may need `git add` |
-| Staged changes don't match intent | VERIFICATION-GAP | conditional | Review diff, adjust staging |
+| No changes to commit | MISSING-ELEMENT | FAIL | Verify changes were saved — may need `git add` |
+| Staged changes don't match intent | VERIFICATION-GAP | FAIL | Review diff, adjust staging |
 
 **These verifications are MANDATORY before each commit. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 

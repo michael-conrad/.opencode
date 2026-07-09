@@ -151,10 +151,10 @@ affected_files_count: K
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Input file missing | MISSING-ELEMENT | flag-for-review | HALT — cannot generate without input |
-| Referenced file not found | VERIFICATION-GAP | flag-for-review | Mark `⚠️ UNVERIFIED` — fidelity comparison will flag |
-| Function signature mismatch | VERIFICATION-GAP | conditional | Correct or mark `⚠️ UNVERIFIED` |
-| Pattern doesn't exist | CONFLICTING | flag-for-review | Remove claim from clean-room plan |
+| Input file missing | MISSING-ELEMENT | FAIL | HALT — cannot generate without input |
+| Referenced file not found | VERIFICATION-GAP | FAIL | Mark `⚠️ UNVERIFIED` — fidelity comparison will flag |
+| Function signature mismatch | VERIFICATION-GAP | FAIL | Correct or mark `⚠️ UNVERIFIED` |
+| Pattern doesn't exist | CONFLICTING | FAIL | Remove claim from clean-room plan |
 
 ## Cross-References
 

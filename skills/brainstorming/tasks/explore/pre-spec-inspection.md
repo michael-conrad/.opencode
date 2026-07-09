@@ -36,19 +36,19 @@ Check: [what was verified]
 Tool: [tool call and parameters]
 Result: [actual state found]
 Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-Action: [auto-fix|conditional|flag-for-review]
+Action: [auto-fix|FAIL]
 ```
 
 ## Classification on Failure
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Call path assumption wrong | CONFLICTING | conditional | Re-map actual call path |
-| Import path assumed but not found | VERIFICATION-GAP | conditional | Search alternates |
+| Call path assumption wrong | CONFLICTING | FAIL | Re-map actual call path |
+| Import path assumed but not found | VERIFICATION-GAP | FAIL | Search alternates |
 | Dead code claimed as alive | MISSING-ELEMENT | auto-fix | Remove from affected-files |
-| Data format assumption wrong | CONFLICTING | flag-for-review | HALT — redesign may be needed |
-| Architectural layer violation | STRUCTURE-VIOLATION | flag-for-review | HALT — redesign may be needed |
-| Alternative solution exists | MISSING-ELEMENT | conditional | Evaluate existing solution |
+| Data format assumption wrong | CONFLICTING | FAIL | HALT — redesign may be needed |
+| Architectural layer violation | STRUCTURE-VIOLATION | FAIL | HALT — redesign may be needed |
+| Alternative solution exists | MISSING-ELEMENT | FAIL | Evaluate existing solution |
 
 ## Step 0.5: Cross-Spec Scope Search (MANDATORY)
 

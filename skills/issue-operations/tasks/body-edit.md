@@ -230,12 +230,12 @@ Before dispatching any sub-agent, verify ALL:
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| remote.md not found | MISSING-ELEMENT | flag-for-review | HALT — run sync pull first |
-| Edit script pattern not found | STRUCTURE-DAMAGE | flag-for-review | HALT — report to caller |
-| Frontmatter corrupted | STRUCTURE-DAMAGE | conditional | HALT — verify agent rejected edit |
-| Null bytes detected | CORRUPTION | conditional | HALT — investigate source |
-| Sync push failed | VERIFICATION-GAP | flag-for-review | Report failure, local commit preserved |
-| Remote body mismatch | VERIFICATION-GAP | conditional | Retry sync push once, then report |
+| remote.md not found | MISSING-ELEMENT | FAIL | HALT — run sync pull first |
+| Edit script pattern not found | STRUCTURE-DAMAGE | FAIL | HALT — report to caller |
+| Frontmatter corrupted | STRUCTURE-DAMAGE | FAIL | HALT — verify agent rejected edit |
+| Null bytes detected | CORRUPTION | FAIL | HALT — investigate source |
+| Sync push failed | VERIFICATION-GAP | FAIL | Report failure, local commit preserved |
+| Remote body mismatch | VERIFICATION-GAP | FAIL | Retry sync push once, then report |
 
 ## Context Required
 

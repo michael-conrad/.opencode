@@ -195,7 +195,7 @@ For each sub-issue:
     if state_reason == "not_planned":
       # Sub-issue was intentionally not implemented
       # Parent CANNOT be autoclosed — some work was deliberately skipped
-      VERIFICATION-GAP — flag-for-review
+      VERIFICATION-GAP — FAIL
       HALT autoclose
 
     elif state_reason == "completed":
@@ -210,12 +210,12 @@ For each sub-issue:
 
       if not merged_pr_found:
         # Closed as "completed" but no merged PR — may be premature closure
-        VERIFICATION-GAP — flag-for-review
+        VERIFICATION-GAP — FAIL
         HALT autoclose
 
     else:
       # Closed without clear reason
-      VERIFICATION-GAP — flag-for-review
+      VERIFICATION-GAP — FAIL
       HALT autoclose
 
   elif child.state == "open":
@@ -239,7 +239,7 @@ For each sub-issue verified as legitimately closed:
 
 ### Pre-Autoclose Verification Finding Classification
 
-See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## What This Is NOT
 

@@ -149,8 +149,8 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 | Finding | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Uncommitted changes found | VERIFICATION-GAP | conditional | Commit before proceeding |
+| Uncommitted changes found | VERIFICATION-GAP | FAIL | Commit before proceeding |
 | Branch not pushed | MISSING-ELEMENT | auto-fix | Push immediately |
-| Lint/test failures | VERIFICATION-GAP | flag-for-review | HALT — fix issues before PR |
+| Lint/test failures | VERIFICATION-GAP | FAIL | HALT — fix issues before PR |
 | Debug prints or TODOs found | STRUCTURE-VIOLATION | auto-fix | Remove before proceeding |
-| Unrelated files in diff | CONFLICTING | flag-for-review | Report — scope may have deviated |
+| Unrelated files in diff | CONFLICTING | FAIL | Report — scope may have deviated |

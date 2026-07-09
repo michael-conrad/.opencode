@@ -232,7 +232,7 @@ For each file path or symbol from screening `file_references`/`symbol_references
 
 ### Finding Classification
 
-See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Enforcement References
 

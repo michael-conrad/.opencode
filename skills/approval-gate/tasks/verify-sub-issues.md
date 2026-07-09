@@ -214,7 +214,7 @@ For each sub-issue:
   - If work.md phase tracking is mismatched to actual sub-issue progress → STRUCTURE-VIOLATION
     (auto-fix: update work.md per ground-truth progress)
   - If work.md says completed but sub-issue is open → CONFLICTING
-    (flag-for-review: may indicate tracking mismatch)
+    (FAIL: may indicate tracking mismatch)
 ```
 
 **Evidence artifact:** Label list and work.md state for each sub-issue.
@@ -234,7 +234,7 @@ parent_check = issue-operations -> read-sub-issues (github_issue_read(method="ge
 
 ### Task-Specific Findings
 
-See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Context Required
 

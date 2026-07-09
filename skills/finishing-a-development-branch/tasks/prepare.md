@@ -152,7 +152,7 @@ git branch -vv
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Uncommitted changes exist | VERIFICATION-GAP | conditional | Commit first |
-| Lint failures | VERIFICATION-GAP | flag-for-review | HALT — fix before PR |
-| Test failures | VERIFICATION-GAP | flag-for-review | HALT — fix before PR |
-| Unrelated changes in diff | CONFLICTING | flag-for-review | Report — scope deviation |
+| Uncommitted changes exist | VERIFICATION-GAP | FAIL | Commit first |
+| Lint failures | VERIFICATION-GAP | FAIL | HALT — fix before PR |
+| Test failures | VERIFICATION-GAP | FAIL | HALT — fix before PR |
+| Unrelated changes in diff | CONFLICTING | FAIL | Report — scope deviation |

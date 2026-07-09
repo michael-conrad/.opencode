@@ -141,11 +141,11 @@ Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| `merged_at` is None | CONFLICTING | flag-for-review | HALT — PR not merged, cannot close issues |
-| `merged_by` is None but `merged_at` set | VERIFICATION-GAP | conditional | Investigate — may be bot merge |
-| Branch not in `--merged "$DEFAULT_BRANCH"` list | VERIFICATION-GAP | conditional | Sync dev, recheck |
-| Sub-issue closed without merged PR | VERIFICATION-GAP | flag-for-review | Investigate closure reason |
-| Sub-issue still open after merge | VERIFICATION-GAP | conditional | Close manually via API |
+| `merged_at` is None | CONFLICTING | FAIL | HALT — PR not merged, cannot close issues |
+| `merged_by` is None but `merged_at` set | VERIFICATION-GAP | FAIL | Investigate — may be bot merge |
+| Branch not in `--merged "$DEFAULT_BRANCH"` list | VERIFICATION-GAP | FAIL | Sync dev, recheck |
+| Sub-issue closed without merged PR | VERIFICATION-GAP | FAIL | Investigate closure reason |
+| Sub-issue still open after merge | VERIFICATION-GAP | FAIL | Close manually via API |
 
 ## Context Required
 

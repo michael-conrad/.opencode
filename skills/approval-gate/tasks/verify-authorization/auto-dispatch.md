@@ -38,7 +38,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 | **Plan approval** | Local plan file exists at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` | `executing-plans --task start` |
 | **Already implemented** | Step 5d.4 (`verify-already-implemented`) returns positive | No dispatch — auto-close instead (execution path: Step 0 of auto-route procedure) |
 | **Reconciled during verification** | reconcile-issue-graph returned auto-closed or reopened tickets | Include reconciled tickets in chat output; proceed with dispatch |
-| **Closed but NOT verified** | Step 5.4 closed-issue verification finds closure without merged PR evidence | flag-for-review — do NOT autoclose |
+| **Closed but NOT verified** | Step 5.4 closed-issue verification finds closure without merged PR evidence | FAIL — do NOT autoclose |
 
 ## Scope-Aware Route Targets
 
@@ -64,7 +64,7 @@ When `authorization_scope == "for_analysis"`:
    - If verify-already-implemented returned positive → auto-close issue, check parent plan, HALT
    - If verify-codebase found staleness → HALT, report staleness
    - If verify-blockers found blockers → HALT, report blockers
-   - If verify-closed-issue-main found VERIFICATION_GAP → flag-for-review, HALT
+   - If verify-closed-issue-main found VERIFICATION_GAP → FAIL, HALT
    - Otherwise → proceed to spec/plan routing
 
 1. Determine approval context (spec vs plan) by checking:

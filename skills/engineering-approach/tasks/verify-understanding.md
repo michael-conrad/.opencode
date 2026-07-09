@@ -137,7 +137,7 @@ Report understanding verification to chat (NOT as GitHub Issue comment). The und
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Code not actually read | VERIFICATION-GAP | conditional | Read relevant code now |
-| Dependency unverified | VERIFICATION-GAP | conditional | Verify dependency chain |
-| Problem statement contradicted by code | CONFLICTING | flag-for-review | HALT — revise understanding |
-| Success criteria not testable | STRUCTURE-VIOLATION | flag-for-review | Request measurable criteria |
+| Code not actually read | VERIFICATION-GAP | FAIL | Read relevant code now |
+| Dependency unverified | VERIFICATION-GAP | FAIL | Verify dependency chain |
+| Problem statement contradicted by code | CONFLICTING | FAIL | HALT — revise understanding |
+| Success criteria not testable | STRUCTURE-VIOLATION | FAIL | Request measurable criteria |

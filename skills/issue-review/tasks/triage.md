@@ -112,7 +112,7 @@ Each sub-issue gets its own independent triage decision. A parent may be `audit`
 If any verification fails, do NOT classify as `already-handled`. Instead:
 - Route to `analyze-and-spec` (if bug report with open fix spec)
 - Route to `audit` (if spec with open sub-issues)
-- Report as `flag-for-review` with specific verification failures
+- Report as `FAIL` with specific verification failures
 
 ## Confidence Levels
 
@@ -154,6 +154,6 @@ If any verification fails, do NOT classify as `already-handled`. Instead:
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | `[SPEC]` prefix on bug report | STRUCTURE-VIOLATION | auto-fix | Re-triage to `analyze-and-spec` |
-| `already-handled` but no merged PR | VERIFICATION-GAP | flag-for-review | Re-classify as `audit` or `just-review` |
-| Authorization from bot/agent | CONFLICTING | flag-for-review | Require human authorization |
-| Sub-issue closed without merged PR | VERIFICATION-GAP | flag-for-review | Investigate closure reason |
+| `already-handled` but no merged PR | VERIFICATION-GAP | FAIL | Re-classify as `audit` or `just-review` |
+| Authorization from bot/agent | CONFLICTING | FAIL | Require human authorization |
+| Sub-issue closed without merged PR | VERIFICATION-GAP | FAIL | Investigate closure reason |

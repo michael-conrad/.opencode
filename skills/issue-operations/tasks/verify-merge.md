@@ -107,7 +107,7 @@ gb pr list -R <github.owner>/<github.repo> --state closed
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| PR not merged | VERIFICATION-GAP | flag-for-review | HALT — do not close issue |
-| PR closed without merge | VERIFICATION-GAP | flag-for-review | HALT — PR was rejected |
-| PR doesn't reference issue | MISSING-ELEMENT | flag-for-review | Verify association manually |
-| Platform returns unreliable data | CONFLICTING | conditional | Use search fallback to verify |
+| PR not merged | VERIFICATION-GAP | FAIL | HALT — do not close issue |
+| PR closed without merge | VERIFICATION-GAP | FAIL | HALT — PR was rejected |
+| PR doesn't reference issue | MISSING-ELEMENT | FAIL | Verify association manually |
+| Platform returns unreliable data | CONFLICTING | FAIL | Use search fallback to verify |

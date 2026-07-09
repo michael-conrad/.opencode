@@ -150,9 +150,9 @@ This format is verified by behavioral enforcement tests in `.opencode/tests/beha
 
 ### Verification Checklist
 
-- **Label state matches authorization:** Check labels via `issue-operations -> read-labels`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (flag-for-review). <!-- Routes through issue-operations per SPEC #683 -->
-- **Local state file matches authorization:** Read `.issues/{N}/issue.yaml` and verify authorization scope marker matches the current session authorization. If mismatch → VERIFICATION-GAP (flag-for-review).
-- **Status report matches workflow outcome:** If completion claims "approved" but no local state file authorization found → CONFLICTING (flag-for-review). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (flag-for-review).
+- **Label state matches authorization:** Check labels via `issue-operations -> read-labels`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (FAIL). <!-- Routes through issue-operations per SPEC #683 -->
+- **Local state file matches authorization:** Read `.issues/{N}/issue.yaml` and verify authorization scope marker matches the current session authorization. If mismatch → VERIFICATION-GAP (FAIL).
+- **Status report matches workflow outcome:** If completion claims "approved" but no local state file authorization found → CONFLICTING (FAIL). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (FAIL).
 
 ### Completion Task Scope Clarification
 

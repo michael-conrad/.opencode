@@ -129,7 +129,7 @@ PR URL: <html_url from github_create_pull_request API response>
 | No branch pushed (no-changes path) | ❌ No | Omit URL element entirely; byline follows outcome directly |
 | PR already created | ✅ Yes | Use PR URL label with `pull/<N>` format instead of "Compare URL" |
 
-**Finding Classification:** See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+**Finding Classification:** See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 **Auto-fix on failure:** If any element is missing or misordered, fix the output before sending. Missing elements are auto-fixed before output is sent — NOT reported after the fact.
 
@@ -150,7 +150,7 @@ PR URL: <html_url from github_create_pull_request API response>
 
 ### Verification Checklist
 
-- **All changes committed:** Run `git status --porcelain`. If not empty → VERIFICATION-GAP (conditional: commit remaining changes). Run `git diff --staged` to confirm clean state.
+- **All changes committed:** Run `git status --porcelain`. If not empty → VERIFICATION-GAP (FAIL: commit remaining changes). Run `git diff --staged` to confirm clean state.
 - **Branch actually pushed:** Verify tracking branch exists via `git branch -vv`. Verify no unpushed commits via `git diff @{u} HEAD`. Verify commits ahead of dev via `git log origin/"$DEFAULT_BRANCH"..HEAD`.
 - **Compare URL correctness:** Verify URL uses correct base branch ($DEFAULT_BRANCH, not main). Verify URL uses session init values (not hardcoded).
 - **Chat output format:** Verify each required element is present: executive summary, outcome, URL (if applicable), byline. See Step 4.5 for the full checklist.

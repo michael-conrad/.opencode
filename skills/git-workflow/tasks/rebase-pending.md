@@ -287,12 +287,12 @@ Continuing with cleanup for the merged PR...
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| On wrong branch | CONFLICTING | flag-for-review | Switch to correct branch before rebase |
+| On wrong branch | CONFLICTING | FAIL | Switch to correct branch before rebase |
 | Not in worktree (worktree mode only) | STRUCTURE-VIOLATION | auto-fix | Create worktree or use existing one |
-| Dirty working tree | VERIFICATION-GAP | conditional | Stash changes before rebase (`git stash`) |
+| Dirty working tree | VERIFICATION-GAP | FAIL | Stash changes before rebase (`git stash`) |
 | Dev SHA is stale | MISSING-ELEMENT | auto-fix | `git fetch origin` to update |
 | Rebase conflicts (Tier 1-2) | VERIFICATION-GAP | auto-fix | Auto-resolve, note in chat |
-| Rebase conflicts (Tier 3) | CONFLICTING | flag-for-review | HALT for developer review |
+| Rebase conflicts (Tier 3) | CONFLICTING | FAIL | HALT for developer review |
 
 **These verifications are MANDATORY before each rebase. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 

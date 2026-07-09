@@ -419,7 +419,7 @@ Every step in pipeline chain is enforceable, not advisory. Professional engineer
 
 
 ### [critical-rules-016] Auditor Skills Enforcement
-Professional engineers subject every deliverable to independent audit — amateurs ship unverified work. See `spec-auditor` skill. Auto-fix/conditional/flag-for-review classification.
+Professional engineers subject every deliverable to independent audit — amateurs ship unverified work. See `spec-auditor` skill. Binary PASS/FAIL classification (auto-fix as remediation action only).
 
 
 ### [critical-rules-011] Bug Reports Without Fix Spec

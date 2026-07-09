@@ -11,7 +11,7 @@ Check: [what was verified]
 Tool: [tool call and parameters]
 Result: [actual state found]
 Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-Action: [auto-fix|conditional|flag-for-review]
+Action: [auto-fix|escalate]
 ```
 
 ### Evidence Rules
@@ -23,16 +23,14 @@ Action: [auto-fix|conditional|flag-for-review]
 
 ## Finding Classification
 
-Findings from verification follow the three-tier model:
+Findings from verification follow a binary model: PASS or FAIL. No classification tier may imply "defects are acceptable."
 
 | Classification | When | Action |
 |----------------|------|--------|
-| auto-fix | Safe, mechanical correction (stale reference, wrong issue number) | Apply fix, note in evidence |
-| conditional | Requires scope/safety check (authorization from wrong person, wrong issue) | Verify scope, then proceed if safe |
-| flag-for-review | Requires domain judgment (conflicting authorization, ambiguous approval) | Report in findings, HALT for human review |
+| PASS | Finding matches expected state | No action needed |
+| FAIL | Finding deviates from expected state | Remediate or escalate |
 
-### Tier Actions
+### Remediation Actions
 
-- **auto-fix**: Apply the fix directly, include in evidence table
-- **conditional**: Verify scope and safety before applying; if safe, apply; if not, HALT
-- **flag-for-review**: Report in findings, do NOT apply, HALT for developer review
+- **auto-fix**: Apply automated correction for non-substantive mechanical FAILs (formatting, typos, stale references). This is a remediation action, not a classification tier — the finding is still FAIL until corrected.
+- **escalate**: Report FAIL findings that require domain judgment in findings, do NOT apply, HALT for developer review.

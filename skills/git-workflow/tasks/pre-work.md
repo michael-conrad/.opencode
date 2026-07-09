@@ -578,11 +578,11 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
 | Default branch not synced | MISSING-ELEMENT | auto-fix | Run `git fetch origin "$DEFAULT_BRANCH"` |
-| On `main` or `$DEFAULT_BRANCH` branch | CONFLICTING | flag-for-review | HALT — must create feature branch first |
-| Dirty working tree | VERIFICATION-GAP | conditional | Stash or commit before implementation |
+| On `main` or `$DEFAULT_BRANCH` branch | CONFLICTING | FAIL | HALT — must create feature branch first |
+| Dirty working tree | VERIFICATION-GAP | FAIL | Stash or commit before implementation |
 | `rev-parse` returns main repo path (worktree mode) | STRUCTURE-VIOLATION | auto-fix | Not in worktree — re-invoke using-git-worktrees |
 | worktree.path empty (worktree mode) | STRUCTURE-VIOLATION | auto-fix | FATAL — cannot safely do file operations |
-| base hash stale | MISSING-ELEMENT | conditional | Re-run `git pull origin "$DEFAULT_BRANCH"` |
+| base hash stale | MISSING-ELEMENT | FAIL | Re-run `git pull origin "$DEFAULT_BRANCH"` |
 
 **These verifications are MANDATORY. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 

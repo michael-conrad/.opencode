@@ -373,9 +373,9 @@ Before proceeding, verify ALL:
 | ---------------------------------------- | ------------------- | --------------- | ------------------------------------------------------------------------------------------------ |
 | Step 0.5 dedup evidence missing          | MISSING-ELEMENT     | HALT            | HALT — "Cannot create issue: Step 0.5 dedup gate evidence missing. Run pre-creation task first." |
 | Step 0.75 runtime search found duplicate | CONFLICTING         | HALT            | HALT — report duplicate, do not create                                                           |
-| Pre-creation not run                     | MISSING-ELEMENT     | flag-for-review | HALT — run pre-creation first                                                                    |
-| Conflicting spec found                   | CONFLICTING         | flag-for-review | HALT — report conflict                                                                           |
+| Pre-creation not run                     | MISSING-ELEMENT     | FAIL | HALT — run pre-creation first                                                                    |
+| Conflicting spec found                   | CONFLICTING         | FAIL | HALT — report conflict                                                                           |
 | Wrong title format                       | STRUCTURE-VIOLATION | auto-fix        | Correct title before creation                                                                    |
-| Creation API failed                      | MISSING-ELEMENT     | flag-for-review | HALT — retry or report error                                                                     |
+| Creation API failed                      | MISSING-ELEMENT     | FAIL | HALT — retry or report error                                                                     |
 | Label missing post-creation              | MISSING-ELEMENT     | auto-fix        | Add label immediately                                                                            |
 | Byline missing                           | STRUCTURE-VIOLATION | auto-fix        | Add byline to body                                                                               |

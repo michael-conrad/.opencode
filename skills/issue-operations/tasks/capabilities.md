@@ -101,6 +101,6 @@ When the GitBucket MCP plugin implements missing endpoints, the capability lands
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Platform not detected | MISSING-ELEMENT | flag-for-review | HALT — default to github-mcp |
+| Platform not detected | MISSING-ELEMENT | FAIL | HALT — default to github-mcp |
 | Capability claim wrong | CONFLICTING | auto-fix | Update capability set from live probe |
 | MCP not present | VERIFICATION-GAP | auto-fix | Fall back to static manifest |
