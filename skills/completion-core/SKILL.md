@@ -7,17 +7,6 @@ compatibility: opencode
 
 # Completion Core — Shared Completion Operations
 
-## Default Branch Resolution
-
-```bash
-DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
-```
-
-Reference this file from per-skill `tasks/completion.md` files for common completion operations.
-
-## Entry Gate
-
 ## Persona
 
 Completion signaler. Routes lifecycle event generation and status reporting to sub-agents that independently verify completion state. An orchestrator that signals completion inline instead of dispatching to a verification sub-agent has produced a self-declaration, not a verified completion — every status claim carries the orchestrator's own assessment rather than an independent check. Professional completion signalers dispatch to verifiers. Inlining means completion was never independently confirmed.
@@ -46,83 +35,77 @@ Verification IS completion — the concept is fused. If verification FAILS, the 
 
 ## Common Completion Operations
 
-### 1. Push Branch (Idempotent)
+See `completion-core/tasks/completion.md` for the full completion operations (push branch, generate URL, append lifecycle event, executive summary).
 
-Check whether the branch has unpushed commits before pushing:
+## DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
-```bash
-UNPUSHED=$(git log origin/$(git branch --show-current)..HEAD --oneline 2>/dev/null)
-if [ -n "$UNPUSHED" ]; then
-    git push -u origin $(git branch --show-current)
-else
-    echo "Branch already up to date with remote. No push needed."
-fi
-```
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
 
-If no remote tracking branch exists yet, `git push -u origin <branch>` creates it.
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
 
-### 2. Generate URL
+#### Forbidden in task() Prompts
 
-Two URL patterns depending on workflow type:
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute cleanup task from git-workflow" without task file path | "execute cleanup task from git-workflow. Read \`git-workflow/tasks/cleanup.md\` first" |
 
-**Compare URL** (for git push workflows — implementation, git-workflow, finishing):
+#### Required: Sub-agent Task File Discovery Directive
 
-Construct from session-init values with character-match verification:
-
-1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session init
-2. Construct: `<html_url>/<owner>/<repo>/compare/$DEFAULT_BRANCH...<branch>` using the platform's base URL from session-init
-3. **Character-match verification:** Confirm `GIT_OWNER` and `GIT_REPO` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
-4. If any mismatch: HALT and report
-
-```bash
-COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/$DEFAULT_BRANCH...$(git branch --show-current)"
-```
-
-**Action URL** (for creation workflows — issue creation, approval gate):
-
-- **Issue URL:** Extract from `issue-operations -> update-issue` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
-- **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
-
-### 3. Append Lifecycle Event
-
-Append a completion event to the lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml`:
-
-```yaml
-  - event: step_completed
-    timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    issuer: <AgentName> (<ModelId>)
-    step: <step_label>
-    status: PASS
-    description: "<brief summary>"
-    severity: info
-```
-
-The lifecycle manifest is append-only. Never delete or edit existing entries.
-
-### 4. Report Executive Summary in Chat (Always Runs)
-
-Chat output is idempotent by nature. Always produce:
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
 
 ```
-**Summary:**
-
-<1-2 sentences describing the impact and stakeholder value.>
-
-**Outcome:** <What changed for stakeholders>
-
-<URL if applicable, ALWAYS LAST>
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
 ```
 
-**URL is ALWAYS last** per `000-critical-rules.md`.
+This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
 
-## Idempotency Summary
+This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
 
-| Operation | Idempotency Mechanism | Applies To |
-| -- | -- | -- |
-| Push branch | Check `git log origin/..HEAD` before pushing | Git workflows only |
-| Generate URL | Check if URL already generated; compare URL for pushes, action URL for creation workflows | All workflows |
-| Append lifecycle event | Append-only — always adds new entry | All workflows |
-| Report executive summary + URL | Always run; idempotent by nature | All workflows |
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
+
 
 ## Sub-Agent Routing
 

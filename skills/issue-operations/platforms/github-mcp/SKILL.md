@@ -75,60 +75,7 @@ None required. GitHub MCP provides complete API coverage.
 
 ## spec.md Mirror (MANDATORY)
 
-Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo):
-
-| Event | Action |
-
-| `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo) with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
-| `github_issue_read(method="get")` repeated | Overwrite `spec.md` with updated timestamp and body |
-| API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo) from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |
-| API comes back after outage | Re-fetch and overwrite on next spec read |
-
-### Mirror Sync Procedure (MANDATORY)
-
-After every `github_issue_read(method="get")` success:
-
-1. Create directory: `mkdir -p .issues/<issue_number>/` (root repo) or `mkdir -p {project_root}/{path}/.issues/<issue_number>/` (submodule/sub-repo)
-2. Write `spec.md`:
-```
-# Synced from GitHub Issue #<N> at <ISO8601-timestamp>
-
-<issue body>
-```
-3. Report to chat: `"spec.md mirror updated for #<N> at <timestamp>"`
-
-### Fallback Procedure (MANDATORY)
-
-When `github_issue_read(method="get")` fails with a network error, rate limit, or auth failure:
-
-1. Check if `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo) exists
-2. If exists: read from disk, note in chat: `"GitHub API unreachable. Reading spec.md (last synced at <timestamp>, may be stale)."`
-3. If NOT exists and API is unreachable: report `"Cannot read spec #<N> — API unreachable and no local spec.md mirror exists."`
-4. Proceed with stale/absent data noting the risk
-
-### Staleness Detection
-
-`spec.md` is stale when:
-1. The sync timestamp in the header is more than 24 hours old
-2. The GitHub Issue was modified (comments added, labels changed) since the last sync
-
-Agent MUST report staleness when detected and should attempt to refresh. If API still unreachable, proceed with stale copy noting the risk.
-
-### Three-File Layout
-
-| File | Role | Format | Edited by agent? | Synced to remote? |
-|------|------|-------|-------------------|--------------------|
-| `spec.md` | Canonical full spec | YAML frontmatter + markdown body | Yes — when spec detail changes | Never |
-| `state.md` | Workflow phase tracking and sync timestamps | YAML frontmatter + phase fields | Yes — on phase transitions and sync events | Never |
-| `remote.md` | Exact GitHub/GitBucket issue body | **Pure markdown — no YAML frontmatter**. Read verbatim for sync push, zero composition logic. | Yes — via `body-edit` task only | Yes — sync push after verification |
-
-### Mirror Protocol
-
-The agent edits `remote.md` for remote body changes; `spec.md` is the canonical full spec. `remote.md` is the exact GitHub/GitBucket issue body, read verbatim for sync push. Every edit to `remote.md` MUST go through the `body-edit` task (fetch → transform → verify → post).
-
-**Mirror flow:** local edit to `remote.md` → verify structural integrity → sync push to GitHub/GitBucket.
-
-Mirroring through `remote.md` is what professional synchronization looks like. Composing remote bodies from `spec.md` content means unverified text reaches stakeholders. Professional engineers propagate verified remotes — not composed approximations.
+See `github-mcp/tasks/spec-mirror.md` for the full spec mirror sync procedure, fallback procedure, staleness detection, and three-file layout.
 
 ## Cross-References
 
@@ -144,3 +91,71 @@ Mirroring through `remote.md` is what professional synchronization looks like. C
 | Platform operations | When GitHub MCP platform operations are dispatched | Operation type, issue/PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state | Implementation context, agent memory | NO |
+
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read tasks/creation.md then execute step 1" | "execute creation task from github-mcp" |
+| Preloaded step sequences | "Step 1: call github_issue_write. Step 2: add labels." | "execute creation task from github-mcp" |
+| Preloaded expected outcomes | "Return { issue_number, html_url }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The issue was just drafted so we need to..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute creation task from github-mcp" without task file path | "execute creation task from github-mcp. Read \`issue-operations/platforms/github-mcp/tasks/creation.md\` first" |
+
+#### Required: Sub-agent Task File Discovery Directive
+
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
+
+```
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
+```
+
+This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
+
+This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pipeline_phase`
+
+Plus skill-specific fields per the task routing table above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)

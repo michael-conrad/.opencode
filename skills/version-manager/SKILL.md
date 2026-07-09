@@ -54,10 +54,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Operating Protocol
 
-- [ ] 1. **Dynamic discovery:** Use grep with version-pattern regex across the entire project — no hardcoded file list
-- [ ] 2. **File type classification:** Classify each match by file type to determine correct update syntax
-- [ ] 3. **Semver bump logic:** breaking→major, added→minor, fix/other→patch
-- [ ] 4. **All locations updated:** Every discovered version string is updated — no partial updates
+See `version-manager/tasks/operating-protocol.md` for the full operating protocol.
 
 ## Sub-Agent Routing
 

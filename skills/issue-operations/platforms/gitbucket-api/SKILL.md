@@ -24,30 +24,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## TOOL_MISSING Detection
 
-Before any `gb` command, verify the tool is available:
-
-```bash
-if ! command -v gb &>/dev/null; then
-  echo "TOOL_MISSING: gb CLI not found. Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs"
-  return 1
-fi
-```
-
-## Version Check
-
-Verify `gb` version >= 0.6.1 before proceeding:
-
-```bash
-GB_VERSION=$(gb --version 2>/dev/null | grep -oP '[\d]+\.[\d]+\.[\d]+' | head -1)
-if [ -z "$GB_VERSION" ]; then
-  echo "VERSION_CHECK_FAILED: Could not determine gb version"
-  return 1
-fi
-if ! printf '%s\n' "0.6.1" "$GB_VERSION" | sort -V | head -1 | grep -q "^0.6.1$"; then
-  echo "VERSION_CHECK_FAILED: gb $GB_VERSION < required 0.6.1"
-  return 1
-fi
-```
+See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check procedures.
 
 ## Capability Manifest (gb CLI v0.6.1)
 
@@ -115,6 +92,74 @@ fi
 | `repository-operations` | When GitBucket repository CRUD is needed | Repository data, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `session-integration` | When GitBucket session init integration is needed | Session context, environment variables | Implementation context, agent memory | NO |
+
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read tasks/issue-operations.md then execute step 1" | "execute issue-operations task from gitbucket-api" |
+| Preloaded step sequences | "Step 1: call gb issue create. Step 2: add labels." | "execute issue-operations task from gitbucket-api" |
+| Preloaded expected outcomes | "Return { issue_number, html_url }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The issue was just drafted so we need to..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute issue-operations task from gitbucket-api" without task file path | "execute issue-operations task from gitbucket-api. Read \`issue-operations/platforms/gitbucket-api/tasks/issue-operations.md\` first" |
+
+#### Required: Sub-agent Task File Discovery Directive
+
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
+
+```
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
+```
+
+This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
+
+This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pipeline_phase`
+
+Plus skill-specific fields per the task routing table above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Authorization Labels (Platform-Supported)
 

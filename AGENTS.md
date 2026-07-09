@@ -189,6 +189,24 @@ When a skill task file references `.issues/{N}/` as a hard-coded path, the agent
 
 The `local-issues` tool handles this resolution automatically via qualified names (`.opencode#N` → `.opencode/.issues/`, `opencode-config#N` → `.issues/`). When using the tool, always use qualified names for mutations. When reading files directly, resolve the path manually using the session-init repo information.
 
+### `.issues/` Is a Worktree — NOT a Regular Directory
+
+**`.issues/` is a git worktree (orphan branch worktree), NOT a regular directory.** It lives at `.git/worktrees/-issues/` and is a completely separate git repository with its own `issues-data` branch. It is gitignored in the parent repo (`.gitignore` line 40: `.issues/`).
+
+**Any agent that tracks `.issues/` files in the parent repo's git is corrupting git state and breaking branches.**
+
+| ✅ CORRECT | 🚫 FORBIDDEN |
+|------------|---------------|
+| `.opencode/tools/local-issues <command>` | `read(filePath='.issues/46/spec.md')` |
+| `git -C <tree>/.issues/ <command>` | `write(filePath='.issues/46/spec.md')` |
+| | `git add .issues/` in parent repo |
+| | `edit(filePath='.issues/46/spec.md')` |
+| | `glob(pattern='.issues/**/*.md')` in parent repo |
+
+**The CLI tool handles git operations internally.** You do NOT need to run `git -C .issues` commands manually except for the one pull at session start. File operation tools (`read`, `write`, `edit`, `glob`, `grep`) target the parent repo — they do NOT reach into the worktree. Using them on `.issues/` paths silently operates on the wrong repository.
+
+**See `.issues/AGENTS.md` for the complete `.issues/` workspace guide.**
+
 ---
 
 ## Session Context

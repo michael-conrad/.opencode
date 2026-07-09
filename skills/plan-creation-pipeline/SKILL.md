@@ -62,14 +62,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 |------|----------------|
 | Any dispatch step | `task(..., prompt: "execute <step_label> from plan-creation-pipeline")` |
 
-Every task context MUST include the authorization context block:
-
-```yaml
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
+Every task context MUST include the authorization context block (see `plan-creation-pipeline/tasks/authorization-context.md`).
 
 ## Sub-Agent Routing
 

@@ -13,6 +13,8 @@ TDD enforcer. Routes RED-phase test writing and GREEN-phase implementation to se
 
 ## Five Core Principles
 
+See `test-driven-development/tasks/operating-protocol.md` for the Five Core Principles.
+
 ## Worktree Mode
 
 This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
@@ -38,80 +40,13 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "phase-4" / "post-regression" / "verify" | `phase-4` | `sub-task` | {spec_context} |
 | "validate-behavioral-prompt" / "validate prompt" / "check prompt" | `validate-behavioral-prompt` | `sub-task` | {prompt_text, sc_list} |
 
-- [ ] 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
-- [ ] 2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
-- [ ] 3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
-- [ ] 4. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
-- [ ] 5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
-- [ ] 6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
-
 ## TDD Heading Format Requirement
 
-All TDD task headings in plan documents MUST use the SC-ID parenthetical format:
-
-```text
-### TDD-<N>: <description> (SC-<ID>, SC-<ID>, ...)
-```
-
-### Examples
-
-**✅ CORRECT:**
-
-```text
-### TDD-1: Update sc-coherence-gate with evidence-type uplift scan (SC-6)
-### TDD-4: Add post-red-enforcement to routing table (SC-1, SC-5)
-```
-
-**🚫 INCORRECT:**
-
-```text
-### TDD-1: Update sc-coherence-gate with evidence-type uplift scan  ← missing SC-ID
-### TDD-4: Add post-red-enforcement: SC-1, SC-5  ← wrong format
-```
-
-### Enforcement
-
-The `pre-red-baseline` sub-agent parses plan TDD headings, extracts SC-IDs, and cross-references against the spec SC table. If any TDD heading references an SC-ID that does not exist in the spec, the gate returns BLOCKED with `MISSING-TRACEABILITY`.
-
-### SC-ID Extraction Contract
-
-| Field | Format | Required |
-|-------|--------|----------|
-| Prefix | `### TDD-<N>:` | Yes |
-| Description | Any text | Yes |
-| SC-ID reference | `(SC-<ID>, SC-<ID>, ...)` | Yes — must match spec SC table |
-| Multiple SC-IDs | Comma-separated | Optional |
-| Whitespace | Space after comma | Recommended |
+See `test-driven-development/tasks/operating-protocol.md` for the TDD heading format requirements and SC-ID extraction contract.
 
 ## ASCII Cycle Diagram
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    TDD CYCLE (per item)                  │
-│                                                         │
-│   PHASE 0 ──► RED ──► GREEN ──► REFACTOR ──► PHASE 4    │
-│   (baseline)   │        │          │         (verify)    │
-│       ▲        │  fails │ passes   │            │        │
-│       │        ▼        ▼          ▼            ▼        │
-│       │     BLOCKED  BLOCKED    REVERT       BLOCKED      │
-│       │     (fix or  (fix or    (bad        (2x fail     │
-│       │      halt)    halt)     refactor)    = halt)      │
-│       │                                                  │
-│       └──────────── CYCLE RESET ──────────────────────────┘
-│                                                          │
-│   Next item ──► back to Phase 0                         │
-└──────────────────────────────────────────────────────────┘
-```
-
-## Sequential Pair Mandate
-
-**RED/GREEN pairs execute sequentially.** When multiple RED/GREEN pairs exist (multiple implementation items), each RED must be immediately followed by its GREEN before the next RED begins. Running RED for multiple items before any GREEN starts is prohibited. The cycle is:
-
-```
-item-1-RED → item-1-GREEN → item-2-RED → item-2-GREEN → ...
-```
-
-Never `RED-ALL → GREEN-ALL`.
+See `test-driven-development/tasks/operating-protocol.md` for the TDD cycle diagram.
 
 ## Tasks
 
