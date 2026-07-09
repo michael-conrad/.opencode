@@ -139,30 +139,20 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
 
             if [ "$ALL_SUBMODULE_POINTERS" = "1" ]; then
                 echo ""
-                echo "BLOCKED: Submodule-pointer-only push prevented."
+                echo "HARD BLOCK: Submodule-pointer-only push prevented."
                 echo ""
-                echo "The branch '$LOCAL_BRANCH' contains only submodule pointer changes with no"
+                echo "The branch '$LOCAL_BRANCH' contains ONLY submodule pointer changes with no"
                 echo "parent-repo source code modifications. Submodule-only bump PRs are"
                 echo "against policy — they create review overhead with no functional change."
                 echo ""
-                echo "Local submodule pointer commits are fine — keep them."
+                echo "This is a HARD STOP — not a warning. You MUST add real code changes"
+                echo "to this branch before pushing. The submodule pointer update will be"
+                echo "included in your PR alongside the real implementation."
                 echo ""
-                echo "⚠ Submodule tag missing. Create one before continuing:"
-                for sp in $SUBMODULE_PATHS; do
-                    if [ -d "$sp" ]; then
-                        echo "  cd $sp"
-                        echo "  git tag -a \"$LOCAL_BRANCH\" -m \"Track submodule SHA for branch $LOCAL_BRANCH\""
-                        echo "  git push origin \"$LOCAL_BRANCH\""
-                    fi
-                done
+                echo "If you have no code changes to make, delete this branch:"
+                echo "  git checkout main && git branch -D $LOCAL_BRANCH"
                 echo ""
-                echo "To proceed:"
-                echo "  1. Continue implementation on this branch (edit source files)"
-                echo "  2. Commit your code changes"
-                echo "  3. Push again — the submodule pointer will accompany your code"
-                echo ""
-                echo "The submodule pointer update will be included in your PR alongside the"
-                echo "real implementation. No need to redo the pointer commit or tag."
+                echo "There is NO bypass for this gate. Do NOT create a submodule-only PR."
                 echo ""
                 ALLOWED=false
             fi

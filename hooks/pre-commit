@@ -50,7 +50,10 @@ GATE_EXIT_CODES+=($?)
   ALL_STAGED_IN_SUBMODULE=1
   for f in $STAGED_FILES_G3; do
     case "$f" in
-      .opencode/*) ;;
+      .opencode/*|.opencode)
+        # .opencode/* matches files inside submodule
+        # .opencode matches the gitlink entry (submodule pointer)
+        ;;
       *)
         ALL_STAGED_IN_SUBMODULE=0
         break
