@@ -25,43 +25,12 @@ Sub-Agent Task Context Audit
 All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }` with zero file paths. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in the implementation-pipeline SKILL.md Trigger Dispatch Table.
 
 ### Authorization Context Template
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
 
-### Routing Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
-- The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
+See `approval-gate/tasks/authorization-context.md` for the authorization context template and routing rules.
 
-### Column Validation Rules (Pre-Approval Gate Expansion)
+### Column Validation Rules
 
-The pre-approval gate validates the following columns in the spec's SC table. Each rule produces PASS or BLOCK with reason.
-
-| Column | Validation Rule | Block On | Apply To |
-|--------|----------------|----------|----------|
-| Pipeline Step Binding | Every SC MUST have a valid pipeline step binding matching a step in `implementation-pipeline` dispatch table | Missing, invalid, or misspelled step name | All specs |
-| Re-Entry Step | Every SC MUST declare a re-entry step. For single-task specs, may be `null`. For multi-phase, MUST reference a valid step within the bound phase | Missing for multi-phase, or references step outside phase scope | All specs |
-| Verification Gate | Every SC's Verification Gate MUST be consistent with its Evidence Type per the Evidence Type Taxonomy: `behavioral` → pre-commit, `semantic` → pre-PR, `string` → CI, `structural` → none | EVIDENCE_TYPE_MISMATCH — behavioral SC with CI gate, etc. | All specs |
-| Artifact Path | Every SC with a non-structural evidence type MUST declare an artifact path. Structural SCs MAY omit | Missing when evidence type is behavioral/semantic/string | All specs |
-| Phase Binding | Every SC MUST declare a phase binding matching a phase in the spec's Phase section. Cross-cutting SCs use `common` | Phase name not found in spec phases, or `common` used for non-cross-cutting SC | Multi-phase specs only |
-
-### Pre-Approval Gate Column Validation
-
-When running the pre-approval gate for standard/complex specs, validate the following columns in the SC table:
-
-| Column | Validation Rule | Error on Violation |
-|--------|----------------|---------------------|
-| Pipeline Step Binding | MUST specify which pipeline step validates this SC | BLOCK |
-| Re-Entry Step | MUST specify re-entry point on verification failure | BLOCK |
-| Verification Gate | MUST be one of: red-green, pre-commit, ci | BLOCK |
-| Artifact Path | MUST use `{project_root}/tmp/{issue-N}/` convention | BLOCK |
-| Phase Binding | MUST annotate phase for multi-phase specs | FLAG (conditional) |
-
-For `for_spec` scope, only minimal-tier requirements enforced (Pipeline Step Binding, Re-Entry Step).
+See `approval-gate/tasks/column-validation.md` for the pre-approval gate column validation rules.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

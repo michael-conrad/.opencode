@@ -58,32 +58,11 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Operating Protocol
 
-- [ ] 1. **Explicit instruction required** unless `authorization_scope >= for_pr`.
-- [ ] 2. **Base branch = target branch** for feature PRs.
-- [ ] 3. **Squash verified** before PR (single commit for single-issue).
-- [ ] 4. **Changelog generated** before PR.
-- [ ] 5. **Adversarial-audit call:** after pre-pr-checklist, call `audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
-- [ ] 6. **No agent merge** — human-only operation.
-- [ ] 7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
-- [ ] 8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
-- [ ] 9. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
-- [ ] 10. **Release PR body format:** version summary line + changelog entries + compare link.
+See `pr-creation-workflow/tasks/operating-protocol.md` for the full operating protocol and authorization context.
 
 ## Sub-Agent Routing
 
 Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
-
-### Authorization Context
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
-
-### Routing Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

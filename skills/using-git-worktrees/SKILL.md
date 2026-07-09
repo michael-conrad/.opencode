@@ -59,10 +59,7 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Operating Protocol
 
-- [ ] 1. **Opt-in only** — created when `WORKTREE_REQUIRED` or developer requests.
-- [ ] 2. **Safety verification:** confirm git worktree add succeeded, verify path is writable.
-- [ ] 3. **Path resolution:** `worktree.path` set; all file ops prefix paths.
-- [ ] 4. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+See `using-git-worktrees/tasks/operating-protocol.md` for the full operating protocol.
 
 ## Sub-Agent Routing
 

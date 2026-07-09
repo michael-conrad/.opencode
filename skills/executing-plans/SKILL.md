@@ -55,30 +55,11 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Operating Protocol
 
-- [ ] 1. **Requires plan_issue** in task context. HALT if absent.
-- [ ] 2. **Route to implementation-pipeline** with full context.
-- [ ] 3. **Track phase progress** against plan sub-issues.
-- [ ] 4. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
-
-## Received Context
-
-From approval-gate: `{ plan_issue, spec_issue, authorization_scope, halt_at, worktree.path, phase_progress, github.owner, github.repo }`.
+See `executing-plans/tasks/operating-protocol.md` for the full operating protocol and authorization context.
 
 ## Sub-Agent Routing
 
 Sub-agents run via `task(subagent_type="general")`. `execute` receives plan context + session vars. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
-
-### Authorization Context
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
-
-### Routing Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

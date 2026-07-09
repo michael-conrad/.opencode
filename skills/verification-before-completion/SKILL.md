@@ -65,30 +65,11 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Operating Protocol
 
-- [ ] 1. **Structural completeness first:** verify all specified files/components exist before SC verification.
-- [ ] 2. **Adversarial-audit call:** during verify task, call `audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
-- [ ] 3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
-- [ ] 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
-- [ ] 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
-- [ ] 6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
-- [ ] 7. **Behavioral test evaluation:** After `behavior_run` produces artifacts, the orchestrator MUST dispatch `behavioral-test-evaluation` to evaluate artifacts via clean-room sub-agents. "Artifact generated" is NOT a valid PASS verdict for behavioral SCs — artifacts MUST be evaluated by clean-room sub-agents before any PASS claim.
-- [ ] 8. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+See `verification-before-completion/tasks/operating-protocol.md` for the full operating protocol and authorization context.
 
 ## Sub-Agent Routing
 
 All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
-
-### Authorization Context
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
-
-### Routing Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

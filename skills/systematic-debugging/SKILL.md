@@ -55,13 +55,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Operating Protocol
 
-- [ ] 1. **Read-only during diagnosis:** no code changes until root cause identified.
-- [ ] 2. **Bug discovery ≠ authorization:** new bugs reported as issues, not fixed inline.
-- [ ] 3. **Hypothesis must be verified** against live evidence before proceeding.
-- [ ] 4. **Fix targets root cause, not symptoms.**
-- [ ] 5. **Fix requires authorization** per `approval-gate`.
-- [ ] 6. **No scope creep:** fix only what diagnosis identified.
-- [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+See `systematic-debugging/tasks/operating-protocol.md` for the full operating protocol.
 
 ## Sub-Agent Routing
 

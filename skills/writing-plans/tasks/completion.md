@@ -5,7 +5,7 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 ## State Check Phase
 
 - [ ] 1. **Plan files created:** Verify plan index exists at `{N}/plan.md` and all phase files exist at `{N}/plan-{NN}-*.md` (for multi-phase), or single `{N}/plan.md` (for single-phase)
-- [ ] 2. **Sub-issues created:** For multi-task plans, verify sub-issues created under the plan
+- [ ] 2. **Phase files created:** For multi-phase plans, verify phase files exist at `{N}/plan-{NN}-*.md` (local `.issues/` artifacts — NOT GitHub Issues)
 - [ ] 3. **Self-review completed:** Verify self-review checklist was run (coverage, placeholders, type consistency)
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with plan URL
 
@@ -15,9 +15,9 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
    - Check evidence for plan index at `{N}/plan.md` and phase files at `{N}/plan-{NN}-*.md`
    - If missing: report as blocker — plan files must exist before completion
 
-- [ ] 2. **Sub-issues** (if multi-task and not already created):
-   - Check evidence for sub-issue creation under the plan
-   - If missing: report as blocker — sub-issues must exist before completion
+- [ ] 2. **Phase files** (if multi-phase and not already created):
+   - Check evidence for phase files at `{N}/plan-{NN}-*.md` (local `.issues/` artifacts — NOT GitHub Issues)
+   - If missing: report as blocker — phase files must exist before completion
 
 - [ ] 3. **Self-review** (if not already performed):
    - Check evidence for self-review checklist completion

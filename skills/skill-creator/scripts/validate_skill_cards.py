@@ -17,6 +17,7 @@ Validates SKILL.md files per spec #1124:
   REQ-2: Placeholder enforcement (no hardcoded identity values)
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
   REQ-4: Mandatory Task Discipline admonishment presence (5-item checklist)
+  REQ-6: DISPATCH_GATE section completeness (6 canonical subsections)
 
 Usage:
     uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py           # validate
@@ -363,6 +364,20 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
     return violations
 
 ADMONISHMENT_HEADING_RE = re.compile(r"^##\s+Mandatory\s+Task\s+Discipline", re.MULTILINE)
+DISPATCH_GATE_HEADING_RE = re.compile(
+    r"^#{2,3}\s+DISPATCH_GATE", re.MULTILINE
+)
+DISPATCH_OPT_OUT_RE = re.compile(
+    r"#\s*no-dispatch-gate\b", re.IGNORECASE
+)
+DISPATCH_GATE_SUBSECTIONS = [
+    r"Context cost frame",
+    r"Forbidden in task\(\) Prompts",
+    r"Required:\s*Sub-agent Task File Discovery Directive",
+    r"Dispatch Context Contract",
+    r"Sub-Agent Entry Criteria",
+    r"Orchestrator Entry Criteria",
+]
 
 def validate_req5(name: str, body: str, file_path: str) -> list[Violation]:
     violations: list[Violation] = []
@@ -376,6 +391,34 @@ def validate_req5(name: str, body: str, file_path: str) -> list[Violation]:
                 file_path=file_path,
             )
         )
+    return violations
+
+def validate_req6(name: str, body: str, file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    if DISPATCH_OPT_OUT_RE.search(body):
+        return violations
+    if not DISPATCH_GATE_HEADING_RE.search(body):
+        violations.append(
+            Violation(
+                "REQ-6",
+                name,
+                "dispatch-gate",
+                "Missing 'DISPATCH_GATE' section",
+                file_path=file_path,
+            )
+        )
+        return violations
+    for subsection in DISPATCH_GATE_SUBSECTIONS:
+        if not re.search(subsection, body, re.MULTILINE | re.IGNORECASE):
+            violations.append(
+                Violation(
+                    "REQ-6",
+                    name,
+                    "dispatch-gate-subsection",
+                    f"Missing DISPATCH_GATE subsection: '{subsection}'",
+                    file_path=file_path,
+                )
+            )
     return violations
 
 def validate_card(card_path: Path, root: Path) -> list[Violation]:
@@ -416,6 +459,7 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req2(name, content, rel_path))
     violations.extend(validate_req3(name, body, rel_path))
     violations.extend(validate_req5(name, body, rel_path))
+    violations.extend(validate_req6(name, body, rel_path))
     return violations
 
 def violation_to_dict(v: Violation) -> dict:

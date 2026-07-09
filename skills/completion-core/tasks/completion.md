@@ -1,51 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-generated -->
-
-# Task: completion
-
-Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
-
-## Purpose
-
-Push changes, generate issue/PR URLs, append lifecycle event, and produce executive summary output for the orchestrator pipeline.
-
-## Default Branch Resolution
-
-```bash
-DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
-```
-
-## Authorization Context
-
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pipeline_phase: <current_phase_name>
-```
-
-### Task Context Rules
-- Missing `authorization_scope` in task context -> return `status: BLOCKED`
-- Instructed to exceed `halt_at` -> return `status: BLOCKED`
+# Completion Core — Shared Completion Operations
 
 ## Entry Criteria
 
-- Feature branch exists with committed changes
-- Authorization scope covers current `halt_at` boundary
-- git remote verified (if pushing is expected)
-
-## Exit Criteria
-
-- Changes pushed to remote (if `halt_at >= pr_created`)
-- Compare URL generated with correct base branch
-- Lifecycle event appended to `{project_root}/tmp/{issue-N}/lifecycle.yaml`
-- Executive summary output produced
-- Byline verified in all posted content
+- verification-before-completion PASS required before any completion operation
+- Workflow state is known (issue_number, branch_name, workflow_type)
 
 ## Procedure
 
-### Step 1: Push Changes
+### 1. Push Branch (Idempotent)
 
 Check whether the branch has unpushed commits before pushing:
 
@@ -58,23 +20,31 @@ else
 fi
 ```
 
-- Use `git push -u origin <branch>` if branch not yet tracking remote
-- Use `git push` if branch already tracking remote
+If no remote tracking branch exists yet, `git push -u origin <branch>` creates it.
 
-### Step 2: Generate Compare URL
+### 2. Generate URL
+
+Two URL patterns depending on workflow type:
+
+**Compare URL** (for git push workflows — implementation, git-workflow, finishing):
 
 Construct from session-init values with character-match verification:
 
-- [ ] 1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session context
-- [ ] 2. Construct: `<html_url>/<owner>/<repo>/compare/$DEFAULT_BRANCH...<branch>` using the platform's base URL from session-init
-- [ ] 3. **Character-match verification:** Confirm `<github.owner>` and `<github.repo>` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
-- [ ] 4. If any mismatch: HALT and report
+1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session init
+2. Construct: `<html_url>/<owner>/<repo>/compare/$DEFAULT_BRANCH...<branch>` using the platform's base URL from session-init
+3. **Character-match verification:** Confirm `GIT_OWNER` and `GIT_REPO` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
+4. If any mismatch: HALT and report
 
 ```bash
 COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/$DEFAULT_BRANCH...$(git branch --show-current)"
 ```
 
-### Step 3: Append Lifecycle Event
+**Action URL** (for creation workflows — issue creation, approval gate):
+
+- **Issue URL:** Extract from `issue-operations -> update-issue` API response `html_url` field — NEVER construct from template
+- **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
+
+### 3. Append Lifecycle Event
 
 Append a completion event to the lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml`:
 
@@ -82,95 +52,42 @@ Append a completion event to the lifecycle manifest at `{project_root}/tmp/{issu
   - event: step_completed
     timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
     issuer: <AgentName> (<ModelId>)
-    step: exec-summary
+    step: <step_label>
     status: PASS
-    description: "<brief summary of what was completed>"
+    description: "<brief summary>"
     severity: info
 ```
 
 The lifecycle manifest is append-only. Never delete or edit existing entries.
 
-### Step 4: Executive Summary Output
+### 4. Report Executive Summary in Chat (Always Runs)
 
-Produce structured output in chat:
+Chat output is idempotent by nature. Always produce:
 
 ```
-**Summary:** <what was completed>
+**Summary:**
 
-**Branch:** <branch_name>
+<1-2 sentences describing the impact and stakeholder value.>
 
-**Compare URL:** <url> (if pushed)
+**Outcome:** <What changed for stakeholders>
 
-**Status:** <halt_at boundary reached>
-
-**Next:** <what authorization is needed to proceed>
+<URL if applicable, ALWAYS LAST>
 ```
 
-URL is ALWAYS last per `000-critical-rules.md`.
-
-### Step 5: Z3 State Update
-
-Record completion position in the pipeline state machine:
-
-```bash
-solve state update {project_root}/tmp/{issue-N}/state/ \
-    --var-name pipeline_state \
-    --var-value complete \
-    --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-```
+**URL is ALWAYS last** per `000-critical-rules.md`.
 
 ## Idempotency Summary
 
-| Operation | Idempotency Mechanism |
-|-----------|----------------------|
-| Push branch | Check `git log origin/..HEAD` before pushing |
-| Generate URL | Construct from session-init values — deterministic |
-| Append lifecycle event | Append-only — always adds new entry |
-| Report executive summary | Always run; idempotent by nature |
-| Z3 state update | `--var-value complete` is idempotent |
+| Operation | Idempotency Mechanism | Applies To |
+| -- | -- | -- |
+| Push branch | Check `git log origin/..HEAD` before pushing | Git workflows only |
+| Generate URL | Check if URL already generated; compare URL for pushes, action URL for creation workflows | All workflows |
+| Append lifecycle event | Append-only — always adds new entry | All workflows |
+| Report executive summary + URL | Always run; idempotent by nature | All workflows |
 
-## Error Handling
+## Exit Criteria
 
-| Error | Action |
-|-------|--------|
-| Push fails (no remote) | Skip push, report local-only |
-| Push fails (auth error) | Report auth failure, ask developer |
-| No changes to push | Skip push step |
-| URL generation fails | Report manually |
-| Lifecycle event append fails | Report failure, include summary in chat only |
-
-## Result Contract
-
-```yaml
-status: DONE | BLOCKED
-pushed: true | false
-compare_url: "<url>" | null
-lifecycle_event_appended: true | false
-summary: "<1-3 sentence summary>"
-```
-
-## Artifact Output
-
-Write the result contract to:
-```
-{project_root}/tmp/{issue-N}/artifacts/pipeline-exec-summary-{STATUS}-{timestamp}.yaml
-```
-
-Following the #932 naming convention per the implementation-pipeline SKILL.md Trigger Dispatch Table.
-
-## Live Verification: Completion Evidence (MANDATORY)
-
-| Claim | Verification Action | Tool Call |
-|-------|-------------------|-----------|
-| "Changes pushed" | Verify remote tracking branch exists | `git status` / `git log origin/HEAD..HEAD` |
-| "Compare URL valid" | Verify owner and repo character-match | Compare against session-init values |
-| "Comment routed" | Verify lifecycle event appended | `grep -c "event:" {project_root}/tmp/{issue-N}/lifecycle.yaml` |
-| "Byline present" | Verify byline is last substantive line | Read posted comment text |
-
-## Cross-References
-
-- `git-workflow --task review-prep`
-- `git-workflow --task pr-creation`
-- `implementation-pipeline/SKILL.md` — Trigger Dispatch Table
-- `000-critical-rules.md` — URL ALWAYS last requirement
-- `080-code-standards.md` — AI Co-Authored Attribution
+- Branch pushed (if applicable)
+- URL generated and verified
+- Lifecycle event appended
+- Executive summary reported in chat

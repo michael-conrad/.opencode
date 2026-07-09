@@ -54,10 +54,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Operating Protocol
 
-- [ ] 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
-- [ ] 2. **Annotated tags:** Always use `git tag -a` with a message
-- [ ] 3. **Release body:** Changelog entries for that version (standard GitHub practice)
-- [ ] 4. **Post-merge only:** Only create tags after the release PR has merged
+See `release-promoter/tasks/operating-protocol.md` for the full operating protocol.
 
 ## Sub-Agent Routing
 
