@@ -1,6 +1,6 @@
 # submodule-tag-prework
 
-Tag submodules at dev tip BEFORE feature branch creation. Uses the unified tag convention from `git-workflow/SKILL.md` §Tag Convention.
+Tag submodules at trunk tip BEFORE feature branch creation. Uses the unified tag convention from `git-workflow/SKILL.md` §Tag Convention.
 
 **Suffix Rule:** Tag suffix MUST be derived from submodule directory name in `.gitmodules` (e.g., `.opencode` → `-opencode`). DO NOT use issue title, phase name, or any ad-hoc string.
 
@@ -8,13 +8,13 @@ Tag submodules at dev tip BEFORE feature branch creation. Uses the unified tag c
 
 ## Procedure
 
-1. `git checkout dev && git pull` — Sync main branch to dev tip
+1. `git checkout "$DEFAULT_BRANCH" && git pull` — Sync main branch to trunk tip
 2. For each submodule path in `.gitmodules`:
-   a. `cd <path> && git checkout dev && git pull` — Sync submodule to dev tip
+   a. `cd <path> && git checkout "$DEFAULT_BRANCH" && git pull` — Sync submodule to trunk tip
    b. Capture SHA: `CURRENT_SHA=$(git rev-parse HEAD)`
    c. Resolve suffix: `SUBMODULE_SUFFIX=$(basename <path>)` (e.g., `.opencode` → `-opencode`)
    d. **Idempotent check:** `git tag --points-at "$CURRENT_SHA" | grep -q "<parent-repo>/$ISSUE-"` — if match exists, skip tagging (duplicate prevention)
-   e. `git tag -a "<parent-repo>/<issue-number>-<submodule>" -m "Pre-work: <path> at dev tip for issue #<issue-number>"` — Tag BEFORE branch creation
+   e. `git tag -a "<parent-repo>/<issue-number>-<submodule>" -m "Pre-work: <path> at trunk tip for issue #<issue-number>"` — Tag BEFORE branch creation
    f. `git push origin "<parent-repo>/<issue-number>-<submodule>"`
    g. Verify: `git ls-remote --tags origin "<parent-repo>/<issue-number>-<submodule>"` shows the SHA
 

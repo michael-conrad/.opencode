@@ -15,7 +15,7 @@ Create an annotated git tag with v prefix on the merge commit and push it to the
 
 Verify the release PR has actually merged:
 - Check `git log --oneline -1` to confirm we're on the merge commit
-- If on a feature branch, checkout the target branch (main/dev) and pull latest
+- If on a feature branch, checkout the target branch (the trunk) and pull latest
 
 ### Step 2: Create Annotated Tag
 

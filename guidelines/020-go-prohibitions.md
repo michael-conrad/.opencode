@@ -37,7 +37,7 @@ load_when: sub-agent
   - "That makes sense, let's do it" → verbal agreement, NOT explicit authorization
   - "This looks like it should be X" → observation, NOT "make it X"
 - **Questions are NOT authorization.** "Should I do X?" and "Would you like me to X?" are questions seeking permission, not receiving it. Never act on a question — wait for explicit authorization.
-- **Rhetorical and complaint questions are NOT authorization.** "How can we work if we never merge into dev?" is a complaint about process, NOT authorization to merge. "Why hasn't X been done?" is a question, NOT authorization to do X. Treat ALL questions as observation-only.
+- **Rhetorical and complaint questions are NOT authorization.** "How can we work if we never merge into the trunk?" is a complaint about process, NOT authorization to merge. "Why hasn't X been done?" is a question, NOT authorization to do X. Treat ALL questions as observation-only.
 - **SILENTLY HALT after every task/report.** Factual reporting is permitted, but it must NEVER be followed by a prompt for next steps.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
@@ -162,7 +162,7 @@ Under `for_analysis` scope:
 - **`feature/*` and `spec/*` branches are BLOCKED.** Creating these branches requires `for_implementation` or above.
 - **`observe/*` branches ARE permitted.** Naming convention: `observe/<topic>` (e.g., `observe/parsing-bug`).
 - **`observe/*` branches MUST be discarded before HALT.** Never leave an `observe/` branch in the repo. Delete it with `git branch -D observe/<topic>` before the halt message.
-- **No commits to `dev` or `main`** (this is always prohibited regardless of scope).
+- **No commits to the trunk** (this is always prohibited regardless of scope).
 
 #### Why `observe/` Branches Exist
 
@@ -214,10 +214,10 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   - ✅ REQUIRED: Return `status: BLOCKED with reason: PRELOADED_CONTEXT_REJECTED`
   - **EXCEPTION — Auditor SC_CONFLICT protocol:** Auditors performing SC_CONFLICT detection do NOT apply PRELOADED_CONTEXT_REJECTED to inline SCs. Instead they apply the SC_CONFLICT protocol: fetch spec independently, compare caller SCs against spec SCs, BLOCKED on conflict with `reason: SC_CONFLICT`, accept superset SCs without blocking, proceed using spec's own SCs when no inline SCs provided. This exception is scoped exclusively to auditor sub-agents performing spec audits.
 <!-- #862,#863,#864: Critical-rules-049 standalone submodule-only PR prohibition — CRITICAL VIOLATION -->
-- **NEVER create a submodule-only PR during cleanup (Tier 1 — CRITICAL VIOLATION).** When the parent repo has dirty submodule pointer(s) (`git status` shows modified submodules), the agent MUST NOT create a feature branch + PR solely to update those pointers. This applies during cleanup or at any point after PR merge. **NO dev commits either** — the dirty pointer(s) are left dirty, period. Submodule pointers are restored to dev tip during the next pre-work cycle via the tag-based hash permanence system. See `git-workflow` cleanup task Step 1.7 for the complete prohibition.
+- **NEVER create a submodule-only PR during cleanup (Tier 1 — CRITICAL VIOLATION).** When the parent repo has dirty submodule pointer(s) (`git status` shows modified submodules), the agent MUST NOT create a feature branch + PR solely to update those pointers. This applies during cleanup or at any point after PR merge. **NO dev commits either** — the dirty pointer(s) are left dirty, period. Submodule pointers are restored to trunk tip during the next pre-work cycle via the tag-based hash permanence system. See `git-workflow` cleanup task Step 1.7 for the complete prohibition.
   - 🚫 FORBIDDEN: `git checkout -b feature/submodule-pointer-*` and opening a PR
   - 🚫 FORBIDDEN: Any PR whose only changed files are submodule pointer updates (regardless of submodule count)
-  - 🚫 FORBIDDEN: Committing dirty pointer(s) to dev
+  - 🚫 FORBIDDEN: Committing dirty pointer(s) to the trunk
   - 🚫 FORBIDDEN: Rationalizing "this is just a pointer update, not real code"
   - 🚫 FORBIDDEN: Using critical-rules-049 (submodule-only-PR prohibition) as a rationalization to skip `git-workflow --task cleanup` dispatch on "pr merged" triggers. The prohibition applies to PR creation only — it does NOT exempt cleanup dispatch.
   - ✅ CORRECT: Leave dirty pointer(s) untouched — they resolve on next pre-work cycle

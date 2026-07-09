@@ -246,7 +246,7 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 **⚠️ CRITICAL: Sub-issues are closed by the cleanup task via API, NOT by platform autoclose.**
 
-GitHub autoclose is inert for this repo (PRs merge to `dev`, not `main`). The cleanup task is the SOLE closure mechanism.
+GitHub autoclose is inert for this repo (PRs merge to the trunk). The cleanup task is the SOLE closure mechanism.
 
 ## Issue Closure Timing
 

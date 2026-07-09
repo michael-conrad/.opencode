@@ -121,7 +121,7 @@ When `worktree.path` is set, ALL file operation tool calls (`read`, `edit`, `wri
 
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
-| On correct branch | `git branch --show-current` | Feature branch (not `main`/`$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
+| On correct branch | `git branch --show-current` | Feature branch (not the trunk) | STRUCTURE-VIOLATION → HALT |
 | Worktree location | `git rev-parse --show-toplevel` | Worktree path | STRUCTURE-VIOLATION → HALT |
 | Changes to commit | `git status --porcelain` | Expected modified files listed | MISSING-ELEMENT → no changes found |
 | Staged state matches intent | `git diff --staged` | Intended changes visible | VERIFICATION-GAP → re-stage |

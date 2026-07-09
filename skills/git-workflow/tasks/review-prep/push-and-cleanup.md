@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Clean temp files, handle submodule push automation, rebase on current dev, and verify branch is pushed to remote — all prerequisite steps before generating the compare URL.
+Clean temp files, handle submodule push automation, rebase on current trunk, and verify branch is pushed to remote — all prerequisite steps before generating the compare URL.
 
 ## Default Branch Resolution
 
@@ -20,7 +20,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 - Temp files cleaned
 - Submodule changes pushed (if applicable)
-- Branch rebased on current dev
+- Branch rebased on current trunk
 - Branch pushed to remote with tracking
 
 ## Procedure
@@ -84,7 +84,7 @@ rm -rf {project_root}/tmp/{issue-N}/temp_*.py {project_root}/tmp/{issue-N}/test_
 rm -rf {project_root}/tmp/{issue-N}/.cache 2>/dev/null
 ```
 
-### Step 1.5: Rebase on Current Dev (MANDATORY)
+### Step 1.5: Rebase on Current Trunk (MANDATORY)
 
 ```bash
 git fetch origin

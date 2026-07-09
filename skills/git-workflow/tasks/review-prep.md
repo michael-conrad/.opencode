@@ -54,14 +54,14 @@ fi
 
 **Route to:** `review-prep/push-and-cleanup`
 
-Tasks sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
+Tasks sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current trunk, worktree handoff, and branch push verification.
 
 ### Step 2.5: Squash Verification (MANDATORY GATE)
 
 **Before generating the compare URL, verify the commit-per-issue invariant.** This gate catches unsquashed branches before the compare URL is exposed to the developer.
 
 ```bash
-# Count commits ahead of dev
+# Count commits ahead of trunk
 git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
 
 # Detect branch type

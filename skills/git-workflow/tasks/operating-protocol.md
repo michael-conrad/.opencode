@@ -8,14 +8,14 @@
 ## Procedure
 
 - [ ] 1. **Worktree first:** set `worktree.path` before file ops (direct-branch mode when `WORKTREE_REQUIRED` not set).
-- [ ] 2. **Protected branches:** never commit to `main`.
+- [ ] 2. **Protected branches:** never commit to the trunk.
 - [ ] 3. **Squash discipline:** squash ONLY at PR creation, not during feature dev.
 - [ ] 4. **Clean-room content diff:** before branch deletion, verify content exists on target branch.
-- [ ] 5. **Compare URL base:** feature → `compare/<target>...<branch>`. Release → `compare/main...<target>`.
+- [ ] 5. **Compare URL base:** feature → `compare/<target>...<branch>`. Release → `compare/$DEFAULT_BRANCH...<target>`.
 - [ ] 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 - [ ] 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
 - [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
-- [ ] 9. **Release branches:** use `release/v{semver}` naming convention. Release PRs use `compare/main...<target>` compare URL.
+- [ ] 9. **Release branches:** use `release/v{semver}` naming convention. Release PRs use `compare/$DEFAULT_BRANCH...<target>` compare URL.
 - [ ] 10. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
 - [ ] 11. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 

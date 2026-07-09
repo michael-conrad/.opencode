@@ -20,7 +20,7 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 **PR strategy check (from scope fields):** Read `pr_strategy` from the work state file. When `pr_strategy == stacked`, use work PR format regardless. When `pr_strategy == none`, HALT — PR creation not authorized.
 
-**Note:** GitHub autoclose (`Fixes #N`/`Closes #N`) does NOT trigger for PRs merging into `dev`. The cleanup task (`git-workflow --task cleanup`) is the sole closure mechanism. PR body keywords are informational labels for human readers.
+**Note:** GitHub autoclose (`Fixes #N`/`Closes #N`) does NOT trigger for PRs merging into the trunk. The cleanup task (`git-workflow --task cleanup`) is the sole closure mechanism. PR body keywords are informational labels for human readers.
 
 ### Multi-Task Spec with Sub-Issues
 

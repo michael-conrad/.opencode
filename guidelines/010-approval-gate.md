@@ -124,7 +124,7 @@ Defines where the pipeline halts after a given authorization scope and the PR st
 
 #### Scope-Dependent PR Strategy
 
-- **stacked:** Feature PR targets dev. No PR for spec/plan-only scopes.
+- **stacked:** Feature PR targets the trunk. No PR for spec/plan-only scopes.
 - **none:** No PR — only spec or plan creation.
 
 ### Multi-Task Plan Authorization (CRITICAL)
@@ -218,7 +218,7 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 - Writing to `src/`, `test/`, or any permanent project directory
 - Creating feature branches (`feature/*`, `spec/*`)
 - Creating pull requests
-- Committing to `dev` or `main`
+- Committing to the trunk (`$DEFAULT_BRANCH`)
 - Closing issues after PR merge
 - Deleting branches (except discarding `observe/*` branches)
 - Fixing bugs (requires `for_implementation` or above)

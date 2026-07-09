@@ -57,7 +57,7 @@ Before squash and push, verify dirty submodule pointers are included in staged c
 
 **Route to:** `pr-creation/squash-push`
 
-Generates changelog (or skips with `[skip changelog]`), squashes commits, rebases on current dev, and pushes to remote with verification.
+Generates changelog (or skips with `[skip changelog]`), squashes commits, rebases on current trunk, and pushes to remote with verification.
 
 ### Step 5-7: Collect Sub-Issues, Create PR, Extract URL
 

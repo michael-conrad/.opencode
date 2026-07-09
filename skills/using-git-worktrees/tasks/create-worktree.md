@@ -16,7 +16,7 @@ State clearly: "Using the using-git-worktrees skill to set up an isolated worksp
 
 ### 2. Sync with Base Branch
 
-Create worktrees from an up-to-date base branch. The default base is the remote HEAD branch (typically `main`), but for work execution workflows where a work branch already exists, the base can be the work branch or another feature branch:
+Create worktrees from an up-to-date base branch. The default base is the remote HEAD branch (the trunk), but for work execution workflows where a work branch already exists, the base can be the work branch or another feature branch:
 
 ```bash
 git checkout $BASE_BRANCH

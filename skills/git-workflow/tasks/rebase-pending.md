@@ -14,16 +14,16 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 ## Operating Protocol
 
 - [ ] 1. **After merge verification:** Run immediately after Step 2 (verify PR merge) in cleanup
-- [ ] 2. **Before dev sync:** Must complete before Step 3 (switch to dev and sync)
+- [ ] 2. **Before trunk sync:** Must complete before Step 3 (switch to trunk and sync)
 - [ ] 3. **Sequential processing:** Rebase one PR at a time to avoid collisions
 - [ ] 4. **Force-push after rebase:** Rebased branches must be force-pushed to update remote PRs
-- [ ] 5. **Submodule re-sync after rebase:** Every rebase against `dev` MUST be followed by submodule sync — this is always-on hygiene
+- [ ] 5. **Submodule re-sync after rebase:** Every rebase against `$DEFAULT_BRANCH` MUST be followed by submodule sync — this is always-on hygiene
 
 ## Entry Criteria
 
 - PR merge verified via GitHub API (Step 2 of cleanup complete)
 - `merged_at` timestamp confirmed on the just-merged PR
-- Local dev branch is up to date (`git pull origin "$DEFAULT_BRANCH"`)
+- Local trunk branch is up to date (`git pull origin "$DEFAULT_BRANCH"`)
 
 ## Exit Criteria
 
@@ -79,7 +79,7 @@ For each pending PR:
 ```
 a. Fetch latest remote: git fetch origin
 b. Checkout the PR branch: git checkout <branch-name>
-c. Rebase onto updated dev: git rebase origin/"$DEFAULT_BRANCH"
+c. Rebase onto updated trunk: git rebase origin/"$DEFAULT_BRANCH"
 d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"
    - Do NOT skip this step — rebase may change submodule references
 e. Handle outcome:
@@ -94,7 +94,7 @@ a. Fetch latest remote: git fetch origin
 b. Create temporary worktree for the PR branch:
    git worktree add .worktrees/rebase-<branch-name> -b <branch-name> origin/<branch-name>
    (If branch already has a worktree, use existing)
-c. In worktree, rebase onto updated dev:
+c. In worktree, rebase onto updated trunk:
    git rebase origin/"$DEFAULT_BRANCH"
 d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"
 e. Handle outcome:
@@ -115,7 +115,7 @@ git worktree remove "$WORKTREE_PATH"
 
 **Important:** Always clean up temporary worktrees between PRs. Never leave rebase worktrees dangling.
 
-**Submodule re-sync is MANDATORY after every rebase:** After `git rebase origin/"$DEFAULT_BRANCH"`, run `git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"` to realign submodules with the updated dev state. Skipping this causes drift that breaks builds and tests.
+**Submodule re-sync is MANDATORY after every rebase:** After `git rebase origin/"$DEFAULT_BRANCH"`, run `git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"` to realign submodules with the updated trunk state. Skipping this causes drift that breaks builds and tests.
 
 ### Step 3: Conflict Classification
 
@@ -266,7 +266,7 @@ Continuing with cleanup for the merged PR...
 
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
-| On correct branch | `git branch --show-current` | PR branch name (not `main`/`$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
+| On correct branch | `git branch --show-current` | PR branch name (not the trunk) | STRUCTURE-VIOLATION → HALT |
 | Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
 | Dev is up to date | `git fetch origin && git log --oneline origin/"$DEFAULT_BRANCH" -1` | Recent SHA, post-merge | MISSING-ELEMENT → re-fetch |

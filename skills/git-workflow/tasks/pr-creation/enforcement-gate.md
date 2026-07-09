@@ -29,7 +29,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 **If submodules detected:**
 
-The orchestrator dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+The orchestrator dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote trunk HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
 
 #### Task Context
 
@@ -115,7 +115,7 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 **This gate enforces the commit-per-issue invariant.** Creating a PR with an incorrect commit count is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR.
 
 ```bash
-# Count commits ahead of dev
+# Count commits ahead of trunk
 git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
 
 # Detect branch type via work state file
@@ -172,7 +172,7 @@ gh pr list --head <branch_name> --state open --json number,html_url
 - The developer must explicitly say "use the closed PR" for it to be considered.
 
 **If a MERGED PR exists on this branch:**
-- Rebase branch on dev, check for remaining changes
+- Rebase branch on trunk, check for remaining changes
 - If branch already merged (no remaining changes):
   ```
   ✅ BRANCH ALREADY MERGED

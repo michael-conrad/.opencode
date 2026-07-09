@@ -306,7 +306,7 @@ After committing the submodule pointer, if the branch has NO additional commits 
 NON_SUBMODULE_COMMITS=$(git log origin/"$DEFAULT_BRANCH"..HEAD --oneline --name-only | grep -v '^[0-9a-f]\{7\} ' | grep -v '^$' | grep -v '^\.opencode$' | wc -l)
 if [ "$NON_SUBMODULE_COMMITS" -eq 0 ]; then
   echo "HARD BLOCK: Branch has only submodule pointer changes."
-  echo "Delete this branch: git checkout main && git branch -D <branch>"
+  echo "Delete this branch: git checkout \"$DEFAULT_BRANCH\" && git branch -D <branch>"
   echo "Do NOT create a PR. Submodule-only PRs are against policy."
   exit 1
 fi
@@ -556,7 +556,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
 | Default branch synced (when remote exists) | `git ls-remote origin "$DEFAULT_BRANCH"` | Non-empty output | MISSING-ELEMENT → fetch and sync |
-| Current branch | `git branch --show-current` | Feature branch name (not `main`, `$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
+| Current branch | `git branch --show-current` | Feature branch name (not the trunk) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
 | Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo path) | STRUCTURE-VIOLATION → HALT |
 | worktree.path set (worktree mode only) | `echo $WORKTREE_PATH` | Non-empty, matches worktree dir | STRUCTURE-VIOLATION → HALT (fatal) |
