@@ -164,7 +164,7 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 | -- | -- | -- | -- |
 | "No placeholders present" | Search for placeholder patterns in plan body | \`grep(pattern="TBD | TODO |
 | "Spec reference exists in plan" | Search for `Spec: #N` pattern | `grep(pattern="Spec: #")` on plan body | MISSING-ELEMENT |
-| "Sub-issues link to plan (not spec)" | Verify sub-issue parent | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "Plan links to spec (not vice versa)" | Verify plan references spec issue | `grep(pattern="Spec: #N")` on plan body | STRUCTURE-VIOLATION | <!-- Plan phases are local `.issues/` artifacts, not GitHub sub-issues -->
 | "Plan index exists" | Verify plan index at `{N}/plan.md` | `ls {N}/plan.md 2>/dev/null` | MISSING-ELEMENT |
 | "Phase files exist" | Verify phase files at `{N}/plan-{NN}-*.md` | `ls {N}/plan-*.md 2>/dev/null` | MISSING-ELEMENT |
 | "Steps are actionable" | Verify each step has concrete action | Manual parse — flag abstract goals | VERIFICATION-GAP |

@@ -36,6 +36,7 @@ Create an implementation plan from an approved spec. The orchestrator dispatches
 - A feature branch MUST be created before any plan artifacts are written
 - Plan artifacts MUST be committed to the feature branch after creation
 - `local-issues sync` MUST be run before any `.issues/` writes and after each write
+- **Plan phases are local `.issues/` artifacts only. Do NOT create GitHub Issues for plan phases or sub-issues.** The plan's phase table is a local file structure (`{N}/plan.md` + `{N}/plan-{NN}.md`), not a GitHub sub-issue hierarchy. Creating GitHub Issues for individual plan phases is a critical violation — it pollutes the issue tracker with tracking noise and breaks the plan's local artifact model.
 
 Each item is tagged with dispatch scope and chain dependency.
 

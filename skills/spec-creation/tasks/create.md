@@ -101,10 +101,10 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     - **Decomposition Classification** — Distinguishes single-task specs from multi-phase specs using distinguishing criteria.
 
-        | Classification | Number of Phases | Sub-Issue Requirements | PR Strategy |
-        | -------------- | ---------------- | ---------------------- | ----------- |
-        | single-task | 1 | None | single PR |
-        | multi-phase | 2+ | One sub-issue per phase | stacked PRs per phase |
+        | Classification | Number of Phases | Phase Artifact Requirements | PR Strategy |
+        | -------------- | ---------------- | --------------------------- | ----------- |
+        | single-task | 1 | Single `plan.md` file | single PR |
+        | multi-phase | 2+ | One `plan-{NN}.md` phase file per phase (local `.issues/` only — do NOT create GitHub Issues for phases) | stacked PRs per phase |
 
     - **Spec Family Annotation (optional)** — Punch-list annotation for specs that belong to a family. Selector syntax documents which specs share a common concern.
 
