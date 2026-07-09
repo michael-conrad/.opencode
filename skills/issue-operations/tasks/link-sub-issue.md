@@ -162,7 +162,7 @@ Title format: `[Task: #<plan-number>] <descriptive-title>`
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | Plan is single-task | VERIFICATION-GAP | auto-fix | Skip sub-issue creation per exemption |
-| Sub-issue creation failed | MISSING-ELEMENT | flag-for-review | HALT — retry |
+| Sub-issue creation failed | MISSING-ELEMENT | FAIL | HALT — retry |
 | Sub-issue under wrong parent | STRUCTURE-VIOLATION | auto-fix | Re-link under plan |
 | Used issue number instead of DB ID | STRUCTURE-VIOLATION | auto-fix | Re-link with correct DB ID |
 | Platform lacks sub-issue API | CONFLICTING | auto-fix | Use comment-based fallback |

@@ -175,6 +175,6 @@ These files are **exempt from mandatory cleanup** per `060-tool-usage.md` and MU
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Evidence missing for criterion | MISSING-ELEMENT | conditional | Re-run tool call for missing evidence |
-| Verification report not created | MISSING-ELEMENT | auto-fix | Create report now |
-| Placeholder evidence detected | VERIFICATION-GAP | conditional | Replace with actual tool-call output |
+| Evidence missing for criterion | MISSING-ELEMENT | FAIL | Re-run tool call for missing evidence |
+| Verification report not created | MISSING-ELEMENT | FAIL | Create report now |
+| Placeholder evidence detected | VERIFICATION-GAP | FAIL | Replace with actual tool-call output |

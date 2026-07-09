@@ -230,9 +230,9 @@ After verdict collection, classify each discrepancy:
 | MISSING_STEP | auto-fix | Add step from clean-room |
 | EXTRA_STEP | FAIL | May be intentional — must be justified |
 | APPROACH_DIFFERENCE | auto-fix | Clarify difference |
-| MISSING_EDGE_CASE | conditional | Verify clean-room correctness |
+| MISSING_EDGE_CASE | FAIL | Verify clean-room correctness |
 | DEPENDENCY_REVERSAL | auto-fix | Reorder phases |
-| MISSING_TDD_CHECKPOINT | conditional | Add RED checkpoint |
+| MISSING_TDD_CHECKPOINT | FAIL | Add RED checkpoint |
 
 ### Step 6: Generate Bidirectional Findings
 
@@ -372,7 +372,7 @@ rules:
         - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
         - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
     actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
-    source: "plan-fidelity.md §Step 7 — conditional next_step enforcement"
+    source: "plan-fidelity.md §Step 7 — FAIL next_step enforcement"
 
   - id: plan-fidelity-007
     title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"

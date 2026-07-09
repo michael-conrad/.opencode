@@ -68,7 +68,7 @@ Check: [what was verified]
 Tool: [tool call and parameters]
 Result: [actual state found]
 Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-Action: [auto-fix|conditional|flag-for-review]
+Action: [auto-fix|FAIL]
 ```
 
 ### Classification on Failure
@@ -76,9 +76,9 @@ Action: [auto-fix|conditional|flag-for-review]
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
 | Claims "initial creation" but `STATUS: 1.0` exists | CONFLICTING | auto-fix | Increment version, apply change control |
-| Claims "non-substantive" but content changed | CONFLICTING | flag-for-review | HALT — requires domain review |
+| Claims "non-substantive" but content changed | CONFLICTING | FAIL | HALT — requires domain review |
 | Claims "STATUS update" but content also changed | STRUCTURE-VIOLATION | auto-fix | Apply full change control to content change |
-| Claims "bug report" but adds spec requirements | VERIFICATION-GAP | conditional | Verify scope; if requirements changed, apply change control |
+| Claims "bug report" but adds spec requirements | VERIFICATION-GAP | FAIL | Verify scope; if requirements changed, apply change control |
 
 **These verifications are MANDATORY for any STATUS exemption claim. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 

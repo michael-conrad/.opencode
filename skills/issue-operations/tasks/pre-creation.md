@@ -248,17 +248,17 @@ Check: [what was verified]
 Tool: [tool call and parameters]
 Result: [actual state found]
 Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-Action: [auto-fix|conditional|flag-for-review]
+Action: [auto-fix|FAIL]
 ```
 
 **Classification on failure:**
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Spec claimed implemented but code not found | VERIFICATION-GAP | conditional | Verify with broader search before marking stale |
+| Spec claimed implemented but code not found | VERIFICATION-GAP | FAIL | Verify with broader search before marking stale |
 | Code location changed | CONFLICTING | auto-fix | Update spec reference to new location |
 | Problem already resolved | VERIFICATION-GAP | auto-fix | Mark spec as resolved, suggest closure |
-| Superseding issue not actually related | CONFLICTING | flag-for-review | HALT — do not block creation incorrectly |
+| Superseding issue not actually related | CONFLICTING | FAIL | HALT — do not block creation incorrectly |
 
 ## Context Required
 

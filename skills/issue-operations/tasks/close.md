@@ -116,7 +116,7 @@ All tasks complete from this specification.
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| PR not merged | VERIFICATION-GAP | flag-for-review | HALT — do not close issue |
-| Sub-issues still open | VERIFICATION-GAP | flag-for-review | Do not close parent |
-| No PR references issue | MISSING-ELEMENT | flag-for-review | HALT — cannot verify implementation |
+| PR not merged | VERIFICATION-GAP | FAIL | HALT — do not close issue |
+| Sub-issues still open | VERIFICATION-GAP | FAIL | Do not close parent |
+| No PR references issue | MISSING-ELEMENT | FAIL | HALT — cannot verify implementation |
 | Platform lacks PATCH | CONFLICTING | auto-fix | Use closure comment fallback |

@@ -137,7 +137,7 @@ Prose summary of all gathered data, organized by the five categories above. Incl
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | Comment count mismatched | VERIFICATION-GAP | auto-fix | Re-count and report correct number |
-| Authorization from bot/agent | CONFLICTING | flag-for-review | Reject as valid authorization |
-| Sub-issue 404 | MISSING-TRACEABILITY | flag-for-review | Developer must resolve missing issue |
+| Authorization from bot/agent | CONFLICTING | FAIL | Reject as valid authorization |
+| Sub-issue 404 | MISSING-TRACEABILITY | FAIL | Developer must resolve missing issue |
 | Label state contradicted claim | STRUCTURE-VIOLATION | auto-fix | Report actual label state |
-| Fix spec missing for bug | MISSING-ELEMENT | conditional | Proceed to `analyze-and-spec` to create one |
+| Fix spec missing for bug | MISSING-ELEMENT | FAIL | Proceed to `analyze-and-spec` to create one |

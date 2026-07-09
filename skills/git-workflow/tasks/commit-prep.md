@@ -194,11 +194,11 @@ Commits occur during the PR creation workflow, not as a separate step:
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Staged files not matching intent | CONFLICTING | flag-for-review | Selective `git add` to correct staging |
-| Unstaged changes present | VERIFICATION-GAP | conditional | Review — may need `git add` or `.gitignore` |
+| Staged files not matching intent | CONFLICTING | FAIL | Selective `git add` to correct staging |
+| Unstaged changes present | VERIFICATION-GAP | FAIL | Review — may need `git add` or `.gitignore` |
 | On `main` or `$DEFAULT_BRANCH` | STRUCTURE-VIOLATION | auto-fix | HALT — must be on feature branch in worktree |
 | Wrong toplevel path | STRUCTURE-VIOLATION | auto-fix | HALT — not in worktree context |
-| Locked/deleted files in status | VERIFICATION-GAP | flag-for-review | Investigate — may need `git rm` or recovery |
+| Locked/deleted files in status | VERIFICATION-GAP | FAIL | Investigate — may need `git rm` or recovery |
 
 **These verifications are MANDATORY before committing. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 

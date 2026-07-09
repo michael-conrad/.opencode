@@ -59,7 +59,7 @@ For each dependency listed in spec:
 
 ## Adversarial Verification: Blocker State
 
-Adversarial verification model (evidence format, classification tiers, tier actions): see `enforcement/adversarial-verification.md`
+Adversarial verification model (evidence format, binary PASS/FAIL classification): see `enforcement/adversarial-verification.md`
 
 ### Verify Blocker Issues Exist and Are Actually Blocking
 
@@ -69,7 +69,7 @@ For each identified blocker issue:
   
   - Verify issue exists (404 → MISSING-TRACEABILITY: blocker reference is stale)
   - Verify issue state matches claimed state:
-    - If claimed "open" but actually "closed" → VERIFICATION-GAP (blocker resolved)
+    - If claimed "open" but actually "closed" → VERIFICATION-GAP (FAIL: blocker resolved)
     - If claimed "closed" but actually "open" → CONFLICTING (blocker still active)
   - Verify issue is genuinely blocking:
     - If blocker has a merged PR that resolves it → blocker is resolved
@@ -127,7 +127,7 @@ Labels are advisory visibility markers only — they do NOT gate execution. If t
 
 ### Task-Specific Findings
 
-See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Context Required
 

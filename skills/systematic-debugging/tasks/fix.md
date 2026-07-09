@@ -102,7 +102,7 @@ result = some_function(timeout=60, retries=3)
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Fix doesn't target root cause | VERIFICATION-GAP | flag-for-review | HALT — re-diagnose before fixing |
-| Tests still failing | VERIFICATION-GAP | flag-for-review | Fix tests before claiming complete |
-| Unrelated changes in diff | CONFLICTING | flag-for-review | Report scope deviation |
-| Refactoring disguised as fix | CONFLICTING | flag-for-review | Revert and create spec |
+| Fix doesn't target root cause | VERIFICATION-GAP | FAIL | HALT — re-diagnose before fixing |
+| Tests still failing | VERIFICATION-GAP | FAIL | Fix tests before claiming complete |
+| Unrelated changes in diff | CONFLICTING | FAIL | Report scope deviation |
+| Refactoring disguised as fix | CONFLICTING | FAIL | Revert and create spec |

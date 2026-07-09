@@ -175,8 +175,8 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 
 | Finding | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Placeholders found | VERIFICATION-GAP | conditional | Remove placeholders or mark plan invalid |
+| Placeholders found | VERIFICATION-GAP | FAIL | Remove placeholders or mark plan invalid |
 | Missing spec reference | MISSING-ELEMENT | auto-fix | Add spec reference to plan body |
 | Sub-issues under wrong parent | STRUCTURE-VIOLATION | auto-fix | Re-link under plan |
 | Missing `plan` label | MISSING-ELEMENT | auto-fix | Add label immediately |
-| Abstract goals found | VERIFICATION-GAP | flag-for-review | Flag for plan author to rewrite |
+| Abstract goals found | VERIFICATION-GAP | FAIL | Flag for plan author to rewrite |

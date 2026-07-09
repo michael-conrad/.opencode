@@ -509,8 +509,8 @@ Please replace placeholder with actual evidence.
 
 | Finding | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Criterion claimed met without evidence | VERIFICATION-GAP | conditional | Re-verify with actual tool call |
-| Test not actually passing | CONFLICTING | flag-for-review | HALT — fix test before claiming completion |
-| Files differ from spec | CONFLICTING | flag-for-review | Report — scope may have deviated |
-| Uncommitted changes exist | VERIFICATION-GAP | conditional | Commit before proceeding |
-| Branch not pushed | MISSING-ELEMENT | auto-fix | Push immediately |
+| Criterion claimed met without evidence | VERIFICATION-GAP | FAIL | Re-verify with actual tool call |
+| Test not actually passing | CONFLICTING | FAIL | HALT — fix test before claiming completion |
+| Files differ from spec | CONFLICTING | FAIL | Report — scope may have deviated |
+| Uncommitted changes exist | VERIFICATION-GAP | FAIL | Commit before proceeding |
+| Branch not pushed | MISSING-ELEMENT | FAIL | Push immediately |

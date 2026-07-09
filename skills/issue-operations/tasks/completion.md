@@ -85,10 +85,10 @@ URL is ALWAYS last per `000-critical-rules.md`.
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Issue not found | MISSING-ELEMENT | flag-for-review | HALT — creation may have failed |
+| Issue not found | MISSING-ELEMENT | FAIL | HALT — creation may have failed |
 | Label missing | MISSING-ELEMENT | auto-fix | Add label immediately |
-| Sub-issues missing (multi-task) | MISSING-ELEMENT | conditional | Create sub-issues if multi-task spec |
-| Auditor not invoked | VERIFICATION-GAP | conditional | Invoke spec-auditor |
+| Sub-issues missing (multi-task) | MISSING-ELEMENT | FAIL | Create sub-issues if multi-task spec |
+| Auditor not invoked | VERIFICATION-GAP | FAIL | Invoke spec-auditor |
 
 ## Context Required
 

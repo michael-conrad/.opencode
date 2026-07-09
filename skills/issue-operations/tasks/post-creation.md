@@ -80,6 +80,6 @@ Before proceeding, verify ALL:
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Issue not found | MISSING-ELEMENT | flag-for-review | HALT — creation may have failed |
+| Issue not found | MISSING-ELEMENT | FAIL | HALT — creation may have failed |
 | Auditor not invoked | MISSING-ELEMENT | auto-fix | Invoke spec-auditor immediately |
-| Approval exists before audit | CONFLICTING | flag-for-review | HALT — auditors must run first |
+| Approval exists before audit | CONFLICTING | FAIL | HALT — auditors must run first |

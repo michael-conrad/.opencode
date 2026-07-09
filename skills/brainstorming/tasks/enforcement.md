@@ -19,7 +19,7 @@ Enforcement rules and messages for the brainstorming skill. Ensures brainstormin
    | Exploration invoked, batch-dump detected | Agent produced findings without developer interaction | HALT — require developer confirmation of each item |
    | Exploration invoked, partial protocol | Agent asked one question then ignored the answer | HALT — require per-item developer confirmation before proceeding |
     | Exploration invoked, protocol followed | Interactive Q&A with developer confirmation for key items | PROCEED to spec creation |
-    | Terminal routing to spec-creation occurred (not just issue-operations)? | Verify spec-creation was invoked after exploration | Chat + tool call evidence | SOFT-PASS |
+    | Terminal routing to spec-creation occurred (not just issue-operations)? | Verify spec-creation was invoked after exploration | Chat + tool call evidence | FAIL |
 
 - [ ] 3. **What does NOT bypass exploration:**
 
@@ -146,20 +146,20 @@ Check: [what was verified]
 Tool: [tool call and parameters]
 Result: [actual state found]
 Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-Action: [auto-fix|conditional|flag-for-review]
+Action: [auto-fix|FAIL]
 ```
 
 ### Classification on Failure
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Checklist items claimed without tool-call evidence | VERIFICATION-GAP | conditional | Complete the tool calls before proceeding |
+| Checklist items claimed without tool-call evidence | VERIFICATION-GAP | FAIL | Complete the tool calls before proceeding |
 | Problem statement missing from issue | STRUCTURE-VIOLATION | auto-fix | Add problem statement to issue body |
-| No alternatives documented for significant decision | MISSING-ELEMENT | conditional | Document alternatives before proceeding |
-| Approval from non-developer (bot/agent) | CONFLICTING | flag-for-review | HALT — requires real developer authorization |
+| No alternatives documented for significant decision | MISSING-ELEMENT | FAIL | Document alternatives before proceeding |
+| Approval from non-developer (bot/agent) | CONFLICTING | FAIL | HALT — requires real developer authorization |
 | STATUS marker claims maturity but content is incomplete | STRUCTURE-VIOLATION | auto-fix | Update STATUS to reflect actual maturity |
-| Consecutive agent messages without developer response | CONFLICTING | flag-for-review | HALT — batch-dump detected, re-engage developer interactively |
-| Significant findings lack developer confirmation | VERIFICATION-GAP | conditional | Re-present each finding for developer confirmation before proceeding |
-| Fewer than 2 Q&A exchanges before proceeding | VERIFICATION-GAP | conditional | Continue Q&A until minimum turns met |
+| Consecutive agent messages without developer response | CONFLICTING | FAIL | HALT — batch-dump detected, re-engage developer interactively |
+| Significant findings lack developer confirmation | VERIFICATION-GAP | FAIL | Re-present each finding for developer confirmation before proceeding |
+| Fewer than 2 Q&A exchanges before proceeding | VERIFICATION-GAP | FAIL | Continue Q&A until minimum turns met |
 
 **These verifications are MANDATORY before transitioning out of brainstorming. Skipping them is a CRITICAL GUIDELINE VIOLATION.**

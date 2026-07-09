@@ -111,7 +111,7 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 | Sub-Task | Purpose | Handler | Words |
 | -- | -- | -- | -- |
-| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | sub-agent (Step 0, conditional) | ≈700 |
+| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | sub-agent (Step 0) | ≈700 |
 | `review-prep/report-url` | URL generation, chat format, HALT protocol | — | ≈600 |
 
 ## Enforcement Checklist

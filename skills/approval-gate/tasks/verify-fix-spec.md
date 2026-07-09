@@ -83,9 +83,9 @@ Examine sub-issues for:
 
 ### Verification Checklist
 
-- **Fix spec existence:** Verify each sub-issue exists via `issue-operations -> read-issue (github_issue_read(method=get)` — not just claimed to exist. 404 → MISSING-TRACEABILITY (flag-for-review). <!-- Routes through issue-operations per SPEC #683 -->
-- **Label and STATUS maturity:** Verify labels and STATUS markers match content maturity. Stale labels → STRUCTURE-VIOLATION (auto-fix). Overstated STATUS → CONFLICTING (flag-for-review).
-- **Premature closure:** Verify closed sub-issues have merged PR evidence. No merged PR → VERIFICATION-GAP (flag-for-review).
+- **Fix spec existence:** Verify each sub-issue exists via `issue-operations -> read-issue (github_issue_read(method=get)` — not just claimed to exist. 404 → MISSING-TRACEABILITY (FAIL). <!-- Routes through issue-operations per SPEC #683 -->
+- **Label and STATUS maturity:** Verify labels and STATUS markers match content maturity. Stale labels → STRUCTURE-VIOLATION (auto-fix). Overstated STATUS → CONFLICTING (FAIL).
+- **Premature closure:** Verify closed sub-issues have merged PR evidence. No merged PR → VERIFICATION-GAP (FAIL).
 
 ## Enforcement References
 

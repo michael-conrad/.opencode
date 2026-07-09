@@ -211,10 +211,10 @@ For issues with `[Task: #N]` or `Phase N:` patterns that reference a parent plan
 | Finding | Problem Class | Action |
 | -- | -- | -- |
 | Closed + merged PR | VERIFIED | auto-proceed |
-| Closed "completed" + no merged PR | VERIFICATION-GAP | flag-for-review |
+| Closed "completed" + no merged PR | VERIFICATION-GAP | FAIL |
 | Closed "not_planned" | VERIFIED | auto-proceed |
-| Closed "duplicate" | VERIFICATION-GAP | conditional |
-| Open sub-issue | MISSING-ELEMENT | conditional |
+| Closed "duplicate" | VERIFICATION-GAP | FAIL |
+| Open sub-issue | MISSING-ELEMENT | FAIL |
 
 **Only proceed to parent closure after ALL sub-issues are verified.**
 

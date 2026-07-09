@@ -333,7 +333,7 @@ for adj_issue in adjacent:
 
 #### 8.3 Graph Verification Findings
 
-Classification tiers and actions (auto-fix, conditional, flag-for-review): see `enforcement/adversarial-verification.md`
+Binary PASS/FAIL classification (auto-fix as remediation action only): see `enforcement/adversarial-verification.md`
 
 #### 8.4 Report
 
@@ -370,7 +370,7 @@ Overall: CONSISTENT / HAS_FLAGS
 
 ## Finding Classification
 
-Classification tiers (auto-fix, conditional, flag-for-review) and evidence format: see `enforcement/adversarial-verification.md`
+Binary PASS/FAIL classification (auto-fix as remediation action only) and evidence format: see `enforcement/adversarial-verification.md`
 
 ## Integration Points
 

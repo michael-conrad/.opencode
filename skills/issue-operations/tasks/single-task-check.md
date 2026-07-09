@@ -192,6 +192,6 @@ Before proceeding, verify ALL:
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | Phase count wrong | VERIFICATION-GAP | auto-fix | Re-parse spec body |
-| Mixed concerns in single phase | CONFLICTING | flag-for-review | Classify as multi-task |
-| Decomposition needed | VERIFICATION-GAP | flag-for-review | Classify as multi-task |
-| Parse error | STRUCTURE-VIOLATION | conditional | Re-parse or flag ambiguous |
+| Mixed concerns in single phase | CONFLICTING | FAIL | Classify as multi-task |
+| Decomposition needed | VERIFICATION-GAP | FAIL | Classify as multi-task |
+| Parse error | STRUCTURE-VIOLATION | FAIL | Re-parse or flag ambiguous |

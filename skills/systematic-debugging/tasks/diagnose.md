@@ -102,6 +102,6 @@ If the agent catches itself about to edit code without an approved spec:
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Hypothesis not verified against code | VERIFICATION-GAP | conditional | Verify before reporting |
-| Root cause location wrong | CONFLICTING | flag-for-review | Re-trace call path |
+| Hypothesis not verified against code | VERIFICATION-GAP | FAIL | Verify before reporting |
+| Root cause location wrong | CONFLICTING | FAIL | Re-trace call path |
 | Unintended code changes during diagnosis | STRUCTURE-VIOLATION | auto-fix | `git checkout` to revert |

@@ -51,7 +51,7 @@ for sub_issue in sub_issues:
 
 For multi-task plans, verify that the number of sub-issues matches the number of phases in the plan body. A mismatch indicates incomplete sub-issue linkage. See `enforcement/sub-issue-graph-traversal.md` for the phase-count cross-reference algorithm.
 
-**Finding Classification:** See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+**Finding Classification:** See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ### 5.3 Adversarial Verification of Sub-Issue State
 
@@ -72,7 +72,7 @@ For each sub-issue:
 
 Before skipping a closed issue in any workflow gate, verify it was closed for the right reason. See `enforcement/closed-issue-verification.md` for the complete closed-issue verification procedure.
 
-**Finding Classification for Closed-Issue Verification:** See `enforcement/adversarial-verification.md` for the three-tier classification model and evidence artifact format.
+**Finding Classification for Closed-Issue Verification:** See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model and evidence artifact format.
 
 ### 5.5 Transitive Issue Graph Verification (MANDATORY on Authorization and Re-Approval)
 
@@ -93,7 +93,7 @@ After traversal completes, dispatch `reconcile-issue-graph` to act on findings. 
 
 ### Finding Classification for Sub-Issue Verification
 
-See `enforcement/adversarial-verification.md` for the three-tier classification model (auto-fix, conditional, flag-for-review) and evidence artifact format.
+See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Work State I/O
 

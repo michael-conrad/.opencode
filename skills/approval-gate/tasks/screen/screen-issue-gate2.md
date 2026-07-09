@@ -54,9 +54,9 @@ A merged PR proves code was merged. It does NOT prove that success criteria are 
 
 | Failure Condition | Classification | Action |
 |-----------------|----------------|--------|
-| No success criteria extracted | VERIFICATION-GAP | Re-read issue body; if criteria cannot be found, flag for review |
+| No success criteria extracted | VERIFICATION-GAP | Re-read issue body; if criteria cannot be found, FAIL |
 | Criterion fails verification | DOWNGRADE | "partially-implemented" — criterion not met despite closure |
-| Criterion unverified (no tool call) | VERIFICATION-GAP | Re-run verification; if unverifiable, flag for review |
+| Criterion unverified (no tool call) | VERIFICATION-GAP | Re-run verification; if unverifiable, FAIL |
 | Success criteria not in issue body | MISSING-ELEMENT | Search comments; if absent, flag for developer to confirm |
 | Agent claims "all criteria met" without evidence | CRITICAL VIOLATION | Re-run gate with evidence collection |
 
@@ -76,7 +76,7 @@ For each candidate "already-implemented" issue:
       ref_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=ref_num) <!-- Routes through issue-operations per SPEC #683 -->
       
       if ref_issue["state"] == "open" and candidate is classified as "already-implemented":
-        DOWNGRADE to "partially-implemented" or flag-for-review
+        DOWNGRADE to "partially-implemented" or FAIL
       
       if ref_issue["state"] == "closed":
         # Verify referenced issue was legitimately closed (merged PR exists)
@@ -87,9 +87,9 @@ For each candidate "already-implemented" issue:
 
 | Failure Condition | Classification | Action |
 |-----------------|----------------|--------|
-| Referenced issue is open | CONFLICTING | DOWNGRADE or flag-for-review — state mismatch |
-| Referenced issue closed without merged PR | VERIFICATION-GAP | Flag for review — may be premature closure |
-| Cross-reference 404 | MISSING-TRACEABILITY | Flag for developer — referenced issue doesn't exist |
+| Referenced issue is open | CONFLICTING | DOWNGRADE or FAIL — state mismatch |
+| Referenced issue closed without merged PR | VERIFICATION-GAP | FAIL — may be premature closure |
+| Cross-reference 404 | MISSING-TRACEABILITY | FAIL — referenced issue doesn't exist |
 
 **Key principle:** Even if Gate 1 and Gate 2 pass, cross-reference inconsistencies invalidate the "already-implemented" classification. The full issue graph must be consistent.
 

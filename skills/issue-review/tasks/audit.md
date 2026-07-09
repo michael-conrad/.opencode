@@ -103,7 +103,7 @@ Format per `000-critical-rules.md`:
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| Audit never performed | VERIFICATION-GAP | conditional | Invoke audit now |
-| New comments since audit | VERIFICATION-GAP | conditional | Re-audit with new context |
-| Triage classification wrong | CONFLICTING | flag-for-review | Report mismatch, re-evaluate path |
-| Fix spec missing for bug | MISSING-ELEMENT | conditional | Proceed to `analyze-and-spec` |
+| Audit never performed | VERIFICATION-GAP | FAIL | Invoke audit now |
+| New comments since audit | VERIFICATION-GAP | FAIL | Re-audit with new context |
+| Triage classification wrong | CONFLICTING | FAIL | Report mismatch, re-evaluate path |
+| Fix spec missing for bug | MISSING-ELEMENT | FAIL | Proceed to `analyze-and-spec` |

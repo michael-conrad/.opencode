@@ -496,7 +496,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     1. **SC evidence type re-check**: For each SC in the spec body, evaluate the substrate question: "Does this change affect runtime behavior?"
     2. **Uplift misclassified SCs**: If runtime-behavioral YES but evidence type is NOT behavioral → auto-uplift to `behavioral`. Log the uplift action as a finding.
-    3. **Downgrade flag (conditional)**: If runtime-behavioral NO but evidence type IS behavioral → flag for review. The writer may have intended a behavioral test for structural reasons, but this mismatch warrants human review.
+    3. **Downgrade flag (FAIL)**: If runtime-behavioral NO but evidence type IS behavioral → flag for review. The writer may have intended a behavioral test for structural reasons, but this mismatch warrants human review.
     4. **Remediation guidance**: For each uplifted SC, provide guidance on what changes the verification method needs:
        - `structural` → `behavioral`: Must add a real test execution command (e.g., `opencode-cli run`, `pytest`, `bash test.sh`)
        - `string` → `behavioral`: Must replace grep assertion with test execution + semantic inspection
@@ -519,7 +519,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     Tool: [tool call and parameters]
     Result: [actual state found]
     Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-    Action: [auto-fix|conditional|flag-for-review]
+    Action: [auto-fix|FAIL]
     ```
 
     **Classification on failure:**
@@ -527,8 +527,8 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     | Failure | Problem Class | Classification | Action |
     | ------------------------------------------ | ------------------- | --------------- | ------------------------------------------- |
     | Placeholders found in spec body | STRUCTURE-VIOLATION | auto-fix | Replace with concrete content |
-    | Contradictory requirements across sections | CONFLICTING | flag-for-review | Report, do not auto-resolve |
-    | Scope too large for single plan | VERIFICATION-GAP | conditional | Flag decomposition, then apply if confirmed |
+    | Contradictory requirements across sections | CONFLICTING | FAIL | Report, do not auto-resolve |
+    | Scope too large for single plan | VERIFICATION-GAP | FAIL | Flag decomposition, then apply if confirmed |
     | Vague/ambiguous terms present | STRUCTURE-VIOLATION | auto-fix | Replace with measurable terms |
 
     **These verifications are MANDATORY after self-review. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
