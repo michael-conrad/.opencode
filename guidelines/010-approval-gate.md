@@ -127,6 +127,18 @@ Defines where the pipeline halts after a given authorization scope and the PR st
 - **stacked:** Feature PR targets the trunk. No PR for spec/plan-only scopes.
 - **none:** No PR — only spec or plan creation.
 
+### Authorization Scope Is Permission, Not a Pipeline Shortcut (CRITICAL)
+
+**Authorization scope defines what the agent MAY do, not what it MUST do now.**
+
+`for_pr` scope means: "you are authorized to proceed through the full pipeline (plan → implement → PR)." It does NOT mean "skip to implementation." The agent MUST still:
+1. Create a plan from the spec (via `writing-plans`)
+2. Present the plan
+3. Execute the plan step-by-step
+4. Create the PR
+
+A question is NEVER authorization. A scope approval is NEVER a skip-the-pipeline directive. The pipeline sequence (spec → plan → implement → PR) is invariant — no authorization scope compresses it.
+
 ### Multi-Task Plan Authorization (CRITICAL)
 
 When a parent issue has sub-issues with different `halt_at` values, authorization for the parent cascades to ALL sub-issues. The agent completes ALL phases in sequence without halting between them, reporting ONCE after all phases complete.
