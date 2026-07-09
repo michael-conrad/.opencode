@@ -1,4 +1,14 @@
-# Phase 2 — Task file migration (~30+ files)
+---
+phase: 2
+name: Task file migration
+concern: Migrate all ~45+ task files referencing three-tier model to binary classification
+scs: SC-2, SC-3
+dependencies: Phase 1 complete
+entry_condition: Phase 1 exit criteria met, adversarial-verification.md redesigned with binary model
+exit_condition: All ~45+ task files migrated to binary classification, 000-critical-rules.md:422 updated
+---
+
+# Phase 2 — Task file migration (~45+ files)
 
 **Concern:** Migrate all task files that reference the three-tier classification model (`auto-fix`/`conditional`/`flag-for-review`) to the new binary model. Replace `conditional` and `flag-for-review` with binary PASS/FAIL. Preserve `auto-fix` only for non-substantive mechanical fixes.
 
@@ -47,7 +57,6 @@
 - `skills/issue-review/tasks/gather.md`
 - `skills/issue-review/tasks/triage.md`
 - `skills/issue-review/tasks/qa.md`
-- `skills/issue-operations/tasks/post-creation.md`
 - `guidelines/000-critical-rules.md` (line 422)
 
 **SCs:** SC-2, SC-3
@@ -58,42 +67,37 @@
 
 **Exit conditions:** All ~45+ task files migrated to binary classification, `000-critical-rules.md:422` updated
 
+> **Compliance requirement:** Every step is mandatory. Skipping, combining, or reordering steps produces defective deliverables. The orchestrator dispatches each step to a clean-room sub-agent via `task()`. No inline execution of sub-agent steps.
+>
+> **One-step-at-a-time protocol:** Execute exactly one step per dispatch. After each step, report the result before proceeding. Do not batch steps.
+>
+> **Self-remediation protocol:** On any FAIL signal, remediate before halting. Remediate → re-verify → proceed on PASS → HALT only on double-failure.
+
 ---
 
-- [ ] 5. (**sub-agent**) Pre-analysis — discover all task files referencing `auto-fix`, `conditional`, or `flag-for-review` in their finding classification tables
-  - **RED:** Run grep across all skill task files for the three-tier patterns
+- [ ] 5. **(sub-agent) Pre-analysis — discover all affected task files.** Run grep across all skill task files for `auto-fix`, `conditional`, and `flag-for-review` patterns in finding classification tables. Produce a complete list of affected files with line numbers.
+  - **RED:** Run grep for the three-tier patterns
   - **GREEN:** Complete list of affected files with line numbers catalogued
   - **VbC:** Verify grep output matches expected file list
 
-- [ ] 6. (**sub-agent**) Migrate audit task files — replace `conditional` and `flag-for-review` classifications with binary PASS/FAIL in all audit task files:
-  - `spec-audit.md`, `verification-audit.md`, `concern-separation.md`, `plan-fidelity.md`, `test-quality-audit.md`, `spec-summary.md`, `closure-verification.md`, `content-audit.md`, `guideline-audit.md`, `coherence-maintenance.md`, `drift-detection.md`, `cross-validate.md`, `resolve-models.md`
-  - Preserve `auto-fix` for non-substantive mechanical fixes only
+- [ ] 6. **(sub-agent) Migrate audit task files.** Replace `conditional` and `flag-for-review` classifications with binary PASS/FAIL in all 13 audit task files. Preserve `auto-fix` for non-substantive mechanical fixes only.
+  - Files: `spec-audit.md`, `verification-audit.md`, `concern-separation.md`, `plan-fidelity.md`, `test-quality-audit.md`, `spec-summary.md`, `closure-verification.md`, `content-audit.md`, `guideline-audit.md`, `coherence-maintenance.md`, `drift-detection.md`, `cross-validate.md`, `resolve-models.md`
   - **RED:** Write migration changes to each file
   - **GREEN:** All audit task files updated
   - **VbC:** Verify SC-2: no `conditional` or `flag-for-review` remains in audit task files
 
-- [ ] 7. (**sub-agent**) Migrate non-audit task files — replace `conditional` and `flag-for-review` with binary PASS/FAIL in:
-  - `verification-before-completion/tasks/verify.md`, `collect.md`, `completion.md`
-  - `finishing-a-development-branch/tasks/checklist.md`, `prepare.md`, `completion.md`
-  - `brainstorming/tasks/explore/pre-spec-inspection.md`, `enforcement.md`
-  - `issue-operations/tasks/post-creation.md`, `completion.md`, `single-task-check.md`, `body-edit.md`, `verify-merge.md`, `capabilities.md`, `close.md`, `creation.md`, `pre-creation.md`, `link-sub-issue.md`
-  - `systematic-debugging/tasks/diagnose.md`, `fix.md`
-  - `engineering-approach/tasks/verify-understanding.md`
-  - `skill-creator/tasks/validate.md`
-  - `writing-plans/tasks/clean-room.md`, `validate.md`
-  - `spec-creation/tasks/create.md`, `traceability.md`, `change-control.md`
-  - `issue-review/tasks/audit.md`, `gather.md`, `triage.md`, `qa.md`
-  - Preserve `auto-fix` for non-substantive mechanical fixes only
+- [ ] 7. **(sub-agent) Migrate non-audit task files.** Replace `conditional` and `flag-for-review` with binary PASS/FAIL in all non-audit task files. Preserve `auto-fix` for non-substantive mechanical fixes only.
+  - Files: `verification-before-completion/tasks/verify.md`, `collect.md`, `completion.md`; `finishing-a-development-branch/tasks/checklist.md`, `prepare.md`, `completion.md`; `brainstorming/tasks/explore/pre-spec-inspection.md`, `enforcement.md`; `issue-operations/tasks/post-creation.md`, `completion.md`, `single-task-check.md`, `body-edit.md`, `verify-merge.md`, `capabilities.md`, `close.md`, `creation.md`, `pre-creation.md`, `link-sub-issue.md`; `systematic-debugging/tasks/diagnose.md`, `fix.md`; `engineering-approach/tasks/verify-understanding.md`; `skill-creator/tasks/validate.md`; `writing-plans/tasks/clean-room.md`, `validate.md`; `spec-creation/tasks/create.md`, `traceability.md`, `change-control.md`; `issue-review/tasks/audit.md`, `gather.md`, `triage.md`, `qa.md`
   - **RED:** Write migration changes to each file
   - **GREEN:** All non-audit task files updated
   - **VbC:** Verify SC-2: no `conditional` or `flag-for-review` remains in non-audit task files
 
-- [ ] 8. (**sub-agent**) Update `guidelines/000-critical-rules.md:422` — replace stale reference to `auto-fix/conditional/flag-for-review classification` with updated binary classification language
+- [ ] 8. **(sub-agent) Update guidelines/000-critical-rules.md:422.** Replace stale reference to `auto-fix/conditional/flag-for-review classification` with updated binary classification language.
   - **RED:** Read line 422 context, draft updated text
   - **GREEN:** Line 422 updated
   - **VbC:** Verify SC-3: stale reference replaced
 
-- [ ] 9. (**inline**) Z3 check — verify Phase 2 output satisfies SC-2 and SC-3 per contract
+- [ ] 9. **(inline) Z3 check.** Verify Phase 2 output satisfies SC-2 and SC-3 per contract. Run solve check.
   - **RED:** Run solve check
   - **GREEN:** SAT and SOLVED status
   - **VbC:** Verify solve output
