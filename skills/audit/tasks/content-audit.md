@@ -150,6 +150,37 @@ all_claims_verified: false
 remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
+### Step 5c: Self-Consistency Gate
+
+Before returning, verify that every `result: "PASS"` entry has an `explanation` free of critique/hedging language. If a PASS entry's explanation contains any of the following patterns, downgrade the verdict to FAIL:
+
+| Hedging Pattern | Examples |
+|-----------------|----------|
+| "should be" | "should be 12", "should be present" |
+| "needs" | "needs improvement", "needs correction" |
+| "missing" | "missing context", "missing evidence" |
+| "could improve" | "could improve clarity", "could improve accuracy" |
+| "minor" | "minor discrepancy", "minor issue" |
+| "some issues" | "some issues found", "some issues remain" |
+| "mostly" | "mostly correct", "mostly matches" |
+| "generally" | "generally accurate", "generally supported" |
+
+```yaml
+# Self-consistency check: PASS + hedging = FAIL
+- claim_id: "C-1"
+  claim_text: "12 models were tested"
+  result: "PASS"  # ← downgraded to FAIL
+  explanation: "Source data shows 12 models. Minor formatting differences exist."
+  # ↑ "minor" detected → verdict downgraded to FAIL
+  self_consistency: FAIL
+  self_consistency_reason: "explanation contains hedging language: 'minor'"
+```
+
+- [ ] 1. For each `result: "PASS"` entry, scan `explanation` for hedging patterns
+- [ ] 2. If any hedging pattern is found: change `result` to `FAIL`, add `self_consistency: FAIL` and `self_consistency_reason: "<pattern detected>"`
+- [ ] 3. If no hedging patterns found: add `self_consistency: PASS` to the entry
+- [ ] 4. Recompute summary counts (pass/fail/fabricated) after any downgrades
+
 ### Step 6: Return Frugal Result Contract
 
 ```yaml
@@ -177,6 +208,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 3. Verify each claim → INVALID if skipped
 - [ ] 4. Generate findings → INVALID if skipped
 - [ ] 5. Write verdict artifact → INVALID if skipped
+- [ ] 5c. Self-Consistency Gate → INVALID if skipped
 - [ ] 6. Return result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)

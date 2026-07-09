@@ -147,6 +147,31 @@ for skill_behavior in current_state["skills"]["behaviors"]:
 
 Write verdict to `./tmp/{issue-N}/artifacts/coherence-maintenance/verdict.yaml`
 
+#### Self-Consistency Gate (applied after verdict.yaml is written)
+
+Before accepting the verdict, run a self-consistency check on every criterion entry:
+
+```python
+hedging_patterns = [
+    "should be", "needs", "missing", "could improve",
+    "minor", "some issues", "mostly", "generally"
+]
+
+for criterion in verdict["criteria"]:
+    if criterion["result"] == "PASS":
+        explanation_lower = criterion.get("explanation", "").lower()
+        for pattern in hedging_patterns:
+            if pattern in explanation_lower:
+                criterion["result"] = "FAIL"
+                criterion["self_consistency_note"] = (
+                    f"Downgraded from PASS to FAIL: explanation contains "
+                    f"critique/hedging language ('{pattern}') inconsistent with PASS verdict"
+                )
+                break
+```
+
+If any criterion is downgraded, the `overall_verdict` MUST also be set to `FAIL`.
+
 ### Step 8: Build Result Contract
 
 ```yaml

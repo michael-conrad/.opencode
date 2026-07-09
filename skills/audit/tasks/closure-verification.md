@@ -217,7 +217,36 @@ if follow_up_issues:
 | OPEN_BLOCKERS | HIGH | Blocking issues remain |
 | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-### Step 12: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 12: Self-Consistency Gate — Downgrade PASS with Hedging to FAIL
+
+Before writing the verdict artifact, run a self-consistency check on every `per_criterion` entry:
+
+- [ ] 1. For each criterion where `result: "PASS"`, scan `explanation` for hedging/critique language
+- [ ] 2. If any of the following phrases appear in `explanation`, downgrade `result` to `"FAIL"`:
+  - `"should be"`, `"needs"`, `"missing"`, `"could improve"`, `"minor"`, `"some issues"`, `"mostly"`, `"generally"`
+- [ ] 3. Append a `self_consistency` field to the criterion entry documenting the downgrade:
+
+```yaml
+self_consistency:
+  original_result: "PASS"
+  downgraded_to: "FAIL"
+  trigger_phrase: "<phrase that triggered downgrade>"
+  context: "<snippet of explanation containing the phrase>"
+```
+
+- [ ] 4. If no hedging is found, set:
+
+```yaml
+self_consistency:
+  original_result: "PASS"
+  downgraded_to: null
+  trigger_phrase: null
+  context: null
+```
+
+- [ ] 5. After all criteria are processed, recompute `all_criteria_pass` and `exec_summary` — if any criterion was downgraded, `all_criteria_pass` MUST be `false`.
+
+### Step 13: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
 
@@ -244,12 +273,17 @@ per_criterion:
     explanation: "<reasoning>"
     remediation: ""
     next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+    self_consistency:
+      original_result: "PASS"
+      downgraded_to: null
+      trigger_phrase: null
+      context: null
 exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
 all_criteria_pass: false
 remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
-### Step 13: Return Frugal Result Contract
+### Step 14: Return Frugal Result Contract
 
 ## Remediation
 
@@ -285,7 +319,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Step 9 (Check for Open Blockers) → INVALID if skipped
 - Step 10 (Check Follow-up Issues) → INVALID if skipped
 - Step 11 (Classify Verification Gaps) → INVALID if skipped
-- Step 12 (Build Result Contract) → INVALID if skipped
+- Step 12 (Self-Consistency Gate) → INVALID if skipped
+- Step 13 (Write Verdict Artifact) → INVALID if skipped
+- Step 14 (Return Frugal Result Contract) → INVALID if skipped
 
 ## Cross-References
 
@@ -296,7 +332,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-09T00:00:00Z"
 rules:
   - id: closure-verification-001
     title: "Spec issue must be closed after PR merge"
@@ -335,5 +371,15 @@ rules:
         - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
         - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
     actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
-    source: "closure-verification.md §Step 12 — all_criteria_pass enforcement"
+    source: "closure-verification.md §Step 13 — all_criteria_pass enforcement"
+
+  - id: closure-verification-006
+    title: "Self-consistency gate — PASS with hedging language downgraded to FAIL"
+    conditions:
+      all:
+        - "per_criterion[].result == 'PASS'"
+        - "per_criterion[].explanation matches hedging_pattern"
+    hedging_pattern: "(should be|needs|missing|could improve|minor|some issues|mostly|generally)"
+    actions: [DOWNGRADE_TO_FAIL, SET_SELF_CONSISTENCY_FIELDS]
+    source: "closure-verification.md §Step 12 — self-consistency gate"
 ```

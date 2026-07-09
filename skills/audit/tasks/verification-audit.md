@@ -200,6 +200,23 @@ all_criteria_pass: false
 remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
+### Self-Consistency Gate
+
+After writing the verdict YAML, run a self-consistency check on every `per_criterion` entry where `result: "PASS"`:
+
+- [ ] 1. Scan `explanation` for critique/hedging language: "should be", "needs", "missing", "could improve", "minor", "some issues", "mostly", "generally"
+- [ ] 2. If ANY hedging language is found, downgrade `result` to `"FAIL"` and set `remediation` to `"Self-consistency gate: explanation contains hedging language despite PASS result."`
+- [ ] 3. Recompute `all_criteria_pass` and `remediation_required` after downgrades
+- [ ] 4. Log the downgrade in the verdict YAML under a `self_consistency_downgrades` field:
+
+```yaml
+self_consistency_downgrades:
+  - criterion_id: "SC-N"
+    original_result: "PASS"
+    downgraded_to: "FAIL"
+    hedging_phrase: "<matched phrase>"
+```
+
 ### Step 11: Return Frugal Result Contract
 
 ## Remediation

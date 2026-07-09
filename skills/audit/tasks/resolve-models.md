@@ -33,7 +33,8 @@ The Path Provider role is the fourth and final role in the DiMo role chain. It r
 1. Read `evidence.yaml` (Generator output) — raw evidence and initial findings
 2. Read `reasoning.yaml` (Knowledge Supporter output) — validated evidence with source references
 3. Read `verdict.yaml` (Evaluator output) — per-criterion PASS/FAIL verdicts
-4. Write `judgment.yaml` — final judgment with cross-reference summary and `next_step`
+4. **Self-consistency gate**: For each finding where `result: "PASS"`, inspect the `explanation` field. If it contains any critique/hedging language ("should be", "needs", "missing", "could improve", "minor", "some issues", "mostly", "generally"), downgrade that finding's `result` to `FAIL` and set `self_consistency_downgrade: true` in the finding. A PASS verdict with hedging language is internally inconsistent — the explanation contradicts the result.
+5. Write `judgment.yaml` — final judgment with cross-reference summary and `next_step`
 
 ### Artifact Output
 
@@ -48,6 +49,7 @@ findings:
     result: PASS|FAIL
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
+    self_consistency_downgrade: false  # true if PASS was downgraded to FAIL by self-consistency gate
 ```
 
 ## Cross-References

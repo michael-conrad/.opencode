@@ -168,13 +168,13 @@ scope_creep:
 
 ### Step 5: Classify Findings
 
-| Finding Type | Problem Class | Classification |
-|-------------|---------------|----------------|
-| BOILERPLATE_TITLE | Phase name generic | flag-for-review |
-| CONCERN_MIXING | Steps from different concerns | flag-for-review |
-| DEPENDENCY_REVERSAL | Wrong order | auto-fix |
-| HIGH_RISK_GROUPING | Risk mixing | conditional |
-| MISSING_INDEPENDENCE | Cannot deploy phase alone | flag-for-review |
+| Finding Type | Problem Class | Verdict |
+|-------------|---------------|---------|
+| BOILERPLATE_TITLE | Phase name generic | FAIL |
+| CONCERN_MIXING | Steps from different concerns | FAIL |
+| DEPENDENCY_REVERSAL | Wrong order | FAIL |
+| HIGH_RISK_GROUPING | Risk mixing | FAIL |
+| MISSING_INDEPENDENCE | Cannot deploy phase alone | FAIL |
 
 ### Step 6: Verify Boundary Claims
 
@@ -194,6 +194,24 @@ Each boundary claim must be verified:
 ### Step 7: Write verdict.yaml
 
 Write verdict to `./tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`
+
+### Step 7a: Self-Consistency Gate
+
+Before writing the final artifact, verify verdict self-consistency:
+
+- [ ] 1. For each `per_criterion` entry, check: if `result: "PASS"` and `explanation` contains critique, hedging, or caveat language (e.g., "but", "however", "minor", "mostly", "functionally equivalent", "close enough", "with concerns"), the verdict is downgraded to FAIL
+- [ ] 2. If any criterion was downgraded, append a `self_consistency` section to the verdict:
+
+```yaml
+self_consistency:
+  downgraded_criteria:
+    - criterion_id: "CS-N"
+      original_result: "PASS"
+      downgraded_to: "FAIL"
+      reason: "explanation contained hedging language: '<matched phrase>'"
+```
+
+- [ ] 3. Update `all_criteria_pass` to `false` and `remediation_required` to `true` if any downgrade occurred
 
 ### Step 8: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
@@ -218,10 +236,12 @@ per_criterion:
     explanation: "<reasoning>"
     remediation: ""
     next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+self_consistency:
+  downgraded_criteria: []
 findings:
   - type: "BOILERPLATE_TITLE"
     phase: "<phase>"
-    classification: "flag-for-review"
+    verdict: "FAIL"
     recommendation: "<recommendation>"
 exec_summary: "Concern separation: X/Y criteria. N phases need review."
 all_criteria_pass: false
