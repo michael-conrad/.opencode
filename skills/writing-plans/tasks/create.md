@@ -76,6 +76,7 @@ Each item is tagged with dispatch scope and chain dependency.
 - [ ] 10. (**sub-agent**) Write — `task(..., prompt: "execute write task from writing-plans")`. **Post-dispatch file verification:** After the sub-agent returns DONE with a file path, run `ls` or `file-exists` to confirm the file exists on disk. If the file does not exist, re-task clean-room (do not accept the empty result).
   - Chain: `step_9`
   - Expected: plan file path in write output
+  - **Behavioral SC requirement:** The write sub-agent MUST generate phase exit criteria for behavioral SCs that include both `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch steps. Each SC in the exit criteria MUST carry an `evidence_type` metadata annotation (e.g., `evidence_type: behavioral`). The VbC section for behavioral SCs MUST include a mandatory gate: after artifact generation, dispatch `behavioral-test-evaluation` before allowing PASS verdict.
 
 - [ ] 11. (**sub-agent**) Clean-room plan generation — **MANDATORY GATE — MUST NOT be skipped.** `task(..., prompt: "execute write task from writing-plans")` with spec body only, no existing plan context. The orchestrator MUST NOT proceed past Step 10 without dispatching Step 11. If Step 11 is skipped, the pipeline MUST halt.
   - Chain: `step_10`
@@ -134,6 +135,9 @@ Each item is tagged with dispatch scope and chain dependency.
 - Approval cascade applied (auto-approval for pipeline scope)
 - All implementation-pipeline gate steps enumerated in exit criteria or phase structure
 - Step numbering is globally sequential across all phases
+- Phase exit criteria for behavioral SCs include both `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch steps
+- Each SC in the exit criteria carries an `evidence_type` metadata annotation (e.g., `evidence_type: behavioral`)
+- The VbC section for behavioral SCs includes a mandatory gate: after artifact generation, dispatch `behavioral-test-evaluation` before allowing PASS verdict
 - Output contract loaded from `contracts/create-output-template.yaml` and validated before returning
 
 ## Plan Format
