@@ -33,12 +33,13 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ### Pre-Commit Submodule Pointer Check
 
-Before staging changes, check for dirty submodule pointers and ensure they are included:
+Before staging changes, check for dirty submodule pointers and ensure they are included ONLY alongside real code changes:
 
 - [ ] 1. Run `git submodule status | grep '^ '` to detect dirty submodule pointers
-- [ ] 2. If dirty pointers found: `git add <submodule_path>` alongside other changes
-- [ ] 3. Verify staged files include both source changes AND submodule pointer updates
-- [ ] 4. If submodule pointers are dirty but not staged: warn and suggest adding them
+- [ ] 2. If dirty pointers found: verify there are non-submodule changes staged (`git diff --cached --name-only` shows files outside `.opencode/`). If NO non-submodule changes exist, HALT — do NOT stage the submodule pointer. Creating a submodule-only PR is FORBIDDEN in ANY context.
+- [ ] 3. If non-submodule changes exist: `git add <submodule_path>` alongside other changes
+- [ ] 4. Verify staged files include both source changes AND submodule pointer updates
+- [ ] 5. If submodule pointers are dirty but not staged: warn and suggest adding them
 
 ### Making Implementation Commits
 
