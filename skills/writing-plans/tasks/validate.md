@@ -96,6 +96,16 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-5
   - Expected: all dispatch indicators match step content; FAIL on mismatch
 
+- [ ] 19. (**inline**) Behavioral SC exit criteria validation — Reject structural-only exit criteria for behavioral SCs
+  - Command: For each SC in the plan's exit criteria section, check if the SC has `evidence_type: behavioral` annotation. If yes, verify the exit criteria include both `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch steps. Exit criteria that use only structural evidence (file exists, annotations present, exit 0) for behavioral SCs MUST be rejected.
+  - SC: SC-2
+  - Expected: all behavioral SCs have model-execution-and-evaluation steps in their exit criteria; FAIL on structural-only exit criteria for behavioral SCs
+
+- [ ] 20. (**inline**) Evidence type metadata presence — Verify each SC in the plan's exit criteria section carries an `evidence_type` annotation
+  - Command: `grep(pattern="evidence_type:")` on each phase file's exit criteria section
+  - SC: SC-4
+  - Expected: every SC in every phase file has an `evidence_type` annotation; FAIL on missing annotations
+
 ## Result Contract Schema
 
 Before returning, load the output contract from `contracts/validate-output-template.yaml` and validate the result against it. The contract defines the expected output structure:
