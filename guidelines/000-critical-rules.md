@@ -828,7 +828,6 @@ When a sub-agent returns a defective deliverable, the orchestrator MUST NOT atte
 | Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
 | Direct mutation of issue body | Lacks spec-creation context, produces inconsistent results |
 
-### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
 ### [critical-rules-XXX] Derivation Provenance — every element must have a consumer or first-principles justification
 
@@ -867,6 +866,8 @@ When a derivation-provenance violation is detected (by the agent during self-rev
 | Applying template structure without evaluation | Every artifact looks the same regardless of problem shape — misses domain-specific concerns |
 
 Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
+### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
+
 ### [critical-rules-005] Direct-Branch Default — feature branch without worktree is the norm
 Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTREE_REQUIRED` set. See `git-workflow --task pre-work`.
 
