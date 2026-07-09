@@ -1,0 +1,29 @@
+# SC Summary for #1802 — PR body VbC results table
+spec_issue: 1802
+spec_title: "[SPEC] PR body VbC results table — standard 4-column format with test-type annotation"
+created: 2026-07-09T08:00:00Z
+scs:
+  - id: SC-1
+    criterion: "PR body generation produces a 4-column VbC table (ID, Criterion, Test, Result) with test-type annotations"
+    evidence_type: behavioral
+    verification_method: "Verify PR body template includes the 4-column table format with dynamic test-type annotations"
+    phase: 2
+    chain_dep: [SC-4]
+  - id: SC-2
+    criterion: "Finishing checklist verifies VbC table presence in PR body"
+    evidence_type: string
+    verification_method: "grep checklist.md for VbC table verification item"
+    phase: 3
+    chain_dep: [SC-1]
+  - id: SC-3
+    criterion: "Test-type annotations auto-detected from test infrastructure usage patterns"
+    evidence_type: behavioral
+    verification_method: "Verify detection logic maps testcontainers->(live DB), mocks->(mock), no fixtures->(unit)"
+    phase: 4
+    chain_dep: [SC-4]
+  - id: SC-4
+    criterion: "VbC table populated from VbC output artifacts, not hand-written"
+    evidence_type: behavioral
+    verification_method: "Verify VbC verification output writes structured table to artifact path for PR body consumption"
+    phase: 1
+    chain_dep: []

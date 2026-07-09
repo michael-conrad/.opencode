@@ -1,0 +1,12 @@
+status: PASS
+sc_summary: "5 success criteria across 3 phases: SC-1/SC-2/SC-3 (string), SC-4/SC-5 (behavioral). Dependency on #1792 (prerequisite)."
+phase_dependency_declarations:
+  - phase: 1
+    name: "adversarial-verification.md redesign"
+    depends_on: []
+  - phase: 2
+    name: "Task file migration (~30+ files)"
+    depends_on: [1]
+  - phase: 3
+    name: "Behavioral tests + guidelines update"
+    depends_on: [2]

@@ -4,6 +4,17 @@
 
 Add a checklist item to the `finishing-a-development-branch` checklist that verifies the VbC 4-column table is present in the PR body before PR creation.
 
+## SC Coverage
+
+| SC ID | Criterion | Evidence Type |
+|-------|-----------|---------------|
+| SC-2 | Finishing checklist verifies VbC table presence in PR body | string |
+
+## Red Checkpoint
+
+- **RED checkpoint:** Finishing checklist does NOT verify VbC table presence → failure condition: SC-2 not satisfied
+- **Failure condition:** `checklist.md` lacks VbC table verification item
+
 ## Steps
 
 ### Step 7: Add VbC Table Checklist Item

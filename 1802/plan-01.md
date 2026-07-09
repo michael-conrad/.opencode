@@ -4,6 +4,17 @@
 
 Modify the VbC verification output format to produce a structured 4-column table (ID, Criterion, Test, Result) with test-type annotations, so that downstream PR body generation can consume it.
 
+## SC Coverage
+
+| SC ID | Criterion | Evidence Type |
+|-------|-----------|---------------|
+| SC-4 | VbC table populated from VbC output artifacts, not hand-written | behavioral |
+
+## Red Checkpoint
+
+- **RED checkpoint:** VbC verification output does NOT include a structured 4-column table → failure condition: SC-4 not satisfied
+- **Failure condition:** `verify.md` output format lacks ID/Criterion/Test/Result columns or test-type annotations
+
 ## Steps
 
 ### Step 1: Update `verify.md` — Add Structured VbC Table Output Format

@@ -4,6 +4,17 @@
 
 Modify the PR body generation in `git-workflow/pr-creation/create-pr.md` to include the VbC 4-column table from the VbC artifact, replacing the current per-SC evidence table format.
 
+## SC Coverage
+
+| SC ID | Criterion | Evidence Type |
+|-------|-----------|---------------|
+| SC-1 | PR body generation produces a 4-column VbC table (ID, Criterion, Test, Result) with test-type annotations | behavioral |
+
+## Red Checkpoint
+
+- **RED checkpoint:** PR body template does NOT include the 4-column VbC table → failure condition: SC-1 not satisfied
+- **Failure condition:** `create-pr.md` output lacks VbC table or uses old per-SC evidence format
+
 ## Steps
 
 ### Step 5: Update `create-pr.md` — Add VbC Table to PR Body Template

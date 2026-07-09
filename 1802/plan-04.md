@@ -4,6 +4,17 @@
 
 Implement auto-detection of test-type annotations from test infrastructure usage patterns, so that the VbC table's Result column automatically includes the correct annotation without manual specification.
 
+## SC Coverage
+
+| SC ID | Criterion | Evidence Type |
+|-------|-----------|---------------|
+| SC-3 | Test-type annotations auto-detected from test infrastructure usage patterns | behavioral |
+
+## Red Checkpoint
+
+- **RED checkpoint:** Test-type annotations are NOT auto-detected → failure condition: SC-3 not satisfied
+- **Failure condition:** Detection logic missing in `collect.md`, annotation absent from evaluation output, or VbC table artifact lacks annotations
+
 ## Steps
 
 ### Step 8: Define Test-Type Detection Logic
