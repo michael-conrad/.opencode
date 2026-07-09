@@ -297,6 +297,21 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
      ```
      This ensures the feature branch's first commit captures the correct submodule SHA. Subsequent implementation commits build on this foundation.
 
+**⚠️ CRITICAL: No-Op Branch Guard**
+
+After committing the submodule pointer, if the branch has NO additional commits with source code changes by the time PR creation is requested, the branch MUST be deleted instead of creating a PR:
+
+```bash
+# Before PR creation, verify branch has non-submodule changes
+NON_SUBMODULE_COMMITS=$(git log origin/"$DEFAULT_BRANCH"..HEAD --oneline --name-only | grep -v '^[0-9a-f]\{7\} ' | grep -v '^$' | grep -v '^\.opencode$' | wc -l)
+if [ "$NON_SUBMODULE_COMMITS" -eq 0 ]; then
+  echo "HARD BLOCK: Branch has only submodule pointer changes."
+  echo "Delete this branch: git checkout main && git branch -D <branch>"
+  echo "Do NOT create a PR. Submodule-only PRs are against policy."
+  exit 1
+fi
+```
+
 **After branch creation and pointer commit:**
 
 ```bash

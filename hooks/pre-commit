@@ -1,95 +1,31 @@
 #!/bin/bash
-# Pre-commit hook: Two independent gates with per-gate exit codes.
-# Each gate runs in a subshell so failures don't block subsequent gates.
-# Exits 1 if ANY gate failed.
+# Pre-commit hook: Branch protection gate.
+# Exits 1 if gate fails.
 
 set -e
 
 CURRENT_BRANCH=$(git branch --show-current)
-GATE_EXIT_CODES=()
+TRUNK_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+[ -z "$TRUNK_BRANCH" ] && TRUNK_BRANCH="main"
 
-# --- Gate 1: Branch protection (main/dev) ---
-(
-  if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
-    echo ""
-    echo "ERROR: Direct commits to '$CURRENT_BRANCH' branch are blocked."
-    echo ""
-    echo "Branch protection policy:"
-    echo "  - main: Production branch (merge from dev only)"
-    echo "  - dev: Integration branch (feature PRs merge here)"
-    echo ""
-    echo "To commit your changes:"
-    echo "  1. Create a feature branch: git checkout -b feature/<name>"
-    echo "  2. Or create a hotfix branch: git checkout -b hotfix/<name>"
-    echo ""
-    echo "BLOCKED: Direct commit to protected branch — unreviewed changes entering production integration."
-    echo "No PR means no verification occurred. Every unprotected commit is an unreviewed deployment risk."
-    echo ""
-    echo "Remediate: call skill({name: \"git-workflow\"}) --task pre-work"
-    echo ""
-    exit 1
-  fi
-  exit 0
-)
-GATE_EXIT_CODES+=($?)
+# --- Gate 1: Branch protection (trunk) ---
+if [ "$CURRENT_BRANCH" = "$TRUNK_BRANCH" ]; then
+  echo ""
+  echo "ERROR: Direct commits to '$TRUNK_BRANCH' are blocked."
+  echo ""
+  echo "Branch protection policy:"
+  echo "  - $TRUNK_BRANCH: Single trunk — all changes through PRs"
+  echo ""
+  echo "To commit your changes:"
+  echo "  1. Create a feature branch: git checkout -b feature/<name>"
+  echo "  2. Or create a hotfix branch: git checkout -b hotfix/<name>"
+  echo ""
+  echo "BLOCKED: Direct commit to protected branch — unreviewed changes entering production integration."
+  echo "No PR means no verification occurred. Every unprotected commit is an unreviewed deployment risk."
+  echo ""
+  echo "Remediate: call skill({name: \"git-workflow\"}) --task pre-work"
+  echo ""
+  exit 1
+fi
 
-# --- Gate 3: Submodule-bump-only commit prevention (parent repo context) ---
-(
-  SKIP_SUBMODULE_GATE="${SKIP_SUBMODULE_GATE:-}"
-  if [ "$SKIP_SUBMODULE_GATE" = "1" ] || [ ! -f ".gitmodules" ]; then
-    exit 0
-  fi
-
-  case "$CURRENT_BRANCH" in
-    pair-*|rollback/*|hotfix/*|main|dev)
-      exit 0
-      ;;
-  esac
-
-  STAGED_FILES_G3=$(git diff --cached --name-only 2>/dev/null)
-  ALL_STAGED_IN_SUBMODULE=1
-  for f in $STAGED_FILES_G3; do
-    case "$f" in
-      .opencode/*) ;;
-      *)
-        ALL_STAGED_IN_SUBMODULE=0
-        break
-        ;;
-    esac
-  done
-
-  if [ "$ALL_STAGED_IN_SUBMODULE" = "1" ] && [ -n "$STAGED_FILES_G3" ]; then
-    echo ""
-    echo "ERROR: Submodule-bump-only commit blocked."
-    echo ""
-    echo "Changed files are entirely inside .opencode/ (submodule) with no parent-repo"
-    echo "source changes."
-    echo ""
-    echo "Submodule-only bump PRs are against policy and will be rejected upstream."
-    echo ""
-    echo "Changes to .opencode/ files belong in the submodule's own feature branch"
-    echo "and PR. Work in the submodule directly (cd .opencode && git checkout -b ...),"
-    echo "commit there, push, and merge via submodule PR. The parent pointer updates"
-    echo "naturally when the submodule merges."
-    echo ""
-    echo "Remediate: call skill({name: \"git-workflow\"}) --task implementation"
-    echo ""
-    exit 1
-  fi
-  exit 0
-)
-GATE_EXIT_CODES+=($?)
-
-# Report per-gate status
-GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)")
-ANY_FAILED=0
-for i in "${!GATE_EXIT_CODES[@]}"; do
-  if [ "${GATE_EXIT_CODES[$i]}" -ne 0 ]; then
-    echo "  ✗ ${GATE_NAMES[$i]}: FAILED"
-    ANY_FAILED=1
-  else
-    echo "  ✓ ${GATE_NAMES[$i]}: passed"
-  fi
-done
-
-exit $ANY_FAILED
+exit 0
