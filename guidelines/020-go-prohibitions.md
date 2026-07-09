@@ -126,6 +126,17 @@ Everything else stays in the sub-agent's context and is discarded.
 
 ---
 
+## 1.2 Interpretive Questions Are Explanation-Only — Never Modification Authorization
+
+**🚫 Interpretive questions are explanation-only, never modification authorization.** A user asking "why is X here?", "what does Y do?", or any interpretive question MUST be answered with explanation. The agent MUST NOT:
+- Delete or untrack files mentioned in the question
+- Edit files mentioned in the question
+- Propose changes in response to the question
+
+File modification in response to an interpretive question is a CRITICAL VIOLATION. Only explicit "change this" or "fix this" language authorizes modification.
+
+---
+
 ### Authorization-Free Actions — No Deliberation Required
 
 <!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->

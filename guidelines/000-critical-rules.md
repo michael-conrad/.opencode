@@ -155,6 +155,15 @@ Auto-spec → auto-plan → auto-approve → auto-PR. See `010-approval-gate.md`
 Breaks agent config loading. See `060-tool-usage.md` §2.
 
 
+### [critical-rules-052] CRITICAL VIOLATION — `git rm` and file deletion require spec + authorization
+`git rm` and file deletion require spec + authorization — CRITICAL VIOLATION to perform without both.
+
+Deleting a tracked file from the repository is a destructive operation equivalent to any code change. It requires:
+1. A spec (SPEC-FIX or SPEC) describing what is being deleted and why
+2. Explicit authorization ("approved" or "go")
+
+A "why" question, a complaint about redundancy, or any interpretive inference is NEVER authorization to delete files. The agent MUST NOT run `git rm` or delete tracked files without both spec and authorization.
+
 
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
