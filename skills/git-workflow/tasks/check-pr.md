@@ -24,8 +24,8 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 - All merged PRs identified and verified
 - Linked issues closed depth-first (sub-repos first, then parent)
-- Submodule branches cleaned up (dev switch, branch delete, tag delete, prune)
-- Parent branches cleaned up (dev switch, branch delete, checkpoint-tag delete, prune)
+- Submodule branches cleaned up (trunk switch, branch delete, tag delete, prune)
+- Parent branches cleaned up (trunk switch, branch delete, checkpoint-tag delete, prune)
 - All repos iterated depth-first with branch-aware parking
 - Working tree clean, repo parked on appropriate branch
 
@@ -95,7 +95,7 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
   - Computation triggered: yes|no (if updated_at == created_at)
   - Action required: <none|rebase needed|conflict resolution|wait for computation>
   ```
-- [ ] Verify the merge commit exists in local dev history: `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>`
+- [ ] Verify the merge commit exists in local trunk history: `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>`
 - [ ] Report PASS/FAIL per PR with evidence artifact
 
 ## Phase 3: Close Linked Issues
@@ -109,13 +109,13 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 
 - [ ] Detect submodules via filesystem glob scan: `ls -d .git/ */.git/ */.git/`
 - [ ] For each submodule with a feature branch, clean up the merged branch
-- [ ] Restore submodules to dev tip via sub-agent task()
+- [ ] Restore submodules to trunk tip via sub-agent task()
 - [ ] Do NOT create dependency-sync PRs — leave submodule pointers dirty
 
 ## Phase 5: Parent Branch Cleanup
 
-- [ ] Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH" --ff-only`
-- [ ] For each merged branch, verify content exists on dev via `git diff --stat origin/"$DEFAULT_BRANCH"...<branch>` — produce content comparison table
+- [ ] Switch to trunk and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH" --ff-only`
+- [ ] For each merged branch, verify content exists on trunk via `git diff --stat origin/"$DEFAULT_BRANCH"...<branch>` — produce content comparison table
 - [ ] Delete local merged branch: `git branch -d <branch>`
 - [ ] Delete remote branch: `git push origin --delete <branch>`
 - [ ] Preserve hash-permanence tags — do NOT delete
@@ -126,9 +126,9 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 
 - [ ] Iterate ALL discovered repos depth-first: submodule tips, then parent tip
 - [ ] Branch-aware parking per current branch type:
-  - On `feature/*`, `fix/*`, `spec/*` → switch to dev tip
+  - On `feature/*`, `fix/*`, `spec/*` → switch to trunk tip
   - Already on $DEFAULT_BRANCH → pull latest, stay on $DEFAULT_BRANCH
-  - Already on main → pull latest, stay on main
+  - Already on trunk → pull latest, stay on trunk
   - On non-standard branch → pull latest on current branch, do NOT switch
 - [ ] Submodule pointers in the parent repo are dirty by design. They are restored during the next pre-work cycle. Do NOT commit, reset, or otherwise correct them.
 - [ ] Verify clean working tree: `git status --porcelain` must be empty

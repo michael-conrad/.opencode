@@ -18,7 +18,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
    ```
    Check that `merged_at` is not None.
 
-- [ ] 2. **Switch to dev:**
+- [ ] 2. **Switch to trunk:**
    ```bash
    git checkout "$DEFAULT_BRANCH"
    git pull origin "$DEFAULT_BRANCH"

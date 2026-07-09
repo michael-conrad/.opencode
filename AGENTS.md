@@ -172,7 +172,7 @@ fi
   - `plugins/`: TypeScript plugins (session-enforcement.ts, env-loader.ts)
   - `.guidelines/registry.yaml`: Registry of migrated content
 
-- **Submodule repos**: `.opencode/` tracks `dev` — never detached HEAD or `main`
+- **Submodule repos**: `.opencode/` tracks `$DEFAULT_BRANCH` — never detached HEAD or `main`
 
 ## Issues Path Resolution
 
@@ -243,8 +243,8 @@ Credential status values: `verified` (token exists + API ping succeeds), `presen
 **Branch and submodule state model:** See `git-workflow` skill → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
 
 **Submodule discipline:**
-- Dev parking: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
-- Mid-feature: Sync submodules to upstream `dev` periodically
+- Dev parking: `git checkout $DEFAULT_BRANCH && git pull && git submodule init && git submodule foreach "git checkout $DEFAULT_BRANCH && git pull"`
+- Mid-feature: Sync submodules to upstream `$DEFAULT_BRANCH` periodically
 - Release: Lock submodule SHAs to current checkout state (NOT a fresh pull)
 - Hotfix: No submodule state changes; use pinned SHAs from `main`
 

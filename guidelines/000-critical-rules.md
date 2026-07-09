@@ -294,7 +294,7 @@ Review prep is the last gate before your work enters the codebase permanently. S
 
 
 ### [critical-rules-016] Skipping Post-Merge Cleanup
-Leaving merged branches and open issues after a merge creates a maintenance tax on every future session. Cleanup is not overhead — it is the completion ritual that keeps the repo navigable. Professional engineers clean up after every merge — amateurs leave a trail of orphaned branches and stale issues for someone else to find. See `git-workflow --task cleanup`. Deletes merged branches, closes issues, syncs dev.
+Leaving merged branches and open issues after a merge creates a maintenance tax on every future session. Cleanup is not overhead — it is the completion ritual that keeps the repo navigable. Professional engineers clean up after every merge — amateurs leave a trail of orphaned branches and stale issues for someone else to find. See `git-workflow --task cleanup`. Deletes merged branches, closes issues, syncs trunk.
 
 
 ### [critical-rules-016] Wrong Chat Output at Halt Points
@@ -306,7 +306,7 @@ A PR body without Summary/Outcome/Fixes structure buries the intent of your chan
 
 
 ### [critical-rules-016] Wrong Compare URL Base Branch
-Using the wrong base branch in a compare URL sends reviewers to the wrong diff — your changes look different against the wrong baseline. Professional engineers verify the base branch before every compare URL — amateurs send reviewers to the wrong diff and waste everyone's time. Feature: `compare/dev...<branch>`. Release: `compare/main...dev`.
+Using the wrong base branch in a compare URL sends reviewers to the wrong diff — your changes look different against the wrong baseline. Professional engineers verify the base branch before every compare URL — amateurs send reviewers to the wrong diff and waste everyone's time. PR compare URL base: `$DEFAULT_BRANCH` (the trunk).
 
 
 ### [critical-rules-016] Fabricating URLs
@@ -890,7 +890,7 @@ Must verify git state and create feature branch before any file modification. Cr
 
 | Violation Pattern | Consequence |
 |-------------------|-------------|
-| Working without feature branch | Changes land directly on dev/main, breaking branch discipline |
+| Working without feature branch | Changes land directly on trunk branches, breaking branch discipline |
 | Creating branches without authorization | Feature/spec branches created without proper scope approval |
 
 

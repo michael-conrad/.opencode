@@ -35,31 +35,31 @@ If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** D
 - [ ] 4. `git rev-parse --show-toplevel` MUST return the worktree path
 - [ ] 5. NEVER operate in the main working directory when in worktree mode
 
-## Step 0: Sync Dev Branch (Fast-Forward Only)
+## Step 0: Sync Trunk Branch (Fast-Forward Only)
 
-**Before running quality checks, ensure local dev is current.** If dev has been updated by other merges since this branch was created, running checks on a stale base produces incorrect results.
+**Before running quality checks, ensure local trunk is current.** If trunk has been updated by other merges since this branch was created, running checks on a stale base produces incorrect results.
 
 ```bash
 git fetch origin "$DEFAULT_BRANCH"
 git pull origin "$DEFAULT_BRANCH" --ff-only
 ```
 
-**The `--ff-only` flag is MANDATORY.** A plain `git pull origin "$DEFAULT_BRANCH"` can silently succeed with a merge commit, hiding divergence. The `--ff-only` flag ensures dev fast-forwards cleanly.
+**The `--ff-only` flag is MANDATORY.** A plain `git pull origin "$DEFAULT_BRANCH"` can silently succeed with a merge commit, hiding divergence. The `--ff-only` flag ensures trunk fast-forwards cleanly.
 
 **If `--ff-only` pull fails (diverged history):**
 
 ```bash
 # HALT and report. Suggest manual resolution:
-echo "ERROR: local dev has diverged from origin/$DEFAULT_BRANCH"
+echo "ERROR: local trunk has diverged from origin/$DEFAULT_BRANCH"
 echo "Suggest: git pull --rebase origin $DEFAULT_BRANCH"
 echo "Or manual resolution required"
 # HALT — do NOT proceed with stale codebase
-# Do NOT create merge commits on dev
+# Do NOT create merge commits on trunk
 ```
 
-**If dev is already up to date:** The ff-only pull is a no-op and proceeds instantly.
+**If trunk is already up to date:** The ff-only pull is a no-op and proceeds instantly.
 
-**Worktree context:** If running from a worktree (`WORKTREE_REQUIRED` is set), `git pull` must target the main working tree's dev, not the worktree. Use `git -C /path/to/main/repo pull origin "$DEFAULT_BRANCH" --ff-only` to ensure operations target the main tree. In direct-branch mode, `git pull origin "$DEFAULT_BRANCH" --ff-only` works directly.
+**Worktree context:** If running from a worktree (`WORKTREE_REQUIRED` is set), `git pull` must target the main working tree's trunk, not the worktree. Use `git -C /path/to/main/repo pull origin "$DEFAULT_BRANCH" --ff-only` to ensure operations target the main tree. In direct-branch mode, `git pull origin "$DEFAULT_BRANCH" --ff-only` works directly.
 
 ## Prepare Branch Workflow
 

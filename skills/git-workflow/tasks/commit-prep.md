@@ -172,7 +172,7 @@ Commits occur during the PR creation workflow, not as a separate step:
 | -- | -- | -- | -- |
 | Staged diff matches intent | `git diff --staged` | Shows exactly what should be committed | CONFLICTING → re-stage |
 | No unintended unstaged changes | `git diff` | Empty or only expected changes | VERIFICATION-GAP → review and stage |
-| On correct branch | `git branch --show-current` | Feature branch (not `main`/`$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
+| On correct branch | `git branch --show-current` | Feature branch (not the trunk) | STRUCTURE-VIOLATION → HALT |
 | Worktree location | `git rev-parse --show-toplevel` | Worktree path | STRUCTURE-VIOLATION → HALT |
 | Status shows expected files | `git status --porcelain` | Only intended files shown | VERIFICATION-GAP → review |
 

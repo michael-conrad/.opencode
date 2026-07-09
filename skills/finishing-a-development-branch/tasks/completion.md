@@ -58,7 +58,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "All commits pushed" | Verify no unpushed commits | `git diff @{u} HEAD` → check empty | VERIFICATION-GAP |
-| "Compare URL correct" | Verify URL uses correct base (dev) and session values | Verify URL string format | STRUCTURE-VIOLATION |
+| "Compare URL correct" | Verify URL uses correct base (trunk) and session values | Verify URL string format | STRUCTURE-VIOLATION |
 | "Lifecycle event appended" | Verify lifecycle event exists | `grep -c "event:" {project_root}/tmp/{issue-N}/lifecycle.yaml` | MISSING-ELEMENT |
 
 **Evidence artifact:** Git command output and/or GitHub MCP response confirming each claim.

@@ -5,8 +5,7 @@
 #   <local-ref> SP <local-sha> SP <remote-ref> SP <remote-sha> LF
 
 SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
-TRUNK_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-[ -z "$TRUNK_BRANCH" ] && TRUNK_BRANCH="main"
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
 
 # Read stdin refspecs. For each line, evaluate all gates.
 # If any line triggers a block, the hook exits 1.
@@ -34,44 +33,58 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
 
     # --- Gate 0: Block direct pushes to trunk ---
     # Deletes are always allowed (branch deletion is cleanup, not a push to trunk)
-    if [ "$IS_DELETE" = false ] && [ "$REMOTE_BRANCH" = "$TRUNK_BRANCH" ]; then
+    if [ "$IS_DELETE" = false ] && [ "$REMOTE_BRANCH" = "$DEFAULT_BRANCH" ]; then
         if [ "$SKIP_BRANCH_PROTECTION" != "1" ]; then
             echo ""
-            echo "BLOCKED: Direct pushes to '$TRUNK_BRANCH' are prohibited."
+            echo "BLOCKED: Direct pushes to '$DEFAULT_BRANCH' are prohibited."
             echo ""
             echo "Trunk branch must only receive changes through pull requests."
             echo ""
             echo "To override (deliberate ops action only):"
-            echo "  SKIP_BRANCH_PROTECTION=1 git push origin $TRUNK_BRANCH"
+            echo "  SKIP_BRANCH_PROTECTION=1 git push origin $DEFAULT_BRANCH"
             echo ""
             ALLOWED=false
         fi
     fi
 
-    # --- Gate 1: Merged branch topology check ---
+    # --- Gate 1: Merged branch topology check with open-PR exemption ---
     # Uses remote branches (not local) so force-pushing to a branch whose PR
     # was merged remotely (e.g. via GitHub UI or another workstation) is blocked.
     # Only applies to same-name pushes (local branch == remote branch), not deletes.
-    # Remote-merged check: origin/branch must be strictly behind origin/$TRUNK_BRANCH
+    # Remote-merged check: origin/branch must be strictly behind origin/$DEFAULT_BRANCH
     # (not equal) to avoid blocking pushes on newly-created empty branches.
+    # Open-PR exemption: if the branch has an open PR against the trunk, force-push
+    # is allowed even if the branch's commits are in the trunk's history.
     if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
         # Fetch remote refs once
         git fetch origin --prune 2>/dev/null || true
 
-        if git branch -r --merged "origin/$TRUNK_BRANCH" 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
-            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH".."origin/$TRUNK_BRANCH" 2>/dev/null || echo "0")
+        if git branch -r --merged "origin/$DEFAULT_BRANCH" 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
+            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH".."origin/$DEFAULT_BRANCH" 2>/dev/null || echo "0")
             if [ "$_AHEAD" -gt 0 ]; then
-                echo ""
-                echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into '$TRUNK_BRANCH'"
-                echo ""
-                echo "This branch has been merged and should be deleted, not pushed."
-                echo ""
-                echo "To clean up:"
-                echo "  git checkout $TRUNK_BRANCH && git pull origin $TRUNK_BRANCH"
-                echo "  git branch -d $LOCAL_BRANCH"
-                echo "  git push origin --delete $LOCAL_BRANCH"
-                echo ""
-                ALLOWED=false
+                # Check for open PR against the trunk — if one exists, allow force-push
+                _HAS_OPEN_PR=false
+                if command -v gh &>/dev/null; then
+                    _PR_COUNT=$(gh pr list --head "$LOCAL_BRANCH" --base "$DEFAULT_BRANCH" --state open --json number --jq 'length' 2>/dev/null || echo "0")
+                    [ "$_PR_COUNT" -gt 0 ] && _HAS_OPEN_PR=true
+                fi
+
+                if [ "$_HAS_OPEN_PR" = true ]; then
+                    # Open PR exists — allow force-push (PR is still active)
+                    :
+                else
+                    echo ""
+                    echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into '$DEFAULT_BRANCH'"
+                    echo ""
+                    echo "This branch has been merged and should be deleted, not pushed."
+                    echo ""
+                    echo "To clean up:"
+                    echo "  git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH"
+                    echo "  git branch -d $LOCAL_BRANCH"
+                    echo "  git push origin --delete $LOCAL_BRANCH"
+                    echo ""
+                    ALLOWED=false
+                fi
             fi
         fi
     fi
@@ -84,7 +97,6 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
         # On first push of a new branch, REMOTE_SHA is 0000... (all zeros).
         # Compare against default branch tip instead to get the full diff.
         if echo "$REMOTE_SHA" | grep -q '^0\{40\}$'; then
-            DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
             CHANGED_FILES=$(git diff --name-only "origin/$DEFAULT_BRANCH".."$LOCAL_SHA" 2>/dev/null || true)
         else
             CHANGED_FILES=$(git diff --name-only "$REMOTE_SHA".."$LOCAL_SHA" 2>/dev/null || true)
@@ -120,7 +132,7 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
                 echo "included in your PR alongside the real implementation."
                 echo ""
                 echo "If you have no code changes to make, delete this branch:"
-                echo "  git checkout $TRUNK_BRANCH && git branch -D $LOCAL_BRANCH"
+                echo "  git checkout $DEFAULT_BRANCH && git branch -D $LOCAL_BRANCH"
                 echo ""
                 echo "There is NO bypass for this gate. Do NOT create a submodule-only PR."
                 echo ""

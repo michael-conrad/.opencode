@@ -18,8 +18,8 @@ Verify that the writing-plans 22-step pipeline was followed before accepting a p
 
 1. Check local spec file exists at `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
    - If missing: return `status: FAIL` with `reason: SPEC_FILE_MISSING`
-2. Check feature branch exists and is not `dev` or `main`
-   - If missing or on dev/main: return `status: FAIL` with `reason: FEATURE_BRANCH_MISSING`
+2. Check feature branch exists and is not the trunk
+   - If missing or on the trunk: return `status: FAIL` with `reason: FEATURE_BRANCH_MISSING`
 3. Check Z3 check artifacts exist (look for `solve check` output artifacts)
    - If missing: return `status: FAIL` with `reason: Z3_CHECK_ARTIFACTS_MISSING`
 4. Check audit artifacts exist (look for audit-fidelity and audit-concern output)

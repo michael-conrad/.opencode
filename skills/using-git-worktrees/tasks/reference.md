@@ -31,7 +31,7 @@ If NOT ignored:
 | Mistake | Problem | Fix |
 |---------|---------|-----|
 | Skipping ignore verification | Worktree contents tracked, pollute git status | Always use `git check-ignore` before creating |
-| Creating worktree from `main` | Based on wrong branch | Always `git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH` first |
+| Creating worktree from the wrong branch | Based on wrong branch | Always `git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH` first |
 | Proceeding with failing tests | Can't distinguish new bugs from pre-existing. See critical-rules-069 — "pre-existing failure" rationalization is a CRITICAL VIOLATION | Report failures, get explicit permission, remediate before proceeding |
 | Not announcing worktree creation | Other agents unaware of parallel workspace | Always announce at start |
 
@@ -81,7 +81,7 @@ This cleanup happens as part of the standard `git-workflow --task cleanup` seque
 
 **Never:**
 - Create worktree without verifying it's ignored (project-local)
-- Create worktree from `main` (always branch from the default branch)
+- Create worktree from the wrong branch (always branch from the default branch)
 - Skip baseline test verification
 - Proceed with failing tests without asking
 - Assume directory location when ambiguous
@@ -92,6 +92,6 @@ This cleanup happens as part of the standard `git-workflow --task cleanup` seque
 - Verify directory is ignored for project-local
 - Auto-detect and run `uv sync` for project setup
 - Announce worktree creation at start
-- Create branch from the default branch (not `main`)
+- Create branch from the default branch (the trunk)
 - Verify clean test baseline
 - HALT immediately if `worktree.fatal=1` appears in session init

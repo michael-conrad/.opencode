@@ -42,8 +42,8 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 ### ✅ ALWAYS DO
 ```
 # Correct order (using worktree):
-# 1. Sync dev: git checkout dev && git pull origin dev
-# 2. Create worktree: git worktree add .worktrees/spec-my-change -b spec/my-change dev
+# 1. Sync trunk: git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH
+# 2. Create worktree: git worktree add .worktrees/spec-my-change -b spec/my-change $DEFAULT_BRANCH
 # 3. Work in .worktrees/spec-my-change/ (using workdir parameter on bash commands)
 # IMPORTANT: For read/edit/write/glob/grep tools, prefix filePath with worktree.path:
 #   read(filePath=f"{worktree.path}/src/main.py")  — NOT read(filePath="src/main.py")
@@ -57,8 +57,8 @@ git checkout -b spec/my-change
 # Work in main working directory
 
 # WRONG — VIOLATION (checkout without worktree):
-git checkout dev && git pull origin dev
-git checkout -b spec/my-change dev
+git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH
+git checkout -b spec/my-change $DEFAULT_BRANCH
 # Work in main working directory
 ```
 

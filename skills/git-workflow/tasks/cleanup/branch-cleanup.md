@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Delete merged branches, clean stale references, remove worktrees, sync dev, and verify clean repository state after PR merge.
+Delete merged branches, clean stale references, remove worktrees, sync trunk, and verify clean repository state after PR merge.
 
 ## Entry Criteria
 
@@ -289,7 +289,7 @@ blocked_reason: <if BLOCKED, explanation of divergence>
 **After all submodules processed — acknowledge dirty pointer(s):**
 ```bash
 echo "Submodule branch cleanup complete."
-echo "Submodule pointer(s) are dirty — expected state after dev sync."
+echo "Submodule pointer(s) are dirty — expected state after trunk sync."
 echo "No corrective action taken on submodule pointer(s)."
 echo "The parent repo 'git status' will show modified submodule entry/entries — this is correct."
 ```
@@ -297,17 +297,17 @@ echo "The parent repo 'git status' will show modified submodule entry/entries �
 **🚫 FORBIDDEN:**
 - `git add <submodule_path>` or any commit modifying any submodule pointer during cleanup
 - `git submodule update --recursive` or any `--recursive` submodule command
-- Switching the parent repo away from `dev`
+- Switching the parent repo away from `$DEFAULT_BRANCH`
 - Treating a dirty submodule pointer as an error condition
 - Creating a PR whose sole purpose is to update submodule pointer(s) (submodule-only PR, any number of submodules)
 
 **✅ REQUIRED:**
-- Verify each submodule is on `dev` before branch operations
+- Verify each submodule is on `$DEFAULT_BRANCH` before branch operations
 - Content verification gate before each submodule branch deletion
 - Tag-if-untagged for submodule SHAs
 - Acknowledge dirty pointer after all submodules processed
 
-**Evidence artifact (MANDATORY):** Tool-call output showing each submodule's `git branch --show-current` returns `dev`, the list of deleted branches per submodule, and the tag-if-untagged result per submodule. If no submodules exist, evidence that the step was evaluated and skipped is sufficient.
+**Evidence artifact (MANDATORY):** Tool-call output showing each submodule's `git branch --show-current` returns `$DEFAULT_BRANCH`, the list of deleted branches per submodule, and the tag-if-untagged result per submodule. If no submodules exist, evidence that the step was evaluated and skipped is sufficient.
 
 ### Step 2: Remove Feature Worktree
 
@@ -338,17 +338,17 @@ In parallel sub-agent mode, other agents may still be working in their worktrees
 
 **⚠️ CRITICAL: Declaring a branch deletable without content verification is a CRITICAL GUIDELINE VIOLATION (see `000-critical-rules.md` §Content Verification Before Branch Deletion).**
 
-Before deleting ANY merged branch, verify that all branch content is present on the target branch (dev):
+Before deleting ANY merged branch, verify that all branch content is present on the target branch (trunk):
 
-1. **List changed files:** `git diff --stat origin/dev...HEAD` — identify all files changed on the branch vs dev
+1. **List changed files:** `git diff --stat origin/"$DEFAULT_BRANCH"...HEAD` — identify all files changed on the branch vs trunk
 2. **For each file in the diff:**
-   a. If file exists on dev AND content matches: status = `IDENTICAL` — safe to delete
-   b. If file exists on dev BUT has newer/different content: `git diff origin/dev...HEAD -- <file>` to compare; if dev version supersedes branch version, status = `SUPERSEDED` — safe to delete with note
-   c. If file does NOT exist on dev: status = `UNIQUE` — MUST NOT delete branch, flag for developer review
+   a. If file exists on trunk AND content matches: status = `IDENTICAL` — safe to delete
+   b. If file exists on trunk BUT has newer/different content: `git diff origin/"$DEFAULT_BRANCH"...HEAD -- <file>` to compare; if trunk version supersedes branch version, status = `SUPERSEDED` — safe to delete with note
+   c. If file does NOT exist on trunk: status = `UNIQUE` — MUST NOT delete branch, flag for developer review
 3. **For tool/script files:** check version indicators (interface signatures, flag patterns, function presence) to determine supersession
 4. **Produce content comparison table (MANDATORY evidence artifact):**
 
-| File | Branch Version | Dev Version | Status |
+| File | Branch Version | Trunk Version | Status |
 |------|---------------|-------------|--------|
 | path/to/file | v4 (old interface) | v5 (new interface) | SUPERSEDED |
 | path/to/unique | present | absent | UNIQUE — needs review |
@@ -426,10 +426,10 @@ When the merged branch was a work branch (created by the implementation-pipeline
 ### Step 4: Clean Other Merged Branches
 
 ```bash
-git branch --merged dev
+git branch --merged "$DEFAULT_BRANCH"
 ```
 
-For each merged branch (except main/master/dev): `git branch -d <branch>`
+For each merged branch (except the trunk): `git branch -d <branch>`
 
 ### Step 5: Verify Clean State
 
@@ -438,7 +438,7 @@ git status --porcelain  # Must be empty
 git branch -vv          # Should show minimal branches
 ```
 
-**`.issues/<N>/` Persistence:** The `.issues/<issue_number>/` directory MUST NOT be deleted. It persists permanently in the working tree on `dev` as immutable history. After merge, the feature branch's `.issues/<N>/` content lands in `dev` via the merge. Do NOT add cleanup steps that remove or archive these directories.
+**`.issues/<N>/` Persistence:** The `.issues/<issue_number>/` directory MUST NOT be deleted. It persists permanently in the working tree on the trunk as immutable history. After merge, the feature branch's `.issues/<N>/` content lands on the trunk via the merge. Do NOT add cleanup steps that remove or archive these directories.
 
 ### Step 6: Succinct Confirmation
 

@@ -10,7 +10,7 @@ Create the pull request after squash/push, collect sub-issues, generate PR body,
 
 When invoked with `--release` flag, this task performs post-merge steps after PR merge:
 
-- **Semver tagging:** Auto-increment patch version (or developer-specified), create annotated tag on `main`
+- **Semver tagging:** Auto-increment patch version (or developer-specified), create annotated tag on the trunk
 - **Platform release creation:** Create GitHub/GitBucket release with synthesized release notes
 - **Release notes synthesis:** Summarize changes since last release by category (features, fixes, maintenance)
 
@@ -130,7 +130,7 @@ autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
 | `stacked` | Single PR for all issues in work set |
 | `none` | No PR creation — halt_at boundary |
 
-**⚠️ CRITICAL: Sub-issues are closed by the cleanup task via API, NOT by autoclose.** GitHub autoclose is inert for `dev`-branch merges.
+**⚠️ CRITICAL: Sub-issues are closed by the cleanup task via API, NOT by autoclose.** GitHub autoclose is inert for trunk merges.
 
 ### Step 6: Create PR (Platform-Agnostic)
 
@@ -140,7 +140,7 @@ autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
 github_create_pull_request(
     owner=<github.owner>,
     repo=<github.repo>,
-    title="[SPEC] <description>",  # When is_release: true, use "Release v<version>: promote <target> → main"
+    title="[SPEC] <description>",  # When is_release: true, use "Release v<version>: promote <target> → trunk"
     body="""**Summary:**
 
 <1-2 sentences describing impact and stakeholder value, sourced from issue body via issue-operations --task read-issue>
@@ -265,7 +265,7 @@ When `is_release: true` and the PR has been merged by a human:
 
 #### Step 7.1.1: Determine Version
 
-1. Fetch latest tag matching `<parent>/v*` from `main`
+1. Fetch latest tag matching `<parent>/v*` from the trunk
 2. Auto-increment patch version (e.g., `v0.1.1` → `v0.1.2`)
 3. If developer specified a version, use that instead
 

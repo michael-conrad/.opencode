@@ -13,7 +13,7 @@ Squash and create PR targeting `$DEFAULT_BRANCH` with `[pair-mode]` trailers.
 
 Pair mode uses the same squash workflow as autonomous mode:
 
-- [ ] 1. **Soft-reset to dev:**
+- [ ] 1. **Soft-reset to trunk:**
    ```bash
    git reset --soft origin/"$DEFAULT_BRANCH"
    ```

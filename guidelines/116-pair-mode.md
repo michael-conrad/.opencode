@@ -18,7 +18,7 @@ Pair mode (`pair-` prefix branches) allows the AI agent to work directly in the 
 | `pair-spec/456-abc` | Dev-pair | Main project dir |
 | `feature/789-xyz` | Autonomous | `.worktrees/` |
 | `spec/789-abc` | Autonomous | `.worktrees/` |
-| `dev` or `main` | None | Prompt to create/switch |
+| The trunk | None | Prompt to create/switch |
 
 The `pair-` prefix IS the mode signal. No state files needed — branch name carries everything.
 
@@ -66,7 +66,7 @@ The `session_context_triggers.py` script detects pair mode at session start when
 
 ### Pair Mode Suggestion Protocol
 
-When the agent detects uncommitted changes on a protected branch (`dev` or `main`) — not just when on a `pair-` branch — it MUST suggest entering pair mode as the default workflow:
+When the agent detects uncommitted changes on a protected branch (the trunk) — not just when on a `pair-` branch — it MUST suggest entering pair mode as the default workflow:
 
 1. The agent analyzes the diff summary and produces an executive summary of pending changes
 2. The agent suggests entering pair mode with a concrete issue reference (if inferable from branch name, commit messages, or diff content) or prompts to create an issue
@@ -95,7 +95,7 @@ pair-cleanup: Delete branch, clean stashes
 
 Pair mode is a Tier 2 waiver of the Tier 1 worktree mandate (per `000-critical-rules.md` Mandate Tiering). The developer is present and accepts responsibility for:
 
-- Branch hygiene (no accidental commits to `dev`/`main`)
+- Branch hygiene (no accidental commits to the trunk)
 - WIP commit cleanup after branch switches
 - Merge conflict awareness
 
@@ -112,7 +112,7 @@ When on a `pair-` branch:
 ## Prohibited Actions in Pair Mode
 
 - Creating worktrees for pair mode branches
-- Committing directly to `dev` or `main` (hooks enforce this)
+- Committing directly to the trunk (hooks enforce this)
 - Using `Fixes` or `Closes` in PR body (use `Implements`)
 - Skipping WIP commit before branch switches
 - Omitting `[pair-mode]` tag from commit trailers
