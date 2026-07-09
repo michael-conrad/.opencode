@@ -205,6 +205,8 @@ The `local-issues` tool handles this resolution automatically via qualified name
 
 **The CLI tool handles git operations internally.** You do NOT need to run `git -C .issues` commands manually except for the one pull at session start. File operation tools (`read`, `write`, `edit`, `glob`, `grep`) target the parent repo — they do NOT reach into the worktree. Using them on `.issues/` paths silently operates on the wrong repository.
 
+**🚫 CRITICAL: Agents MUST NOT read/write `.issues/` files directly through git operations.** Using `read()`, `write()`, `edit()`, `glob()`, or `grep()` on `.issues/` paths in the parent repo silently targets the wrong repository and corrupts git state. All `.issues/` operations MUST go through `.opencode/tools/local-issues` or explicit `git -C <tree>/.issues/` commands.
+
 **See `.issues/AGENTS.md` for the complete `.issues/` workspace guide.**
 
 ---
