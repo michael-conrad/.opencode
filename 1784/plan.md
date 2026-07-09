@@ -25,14 +25,14 @@ Restructure all 39 SKILL.md files to routing-only format with DISPATCH_GATE, mig
 | Phase | Title | Sub-Issue | Concern | Dependency |
 |-------|-------|-----------|---------|------------|
 | 1 | Routing-only template defined | N/A (DONE) | Template | None |
-| 2 | Add DISPATCH_GATE to routing-only template | #1784-sub-2 | Template | Phase 1 |
-| 3 | Audit all 39 SKILL.md files for procedure content | #1784-sub-3 | Audit | Phase 2 |
-| 4 | Migrate procedure content to tasks/*.md | #1784-sub-4 | Migration | Phase 3 |
-| 5 | Add DISPATCH_GATE to defective cards | #1784-sub-5 | DISPATCH_GATE | Phase 4 |
-| 6 | Update validation script | #1784-sub-6 | Validation | Phase 5 |
-| 7 | Behavioral enforcement tests | #1784-sub-7 | Testing | Phase 6 |
-| 8 | Pre-commit structural gate | #1784-sub-8 | Gate | Phase 7 |
-| 9 | Update guidelines | #1784-sub-9 | Docs | Phase 8 |
+| 2 | Add DISPATCH_GATE to routing-only template | opencode-config#10 | Template | Phase 1 |
+| 3 | Audit all 39 SKILL.md files for procedure content | opencode-config#12 | Audit | Phase 2 |
+| 4 | Migrate procedure content to tasks/*.md | opencode-config#11 | Migration | Phase 3 |
+| 5 | Add DISPATCH_GATE to defective cards | opencode-config#13 | DISPATCH_GATE | Phase 4 |
+| 6 | Update validation script | opencode-config#14 | Validation | Phase 5 |
+| 7 | Behavioral enforcement tests | opencode-config#15 | Testing | Phase 6 |
+| 8 | Pre-commit structural gate | opencode-config#16 | Gate | Phase 7 |
+| 9 | Update guidelines | opencode-config#17 | Docs | Phase 8 |
 
 ## Exit Criteria
 
