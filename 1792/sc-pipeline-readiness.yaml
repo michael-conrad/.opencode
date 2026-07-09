@@ -1,0 +1,43 @@
+schema_version: "1.0"
+generated_at: "20260708153039"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 17 SCs are atomic — each asserts exactly one independently testable claim. No SC bundles multiple assertions or spans multiple verification domains in a single criterion."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".issues/1792/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "sc_count == 17"
+        result: VALID
+    detail: "No depends_on fields declared in SC table. Dependency DAG is trivially valid (no edges, no cycles)."
+  - check_id: PR-3
+    result: PASS
+    detail: "All 17 SCs target exactly one file category (task file) and one verification domain. SC-1 through SC-5, SC-8 through SC-17 are string evidence; SC-6 and SC-7 are behavioral evidence. No SC spans multiple file categories or verification domains."
+  - check_id: PR-4
+    result: PASS
+    solve_contract_path: ".issues/1792/dependency-ordering-verification/ordering.yaml"
+    prove_results:
+      - theorem: "phase_count == 0"
+        result: VALID
+    detail: "No phase table declared in spec. Phase dependency graph is trivially acyclic (no phases, no edges)."
+  - check_id: PR-5
+    result: SKIP
+    detail: "Single-task spec — no phase table declared. Three-tier phase structure is not required for single-task specs."
+    sub_checks:
+      - check_id: PR-5a
+        result: SKIP
+      - check_id: PR-5b
+        result: SKIP
+      - check_id: PR-5c
+        result: SKIP
+      - check_id: PR-5d
+        result: SKIP
+      - check_id: PR-5e
+        result: SKIP
+sc_summary:
+  total_scs: 17
+  atomic: 17
+  with_dependencies: 0
+  single_concern: 17

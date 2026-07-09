@@ -1,0 +1,7 @@
+variables:
+  sc_count:
+    type: int
+preconditions:
+  - "sc_count == 17"
+invariants:
+  - "sc_count == 17"

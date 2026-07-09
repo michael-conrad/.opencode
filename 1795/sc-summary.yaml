@@ -1,0 +1,16 @@
+---
+spec_issue: 1795
+spec_title: "[SPEC] PR Status Check — verify all mergeability signals, not just merged/state"
+created_at: 2026-07-08T20:45:00Z
+source: spec body at https://github.com/michael-conrad/.opencode/issues/1795
+---
+
+# SC Summary — Spec #1795
+
+| ID | Evidence Type | Description |
+|----|---------------|-------------|
+| SC-1 | behavioral | After PR creation, agent reads `mergeable`, `base.sha`, `updated_at`, `created_at`, `state`, and `merged` from the PR API response |
+| SC-2 | behavioral | When `mergeable` is `null`, agent diagnoses root cause (stale base, conflict, or pending) and reports it to the user |
+| SC-3 | behavioral | When `base.sha` differs from remote base tip, agent rebases the PR branch onto current base |
+| SC-4 | behavioral | When `updated_at` equals `created_at`, agent triggers mergeability computation (comment or no-op push) |
+| SC-5 | behavioral | Agent does NOT report "PR is open" as a terminal status — always includes mergeability diagnosis |

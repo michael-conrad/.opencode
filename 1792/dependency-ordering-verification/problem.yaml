@@ -1,0 +1,32 @@
+domain: audit-task-hardening
+objects:
+  - name: phase_1
+    type: phase
+fluents:
+  - name: implemented
+    params:
+      - name: p
+        type: phase
+  - name: verified
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: implement
+    params:
+      - name: p
+        type: phase
+    preconditions: []
+    effects:
+      - implemented(p)
+  - name: verify
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - implemented(p)
+    effects:
+      - verified(p)
+init: []
+goals:
+  - verified(phase_1)
