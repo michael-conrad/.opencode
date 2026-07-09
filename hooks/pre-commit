@@ -46,34 +46,44 @@ GATE_EXIT_CODES+=($?)
       ;;
   esac
 
+  SUBMODULE_PATHS_G3=$(awk -F'=' '/^[[:space:]]*path[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' .gitmodules 2>/dev/null)
+  if [ -z "$SUBMODULE_PATHS_G3" ]; then
+    exit 0
+  fi
+
   STAGED_FILES_G3=$(git diff --cached --name-only 2>/dev/null)
   ALL_STAGED_IN_SUBMODULE=1
   for f in $STAGED_FILES_G3; do
-    case "$f" in
-      .opencode/*|.opencode)
-        # .opencode/* matches files inside submodule
-        # .opencode matches the gitlink entry (submodule pointer)
-        ;;
-      *)
-        ALL_STAGED_IN_SUBMODULE=0
-        break
-        ;;
-    esac
+    IS_SUBMODULE=0
+    for sp in $SUBMODULE_PATHS_G3; do
+      # $sp matches the gitlink entry (submodule pointer)
+      # $sp/* matches files inside the submodule directory
+      case "$f" in
+        "$sp"|"$sp/"*)
+          IS_SUBMODULE=1
+          break
+          ;;
+      esac
+    done
+    if [ "$IS_SUBMODULE" -eq 0 ]; then
+      ALL_STAGED_IN_SUBMODULE=0
+      break
+    fi
   done
 
   if [ "$ALL_STAGED_IN_SUBMODULE" = "1" ] && [ -n "$STAGED_FILES_G3" ]; then
     echo ""
     echo "ERROR: Submodule-bump-only commit blocked."
     echo ""
-    echo "Changed files are entirely inside .opencode/ (submodule) with no parent-repo"
+    echo "Changed files are entirely inside submodule(s) with no parent-repo"
     echo "source changes."
     echo ""
     echo "Submodule-only bump PRs are against policy and will be rejected upstream."
     echo ""
-    echo "Changes to .opencode/ files belong in the submodule's own feature branch"
-    echo "and PR. Work in the submodule directly (cd .opencode && git checkout -b ...),"
-    echo "commit there, push, and merge via submodule PR. The parent pointer updates"
-    echo "naturally when the submodule merges."
+    echo "Changes to submodule files belong in the submodule's own feature branch"
+    echo "and PR. Work in the submodule directly, commit there, push, and merge"
+    echo "via submodule PR. The parent pointer updates naturally when the"
+    echo "submodule merges."
     echo ""
     echo "Remediate: call skill({name: \"git-workflow\"}) --task implementation"
     echo ""
