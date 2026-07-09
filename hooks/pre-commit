@@ -6,14 +6,13 @@ set -e
 
 CURRENT_BRANCH=$(git branch --show-current)
 
-# --- Gate 1: Branch protection (main/dev) ---
-if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
+# --- Gate 1: Branch protection (main) ---
+if [ "$CURRENT_BRANCH" = "main" ]; then
   echo ""
-  echo "ERROR: Direct commits to '$CURRENT_BRANCH' branch are blocked."
+  echo "ERROR: Direct commits to 'main' are blocked."
   echo ""
   echo "Branch protection policy:"
-  echo "  - main: Production branch (merge from dev only)"
-  echo "  - dev: Integration branch (feature PRs merge here)"
+  echo "  - main: Single trunk — all changes through PRs"
   echo ""
   echo "To commit your changes:"
   echo "  1. Create a feature branch: git checkout -b feature/<name>"
