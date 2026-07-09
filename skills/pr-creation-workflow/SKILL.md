@@ -35,6 +35,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "pre-pr-checklist" / "PR checklist" | `pre-pr-checklist` | `sub-task` | {branch_name} |
 | "release PR" / "release" | `pre-pr-checklist` | `sub-task` | {branch_name, is_release: true} |
 | "sub-issue-collection" / "collect sub-issues" | `sub-issue-collection` | `sub-task` | {issue_number} |
+| "create" / "create PR" / "execute PR creation" | `create` | `sub-task` | {issue_number, authorization_scope, halt_at} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Tasks
@@ -42,6 +43,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | `pre-pr-checklist` |
 | `sub-issue-collection` |
+| `create` |
 | `completion` |
 
 ## Invocation
@@ -52,6 +54,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | `pre-pr-checklist` | `task(..., prompt: "execute pre-pr-checklist task from pr-creation-workflow")` |
 | `sub-issue-collection` | `task(..., prompt: "execute sub-issue-collection task from pr-creation-workflow")` |
+| `create` | `task(..., prompt: "execute create task from pr-creation-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from pr-creation-workflow")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "pr-creation-workflow"})` ``
