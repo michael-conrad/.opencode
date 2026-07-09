@@ -75,3 +75,32 @@ For the canonical SKILL.md structure (routing-only, no procedure text), see:
 - **`routing-only-template.md`** — The canonical routing-only SKILL.md template
 
 All new skills MUST use the routing-only template. The SKILL.md variant of the Mandatory Task Discipline block (5 items) is included in the template. Task cards (`tasks/*.md`) continue to use the task card variants defined above.
+
+### Required Sections
+
+The routing-only SKILL.md template defines the following required sections in order:
+
+| Section | Purpose |
+|---------|---------|
+| YAML frontmatter | Skill metadata (name, description, license, provenance) |
+| Overview | 1-2 sentence skill description |
+| Mandatory Task Discipline | Dispatch discipline checklist (5 items) |
+| Trigger Dispatch Table | Trigger-to-task routing with context and task file references |
+| Invocation | Canonical `skill()` and `task()` call strings |
+| Sub-Agent Routing | Context fields to pass and exclude per dispatch |
+| **DISPATCH_GATE** | Orchestrator `task()` prompt protocol — forbidden patterns, discovery directive, dispatch context contract, sub-agent entry criteria, orchestrator entry criteria |
+| Cross-References | Related skills and guidelines |
+| Symbolic rules (optional) | yaml+symbolic rule definitions |
+
+### DISPATCH_GATE Section Structure
+
+The DISPATCH_GATE section is **required** in every routing-only SKILL.md. It contains 6 subsections:
+
+1. **Context cost frame** — blockquote noting these are operational bookkeeping, not complexity measures
+2. **Forbidden in task() Prompts** — table of violation patterns (preloaded file paths, step sequences, expected outcomes, orchestrator reasoning, missing discovery directive)
+3. **Required: Sub-agent Task File Discovery Directive** — the `execute <task> from <skill>. Read \`<skill>/tasks/<task>.md\` first` format
+4. **Dispatch Context Contract** — list of fields to include and exclude in every `task()` call
+5. **Sub-Agent Entry Criteria** — `PRELOADED_CONTEXT_REJECTED` protocol for sub-agents
+6. **Orchestrator Entry Criteria** — mandate to use exact canonical dispatch strings
+
+All 6 subsections MUST be present. The DISPATCH_GATE section is placed after Sub-Agent Routing and before Cross-References.

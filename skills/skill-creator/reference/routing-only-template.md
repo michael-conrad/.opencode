@@ -79,6 +79,72 @@ provenance: AI-generated
 - Auditor tasks use subagent_type from `resolve-models` result contract — NOT `general`
 - `pre-analysis` receives only `{issue_number, task_description, github.owner, github.repo}`
 
+## DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute verify-authorization from approval-gate" without task file path | "execute verify-authorization from approval-gate. Read `approval-gate/tasks/verify-authorization.md` first" |
+
+#### Required: Sub-agent Task File Discovery Directive
+
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
+
+```
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
+```
+
+This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
+
+This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+
 ## Cross-References
 
 Skills: [related skills]. Guidelines: [related guidelines].
@@ -106,7 +172,8 @@ rules:
 | Trigger Dispatch Table | After Mandatory Task Discipline | Yes |
 | Invocation | After Trigger Dispatch Table | Yes |
 | Sub-Agent Routing | After Invocation | Yes |
-| Cross-References | After Sub-Agent Routing | Yes |
+| DISPATCH_GATE | After Sub-Agent Routing | Yes |
+| Cross-References | After DISPATCH_GATE | Yes |
 | Symbolic rules (yaml+symbolic) | End of file | Optional |
 
 ## Prohibited Content
