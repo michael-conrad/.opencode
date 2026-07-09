@@ -3,69 +3,150 @@ title: '[SPEC] PR body VbC results table — standard 4-column format with test-
 status: open
 labels:
 - spec
-body: '## Problem
+body: '## Goal
 
 
-  PR bodies from opencode agents list test results inconsistently — sometimes just
-  PASS/FAIL counts, sometimes test names. Reviewers can''t tell at a glance what was
-  tested, against what infrastructure, or whether it maps to spec success criteria.
+  Standardize PR body VbC results into a 4-column table format (ID, Criterion, Test,
+  Result) with auto-detected test-type annotations, populated from VbC output.
 
 
-  ## Required Format
+  ## Architecture
 
 
-  Every PR body that includes test results MUST use this VbC table format:
+  The VbC table flows through three pipeline stages:
+
+  1. **VbC output** (`verification-before-completion`) produces structured per-SC
+  evidence with test-type annotations
+
+  2. **PR body generation** (`git-workflow/pr-creation`) reads VbC artifacts and renders
+  the 4-column table
+
+  3. **Finishing checklist** (`finishing-a-development-branch/checklist`) verifies
+  the table exists in the PR body
 
 
-  | ID | Criterion | Test | Result |
-
-  |----|-----------|------|--------|
-
-  | SC-1 | Creates `{output}/db/` directory | `test_creates_db_dir` | ✅ PASS (live
-  DB) |
-
-  | SC-3 | Inserts rows with `status=''pending''` | `test_inserts_pending_rows` |
-  ✅ PASS (live DB) |
-
-  | SC-7 | Sunday → previous Monday | `test_issueweek_sunday` | ✅ PASS (unit) |
-
-  | SC-11 | Unreachable DB raises RuntimeError | `test_db_unreachable` | ✅ PASS (live
-  DB) |
+  Test-type annotations are auto-detected by a new detection module that inspects
+  test infrastructure usage (fixtures, mocks, testcontainers).
 
 
-  ### Result Column Annotations
+  ## Affected Files
 
 
-  | Annotation | Meaning |
+  | File | Change |
 
-  |------------|---------|
+  |------|--------|
 
-  | `(live DB)` | Test runs against a real database (testcontainer or real instance)
-  |
+  | `.opencode/skills/verification-before-completion/tasks/verify.md` | Add structured
+  VbC table output format with test-type annotations |
 
-  | `(unit)` | Standalone unit test, no infrastructure needed |
+  | `.opencode/skills/verification-before-completion/tasks/collect.md` | Add test-type
+  detection step during evidence collection |
 
-  | `(mock)` | Test uses mocked/stubbed dependencies |
+  | `.opencode/skills/git-workflow/tasks/pr-creation/create-pr.md` | Update PR body
+  template to include VbC 4-column table |
 
-  | `(integration)` | Test hits real infrastructure beyond core (filesystem, network,
-  external API) |
+  | `.opencode/skills/finishing-a-development-branch/tasks/checklist.md` | Add checklist
+  item verifying VbC table presence in PR body |
+
+  | `.opencode/skills/verification-before-completion/tasks/behavioral-test-evaluation.md`
+  | Add test-type annotation output to evaluation results |
 
 
-  ### Requirements
+  ## Phase Table
 
 
-  1. PR body generation in `git-workflow` `pr-creation` task or `verification-before-completion`
-  must produce this table format
+  | Phase | Description | Files Modified | Chain Dependency |
 
-  2. The `finishing-a-development-branch` checklist must verify the table is present
-  in the PR body
+  |-------|-------------|----------------|------------------|
 
-  3. Test-type annotations must be auto-detected from test infrastructure usage (e.g.,
-  testcontainers fixture → `(live DB)`, no fixtures → `(unit)`, `unittest.mock` →
-  `(mock)`)
+  | 1 | Update VbC output to produce structured 4-column table data with test-type
+  annotations | `verify.md`, `collect.md`, `behavioral-test-evaluation.md` | None
+  (foundation) |
 
-  4. The table must be populated from VbC output, not hand-written
+  | 2 | Update PR body generation to include the VbC table | `create-pr.md` | Phase
+  1 |
+
+  | 3 | Update finishing checklist to verify table presence | `checklist.md` | Phase
+  2 |
+
+  | 4 | Auto-detect test-type annotations from infrastructure usage | `collect.md`,
+  `behavioral-test-evaluation.md` | Phase 1 |
+
+
+  ## Exit Criteria
+
+
+  - VbC verification output includes a structured 4-column table (ID, Criterion, Test,
+  Result) with test-type annotations
+
+  - PR body template renders the VbC table from VbC artifacts
+
+  - Finishing checklist verifies VbC table presence in PR body
+
+  - Test-type annotations are auto-detected from test infrastructure usage patterns
+
+  - All implementation-pipeline gates enumerated in phase structure
+
+
+  ## Implementation Pipeline Gates (Mandatory)
+
+
+  Each phase MUST pass through these gates in order:
+
+  1. `sc-coherence-gate` — verify spec coherence
+
+  2. `pre-red-baseline` — establish baseline
+
+  3. `red-phase` — write failing test
+
+  4. `z3-check-red` — verify RED
+
+  5. `red-doublecheck` — verify RED evidence
+
+  6. `post-red-enforcement` — RED gate
+
+  7. `green-phase` — implement
+
+  8. `z3-check-green` — verify GREEN
+
+  9. `post-green-enforcement` — GREEN gate
+
+  10. `checkpoint-tag-create` — save checkpoint
+
+  11. `checkpoint-commit` — commit checkpoint
+
+  12. `structural-checks` — lint/typecheck
+
+  13. `green-doublecheck` — verify GREEN evidence
+
+  14. `green-vbc` — verification before completion
+
+  15. `pre-pr-gate` — pre-PR gate
+
+  16. `audit` — audit step
+
+  17. `cross-validate` — consensus check
+
+  18. `regression-check` — regression tests
+
+  19. `review-prep` — prepare review
+
+  20. `exec-summary` — completion
+
+
+  ## Self-Review Evidence
+
+
+  - Spec #1802 approved with `approved-for-pr` label
+
+  - Spec-to-plan cascade applies (auto-approved for `for_pr` scope)
+
+  - Single-issue spec, no sub-issues needed
+
+  - All 4 requirements mapped to phases
+
+  - Implementation-pipeline gates enumerated
 
   '
 created_at: '2026-07-09T08:18:36+00:00'
-updated_at: '2026-07-09T08:18:45+00:00'
+updated_at: '2026-07-09T08:19:09+00:00'
