@@ -41,6 +41,36 @@ For each missing criterion:
 - Store evidence in `{project_root}/tmp/{issue-N}/artifacts/`
 - Proceed to next missing criterion
 
+### Test-Type Annotation Detection
+
+When collecting evidence, the agent MUST detect and annotate the test type for each SC. The annotation is determined by inspecting the test infrastructure usage patterns.
+
+#### Detection Table
+
+| Pattern | Annotation | Detection Method |
+| -- | -- | -- |
+| `testcontainers` fixture, real DB instance | `(live DB)` | grep for testcontainers imports/fixtures |
+| No fixtures, no mocks, no external dependencies | `(unit)` | Check for absence of mock/testcontainers imports |
+| `unittest.mock`, `pytest-mock`, `mock.patch`, `MagicMock` | `(mock)` | grep for mock imports/decorators |
+| `requests`, `httpx`, `docker`, filesystem I/O, network calls | `(integration)` | grep for network/filesystem imports |
+
+#### Detection Procedure
+
+1. Read the test source file
+2. Scan for infrastructure patterns in priority order: `(live DB)` → `(mock)` → `(integration)` → `(unit)`
+3. Classify the test type based on the first matching pattern
+4. If no pattern matches, default to `(unit)`
+
+#### Evidence Storage for Test-Type Annotations
+
+Test-type annotations MUST be stored alongside the evidence artifact:
+
+```
+{project_root}/tmp/{issue-N}/artifacts/vbc-table-{timestamp}.md
+```
+
+Each row in the VbC table includes the annotation in the Test column (e.g., `pytest test_api.py::test_create -- (integration)`).
+
 ## Common Verification Commands
 
 ### Code Changes

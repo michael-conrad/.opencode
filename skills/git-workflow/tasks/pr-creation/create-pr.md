@@ -64,7 +64,7 @@ The Summary section MUST be sourced from the issue ticket body that authorized t
 |--------------|--------|---------------|
 | **Summary** | Issue ticket body (spec/plan issue for this PR) | `issue-operations --task read-issue` on parent issue |
 | **Outcome** | Issue ticket body + implementation knowledge | Synthesized from issue body + changesets |
-| **Per-SC Evidence** | VbC verification report | `read {project_root}/tmp/{issue-N}/artifacts/verification-*.md` |
+| **VbC Table** | VbC verification report | `read {project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` |
 | **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` |
 | **Tracking references** | Sub-issues from parent | `issue-operations --task read-sub-issues` on parent issue |
 
@@ -74,9 +74,10 @@ The verification-evidence check is a gate, not a banner. A PR without evidence i
 
 **Before proceeding to Step 5, check that required verification artifacts exist:**
 
-1. Check `{project_root}/tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
-2. Check `{project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
-3. If any artifact is MISSING or reports FAIL: do NOT create a PR
+1. Check `{project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` exists and contains PASS for all SCs
+2. Check `{project_root}/tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
+3. Check `{project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
+4. If any artifact is MISSING or reports FAIL: do NOT create a PR
 
 **Blocked State (Missing or Failing Verification Evidence):**
 
@@ -97,7 +98,7 @@ Example:
 Status: BLOCKED
 Gate: verification-evidence-check
 Blockers:
-  - [MISSING] {project_root}/tmp/{issue-N}/artifacts/verification-*.md — VbC evidence not found
+  - [MISSING] {project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md — VbC table not found
   - [FAIL] {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
     SC-1: Auditor 1 PASS, Auditor 2 FAIL
     Remediation: Re-audit SC-1 with fresh model pair
@@ -149,12 +150,12 @@ github_create_pull_request(
 
 **Verification Attestation:** All success criteria verified PASS — exact-match against live evidence. Dual independent auditors from different model families returned consensus PASS on every criterion. No caveats. No qualifications. Every PASS is a binary exact match. This deliverable is ready for merge.
 
-**Detail: Per-SC Evidence**
+**Detail: VbC Table**
 
-| SC ID | Success Criterion | Evidence Type | Command | Result |
-|-------|-------------------|---------------|---------|--------|
-| SC-1 | ... | structural | ... | PASS |
-| SC-2 | ... | behavioral | ... | PASS |
+| ID | Criterion | Test | Result |
+|----|-----------|------|--------|
+| SC-1 | ... | structural: ... | PASS |
+| SC-2 | ... | behavioral: ... | PASS |
 
 **Detail: Dual-Auditor Cross-Validation**
 
@@ -198,7 +199,7 @@ A Summary sourced from the issue ticket through the issue-operations dispatcher 
 - **Summary** section: 1-2 sentences describing stakeholder value (NOT implementation details) — sourced from issue body via `issue-operations --task read-issue`
 - **Outcome** section: What changed for stakeholders
 - **Verification Attestation**: Binary PASS language — no caveats, no justifications, no false-fail remediation language
-- **Per-SC Evidence Table**: SC ID, Success Criterion, Evidence Type, Command, Result columns — the Evidence Type column is MANDATORY per `080-code-standards.md` §Evidence Type Taxonomy
+- **VbC Table**: ID, Criterion, Test, Result columns — Test column includes test-type annotations (structural, behavioral, semantic, string) per `080-code-standards.md` §Evidence Type Taxonomy
 - **Dual-Auditor Cross-Validation Table**: Criterion, Auditor 1, Auditor 2, Consensus columns
 - **Spec-Card-Mapped Commits Table**: Commit, Issue, Spec Card, Description columns — maps each commit to the spec card it implements
 - `Fixes #N` or `Implements #N` annotations at bottom (informational — autoclose is inert for `<target>` merges)

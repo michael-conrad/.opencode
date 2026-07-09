@@ -43,6 +43,9 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] Per-SC evidence table produced for all success criteria
 - [ ] All per-SC evidence rows show PASS (no FAIL or MISSING EVIDENCE)
 - [ ] No FORBIDDEN outcomes ("functionally equivalent", "close enough") used in evidence table
+- [ ] VbC 4-column table (ID, Criterion, Test, Result) present in PR body
+- [ ] VbC table format matches spec (read PR body and confirm column headers, row structure)
+- [ ] VbC table populated from VbC output artifacts, not hand-written (verify source is `tmp/behavioral-evidence-*` or equivalent artifact path)
 
 ### Structural & Acceptance Verification
 - [ ] Structural completeness verified (all checklist items in scope are checked)

@@ -375,6 +375,42 @@ When an SC declares evidence type `behavioral`:
 - Agent MUST re-run the verification command for any FAIL row
 - Agent MUST provide a verification command for any MISSING EVIDENCE row
 
+### VbC Table Output Format (MANDATORY)
+
+**After the per-SC evidence table is complete, the agent MUST write a structured 4-column VbC table to an artifact file for PR body consumption.**
+
+#### Table Format
+
+| SC ID | Success Criterion | Test | Result |
+| -- | -- | -- | -- |
+| SC-1 | [criterion text] | [test command or verification method] | PASS/FAIL |
+
+The **Test** column MUST include a test-type annotation suffix from the following values:
+
+| Annotation | Meaning |
+| -- | -- |
+| `(live DB)` | Test runs against a live database |
+| `(unit)` | Pure unit test with no external dependencies |
+| `(mock)` | Test uses mocked external dependencies |
+| `(integration)` | Test exercises multiple components together |
+
+The annotation is sourced from the behavioral test evaluation output (`evaluation-{timestamp}.yaml` `test_type` field). If no annotation is available from the evaluation, default to `(unit)`.
+
+#### Artifact Path
+
+The VbC table MUST be written to:
+
+```
+{project_root}/tmp/{issue-N}/artifacts/vbc-table-{timestamp}.md
+```
+
+#### Procedure
+
+- [ ] 1. After completing the per-SC evidence table (all rows PASS), compile the 4-column table
+- [ ] 2. Annotate each row's Test column with the appropriate test-type suffix
+- [ ] 3. Write the table to `{project_root}/tmp/{issue-N}/artifacts/vbc-table-{timestamp}.md`
+- [ ] 4. The artifact file is consumed by the PR body generation step in `git-workflow --task review-prep`
+
 ## Programmatic Enforcement Tools (AVAILABLE)
 
 The following `skildeck` commands are available for automated verification:
