@@ -270,7 +270,7 @@ The cross-validate result contract MUST use the following finding type classific
 
 `overall_verdict = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_verdict = FAIL`.
 
-**Severity-based exception for SC-SEM criteria:** SC-SEM criteria carry a `severity` field (`ERROR` or `WARNING`). A FAIL on a WARNING-severity criterion does NOT cascade to `overall_verdict = FAIL` — it is recorded as a warning in the findings but does not block the pipeline. A FAIL on an ERROR-severity criterion DOES cascade to `overall_verdict = FAIL` and blocks the pipeline. Non-SC-SEM criteria (without a `severity` field) are treated as ERROR-severity by default — any FAIL blocks the pipeline.
+**No severity-based exceptions:** All FAILs cascade to `overall_verdict = FAIL` regardless of severity. WARNING is a FAIL condition — there is no distinction between WARNING and ERROR. The `severity` field in findings is informational only and does not affect the verdict cascade.
 
 ### Step 6.5: Verdict Self-Consistency Gate
 

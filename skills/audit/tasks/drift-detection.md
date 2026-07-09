@@ -206,6 +206,30 @@ Present options for developer decision.
 
 Write verdict to `./tmp/{issue-N}/artifacts/drift-detection/verdict.yaml`
 
+#### Self-Consistency Gate (Post-Write Validation)
+
+After writing `verdict.yaml`, run a self-consistency check on every verdict entry:
+
+```yaml
+for each entry in verdict.yaml:
+  if entry.result == "PASS":
+    hedging_patterns = [
+      "should be", "needs", "missing", "could improve",
+      "minor", "some issues", "mostly", "generally"
+    ]
+    for pattern in hedging_patterns:
+      if pattern in entry.explanation.lower():
+        entry.result = "FAIL"
+        entry.self_consistency_note = (
+          f"Downgraded from PASS to FAIL: explanation contains hedging "
+          f"language ('{pattern}') that contradicts a PASS verdict. "
+          f"A PASS verdict must be unequivocal — no critique, no hedging."
+        )
+        break
+```
+
+**Rationale:** A PASS verdict with critique/hedging in the explanation is internally inconsistent. The explanation must match the verdict: PASS means no issues found; FAIL means issues found. Hedging language in a PASS explanation indicates the evaluator is soft-passing — reporting PASS while documenting concerns. This gate catches that contradiction and enforces binary honesty.
+
 ### Step 10: Build Result Contract
 
 ```yaml
@@ -279,7 +303,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-07-09T00:00:00Z"
 rules:
   - id: drift-detection-001
     title: "Spec drift must be reported before merge"
@@ -301,4 +325,11 @@ rules:
       all: ["drift_found == true", "revision_options == null"]
     actions: [APPEND_DEFAULT_OPTIONS]
     source: "drift-detection.md §Step 8"
+
+  - id: drift-detection-004
+    title: "Self-consistency gate — PASS with hedging language is downgraded to FAIL"
+    conditions:
+      all: ["verdict_written == true", "any_entry_has_pass_with_hedging == true"]
+    actions: [DOWNGRADE_TO_FAIL, APPEND_SELF_CONSISTENCY_NOTE]
+    source: "drift-detection.md §Step 9 — Self-Consistency Gate"
 ```

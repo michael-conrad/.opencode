@@ -161,15 +161,17 @@ else:
 
 ### Step 9: Classify Mismatches
 
-| Mismatch Type | Severity | Classification |
-|--------------|----------|----------------|
-| TITLE_MISMATCH | LOW | May be cosmetic |
-| CRITERIA_MISSING | HIGH | Success criteria must be documented |
-| FILES_MISSMATCH | MEDIUM | Extra/missing files need explanation |
-| SCOPE_EXPANSION | HIGH | PR exceeds spec scope |
-| SCOPE_INCOMPLETE | HIGH | PR doesn't address full spec |
-| LINK_MISSING | MEDIUM | Should reference spec issue |
-| CLOSING_MISSING | MEDIUM | PR won't auto-close spec issue |
+All findings are binary — PASS or FAIL. No severity tiers.
+
+| Mismatch Type | Classification |
+|--------------|----------------|
+| TITLE_MISMATCH | PR title does not match spec title |
+| CRITERIA_MISSING | Success criteria must be documented |
+| FILES_MISSMATCH | Extra/missing files need explanation |
+| SCOPE_EXPANSION | PR exceeds spec scope |
+| SCOPE_INCOMPLETE | PR doesn't address full spec |
+| LINK_MISSING | Should reference spec issue |
+| CLOSING_MISSING | PR won't auto-close spec issue |
 
 ### Step 10: Write verdict.yaml
 

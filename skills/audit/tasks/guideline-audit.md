@@ -208,6 +208,41 @@ Fix: <fix_action>
 
 Write verdict to `./tmp/{issue-N}/artifacts/guideline-audit/verdict.yaml`
 
+### Step 7a: Self-Consistency Gate — Verdict vs. Explanation
+
+Before writing the final verdict artifact, run a self-consistency check on every `per_criterion` entry:
+
+For each criterion where `result: "PASS"`, scan `explanation` for hedging or critique language. If any of the following phrases appear in the explanation, the verdict is **downgraded to FAIL**:
+
+| Phrase | Example |
+|--------|---------|
+| "should be" | "The rule should be more specific" |
+| "needs" | "The rule needs clearer wording" |
+| "missing" | "Missing explicit examples" |
+| "could improve" | "Could improve by adding examples" |
+| "minor" | "Minor issues with wording" |
+| "some issues" | "Some issues with clarity" |
+| "mostly" | "Mostly clear but..." |
+| "generally" | "Generally acceptable but..." |
+
+```yaml
+# Before self-consistency gate (INCONSISTENT — PASS with critique):
+per_criterion:
+  - criterion_id: "GA-1"
+    result: "PASS"
+    explanation: "Mostly clear but should be more specific about conditions"
+    # ↑ SELF-CONSISTENCY FAIL: "mostly" + "should be" → downgrade to FAIL
+
+# After self-consistency gate (CORRECTED):
+per_criterion:
+  - criterion_id: "GA-1"
+    result: "FAIL"
+    explanation: "Mostly clear but should be more specific about conditions"
+    remediation: "Self-consistency gate: explanation contains hedging language ('mostly', 'should be') inconsistent with PASS verdict"
+```
+
+**This gate fires AFTER Step 7 verdict.yaml is written and BEFORE Step 8 artifact is produced.** If any criterion is downgraded, update `verdict.yaml` in place, set `all_criteria_pass: false`, and note the downgrade in the report.
+
 ### Step 8: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
@@ -297,6 +332,13 @@ rules:
     source: "guideline-audit.md §Step 5"
 
   - id: guideline-audit-003
+    title: "Self-consistency gate — PASS with hedging language is downgraded to FAIL"
+    conditions:
+      all: ["per_criterion.result == PASS", "per_criterion.explanation contains hedging_or_critique_phrase"]
+    actions: [DOWNGRADE_TO_FAIL, UPDATE_VERDICT_YAML, SET_ALL_CRITERIA_PASS_FALSE]
+    source: "guideline-audit.md §Step 7a"
+
+  - id: guideline-audit-004
     title: "Audit report must be timestamped"
     conditions:
       all: ["report_written == true", "timestamp_in_report == false"]

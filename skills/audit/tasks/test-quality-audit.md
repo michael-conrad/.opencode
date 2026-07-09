@@ -47,7 +47,7 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 
 ## Exit Criteria
 
-- All five checklist criteria evaluated with PASS/FAIL (no FAIL (inconclusive) verdicts)
+- All five checklist criteria evaluated with PASS/FAIL (no inconclusive verdicts)
 - Verdict produced in standard YAML block format per criterion
 - Remediation recommended as FIX_TEST, FIX_CODE, or SPEC_GAP
 
@@ -113,7 +113,7 @@ Do expected values reference the spec SC's specified values? Are expected values
 
 - PASS: All assertions reference specific expected values from the spec SCs
 - FAIL: Any assertion is tautological or references values unrelated to SCs
-- FAIL (inconclusive): Insufficient evidence to determine
+- FAIL: Insufficient evidence to determine
 
 #### 2. Cross-Boundary Coverage
 
@@ -121,7 +121,7 @@ Is there at least one test that references symbols from outside the immediate co
 
 - PASS: At least one test calls a function or uses a class from a different module than the one under test
 - FAIL: All tests are strictly intra-module
-- FAIL (inconclusive): Single-module change where cross-boundary testing is not applicable
+- FAIL: Single-module change where cross-boundary testing is not applicable
 
 #### 3. Edge-Case Completeness
 
@@ -129,7 +129,7 @@ Is there more than one test per function? Missing boundary/error/empty/null case
 
 - PASS: At least one test per function, plus separate tests for boundary values, error conditions, empty/null inputs
 - FAIL: Single test per function, missing edge cases
-- FAIL (inconclusive): Cannot determine function boundaries from file structure
+- FAIL: Cannot determine function boundaries from file structure
 
 #### 4. Assertion Weakening Detection (Retroactive)
 
@@ -137,7 +137,7 @@ Does git diff show expected values changing between commits while the function i
 
 - PASS: No evidence of assertion weakening — expected values consistent across commits
 - FAIL: Expected values changed in test while implementation remained unchanged
-- FAIL (inconclusive): Single commit or no git history available
+- FAIL: Single commit or no git history available
 
 #### 5. RED Evidence
 
@@ -145,7 +145,7 @@ Is there evidence that the test was confirmed FAIL before implementation (in git
 
 - PASS: Git history or VbC artifact shows test was run and failed before implementation began
 - FAIL: No evidence of RED state — test was created alongside or after implementation
-- FAIL (inconclusive): Cannot determine order from available evidence
+- FAIL: Cannot determine order from available evidence
 
 #### 6. Sequential TDD (TQ-11)
 
@@ -153,37 +153,37 @@ Across multiple test items, is there evidence of RED-before-GREEN ordering (each
 
 - PASS: Multiple items show individual RED/GREEN cycles — each test confirmed FAIL before its implementation was written
 - FAIL: Tests for multiple items were all written before any implementation (RED-ALL → GREEN-ALL pattern)
-- FAIL (inconclusive): Single item only, or insufficient git history to determine ordering
+- FAIL: Single item only, or insufficient git history to determine ordering
 
 ### Step 3: Produce Verdict
 
 ```yaml
 criterion: assertion_plausibility
-result: PASS|FAIL|FAIL (inconclusive)
+result: PASS|FAIL
 evidence: "<tool-call reference or file path>"
 remediation: FIX_TEST|FIX_CODE|SPEC_GAP
 recommendation: "<prose description of what to fix>"
 ---
 criterion: cross_boundary_coverage
-result: PASS|FAIL|FAIL (inconclusive)
+result: PASS|FAIL
 evidence: "<tool-call reference>"
 remediation: FIX_CODE
 recommendation: "<prose>"
 ---
 criterion: edge_case_completeness
-result: PASS|FAIL|FAIL (inconclusive)
+result: PASS|FAIL
 evidence: "<tool-call reference>"
 remediation: FIX_TEST|SPEC_GAP
 recommendation: "<prose>"
 ---
 criterion: assertion_weakening
-result: PASS|FAIL|FAIL (inconclusive)
+result: PASS|FAIL
 evidence: "<git diff reference>"
 remediation: FIX_TEST
 recommendation: "<prose>"
 ---
 criterion: red_evidence
-result: PASS|FAIL|FAIL (inconclusive)
+result: PASS|FAIL
 evidence: "<VbC artifact reference or git log>"
 remediation: FIX_TEST|SPEC_GAP
 recommendation: "<prose>"
@@ -205,7 +205,7 @@ orchestrator_model: "<model>"
 overall: PASS|FAIL|PARTIAL
 criteria:
   - criterion: "assertion_plausibility"
-    result: "PASS|FAIL|FAIL (inconclusive)"
+    result: "PASS|FAIL"
     evidence: "<tool-call reference>"
     remediation: "FIX_TEST|FIX_CODE|SPEC_GAP"
     recommendation: "<prose>"
@@ -240,7 +240,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 |-------|--------|
 | Test files do not exist | Return BLOCKED with missing file paths |
 | VbC artifact unavailable | Return BLOCKED — prerequisite unmet |
-| No git history for weakening check | Mark assertion_weakening as FAIL (inconclusive) with note |
+| No git history for weakening check | Mark assertion_weakening as FAIL with note |
 
 ## Cross-References
 

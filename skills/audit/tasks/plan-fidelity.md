@@ -226,9 +226,9 @@ After verdict collection, classify each discrepancy:
 | Finding Type | Classification | Action |
 |-------------|----------------|--------|
 | MISSING_PHASE | auto-fix | Add phase from clean-room |
-| EXTRA_PHASE | flag-for-review | May be intentional |
+| EXTRA_PHASE | FAIL | May be intentional — must be justified |
 | MISSING_STEP | auto-fix | Add step from clean-room |
-| EXTRA_STEP | flag-for-review | May be intentional |
+| EXTRA_STEP | FAIL | May be intentional — must be justified |
 | APPROACH_DIFFERENCE | auto-fix | Clarify difference |
 | MISSING_EDGE_CASE | conditional | Verify clean-room correctness |
 | DEPENDENCY_REVERSAL | auto-fix | Reorder phases |
@@ -246,11 +246,21 @@ For FAIL/DISAGREE criteria:
 
 Present revision options.
 
-### Step 7: Write verdict.yaml
+### Step 7: Self-Consistency Gate — Verdict Integrity Check
+
+Before writing verdict.yaml, run the self-consistency gate on every criterion:
+
+- [ ] 1. For each criterion where `result: "PASS"`, inspect `explanation` for critique/hedging language:
+  - Hedging patterns: "mostly", "largely", "generally", "for the most part", "minor issues", "some concerns", "slight", "mostly correct", "functionally equivalent", "close enough", "with caveats", "with notes"
+  - If ANY hedging pattern is found, downgrade `result` to `FAIL` and set `remediation` to `"Self-consistency gate: PASS verdict contradicted by hedging in explanation"`
+- [ ] 2. If `result: "FAIL"` and `explanation` contains no hedging or critique, the verdict stands — no upgrade to PASS
+- [ ] 3. Log the self-consistency check result in the verdict YAML under `self_consistency_gate: { triggered: true|false, downgraded_criteria: ["<criterion IDs>"] }`
+
+### Step 8: Write verdict.yaml
 
 Write verdict to `./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml`
 
-### Step 8: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 9: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-plan-fidelity-{STATUS}-{timestamp}.yaml`:
 
@@ -274,7 +284,6 @@ per_criterion:
 all_criteria_pass: false
 remediation_required: true  # When status is FAIL: full mandatory re-audit required
 auto_fixes_applied: []
-flagged_for_review: []
 exec_summary: "Plan fidelity: X/Y criteria. N discrepancies found."
 ```
 

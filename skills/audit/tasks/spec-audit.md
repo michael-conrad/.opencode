@@ -140,12 +140,12 @@ Define audit criteria based on spec-auditor task structure:
 | SC-PIPELINE-GATES | Pipeline gates use canonical checklist format, not gate tables | Spec requires numbered `- [ ] N.` checklist steps with dispatch mode indicators (`(**clean-room**)` or `(**inline**)`). Gate tables (per-unit or shared cross-reference) → VIOLATION. Expect dispatch indicators in every step title. |
 | SC-CANONICAL-PLAN-FORM | Plan output format uses canonical checklist format | If the spec defines plan output format requirements, validate they use the canonical checklist format: numbered `- [ ] N.` with sub-bullet metadata, dispatch mode indicators, no dispatch tables, no shared cross-references. |
 | SC-ADMONISHMENT | Mandatory Task Discipline admonishment present in SKILL.md | For skill card audits, verify the SKILL.md contains the 5-item Mandatory Task Discipline admonishment after Overview and before Trigger Dispatch Table. For task card audits, verify the 4-item (non-inline) or 3-item (inline) Task Discipline admonishment after Purpose and before Operating Protocol. |
-| SC-SEM-001 | Unambiguous dispatch condition | Does the description unambiguously tell an agent when to invoke this skill? Sub-agent reads the description and the Trigger Dispatch Table, judges whether the description provides clear dispatch conditions. **Severity: ERROR.** Failure: description is ambiguous about when to invoke (e.g., "Use when working with data" is too vague). |
-| SC-SEM-002 | Mandatory invocation signal | Does the description signal that invocation is mandatory (not optional)? Sub-agent reads the description and judges whether an agent would understand that this skill MUST be invoked when conditions match. **Severity: WARNING.** Failure: description reads as optional or discretionary (e.g., "Use when you want to..." implies choice). |
-| SC-SEM-003 | Dispatch table alignment | Does the description match the Trigger Dispatch Table's intent? Sub-agent compares the description against the table's trigger conditions and judges alignment. **Severity: ERROR.** Failure: description describes use cases the table does not cover, or table has triggers the description omits. |
-| SC-SEM-004 | Full coverage of dispatch conditions | Would an agent reading only the description know to invoke this skill in all conditions listed in the dispatch table? Sub-agent reads the description, then reads the table, and judges whether every table trigger is represented in the description. **Severity: WARNING.** Failure: one or more table triggers are not reflected in the description. |
-| SC-SEM-005 | No optional/discretionary language | Does the description contain any language that could be interpreted as making dispatch optional or discretionary? Sub-agent reads the description and identifies phrases that imply choice ("you can", "you may", "optionally", "if desired", "consider using"). **Severity: WARNING.** Failure: description contains optional/discretionary language. |
-| SC-SEM-006 | Dispatch table sub-item type correctness | Do dispatch table sub-items use the correct semantic type — sub-bullets for parameter metadata, sub-checkboxes for actionable sub-steps? Sub-agent reads the Trigger Dispatch Table and classifies each sub-item as parameter metadata (context fields, task file paths, dispatch type) or actionable sub-step (must be performed). Verifies sub-bullets used for metadata, sub-checkboxes used for actions. **Severity: WARNING.** Failure: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata. |
+| SC-SEM-001 | Unambiguous dispatch condition | Does the description unambiguously tell an agent when to invoke this skill? Sub-agent reads the description and the Trigger Dispatch Table, judges whether the description provides clear dispatch conditions. Failure: description is ambiguous about when to invoke (e.g., "Use when working with data" is too vague). |
+| SC-SEM-002 | Mandatory invocation signal | Does the description signal that invocation is mandatory (not optional)? Sub-agent reads the description and judges whether an agent would understand that this skill MUST be invoked when conditions match. Failure: description reads as optional or discretionary (e.g., "Use when you want to..." implies choice). |
+| SC-SEM-003 | Dispatch table alignment | Does the description match the Trigger Dispatch Table's intent? Sub-agent compares the description against the table's trigger conditions and judges alignment. Failure: description describes use cases the table does not cover, or table has triggers the description omits. |
+| SC-SEM-004 | Full coverage of dispatch conditions | Would an agent reading only the description know to invoke this skill in all conditions listed in the dispatch table? Sub-agent reads the description, then reads the table, and judges whether every table trigger is represented in the description. Failure: one or more table triggers are not reflected in the description. |
+| SC-SEM-005 | No optional/discretionary language | Does the description contain any language that could be interpreted as making dispatch optional or discretionary? Sub-agent reads the description and identifies phrases that imply choice ("you can", "you may", "optionally", "if desired", "consider using"). Failure: description contains optional/discretionary language. |
+| SC-SEM-006 | Dispatch table sub-item type correctness | Do dispatch table sub-items use the correct semantic type — sub-bullets for parameter metadata, sub-checkboxes for actionable sub-steps? Sub-agent reads the Trigger Dispatch Table and classifies each sub-item as parameter metadata (context fields, task file paths, dispatch type) or actionable sub-step (must be performed). Verifies sub-bullets used for metadata, sub-checkboxes used for actions. Failure: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
@@ -438,12 +438,11 @@ When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM
 - PASS: all sub-items use the correct semantic type
 - FAIL: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata
 
-Record each SC-SEM criterion result in the per_criterion array with the same format as other criteria, adding a `severity` field:
+Record each SC-SEM criterion result in the per_criterion array with the same format as other criteria:
 
 ```yaml
   - criterion_id: "SC-SEM-001"
     declared_evidence_type: "semantic"
-    severity: "ERROR"
     result: "PASS|FAIL"
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
@@ -461,6 +460,8 @@ For each criterion:
 - Both auditors PASS → criterion consensus PASS
 - Either auditor FAIL → criterion consensus FAIL
 - Auditors disagree → mark as DISAGREE, present bidirectional finding
+
+**Self-consistency gate:** After computing consensus, apply a self-consistency check to every PASS verdict. If `result: "PASS"` and the `explanation` contains critique/hedging language ("should be", "needs", "missing", "could improve", "minor", "some issues", "mostly", "generally"), the verdict is downgraded to FAIL. A PASS verdict must be strictly confirmatory with no critique or hedging.
 
 ### Step 4.5: Evaluate SC Determinism (SC-DET)
 
@@ -497,7 +498,7 @@ For each success criterion in the spec, evaluate determinism:
 
 ### Step 5: Generate Bidirectional Findings
 
-For FAIL/DISAGREE criteria:
+Generate findings ONLY for FAIL/DISAGREE criteria. PASS criteria MUST NOT appear in the findings table — a PASS verdict with findings is contradictory and will be caught by the self-consistency gate in Step 4.
 
 | Finding Type | Direction | Description |
 |-------------|-----------|-------------|
@@ -528,7 +529,6 @@ summary:
 per_criterion:
   - criterion_id: "SC-1"
     declared_evidence_type: "string"
-    severity: "ERROR"  # ERROR or WARNING; only present for SC-SEM criteria
     result: "PASS"
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
