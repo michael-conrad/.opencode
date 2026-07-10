@@ -10,28 +10,46 @@ labels: [spec, test-infrastructure, consolidated]
 
 ## Summary
 
-The behavioral test harness (`with-test-home`) must replicate the production environment. Currently it does not — it uses different model discovery paths, bypasses plugins, and has incomplete XDG isolation. This spec consolidates three related issues (`.opencode#676`, `.opencode#793`, `.opencode#1653`) into a single implementation plan with sequenced phases.
+The behavioral test harness (`with-test-home`) must replicate the production environment. Currently it does not — it uses different model discovery paths, has a broken plugin, and has incomplete XDG isolation. This spec consolidates four related issues (`.opencode#676`, `.opencode#793`, `.opencode#1370`, `.opencode#1653`) into a single implementation plan with sequenced phases.
 
 **Core principle:** If the test environment doesn't replicate the production environment, it is worthless. Every deviation from prod behavior is a source of false negatives (tests that pass but shouldn't) or false positives (tests that fail due to harness issues, not implementation defects).
+
+## References
+
+- [OpenCode Plugin API docs](https://opencode.ai/docs/plugins/) — plugins require named exports, not `export default`
+- [OpenCode CLI docs](https://opencode.ai/docs/cli/) — `--pure` flag documented as "Run without external plugins"; `OPENCODE_CONFIG_CONTENT` documented as "Inline json config content"
+- [OpenCode Models docs](https://opencode.ai/docs/models/) — `opencode-cli models` is the authoritative model discovery command
 
 ## Requirements
 
 ### Phase 1: `env-loader.ts` plugin fix
 
-The `env-loader.ts` plugin crashes in isolated test environments with `Plugin export is not a function`. The root cause is the combination of `export default` (line 216) and named `export {}` (line 340) — the plugin system cannot handle both. PR #1654 worked around this by adding `--pure` to `behavior_run()`, which is wrong: `--pure` skips all plugins, making the test environment *less* like production.
+`env-loader.ts` fails to load with `Plugin export is not a function`. Per the [official plugin docs](https://opencode.ai/docs/plugins/), the plugin API requires a **named export**:
 
-**Fix:** Remove the named exports block at line 340 (`export { parseEnvFile, isEnvGitignored, writeDiagnostic, DIAGNOSTICS_PATH }` and `export type { PluginDiagnostic }`). These are test-only exports — the plugin itself only needs `export default`. Move the exported functions to a separate test utility file if tests need them.
+```typescript
+export const MyPlugin = async ({ project, client, $, directory, worktree }) => {
+```
+
+Current code uses `export default async function envLoaderPlugin(input: PluginInput)` — the plugin system iterates over module exports looking for named function exports; `export default` is a `default` key on the module, not a named export, so the loader doesn't find it.
+
+**Fix:**
+1. Change `export default async function envLoaderPlugin(input: PluginInput)` to `export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, worktree }) => { ... }`
+2. Update import: `import type { Hooks, PluginInput } from "@opencode-ai/plugin"` → `import type { Plugin } from "@opencode-ai/plugin"`
+3. Map context: `input?.directory` → `directory`, `input?.worktree` → `worktree`, `input.$.nothrow` → `$.nothrow`
+4. Preserve named exports at bottom (`parseEnvFile`, `isEnvGitignored`, `writeDiagnostic`, `DIAGNOSTICS_PATH`, `PluginDiagnostic`)
+5. Fix pre-existing TypeScript errors in `session-enforcement.ts` (`"session.created"` hook key → `event` hook with `event.type` discrimination; `part.synthetic` access → narrow to `part.type === 'text'` first)
+6. Create `.opencode/plugins/AGENTS.md` documenting plugin development requirements
 
 ### Phase 2: `with-test-home` — model discovery unification
 
-`seed_model_config()` currently discovers models via `ollama_models()` → `ollama list`. Production uses `opencode-cli models`. The test config must use the same discovery path.
+`seed_model_config()` currently discovers models via `ollama_models()` → `ollama list`. Per the [official docs](https://opencode.ai/docs/models/), `opencode-cli models` is the authoritative model discovery command. The test config must use the same discovery path.
 
 **Changes:**
 1. Replace `ollama_models()` call in `seed_model_config()` with `opencode-cli models` filtered to `ollama/*` entries
 2. Add `ollama-cloud` provider block to the seeded config with extended timeouts (30min)
 3. Remove the `ollama_models()` function entirely — no callers remain
 4. Add `TEST_HOME` to `pass_through_env` array so `env -i` preserves it across sequential dispatches
-5. **Keep** `OPENCODE_CONFIG_CONTENT` — it is a valid override mechanism for test-specific needs (e.g., disabling notebook MCP). It does not replace the seeded config; it merges on top.
+5. **Keep** `OPENCODE_CONFIG_CONTENT` — it is a [documented opencode env var](https://opencode.ai/docs/cli/) ("Inline json config content"), a valid override mechanism for test-specific needs (e.g., disabling notebook MCP). It does not replace the seeded config; it merges on top.
 
 ### Phase 3: `helpers.sh` — dead code removal
 
@@ -56,7 +74,7 @@ Still needed:
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `env-loader.ts` loads without error in isolated test environment | `behavioral` | Run `with-test-home opencode-cli run "test"` — stderr must not contain "Plugin export is not a function" |
+| SC-1 | `env-loader.ts` loads without "Plugin export is not a function" error | `behavioral` | Run `with-test-home opencode-cli run "test"` — stderr must not contain "Plugin export is not a function" |
 | SC-2 | `seed_model_config()` uses `opencode-cli models` (not `ollama list`) for model discovery | `string` | Grep `with-test-home` for `opencode-cli models` in `seed_model_config`; `ollama_models` must not appear in `seed_model_config` |
 | SC-3 | Seeded config includes `ollama-cloud` provider block | `string` | Grep `with-test-home` for `ollama-cloud` in the seeded JSON |
 | SC-4 | `with-test-home` passes `TEST_HOME` through `env -i` | `string` | Grep `with-test-home` for `TEST_HOME` in `pass_through_env` loop |
@@ -68,7 +86,12 @@ Still needed:
 | SC-10 | `verify-authorization.md` no longer references `ollama-model-resolve` | `string` | Grep `verify-authorization.md` for `ollama-model-resolve` — must not appear |
 | SC-11 | `tests/AGENTS.md` contains Session Failure Diagnosis section | `string` | Grep for `Session Failure Diagnosis` heading |
 | SC-12 | `.opencode/AGENTS.md` contains session failure diagnosis cross-reference | `string` | Grep for `Session failure diagnosis` in `.opencode/AGENTS.md` |
-| SC-13 | `env-loader.ts` has no named `export {}` block | `string` | Grep `env-loader.ts` for `export {` — must not appear (only `export default` is permitted) |
+| SC-13 | `env-loader.ts` uses named export (not `export default`) | `string` | Grep `env-loader.ts` for `export const EnvLoaderPlugin` — must appear; `export default` must not appear |
+| SC-14 | `env-loader.ts` preserves named exports (`parseEnvFile`, `isEnvGitignored`, `writeDiagnostic`, `DIAGNOSTICS_PATH`, `PluginDiagnostic`) | `string` | Grep for each export name in `plugins/env-loader.ts` |
+| SC-15 | No TypeScript compilation errors in `.opencode/plugins/` | `string` | `tsc --noEmit --project .opencode/tsconfig.json` exits 0 |
+| SC-16 | `.opencode/plugins/AGENTS.md` exists documenting plugin dev requirements | `string` | File existence check |
+| SC-17 | `shell.env` hook injects env vars (BRANCH_NAME, GIT_OWNER, GIT_REPO) | `behavioral` | Run `with-test-home opencode-cli run "echo $BRANCH_NAME"` — output must be non-empty |
+| SC-18 | Full behavioral test suite passes with clean results after all changes | `behavioral` | Run `bash .opencode/tests/test-enforcement.sh --changed` — all tests must pass with 0 failures |
 
 ### SC Failure Policy — Zero Tolerance
 
@@ -89,7 +112,8 @@ Still needed:
 |-------|--------|
 | `.opencode#676` | Absorbed — Phase 2 replaces #676's unmerged work (replace `ollama list` with `opencode-cli models` in `seed_model_config()`) |
 | `.opencode#793` | Absorbed — Phase 3 covers #793's dead code removal scope |
-| `.opencode#1653` | Absorbed — Phases 1, 2, and 4 cover #1653's scope, corrected per discussion (keep `OPENCODE_CONFIG_CONTENT`, fix `env-loader.ts` instead of `--pure`) |
+| `.opencode#1370` | Absorbed — Phase 1 covers #1370's env-loader.ts fix (named export per plugin API) |
+| `.opencode#1653` | Absorbed — Phases 1, 2, and 4 cover #1653's scope, corrected per discussion |
 
 ## Interdependencies
 
@@ -103,7 +127,8 @@ Still needed:
 
 | File | Phase | Change |
 |------|-------|--------|
-| `.opencode/plugins/env-loader.ts` | 1 | Remove named `export {}` block; keep only `export default` |
+| `.opencode/plugins/env-loader.ts` | 1 | Change `export default` to named `export const EnvLoaderPlugin`; fix TypeScript errors in `session-enforcement.ts` |
+| `.opencode/plugins/AGENTS.md` | 1 | Create new file documenting plugin dev requirements |
 | `.opencode/tests/with-test-home` | 2 | Replace `ollama_models()` with `opencode-cli models`; add `ollama-cloud` provider; add `TEST_HOME` passthrough; remove `ollama_models()` function |
 | `.opencode/tests/behaviors/helpers.sh` | 3 | No code changes needed (dead code already removed); regression guard SCs only |
 | `.opencode/tools/ollama-model-resolve` | 3 | Delete file |
@@ -115,20 +140,23 @@ Still needed:
 
 ## Root Cause Analysis
 
-The `env-loader.ts` plugin crash (`Plugin export is not a function`) occurs because the plugin system cannot handle both `export default` and named `export {}` in the same file. In production, this is masked because the desktop app's plugin loader may handle it differently. In the isolated test environment, the crash surfaces immediately.
+**`env-loader.ts` plugin crash:** Per the [official opencode plugin docs](https://opencode.ai/docs/plugins/), plugins must use **named exports** (`export const MyPlugin = async (...) =>`). The current code uses `export default async function envLoaderPlugin(input: PluginInput)` — the plugin system iterates over module exports looking for named function exports; `export default` is a `default` key on the module, not a named export, so the loader doesn't find it. This is not a "both export styles conflict" issue — it's a "wrong export style" issue.
 
-PR #1654's workaround (`--pure` flag) was incorrect — it skips all plugins, making the test environment diverge from production. The correct fix is to remove the named exports from the plugin file.
+**`--pure` flag:** Per the [official CLI docs](https://opencode.ai/docs/cli/), `--pure` is a documented global flag meaning "Run without external plugins." It is a legitimate opencode feature, not a workaround. The question is whether to use it in the test harness — using it makes the test environment diverge from production (no plugins loaded), which violates the core principle. The correct approach is to fix the plugin so it loads without `--pure`.
 
-The `ollama_models()` → `ollama list` path in `seed_model_config()` is a second divergence: production discovers models via `opencode-cli models`, which is the authoritative source. Using `ollama list` means the test config may not match what the agent actually sees at runtime.
+**`OPENCODE_CONFIG_CONTENT`:** Per the [official CLI docs](https://opencode.ai/docs/cli/), this is a documented env var ("Inline json config content"). It is a valid override mechanism for test-specific needs. It does not replace the seeded config; it merges on top. Keep it.
+
+**`opencode-cli models`:** Per the [official models docs](https://opencode.ai/docs/models/), this is the authoritative model discovery command. Using `ollama list` in `seed_model_config()` means the test config may not match what the agent actually sees at runtime.
 
 ## Implementation Plan
 
 Implement in phase order (each phase depends on the previous):
 
-1. **Phase 1** — Fix `env-loader.ts` (SC-1, SC-13)
+1. **Phase 1** — Fix `env-loader.ts` (SC-1, SC-13, SC-14, SC-15, SC-16, SC-17)
 2. **Phase 2** — Fix `with-test-home` (SC-2 through SC-6)
 3. **Phase 3** — Dead code cleanup (SC-7 through SC-10)
 4. **Phase 4** — Documentation (SC-11, SC-12)
+5. **Phase 5** — Full suite verification (SC-18)
 
 All phases on a single feature branch, single PR.
 
