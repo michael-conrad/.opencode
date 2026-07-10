@@ -78,13 +78,13 @@ Plans use a split file format:
 ### Required Sections in plan.md (Index)
 
 1. **Title** — `# Implementation Plan — [<issue-ref>](<issue-url>) — <short-description>`
-2. **Goal/Architecture/Files** — Bullet list with `**Goal:**`, `**Architecture:**`, `**Files:**` entries
+2. **Goal/Architecture/Files/Dispatch** — Bullet list with `**Goal:**`, `**Architecture:**`, `**Files:**`, `**Dispatch:**` entries
 3. **Blast Radius** — Section listing affected files and impact zones from blast radius artifact
 4. **Concern Map Reference** — Section listing concerns and their phase mappings from concern map artifact
 5. **Admonishment** — Verbatim compliance requirement blockquote
 6. **One-step-at-a-time protocol admonishment** — Verbatim blockquote
 7. **Step Status instruction** — Verbatim blockquote
-8. **Phase table** — Table with phase number, name, concern, SCs, dependencies, step range
+8. **Phase table** — Table with phase number, name, concern, SCs, dependencies, step range, dispatch
 9. **Bottom admonishment** — Verbatim compliance requirement blockquote
 10. **Self-remediation protocol admonishment** — Verbatim blockquote
 11. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
@@ -125,11 +125,11 @@ Every plan document MUST use a three-tier structure:
 
 Every step MUST use one of three dispatch indicators:
 
-| Indicator | Meaning | Example |
-|-----------|---------|---------|
-| `(**sub-agent**)` | Orchestrator dispatches a clean-room sub-agent via `task()` | `- [ ] 3. **RED (**sub-agent**).**` |
-| `(**clean-room**)` | Orchestrator dispatches a clean-room sub-agent (same as sub-agent) | `- [ ] 1. **Coherence gate (**clean-room**).**` |
-| `(**inline**)` | Orchestrator executes directly (no sub-agent) | `- [ ] 6. **Checkpoint commit (**inline**).**` |
+| Indicator | Meaning | Context | Example |
+|-----------|---------|---------|---------|
+| `(**inline**)` | Orchestrator executes directly (no sub-agent) | Orchestrator executes directly | `- [ ] 6. **Checkpoint commit (**inline**).**` |
+| `(**sub-agent**)` | Dispatch via `task()` with phase file + orchestrator-provided context | Phase file + orchestrator-provided context | `- [ ] 3. **RED (**sub-agent**).**` |
+| `(**clean-room**)` | Dispatch via `task()` with phase file only (routing metadata) | Phase file only (routing metadata) | `- [ ] 1. **Coherence gate (**clean-room**).**` |
 
 ### Prohibited Patterns
 
