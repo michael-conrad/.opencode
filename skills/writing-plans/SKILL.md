@@ -11,6 +11,8 @@ compatibility: opencode
 
 Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline. Every step is one atomic concern. No placeholders. Pipeline steps dispatch to sub-agents via `task()` for independent execution.
 
+Plan creation now consumes analytical artifacts from spec-creation. The plan's phase structure, file scope, and test strategy are derived from the 7 analytical artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment) — not re-derived from scratch.
+
 ## Worktree Mode
 
 This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
@@ -29,6 +31,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
   - Plan artifacts MUST be committed to the feature branch after creation
   - `local-issues sync` MUST be run before any `.issues/` writes and after each write
 - [ ] 7. **Sequential step ordering:** Every step with a chain dependency MUST execute sequentially. No parallel dispatch of chain-dependent steps. Each step's output is the next step's input. The "sub-agent dispatch implies independence" rationalization is explicitly prohibited.
+- [ ] 8. **Analytical artifact validation required before plan creation.** All 7 analytical artifacts must be present and non-empty before plan creation begins. Missing artifacts produce BLOCKED with `MISSING_SPEC_ARTIFACT`. After plan creation with all artifacts present, auto-dispatch plan-fidelity and concern-separation audits.
 
 ## Trigger Dispatch Table
 
@@ -39,6 +42,13 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
 | "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
 | "pre-plan-readiness" / "readiness check" / "verify prerequisites" | `pre-plan-readiness` | `sub-task` | {spec_issue_number} |
+| "analytical artifacts ready for plan" | `create` | `sub-task` | {spec_issue_number, spec_body, analytical_artifact_dir} |
+| "blast-radius artifact missing for plan" | HALT | — | — |
+| "concern-map artifact missing for plan" | HALT | — | — |
+| "cross-cutting-matrix artifact missing for plan" | HALT | — | — |
+| "interface-compatibility artifact missing for plan" | HALT | — | — |
+| "state-analysis artifact missing for plan" | HALT | — | — |
+| "testability-assessment artifact missing for plan" | HALT | — | — |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona

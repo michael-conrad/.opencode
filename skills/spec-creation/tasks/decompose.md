@@ -96,6 +96,36 @@ Does the decomposition define clear units with:
 
 **Any format that communicates these concerns clearly is acceptable** — structured per-unit sections, tables, prose descriptions, or diagrams. The agent chooses the format that best serves the spec's complexity.
 
+## Decomposition-Depth Mandate (MANDATORY)
+
+**Decompose until each unit is a single independently verifiable claim whose PASS/FAIL cannot be split across two assertions.**
+
+### Depth Rule
+
+A unit is at the correct depth when:
+
+- It asserts exactly one behavioral, structural, or semantic property
+- A PASS verdict for the unit means exactly one thing is true
+- A FAIL verdict for the unit identifies exactly one thing that is wrong
+- The unit's PASS/FAIL cannot be meaningfully subdivided into two sub-claims that would each need their own assertion
+
+### Stopping Criterion
+
+Stop decomposing when ALL of the following are true:
+
+1. **Atomicity:** The unit cannot be split into two independently verifiable sub-claims without losing meaning
+2. **Single assertion:** A single test or verification step can produce a definitive PASS/FAIL for this unit
+3. **No hidden conjunction:** The unit does not contain "and", "or", or implicit conjunction that bundles multiple claims
+4. **Traceable:** The unit maps to exactly one SC in the spec's success criteria table
+
+If any of these is false, decompose further.
+
+### Reference to Incremental-Build Discipline
+
+This decomposition-depth mandate is the spec-level expression of the incremental-build discipline defined in `091-incremental-build.md`. The per-item TDD cycle (RED → GREEN → REFACTOR → COMMIT) requires items at this decomposition depth. A spec whose units are not at this depth produces implementation items that violate the monolithic implementation prohibition in `000-critical-rules.md` §Monolithic Implementation.
+
+**Cross-reference:** `091-incremental-build.md` §Per-Item TDD Cycle, `000-critical-rules.md` §Monolithic Implementation.
+
 ## Context Required
 
 - Preceded by: `requirements`

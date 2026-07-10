@@ -11,6 +11,8 @@ compatibility: opencode
 
 Conversational-first exploration workflow. One question at a time, user-driven. Dimensions used internally — never as structured output sections. Terminal state invokes spec-creation.
 
+Brainstorming now produces preliminary analytical artifacts before handing off to spec-creation. These preliminary artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment) are raw investigation outputs that spec-creation formalizes. Handoff to spec-creation is blocked until all required preliminary artifacts are present.
+
 ## Worktree Mode
 
 This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
@@ -21,6 +23,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 5. **Preliminary analytical artifact production required before spec-creation handoff.** Artifact requirements are conditional: blast-radius always required; concern-map required for multi-concern specs; code-path-inventory required when spec touches existing code; cross-cutting-matrix required for multi-concern specs; interface-compatibility required when spec modifies public APIs; state-analysis required when spec modifies stateful components; testability-assessment required when spec has behavioral SCs.
 
 ## Trigger Dispatch Table
 
@@ -30,6 +33,15 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "top-down analysis" / "decompose" | `top-down-analysis` | `sub-task` | {issue_number} |
 | "enforcement" / "rule check" | `enforcement` | `sub-task` | {issue_number} |
 | "cross-scope" / "scope analysis" | `cross-scope` | `sub-task` | {issue_number} |
+| "analytical artifacts needed" | `explore` | `inline` | — |
+| "blast-radius analysis needed" | `top-down-analysis` | `sub-task` | {issue_number} |
+| "concern-map needed" | `cross-scope` | `sub-task` | {issue_number} |
+| "code-path-inventory needed" | `top-down-analysis` | `sub-task` | {issue_number} |
+| "cross-cutting-matrix needed" | `cross-scope` | `sub-task` | {issue_number} |
+| "interface-compatibility needed" | `top-down-analysis` | `sub-task` | {issue_number} |
+| "state-analysis needed" | `top-down-analysis` | `sub-task` | {issue_number} |
+| "testability-assessment needed" | `top-down-analysis` | `sub-task` | {issue_number} |
+| "all analytical artifacts present" | `completion` | `sub-task` | {workflow_state} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona

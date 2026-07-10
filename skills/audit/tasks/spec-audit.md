@@ -25,6 +25,13 @@ Audit a spec for quality, structure, and completeness. Each criterion is evaluat
 
 - `spec_local_dir`: Local directory containing spec files
 - `artifact_evidence_dir`: Directory for evidence artifacts
+- `blast_radius_path`: Path to blast radius analysis artifact (optional)
+- `concern_map_path`: Path to concern map artifact (optional)
+- `code_path_inventory_path`: Path to code path inventory artifact (optional)
+- `cross_cutting_matrix_path`: Path to cross-cutting matrix artifact (optional)
+- `interface_compatibility_path`: Path to interface compatibility artifact (optional)
+- `state_analysis_path`: Path to state analysis artifact (optional)
+- `testability_assessment_path`: Path to testability assessment artifact (optional)
 
 ## Entry Criteria
 
@@ -76,7 +83,12 @@ missing: "spec_local_dir"
 remediation: "spec_local_dir is required for spec-audit. The orchestrator must provide a valid local directory containing spec Markdown files."
 ```
 
-**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
+- [ ] 3. Check optional analytical artifact paths — for each of `blast_radius_path`, `concern_map_path`, `code_path_inventory_path`, `cross_cutting_matrix_path`, `interface_compatibility_path`, `state_analysis_path`, `testability_assessment_path`:
+  - If the field is present in the dispatch contract, verify the path exists and is non-empty
+  - If the path is missing or empty, emit a WARNING (do NOT BLOCK) — missing optional artifacts produce a warning, not a BLOCKED status
+  - If the field is absent from the dispatch contract, skip silently (artifact not produced by upstream)
+
+**This gate fires BEFORE any other step.** If any required criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Load Spec Content
 
@@ -232,6 +244,13 @@ Add SC-CLAIM criteria to evaluation table:
 | Criterion ID | Description | Expected Result |
 |--------------|-------------|-----------------|
 | SC-CLAIM | Claim Accuracy | No fabricated claims, negations verified, interface contracts match |
+| SC-BLAST-RADIUS | Blast radius artifact present and complete | Blast radius artifact exists, all affected files/components traced, downstream dependents identified |
+| SC-CONCERN-MAP | Concern map artifact present and complete | Concern map artifact exists, concerns separated, no overlapping concerns |
+| SC-CODE-PATH | Code path inventory artifact present and complete | Code path inventory exists, all code paths affected by the change are enumerated |
+| SC-CROSS-CUTTING | Cross-cutting matrix artifact present and complete | Cross-cutting matrix exists, cross-cutting concerns identified and mapped |
+| SC-INTERFACE | Interface compatibility artifact present and complete | Interface compatibility analysis exists, all interface changes documented |
+| SC-STATE | State analysis artifact present and complete | State analysis exists, state transitions and invariants documented |
+| SC-TESTABILITY | Testability assessment artifact present and complete | Testability assessment exists, test strategy and coverage plan documented |
 
 ### Step 3c: Evaluate Blast Radius (A3)
 
@@ -391,7 +410,133 @@ cross_reference_completeness:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3i: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 3i: Validate Blast Radius Artifact
+
+Validate the blast radius analysis artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `blast_radius_path` exists and is non-empty
+- [ ] 2. **Cross-reference** — For each file mentioned in the spec's Files Affected table, verify the blast radius artifact lists that file and its downstream dependents
+- [ ] 3. **Gap detection** — If the blast radius artifact is missing files that `srclight_get_dependents` would identify, flag as `BLAST_RADIUS_GAP` with `artifact_incomplete`
+- [ ] 4. **Non-code impact** — Verify the artifact addresses guideline/skill cross-references and behavioral test implications
+
+Record results:
+
+```yaml
+blast_radius_artifact:
+  artifact_path: "<blast_radius_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3j: Validate Concern Map Artifact
+
+Validate the concern map artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `concern_map_path` exists and is non-empty
+- [ ] 2. **Concern separation** — Verify each phase in the spec maps to exactly one concern in the artifact
+- [ ] 3. **Overlap detection** — Check for overlapping concerns across phases; flag as `CONCERN_MAP_GAP` with `overlapping_concerns`
+- [ ] 4. **Coverage** — Verify all spec phases are represented in the concern map
+
+Record results:
+
+```yaml
+concern_map_artifact:
+  artifact_path: "<concern_map_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3k: Validate Code Path Inventory
+
+Validate the code path inventory artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `code_path_inventory_path` exists and is non-empty
+- [ ] 2. **Path enumeration** — Verify all code paths affected by the change are enumerated in the artifact
+- [ ] 3. **Entry/exit points** — Check that entry points and exit points are documented for each path
+- [ ] 4. **Gap detection** — If the spec references a code path not in the inventory, flag as `CODE_PATH_GAP` with `missing_path`
+
+Record results:
+
+```yaml
+code_path_inventory_artifact:
+  artifact_path: "<code_path_inventory_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3l: Validate Cross-Cutting Matrix
+
+Validate the cross-cutting matrix artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `cross_cutting_matrix_path` exists and is non-empty
+- [ ] 2. **Concern identification** — Verify cross-cutting concerns (logging, auth, error handling, etc.) are identified
+- [ ] 3. **Mapping** — Verify each cross-cutting concern is mapped to the affected phases/files
+- [ ] 4. **Gap detection** — If a cross-cutting concern is implied by the spec but absent from the matrix, flag as `CROSS_CUTTING_GAP` with `missing_concern`
+
+Record results:
+
+```yaml
+cross_cutting_matrix_artifact:
+  artifact_path: "<cross_cutting_matrix_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3m: Validate Interface Compatibility
+
+Validate the interface compatibility artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `interface_compatibility_path` exists and is non-empty
+- [ ] 2. **Interface changes** — Verify all interface changes (function signatures, API endpoints, class interfaces) referenced in the spec are documented in the artifact
+- [ ] 3. **Backward compatibility** — Check that the artifact addresses backward compatibility for each changed interface
+- [ ] 4. **Gap detection** — If the spec changes an interface not documented in the artifact, flag as `INTERFACE_GAP` with `undocumented_change`
+
+Record results:
+
+```yaml
+interface_compatibility_artifact:
+  artifact_path: "<interface_compatibility_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3n: Validate State Analysis
+
+Validate the state analysis artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `state_analysis_path` exists and is non-empty
+- [ ] 2. **State transitions** — Verify all state transitions implied by the spec are documented in the artifact
+- [ ] 3. **Invariants** — Check that state invariants are identified and documented
+- [ ] 4. **Gap detection** — If the spec implies a state change not documented in the artifact, flag as `STATE_GAP` with `missing_transition`
+
+Record results:
+
+```yaml
+state_analysis_artifact:
+  artifact_path: "<state_analysis_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3o: Validate Testability Assessment
+
+Validate the testability assessment artifact against the spec content:
+
+- [ ] 1. **Artifact existence** — Check that `testability_assessment_path` exists and is non-empty
+- [ ] 2. **Test strategy** — Verify the artifact defines a test strategy for each SC in the spec
+- [ ] 3. **Coverage plan** — Check that the artifact includes a coverage plan (unit, integration, behavioral)
+- [ ] 4. **Gap detection** — If an SC in the spec has no corresponding test strategy in the artifact, flag as `TESTABILITY_GAP` with `missing_test_strategy`
+
+Record results:
+
+```yaml
+testability_assessment_artifact:
+  artifact_path: "<testability_assessment_path>"
+  status: "PASS|FAIL"
+  findings: ["<description of each gap>"]
+```
+
+### Step 3p: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 
@@ -564,7 +709,20 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 3. Build evaluation criteria → INVALID if skipped
 - [ ] 3a. Evaluate reasoning soundness (A1) → INVALID if skipped
 - [ ] 3b. Evaluate claim accuracy (A2) → INVALID if skipped
-- [ ] 3c. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
+- [ ] 3c. Evaluate blast radius (A3) → INVALID if skipped
+- [ ] 3d. Evaluate research adequacy (A4) → INVALID if skipped
+- [ ] 3e. Evaluate gap analysis (A5) → INVALID if skipped
+- [ ] 3f. Evaluate scope creep (A6) → INVALID if skipped
+- [ ] 3g. Evaluate scope narrowness (A7) → INVALID if skipped
+- [ ] 3h. Evaluate cross-reference completeness (A9) → INVALID if skipped
+- [ ] 3i. Validate blast radius artifact → INVALID if skipped
+- [ ] 3j. Validate concern map artifact → INVALID if skipped
+- [ ] 3k. Validate code path inventory → INVALID if skipped
+- [ ] 3l. Validate cross-cutting matrix → INVALID if skipped
+- [ ] 3m. Validate interface compatibility → INVALID if skipped
+- [ ] 3n. Validate state analysis → INVALID if skipped
+- [ ] 3o. Validate testability assessment → INVALID if skipped
+- [ ] 3p. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
 - [ ] 4. Cross-validate with verdicts → INVALID if skipped
 - [ ] 5. Process verdicts → INVALID if skipped
 - [ ] 6. Evaluate SC determinism → INVALID if skipped

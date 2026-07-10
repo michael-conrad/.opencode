@@ -38,6 +38,26 @@ Check current project state:
 - Clear sequential phases → multi-task with phases, no question
 - Ambiguous trade-offs only (3+ subsystems with unclear boundaries) → ask user
 
+### Step 2.5: Produce Preliminary Analytical Artifacts
+
+**Before proceeding to clarifying questions, produce preliminary analytical artifacts.**
+
+Write preliminary versions of all 7 analytical artifacts to `{project_root}/tmp/{issue-N}/artifacts/preliminary/`:
+
+| Artifact | File | Content |
+| -- | -- | -- |
+| Blast radius | `blast-radius.md` | Files/symbols affected by the change |
+| Concern map | `concern-map.md` | Concern boundaries and affected areas |
+| Code path inventory | `code-paths.md` | Execution paths through affected code |
+| Cross-cutting concerns | `cross-cutting.md` | Concerns spanning multiple areas |
+| Interface compatibility | `interface-compat.md` | Public API compatibility assessment |
+| State analysis | `state-analysis.md` | Persistent state affected by the change |
+| Testability assessment | `testability.md` | Existing test coverage of affected paths |
+
+Each artifact is a PRELIMINARY draft — it will be refined during spec creation. The purpose is to capture the initial analytical picture before Q&A begins.
+
+**Handoff contract:** After producing all artifacts, create `{project_root}/tmp/{issue-N}/artifacts/preliminary/handoff.yaml` listing all artifacts with paths and completion status. This file serves as the brainstorming→spec-creation handoff contract.
+
 ### Step 3: Offer Visual Companion (CONDITIONAL)
 
 **STRICTLY CONDITIONAL** — only when topic involves visual/Spatial decisions (UI layouts, mockups, diagrams).
@@ -98,6 +118,49 @@ Present conversationally with recommendation and reasoning. Lead with recommende
 - No unrelated refactoring
 
 ⚠️ **HARD GATE:** Design approval is NOT spec completion. The design is raw input TO `spec-creation`.
+
+## Handoff Contract: brainstorming → spec-creation
+
+After exploration completes, the brainstorming skill produces a handoff artifact at `{project_root}/tmp/{issue-N}/artifacts/preliminary/handoff.yaml`.
+
+**Purpose:** The handoff contract lists all preliminary analytical artifacts with their paths and completion status, enabling `spec-creation` to pick up where brainstorming left off without re-investigating.
+
+**Format:**
+
+```yaml
+handoff:
+  source: brainstorming
+  target: spec-creation
+  issue: "{issue-N}"
+  artifacts:
+    - name: blast-radius
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/blast-radius.md"
+      status: complete|partial|not-applicable
+    - name: concern-map
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/concern-map.md"
+      status: complete|partial|not-applicable
+    - name: code-paths
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/code-paths.md"
+      status: complete|partial|not-applicable
+    - name: cross-cutting
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/cross-cutting.md"
+      status: complete|partial|not-applicable
+    - name: interface-compat
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/interface-compat.md"
+      status: complete|partial|not-applicable
+    - name: state-analysis
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/state-analysis.md"
+      status: complete|partial|not-applicable
+    - name: testability
+      path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/testability.md"
+      status: complete|partial|not-applicable
+  exploration_summary:
+    turns_completed: <int>
+    key_findings: <list>
+    design_approved: true|false
+```
+
+**Consumption by spec-creation:** The `spec-creation` skill reads `handoff.yaml` to discover which artifacts exist and their status. Artifacts marked `complete` are used directly; `partial` artifacts are refined during spec creation; `not-applicable` artifacts are skipped.
 
 ### Step 7: Transition to spec-creation
 

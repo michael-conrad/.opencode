@@ -8,6 +8,8 @@
 ## Procedure
 
 - [ ] 1. **Structural completeness first:** verify all specified files/components exist before SC verification.
+- [ ] 1a. **Analytical artifact presence gate:** Before SC verification, verify that all analytical artifacts required by the spec exist at their expected paths. Analytical artifacts include: `blast-radius.yaml`, `concern-map.yaml`, `code-path-inventory.yaml`, `cross-cutting-matrix.yaml`, `interface-compatibility.yaml`, `state-analysis.yaml`, `testability-assessment.yaml`. Each artifact is checked for file existence and valid YAML. If any artifact is missing or invalid, HALT and report the missing artifact(s).
+- [ ] 1b. **Analytical artifact coverage gate:** After artifact presence is confirmed, verify that each analytical artifact's claims are covered by at least one success criterion. Cross-reference artifact claims against the SC table. Any claim with zero matching SCs is flagged as `ANALYTICAL_COVERAGE_GAP` with FAIL verdict. Resolve by adding SCs or documenting out-of-scope claims before proceeding.
 - [ ] 2. **Adversarial-audit call:** during verify task, call `audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
 - [ ] 3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
 - [ ] 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.

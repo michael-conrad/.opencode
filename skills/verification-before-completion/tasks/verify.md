@@ -81,6 +81,76 @@ Sub-agent searches all listed directories for evidence files via `glob`/`read`.
 
 **Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, Issue #836
 
+### 0.76. Blast Radius Coverage Gate (MANDATORY — After Coverage Completeness, Before Per-SC Verification)
+
+**Verify that every file identified in the blast radius analysis artifact has at least one matching success criterion. Files in the blast radius that lack SC coverage are unverified impact zones — changes that affect them will not be caught by any verification gate.**
+
+- [ ] 1. Read the blast radius artifact: `{project_root}/tmp/{issue-N}/artifacts/blast-radius.yaml`
+- [ ] 2. Extract the list of affected files from the artifact
+- [ ] 3. Cross-reference each affected file against the spec's SC table and changed files list
+- [ ] 4. Any affected file with zero matching SCs is flagged as `BLAST_RADIUS_GAP` with FAIL verdict
+- [ ] 5. `BLAST_RADIUS_GAP` files MUST be resolved before proceeding:
+   a. Add an SC for the file (if it's in scope), OR
+   b. Document the file as explicitly out-of-scope with developer authorization
+
+**🚫 FORBIDDEN:** Silently skipping blast radius files. An affected file with no SC coverage is a blind spot where regressions will surface undetected.
+
+### 0.77. Concern Map Coverage Gate (MANDATORY — After Blast Radius, Before Per-SC Verification)
+
+**Verify that every concern boundary identified in the concern map artifact has at least one matching success criterion. Concern boundaries with zero SC coverage are architectural blind spots — cross-cutting concerns that no verification gate exercises.**
+
+- [ ] 1. Read the concern map artifact: `{project_root}/tmp/{issue-N}/artifacts/concern-map.yaml`
+- [ ] 2. Extract the list of concern boundaries from the artifact
+- [ ] 3. For each concern boundary, check if at least one SC covers it
+- [ ] 4. Any concern boundary with zero matching SCs is flagged as `CONCERN_MAP_GAP` with FAIL verdict
+- [ ] 5. `CONCERN_MAP_GAP` boundaries MUST be resolved before proceeding:
+   a. Add an SC for the concern boundary, OR
+   b. Document the boundary as explicitly out-of-scope with developer authorization
+
+**🚫 FORBIDDEN:** Silently skipping concern boundaries. An uncovered concern boundary means a cross-cutting architectural concern has no verification — it will be exercised by zero tests.
+
+### 0.78. Code Path Coverage Gate (MANDATORY — After Concern Map, Before Per-SC Verification)
+
+**Verify that every code path identified in the code path inventory artifact has at least one matching success criterion. Code paths with zero SC coverage are untested execution paths — they will run in production with zero behavioral verification.**
+
+- [ ] 1. Read the code path inventory artifact: `{project_root}/tmp/{issue-N}/artifacts/code-path-inventory.yaml`
+- [ ] 2. Extract the list of code paths from the artifact
+- [ ] 3. For each code path, check if at least one SC covers it
+- [ ] 4. Any code path with zero matching SCs is flagged as `CODE_PATH_GAP` with FAIL verdict
+- [ ] 5. `CODE_PATH_GAP` paths MUST be resolved before proceeding:
+   a. Add an SC for the code path, OR
+   b. Document the path as explicitly out-of-scope with developer authorization
+
+**🚫 FORBIDDEN:** Silently skipping code paths. An uncovered code path is a runtime execution path with zero verification — defects on that path will reach production undetected.
+
+### 0.79. Cross-Cutting Verification Gate (MANDATORY — After Code Path, Before Per-SC Verification)
+
+**Verify that every cross-cutting concern identified in the cross-cutting matrix artifact has at least one matching success criterion. Cross-cutting concerns with zero SC coverage are systemic blind spots — they affect multiple components but no single verification gate exercises them.**
+
+- [ ] 1. Read the cross-cutting matrix artifact: `{project_root}/tmp/{issue-N}/artifacts/cross-cutting-matrix.yaml`
+- [ ] 2. Extract the list of cross-cutting concerns from the artifact
+- [ ] 3. For each cross-cutting concern, check if at least one SC covers it
+- [ ] 4. Any cross-cutting concern with zero matching SCs is flagged as `CROSS_CUTTING_GAP` with FAIL verdict
+- [ ] 5. `CROSS_CUTTING_GAP` concerns MUST be resolved before proceeding:
+   a. Add an SC for the cross-cutting concern, OR
+   b. Document the concern as explicitly out-of-scope with developer authorization
+
+**🚫 FORBIDDEN:** Silently skipping cross-cutting concerns. An uncovered cross-cutting concern means a systemic property (logging, auth, error handling) has zero verification across all components.
+
+### 0.80. State Transition Coverage Gate (MANDATORY — After Cross-Cutting, Before Per-SC Verification)
+
+**Verify that every state transition identified in the state analysis artifact has at least one matching success criterion. State transitions with zero SC coverage are untested state changes — they will execute in production with zero behavioral verification.**
+
+- [ ] 1. Read the state analysis artifact: `{project_root}/tmp/{issue-N}/artifacts/state-analysis.yaml`
+- [ ] 2. Extract the list of state transitions from the artifact
+- [ ] 3. For each state transition, check if at least one SC covers it
+- [ ] 4. Any state transition with zero matching SCs is flagged as `STATE_TRANSITION_GAP` with FAIL verdict
+- [ ] 5. `STATE_TRANSITION_GAP` transitions MUST be resolved before proceeding:
+   a. Add an SC for the state transition, OR
+   b. Document the transition as explicitly out-of-scope with developer authorization
+
+**🚫 FORBIDDEN:** Silently skipping state transitions. An uncovered state transition means a state change path has zero verification — incorrect state transitions will reach production undetected.
+
 ### 0.5. Dispatch Chain Compliance Gate (MANDATORY — Before Per-SC Verification)
 
 **Verify that the work was produced through the proper `skill() → task()` dispatch chain, not via inline execution.**

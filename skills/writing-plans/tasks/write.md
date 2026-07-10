@@ -79,21 +79,27 @@ Plans use a split file format:
 
 1. **Title** — `# Implementation Plan — [<issue-ref>](<issue-url>) — <short-description>`
 2. **Goal/Architecture/Files** — Bullet list with `**Goal:**`, `**Architecture:**`, `**Files:**` entries
-3. **Admonishment** — Verbatim compliance requirement blockquote
-4. **One-step-at-a-time protocol admonishment** — Verbatim blockquote
-5. **Step Status instruction** — Verbatim blockquote
-6. **Phase table** — Table with phase number, name, concern, SCs, dependencies, step range
-7. **Bottom admonishment** — Verbatim compliance requirement blockquote
-8. **Self-remediation protocol admonishment** — Verbatim blockquote
-9. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
+3. **Blast Radius** — Section listing affected files and impact zones from blast radius artifact
+4. **Concern Map Reference** — Section listing concerns and their phase mappings from concern map artifact
+5. **Admonishment** — Verbatim compliance requirement blockquote
+6. **One-step-at-a-time protocol admonishment** — Verbatim blockquote
+7. **Step Status instruction** — Verbatim blockquote
+8. **Phase table** — Table with phase number, name, concern, SCs, dependencies, step range
+9. **Bottom admonishment** — Verbatim compliance requirement blockquote
+10. **Self-remediation protocol admonishment** — Verbatim blockquote
+11. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
 
 ### Required Sections in plan-{NN}-{slug}.md (Phase File)
 
 1. **Title** — `# Phase {NN} — {name}`
 2. **Phase metadata** — Concern, Files, SCs, Dependencies, Entry/Exit conditions
-3. **Step-by-step** — Checkbox steps (`- [ ] N.`) with dispatch indicators
-4. **Phase completion block** — VbC verification assertions
-5. **Concern transition** — To next phase
+3. **Code Path Coverage** — Per-phase list of code paths covered by this phase (from code path inventory artifact)
+4. **Cross-Cutting SCs** — Cross-cutting SCs that apply to this phase (from cross-cutting matrix artifact)
+5. **Interface Boundaries** — Interface boundaries relevant to this phase (from interface compatibility artifact)
+6. **State Transitions** — State transitions handled by this phase (from state analysis artifact)
+7. **Step-by-step** — Checkbox steps (`- [ ] N.`) with dispatch indicators
+8. **Phase completion block** — VbC verification assertions
+9. **Concern transition** — To next phase
 
 ### Global Sequential Numbering
 

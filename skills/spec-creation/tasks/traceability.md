@@ -101,6 +101,48 @@ Action: [auto-fix|FAIL]
 
 **These verifications are MANDATORY. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
+## Code-Path-to-Test Mapping (MANDATORY)
+
+**For each identified code path affected by the spec, verify at least one SC exercises it. An untested code path is a defect waiting to surface.**
+
+### Step 5: Identify Affected Code Paths
+
+From the requirements and decomposition, enumerate every code path that the spec changes or touches:
+
+| Code Path | File(s) | Entry Point | Exit Point | SC Coverage |
+|---|---|---|---|---|
+| User validation flow | `src/auth/validator.py` | `validate_user()` | return or raise | SC-3, SC-4 |
+| Config file parsing | `src/config/loader.py` | `load_config()` | return config dict | SC-7 |
+| Data export pipeline | `src/export/csv_writer.py` | `write_csv()` | file written or error | SC-12 |
+
+### Step 6: Verify SC Coverage per Code Path
+
+For each identified code path, verify:
+
+- [ ] At least one SC exercises the happy path (normal operation)
+- [ ] At least one SC exercises the primary error path (expected failure mode)
+- [ ] At least one SC exercises each boundary condition (empty input, max input, concurrent access)
+- [ ] No code path has zero SC coverage
+
+### Step 6a: Gap Remediation
+
+If a code path has zero SC coverage:
+
+1. Determine whether the path is in scope (part of the spec's intended changes)
+2. If in scope: add a new SC that exercises that path, with appropriate evidence type
+3. If out of scope: document why the path is excluded (non-requirement with boundary marker)
+4. If the path is pre-existing and unchanged by the spec: no SC needed, but document as "pre-existing, unchanged"
+
+### Evidence Format
+
+```
+Check: [code path description]
+Tool: [srclight_get_callers, srclight_get_symbol, or file read]
+Result: [SC coverage found or gap identified]
+Classification: [COVERED|GAP-IDENTIFIED|PRE-EXISTING-UNCHANGED]
+Action: [proceed|add-SC|document-exclusion]
+```
+
 ## Context Required
 
 - Preceded by: `requirements`, optionally `decompose`

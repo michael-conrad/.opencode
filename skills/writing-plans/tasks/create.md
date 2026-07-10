@@ -16,6 +16,7 @@ Create an implementation plan from an approved spec. The orchestrator dispatches
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | research step in pipeline | `research` | `sub-agent` | `{ spec_issue_number, spec_body }` |
+| artifact-validation step in pipeline | `artifact-validation` | `sub-agent` | `{ spec_issue_number, project_root, path }` |
 | readiness step in pipeline | `readiness` | `sub-agent` | `{ spec_issue_number, research_output }` |
 | structure step in pipeline | `structure` | `sub-agent` | `{ spec_issue_number, readiness_output }` |
 | solve step in pipeline | `solve` | `sub-agent` | `{ spec_issue_number, structure_output }` |
@@ -56,8 +57,12 @@ Each item is tagged with dispatch scope and chain dependency.
   - Chain: `step_3`
   - Expected: status PASS in readiness output
 
-- [ ] 5. (**inline**) Z3 check — `solve check` verify readiness output has status PASS per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:readiness`
+- [ ] 4a. (**sub-agent**) Artifact validation — `task(..., prompt: "execute artifact-validation task from writing-plans")`. Validates that all spec-creation analytical artifacts exist, are non-empty, and are well-formed YAML. This step MUST execute before structure step to ensure all required artifacts are available.
   - Chain: `step_4`
+  - Expected: PASS in artifact-validation output; if BLOCKED, pipeline halts with `MISSING_SPEC_ARTIFACT`
+
+- [ ] 5. (**inline**) Z3 check — `solve check` verify readiness output has status PASS per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:readiness`
+  - Chain: `step_4a`
 
 - [ ] 6. (**sub-agent**) Structure — `task(..., prompt: "execute structure task from writing-plans")`
   - Chain: `step_5`

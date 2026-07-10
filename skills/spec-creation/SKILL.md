@@ -9,7 +9,9 @@ compatibility: opencode
 
 ## Overview
 
-Structured discipline for spec writing. Enforces requirements extraction, problem decomposition, interface-first thinking, constraints ledgers, risk analysis, traceability, and change control. Invoked after brainstorming exploration.
+Structured discipline for spec writing. Enforces requirements extraction, analytical discovery (concern analysis, blast radius, cross-cutting concerns, code path analysis, interface compatibility, state analysis, testability assessment), problem decomposition, interface-first thinking, constraints ledgers, risk analysis, traceability, and change control. Invoked after brainstorming exploration.
+
+The pipeline now includes analytical discovery tasks that MUST complete before structural validation. Skipping analytical tasks produces structurally valid but analytically shallow specs — the spec passes format checks but misses semantic depth, cross-cutting impacts, and testability constraints.
 
 Pipeline: `brainstorming → spec-creation → audit --task spec-audit → approval-gate → writing-plans`
 
@@ -23,6 +25,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 5. **Analytical discovery tasks MUST complete before structural validation.** The pipeline includes 7 analytical tasks (concern-analysis, blast-radius, cross-cutting, code-path-analysis, interface-compatibility, state-analysis, testability-assessment) that execute between requirements extraction and the pipeline-readiness-gate. These tasks surface semantic depth, cross-cutting impacts, and testability constraints that structural validation alone cannot detect. Skipping analytical tasks produces structurally valid but analytically shallow specs — the spec passes format checks but misses the analytical depth required for robust implementation.
 
 ## Trigger Dispatch Table
 
@@ -30,11 +33,17 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 |---------------------|------|----------|----------------|
 | "create spec" / "write spec" / "draft spec" / "create specification" / "write specification" / "draft specification" / "spec out" / "author spec" / "document requirements" / "specify feature" / "write requirements" / "create requirements doc" / "create a spec" / "write a spec" / "draft a spec" / "create a specification" / "write a specification" / "draft a specification" / "author a spec" / "make a spec" / "make specification" / "spec it out" | `create` | `sub-task` | {spec_context} |
 | "extract requirements" / "requirements extraction" | `requirements` | `sub-task` | {spec_context} |
+| "concern analysis" / "concern boundary" | `concern-analysis` | `sub-task` | {spec_context} |
 | "decompose problem" / "problem decomposition" | `decompose` | `sub-task` | {spec_context} |
+| "blast radius" / "impact analysis" | `blast-radius` | `sub-task` | {spec_context} |
+| "cross-cutting" / "cross-cutting concerns" | `cross-cutting` | `sub-task` | {spec_context} |
 | "traceability" / "trace requirements" | `traceability` | `sub-task` | {spec_context} |
+| "code path analysis" / "code path" | `code-path-analysis` | `sub-task` | {spec_context} |
+| "interface compatibility" / "interface check" | `interface-compatibility` | `sub-task` | {spec_context} |
+| "state analysis" / "state transition" | `state-analysis` | `sub-task` | {spec_context} |
 | "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
+| "testability assessment" / "testability" | `testability-assessment` | `sub-task` | {spec_context} |
 | "risk analysis" / "risk assessment" | `risk` | `sub-task` | {spec_context} |
-| "create spec" / "assemble spec" | `create` | `sub-task` | {spec_context} |
 | "completion" / "spec complete" | `completion` | `sub-task` | {spec_context} |
 | "change control" / "revision" / "spec revision" | `change-control` | `sub-task` | {spec_context} |
 
@@ -49,9 +58,16 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | Task                      |
 | ------------------------- |
 | `requirements`            |
+| `concern-analysis`        |
 | `decompose`               |
+| `blast-radius`            |
+| `cross-cutting`           |
 | `traceability`            |
+| `code-path-analysis`      |
+| `interface-compatibility` |
+| `state-analysis`          |
 | `pipeline-readiness-gate` |
+| `testability-assessment`  |
 | `risk`                    |
 | `create`                  |
 | `completion`              |
@@ -66,9 +82,16 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | Task                      | Call via task()                                                                       |
 | ------------------------- | ------------------------------------------------------------------------------------- |
 | `requirements`            | `task(..., prompt: "execute requirements task from spec-creation")`                    |
+| `concern-analysis`        | `task(..., prompt: "execute concern-analysis task from spec-creation")`                |
 | `decompose`               | `task(..., prompt: "execute decompose task from spec-creation")`                       |
+| `blast-radius`            | `task(..., prompt: "execute blast-radius task from spec-creation")`                    |
+| `cross-cutting`           | `task(..., prompt: "execute cross-cutting task from spec-creation")`                    |
 | `traceability`            | `task(..., prompt: "execute traceability task from spec-creation")`                    |
+| `code-path-analysis`      | `task(..., prompt: "execute code-path-analysis task from spec-creation")`              |
+| `interface-compatibility` | `task(..., prompt: "execute interface-compatibility task from spec-creation")`          |
+| `state-analysis`          | `task(..., prompt: "execute state-analysis task from spec-creation")`                  |
 | `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`         |
+| `testability-assessment`  | `task(..., prompt: "execute testability-assessment task from spec-creation")`          |
 | `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                             |
 | `create`                  | `task(..., prompt: "execute create task from spec-creation")`                           |
 | `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                      |
@@ -78,7 +101,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Operating Protocol
 
-See `spec-creation/tasks/operating-protocol.md` for the full 13-step pipeline with chain dependencies and contract paths.
+See `spec-creation/tasks/operating-protocol.md` for the full 22-step pipeline with chain dependencies and contract paths.
 
 ## Sub-Agent Routing
 
