@@ -16,6 +16,10 @@
 
 **Design Approach:** Add a `Dispatch` column to the plan phase table (split plans) or `**Dispatch:**` field (non-split plans) declaring one of three modes: `inline` (orchestrator interleaves inline and sub-agent steps), `sub-agent-with-context` (entire phase to one sub-agent with context), or `sub-agent-clean-room` (entire phase to one sub-agent with routing metadata only). Per-step markers `(**inline**)`, `(**sub-agent**)`, and `(**clean-room**)` become distinct and meaningful only in `inline` mode. Validation rules catch mode/marker inconsistency. Plan auditor detects dispatch marking defects.
 
+**Alternatives Considered & Why Discarded:**
+- **Option A (chosen):** Phase-level `Dispatch` column/field — natural granularity matching existing orchestrator dispatch pattern; per-step markers become meaningful in `inline` mode.
+- **Option B (rejected):** Make orchestrator always read and respect per-step markers — does not solve the phase-level dispatch problem; the orchestrator would still need to know whether to interleave or delegate the entire phase.
+
 **Scope:** Three dispatch modes at phase level with distinct per-step markers. Declaration via Dispatch column in split-plan phase tables or `**Dispatch:**` field in non-split plan headers. Validation rules catch mode/marker inconsistency. Plan auditor detects dispatch marking defects. **Out of scope:** Changes to sub-agent step execution, `task()` API, checkpoint/rollback, or any skill other than writing-plans and implementation-pipeline.
 
 ## Anti-Lobotomization
