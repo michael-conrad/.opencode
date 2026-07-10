@@ -125,9 +125,20 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 ### 2. Check for Evidence
 
-- Review issue comments for evidence
-- Check `{project_root}/tmp/{issue-N}/artifacts/` for verification artifacts
-- Verify evidence matches criteria
+**Evidence type classification is MANDATORY before any evidence check.** The classification question is substrate-determined: "Does this change affect runtime behavior? YES/NO" — not "what did the author declare."
+
+- [ ] 1. **Classify each SC's evidence type** — read the SC's declared evidence type from the spec. Apply automatic uplift: if the change affects runtime behavior, the evidence type is `behavioral` regardless of declaration.
+- [ ] 2. **For behavioral SCs** (evidence type is `behavioral` after uplift):
+   - Do NOT check the artifacts directory — file existence is NOT evidence of behavioral correctness
+   - Dispatch `behavioral-test-evaluation` from `verification-before-completion` via clean-room sub-agent
+   - The sub-agent receives ONLY `{artifact_dir, sc_list}` — no implementation context, no prior results
+   - Wait for the sub-agent to return PASS/FAIL verdict before proceeding
+   - "Artifact generated" is NOT a valid PASS verdict — only clean-room evaluation counts
+- [ ] 3. **For non-behavioral SCs** (evidence type is `string` or `structural` after uplift):
+   - Review issue comments for evidence
+   - Check `{project_root}/tmp/{issue-N}/artifacts/` for verification artifacts
+   - Verify evidence matches criteria
+- [ ] 4. **Report per-SC evidence status** — track which SCs had behavioral-test-evaluation dispatched vs. artifacts-dir check
 
 ### 2a. Todowrite Cleanup Verification
 
@@ -135,6 +146,18 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 - If todowrite was used during the session, confirm `todowrite(todos=[])` was called before HALT
 - Evidence: todowrite state is empty or all items are `completed`
 - Failure: HALT and require todowrite cleanup before allowing completion
+
+### 2b. Behavioral Test Evaluation Gate (MANDATORY)
+
+**After artifact collection (Step 2) and before marking any SC as verified (Step 3): if any SC has evidence type `behavioral`, the `behavioral-test-evaluation` task MUST have been dispatched and returned a verdict. PASS cannot be claimed for behavioral SCs based on artifact file existence alone.**
+
+- [ ] 1. Check whether any SC was classified as `behavioral` in Step 2
+- [ ] 2. If yes: confirm `behavioral-test-evaluation` was dispatched and returned a verdict
+- [ ] 3. If `behavioral-test-evaluation` was NOT dispatched: HALT — behavioral SCs require clean-room evaluation
+- [ ] 4. If `behavioral-test-evaluation` returned PASS: proceed to Step 3
+- [ ] 5. If `behavioral-test-evaluation` returned FAIL: remediate and re-dispatch before proceeding
+
+**🚫 FORBIDDEN:** Claiming PASS for a behavioral SC based on artifact file existence, grep match, or any structural evidence. Only clean-room evaluation from `behavioral-test-evaluation` counts as behavioral evidence.
 
 ### 3. Mark Verified/Unverified
 
@@ -169,6 +192,25 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 **AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), Spec #262
 
+### How to Run Behavioral Tests for SC Verification
+
+**The existing behavioral test infrastructure in `.opencode/tests/behaviors/` is the verified mechanism for behavioral SC verification.** Do NOT recreate test infrastructure from scratch.
+
+- **Entry point:** `bash .opencode/tests/behaviors/<scenario>.sh` — each scenario script sources `helpers.sh` and calls `behavior_run()` which wraps `with-test-home` for XDG state isolation
+- **Assertion helpers** in `helpers.sh`: `assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`, `assert_semantic`
+- **`with-test-home`** is baked into `behavior_run()` — no manual XDG isolation setup needed
+- **Test output** goes to `./tmp/` — captured by `behavior_run()` automatically
+
+**🚫 FORBIDDEN:**
+- Running bare `opencode-cli run` without `with-test-home` wrapper — causes SQLite session conflicts with desktop app
+- Ad-hoc test recreation — writing inline test infrastructure instead of using existing scripts
+- Inline test infrastructure from scratch — the 40+ existing scripts in `.opencode/tests/behaviors/` cover the patterns needed
+
+**✅ REQUIRED:**
+- `bash .opencode/tests/behaviors/<scenario>.sh` for behavioral SC verification
+- Source `helpers.sh` and use its assertion helpers for structured assertions
+- Use `behavior_run()` for test execution — it handles isolation, capture, and cleanup
+
 ## Evidence Types — STRUCTURAL EVIDENCE IS ALWAYS FAIL FOR CODE CHANGES (ZERO TOLERANCE)
 
 **🚫 STRUCTURAL EVIDENCE (grep/read/file-exists) IS NEVER ACCEPTABLE FOR TESTABLE CODE.**
@@ -189,7 +231,7 @@ Grep/pattern-match verification is FORBIDDEN even for prose content. The agent m
 
 | Change Type | Evidence Requirement | Method |
 |-------------|---------------------|--------|
-| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `{project_root}/tmp/{issue-N}/artifacts/` |
+| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `bash .opencode/tests/behaviors/<scenario>.sh` (wraps `behavior_run()` which wraps `with-test-home`), `pytest`, lint, typecheck — all with saved artifacts in `{project_root}/tmp/{issue-N}/artifacts/` |
 | Non-testable prose (docs, runbooks, guidelines) | Semantic intent verification by direct AI agent read | Read the file, understand the prose, verify semantic intent against spec — NOT grep/pattern matching |
 | | | |
 | Structural-only evidence (grep/read/file-exists) for testable code | **TOTAL FAIL** — entire verification gate returns FAIL | No exceptions. No metadata exemption. |
@@ -248,6 +290,18 @@ When a baseline test failure is detected:
 - [ ] 2. **Attempt remediation** — diagnose root cause, fix, re-run
 - [ ] 3. **If remediation fails after 2+ attempts** — report as BLOCKED with all failure evidence
 - [ ] 4. **NEVER proceed past a FAIL** — regardless of whether the failure was "pre-existing"
+
+### Per-SC Evidence Table Format
+
+**The "Verification Command Run" column in the per-SC evidence table MUST show the full command that was executed.** Generic descriptions like "ran the test" or "verified via test execution" are NOT acceptable — the exact command path must be recorded.
+
+| Column | Required Content | Example |
+|--------|-----------------|---------|
+| Verification Command Run | Full command with path | `bash .opencode/tests/behaviors/my-scenario.sh` |
+| | | `pytest test/test_file.py::test_function` |
+| | | `uvx ruff check src/` |
+
+**🚫 FORBIDDEN:** Generic descriptions ("ran the test", "verified", "checked") in the Verification Command Run column. The command must be reproducible from the evidence table alone.
 
 ## Verification Report Format
 
