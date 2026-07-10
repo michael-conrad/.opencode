@@ -72,19 +72,32 @@ ALL success criteria MUST pass before implementation is considered complete. If 
 - The fix must be structural (procedural steps) not just declarative (more admonishments)
 - The behavioral-test-evaluation dispatch step added to verify.md SHOULD reference the existing behavioral test infrastructure (helpers.sh, behavior_run, with-test-home) per #675's intent, but #675 is a separate spec — do not block on it
 
-## Dependencies
+## Interdependency Map
 
-- #1791 (producer side — plan writer) — **CLOSED/COMPLETED**. No dependency; the producer side is already fixed.
-- #1790 (test prompt quality) — independent, still open.
-- #675 (Weave behavioral test infrastructure references) — **cross-cutting concern**. Modifies the same verify.md file. Should be sequenced after #1789 to integrate infrastructure references into the new dispatch step.
+### Forward Dependencies (issues that depend on #1789)
 
-## Cross-Cutting Concerns
+| Issue | Relationship | Dependency Type | Action Required |
+|-------|-------------|-----------------|-----------------|
+| #675 | Weave behavioral test infrastructure references into verify.md, start.md, checklist.md | **SEQUENCE** — #675 modifies the same verify.md file. The behavioral-test-evaluation dispatch step added by #1789 must exist before #675 can weave infrastructure references into it. | Implement #1789 first, then #675. The dispatch step should reference the infrastructure (helpers.sh, behavior_run, with-test-home) that #675 documents. |
+| #1790 | Fix test prompts in vbfc-behavioral-evidence-distinction.sh and structural-evidence-fail.sh | **INDEPENDENT** — #1790 modifies behavioral test scripts, not verify.md. No file conflict. | No sequencing constraint. Can be implemented in any order. |
+| #1532 | Fix verification-before-completion SKILL.md description | **FILE-OVERLAP** — #1532 modifies the SKILL.md frontmatter description field; #1789 modifies SKILL.md Operating Protocol §7. Different sections of the same file. | Implement in any order, but both must be aware of each other's changes to avoid merge conflicts in SKILL.md. |
 
-| Issue | Relationship | Action Required |
-|-------|-------------|-----------------|
-| #675 | Also modifies verify.md to add behavioral test infrastructure references | Sequence after #1789. The dispatch step added by #1789 should reference the infrastructure documented by #675. |
-| #1532 | verification-before-completion Skill Description Compliance | Independent — description format, not procedural logic. No action needed. |
-| #1790 | Test prompt quality for behavioral tests | Independent — test infrastructure, not verify.md workflow. No action needed. |
+### Backward Dependencies (issues that #1789 depends on)
+
+| Issue | Relationship | Dependency Type | Status |
+|-------|-------------|-----------------|--------|
+| #1791 | Producer side — plan writer generates behavioral-test-evaluation steps | **CLOSED/COMPLETED** — was the counterpart to #1789. No remaining dependency. | ✅ Closed |
+| #765 | Structural Evidence Must FAIL — evidence type classification in verify.md | **CLOSED/COMPLETED** — added the classification layer that #1789's dispatch step operationalizes. | ✅ Closed |
+| #767 | Dispatch Chain Enforcement — Step 0.5 in verify.md | **CLOSED/COMPLETED** — added dispatch log check that #1789's step integrates with. | ✅ Closed |
+
+### Dependency Type Definitions
+
+| Type | Meaning | Sequencing Rule |
+|------|---------|-----------------|
+| **SEQUENCE** | Issue B must be implemented after Issue A (file conflict or logical dependency) | A → B |
+| **FILE-OVERLAP** | Issues modify different sections of the same file | Any order, but coordinate to avoid merge conflicts |
+| **INDEPENDENT** | No file or logical dependency | Any order |
+| **CLOSED/COMPLETED** | Issue is already implemented | No action needed |
 
 ## Splitting/Combining Assessment
 
