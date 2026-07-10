@@ -1,0 +1,8 @@
+title: '[SPEC] Baseline generation for audit — first-run audit snapshots with schema
+  and lifecycle'
+status: open
+labels:
+- spec,adversarial-audit,drift-detection,baseline
+body: ''
+created_at: '2026-07-10T03:12:39+00:00'
+updated_at: '2026-07-10T03:12:39+00:00'
