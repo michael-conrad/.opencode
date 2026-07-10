@@ -82,6 +82,54 @@ Action: [auto-fix|FAIL]
 
 **These verifications are MANDATORY for any STATUS exemption claim. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
+## Code-Level Backward Compatibility Impact Analysis (MANDATORY)
+
+When a spec changes an API signature, config key, or data format, assess what existing consumers would break. This is the spec-level counterpart to the backward compatibility analysis in `risk.md` — it operates at the code level rather than the architecture level.
+
+### Step 5: Identify Changed Code Contracts
+
+From the spec's requirements and decomposition, enumerate every code-level contract that changes:
+
+| Contract Type | What Changed | Old Form | New Form | Consumer Search Method |
+|---|---|---|---|---|
+| API signature | Function parameter added | `validate(name: str)` | `validate(name: str, age: int)` | `srclight_get_callers('validate')` |
+| Config key | Key renamed | `DB_HOST` | `DATABASE_HOST` | `grep` for `DB_HOST` across codebase |
+| Data format | Field type changed | `created: str` (ISO) | `created: int` (epoch) | `srclight_search_symbols` for deserialization of this format |
+| Return type | Return type narrowed | `dict[str, Any]` | `UserProfile` | `srclight_get_callers` on the function |
+| Error contract | Error type changed | raises `ValueError` | raises `ValidationError` | `srclight_get_callers` + inspect error handling |
+
+### Step 6: Consumer Breakage Assessment
+
+For each changed contract, assess breakage:
+
+| Breakage Mode | Detection Method | Severity | Remediation |
+|---|---|---|---|
+| Compile-time type error | Static analysis (pyright, mypy, tsc) | HIGH | Add adapter or versioned overload |
+| Runtime type error | Callers pass old types | CRITICAL | Add runtime type coercion or migration period |
+| Silent behavioral change | Callers depend on old behavior | CRITICAL | Add feature flag or behavior-preserving default |
+| Config load failure | Config file uses old key | HIGH | Add backward-compatible key alias |
+| Data deserialization failure | Stored data uses old format | CRITICAL | Add migration script or dual-format reader |
+| Missing import/export | Module path changed | HIGH | Add re-export from old path |
+
+### Step 7: Document in Impact Analysis
+
+For each breakage mode with severity HIGH or CRITICAL, add to the spec's impact analysis:
+
+- **Affected consumers:** list of callers, config files, or data stores identified
+- **Coexistence strategy:** versioned API, feature flag, adapter layer, or migration window
+- **Deprecation plan:** if phasing out old contract, document the deprecation period and warning mechanism
+- **Rollback trigger:** what condition would trigger reverting the change
+
+### Evidence Format
+
+```
+Check: [contract change description]
+Tool: [srclight_get_callers, grep, srclight_search_symbols]
+Result: [N consumers found, breakage mode, severity]
+Classification: [COMPATIBLE|BREAKING-HIGH|BREAKING-CRITICAL]
+Action: [proceed|add-migration|add-coexistence|HALT]
+```
+
 ## Exemptions
 
 - Initial spec creation (version 1.0): No change control needed

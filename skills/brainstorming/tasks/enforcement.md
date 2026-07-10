@@ -98,6 +98,13 @@ Before creating a spec, investigation MUST be complete. This is a hard gate, not
 | Codebase explored | Existing patterns, reusable components identified |
 | Alternatives considered | At least 2 approaches for significant decisions |
 | Risks identified | Risk assessment with mitigation strategies |
+| Blast radius assessed | Affected files/symbols identified via `srclight_get_dependents` |
+| Concern map drafted | Concern boundaries mapped to affected areas |
+| Code paths inventoried | Execution paths through affected code listed |
+| Cross-cutting concerns identified | Concerns spanning multiple areas documented |
+| Interface compatibility checked | Public API compatibility verified via `srclight_get_signature` |
+| State analysis performed | Persistent state affected by change identified |
+| Testability assessed | Existing test coverage of affected paths evaluated |
 | Success criteria defined | Testable, measurable completion criteria |
 | Protocol compliance verified | Interactive Q&A turns documented; no batch-dump; each significant finding has developer confirmation |
 | No batch-dump patterns | No consecutive agent messages without interleaving developer responses in the exploration record |

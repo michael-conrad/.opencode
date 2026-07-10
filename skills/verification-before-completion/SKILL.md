@@ -15,6 +15,8 @@ Remediation of failed verification IS agent-owned — the producing agent owns e
 
 Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
 
+VbC now cross-references analytical artifacts against implementation evidence before allowing completion claims. Blast radius coverage, code path coverage, cross-cutting SC verification, interface compatibility verification, state transition coverage, and testability assessment verification are mandatory gates.
+
 ## Worktree Mode
 
 This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
@@ -25,6 +27,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 5. **Analytical artifact cross-reference required before completion claim.** Each analytical artifact must be verified against actual implementation evidence. Contradictions between analytical artifacts and implementation evidence produce HALT. Unverified artifacts produce HALT with the specific artifact name.
 
 ## Trigger Dispatch Table
 
@@ -34,6 +37,13 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "collect" / "collect evidence" | `collect` | `sub-task` | {spec_sc_list, file_paths} |
 | "structural-verify" / "structural check" | `structural-verify` | `sub-task` | {spec_structure} |
 | "behavioral-test-evaluation" / "evaluate behavioral tests" | `behavioral-test-evaluation` | `sub-task` | {artifact_dir, sc_list} |
+| "verify analytical artifacts" | `verify` | `sub-task` | {spec_sc_list, file_paths, analytical_artifact_dir} |
+| "blast-radius not verified" | HALT | — | — |
+| "code-path-inventory not cross-referenced" | HALT | — | — |
+| "interface-compatibility not verified" | HALT | — | — |
+| "state-analysis not verified" | HALT | — | — |
+| "testability-assessment not verified" | HALT | — | — |
+| "analytical artifact contradicts implementation" | HALT | — | — |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona

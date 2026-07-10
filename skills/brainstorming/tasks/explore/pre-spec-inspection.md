@@ -11,7 +11,7 @@ Mandatory pre-spec code inspection and evidence artifact collection before any s
 
 ## Exit Criteria
 
-- All six inspection items addressed (or N/A with justification)
+- All 12 inspection items addressed (or N/A with justification)
 - Tool-call artifacts collected as evidence for each claim
 - Verification classification table generated
 - Agent may proceed to Step 1 of exploration
@@ -28,6 +28,12 @@ Mandatory pre-spec code inspection and evidence artifact collection before any s
 | Verify format/protocol | Confirm data format matches assumption | `srclight_get_signature(name="function_name")` | CONFLICTING |
 | Confirm architectural layer | Verify code is in correct layer | `srclight_search_symbols(query="target", kind="function")` → check file path | STRUCTURE-VIOLATION |
 | Check for existing alternatives | Search for existing solutions | `srclight_search_symbols(query="feature description")` | MISSING-ELEMENT |
+| Preliminary blast radius | Identify all files/symbols that would be affected by the change | `srclight_get_dependents(symbol_name="target", transitive=True)` | STRUCTURE-VIOLATION |
+| Preliminary concern map | Map affected areas to concern boundaries | `srclight_search_symbols(query="concern area")` + file path analysis | STRUCTURE-VIOLATION |
+| Code path inventory | List all execution paths through the affected code | `srclight_get_callers(symbol_name="target")` + `srclight_get_callees(symbol_name="target")` | MISSING-ELEMENT |
+| Interface compatibility | Verify public API compatibility with proposed changes | `srclight_get_signature(name="interface_name")` | CONFLICTING |
+| State analysis | Identify persistent state affected by the change | `srclight_search_symbols(query="state|persist|store")` | MISSING-ELEMENT |
+| Testability assessment | Evaluate whether existing tests cover the affected paths | `srclight_get_tests_for(symbol_name="target")` | MISSING-ELEMENT |
 
 ## Evidence Format
 
@@ -49,6 +55,12 @@ Action: [auto-fix|FAIL]
 | Data format assumption wrong | CONFLICTING | FAIL | HALT — redesign may be needed |
 | Architectural layer violation | STRUCTURE-VIOLATION | FAIL | HALT — redesign may be needed |
 | Alternative solution exists | MISSING-ELEMENT | FAIL | Evaluate existing solution |
+| Blast radius wider than expected | STRUCTURE-VIOLATION | FAIL | HALT — scope may need expansion |
+| Concern boundary mismatch | STRUCTURE-VIOLATION | FAIL | HALT — re-map concern boundaries |
+| Code path missing from inventory | MISSING-ELEMENT | FAIL | Add missing path to inventory |
+| Interface incompatibility | CONFLICTING | FAIL | HALT — redesign interface contract |
+| State persistence not accounted for | MISSING-ELEMENT | FAIL | Add state handling to spec |
+| No test coverage for affected paths | MISSING-ELEMENT | FAIL | Add test plan to spec |
 
 ## Step 0.5: Cross-Spec Scope Search (MANDATORY)
 
@@ -69,7 +81,7 @@ Action: [auto-fix|FAIL]
 
 ## Acceptance Criteria
 
-- [ ] All six checklist items addressed with tool-call evidence
+- [ ] All 12 checklist items addressed with tool-call evidence
 - [ ] Cross-spec scope search complete (if applicable)
 - [ ] Classification table generated for any findings
 - [ ] HALT flag raised for STRUCTURE-VIOLATION or unresolvable CONFLICTING

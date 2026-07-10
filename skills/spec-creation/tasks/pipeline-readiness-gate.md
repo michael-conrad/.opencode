@@ -75,6 +75,32 @@ For each SC, verify it targets exactly one file category and one verification do
 
 An SC that spans multiple file categories or multiple verification domains is a single-concern violation.
 
+### Step 3a: Semantic Single-Concern Check (PR-3a)
+
+Beyond file category and verification domain, verify the SC's actual problem domain is singular:
+
+| Pass Condition | Fail Condition |
+|---|---|
+| The SC's problem domain is a single concern (e.g., "atomicity validation" or "dependency ordering") | The SC bundles two distinct problem domains (e.g., "atomicity AND dependency ordering" — these are separate concerns) |
+| The SC's PASS/FAIL maps to exactly one behavioral or structural property | The SC's PASS/FAIL requires evaluating two unrelated properties (e.g., "file exists AND content is valid YAML") |
+| The SC's verification method tests exactly one thing | The SC's verification method requires two independent checks that could pass/fail independently |
+
+**Test:** For each SC, ask: "If this SC fails, what exactly is wrong?" If the answer contains "and" or lists two unrelated things, the SC fails the semantic single-concern check.
+
+### Step 3b: Decomposition-Depth Validation (PR-3b)
+
+For each SC, verify it meets the decomposition-depth mandate from `decompose.md`:
+
+| Pass Condition | Fail Condition |
+|---|---|
+| The SC asserts exactly one independently verifiable claim | The SC bundles multiple assertions (e.g., "X is correct AND Y is correct") |
+| PASS/FAIL of the SC cannot be split across two assertions | The SC references multiple files or verification domains in the same criterion |
+| The SC maps to exactly one RED→GREEN→COMMIT cycle | The SC would require multiple implementation steps to satisfy |
+
+**Cross-reference:** `decompose.md` §Decomposition-Depth Mandate, `091-incremental-build.md` §Per-Item TDD Cycle.
+
+Record each SC as `decomposition_depth_valid: true | false`. Any SC failing this check must be split before the spec proceeds to implementation.
+
 ### Step 4: Validate Phase Dependency Declarations (PR-4)
 
 Extract the phase dependency graph:

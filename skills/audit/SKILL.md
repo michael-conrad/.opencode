@@ -13,6 +13,8 @@ compatibility: opencode
 
 Audit via clean-room sub-agents. Each audit task is a self-contained procedure dispatched to a clean-room sub-agent via `task(subagent_type="general")`. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
 
+Spec-audit now validates analytical artifacts in addition to structural spec content. The 7 analytical artifacts are: blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, and testability assessment. Missing analytical artifacts produce a warning; stale artifacts (older than the spec revision) produce a HALT.
+
 ## Persona
 
 Audit dispatcher. Routes each audit task to a clean-room sub-agent via `task(subagent_type="general")`. Each task file is self-contained with its own procedure, entry criteria, and exit criteria. An orchestrator that performs audit analysis inline instead of dispatching to a sub-agent has produced a self-review, not an independent audit — every finding carries the orchestrator's preloaded bias, and the audit separation that makes audits reliable is lost from the first byte. Professional auditors dispatch to sub-agents. Inlining means the audit was never independent.
@@ -27,6 +29,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 5. **Analytical artifact validation required before audit tasks.** Spec-audit requires all 7 analytical artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment). Concern-separation requires concern-map. Plan-fidelity requires interface-compatibility. Verification-audit requires code-path-inventory. Cross-validate requires cross-cutting-matrix. Coherence-maintenance requires state-analysis. Test-quality-audit requires testability-assessment. Missing artifacts produce a warning; stale artifacts produce HALT.
 
 ## Trigger Dispatch Table
 
@@ -45,6 +48,15 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {spec_local_dir, artifact_evidence_dir} |
 | "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
 | "content audit" / "audit content claims" | `content-audit` | `sub-task` | {document_section, source_data_paths} |
+| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` | {issue_number, spec_local_dir, analytical_artifact_dir} |
+| "blast-radius artifact missing" | HALT | — | — |
+| "concern-map artifact missing" | HALT | — | — |
+| "code-path-inventory artifact missing" | HALT | — | — |
+| "cross-cutting-matrix artifact missing" | HALT | — | — |
+| "interface-compatibility artifact missing" | HALT | — | — |
+| "state-analysis artifact missing" | HALT | — | — |
+| "testability-assessment artifact missing" | HALT | — | — |
+| "stale analytical artifacts" | HALT | — | — |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Tasks

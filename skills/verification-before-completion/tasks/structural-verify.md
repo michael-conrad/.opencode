@@ -51,6 +51,13 @@ From the spec issue, extract the list of required structural components. Use `vb
 | `tasks` | yaml+symbolic block | MISSING-STRUCTURE |
 | `tasks.*.mandatory` | yaml+symbolic block | MISSING-STRUCTURE |
 | `tasks.*.bypass_violation` | yaml+symbolic block | MISSING-STRUCTURE |
+| `blast_radius` | `{project_root}/tmp/{issue-N}/artifacts/blast-radius.yaml` | MISSING-STRUCTURE |
+| `concern_map` | `{project_root}/tmp/{issue-N}/artifacts/concern-map.yaml` | MISSING-STRUCTURE |
+| `code_path_inventory` | `{project_root}/tmp/{issue-N}/artifacts/code-path-inventory.yaml` | MISSING-STRUCTURE |
+| `cross_cutting_matrix` | `{project_root}/tmp/{issue-N}/artifacts/cross-cutting-matrix.yaml` | MISSING-STRUCTURE |
+| `interface_compatibility` | `{project_root}/tmp/{issue-N}/artifacts/interface-compatibility.yaml` | MISSING-STRUCTURE |
+| `state_analysis` | `{project_root}/tmp/{issue-N}/artifacts/state-analysis.yaml` | MISSING-STRUCTURE |
+| `testability_assessment` | `{project_root}/tmp/{issue-N}/artifacts/testability-assessment.yaml` | MISSING-STRUCTURE |
 
 ### Step 2: Read Target Files Fresh
 
@@ -70,6 +77,13 @@ For each file path in the task context:
 | gates | YES/NO | Section found or "absent" |
 | decomposition | YES/NO | Section found or "absent" |
 | tasks.mandatory fields | YES/NO | Field count or "absent" |
+| blast_radius | YES/NO | File exists or "absent" |
+| concern_map | YES/NO | File exists or "absent" |
+| code_path_inventory | YES/NO | File exists or "absent" |
+| cross_cutting_matrix | YES/NO | File exists or "absent" |
+| interface_compatibility | YES/NO | File exists or "absent" |
+| state_analysis | YES/NO | File exists or "absent" |
+| testability_assessment | YES/NO | File exists or "absent" |
 
 ### Step 4: Report Results
 
@@ -87,6 +101,13 @@ For each file path in the task context:
 | gates | ✅ PASS | Lines X-Y |
 | decomposition | ❌ FAIL | Section absent |
 | tasks.mandatory | ✅ PASS | N tasks have mandatory field |
+| blast_radius | ✅ PASS | File exists at blast-radius.yaml |
+| concern_map | ✅ PASS | File exists at concern-map.yaml |
+| code_path_inventory | ❌ FAIL | File absent |
+| cross_cutting_matrix | ✅ PASS | File exists at cross-cutting-matrix.yaml |
+| interface_compatibility | ✅ PASS | File exists at interface-compatibility.yaml |
+| state_analysis | ❌ FAIL | File absent |
+| testability_assessment | ✅ PASS | File exists at testability-assessment.yaml |
 
 ### Overall: ❌ FAIL — 2 structural components missing
 ```
@@ -98,6 +119,15 @@ For each file path in the task context:
 - No yaml+symbolic block found → Return FAIL (structural verification impossible)
 
 **⚠️ DISCLAIMER: Structural completeness verification confirms ONLY that implementation components exist — it does NOT verify behavioral correctness.** A component that passes structural verification (exists in the file, has the right fields, appears in the yaml block) may still fail behavioral verification (the test contains a bug, the function returns wrong values, the rule doesn't produce the expected agent behavior). Structural PASS is a prerequisite for behavioral verification, not a substitute.
+
+### Analytical Artifact YAML Validation
+
+For the 7 analytical artifact component types (`blast_radius`, `concern_map`, `code_path_inventory`, `cross_cutting_matrix`, `interface_compatibility`, `state_analysis`, `testability_assessment`), structural verification includes YAML validity checking:
+
+- [ ] 1. For each analytical artifact file found, attempt to parse as valid YAML
+- [ ] 2. If YAML parsing fails: report as `INVALID_YAML` with FAIL verdict
+- [ ] 3. If YAML parsing succeeds: report as PASS with file path
+- [ ] 4. If file is absent: report as `MISSING-STRUCTURE` with FAIL verdict
 
 **Behavioral uplift exclusion:** Structural verification is valid ONLY for changes that do not affect runtime behavior. If the change affects runtime behavior, structural verification is `EVIDENCE_TYPE_MISMATCH` — uplift to behavioral is mandatory. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 

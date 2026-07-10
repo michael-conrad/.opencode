@@ -99,6 +99,41 @@ Check an existing plan for placeholders and completeness.
 - [ ] 19. (**inline**) Behavioral SC exit criteria validation — Reject structural-only exit criteria for behavioral SCs
   - Command: For each SC in the plan's exit criteria section, check if the SC has `evidence_type: behavioral` annotation. If yes, verify the exit criteria include both `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch steps. Exit criteria that use only structural evidence (file exists, annotations present, exit 0) for behavioral SCs MUST be rejected.
 
+- [ ] 20. (**inline**) Blast radius coverage — Verify plan covers all files and impact zones from blast radius artifact
+  - Command: read `{N}/blast-radius.yaml`, compare `affected_files` and `impact_zones` against plan's Files section and phase structure
+  - SC: SC-27
+  - Expected: every affected file and impact zone has a corresponding phase or step in the plan
+
+- [ ] 21. (**inline**) Concern map alignment — Verify phase count and boundaries match concern map artifact
+  - Command: read `{N}/concern-map.yaml`, compare `concerns` list against plan's phase table
+  - SC: SC-27
+  - Expected: each concern maps to exactly one phase; no phase without a concern; phase boundaries align with concern boundaries
+
+- [ ] 22. (**inline**) Code path coverage — Verify every code path in inventory has a RED/GREEN item
+  - Command: read `{N}/code-path-inventory.yaml`, compare `paths` list against plan's TDD task definitions
+  - SC: SC-27
+  - Expected: every code path has at least one RED/GREEN item; no code path is uncovered
+
+- [ ] 23. (**inline**) Cross-cutting SC coverage — Verify cross-cutting SCs are annotated in all relevant phases
+  - Command: read `{N}/cross-cutting-matrix.yaml`, compare `cross_cutting_scs` against plan phase annotations
+  - SC: SC-27
+  - Expected: each cross-cutting SC appears in every phase it affects; cross-cutting annotations present in phase metadata
+
+- [ ] 24. (**inline**) Interface compatibility — Verify plan respects interface boundaries from interface compatibility artifact
+  - Command: read `{N}/interface-compatibility.yaml`, compare `interfaces` against plan phase boundaries
+  - SC: SC-27
+  - Expected: no phase crosses an interface boundary marked as incompatible; phase boundaries align with compatible interface boundaries
+
+- [ ] 25. (**inline**) State transition coverage — Verify plan covers all state transitions from state analysis artifact
+  - Command: read `{N}/state-analysis.yaml`, compare `transitions` against plan's dependency ordering and phase structure
+  - SC: SC-27
+  - Expected: every state transition has a corresponding phase or step; transition ordering matches dependency contract
+
+- [ ] 26. (**inline**) Testability alignment — Verify evidence types in plan match testability assessment artifact
+  - Command: read `{N}/testability-assessment.yaml`, compare each SC's `evidence_type` against plan's exit criteria evidence type annotations
+  - SC: SC-27
+  - Expected: every SC's evidence type in the plan matches the testability assessment; no downgrade from behavioral to structural
+
 - [ ] 20. (**inline**) Blast radius analysis — Spec identifies what files/symbols are affected and what depends on them
   - Command: `grep(pattern="blast radius|affected files|dependents|impact analysis")` on spec body
   - SC: SC-6

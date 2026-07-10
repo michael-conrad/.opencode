@@ -146,6 +146,91 @@ executing-plans → verification-before-completion → (completion claim allowed
 - Evidence collected during execution phase
 - PR created only after all verification passes
 
+## Analytical Artifact Evidence Collection
+
+**For each analytical artifact produced during the pre-implementation phase, collect evidence that the implementation satisfies the artifact's claims.** Analytical artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment) make specific claims about the codebase — these claims MUST be verified against the actual implementation.
+
+### Collection Procedure
+
+For each analytical artifact, read the artifact file and verify each claim against the implementation:
+
+#### Blast Radius Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/blast-radius.yaml`
+- [ ] 2. Extract the list of affected files and impact descriptions
+- [ ] 3. For each affected file, verify the implementation actually modified it (or document why not)
+- [ ] 4. For each impact description, verify the implementation addresses the described impact
+- [ ] 5. Collect evidence: `git diff --name-only "$DEFAULT_BRANCH"` for file changes, `git diff` for impact verification
+
+#### Concern Map Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/concern-map.yaml`
+- [ ] 2. Extract the list of concern boundaries and their descriptions
+- [ ] 3. For each concern boundary, verify the implementation respects the boundary (no cross-boundary violations)
+- [ ] 4. For each concern description, verify the implementation addresses the concern
+- [ ] 5. Collect evidence: file-level boundary checks, cross-reference against implementation files
+
+#### Code Path Inventory Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/code-path-inventory.yaml`
+- [ ] 2. Extract the list of code paths and their descriptions
+- [ ] 3. For each code path, verify the implementation includes the path
+- [ ] 4. For each code path description, verify the implementation behavior matches
+- [ ] 5. Collect evidence: function-level path verification, test coverage for each path
+
+#### Cross-Cutting Matrix Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/cross-cutting-matrix.yaml`
+- [ ] 2. Extract the list of cross-cutting concerns and their component mappings
+- [ ] 3. For each cross-cutting concern, verify the implementation applies it consistently across all mapped components
+- [ ] 4. Collect evidence: per-component verification of cross-cutting concern implementation
+
+#### Interface Compatibility Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/interface-compatibility.yaml`
+- [ ] 2. Extract the list of interfaces and their compatibility requirements
+- [ ] 3. For each interface, verify the implementation maintains backward compatibility
+- [ ] 4. Collect evidence: signature verification via `srclight_get_signature`, diff analysis
+
+#### State Analysis Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/state-analysis.yaml`
+- [ ] 2. Extract the list of states, transitions, and transition conditions
+- [ ] 3. For each state transition, verify the implementation handles the transition correctly
+- [ ] 4. For each transition condition, verify the implementation checks the condition
+- [ ] 5. Collect evidence: state machine verification, transition test coverage
+
+#### Testability Assessment Artifact
+
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/testability-assessment.yaml`
+- [ ] 2. Extract the list of testability concerns and recommendations
+- [ ] 3. For each testability recommendation, verify the implementation follows it
+- [ ] 4. Collect evidence: test file structure, mock/fixture usage, test coverage metrics
+
+### Evidence Storage for Analytical Artifacts
+
+Store analytical artifact evidence alongside other verification artifacts:
+
+```
+{project_root}/tmp/{issue-N}/artifacts/analytical-evidence-{timestamp}.md
+```
+
+Each entry in the evidence file includes:
+- Artifact name and path
+- Claim from the artifact
+- Verification method used
+- PASS/FAIL verdict
+- Evidence artifact path or explanation
+
+### Finding Classification for Analytical Artifact Gaps
+
+| Finding | Problem Class | Classification | Action |
+|---------|---------------|----------------|--------|
+| Artifact claim not satisfied by implementation | ANALYTICAL-GAP | FAIL | Add implementation to satisfy claim, or document as out-of-scope |
+| Artifact file missing | MISSING-ARTIFACT | FAIL | Create artifact before proceeding |
+| Artifact YAML invalid | INVALID-YAML | FAIL | Fix YAML syntax |
+| Artifact claim partially satisfied | PARTIAL-GAP | FAIL | Complete implementation for the claim |
+
 ## Live Verification: Evidence Collection Claims (MANDATORY)
 
 **Each collected evidence item MUST be verified as genuinely produced by a tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
