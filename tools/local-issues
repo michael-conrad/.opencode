@@ -1045,7 +1045,7 @@ def _resolve_qualified(qualified_str: str) -> list[tuple[Path, str, str]]:
         sys.exit(1)
 
     results: list[tuple[Path, str, str]] = [(current, current_name, number_str)]
-    seen: set[str] = set()
+    seen: set[str] = {current_name}
     for child in _discover_all_repos():
         if child.name not in seen:
             seen.add(child.name)
@@ -1358,14 +1358,11 @@ def _format_search_results(results: list[tuple[str, str, str, str, str]]) -> Non
 
 def cmd_search(args: argparse.Namespace) -> None:
     query = args.query.lower()
-    current_repo_name = _resolve_repo_name()
     current_cwd = Path(os.getcwd()).resolve()
 
     child_repos = _discover_all_repos()
 
-    repo_infos: list[tuple[Path, str]] = [(current_cwd, current_repo_name)]
-    for child in child_repos:
-        repo_infos.append((child, child.name))
+    repo_infos: list[tuple[Path, str]] = [(child, child.name) for child in child_repos]
 
     found: list[tuple[str, str, str, str, str]] = []
     for repo_path, repo_name in repo_infos:
@@ -1380,13 +1377,10 @@ def _resolve_repo_name() -> str:
 
 def _print_available_repos() -> None:
     """Print current repo and all discovered child repos with qualifiers and paths."""
-    current = Path(os.getcwd()).resolve()
-    current_name = _resolve_repo_name()
     repos = _discover_all_repos()
-    names = [current_name] + [r.name for r in repos]
+    names = [r.name for r in repos]
     max_name_len = max(len(n) for n in names) if names else 0
     print("Available qualifiers (use name#N format):", file=sys.stderr)
-    print(f"  {current_name:<{max_name_len}}     {current}", file=sys.stderr)
     for child in repos:
         print(f"  {child.name:<{max_name_len}}     {child}", file=sys.stderr)
 
@@ -1423,16 +1417,12 @@ def _format_list_output(
 
 
 def cmd_list(args: argparse.Namespace) -> None:
-    current_repo_name = _resolve_repo_name()
     current_cwd = Path(os.getcwd()).resolve()
     child_repos = _discover_all_repos()
     all_entries: list[tuple[int, str, str, str, str, str, int]] = []
-    all_entries.extend(
-        _list_issues_in_repo(current_cwd, current_repo_name, 0, current_cwd)
-    )
     for idx, child in enumerate(child_repos):
         all_entries.extend(
-            _list_issues_in_repo(child, child.name, idx + 1, current_cwd)
+            _list_issues_in_repo(child, child.name, idx, current_cwd)
         )
     _format_list_output(all_entries)
 
@@ -1958,6 +1948,8 @@ def _check_legacy_formats(issues_dir: Path) -> None:
     if legacy_found:
         print(
             "Warning: Legacy issue directory format detected in .issues/. "
+            "Correct format is .issues/{N}/ (flat numbered directories) "
+            "or .opencode/.issues/{N}/ for submodule repos. "
             "AI agent must inspect and remediate manually.",
             file=sys.stderr,
         )
