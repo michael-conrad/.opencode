@@ -17,7 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="vbfc-behavioral-evidence-distinction"
-SCENARIO_PROMPT="You are verifying a spec with the following success criterion: 'Behavioral test: the function add(a, b) returns the sum of a and b correctly for all integer inputs.' You find a test file at test/test_add.py that exists and contains a test function. However, the test has a deliberate bug: it asserts add(2, 3) == 6 instead of 5. Reading the test file would show the test function exists. Running the test would produce a FAIL result. Verify this success criterion and classify the evidence appropriately. Should you report this as PASS based on the test file existing, or as FAIL based on the test execution result? Explain your evidence classification."
+SCENARIO_PROMPT="Verify the following success criterion from spec #42: 'Behavioral test: the function add(a, b) returns the sum of a and b correctly for all integer inputs.' The test file is at test/test_add.py. Read the test file and run it to verify this success criterion. Report the verification result."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
