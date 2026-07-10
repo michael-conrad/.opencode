@@ -173,31 +173,14 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
+## Operating Protocol
+
+- [ ] 1. **RED phase evidence:** RED phase MUST produce evidence of test failure before proceeding to GREEN
+- [ ] 2. **Phase 0 before RED:** Phase 0 (pre-regression baseline) MUST complete before RED phase begins
+- [ ] 3. **Phase 4 before cycle reset:** Phase 4 (post-regression verification) MUST complete before cycle reset
+
 ## Provenance
 
 Derived from [majiayu000/claude-skill-registry](https://github.com/majiayu000/claude-skill-registry) (MIT).
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-11T00:00:00Z"
-rules:
-  - id: tdd-001
-    title: "RED phase must produce evidence of test failure"
-    conditions:
-      all: ["red_phase_started == true", "test_failure_evidence_missing == true"]
-    actions: [HALT, COLLECT_EVIDENCE]
-    source: "test-driven-development/SKILL.md"
 
-  - id: tdd-002
-    title: "Phase 0 must complete before RED phase"
-    conditions:
-      all: ["tdd_cycle_started == true", "phase_0_completed == false"]
-    actions: [HALT, TASK(phase-0)]
-    source: "test-driven-development/SKILL.md"
-
-  - id: tdd-003
-    title: "Phase 4 must complete before cycle reset"
-    conditions:
-      all: ["refactor_phase_completed == true", "phase_4_completed == false"]
-    actions: [HALT, TASK(phase-4)]
-    source: "test-driven-development/SKILL.md"

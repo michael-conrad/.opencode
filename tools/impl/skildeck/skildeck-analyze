@@ -10,7 +10,7 @@
 
 # fmt: on
 """
-DESCRIPTION: Full symbolic analysis across all yaml+symbolic blocks including v2.0 sections.
+DESCRIPTION: Full symbolic analysis across all skill and guideline files.
 Usage: ./.opencode/tools/skildeck analyze [--dir PATH] [--json] [--verbose]
 """
 

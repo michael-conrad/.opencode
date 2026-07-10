@@ -10,7 +10,7 @@
 
 # fmt: on
 """
-DESCRIPTION: Lint all yaml+symbolic blocks for consistency, completeness, and gate compliance.
+DESCRIPTION: Lint skill and guideline files for consistency, completeness, and gate compliance.
 Usage: ./.opencode/tools/skildeck lint [--skill NAME] [--gate NAME] [--scope SCOPE] [--json]
 """
 
@@ -472,7 +472,7 @@ def main() -> None:
 
     import argparse
 
-    parser = argparse.ArgumentParser(description="Lint yaml+symbolic blocks")
+    parser = argparse.ArgumentParser(description="Lint skill and guideline files")
     parser.add_argument("--dir", type=str, default=str(DEFAULT_SCAN_DIR))
     parser.add_argument("--skill", type=str, default="", help="Filter by skill name")
     parser.add_argument("--gate", type=str, default="", help="Filter by gate name")

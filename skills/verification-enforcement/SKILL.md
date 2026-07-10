@@ -125,20 +125,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`. Skills: `spec-creation`, `writing-plans`, `sre-runbook`, `skill-creator`, `correspondence`, `audit --task guideline-audit`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: verification-enforcement-001
-    title: "Content generation requires verification gate"
-    conditions:
-      all: ["content_generation_requested == true", "verification_invoked == false"]
-    actions: [HALT]
-    source: "verification-enforcement/SKILL.md"
 
-  - id: verification-enforcement-004
-    title: "Sub-agent output without evidence artifacts is rejected"
-    conditions:
-      all: ["sub_agent_returned == true", "evidence_artifacts_present == false"]
-    actions: [REJECT, RE_TASK]
-    source: "verification-enforcement/SKILL.md"

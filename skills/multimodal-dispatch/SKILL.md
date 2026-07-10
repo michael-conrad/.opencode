@@ -116,13 +116,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: multimodal-001
-    title: "Cloud-first policy for text and vision modalities"
-    conditions:
-      all: ["modality in [text, vision]", "cloud_available == true", "local_chosen_over_cloud == true"]
-    actions: [SWITCH_TO_CLOUD]
-    source: "multimodal-dispatch/SKILL.md"
+

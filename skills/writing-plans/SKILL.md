@@ -92,23 +92,5 @@ Pipeline steps dispatch to sub-agents via `task()` for independent execution. Th
 
 Skills: `approval-gate`, `issue-operations`, `executing-plans`, `audit --task plan-fidelity`, `audit --task concern-separation`, `verification-enforcement`, `solve`, `plan`. References: `skill-card-change-types.md`. Guidelines: `010-approval-gate.md`, `140-planning-spec-creation.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-06-23T00:00:00Z"
-rules:
-  - id: writing-plans-001
-    title: "Plan creation from approved spec only"
-    conditions:
-      all: ["plan_creation_attempted == true", "spec_approved == false"]
-    actions: [HALT]
-    source: "writing-plans/SKILL.md"
 
-  - id: writing-plans-pipeline-readiness
-    title: "Pipeline-readiness artifact required before plan creation"
-    conditions:
-      all:
-        - "plan_creation_pending == true"
-        - "sc_pipeline_readiness_exists == false"
-    actions: [HALT, REPORT(SPEC_NOT_READY_FOR_PIPELINE)]
-    source: "writing-plans/SKILL.md"
 ```

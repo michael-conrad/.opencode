@@ -10,7 +10,7 @@
 
 # fmt: on
 """
-DESCRIPTION: Extract symbolic models from all files or a single skill. Outputs structured JSON.
+DESCRIPTION: Extract symbolic models from skill files. Outputs structured JSON.
 Usage: ./.opencode/tools/skildeck extract [--dir PATH] [--skill NAME] [--json] [--verbose]
 """
 
@@ -57,7 +57,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Extract symbolic models from yaml+symbolic blocks"
+        description="Extract symbolic models from skill files"
     )
     parser.add_argument("--dir", type=str, default=str(DEFAULT_SCAN_DIR))
     parser.add_argument("--skill", type=str, default="", help="Filter by skill name")

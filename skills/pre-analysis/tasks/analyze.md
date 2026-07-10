@@ -128,21 +128,5 @@ After the execution sub-agent returns:
 
 The orchestrator runs this check as part of the implementation-pipeline post-sub-agent completion checkpoint per the SKILL.md Trigger Dispatch Table. The check MUST run before any result contract is accepted as `DONE`. A hash mismatch blocks acceptance — the orchestrator treats the result as `BLOCKED` and re-tasks the pre-analysis sub-agent.
 
-```yaml+symbolic
-  - id: pre-analysis-context-hash
-    title: "Context-hash audit trail verifies task payload integrity"
-    conditions:
-      all:
-        - "execution_sub_agent_returned == true"
-        - "context_hash_matches == false"
-    actions:
-      - FLAG(structure-violation)
-      - RE_RUN(pre-analysis --task analyze)
-      - HALT
-    conflicts_with: []
-    requires: [pre-analysis-001]
-    triggers: [pre-analysis, implementation-pipeline]
-    source: "pre-analysis/tasks/analyze.md §Step 6"
-```
 
 Co-authored with AI: <AgentName> (<ModelId>)

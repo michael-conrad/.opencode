@@ -113,13 +113,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: research-001
-    title: "Source attribution mandatory for all findings"
-    conditions:
-      all: ["source_attribution_missing == true"]
-    actions: [REJECT_FINDING]
-    source: "research/SKILL.md"
+

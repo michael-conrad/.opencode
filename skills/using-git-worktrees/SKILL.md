@@ -120,13 +120,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: worktrees-001
-    title: "Worktrees opt-in — direct branch is default"
-    conditions:
-      all: ["WORKTREE_REQUIRED_not_set == true", "developer_not_requested_worktree == true", "worktree_created == true"]
-    actions: [USE_DIRECT_BRANCH]
-    source: "using-git-worktrees/SKILL.md"
+

@@ -294,109 +294,25 @@ Blocker events (on FAIL) MUST include:
 
 The lifecycle manifest is append-only. Never delete or edit existing entries — only append new ones. Validation: `grep -c "event:" lifecycle.yaml` MUST increase monotonically across pipeline steps.
 
+## Pipeline Enforcement Rules
+
+- [ ] 1. **No direct implementation by orchestrator:** Orchestrator MUST NOT edit implementation files — dispatch to sub-agents
+- [ ] 2. **Implementation-first gate:** Pipeline with `authorization_scope >= for_implementation` MUST produce at least one file modification
+- [ ] 3. **PR merge boundary check:** HALT if plan has PR boundaries and required PR is not merged
+- [ ] 4. **Tool-recipe prohibition:** Task context specifies WHAT, never HOW — no MCP tool names, line numbers, or step-by-step scripts
+- [ ] 5. **Poison recovery:** Orchestrator inline work poisons the pipeline — discard ALL state and restart from `verify-authorization`
+- [ ] 6. **Discard on sub-agent failure:** ALL files from a BLOCKED/ERROR sub-agent MUST be discarded before re-task
+- [ ] 7. **RED/GREEN push-prohibition:** Test sub-agents (RED/GREEN) MUST NOT commit or push
+- [ ] 8. **Coherence gate:** Verify spec/plan coherence before RED routing via `audit --task coherence-maintenance`
+- [ ] 9. **Execution-time coherence detection:** RED/GREEN sub-agents MUST return BLOCKED on spec/codebase contradiction
+- [ ] 10. **Remediation limit:** Max 3 remediation attempts before escalating to developer
+- [ ] 11. **Gate non-waiver:** "Continue" does NOT waive mandatory gates
+- [ ] 12. **Cost-blind verification:** Never skip routing or verification to save resources
+- [ ] 13. **Completeness gate required:** Run `completeness-gate --task check` after RED/GREEN before audit
+
 ## Cross-References
 
 Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `research`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "3.0"
-last_updated: "2026-05-31T00:00:00Z"
-rules:
-  - id: implementation-pipeline-001
-    title: "No direct implementation by orchestrator"
-    conditions:
-      all: ["is_orchestrator == true", "about_to_edit_implementation_file == true"]
-    actions: [HALT, TASK(sub-agent)]
-    source: "implementation-pipeline/SKILL.md"
 
-  - id: implementation-pipeline-005
-    title: "Implementation-first gate requires deliverable"
-    conditions:
-      all: ["pipeline_completed == true", "files_modified_count == 0", "authorization_scope >= for_implementation"]
-    actions: [HALT, REPORT(zero_deliverables)]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-007
-    title: "PR merge boundary check before sub-agent routing"
-    conditions:
-      all: ["plan_has_pr_boundaries == true", "required_pr_not_merged == true"]
-    actions: [HALT]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-008
-    title: "Tool-recipe prohibition — task context specifies WHAT, never HOW"
-    conditions:
-      any:
-        - "task_context_contains_mcp_tool_names == true"
-        - "task_context_contains_line_numbers == true"
-        - "task_context_contains_step_by_step_script == true"
-    actions: [HALT]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-009
-    title: "Poison recovery protocol — orchestrator inline work poisons pipeline"
-    conditions:
-      all: ["is_orchestrator == true", "performed_inline_work == true"]
-    actions: [HALT, DISCARD_ALL_STATE, RESTART_FROM(verify-authorization)]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-010
-    title: "Discard on sub-agent failure — ALL files discarded before re-task"
-    conditions:
-      any:
-        - "sub_agent_status == BLOCKED"
-        - "sub_agent_status == ERROR"
-    actions: [DISCARD(changed_files), RE_TASK(original_context)]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-011
-    title: "RED/GREEN push-prohibition — test sub-agents never commit or push"
-    conditions:
-      all: ["sub_agent_type IN ['RED', 'GREEN']", "attempting_to_commit_or_push == true"]
-    actions: [HALT]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-012
-    title: "Coherence gate — verify spec/plan coherence before RED routing"
-    conditions:
-      all: ["red_routing_pending == true", "spec_plan_coherence_verified == false"]
-    actions: [CALL(audit --task coherence-maintenance), VERIFY_COHERENCE]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-013
-    title: "Execution-time coherence detection — RED/GREEN return BLOCKED on defect"
-    conditions:
-      any:
-        - "red_sub_agent_detected_spec_codebase_contradiction == true"
-        - "green_sub_agent_detected_plan_spec_mismatch == true"
-    actions: [RETURN(status=BLOCKED)]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-014
-    title: "Audit-classified remediation — max 3 attempts before escalating"
-    conditions:
-      all: ["sub_agent_status == BLOCKED", "remediation_attempts >= 3"]
-    actions: [ESCALATE_TO_DEVELOPER]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-015
-    title: "Gate non-waiver — 'continue' does not waive mandatory gates"
-    conditions:
-      all: ["user_input_type == 'continue'", "mandatory_gate_skipped == true"]
-    actions: [HALT]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-016
-    title: "Cost-blind verification — never skip routing or verification to save resources"
-    conditions:
-      all: ["routing_or_verification_skipped_for_economy == true"]
-    actions: [HALT]
-    source: "implementation-pipeline/SKILL.md"
-
-  - id: implementation-pipeline-017
-    title: "Completeness gate required after RED/GREEN before audit"
-    conditions:
-      all: ["sub_agent_result_collected == true", "completeness_gate_run == false", "audit_routing_pending == true"]
-    actions: [CALL(completeness-gate --task check)]
-    source: "implementation-pipeline/SKILL.md"
 ```

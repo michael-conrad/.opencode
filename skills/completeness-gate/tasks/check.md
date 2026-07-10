@@ -110,32 +110,3 @@ This is a single-pass gate. Do NOT loop back to re-check after findings. Each ha
 
 This gate does NOT replace the auditor. It checks completeness — presence and coverage against SCs. Correctness depth, cross-validation, and model-family independence remain the auditor's domain.
 
-```yaml+symbolic
-  - id: completeness-gate-check-001
-    title: "Single pass — no internal loop"
-    conditions:
-      all:
-        - "completeness_check_completed == true"
-        - "gate_invoked_again_within_same_handoff == true"
-    actions:
-      - HALT
-      - RETURN(status=BLOCKED, reason="single-pass enforcement")
-    conflicts_with: [completeness-gate-001]
-    requires: []
-    triggers: [implementation-pipeline]
-    source: "completeness-gate/tasks/check.md §Single-Pass Enforcement"
-
-  - id: completeness-gate-check-002
-    title: "Read-only gate — no remediation or routing advice in findings"
-    conditions:
-      any:
-        - "finding_contains == 'remediation_code'"
-        - "finding_contains == 'routing_direction'"
-    actions:
-      - HALT
-      - RETURN(status=BLOCKED, reason="prohibited content in completeness findings")
-    conflicts_with: [completeness-gate-002]
-    requires: []
-    triggers: [implementation-pipeline]
-    source: "completeness-gate/tasks/check.md §Non-Adversarial Boundary"
-```

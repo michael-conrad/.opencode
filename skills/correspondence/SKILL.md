@@ -114,31 +114,14 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **Multipart/alternative format:** Email output MUST use multipart/alternative (text/plain + text/html)
+- [ ] 2. **Audience separation:** Stakeholder-tier content MUST NOT contain internal artifacts
+- [ ] 3. **AI byline mandatory:** All correspondence MUST include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`
+
 ## Cross-References
 
 Skills: `verification-enforcement`. Guidelines: `000-critical-rules.md` (audience separation).
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: correspondence-002
-    title: "Multipart/alternative format mandatory for email"
-    conditions:
-      all: ["output_format == email", "multipart_alternative_parts_present == false"]
-    actions: [REJECT(draft)]
-    source: "correspondence/SKILL.md"
 
-  - id: correspondence-003
-    title: "Audience separation — no internal artifacts in stakeholder tier"
-    conditions:
-      all: ["audience_tier == stakeholder", "content_contains_internal_artifacts == true"]
-    actions: [REJECT, FILTER(internal)]
-    source: "correspondence/SKILL.md"
-
-  - id: correspondence-006
-    title: "AI byline mandatory in all correspondence"
-    conditions:
-      all: ["ai_byline_present == false"]
-    actions: [APPEND(byline)]
-    source: "correspondence/SKILL.md"

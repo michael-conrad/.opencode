@@ -116,46 +116,16 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **Environment context:** Environment context MUST be collected before runbook generation
+- [ ] 2. **Live verification:** Commands MUST be verified against live documentation — no training knowledge fallback
+- [ ] 3. **Single-path rule:** One method per operation — no multiple alternative paths
+- [ ] 4. **Exact-match verification:** Verification mismatches MUST be reported as FAIL — no soft-passing
+- [ ] 5. **DNS validation:** DNS runbooks MUST validate record constraints against reference data and RFC compliance
+
 ## Cross-References
 
 Skills: `systematic-debugging`, `verification-before-completion`, `issue-operations`, `spec-auditor`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`. Reference data: `reference/directnic-record-types.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: sre-runbook-001
-    title: "Environment context mandatory before generation"
-    conditions:
-      all: ["environment_context_collected == false"]
-    actions: [HALT, PROMPT_USER(environment details)]
-    source: "sre-runbook/SKILL.md"
 
-  - id: sre-runbook-004
-    title: "Live verification mandatory — no training knowledge fallback"
-    conditions:
-      all: ["all_verification_sources_failed == true"]
-    actions: [HALT, INSERT_VERIFICATION_GAP, PROMPT_USER]
-    triggers: [verification-enforcement]
-    source: "sre-runbook/SKILL.md"
-
-  - id: sre-runbook-005
-    title: "Single-path rule — one method per operation"
-    conditions:
-      all: ["multiple_alternative_paths_present == true"]
-    actions: [REJECT(runbook section)]
-    source: "sre-runbook/SKILL.md"
-
-  - id: sre-runbook-007
-    title: "Exact-match verification — no soft-passing mismatches"
-    conditions:
-      all: ["verification_mismatch_found == true"]
-    actions: [REPORT_FAIL]
-    source: "sre-runbook/SKILL.md"
-
-  - id: sre-runbook-008
-    title: "DNS-specific validation for DNS runbooks"
-    conditions:
-      all: ["runbook_type == dns", "dns_record_constraints_validated == false"]
-    actions: [CHECK_REFERENCE_DATA, VALIDATE_RFC_COMPLIANCE]
-    source: "sre-runbook/SKILL.md"

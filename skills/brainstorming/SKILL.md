@@ -143,13 +143,4 @@ When brainstorming specs, if a proposed change affects runtime behavior, its SCs
 
 Skills: `spec-creation`, `writing-plans`. Guidelines: `015-pre-spec-inspection.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: brainstorm-001
-    title: "Pre-spec inspection mandatory before approach proposal"
-    conditions:
-      all: ["code_inspection_completed == false", "spec_touches_code == true"]
-    actions: [HALT, CALL(guideline: 015-pre-spec-inspection.md)]
-    source: "brainstorming/SKILL.md"
+

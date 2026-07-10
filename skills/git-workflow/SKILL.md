@@ -168,87 +168,22 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **No commits to trunk:** AI commits blocked on `main` or `$DEFAULT_BRANCH`
+- [ ] 2. **Squash at PR only:** Squash commits only during PR creation, never before
+- [ ] 3. **Compare URL base:** Feature branch compare URLs MUST use `$DEFAULT_BRANCH` as base
+- [ ] 4. **Submodule tagging:** Pre-work MUST tag submodule trunk tips with `<parent>/<issue>` format
+- [ ] 5. **Submodule feature-branch pushes:** Submodule changes MUST use feature-branch pushes with tip tags, not trunk pushes
+- [ ] 6. **Submodule liveness check:** PR-time MUST verify submodule hash reachability via tags
+- [ ] 7. **Cleanup restores submodules:** Cleanup MUST restore submodules to trunk tip, NO dependency-sync PR
+- [ ] 8. **Submodule operations via sub-agents:** Submodule operations MUST run via sub-agents, never inline
+- [ ] 9. **Submodule sync via $DEFAULT_BRANCH:** Submodule sync MUST resolve trunk branch via `$DEFAULT_BRANCH`, not hardcoded branch name
+- [ ] 10. **Submodule divergence:** Submodule divergence MUST be handled autonomously before escalation
+- [ ] 11. **No main branch fallback:** No `git checkout -b main dev || true` fallback in submodule sync operations
+
 ## Cross-References
 
 Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `pre-analysis`, `audit --task closure-verification`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-06-01T00:00:00Z"
-rules:
-  - id: git-workflow-001
-    title: "No commits to main or dev branches"
-    conditions:
-      any: ["current_branch == 'main'", "current_branch == '$DEFAULT_BRANCH'"]
-    actions: [HALT]
-    source: "git-workflow/SKILL.md"
 
-  - id: git-workflow-002
-    title: "Squash only at PR creation time"
-    conditions:
-      all: ["squash_attempted == true", "pr_creation_context == false"]
-    actions: [HALT]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-003
-    title: "Compare URL base must be target for feature branches"
-    conditions:
-      all: ["compare_url_generated == true", "base_branch != '<target>'", "is_feature_branch == true"]
-    actions: [HALT]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-001
-    title: "Pre-work MUST tag submodule trunk tips with <parent>/<issue> format"
-    conditions:
-      all: ["pipeline_stage == 'pre_work'", "has_submodules == true", "submodule_tag_created == false"]
-    actions: [HALT, REQUIRE_TAG]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-002
-    title: "Submodule changes MUST use feature-branch pushes with tip tags, not trunk pushes"
-    conditions:
-      all: ["submodule_push_attempted == true", "push_target == 'trunk'", "is_feature_branch_push == false"]
-    actions: [HALT]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-003
-    title: "PR-time MUST verify submodule hash reachability via tags (liveness check, no auto-remediation)"
-    conditions:
-      all: ["pipeline_stage == 'pr_time'", "has_submodules == true", "submodule_liveness_verified == false"]
-    actions: [HALT, REQUIRE_LIVENESS_CHECK]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-004
-    title: "Cleanup MUST restore submodules to trunk tip, NO dependency-sync PR"
-    conditions:
-      all: ["pipeline_stage == 'cleanup'", "has_submodules == true", "submodule_trunk_restored == false"]
-    actions: [HALT, RESTORE_SUBMODULES]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-005
-    title: "Submodule operations MUST run via sub-agents, never inline"
-    conditions:
-      all: ["submodule_operation_pending == true", "routed_to_sub_agent == false"]
-    actions: [HALT]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-006
-    title: "Submodule sync MUST resolve trunk branch via $DEFAULT_BRANCH, not hardcoded branch name"
-    conditions:
-      all: ["submodule_sync_pending == true", "trunk_branch_resolved_via_default == false"]
-    actions: [HALT, REQUIRE_DEFAULT_BRANCH_RESOLUTION]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-007
-    title: "Submodule divergence MUST be handled autonomously before escalation"
-    conditions:
-      all: ["submodule_divergence_detected == true", "autonomous_resolution_attempted == false"]
-    actions: [HALT, REQUIRE_AUTONOMOUS_RESOLUTION]
-    source: "git-workflow/SKILL.md"
-
-  - id: git-workflow-submodule-008
-    title: "No git checkout -b main dev || true fallback in submodule sync operations"
-    conditions:
-      all: ["submodule_sync_pending == true", "main_branch_fallback_present == true"]
-    actions: [HALT, REMOVE_MAIN_BRANCH_FALLBACK]
-    source: "git-workflow/SKILL.md"

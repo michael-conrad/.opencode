@@ -124,25 +124,6 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `changelog-generator`, `release-promoter`, `git-workflow`. Guidelines: `080-code-standards.md`.
 
-```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-07-07T00:00:00Z"
-rules:
-  - id: version-manager-001
-    title: "Dynamic discovery — no hardcoded file list"
-    conditions:
-      all: ["version_discovery_pending == true", "hardcoded_file_list_used == true"]
-    actions: [HALT]
-    source: "version-manager/SKILL.md"
-
-  - id: version-manager-002
-    title: "Semver bump logic — breaking→major, added→minor, fix→patch"
-    conditions:
-      all: ["version_bump_pending == true", "bump_type_not_determined_from_changelog == true"]
-    actions: [HALT]
-    source: "version-manager/SKILL.md"
-```
-
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->

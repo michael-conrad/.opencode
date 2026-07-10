@@ -51,14 +51,5 @@ design_documented: true | false
 approval_received: true | false
 ```
 
-```yaml+symbolic
-rules:
-  - id: eng-approach-002
-    title: "Must design before implementing"
-    conditions:
-      all: ["implementation_requested == true", "design_documented == false"]
-    actions: [HALT, DOCUMENT_DESIGN]
-    source: "engineering-approach/tasks/design-before-code.md"
-```
 
 Co-authored with AI: <AgentName> (<ModelId>)
