@@ -1958,6 +1958,8 @@ def _check_legacy_formats(issues_dir: Path) -> None:
     if legacy_found:
         print(
             "Warning: Legacy issue directory format detected in .issues/. "
+            "Correct format is .issues/{N}/ (flat numbered directories) "
+            "or .opencode/.issues/{N}/ for submodule repos. "
             "AI agent must inspect and remediate manually.",
             file=sys.stderr,
         )
