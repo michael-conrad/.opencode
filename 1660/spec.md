@@ -100,11 +100,59 @@ Issue #1452 identified that Step 11 dispatches the `write` task, which writes to
 
 The clean-room plan is returned as a result contract field (in-memory markdown), not written to disk. Verification methods must account for this — read the result contract, not grep a file.
 
+## Interdependencies
+
+### Dependency: #1452 (dispatch target fix) — MUST be implemented first
+
+| Aspect | Detail |
+|--------|--------|
+| **Relationship** | `depends-on` |
+| **Issue** | #1452 — Clean-room plan generator overwrites plan being audited |
+| **Why** | #1660's Component A updates the Step 11 prompt. But the prompt currently dispatches `write` task, which overwrites the plan. #1452 fixes the dispatch target to `clean-room` task first. #1660's prompt update must be applied to the `clean-room` task dispatch string, not the `write` task. |
+| **Ordering** | #1452 → #1660 (sequential, not parallel) |
+| **Conflict risk** | If implemented in wrong order: #1660's prompt update would be applied to the wrong dispatch target, requiring rework. |
+| **Resolution** | Implement #1452 first (2 one-line changes). Then implement #1660 (prompt update applied to the corrected dispatch string). |
+
+### Cross-Cutting: #1374 (Plan Format Requirements) — same file, different section
+
+| Aspect | Detail |
+|--------|--------|
+| **Relationship** | `cross-cutting` |
+| **Issue** | #1374 — writing-plans create.md Plan Format Requirements hardcodes step sequence |
+| **Why** | Both #1660 and #1374 modify `create.md`. #1660 modifies Step 11/11a (the operating protocol section). #1374 rewrites the `## Plan Format Requirements` section (a different section of the same file). No semantic conflict — different sections, different concerns. |
+| **Ordering** | Independent — can be implemented in any order or in parallel |
+| **Conflict risk** | Low — different sections of the same file. Git merge would handle cleanly as long as both don't touch the same lines. |
+| **Resolution** | Implement independently. If parallel branches, rebase whichever lands second. |
+
+### Independent: #1666 (SC-to-plan coverage gate) — different file, different concern
+
+| Aspect | Detail |
+|--------|--------|
+| **Relationship** | `independent` |
+| **Issue** | #1666 — Add direct SC-to-plan coverage gate after plan creation |
+| **Why** | #1666 modifies `plan-fidelity.md` (audit skill). #1660 modifies `create.md`, `write.md`, `SKILL.md`, `operating-protocol.md` (writing-plans skill). Different skills, different files, different concerns. |
+| **Ordering** | Independent — no ordering constraint |
+| **Conflict risk** | None — no shared files |
+| **Resolution** | Implement independently in any order. |
+
+### Independent: #1415 (verify-already-implemented gate) — different skill, different concern
+
+| Aspect | Detail |
+|--------|--------|
+| **Relationship** | `independent` |
+| **Issue** | #1415 — verify-already-implemented gate in for_pr auto-dispatch |
+| **Why** | #1415 modifies `approval-gate` skill. #1660 modifies `writing-plans` skill. Different skills, different files, different concerns. |
+| **Ordering** | Independent — no ordering constraint |
+| **Conflict risk** | None — no shared files |
+| **Resolution** | Implement independently in any order. |
+
 ## Cross-References
 
 - #1413 — Introduced Step 11 (clean-room plan generation) into the pipeline
-- #1452 — Clean-room plan generator overwrites plan being audited (dispatch target fix — complementary)
-- #1374 — writing-plans create.md Plan Format Requirements hardcodes step sequence (cross-cutting — different section of create.md)
+- #1452 — **[DEPENDENCY]** Clean-room plan generator overwrites plan being audited (dispatch target fix — must be implemented first)
+- #1374 — **[CROSS-CUTTING]** writing-plans create.md Plan Format Requirements hardcodes step sequence (same file, different section)
+- #1666 — **[INDEPENDENT]** Add direct SC-to-plan coverage gate after plan creation (different file, different concern)
+- #1415 — **[INDEPENDENT]** verify-already-implemented gate in for_pr auto-dispatch (different skill)
 - #1673 — Phase 6 enforces Step 11 as mandatory gate
 - #1703 — Documents pipeline violations; its own clean-room plan is minimal (27 lines)
 - #1372 — Defines canonical plan format (14 sections, 12 validation rules)
@@ -112,11 +160,9 @@ The clean-room plan is returned as a result contract field (in-memory markdown),
 
 ## Implementation Ordering
 
-#1660 and #1452 are complementary fixes to Step 11. Recommended implementation order:
-1. #1452 first — fix dispatch target from `write` to `clean-room`
-2. #1660 second — fix completeness of clean-room plan (this spec, rebased on #1452's changes)
-
-#1374 affects `create.md` §Plan Format Requirements (different section from Step 11/11a). No ordering dependency — can be implemented independently.
+1. **#1452 first** — fix dispatch target from `write` to `clean-room` (2 one-line changes)
+2. **#1660 second** — fix completeness of clean-room plan (this spec, rebased on #1452's changes)
+3. **#1374, #1666, #1415** — independent, any order
 
 ## Audit History
 
