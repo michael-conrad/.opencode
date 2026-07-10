@@ -13,7 +13,12 @@ TDD enforcer. Routes RED-phase test writing and GREEN-phase implementation to se
 
 ## Five Core Principles
 
-See `test-driven-development/tasks/operating-protocol.md` for the Five Core Principles.
+- [ ] 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+- [ ] 2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
+- [ ] 3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
+- [ ] 4. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
+- [ ] 5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
+- [ ] 6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
 
 ## Worktree Mode
 
