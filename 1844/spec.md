@@ -1,11 +1,22 @@
 # [SPEC-FIX] Plan Phase Dispatch Modes — Inline/Sub-Agent/Clean-Room Distinction
 
-**STATUS:** DRAFT
 **CREATED:** 2026-07-10
 **TYPE:** SPEC-FIX
 **REPO:** michael-conrad/.opencode
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
+## Intent and Executive Summary
+
+**Intent:** Fix plan phase dispatch so the orchestrator respects per-step execution-mode markers instead of dispatching entire phases to sub-agents indiscriminately.
+
+**Problem Statement:** Plan phase dispatch ignores per-step execution-mode markers. The orchestrator dispatches entire phases to sub-agents, and sub-agents execute all steps including those marked `(**inline**)`. Additionally, `(**sub-agent**)` and `(**clean-room**)` are defined as synonyms with no distinction between "sub-agent with plan context" and "sub-agent clean room."
+
+**Root Cause:** The dispatch mechanism is phase-level only. There is no phase-level declaration telling the orchestrator how to handle the phase, and no mechanism for the orchestrator to interleave inline and sub-agent steps within a phase. The per-step markers `(**inline**)`, `(**sub-agent**)`, and `(**clean-room**)` exist in plan files but are ignored at dispatch time because the orchestrator dispatches the entire phase file to a single sub-agent.
+
+**Design Approach:** Add a `Dispatch` column to the plan phase table (split plans) or `**Dispatch:**` field (non-split plans) declaring one of three modes: `inline` (orchestrator interleaves inline and sub-agent steps), `sub-agent-with-context` (entire phase to one sub-agent with context), or `sub-agent-clean-room` (entire phase to one sub-agent with routing metadata only). Per-step markers `(**inline**)`, `(**sub-agent**)`, and `(**clean-room**)` become distinct and meaningful only in `inline` mode. Validation rules catch mode/marker inconsistency. Plan auditor detects dispatch marking defects.
+
+**Scope:** Three dispatch modes at phase level with distinct per-step markers. Declaration via Dispatch column in split-plan phase tables or `**Dispatch:**` field in non-split plan headers. Validation rules catch mode/marker inconsistency. Plan auditor detects dispatch marking defects. **Out of scope:** Changes to sub-agent step execution, `task()` API, checkpoint/rollback, or any skill other than writing-plans and implementation-pipeline.
 
 ## Anti-Lobotomization
 
@@ -101,6 +112,8 @@ In `sub-agent-with-context` and `sub-agent-clean-room` modes, per-step markers a
 | RISK-3 | `sub-agent-clean-room` phase with `(**inline**)` steps causes sub-agent to execute orchestrator-only steps | Medium | High | Validation rule in plan auditor catches this | SC-6 |
 
 ## Success Criteria
+
+**Cost frame:** Evidence type determines defect-discovery-latency (DDL). Behavioral evidence catches defects at the earliest gate (pre-commit / pre-RED) — the cheapest fix point. String evidence defers discovery to CI (100×–1000× cost multiplier). Structural evidence defers discovery to production (1000×+ cost multiplier, death spiral). Every SC's evidence type is chosen to minimize DDL: behavioral for runtime-behavioral changes, string for content-pattern changes. See `065-verification-honesty.md` §Cost Model for the complete death spiral / break dynamics.
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
