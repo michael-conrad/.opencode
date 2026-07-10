@@ -1,0 +1,17 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1844
+generated_at: 2026-07-10T00:00:00Z
+sc_coverage_total: 10
+decomposition_classification: single-task
+phase_count: 1
+status: complete
+artifacts:
+  - path: .opencode/.issues/1844/spec.md
+    required: true
+  - path: .opencode/.issues/1844/sc-summary.yaml
+    required: true
+  - path: .opencode/.issues/1844/verification-consistency-contract.yaml
+    required: true
+  - path: .opencode/.issues/1844/revision-re-entry-contract.yaml
+    required: true
+  - path: .opencode/.issues/1844/spec-to-plan-handoff.yaml
+    required: true
