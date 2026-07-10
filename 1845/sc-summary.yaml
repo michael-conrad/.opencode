@@ -1,0 +1,35 @@
+sc_coverage:
+  total: 4
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1845
+  evidence_types:
+    - string
+    - behavioral
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4]
+      evidence_types: [string, behavioral]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "change-control.md exit criteria includes 'All prior audit FAILs resolved to PASS' when revision was audit-triggered"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "change-control.md has a mandatory re-audit step between Step 3 and Step 4 that dispatches audit --task spec-audit when revision was audit-triggered"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "Re-audit step is conditional — only required when revision was triggered by spec-audit FAILs"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
