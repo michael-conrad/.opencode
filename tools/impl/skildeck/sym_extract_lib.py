@@ -1,6 +1,6 @@
 """
-DESCRIPTION: Shared extraction library for yaml+symbolic v2.0 (tasks, decomposition, gates, evidence_artifacts).
-Backward compatible with v1.0. Loaded by skildeck-extract, skildeck-gates, and other skildeck tools.
+DESCRIPTION: Shared extraction library for symbolic models (tasks, decomposition, gates, evidence_artifacts).
+Loaded by skildeck-extract, skildeck-gates, and other skildeck tools.
 """
 
 import re

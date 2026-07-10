@@ -192,34 +192,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `audit --task concern-separation`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-18T00:00:00Z"
-rules:
-  - id: issue-ops-001
-    title: "Issue creation does not require authorization"
-    conditions:
-      all: ["issue_creation_pending == true", "agent_deliberating_auth == true"]
-    actions: [PROCEED]
-    source: "issue-operations/SKILL.md"
 
-  - id: issue-ops-002
-    title: "AI-authored comments require byline"
-    conditions:
-      all: ["ai_authored_comment == true", "byline_present == false"]
-    actions: [APPEND_BYLINE]
-    source: "issue-operations/SKILL.md"
-
-  - id: issue-ops-003
-    title: "Issue read operations MUST route through dispatcher"
-    conditions:
-      all: ["issue_read_pending == true", "direct_github_call == true", "call_location_outside_platforms == true"]
-    actions: [HALT]
-    source: "issue-operations/SKILL.md"
-
-  - id: issue-ops-004
-    title: "read-issue MUST mirror body to .issues/ spec.md (root repo) or {project_root}/{path}/.issues/ spec.md (submodule/sub-repo)"
-    conditions:
-      all: ["issue_read_completed == true", "sync_pull_to_local_not_called == true"]
-    actions: [HALT]
-    source: "issue-operations/SKILL.md"

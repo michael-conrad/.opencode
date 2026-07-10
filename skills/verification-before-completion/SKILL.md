@@ -141,31 +141,14 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **No completion without evidence:** Every completion claim requires verified PASS for ALL success criteria
+- [ ] 2. **Exact comparison mode:** External verifications MUST use exact comparison mode — no semantic comparison
+- [ ] 3. **Structural completeness first:** Structural completeness MUST be checked before per-SC verification
+
 ## Cross-References
 
 Skills: `finishing-a-development-branch`, `audit --task drift-detection`. Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: verification-before-completion-001
-    title: "No completion claim without evidence"
-    conditions:
-      all: ["agent_claims_complete == true", "all_sc_have_evidence == false"]
-    actions: [HALT, REQUIRE_EVIDENCE]
-    source: "verification-before-completion/SKILL.md"
 
-  - id: verification-before-completion-004
-    title: "Exact comparison mode for external verifications"
-    conditions:
-      all: ["external_verification == true", "comparison_mode != exact"]
-    actions: [SET(comparison_mode=exact)]
-    source: "verification-before-completion/SKILL.md"
-
-  - id: verification-before-completion-005
-    title: "Structural completeness required before per-SC verification"
-    conditions:
-      all: ["verify_task_executed == true", "structural_completeness_checked == false"]
-    actions: [HALT, TASK(structural-verify)]
-    source: "verification-before-completion/SKILL.md"

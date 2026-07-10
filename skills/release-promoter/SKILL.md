@@ -124,25 +124,6 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `version-manager`, `changelog-generator`, `git-workflow`. Guidelines: `080-code-standards.md`.
 
-```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-07-07T00:00:00Z"
-rules:
-  - id: release-promoter-001
-    title: "Annotated tag with v prefix"
-    conditions:
-      all: ["tag_creation_pending == true", "tag_format != 'v{semver}'"]
-    actions: [HALT]
-    source: "release-promoter/SKILL.md"
-
-  - id: release-promoter-002
-    title: "Post-merge only — verify merge state before tagging"
-    conditions:
-      all: ["tag_creation_pending == true", "merge_state_not_verified == true"]
-    actions: [HALT]
-    source: "release-promoter/SKILL.md"
-```
-
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->

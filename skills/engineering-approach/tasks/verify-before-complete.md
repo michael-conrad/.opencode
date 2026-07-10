@@ -69,14 +69,5 @@ success_criteria: { total: N, passed: N, failed: N }
 evidence_artifacts: [artifact1, artifact2, ...]
 ```
 
-```yaml+symbolic
-rules:
-  - id: eng-approach-003
-    title: "Must verify before declaring complete"
-    conditions:
-      all: ["implementation_complete_claimed == true", "tests_run_manually == false"]
-    actions: [HALT, RUN_TESTS, VERIFY_CRITERIA]
-    source: "engineering-approach/tasks/verify-before-complete.md"
-```
 
 Co-authored with AI: <AgentName> (<ModelId>)

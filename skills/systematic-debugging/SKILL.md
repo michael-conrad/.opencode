@@ -120,20 +120,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `issue-review`, `approval-gate`, `verification-before-completion`. Guidelines: `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: sys-debug-001
-    title: "Read-only analysis mandate during diagnosis"
-    conditions:
-      all: ["current_task == 'diagnose'", "code_modification_attempted == true"]
-    actions: [HALT, REVERT]
-    source: "systematic-debugging/SKILL.md"
 
-  - id: sys-debug-002
-    title: "Bug discovery does NOT authorize fixing"
-    conditions:
-      all: ["bug_found_during_diagnosis == true", "fix_authorization_received == false"]
-    actions: [HALT, CREATE(bug_report), CALL(issue-review)]
-    source: "systematic-debugging/SKILL.md"

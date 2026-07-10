@@ -125,13 +125,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `git-workflow`, `verification-before-completion`. Guidelines: `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: finish-branch-001
-    title: "All changes committed and pushed before PR readiness"
-    conditions:
-      all: ["uncommitted_changes_exist == true"]
-    actions: [HALT, COMMIT]
-    source: "finishing-a-development-branch/SKILL.md"
+

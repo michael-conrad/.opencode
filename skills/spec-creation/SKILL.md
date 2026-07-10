@@ -141,42 +141,16 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **Pre-spec investigation:** Codebase investigation mandatory before requirements extraction when spec touches existing code
+- [ ] 2. **Verification-enforcement gate:** Call `verification-enforcement --task verify` before spec generation
+- [ ] 3. **Concern enumeration guard:** Single Concern Principle — enumerate concerns before write task
+- [ ] 4. **Pipeline-readiness gate:** Run `pipeline-readiness-gate` between traceability and risk steps
+
 ## Cross-References
 
 Skills: `brainstorming`, `verification-enforcement`, `issue-operations`, `audit --task spec-audit`. References: `skill-card-change-types.md`. Guidelines: `015-pre-spec-inspection.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: spec-creation-001
-    title: "Pre-spec investigation mandatory before requirements"
-    conditions:
-      all: ["code_inspection_checklist_completed == false", "spec_touches_existing_code == true"]
-    actions: [HALT, CALL(guideline: 015-pre-spec-inspection.md)]
-    source: "spec-creation/SKILL.md"
 
-  - id: spec-creation-003
-    title: "Verification-enforcement gate before spec generation"
-    conditions:
-      all: ["verification_enforcement_verify_invoked == false"]
-    actions: [CALL(verification-enforcement --task verify)]
-    source: "spec-creation/SKILL.md"
-
-  - id: spec-creation-009
-    title: "Concern enumeration guard — Single Concern Principle"
-    conditions:
-      all: ["concern_enumeration_performed == false", "write_task_pending == true"]
-    actions: [HALT, ENUMERATE_CONCERNS]
-    source: "spec-creation/SKILL.md"
-
-  - id: spec-creation-pipeline-readiness
-    title: "Pipeline-readiness gate required between traceability and risk"
-    conditions:
-      all:
-        - "traceability_complete == true"
-        - "risk_started == false"
-        - "pipeline_readiness_gate_passed == false"
-    actions: [HALT, CALL(spec-creation --task pipeline-readiness-gate)]
-    source: "spec-creation/SKILL.md"
 ```

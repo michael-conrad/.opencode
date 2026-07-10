@@ -123,13 +123,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: conflict-001
-    title: "Tier 3 intent conflicts require developer review"
-    conditions:
-      all: ["conflict_tier == 3", "auto_resolved == true"]
-    actions: [HALT, FLAG_FOR_DEVELOPER]
-    source: "conflict-resolution/SKILL.md"
+

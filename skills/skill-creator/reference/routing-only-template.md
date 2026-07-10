@@ -149,17 +149,6 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: [related skills]. Guidelines: [related guidelines].
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "YYYY-MM-DDTHH:MM:SSZ"
-rules:
-  - id: skill-name-001
-    title: "Rule title"
-    conditions:
-      all: ["condition"]
-    actions: [ACTION]
-    source: "skill-name/SKILL.md"
-```
 ```
 
 ## Placement Rules
@@ -174,7 +163,7 @@ rules:
 | Sub-Agent Routing | After Invocation | Yes |
 | DISPATCH_GATE | After Sub-Agent Routing | Yes |
 | Cross-References | After DISPATCH_GATE | Yes |
-| Symbolic rules (yaml+symbolic) | End of file | Optional |
+
 
 ## Prohibited Content
 

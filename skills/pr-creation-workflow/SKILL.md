@@ -122,30 +122,11 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **PR requires explicit instruction:** "Approved"/"go" authorize implementation only, not PR creation (unless `authorization_scope >= for_pr`)
+- [ ] 2. **Submodule-bump-only PRs BLOCKED:** PRs whose only changed files are submodule pointer updates are BLOCKED
+
 ## Cross-References
 
 Skills: `git-workflow`, `changelog-generator`, `audit --task spec-summary`. Guidelines: `000-critical-rules.md` (Step 0.5 enforcement gate).
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: pr-workflow-001
-    title: "PR requires explicit instruction — approved does NOT authorize PR"
-    conditions:
-      all: ["pr_creation_attempted == true", "authorization_scope < for_pr"]
-    actions: [HALT]
-    source: "pr-creation-workflow/SKILL.md"
-
-  # pr-workflow-002 removed per #1540 Phase 2 — PR creation accepts any target branch
-
-  - id: pr-workflow-003
-    title: "Submodule-bump-only PRs are BLOCKED — parent repo enforcement gate"
-    conditions:
-      all:
-        - "github.identity_source == 'root'"
-        - ".gitmodules exists"
-        - "pr_creation_attempted == true"
-        - "git diff shows only .opencode changed"
-    actions: [BLOCK]
-    source: "pr-creation-workflow/SKILL.md"

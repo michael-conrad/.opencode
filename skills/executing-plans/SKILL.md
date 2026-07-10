@@ -120,13 +120,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `implementation-pipeline`, `approval-gate`, `git-workflow`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: exec-plans-001
-    title: "Plan context required before execution — HALT if absent"
-    conditions:
-      all: ["plan_issue_not_in_context == true"]
-    actions: [HALT, REPORT(missing_plan_context)]
-    source: "executing-plans/SKILL.md"
+

@@ -9,7 +9,7 @@ load_when: sub-agent
 **See `.opencode/AGENTS.md` for the authoritative list of critical rules.**
 **See `.opencode/guidelines/` for detailed rules.**
 
-This file provides critical rules organized into three tiers. Tier 1 mandates are prescriptively enforced by `session-enforcement.ts` `buildTier1EnforcementBlock()`. The symbolic rules block below contains machine-parseable rule definitions for all violations.
+This file provides critical rules organized into three tiers. Tier 1 mandates are prescriptively enforced by `session-enforcement.ts` `buildTier1EnforcementBlock()`.
 
 ## Mandate Tiering
 

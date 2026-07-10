@@ -135,14 +135,5 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `writing-plans`, `approval-gate`, `completion-core`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-06-19T00:00:00Z"
-rules:
-  - id: plan-creation-pipeline-001
-    title: "Plan creation requires approved spec"
-    conditions:
-      all: ["plan_creation_attempted == true", "spec_approved == false"]
-    actions: [HALT]
-    source: "plan-creation-pipeline/SKILL.md"
+
 ```

@@ -124,20 +124,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Guidelines: `000-critical-rules.md`, `010-approval-gate.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: eng-approach-002
-    title: "Must design before implementing"
-    conditions:
-      all: ["implementation_requested == true", "design_documented == false"]
-    actions: [HALT, DOCUMENT_DESIGN]
-    source: "engineering-approach/SKILL.md"
 
-  - id: eng-approach-003
-    title: "Must verify before declaring complete"
-    conditions:
-      all: ["implementation_complete_claimed == true", "tests_run_manually == false"]
-    actions: [HALT, RUN_TESTS, VERIFY_CRITERIA]
-    source: "engineering-approach/SKILL.md"

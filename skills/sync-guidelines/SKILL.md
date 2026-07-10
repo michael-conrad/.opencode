@@ -118,13 +118,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: sync-001
-    title: "Classify by content, not pattern matching"
-    conditions:
-      all: ["classification_by_pattern_only == true"]
-    actions: [RE_CLASSIFY_BY_CONTENT]
-    source: "sync-guidelines/SKILL.md"
+

@@ -110,7 +110,7 @@ for skill_file in glob(".opencode/skills/*/SKILL.md"):
 ```
 
 Rule extraction from SKILL.md:
-```yaml+symbolic
+```yaml
 rules:
   - id: <skill>-<number>
     title: "<title>"
@@ -281,29 +281,3 @@ remediation_required: true  # When status is FAIL: full mandatory re-audit requi
 - `skills/implementation-pipeline/pipeline-state-machine.yaml` — Z3 contract for pipeline step validation
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `skills/solve/` — Solve skill card (Z3 constraint solving, solve check, state)
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
-rules:
-  - id: coherence-extraction-001
-    title: "Baseline must include all guideline rules"
-    conditions:
-      all: ["guidelines_scanned == true", "rule_count == 0"]
-    actions: [BLOCK, REPORT_EMPTY_GUIDELINES]
-    source: "coherence-extraction.md §Step 2"
-
-  - id: coherence-extraction-002
-    title: "Orphan rules require investigation"
-    conditions:
-      all: ["orphan_rule_count > 0"]
-    actions: [FLAG_ORPHAN_RULES]
-    source: "coherence-extraction.md §Step 4"
-
-  - id: coherence-extraction-003
-    title: "Baseline file must be timestamped"
-    conditions:
-      all: ["baseline_file_created == true", "timestamp_in_filename == false"]
-    actions: [RENAME_BASELINE_WITH_TIMESTAMP]
-    source: "coherence-extraction.md §Step 6"
-```

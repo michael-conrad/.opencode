@@ -130,25 +130,13 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - `executing-plans` skill — executing approved plans step by step
 -`.opencode/tools/plan` — CLI tool wrapping unified-planning
 
+## Operating Protocol
+
+- [ ] 1. **Problem YAML validation:** Problem YAML MUST be validated against schema before planner invocation
+
 ## Worktree Mode
 
 When `worktree.path` is set, all file operations and tool invocations MUST use it as the base directory.
 
-```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-06-12T00:00:00Z"
-rules:
-  - id: plan-001
-    title: "Problem YAML must be validated before planner invocation"
-    conditions:
-      all:
-        - "plan_generation_pending == true"
-        - "problem_yaml_validated == false"
-    actions:
-      - HALT
-      - RUN(schema validation)
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "plan/SKILL.md"
+
 ```

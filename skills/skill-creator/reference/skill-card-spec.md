@@ -90,7 +90,7 @@ The routing-only SKILL.md template defines the following required sections in or
 | Sub-Agent Routing | Context fields to pass and exclude per dispatch |
 | **DISPATCH_GATE** | Orchestrator `task()` prompt protocol — forbidden patterns, discovery directive, dispatch context contract, sub-agent entry criteria, orchestrator entry criteria |
 | Cross-References | Related skills and guidelines |
-| Symbolic rules (optional) | yaml+symbolic rule definitions |
+
 
 ### DISPATCH_GATE Section Structure
 

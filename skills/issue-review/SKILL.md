@@ -126,24 +126,13 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **Bug discovery does NOT authorize fixing:** Report bug as spec issue, HALT, wait for developer decision
+- [ ] 2. **Fix spec must target root cause:** Fix specs MUST address root cause, not symptoms
+
 ## Cross-References
 
 Skills: `audit --task spec-audit`, `brainstorming`, `spec-creation`, `issue-operations`, `approval-gate`. Guidelines: `000-critical-rules.md`, `067-context-completeness.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: issue-review-001
-    title: "Bug discovery does NOT authorize fixing"
-    conditions:
-      all: ["bug_discovered_during_analysis == true", "fix_authorization_received == false"]
-    actions: [HALT, CREATE(bug_report), TASK(analyze-and-spec)]
-    source: "issue-review/SKILL.md"
 
-  - id: issue-review-002
-    title: "Fix spec must target root cause, not symptom"
-    conditions:
-      all: ["fix_spec_created == true", "fix_approach_targets_root_cause == false"]
-    actions: [REJECT, HALT]
-    source: "issue-review/SKILL.md"

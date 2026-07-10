@@ -129,26 +129,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 When `worktree.path` is set, all file operations and git commands MUST use it as the base directory.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: pre-analysis-001
-    title: "Pre-analysis gating required before every sub-agent routing"
-    conditions:
-      all:
-        - "execution_routing_pending == true"
-        - "pre_analysis_completed == false"
-    actions:
-      - HALT
-      - CALL(pre-analysis --task analyze)
-    conflicts_with: []
-    requires: [critical-rules-044]
-    triggers: [approval-gate, implementation-pipeline, verification-before-completion]
-    source: "pre-analysis/SKILL.md §Operating Protocol"
 
-gates:
-  - id: no-preloaded-context
-    condition: "sub_agent_received_only_issue_and_task_description == true"
-    on_fail: HALT
-    critical_violation: true

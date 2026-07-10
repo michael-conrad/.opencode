@@ -118,21 +118,5 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: principles-001
-    title: "Single authoritative source — no principle drift across files"
-    conditions:
-      all: ["principle_defined_elsewhere == true"]
-    actions: [REMOVE_FROM_OTHER_FILE, REFERENCE_HERE]
-    source: "programming-principles/SKILL.md"
 
-  - id: code-size-001
-    title: "New/modified files must comply with size limits"
-    conditions:
-      all: ["file_exceeds_limit == true", "grandfathered == false"]
-    actions: [HALT, DECOMPOSE]
-    source: "programming-principles/SKILL.md (merged from code-size-enforcement)"
 ```

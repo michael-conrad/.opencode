@@ -10,7 +10,7 @@
 
 # fmt: on
 """
-DESCRIPTION: Schema v2.0 validation for yaml+symbolic blocks. Supports tasks, decomposition, gates, evidence_artifacts, and sub_agent_dispatch sections.
+DESCRIPTION: Schema v2.0 validation for symbolic model blocks. Supports tasks, decomposition, gates, evidence_artifacts, and sub_agent_dispatch sections.
 Usage: python .opencode/tools/impl/skildeck/schema_v2.py [ Options ]
 """
 
@@ -61,7 +61,7 @@ def find_skills_dir(tool_path: Path) -> Path:
 
 def scan_skills(skills_dir: Path) -> list:
     """
-    Scan skills directory and extract yaml+symbolic rules from SKILL.md files.
+    Scan skills directory and extract rules from SKILL.md files.
 
     Returns fresh data on every call. No cache. No registry. No regeneration.
     """
@@ -84,7 +84,7 @@ def scan_skills(skills_dir: Path) -> list:
 
 
 def extract_rules_from_markdown(content: str, skill_name: str) -> list:
-    """Extract yaml+symbolic blocks from markdown content."""
+    """Extract symbolic blocks from markdown content."""
     import yaml
 
     rules = []
@@ -335,7 +335,7 @@ def _validate_evidence_artifact(
 
 
 def validate_schema(data: dict, source: str = "") -> SchemaValidationResult:
-    """Validate a parsed yaml+symbolic block against schema v1.0 or v2.0."""
+    """Validate a parsed symbolic block against schema v1.0 or v2.0."""
 
     result = SchemaValidationResult()
 

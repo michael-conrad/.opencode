@@ -123,39 +123,16 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+## Operating Protocol
+
+- [ ] 1. **TDD mandatory:** No skill without a failing test first
+- [ ] 2. **No hardcoded identity values:** Skill files MUST use `<AgentName>`, `<ModelId>` placeholders
+- [ ] 3. **Worktree awareness:** Git/file skills MUST include a Worktree Mode section
+- [ ] 4. **Master copy is single source of truth:** Never edit fragment copies directly — edit the master first
+
 ## Cross-References
 
 Skills: `verification-enforcement`, `coherence-auditor`. Guidelines: `080-code-standards.md`, `000-critical-rules.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: skill-creator-001
-    title: "TDD mandatory — no skill without failing test first"
-    conditions:
-      all: ["failing_test_documented == false", "skill_creation_or_update_in_progress == true"]
-    actions: [HALT]
-    source: "skill-creator/SKILL.md"
 
-  - id: skill-creator-002
-    title: "No hardcoded identity values in skill files"
-    conditions:
-      all: ["skill_file_contains_hardcoded_identity == true"]
-    actions: [REJECT, REPLACE(with placeholders)]
-    source: "skill-creator/SKILL.md"
-
-  - id: skill-creator-004
-    title: "Worktree awareness mandatory for git/file skills"
-    conditions:
-      all: ["skill_performs_git_or_file_operations == true", "worktree_mode_section_present == false"]
-    actions: [REJECT]
-    source: "skill-creator/SKILL.md"
-
-  - id: fragment-001
-    title: "Master copy is single source of truth — never edit copies directly"
-    conditions:
-      all: ["destination_copy_edited == true", "master_updated == false"]
-    actions: [REVERT, EDIT_MASTER_FIRST]
-    source: "skill-creator/SKILL.md (merged from fragment-manager)"
 ```

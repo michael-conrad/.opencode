@@ -10,7 +10,7 @@
 
 # fmt: on
 """
-DESCRIPTION: Extract and classify structural components from target files against spec requirements. Outputs classification table. Agent verifies substance with live reads.
+DESCRIPTION: Extract and classify structural components from target files against spec requirements. Outputs classification table.
 Usage: ./.opencode/tools/skildeck verify-structure --spec PATH [--files PATH ...] [--json]
 """
 
@@ -90,7 +90,7 @@ def _parse_yaml_blocks(filepath: Path) -> list[dict]:
     return blocks, warnings
 
 def _get_structural_component_names(data: dict) -> dict[str, bool]:
-    """Extract structural component names from a yaml+symbolic block.
+    """Extract structural component names from a symbolic block.
     Returns dict of component_name -> exists flag.
     Structural components: state_machines, gates, evidence_artifacts, decomposition, sub_agent_dispatch.
     """
@@ -120,7 +120,7 @@ def verify_structure(spec_path: Path, target_paths: list[Path]) -> StructureRepo
     )
 
     if not spec_components:
-        report.warnings.append("Spec file has no yaml+symbolic structural components")
+        report.warnings.append("Spec file has no structural components")
         return report
 
     for target_path in target_paths:

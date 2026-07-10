@@ -128,38 +128,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
-rules:
-  - id: approval-gate-skill-001
-    title: "Pre-implementation authorization verification required"
-    conditions:
-      all: ["spec_exists == true", "user_authorized == false"]
-    actions: [HALT]
-    triggers: [git-workflow]
-    source: "approval-gate/SKILL.md"
 
-  - id: approval-gate-skill-002
-    title: "Multi-task cascade extends authorization from plan to all sub-issues"
-    conditions:
-      all: ["plan_has_sub_issues == true", "user_authorized == true"]
-    actions: [PROCEED]
-    triggers: [implementation-pipeline, executing-plans]
-    source: "approval-gate/SKILL.md"
-
-  - id: approval-gate-skill-005
-    title: "Spec-to-plan approval cascade — spec approves existing plan"
-    conditions:
-      all: ["spec_approved == true", "spec_has_existing_plan == true"]
-    actions: [APPLY_LABEL(approved-for-*, plan), ADD_COMMENT(cascade docs), PROCEED_TO(plan-approved run)]
-    triggers: [writing-plans]
-    source: "approval-gate/SKILL.md"
-
-  - id: approval-gate-skill-006
-    title: "PR merge boundary check — block if required PR not merged"
-    conditions:
-      all: ["plan_has_pr_boundaries == true", "required_pr_not_merged == true"]
-    actions: [HALT, REPORT(CRITICAL: required PR not merged)]
-    triggers: [implementation-pipeline, git-workflow]
-    source: "approval-gate/SKILL.md"
