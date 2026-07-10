@@ -34,6 +34,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | "execute plan" / "run plan" / "implement plan" | `execute` | `sub-task` | {plan_issue, spec_issue} |
+| "tdd cycle" / "per-item tdd" / "tdd enforcement" / "red green interleave" | `tdd-cycle-enforcement` | `sub-task` | {plan_issue, spec_issue} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Tasks

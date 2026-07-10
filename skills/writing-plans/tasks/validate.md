@@ -98,6 +98,31 @@ Check an existing plan for placeholders and completeness.
 
 - [ ] 19. (**inline**) Behavioral SC exit criteria validation — Reject structural-only exit criteria for behavioral SCs
   - Command: For each SC in the plan's exit criteria section, check if the SC has `evidence_type: behavioral` annotation. If yes, verify the exit criteria include both `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch steps. Exit criteria that use only structural evidence (file exists, annotations present, exit 0) for behavioral SCs MUST be rejected.
+
+- [ ] 20. (**inline**) Blast radius analysis — Spec identifies what files/symbols are affected and what depends on them
+  - Command: `grep(pattern="blast radius|affected files|dependents|impact analysis")` on spec body
+  - SC: SC-6
+  - Expected: at least one match indicating blast radius analysis
+
+- [ ] 21. (**inline**) Separation of concerns — Each concern is isolated to its own phase/item
+  - Command: `grep(pattern="separation of concerns|concern isolation|concern boundary|each concern")` on spec body
+  - SC: SC-6
+  - Expected: at least one match indicating concern separation
+
+- [ ] 22. (**inline**) Decomposition depth — Work is decomposed to the lowest testable level
+  - Command: `grep(pattern="decomposition|decompose|lowest testable|item.*level|unit.*level")` on spec body
+  - SC: SC-6
+  - Expected: at least one match indicating decomposition analysis
+
+- [ ] 23. (**inline**) Cross-cutting concern identification — Concerns spanning multiple phases are explicitly identified
+  - Command: `grep(pattern="cross-cutting|cross cutting|spanning|shared concern|common concern")` on spec body
+  - SC: SC-6
+  - Expected: at least one match indicating cross-cutting concern identification
+
+- [ ] 24. (**inline**) Full code path exercising — All affected code paths are enumerated
+  - Command: `grep(pattern="code path|code paths|all paths|affected paths|exercise.*path")` on spec body
+  - SC: SC-6
+  - Expected: at least one match indicating full code path enumeration
   - SC: SC-2
   - Expected: all behavioral SCs have model-execution-and-evaluation steps in their exit criteria; FAIL on structural-only exit criteria for behavioral SCs
 

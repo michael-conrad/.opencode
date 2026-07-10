@@ -63,6 +63,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "review-prep" / "prepare review" | `review-prep` | `git-workflow --task review-prep` | `sub-task` | {issue_number} |
 | "create-pr" / "create pull request" | `create-pr` | `pr-creation-workflow --task create` | `sub-task` | {issue_number, authorization_scope, halt_at} |
 | "exec-summary" / "completion" | `exec-summary` | `completion-core --task completion` | `sub-task` | {issue_number} |
+| "multiple red phases" / "batch red" / "red/red/red" / "batched RED/GREEN" | `tdd-chaining-gate` | `implementation-pipeline --task tdd-chaining-gate` | `sub-task` | {issue_number} |
 
 **Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
 - [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
