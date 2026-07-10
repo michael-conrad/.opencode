@@ -7,7 +7,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 ## Entry Criteria
 
 - Requirements extraction completed (mandatory)
-- Other prerequisite tasks completed or explicitly skipped via simplicity heuristic
+- Other prerequisite tasks completed
 
 ## Exit Criteria
 
@@ -69,7 +69,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - **Risk and edge cases** — What could go wrong and boundary conditions
     - **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 5.5)
 
-    Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
+    All sections are mandatory. The spec should be self-contained and clear, regardless of structure.
 
     **Optional content sections (include as needed):**
 
@@ -160,9 +160,9 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
         | Live verification | `uv run pytest test/test_data.py` | Confirm test coverage |
         ```
 
-        Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
+        This section is MANDATORY for all specs. Each URL listed MUST be verified as reachable before the spec is submitted. Unreachable URLs MUST be replaced or marked with `⚠️ UNREACHABLE`. Online (live) documentation is preferred; local docs are fallback only.
 
-- [ ] 6. **Step 1a: Generate Spec Artifacts (MANDATORY for standard/complex specs)** — For standard and complex specs, generate the following permanent artifacts:
+- [ ] 6. **Step 1a: Generate Spec Artifacts (MANDATORY)** — Generate the following permanent artifacts:
 
     - [ ] **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
     - [ ] **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
@@ -295,6 +295,56 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - **Use MUST/SHOULD/MAY (RFC 2119)** for all requirements. "The system MUST log errors" not "The system logs errors". This enforces the forward-looking stance of describing what the implementation MUST achieve, not what has been decided.
     - **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in ``, not in the spec itself.
 
+- [ ] 13.5. **Step 1d.5: Research Card References (MANDATORY)** — Include references to consulted research cards in the spec body. If research cards were consulted during requirements extraction, reference them in the Documentation Sources section. Format: `| Research cards | \`.opencode/.issues/research-cards/<card-name>.md\` | Findings incorporated for <topic> |`
+
+- [ ] 13.6. **Step 1d.6: Live Documentation URL Verification (MANDATORY)** — Before the spec is finalized, verify that all documentation source URLs listed in the Documentation Sources section are live and reachable. For each URL:
+    - Use `webfetch` or `ddg-search_fetch_content` to confirm the URL returns a 200-level response
+    - If a URL is unreachable, replace it with a working alternative or mark it as `⚠️ UNREACHABLE` with a note
+    - Prefer online (live) documentation over local; local docs are fallback only
+    - Document which URLs were verified and which were unreachable in the spec body
+    - This verification MUST be performed before the spec is submitted to the remote platform
+
+- [ ] 13.7. **Step 1d.7: Interdependency Section (MANDATORY)** — Add an Interdependency section to the spec body listing related issues with classification. Format:
+
+    ```markdown
+    ## Interdependency
+
+    | Issue | Classification | Description |
+    |-------|---------------|-------------|
+    | [#N]({browser_url}/{owner}/{repo}/issues/N) | BLOCKS | This spec blocks issue N |
+    | [#N]({browser_url}/{owner}/{repo}/issues/N) | BLOCKED_BY | This spec is blocked by issue N |
+    | [#N]({browser_url}/{owner}/{repo}/issues/N) | RELATED | Related but no direct dependency |
+    | [#N]({browser_url}/{owner}/{repo}/issues/N) | SUPERSEDES | This spec supersedes issue N |
+    | [#N]({browser_url}/{owner}/{repo}/issues/N) | SUPERSEDED_BY | This spec is superseded by issue N |
+    ```
+
+    Classifications: BLOCKS, BLOCKED_BY, RELATED, SUPERSEDES, SUPERSEDED_BY. Mark interdependencies explicitly in both this spec and the interdependent issues.
+
+- [ ] 13.8. **Step 1d.8: Anti-Lobotomization Preamble (MANDATORY)** — Add an anti-lobotomization section to the spec body preamble. This section MUST appear in every generated spec. Language:
+
+    ```markdown
+    ## Anti-Lobotomization
+
+    Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. See `080-code-standards.md` Test Integrity Mandate.
+    ```
+
+    Also add a success criterion in the SC table that explicitly forbids test lobotomization. The SC should read: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation" with evidence type `behavioral`.
+
+- [ ] 13.9. **Step 1d.9: Anti-Merge Gate (MANDATORY)** — Before finalizing the spec, verify that no SC conflicts with already-merged specs. Check merged PRs for related functionality. If a merged spec has SCs that conflict with this spec's SCs, flag the conflict and HALT. Do NOT proceed with conflicting SCs.
+
+- [ ] 13.10. **Step 1d.10: Doc-Source-Currency Check (MANDATORY)** — Verify that all documentation sources referenced in the spec are current (not stale). For each source:
+    - Check the last-modified date or version of the source
+    - If the source is a GitHub file, check its last commit date
+    - If the source is an external URL, verify the content is still relevant
+    - If a source is stale (outdated by more than 30 days for guidelines, 90 days for other docs), flag it and find a current replacement
+    - Document which sources were checked and their currency status
+
+- [ ] 13.11. **Step 1d.11: SC-ID Traceability Check (MANDATORY)** — Verify that every SC ID in the spec maps to a unique, traceable requirement. For each SC:
+    - Confirm the SC ID is unique (no duplicates)
+    - Confirm the SC maps to at least one requirement in the spec body
+    - Confirm the SC has a defined verification method
+    - If any SC fails traceability, flag it as a STRUCTURE-VIOLATION and fix before submission
+
 - [ ] 14. **Step 1e: Sub-Folder References, No Hardcoded File Lists (SC-9)** — Reference artifact directories by sub-folder path (e.g., ``) rather than listing individual files. Agents discover content by globbing directories; hardcoded file lists go stale when files are renamed or reorganized.
 
     **Correct:** "See `research/` for capability probe results"
@@ -336,7 +386,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     
     If any delegation reference lacks these details, the agent MUST add them before the spec is finalized.
 
-- [ ] 17. **Step 3: Define Acceptance Criteria (Principle #6)** — **🚫 ALL-OR-NOTHING GATE: ALL success criteria MUST pass for implementation to be considered complete.**
+- [ ] 17. **Step 3: Define Acceptance Criteria (Principle #6)** — **🚫 SC-FAIL CASCADING GATE: Any SC that is skipped, deferred, weakened, or otherwise bypassed marks ALL SCs as FAIL. A PR containing any such bypass MUST be immediately rejected and trashed as defective and unusable. There is no partial credit. There is no 'close enough.' 100% clean PASS on ALL SCs is the only acceptable outcome.**
 
     | Rule | Description |
     | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -402,11 +452,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - [ ] 20. **Step 5: Structure the Deliverable (Principle #10)** — Content coverage matters more than section structure. The agent chooses the optimal structure for the spec's complexity:
 
-    - **Minimal specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Fix, Criteria, Edge Cases — all in flowing prose without section headers. Preamble is optional.
-    - **Standard specs** (multi-file changes): May use typical sections — Intent and Executive Summary (mandatory), Objective, Problem, Context, Fix Approach, Success Criteria, Edge Cases. Include a `## Intent and Executive Summary` preamble with the 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) before the Objective section.
-    - **Complex specs** (cross-cutting, multi-phase): May use full structure — Intent and Executive Summary (mandatory), Objective, Problem, Context, Affected Files, Fix Approach, Success Criteria, Edge Cases, Dependencies, Risk, Decision Rationale, Phases. Preamble is mandatory.
-
-    **Any format that covers the required content areas is acceptable.** The agent decides the structure that best serves the specific spec.
+    **All specs are mandatory.** Every spec MUST include: Problem Statement, Context, Success Criteria, and Edge Cases. Additional sections (Intent and Executive Summary, Affected Files, Fix Approach, Dependencies, Risk, Decision Rationale, Phases) are included as needed based on spec complexity. The agent decides the structure that best serves the specific spec. No section may be skipped based on a "simple" or "minimal" classification.
 
 - [ ] 21. **Step 5.5: Spec/Plan Boundary Check** — Review the assembled spec for plan-level content that belongs in the implementation plan, not the spec. Specs describe **WHAT** and **WHY**; plans describe **HOW**.
 

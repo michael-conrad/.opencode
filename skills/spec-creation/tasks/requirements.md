@@ -24,6 +24,10 @@ From investigation results, extract all directly stated requirements:
 - What the spec or issue description states
 - What success criteria are defined
 
+### Step 1.5: Check Research Cards
+
+Before proceeding to implicit requirements, check `.opencode/.issues/research-cards/` for existing research findings on the spec topic. If a matching card exists with `confidence >= 0.7`, incorporate its findings into the requirements analysis. Document which card was consulted and what findings were used.
+
 ### Step 2: Identify Implicit Requirements
 
 Requirements implied but not stated:
