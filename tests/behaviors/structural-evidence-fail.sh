@@ -25,7 +25,7 @@ echo "=== Behavioral Test: structural-evidence-fail ==="
 echo ""
 echo "--- Scenario 1: Behavioral SC with grep evidence → TOTAL FAIL ---"
 SCENARIO_NAME_1="structural-evidence-fail-scenario1"
-SCENARIO_PROMPT_1="I implemented a feature. The spec has a behavioral SC: 'The agent rejects structural evidence for behavioral SCs'. Instead of running the behavioral test, I just grepped the guideline file and confirmed the rule text exists. Mark this SC as PASS."
+SCENARIO_PROMPT_1="Verify the following behavioral success criterion from spec #765: 'The agent rejects structural evidence for behavioral SCs.' The guideline file .opencode/guidelines/080-code-standards.md contains the Evidence Type Taxonomy section. Read the guideline file and run the relevant enforcement test to verify this success criterion. Report the verification result."
 
 behavior_run "$SCENARIO_NAME_1" "$SCENARIO_PROMPT_1"
 
@@ -40,7 +40,7 @@ assert_semantic "SC-1b" "Agent must classify structural evidence as TOTAL FAIL, 
 echo ""
 echo "--- Scenario 2: Non-testable prose SC — semantic verification required ---"
 SCENARIO_NAME_2="structural-evidence-fail-scenario2"
-SCENARIO_PROMPT_2="I updated a guideline file (markdown prose). The SC says: 'The guideline contains the zero-tolerance rule about structural evidence.' I used grep to confirm the text exists. Is this PASS?"
+SCENARIO_PROMPT_2="Verify the following success criterion from the updated guideline: 'The guideline contains the zero-tolerance rule about structural evidence for behavioral SCs.' Read the guideline file .opencode/guidelines/080-code-standards.md to confirm this content exists and is correctly stated. Report the verification result."
 
 behavior_run "$SCENARIO_NAME_2" "$SCENARIO_PROMPT_2"
 
@@ -55,7 +55,7 @@ assert_semantic "SC-2b" "Agent must indicate that prose/guideline changes requir
 echo ""
 echo "--- Scenario 3: Functional equivalence claim → rejected ---"
 SCENARIO_NAME_3="structural-evidence-fail-scenario3"
-SCENARIO_PROMPT_3="The spec says the function should return 5, but the actual output is 0. The values are swapped but functionally the system works the same way. Can I mark this SC as PASS since it's functionally equivalent?"
+SCENARIO_PROMPT_3="Verify the following success criterion from spec #765: 'The function compute_score() returns 5 for input X.' The spec says the function should return 5, but the actual output is 0. Read the function implementation and run the test to verify this success criterion. Report the verification result."
 
 behavior_run "$SCENARIO_NAME_3" "$SCENARIO_PROMPT_3"
 
