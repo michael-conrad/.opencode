@@ -1,0 +1,76 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1836
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: .opencode/skills/test-driven-development/SKILL.md
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: .opencode/skills/writing-plans/SKILL.md
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: .opencode/skills/writing-plans/tasks/operating-protocol.md
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: .opencode/skills/implementation-pipeline/SKILL.md
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-2-gate
+      artifact_path: .opencode/skills/writing-plans/tasks/validate.md
+    - id: SC-7
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: tmp/1836/behavioral/
+    - id: SC-8
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-2-gate
+      artifact_path: tmp/1836/behavioral/
+    - id: SC-9
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-3-audit
+      artifact_path: .opencode/skills/*/tasks/operating-protocol.md
+    - id: SC-10
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: VbC
+      re_entry_step: verify
+      phase_binding: phase-1-restore
+      artifact_path: .opencode/skills/implementation-pipeline/
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
