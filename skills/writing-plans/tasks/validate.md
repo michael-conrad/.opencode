@@ -161,7 +161,18 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-2
   - Expected: all behavioral SCs have model-execution-and-evaluation steps in their exit criteria; FAIL on structural-only exit criteria for behavioral SCs
 
-- [ ] 20. (**inline**) Evidence type metadata presence — Verify each SC in the plan's exit criteria section carries an `evidence_type` annotation
+- [ ] 20. (**inline**) Dispatch mode validation — Verify dispatch mode consistency rules:
+  - Command: parse plan phase table (or `**Dispatch:**` field for non-split plans), extract dispatch mode for each phase, then check per-phase step markers
+  - SC: SC-3
+  - Expected: all three rules pass; FAIL on any violation
+
+  **Rule (a):** `inline` phases MUST NOT contain only sub-agent steps. If a phase has `Dispatch: inline` and every step uses `(**sub-agent**)` or `(**clean-room**)`, the orchestrator would read the file and dispatch every step — equivalent to `sub-agent-with-context` with extra overhead. FAIL.
+
+  **Rule (b):** `sub-agent-clean-room` phases MUST NOT contain `(**inline**)` steps. If a phase has `Dispatch: sub-agent-clean-room` and any step uses `(**inline**)`, the sub-agent would receive inline steps it cannot execute. FAIL.
+
+  **Rule (c):** Plan auditor MUST catch dispatch marking defects. Missing Dispatch declaration, mode/marker inconsistency, or invalid mode values are defects. FAIL.
+
+- [ ] 21. (**inline**) Evidence type metadata presence — Verify each SC in the plan's exit criteria section carries an `evidence_type` annotation
   - Command: `grep(pattern="evidence_type:")` on each phase file's exit criteria section
   - SC: SC-4
   - Expected: every SC in every phase file has an `evidence_type` annotation; FAIL on missing annotations
