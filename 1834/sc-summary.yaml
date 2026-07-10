@@ -1,0 +1,142 @@
+sc_coverage:
+  total: 20
+  single_task: false
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1834
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1, SC-2]
+      evidence_types: [string]
+    - id: phase-2
+      sc_ids: [SC-3, SC-4]
+      evidence_types: [string]
+    - id: phase-3
+      sc_ids: [SC-5, SC-6]
+      evidence_types: [string]
+    - id: phase-4
+      sc_ids: [SC-7, SC-8]
+      evidence_types: [string]
+    - id: phase-5
+      sc_ids: [SC-9]
+      evidence_types: [string]
+    - id: phase-6
+      sc_ids: [SC-10, SC-11]
+      evidence_types: [string]
+    - id: phase-7
+      sc_ids: [SC-12]
+      evidence_types: [string]
+    - id: phase-8
+      sc_ids: [SC-13, SC-14, SC-15]
+      evidence_types: [string]
+    - id: phase-9
+      sc_ids: [SC-16, SC-17]
+      evidence_types: [behavioral]
+    - id: phase-10
+      sc_ids: [SC-18]
+      evidence_types: [string]
+  cross_cutting:
+    sc_ids: [SC-19, SC-20]
+    verified_in_phase: phase-1
+  scs:
+    - id: SC-1
+      description: '"Simple specs may skip" language removed from create.md; all sections mandatory'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-2
+      description: 'No minimal/standard/complex tiered structure remains in create.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-3
+      description: 'Research card consultation step added to operating-protocol.md before requirements extraction'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-2
+    - id: SC-4
+      description: 'Research card check added to requirements.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-2
+    - id: SC-5
+      description: 'Live documentation URL verification step added to create.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-3
+    - id: SC-6
+      description: 'Documentation Sources section in spec body template mandates verified live URLs'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-3
+    - id: SC-7
+      description: 'Interdependency checking step added to operating-protocol.md before create'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-4
+    - id: SC-8
+      description: 'Interdependency section with classification added to create.md spec body template'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-4
+    - id: SC-9
+      description: 'SC-fail cascading preamble with exact strong language added to create.md spec body template'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-5
+    - id: SC-10
+      description: 'Anti-lobotomization preamble section added to create.md spec body template'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-6
+    - id: SC-11
+      description: 'Anti-lobotomization SC added to spec body template that explicitly forbids test lobotomization'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-6
+    - id: SC-12
+      description: 'Contract files renamed from write-* to create-* and all references updated'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-7
+    - id: SC-13
+      description: 'Anti-merge gate added to create.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-8
+    - id: SC-14
+      description: 'Doc-source-currency check added to create.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-8
+    - id: SC-15
+      description: 'SC-ID traceability added to create.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-8
+    - id: SC-16
+      description: '#1229 verified as fully implemented and closed'
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      plan_phase: phase-9
+    - id: SC-17
+      description: '#1064 verified as fully implemented and closed'
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      plan_phase: phase-9
+    - id: SC-18
+      description: 'Research card created at .opencode/.issues/research-cards/spec-creation-state.md'
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-10
+    - id: SC-19
+      description: 'Before any implementation, write behavioral enforcement tests; confirm RED state'
+      evidence_type: behavioral
+      verification_gate: pre-red
+      plan_phase: phase-1
+    - id: SC-20
+      description: 'No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation'
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      plan_phase: phase-1

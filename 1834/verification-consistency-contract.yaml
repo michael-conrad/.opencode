@@ -1,0 +1,146 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1834
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-1
+      artifact_path: .issues/1834/
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-1
+      artifact_path: .issues/1834/
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-2
+      artifact_path: .issues/1834/
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-2
+      artifact_path: .issues/1834/
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-3
+      artifact_path: .issues/1834/
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-3
+      artifact_path: .issues/1834/
+    - id: SC-7
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-4
+      artifact_path: .issues/1834/
+    - id: SC-8
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-4
+      artifact_path: .issues/1834/
+    - id: SC-9
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-5
+      artifact_path: .issues/1834/
+    - id: SC-10
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-6
+      artifact_path: .issues/1834/
+    - id: SC-11
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-6
+      artifact_path: .issues/1834/
+    - id: SC-12
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-7
+      artifact_path: .issues/1834/
+    - id: SC-13
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-8
+      artifact_path: .issues/1834/
+    - id: SC-14
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-8
+      artifact_path: .issues/1834/
+    - id: SC-15
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-8
+      artifact_path: .issues/1834/
+    - id: SC-16
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-9
+      artifact_path: .issues/1834/
+    - id: SC-17
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-9
+      artifact_path: .issues/1834/
+    - id: SC-18
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: phase-10
+      artifact_path: .issues/1834/
+    - id: SC-19
+      evidence_type: behavioral
+      verification_gate: pre-red
+      pipeline_step_binding: create
+      re_entry_step: pre-red
+      phase_binding: common
+      artifact_path: .issues/1834/behavioral/
+    - id: SC-20
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      pipeline_step_binding: create
+      re_entry_step: create
+      phase_binding: common
+      artifact_path: .issues/1834/
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
