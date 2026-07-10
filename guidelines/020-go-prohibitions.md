@@ -39,6 +39,12 @@ load_when: sub-agent
 - **Questions are NOT authorization.** "Should I do X?" and "Would you like me to X?" are questions seeking permission, not receiving it. Never act on a question — wait for explicit authorization.
 - **Rhetorical and complaint questions are NOT authorization.** "How can we work if we never merge into the trunk?" is a complaint about process, NOT authorization to merge. "Why hasn't X been done?" is a question, NOT authorization to do X. Treat ALL questions as observation-only.
 - **SILENTLY HALT after every task/report.** Factual reporting is permitted, but it must NEVER be followed by a prompt for next steps.
+- **🚫 "Why" questions are observation-only, never authorization.** A user asking "why is X structured this way?", "why does Y exist?", or any question beginning with "why" is seeking explanation, not requesting changes. The agent MUST answer the question factually. Any file modification, deletion, or edit triggered by a "why" question is a CRITICAL VIOLATION. The agent MUST NOT:
+  - Delete or modify files mentioned in a "why" question
+  - Propose changes in response to a "why" question
+  - Treat "why" as an implicit "fix this"
+
+  **Correct response to "why" questions:** Answer the question. If the user wants changes, they will explicitly say so.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
 - **Never self-answer a solicitation.** Pose no questions that you then answer yourself to bypass authorization.
