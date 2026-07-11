@@ -4,6 +4,46 @@ status: open
 labels:
 - spec
 - needs-approval
-body: ''
+body: "# [SPEC] session-init: rename Local Issue Artifacts to Local Issue Folders,\
+  \ emit git -C commands, reorder sections\n\nSTATUS: 0.1 — Draft\n\n## Problem Statement\n\
+  \nThe `session-init` tool's `## Local Issue Artifacts` section emits structured\
+  \ YAML-like fields (`path:`, `issues:`) that are verbose, redundant, and fail to\
+  \ make the worktree nature of `.issues/` directories explicit.\n\n**Current output:**\n\
+  ```\n## Local Issue Artifacts\n- path: .\n  issues: .issues/\n- path: .opencode\n\
+  \  issues: .opencode/.issues/\n```\n\n**Problems:**\n1. **Verbose:** Two lines per\
+  \ entry for what is fundamentally a path-to-directory mapping\n2. **Redundant `path`\
+  \ field:** The `path` prefix is already derivable by cross-referencing the `## Repo\
+  \ Information` block — duplicating it wastes context budget\n3. **Worktree nature\
+  \ not explicit:** `.issues/` directories are git worktrees (orphan branch worktrees),\
+  \ not regular directories. The current format gives no indication that `git -C`\
+  \ commands are the correct way to interact with them\n4. **Section ordering is suboptimal:**\
+  \ `## CLI Auth Status` (auth health, quick to scan) should come first, followed\
+  \ by `## Local Issue Folders` (where issues live), then `## Repo Information` (routing\
+  \ metadata) — this ordering matches the agent's operational priority: \"can I authenticate\
+  \ → where are my local issues → how do I route API calls\"\n\n## Changes\n\n###\
+  \ Change 1: Rename section header\n\n`## Local Issue Artifacts` → `## Local Issue\
+  \ Folders`\n\n### Change 2: Change output format\n\nFrom structured YAML-like fields:\n\
+  ```\n## Local Issue Artifacts\n- path: .\n  issues: .issues/\n- path: .opencode\n\
+  \  issues: .opencode/.issues/\n```\n\nTo inline `git -C` commands:\n```\n## Local\
+  \ Issue Folders\n- .issues/: git -C .issues/\n- .opencode/.issues/: git -C .opencode/.issues/\n\
+  ```\n\nEach entry is a single line: `- <path>: git -C <path>`. The `git -C` prefix\
+  \ makes the worktree nature explicit — agents see immediately that these are git\
+  \ worktrees, not regular directories.\n\n### Change 3: Reorder sections in `main()`\n\
+  \nCurrent order:\n1. `## Repo Information`\n2. `## CLI Auth Status`\n3. `## Local\
+  \ Issue Artifacts`\n\nProposed order:\n1. `## CLI Auth Status` (first — auth health,\
+  \ quick to scan)\n2. `## Local Issue Folders` (second — where issues live)\n3. `##\
+  \ Repo Information` (third — routing metadata)\n\n### Change 4: Remove `path` field\n\
+  \nThe `path` prefix in each entry is derivable by cross-referencing the `## Repo\
+  \ Information` block's `path` field. Removing it eliminates redundancy and reduces\
+  \ context consumption.\n\n## Affected File\n\n- `.opencode/tools/session-init`\n\
+  \n## Affected Functions\n\n- `collect_issue_artifact_paths()` — change return format\
+  \ to omit `path` field, emit `git -C` command strings\n- `main()` — change emission\
+  \ code to use new format\n- `main()` — reorder section emission\n\n## Success Criteria\n\
+  \n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n| SC-1\
+  \ | Section header is `## Local Issue Folders` (not `## Local Issue Artifacts`)\
+  \ | `string` |\n| SC-2 | Output format uses inline `git -C` commands: `- <path>:\
+  \ git -C <path>` | `string` |\n| SC-3 | No `path:` field in `## Local Issue Folders`\
+  \ output | `string` |\n| SC-4 | Section emission order in `main()` is: CLI Auth\
+  \ Status first, Local Issue Folders second, Repo Information third | `string` |\n"
 created_at: '2026-07-11T15:38:07+00:00'
-updated_at: '2026-07-11T15:38:07+00:00'
+updated_at: '2026-07-11T15:38:37+00:00'
