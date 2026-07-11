@@ -1,6 +1,6 @@
 ---
 name: local
-description: "Use when local .issues/ tracking is needed. Also use when github.platform is local or unset, or when routing issue operations to the .issues/ directory with YAML frontmatter and markdown files. Invoke for: local issue creation, local issue comment, local issue closure, local label management, .issues/ directory operations. Untracked work is work that can be lost. Even local issues MUST have structured tracking. Trigger phrases: local issue, .issues/ directory, local tracking, local platform, offline issue."
+description: "Local .issues/ tracking platform for offline issue management with YAML frontmatter and markdown files. Dispatch when local .issues/ tracking is needed. Also dispatch when github.platform is local or unset, or when routing issue operations to the .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local issues MUST have structured tracking. User phrases: local issue, .issues/ directory, local tracking, local platform, offline issue."
 license: MIT
 compatibility: opencode
 ---

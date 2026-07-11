@@ -140,13 +140,68 @@ def validate_req1(
         )
     else:
         desc = fields["description"]
-        if not desc.startswith("Use when"):
+        if desc.startswith("Use when"):
             violations.append(
                 Violation(
                     "REQ-1",
                     name,
                     "description",
-                    "Description doesn't start with 'Use when'",
+                    "Description starts with 'Use when' (old pattern — must use agent-intent pattern)",
+                    desc[:60],
+                    file_path=file_path,
+                )
+            )
+        if "Invoke for:" in desc:
+            violations.append(
+                Violation(
+                    "REQ-1",
+                    name,
+                    "description",
+                    "Description contains 'Invoke for:' (old pattern — must use 'Dispatch when')",
+                    desc[:60],
+                    file_path=file_path,
+                )
+            )
+        if "Trigger phrases:" in desc:
+            violations.append(
+                Violation(
+                    "REQ-1",
+                    name,
+                    "description",
+                    "Description contains 'Trigger phrases:' (old pattern — must use 'User phrases:')",
+                    desc[:60],
+                    file_path=file_path,
+                )
+            )
+        if "Also use when" in desc:
+            violations.append(
+                Violation(
+                    "REQ-1",
+                    name,
+                    "description",
+                    "Description contains 'Also use when' (old pattern — must use 'Also dispatch when')",
+                    desc[:60],
+                    file_path=file_path,
+                )
+            )
+        if "Dispatch when" not in desc:
+            violations.append(
+                Violation(
+                    "REQ-1",
+                    name,
+                    "description",
+                    "Description missing 'Dispatch when' (required in agent-intent pattern)",
+                    desc[:60],
+                    file_path=file_path,
+                )
+            )
+        if "User phrases:" not in desc:
+            violations.append(
+                Violation(
+                    "REQ-1",
+                    name,
+                    "description",
+                    "Description missing 'User phrases:' (required in agent-intent pattern)",
                     desc[:60],
                     file_path=file_path,
                 )
@@ -183,11 +238,56 @@ def validate_req1(
 def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     desc = fields.get("description", "")
-    if not desc.startswith("Use when"):
+    if desc.startswith("Use when"):
         violations.append(
             Violation(
                 "SC-LINT", name, "SC-LINT-001",
-                "Description doesn't start with 'Use when'",
+                "Description starts with 'Use when' (old pattern)",
+                desc[:60], file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+    if "Dispatch when" not in desc:
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-001",
+                "Description missing 'Dispatch when' (required in agent-intent pattern)",
+                desc[:60], file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+    if "User phrases:" not in desc:
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-001",
+                "Description missing 'User phrases:' (required in agent-intent pattern)",
+                desc[:60], file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+    if "Invoke for:" in desc:
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-001",
+                "Description contains 'Invoke for:' (old pattern)",
+                desc[:60], file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+    if "Trigger phrases:" in desc:
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-001",
+                "Description contains 'Trigger phrases:' (old pattern)",
+                desc[:60], file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+    if "Also use when" in desc:
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-001",
+                "Description contains 'Also use when' (old pattern)",
                 desc[:60], file_path=file_path,
                 severity="ERROR", pass_fail="FAIL",
             )

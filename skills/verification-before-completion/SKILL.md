@@ -1,6 +1,6 @@
 ---
 name: verification-before-completion
-description: "Use when claiming a task is complete, marking a step done, or closing an issue. Also use when running verification checks against success criteria, producing evidence artifacts, or enforcing live-source verification. Invoke for: completion verification, SC verification, evidence artifact production, live-source verification, completion claim validation. Verification is REQUIRED and not optional — MUST use before any completion claim — distinct from verification (general claim verification) and verification-enforcement (content generation). Trigger phrases: verify completion, check SC, produce evidence, live-source verify, validate completion."
+description: "Completion verification gate that checks success criteria, produces evidence artifacts, and enforces live-source verification before any completion claim. Dispatch when claiming a task is complete, marking a step done, or closing an issue. Also dispatch when running verification checks against success criteria, producing evidence artifacts, or enforcing live-source verification. Verification is REQUIRED and not optional — MUST use before any completion claim — distinct from verification (general claim verification) and verification-enforcement (content generation). User phrases: verify completion, check SC, produce evidence, live-source verify, validate completion."
 license: MIT
 compatibility: opencode
 ---

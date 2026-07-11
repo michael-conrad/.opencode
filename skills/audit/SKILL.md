@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Use when running audits of specs, plans, code, or generated content. Also use when verifying spec fidelity, checking plan coherence, detecting drift, cross-validating verification results, or auditing factual claims in generated content. Invoke for: spec audit, plan fidelity, concern separation, coherence extraction, coherence maintenance, guideline audit, drift detection, spec summary, closure verification, test quality audit, verification audit, content audit, cross-validate. Audits are not optional — dispatch is MANDATORY. Trigger phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, content audit."
+description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch when running audits of specs, plans, code, or generated content. Also dispatch when verifying spec fidelity, checking plan coherence, detecting drift, cross-validating verification results, or auditing factual claims in generated content. Audits are not optional — dispatch is MANDATORY. User phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, content audit."
 license: MIT
 compatibility: opencode
 ---

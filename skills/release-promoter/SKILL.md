@@ -1,6 +1,6 @@
 ---
 name: release-promoter
-description: "Use when creating git tags for releases or promoting releases to GitHub. Also use when creating annotated tags with v prefix or creating GitHub Releases from tags with changelog body. Invoke for: tag creation, release promotion, GitHub Release creation, annotated tag creation. Release promotion is REQUIRED after every release PR merge — not optional. Trigger phrases: tag, release, release-promoter, create release, promote release."
+description: "Git tag and release promoter for creating annotated tags and GitHub Releases with changelog bodies. Dispatch when creating git tags for releases or promoting releases to GitHub. Also dispatch when creating annotated tags with v prefix or creating GitHub Releases from tags with changelog body. Release promotion is REQUIRED after every release PR merge — not optional. User phrases: tag, release, release-promoter, create release, promote release."
 license: MIT
 compatibility: opencode
 ---

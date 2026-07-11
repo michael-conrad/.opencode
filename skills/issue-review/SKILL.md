@@ -1,6 +1,6 @@
 ---
 name: issue-review
-description: "Use when reviewing a GitHub issue for comments, audits, or Q/A. Also use when gathering context from issue comments, classifying review paths, or delegating to downstream skills. Invoke for: issue review, comment reading, context gathering, path classification, downstream delegation. All comments MUST be read before acting on any issue. Trigger phrases: review issue, read comments, gather context, classify path, audit issue."
+description: "Issue review skill that gathers context from comments, classifies review paths, and delegates to downstream skills. Dispatch when reviewing a GitHub issue for comments, audits, or Q/A. Also dispatch when gathering context from issue comments, classifying review paths, or delegating to downstream skills. All comments MUST be read before acting on any issue. User phrases: review issue, read comments, gather context, classify path, audit issue."
 license: MIT
 compatibility: opencode
 ---

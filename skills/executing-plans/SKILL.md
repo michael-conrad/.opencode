@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: "Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Also use when dispatching each plan step to clean-room sub-agents for independent execution. Invoke for: plan execution, step-by-step implementation, gate progression, sub-agent dispatch for plan steps. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional. Trigger phrases: execute plan, implement plan, run plan steps, progress through gates, dispatch plan step."
+description: "Plan executor that dispatches each step to clean-room sub-agents and progresses through implementation gates. Dispatch when executing an approved plan step-by-step or moving through implementation gates sequentially. Also dispatch when dispatching each plan step to clean-room sub-agents for independent execution. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional. User phrases: execute plan, implement plan, run plan steps, progress through gates, dispatch plan step."
 license: MIT
 compatibility: opencode
 ---

@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: "Use when preparing a PR for code review, or when reviewer context and documentation are needed. Also use when assessing PR readiness or generating reviewer context summaries. Invoke for: PR readiness assessment, reviewer context generation, review request preparation, diff summary creation. Every review request MUST be treated as a quality gate — not a formality. Trigger phrases: request review, prepare for review, reviewer context, PR readiness, diff summary."
+description: "PR review request preparer that assesses readiness and generates reviewer context. Dispatch when preparing a PR for code review, or when reviewer context and documentation are needed. Also dispatch when assessing PR readiness or generating reviewer context summaries. Every review request MUST be treated as a quality gate — not a formality. User phrases: request review, prepare for review, reviewer context, PR readiness, diff summary."
 license: MIT
 compatibility: opencode
 ---

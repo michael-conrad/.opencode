@@ -1,6 +1,6 @@
 ---
 name: sync-guidelines
-description: "Use when synchronizing guidelines, skills, or tools between repositories. Also use when detecting drift between source and target, or applying content synchronization. Invoke for: guideline sync, skill sync, tool sync, drift detection, content synchronization, cross-repo sync. Sync is REQUIRED maintenance. Trigger phrases: sync guidelines, sync skills, sync tools, detect drift, synchronize content, cross-repo sync."
+description: "Cross-repo synchronization tool for guidelines, skills, and tools with drift detection. Dispatch when synchronizing guidelines, skills, or tools between repositories. Also dispatch when detecting drift between source and target, or applying content synchronization. Sync is REQUIRED maintenance. User phrases: sync guidelines, sync skills, sync tools, detect drift, synchronize content, cross-repo sync."
 license: MIT
 compatibility: opencode
 ---

@@ -1,6 +1,6 @@
 ---
 name: plan-creation-pipeline
-description: "Use when creating a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Also use when validating phase solvability, grounding action schemas, or verifying dependency ordering. Invoke for: plan creation, pipeline execution, phase solvability validation, action grounding, dependency verification, state transition verification. Plan creation MUST use the structured pipeline — always required. — distinct from plan (formal AI planning) and writing-plans (orchestrator-level plan creation). Trigger phrases: create plan pipeline, run plan pipeline, validate phases, ground actions, verify dependencies, Z3 plan."
+description: "Structured 6-step plan creation pipeline with Z3-verified state transitions. Dispatch when creating a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Also dispatch when validating phase solvability, grounding action schemas, or verifying dependency ordering. Plan creation MUST use the structured pipeline — always required. — distinct from plan (formal AI planning) and writing-plans (orchestrator-level plan creation). User phrases: create plan pipeline, run plan pipeline, validate phases, ground actions, verify dependencies, Z3 plan."
 license: MIT
 compatibility: opencode
 ---
