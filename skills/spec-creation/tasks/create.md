@@ -68,11 +68,23 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     - **Objectives and goals** — What this spec achieves
     - **Constraints and scope** — What's in and out of scope
+    - **Root Cause Analysis** — Required section between Problem and Success Criteria. Documents the root cause of the problem, not just the symptoms. Feeds Correctness and Traceability dimensions of the holistic gate.
+    - **Alternatives Considered & Why Discarded** — Required field in the preamble. Each alternative must have a discard rationale. Feeds Implementability dimension of the holistic gate.
+    - **Safety Considerations** — Required when the spec involves destructive operations, data mutations, or security-sensitive changes. Documents rollback plans and safeguards. Feeds Safety dimension of the holistic gate.
+    - **Evidence/Provenance** — Every factual claim in the spec body must be backed by a tool-call artifact (srclight, grep, read, webfetch). Claims without evidence are flagged before finalization. Feeds Provenance dimension of the holistic gate.
+    - **SC-to-Root-Cause Traceability Table** — Maps each SC to the root cause element it tests. Feeds Traceability dimension of the holistic gate.
+    - **Feasibility Assessment** — Before including a file/function/library reference in the spec, verify it exists. References to non-existent artifacts are flagged before finalization. Feeds Feasibility dimension of the holistic gate.
     - **Success criteria** — Testable, binary pass/fail conditions
     - **Risk and edge cases** — What could go wrong and boundary conditions
     - **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 5.5)
 
     All sections are mandatory. The spec should be self-contained and clear, regardless of structure.
+
+    **Guidance: Escape Hatch Prohibition** — The spec body must not contain language that lets the agent short-circuit requirements. Prohibited patterns: "use best judgment", "if time permits", "simplify if needed", "TBD", "TODO", "left to implementor", "implementor's choice", "optionally", "preferably", "ideally", "should" (as weasel word), "as appropriate", "as needed" (without criteria).
+
+    **Guidance: Live-Source Verification** — Before any factual claim enters the spec body, verify it against a live source (srclight, grep, read, webfetch). No claim from memory or training data. Every assertion about code state, API behavior, or file existence must be backed by a tool-call artifact.
+
+    **Guidance: Preamble-Body Alignment** — The preamble's problem statement must match the body's SCs. If the preamble says "fix X" but the SCs test Y, the spec is incorrect. Verify alignment before finalization.
 
     **Optional content sections (include as needed):**
 
