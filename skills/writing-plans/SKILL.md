@@ -1,6 +1,10 @@
 ---
 name: writing-plans
+<<<<<<< Updated upstream
 description: "Implementation plan creator that breaks approved specs into phases, tasks, and work breakdowns. Dispatch when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also dispatch when retroactively creating a plan for an existing spec, or backfilling plan documentation. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline). User phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown, create a plan, write a plan, draft a plan, make a plan, make plan, create an implementation plan, write an implementation plan, implementation steps, task list, break down the work, create the tasks, define the phases."
+=======
+description: "Use when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also use when retroactively creating a plan for an existing spec, or backfilling plan documentation. Also use when running holistic self-checks on plans before completion, or verifying plan quality against the 11-dimension holistic gate. Invoke for: plan creation, implementation planning, task breakdown, phase definition, work decomposition, retroactive planning, plan backfill, holistic check, self-check, pre-completion check, plan quality verification. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline). Trigger phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown, create a plan, write a plan, draft a plan, make a plan, make plan, create an implementation plan, write an implementation plan, implementation steps, task list, break down the work, create the tasks, define the phases."
+>>>>>>> Stashed changes
 license: MIT
 compatibility: opencode
 ---
@@ -42,6 +46,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
 | "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
 | "pre-plan-readiness" / "readiness check" / "verify prerequisites" | `pre-plan-readiness` | `sub-task` | {spec_issue_number} |
+<<<<<<< Updated upstream
 | "analytical artifacts ready for plan" | `create` | `sub-task` | {spec_issue_number, spec_body, analytical_artifact_dir} |
 | "blast-radius artifact missing for plan" | HALT | — | — |
 | "concern-map artifact missing for plan" | HALT | — | — |
@@ -49,6 +54,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "interface-compatibility artifact missing for plan" | HALT | — | — |
 | "state-analysis artifact missing for plan" | HALT | — | — |
 | "testability-assessment artifact missing for plan" | HALT | — | — |
+=======
+| "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {plan_context} |
+>>>>>>> Stashed changes
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -59,7 +67,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 ## Tasks
 
-| `create` | `completion` | `retroactive` | `pre-plan-readiness` |
+| `create` | `completion` | `retroactive` | `pre-plan-readiness` | `holistic-self-check` |
 
 ## Plan Model
 
@@ -87,6 +95,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 | `retroactive` | Sub-agent via `task(..., prompt: "execute retroactive task from writing-plans")` |
 | `update` | Sub-agent via `task(..., prompt: "execute update task from writing-plans")` |
 | `completion` | Sub-agent via `task(..., prompt: "execute completion task from writing-plans")` |
+| `holistic-self-check` | Sub-agent via `task(..., prompt: "execute holistic-self-check task from writing-plans")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 

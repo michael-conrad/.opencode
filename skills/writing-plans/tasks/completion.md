@@ -12,6 +12,16 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 - [ ] 3. **Self-review completed:** Verify self-review checklist was run (coverage, placeholders, type consistency)
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with plan URL
 
+## Pre-Completion Holistic Self-Check
+
+**MANDATORY GATE — MUST NOT be skipped.** Before finalizing the plan, dispatch a clean-room sub-agent to evaluate the plan against the 11 plan dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
+
+- [ ] 0. (**sub-agent**) Holistic self-check — `task(..., prompt: "execute holistic-self-check task from writing-plans")`
+  - Context passed: `{ plan_context }`
+  - Expected: PASS for all 11 plan dimensions
+  - On FAIL: refuse to finalize — return the plan to the create task for revision with the failed dimensions listed
+  - On PASS: proceed to Skill-Specific Completion
+
 ## Skill-Specific Completion
 
 - [ ] 1. **Plan files** (if not already created):
