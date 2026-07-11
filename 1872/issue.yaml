@@ -1,0 +1,9 @@
+title: '[SPEC] session-init: rename Local Issue Artifacts to Local Issue Folders,
+  emit git -C commands, reorder sections'
+status: open
+labels:
+- spec
+- needs-approval
+body: ''
+created_at: '2026-07-11T15:38:07+00:00'
+updated_at: '2026-07-11T15:38:07+00:00'
