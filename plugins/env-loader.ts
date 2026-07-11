@@ -337,5 +337,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
 }
 
 
-export { parseEnvFile, isEnvGitignored, writeDiagnostic, DIAGNOSTICS_PATH };
-export type { PluginDiagnostic };
+// Utility functions are intentionally not re-exported — the plugin system
+// iterates over all named exports and tries to call each as a plugin function.
+// Only the plugin function itself is exported.
+// PluginDiagnostic type is intentionally not re-exported — see above.
