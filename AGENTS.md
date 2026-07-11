@@ -221,7 +221,6 @@ One plugin runs at session start, and one script provides complementary data:
 Session context output includes:
 
 - **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block
-- **CLI Auth Status section** (when at least one CLI is installed): `gh` and/or `gb` auth status lines showing logged-in account or `not_logged_in` state. Emitted after `## Repo Information` and before `project_root`. Only emitted when at least one CLI (`gh` or `gb`) is installed — section is absent if neither CLI is found.
 - **Identity-echo directive** (always, in first user message): mandatory identity echo at session start
 - **Trigger alerts** (when detected, in first user message): trigger warnings for special states
 - **Tier 3 probes** (opt-in via `.opencode-issue-probe`): `open_pr_on_branch`, `ci_failure`, `stale_pr`
