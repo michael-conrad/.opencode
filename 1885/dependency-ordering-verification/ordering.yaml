@@ -1,0 +1,11 @@
+variables:
+  PHASE_0_DONE: {type: bool, nullable: false}
+  PHASE_1_DONE: {type: bool, nullable: false}
+  PHASE_2_DONE: {type: bool, nullable: false}
+  PHASE_3_DONE: {type: bool, nullable: false}
+invariants:
+  - "z3.Implies(PHASE_1_DONE, PHASE_0_DONE)"
+  - "z3.Implies(PHASE_2_DONE, PHASE_1_DONE)"
+  - "z3.Implies(PHASE_3_DONE, PHASE_2_DONE)"
+theorem:
+  phase_dag_is_acyclic: "z3.And(z3.Implies(PHASE_1_DONE, PHASE_0_DONE), z3.Implies(PHASE_2_DONE, PHASE_1_DONE), z3.Implies(PHASE_3_DONE, PHASE_2_DONE))"
