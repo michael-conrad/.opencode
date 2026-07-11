@@ -1,52 +1,107 @@
 # testability-assessment.yaml — Spec #1855: Testability analysis
+# Revision 2.0 — 2026-07-11: Full re-assessment with live tooling verification
+
+environment:
+  opencode_cli: "1.14.33"
+  with_test_home: available
+  gpu: "NVIDIA GeForce RTX 3090 (24 GB VRAM)"
+  cpu: "Intel i9-10850K (20 cores)"
+  ram: "62.7 GB"
+  models_available: 20+ (opencode/*, github-copilot/*)
+  validate_script: ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+  init_script: ".opencode/skills/skill-creator/scripts/init_skill.py"
+  reference_docs:
+    - ".opencode/skills/skill-creator/reference/skill-card-spec.md"
+    - ".opencode/skills/skill-creator/reference/routing-only-template.md"
 
 success_criteria:
   - id: SC-1
     description: New description pattern is defined and documented in skill-creator reference docs
     evidence_type: string
     test_method: grep for pattern definition in skill-card-spec.md and routing-only-template.md
+    required_tooling: grep, file read
+    availability: available
+    availability_evidence: grep is always available; reference docs exist on disk
     testability: HIGH
     automation: >
       grep -q "Dispatch when" .opencode/skills/skill-creator/reference/routing-only-template.md
       && grep -q "User phrases:" .opencode/skills/skill-creator/reference/routing-only-template.md
-    risk: none
+      && grep -q "Dispatch when" .opencode/skills/skill-creator/reference/skill-card-spec.md
+    risk: none — deterministic string check
+    existing_tests_affected: none
 
   - id: SC-2
     description: validate_skill_cards.py rejects descriptions starting with "Use when"
     evidence_type: behavioral
     test_method: opencode-cli run with old-pattern SKILL.md → FAIL
+    required_tooling: opencode-cli, with-test-home, validate_skill_cards.py
+    availability: available
+    availability_evidence: >
+      opencode-cli 1.14.33 installed; with-test-home exists;
+      validate_skill_cards.py already has "Use when" rejection at line 143
     testability: HIGH
     automation: >
       Create a test SKILL.md with old-pattern description, run
       uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py,
       verify exit code 1 and error message about "Use when"
-    risk: none — validator is deterministic Python, no model needed
+    risk: none — validator is deterministic Python; no model inference needed
+    note: >
+      Despite evidence_type=behavioral in the spec, this SC is actually
+      verifiable via deterministic script execution. The validator script
+      is pure Python with no model dependency. The existing behavioral test
+      (1855-sc2-validator-rejects-old-pattern.sh) is an artifact-only
+      generator that dispatches the agent to run the script — the actual
+      verification is structural (exit code check).
+    existing_tests_affected:
+      - "1855-sc2-validator-rejects-old-pattern.sh (behavioral) — CSO check changes from hard-fail to warning"
 
   - id: SC-3
     description: validate_skill_cards.py accepts descriptions matching the new pattern
     evidence_type: behavioral
     test_method: opencode-cli run with new-pattern SKILL.md → PASS
+    required_tooling: opencode-cli, with-test-home, validate_skill_cards.py
+    availability: available
+    availability_evidence: >
+      opencode-cli 1.14.33 installed; with-test-home exists;
+      validate_skill_cards.py already has "Dispatch when" requirement at line 187
+      and "User phrases:" requirement at line 198
     testability: HIGH
     automation: >
       Create a test SKILL.md with new-pattern description, run
       uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py,
       verify exit code 0
-    risk: none — validator is deterministic Python, no model needed
+    risk: none — validator is deterministic Python; no model inference needed
+    note: >
+      Same as SC-2 — despite evidence_type=behavioral, this is verifiable
+      via deterministic script execution. The validator already enforces
+      the new pattern rules.
+    existing_tests_affected:
+      - "1855-sc3-validator-accepts-new-pattern.sh (behavioral) — CSO check changes"
 
   - id: SC-4
     description: init_skill.py generates descriptions using the new pattern
     evidence_type: string
     test_method: grep init_skill.py output for "Dispatch when"
+    required_tooling: grep, Python (uv run)
+    availability: available
+    availability_evidence: init_skill.py exists; uv is available
     testability: HIGH
     automation: >
       Run init_skill.py with a test skill name, grep the generated SKILL.md
       for "Dispatch when" in the description field
     risk: none — deterministic Python script
+    existing_tests_affected: none
 
   - id: SC-5
-    description: All 43 SKILL.md descriptions follow the new pattern
+    description: All 43 SKILL.md descriptions follow the new pattern (excludes reference/ directories)
     evidence_type: string
-    test_method: grep all SKILL.md files — zero "Use when" at start, zero "Invoke for:", zero "Trigger phrases:", zero "Also use when"
+    test_method: >
+      grep all SKILL.md files — zero "Use when" at start, zero "Invoke for:",
+      zero "Trigger phrases:", zero "Also use when"
+    required_tooling: grep, YAML extraction
+    availability: available
+    availability_evidence: grep always available; validate_skill_cards.py already
+      checks all these patterns (lines 143, 154, 165, 176, 187, 198)
     testability: HIGH
     automation: >
       For each SKILL.md, extract description from YAML frontmatter, verify:
@@ -61,21 +116,35 @@ success_criteria:
       The structural check is: description does NOT start with "Use when".
       Combined with the other negative checks, this provides sufficient
       confidence.
+    existing_tests_affected:
+      - "578-sc21-skill-card-frontmatter.sh (content-verification) — checks for 'Use when' prefix"
+      - "test-enforcement.sh skill-yaml-frontmatter-parse scenario"
 
   - id: SC-6
     description: All 43 SKILL.md descriptions contain "User phrases:" with preserved trigger phrases
     evidence_type: string
     test_method: grep all SKILL.md files for "User phrases:"
+    required_tooling: grep, YAML extraction
+    availability: available
+    availability_evidence: grep always available; validate_skill_cards.py already
+      checks for "User phrases:" at line 198
     testability: HIGH
     automation: >
       For each SKILL.md, extract description from YAML frontmatter, verify
       contains "User phrases:"
     risk: none
+    existing_tests_affected: none
 
   - id: SC-7
     description: Agent dispatches git-workflow when it decides to create a PR (intent-based)
     evidence_type: behavioral
     test_method: opencode-cli run → stderr shows skill("git-workflow")
+    required_tooling: opencode-cli, with-test-home, real AI model
+    availability: available
+    availability_evidence: >
+      opencode-cli 1.14.33 installed; with-test-home exists;
+      RTX 3090 24GB VRAM; 20+ models available including
+      github-copilot/claude-sonnet-5, opencode/deepseek-v4-flash-free
     testability: MEDIUM
     automation: >
       Send a prompt like "I need to create a pull request for the changes
@@ -88,24 +157,33 @@ success_criteria:
       scope-limited behavioral testing per model speed assessment.
     mitigation: >
       Use scope-limited behavioral testing (single scenario, not full suite).
-      Assess hardware with ollama-probe hw before running. Use timeout ≥ 600s.
-      Retry on transient errors (BEHAVIOR_MAX_RETRIES=2).
+      Hardware is excellent (RTX 3090 24GB) — full suite feasible.
+      Use timeout ≥ 600s. Retry on transient errors (BEHAVIOR_MAX_RETRIES=2).
+      Clean-room semantic evaluation for PASS/FAIL verdicts.
+    existing_tests_affected: none (new behavioral test)
 
   - id: SC-8
     description: Agent dispatches spec-creation when it decides to write a spec (intent-based)
     evidence_type: behavioral
     test_method: opencode-cli run → stderr shows skill("spec-creation")
+    required_tooling: opencode-cli, with-test-home, real AI model
+    availability: available
+    availability_evidence: same as SC-7
     testability: MEDIUM
     automation: >
       Send a prompt like "I need to write a specification for a new feature" —
       verify stderr contains skill("spec-creation") or 'Skill "spec-creation"'
     risk: same as SC-7
     mitigation: same as SC-7
+    existing_tests_affected: none (new behavioral test)
 
   - id: SC-9
     description: Agent dispatches verification-before-completion when it decides to verify (intent-based)
     evidence_type: behavioral
     test_method: opencode-cli run → stderr shows skill("verification-before-completion")
+    required_tooling: opencode-cli, with-test-home, real AI model
+    availability: available
+    availability_evidence: same as SC-7
     testability: MEDIUM
     automation: >
       Send a prompt like "I've finished implementing the changes, I need to
@@ -113,31 +191,55 @@ success_criteria:
       skill("verification-before-completion") or 'Skill "verification-before-completion"'
     risk: same as SC-7
     mitigation: same as SC-7
+    existing_tests_affected: none (new behavioral test)
 
   - id: SC-10
     description: validate_skill_cards.py passes on all 43 rewritten files
     evidence_type: behavioral
     test_method: uv run validate_skill_cards.py → exit 0
+    required_tooling: Python (uv run), validate_skill_cards.py
+    availability: available
+    availability_evidence: >
+      validate_skill_cards.py exists and already enforces all new-pattern rules
+      (lines 143-355); uv is available
     testability: HIGH
     automation: >
       uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
       — verify exit code 0
     risk: none — deterministic Python script
+    note: >
+      Despite evidence_type=behavioral, this is verifiable via deterministic
+      script execution. The validator is pure Python with no model dependency.
+    existing_tests_affected:
+      - "skildeck-frontmatter-validation.sh (behavioral) — checks agent runs skildeck lint"
 
   - id: SC-11
-    description: All rewritten descriptions are ≤ 1024 characters
+    description: All rewritten descriptions are ≤ 1024 characters (opencode limit)
     evidence_type: structural
     test_method: Extract description field from YAML frontmatter, then wc -c
+    required_tooling: grep, wc, YAML extraction
+    availability: available
+    availability_evidence: >
+      grep and wc always available; validate_skill_cards.py already enforces
+      1024-char limit at line 351 (len(desc) > 1024)
     testability: HIGH
     automation: >
       For each SKILL.md, extract description value from YAML frontmatter,
-      run wc -c on the extracted value, verify ≤ 1024
+      run wc -c on the extracted value, verify ≤ 1024.
+      Alternatively: uv run validate_skill_cards.py already checks this.
     risk: none
+    existing_tests_affected:
+      - "sclint004-limit.sh (content-verification) — already GREEN, 1024 limit exists"
 
   - id: SC-12
     description: No existing behavioral tests break due to description changes
     evidence_type: behavioral
     test_method: Full behavioral test suite passes
+    required_tooling: opencode-cli, with-test-home, real AI model, all existing test scripts
+    availability: available
+    availability_evidence: >
+      opencode-cli 1.14.33 installed; with-test-home exists;
+      RTX 3090 24GB VRAM; 20+ models available
     testability: MEDIUM
     automation: >
       Run the full behavioral test suite (scope-limited per model speed).
@@ -147,20 +249,63 @@ success_criteria:
       tests may reference description content indirectly (e.g., tests that
       check for specific skill dispatch patterns). The description change
       could affect agent dispatch behavior in unexpected ways.
+      Specific tests at risk:
+      - 578-sc21-behavioral-skill-frontmatter-validation.sh — checks agent
+        discovers skills in <available_skills>; description format change
+        may affect how the agent parses skill listings
+      - skildeck-frontmatter-validation.sh — checks agent runs skildeck lint;
+        description format change may affect agent's understanding of what
+        constitutes a valid description
     mitigation: >
       Default to --changed or --tag scope-limited runs. Only run full suite
-      if model speed permits (ollama-probe hw → VRAM ≥ 8 GB, local model ≥ 7B).
+      if model speed permits (hardware is excellent — RTX 3090 24GB).
       Run full suite as a pre-merge gate, not per-iteration.
+      Use BEHAVIOR_TIMEOUT=600s and BEHAVIOR_MAX_RETRIES=2.
+    existing_tests_affected:
+      - "578-sc21-behavioral-skill-frontmatter-validation.sh (behavioral) — checks agent discovers skills"
+      - "skildeck-frontmatter-validation.sh (behavioral) — checks agent runs skildeck lint"
+      - "1855-sc2-validator-rejects-old-pattern.sh (behavioral) — CSO check changes"
+      - "1855-sc3-validator-accepts-new-pattern.sh (behavioral) — CSO check changes"
 
 overall_testability:
   high_count: 8 (SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-10, SC-11)
   medium_count: 4 (SC-7, SC-8, SC-9, SC-12)
   low_count: 0
+  verdict: all_scs_testable
   primary_risk: >
     Behavioral tests (SC-7, SC-8, SC-9) require real AI model inference and
-    may be slow or flaky. These are the highest-risk tests in the spec.
+    may be slow or flaky. SC-12 (regression suite) compounds this risk.
+    However, hardware is excellent (RTX 3090 24GB VRAM) — full suite is
+    feasible with appropriate timeouts.
   primary_mitigation: >
-    Scope-limited behavioral testing per model speed assessment. Use
-    ollama-probe hw before deciding full-suite feasibility. Use
-    BEHAVIOR_TIMEOUT=420s (or higher) and BEHAVIOR_MAX_RETRIES=2.
+    Scope-limited behavioral testing per model speed assessment. Hardware
+    assessment confirms full-suite feasibility (24GB VRAM, 20+ models).
+    Use BEHAVIOR_TIMEOUT=600s and BEHAVIOR_MAX_RETRIES=2.
     Clean-room semantic evaluation for PASS/FAIL verdicts.
+
+existing_tests_impact_summary:
+  tests_that_need_update:
+    - test: "1855-sc2-validator-rejects-old-pattern.sh"
+      type: behavioral
+      reason: "CSO check changes from hard-fail to warning — test prompt may need update"
+    - test: "1855-sc3-validator-accepts-new-pattern.sh"
+      type: behavioral
+      reason: "CSO check changes — test prompt may need update"
+    - test: "578-sc21-skill-card-frontmatter.sh"
+      type: content-verification
+      reason: "Checks for 'Use when' prefix — will need to check for new pattern instead"
+    - test: "578-sc21-behavioral-skill-frontmatter-validation.sh"
+      type: behavioral
+      reason: "Checks agent discovers skills — description format change may affect parsing"
+    - test: "skildeck-frontmatter-validation.sh"
+      type: behavioral
+      reason: "Checks agent runs skildeck lint — description format change may affect agent understanding"
+    - test: "test-enforcement.sh"
+      type: content-verification
+      reason: "10+ scenarios check session-enforcement.ts structure; description changes may affect trigger phrase scenarios"
+  tests_already_green:
+    - test: "sclint004-limit.sh"
+      type: content-verification
+      reason: "1024 limit already exists in validate_skill_cards.py — no change needed"
+
+flagged_scs: []
