@@ -1,0 +1,224 @@
+# Concern Analysis — Issue #1885
+# [SPEC-FIX] Close artifact gate bypass escape hatch in writing-plans skill
+# Generated: 2026-07-11
+# Pipeline: spec-creation → concern-analysis
+
+schema_version: "1.0"
+spec_issue: 1885
+spec_repo: michael-conrad/.opencode
+
+# =============================================================================
+# Step 1: Concern Inventory
+# =============================================================================
+concern_inventory:
+  - concern_id: C1
+    name: "Entry-point gate placement"
+    description: >
+      The artifact validation gate must fire at the entry point (Trigger Dispatch
+      Table + pre-plan-readiness), not inside the pipeline (Step 4a). This is the
+      architectural concern that drives all file changes.
+    classification: composite
+    decomposed_into: [C1a, C1b, C1c, C1d, C1e, C1f]
+
+  - concern_id: C1a
+    name: "Trigger Dispatch Table artifact pre-check"
+    description: >
+      The "create plan" entry in the writing-plans Trigger Dispatch Table must
+      include artifact validation before dispatch. Currently dispatches directly
+      to `create` without any artifact pre-check.
+    classification: singular
+    affected_files:
+      - .opencode/skills/writing-plans/SKILL.md
+    verifying_sc: SC-1
+
+  - concern_id: C1b
+    name: "Pre-plan-readiness artifact check"
+    description: >
+      The `pre-plan-readiness` task must verify all 7 analytical artifacts exist
+      in `.issues/{N}/` before allowing plan creation. Currently checks only spec
+      file, feature branch, and local-issues sync.
+    classification: singular
+    affected_files:
+      - .opencode/skills/writing-plans/tasks/pre-plan-readiness.md
+    verifying_sc: SC-2
+
+  - concern_id: C1c
+    name: "Entry Criteria artifact requirement"
+    description: >
+      The writing-plans SKILL.md Entry Criteria must list analytical artifact
+      presence as a prerequisite. Currently lists only spec approval and
+      authorization scope.
+    classification: singular
+    affected_files:
+      - .opencode/skills/writing-plans/SKILL.md
+    verifying_sc: SC-3
+
+  - concern_id: C1d
+    name: "Mandatory Task Discipline hard gate"
+    description: >
+      Item 8 must be elevated from advisory ("required before plan creation") to
+      hard gate ("BLOCKED with MISSING_SPEC_ARTIFACT"). Advisory language is not
+      enforcement.
+    classification: singular
+    affected_files:
+      - .opencode/skills/writing-plans/SKILL.md
+    verifying_sc: SC-4
+
+  - concern_id: C1e
+    name: "Handoff manifest artifact validation"
+    description: >
+      The `spec-to-plan` handoff manifest must validate analytical artifact
+      presence. Currently validates SC summary YAML, risk traceability, decision
+      ledger, and decomposition consistency — but not analytical artifacts.
+    classification: singular
+    affected_files:
+      - .opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md
+    verifying_sc: SC-5
+
+  - concern_id: C1f
+    name: "Critical-rules codification"
+    description: >
+      A critical-rules entry must prohibit bypassing the artifact gate. Without
+      this, the prohibition exists only in skill files — which are not loaded by
+      default. Tier 2 (Process-Integrity) classification.
+    classification: singular
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+    verifying_sc: SC-6
+
+  - concern_id: C2
+    name: "Behavioral enforcement test"
+    description: >
+      A behavioral test must verify the agent does NOT proceed with plan creation
+      when analytical artifacts are missing. The test sends a prompt to create a
+      plan for a spec without artifacts and asserts the agent returns BLOCKED.
+    classification: singular
+    affected_files:
+      - .opencode/tests/behaviors/ (new file)
+    verifying_sc: SC-7
+
+  - concern_id: C3
+    name: "Behavioral TDD discipline"
+    description: >
+      The behavioral test must be written and confirmed RED (fails before change)
+      before implementation begins. This enforces the behavioral TDD cycle per
+      `091-incremental-build.md` and `080-code-standards.md`.
+    classification: singular
+    affected_files:
+      - .opencode/tests/behaviors/ (new file)
+    verifying_sc: SC-8
+
+# =============================================================================
+# Step 2: Concern-to-Unit Mapping
+# =============================================================================
+# Units are the spec's declared phases:
+#   Unit 1 = Phase 1: File changes (SC-1 through SC-6)
+#   Unit 2 = Phase 2: Behavioral enforcement test (SC-7, SC-8)
+
+concern_to_unit:
+  - concern_id: C1a
+    unit: "Phase 1"
+    description: "Trigger Dispatch Table artifact pre-check"
+  - concern_id: C1b
+    unit: "Phase 1"
+    description: "Pre-plan-readiness artifact check"
+  - concern_id: C1c
+    unit: "Phase 1"
+    description: "Entry Criteria artifact requirement"
+  - concern_id: C1d
+    unit: "Phase 1"
+    description: "Mandatory Task Discipline hard gate"
+  - concern_id: C1e
+    unit: "Phase 1"
+    description: "Handoff manifest artifact validation"
+  - concern_id: C1f
+    unit: "Phase 1"
+    description: "Critical-rules codification"
+  - concern_id: C2
+    unit: "Phase 2"
+    description: "Behavioral enforcement test"
+  - concern_id: C3
+    unit: "Phase 2"
+    description: "Behavioral TDD discipline"
+
+# =============================================================================
+# Step 3: Overlap Detection
+# =============================================================================
+# Overlap = two or more units address the same concern.
+# Each singular concern maps to exactly one unit. No overlap detected.
+
+overlap_report:
+  status: CLEAN
+  findings: []
+  summary: >
+    All 8 singular concerns map to exactly one unit each. No concern is addressed
+    by multiple units. The composite concern C1 (entry-point gate placement) was
+    decomposed into 6 singular concerns (C1a-C1f), each mapping to Unit 1.
+
+# =============================================================================
+# Step 4: Leakage Detection
+# =============================================================================
+# Leakage = a single unit addresses multiple concerns.
+
+leakage_report:
+  - unit: "Phase 1"
+    concerns_addressed: [C1a, C1b, C1c, C1d, C1e, C1f]
+    concern_count: 6
+    severity: MODERATE
+    rationale: >
+      Phase 1 bundles all 6 file-change concerns together because they share:
+      (a) the same evidence type (string/grep), (b) the same verification gate
+      (pre-commit), (c) the same pipeline step binding (green-vbc), and (d) the
+      same affected file (SKILL.md for C1a, C1c, C1d). Bundling avoids redundant
+      commits and verification passes for changes to the same file.
+    recommended_decomposition: >
+      Could decompose into 3 sub-units by affected file:
+        Sub-unit 1a: SKILL.md changes (C1a, C1c, C1d) — 3 concerns, 1 file
+        Sub-unit 1b: pre-plan-readiness.md change (C1b) — 1 concern, 1 file
+        Sub-unit 1c: spec-to-plan.md + critical-rules (C1e, C1f) — 2 concerns, 2 files
+      However, the current bundling is acceptable because all 6 concerns are
+      string-evidence SCs verified at the same gate. Decomposition would add
+      overhead without improving verification quality.
+    verdict: ACCEPTED_WITH_RATIONALE
+
+  - unit: "Phase 2"
+    concerns_addressed: [C2, C3]
+    concern_count: 2
+    severity: LOW
+    rationale: >
+      Phase 2 bundles the behavioral test creation (C2) and the TDD discipline
+      (C3) because they are inseparable — the behavioral test IS the TDD
+      discipline. C3 (RED-first) is a procedural constraint on C2 (test creation),
+      not an independent concern. They share the same evidence type (behavioral),
+      the same pipeline step binding (red-green), and the same test file.
+    recommended_decomposition: >
+      No decomposition recommended. C2 and C3 are procedurally coupled — the
+      behavioral test cannot exist without the TDD discipline, and the TDD
+      discipline has no deliverable without the behavioral test. They are two
+      SCs for one deliverable, not two independent concerns.
+    verdict: ACCEPTED_WITH_RATIONALE
+
+# =============================================================================
+# Step 5: Clean Units
+# =============================================================================
+clean_units:
+  - unit: "Phase 1"
+    status: LEAKAGE_ACCEPTED
+    concerns: 6
+    rationale: "Bundled by shared evidence type and verification gate"
+  - unit: "Phase 2"
+    status: LEAKAGE_ACCEPTED
+    concerns: 2
+    rationale: "Procedurally coupled — behavioral test and TDD discipline are inseparable"
+
+# =============================================================================
+# Content Coverage Verification
+# =============================================================================
+content_coverage:
+  all_concerns_extracted: true
+  concern_classification_complete: true
+  concern_to_unit_mapping_complete: true
+  overlap_detection_complete: true
+  leakage_detection_complete: true
+  rationale_for_each_overlap: "N/A — no overlap detected"
+  recommended_decomposition_for_each_leakage: true

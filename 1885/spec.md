@@ -5,6 +5,21 @@
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
+## Intent and Executive Summary
+
+Close the artifact gate bypass escape hatch in the writing-plans skill. When a spec is created directly as a GitHub Issue (bypassing the spec-creation pipeline), the artifact gate fires inside the 21-step pipeline (Step 4a) rather than at the entry point. The `pre-plan-readiness` task checks only spec file existence, feature branch, and local-issues sync — it does NOT check for analytical artifacts. This creates an escape hatch where an agent can rationalize fabricating artifacts instead of routing through the proper pipeline.
+
+The fix adds artifact pre-checks at four entry-point gates: Trigger Dispatch Table, pre-plan-readiness task, SKILL.md Entry Criteria, and spec-to-plan handoff manifest. It elevates the artifact requirement from advisory to hard gate (BLOCKED on missing artifacts), adds a critical-rules prohibition, and adds a behavioral enforcement test. The spec follows a 4-phase structure: Phase 0 (coherence/pre-flight), Phase 1 (file changes), Phase 2 (behavioral test), Phase 3 (audit/cross-validate/review).
+
+### Alternatives Considered & Why Discarded
+
+| Alternative | Why Discarded |
+|-------------|---------------|
+| **Remove the bypass by requiring all specs to go through spec-creation pipeline** | Breaking change — existing direct-issue specs would require migration. The spec-creation pipeline is not always available (e.g., external issue filing). |
+| **Add artifact creation as a step inside the 21-step pipeline** | Treats symptom, not cause. The escape hatch exists because the gate fires too late; moving it inside the pipeline makes it later, not earlier. |
+| **Make artifact requirement advisory with a warning** | Advisory language is not enforcement. Spec #1703 proved that advisory gates produce bypass behavior. |
+| **Single artifact gate at the dispatch table only** | Defense-in-depth principle: multiple entry-point gates reduce the risk of a single gate being bypassed. |
+
 ## Problem Statement
 
 The writing-plans skill has an artifact gate that requires all 7 analytical artifacts from spec-creation to be present before plan creation. However, this gate fires at Step 4a of the 21-step create pipeline (inside the `readiness` task), not at the entry point. The `pre-plan-readiness` task — which is the entry-point gate — checks only:
