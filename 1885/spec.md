@@ -40,22 +40,6 @@ The root cause is a gate placement defect: the artifact validation gate is posit
 - The spec-creation pipeline produces these artifacts as mandatory outputs; bypassing them means the plan is built on incomplete analysis
 - The escape hatch is exploitable: an agent can create a spec directly as a GitHub Issue, then invoke writing-plans, and the artifact gate won't fire until Step 4a — at which point the agent has already invested context in the pipeline and is incentivized to fabricate artifacts rather than restart
 
-## Alternatives Considered & Why Discarded
-
-| Alternative | Discard Rationale |
-|-------------|-------------------|
-| Move the artifact check from Step 4a to Step 1 of the pipeline | Still inside the pipeline — the agent has already entered. The sunk-cost bias still applies. The entry point must block before pipeline entry. |
-| Add artifact check only to pre-plan-readiness, not Trigger Dispatch Table | The Trigger Dispatch Table is what the orchestrator reads to decide dispatch. If the check isn't there, the orchestrator dispatches without knowing artifacts are required. |
-| Make artifact check advisory (warning, not BLOCKED) | Advisory language is not enforcement. The agent treats "required" as "preferred." BLOCKED is a hard stop. |
-| Require only a subset of artifacts (e.g., 3 of 7) | Partial artifacts produce analytically shallow plans. The spec-creation pipeline produces all 7 as mandatory outputs; requiring all 7 ensures plan quality parity. |
-
-## Safety Considerations
-
-- **No destructive operations** — all changes are additive (new checks, new language)
-- **No data mutations** — no files are deleted or restructured
-- **Rollback plan** — revert the 5 file changes and remove the behavioral test; existing functionality is preserved
-- **Data loss risk** — none
-
 ## Scope
 
 **In scope:**
@@ -75,7 +59,7 @@ The root cause is a gate placement defect: the artifact validation gate is posit
 
 ## Approach
 
-Five changes to three files, plus one new critical-rules entry and one behavioral enforcement test:
+Seven changes to five files, plus one new critical-rules entry and one behavioral enforcement test:
 
 ### Change 1: Trigger Dispatch Table — Add artifact pre-check
 
@@ -121,17 +105,28 @@ Add a behavioral enforcement test in `.opencode/tests/behaviors/` that verifies 
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
-| SC-1 | Trigger Dispatch Table "create plan" entry includes artifact pre-check before dispatch | `string` | `grep` for artifact validation in the "create plan" row of the Trigger Dispatch Table in SKILL.md | Add artifact pre-check language to the Trigger Dispatch Table entry | `green-vbc` | `./tmp/1885/artifacts/sc1-grep.log` | MUST validate artifacts at entry point, not inside pipeline | `common` | `pre-commit` | `standalone` | `skill-card` | `structure` | `test_sc1_trigger_artifact_check.sh` | `Phase 1` |
-| SC-2 | `pre-plan-readiness` task checks for all 7 analytical artifacts | `string` | `grep` for each artifact name (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment) in `pre-plan-readiness.md` | Add artifact check procedure step to pre-plan-readiness task | `green-vbc` | `./tmp/1885/artifacts/sc2-grep.log` | MUST verify all 7 artifacts at entry point before pipeline entry | `common` | `pre-commit` | `standalone` | `task-files` | `structure` | `test_sc2_readiness_artifact_check.sh` | `Phase 1` |
-| SC-3 | SKILL.md Entry Criteria list analytical artifact presence as a prerequisite | `string` | `grep` for "analytical artifact" in the Entry Criteria section of SKILL.md | Add artifact requirement to Entry Criteria | `green-vbc` | `./tmp/1885/artifacts/sc3-grep.log` | MUST declare artifact requirement at skill entry, not buried in pipeline | `common` | `pre-commit` | `standalone` | `skill-card` | `structure` | `test_sc3_entry_criteria_artifacts.sh` | `Phase 1` |
-| SC-4 | Mandatory Task Discipline item 8 is elevated to hard gate with BLOCKED on missing artifacts | `string` | `grep` for "BLOCKED" and "MISSING_SPEC_ARTIFACT" in Mandatory Task Discipline item 8 of SKILL.md | Rewrite item 8 to use hard-gate language with BLOCKED status and MISSING_SPEC_ARTIFACT reason | `green-vbc` | `./tmp/1885/artifacts/sc4-grep.log` | MUST enforce artifact requirement as hard gate, not advisory | `common` | `pre-commit` | `standalone` | `skill-card` | `structure` | `test_sc4_hard_gate_item8.sh` | `Phase 1` |
-| SC-5 | `spec-to-plan` handoff manifest validates analytical artifact presence | `string` | `grep` for artifact names in `spec-to-plan.md` handoff manifest checks | Add artifact validation check to spec-to-plan handoff procedure | `green-vbc` | `./tmp/1885/artifacts/sc5-grep.log` | MUST validate artifacts in handoff manifest for cross-gate consistency | `common` | `pre-commit` | `standalone` | `handoffs` | `structure` | `test_sc5_handoff_artifact_check.sh` | `Phase 1` |
-| SC-6 | Critical-rules entry prohibits bypassing the artifact gate | `string` | `grep` for "artifact gate" or "analytical artifact" in `000-critical-rules.md` | Add critical-rules entry with Tier 2 classification | `green-vbc` | `./tmp/1885/artifacts/sc6-grep.log` | MUST codify prohibition in critical rules for enforcement traceability | `common` | `pre-commit` | `standalone` | `guidelines` | `structure` | `test_sc6_critical_rules_entry.sh` | `Phase 1` |
-| SC-7 | Behavioral enforcement test verifies agent does NOT bypass artifact gate | `behavioral` | `opencode-cli run` → agent attempts plan creation for spec without artifacts → stderr shows BLOCKED or HALT, no plan created | If agent proceeds past artifact gate: fix entry-point checks; re-run behavioral test | `red-green` | `./tmp/1885/artifacts/behavioral/sc7-session.yaml` | MUST verify agent behavior, not just rule text; behavioral evidence is PRIMARY per `080-code-standards.md` | `common` | `red-green` | `standalone` | `behavioral` | `structure` | `test_sc7_behavioral_artifact_gate.sh` | `Phase 2` |
-| SC-8 | Before any implementation, behavioral enforcement test exists and is confirmed RED (fails before change) | `behavioral` | `opencode-cli run` → behavioral test sends prompt → agent currently proceeds past artifact gate → test asserts BLOCKED → test FAILS (RED) because agent doesn't block yet | Write behavioral test first (RED), then implement change (GREEN) per `091-incremental-build.md` Per-Item TDD Cycle | `red-green` | `./tmp/1885/artifacts/behavioral/sc8-session.yaml` | MUST enforce behavioral TDD for rule-changing specs; behavioral test is PRIMARY enforcement gate per `080-code-standards.md` | `common` | `red-green` | `standalone` | `behavioral` | `structure` | `test_sc8_behavioral_tdd.sh` | `Phase 2` |
+| SC-1 | Trigger Dispatch Table "create plan" entry includes artifact pre-check before dispatch | `string` | `grep` for artifact validation in the "create plan" row of the Trigger Dispatch Table in SKILL.md | Add artifact pre-check language to the Trigger Dispatch Table entry | `green-vbc` | `./tmp/1885/artifacts/sc1-grep.log` | MUST validate artifacts at entry point, not inside pipeline | `Phase 1` | `pre-commit` | `standalone` | `skill-card` | `structure` | `test_sc1_trigger_artifact_check.sh` | `Phase 1` |
+| SC-2 | `pre-plan-readiness` task checks for all 7 analytical artifacts | `string` | `grep` for each artifact name (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment) in `pre-plan-readiness.md` | Add artifact check procedure step to pre-plan-readiness task | `green-vbc` | `./tmp/1885/artifacts/sc2-grep.log` | MUST verify all 7 artifacts at entry point before pipeline entry | `Phase 1` | `pre-commit` | `standalone` | `task-files` | `structure` | `test_sc2_readiness_artifact_check.sh` | `Phase 1` |
+| SC-3 | SKILL.md Entry Criteria list analytical artifact presence as a prerequisite | `string` | `grep` for "analytical artifact" in the Entry Criteria section of SKILL.md | Add artifact requirement to Entry Criteria | `green-vbc` | `./tmp/1885/artifacts/sc3-grep.log` | MUST declare artifact requirement at skill entry, not buried in pipeline | `Phase 1` | `pre-commit` | `standalone` | `skill-card` | `structure` | `test_sc3_entry_criteria_artifacts.sh` | `Phase 1` |
+| SC-4 | Mandatory Task Discipline item 8 is elevated to hard gate with BLOCKED on missing artifacts | `string` | `grep` for "BLOCKED" and "MISSING_SPEC_ARTIFACT" in Mandatory Task Discipline item 8 of SKILL.md | Rewrite item 8 to use hard-gate language with BLOCKED status and MISSING_SPEC_ARTIFACT reason | `green-vbc` | `./tmp/1885/artifacts/sc4-grep.log` | MUST enforce artifact requirement as hard gate, not advisory | `Phase 1` | `pre-commit` | `standalone` | `skill-card` | `structure` | `test_sc4_hard_gate_item8.sh` | `Phase 1` |
+| SC-5 | `spec-to-plan` handoff manifest validates analytical artifact presence | `string` | `grep` for artifact names in `spec-to-plan.md` handoff manifest checks | Add artifact validation check to spec-to-plan handoff procedure | `green-vbc` | `./tmp/1885/artifacts/sc5-grep.log` | MUST validate artifacts in handoff manifest for cross-gate consistency | `Phase 1` | `pre-commit` | `standalone` | `handoffs` | `structure` | `test_sc5_handoff_artifact_check.sh` | `Phase 1` |
+| SC-6 | Critical-rules entry prohibits bypassing the artifact gate | `string` | `grep` for "artifact gate" or "analytical artifact" in `000-critical-rules.md` | Add critical-rules entry with Tier 2 classification | `green-vbc` | `./tmp/1885/artifacts/sc6-grep.log` | MUST codify prohibition in critical rules for enforcement traceability | `Phase 1` | `pre-commit` | `standalone` | `guidelines` | `structure` | `test_sc6_critical_rules_entry.sh` | `Phase 1` |
+| SC-7 | Behavioral enforcement test verifies agent does NOT bypass artifact gate | `behavioral` | `opencode-cli run` → agent attempts plan creation for spec without artifacts → stderr shows BLOCKED or HALT, no plan created | If agent proceeds past artifact gate: fix entry-point checks; re-run behavioral test | `red-green` | `./tmp/1885/artifacts/behavioral/sc7-session.yaml` | MUST verify agent behavior, not just rule text; behavioral evidence is PRIMARY per `080-code-standards.md` | `Phase 2` | `red-green` | `standalone` | `behavioral` | `structure` | `test_sc7_behavioral_artifact_gate.sh` | `Phase 2` |
+| SC-8 | Before any implementation, behavioral enforcement test exists and is confirmed RED (fails before change) | `behavioral` | `opencode-cli run` → behavioral test sends prompt → agent currently proceeds past artifact gate → test asserts BLOCKED → test FAILS (RED) because agent doesn't block yet | Write behavioral test first (RED), then implement change (GREEN) per `091-incremental-build.md` Per-Item TDD Cycle | `red-green` | `./tmp/1885/artifacts/behavioral/sc8-session.yaml` | MUST enforce behavioral TDD for rule-changing specs; behavioral test is PRIMARY enforcement gate per `080-code-standards.md` | `Phase 2` | `red-green` | `standalone` | `behavioral` | `structure` | `test_sc8_behavioral_tdd.sh` | `Phase 2` |
+| SC-9 | Coherence gate verifies spec-to-codebase alignment before any file changes | `structural` | `ls` for coherence gate artifacts in `.issues/{N}/`; sub-agent reads spec and affected files to verify alignment | Re-run coherence gate if artifacts missing or alignment mismatch found | `green-vbc` | `./tmp/1885/artifacts/sc9-ls.log` | MUST verify spec-to-codebase alignment before implementation begins | `Phase 0` | `pre-commit` | `standalone` | `pipeline-gate` | `structure` | `test_sc9_coherence_gate.sh` | `Phase 0` |
+| SC-10 | Pre-flight checks confirm all prerequisites (branch, artifacts, authorization) before Phase 1 | `structural` | `ls` for prerequisite artifacts; `git branch --show-current` for feature branch; verify authorization scope | Re-run pre-flight if prerequisites missing | `green-vbc` | `./tmp/1885/artifacts/sc10-ls.log` | MUST confirm all prerequisites before per-file implementation begins | `Phase 0` | `pre-commit` | `standalone` | `pipeline-gate` | `structure` | `test_sc10_preflight.sh` | `Phase 0` |
+| SC-11 | Spec audit passes all checks after all per-file implementation | `semantic` | Sub-agent reads revised spec and produces PASS/FAIL per audit dimension | Re-run audit if FAIL; remediate findings | `green-vbc` | `./tmp/1885/artifacts/sc11-audit.log` | MUST verify spec quality after all implementation changes | `Phase 3` | `pre-PR` | `standalone` | `pipeline-gate` | `structure` | `test_sc11_audit.sh` | `Phase 3` |
+| SC-12 | Cross-validate confirms all SCs verified with correct evidence types | `semantic` | Sub-agent cross-validates VbC evidence against SC evidence type requirements | Re-run cross-validate if EVIDENCE_TYPE_MISMATCH found | `green-vbc` | `./tmp/1885/artifacts/sc12-crossvalidate.log` | MUST verify no EVIDENCE_TYPE_MISMATCH in any SC verification | `Phase 3` | `pre-PR` | `standalone` | `pipeline-gate` | `structure` | `test_sc12_crossvalidate.sh` | `Phase 3` |
+| SC-13 | Review confirms all deliverables match spec requirements | `semantic` | Sub-agent reviews all deliverables against spec SCs | Re-run review if deliverables incomplete | `green-vbc` | `./tmp/1885/artifacts/sc13-review.log` | MUST verify deliverable completeness before PR creation | `Phase 3` | `pre-PR` | `standalone` | `pipeline-gate` | `structure` | `test_sc13_review.sh` | `Phase 3` |
 
 ### Cross-Cutting SCs: SC-1, SC-2, SC-3, SC-4, SC-5, SC-6
 — Verified once in Phase 1, applies to all subsequent phases.
+
+### Pre-Phase SCs: SC-9, SC-10
+— Verified in Phase 0 before any per-file implementation begins.
+
+### Post-Phase SCs: SC-11, SC-12, SC-13
+— Verified in Phase 3 after all per-file implementation completes.
 
 ### Semantic Intent
 
@@ -145,6 +140,11 @@ Add a behavioral enforcement test in `.opencode/tests/behaviors/` that verifies 
 | SC-6 | Critical rules are the enforcement layer. Without a critical-rules entry, the prohibition exists only in skill files — and skill files are not loaded by default. A critical-rules entry ensures the prohibition is visible at the guideline level. |
 | SC-7 | Behavioral evidence is PRIMARY per `080-code-standards.md`. String evidence (grep) confirms the rule text exists; behavioral evidence confirms the agent follows it. Bug #1217 proved that content-verification alone is insufficient. |
 | SC-8 | Behavioral TDD for rule changes is the PRIMARY enforcement gate. A guideline change without a behavioral test is a suggestion, not a rule. The test must be RED first (proving the gap exists), then GREEN (proving the change closed it). |
+| SC-9 | The coherence gate is the first pipeline stage. Without it, the implementation proceeds without verifying that the spec aligns with the actual codebase — producing work that may not fit the code. |
+| SC-10 | Pre-flight checks are the last gate before implementation begins. Without them, the pipeline may start with missing prerequisites — producing work that fails mid-implementation. |
+| SC-11 | Spec audit is the quality gate after implementation. Without it, defects in the spec itself go undetected — and the PR ships with spec-level errors. |
+| SC-12 | Cross-validate is the evidence-type integrity gate. Without it, EVIDENCE_TYPE_MISMATCH defects (structural evidence for behavioral SCs) go undetected — producing false PASS verdicts. |
+| SC-13 | Review is the final deliverable completeness gate. Without it, incomplete deliverables may be shipped — producing a PR that doesn't satisfy all SCs. |
 
 ## Determinism Gate
 
@@ -155,6 +155,8 @@ For each SC, the question "If two different auditors read this SC, will they ind
 | SC-1 through SC-6 | ✅ Yes | `grep` patterns produce identical results on identical file content |
 | SC-7 | ✅ Yes | Behavioral test with `assert_semantic` — clean-room AI inspector evaluates full agent output; different inspector models may produce different judgments but the assertion helper normalizes PASS/FAIL |
 | SC-8 | ✅ Yes | Behavioral test with stderr-based assertion helpers — grep on stderr for BLOCKED/HALT patterns is deterministic |
+| SC-9, SC-10 | ✅ Yes | Structural checks (`ls`, `git branch --show-current`) produce identical results on identical filesystem state |
+| SC-11, SC-12, SC-13 | ✅ Yes | Semantic sub-agent evaluation with structured PASS/FAIL criteria — different sub-agent models may produce different judgments but the structured criteria normalize the outcome |
 
 ## Risk Traceability
 
@@ -178,11 +180,13 @@ For each SC, the question "If two different auditors read this SC, will they ind
 
 | Classification | Number of Phases | Sub-Issue Requirements | PR Strategy |
 |----------------|------------------|------------------------|-------------|
-| multi-phase | 2 | One sub-issue per phase | stacked PRs per phase |
+| multi-phase | 4 | One sub-issue per phase | stacked PRs per phase |
 
 **Phase breakdown:**
+- **Phase 0:** Global pre-phase — coherence gate, pre-flight checks (SC-9, SC-10)
 - **Phase 1:** File changes (SC-1 through SC-6) — Trigger Dispatch Table, pre-plan-readiness, Entry Criteria, Mandatory Task Discipline item 8, handoff manifest, critical-rules entry
 - **Phase 2:** Behavioral enforcement test (SC-7, SC-8) — RED/GREEN TDD cycle
+- **Phase 3:** Global post-phase — audit, cross-validate, review (SC-11, SC-12, SC-13)
 
 ## Revision Policy
 
@@ -224,7 +228,3 @@ Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion
 | [#1703](https://github.com/michael-conrad/.opencode/issues/1703) | RELATED | Enforced writing-plans pipeline discipline — complementary enforcement fix |
 
 After this spec is approved, invoke `writing-plans` to create `.opencode/.issues/1885/plan.md` before implementation begins.
-
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
-
-🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
