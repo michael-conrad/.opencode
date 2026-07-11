@@ -29,7 +29,7 @@ The plan-fidelity auditor (`audit/tasks/plan-fidelity.md`) embeds expected value
 
 ### 1. PF-DISPATCH-MODE — Vocabulary Mismatch
 
-**Current hard-coded value** (`audit/tasks/plan-fidelity.md` line 121):
+**Current hard-coded value** (`audit/tasks/plan-fidelity.md` §PF-DISPATCH-MODE):
 > Every step title contains `(**clean-room**)` or `(**inline**)` — exactly one of the two
 
 **Authoritative source** (`writing-plans/tasks/write.md` §Dispatch Indicators) defines **three** valid indicators: `(**sub-agent**)`, `(**clean-room**)`, `(**inline**)`. The `writing-plans` skill's own operating protocol uses `(**sub-agent**)` in 14 of 22 steps. The auditor rejects `(**sub-agent**)` because its internal list only has two entries.
@@ -41,7 +41,14 @@ The plan-fidelity auditor (`audit/tasks/plan-fidelity.md`) embeds expected value
 
 **No authoritative source defines this format.** The `solve` skill's contract schema uses typed variables with Z3 expressions — no `P1_I1_G1` naming convention exists.
 
-### 3. PF-SEQUENCE-MATCHES — Correct Pattern
+### 3. PF-6 — Same Vocabulary Mismatch
+
+**Current hard-coded value** (`audit/tasks/plan-fidelity.md` §PF-6):
+> every step has `(**clean-room**)` or `(**inline**)` dispatch mode indicator in title
+
+**Same root cause** as PF-DISPATCH-MODE — only lists two indicators, missing `(**sub-agent**)`. The authoritative source (`writing-plans/tasks/write.md` §Dispatch Indicators) defines three.
+
+### 4. PF-SEQUENCE-MATCHES — Correct Pattern
 
 This criterion (`audit/tasks/plan-fidelity.md` §PF-SEQUENCE-MATCHES) does it correctly:
 > Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — **read dynamically, not hardcoded**
@@ -57,9 +64,10 @@ Single file: `audit/tasks/plan-fidelity.md`
 ## Approach
 
 1. Change PF-DISPATCH-MODE expected result to dynamic reference: "valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators"
-2. Change PF-Z3-CONTRACT expected result to reference the `solve` skill's contract schema format, or remove if no authoritative source defines a naming convention
-3. Add a general principle to the evaluation criteria section stating criteria MUST reference authoritative skill cards
-4. Review all other criteria for hard-coded values that should be dynamic
+2. Change PF-6 expected result to same dynamic reference as PF-DISPATCH-MODE — both criteria reference the same authoritative source
+3. Change PF-Z3-CONTRACT expected result: remove the `P1_I1_G1` format check (no authoritative source defines this convention) and replace with reference to `solve/tasks/contract.md` §Contract YAML Structure — typed variables (`type`, `domain`, `nullable`) with Z3 expression constraints
+4. Add a general principle to the evaluation criteria section stating criteria MUST reference authoritative skill cards
+5. Review all other criteria for hard-coded values that should be dynamic
 
 ## Success Criteria
 
@@ -70,17 +78,19 @@ Single file: `audit/tasks/plan-fidelity.md`
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
 | SC-1 | PF-DISPATCH-MODE expected result changed from hard-coded `(**clean-room**) or (**inline**)` to dynamic reference: "valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators" | `string` | `grep -n "valid dispatch indicator per" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: update the criterion text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Problem §1 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
-| SC-2 | PF-Z3-CONTRACT expected result changed from hard-coded `P1_I1_G1` format to reference the `solve` skill's contract schema format, or removed if no authoritative source defines a naming convention | `string` | `grep -n "solve.*contract\|contract.*schema" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match OR the P1_I1_G1 reference is removed | On FAIL: update the criterion text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Problem §2 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-2 | PF-Z3-CONTRACT expected result: `P1_I1_G1` format removed (no authoritative source defines this convention) and replaced with reference to `solve/tasks/contract.md` §Contract YAML Structure — typed variables (`type`, `domain`, `nullable`) with Z3 expression constraints | `string` | (1) `grep -n "P1_I1_G1" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return no matches. (2) `grep -n "contract.*schema\|typed.*variable\|Z3 expression" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: remove P1_I1_G1 reference and add contract schema reference, then re-grep both | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Problem §2 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
 | SC-3 | A general principle added to the evaluation criteria section stating criteria expected values MUST reference authoritative skill cards, not hard-code values | `string` | `grep -n "MUST reference\|authoritative skill card" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: add the principle text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Approach §3 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
-| SC-4 | All other criteria in the evaluation criteria table reviewed for hard-coded values that should be dynamic; any found are flagged for follow-up | `string` | `grep -n "e\.g\.,\|e\.g\. \|hard-coded\|hardcoded" .opencode/skills/audit/tasks/plan-fidelity.md` — review output for any remaining hard-coded expected values that should be dynamic | On FAIL: flag each remaining hard-coded value for follow-up | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Approach §4 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-4 | All other criteria in the evaluation criteria table reviewed for hard-coded concrete values in the Expected Result column that are not sourced from an authoritative skill card; any found are flagged for follow-up | `string` | (1) `grep -n "e\.g\.,\|e\.g\. \|hard-coded\|hardcoded" .opencode/skills/audit/tasks/plan-fidelity.md` — review output. (2) For each match, check if the Expected Result column contains a concrete value (e.g., `(**clean-room**)`, `P1_I1_G1`) that is NOT a reference to an authoritative source (e.g., `per writing-plans/tasks/write.md`). If any such value exists, FAIL. | On FAIL: flag each remaining hard-coded concrete value for follow-up | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Approach §5 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-5 | PF-6 expected result changed from hard-coded `(**clean-room**) or (**inline**)` to same dynamic reference as PF-DISPATCH-MODE: "valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators" | `string` | `grep -n "valid dispatch indicator per" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least 2 matches (one for PF-DISPATCH-MODE, one for PF-6) | On FAIL: update PF-6 criterion text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Problem §3 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
 
 ### Determinism Gate
 
 For each SC:
 - **SC-1**: `grep` produces deterministic PASS/FAIL — the string either exists or it doesn't
-- **SC-2**: `grep` produces deterministic PASS/FAIL — the string either exists or the old format is removed
+- **SC-2**: Two `grep` checks produce deterministic PASS/FAIL — `P1_I1_G1` is either absent (PASS) or present (FAIL); contract schema reference is either present (PASS) or absent (FAIL)
 - **SC-3**: `grep` produces deterministic PASS/FAIL — the principle text either exists or it doesn't
 - **SC-4**: `grep` produces deterministic PASS/FAIL — remaining hard-coded values are either found or not
+- **SC-5**: `grep` produces deterministic PASS/FAIL — the string either appears twice (both criteria fixed) or it doesn't
 
 ### Evidence Type Classification
 
@@ -93,7 +103,7 @@ For each SC:
 
 ## Files Affected
 
-- `audit/tasks/plan-fidelity.md` — evaluation criteria table (lines 107-129)
+- `audit/tasks/plan-fidelity.md` — evaluation criteria table (§Build Evaluation Criteria)
 
 ## Risks
 
