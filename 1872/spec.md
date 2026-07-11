@@ -38,14 +38,14 @@ From structured YAML-like fields:
   issues: .opencode/.issues/
 ```
 
-To inline `git -C` commands:
+To bare `git -C` commands:
 ```
 ## Local Issue Folders
-- .issues/: git -C .issues/
-- .opencode/.issues/: git -C .opencode/.issues/
+- git -C .issues/
+- git -C .opencode/.issues/
 ```
 
-Each entry is a single line: `- <path>: git -C <path>`. The `git -C` prefix makes the worktree nature explicit — agents see immediately that these are git worktrees, not regular directories.
+Each entry is a directly executable `git -C` command. The path is embedded in the argument — no prefix needed.
 
 ### Change 3: Reorder sections in `main()`
 
@@ -78,6 +78,6 @@ The `path` prefix in each entry is derivable by cross-referencing the `## Repo I
 | ID | Criterion | Evidence Type |
 |----|-----------|---------------|
 | SC-1 | Section header is `## Local Issue Folders` (not `## Local Issue Artifacts`) | `string` |
-| SC-2 | Output format uses inline `git -C` commands: `- <path>: git -C <path>` | `string` |
+| SC-2 | Output format uses bare `git -C` commands: `- git -C <path>` | `string` |
 | SC-3 | No `path:` field in `## Local Issue Folders` output | `string` |
 | SC-4 | Section emission order in `main()` is: CLI Auth Status first, Local Issue Folders second, Repo Information third | `string` |
