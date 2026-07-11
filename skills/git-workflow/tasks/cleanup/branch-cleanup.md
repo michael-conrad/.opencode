@@ -15,7 +15,7 @@ Delete merged branches, clean stale references, remove worktrees, sync trunk, an
 - Local merged branch deleted
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
-- Dev branch synced with remote (verified via hash comparison)
+- Trunk synced with remote (verified via hash comparison)
 - Working tree clean
 
 ## Procedure

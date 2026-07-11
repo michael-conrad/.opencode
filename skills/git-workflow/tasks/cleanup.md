@@ -28,7 +28,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Working tree clean
-- Submodule dev restored via sub-agent task()
+- Submodule trunk restored via sub-agent task()
 
 ## Procedure
 
@@ -115,9 +115,9 @@ Scans all open repository issues, checks each for linked merged PRs, and closes 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
+Switches to trunk, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
 
-### Step 4: Post-Cleanup Dev-Tip Verification
+### Step 4: Post-Cleanup Trunk-Tip Verification
 
 Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all submodule iterations are complete. This is the final verification gate — nothing runs after it.
 
@@ -145,12 +145,12 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
 
 - [ ] 3. **For each repo in the list:**
 
-   a. Get local dev HEAD:
+   a. Get local trunk HEAD:
       ```bash
       git -C "$REPO_PATH" rev-parse "$DEFAULT_BRANCH"
       ```
 
-   b. Get remote dev HEAD:
+   b. Get remote trunk HEAD:
       ```bash
       git -C "$REPO_PATH" rev-parse origin/"$DEFAULT_BRANCH"
       ```
@@ -170,7 +170,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
       ```
 
    e. Compare local vs remote:
-      - If hashes match → repo is at dev tip
+      - If hashes match → repo is at trunk tip
       - If hashes differ → repo has diverged
 
 - [ ] 4. **Report results as a comparison table:**
@@ -184,7 +184,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
 
 - [ ] 5. **Outcome:**
 
-   - **All repos at dev tip:** Report "All repos at dev tip — ready for next dev cycle"
+   - **All repos at trunk tip:** Report "All repos at trunk tip — ready for next dev cycle"
    - **Any repo diverged:** Report which repo, the local vs remote hashes, and flag for human review:
 
      ```
@@ -212,8 +212,8 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### ✅ ALWAYS DO — IMMEDIATELY After Merge Confirmation
 
-- [ ] 1. Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
-- [ ] 2. Verify dev sync: `git log --oneline -5` must show the merge commit
+- [ ] 1. Switch to trunk and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
+- [ ] 2. Verify trunk sync: `git log --oneline -5` must show the merge commit
 - [ ] 3. Delete local feature branch: `git branch -d <branch-name>`
 - [ ] 4. Delete remote branch: `git push origin --delete <branch-name>`
 - [ ] 5. Verify cleanup: `git branch -vv`
@@ -338,9 +338,10 @@ Each verification point requires a tool call for evidence. Assertions without to
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
 | PR merge status | `github_pull_request_read(method=get, ...)` | `merged_at` is not None | CONFLICTING → HALT |
-| Local dev synced | `git log --oneline -1 "$DEFAULT_BRANCH"` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
+| Local trunk synced | `git log --oneline -1 "$DEFAULT_BRANCH"` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
 | Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
-| All repos at dev tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
+| All repos at trunk tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local trunk HEAD matches origin/trunk | VERIFICATION-GAP → report which repo diverged, flag for human review |
+| Checked-out branch matches trunk | `git -C $REPO_PATH branch --show-current` vs `$DEFAULT_BRANCH` | Current branch equals trunk name | VERIFICATION-GAP → report wrong branch, HALT for developer decision |
 
 ## Sub-Task Files
 
@@ -348,7 +349,7 @@ Each verification point requires a tool call for evidence. Assertions without to
 | -- | -- | -- |
 | `cleanup/verify-merge` | PR merge verification, SC gate, phase gate | ≈750 |
 | `cleanup/issue-closure` | Hierarchical issue closure, graph reconciliation | ≈800 |
-| `cleanup/branch-cleanup` | Dev sync, worktree removal, branch deletion | ≈700 |
+| `cleanup/branch-cleanup` | Trunk sync, worktree removal, branch deletion | ≈700 |
 
 ## Context Required
 
