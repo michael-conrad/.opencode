@@ -16,13 +16,18 @@ compatibility: opencode
 
 Orchestrator-facing dispatch router for the implementation pipeline. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
-The orchestrator reads the plan's `Dispatch` column (split plans) or `**Dispatch:**` field (non-split plans) to determine how to route each phase. Three dispatch modes are supported: `inline` (orchestrator interleaves inline and sub-agent steps), `sub-agent-with-context` (entire phase to one sub-agent with context), and `sub-agent-clean-room` (entire phase to one sub-agent with routing metadata only). The orchestrator MUST read the Dispatch declaration before dispatching any phase — defaulting to `sub-agent-with-context` when no Dispatch declaration is present.
+**Step-level dispatch is the ONLY valid dispatch mode.** The orchestrator processes the plan INLINE, step by step. For each step, the orchestrator reads the step's dispatch indicator:
+- `(**inline**)` — orchestrator executes directly
+- `(**sub-agent**)` — orchestrator dispatches to a sub-agent with context via `task()`
+- `(**clean-room**)` — orchestrator dispatches to a sub-agent with routing metadata only via `task()`
+
+The orchestrator MUST NOT dispatch entire phases or batches to a single sub-agent. Every step with a `(**sub-agent**)` or `(**clean-room**)` indicator receives its own clean-room sub-agent. No phase-level batching. No batched dispatch. Each step's sub-agent is independent, receives only the step's SCs, and produces its own result contract.
 
 ## Persona
 
 Pipeline router. Routes each pipeline stage to a clean-room sub-agent via `task()`. The orchestrator holds routing metadata only — never reads task file content, never performs inline analysis. An orchestrator that performs inline work has stopped being a router and started being a contaminant — every inline analysis artifact carries the orchestrator's preloaded bias through every downstream sub-agent, and the pipeline is poisoned from the first byte. Professional pipeline routers dispatch to sub-agents. Inlining means the pipeline was never clean.
 
-The orchestrator reads the plan's Dispatch declaration per-phase and routes accordingly: `inline` phases require the orchestrator to interleave inline execution and sub-agent dispatch; `sub-agent-with-context` phases are dispatched whole to a sub-agent with orchestrator-provided context; `sub-agent-clean-room` phases are dispatched whole to a sub-agent with routing metadata only. The orchestrator MUST NOT dispatch an `inline` phase to a single sub-agent — doing so would cause the sub-agent to execute steps marked for the orchestrator.
+**Step-level dispatch only.** The orchestrator reads the plan's steps sequentially and checks each step's dispatch indicator. Steps marked `(**inline**)` are executed directly by the orchestrator. Steps marked `(**sub-agent**)` or `(**clean-room**)` are dispatched individually to clean-room sub-agents. The orchestrator MUST NOT dispatch entire phases or batches to a single sub-agent. There is no default dispatch mode — every step declares its indicator explicitly.
 
 **MUST dispatch here after plan approval, before any file modification.** This is the mandatory entry point for all implementation work.
 
@@ -69,9 +74,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "create-pr" / "create pull request" | `create-pr` | `pr-creation-workflow --task create` | `sub-task` | {issue_number, authorization_scope, halt_at} |
 | "exec-summary" / "completion" | `exec-summary` | `completion-core --task completion` | `sub-task` | {issue_number} |
 | "multiple red phases" / "batch red" / "red/red/red" / "batched RED/GREEN" | `tdd-chaining-gate` | `implementation-pipeline --task tdd-chaining-gate` | `sub-task` | {issue_number} |
-| "inline dispatch" / "inline phase" | `inline-dispatch` | Orchestrator reads phase file, executes `(**inline**)` steps directly, dispatches `(**sub-agent**)` / `(**clean-room**)` steps via `task()` | `orchestrator` | {issue_number, plan_path, phase_number} |
-| "sub-agent-with-context dispatch" / "sub-agent phase with context" | `sub-agent-with-context-dispatch` | Orchestrator dispatches entire phase to one sub-agent with orchestrator-provided context | `sub-task` | {issue_number, plan_path, phase_number, orchestrator_context} |
-| "sub-agent-clean-room dispatch" / "clean-room phase" | `sub-agent-clean-room-dispatch` | Orchestrator dispatches entire phase to one sub-agent with routing metadata only | `sub-task` | {issue_number, plan_path, phase_number} |
+| "execute step" / "dispatch step" / "step dispatch" | `step-dispatch` | Orchestrator reads step's dispatch indicator: `(**inline**)` executes directly, `(**sub-agent**)` dispatches with context, `(**clean-room**)` dispatches with routing metadata only | `orchestrator` | {issue_number, plan_path, step_number} |
 
 **Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
 - [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
@@ -84,7 +87,7 @@ See `implementation-pipeline/tasks/pre-flight.md` for pre-flight verification an
 
 ## Step Labels (for #932 naming convention)
 
-`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `sc-count-gate`, `pre-pr-gate`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`
+`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `sc-count-gate`, `pre-pr-gate`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
 
 ## Invocation
 
@@ -130,7 +133,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 
 ## Sub-Agent Routing
 
-**Orchestrator entry point:** The orchestrator reads the plan, creates branches, and dispatches sub-agents per the Trigger Dispatch Table. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
+**Orchestrator entry point:** The orchestrator reads the plan and dispatches each step per the Trigger Dispatch Table using step-level dispatch. The orchestrator reads each step's dispatch indicator: `(**inline**)` for direct execution, `(**sub-agent**)` or `(**clean-room**)` for individual `task()` dispatch. No phase-level batching. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
 All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
