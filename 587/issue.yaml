@@ -4,6 +4,499 @@ status: open
 labels:
 - SPEC
 - skill-deck
-body: ''
+body: '# SPEC: Skill Deck CONDITIONAL-VAGUE Remediation — Undefined Predicates in
+  Operating Protocol Routing
+
+
+  ## Problem
+
+
+  Six SKILL.md Operating Protocols contain undefined predicates — routing instructions
+  that reference a condition ("when X happens") without specifying how the orchestrator
+  detects X. The orchestrator is a reasoning agent, not a pattern-matching engine,
+  but it still needs a detectable trigger to act on.
+
+
+  Additionally, the original brainstorm (#587) was never converted to a spec. Child
+  specs (#589, #590, #592, #593) cover 4 of 6 items, but items 4 (conflict-resolution
+  trigger) and 7 (comprehensive deck audit) were never created as separate issues.
+  The writing-plans skill has unresolved merge conflicts and a structural contradiction
+  (research card confirms). The deferred comprehensive deck audit was never performed.
+
+
+  ## Success Criteria
+
+
+  ### SC-1: #587 converted from BRAINSTORM to SPEC
+
+
+  The issue body is updated from brainstorm format to spec format with:
+
+  - Problem statement (above)
+
+  - Success criteria table with evidence types
+
+  - Files affected table
+
+  - Interdependency declarations
+
+  - "No lobotomize" clause: any skipped, deferred, or bypassed SC marks ALL SCs as
+  FAIL. PR must be immediately rejected and trashed as defective and unusable.
+
+  - All SCs must be 100% clean pass.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | Issue body converted from BRAINSTORM to SPEC format with all required sections
+  | `string` | grep for SPEC format markers, SC table, interdependency section, no-lobotomize
+  clause |
+
+
+  ### SC-2: spec-creation SKILL.md Operating Protocol §7, §8, §9 updated
+
+
+  `skills/spec-creation/SKILL.md` Operating Protocol updated per #589 resolution:
+
+
+  **§7 — PR Merge Boundary Definition:** A PR merge boundary exists when subsequent
+  work depends on code changes from an unmerged PR being present in the target branch.
+  Examples: skill deck edits (do not take effect until PR merge + agent reload), cross-phase
+  file dependencies.
+
+
+  **§8 — Two Mermaid Diagrams for multi-phase specs:**
+
+  - Structure diagram (`stateDiagram-v2`): phase architecture, artifacts per phase,
+  PR merge boundaries, file handoffs
+
+  - Flow diagram (`flowchart TD`): routing design, decision gates, conditional dispatch
+  branches
+
+  - Neither shows transient pipeline state
+
+  - Auto-remediation guard: content-verification test compares flow diagram against
+  SKILL.md Operating Protocols, auto-updates on mismatch
+
+
+  **§9 — Separation of Concerns Guard:** Explicitly references `critical-rules-042`
+  (Single Concern Principle) and `programming-principles`. Actionable test: "Does
+  this proposed spec touch more than one distinct behavioral change or file group?
+  If yes, decompose into sub-issues — one per concern."
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-2 | spec-creation SKILL.md Operating Protocol §7, §8, §9 updated per #589 resolution
+  | `string` | grep for updated text in spec-creation/SKILL.md |
+
+
+  ### SC-3: brainstorming SKILL.md Operating Protocol §5 updated
+
+
+  `skills/brainstorming/SKILL.md` Operating Protocol §5 updated per #590 resolution.
+  Terminal state is user-approved, not autonomously detected. When brainstorming appears
+  concluded, orchestrator provides executive summary. User decides: continue discussion,
+  write spec, defer, or discard. No `question` tool usage.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-3 | brainstorming SKILL.md Operating Protocol §5 updated per #590 resolution
+  | `string` | grep for updated text in brainstorming/SKILL.md |
+
+
+  ### SC-4: executing-plans SKILL.md Operating Protocol §3 updated
+
+
+  `skills/executing-plans/SKILL.md` Operating Protocol §3 updated per #592 resolution.
+  Progress tracking means producing verifiable artifacts per phase (test output, audit
+  verdicts, completion evidence). On restart, orchestrator dispatches adversarial
+  auditors against spec SCs — does NOT read cached metadata.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-4 | executing-plans SKILL.md Operating Protocol §3 updated per #592 resolution
+  | `string` | grep for updated text in executing-plans/SKILL.md |
+
+
+  ### SC-5: conflict-resolution undefined trigger removed from SKILL.md
+
+
+  `skills/conflict-resolution/SKILL.md` — remove any undefined trigger references.
+  Add explicit conflict detection step to `git-workflow` Operating Protocol. The orchestrator
+  detects conflicts via failed rebase/merge or `CONFLICT` markers in working tree.
+  `conflict-resolution` documents resolution procedure only; dispatch trigger lives
+  in `git-workflow`.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-5 | conflict-resolution SKILL.md has no undefined trigger references; git-workflow
+  has explicit conflict detection step | `string` | grep for trigger references in
+  conflict-resolution/SKILL.md; grep for conflict detection in git-workflow/SKILL.md
+  |
+
+
+  ### SC-6: issue-operations SKILL.md Operating Protocol §6 updated per #593
+
+
+  `skills/issue-operations/SKILL.md` Operating Protocol §6 updated per #593 resolution.
+  Uses correct MCP invocation format: `skill({name: "adversarial-audit"})` with `audit_phase:
+  <phase>` in dispatch context. References that orchestrator reads `next_step` from
+  YAML verdict to determine routing.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-6 | issue-operations SKILL.md §6 uses correct skill() call format and next_step
+  routing | `string` | grep for correct format in issue-operations/SKILL.md |
+
+
+  ### SC-7: pr-creation-workflow SKILL.md Operating Protocol §5 updated per #593
+
+
+  `skills/pr-creation-workflow/SKILL.md` Operating Protocol §5 updated per #593 resolution.
+  Uses correct MCP invocation format with `audit_phase: spec_summary` and `next_step`
+  routing.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-7 | pr-creation-workflow SKILL.md §5 uses correct skill() call format and next_step
+  routing | `string` | grep for correct format in pr-creation-workflow/SKILL.md |
+
+
+  ### SC-8: verification-before-completion SKILL.md Operating Protocol §2 updated
+  per #593
+
+
+  `skills/verification-before-completion/SKILL.md` Operating Protocol §2 updated per
+  #593 resolution. Uses correct MCP invocation format with `audit_phase: drift_detection`
+  and `next_step` routing.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-8 | verification-before-completion SKILL.md §2 uses correct skill() call format
+  and next_step routing | `string` | grep for correct format in verification-before-completion/SKILL.md
+  |
+
+
+  ### SC-9: writing-plans SKILL.md Operating Protocol §2 updated per #593
+
+
+  `skills/writing-plans/SKILL.md` Operating Protocol §2 updated per #593 resolution.
+  Uses correct MCP invocation format with `audit_phase: plan_fidelity` and `next_step`
+  routing.
+
+
+  **Precondition:** The unresolved merge conflict markers in writing-plans/SKILL.md
+  (frontmatter lines 3-7, Trigger Dispatch Table lines 49-59) and writing-plans/tasks/create.md
+  (lines 10-21, ~106) MUST be resolved before any content changes.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-9 | writing-plans SKILL.md §2 uses correct skill() call format and next_step
+  routing; merge conflicts resolved first | `string` | grep for correct format; grep
+  for absence of conflict markers |
+
+
+  ### SC-10: writing-plans "Programmatic Invocation" contradiction resolved
+
+
+  Per research card (confidence 0.95), writing-plans SKILL.md has a structural contradiction:
+  "Programmatic Invocation" section says orchestrator executes steps inline, while
+  "Invocation" with DISPATCH_GATE says dispatch to sub-agents. Delete the stale "Programmatic
+  Invocation" section. Update tasks/create.md Purpose section to correctly describe
+  sub-agent dispatch model.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-10 | writing-plans SKILL.md has no "Programmatic Invocation" section; tasks/create.md
+  Purpose describes sub-agent dispatch | `string` | grep for absence of "Programmatic
+  Invocation" in SKILL.md; grep for correct dispatch language in tasks/create.md |
+
+
+  ### SC-11: git-workflow SKILL.md Operating Protocol updated with conflict detection
+  step
+
+
+  `skills/git-workflow/SKILL.md` Operating Protocol updated to include an explicit
+  conflict detection item. The orchestrator detects conflicts via failed rebase/merge
+  or `CONFLICT` markers in working tree. When detected, dispatches to `conflict-resolution`
+  skill.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-11 | git-workflow SKILL.md Operating Protocol has explicit conflict detection
+  step | `string` | grep for conflict detection in git-workflow/SKILL.md |
+
+
+  ### SC-12: Comprehensive deck audit created as separate issue
+
+
+  The deferred item 7 from #587 — "Comprehensive Deck Audit — scanned for missed undefined
+  predicates across all 35 SKILL.md files" — is created as a separate GitHub Issue
+  with its own spec. This issue is linked as a sub-issue of #587.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-12 | Separate issue created for comprehensive deck audit; linked as sub-issue
+  of #587 | `string` | github_issue_read to verify sub-issue exists |
+
+
+  ### SC-13: Interdependencies declared on all affected issues
+
+
+  Cross-cutting concerns with #865 (Canonical DISPATCH_GATE), #1358 (Reorganize Skill
+  Cards), and #958 (Workflow checklist audit) are documented in this issue and in
+  comments on those issues. Sequencing guidance: #587''s Operating Protocol changes
+  should be applied before #1358''s reorganization to avoid overwrites.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-13 | Interdependencies documented in #587 body and as comments on #865, #1358,
+  #958 | `string` | grep for interdependency references in issue body; verify comments
+  exist on related issues |
+
+
+  ### SC-14: No-lobotomize clause enforced
+
+
+  Every SC in this spec includes the following enforcement: any skipped, deferred,
+  or otherwise attempted bypass of an SC failure marks ALL SCs as FAIL. The PR must
+  be immediately rejected and trashed as defective and unusable. This clause is embedded
+  in the spec body and referenced in the PR template.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-14 | No-lobotomize clause present in spec body; all SCs must be 100% clean
+  pass | `string` | grep for no-lobotomize clause in spec body |
+
+
+  ### SC-15: Local issue body is self-contained; trash comments removed
+
+
+  The local `.opencode/.issues/587/spec.md` is the full authoritative spec. The remote
+  issue body is a proper remote spec (not a brainstorm). Any trash comments (empty,
+  status-only, or superseded) are deleted from the remote issue.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-15 | Local spec is full; remote spec is proper; no trash comments | `string`
+  | local-issues read; github_issue_read comments; verify no empty/status-only comments
+  |
+
+
+  ### SC-16: `local-issues sync` run after remote spec update
+
+
+  After updating the remote GitHub Issue body, `local-issues sync` is run to ensure
+  local and remote are in sync.
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-16 | local-issues sync completed successfully after remote update | `string`
+  | Verify sync output |
+
+
+  ## Files Affected
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `.opencode/.issues/587/spec.md` | Full spec written (this file) |
+
+  | Remote `.opencode#587` issue body | Updated from BRAINSTORM to SPEC format |
+
+  | `skills/spec-creation/SKILL.md` | Operating Protocol §7, §8, §9 wording updates
+  |
+
+  | `skills/brainstorming/SKILL.md` | Operating Protocol §5 terminal state rewrite
+  |
+
+  | `skills/executing-plans/SKILL.md` | Operating Protocol §3 progress tracking rewrite
+  |
+
+  | `skills/conflict-resolution/SKILL.md` | Remove undefined trigger references |
+
+  | `skills/git-workflow/SKILL.md` | Add conflict detection step to Operating Protocol
+  |
+
+  | `skills/issue-operations/SKILL.md` | §6 adversarial-audit dispatch format |
+
+  | `skills/pr-creation-workflow/SKILL.md` | §5 adversarial-audit dispatch format
+  |
+
+  | `skills/verification-before-completion/SKILL.md` | §2 adversarial-audit dispatch
+  format |
+
+  | `skills/writing-plans/SKILL.md` | §2 adversarial-audit dispatch format; resolve
+  merge conflicts; delete "Programmatic Invocation" section |
+
+  | `skills/writing-plans/tasks/create.md` | Update Purpose section; resolve merge
+  conflicts |
+
+  | (new) GitHub Issue | Comprehensive deck audit (deferred item 7) |
+
+
+  ## Interdependencies
+
+
+  | Issue | Relationship | Action |
+
+  |-------|-------------|--------|
+
+  | #589 | Child spec — covers spec-creation §7, §8, §9 | Must be implemented before
+  or alongside #587 SC-2 |
+
+  | #590 | Child spec — covers brainstorming §5 | Must be implemented before or alongside
+  #587 SC-3 |
+
+  | #592 | Child spec — covers executing-plans §3 | Must be implemented before or
+  alongside #587 SC-4 |
+
+  | #593 | Child spec — covers adversarial-audit dispatch boilerplate | Must be implemented
+  before or alongside #587 SC-6, SC-7, SC-8, SC-9 |
+
+  | #865 | Canonical DISPATCH_GATE across all skills | **Potential conflict** — DISPATCH_GATE
+  format changes could overwrite Operating Protocol changes. Sequence: apply #587
+  Operating Protocol changes first, then #865 DISPATCH_GATE insertion. |
+
+  | #1358 | Reorganize Skill Cards with Checklist Dispatch | **Potential conflict**
+  — structural refactor could overwrite Operating Protocol changes. Sequence: apply
+  #587 changes first, then #1358 reorganization. |
+
+  | #958 | Audit skill deck: add workflow checklist | **Potential overlap** — both
+  modify SKILL.md files. Sequence: apply #587 changes first, then #958 checklist additions.
+  |
+
+  | (new) | Comprehensive deck audit (deferred item 7) | Created as separate issue,
+  linked as sub-issue of #587 |
+
+
+  ## Circular Dependency Resolution
+
+
+  No circular dependencies exist. The dependency graph is a DAG:
+
+  - #587 (parent) → #589, #590, #592, #593 (children)
+
+  - #587 → (new) comprehensive deck audit (child)
+
+  - #865, #1358, #958 are independent efforts with sequencing guidance only
+
+
+  ## Out of Scope
+
+
+  - Changes to adversarial-audit SKILL.md or task files (verdict format already correct
+  per #529)
+
+  - Changes to verdict parsing logic or `next_step` vocabulary
+
+  - Changes to other skills'' Operating Protocols not listed in Files Affected
+
+  - Behavioral enforcement tests for the Operating Protocol changes (covered by child
+  specs)
+
+
+  ## No-Lobotomize Clause
+
+
+  **Any skipped, deferred, or otherwise attempted bypass of an SC failure marks ALL
+  SCs as FAIL. The PR must be immediately rejected and trashed as defective and unusable.**
+  All SCs must be 100% clean pass. No SC may be removed, weakened, deferred, or reclassified
+  to evade implementation.
+
+
+  ## Research Card References
+
+
+  - `writing-plans-skill-contradiction.md` (confidence 0.95) — confirms structural
+  contradiction in writing-plans SKILL.md "Programmatic Invocation" section. Used
+  as basis for SC-10.
+
+  - `dimo-same-model-auditor-divergence.md` (confidence 0.9) — confirms same-model
+  role-differentiated agents produce divergent evaluations. Relevant for adversarial-audit
+  dispatch format in SC-6 through SC-9.
+
+  - `for_analysis-scope-investigation.md` (confidence 0.9) — confirms for_analysis
+  scope does not block technical investigation. Not directly relevant but confirms
+  no scope issues with this work.
+
+
+  ## Live Documentation References
+
+
+  - GitHub Issue #587 (remote): https://github.com/michael-conrad/.opencode/issues/587
+
+  - GitHub Issue #589: https://github.com/michael-conrad/.opencode/issues/589
+
+  - GitHub Issue #590: https://github.com/michael-conrad/.opencode/issues/590
+
+  - GitHub Issue #592: https://github.com/michael-conrad/.opencode/issues/592
+
+  - GitHub Issue #593: https://github.com/michael-conrad/.opencode/issues/593
+
+  - GitHub Issue #865: https://github.com/michael-conrad/.opencode/issues/865
+
+  - GitHub Issue #1358: https://github.com/michael-conrad/.opencode/issues/1358
+
+  - GitHub Issue #958: https://github.com/michael-conrad/.opencode/issues/958
+
+  - DiMo paper: He & Feng, arXiv:2510.16645 (Oct 2025)
+
+
+  ---
+
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
 created_at: '2026-07-11T14:35:30+00:00'
-updated_at: '2026-07-11T14:35:30+00:00'
+updated_at: '2026-07-11T14:36:03+00:00'
