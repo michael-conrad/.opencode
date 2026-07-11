@@ -53,32 +53,23 @@ After substantiveness, classify comment content before determining type. Classif
 |---|---|---|
 | What was DONE | Evaluate for stakeholder | May affect stakeholder understanding or require action |
 | HOW it was figured out | **internal** | Process detail, not actionable |
-| Revising/correcting spec | **internal** (triggers Phase 3 body update) | Correction updates the issue body, not a comment |
+| Revising/correcting spec | **internal** | Correction updates the issue body, not a comment |
 | Audit findings, verdicts | **internal** | Process metadata, not stakeholder-facing |
 | Discussion responses | **internal** | Agent-to-agent reasoning |
 | Decision log entries | **internal** | Process metadata |
 
 **Error handling:** Default to `internal` (conservative) when classification is uncertain. Stakeholder-visible content is additive — it can always be promoted later. Internal content posted publicly cannot be retracted.
 
-### Step 1.5b: Body-Revision Check
+### Step 1.5b: Routing Gate for Spec/Plan Corrections
 
-After classification, evaluate: **Does this stakeholder-classified comment revise, correct, or supersede the spec body?**
+When content is classified as "Revising/correcting spec" or "Revising/correcting plan", do NOT post a comment. Route to the correct pipeline:
 
-| If | Action |
-|----|--------|
-| Comment revises/corrects/supersedes the spec body | **Update spec body flow (below)** |
-| Comment does NOT revise the spec body | **Proceed to Step 2** |
+| Content Type | Route To |
+|---|---|
+| Revising/correcting spec | `spec-creation --task change-control` |
+| Revising/correcting plan | `writing-plans --task update` |
 
-**Update spec body flow** (when comment revises/corrects/supersedes spec body):
-
-- [ ] 1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
-- [ ] 2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
-- [ ] 3. Route to `platforms/local/tasks/push-body.md` via task() — push updated spec body to GitHub. Pass: `{issue_number: N}`
-- [ ] 4. Post explanatory comment: "Spec body updated per #683 Phase 3"
-
-**Why this matters:** Without this check, stakeholder corrections sit in comments while the spec body remains stale. The canonical spec body (`.issues/N/spec.md`) is the authoritative source — revisions must propagate to it, not remain stranded in comments.
-
-**Classification interaction:** Only stakeholder-classified content triggers this check. Internal reasoning (design analysis, process metadata) never revises the spec body — it stays in `.issues/N/comments.md`.
+The comment task's only job is posting comments — not revising bodies, not updating specs, not modifying plans.
 
 ### Step 2: Determine Comment Type
 
