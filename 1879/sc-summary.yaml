@@ -1,0 +1,45 @@
+sc_coverage:
+  total: 6
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1879
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+      evidence_types: [string, behavioral]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "000-critical-rules.md critical-rules-sc-lobotomy explicitly prohibits 'skipped' as a distinct evasion pattern"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "080-code-standards.md Test Integrity Mandate Rule 1 includes 'skipped' in prohibited patterns"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "holistic-self-check.md escape-hatch dimension includes 'skipped' in agent-behavior escape pattern check"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "implementation-pipeline/SKILL.md includes SC-count gate that BLOCKs on mismatch"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-5
+      description: "Behavioral enforcement test verifies agent does NOT skip behavioral SCs"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-6
+      description: "Agent reports BLOCKED when it cannot implement an SC, rather than skipping it"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
