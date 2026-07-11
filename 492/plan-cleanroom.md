@@ -1,8 +1,8 @@
 # Implementation Plan — [#492](https://github.com/michael-conrad/opencode-config/tree/issues-data/492) — Stale-branch detection before PR creation
 
-**Goal:** Add automated staleness-check + auto-rebase to the pre-PR gate so feature branches are always rebased onto `origin/dev` before push and PR creation.
+**Goal:** Add automated staleness-check + auto-rebase to the pre-PR gate so feature branches are always rebased onto `origin/$DEFAULT_BRANCH` before push and PR creation.
 
-**Architecture:** Single-phase implementation. A staleness-check step is added to `review-prep` (or `pr-creation/squash-push`) that runs `git rev-list --count --left-right` before any push. On `behind > 0`, the agent auto-rebases onto `origin/dev`. On Tier 3 conflict, the agent halts and escalates. A behavioral enforcement test verifies the agent's stale-branch handling.
+**Architecture:** Single-phase implementation. A staleness-check step is added to `review-prep` (or `pr-creation/squash-push`) that runs `git rev-list --count --left-right` before any push. On `behind > 0`, the agent auto-rebases onto `origin/$DEFAULT_BRANCH`. On Tier 3 conflict, the agent halts and escalates. A behavioral enforcement test verifies the agent's stale-branch handling.
 
 **Files:**
 - `.opencode/skills/git-workflow/tasks/review-prep/` — add staleness-check + auto-rebase step before push
@@ -18,7 +18,7 @@
 
 | Phase | Name | Concern | SCs | Dependencies | Steps |
 |-------|------|---------|-----|--------------|-------|
-| 1 | Stale-branch detection and auto-rebase | Add staleness-check + auto-rebase to pre-PR gate, add behavioral enforcement test | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6 | None | 1–22 |
+| 1 | Stale-branch detection and auto-rebase | Add staleness-check + auto-rebase to pre-PR gate, add behavioral enforcement test | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | None | 1–22 |
 
 ---
 
@@ -30,46 +30,46 @@
 - `.opencode/skills/git-workflow/tasks/review-prep/` — add staleness-check step
 - `.opencode/tests/behaviors/stale-branch-auto-rebase.sh` — new behavioral test
 
-**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6
+**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7
 
 **Dependencies:** None
 
-**Entry conditions:** Plan approved, feature branch created, on `dev` base.
+**Entry conditions:** Plan approved, feature branch created, on `$DEFAULT_BRANCH` base.
 
-**Exit conditions:** All 6 SCs verified PASS, behavioral test passes, review-prep complete.
+**Exit conditions:** All 7 SCs verified PASS, behavioral test passes, review-prep complete.
 
 ### Global Pre-Steps
 
-- [ ] 1. **SC-coherence gate (**clean-room**).** Dispatch `adversarial-audit --task coherence-extraction` to verify SC evidence types match the change's substrate classification. The staleness-check step in review-prep is a string/structural change (SC-1); the auto-rebase behavior is runtime-behavioral (SC-2 through SC-6). Evidence-type uplift must be applied if the substrate classification differs from the declared type. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6**
+- [ ] 1. **SC-coherence gate (**clean-room**).** Dispatch `audit --task coherence-extraction` to verify SC evidence types match the change's substrate classification. The staleness-check step in review-prep is a string/structural change (SC-1); the auto-rebase behavior is runtime-behavioral (SC-2 through SC-7). Evidence-type uplift must be applied if the substrate classification differs from the declared type. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
-- [ ] 2. **Pre-RED baseline (**clean-room**).** Dispatch `implementation-pipeline --task pre-red-baseline` to verify doc-source currency and SC-ID cross-reference traceability. Confirm the spec's file references (`review-prep/`, `pr-creation/squash-push.md`) exist and the SC IDs are consistent. **→ SC-1, SC-6**
+- [ ] 2. **Pre-RED baseline (**clean-room**).** Dispatch `implementation-pipeline --task pre-red-baseline` to verify doc-source currency and SC-ID cross-reference traceability. Confirm the spec's file references (`review-prep/`, `pr-creation/squash-push.md`) exist and the SC IDs are consistent. **→ SC-1, SC-7**
 
 ### Item 1: Behavioral enforcement test (RED)
 
 - [ ] 3. **RED phase (**sub-agent**).** Dispatch `test-driven-development --task red` to write the behavioral enforcement test at `.opencode/tests/behaviors/stale-branch-auto-rebase.sh`. The test MUST:
-  - Set up a test repo with a feature branch behind `origin/dev`
+  - Set up a test repo with a feature branch behind `origin/$DEFAULT_BRANCH`
   - Send a prompt that triggers `git-workflow --task review-prep`
   - Assert via `assert_semantic` that the agent detects staleness and auto-rebases
   - Assert via `assert_semantic` that on clean (behind == 0) the agent proceeds normally
   - Assert via `assert_semantic` that on Tier 3 conflict the agent halts and escalates
   - The test MUST FAIL at this point because the task file has no staleness check yet
-  - **→ SC-2, SC-3, SC-4, SC-5, SC-6**
+  - **→ SC-2, SC-3, SC-4, SC-5, SC-7**
 
-- [ ] 4. **Z3 check — RED (**clean-room**).** Dispatch `solve check` against the RED-phase output contract (`contracts/red-phase-output-template.yaml`). Verify the test code satisfies the output contract. **→ SC-6**
+- [ ] 4. **Z3 check — RED (**clean-room**).** Dispatch `solve check` against the RED-phase output contract (`contracts/red-phase-output-template.yaml`). Verify the test code satisfies the output contract. **→ SC-7**
 
-- [ ] 5. **RED doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify` to verify RED-side SC evidence. Confirm the behavioral test exists, is executable, and FAILS as expected. **→ SC-6**
+- [ ] 5. **RED doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify` to verify RED-side SC evidence. Confirm the behavioral test exists, is executable, and FAILS as expected. **→ SC-7**
 
-- [ ] 6. **Z3 check — RED doublecheck (**clean-room**).** Dispatch `solve check` against the RED-doublecheck output contract (`contracts/red-doublecheck-output-template.yaml`). **→ SC-6**
+- [ ] 6. **Z3 check — RED doublecheck (**clean-room**).** Dispatch `solve check` against the RED-doublecheck output contract (`contracts/red-doublecheck-output-template.yaml`). **→ SC-7**
 
-- [ ] 7. **Post-RED enforcement (**clean-room**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Run `git diff --name-only -- src/ | wc -l` — verify zero source files were modified during RED phase (only test files). **→ SC-6**
+- [ ] 7. **Post-RED enforcement (**clean-room**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Run `git diff --name-only -- src/ | wc -l` — verify zero source files were modified during RED phase (only test files). **→ SC-7**
 
-- [ ] 8. **Z3 check — post-RED (**clean-room**).** Dispatch `solve check` against the post-RED-enforcement output contract (`contracts/post-red-enforcement-output-template.yaml`). **→ SC-6**
+- [ ] 8. **Z3 check — post-RED (**clean-room**).** Dispatch `solve check` against the post-RED-enforcement output contract (`contracts/post-red-enforcement-output-template.yaml`). **→ SC-7**
 
 ### Item 2: Task file modification (GREEN)
 
 - [ ] 9. **GREEN phase (**sub-agent**).** Dispatch `test-driven-development --task green` to add the staleness-check + auto-rebase step to `.opencode/skills/git-workflow/tasks/review-prep/` (or `pr-creation/squash-push.md`). The step MUST:
-  - Run `git rev-list --count --left-right feature-branch...origin/dev` before push
-  - If `behind > 0`: auto-rebase onto `origin/dev` via `git rebase origin/dev`
+  - Run `git rev-list --count --left-right feature-branch...origin/$DEFAULT_BRANCH` before push
+  - If `behind > 0`: auto-rebase onto `origin/$DEFAULT_BRANCH` via `git rebase origin/$DEFAULT_BRANCH`
   - If rebase succeeds (clean): proceed to push and PR creation
   - If rebase conflict: classify per `conflict-resolution` skill's three-tier system
     - Tier 1-2: auto-resolve, proceed
@@ -95,46 +95,47 @@
 
 - [ ] 16. **GREEN doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify` for semantic-intent verification. Confirm the task file change correctly implements all spec requirements: staleness detection, auto-rebase, conflict classification, clean-path handling. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 
-- [ ] 17. **GREEN VbC (**clean-room**).** Dispatch `verification-before-completion --task completion`. Produce VbC completion artifact with evidence for all 6 SCs:
+- [ ] 17. **GREEN VbC (**clean-room**).** Dispatch `verification-before-completion --task completion`. Produce VbC completion artifact with evidence for all 7 SCs:
   - SC-1: `grep` evidence that staleness-check step exists in review-prep
   - SC-2: Behavioral test `assert_semantic` evidence for auto-rebase on staleness
   - SC-3: Behavioral test `assert_semantic` evidence for proceed after rebase
   - SC-4: Behavioral test `assert_semantic` evidence for HALT on Tier 3 conflict
   - SC-5: Behavioral test `assert_semantic` evidence for clean-path proceed
-  - SC-6: Behavioral test file existence + PASS result
-  - **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6**
+  - SC-7: Behavioral test file existence + PASS result
+  - **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
 ### Audit
 
 - [ ] 18. **Adversarial audit (**sub-agent**).** Orchestrator multi-dispatch:
   1. Run `.opencode/tools/resolve-models` to select cross-family auditors
-  2. Dispatch `adversarial-audit --task verification-audit` with `auditor_1` — audit the task file change and behavioral test against spec SCs
+  2. Dispatch `audit --task verification-audit` with `auditor_1` — audit the task file change and behavioral test against spec SCs
   3. On non-clean-pass: remediate and restart auditor_1
   4. Dispatch same audit task with `auditor_2`
   5. On non-clean-pass: remediate and restart auditor_2
   6. Collect dual-auditor YAML verdicts
   - **→ All SCs**
 
-- [ ] 19. **Cross-validate (**clean-room**).** Dispatch `adversarial-audit --task cross-validate` with `auditor_artifact_paths` from step 18. Produce cross-validate findings YAML. Resolve any auditor disagreements. **→ All SCs**
+- [ ] 19. **Cross-validate (**clean-room**).** Dispatch `audit --task cross-validate` with `auditor_artifact_paths` from step 18. Produce cross-validate findings YAML. Resolve any auditor disagreements. **→ All SCs**
 
 ### Post-Audit
 
-- [ ] 20. **Regression check (**clean-room**).** Dispatch `test-driven-development --task patterns` (regression). Run the full behavioral test suite via `bash .opencode/tests/test-enforcement.sh --changed` to verify no existing tests are broken. **→ SC-6**
+- [ ] 20. **Regression check (**clean-room**).** Dispatch `test-driven-development --task patterns` (regression). Run the full behavioral test suite via `bash .opencode/tests/test-enforcement.sh --changed` to verify no existing tests are broken. **→ SC-7**
 
-- [ ] 21. **Review-prep (**clean-room**).** Dispatch `git-workflow --task review-prep`. Run the full pre-PR checklist including the newly added staleness-check step. Verify the branch is not behind `origin/dev`. **→ SC-1, SC-5**
+- [ ] 21. **Review-prep (**clean-room**).** Dispatch `git-workflow --task review-prep`. Run the full pre-PR checklist including the newly added staleness-check step. Verify the branch is not behind `origin/$DEFAULT_BRANCH`. **→ SC-1, SC-5**
 
 - [ ] 22. **Exec summary (**inline**).** Dispatch `completion-core --task completion`. Append lifecycle event to issue body. Produce chat executive summary with plan file path, SC status table, and byline. **→ All SCs**
 
 #### Phase 1 VbC
 
-- [ ] 23. **VbC (**clean-room**).** Verify all 6 SCs have PASS evidence:
+- [ ] 23. **VbC (**clean-room**).** Verify all 7 SCs have PASS evidence:
   - SC-1: `grep` confirms staleness-check step in review-prep task file
   - SC-2: Behavioral test PASS confirms auto-rebase on staleness
   - SC-3: Behavioral test PASS confirms proceed after rebase
   - SC-4: Behavioral test PASS confirms HALT on Tier 3 conflict
   - SC-5: Behavioral test PASS confirms clean-path proceed
-  - SC-6: Behavioral test exists at `tests/behaviors/stale-branch-auto-rebase.sh` and passes
-  - **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6**
+  - SC-6: Behavioral test file exists at `tests/behaviors/492-stale-branch-auto-rebase.sh` (string evidence)
+  - SC-7: Behavioral test passes with all assertions passing (behavioral evidence)
+  - **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
 > **Compliance requirement:** This plan MUST be followed step by step. Every numbered step is mandatory. No step may be skipped, reordered, or combined. The orchestrator dispatches each step to a clean-room sub-agent via `task()` — no inline execution except where explicitly marked `(**inline**)`. Each step produces exactly one artifact. If a step's verification fails, the orchestrator MUST roll back to the last checkpoint tag and re-dispatch. This is a NON-WAIVABLE hard gate.
 
@@ -147,8 +148,10 @@
 - [ ] C3. Behavioral test verifies agent proceeds after successful rebase — verified by `assert_semantic` PASS (SC-3)
 - [ ] C4. Behavioral test verifies agent halts on Tier 3 conflict — verified by `assert_semantic` PASS (SC-4)
 - [ ] C5. Behavioral test verifies agent proceeds on clean branch — verified by `assert_semantic` PASS (SC-5)
-- [ ] C6. Behavioral enforcement test exists and passes — verified by test execution (SC-6)
-- [ ] C7. All 22 pipeline gates completed with PASS status
-- [ ] C8. Dual-auditor consensus achieved with no unresolved disagreements
-- [ ] C9. Regression suite passes with no regressions
-- [ ] C10. Review-prep completes successfully
+- [ ] C6. Behavioral enforcement test file exists — verified by file existence (SC-6)
+- [ ] C7. Behavioral enforcement test passes — verified by test execution (SC-7)
+- [ ] C8. All 22 pipeline gates completed with PASS status
+- [ ] C9. Dual-auditor consensus achieved with no unresolved disagreements
+- [ ] C10. Regression suite passes with no regressions
+- [ ] C11. Review-prep completes successfully
+- [ ] C12. All 7 SCs (SC-1 through SC-7) verified with 100% clean PASS — no SC skipped, deferred, weakened, or blocked

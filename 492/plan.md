@@ -1,10 +1,10 @@
 # Implementation Plan — [#492](https://github.com/michael-conrad/.opencode/issues/492) — Stale-branch detection before PR creation
 
-**Spec:** #492 (v3.0) — Stale-branch detection before PR creation
+**Spec:** #492 (v4.0) — Stale-branch detection before PR creation
 
-**Goal:** Add a staleness-check + auto-rebase step to `git-workflow --task review-prep` that detects feature branches forked from stale `dev` and auto-rebases before push/PR creation.
+**Goal:** Add a staleness-check + auto-rebase step to `git-workflow --task review-prep` that detects feature branches forked from stale `$DEFAULT_BRANCH` and auto-rebases before push/PR creation.
 
-**Architecture:** A new step inserted before the existing Step 1.5 rebase in `review-prep/push-and-cleanup.md`. The step runs `git rev-list --count --left-right origin/dev...HEAD` to detect staleness, then auto-rebases onto `origin/dev`. On Tier 3 (intent) conflicts, HALT and escalate to developer.
+**Architecture:** A new step inserted before the existing Step 1.5 rebase in `review-prep/push-and-cleanup.md`. The step runs `git rev-list --count --left-right origin/$DEFAULT_BRANCH...HEAD` to detect staleness, then auto-rebases onto `origin/$DEFAULT_BRANCH`. On Tier 3 (intent) conflicts, HALT and escalate to developer.
 
 **Files:**
 - `.opencode/skills/git-workflow/tasks/review-prep/push-and-cleanup.md` — add staleness-check step
@@ -22,43 +22,43 @@
 
 | Phase | Name | Concern | SCs | Dependencies | Steps |
 |-------|------|---------|-----|--------------|-------|
-| 1 | Stale-branch detection and auto-rebase | Add staleness-check + auto-rebase to pre-PR gate, add behavioral enforcement test | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6 | None | 1–23 |
+| 1 | Stale-branch detection and auto-rebase | Add staleness-check + auto-rebase to pre-PR gate, add behavioral enforcement test | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | None | 1–23 |
 
 ## Phase 01 — Stale-branch detection before PR creation
 
-**Concern:** Add a staleness-check diagnostic step before the existing Step 1.5 rebase in `review-prep/push-and-cleanup.md`. The step detects whether the feature branch is behind `origin/dev` and auto-rebases, only escalating to the developer on Tier 3 (intent) conflicts.
+**Concern:** Add a staleness-check diagnostic step before the existing Step 1.5 rebase in `review-prep/push-and-cleanup.md`. The step detects whether the feature branch is behind `origin/$DEFAULT_BRANCH` and auto-rebases, only escalating to the developer on Tier 3 (intent) conflicts.
 
 **Files:**
 - `.opencode/skills/git-workflow/tasks/review-prep/push-and-cleanup.md`
 - `.opencode/tests/behaviors/492-stale-branch-auto-rebase.sh`
 
-**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6
+**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7
 
 **Dependencies:** None
 
-**Entry conditions:** Spec #492 approved, plan created, feature branch exists, `origin/dev` is fetchable.
+**Entry conditions:** Spec #492 approved, plan created, feature branch exists, `origin/$DEFAULT_BRANCH` is fetchable.
 
 **Exit conditions:** Staleness-check step exists in `push-and-cleanup.md` before Step 1.5; behavioral test passes.
 
 ### Global Pre-Steps
 
-- [ ] 1. **SC coherence gate (**sub-agent**).** Dispatch `adversarial-audit --task coherence-extraction`. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6**
+- [ ] 1. **SC coherence gate (**sub-agent**).** Dispatch `audit --task coherence-extraction`. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
-- [ ] 2. **Pre-RED baseline (**sub-agent**).** Dispatch `implementation-pipeline --task pre-red-baseline`. **→ SC-1, SC-6**
+- [ ] 2. **Pre-RED baseline (**sub-agent**).** Dispatch `implementation-pipeline --task pre-red-baseline`. **→ SC-1, SC-6, SC-7**
 
 ### Item 1: Behavioral enforcement test (RED)
 
-- [ ] 3. **RED phase (**sub-agent**).** Dispatch `test-driven-development --task red`. **→ SC-2, SC-3, SC-4, SC-5, SC-6**
+- [ ] 3. **RED phase (**sub-agent**).** Dispatch `test-driven-development --task red`. **→ SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
-- [ ] 4. **Z3 check RED (**inline**).** Run `solve check` against red-phase output contract (`contracts/red-phase-output-template.yaml`). **→ SC-6**
+- [ ] 4. **Z3 check RED (**inline**).** Run `solve check` against red-phase output contract (`contracts/red-phase-output-template.yaml`). **→ SC-6, SC-7**
 
-- [ ] 5. **RED doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. **→ SC-6**
+- [ ] 5. **RED doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. **→ SC-6, SC-7**
 
-- [ ] 6. **Z3 check RED doublecheck (**inline**).** Run `solve check` against red-doublecheck output contract (`contracts/red-doublecheck-output-template.yaml`). **→ SC-6**
+- [ ] 6. **Z3 check RED doublecheck (**inline**).** Run `solve check` against red-doublecheck output contract (`contracts/red-doublecheck-output-template.yaml`). **→ SC-6, SC-7**
 
-- [ ] 7. **Post-RED enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. **→ SC-6**
+- [ ] 7. **Post-RED enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. **→ SC-6, SC-7**
 
-- [ ] 8. **Z3 check post-RED (**inline**).** Run `solve check` against post-red-enforcement output contract (`contracts/post-red-enforcement-output-template.yaml`). **→ SC-6**
+- [ ] 8. **Z3 check post-RED (**inline**).** Run `solve check` against post-red-enforcement output contract (`contracts/post-red-enforcement-output-template.yaml`). **→ SC-6, SC-7**
 
 ### Item 2: Task file modification (GREEN)
 
@@ -82,24 +82,24 @@
 
 - [ ] 16. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 
-- [ ] 17. **GREEN VbC (**sub-agent**).** Dispatch `verification-before-completion --task completion`. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6**
+- [ ] 17. **GREEN VbC (**sub-agent**).** Dispatch `verification-before-completion --task completion`. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
 ### Audit
 
 - [ ] 18. **Adversarial audit (**orchestrator multi-dispatch**).**
   1. Run `.opencode/tools/resolve-models` to select cross-family auditors
-  2. Dispatch `adversarial-audit --task verification-audit` with `subagent_type` from `auditor_1`
+  2. Dispatch `audit --task verification-audit` with `subagent_type` from `auditor_1`
   3. On non-clean-pass: remediate root cause, restart from resolve-models
   4. Dispatch same audit task with `subagent_type` from `auditor_2`
   5. On non-clean-pass: remediate root cause, restart from resolve-models
   6. Both clean PASS: collect both `artifact_path` values
   - **→ All SCs**
 
-- [ ] 19. **Cross-validate (**sub-agent**).** Dispatch `adversarial-audit --task cross-validate` with `auditor_artifact_paths` from step 18. **→ All SCs**
+- [ ] 19. **Cross-validate (**sub-agent**).** Dispatch `audit --task cross-validate` with `auditor_artifact_paths` from step 18. **→ All SCs**
 
 ### Global Post-Steps
 
-- [ ] 20. **Regression check (**sub-agent**).** Dispatch `test-driven-development --task patterns` (regression). **→ SC-6**
+- [ ] 20. **Regression check (**sub-agent**).** Dispatch `test-driven-development --task patterns` (regression). **→ SC-6, SC-7**
 
 - [ ] 21. **Review prep (**sub-agent**).** Dispatch `git-workflow --task review-prep`. **→ SC-1, SC-5**
 
@@ -107,7 +107,7 @@
 
 #### Phase 01 VbC
 
-- [ ] 23. **VbC (**clean-room**).** Dispatch a clean-room sub-agent with the deliverable (modified `push-and-cleanup.md`, behavioral test) and the 6 SCs. The sub-agent independently reads the files, evaluates each SC against the spec, and returns a PASS/FAIL verdict per SC. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6**
+- [ ] 23. **VbC (**clean-room**).** Dispatch a clean-room sub-agent with the deliverable (modified `push-and-cleanup.md`, behavioral test) and the 7 SCs. The sub-agent independently reads the files, evaluates each SC against the spec, and returns a PASS/FAIL verdict per SC. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
 
 ## Exit Criteria
 
@@ -117,10 +117,11 @@
 - [ ] **C4.** All existing enforcement tests pass (no regression)
 - [ ] **C5.** Adversarial audit consensus PASS
 - [ ] **C6.** All changes committed on feature branch
-- [ ] **C7.** All 22 pipeline gates executed in order with PASS
+- [ ] **C7.** All 23 pipeline gates executed in order with PASS
 - [ ] **C8.** Dual-auditor consensus achieved with no unresolved disagreements
 - [ ] **C9.** Regression suite passes with no regressions
 - [ ] **C10.** Review-prep completes successfully
+- [ ] **C11.** All 7 SCs (SC-1 through SC-7) verified with 100% clean PASS — no SC skipped, deferred, weakened, or blocked
 
 > **⚠️ COMPLIANCE REQUIREMENT:** This plan is a binding implementation contract. Every step MUST be executed in order. No step may be skipped, reordered, or combined. Each step's dispatch indicator (`(**sub-agent**)`, `(**inline**)`) is mandatory. The orchestrator MUST follow the exact dispatch pattern specified. Violations produce defective deliverables that require rework from scratch and loss of all prior work.
 
@@ -130,10 +131,10 @@
 
 | Check | Status | Evidence |
 |-------|--------|----------|
-| Spec coverage | ✅ | All 6 SCs (SC-1 through SC-6) mapped to steps 1-23 |
+| Spec coverage | ✅ | All 7 SCs (SC-1 through SC-7) mapped to steps 1-23 |
 | Placeholder detection | ✅ | No TBD/TODO found in plan |
 | Dispatch indicator consistency | ✅ | 16 sub-agent, 5 inline, 1 multi-dispatch, 1 clean-room — all match SKILL.md |
 | Pipeline gate completeness | ✅ | All 22 gates from implementation-pipeline dispatch routing table present |
 | TDD structure | ✅ | RED (step 3) → Z3 (4) → doublecheck (5) → Z3 (6) → enforcement (7) → Z3 (8); GREEN (9) → Z3 (10) → enforcement (11) → Z3 (12) |
-| Exit criteria completeness | ✅ | 10 exit criteria (C1-C10) covering all SCs and pipeline requirements |
+| Exit criteria completeness | ✅ | 11 exit criteria (C1-C11) covering all SCs and pipeline requirements |
 | No inline semantic assertions | ✅ | All sub-agent steps dispatch only — no "verify/confirm/check that X" language. Sub-agents produce their own result contracts. |
