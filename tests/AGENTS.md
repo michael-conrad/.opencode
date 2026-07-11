@@ -384,3 +384,36 @@ The prompt must be something the agent would actually DO, not something it would
 ---
 
 *This specification replaces the previous inline-evaluation paradigm. All scripts must be artifact-only generators. No backward compatibility with assert_* functions or run-all.sh.*
+
+---
+
+## 10. Session Failure Diagnosis
+
+When a behavioral test session fails (harness error, model timeout, or unexpected exit), use the diagnostic checklist below to identify the root cause before re-running.
+
+### Diagnostic Checklist
+
+| # | Check | Command / Method | Expected Outcome |
+|---|-------|------------------|-----------------|
+| 1 | Verify model availability | `opencode-cli models` | Target model is listed and reachable |
+| 2 | Inspect artifact directory | `ls ./tmp/behavioral-evidence-<scenario>-<phase>-<model>/` | All mandatory files present (manifest.yaml, stdout.log, stderr.log, exit_code, session.yaml) |
+| 3 | Check exit code | `cat ./tmp/behavioral-evidence-*/exit_code` | `0` (OK) — non-zero means harness failure |
+| 4 | Read stderr for tool dispatch | `cat ./tmp/behavioral-evidence-*/stderr.log` | Tool calls dispatched as expected; no orphaned lock or timeout errors |
+| 5 | Verify lock file not orphaned | `flock -x -w 1 tmp/.behavior-run.lock true` 2>/dev/null && echo "free" || echo "locked" | `free` — orphaned lock blocks all subsequent runs |
+| 6 | Confirm test home is clean | `ls tmp/test-home-*/ 2>/dev/null` | No stale test home directories from prior aborted runs |
+
+### Common Root Causes
+
+| Cause | Symptom | Fix |
+|-------|---------|-----|
+| Orphaned `flock` from prior timeout-killed run | Check 5 shows `locked` | `rm -f tmp/.behavior-run.lock` and kill orphaned `opencode-cli` processes |
+| Stale test home from aborted session | Check 6 shows multiple test homes | `bash .opencode/tests/with-test-home --clean-all` |
+| Model not loaded / slow to load | Check 1 fails or times out | Pre-warm model: `opencode-cli run "ping" --model <model>` before test |
+| Submodule commit not pushed | Test runs against stale submodule state | Push feature branch and set `BEHAVIOR_SUBMODULE_COMMIT=<sha>` |
+| Bash tool timeout too short | Test killed by outer timeout, leaving orphaned lock | Set bash tool `timeout` parameter to ≥ 600000ms |
+
+### Irrelevant Paths
+
+The following paths are **not relevant** to test isolation failures and should not be investigated during session failure diagnosis:
+
+- `~/.config/opencode/node_modules/` — Node.js dependencies for the opencode desktop app. These are unrelated to the test harness, which uses its own isolated XDG home via `with-test-home`. The presence or absence of `node_modules/` under `~/.config/opencode/` has no effect on test isolation, model dispatch, or artifact generation.
