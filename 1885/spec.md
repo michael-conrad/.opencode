@@ -47,7 +47,7 @@ The root cause is a gate placement defect: the artifact validation gate is posit
 **Why the gate fires too late:**
 1. The Trigger Dispatch Table entry for "create plan" dispatches directly to `create` without any artifact pre-check
 2. The `pre-plan-readiness` task is a separate dispatch path that is not chained to the "create plan" entry
-3. The artifact check in Mandatory Task Discipline item 8 is advisory ("required before plan creation") but not enforced as a hard gate at the entry point
+3. The artifact check in Mandatory Task Discipline item 8 already has hard-gate language (`BLOCKED` with `MISSING_SPEC_ARTIFACT`) but it is gated inside the pipeline — the pre-plan-readiness task does not independently validate artifacts at the entry point
 4. The `spec-to-plan` handoff manifest validates SC summary YAML but does not validate analytical artifact presence
 
 **Why this matters:**
@@ -61,7 +61,7 @@ The root cause is a gate placement defect: the artifact validation gate is posit
 - Add analytical artifact pre-check to the writing-plans Trigger Dispatch Table entry for "create plan"
 - Add analytical artifact check to the `pre-plan-readiness` task
 - Add analytical artifact requirement to writing-plans SKILL.md Entry Criteria
-- Elevate Mandatory Task Discipline item 8 from advisory to hard gate (BLOCKED on missing artifacts)
+- Mandatory Task Discipline item 8 hard gate — already implemented (commit 850c2dd0a); SC-4 verifies consistent enforcement across all entry-point gates
 - Add analytical artifact validation to the `spec-to-plan` handoff manifest
 - Add a critical-rules entry prohibiting bypassing the artifact gate
 - Add a behavioral enforcement test verifying the agent does not bypass the artifact gate
@@ -88,9 +88,9 @@ Add a new check to the `pre-plan-readiness` task that verifies all 7 analytical 
 
 Add analytical artifact presence to the Entry Criteria section of the writing-plans SKILL.md. The entry criteria currently list only spec approval and authorization scope; they must also list analytical artifact presence.
 
-### Change 4: Elevate Mandatory Task Discipline item 8 to hard gate
+### Change 4: Mandatory Task Discipline item 8 — already elevated
 
-Item 8 currently says "Analytical artifact validation required before plan creation." This is advisory language. It must be elevated to a hard gate: "Missing artifacts produce BLOCKED with `MISSING_SPEC_ARTIFACT`. The pipeline MUST NOT proceed past the entry point without all 7 artifacts."
+Item 8 already has hard-gate language (commit 850c2dd0a): "Missing artifacts produce BLOCKED with `MISSING_SPEC_ARTIFACT`." This change is complete. SC-4 verifies the hard-gate language remains present and is enforced consistently across all entry-point gates.
 
 ### Change 5: spec-to-plan handoff — Add artifact validation
 
