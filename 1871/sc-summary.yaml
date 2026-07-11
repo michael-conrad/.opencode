@@ -1,0 +1,45 @@
+sc_coverage:
+  total: 6
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1871
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: implementation
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+      evidence_types: [string, behavioral]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "Step 1.5b (body-revision check) is removed from comment.md"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: implementation
+    - id: SC-2
+      description: "Dead parenthetical '(triggers Phase 3 body update)' is removed from classification table"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: implementation
+    - id: SC-3
+      description: "Comment task has a routing gate that redirects spec corrections to spec-creation --task change-control"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: implementation
+    - id: SC-4
+      description: "Comment task has a routing gate that redirects plan corrections to writing-plans --task update"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: implementation
+    - id: SC-5
+      description: "Agent routes spec corrections to spec-creation, not issue-operations --task comment"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: implementation
+    - id: SC-6
+      description: "Comment task's only job is posting comments — no body-revision logic remains"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: implementation
