@@ -7,6 +7,7 @@
 
 Create an implementation plan from an approved spec. The orchestrator dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps, dispatching sub-agents for sub-task steps and running z3-check steps inline.
 
+<<<<<<< Updated upstream
 ## Step 0: Holistic Spec Evaluation (Pre-Flight Gate)
 
 **MANDATORY GATE — MUST NOT be skipped.** Before any plan creation steps, dispatch a clean-room sub-agent to evaluate the spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
@@ -17,6 +18,92 @@ Create an implementation plan from an approved spec. The orchestrator dispatches
   - Expected: PASS for all 11 dimensions
   - On FAIL: hard-fail immediately, escalate to user with failing dimension details and resolution guidance
   - On PASS: proceed to Prerequisites
+=======
+## Plan Template Sections
+
+The write sub-agent MUST include the following sections in every plan produced. These sections feed the 11 holistic dimensions and are mandatory — not optional.
+
+### SC-to-Step Traceability Table
+
+Per phase, map each spec SC to the plan step(s) that implement it. Format:
+
+```markdown
+| SC ID | Criterion | Phase | Step(s) |
+|-------|-----------|-------|---------|
+| SC-1  | ...       | 1     | 1.1, 1.2 |
+| SC-2  | ...       | 2     | 2.3 |
+```
+
+- Every spec SC MUST trace to at least one plan step
+- Steps that don't trace to any SC are scope creep and MUST be removed
+- Feeds the **Traceability** dimension
+
+### Safety/Rollback Considerations
+
+Per phase, document rollback plans for destructive operations. Required when any step involves data mutation, file deletion, or irreversible changes. Format:
+
+```markdown
+**Phase N — Safety/Rollback:**
+- Destructive operations: [list]
+- Rollback plan: [steps to undo]
+- Data loss risk: [none/low/medium/high]
+```
+
+- If no destructive operations exist, state: "No destructive operations in this phase"
+- Feeds the **Safety** dimension
+
+### Feasibility Verification
+
+Per step, confirm that referenced files, functions, and libraries exist before including them in the plan. Format:
+
+```markdown
+| Step | Reference | Verified? | Evidence |
+|------|-----------|-----------|----------|
+| 1.1  | `src/foo.py` `bar()` | ✅ | `srclight_get_signature` |
+```
+
+- References to non-existent artifacts MUST be flagged before finalization
+- Feeds the **Feasibility** dimension
+
+### Evidence/Provenance
+
+Every claim about code state in plan steps must be backed by a tool-call artifact. Claims without evidence MUST be flagged before finalization. Format:
+
+```markdown
+| Claim | Evidence Source | Verified? |
+|-------|----------------|----------|
+| `bar()` returns `int` | `srclight_get_signature('bar')` | ✅ |
+```
+
+- Feeds the **Provenance** dimension
+
+## Guidance
+
+### Escape Hatch Prohibition
+
+Plan step descriptions MUST NOT contain language that lets the agent short-circuit steps. Prohibited patterns:
+
+- "If this step fails, skip it" (without fallback criteria)
+- "Attempt X, if not possible do Y" (without clear fallback criteria)
+- "Verify manually" (pushes verification to human)
+- "May need to be adjusted" (no criteria for adjustment)
+- "Left to implementor", "implementor's choice"
+- "TBD", "TODO"
+- "If time permits"
+- "Simplify if needed"
+
+### Step-to-SC Traceability
+
+Every plan step MUST trace to at least one spec SC. Steps that don't trace to any SC are scope creep or unnecessary and MUST be removed.
+
+### Rollback for Destructive Operations
+
+Any step that performs a destructive operation (data mutation, file deletion, irreversible change) MUST have an explicit rollback step or documented rollback plan.
+
+### Plan-Spec Alignment
+
+The plan MUST actually implement the spec it claims to implement. The plan's goal MUST match the spec's goal. The plan MUST NOT add phases the spec didn't ask for or omit phases the spec requires.
+>>>>>>> Stashed changes
 
 ## Prerequisites
 
