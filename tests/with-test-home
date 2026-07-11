@@ -85,7 +85,9 @@ seed_model_config() {
         "
         fi
         first=false
-        model_entries+="\"$model\": {}"
+        # Strip ollama/ prefix — the ollama provider expects bare name:tag keys
+        local bare="${model#ollama/}"
+        model_entries+="\"$bare\": {}"
     done
 
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
