@@ -1,6 +1,6 @@
 ---
 name: issue-operations
-description: "Use when creating, commenting on, or closing GitHub Issues. Also use when adding labels, managing sub-issues, or routing to platform-specific implementations. Invoke for: issue creation, issue comment, issue closure, label management, sub-issue management, platform routing. Routes to GitHub MCP or GitBucket API based on github.platform. Issue tracking is REQUIRED. Trigger phrases: create issue, comment on issue, close issue, add label, manage sub-issue, link sub-issue."
+description: "Issue operations dispatcher that routes to GitHub MCP or GitBucket API based on github.platform. Dispatch when creating, commenting on, or closing GitHub Issues. Also dispatch when adding labels, managing sub-issues, or routing to platform-specific implementations. Issue tracking is REQUIRED. User phrases: create issue, comment on issue, close issue, add label, manage sub-issue, link sub-issue."
 license: MIT
 compatibility: opencode
 ---

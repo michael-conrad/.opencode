@@ -1,6 +1,6 @@
 ---
 name: correspondence
-description: "Use when drafting stakeholder emails, status updates, or external communications. Also use when analyzing audience context, maintaining audience separation, or generating structured correspondence. Invoke for: stakeholder email drafting, status update creation, external communication drafting, audience analysis, audience separation enforcement. Audience separation MUST be maintained — always required. Trigger phrases: draft email, write stakeholder update, external communication, audience analysis, status report."
+description: "Stakeholder communication drafter for emails, status updates, and external correspondence. Dispatch when drafting stakeholder emails, status updates, or external communications. Also dispatch when analyzing audience context, maintaining audience separation, or generating structured correspondence. Audience separation MUST be maintained — always required. User phrases: draft email, write stakeholder update, external communication, audience analysis, status report."
 license: MIT
 compatibility: opencode
 ---

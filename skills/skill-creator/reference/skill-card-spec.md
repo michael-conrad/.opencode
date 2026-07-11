@@ -76,6 +76,16 @@ For the canonical SKILL.md structure (routing-only, no procedure text), see:
 
 All new skills MUST use the routing-only template. The SKILL.md variant of the Mandatory Task Discipline block (5 items) is included in the template. Task cards (`tasks/*.md`) continue to use the task card variants defined above.
 
+### Description Format
+
+The `description` field in YAML frontmatter uses the **agent-intent pattern**:
+
+```
+<Noun phrase describing what the skill is>. Dispatch when <agent-facing trigger conditions>. Also dispatch when <additional trigger conditions>. <Enforcement statement>. User phrases: <preserved user-facing trigger phrases>.
+```
+
+See `routing-only-template.md` for the canonical template and validation rules.
+
 ### Required Sections
 
 The routing-only SKILL.md template defines the following required sections in order:

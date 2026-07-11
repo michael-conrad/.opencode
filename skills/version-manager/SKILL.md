@@ -1,6 +1,6 @@
 ---
 name: version-manager
-description: "Use when discovering version strings in a codebase or bumping versions for a release. Also use when scanning for version patterns across multiple file formats or determining the next version from changelog categories. Invoke for: version discovery, version bump, semver analysis, version string scanning. Version management is REQUIRED before every release — not optional. Trigger phrases: version, bump version, version-manager, discover version, next version."
+description: "Version string scanner and semver bumper for discovering and updating version numbers across codebases. Dispatch when discovering version strings in a codebase or bumping versions for a release. Also dispatch when scanning for version patterns across multiple file formats or determining the next version from changelog categories. Version management is REQUIRED before every release — not optional. User phrases: version, bump version, version-manager, discover version, next version."
 license: MIT
 compatibility: opencode
 ---

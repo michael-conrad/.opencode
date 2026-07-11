@@ -1,6 +1,6 @@
 ---
 name: verification-enforcement
-description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also use when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Invoke for: pre-generation verification, evidence artifact collection, post-generation claim resolution, proactive verification enforcement, content verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct from verification (general claim verification) and verification-before-completion (completion gate). Trigger phrases: verify before generation, collect evidence, resolve unverified claims, proactive verification, content verification."
+description: "Content generation verifier that collects evidence artifacts before generation and resolves unverified claims after. Dispatch when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also dispatch when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct from verification (general claim verification) and verification-before-completion (completion gate). User phrases: verify before generation, collect evidence, resolve unverified claims, proactive verification, content verification."
 license: MIT
 compatibility: opencode
 ---
