@@ -2,6 +2,9 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+<!-- Dimensions synced from .opencode/reference/holistic-dimensions.yaml -->
+<!-- Sync locations: see cross-reference table in that file -->
+
 # Task: spec-audit
 
 ## Purpose
@@ -54,14 +57,15 @@ Audit a spec for quality, structure, and completeness. Each criterion is evaluat
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/spec-audit/`
 - [ ] 1. Pre-Flight Validation Gate — validate required inputs before proceeding
 - [ ] 2. Load Spec Content — glob spec_local_dir for .md files, read all
-- [ ] 3. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
-- [ ] 4. Build Evaluation Criteria — define SC table with evidence types
-- [ ] 4a. Evaluate Semantic Auditor Criteria (SC-SEM) — evaluate skill card description quality (skip if not a skill card audit)
-- [ ] 5. Process Verdicts — per-criterion PASS/FAIL consensus
-- [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
-- [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
-- [ ] 8. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
-- [ ] 9. Return Frugal Result Contract
+- [ ] 3. Holistic Semantic Evaluation Gate — evaluate 11 dimensions; if any FAIL, halt with DRAFT verdict
+- [ ] 4. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
+- [ ] 5. Build Evaluation Criteria — define SC table with evidence types
+- [ ] 5a. Evaluate Semantic Auditor Criteria (SC-SEM) — evaluate skill card description quality (skip if not a skill card audit)
+- [ ] 6. Process Verdicts — per-criterion PASS/FAIL consensus
+- [ ] 7. Evaluate SC Determinism (SC-DET) — check each SC for determinism
+- [ ] 8. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
+- [ ] 9. Write verdict.yaml — write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
+- [ ] 10. Return Frugal Result Contract
 
 ### Step 0a: Knowledge Supporter — Validate Evidence
 
@@ -102,7 +106,94 @@ Read spec from `spec_local_dir/`:
 
 Auditors return BLOCKED with `SPEC_NOT_FOUND` if `spec_local_dir` is absent.
 
-### Step 2: Verify Documentation Sources Against Live Sources
+### Step 2: Holistic Semantic Evaluation Gate
+
+**Gate semantics:** This step runs BEFORE all narrow criteria (Steps 3+). If the holistic gate FAILs, the spec is returned as DRAFT — narrow criteria never execute. This prevents wasting evaluation effort on specs that fail at the structural level.
+
+- [ ] 1. Dispatch a clean-room sub-agent with the spec body (no orchestrator preload, no expected outcomes)
+- [ ] 2. The sub-agent evaluates the spec against all 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`:
+
+| # | Dimension | Question | Checks |
+|---|-----------|----------|--------|
+| 1 | Implementability | Can an agent produce correct output from this spec? | Single approach, unambiguous SCs, consistent output across implementors |
+| 2 | Internal Consistency | Does the spec contradict itself across sections? | Preamble vs body, SCs vs constraints, Files Affected vs phases, causal chain |
+| 3 | Completeness | Are there gaps forcing the implementor to guess? | Undefined terms, missing SCs, implicit dependencies, TBD/TODO markers, unspecified handoffs |
+| 4 | Scope Discipline | Does the spec stay within its stated boundaries? | Unbounded requirements, scope creep in phases, blast radius mismatch |
+| 5 | Testability | Can every SC be independently verified? | Untestable SCs, subjective judgment, circular verification, evidence type mismatch |
+| 6 | Escape Hatches | Does the spec contain language that lets the agent short-circuit requirements? | "Use best judgment", "implementer's discretion", "if time permits", "stretch goal", "may be deferred", "simplify if needed", "reduce scope if complex", "as appropriate", "as needed", "preferably", "ideally", "should", "TBD", "TODO", "to be determined", "left to implementor", "implementor's choice", "consider X", "optionally", "if desired" |
+| 7 | Provenance | Are the spec's claims backed by evidence? | Unsupported factual assertions, claims about code state without tool-call evidence, references to unverified files/functions, assertions about behavior without source |
+| 8 | Feasibility | Can this actually be done with available tools and constraints? | References to non-existent files/functions/libraries, requirements exceeding infrastructure, physically impossible phase ordering, unavailable dependencies |
+| 9 | Safety | Does the spec have failure modes that could cause irreversible harm? | Destructive operations without rollback plans, data loss scenarios, security vulnerabilities, irreversible operations, production data changes without safeguards |
+| 10 | Traceability | Does every element connect to something else in a coherent chain? | Orphan SCs, root causes with no SCs, phases not tracing to SCs, steps not tracing to phases, forward and backward traceability coherence |
+| 11 | Correctness | Does this spec actually solve the right problem? | Preamble vs SCs mismatch, root cause vs fix approach mismatch, stated problem vs actual defect mismatch, symptom vs root cause |
+
+- [ ] 3. Each dimension gets a single PASS/FAIL — no hedging, no "PASS with concerns"
+- [ ] 4. If any dimension FAILs:
+  - Halt — do NOT proceed to narrow criteria (Steps 3+)
+  - Read the spec's STATUS marker from the issue body
+  - If STATUS is not already DRAFT, set STATUS to DRAFT
+  - Post a comment: "Spec marked DRAFT: [dimension(s)] failed holistic evaluation. [Explanation of each failure]. Resolution: [specific guidance on what to fix for each failed dimension]."
+  - Include the DRAFT status change in the verdict artifact
+  - Return verdict with `holistic_status: DRAFT`
+- [ ] 5. If all 11 dimensions PASS:
+  - Proceed to narrow criteria (Steps 3+)
+  - Record holistic PASS in the verdict artifact
+
+Record results:
+
+```yaml
+holistic_evaluation:
+  status: "PASS|DRAFT"
+  dimensions:
+    - id: 1
+      name: "Implementability"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 2
+      name: "Internal Consistency"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 3
+      name: "Completeness"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 4
+      name: "Scope Discipline"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 5
+      name: "Testability"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 6
+      name: "Escape Hatches"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 7
+      name: "Provenance"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 8
+      name: "Feasibility"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 9
+      name: "Safety"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 10
+      name: "Traceability"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+    - id: 11
+      name: "Correctness"
+      result: "PASS|FAIL"
+      finding: "<brief finding>"
+  draft_status_changed: true|false
+  comment_posted: true|false
+```
+
+### Step 3: Verify Documentation Sources Against Live Sources
 
 For each URL, API reference, or documentation claim in the spec (including any `Documentation Sources` section), verify against live sources:
 
@@ -123,7 +214,7 @@ documentation_verification:
 
 If any source cannot be verified, flag the finding and include in the SC-11 (Documentation Sources) evaluation. Claims verified by tool-call evidence PASS; unverified claims receive a FAIL with the specific discrepancy.
 
-### Step 3: Build Evaluation Criteria
+### Step 5: Build Evaluation Criteria
 
 Define audit criteria based on spec-auditor task structure:
 
@@ -161,7 +252,7 @@ Define audit criteria based on spec-auditor task structure:
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
-### Step 3a: Evaluate Reasoning Soundness (A1)
+### Step 5a: Evaluate Reasoning Soundness (A1)
 
 Evaluate the spec's causal reasoning, SC traceability, and internal consistency:
 
@@ -202,7 +293,7 @@ Add SC-REASONING criteria to evaluation table:
 |--------------|-------------|-----------------|
 | SC-REASONING | Reasoning Soundness | Causal chain valid, SC traceability complete, no contradictions |
 
-### Step 3b: Evaluate Claim Accuracy (A2)
+### Step 5b: Evaluate Claim Accuracy (A2)
 
 Extend Step 2 verification with structured claim accuracy checks:
 
@@ -252,7 +343,7 @@ Add SC-CLAIM criteria to evaluation table:
 | SC-STATE | State analysis artifact present and complete | State analysis exists, state transitions and invariants documented |
 | SC-TESTABILITY | Testability assessment artifact present and complete | Testability assessment exists, test strategy and coverage plan documented |
 
-### Step 3c: Evaluate Blast Radius (A3)
+### Step 5c: Evaluate Blast Radius (A3)
 
 Evaluate the spec's blast radius analysis completeness:
 
@@ -277,7 +368,7 @@ blast_radius:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3d: Evaluate Research Adequacy (A4)
+### Step 5d: Evaluate Research Adequacy (A4)
 
 Evaluate whether the spec's claims are backed by adequate research:
 
@@ -312,7 +403,7 @@ research_adequacy:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3e: Evaluate Gap Analysis (A5)
+### Step 5e: Evaluate Gap Analysis (A5)
 
 Evaluate the spec for coverage gaps and implicit conditions:
 
@@ -335,7 +426,7 @@ gap_analysis:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3f: Evaluate Scope Creep (A6)
+### Step 5f: Evaluate Scope Creep (A6)
 
 Evaluate the spec for scope boundary violations:
 
@@ -358,7 +449,7 @@ scope_creep:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3g: Evaluate Scope Narrowness (A7)
+### Step 5g: Evaluate Scope Narrowness (A7)
 
 Evaluate the spec for insufficient root cause depth:
 
@@ -387,7 +478,7 @@ scope_narrowness:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3h: Evaluate Cross-Reference Completeness (A9)
+### Step 5h: Evaluate Cross-Reference Completeness (A9)
 
 Evaluate the spec for citation completeness and reference sufficiency:
 
@@ -410,7 +501,7 @@ cross_reference_completeness:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3i: Validate Blast Radius Artifact
+### Step 5i: Validate Blast Radius Artifact
 
 Validate the blast radius analysis artifact against the spec content:
 
@@ -428,7 +519,7 @@ blast_radius_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3j: Validate Concern Map Artifact
+### Step 5j: Validate Concern Map Artifact
 
 Validate the concern map artifact against the spec content:
 
@@ -446,7 +537,7 @@ concern_map_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3k: Validate Code Path Inventory
+### Step 5k: Validate Code Path Inventory
 
 Validate the code path inventory artifact against the spec content:
 
@@ -464,7 +555,7 @@ code_path_inventory_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3l: Validate Cross-Cutting Matrix
+### Step 5l: Validate Cross-Cutting Matrix
 
 Validate the cross-cutting matrix artifact against the spec content:
 
@@ -482,7 +573,7 @@ cross_cutting_matrix_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3m: Validate Interface Compatibility
+### Step 5m: Validate Interface Compatibility
 
 Validate the interface compatibility artifact against the spec content:
 
@@ -500,7 +591,7 @@ interface_compatibility_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3n: Validate State Analysis
+### Step 5n: Validate State Analysis
 
 Validate the state analysis artifact against the spec content:
 
@@ -518,7 +609,7 @@ state_analysis_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3o: Validate Testability Assessment
+### Step 5o: Validate Testability Assessment
 
 Validate the testability assessment artifact against the spec content:
 
@@ -536,7 +627,7 @@ testability_assessment_artifact:
   findings: ["<description of each gap>"]
 ```
 
-### Step 3p: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 5p: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 
@@ -599,7 +690,7 @@ Record each SC-SEM criterion result in the per_criterion array with the same for
 
 **When `failure_description` is provided:** The spec auditor must evaluate whether the SCs are deterministic and testable specifically in light of the failure evidence. The evaluation should answer: "Would this SC have prevented the observed failure if it were properly deterministic?" or "Is the failure attributable to a non-deterministic SC?" If yes, return SPEC_GAP with revision recommendation. If no (SCs are deterministic but the implementer failed), return confirmation that implementation failure is the root cause.
 
-### Step 4: Process Verdicts
+### Step 6: Process Verdicts
 
 For each criterion:
 - Both auditors PASS → criterion consensus PASS
@@ -608,7 +699,7 @@ For each criterion:
 
 **Self-consistency gate:** After computing consensus, apply a self-consistency check to every PASS verdict. If `result: "PASS"` and the `explanation` contains critique/hedging language ("should be", "needs", "missing", "could improve", "minor", "some issues", "mostly", "generally"), the verdict is downgraded to FAIL. A PASS verdict must be strictly confirmatory with no critique or hedging.
 
-### Step 4.5: Evaluate SC Determinism (SC-DET)
+### Step 7: Evaluate SC Determinism (SC-DET)
 
 For each success criterion in the spec, evaluate determinism:
 
@@ -641,7 +732,7 @@ For each success criterion in the spec, evaluate determinism:
 }
 ```
 
-### Step 5: Generate Bidirectional Findings
+### Step 8: Generate Bidirectional Findings
 
 Generate findings ONLY for FAIL/DISAGREE criteria. PASS criteria MUST NOT appear in the findings table — a PASS verdict with findings is contradictory and will be caught by the self-consistency gate in Step 4.
 
@@ -654,11 +745,11 @@ Generate findings ONLY for FAIL/DISAGREE criteria. PASS criteria MUST NOT appear
 
 Present revision options for developer decision.
 
-### Step 8: Write verdict.yaml
+### Step 9: Write verdict.yaml
 
 Write verdict to `./tmp/{issue-N}/artifacts/spec-audit/verdict.yaml`
 
-### Step 9: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
+### Step 10: Write Verdict Artifact to Disk (Legacy — kept for backward compatibility)
 
 Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-{STATUS}-{timestamp}.yaml`:
 
@@ -686,7 +777,7 @@ all_criteria_pass: false
 remediation_required: true  # When status is FAIL: full mandatory re-audit required
 ```
 
-### Step 12: Return Frugal Result Contract
+### Step 11: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -705,29 +796,32 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - [ ] 0. Pre-Flight Validation Gate → INVALID if skipped
 - [ ] 1. Load spec content → INVALID if skipped
-- [ ] 2. Verify documentation sources → INVALID if skipped
-- [ ] 3. Build evaluation criteria → INVALID if skipped
-- [ ] 3a. Evaluate reasoning soundness (A1) → INVALID if skipped
-- [ ] 3b. Evaluate claim accuracy (A2) → INVALID if skipped
-- [ ] 3c. Evaluate blast radius (A3) → INVALID if skipped
-- [ ] 3d. Evaluate research adequacy (A4) → INVALID if skipped
-- [ ] 3e. Evaluate gap analysis (A5) → INVALID if skipped
-- [ ] 3f. Evaluate scope creep (A6) → INVALID if skipped
-- [ ] 3g. Evaluate scope narrowness (A7) → INVALID if skipped
-- [ ] 3h. Evaluate cross-reference completeness (A9) → INVALID if skipped
-- [ ] 3i. Validate blast radius artifact → INVALID if skipped
-- [ ] 3j. Validate concern map artifact → INVALID if skipped
-- [ ] 3k. Validate code path inventory → INVALID if skipped
-- [ ] 3l. Validate cross-cutting matrix → INVALID if skipped
-- [ ] 3m. Validate interface compatibility → INVALID if skipped
-- [ ] 3n. Validate state analysis → INVALID if skipped
-- [ ] 3o. Validate testability assessment → INVALID if skipped
-- [ ] 3p. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
-- [ ] 4. Cross-validate with verdicts → INVALID if skipped
-- [ ] 5. Process verdicts → INVALID if skipped
-- [ ] 6. Evaluate SC determinism → INVALID if skipped
-- [ ] 7. Generate bidirectional findings → INVALID if skipped
-- [ ] 8. Build result contract → INVALID if skipped
+- [ ] 2. Holistic Semantic Evaluation Gate → INVALID if skipped (gate blocks all downstream steps on FAIL)
+- [ ] 3. Verify documentation sources → INVALID if skipped
+- [ ] 4. Build evaluation criteria → INVALID if skipped
+- [ ] 5. Build Evaluation Criteria → INVALID if skipped
+- [ ] 5a. Evaluate reasoning soundness (A1) → INVALID if skipped
+- [ ] 5b. Evaluate claim accuracy (A2) → INVALID if skipped
+- [ ] 5c. Evaluate blast radius (A3) → INVALID if skipped
+- [ ] 5d. Evaluate research adequacy (A4) → INVALID if skipped
+- [ ] 5e. Evaluate gap analysis (A5) → INVALID if skipped
+- [ ] 5f. Evaluate scope creep (A6) → INVALID if skipped
+- [ ] 5g. Evaluate scope narrowness (A7) → INVALID if skipped
+- [ ] 5h. Evaluate cross-reference completeness (A9) → INVALID if skipped
+- [ ] 5i. Validate blast radius artifact → INVALID if skipped
+- [ ] 5j. Validate concern map artifact → INVALID if skipped
+- [ ] 5k. Validate code path inventory → INVALID if skipped
+- [ ] 5l. Validate cross-cutting matrix → INVALID if skipped
+- [ ] 5m. Validate interface compatibility → INVALID if skipped
+- [ ] 5n. Validate state analysis → INVALID if skipped
+- [ ] 5o. Validate testability assessment → INVALID if skipped
+- [ ] 5p. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
+- [ ] 6. Process Verdicts → INVALID if skipped
+- [ ] 7. Evaluate SC Determinism → INVALID if skipped
+- [ ] 8. Generate Bidirectional Findings → INVALID if skipped
+- [ ] 9. Write verdict.yaml → INVALID if skipped
+- [ ] 10. Write Verdict Artifact to Disk → INVALID if skipped
+- [ ] 11. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 

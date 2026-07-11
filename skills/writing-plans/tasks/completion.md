@@ -1,5 +1,8 @@
 # Task: completion
 
+<!-- Dimensions synced from .opencode/reference/holistic-dimensions.yaml -->
+<!-- Sync locations: see cross-reference table in that file -->
+
 Idempotent completion subtask for writing-plans. Ensures mandatory steps ran regardless of where the workflow halted.
 
 ## State Check Phase

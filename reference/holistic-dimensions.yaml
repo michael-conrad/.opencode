@@ -1,0 +1,135 @@
+# Canonical holistic evaluation dimensions for specs and plans.
+# This is the single source of truth. All consumer files reference this file.
+# When a dimension changes, update this file and verify all sync locations.
+
+spec_dimensions:
+  - id: 1
+    name: Implementability
+    question: "Can an agent produce correct output from this spec?"
+    checks: "Single approach, unambiguous SCs, consistent output across implementors"
+  - id: 2
+    name: Internal Consistency
+    question: "Does the spec contradict itself across sections?"
+    checks: "Preamble vs body, SCs vs constraints, Files Affected vs phases, causal chain"
+  - id: 3
+    name: Completeness
+    question: "Are there gaps forcing the implementor to guess?"
+    checks: "Undefined terms, missing SCs, implicit dependencies, TBD/TODO markers, unspecified handoffs"
+  - id: 4
+    name: Scope Discipline
+    question: "Does the spec stay within its stated boundaries?"
+    checks: "Unbounded requirements, scope creep in phases, blast radius mismatch"
+  - id: 5
+    name: Testability
+    question: "Can every SC be independently verified?"
+    checks: "Untestable SCs, subjective judgment, circular verification, evidence type mismatch"
+  - id: 6
+    name: Escape Hatches
+    question: "Does the spec contain language that lets the agent short-circuit requirements?"
+    checks: "Use best judgment, implementer's discretion, if time permits, stretch goal, may be deferred, simplify if needed, reduce scope if complex, as appropriate, as needed, preferably, ideally, should, TBD, TODO, to be determined, left to implementor, implementor's choice, consider X, optionally, if desired"
+  - id: 7
+    name: Provenance
+    question: "Are the spec's claims backed by evidence?"
+    checks: "Unsupported factual assertions, claims about code state without tool-call evidence, references to unverified files/functions, assertions about behavior without source"
+  - id: 8
+    name: Feasibility
+    question: "Can this actually be done with available tools and constraints?"
+    checks: "References to non-existent files/functions/libraries, requirements exceeding infrastructure, physically impossible phase ordering, unavailable dependencies"
+  - id: 9
+    name: Safety
+    question: "Does the spec have failure modes that could cause irreversible harm?"
+    checks: "Destructive operations without rollback plans, data loss scenarios, security vulnerabilities, irreversible operations, production data changes without safeguards"
+  - id: 10
+    name: Traceability
+    question: "Does every element connect to something else in a coherent chain?"
+    checks: "Orphan SCs, root causes with no SCs, phases not tracing to SCs, steps not tracing to phases, forward and backward traceability coherence"
+  - id: 11
+    name: Correctness
+    question: "Does this spec actually solve the right problem?"
+    checks: "Preamble vs SCs mismatch, root cause vs fix approach mismatch, stated problem vs actual defect mismatch, symptom vs root cause"
+
+plan_dimensions:
+  - id: 1
+    name: Implementability
+    question: "Can an agent execute this plan?"
+    checks: "Single clear sequence, correct phase ordering, resolved dependencies"
+  - id: 2
+    name: Internal Consistency
+    question: "Does the plan contradict itself?"
+    checks: "Phase preconditions vs actions, step outputs vs downstream inputs, phase ordering vs dependency DAG"
+  - id: 3
+    name: Completeness
+    question: "Are there gaps forcing the implementor to guess?"
+    checks: "Missing steps, unspecified handoffs, undefined terms, TBD/TODO markers"
+  - id: 4
+    name: Scope Discipline
+    question: "Does the plan stay within the spec's boundaries?"
+    checks: "Phases implementing things spec didn't ask for, steps exceeding Files Affected, blast radius mismatch"
+  - id: 5
+    name: Testability
+    question: "Can every step be independently verified?"
+    checks: "Steps with no verification criteria, subjective judgment steps, uncheckable outputs"
+  - id: 6
+    name: Escape Hatches
+    question: "Does the plan contain language that lets the agent short-circuit steps?"
+    checks: "Skip if fails without fallback criteria, attempt X else Y without clear criteria, verify manually, may need adjustment, left to implementor, implementor's choice, TBD, TODO, if time permits, simplify if needed"
+  - id: 7
+    name: Provenance
+    question: "Are the plan's claims backed by evidence?"
+    checks: "Steps referencing files/functions without verification, assertions about code state without tool-call evidence, claims about dependencies without checking existence"
+  - id: 8
+    name: Feasibility
+    question: "Can this plan actually be executed?"
+    checks: "Non-existent files/functions, physically impossible phase ordering, unavailable dependencies, requirements exceeding infrastructure"
+  - id: 9
+    name: Safety
+    question: "Does the plan have failure modes that could cause irreversible harm?"
+    checks: "Destructive operations without rollback plans, data loss scenarios, security vulnerabilities, irreversible operations, production data changes without safeguards"
+  - id: 10
+    name: Traceability
+    question: "Does every step connect to something else in a coherent chain?"
+    checks: "Steps not tracing to spec SCs, phases not tracing to spec phases, orphan steps, forward and backward traceability coherence"
+  - id: 11
+    name: Correctness
+    question: "Does this plan actually implement the spec it claims to implement?"
+    checks: "Plan approach vs spec approach mismatch, extra phases, omitted required phases, goal mismatch"
+
+cross_reference:
+  audit_gates:
+    - file: ".opencode/skills/audit/tasks/spec-audit.md"
+      section: "Step 2 holistic gate"
+      dimensions: "spec 1-11"
+      last_verified: null
+    - file: ".opencode/skills/writing-plans/tasks/create.md"
+      section: "Step 0 pre-flight gate"
+      dimensions: "spec 1-11"
+      last_verified: null
+    - file: ".opencode/skills/writing-plans/tasks/update.md"
+      section: "Step 0 pre-flight gate"
+      dimensions: "spec 1-11"
+      last_verified: null
+    - file: ".opencode/skills/audit/tasks/plan-fidelity.md"
+      section: "Step 0 pre-flight gate"
+      dimensions: "plan 1-11"
+      last_verified: null
+    - file: ".opencode/skills/implementation-pipeline/tasks/pre-flight.md"
+      section: "Step 0 pre-flight gate"
+      dimensions: "plan 1-11"
+      last_verified: null
+  producer_self_checks:
+    - file: ".opencode/skills/spec-creation/tasks/create.md"
+      section: "Template sections"
+      dimensions: "spec 1-11"
+      last_verified: null
+    - file: ".opencode/skills/spec-creation/tasks/completion.md"
+      section: "Holistic self-check"
+      dimensions: "spec 1-11"
+      last_verified: null
+    - file: ".opencode/skills/writing-plans/tasks/create.md"
+      section: "Template sections"
+      dimensions: "plan 1-11"
+      last_verified: null
+    - file: ".opencode/skills/writing-plans/tasks/completion.md"
+      section: "Holistic self-check"
+      dimensions: "plan 1-11"
+      last_verified: null

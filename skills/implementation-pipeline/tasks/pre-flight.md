@@ -1,11 +1,25 @@
 # Pre-Flight
 
+<!-- Dimensions synced from .opencode/reference/holistic-dimensions.yaml -->
+<!-- Sync locations: see cross-reference table in that file -->
+
 ## Entry Criteria
 
 - Plan is approved and ready for pipeline dispatch
 - Authorization scope is `for_implementation` or above
 
 ## Procedure
+
+### Step 0: Holistic Plan Evaluation Gate
+
+Before any implementation steps, dispatch a clean-room sub-agent to evaluate the plan against the 11 plan dimensions defined in `.opencode/reference/holistic-dimensions.yaml`:
+
+- [ ] 1. **Dispatch clean-room sub-agent** with the **plan body** (not the spec)
+- [ ] 2. **Sub-agent evaluates** all 11 plan dimensions (Implementability, Internal Consistency, Completeness, Scope Discipline, Testability, Escape Hatches, Provenance, Feasibility, Safety, Traceability, Correctness)
+- [ ] 3. **If any dimension FAILs** → hard-fail immediately, escalate to user with details of which dimension(s) failed and resolution guidance
+- [ ] 4. **If all dimensions PASS** → proceed to implementation steps below
+
+**This gate fires BEFORE any implementation steps.** The sub-agent receives ONLY the plan body — no spec, no orchestrator reasoning, no expected outcomes. This is a clean-room evaluation per critical-rules-034 (inline work prohibition).
 
 Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run plan-to-pipeline handoff verification:
 
