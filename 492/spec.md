@@ -51,7 +51,7 @@ The `drift-detection` task file exists at `.opencode/skills/audit/tasks/drift-de
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `review-prep/push-and-cleanup.md` includes a staleness-check step before push | `string` | `grep "behind\|stale\|rev-list" .opencode/skills/git-workflow/tasks/review-prep/push-and-cleanup.md` returns matches |
+| SC-1 | `review-prep/push-and-cleanup.md` includes a staleness-check step before push | `behavioral` | Clean-room sub-agent evaluates agent output: agent runs staleness check (`git rev-list --count --left-right`) before push |
 | SC-2 | Staleness detected → agent auto-rebases onto `origin/$DEFAULT_BRANCH` | `behavioral` | Clean-room sub-agent evaluates agent output: agent runs rebase on behind > 0, does not halt |
 | SC-3 | Rebase succeeds → proceeds to push and PR creation | `behavioral` | Clean-room sub-agent evaluates agent output: agent pushes and creates PR after successful rebase |
 | SC-4 | Tier 3 conflict during rebase → HALT and escalate to developer | `behavioral` | Clean-room sub-agent evaluates agent output: agent halts on intent conflict, reports conflict details |

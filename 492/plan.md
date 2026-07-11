@@ -78,7 +78,7 @@
 
 ### Verification
 
-- [ ] 15. **Structural checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. **→ SC-1**
+- [ ] 15. **Structural checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. **→ SC-1** (structural checks are supplementary; SC-1 behavioral verification happens in VbC)
 
 - [ ] 16. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 

@@ -96,7 +96,7 @@
 - [ ] 16. **GREEN doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify` for semantic-intent verification. Confirm the task file change correctly implements all spec requirements: staleness detection, auto-rebase, conflict classification, clean-path handling. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 
 - [ ] 17. **GREEN VbC (**clean-room**).** Dispatch `verification-before-completion --task completion`. Produce VbC completion artifact with evidence for all 7 SCs:
-  - SC-1: `grep` evidence that staleness-check step exists in review-prep
+  - SC-1: Behavioral test `assert_semantic` evidence that agent runs staleness check before push
   - SC-2: Behavioral test `assert_semantic` evidence for auto-rebase on staleness
   - SC-3: Behavioral test `assert_semantic` evidence for proceed after rebase
   - SC-4: Behavioral test `assert_semantic` evidence for HALT on Tier 3 conflict
