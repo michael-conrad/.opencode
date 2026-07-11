@@ -13,7 +13,7 @@
 Skill card validation only (sensor mode). Corrections are agent-driven.
 
 Validates SKILL.md files per spec #1124:
-  REQ-1: Frontmatter validation (name, description, type, license, compatibility)
+  REQ-1: Frontmatter validation (name, description, license, compatibility)
   REQ-2: Placeholder enforcement (no hardcoded identity values)
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
   REQ-4: Mandatory Task Discipline admonishment presence (5-item checklist)
@@ -140,17 +140,6 @@ def validate_req1(
         )
     else:
         desc = fields["description"]
-        if desc.startswith("Use when"):
-            violations.append(
-                Violation(
-                    "REQ-1",
-                    name,
-                    "description",
-                    "Description starts with 'Use when' (old pattern — must use agent-intent pattern)",
-                    desc[:60],
-                    file_path=file_path,
-                )
-            )
         if "Invoke for:" in desc:
             violations.append(
                 Violation(
@@ -238,15 +227,6 @@ def validate_req1(
 def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     desc = fields.get("description", "")
-    if desc.startswith("Use when"):
-        violations.append(
-            Violation(
-                "SC-LINT", name, "SC-LINT-001",
-                "Description starts with 'Use when' (old pattern)",
-                desc[:60], file_path=file_path,
-                severity="ERROR", pass_fail="FAIL",
-            )
-        )
     if "Dispatch when" not in desc:
         violations.append(
             Violation(
@@ -357,6 +337,27 @@ def validate_sc_lint_004(name: str, fields: dict[str, str], file_path: str) -> l
                 severity="WARNING", pass_fail="FAIL",
             )
         )
+    name_val = fields.get("name", "")
+    if name_val:
+        if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", name_val):
+            violations.append(
+                Violation(
+                    "SC-LINT", name, "SC-LINT-004",
+                    f"Name '{name_val}' does not match ^[a-z0-9]+(-[a-z0-9]+)*$",
+                    name_val, file_path=file_path,
+                    severity="ERROR", pass_fail="FAIL",
+                )
+            )
+        dir_name = Path(file_path).parent.name
+        if name_val != dir_name:
+            violations.append(
+                Violation(
+                    "SC-LINT", name, "SC-LINT-004",
+                    f"Name '{name_val}' does not match directory name '{dir_name}'",
+                    name_val, file_path=file_path,
+                    severity="ERROR", pass_fail="FAIL",
+                )
+            )
     return violations
 
 def validate_sc_lint_005(name: str, body: str, file_path: str) -> list[Violation]:
