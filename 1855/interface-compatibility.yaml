@@ -1,0 +1,120 @@
+# interface-compatibility.yaml — Spec #1855: Interface compatibility analysis
+
+interfaces:
+  - interface: description field (YAML frontmatter)
+    consumer: opencode runtime (packages/core/src/skill.ts)
+    format: string
+    current_value: '"Use when <primary use case>. Also use when... Invoke for:... Trigger phrases:..."'
+    new_value: '"<Noun phrase>. Dispatch when... Also dispatch when... User phrases:..."'
+    compatibility: FULL
+    rationale: >
+      The runtime reads the description field as an opaque string. It does not
+      parse, validate, or pattern-match the content. The string is rendered
+      verbatim into the <available_skills> XML block. Any string value is
+      compatible — the runtime has zero dependency on description format.
+
+  - interface: description field (YAML frontmatter)
+    consumer: LLM system prompt (<available_skills> XML block)
+    format: string rendered in XML
+    current_value: old pattern
+    new_value: new pattern
+    compatibility: INTENTIONAL CHANGE
+    rationale: >
+      The LLM is the intended consumer of the format change. The new pattern
+      is designed to improve LLM dispatch decisions by leading with agent-intent
+      language. This is a behavioral change, not a compatibility break. The LLM
+      can still read and understand both old and new patterns.
+
+  - interface: name field (YAML frontmatter)
+    consumer: opencode runtime
+    format: string
+    change: none
+    compatibility: FULL
+    rationale: Not touched by this spec.
+
+  - interface: slash field (YAML frontmatter)
+    consumer: opencode runtime
+    format: string
+    change: none
+    compatibility: FULL
+    rationale: Not touched by this spec.
+
+  - interface: license field (YAML frontmatter)
+    consumer: validate_skill_cards.py
+    format: string
+    change: none
+    compatibility: FULL
+    rationale: Not touched by this spec.
+
+  - interface: provenance field (YAML frontmatter)
+    consumer: validate_skill_cards.py
+    format: string
+    change: none
+    compatibility: FULL
+    rationale: Not touched by this spec.
+
+  - interface: compatibility field (YAML frontmatter)
+    consumer: validate_skill_cards.py
+    format: string
+    change: none
+    compatibility: FULL
+    rationale: Not touched by this spec.
+
+  - interface: SKILL.md body content (Overview, Trigger Dispatch Table, etc.)
+    consumer: sub-agents reading task files
+    format: markdown
+    change: none
+    compatibility: FULL
+    rationale: >
+      Only the YAML frontmatter description field is changed. The body content
+      (Overview, Mandatory Task Discipline, Trigger Dispatch Table, Invocation,
+      Sub-Agent Routing, DISPATCH_GATE, Cross-References) is untouched.
+
+  - interface: validate_skill_cards.py output
+    consumer: agent running validation
+    format: stdout (human-readable) or JSON
+    change: validation rules reversed
+    compatibility: BREAKING (intentional)
+    rationale: >
+      The validation rules are intentionally reversed. Old descriptions that
+      previously passed will now fail, and new descriptions that previously
+      failed will now pass. This is the intended effect — the validator must
+      enforce the new pattern.
+
+  - interface: init_skill.py output
+    consumer: agent creating new skills
+    format: SKILL.md file
+    change: template description placeholder
+    compatibility: FULL
+    rationale: >
+      The template placeholder changes from "[TODO: Use when ...]" to
+      "[TODO: <noun phrase>. Dispatch when ...]". New skills created after
+      the change will use the new pattern. No existing skills are affected.
+
+  - interface: behavioral test artifacts
+    consumer: clean-room evaluator sub-agents
+    format: stdout.log, stderr.log, session.yaml
+    change: new test scripts added
+    compatibility: FULL
+    rationale: >
+      New behavioral tests are additive — they do not modify or remove existing
+      tests. The existing test suite continues to work unchanged (SC-12).
+
+  - interface: content-verification test d1-description-format.sh
+    consumer: test-enforcement.sh
+    format: bash script
+    change: assertion updated
+    compatibility: BREAKING (intentional)
+    rationale: >
+      The test checks for "Use when" prefix, which will fail after Phase 2
+      rewrites. The assertion must be updated to check the new pattern. This
+      is a test update, not an API or schema change.
+
+summary:
+  api_changes: 0
+  schema_changes: 0
+  breaking_runtime_changes: 0
+  breaking_validation_changes: 1 (validate_skill_cards.py rules reversed — intentional)
+  breaking_test_changes: 1 (d1-description-format.sh assertion — intentional)
+  new_files: 5 (behavioral test scripts)
+  modified_files: 47 (43 SKILL.md + 2 scripts + 2 reference docs)

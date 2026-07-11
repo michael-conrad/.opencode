@@ -1,0 +1,100 @@
+# blast-radius.yaml — Spec #1855: Rewrite SKILL.md descriptions
+# What files and systems are affected by this change.
+
+affected_files:
+  # All 43 SKILL.md files (description field in YAML frontmatter)
+  skill_md_files:
+    count: 43
+    paths:
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/skills/audit/SKILL.md
+      - .opencode/skills/brainstorming/SKILL.md
+      - .opencode/skills/changelog-generator/SKILL.md
+      - .opencode/skills/completeness-gate/SKILL.md
+      - .opencode/skills/completion-core/SKILL.md
+      - .opencode/skills/conflict-resolution/SKILL.md
+      - .opencode/skills/correspondence/SKILL.md
+      - .opencode/skills/engineering-approach/SKILL.md
+      - .opencode/skills/executing-plans/SKILL.md
+      - .opencode/skills/finishing-a-development-branch/SKILL.md
+      - .opencode/skills/git-workflow/SKILL.md
+      - .opencode/skills/implementation-pipeline/SKILL.md
+      - .opencode/skills/issue-operations/SKILL.md
+      - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+      - .opencode/skills/issue-operations/platforms/github-mcp/SKILL.md
+      - .opencode/skills/issue-operations/platforms/local/SKILL.md
+      - .opencode/skills/issue-review/SKILL.md
+      - .opencode/skills/mcp-tool-usage/SKILL.md
+      - .opencode/skills/multimodal-dispatch/SKILL.md
+      - .opencode/skills/plan/SKILL.md
+      - .opencode/skills/plan-creation-pipeline/SKILL.md
+      - .opencode/skills/playwright-cli/SKILL.md
+      - .opencode/skills/pr-creation-workflow/SKILL.md
+      - .opencode/skills/pre-analysis/SKILL.md
+      - .opencode/skills/programming-principles/SKILL.md
+      - .opencode/skills/receiving-code-review/SKILL.md
+      - .opencode/skills/release-promoter/SKILL.md
+      - .opencode/skills/requesting-code-review/SKILL.md
+      - .opencode/skills/research/SKILL.md
+      - .opencode/skills/skill-creator/SKILL.md
+      - .opencode/skills/solve/SKILL.md
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/sre-runbook/SKILL.md
+      - .opencode/skills/sync-guidelines/SKILL.md
+      - .opencode/skills/systematic-debugging/SKILL.md
+      - .opencode/skills/test-driven-development/SKILL.md
+      - .opencode/skills/using-git-worktrees/SKILL.md
+      - .opencode/skills/verification/SKILL.md
+      - .opencode/skills/verification-before-completion/SKILL.md
+      - .opencode/skills/verification-enforcement/SKILL.md
+      - .opencode/skills/version-manager/SKILL.md
+      - .opencode/skills/writing-plans/SKILL.md
+
+  # Skill-creator scripts (Phase 1 — pattern definition)
+  skill_creator_scripts:
+    - .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    - .opencode/skills/skill-creator/scripts/init_skill.py
+
+  # Reference docs (Phase 1 — pattern documentation)
+  reference_docs:
+    - .opencode/skills/skill-creator/reference/skill-card-spec.md
+    - .opencode/skills/skill-creator/reference/routing-only-template.md
+
+  # Behavioral test scripts (Phase 3 — enforcement)
+  behavioral_test_scripts:
+    - .opencode/tests/behaviors/1855-sc2-validator-rejects-old-pattern.sh
+    - .opencode/tests/behaviors/1855-sc3-validator-accepts-new-pattern.sh
+    - .opencode/tests/behaviors/1855-sc7-git-workflow-intent-dispatch.sh
+    - .opencode/tests/behaviors/1855-sc8-spec-creation-intent-dispatch.sh
+    - .opencode/tests/behaviors/1855-sc9-verification-before-completion-intent-dispatch.sh
+
+  # Content-verification test that references old pattern (must be updated)
+  content_verification_tests:
+    - .opencode/tests/content-verification/d1-description-format.sh
+
+  # The opencode runtime — reads description field only, format change is transparent
+  opencode_runtime:
+    file: packages/core/src/skill.ts
+    interface: description field only
+    impact: none — runtime only reads name, description, slash; format change is transparent
+
+  # LLM system prompt — descriptions rendered into <available_skills> XML block
+  llm_system_prompt:
+    impact: direct — changed description format affects LLM dispatch decisions (intended)
+
+systems_affected:
+  - system: skill-creator validation pipeline
+    impact: validate_skill_cards.py must enforce new pattern (reject old, accept new)
+    phase: 1
+  - system: skill initialization
+    impact: init_skill.py must generate new-pattern template
+    phase: 1
+  - system: skill card authoring
+    impact: all 43 SKILL.md files must be rewritten
+    phase: 2
+  - system: behavioral test suite
+    impact: 5 new behavioral tests for intent-based dispatch; 1 content-verification test updated
+    phase: 3
+  - system: LLM dispatch decisions
+    impact: changed description format changes how LLM decides to call skill() — intended effect
+    phase: 2

@@ -1,0 +1,166 @@
+# testability-assessment.yaml — Spec #1855: Testability analysis
+
+success_criteria:
+  - id: SC-1
+    description: New description pattern is defined and documented in skill-creator reference docs
+    evidence_type: string
+    test_method: grep for pattern definition in skill-card-spec.md and routing-only-template.md
+    testability: HIGH
+    automation: >
+      grep -q "Dispatch when" .opencode/skills/skill-creator/reference/routing-only-template.md
+      && grep -q "User phrases:" .opencode/skills/skill-creator/reference/routing-only-template.md
+    risk: none
+
+  - id: SC-2
+    description: validate_skill_cards.py rejects descriptions starting with "Use when"
+    evidence_type: behavioral
+    test_method: opencode-cli run with old-pattern SKILL.md → FAIL
+    testability: HIGH
+    automation: >
+      Create a test SKILL.md with old-pattern description, run
+      uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py,
+      verify exit code 1 and error message about "Use when"
+    risk: none — validator is deterministic Python, no model needed
+
+  - id: SC-3
+    description: validate_skill_cards.py accepts descriptions matching the new pattern
+    evidence_type: behavioral
+    test_method: opencode-cli run with new-pattern SKILL.md → PASS
+    testability: HIGH
+    automation: >
+      Create a test SKILL.md with new-pattern description, run
+      uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py,
+      verify exit code 0
+    risk: none — validator is deterministic Python, no model needed
+
+  - id: SC-4
+    description: init_skill.py generates descriptions using the new pattern
+    evidence_type: string
+    test_method: grep init_skill.py output for "Dispatch when"
+    testability: HIGH
+    automation: >
+      Run init_skill.py with a test skill name, grep the generated SKILL.md
+      for "Dispatch when" in the description field
+    risk: none — deterministic Python script
+
+  - id: SC-5
+    description: All 43 SKILL.md descriptions follow the new pattern
+    evidence_type: string
+    test_method: grep all SKILL.md files — zero "Use when" at start, zero "Invoke for:", zero "Trigger phrases:", zero "Also use when"
+    testability: HIGH
+    automation: >
+      For each SKILL.md, extract description from YAML frontmatter, verify:
+      - NOT start with "Use when"
+      - NOT contain "Invoke for:"
+      - NOT contain "Trigger phrases:"
+      - NOT contain "Also use when"
+      - Start with noun phrase (heuristic: first word is not "Use")
+    risk: >
+      Heuristic check for "noun phrase" is approximate. The spec defines
+      "noun phrase" as "what the skill IS" — this is semantic, not structural.
+      The structural check is: description does NOT start with "Use when".
+      Combined with the other negative checks, this provides sufficient
+      confidence.
+
+  - id: SC-6
+    description: All 43 SKILL.md descriptions contain "User phrases:" with preserved trigger phrases
+    evidence_type: string
+    test_method: grep all SKILL.md files for "User phrases:"
+    testability: HIGH
+    automation: >
+      For each SKILL.md, extract description from YAML frontmatter, verify
+      contains "User phrases:"
+    risk: none
+
+  - id: SC-7
+    description: Agent dispatches git-workflow when it decides to create a PR (intent-based)
+    evidence_type: behavioral
+    test_method: opencode-cli run → stderr shows skill("git-workflow")
+    testability: MEDIUM
+    automation: >
+      Send a prompt like "I need to create a pull request for the changes
+      I just made" — verify stderr contains skill("git-workflow") or
+      'Skill "git-workflow"'
+    risk: >
+      Requires real AI model inference. May be slow (model load time,
+      inference time). May be flaky (model may dispatch differently
+      depending on context, training data, or randomness). Requires
+      scope-limited behavioral testing per model speed assessment.
+    mitigation: >
+      Use scope-limited behavioral testing (single scenario, not full suite).
+      Assess hardware with ollama-probe hw before running. Use timeout ≥ 600s.
+      Retry on transient errors (BEHAVIOR_MAX_RETRIES=2).
+
+  - id: SC-8
+    description: Agent dispatches spec-creation when it decides to write a spec (intent-based)
+    evidence_type: behavioral
+    test_method: opencode-cli run → stderr shows skill("spec-creation")
+    testability: MEDIUM
+    automation: >
+      Send a prompt like "I need to write a specification for a new feature" —
+      verify stderr contains skill("spec-creation") or 'Skill "spec-creation"'
+    risk: same as SC-7
+    mitigation: same as SC-7
+
+  - id: SC-9
+    description: Agent dispatches verification-before-completion when it decides to verify (intent-based)
+    evidence_type: behavioral
+    test_method: opencode-cli run → stderr shows skill("verification-before-completion")
+    testability: MEDIUM
+    automation: >
+      Send a prompt like "I've finished implementing the changes, I need to
+      verify everything is correct" — verify stderr contains
+      skill("verification-before-completion") or 'Skill "verification-before-completion"'
+    risk: same as SC-7
+    mitigation: same as SC-7
+
+  - id: SC-10
+    description: validate_skill_cards.py passes on all 43 rewritten files
+    evidence_type: behavioral
+    test_method: uv run validate_skill_cards.py → exit 0
+    testability: HIGH
+    automation: >
+      uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+      — verify exit code 0
+    risk: none — deterministic Python script
+
+  - id: SC-11
+    description: All rewritten descriptions are ≤ 1024 characters
+    evidence_type: structural
+    test_method: Extract description field from YAML frontmatter, then wc -c
+    testability: HIGH
+    automation: >
+      For each SKILL.md, extract description value from YAML frontmatter,
+      run wc -c on the extracted value, verify ≤ 1024
+    risk: none
+
+  - id: SC-12
+    description: No existing behavioral tests break due to description changes
+    evidence_type: behavioral
+    test_method: Full behavioral test suite passes
+    testability: MEDIUM
+    automation: >
+      Run the full behavioral test suite (scope-limited per model speed).
+      Verify all existing tests still PASS.
+    risk: >
+      Full suite requires significant model inference time. Some existing
+      tests may reference description content indirectly (e.g., tests that
+      check for specific skill dispatch patterns). The description change
+      could affect agent dispatch behavior in unexpected ways.
+    mitigation: >
+      Default to --changed or --tag scope-limited runs. Only run full suite
+      if model speed permits (ollama-probe hw → VRAM ≥ 8 GB, local model ≥ 7B).
+      Run full suite as a pre-merge gate, not per-iteration.
+
+overall_testability:
+  high_count: 8 (SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-10, SC-11)
+  medium_count: 4 (SC-7, SC-8, SC-9, SC-12)
+  low_count: 0
+  primary_risk: >
+    Behavioral tests (SC-7, SC-8, SC-9) require real AI model inference and
+    may be slow or flaky. These are the highest-risk tests in the spec.
+  primary_mitigation: >
+    Scope-limited behavioral testing per model speed assessment. Use
+    ollama-probe hw before deciding full-suite feasibility. Use
+    BEHAVIOR_TIMEOUT=420s (or higher) and BEHAVIOR_MAX_RETRIES=2.
+    Clean-room semantic evaluation for PASS/FAIL verdicts.

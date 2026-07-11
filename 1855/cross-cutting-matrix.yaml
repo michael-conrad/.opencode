@@ -1,0 +1,91 @@
+# cross-cutting-matrix.yaml — Spec #1855: Cross-cutting concerns across all 43 skills
+
+cross_cutting_concerns:
+  - concern: Shared description pattern
+    applies_to: all 43 SKILL.md files
+    current_pattern: >
+      "Use when <primary use case>. Also use when <secondary use cases>.
+      Invoke for: <comma-separated task list>. <Enforcement statement>.
+      Trigger phrases: <comma-separated trigger phrase list>."
+    target_pattern: >
+      "<Noun phrase describing what the skill is>. Dispatch when <agent-facing
+      trigger conditions>. Also dispatch when <additional trigger conditions>.
+      <Any additional context or requirements>. User phrases: <preserved user-facing
+      trigger phrases>."
+    transformation_rule: |
+      Old → New mapping:
+        "Use when" → noun phrase (what the skill IS, not when to use it)
+        "Also use when" → "Also dispatch when"
+        "Invoke for:" → removed (replaced by "Dispatch when" prose)
+        "Trigger phrases:" → "User phrases:" (content preserved)
+        Enforcement statement → preserved as-is
+    uniformity: >
+      All 43 skills share the exact same pattern structure. The transformation
+      is mechanical and uniform — no skill requires a unique pattern variant.
+
+  - concern: 1024-character limit
+    applies_to: all 43 SKILL.md files
+    current_status: enforced by validate_skill_cards.py SC-LINT-004 (line 251)
+    target_status: still enforced — limit unchanged
+    impact: >
+      The new pattern may produce longer descriptions due to "Dispatch when"
+      prose replacing concise "Invoke for:" lists. Each description must be
+      verified against the 1024-character limit after rewrite.
+
+  - concern: User phrase preservation
+    applies_to: all 43 SKILL.md files
+    current_status: "Trigger phrases:" section contains user-facing trigger phrases
+    target_status: "User phrases:" section contains the same content, just relabeled
+    impact: >
+      Zero content loss — the same comma-separated trigger phrase list is
+      preserved under the new "User phrases:" label. This ensures backward
+      compatibility for LLMs that may still reference the old trigger phrases.
+
+  - concern: Enforcement statement preservation
+    applies_to: all 43 SKILL.md files
+    current_status: >
+      Each description contains an enforcement statement (e.g., "Spec creation is
+      REQUIRED before implementation.", "Branch-and-PR discipline is REQUIRED —
+      always follow the workflow.")
+    target_status: preserved as-is
+    impact: >
+      Enforcement statements are not part of the pattern transformation. They
+      remain in the same position (after the "Dispatch when" / "Also dispatch when"
+      prose, before "User phrases:").
+
+  - concern: Exclusion clauses
+    applies_to: skills with "— distinct from" clauses
+    current_status: >
+      Some skills have exclusion clauses (e.g., "— distinct from writing-plans
+      (implementation plans from specs) and plan-creation-pipeline (6-step
+      orchestrator)")
+    target_status: preserved as-is
+    impact: >
+      Exclusion clauses are not part of the pattern transformation. They remain
+      in the description after the main prose.
+
+  - concern: Validation rules
+    applies_to: validate_skill_cards.py
+    current_rules:
+      - Description MUST start with "Use when"
+      - Description MUST NOT contain angle brackets
+    target_rules:
+      - Description MUST NOT start with "Use when"
+      - Description MUST start with noun phrase (agent-intent statement)
+      - Description MUST contain "Dispatch when"
+      - Description MUST contain "User phrases:"
+      - Description MUST NOT contain "Invoke for:"
+      - Description MUST NOT contain "Trigger phrases:"
+      - Description MUST NOT contain "Also use when"
+      - Description MUST NOT contain angle brackets (unchanged)
+    impact: >
+      Complete reversal of the primary validation rule. The old rule required
+      "Use when" prefix; the new rule rejects it. All other rules are additive.
+
+  - concern: Template generation
+    applies_to: init_skill.py
+    current_template: description: "[TODO: Use when ...]"
+    target_template: description: "[TODO: <noun phrase>. Dispatch when ...]"
+    impact: >
+      Single-line change in the SKILL_TEMPLATE string. The rest of the init
+      script is unaffected.

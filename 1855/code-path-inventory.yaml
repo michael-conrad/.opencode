@@ -1,0 +1,111 @@
+# code-path-inventory.yaml — Spec #1855: Code paths that read, write, or validate the description field
+
+code_paths:
+  - component: opencode runtime
+    file: packages/core/src/skill.ts
+    operation: read
+    interface: description field from YAML frontmatter
+    details: >
+      The runtime reads name, description, and slash from the SKILL.md frontmatter.
+      The description is rendered verbatim into the <available_skills> XML block
+      in the LLM system prompt. The runtime does NOT parse, validate, or pattern-match
+      the description content — it is a pass-through. Format change is transparent.
+    impact: none
+
+  - component: LLM system prompt
+    location: generated at session start
+    operation: read
+    interface: <available_skills> XML block
+    details: >
+      The description field is rendered into the <available_skills> block in the
+      system prompt. The LLM reads the description to decide whether to call skill().
+      This is the primary consumer of the description format. The format change
+      is intended to improve LLM dispatch decisions.
+    impact: direct — intended behavioral change
+
+  - component: validate_skill_cards.py
+    file: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    operation: validate
+    interface: description field from YAML frontmatter
+    details: >
+      The validate_req1() function (line 97) checks that description starts with
+      "Use when" (line 143). The validate_sc_lint_001() function (line 183) also
+      checks for "Use when" prefix (line 186). Both must be updated to reject
+      "Use when" and validate the new pattern (noun-phrase-first, "Dispatch when",
+      "User phrases:").
+    impact: must be updated — validation rules change completely
+    current_behavior:
+      - line 143: if not desc.startswith("Use when") → violation
+      - line 186: if not desc.startswith("Use when") → violation (SC-LINT-001)
+    target_behavior:
+      - MUST NOT start with "Use when" → violation
+      - MUST start with noun phrase (agent-intent statement)
+      - MUST contain "Dispatch when"
+      - MUST contain "User phrases:"
+      - MUST NOT contain "Invoke for:"
+      - MUST NOT contain "Trigger phrases:"
+      - MUST NOT contain "Also use when"
+
+  - component: init_skill.py
+    file: .opencode/skills/skill-creator/scripts/init_skill.py
+    operation: write
+    interface: description field in SKILL.md template
+    details: >
+      The SKILL_TEMPLATE (line 27) contains a placeholder description:
+      description: "[TODO: Use when ...]"
+      This must be updated to use the new pattern placeholder.
+    impact: must be updated — template generates old-pattern placeholder
+    current_behavior:
+      - line 29: description: "[TODO: Use when ...]"
+    target_behavior:
+      - description: "[TODO: <noun phrase describing skill>. Dispatch when ...]"
+
+  - component: skill-card-spec.md
+    file: .opencode/skills/skill-creator/reference/skill-card-spec.md
+    operation: document
+    interface: description format specification
+    details: >
+      Documents the SKILL.md structure including frontmatter requirements.
+      Does not currently specify the description format in detail — the
+      routing-only-template.md is the canonical source for the description pattern.
+    impact: must be updated — reference the new pattern from routing-only-template.md
+
+  - component: routing-only-template.md
+    file: .opencode/skills/skill-creator/reference/routing-only-template.md
+    operation: document
+    interface: description format template
+    details: >
+      Contains the canonical description template (line 18-27) with the old
+      "Use when" pattern and "farmage pattern" documentation. This is the
+      single source of truth for the description format.
+    impact: must be updated — template and documentation must reflect new pattern
+    current_behavior:
+      - line 18: description: "Use when <primary use case>. Also use when..."
+      - lines 20-27: farmage pattern docs (Use when, Also use when, Invoke for:, Trigger phrases:)
+    target_behavior:
+      - description: "<noun phrase>. Dispatch when <agent-facing triggers>. Also dispatch when..."
+      - Updated docs: noun-phrase-first, Dispatch when, Also dispatch when, User phrases:
+
+  - component: content-verification test d1-description-format.sh
+    file: .opencode/tests/content-verification/d1-description-format.sh
+    operation: verify
+    interface: description field in SKILL.md
+    details: >
+      Greps for '^description: "Use when' in verification-before-completion/SKILL.md.
+      This test will FAIL after Phase 2 rewrites and must be updated to check
+      the new pattern.
+    impact: must be updated — assertion checks old pattern
+    current_behavior:
+      - line 10: grep -q '^description: "Use when' → expects PASS
+    target_behavior:
+      - grep for new pattern (noun-phrase-first, no "Use when")
+
+  - component: behavioral test scripts (Phase 3)
+    location: .opencode/tests/behaviors/1855-*.sh
+    operation: generate artifacts
+    interface: agent dispatch behavior via opencode-cli run
+    details: >
+      New behavioral tests that verify agent dispatches skills based on intent.
+      These are artifact-only generators that produce stdout.log, stderr.log,
+      and session.yaml for clean-room evaluation.
+    impact: new files — no existing code paths affected

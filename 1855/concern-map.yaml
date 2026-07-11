@@ -1,0 +1,107 @@
+# concern-map.yaml — Spec #1855: Concern boundaries and scope isolation
+
+concerns:
+  - id: 1
+    name: Description pattern definition
+    phase: 1
+    description: >
+      Define the canonical agent-intent description pattern. Update reference docs,
+      init script, and validation script to document and enforce the new pattern.
+    files:
+      - .opencode/skills/skill-creator/reference/skill-card-spec.md
+      - .opencode/skills/skill-creator/reference/routing-only-template.md
+      - .opencode/skills/skill-creator/scripts/init_skill.py
+      - .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    deliverables:
+      - skill-card-spec.md updated with new pattern
+      - routing-only-template.md updated with new pattern
+      - init_skill.py generates new-pattern template
+      - validate_skill_cards.py enforces new pattern (rejects old, accepts new)
+    success_criteria:
+      - SC-1: New pattern documented in reference docs
+      - SC-2: Validator rejects old pattern
+      - SC-3: Validator accepts new pattern
+      - SC-4: init_skill.py generates new pattern
+
+  - id: 2
+    name: Description rewrites
+    phase: 2
+    description: >
+      Rewrite the description field in all 43 SKILL.md files from the old
+      user-trigger-phrase-oriented pattern to the new agent-intent-oriented pattern.
+      Each rewrite follows the canonical pattern defined in Phase 1.
+    files:
+      - All 43 SKILL.md files (see blast-radius.yaml)
+    deliverables:
+      - 43 SKILL.md files with rewritten descriptions
+    success_criteria:
+      - SC-5: All 43 descriptions follow new pattern (no "Use when", "Invoke for:", "Trigger phrases:", "Also use when")
+      - SC-6: All 43 descriptions contain "User phrases:" with preserved trigger phrases
+      - SC-10: validate_skill_cards.py passes on all 43 files
+      - SC-11: All descriptions ≤ 1024 characters
+
+  - id: 3
+    name: Behavioral enforcement
+    phase: 3
+    description: >
+      Write behavioral enforcement tests that verify the agent dispatches skills
+      based on intent (what it decides to do) rather than user phrase matching.
+      Also write tests for validator behavior (reject old, accept new).
+    files:
+      - .opencode/tests/behaviors/1855-sc2-validator-rejects-old-pattern.sh
+      - .opencode/tests/behaviors/1855-sc3-validator-accepts-new-pattern.sh
+      - .opencode/tests/behaviors/1855-sc7-git-workflow-intent-dispatch.sh
+      - .opencode/tests/behaviors/1855-sc8-spec-creation-intent-dispatch.sh
+      - .opencode/tests/behaviors/1855-sc9-verification-before-completion-intent-dispatch.sh
+    deliverables:
+      - 5 behavioral test scripts (artifact-only generators)
+    success_criteria:
+      - SC-7: Agent dispatches git-workflow on intent to create PR
+      - SC-8: Agent dispatches spec-creation on intent to write spec
+      - SC-9: Agent dispatches verification-before-completion on intent to verify
+      - SC-12: No existing behavioral tests break
+
+cross_concern_dependencies:
+  - from: 1
+    to: 2
+    type: hard_dependency
+    rationale: >
+      Phase 1 must precede Phase 2 because the pattern definition (reference docs,
+      validator, init script) must exist before descriptions can be rewritten.
+      The validator must be updated first so it can validate the rewrites.
+
+  - from: 1
+    to: 3
+    type: partial_dependency
+    rationale: >
+      Phase 3 behavioral tests for validator behavior (SC-2, SC-3) depend on
+      Phase 1 validator changes. However, intent-dispatch behavioral tests (SC-7,
+      SC-8, SC-9) can be written in RED phase before Phase 2 rewrites exist,
+      then verified in GREEN phase after rewrites. This is the behavioral TDD
+      pattern: RED before GREEN.
+
+  - from: 2
+    to: 3
+    type: green_phase_dependency
+    rationale: >
+      Intent-dispatch behavioral tests (SC-7, SC-8, SC-9) must be written in
+      RED phase before Phase 2 (they test that the agent does NOT dispatch
+      correctly with old descriptions), then verified in GREEN phase after
+      Phase 2 rewrites. The RED phase tests can be written concurrently with
+      Phase 2, but GREEN verification requires Phase 2 completion.
+
+scope_isolation:
+  - concern: 1
+    boundary: >
+      Limited to skill-creator tools and reference docs. Does not touch any
+      SKILL.md description fields. Does not touch any test scripts.
+  - concern: 2
+    boundary: >
+      Limited to description field in YAML frontmatter of SKILL.md files.
+      Does not touch any other frontmatter field (name, license, provenance,
+      compatibility). Does not touch any body content (Overview, Trigger
+      Dispatch Table, Invocation, etc.). Does not touch any scripts or tests.
+  - concern: 3
+    boundary: >
+      Limited to behavioral test scripts in .opencode/tests/behaviors/.
+      Does not touch any SKILL.md files, scripts, or reference docs.

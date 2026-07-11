@@ -1,0 +1,111 @@
+# state-analysis.yaml — Spec #1855: Current state vs target state
+
+components:
+  - component: SKILL.md descriptions (43 files)
+    current:
+      count: 43
+      pattern: >
+        All 43 descriptions start with "Use when", contain "Invoke for:" and
+        "Trigger phrases:" sections. Some also contain "Also use when" clauses.
+      example: >
+        "Use when creating a branch, committing, pushing, or creating a PR.
+        Also use when handling rebase/merge conflicts... Invoke for: branch
+        creation, commit, push... Trigger phrases: create branch, commit, push..."
+    target:
+      count: 43
+      pattern: >
+        All 43 descriptions start with a noun phrase (what the skill IS), contain
+        "Dispatch when" and "Also dispatch when" for agent-facing triggers, and
+        contain "User phrases:" with preserved trigger phrases. No "Use when",
+        "Invoke for:", "Trigger phrases:", or "Also use when".
+      example: >
+        "Branch, commit, push, and PR lifecycle management. Dispatch when the
+        agent needs to create a feature branch, commit changes, push to remote...
+        Also dispatch when a PR has been merged and cleanup is needed.
+        Branch-and-PR discipline is REQUIRED — always follow the workflow.
+        User phrases: create branch, commit, push, create PR, rebase, merge..."
+
+  - component: validate_skill_cards.py
+    current:
+      file: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+      description_validation:
+        - line 143: REQUIRES description starts with "Use when" (validate_req1)
+        - line 186: REQUIRES description starts with "Use when" (validate_sc_lint_001)
+        - line 251: ENFORCES ≤ 1024 characters (SC-LINT-004)
+      other_validation: unchanged (name, license, compatibility, provenance, etc.)
+    target:
+      description_validation:
+        - REJECTS description starting with "Use when"
+        - REQUIRES description starts with noun phrase (agent-intent statement)
+        - REQUIRES description contains "Dispatch when"
+        - REQUIRES description contains "User phrases:"
+        - REJECTS description containing "Invoke for:"
+        - REJECTS description containing "Trigger phrases:"
+        - REJECTS description containing "Also use when"
+        - ENFORCES ≤ 1024 characters (unchanged)
+      other_validation: unchanged
+
+  - component: init_skill.py
+    current:
+      file: .opencode/skills/skill-creator/scripts/init_skill.py
+      template: >
+        line 29: description: "[TODO: Use when ...]"
+    target:
+      template: >
+        description: "[TODO: <noun phrase describing skill>. Dispatch when ...]"
+
+  - component: routing-only-template.md
+    current:
+      file: .opencode/skills/skill-creator/reference/routing-only-template.md
+      description_template: >
+        line 18: description: "Use when <primary use case>. Also use when..."
+        lines 20-27: farmage pattern docs (Use when, Also use when, Invoke for:, Trigger phrases:)
+    target:
+      description_template: >
+        description: "<noun phrase>. Dispatch when <agent-facing triggers>.
+        Also dispatch when <additional triggers>. <Enforcement statement>.
+        User phrases: <preserved trigger phrases>."
+        Updated docs: noun-phrase-first, Dispatch when, Also dispatch when, User phrases:
+
+  - component: skill-card-spec.md
+    current:
+      file: .opencode/skills/skill-creator/reference/skill-card-spec.md
+      description_reference: >
+        References routing-only-template.md for the canonical description format.
+        Does not independently document the description pattern.
+    target:
+      description_reference: >
+        References routing-only-template.md (updated) for the canonical description format.
+        May add a note about the new pattern requirements.
+
+  - component: content-verification test d1-description-format.sh
+    current:
+      file: .opencode/tests/content-verification/d1-description-format.sh
+      assertion: >
+        line 10: grep -q '^description: "Use when' → expects PASS
+    target:
+      assertion: >
+        grep for new pattern (noun-phrase-first, no "Use when") → expects PASS
+
+  - component: behavioral tests for intent-based dispatch
+    current:
+      count: 0
+      status: no behavioral tests exist for intent-based dispatch
+    target:
+      count: 5
+      tests:
+        - 1855-sc2-validator-rejects-old-pattern.sh
+        - 1855-sc3-validator-accepts-new-pattern.sh
+        - 1855-sc7-git-workflow-intent-dispatch.sh
+        - 1855-sc8-spec-creation-intent-dispatch.sh
+        - 1855-sc9-verification-before-completion-intent-dispatch.sh
+
+summary:
+  files_unchanged: 0 (all affected files change)
+  files_modified: 47
+  files_created: 5
+  files_deleted: 0
+  validation_rules_reversed: 1 (description prefix check)
+  validation_rules_added: 5 (reject "Use when", require noun phrase, require "Dispatch when", require "User phrases:", reject "Invoke for:", reject "Trigger phrases:", reject "Also use when")
+  validation_rules_removed: 1 (require "Use when")
+  validation_rules_unchanged: 1 (≤ 1024 characters)
