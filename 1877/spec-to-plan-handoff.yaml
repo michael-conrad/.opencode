@@ -1,0 +1,17 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1877
+generated_at: 2026-07-11T00:00:00Z
+sc_coverage_total: 4
+decomposition_classification: multi-phase
+phase_count: 3
+status: complete
+artifacts:
+  - path: .opencode/.issues/1877/spec.md
+    required: true
+  - path: .opencode/.issues/1877/sc-summary.yaml
+    required: true
+  - path: .opencode/.issues/1877/verification-consistency-contract.yaml
+    required: true
+  - path: .opencode/.issues/1877/revision-re-entry-contract.yaml
+    required: true
+  - path: .opencode/.issues/1877/spec-to-plan-handoff.yaml
+    required: true

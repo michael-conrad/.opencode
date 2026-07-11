@@ -1,0 +1,41 @@
+sc_coverage:
+  total: 4
+  single_task: false
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1877
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-4]
+      evidence_types: [string, behavioral]
+    - id: Phase 2
+      sc_ids: [SC-2]
+      evidence_types: [string]
+    - id: Phase 3
+      sc_ids: [SC-3]
+      evidence_types: [string]
+  cross_cutting:
+    sc_ids: [SC-4]
+    verified_in_phase: Phase 1
+  scs:
+    - id: SC-1
+      description: "All hardcoded dev references in branch-cleanup.md replaced with $DEFAULT_BRANCH"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "cleanup.md Step 3 or Step 4 includes git branch --show-current verification"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 2
+    - id: SC-3
+      description: "Parent repo is included in repos-to-clean list in cleanup.md Step 4"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 3
+    - id: SC-4
+      description: "Before any implementation, write behavioral enforcement tests that verify the new cleanup behavior; confirm RED state"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
