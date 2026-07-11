@@ -716,13 +716,14 @@ Removing or weakening a behavioral (semantic, functional) test assertion to work
 - **Rule 4**: FAIL is a hard gate — never proceed past FAIL. Only valid outcomes: PASS, FAIL (remediate and re-run), or INCONCLUSIVE after exhaustive remediation (escalate only)
 
 
-### [critical-rules-sc-lobotomy] CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, or blocking success criteria
+### [critical-rules-sc-lobotomy] CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, skipping, or blocking success criteria
 
 Removing or weakening a success criterion from a spec to evade implementation is a CRITICAL VIOLATION. An agent MUST NOT:
 - Remove an SC from a spec's SC table to make it "closable"
 - Weaken an SC's evidence type (e.g., `behavioral` to `string`) to make it easier to verify
 - Replace an SC with a weaker version (changing what success means)
 - Mark an SC as "blocked" or "deferred" in the spec body to evade implementation
+- Skip an SC entirely — claiming it is "not applicable", "out of scope for this change", "too complex for this change", "will be handled separately", or any equivalent rationalization
 - Add a `depends-on` or cross-reference solely to push SC verification out of the current spec
 - Claim an SC is "not achievable" and modify the spec rather than implementing it
 

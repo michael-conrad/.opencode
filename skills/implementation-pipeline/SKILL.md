@@ -59,6 +59,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `finishing-a-development-branch --task checklist` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
 | "green-vbc" / "verification before completion" | `green-vbc` | `verification-before-completion --task completion` | `sub-task` | {issue_number} |
+| "sc-count-gate" / "SC count gate" | `sc-count-gate` | Reads `sc-summary.yaml` total SC count, counts verified SCs from VbC evidence, BLOCKs if `verified_count < total_count` (any SC has no verdict) | `sub-task` | {issue_number} |
 | "pre-pr-gate" / "pre-PR gate" | `pre-pr-gate` | `verification-before-completion --task verify` — reads all SC verdicts, BLOCKs if any FAIL | `sub-task` | {issue_number} |
 | "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `audit --task cross-validate` | `sub-task` | {issue_number} |
@@ -83,7 +84,7 @@ See `implementation-pipeline/tasks/pre-flight.md` for pre-flight verification an
 
 ## Step Labels (for #932 naming convention)
 
-`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `pre-pr-gate`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`
+`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `sc-count-gate`, `pre-pr-gate`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`
 
 ## Invocation
 
@@ -113,6 +114,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 | `structural-checks` | `task(..., prompt: "execute checklist from finishing-a-development-branch. Read \`finishing-a-development-branch/tasks/checklist.md\` first")` |
 | `green-doublecheck` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
 | `green-vbc` | `task(..., prompt: "execute completion from verification-before-completion. Read \`verification-before-completion/tasks/completion.md\` first")` |
+| `sc-count-gate` | `task(..., prompt: "execute sc-count-gate from implementation-pipeline. Read \`implementation-pipeline/tasks/sc-count-gate.md\` first")` — reads `sc-summary.yaml` total, counts verified SCs, BLOCKs if `verified_count < total_count` |
 | `pre-pr-gate` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` — reads all SC verdicts, BLOCKs if any FAIL |
 | `cross-validate` | `task(..., prompt: "execute cross-validate from audit. Read \`audit/tasks/cross-validate.md\` first")` |
 | `regression-check` | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
@@ -269,6 +271,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
 | `green-vbc` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
+| `sc-count-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-sc-count-gate-*` |
 | `pre-pr-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-pr-gate-*` |
 | `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
 | `cross-validate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |

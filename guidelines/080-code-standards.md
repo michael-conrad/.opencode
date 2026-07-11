@@ -619,6 +619,7 @@ Removing or weakening a behavioral (semantic, functional) test assertion to work
 - Removing an assertion entirely because it "flakes" or "hangs"
 - Commenting out an assertion with `# TODO: fix later`
 - Changing `assert_semantic` to `assert_stderr_pattern_present` because "it's faster"
+- Skipping a behavioral SC entirely — claiming it is "not applicable", "out of scope for this change", "too complex for this change", "will be handled separately", or any equivalent rationalization
 
 **The only valid remediation cycle:**
 1. **Increase timeout** — `BEHAVIOR_TIMEOUT`, `BEHAVIOR_SEMANTIC_TIMEOUT`, or `BEHAVIOR_MAX_RETRIES`
