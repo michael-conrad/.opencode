@@ -1,13 +1,3 @@
----
-issue: 1832
-repo: .opencode
-status: open
-phase: spec
-labels: [spec, test-infrastructure, consolidated]
----
-
-# [SPEC] Test environment must replicate production — consolidate with-test-home, env-loader, and dead code cleanup
-
 ## Summary
 
 The behavioral test harness (`with-test-home`) must replicate the production environment. Currently it does not — it uses different model discovery paths, has a broken plugin, and has incomplete XDG isolation. This spec consolidates four related issues (`.opencode#676`, `.opencode#793`, `.opencode#1370`, `.opencode#1653`) into a single implementation plan with sequenced phases.
@@ -24,7 +14,7 @@ The behavioral test harness (`with-test-home`) must replicate the production env
 
 ### Phase 1: `env-loader.ts` plugin fix
 
-`env-loader.ts` fails to load with `Plugin export is not a function`. Per the [official plugin docs](https://opencode.ai/docs/plugins/), the plugin API requires a **named export**:
+`env-loader.ts` fails to load with `Plugin export is not a function`. Per the [official plugin docs](https://opencode.ai/docs/plugins/), the plugin system requires a **named export**:
 
 ```typescript
 export const MyPlugin = async ({ project, client, $, directory, worktree }) => {
@@ -34,7 +24,7 @@ Current code uses `export default async function envLoaderPlugin(input: PluginIn
 
 **Fix:**
 1. Change `export default async function envLoaderPlugin(input: PluginInput)` to `export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, worktree }) => { ... }`
-2. Update import: `import type { Hooks, PluginInput } from "@opencode-ai/plugin"` → `import type { Plugin } from "@opencode-ai/plugin"`
+2. Update import: `import type { Hooks, PluginInput } from "@opencode-ai/plugin";` → `import type { Plugin } from "@opencode-ai/plugin";`
 3. Map context: `input?.directory` → `directory`, `input?.worktree` → `worktree`, `input.$.nothrow` → `$.nothrow`
 4. Preserve named exports at bottom (`parseEnvFile`, `isEnvGitignored`, `writeDiagnostic`, `DIAGNOSTICS_PATH`, `PluginDiagnostic`)
 5. Fix pre-existing TypeScript errors in `session-enforcement.ts` (`"session.created"` hook key → `event` hook with `event.type` discrimination; `part.synthetic` access → narrow to `part.type === 'text'` first)
@@ -96,7 +86,6 @@ Still needed:
 ### SC Failure Policy — Zero Tolerance
 
 **Any SC that is skipped, deferred, weakened, blocked, or otherwise bypassed marks ALL SCs as FAIL.** A single bypassed SC renders the entire implementation defective — the PR must be immediately rejected and trashed as unusable. This applies to:
-
 - Removing an SC from the table
 - Weakening an SC's evidence type (e.g., `behavioral` → `string`)
 - Replacing an SC with a weaker version
@@ -140,7 +129,7 @@ Still needed:
 
 ## Root Cause Analysis
 
-**`env-loader.ts` plugin crash:** Per the [official opencode plugin docs](https://opencode.ai/docs/plugins/), plugins must use **named exports** (`export const MyPlugin = async (...) =>`). The current code uses `export default async function envLoaderPlugin(input: PluginInput)` — the plugin system iterates over module exports looking for named function exports; `export default` is a `default` key on the module, not a named export, so the loader doesn't find it. This is not a "both export styles conflict" issue — it's a "wrong export style" issue.
+**`env-loader.ts` plugin crash:** Per the [official opencode plugin docs](https://opencode.ai/docs/plugins/), plugins must use **named exports** (`export const MyPlugin = async (...) =\u003e`). The current code uses `export default async function envLoaderPlugin(input: PluginInput)` — the plugin system iterates over module exports looking for named function exports; `export default` is a `default` key on the module, not a named export, so the loader doesn't find it. This is not a "both export styles conflict" issue — it's a "wrong export style" issue.
 
 **`--pure` flag:** Per the [official CLI docs](https://opencode.ai/docs/cli/), `--pure` is a documented global flag meaning "Run without external plugins." It is a legitimate opencode feature, not a workaround. The question is whether to use it in the test harness — using it makes the test environment diverge from production (no plugins loaded), which violates the core principle. The correct approach is to fix the plugin so it loads without `--pure`.
 
@@ -151,7 +140,6 @@ Still needed:
 ## Implementation Plan
 
 Implement in phase order (each phase depends on the previous):
-
 1. **Phase 1** — Fix `env-loader.ts` (SC-1, SC-13, SC-14, SC-15, SC-16, SC-17)
 2. **Phase 2** — Fix `with-test-home` (SC-2 through SC-6)
 3. **Phase 3** — Dead code cleanup (SC-7 through SC-10)

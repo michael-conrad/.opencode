@@ -12,27 +12,38 @@
 | Alternatives Considered & Why Discarded | Rewriting the entire auditor — too invasive for a vocabulary mismatch; adding a validation layer — over-engineering for a single-file fix |
 | Key Design Decisions | Follow the PF-SEQUENCE-MATCHES pattern which already does it correctly |
 
+## Documentation References
+
+All authoritative sources verified live on 2026-07-10. See [research card](https://github.com/michael-conrad/.opencode/tree/issues-data/research-cards/plan-fidelity-auditor-authoritative-sources.md) for full details.
+
+| Source | Live URL | Relevance |
+|--------|----------|-----------|
+| `writing-plans/tasks/write.md` §Dispatch Indicators | https://github.com/michael-conrad/.opencode/blob/main/skills/writing-plans/tasks/write.md | Defines the three valid dispatch indicators (`(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`). PF-DISPATCH-MODE must reference this dynamically. |
+| `solve/tasks/contract.md` — Contract YAML Schema | https://github.com/michael-conrad/.opencode/blob/main/skills/solve/tasks/contract.md | Defines the Z3 contract schema with typed variables and Z3 expressions. No `P1_I1_G1` naming convention exists. PF-Z3-CONTRACT must reference this schema. |
+| `audit/tasks/plan-fidelity.md` — Evaluation Criteria | https://github.com/michael-conrad/.opencode/blob/main/skills/audit/tasks/plan-fidelity.md | Target file for this spec-fix. Contains hard-coded criteria that must be updated. |
+| `implementation-pipeline/SKILL.md` — Trigger Dispatch Table | https://github.com/michael-conrad/.opencode/blob/main/skills/implementation-pipeline/SKILL.md | Canonical gate sequence. PF-SEQUENCE-MATCHES already reads this dynamically — correct pattern to follow. |
+
 ## Problem
 
-The plan-fidelity auditor (`adversarial-audit/tasks/plan-fidelity.md`) embeds expected values directly in its evaluation criteria descriptions instead of reading them dynamically from the authoritative skill cards. This causes false FAIL verdicts when the authoritative source changes but the auditor's hard-coded values don't.
+The plan-fidelity auditor (`audit/tasks/plan-fidelity.md`) embeds expected values directly in its evaluation criteria descriptions instead of reading them dynamically from the authoritative skill cards. This causes false FAIL verdicts when the authoritative source changes but the auditor's hard-coded values don't.
 
 ### 1. PF-DISPATCH-MODE — Vocabulary Mismatch
 
-**Current hard-coded value** (plan-fidelity.md:101):
+**Current hard-coded value** (`audit/tasks/plan-fidelity.md` line 121):
 > Every step title contains `(**clean-room**)` or `(**inline**)` — exactly one of the two
 
 **Authoritative source** (`writing-plans/tasks/write.md` §Dispatch Indicators) defines **three** valid indicators: `(**sub-agent**)`, `(**clean-room**)`, `(**inline**)`. The `writing-plans` skill's own operating protocol uses `(**sub-agent**)` in 14 of 22 steps. The auditor rejects `(**sub-agent**)` because its internal list only has two entries.
 
 ### 2. PF-Z3-CONTRACT — Fabricated Format
 
-**Current hard-coded value** (plan-fidelity.md:98):
+**Current hard-coded value** (`audit/tasks/plan-fidelity.md` §PF-Z3-CONTRACT):
 > Hierarchical phase→item→gate booleans exist (e.g., P1_I1_G1, P1_I2_G1)
 
 **No authoritative source defines this format.** The `solve` skill's contract schema uses typed variables with Z3 expressions — no `P1_I1_G1` naming convention exists.
 
 ### 3. PF-SEQUENCE-MATCHES — Correct Pattern
 
-This criterion (plan-fidelity.md:106) does it correctly:
+This criterion (`audit/tasks/plan-fidelity.md` §PF-SEQUENCE-MATCHES) does it correctly:
 > Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — **read dynamically, not hardcoded**
 
 ## Root Cause
@@ -41,7 +52,7 @@ The evaluation criteria table embeds expected values directly instead of referen
 
 ## Scope
 
-Single file: `adversarial-audit/tasks/plan-fidelity.md`
+Single file: `audit/tasks/plan-fidelity.md`
 
 ## Approach
 
@@ -58,10 +69,10 @@ Single file: `adversarial-audit/tasks/plan-fidelity.md`
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
-| SC-1 | PF-DISPATCH-MODE expected result changed from hard-coded `(**clean-room**) or (**inline**)` to dynamic reference: "valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators" | `string` | `grep -n "valid dispatch indicator per" .opencode/skills/adversarial-audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: update the criterion text and re-grep | pre-commit | `.opencode/skills/adversarial-audit/tasks/plan-fidelity.md` | Problem §1 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
-| SC-2 | PF-Z3-CONTRACT expected result changed from hard-coded `P1_I1_G1` format to reference the `solve` skill's contract schema format, or removed if no authoritative source defines a naming convention | `string` | `grep -n "solve.*contract\|contract.*schema" .opencode/skills/adversarial-audit/tasks/plan-fidelity.md` — MUST return at least one match OR the P1_I1_G1 reference is removed | On FAIL: update the criterion text and re-grep | pre-commit | `.opencode/skills/adversarial-audit/tasks/plan-fidelity.md` | Problem §2 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
-| SC-3 | A general principle added to the evaluation criteria section stating criteria expected values MUST reference authoritative skill cards, not hard-code values | `string` | `grep -n "MUST reference\|authoritative skill card" .opencode/skills/adversarial-audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: add the principle text and re-grep | pre-commit | `.opencode/skills/adversarial-audit/tasks/plan-fidelity.md` | Approach §3 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
-| SC-4 | All other criteria in the evaluation criteria table reviewed for hard-coded values that should be dynamic; any found are flagged for follow-up | `string` | `grep -n "e\.g\.,\|e\.g\. \|hard-coded\|hardcoded" .opencode/skills/adversarial-audit/tasks/plan-fidelity.md` — review output for any remaining hard-coded expected values that should be dynamic | On FAIL: flag each remaining hard-coded value for follow-up | pre-commit | `.opencode/skills/adversarial-audit/tasks/plan-fidelity.md` | Approach §4 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-1 | PF-DISPATCH-MODE expected result changed from hard-coded `(**clean-room**) or (**inline**)` to dynamic reference: "valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators" | `string` | `grep -n "valid dispatch indicator per" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: update the criterion text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Problem §1 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-2 | PF-Z3-CONTRACT expected result changed from hard-coded `P1_I1_G1` format to reference the `solve` skill's contract schema format, or removed if no authoritative source defines a naming convention | `string` | `grep -n "solve.*contract\|contract.*schema" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match OR the P1_I1_G1 reference is removed | On FAIL: update the criterion text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Problem §2 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-3 | A general principle added to the evaluation criteria section stating criteria expected values MUST reference authoritative skill cards, not hard-code values | `string` | `grep -n "MUST reference\|authoritative skill card" .opencode/skills/audit/tasks/plan-fidelity.md` — MUST return at least one match | On FAIL: add the principle text and re-grep | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Approach §3 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
+| SC-4 | All other criteria in the evaluation criteria table reviewed for hard-coded values that should be dynamic; any found are flagged for follow-up | `string` | `grep -n "e\.g\.,\|e\.g\. \|hard-coded\|hardcoded" .opencode/skills/audit/tasks/plan-fidelity.md` — review output for any remaining hard-coded expected values that should be dynamic | On FAIL: flag each remaining hard-coded value for follow-up | pre-commit | `.opencode/skills/audit/tasks/plan-fidelity.md` | Approach §4 | Phase 1 | pre-commit | standalone | — | — | — | Phase 1 |
 
 ### Determinism Gate
 
@@ -82,7 +93,7 @@ For each SC:
 
 ## Files Affected
 
-- `adversarial-audit/tasks/plan-fidelity.md` — evaluation criteria table (lines 87-106)
+- `audit/tasks/plan-fidelity.md` — evaluation criteria table (lines 107-129)
 
 ## Risks
 
@@ -133,7 +144,7 @@ None.
 |----------------|-------------------|---------|
 | Direct source search | `grep -n "clean-room\|inline\|sub-agent" .opencode/skills/writing-plans/tasks/write.md` | Verify valid dispatch indicators |
 | Direct source search | `grep -rn "P1_I1_G1\|contract.*schema" .opencode/skills/solve/` | Verify Z3 contract format |
-| Direct source search | `grep -n "read dynamically" .opencode/skills/adversarial-audit/tasks/plan-fidelity.md` | Verify correct pattern reference |
+| Direct source search | `grep -n "read dynamically" .opencode/skills/audit/tasks/plan-fidelity.md` | Verify correct pattern reference |
 
 ---
 
