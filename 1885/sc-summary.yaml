@@ -1,0 +1,58 @@
+sc_coverage:
+  total: 8
+  single_task: false
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1885
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+      evidence_types: [string]
+    - id: Phase 2
+      sc_ids: [SC-7, SC-8]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+    verified_in_phase: Phase 1
+  scs:
+    - id: SC-1
+      description: "Trigger Dispatch Table 'create plan' entry includes artifact pre-check before dispatch"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "pre-plan-readiness task checks for all 7 analytical artifacts"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "SKILL.md Entry Criteria list analytical artifact presence as a prerequisite"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "Mandatory Task Discipline item 8 is elevated to hard gate with BLOCKED on missing artifacts"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-5
+      description: "spec-to-plan handoff manifest validates analytical artifact presence"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-6
+      description: "Critical-rules entry prohibits bypassing the artifact gate"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-7
+      description: "Behavioral enforcement test verifies agent does NOT bypass artifact gate"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 2
+    - id: SC-8
+      description: "Before any implementation, behavioral enforcement test exists and is confirmed RED (fails before change)"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 2

@@ -1,0 +1,62 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1885
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green-vbc
+      re_entry_step: structure
+      phase_binding: Phase 1
+      artifact_path: ./tmp/1885/artifacts/sc1-grep.log
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green-vbc
+      re_entry_step: structure
+      phase_binding: Phase 1
+      artifact_path: ./tmp/1885/artifacts/sc2-grep.log
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green-vbc
+      re_entry_step: structure
+      phase_binding: Phase 1
+      artifact_path: ./tmp/1885/artifacts/sc3-grep.log
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green-vbc
+      re_entry_step: structure
+      phase_binding: Phase 1
+      artifact_path: ./tmp/1885/artifacts/sc4-grep.log
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green-vbc
+      re_entry_step: structure
+      phase_binding: Phase 1
+      artifact_path: ./tmp/1885/artifacts/sc5-grep.log
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green-vbc
+      re_entry_step: structure
+      phase_binding: Phase 1
+      artifact_path: ./tmp/1885/artifacts/sc6-grep.log
+    - id: SC-7
+      evidence_type: behavioral
+      verification_gate: red-green
+      pipeline_step_binding: red-green
+      re_entry_step: red-green
+      phase_binding: Phase 2
+      artifact_path: ./tmp/1885/artifacts/behavioral/sc7-session.yaml
+    - id: SC-8
+      evidence_type: behavioral
+      verification_gate: red-green
+      pipeline_step_binding: red-green
+      re_entry_step: red-green
+      phase_binding: Phase 2
+      artifact_path: ./tmp/1885/artifacts/behavioral/sc8-session.yaml
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
