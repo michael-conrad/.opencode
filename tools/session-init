@@ -13,8 +13,8 @@ __doc__ = """DESCRIPTION: Session initialization script for AI agents.
 
 Outputs key:value pairs + repo identity YAML for LLM consumption on stdout.
 Developer/workspace identity (dev.name, dev.email) uses dotted key format.
-Repo identity is in the ## Repo Information YAML section with path/owner/repo/platform/url entries.
-The ## Local Issue Artifacts section maps each repo to its .issues/ directory.
+Repo identity is in the ## Repo Information YAML section with owner/repo/platform/url entries.
+The ## Local Issue Folders section maps each repo to inline `git -C` commands for its .issues/ directory.
 
 Match file path (.) for root repo; subdirectory paths for submodule repos.
 Agents use repo identity values for MCP API routing (github_issue_read etc.).
@@ -647,19 +647,19 @@ def run_guard_checks() -> list[str]:
     return problems
 
 
-def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[dict[str, str]]:
-    """Collect local .issues/ artifact paths for each repo entry.
+def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
+    """Collect local .issues/ folder paths for each repo entry.
 
-    Returns a list of dicts with keys: path, issues.
-    If .issues/ directory does not exist, includes a 'setup' key with
+    Returns a list of inline `git -C` command strings.
+    If .issues/ directory does not exist, appends a setup comment with
     worktree creation instructions referencing the submodule's orphaned branch.
     """
     cwd = os.getcwd()
-    entries: list[dict[str, str]] = []
+    entries: list[str] = []
     for repo in repo_info:
         repo_path = repo["path"]
         # Skip .issues worktrees — they are the issue store, not repos
-        # with their own issue artifacts
+        # with their own issue folders
         if repo_path == ".issues" or repo_path.endswith("/.issues"):
             continue
         if repo_path == ".":
@@ -668,16 +668,13 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[dict[s
         else:
             issues_rel = f"{repo_path}/.issues/"
             issues_abs = os.path.join(cwd, repo_path, ".issues")
-        entry: dict[str, str] = {
-            "path": repo_path,
-            "issues": issues_rel,
-        }
+        cmd = f"- {issues_rel}: git -C {issues_rel}"
         if not os.path.isdir(issues_abs):
-            entry["setup"] = (
-                f"create worktree {issues_rel} from orphaned branch "
+            cmd += (
+                f"  # setup: create worktree from orphaned branch "
                 f"issues-data in repo {repo['repo']}"
             )
-        entries.append(entry)
+        entries.append(cmd)
     return entries
 
 
@@ -746,6 +743,19 @@ def main() -> int:
     for problem in guard_problems:
         print(problem)
 
+    # Emit ## CLI Auth Status section — only if at least one CLI is installed
+    cli_status = check_cli_auth_status()
+    if cli_status:
+        print("## CLI Auth Status")
+        for line in cli_status:
+            print(line)
+
+    # Emit ## Local Issue Folders section
+    issue_folders = collect_issue_artifact_paths(repo_info)
+    print("## Local Issue Folders")
+    for cmd in issue_folders:
+        print(cmd)
+
     # Emit unified ## Repo Information section
     print("## Repo Information")
     print("Professional engineers route issue operations by matching affected file paths to the `path` prefix below, then using that entry's `owner` and `repo`. Amateurs default to root and route to the wrong repo.")
@@ -756,25 +766,9 @@ def main() -> int:
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
 
-    # Emit ## CLI Auth Status section — only if at least one CLI is installed
-    cli_status = check_cli_auth_status()
-    if cli_status:
-        print("## CLI Auth Status")
-        for line in cli_status:
-            print(line)
-
     # Emit project_root — absolute top-level git root for submodule-aware path resolution
     project_root = run_git_command(["rev-parse", "--show-toplevel"])
     print(f"project_root: {project_root}")
-
-    # Emit ## Local Issue Artifacts section
-    issue_artifacts = collect_issue_artifact_paths(repo_info)
-    print("## Local Issue Artifacts")
-    for entry in issue_artifacts:
-        print(f"- path: {entry['path']}")
-        print(f"  issues: {entry['issues']}")
-        if "setup" in entry:
-            print(f"  setup: {entry['setup']}")
 
     # Emit ## Agent Tools section with tool listing
     tools_help = get_agent_tools_help()

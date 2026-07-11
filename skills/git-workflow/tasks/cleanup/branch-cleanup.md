@@ -435,6 +435,10 @@ For each merged branch (except the trunk): `git branch -d <branch>`
 
 ```bash
 git status --porcelain  # Must be empty
+CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || true)
+if [ -n "$CURRENT_BRANCH" ] && [ "$CURRENT_BRANCH" != "$DEFAULT_BRANCH" ]; then
+    echo "WARNING: Working tree is on branch '$CURRENT_BRANCH', not '$DEFAULT_BRANCH'"
+fi
 git branch -vv          # Should show minimal branches
 ```
 

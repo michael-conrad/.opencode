@@ -160,7 +160,16 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
       git -C "$REPO_PATH" log --oneline -1 "$DEFAULT_BRANCH"
       ```
 
-   d. Compare local vs remote:
+   d. Verify checked-out branch:
+      ```bash
+      CURRENT_BRANCH=$(git -C "$REPO_PATH" branch --show-current 2>/dev/null || true)
+      if [ -n "$CURRENT_BRANCH" ] && [ "$CURRENT_BRANCH" != "$DEFAULT_BRANCH" ]; then
+          echo "WARNING: $REPO_PATH is on branch '$CURRENT_BRANCH', not '$DEFAULT_BRANCH'"
+          echo "Branch mismatch detected — repo is parked on wrong branch"
+      fi
+      ```
+
+   e. Compare local vs remote:
       - If hashes match → repo is at dev tip
       - If hashes differ → repo has diverged
 
