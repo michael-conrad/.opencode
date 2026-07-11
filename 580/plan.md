@@ -41,6 +41,9 @@ No intermediate evidence artifacts. No file-based state passing. Git state IS th
 - [ ] `enforcement-gate.md` has Step 1.3 with fetch, rev-list, auto-rebase, conflict routing
 - [ ] `pre-pr-checklist.md` has item 9 with staleness check
 - [ ] All existing tests still pass
+- [ ] SC Integrity Mandate enforced: no SC may be skipped, deferred, or weakened
+- [ ] 100% clean PASS required: any SC failure marks ALL SCs as FAIL
+- [ ] SC Lobotomy Prohibition: no SC may be removed or weakened to evade implementation
 
 ## Self-Review Evidence
 
@@ -49,6 +52,9 @@ No intermediate evidence artifacts. No file-based state passing. Git state IS th
 - `conflict-resolution` skill already handles three-tier classification — no changes needed
 - No `dev`-specific hardcoding — target is resolved dynamically per TBD per #1540
 - No `release-promotion` references — moot per #1540
+- Interdependencies documented in spec: #492 (complementary), #682 (HIGH — sequence after), #1222 (MEDIUM), #1350 (MEDIUM), #1441 (MEDIUM), #1644 (LOW), #1666 (LOW)
+- No circular dependencies — all one-directional
+- SC Integrity Mandate enforced: no lobotomizing, 100% clean pass, no SC removal
 
 ---
 

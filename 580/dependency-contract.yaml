@@ -13,3 +13,25 @@ phases:
     pr_boundary: "single_pr"
     concern: "PR creation staleness verification"
 dependency_graph: []
+interdependencies:
+  - issue: 492
+    relationship: "complementary"
+    action: "Mark as related — same git rev-list mechanism for stale-branch detection"
+  - issue: 682
+    relationship: "high"
+    action: "Sequence #580 after #682 — git-workflow re-arch may relocate pr-creation task files"
+  - issue: 1222
+    relationship: "medium"
+    action: "Align enforcement gate with contract schema if adopted"
+  - issue: 1350
+    relationship: "medium"
+    action: "Hook enforcement gate into platform-agnostic PR dispatcher if adopted"
+  - issue: 1441
+    relationship: "medium"
+    action: "Ensure new gate is non-skippable per hard-gate dependency ordering"
+  - issue: 1644
+    relationship: "low"
+    action: "Could share git rev-list utility code with branch-verification mandate"
+  - issue: 1666
+    relationship: "low"
+    action: "Different pipeline stage; no direct conflict"
