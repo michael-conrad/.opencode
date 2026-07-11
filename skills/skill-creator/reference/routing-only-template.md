@@ -15,16 +15,18 @@ This template defines the canonical structure for a routing-only SKILL.md file. 
 ```markdown
 ---
 name: skill-name
-description: "<Noun phrase describing what the skill is>. Dispatch when <agent-facing trigger conditions>. Also dispatch when <additional trigger conditions>. <Enforcement statement>. User phrases: <preserved user-facing trigger phrases>."
+description: "<Noun phrase describing what the skill is>. Dispatch when <agent-facing trigger conditions>. Also dispatch when <additional trigger conditions>. Invoke for: <comma-separated task names (OPTIONAL)>. <Enforcement statement>. — distinct from <exclusion clauses>."
 
 **Description format (agent-intent pattern):**
 - `<Noun phrase>` — what the skill IS (not when to use it)
-- `Dispatch when` — agent-facing trigger conditions (what the agent is doing)
+- `Dispatch when` — primary agent-facing trigger conditions (what the agent is doing)
 - `Also dispatch when` — additional agent-facing trigger conditions
+- `Invoke for:` — optional structural reference to task names from dispatch table
 - Enforcement statement — e.g., "Spec creation is REQUIRED before implementation."
-- `User phrases:` — preserved user-facing trigger phrases (same content as old "Trigger phrases:")
+- `— distinct from` — exclusion clauses for skills that could false-match
 - Max 1024 characters (opencode limit)
-- Exclusion clauses (`— distinct from <exclusion>`) for skills that could false-match
+- **Rejected elements:** `Use when`, `Also use when`, `Trigger phrases:` — deprecated Farmage format, MUST NOT appear
+- **Optional elements:** `User phrases:` — example user-facing trigger patterns for semantic dispatch matching (not required, not rejected); `Invoke for:` — structural reference to task names from dispatch table
 license: MIT
 provenance: AI-generated
 ---
