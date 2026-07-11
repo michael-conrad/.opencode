@@ -104,6 +104,8 @@ Read the existing plan from `spec_local_dir/`:
 
 ### Step 3: Build Evaluation Criteria
 
+> **General Principle:** Evaluation criteria expected values MUST reference authoritative skill cards, not hard-code concrete values. Each Expected Result cell must reference a live authoritative source (e.g., `per writing-plans/tasks/write.md §Dispatch Indicators`) rather than embedding concrete values.
+
 | Criterion ID | Description | Expected Result |
 |--------------|-------------|-----------------|
 | PF-1 | All phases in clean-room appear in existing | One-to-one phase coverage |
@@ -111,14 +113,14 @@ Read the existing plan from `spec_local_dir/`:
 | PF-3 | Steps cover ALL success criteria; missing any is automatic FAIL per spec gate | Each SC has corresponding step — missing any is automatic FAIL |
 | PF-4 | No missing critical steps | Edge cases, error recovery included |
 | PF-5 | Approach consistent | Clean-room and existing use same strategy |
-| PF-6 | TDD checkpoints present with RED/GREEN separation; every step has dispatch mode indicator | RED GREEN REFACTOR structure present; RED and GREEN are separate phases, not combined; every step has `(**clean-room**)` or `(**inline**)` dispatch mode indicator in title |
+| PF-6 | TDD checkpoints present with RED/GREEN separation; every step has dispatch mode indicator | RED GREEN REFACTOR structure present; RED and GREEN are separate phases, not combined; every step has a valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators — exactly one of the three |
 | PF-7a | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
 | PF-7 | SC gate language preserved in plan tasks | Plan task structure references the all-or-nothing gate from spec; each TDD RED checkpoint is a sub-gate in the chain |
 | PF-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs in plan instructions | If a plan phase's verification instructions accept structural evidence (grep/read/file-exists) for a behavioral SC, return FAIL with `STRUCTURAL_EVIDENCE` classification. **PF-STRUCTURAL-FAIL uplift:** When checking plan fidelity, if an implementation change affects runtime behavior, uplift the SC evidence type to `behavioral`. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV. Verification instructions MUST require behavioral test execution — structural checks do not verify behavior. |
-| PF-Z3-CONTRACT | Z3 contract completeness and correctness | Check: (1) Hierarchical phase→item→gate booleans exist (e.g., P1_I1_G1, P1_I2_G1). (2) NO preconditions declared (preconditions block valid state transitions). (3) Invariants enforce serial ordering (implies pN, pN-1). Any check fails → PF-BLOCKED. |
+| PF-Z3-CONTRACT | Z3 contract completeness and correctness | Check: (1) Contract follows `solve/tasks/contract.md` §Contract YAML Structure — typed variables (`type`, `domain`, `nullable`) with Z3 expression constraints. (2) NO preconditions declared (preconditions block valid state transitions). (3) Invariants enforce serial ordering (implies pN, pN-1). Any check fails → PF-BLOCKED. |
 | PF-PRESCRIPTIVE-CODE | No prescriptive code in RED/GREEN conditions | RED/GREEN conditions contain NO line numbers, exact code, or file paths. RED describes "what fails". GREEN describes "what must be true". Prescriptive content → flag if present. |
 | PF-CHECKLIST-FORMAT | All steps use `- [ ] N.` format with sub-bullets | Every step is a numbered checkbox with at least one sub-bullet containing metadata, SC reference, or command |
-| PF-DISPATCH-MODE | Every step has valid dispatch mode indicator | Every step title contains `(**clean-room**)` or `(**inline**)` — exactly one of the two |
+| PF-DISPATCH-MODE | Every step has valid dispatch mode indicator | Every step title contains a valid dispatch indicator per `writing-plans/tasks/write.md` §Dispatch Indicators — exactly one of the three |
 | PF-DISPATCH-DEFECTS | Dispatch marking defects detected: (a) missing Dispatch declaration, (b) `inline` phase with only sub-agent steps, (c) `sub-agent-clean-room` phase with `(**inline**)` steps | Check plan phase table for `Dispatch` column (split plans) or `**Dispatch:**` field (non-split plans). If missing → FAIL. If `Dispatch: inline` and all steps are `(**sub-agent**)`/`(**clean-room**)` → FAIL. If `Dispatch: sub-agent-clean-room` and any step is `(**inline**)` → FAIL. |
 | PF-SUBSTEP-EXPAND | No collapsed multi-operation steps | Every sub-operation from pipeline task files gets its own `- [ ] N.` entry. No step describes more than one atomic action |
 | PF-ADMONISHMENT | Compliance admonishment present at top and bottom | Full canonical text blockquote: "rework from scratch and loss of all prior work" — present at both prologue and epilogue |
