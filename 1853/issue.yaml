@@ -2,6 +2,54 @@ title: 'Research card: writing-plans holistic gap analysis'
 status: open
 labels:
 - RESEARCH
-body: ''
+body: "---\nresearch_question: \"What is the gap between spec #1853 requirements and\
+  \ current writing-plans implementation for the 11-dimension holistic gate?\"\nconfidence:\
+  \ 0.95\nstatus: active\ntags:\n  - holistic-gate\n  - writing-plans\n  - spec-1853\n\
+  \  - plan-quality\ncreated: 2026-07-11\nlast_updated: 2026-07-11\n---\n\n## Summary\n\
+  \nSpec #1853 requires writing-plans to produce plans that pass the 11-dimension\
+  \ holistic gate. Investigation reveals a significant gap: the spec's Step 0 holistic\
+  \ spec evaluation (pre-flight gate) is already implemented in `create.md`, but the\
+  \ producer-side discipline (SC-to-step traceability, safety/rollback, feasibility\
+  \ verification, evidence/provenance, pre-completion holistic self-check, escape\
+  \ hatch prohibition, step-to-SC traceability, rollback requirements, plan-spec alignment)\
+  \ is entirely missing.\n\n## Findings\n\n### Already Implemented (SC-14)\n\n| Item\
+  \ | Status | Location |\n|------|--------|----------|\n| Sync header comments in\
+  \ create.md | ✅ Present | `create.md` line 3-4 |\n| Sync header comments in completion.md\
+  \ | ✅ Present | `completion.md` line 3-4 |\n| Sync header comments in update.md\
+  \ | ✅ Present | `update.md` line 1-2 |\n| Cross-reference in holistic-dimensions.yaml\
+  \ | ✅ Present | Lines 128-135 (producer_self_checks) |\n| Step 0 holistic spec evaluation\
+  \ (pre-flight) | ✅ Present | `create.md` Step 0, `update.md` Step 0 |\n\n### Missing\
+  \ (SC-1 through SC-13)\n\n| SC | What's Needed | Status |\n|----|--------------|--------|\n\
+  | SC-1 | SKILL.md description updated with holistic check trigger phrases | ❌ Missing\
+  \ |\n| SC-2 | Trigger Dispatch Table with holistic-self-check entry | ❌ Missing\
+  \ |\n| SC-3 | SC-to-step traceability table in plan template | ❌ Missing |\n| SC-4\
+  \ | Safety/rollback considerations per phase | ❌ Missing |\n| SC-5 | Feasibility\
+  \ verification per step | ❌ Missing |\n| SC-6 | Evidence/provenance for code state\
+  \ claims | ❌ Missing |\n| SC-7 | Pre-completion holistic self-check in completion.md\
+  \ | ❌ Missing |\n| SC-8 | Escape hatch prohibition guidance | ❌ Missing |\n| SC-9\
+  \ | Step-to-SC traceability requirement | ❌ Missing |\n| SC-10 | Rollback requirement\
+  \ for destructive ops | ❌ Missing |\n| SC-11 | Plan-spec alignment requirement |\
+  \ ❌ Missing |\n| SC-12 | Behavioral test: plan passes holistic gate | ❌ Missing\
+  \ |\n| SC-13 | Behavioral test: plan fails holistic gate | ❌ Missing |\n\n### Reference\
+  \ Implementation\n\nThe `spec-creation` skill already has a working `holistic-self-check.md`\
+  \ task file at `.opencode/skills/spec-creation/tasks/holistic-self-check.md`. The\
+  \ writing-plans version should follow the same pattern: clean-room sub-agent dispatch,\
+  \ 11-dimension evaluation, PASS/FAIL verdict per dimension, BLOCKED on any FAIL.\n\
+  \n### Spec Remediation (v3)\n\nThe spec was remediated to add:\n- References section\
+  \ with 5 live documentation URLs (Z3 Guide, InfoQ AI evaluation, IBM evaluation\
+  \ workflows, holistic-dimensions.yaml, spec-creation holistic-self-check)\n- SC-14\
+  \ marked as already-implemented\n- Files Affected updated to reflect current state\n\
+  - Cross-reference sync section updated to reflect current holistic-dimensions.yaml\
+  \ state\n\n## Sources\n\n- `.opencode/issues/1853` — The spec body (v3 remediated)\n\
+  - `.opencode/skills/writing-plans/SKILL.md` — No holistic check trigger phrases\n\
+  - `.opencode/skills/writing-plans/tasks/create.md` — Has Step 0 pre-flight, no SC-to-step\
+  \ traceability table\n- `.opencode/skills/writing-plans/tasks/completion.md` — No\
+  \ holistic self-check step\n- `.opencode/skills/writing-plans/tasks/update.md` —\
+  \ Has Step 0 pre-flight\n- `.opencode/reference/holistic-dimensions.yaml` — Has\
+  \ writing-plans entries in producer_self_checks\n- `.opencode/skills/spec-creation/tasks/holistic-self-check.md`\
+  \ — Reference implementation\n- `.opencode/tests/behaviors/` — No plan-creation-holistic-gate.sh\n\
+  - [Z3 Theorem Prover Documentation](https://microsoft.github.io/z3guide/)\n- [Evaluating\
+  \ AI Agents in Practice](https://www.infoq.com/articles/evaluating-ai-agents-lessons-learned/)\n\
+  - [IBM Developer: Create consistent evaluation workflows for AI agents](https://developer.ibm.com/tutorials/create-evaluation-workflow-ai-agents/)\n"
 created_at: '2026-07-11T05:07:23+00:00'
-updated_at: '2026-07-11T05:07:23+00:00'
+updated_at: '2026-07-11T05:07:29+00:00'
