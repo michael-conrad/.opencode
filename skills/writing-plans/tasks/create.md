@@ -7,7 +7,6 @@
 
 Create an implementation plan from an approved spec. The orchestrator dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps, dispatching sub-agents for sub-task steps and running z3-check steps inline.
 
-<<<<<<< Updated upstream
 ## Step 0: Holistic Spec Evaluation (Pre-Flight Gate)
 
 **MANDATORY GATE — MUST NOT be skipped.** Before any plan creation steps, dispatch a clean-room sub-agent to evaluate the spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
@@ -18,7 +17,7 @@ Create an implementation plan from an approved spec. The orchestrator dispatches
   - Expected: PASS for all 11 dimensions
   - On FAIL: hard-fail immediately, escalate to user with failing dimension details and resolution guidance
   - On PASS: proceed to Prerequisites
-=======
+
 ## Plan Template Sections
 
 The write sub-agent MUST include the following sections in every plan produced. These sections feed the 11 holistic dimensions and are mandatory — not optional.
@@ -103,7 +102,6 @@ Any step that performs a destructive operation (data mutation, file deletion, ir
 ### Plan-Spec Alignment
 
 The plan MUST actually implement the spec it claims to implement. The plan's goal MUST match the spec's goal. The plan MUST NOT add phases the spec didn't ask for or omit phases the spec requires.
->>>>>>> Stashed changes
 
 ## Prerequisites
 
