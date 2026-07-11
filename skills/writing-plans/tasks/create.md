@@ -1,8 +1,22 @@
 # Task: create
 
+<!-- Dimensions synced from .opencode/reference/holistic-dimensions.yaml -->
+<!-- Sync locations: see cross-reference table in that file -->
+
 ## Purpose
 
 Create an implementation plan from an approved spec. The orchestrator dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps, dispatching sub-agents for sub-task steps and running z3-check steps inline.
+
+## Step 0: Holistic Spec Evaluation (Pre-Flight Gate)
+
+**MANDATORY GATE — MUST NOT be skipped.** Before any plan creation steps, dispatch a clean-room sub-agent to evaluate the spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
+
+- [ ] 0. (**sub-agent**) Holistic spec evaluation — `task(..., prompt: "Evaluate the spec body against all 11 spec_dimensions from .opencode/reference/holistic-dimensions.yaml. For each dimension, produce PASS or FAIL with evidence. If any dimension FAILs, return BLOCKED with the failing dimension IDs, names, and resolution guidance.")`
+  - Chain: `none`
+  - Context passed: `{ spec_issue_number, spec_body }`
+  - Expected: PASS for all 11 dimensions
+  - On FAIL: hard-fail immediately, escalate to user with failing dimension details and resolution guidance
+  - On PASS: proceed to Prerequisites
 
 ## Prerequisites
 
