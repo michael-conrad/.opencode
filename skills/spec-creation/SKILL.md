@@ -1,6 +1,6 @@
 ---
 name: spec-creation
-description: "Specification authoring skill that decomposes problems into success criteria and documents requirements. Dispatch when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change control. Spec creation is REQUIRED before implementation. User phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, write requirements, create requirements doc, decompose problem, define success criteria, extract requirements, document change control, create a spec, write a spec, draft a spec, create a specification, write a specification, draft a specification, author a spec, make a spec, make specification, spec it out."
+description: "Specification authoring skill that decomposes problems into success criteria and documents requirements. Dispatch when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change control. Also use when running holistic self-checks on specs before completion, or verifying spec quality against the 11-dimension holistic gate. Invoke for: holistic check, self-check, pre-completion check, spec quality verification. Spec creation is REQUIRED before implementation. User phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, write requirements, create requirements doc, decompose problem, define success criteria, extract requirements, document change control, create a spec, write a spec, draft a spec, create a specification, write a specification, draft a specification, author a spec, make a spec, make specification, spec it out."
 license: MIT
 compatibility: opencode
 ---
@@ -46,6 +46,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "risk analysis" / "risk assessment" | `risk` | `sub-task` | {spec_context} |
 | "completion" / "spec complete" | `completion` | `sub-task` | {spec_context} |
 | "change control" / "revision" / "spec revision" | `change-control` | `sub-task` | {spec_context} |
+| "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {spec_context} |
 
 ## Persona
 
@@ -72,6 +73,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | `create`                  |
 | `completion`              |
 | `change-control`          |
+| `holistic-self-check`     |
 
 ## Invocation
 
@@ -96,6 +98,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | `create`                  | `task(..., prompt: "execute create task from spec-creation")`                           |
 | `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                      |
 | `change-control`          | `task(..., prompt: "execute change-control task from spec-creation")`                  |
+| `holistic-self-check`     | `task(..., prompt: "execute holistic-self-check task from spec-creation")`              |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "spec-creation"})` ``
 

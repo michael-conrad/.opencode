@@ -11,6 +11,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 - [ ] 2. **spec-auditor invoked:** Verify spec-auditor was invoked after spec creation
 - [ ] 3. **Self-review evidence:** Verify self-review was performed (placeholder scan, consistency check, ambiguity check)
 - [ ] 3a. **Post-SC uplift check:** Verify post-SC uplift check (Step 6.2) was performed after self-review
+- [ ] 3b. **Holistic self-check:** Verify holistic self-check was performed (11 dimensions from `.opencode/reference/holistic-dimensions.yaml`). If not performed, run it now before finalization.
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with spec URL
 
 ## Skill-Specific Completion
@@ -26,6 +27,12 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 - [ ] 3. **Self-review** (if not already performed):
    - Check evidence for self-review completion
    - If missing: perform self-review (placeholder scan, consistency check)
+
+- [ ] 3b. **Holistic self-check** (MANDATORY before finalization):
+   - Dispatch `task(..., prompt: "execute holistic-self-check task from spec-creation")` with `{ spec_context, issue_number }`
+   - Collect the result contract
+   - If `status: DONE` (all 11 dimensions PASS): proceed to finalization
+   - If `status: BLOCKED` with `reason: HOLISTIC_GATE_FAILED`: return spec to create task for revision with failed dimensions listed. Do NOT finalize.
 
 - [ ] 4. **Chat executive summary** (if not already produced):
    - Verify exec summary was posted to chat with spec URL
