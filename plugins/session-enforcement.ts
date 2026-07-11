@@ -597,9 +597,8 @@ interface FrontmatterError {
  * Load skill descriptions from YAML frontmatter in SKILL.md files.
  * Adapted from obra/superpowers/plugins/superpowers.js skill discovery pattern.
  *
- * Source attribution: CSO (Content Search Optimization) principles from
- * https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md
- * Description format: "Use when..." with triggering conditions, NOT workflow summaries.
+ * Description format: noun phrase identity with embedded "Dispatch when" clause.
+ * See .opencode/reference/skill-card-schema.md for the canonical schema.
  *
  * Returns { skills, errors } where errors collects frontmatter validation issues.
  * See #601 for the original bug that motivated frontmatter validation.
@@ -637,8 +636,6 @@ function loadSkillDescriptions(skillsDir: string): {
 
         if (hasOpeningDelimiter && !frontmatter.description) {
           validationIssues.push("Missing `description` field — skill will be invisible to enforcement");
-        } else if (frontmatter.description && !frontmatter.description.startsWith("Use when")) {
-          validationIssues.push("Description does not start with \"Use when\" — CSO requirement for trigger discovery");
         }
 
         if (validationIssues.length > 0) {
@@ -679,7 +676,7 @@ function buildFrontmatterWarning(errors: FrontmatterError[]): string {
 
 ${perSkillListing}
 
-**Fix template:** every SKILL.md MUST start with YAML frontmatter with name, description (starting with "Use when"), type, and license fields. See #601 for the original bug that motivated this validation.`;
+**Fix template:** every SKILL.md MUST start with YAML frontmatter with name and description fields. See https://opencode.ai/docs/skills for the complete schema. See #601 for the original bug that motivated frontmatter validation.`;
 }
 
 
