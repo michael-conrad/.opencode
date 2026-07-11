@@ -182,6 +182,93 @@ def check_srclight() -> str:
         return "not_indexed"
 
 
+def check_cli_auth_status() -> list[str]:
+    """Check gh and gb CLI auth status. Returns list of status lines.
+
+    For each CLI:
+    - Check if binary exists via shutil.which()
+    - If installed, run auth status with short timeout (5s) and non-interactive flags
+    - Parse output for logged-in status — extract minimal one-liner
+    - Redact any sensitive values (tokens, emails)
+    - If not installed, skip silently — no output for that CLI
+
+    Returns an empty list if no CLIs are installed.
+    """
+    status_lines: list[str] = []
+
+    # Check gh
+    gh_path = shutil.which("gh")
+    if gh_path:
+        try:
+            result = subprocess.run(
+                ["gh", "auth", "status", "--no-interactive"],
+                capture_output=True,
+                text=True,
+                check=False,
+                stdin=subprocess.DEVNULL,
+                timeout=NETWORK_TIMEOUT,
+            )
+            if result.returncode == 0:
+                # Parse: "github.com\n  ✓ Logged in to github.com as user (token)..."
+                # Extract account name and host
+                line = (result.stdout or result.stderr or "").strip()
+                # Redact tokens/emails — keep only host and account
+                match = re.search(
+                    r"Logged in to (\S+) as (\S+)",
+                    line,
+                )
+                if match:
+                    host = match.group(1)
+                    account = match.group(2)
+                    status_lines.append(
+                        f"gh: ✓ Logged in to {host} account {account}"
+                    )
+                else:
+                    status_lines.append("gh: ✓ Logged in")
+            else:
+                status_lines.append("gh: not_logged_in")
+        except subprocess.TimeoutExpired:
+            status_lines.append("gh: timeout")
+        except (subprocess.SubprocessError, OSError):
+            status_lines.append("gh: error")
+
+    # Check gb
+    gb_path = shutil.which("gb")
+    if gb_path:
+        try:
+            result = subprocess.run(
+                ["gb", "auth", "status"],
+                capture_output=True,
+                text=True,
+                check=False,
+                stdin=subprocess.DEVNULL,
+                timeout=NETWORK_TIMEOUT,
+            )
+            if result.returncode == 0:
+                line = (result.stdout or result.stderr or "").strip()
+                # Redact tokens/emails — keep only host and account
+                match = re.search(
+                    r"Logged in to (\S+) as (\S+)",
+                    line,
+                )
+                if match:
+                    host = match.group(1)
+                    account = match.group(2)
+                    status_lines.append(
+                        f"gb: ✓ Logged in to {host} account {account}"
+                    )
+                else:
+                    status_lines.append("gb: ✓ Logged in")
+            else:
+                status_lines.append("gb: not_logged_in")
+        except subprocess.TimeoutExpired:
+            status_lines.append("gb: timeout")
+        except (subprocess.SubprocessError, OSError):
+            status_lines.append("gb: error")
+
+    return status_lines
+
+
 def collect_repo_info() -> list[dict[str, str]]:
     """Collect all repo identity entries.
 
@@ -668,6 +755,13 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+
+    # Emit ## CLI Auth Status section — only if at least one CLI is installed
+    cli_status = check_cli_auth_status()
+    if cli_status:
+        print("## CLI Auth Status")
+        for line in cli_status:
+            print(line)
 
     # Emit project_root — absolute top-level git root for submodule-aware path resolution
     project_root = run_git_command(["rev-parse", "--show-toplevel"])
