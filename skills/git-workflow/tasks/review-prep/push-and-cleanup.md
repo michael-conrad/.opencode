@@ -84,6 +84,29 @@ rm -rf {project_root}/tmp/{issue-N}/temp_*.py {project_root}/tmp/{issue-N}/test_
 rm -rf {project_root}/tmp/{issue-N}/.cache 2>/dev/null
 ```
 
+### Step 1.25: Staleness Check and Auto-Rebase (MANDATORY)
+
+Detect whether the feature branch is behind `origin/$DEFAULT_BRANCH` and auto-rebase if stale.
+
+```bash
+git fetch origin
+BEHIND=$(git rev-list --count --left-right origin/$DEFAULT_BRANCH...HEAD | awk -F'\t' '{print $2}')
+```
+
+**If `BEHIND > 0` (stale branch):**
+
+```bash
+git rebase origin/$DEFAULT_BRANCH
+```
+
+- **Rebase succeeds (clean):** Proceed to Step 1.5.
+- **Rebase conflict:** Invoke `conflict-resolution` skill to classify per three-tier system:
+  - **Tier 1 (Trivial):** auto-resolve, silent — proceed to Step 1.5
+  - **Tier 2 (Textual but safe):** auto-resolve, note in chat — proceed to Step 1.5
+  - **Tier 3 (Intent conflict):** HALT and escalate to developer with conflict details (file paths, conflict markers, opposing changes)
+
+**If `BEHIND == 0` (clean branch):** Proceed normally to Step 1.5.
+
 ### Step 1.5: Rebase on Current Trunk (MANDATORY)
 
 ```bash
