@@ -140,13 +140,13 @@ def validate_req1(
         )
     else:
         desc = fields["description"]
-        if "Invoke for:" in desc:
+        if "Use when" in desc or "Also use when" in desc:
             violations.append(
                 Violation(
                     "REQ-1",
                     name,
                     "description",
-                    "Description contains 'Invoke for:' (old pattern — must use 'Dispatch when')",
+                    "Description contains 'Use when' or 'Also use when' (deprecated Farmage format — must use 'Dispatch when' / 'Also dispatch when')",
                     desc[:60],
                     file_path=file_path,
                 )
@@ -157,22 +157,13 @@ def validate_req1(
                     "REQ-1",
                     name,
                     "description",
-                    "Description contains 'Trigger phrases:' (old pattern — must use 'User phrases:')",
+                    "Description contains 'Trigger phrases:' (deprecated Farmage format — rejected)",
                     desc[:60],
                     file_path=file_path,
                 )
             )
-        if "Also use when" in desc:
-            violations.append(
-                Violation(
-                    "REQ-1",
-                    name,
-                    "description",
-                    "Description contains 'Also use when' (old pattern — must use 'Also dispatch when')",
-                    desc[:60],
-                    file_path=file_path,
-                )
-            )
+        # User phrases: is optional — provides example user-facing trigger patterns
+        # for semantic dispatch matching. Not required, not rejected.
         if "Dispatch when" not in desc:
             violations.append(
                 Violation(
@@ -180,17 +171,6 @@ def validate_req1(
                     name,
                     "description",
                     "Description missing 'Dispatch when' (required in agent-intent pattern)",
-                    desc[:60],
-                    file_path=file_path,
-                )
-            )
-        if "User phrases:" not in desc:
-            violations.append(
-                Violation(
-                    "REQ-1",
-                    name,
-                    "description",
-                    "Description missing 'User phrases:' (required in agent-intent pattern)",
                     desc[:60],
                     file_path=file_path,
                 )
@@ -236,20 +216,11 @@ def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> l
                 severity="ERROR", pass_fail="FAIL",
             )
         )
-    if "User phrases:" not in desc:
+    if "Use when" in desc or "Also use when" in desc:
         violations.append(
             Violation(
                 "SC-LINT", name, "SC-LINT-001",
-                "Description missing 'User phrases:' (required in agent-intent pattern)",
-                desc[:60], file_path=file_path,
-                severity="ERROR", pass_fail="FAIL",
-            )
-        )
-    if "Invoke for:" in desc:
-        violations.append(
-            Violation(
-                "SC-LINT", name, "SC-LINT-001",
-                "Description contains 'Invoke for:' (old pattern)",
+                "Description contains 'Use when' or 'Also use when' (deprecated Farmage format)",
                 desc[:60], file_path=file_path,
                 severity="ERROR", pass_fail="FAIL",
             )
@@ -258,20 +229,13 @@ def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> l
         violations.append(
             Violation(
                 "SC-LINT", name, "SC-LINT-001",
-                "Description contains 'Trigger phrases:' (old pattern)",
+                "Description contains 'Trigger phrases:' (deprecated Farmage format)",
                 desc[:60], file_path=file_path,
                 severity="ERROR", pass_fail="FAIL",
             )
         )
-    if "Also use when" in desc:
-        violations.append(
-            Violation(
-                "SC-LINT", name, "SC-LINT-001",
-                "Description contains 'Also use when' (old pattern)",
-                desc[:60], file_path=file_path,
-                severity="ERROR", pass_fail="FAIL",
-            )
-        )
+    # User phrases: is optional — provides example user-facing trigger patterns
+    # for semantic dispatch matching. Not required, not rejected.
     return violations
 
 MANDATORY_KEYWORDS = re.compile(
