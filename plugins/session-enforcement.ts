@@ -769,14 +769,15 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   }
 
   return {
-    // --- Sub-agent detection via session.created event cache (SC-1) ---
+    // --- Sub-agent detection via event hook with event.type discrimination (SC-1) ---
     // The session.created event fires synchronously before messages.transform
     // and carries parentID directly in its payload. This populates the
     // sessionParentCache Map so messages.transform can detect sub-agents
     // without relying on input.client (which is unavailable in that hook).
-    "session.created": async (eventInput) => {
-      const sessionID = eventInput?.payload?.id;
-      const parentID = eventInput?.payload?.parentID;
+    event: async (eventInput) => {
+      if (eventInput?.event?.type !== "session.created") return;
+      const sessionID = eventInput?.event?.properties?.info?.id;
+      const parentID = eventInput?.event?.properties?.info?.parentID;
       if (sessionID && parentID) {
         sessionParentCache.set(sessionID, parentID);
         subAgentSessions.add(sessionID);
@@ -948,7 +949,8 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       const currentUser = output.messages.findLast(m => m.info?.role === 'user');
       if (currentUser) {
         for (const part of currentUser.parts) {
-          if (!part.synthetic || part.type !== 'text') continue;
+          if (part.type !== 'text') continue;
+          if (!part.synthetic) continue;
           if (isModeSwitchSynthetic(part.text || '')) {
             part.text = '';
             part.synthetic = false;

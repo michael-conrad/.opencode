@@ -22,16 +22,6 @@
 
 set -euo pipefail
 
-# ollama_models — Output available model identifiers, excluding embedding models.
-ollama_models() {
-    local ollama_path
-    ollama_path="$(which ollama 2>/dev/null || true)"
-    if [ -z "$ollama_path" ]; then
-        return 0
-    fi
-    "$ollama_path" list 2>/dev/null | tail -n +2 | awk '{print $1}' | grep -viE 'embed|nomic|mxbai|e5' || true
-}
-
 # Sourcing guard — when this file is sourced (by helpers.sh), only export
 # the functions above and return immediately without running the main body.
 # shellcheck disable=SC2128
@@ -79,7 +69,7 @@ seed_model_config() {
         if [ -n "$model" ]; then
             models+=("$model")
         fi
-    done < <(ollama_models)
+    done < <(opencode-cli models 2>/dev/null | grep '^ollama/' | sed 's/ .*//' || true)
 
     if [ ${#models[@]} -eq 0 ]; then
         echo "HARNESS_FAILURE: no models available" >&2
@@ -95,7 +85,9 @@ seed_model_config() {
         "
         fi
         first=false
-        model_entries+="\"$model\": {}"
+        # Strip ollama/ prefix — the ollama provider expects bare name:tag keys
+        local bare="${model#ollama/}"
+        model_entries+="\"$bare\": {}"
     done
 
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
@@ -109,6 +101,13 @@ seed_model_config() {
       "models": {
         $model_entries
       }
+    },
+    "ollama-cloud": {
+      "options": {
+        "baseURL": "https://api.ollama.cloud/v1",
+        "timeout": 1800000
+      },
+      "models": {}
     }
   },
   "mcp": {}
@@ -216,7 +215,7 @@ else
 fi
 
 pass_through_env=()
-for var in GITHUB_TOKEN GH_TOKEN GH_AUTH_TOKEN SSH_AUTH_SOCK GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL; do
+for var in GITHUB_TOKEN GH_TOKEN GH_AUTH_TOKEN SSH_AUTH_SOCK GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL TEST_HOME; do
     if [ -n "${!var:-}" ]; then
         pass_through_env+=("$var=${!var}")
     fi
