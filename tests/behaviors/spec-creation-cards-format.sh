@@ -3,6 +3,11 @@
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Co-authored with AI: OpenCode (deepseek-v4-flash-free)
+#
 # SC-7 (behavioral): Agent produces cards-based format (Exec Summary → Scope of Work
 #   → Key Decisions → Risk Callouts) rather than the flat format (Problem/Scope/Approach/Impact).
 #
