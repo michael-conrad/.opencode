@@ -9,12 +9,14 @@ Verify that the local spec file and feature branch exist before allowing plan cr
 - Spec file exists at `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
 - Feature branch exists (not the trunk)
 - `local-issues sync` has been run
+- All 7 analytical artifacts exist in `.issues/{N}/`
 
 ## Exit Criteria
 
 - BLOCKED if spec file is missing
 - BLOCKED if feature branch is missing
 - BLOCKED if `local-issues sync` has not been run
+- BLOCKED if any analytical artifact is missing (returns `MISSING_SPEC_ARTIFACT`)
 - PASS if all prerequisites are met
 
 ## Procedure
@@ -25,4 +27,13 @@ Verify that the local spec file and feature branch exist before allowing plan cr
    - If missing or on the trunk: return `status: BLOCKED` with `reason: FEATURE_BRANCH_MISSING`
 3. Check `local-issues sync` has been run (verify `.issues/{N}/` directory is synced)
    - If not synced: return `status: BLOCKED` with `reason: LOCAL_ISSUES_NOT_SYNCED`
-4. Return `status: PASS` with `finding_summary: "All prerequisites met"`
+4. Verify all 7 analytical artifacts exist in `.issues/{N}/`:
+   - `blast-radius.md`
+   - `concern-map.md`
+   - `code-path-inventory.md`
+   - `cross-cutting-matrix.md`
+   - `interface-compatibility.md`
+   - `state-analysis.md`
+   - `testability-assessment.md`
+   - If any missing: return `status: BLOCKED` with `reason: MISSING_SPEC_ARTIFACT` and list the missing artifacts
+5. Return `status: PASS` with `finding_summary: "All prerequisites met"`

@@ -10,6 +10,7 @@ Verify spec structural completeness before plan creation begins. Runs as an entr
 - `.issues/{issue-N}/spec.md` or `{project_root}/{path}/.issues/{issue-N}/spec.md` exists
 - `.issues/{issue-N}/` or `{project_root}/{path}/.issues/{issue-N}/` directory exists
 - `.issues/{issue-N}/sc-summary.yaml` or `{project_root}/{path}/.issues/{issue-N}/sc-summary.yaml` exists and is valid YAML
+- All 7 analytical artifacts exist in `.issues/{issue-N}/`
 
 ## Exit Criteria
 
@@ -40,19 +41,32 @@ Verify spec structural completeness before plan creation begins. Runs as an entr
 3. Verify every SC-ID in `sc_coverage.phases[].sc_ids` is unique (no duplicates)
 4. Report parse errors or structural issues
 
-### Step 4: Validate Risk Traceability Cross-References
+### Step 4: Validate Analytical Artifacts
+
+1. Verify all 7 analytical artifacts exist in `.issues/{issue-N}/`:
+   - `blast-radius.md`
+   - `concern-map.md`
+   - `code-path-inventory.md`
+   - `cross-cutting-matrix.md`
+   - `interface-compatibility.md`
+   - `state-analysis.md`
+   - `testability-assessment.md`
+2. If any artifact missing: write preliminary BLOCKED manifest with `MISSING_SPEC_ARTIFACT`
+3. If all present: continue to Step 5
+
+### Step 5: Validate Risk Traceability Cross-References
 
 1. Read the spec's Risk Traceability table
 2. For each RISK-ID with a Verifying SC, verify the SC-ID exists in `sc-summary.yaml`
 3. Flag orphan RISK references (Verifying SC not in sc-summary)
 
-### Step 5: Validate Decision Ledger Contradictions
+### Step 6: Validate Decision Ledger Contradictions
 
 1. Read the spec's Decision Ledger
 2. Check for detected contradictions (from spec-auditor findings)
 3. If contradictions detected: write BLOCKED manifest with `DECISION_CONTRADICTION`
 
-### Step 6: Validate Decomposition Consistency
+### Step 7: Validate Decomposition Consistency
 
 1. Read the spec's decomposition classification (single-task or multi-phase)
 2. Read `sc-summary.yaml` phase bindings
@@ -60,7 +74,7 @@ Verify spec structural completeness before plan creation begins. Runs as an entr
 4. For multi-phase: verify SCs are distributed across phases with no orphan SCs
 5. Flag inconsistency between decomposition classification and SC-to-phase bindings
 
-### Step 7: Write Handoff Manifest
+### Step 8: Write Handoff Manifest
 
 Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
 
@@ -79,6 +93,9 @@ checks:
     result: PASS | FAIL
     detail: "..."
   - check_id: YAML_VALIDATION
+    result: PASS | FAIL
+    detail: "..."
+  - check_id: ANALYTICAL_ARTIFACTS
     result: PASS | FAIL
     detail: "..."
   - check_id: RISK_CROSS_REFS

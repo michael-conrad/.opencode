@@ -411,6 +411,10 @@ Professional engineers implement exactly what the spec defines — nothing more,
 Professional engineers inspect the codebase before writing a spec — live verification prevents assumptions. Amateurs spec from memory and training data — then wonder why the implementation doesn't fit the actual code.
 
 
+### [critical-rules-010] Plan Creation Without Analytical Artifacts — bypassing the artifact gate
+Professional engineers verify all 7 analytical artifacts exist before plan creation (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment). Amateurs skip artifact verification and produce plans disconnected from codebase reality — then wonder why every phase encounters a dependency or constraint the artifacts would have caught. The artifact gate is enforced at the writing-plans TDT entry, Entry Criteria, pre-plan-readiness task, and spec-to-plan handoff manifest. Skipping any of these gates means the plan was never structurally validated against the spec.
+
+
 ### [critical-rules-010] Implementing Stale or Superseded Specs
 Professional engineers check for superseding open issues before implementing — stale specs produce wasted work. Amateurs implement whatever spec they find first — then wonder why their output is obsolete before the PR is opened.
 

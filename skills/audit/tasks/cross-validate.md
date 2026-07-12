@@ -352,7 +352,7 @@ self_corrections:
     corrected_verdict: FAIL
 dark_pattern_violations: []
 warnings: []
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."  # Only present when overall_verdict == FAIL; null when PASS
 ```
 
 Create `{project_root}/tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
@@ -374,8 +374,8 @@ overall_verdict: PASS|FAIL
 next_step: "proceed|remediate then re-audit"
 artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
 summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
-all_criteria_pass: false
-mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+all_criteria_pass: false | true
+mandatory_remediation: "Remit for mandatory remediation..."  # Only present when overall_verdict == FAIL; null when PASS
 ```
 
 When self-corrections are present, `overall_verdict` MUST be FAIL. Any single self-correction in any criterion cascades to overall FAIL.
@@ -383,6 +383,10 @@ When self-corrections are present, `overall_verdict` MUST be FAIL. Any single se
 The `next_step` field:
 - `overall_verdict == PASS` → `next_step: "proceed"` (next pipeline continuation)
 - `overall_verdict == FAIL` → `next_step: "remediate then re-audit"` (orchestrator routes to recovery)
+
+The `mandatory_remediation` field:
+- `overall_verdict == FAIL` → `mandatory_remediation: "Remit for mandatory remediation..."` (signals orchestrator to enforce remediation before re-audit)
+- `overall_verdict == PASS` → `mandatory_remediation: null` (no remediation needed; orchestrator proceeds normally)
 
 ## Context Required
 

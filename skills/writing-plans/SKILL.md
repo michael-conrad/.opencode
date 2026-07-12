@@ -38,6 +38,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
+| | **Pre-check:** If `create` entry invoked, verify all 7 analytical artifacts exist in `.issues/{N}/` before dispatch. Missing artifact → route to corresponding HALT entry above. | | |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
 | "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
@@ -98,6 +99,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 - Spec is approved (check `approved-for-*` label)
 - Authorization scope is `for_plan` or above
+- All 7 analytical artifacts exist in `.issues/{N}/` (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment). Missing artifacts produce BLOCKED with `MISSING_SPEC_ARTIFACT`.
 
 ### Execution Model
 
