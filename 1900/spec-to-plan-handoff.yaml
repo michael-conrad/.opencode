@@ -1,0 +1,10 @@
+issue_number: 1900
+title: "[SPEC] Trim Pre-Response Gate"
+artifact_manifest:
+  - .opencode/.issues/1900/spec.md
+  - .opencode/.issues/1900/sc-summary.yaml
+  - .opencode/.issues/1900/issue.yaml
+prerequisites:
+  - research-card: .opencode/.issues/research-cards/pre-response-gate-skill-description-design.md
+  - source: .opencode/prompts/default.txt
+  - source: .opencode/AGENTS.md

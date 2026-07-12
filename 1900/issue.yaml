@@ -1,0 +1,9 @@
+number: 1900
+title: "[SPEC] Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+status: draft
+phase: 1
+labels:
+  - spec
+  - needs-approval
+created: 2026-07-12
+updated: 2026-07-12
