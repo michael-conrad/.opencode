@@ -36,19 +36,25 @@
 
 ---
 
-- [ ] 4. **Global pre-step: Coherence gate (**clean-room**).** Dispatch clean-room sub-agent to verify spec integrity: all 8 SCs present, no contradictory requirements, phase ordering matches dependency DAG. **→ SC-ALL**
-- [ ] 5. **Global pre-step: Pre-RED baseline (**inline**).** Capture `git status`, `git diff --stat`, `git log --oneline -5`. Record baseline SHA. **→ SC-ALL**
-- [ ] 6. **Global pre-step: Verify feature branch (**inline**).** Confirm branch `feature/1881-skill-split-plan` exists and is based on `main`. **→ SC-ALL**
+- [ ] 4. **sc-coherence-gate (**sub-agent**).** Dispatch `audit --task coherence-extraction` — verify spec integrity: all 8 SCs present, no contradictory requirements, phase ordering matches dependency DAG. **→ SC-ALL**
+- [ ] 5. **pre-red-baseline (**sub-agent**).** Dispatch `implementation-pipeline --task pre-red-baseline` — capture `git status`, `git diff --stat`, `git log --oneline -5`, record baseline SHA. Initialize solve state: `solve state init {project_root}/tmp/1881/state/`. **→ SC-ALL**
+- [ ] 6. **Verify feature branch (**sub-agent**).** Confirm branch `feature/1881-skill-split-plan` exists and is based on `main`. **→ SC-ALL**
 
-- [ ] 7. **RED: Write behavioral test for Agent-Intent Pattern validation (**sub-agent**).** Write behavioral test that sends a sub-agent prompt to create a sub-skill description. Assert via `assert_semantic` that the description follows Agent-Intent Pattern (≤1024 chars, canonical template). Test must FAIL before validation fix. **→ SC-1**
-- [ ] 8. **GREEN: Update skill-creator validate.md (**sub-agent**).** Update `.opencode/skills/skill-creator/tasks/validate.md` to accept Agent-Intent Pattern descriptions. Add validation rules: ≤1024 character limit, canonical template sections (description, key behaviors, usage). **→ SC-1**
-- [ ] 9. **GREEN: Create dispatcher template (**sub-agent**).** Create `.opencode/reference/dispatcher-template.md` with shared boilerplate sections: Worktree Mode notice, Mandatory Task Discipline notice, DISPATCH_GATE protocol stub, Trigger Dispatch Table skeleton, Sub-Agent Routing skeleton. **→ SC-1**
-- [ ] 10. **GREEN: Update INDEX.md reference (**sub-agent**).** Add `dispatcher-template` entry to `.opencode/guidelines/INDEX.md` with trigger pattern and load-when guidance. **→ SC-1**
-- [ ] 11. **GREEN doublecheck: Verify Phase 1 output (**sub-agent**).** Confirm validate.md updated, dispatcher-template.md exists, INDEX.md has new entry. Re-run Phase 1 RED test — must PASS. **→ SC-1**
-- [ ] 12. **Checkpoint commit (**inline**).** `git add .opencode/skills/skill-creator/ .opencode/reference/ .opencode/guidelines/INDEX.md .opencode/tests/behaviors/ && git commit -m "Phase 1: Fix skill-creator validation and create dispatcher template"` **→ SC-1**
+- [ ] 7. **RED: Write behavioral test for Agent-Intent Pattern validation (**sub-agent**).** Dispatch `test-driven-development --task red`. Write behavioral test that sends a sub-agent prompt to create a sub-skill description. Assert via `assert_semantic` that the description follows Agent-Intent Pattern (≤1024 chars, canonical template). Test must FAIL before validation fix. **→ SC-1**
+- [ ] 8. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED test fails with expected failure reason — confirm no false-negative (test fails for right reason, not infrastructure timeout/model issue). **→ SC-1**
+- [ ] 9. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code — no GREEN implementation work in RED output. **→ SC-1**
 
-#### Phase 1 VbC
+- [ ] 10. **GREEN: Update validate.md, create dispatcher template, update INDEX.md (**sub-agent**).** (1) Update `.opencode/skills/skill-creator/tasks/validate.md` to accept Agent-Intent Pattern descriptions. Add validation rules: ≤1024 character limit, canonical template sections (description, key behaviors, usage). (2) Create `.opencode/reference/dispatcher-template.md` with shared boilerplate sections: Worktree Mode notice, Mandatory Task Discipline notice, DISPATCH_GATE protocol stub, Trigger Dispatch Table skeleton, Sub-Agent Routing skeleton. (3) Add `dispatcher-template` entry to `.opencode/guidelines/INDEX.md` with trigger pattern and load-when guidance. **→ SC-1**
+- [ ] 11. **per-item-VbC: Verify Phase 1 GREEN output (**green-vbc**: `verification-before-completion --task completion`).** Verify: (1) validate.md accepts Agent-Intent Pattern, (2) dispatcher-template.md exists with shared sections, (3) INDEX.md updated. **→ SC-1**
 
-- [ ] 13. **VbC (**clean-room**).** Verify: (1) validate.md accepts Agent-Intent Pattern, (2) dispatcher-template.md exists with shared sections, (3) INDEX.md updated, (4) RED test PASSes. **→ SC-1**
+- [ ] 12. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm all Phase 1 outputs present and correct. Re-run Phase 1 RED test — must PASS after GREEN implementation. **→ SC-1**
+- [ ] 13. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify all SCs for Phase 1 (SC-1) have VbC evidence coverage. **→ SC-ALL**
+- [ ] 14. **structural-checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run lint/typecheck on Phase 1 modified files. **→ SC-ALL**
+
+- [ ] 15. **Checkpoint commit (**sub-agent**).** Dispatch `git-workflow --task commit-prep`. Stage and commit Phase 1 output with structured message: `"Phase 1: Fix skill-creator validation and create dispatcher template"`. **→ SC-ALL**
+- [ ] 16. **checkpoint-tag-create (**sub-agent**).** Dispatch `implementation-pipeline --task checkpoint-tag-create`. Create checkpoint tag `feature/1881-skill-split/checkpoint/phase-1-main`. **→ SC-ALL**
+
+- [ ] 17. **solve state update (**sub-agent**).** Update solve state file to track Phase 1 completion: `solve state update {project_root}/tmp/1881/state/ --var-name phase_1 --var-value complete --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml`. **→ SC-ALL**
+- [ ] 18. **solve check (**sub-agent**).** Dispatch `solve check` — verify state consistency after Phase 1. **→ SC-ALL**
 
 **Concern transition:** Leaving shared infrastructure → entering issue-operations split. Phase 2 depends on Phase 1 (dispatcher template exists, validate.md accepts sub-skill descriptions).

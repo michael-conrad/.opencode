@@ -1,80 +1,114 @@
-# Phase 7 — Cross-Skill Sweep (Post)
+# Phase 7 — Cross-Skill Sweep & Final Gates
 
-**Concern:** Cross-skill integration — update all cross-references, guidelines, tests, and run final verification
+**Concern:** Cross-skill validation — verify all 20 sub-skills (3+5+3+5+3+4) are correctly wired with dispatchers, all task files migrated, dispatch routing tested, and PR-ready gate passed.
 
 **Files:**
-- `.opencode/guidelines/000-critical-rules.md` — Update skill references to use dispatcher names
-- `.opencode/guidelines/010-approval-gate.md` — Update approval-gate references
-- `.opencode/guidelines/020-go-prohibitions.md` — Update skill references
-- `.opencode/guidelines/060-tool-usage.md` — Update tool/skill references
-- `.opencode/guidelines/080-code-standards.md` — Update test/skill references
-- `.opencode/guidelines/140-planning-spec-creation.md` — Update spec-creation references
-- `.opencode/guidelines/141-planning-status-tracking.md` — Update status tracking references
-- `.opencode/AGENTS.md` — Update skill references and index
-- `.opencode/README.md` — Update skill list
-- `.opencode/tests/test-enforcement.sh` — Update test path references
-- `~50 content-verification scenarios` — Update skill paths
-- `~20 behavioral tests` — Update dispatch assertions
-- All 37 skill files — Cross-reference audit and update
+- `.opencode/skills/implementation-pipeline/SKILL.md` — Verify pipeline state file for cross-skill consistency
+- `.opencode/skills/*/SKILL.md` — All 20 sub-skill SKILL.md files
+- `.opencode/skills/*/tasks/` — All sub-skill task directories
+- `.opencode/tests/behaviors/` — All behavioral test files
+- `.opencode/skills/brainstorming/SKILL.md` — From Phase 2
+- `.opencode/skills/programming-principles/SKILL.md` — From Phase 2
+- `.opencode/skills/engineering-approach/SKILL.md` — From Phase 2
+- `.opencode/skills/git-workflow/SKILL.md` — From Phase 4
+- `.opencode/skills/writing-plans/SKILL.md` — From Phase 5
+- `.opencode/skills/spec-creation/SKILL.md` — From Phase 6
+- `.opencode/skills/git-workflow-branch/SKILL.md` — From Phase 4
+- `.opencode/skills/git-workflow-commit/SKILL.md` — From Phase 4
+- `.opencode/skills/git-workflow-pr/SKILL.md` — From Phase 4
+- `.opencode/skills/git-workflow-cleanup/SKILL.md` — From Phase 4
+- `.opencode/skills/git-workflow-conflict/SKILL.md` — From Phase 4
+- `.opencode/skills/writing-plans-creation/SKILL.md` — From Phase 5
+- `.opencode/skills/writing-plans-holistic/SKILL.md` — From Phase 5
+- `.opencode/skills/writing-plans-retroactive/SKILL.md` — From Phase 5
+- `.opencode/skills/spec-creation-requirements/SKILL.md` — From Phase 6
+- `.opencode/skills/spec-creation-decomposition/SKILL.md` — From Phase 6
+- `.opencode/skills/spec-creation-validation/SKILL.md` — From Phase 6
+- `.opencode/skills/spec-creation-change-control/SKILL.md` — From Phase 6
+- `.opencode/skills/test-driven-development/SKILL.md` — From Phase 3
+- `.opencode/skills/test-driven-development-red/SKILL.md` — From Phase 3
+- `.opencode/skills/test-driven-development-green/SKILL.md` — From Phase 3
+- `.opencode/skills/implementation-pipeline/SKILL.md` — Pipeline state machine
+- `.opencode/.issues/1881/plan.md` — Index file (update with final dispatch table)
 
-**SCs:** SC-6, SC-7, SC-8
+**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6
 
-**Dependencies:** Phases 2, 3, 4, 5, 6 (all per-skill splits complete)
+**Dependencies:** Phases 1-6 complete
 
 **Entry conditions:**
-- All 5 dispatchers converted (issue-operations, approval-gate, git-workflow, writing-plans, spec-creation)
-- All 20 sub-skills created with task files
-- All behavior tests written (RED) and passing (GREEN)
+- All 6 split phases complete with checkpoint commits and tags
+- All dispatcher SKILL.md files written
+- All sub-skill directories exist with task files
 
 **Exit conditions:**
-- All guideline cross-references updated to reference dispatcher names (sub-skill names where specific)
-- AGENTS.md skill index updated
-- README.md skill list updated
-- All ~50 content-verification test scenarios reference current skill paths
-- All ~20 behavioral tests pass
-- Cross-skill conflict check: no orphaned triggers, all task files in exactly one sub-skill
-- Holistic spec audit PASS for all 11 dimensions
-- Cross-validation of verification results PASS
-- Review-prep complete with compare URL
-- Executive summary produced
+- 20 sub-skills confirmed with correct dispatcher routing
+- All 7 original dispatchers route to sub-skills
+- Full behavioral test suite PASS (all models)
+- sc-count-gate: 20 sub-skills × correct task count
+- pre-pr-gate: PR-ready verification
+- No orphaned task files remain in original skill directories
+- Final checkpoint tag created
 
 **Code Path Coverage:**
-- Cross-skill coverage: every file and test path in the .opencode/ subtree
-- All 37 skills referenced for cross-reference audit
+- End-to-end dispatch chain: skill description → dispatcher → Trigger Dispatch Table → sub-skill entry → task execution
+- Pipeline state machine: all 6 phase transitions verified
 
-**Cross-Cutting SCs:** SC-6 (cross-references), SC-7 (behavioral tests), SC-8 (all SCs verified)
+**Cross-Cutting SCs:** All cross-cutting SCs from Phases 1-6 sweep-verified together
 
 **Interface Boundaries:**
-- The cross-skill sweep is a global operation — it touches every skill file, guideline, and test
-- No destructive operations — only file edits (updating references)
+- Final plan.md dispatch column must reflect all 20 sub-skills with correct dispatch indicators
+- No task file should belong to two sub-skills
+- pipeline-state-machine.yaml must have correct phase transition records for all 6 phases
 
 **State Transitions:**
-- Guideline files before: reference old parent-skill paths → after: reference dispatcher/sub-skill paths
-- Test files before: reference old task file paths → after: reference new sub-skill task paths
-- AGENTS.md/README.md before: reference 37 skills → after: reference 5 dispatchers + 20 sub-skills
+- `plan.md` dispatch table before sweep: Phase 1-6 grouped rows → after sweep: full 20 sub-skill detailed dispatch table
+- Worktree state before: checkpoint tags for phases 1-6 → after: final checkpoint tag for phase 7
 
 ---
 
-- [ ] 64. **Cross-reference audit: Guidelines (**sub-agent**).** Search all 9 affected guideline files for references to the 5 parent skills. For each reference, determine if it should target the dispatcher or a specific sub-skill. Produce audit findings list. **→ SC-6**
-- [ ] 65. **Cross-reference audit: AGENTS.md and README.md (**sub-agent**).** Search AGENTS.md and README.md for skill references. Update skill index to reflect dispatcher + sub-skill structure. **→ SC-6**
-- [ ] 66. **Cross-reference audit: Skill cross-references (**sub-agent**).** Search all 37 skill SKILL.md files for cross-references to the 5 target skills. Update dispatcher/sub-skill references. **→ SC-6**
-- [ ] 67. **Cross-reference audit: Enforcement tests (**sub-agent**).** Search all content-verification test scenarios and behavioral test scripts for references to old task file paths. Update to new sub-skill task paths. Update dispatch assertions to match sub-skill names. **→ SC-6, SC-7**
-- [ ] 68. **Apply guideline cross-reference updates (**sub-agent**).** Based on audit findings from step 64, apply all guideline reference updates. Fix 9 guideline files. **→ SC-6**
-- [ ] 69. **Apply AGENTS.md/README.md updates (**sub-agent**).** Update AGENTS.md skill index and README.md skill list. **→ SC-6**
-- [ ] 70. **Apply skill cross-reference updates (**sub-agent**).** Based on audit findings from step 66, apply all skill cross-reference updates across 37 skill files. **→ SC-6**
-- [ ] 71. **Apply enforcement test updates (**sub-agent**).** Update ~50 content-verification scenarios and ~20 behavioral test scripts. Run each updated test to confirm PASS. **→ SC-6, SC-7**
-- [ ] 72. **Cross-skill conflict check: Orphaned triggers (**sub-agent**).** Search all 5 dispatcher SKILL.md files for trigger phrases. Verify each dispatcher trigger resolves to an existing sub-skill. Flag any orphaned triggers. **→ SC-5, SC-7**
-- [ ] 73. **Cross-skill conflict check: Missing task files (**sub-agent**).** Inventory all ~95 task files across the 5 parent skills. Verify each task file exists in exactly one sub-skill. Flag any task files that weren't migrated or exist in multiple locations. **→ SC-2, SC-7**
-- [ ] 74. **Run full test suite (**sub-agent**).** Run all enforcement tests: `bash .opencode/tests/test-enforcement.sh --tag all` and `bash .opencode/tests/behaviors/*.sh`. All must PASS. **→ SC-7**
-- [ ] 75. **Holistic spec audit (**clean-room**).** Dispatch clean-room sub-agent with spec issue body and all plan artifacts. Evaluate against all 11 plan dimensions from `.opencode/reference/holistic-dimensions.yaml`. Return PASS for all 11 or BLOCKED with failing dimension details. **→ SC-8**
-- [ ] 76. **Cross-validate verification results (**clean-room**).** Dispatch clean-room sub-agent with VbC artifacts from all phases. Cross-validate that every SC has at least one PASS verdict from the verification artifacts. Flag any SC with FAIL or missing evidence. **→ SC-8**
-- [ ] 77. **Review-prep (**sub-agent**).** Dispatch `git-workflow --task review-prep` with compare URL. Verify branch vs base diff. **→ SC-8**
-- [ ] 78. **Run regression check (**sub-agent**).** Run `bash .opencode/tests/test-enforcement.sh --changed` and `bash .opencode/tests/with-test-home opencode-cli run 'regression check'`. All must PASS. **→ SC-7**
-- [ ] 79. **Checkpoint commit: Cross-skill sweep (**inline**).** `git add .opencode/guidelines/ .opencode/AGENTS.md .opencode/README.md .opencode/tests/ && git commit -m "Phase 7: Cross-skill sweep — update references and tests"` **→ SC-ALL**
-- [ ] 80. **Final commit: All phases (**inline**).** `git add -A && git status` — verify working tree clean. `git commit -m "feat: Split 5 overloaded skills into dispatcher + sub-skills (closes #1881)"` or squash-all into one PR commit. **→ SC-ALL**
+- [ ] 118. **RED: Write cross-skill behavioral tests for end-to-end dispatch routing (**sub-agent**).** Dispatch `test-driven-development --task red`. Write comprehensive cross-skill dispatch test: send a trigger for each of the 7 original skills and verify routing reaches the correct sub-skill (20 routing paths). Verify via `assert_stderr_pattern_present`. Tests must FAIL before sweep fixes. **→ SC-5**
+- [ ] 119. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED tests fail with expected failure reasons — confirm no false-negatives. **→ SC-5**
+- [ ] 120. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code. **→ SC-5**
 
-#### Phase 7 VbC
+- [ ] 121. **GREEN: Sweep-verify all 6 dispatcher SKILL.md files (**sub-agent**).** Verify routing tables are present and correct in brainstorming/SKILL.md, programming-principles/SKILL.md, engineering-approach/SKILL.md, git-workflow/SKILL.md, writing-plans/SKILL.md, spec-creation/SKILL.md. Each must reference ONLY its sub-skills, no orphaned references. **→ SC-1, SC-2, SC-3, SC-5**
+- [ ] 122. **per-item-VbC: Verify dispatchers (**green-vbc**: `verification-before-completion --task completion`).** Confirm all 6 dispatchers reference correct sub-skills with no orphans. **→ SC-3, SC-5**
 
-- [ ] 81. **VbC (**clean-room**).** Verify: (1) All cross-references updated, (2) no orphaned triggers, (3) all task files in exactly one sub-skill, (4) all enforcement tests PASS, (5) holistic spec audit PASS, (6) cross-validation PASS. **→ SC-6, SC-7, SC-8**
+- [ ] 123. **GREEN: Sweep-verify all 20 sub-skill SKILL.md files (**sub-agent**).** Verify each sub-skill has: correct Trigger Dispatch Table (if applicable), DISPATCH_GATE protocol, Agent-Intent purpose description, task references matching existing files. **→ SC-1, SC-2, SC-4, SC-5**
+- [ ] 124. **per-item-VbC: Verify sub-skill correctness (**green-vbc**: `verification-before-completion --task completion`).** Confirm all 20 sub-skills meet SKILL.md standards. **→ SC-4**
 
-**Concern transition:** Cross-skill sweep complete. All 8 SCs verified. Plan execution complete — ready for PR creation.
+- [ ] 125. **GREEN: Sweep-verify all task files migrated (**sub-agent**).** Verify: (1) original `tasks/` directories for all 7 split skills are empty or deleted, (2) each sub-skill `tasks/` directory has correct file count, (3) no task file exists in two locations, (4) post-implementation.md lives only in `git-workflow-pr/tasks/`. **→ SC-2**
+- [ ] 126. **per-item-VbC: Verify task migration (**green-vbc**: `verification-before-completion --task completion`).** Confirm all task files in correct locations with no duplicates. **→ SC-2**
+
+- [ ] 127. **GREEN: Run full cross-skill dispatch behavioral test suite (**sub-agent**).** Run all behavioral tests for Phases 2-6 dispatch routing. Verify all PASS with `assert_stderr_pattern_present`. Reproduce RED tests now GREEN. **→ SC-5**
+- [ ] 128. **per-item-VbC: Verify test suite PASS (**green-vbc**: `verification-before-completion --task completion`).** Confirm full test suite PASS across all 20 sub-skill routing paths. **→ SC-5**
+
+- [ ] 129. **GREEN: Verify pipeline state machine consistency (**sub-agent**).** Read `.opencode/skills/implementation-pipeline/SKILL.md` pipeline state section. Verify all 6 phases have state transitions recorded. Confirm solve state machine has entries for all phases. **→ SC-6**
+- [ ] 130. **per-item-VbC: Verify state machine (**green-vbc**: `verification-before-completion --task completion`).** Confirm all 6 phases present in pipeline state. **→ SC-6**
+
+- [ ] 131. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Final cross-skill verification: (1) 20 sub-skills exist, (2) 7 dispatchers route correctly, (3) all task files migrated, (4) test suite PASS, (5) pipeline state consistent. **→ SC-ALL**
+
+---
+
+### sc-count-gate (global SC count verification)
+
+- [ ] 132. **sc-count-gate: Verify global success criteria achievement (**sub-agent**).** For each SC (SC-1 through SC-6), collect VbC evidence from all 7 phases. Verify every SC has at least one behavioral PASS with behavioral evidence (opencode-cli run with stderr assertions). Cross-reference against spec SC table. Report PASS only if every SC has ≥1 behavioral PASS. **→ SC-ALL**
+- [ ] 133. **sc-count-gate doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Re-run any SC VbC that lacks behavioral evidence. Confirm sc-count-gate PASS. **→ SC-ALL**
+
+---
+
+### pre-pr-gate (final readiness check)
+
+- [ ] 134. **pre-pr-gate: Verify PR readiness (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run full structural checks: lint (`uvx ruff check src/`), format check (`uvx ruff format --check src/`), type check (`uvx pyright src/`), Markdown lint (`uvx pymarkdownlnt scan -r .opencode/`). Verify git status clean. **→ SC-ALL**
+- [ ] 135. **pre-pr-gate doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Confirm all structural checks PASS and no uncommitted/staged changes remain. **→ SC-ALL**
+
+---
+
+### Final Checkpoint & PR Preparation
+
+- [ ] 136. **Final checkpoint commit (**sub-agent**).** Dispatch `git-workflow --task commit-prep`. Stage and commit Phase 7 output: `"Phase 7: Cross-skill sweep and final gates"`. **→ SC-ALL**
+- [ ] 137. **Final checkpoint-tag-create (**sub-agent**).** Dispatch `implementation-pipeline --task checkpoint-tag-create`. Create final checkpoint tag `feature/1881-skill-split/checkpoint/phase-7-main`. **→ SC-ALL**
+
+- [ ] 138. **solve state update (**sub-agent**).** Update solve state: `solve state update {project_root}/tmp/1881/state/ --var-name phase_7 --var-value complete --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml`. **→ SC-ALL**
+- [ ] 139. **solve check (**sub-agent**).** Dispatch `solve check` — verify final state consistency across all 7 phases. **→ SC-ALL**
+
+**Exit gate:** All 7 plan phases complete. sc-count-gate and pre-pr-gate PASS. Report to developer with phase-complete summary, checkpoint tags, and open PR.

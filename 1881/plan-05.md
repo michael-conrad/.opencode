@@ -47,17 +47,31 @@
 
 ---
 
-- [ ] 45. **RED: Write behavioral tests for writing-plans dispatch routing (**sub-agent**).** Write behavioral tests for creation pipeline, holistic check, and retroactive plan triggers. Verify via `assert_stderr_pattern_present` that routing targets correct sub-skill. Tests must FAIL before split. **→ SC-2, SC-5**
-- [ ] 46. **GREEN: Create writing-plans-creation sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-creation/` with SKILL.md. Move 15 task files from original tasks/. Move contracts/ to `creation/contracts/`. **→ SC-1, SC-2, SC-4**
-- [ ] 47. **GREEN: Create writing-plans-holistic sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-holistic/` with SKILL.md. Move 4 task files (holistic-self-check, validate, audit-fidelity, audit-concern) from original tasks/. **→ SC-1, SC-2, SC-4**
-- [ ] 48. **GREEN: Create writing-plans-retroactive sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-retroactive/` with SKILL.md. Move 1 task file (retroactive plan creation) from original tasks/. **→ SC-1, SC-2, SC-4**
-- [ ] 49. **GREEN: Convert writing-plans SKILL.md to dispatcher (**sub-agent**).** Rewrite `.opencode/skills/writing-plans/SKILL.md` as dispatcher. Add Trigger Dispatch Table routing to 3 sub-skills. Keep all trigger phrases including `holistic check`, `plan quality verification`, `retroactive plan`, `backfill plan`. **→ SC-3, SC-5**
-- [ ] 50. **GREEN doublecheck: Verify sub-skill structure (**sub-agent**).** Confirm: (1) 3 sub-skill dirs exist, (2) all task files present, (3) contracts/ moved to creation/, (4) original tasks/ and contracts/ empty. **→ SC-2, SC-3, SC-5**
-- [ ] 51. **Cleanup: Delete empty original directories (**inline**).** `rmdir .opencode/skills/writing-plans/tasks/` and `rmdir .opencode/skills/writing-plans/contracts/` (confirm both empty first). **→ SC-2**
-- [ ] 52. **Checkpoint commit (**inline**).** `git add .opencode/skills/writing-plans* .opencode/tests/behaviors/ && git commit -m "Phase 5: Split writing-plans into 3 sub-skills"` **→ SC-ALL**
+- [ ] 78. **RED: Write behavioral tests for writing-plans dispatch routing (**sub-agent**).** Dispatch `test-driven-development --task red`. Write behavioral tests for creation pipeline, holistic check, and retroactive plan triggers. Verify via `assert_stderr_pattern_present` that routing targets correct sub-skill. Tests must FAIL before split. **→ SC-2, SC-5**
+- [ ] 79. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED tests fail with expected failure reasons — confirm no false-negatives. **→ SC-2, SC-5**
+- [ ] 80. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code. **→ SC-2, SC-5**
 
-#### Phase 5 VbC
+- [ ] 81. **GREEN: Create writing-plans-creation sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-creation/` with SKILL.md. Move 15 task files from original tasks/. Move contracts/ to `creation/contracts/`. **→ SC-1, SC-2, SC-4**
+- [ ] 82. **per-item-VbC: Verify creation sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm creation sub-skill exists with 15 task files and contracts/ directory. **→ SC-2**
 
-- [ ] 53. **VbC (**clean-room**).** Verify: (1) 3 sub-skill dirs exist with correct tasks, (2) contracts/ with creation, (3) dispatcher routes correctly, (4) RED tests PASS after split. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+- [ ] 83. **GREEN: Create writing-plans-holistic sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-holistic/` with SKILL.md. Move 4 task files (holistic-self-check, validate, audit-fidelity, audit-concern) from original tasks/. **→ SC-1, SC-2, SC-4**
+- [ ] 84. **per-item-VbC: Verify holistic sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm holistic sub-skill exists with 4 task files. **→ SC-2**
+
+- [ ] 85. **GREEN: Create writing-plans-retroactive sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-retroactive/` with SKILL.md. Move 1 task file (retroactive plan creation) from original tasks/. **→ SC-1, SC-2, SC-4**
+- [ ] 86. **per-item-VbC: Verify retroactive sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm retroactive sub-skill exists with 1 task file. **→ SC-2**
+
+- [ ] 87. **GREEN: Convert writing-plans SKILL.md to dispatcher (**sub-agent**).** Rewrite `.opencode/skills/writing-plans/SKILL.md` as dispatcher. Add Trigger Dispatch Table routing to 3 sub-skills. Keep all trigger phrases including `holistic check`, `plan quality verification`, `retroactive plan`, `backfill plan`. **→ SC-3, SC-5**
+- [ ] 88. **per-item-VbC: Verify dispatcher routing (**green-vbc**: `verification-before-completion --task completion`).** Verify dispatcher Trigger Dispatch Table references all 3 sub-skills and preserves all original trigger phrases. **→ SC-3, SC-5**
+
+- [ ] 89. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm: (1) 3 sub-skill dirs exist, (2) all task files present, (3) contracts/ moved to creation/, (4) original tasks/ and contracts/ empty, (5) RED tests PASS after split. **→ SC-2, SC-3, SC-5**
+- [ ] 90. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-1 through SC-5 have VbC evidence for Phase 5. **→ SC-ALL**
+- [ ] 91. **structural-checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run lint/typecheck on Phase 5 modified files. **→ SC-ALL**
+
+- [ ] 92. **Cleanup: Delete empty original directories (**sub-agent**).** Dispatch `git-workflow --task commit-prep` with cleanup instruction — `rmdir .opencode/skills/writing-plans/tasks/` and `rmdir .opencode/skills/writing-plans/contracts/` (confirm both empty first). **→ SC-2**
+- [ ] 93. **Checkpoint commit (**sub-agent**).** Dispatch `git-workflow --task commit-prep`. Stage and commit Phase 5 output: `"Phase 5: Split writing-plans into 3 sub-skills"`. **→ SC-ALL**
+- [ ] 94. **checkpoint-tag-create (**sub-agent**).** Dispatch `implementation-pipeline --task checkpoint-tag-create`. Create checkpoint tag `feature/1881-skill-split/checkpoint/phase-5-main`. **→ SC-ALL**
+
+- [ ] 95. **solve state update (**sub-agent**).** Update solve state: `solve state update {project_root}/tmp/1881/state/ --var-name phase_5 --var-value complete --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml`. **→ SC-ALL**
+- [ ] 96. **solve check (**sub-agent**).** Dispatch `solve check` — verify state consistency after Phase 5. **→ SC-ALL**
 
 **Concern transition:** Leaving writing-plans split → entering spec-creation split. Phase 6 depends on Phase 1 (dispatcher template) and runs independently of Phases 2-5.

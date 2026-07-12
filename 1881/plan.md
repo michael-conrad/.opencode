@@ -6,7 +6,7 @@
 
 **Files:** ~120 files across `.opencode/skills/{issue-operations,approval-gate,git-workflow,writing-plans,spec-creation}*/*`
 
-**Dispatch:** Pipeline execution via `implementation-pipeline` skill — orchestrator dispatches each phase to clean-room sub-agents.
+**Dispatch:** Step-level dispatch via `implementation-pipeline` skill — orchestrator dispatches each step to clean-room sub-agents per its dispatch indicator. No phase-level batching.
 
 ## Blast Radius
 
@@ -34,11 +34,13 @@
 
 ## Admonishment
 
-> **Plan compliance is mandatory, not aspirational.** Every step in this plan MUST be executed in sequence. Skipping steps, reordering steps, or combining steps is a critical violation. The plan defines what to do; the orchestrator determines how to dispatch. All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are mandatory and MUST NOT be omitted.
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
+> **Dispatch discipline:** The plan defines WHAT to do; each step declares its own dispatch indicator. Steps marked `(**inline**)` execute directly by orchestrator. Steps marked `(**sub-agent**)` dispatch to sub-agents with context. Steps marked `(**clean-room**)` dispatch to sub-agents with routing metadata only. All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` Trigger Dispatch Table are mandatory and MUST NOT be omitted.
 
 ## One-Step-at-a-Time Protocol
 
-> **One step at a time.** Execute exactly one step, verify it, then proceed to the next. Do NOT batch steps. Do NOT parallelize unless explicitly marked as parallel. Every step produces evidence that the prior step completed correctly before moving forward.
+> **One step at a time.** Execute exactly one step, verify it, then proceed to the next. Do NOT batch steps. Do NOT parallelize unless explicitly marked as parallel. Every step produces evidence that the prior step completed correctly before moving forward. Step-level dispatch is the ONLY valid dispatch mode — the orchestrator processes the plan INLINE, step by step.
 
 ## Step Status
 
@@ -51,17 +53,17 @@ Each step MUST maintain a status indicator:
 
 | Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch |
 |-------|------|---------|-----|--------------|-------|----------|
-| 1 | Validate and Update (Pre-Flight) | Shared infrastructure | SC-1 | None | 4-11 | sub-agent |
-| 2 | Split issue-operations | issue-ops → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 12-23 | sub-agent |
-| 3 | Split approval-gate | approval-gate → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 24-34 | sub-agent |
-| 4 | Split git-workflow | git-workflow → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 35-46 | sub-agent |
-| 5 | Split writing-plans | writing-plans → 3 sub-skills | SC-1,2,3,4,5 | Phase 1 | 47-56 | sub-agent |
-| 6 | Split spec-creation | spec-creation → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 57-67 | sub-agent |
-| 7 | Cross-Skill Sweep (Post) | Cross-skill integration | SC-6,7,8 | Phases 2-6 | 68-80 | sub-agent |
+| 1 | Validate and Update (Pre-Flight) | Shared infrastructure | SC-1 | None | 4–18 | step-level (per-item) |
+| 2 | Split issue-operations | issue-ops → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 19–35 | step-level (per-item) |
+| 3 | Split approval-gate | approval-gate → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 36–52 | step-level (per-item) |
+| 4 | Split git-workflow | git-workflow → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 53–77 | step-level (per-item) |
+| 5 | Split writing-plans | writing-plans → 3 sub-skills | SC-1,2,3,4,5 | Phase 1 | 78–96 | step-level (per-item) |
+| 6 | Split spec-creation | spec-creation → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 97–117 | step-level (per-item) |
+| 7 | Cross-Skill Sweep (Post) | Cross-skill integration | SC-6,7,8 | Phases 2–6 | 118–139 | step-level (per-item) |
 
 ## Bottom Admonishment
 
-> **Plan compliance is mandatory, not aspirational.** Every step in this plan MUST be executed in sequence. Skipping steps, reordering steps, or combining steps is a critical violation. The plan defines what to do; the orchestrator determines how to dispatch. All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are mandatory and MUST NOT be omitted.
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 ## Self-Remediation Protocol
 
