@@ -48,25 +48,53 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     When creating the behavioral test success criterion, ensure it mandates real-domain prompts and stderr-based assertions, not prose-recall prompts.
 
-- [ ] 5. **Step 1: Assemble Spec** — The generated spec body MUST include a compliance statement blockquote at the top (after the preamble/user greeting) and at the bottom (before the success criteria table).
+- [ ] 5. **Step 1: Assemble Spec** — The generated spec body MUST include YAML frontmatter at the top of the LOCAL `.issues/{N}/spec.md` file. The remote issue body remains markdown-only (no frontmatter).
 
-    > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+    The local `spec.md` MUST begin with YAML frontmatter:
 
-    **Template content — top position (after STATUS/CREATED header):**
+    ```yaml
+    ---
+    title: <spec title>
+    status: <draft|active>
+    created: <YYYY-MM-DD>
+    license: MIT
+    provenance: AI-generated
+    issue: <issue number>
+    authors:
+      - <AgentName> (<ModelId>)
+    ---
+    ```
+
+    This frontmatter is for the LOCAL `.issues/{N}/spec.md` file ONLY. The remote issue body (GitHub Issue) uses markdown-only format without frontmatter.
+
+    The local `.issues/{N}/spec.md` file also includes a STATUS/CREATED preamble header and compliance statement blockquotes at the top and bottom. These are for the LOCAL spec file ONLY — the remote issue body does NOT use this format.
+
+    **Template — STATUS/CREATED header (top of local spec.md, after YAML frontmatter):**
+
+    ```markdown
+    **STATUS:** DRAFT
+    **CREATED:** <YYYY-MM-DD>
+    ```
+
+    **Template — compliance blockquote (top of local spec.md body, after STATUS/CREATED):**
 
     ```markdown
     > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
     ```
 
-    **Template content — bottom position (before success criteria table):**
+    **Template — compliance blockquote (bottom of local spec.md, before success criteria table):**
 
     ```markdown
     > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
     ```
+
+    The remote issue body (GitHub/GitBucket issue) uses a DIFFERENT format: the spec reference blockquote from Step 6.8 at the top, followed by the exec summary format from Step 7.2. The remote body MUST NOT include STATUS/CREATED headers, YAML frontmatter, or compliance blockquotes.
 
     Combine outputs from prerequisite tasks into a coherent spec. The spec should address the following content areas — the agent decides which sections to use and how to organize them:
 
-    - **Objectives and goals** — What this spec achieves
+    - **Objectives** — What this spec achieves
+    - **Goals** — Specific, measurable goals this spec targets. Must be testable and binary.
+    - **Non-Goals** — Explicitly out of scope: what this spec does NOT address. Each non-goal is a bullet item with rationale.
     - **Constraints and scope** — What's in and out of scope
     - **Root Cause Analysis** — Required section between Problem and Success Criteria. Documents the root cause of the problem, not just the symptoms. Feeds Correctness and Traceability dimensions of the holistic gate.
     - **Alternatives Considered & Why Discarded** — Required field in the preamble. Each alternative must have a discard rationale. Feeds Implementability dimension of the holistic gate.
@@ -608,15 +636,24 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
-- [ ] 29. **Step 7r: Remote Issue Body Format** — The remote issue body is the stakeholder-facing representation of the spec. It MUST use a standardized 6-part exec summary structure that is readable without clicking any link and carries full resolved URLs.
+- [ ] 29. **Step 7.1: Local Spec Assembly (SC-29)** — After creating the remote issue, save the full spec content to the local `.issues/{N}/spec.md` file:
 
-    **1. Spec Reference Blockquote (mandatory — top of body, before all other content)**
+    - [ ] Write the complete spec body (including all sections, SC table, compliance blocks, preamble, byline, and YAML frontmatter) to `.issues/{N}/spec.md`
+    - [ ] The local spec.md is the authoritative spec — the remote issue body is a condensed exec summary
+    - [ ] The plan writer reads from `.issues/{N}/spec.md`, not from the remote issue body
+    - [ ] Verify the file was written: `ls .issues/{N}/spec.md`
 
-    ```
-    > Full spec and plan artifacts: {html_url}/{owner}/{repo}/tree/issues-data/{N}/
-    ```
+- [ ] 30. **Step 7.2: Remote Issue Body (Exec Summary)** — Create the remote issue body as a stakeholder-facing exec summary with the spec reference blockquote:
 
-    **Construction rules (mandatory — pre-creation URL per URL Sourcing Rule 2):**
+    - [ ] **Spec Reference Blockquote (top of body):** Generate the blockquote from Step 6.8 and prepend it to the issue body
+    - [ ] **URL Construction (mandatory):** Follow the URL construction rules below when building the spec reference URL
+    - [ ] **Invoke `issue-operations --task pre-creation`** to validate (check for conflicts, superseded issues, content coverage); if validation fails → HALT and report, fix issues and re-validate
+    - [ ] **Invoke `issue-operations --task single-task-check`** to determine sub-issue needs
+    - [ ] **Invoke `issue-operations --task creation`** to create the issue with the blockquote-prepended exec summary body
+    - [ ] **Record the issue number and URL**
+    - [ ] **Save mirror:** Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
+
+    **URL Construction Rules (pre-creation URL per URL Sourcing Rule 2):**
 
     - [ ] Resolve `html_url`, `owner`, `repo` from the session-init `## Repo Information` entry whose `path` matches the issue's repo. The session-init section provides per-repo values — do NOT use hardcoded `github.html_url` or root repo values.
     - [ ] Construct the URL: `{html_url}/{owner}/{repo}/tree/issues-data/{N}/`
@@ -625,36 +662,31 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - [ ] **Repo-awareness guard**: Confirm owner/repo matches the target issue's repository before URL construction. If the issue resides in a submodule repo with different owner/repo, use that repo's session-init values
     - [ ] All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`)
 
-    **2. Problem (mandatory)**
+    **Exec Summary Structure (embedded in the remote issue body, 5-part mandatory format):**
 
+    ```
+    > **Full spec and plan artifacts: {html_url}/{owner}/{repo}/tree/issues-data/{N}/**
+
+    ## Problem
     What problem this solves, why now, business/user impact. BLUF — lead with outcome, not mechanism.
 
-    **3. Scope (mandatory)**
+    ## Goals
+    Specific, measurable goals this spec targets. Binary outcome statements.
 
-    3-5 bullets in-scope. Explicit out-of-scope list. Stakeholder-facing outcomes, not implementation details.
+    ## Non-Goals
+    Explicitly out of scope: what this spec does NOT address. Each non-goal with rationale.
 
-    **4. Approach (mandatory)**
+    ## Scope
+    3-5 bullets in-scope. Explicit out-of-scope list. Stakeholder-facing outcomes.
 
+    ## Approach
     High-level solution in 3-5 sentences. Names the approach, not the implementation.
 
-    **5. Impact (mandatory)**
-
+    ## Impact
     Top 3 risks with one-line mitigation. Key dependencies. Call to action.
-
-    **6. AI Agent Instructions (mandatory)**
-
-    ```
-    ## AI Agent Instructions
-
-    This issue is an executive summary for human stakeholders.
-    The authoritative spec and plan artifacts are at {{SPEC_PATH}}.
-    After creation, `local-issues sync {N}` MUST be run and the result committed to create the local `.issues/{N}/` entry.
-    The implementation plan will be created in `.issues/{N}/plan.md` after approval.
-    AI agents MUST read the local spec/plan files for implementation
-    and MUST NOT base implementation on this summary.
     ```
 
-    **Constraints table:**
+    **Exec Summary Constraints (local-only reference — not in the remote body):**
 
     | Constraint | Value |
     | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -666,17 +698,12 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     | Exclusions | No implementation details, file paths, algorithms, methodology, unreferenced acronyms |
     | Platform | Platform-agnostic — no hardcoded GitHub/GitBucket tool names |
 
-    **Clarification:** The Intent and Executive Summary 5-field table (Problem, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) from Step 5 goes in the LOCAL spec (`.issues/N/spec.md`), NOT the remote issue body.
+    **Exec-Summary Format Rules:**
 
-- [ ] 30. **Step 7: Create Issue** — Invoke `issue-operations` skill to persist the spec as an issue:
-
-    - [ ] Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
-    - [ ] Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
-    - [ ] If validation fails → HALT and report. Fix issues and re-validate.
-    - [ ] If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
-    - [ ] Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
-    - [ ] Record the issue number and URL
-    - [ ] **Invoke `local-issues sync` and commit the resulting local `.issues/{N}/` directory** — this runs at spec creation time, not deferred to approval
+    - **No checkboxes, no status markers, no completion flags** — the issue body is a requirements document, not a project tracker
+    - **Scope of Work listed in dependency order** — implementable sequence, not alphabetical or priority order
+    - **Include `Key Decisions` section** — document trade-offs and rationale from the card catalogue
+    - **Include `Risk Callouts` section** — surface risks that affect implementation approach or timeline
 
     **Chat output is ONLY:**
 
@@ -694,63 +721,9 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - Claim spec is "written" without an issue URL
     - Ask the user to review the spec in chat
 
-- [ ] 31. **Step 7a: Exec-Summary Format Rules** — The exec summary embedded in the remote issue body MUST follow these formatting constraints:
+- [ ] 31. **Step 7.3: Pre-PR Gate (Enforcement Constraint)** — The URL construction rules, character-match verification, substitution verification, repo-awareness guard, and exec summary constraints defined in Step 7.2 are enforced at the pre-PR pipeline stage. If the remote issue body does not comply, the pipeline MUST NOT proceed past the finishing-a-development-branch checklist. The spec-creation task documents these constraints for downstream enforcement but does not validate them at creation time — the pre-PR gate is the enforcement point.
 
-    - **No checkboxes, no status markers, no completion flags** — the issue body is a requirements document, not a project tracker
-    - **Cards listed in dependency order** — implementable sequence, not alphabetical or priority order
-    - **Include `Key Decisions` section** — document trade-offs and rationale from the card catalogue
-    - **Include `Risk Callouts` section** — surface risks that affect implementation approach or timeline
-
-    **Rules table:**
-
-    | Rule | Rationale |
-    | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-    | No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on platform labels and sub-issue state. |
-    | Dependency-ordered cards | Implementation follows dependency order; the exec summary must reflect the sequence the implementer will follow. |
-    | Key Decisions section | Design decisions made during spec creation must be visible to the implementer without reading the full card catalogue. |
-    | Risk Callouts section | Risks that affect implementation approach or timeline must be surfaced at the top of the issue, not buried in appendix content. |
-
-    **Example format:**
-
-    ```
-    > **Full spec and artifacts: `.issues/{N}/`**
-
-    ## Exec Summary
-
-    Describes what this spec achieves at a high level — one to two sentences
-    on the problem and the chosen approach.
-
-    ### Cards (dependency order)
-    1. **First dependency** — What must be built before anything else
-    2. **Core implementation** — The primary change this spec requires
-    3. **Follow-up work** — What depends on the core change
-    4. **Verification and cleanup** — Tests, migration, documentation
-
-    ### Key Decisions
-    - **Decision A**: Why this approach over the alternatives
-    - **Decision B**: Trade-off accepted and why
-
-    ### Risk Callouts
-    - **Risk A**: What could go wrong and what mitigates it
-    - **Risk B**: Known unknowns that affect timeline or approach
-    ```
-
-- [ ] 32. **Step 7b: Remote Push + Local Mirror** — After creating the issue in Step 7, save a local mirror of the exec summary:
-
-    - [ ] Remote push happens first (Step 7 creates the issue on the remote platform via `issue-operations --task creation`)
-    - [ ] Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
-    - [ ] Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
-
-    This ensures the local workspace mirrors the remote state for off-network reference and diff-based drift detection.
-
-- [ ] 32a. **Step 7c: Save Full Spec Locally (SC-29)** — After creating the remote issue, save the full spec content to the local `.issues/{N}/spec.md` file:
-
-    - [ ] Write the complete spec body (including all sections, SC table, compliance blocks, preamble, and byline) to `.issues/{N}/spec.md`
-    - [ ] The local spec.md is the authoritative spec — the remote issue body is a condensed exec summary
-    - [ ] The plan writer reads from `.issues/{N}/spec.md`, not from the remote issue body
-    - [ ] Verify the file was written: `ls .issues/{N}/spec.md`
-
-- [ ] 32b. **Step 7d: Sync Local Artifacts to issues-data Branch (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
+- [ ] 32. **Step 7.4: Post-Creation Sync (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
 
     - [ ] Run `.opencode/tools/local-issues sync` to commit all local `.issues/{N}/` files and push to the `issues-data` branch
     - [ ] This ensures links in the remote issue body that refer to the spec folder (`.issues/{N}/`) resolve correctly
