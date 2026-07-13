@@ -1,0 +1,48 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1910
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: edit-guideline
+      re_entry_step: null
+      phase_binding: Phase 1
+      artifact_path: .opencode/guidelines/065-verification-honesty.md
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: edit-guideline
+      re_entry_step: null
+      phase_binding: Phase 1
+      artifact_path: .opencode/guidelines/065-verification-honesty.md
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: edit-guideline
+      re_entry_step: null
+      phase_binding: Phase 1
+      artifact_path: .opencode/guidelines/000-critical-rules.md
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: edit-test
+      re_entry_step: null
+      phase_binding: Phase 1
+      artifact_path: .opencode/tests/test-verification-honesty.sh
+    - id: SC-5
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: verify-sc-integrity
+      re_entry_step: null
+      phase_binding: Phase 1
+      artifact_path: spec body
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-approval-gate
+      pipeline_step_binding: plan-creation
+      re_entry_step: null
+      phase_binding: Phase 1
+      artifact_path: .opencode/.issues/1910/plan.md
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
