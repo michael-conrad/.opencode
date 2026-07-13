@@ -1,0 +1,82 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+blast_radius:
+  phases:
+    - phase: "Phase 1: Restructure writing-plans/tasks/create.md"
+      affected_components:
+        - component: skills/writing-plans/tasks/create.md
+          impact: direct
+          description: Remove sub-agent dispatch instructions; orchestrator dispatches all sub-steps directly
+          ripple_effects:
+            - writing-plans SKILL.md Trigger Dispatch Table must be updated with new dispatch entries
+            - All downstream consumers of create.md output unaffected (plan format unchanged)
+        - component: skills/writing-plans/SKILL.md
+          impact: indirect
+          description: Trigger Dispatch Table needs new entries for orchestrator-level dispatch
+          ripple_effects:
+            - Sub-agents that read create.md no longer receive impossible dispatch instructions
+      risk_level: medium
+    - phase: "Phase 2: Restructure spec-creation/tasks/analytical-artifacts.md"
+      affected_components:
+        - component: skills/spec-creation/tasks/analytical-artifacts.md
+          impact: direct
+          description: Remove sub-agent dispatch instructions; orchestrator dispatches all 7 artifact sub-agents directly
+          ripple_effects:
+            - spec-creation SKILL.md Trigger Dispatch Table must be updated
+        - component: skills/spec-creation/SKILL.md
+          impact: indirect
+          description: Trigger Dispatch Table needs new entries for orchestrator-level artifact dispatch
+      risk_level: medium
+    - phase: "Phase 3: Restructure spec-creation/tasks/create.md"
+      affected_components:
+        - component: skills/spec-creation/tasks/create.md
+          impact: direct
+          description: Remove sub-agent dispatch instructions for verification sub-agents
+          ripple_effects:
+            - spec-creation SKILL.md Trigger Dispatch Table must be updated
+      risk_level: low
+    - phase: "Phase 4: Restructure verification-before-completion/tasks/behavioral-test-evaluation.md"
+      affected_components:
+        - component: skills/verification-before-completion/tasks/behavioral-test-evaluation.md
+          impact: direct
+          description: Remove sub-agent dispatch instructions for per-SC sub-agents
+          ripple_effects:
+            - verification-before-completion SKILL.md Trigger Dispatch Table must be updated
+      risk_level: low
+    - phase: "Phase 5: Split audit/tasks/closure-verification.md into DiMo chain"
+      affected_components:
+        - component: skills/audit/tasks/closure-verification.md
+          impact: direct
+          description: Split monolithic task into 4 role files (generator, knowledge-supporter, evaluator, path-provider)
+          ripple_effects:
+            - audit SKILL.md Trigger Dispatch Table must dispatch 4 roles sequentially
+            - Existing references to closure-verification.md must be updated
+        - component: skills/audit/SKILL.md
+          impact: indirect
+          description: Trigger Dispatch Table needs sequential dispatch entries for 4 roles
+      risk_level: medium
+    - phase: "Phase 6: Split audit/tasks/spec-summary.md into DiMo chain"
+      affected_components:
+        - component: skills/audit/tasks/spec-summary.md
+          impact: direct
+          description: Split monolithic task into 4 role files
+          ripple_effects:
+            - audit SKILL.md Trigger Dispatch Table must dispatch 4 roles sequentially
+            - Existing references to spec-summary.md must be updated
+      risk_level: medium
+    - phase: "Phase 7: Split audit/tasks/coherence-extraction.md into DiMo chain"
+      affected_components:
+        - component: skills/audit/tasks/coherence-extraction.md
+          impact: direct
+          description: Split monolithic task into 4 role files
+          ripple_effects:
+            - audit SKILL.md Trigger Dispatch Table must dispatch 4 roles sequentially
+            - Existing references to coherence-extraction.md must be updated
+      risk_level: medium
+    - phase: "Phase 8: Behavioral enforcement test for SC-9"
+      affected_components:
+        - component: .opencode/tests/behaviors/
+          impact: direct
+          description: Add behavioral test verifying sub-agent returns BLOCKED on impossible dispatch instructions
+          ripple_effects: []
+      risk_level: low
