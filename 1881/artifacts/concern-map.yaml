@@ -1,0 +1,156 @@
+artifact_name: concern-map
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "Map of concerns to phases for the 7-phase skill-split implementation"
+  phases:
+    - phase: 1
+      name: "Validate and Update (Pre-Flight)"
+      concern: "Shared infrastructure required by all 5 skill splits"
+      scs:
+        - SC-1 (sub-skill task count < 15)
+        - SC-9 (anti-lobotomization — verified once, applies to all phases)
+      dependencies: []
+      steps: "4–20"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "validate.md accepts Agent-Intent Pattern descriptions"
+        - "dispatcher-template.md created with shared boilerplate"
+        - "INDEX.md updated with dispatcher-template reference"
+        - "SC-9 behavioral test written and verified"
+    - phase: 2
+      name: "Split issue-operations"
+      concern: "issue-operations → 4 sub-skills (core, comments, sub-issues, sync)"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+      dependencies:
+        - "Phase 1 (dispatcher template exists)"
+      steps: "19–35"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "4 sub-skill directories created with SKILL.md files"
+        - "20 task files moved to sub-skill tasks/"
+        - "Dispatcher SKILL.md routes triggers to sub-skills"
+        - "Platform sub-skills preserved"
+        - "Original tasks/ directory deleted"
+    - phase: 3
+      name: "Split approval-gate"
+      concern: "approval-gate → 1 sub-skill (scope) with labels/revision/bug-discovery as sub-tasks"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+      dependencies:
+        - "Phase 1 (dispatcher template exists)"
+      steps: "36–50"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "1 sub-skill directory (approval-gate-scope) with SKILL.md"
+        - "22 task files moved to scope/tasks/"
+        - "5 enforcement files moved to scope/enforcement/"
+        - "Labels/revision/bug-discovery embedded as sub-tasks (per DEC-3)"
+        - "post-implementation.md left in original tasks/ for Phase 4"
+    - phase: 4
+      name: "Split git-workflow"
+      concern: "git-workflow → 5 sub-skills (branch, commit, pr, cleanup, conflict)"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+      dependencies:
+        - "Phase 1 (dispatcher template exists)"
+        - "post-implementation.md present at approval-gate/tasks/"
+      steps: "51–75"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "5 sub-skill directories created with SKILL.md files"
+        - "12 original + 3 submodule task files moved"
+        - "post-implementation.md received from approval-gate"
+        - "pair-* tasks distributed by lifecycle phase"
+        - "Submodule management assigned to branch sub-skill"
+    - phase: 5
+      name: "Split writing-plans"
+      concern: "writing-plans → 2 sub-skills (creation, holistic); retroactive merged into creation (per DEC-7)"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+      dependencies:
+        - "Phase 1 (dispatcher template exists)"
+      steps: "76–94"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "2 sub-skill directories created with SKILL.md files"
+        - "18 task files to creation, 1 to holistic"
+        - "contracts/ directory moved to creation/contracts/"
+        - "Retroactive task merged into creation sub-skill"
+    - phase: 6
+      name: "Split spec-creation"
+      concern: "spec-creation → 5 sub-skills (requirements, decomposition, validation, change-control, operating-protocol)"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+      dependencies:
+        - "Phase 1 (dispatcher template exists)"
+      steps: "95–119"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "5 sub-skill directories created with SKILL.md files"
+        - "18 task files moved to sub-skill tasks/"
+        - "contracts/ moved to decomposition/contracts/"
+        - "Completion task assigned to validation sub-skill"
+    - phase: 7
+      name: "Cross-Skill Sweep & Final Gates"
+      concern: "Cross-skill validation — verify all 17 sub-skills correctly wired, dispatch routing tested, PR-ready"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8
+      dependencies:
+        - "Phases 1–6 complete"
+      steps: "118–139"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "All 6 dispatcher SKILL.md files sweep-verified"
+        - "All 20 sub-skill SKILL.md files verified"
+        - "All task files migrated, no orphans"
+        - "Full behavioral test suite PASS"
+        - "sc-count-gate: every SC has ≥1 behavioral PASS"
+        - "pre-pr-gate: structural checks PASS"
+        - "Final checkpoint tag created"
+  concern_to_phase_mapping:
+    "Shared infrastructure": 1
+    "issue-operations → 4 sub-skills": 2
+    "approval-gate → 1 sub-skill (scope)": 3
+    "git-workflow → 5 sub-skills": 4
+    "writing-plans → 2 sub-skills": 5
+    "spec-creation → 5 sub-skills": 6
+    "Cross-skill integration": 7
+  phase_independence:
+    description: "Phases 2–6 are independent and parallelizable per DEC-9"
+    independent_phases:
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+    prerequisite_phase: 1
+    dependent_phase: 7

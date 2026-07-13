@@ -1,0 +1,73 @@
+artifact_name: interface-compatibility
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "Interface boundaries and backward compatibility analysis for the skill-split change"
+  regression_invariants:
+    - invariant: "All original trigger phrases for all 5 skills MUST continue to route to the correct sub-skill"
+      verification: "SC-4 behavioral test"
+    - invariant: "All existing skill({name: '...'}) calls MUST continue to work unchanged"
+      verification: "Verify no skill() call references change — original skill names preserved as dispatchers"
+    - invariant: "Platform sub-skills (github-mcp, gitbucket-api, local) MUST remain unchanged"
+      verification: "Structural check — platforms/ directory preserved"
+    - invariant: "Delegation targets (using-git-worktrees, pr-creation-workflow, conflict-resolution) MUST remain unchanged"
+      verification: "Structural check — delegation cross-references preserved"
+    - invariant: "No task file MAY be duplicated across sub-skills"
+      verification: "Phase 7 sweep — grep for duplicate task file names"
+  interface_boundaries:
+    skill_calls:
+      status: "UNCHANGED"
+      description: "skill({name: 'issue-operations'}) continues to work — dispatcher routes to sub-skills"
+      rationale: "Original skill names preserved as dispatcher SKILL.md files"
+      affected_skills:
+        - issue-operations
+        - approval-gate
+        - git-workflow
+        - writing-plans
+        - spec-creation
+    task_calls:
+      status: "UNCHANGED"
+      description: "task(..., prompt: 'execute <task> from <skill>') continues to work — task files moved but skill name in prompt routes through dispatcher"
+      rationale: "Dispatcher routes to sub-skill which owns the task file"
+    platform_sub_skills:
+      status: "PRESERVED"
+      description: "issue-operations/platforms/ (github-mcp, gitbucket-api, local) remain unchanged"
+      rationale: "Platform sub-skills are referenced by dispatcher but NOT moved per spec"
+      paths:
+        - ".opencode/skills/issue-operations/platforms/github-mcp/"
+        - ".opencode/skills/issue-operations/platforms/gitbucket-api/"
+        - ".opencode/skills/issue-operations/platforms/local/"
+    delegation_targets:
+      status: "UNCHANGED"
+      description: "Cross-references to external skills (using-git-worktrees, pr-creation-workflow, conflict-resolution) remain unchanged"
+      rationale: "These are independent skills not part of the split"
+    dispatcher_backward_compatibility:
+      status: "FULL"
+      description: "All 5 dispatchers preserve original skill names, trigger phrases, and routing behavior"
+      details:
+        - "issue-operations dispatcher: routes to 4 sub-skills, preserves all original trigger phrases"
+        - "approval-gate dispatcher: routes to 1 sub-skill, preserves all original trigger phrases"
+        - "git-workflow dispatcher: routes to 5 sub-skills, preserves all original trigger phrases"
+        - "writing-plans dispatcher: routes to 2 sub-skills, preserves all original trigger phrases"
+        - "spec-creation dispatcher: routes to 5 sub-skills, preserves all original trigger phrases"
+    cross_skill_moves:
+      - task: "post-implementation.md"
+        from: ".opencode/skills/approval-gate/tasks/"
+        to: ".opencode/skills/git-workflow-pr/tasks/"
+        rationale: "Cross-cutting leak: post-implementation handles git operations (push, compare URL), not approval logic (DEC-4)"
+        interface_impact: "approval-gate dispatcher no longer references post-implementation; git-workflow-pr gains it"
+    sub_skill_naming:
+      pattern: "{parent-skill}-{concern}"
+      examples:
+        - "issue-operations-core"
+        - "issue-operations-comments"
+        - "approval-gate-scope"
+        - "git-workflow-branch"
+        - "writing-plans-creation"
+        - "spec-creation-decomposition"
+      discoverability: "Sub-skills are auto-discovered by opencode-cli via available_skills listing"
+    external_interface_impact:
+      skill_api: "NONE — skill() calls use original names"
+      task_api: "NONE — task() calls use original skill names in prompts"
+      cross_references: "MINOR — guideline/test cross-references updated to sub-skill paths"
+      user_facing: "NONE — no user-facing API changes"

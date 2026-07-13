@@ -2,7 +2,7 @@
 
 **Goal:** Split 5 overloaded skills (issue-operations, approval-gate, git-workflow, writing-plans, spec-creation) into dispatcher + sub-skill architecture to cap SKILL.md at 500 lines and task files at 200 lines each.
 
-**Architecture:** Each overloaded skill becomes a dispatcher SKILL.md with Trigger Dispatch Table that routes to sub-skills. Each sub-skill owns its task files. Platform sub-skills preserved. 20 sub-skills total across 5 parent skills.
+**Architecture:** Each overloaded skill becomes a dispatcher SKILL.md with Trigger Dispatch Table that routes to sub-skills. Each sub-skill owns its task files. Platform sub-skills preserved. 17 sub-skills total across 5 parent skills (approval-gate: 1 sub-skill per DEC-3; writing-plans: 2 sub-skills per DEC-7; spec-creation: 5 sub-skills including operating-protocol).
 
 **Files:** ~120 files across `.opencode/skills/{issue-operations,approval-gate,git-workflow,writing-plans,spec-creation}*/*`
 
@@ -26,10 +26,10 @@
 |---------|-------|
 | Shared infrastructure | Phase 1 — Validate and Update |
 | issue-operations → 4 sub-skills | Phase 2 |
-| approval-gate → 4 sub-skills | Phase 3 |
+| approval-gate → 1 sub-skill (scope, per DEC-3) | Phase 3 |
 | git-workflow → 5 sub-skills | Phase 4 |
-| writing-plans → 3 sub-skills | Phase 5 |
-| spec-creation → 4 sub-skills | Phase 6 |
+| writing-plans → 2 sub-skills (retroactive merged into creation, per DEC-7) | Phase 5 |
+| spec-creation → 5 sub-skills (incl. operating-protocol) | Phase 6 |
 | Cross-skill integration | Phase 7 — Cross-Skill Sweep |
 
 ## Admonishment
@@ -53,13 +53,13 @@ Each step MUST maintain a status indicator:
 
 | Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch |
 |-------|------|---------|-----|--------------|-------|----------|
-| 1 | Validate and Update (Pre-Flight) | Shared infrastructure | SC-1 | None | 4–18 | step-level (per-item) |
+| 1 | Validate and Update (Pre-Flight) | Shared infrastructure | SC-1, SC-9 | None | 4–18 | step-level (per-item) |
 | 2 | Split issue-operations | issue-ops → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 19–35 | step-level (per-item) |
-| 3 | Split approval-gate | approval-gate → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 36–52 | step-level (per-item) |
-| 4 | Split git-workflow | git-workflow → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 53–77 | step-level (per-item) |
-| 5 | Split writing-plans | writing-plans → 3 sub-skills | SC-1,2,3,4,5 | Phase 1 | 78–96 | step-level (per-item) |
-| 6 | Split spec-creation | spec-creation → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 97–117 | step-level (per-item) |
-| 7 | Cross-Skill Sweep (Post) | Cross-skill integration | SC-6,7,8 | Phases 2–6 | 118–139 | step-level (per-item) |
+| 3 | Split approval-gate | approval-gate → 1 sub-skill (scope) | SC-1,2,3,4,5 | Phase 1 | 36–50 | step-level (per-item) |
+| 4 | Split git-workflow | git-workflow → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 51–75 | step-level (per-item) |
+| 5 | Split writing-plans | writing-plans → 2 sub-skills | SC-1,2,3,4,5 | Phase 1 | 76–94 | step-level (per-item) |
+| 6 | Split spec-creation | spec-creation → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 95–119 | step-level (per-item) |
+| 7 | Cross-Skill Sweep (Post) | Cross-skill integration | SC-6,7,8 | Phases 2–6 | 120–141 | step-level (per-item) |
 
 ## Bottom Admonishment
 
@@ -72,7 +72,7 @@ Each step MUST maintain a status indicator:
 ## Exit Criteria
 
 - [ ] C1: 5 dispatcher SKILL.md files created (issue-operations, approval-gate, git-workflow, writing-plans, spec-creation)
-- [ ] C2: 20 sub-skill directories and SKILL.md files created
+- [ ] C2: 17 sub-skill directories and SKILL.md files created (4 issue-ops + 1 approval-gate + 5 git-workflow + 2 writing-plans + 5 spec-creation)
 - [ ] C3: All ~95 task files moved from original `tasks/` to sub-skill `tasks/`
 - [ ] C4: All dispatcher Trigger Dispatch Tables map triggers to correct sub-skills
 - [ ] C5: All platform sub-skills (github-mcp, gitbucket-api, local) preserved and referenced

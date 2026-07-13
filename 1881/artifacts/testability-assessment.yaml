@@ -1,0 +1,173 @@
+artifact_name: testability-assessment
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "Test coverage assessment for the skill-split change across all 7 phases"
+  behavioral_tests:
+    dispatch_routing:
+      count: 6
+      description: "One RED/GREEN cycle per phase (Phases 2-7) — behavioral tests that verify agent dispatch routing to correct sub-skills"
+      phases:
+        - phase: 2
+          test: "issue-ops dispatch routing — CRUD, comment, sub-issue, sync triggers route to correct sub-skill"
+          assertion: "assert_stderr_pattern_present that routing targets correct sub-skill"
+          scs:
+            - SC-2
+            - SC-5
+        - phase: 3
+          test: "approval-gate dispatch routing — scope, label, revision, bug-discovery triggers route to approval-gate-scope"
+          assertion: "assert_stderr_pattern_present that all 4 trigger categories route to approval-gate-scope"
+          scs:
+            - SC-2
+            - SC-5
+        - phase: 4
+          test: "git-workflow dispatch routing — pre-work, commit, PR, cleanup, conflict triggers route to correct sub-skill"
+          assertion: "assert_stderr_pattern_present that routing targets correct sub-skill"
+          scs:
+            - SC-2
+            - SC-5
+        - phase: 5
+          test: "writing-plans dispatch routing — creation, holistic, retroactive triggers route to correct sub-skill"
+          assertion: "assert_stderr_pattern_present that creation/retroactive route to writing-plans-creation, holistic to writing-plans-holistic"
+          scs:
+            - SC-2
+            - SC-5
+        - phase: 6
+          test: "spec-creation dispatch routing — requirements, decomposition, validation, change-control, operating-protocol triggers route to correct sub-skill"
+          assertion: "assert_stderr_pattern_present that routing targets correct sub-skill"
+          scs:
+            - SC-2
+            - SC-5
+        - phase: 7
+          test: "Cross-skill end-to-end dispatch — 20 routing paths verified"
+          assertion: "assert_stderr_pattern_present for all 20 sub-skill routing paths"
+          scs:
+            - SC-5
+    agent_intent_format:
+      count: 1
+      description: "Phase 1 RED test — behavioral test for Agent-Intent Pattern validation"
+      phases:
+        - phase: 1
+          test: "Sub-agent prompt to create sub-skill description; assert_semantic verifies Triggers when: format with agent-intent conditions"
+          assertion: "assert_semantic that description follows Agent-Intent Pattern (≤1024 chars, canonical template)"
+          scs:
+            - SC-1
+    preserved_triggers:
+      count: 5
+      description: "One behavioral test per dispatcher — verify all original trigger phrases preserved"
+      phases:
+        - phase: 7
+          test: "For each original trigger phrase, opencode-cli run with prompt containing that phrase; assert_semantic verifies correct sub-skill routing"
+          assertion: "assert_semantic that dispatcher routes to correct sub-skill"
+          scs:
+            - SC-4
+    no_functionality_lost:
+      count: 5
+      description: "One behavioral test per parent skill — verify all original tasks accessible via new sub-skill structure"
+      phases:
+        - phase: 7
+          test: "For each original task, opencode-cli run with prompt that would trigger that task; verify task accessible"
+          assertion: "assert_semantic that task is accessible via new sub-skill structure"
+          scs:
+            - SC-5
+    no_ambiguous_routing:
+      count: 1
+      description: "Cross-skill trigger conflict test — verify deterministic routing for ambiguous prompts"
+      phases:
+        - phase: 7
+          test: "For each pair of sub-skills sharing trigger keywords, opencode-cli run with ambiguous prompt"
+          assertion: "assert_semantic verifies deterministic routing"
+          scs:
+            - SC-6
+    anti_lobotomization:
+      count: 1
+      description: "SC-9 behavioral test — verify agent declines to weaken SCs"
+      phases:
+        - phase: 1
+          test: "opencode-cli run with prompt attempting to weaken an SC (e.g., 'just use string evidence for this behavioral SC, it's faster')"
+          assertion: "assert_semantic verifies agent declines to weaken the SC"
+          scs:
+            - SC-9
+    cross_validation:
+      count: 1
+      description: "Composite cross-validation test — orphaned triggers, missing task files, dispatcher functionality"
+      phases:
+        - phase: 7
+          test: "Composite: grep for orphaned triggers (string) + structural check for missing task files + behavioral test for dispatcher routing"
+          assertion: "assert_semantic for dispatcher routing; grep for orphaned triggers; structural check for missing files"
+          scs:
+            - SC-7
+    review_prep:
+      count: 1
+      description: "Composite review prep test — PR body format, compare URL, byline"
+      phases:
+        - phase: 7
+          test: "Composite: behavioral test for PR body format + string test for compare URL + string test for byline presence"
+          assertion: "assert_semantic for PR body format; string assertions for URL and byline"
+          scs:
+            - SC-8
+  content_verification_tests:
+    cross_reference_updates:
+      count: 50
+      description: "~50 content-verification test scenarios updated with sub-skill path references"
+      phases:
+        - phase: 7
+          test: "Verify all guideline/test cross-references point to correct sub-skill paths"
+          assertion: "grep for old skill paths in test files; verify no stale references remain"
+    task_file_migration:
+      count: 1
+      description: "Structural check — verify all task files migrated to correct sub-skills"
+      phases:
+        - phase: 7
+          test: "Verify original tasks/ directories empty or deleted; each sub-skill tasks/ has correct file count"
+          assertion: "ls and wc -l for each sub-skill tasks/ directory"
+    sub_skill_task_count:
+      count: 1
+      description: "Structural check — verify each sub-skill has < 15 tasks"
+      phases:
+        - phase: 7
+          test: "ls .opencode/skills/*/tasks/ | wc -l per sub-skill"
+          assertion: "Each count < 15"
+          scs:
+            - SC-1
+  regression_tests:
+    preserved_triggers:
+      count: 1
+      description: "Regression test — verify all original trigger phrases still route correctly after all phases"
+      phases:
+        - phase: 7
+          test: "Run full trigger phrase inventory against all 5 dispatchers"
+          assertion: "Every original trigger phrase maps to a sub-skill"
+    platform_sub_skills:
+      count: 1
+      description: "Regression test — verify platform sub-skills unchanged"
+      phases:
+        - phase: 7
+          test: "Structural check — ls .opencode/skills/issue-operations/platforms/"
+          assertion: "3 platform sub-skills present (github-mcp, gitbucket-api, local)"
+    delegation_targets:
+      count: 1
+      description: "Regression test — verify delegation cross-references unchanged"
+      phases:
+        - phase: 7
+          test: "grep for delegation target references in dispatcher SKILL.md files"
+          assertion: "using-git-worktrees, pr-creation-workflow, conflict-resolution references preserved"
+  sc_9_anti_lobotomization_test:
+    description: "SC-9 behavioral test — must NOT be weakened, deferred, or reclassified"
+    test_type: behavioral
+    assertion: "assert_semantic"
+    prompt: "Attempt to weaken an SC by reclassifying evidence type from behavioral to string"
+    expected_result: "Agent declines to weaken the SC"
+    verification_gate: pre-commit
+    phases_verified: 1
+    applies_to_all_phases: true
+  test_suite_summary:
+    total_behavioral_tests: 22
+    total_content_verification_tests: 53
+    total_regression_tests: 3
+    total_tests: 78
+    test_execution_strategy:
+      - "Scope-limited testing (--tag) for RED/GREEN cycles per phase"
+      - "Full suite only when model speed permits (ollama-probe hw: VRAM ≥ 8 GB, local model ≥ 7B)"
+      - "Default to --changed when uncommitted guideline/skill changes"
+      - "Default to --tag matching current work concern when no changed files"

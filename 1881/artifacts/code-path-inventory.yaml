@@ -1,0 +1,176 @@
+artifact_name: code-path-inventory
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "All code paths affected by the skill-split change, organized by path type"
+  skilL_md_routing_sections:
+    - path: ".opencode/skills/issue-operations/SKILL.md"
+      change: "Convert to dispatcher — add Trigger Dispatch Table routing to 4 sub-skills, add DISPATCH_GATE protocol, preserve all trigger phrases"
+      before: "Full skill definition with task descriptions"
+      after: "Dispatcher-only with routing table"
+    - path: ".opencode/skills/approval-gate/SKILL.md"
+      change: "Convert to dispatcher — add Trigger Dispatch Table routing to approval-gate-scope, add DISPATCH_GATE protocol, preserve all trigger phrases"
+      before: "Full skill definition with task descriptions"
+      after: "Dispatcher-only with routing table"
+    - path: ".opencode/skills/git-workflow/SKILL.md"
+      change: "Convert to dispatcher — add Trigger Dispatch Table routing to 5 sub-skills, add DISPATCH_GATE protocol, preserve all trigger phrases"
+      before: "Full skill definition with task descriptions"
+      after: "Dispatcher-only with routing table"
+    - path: ".opencode/skills/writing-plans/SKILL.md"
+      change: "Convert to dispatcher — add Trigger Dispatch Table routing to 2 sub-skills, add DISPATCH_GATE protocol, preserve all trigger phrases"
+      before: "Full skill definition with task descriptions"
+      after: "Dispatcher-only with routing table"
+    - path: ".opencode/skills/spec-creation/SKILL.md"
+      change: "Convert to dispatcher — add Trigger Dispatch Table routing to 5 sub-skills, add DISPATCH_GATE protocol, preserve all trigger phrases"
+      before: "Full skill definition with task descriptions"
+      after: "Dispatcher-only with routing table"
+  trigger_dispatch_tables:
+    - path: ".opencode/skills/issue-operations/SKILL.md"
+      sub_skills:
+        - issue-operations-core
+        - issue-operations-comments
+        - issue-operations-sub-issues
+        - issue-operations-sync
+      trigger_categories:
+        - "CRUD operations"
+        - "comment operations"
+        - "sub-issue operations"
+        - "sync operations"
+    - path: ".opencode/skills/approval-gate/SKILL.md"
+      sub_skills:
+        - approval-gate-scope
+      trigger_categories:
+        - "scope verification"
+        - "label application"
+        - "revision revocation"
+        - "bug discovery"
+    - path: ".opencode/skills/git-workflow/SKILL.md"
+      sub_skills:
+        - git-workflow-branch
+        - git-workflow-commit
+        - git-workflow-pr
+        - git-workflow-cleanup
+        - git-workflow-conflict
+      trigger_categories:
+        - "pre-work"
+        - "commit"
+        - "pr creation"
+        - "cleanup"
+        - "rebase/conflict"
+        - "release PR"
+        - "pair-*"
+    - path: ".opencode/skills/writing-plans/SKILL.md"
+      sub_skills:
+        - writing-plans-creation
+        - writing-plans-holistic
+      trigger_categories:
+        - "creation pipeline"
+        - "holistic check"
+        - "retroactive plan"
+        - "backfill plan"
+    - path: ".opencode/skills/spec-creation/SKILL.md"
+      sub_skills:
+        - spec-creation-requirements
+        - spec-creation-decomposition
+        - spec-creation-validation
+        - spec-creation-change-control
+        - spec-creation-operating-protocol
+      trigger_categories:
+        - "requirements"
+        - "decomposition"
+        - "validation"
+        - "change control"
+        - "operating protocol"
+  task_file_references:
+    issue_operations_core:
+      count: 14
+      description: "CRUD, platform dispatch, pre/post-creation, close, capabilities, body-edit, read-issue, read-comments, read-labels, list-issues, search-issues, update-issue, verify-merge, single-task-check, push-artifacts, completion"
+    issue_operations_comments:
+      count: 1
+      description: "Comment gating and substantiveness check"
+    issue_operations_sub_issues:
+      count: 2
+      description: "link-sub-issue, read-sub-issues"
+    issue_operations_sync:
+      count: 3
+      description: "sync-from-remote, sync-pull-to-local, import-remote"
+    approval_gate_scope:
+      count: 22
+      description: "All 22 original task files migrated here; labels, revision, bug-discovery embedded as sub-tasks"
+    git_workflow_branch:
+      count: 6
+      description: "pre-work, pair-pre-work, pair-mode-resume, submodule-sync, pre-commit-pointer-check, provenance"
+    git_workflow_commit:
+      count: 3
+      description: "implementation, commit-prep, pair-commit"
+    git_workflow_pr:
+      count: 5
+      description: "pr-creation, review-prep, pair-pr-creation, completion, post-implementation (received from approval-gate)"
+    git_workflow_cleanup:
+      count: 3
+      description: "cleanup, check-pr, pair-cleanup"
+    git_workflow_conflict:
+      count: 1
+      description: "rebase-pending"
+    writing_plans_creation:
+      count: 18
+      description: "All creation pipeline tasks + holistic-self-check + retroactive merged as pipeline variants"
+    writing_plans_holistic:
+      count: 1
+      description: "Standalone holistic check"
+    spec_creation_requirements:
+      count: 1
+      description: "requirements"
+    spec_creation_decomposition:
+      count: 9
+      description: "analytical-artifacts, blast-radius, code-path-analysis, concern-analysis, cross-cutting, decompose, interface-compatibility, state-analysis, testability-assessment"
+    spec_creation_validation:
+      count: 6
+      description: "completion, create, holistic-self-check, pipeline-readiness-gate, risk, traceability"
+    spec_creation_change_control:
+      count: 1
+      description: "change-control"
+    spec_creation_operating_protocol:
+      count: 1
+      description: "operating-protocol"
+  dispatcher_template:
+    path: ".opencode/reference/dispatcher-template.md"
+    change: "Created — shared boilerplate sections for all 5 dispatcher SKILL.md files"
+    sections:
+      - "Worktree Mode notice"
+      - "Mandatory Task Discipline notice"
+      - "DISPATCH_GATE protocol stub"
+      - "Trigger Dispatch Table skeleton"
+      - "Sub-Agent Routing skeleton"
+  validate_md_validation_logic:
+    path: ".opencode/skills/skill-creator/tasks/validate.md"
+    change: "Updated to accept Agent-Intent Pattern descriptions"
+    validation_rules:
+      - "≤1024 character limit"
+      - "Canonical template sections (description, key behaviors, usage)"
+      - "Triggers when: format for agent-intent dispatch conditions"
+  cross_reference_updates:
+    guideline_files:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/guidelines/010-approval-gate.md"
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/060-tool-usage.md"
+      - ".opencode/guidelines/080-code-standards.md"
+      - ".opencode/guidelines/140-planning-spec-creation.md"
+      - ".opencode/guidelines/141-planning-status-tracking.md"
+      - ".opencode/guidelines/INDEX.md"
+    config_files:
+      - ".opencode/AGENTS.md"
+      - ".opencode/README.md"
+    test_files:
+      content_verification: 50
+      behavioral: 20
+  deleted_directories:
+    - ".opencode/skills/issue-operations/tasks/"
+    - ".opencode/skills/approval-gate/tasks/"
+    - ".opencode/skills/approval-gate/enforcement/"
+    - ".opencode/skills/git-workflow/tasks/"
+    - ".opencode/skills/writing-plans/tasks/"
+    - ".opencode/skills/writing-plans/contracts/"
+    - ".opencode/skills/spec-creation/tasks/"
+    - ".opencode/skills/spec-creation/contracts/"

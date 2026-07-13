@@ -1,0 +1,530 @@
+descriptions:
+- skill: approval-gate
+  file: skills/approval-gate/SKILL.md
+  current_description: 'Authorization gatekeeper that verifies scope, cascade, and halt boundaries. Dispatch when checking
+    or enforcing authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade,
+    revision revocation, or bug discovery protocol. Also dispatch when verifying authorization state, applying approved-for-*
+    labels, or handling re-implementation after spec revision. All conditions are MANDATORY — no implementation without authorization.
+    User phrases: check authorization, verify scope, enforce cascade, apply label, approve, go, authorized, revision revokes
+    approval, bug discovery protocol.'
+  classification: c
+  reformulation: Authorization gatekeeper that verifies scope, cascade, and halt boundaries. Dispatch when checking or enforcing
+    authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation,
+    or bug discovery protocol. Also dispatch when verifying authorization state, applying approved-for-* labels, or handling
+    re-implementation after spec revision. All conditions are MANDATORY — no implementation without authorization
+- skill: audit
+  file: skills/audit/SKILL.md
+  current_description: Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch
+    when the agent needs to audit specs, plans, code, or generated content. Also dispatch when the agent needs to verify spec
+    fidelity, check plan coherence, detect drift, cross-validate verification results, or audit factual claims in generated
+    content. Also dispatch when the agent has modified a deliverable in response to audit findings and needs independent verification
+    that the remediation resolved all defects before claiming PASS. Audits are not optional — dispatch is MANDATORY.
+  classification: a
+  reformulation: Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch when
+    the agent needs to audit specs, plans, code, or generated content. Also dispatch when the agent needs to verify spec fidelity,
+    check plan coherence, detect drift, cross-validate verification results, or audit factual claims in generated content.
+    Also dispatch when the agent has modified a deliverable in response to audit findings and needs independent verification
+    that the remediation resolved all defects before claiming PASS. Audits are not optional — dispatch is MANDATORY
+- skill: brainstorming
+  file: skills/brainstorming/SKILL.md
+  current_description: 'Requirements exploration and problem decomposition skill. Dispatch when creating a spec, planning
+    a feature, or exploring requirements before implementation. Also dispatch when decomposing a problem into success criteria,
+    extracting requirements, or documenting change control. Brainstorming is REQUIRED before spec creation — it is not optional.
+    User phrases: brainstorm, explore requirements, plan feature, decompose problem, define success criteria, extract requirements.'
+  classification: c
+  reformulation: Requirements exploration and problem decomposition skill. Dispatch when creating a spec, planning a feature,
+    or exploring requirements before implementation. Also dispatch when decomposing a problem into success criteria, extracting
+    requirements, or documenting change control. Brainstorming is REQUIRED before spec creation — it is not optional
+- skill: changelog-generator
+  file: skills/changelog-generator/SKILL.md
+  current_description: 'Release note and changelog generator for version-to-version change documentation. Dispatch when creating
+    release notes, documenting changes between versions, or preparing a changelog. Also dispatch when comparing diffs between
+    releases or generating structured version history. Changelog generation is REQUIRED before every release — not optional.
+    User phrases: create changelog, generate release notes, document changes, version history, release diff, release PR, release
+    notes.'
+  classification: c
+  reformulation: Release note and changelog generator for version-to-version change documentation. Dispatch when creating
+    release notes, documenting changes between versions, or preparing a changelog. Also dispatch when comparing diffs between
+    releases or generating structured version history. Changelog generation is REQUIRED before every release — not optional
+- skill: completeness-gate
+  file: skills/completeness-gate/SKILL.md
+  current_description: 'Non-audit completeness gate that verifies deliverable covers all success criteria before routing to
+    auditor. Dispatch when running a completeness check on a deliverable after RED/GREEN sub-agent returns, before routing
+    to auditor. Also dispatch when verifying that a deliverable covers all success criteria from the spec. Completeness check
+    is MANDATORY before routing to audit — not optional. User phrases: check completeness, verify deliverable, SC coverage,
+    pre-audit check, readiness check.'
+  classification: c
+  reformulation: Non-audit completeness gate that verifies deliverable covers all success criteria before routing to auditor.
+    Dispatch when running a completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to auditor.
+    Also dispatch when verifying that a deliverable covers all success criteria from the spec. Completeness check is MANDATORY
+    before routing to audit — not optional
+- skill: completion-core
+  file: skills/completion-core/SKILL.md
+  current_description: 'Shared completion operations for skill task workflows including push, URL generation, lifecycle event
+    append, and executive summary reporting. Dispatch when completing skill task workflows. Also dispatch when generating
+    structured completion signals or appending lifecycle events to issue bodies. Completion signals MUST be clear and structured
+    — always required. User phrases: complete task, signal completion, generate URL, append lifecycle event, executive summary.'
+  classification: c
+  reformulation: Shared completion operations for skill task workflows including push, URL generation, lifecycle event append,
+    and executive summary reporting. Dispatch when completing skill task workflows. Also dispatch when generating structured
+    completion signals or appending lifecycle events to issue bodies. Completion signals MUST be clear and structured — always
+    required
+- skill: conflict-resolution
+  file: skills/conflict-resolution/SKILL.md
+  current_description: 'Git conflict resolver that analyzes intent, classifies tiers, and applies resolution strategies. Dispatch
+    when resolving git conflicts during rebase, merge, or cherry-pick operations. Also dispatch when analyzing conflict intent,
+    classifying conflict tiers, or applying resolution strategies. Intent analysis MUST be performed before resolution — always
+    required. User phrases: resolve conflict, merge conflict, rebase conflict, cherry-pick conflict, conflict intent, conflict
+    classification, conflict resolution.'
+  classification: c
+  reformulation: Git conflict resolver that analyzes intent, classifies tiers, and applies resolution strategies. Dispatch
+    when resolving git conflicts during rebase, merge, or cherry-pick operations. Also dispatch when analyzing conflict intent,
+    classifying conflict tiers, or applying resolution strategies. Intent analysis MUST be performed before resolution — always
+    required
+- skill: correspondence
+  file: skills/correspondence/SKILL.md
+  current_description: 'Stakeholder communication drafter for emails, status updates, and external correspondence. Dispatch
+    when drafting stakeholder emails, status updates, or external communications. Also dispatch when analyzing audience context,
+    maintaining audience separation, or generating structured correspondence. Audience separation MUST be maintained — always
+    required. Internal audit findings and raw status updates go to chat only — never to stakeholder channels. User phrases:
+    draft email, write stakeholder update, external communication, audience analysis, status report.'
+  classification: c
+  reformulation: Stakeholder communication drafter for emails, status updates, and external correspondence. Dispatch when
+    drafting stakeholder emails, status updates, or external communications. Also dispatch when analyzing audience context,
+    maintaining audience separation, or generating structured correspondence. Audience separation MUST be maintained — always
+    required. Internal audit findings and raw status updates go to chat only — never to stakeholder channels
+- skill: engineering-approach
+  file: skills/engineering-approach/SKILL.md
+  current_description: 'Engineering discipline enforcer that verifies design decisions, scope boundaries, and constraint compliance.
+    Dispatch when implementing a spec, or when design, verification, and scope discipline are needed. Also dispatch when verifying
+    design decisions against constraints, analyzing scope boundaries, or enforcing engineering discipline. Design, verification,
+    and scope discipline are REQUIRED — not optional. User phrases: engineering approach, design verification, scope discipline,
+    constraint analysis, implementation approach.'
+  classification: c
+  reformulation: Engineering discipline enforcer that verifies design decisions, scope boundaries, and constraint compliance.
+    Dispatch when implementing a spec, or when design, verification, and scope discipline are needed. Also dispatch when verifying
+    design decisions against constraints, analyzing scope boundaries, or enforcing engineering discipline. Design, verification,
+    and scope discipline are REQUIRED — not optional
+- skill: executing-plans
+  file: skills/executing-plans/SKILL.md
+  current_description: 'Plan executor that dispatches each step to clean-room sub-agents and progresses through implementation
+    gates. Dispatch when executing an approved plan step-by-step or moving through implementation gates sequentially. Also
+    dispatch when dispatching each plan step to clean-room sub-agents for independent execution. Every step in the plan MUST
+    be executed — skipping, combining, or reordering steps is not optional. User phrases: execute plan, implement plan, run
+    plan steps, progress through gates, dispatch plan step.'
+  classification: c
+  reformulation: Plan executor that dispatches each step to clean-room sub-agents and progresses through implementation gates.
+    Dispatch when executing an approved plan step-by-step or moving through implementation gates sequentially. Also dispatch
+    when dispatching each plan step to clean-room sub-agents for independent execution. Every step in the plan MUST be executed
+    — skipping, combining, or reordering steps is not optional
+- skill: finishing-a-development-branch
+  file: skills/finishing-a-development-branch/SKILL.md
+  current_description: 'Branch finishing gate that runs final checks, readiness verification, and pre-PR preparation. Dispatch
+    when implementation is complete and branch needs final checks before PR. Also dispatch when running the finishing checklist,
+    verifying branch readiness, or preparing for PR submission. Dispatch is MANDATORY — the prepare, checklist, and completion
+    tasks are REQUIRED gates, not optional steps. User phrases: finish branch, final checks, pre-PR checklist, branch readiness,
+    ready for PR.'
+  classification: c
+  reformulation: Branch finishing gate that runs final checks, readiness verification, and pre-PR preparation. Dispatch when
+    implementation is complete and branch needs final checks before PR. Also dispatch when running the finishing checklist,
+    verifying branch readiness, or preparing for PR submission. Dispatch is MANDATORY — the prepare, checklist, and completion
+    tasks are REQUIRED gates, not optional steps
+- skill: git-workflow
+  file: skills/git-workflow/SKILL.md
+  current_description: 'Git branch, commit, push, and PR workflow manager with cleanup and provenance tracking. Dispatch when
+    creating a branch, committing, pushing, or creating a PR. Also dispatch when handling rebase/merge conflicts (invoke conflict-resolution),
+    checking PR state and cleanup, or running provenance tracking. Branch-and-PR discipline is REQUIRED — always follow the
+    workflow. User phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs,
+    pr merged, provenance, sync submodules, release PR.'
+  classification: c
+  reformulation: Git branch, commit, push, and PR workflow manager with cleanup and provenance tracking. Dispatch when creating
+    a branch, committing, pushing, or creating a PR. Also dispatch when handling rebase/merge conflicts (invoke conflict-resolution),
+    checking PR state and cleanup, or running provenance tracking. Branch-and-PR discipline is REQUIRED — always follow the
+    workflow
+- skill: implementation-pipeline
+  file: skills/implementation-pipeline/SKILL.md
+  current_description: 'Implementation pipeline that dispatches stages to clean-room sub-agents, manages state, and handles
+    remediation routing. Dispatch when executing an approved plan through the implementation pipeline. Also dispatch when
+    dispatching pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. MUST dispatch
+    here after plan approval, before any file modification. User phrases: execute pipeline, run pipeline, dispatch stage,
+    pipeline state, checkpoint, remediation, pre-flight, handoff.'
+  classification: c
+  reformulation: Implementation pipeline that dispatches stages to clean-room sub-agents, manages state, and handles remediation
+    routing. Dispatch when executing an approved plan through the implementation pipeline. Also dispatch when dispatching
+    pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. MUST dispatch here
+    after plan approval, before any file modification
+- skill: issue-operations
+  file: skills/issue-operations/SKILL.md
+  current_description: 'Issue operations dispatcher that routes to GitHub MCP or GitBucket API based on github.platform. Dispatch
+    when creating, commenting on, or closing GitHub Issues. Comment posting is gated by the substantiveness check in the comment
+    task — non-substantive progress updates (status updates, phase complete, implemented X) MUST NOT be posted to GitHub Issues.
+    Also dispatch when adding labels, managing sub-issues, or routing to platform-specific implementations. Issue tracking
+    is REQUIRED. User phrases: create issue, comment on issue, close issue, add label, manage sub-issue, link sub-issue.'
+  classification: c
+  reformulation: Issue operations dispatcher that routes to GitHub MCP or GitBucket API based on github.platform. Dispatch
+    when creating, commenting on, or closing GitHub Issues. Comment posting is gated by the substantiveness check in the comment
+    task — non-substantive progress updates (status updates, phase complete, implemented X) MUST NOT be posted to GitHub Issues.
+    Also dispatch when adding labels, managing sub-issues, or routing to platform-specific implementations. Issue tracking
+    is REQUIRED
+- skill: issue-review
+  file: skills/issue-review/SKILL.md
+  current_description: 'Issue review skill that gathers context from comments, classifies review paths, and delegates to downstream
+    skills. Dispatch when reviewing a GitHub issue for comments, audits, or Q/A. Also dispatch when gathering context from
+    issue comments, classifying review paths, or delegating to downstream skills. All comments MUST be read before acting
+    on any issue. User phrases: review issue, read comments, gather context, classify path, audit issue.'
+  classification: c
+  reformulation: Issue review skill that gathers context from comments, classifies review paths, and delegates to downstream
+    skills. Dispatch when reviewing a GitHub issue for comments, audits, or Q/A. Also dispatch when gathering context from
+    issue comments, classifying review paths, or delegating to downstream skills. All comments MUST be read before acting
+    on any issue
+- skill: mcp-tool-usage
+  file: skills/mcp-tool-usage/SKILL.md
+  current_description: 'Tool selection guide that enforces the five-tier priority hierarchy for file operations, code search,
+    and MCP tool choice. Dispatch when selecting tools for file operations, code search, or any task that could use multiple
+    tool options. Also dispatch when evaluating the five-tier priority hierarchy or choosing between MCP tools and CLI alternatives.
+    Tool selection MUST follow the five-tier priority hierarchy — always required. User phrases: select tool, choose tool,
+    tool hierarchy, MCP tool, tool priority, which tool.'
+  classification: c
+  reformulation: Tool selection guide that enforces the five-tier priority hierarchy for file operations, code search, and
+    MCP tool choice. Dispatch when selecting tools for file operations, code search, or any task that could use multiple tool
+    options. Also dispatch when evaluating the five-tier priority hierarchy or choosing between MCP tools and CLI alternatives.
+    Tool selection MUST follow the five-tier priority hierarchy — always required
+- skill: multimodal-dispatch
+  file: skills/multimodal-dispatch/SKILL.md
+  current_description: 'Modality-aware model router that probes Ollama capabilities and dispatches sub-agents to appropriate
+    models. Dispatch when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities,
+    or dispatching sub-agents with modality-aware model selection. Also dispatch when assessing hardware capabilities or resolving
+    modality hints for model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality.
+    User phrases: route by modality, probe model, assess hardware, resolve modality, dispatch to model.'
+  classification: c
+  reformulation: Modality-aware model router that probes Ollama capabilities and dispatches sub-agents to appropriate models.
+    Dispatch when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities,
+    or dispatching sub-agents with modality-aware model selection. Also dispatch when assessing hardware capabilities or resolving
+    modality hints for model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality
+- skill: plan-creation-pipeline
+  file: skills/plan-creation-pipeline/SKILL.md
+  current_description: 'Structured 6-step plan creation pipeline with Z3-verified state transitions. Dispatch when creating
+    a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Also dispatch when validating
+    phase solvability, grounding action schemas, or verifying dependency ordering. Plan creation MUST use the structured pipeline
+    — always required. — distinct from plan (formal AI planning) and writing-plans (orchestrator-level plan creation). User
+    phrases: create plan pipeline, run plan pipeline, validate phases, ground actions, verify dependencies, Z3 plan.'
+  classification: c
+  reformulation: Structured 6-step plan creation pipeline with Z3-verified state transitions. Dispatch when creating a plan
+    from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Also dispatch when validating
+    phase solvability, grounding action schemas, or verifying dependency ordering. Plan creation MUST use the structured pipeline
+    — always required. — distinct from plan (formal AI planning) and writing-plans (orchestrator-level plan creation)
+- skill: plan
+  file: skills/plan/SKILL.md
+  current_description: 'Formal AI planning skill for phase solvability, PDDL conversion, action grounding, and state file
+    management. Dispatch when generating, validating, or managing plans for phase solvability, converting between YAML and
+    PDDL, grounding action schemas, discovering action schemas, or managing state files. Also dispatch when validating workflow
+    constraints, verifying state against contracts, proving theorems, or checking dependency ordering. An approved spec stored
+    as a local `spec.md` file is REQUIRED before any plan operation. Planning is REQUIRED before implementation. — distinct
+    from writing-plans (implementation plans from specs) and plan-creation-pipeline (6-step orchestrator). User phrases: plan
+    problem, define problem, generate plan, run planner, validate plan, check plan, convert to PDDL, convert from PDDL, ground
+    actions, discover action schemas, manage state, solve constraints, verify dependencies, check ordering.'
+  classification: c
+  reformulation: Formal AI planning skill for phase solvability, PDDL conversion, action grounding, and state file management.
+    Dispatch when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding
+    action schemas, discovering action schemas, or managing state files. Also dispatch when validating workflow constraints,
+    verifying state against contracts, proving theorems, or checking dependency ordering. An approved spec stored as a local
+    `spec.md` file is REQUIRED before any plan operation. Planning is REQUIRED before implementation. — distinct from writing-plans
+    (implementation plans from specs) and plan-creation-pipeline (6-step orchestrator)
+- skill: playwright-cli
+  file: skills/playwright-cli/SKILL.md
+  current_description: 'Browser automation and web interaction skill using Playwright for page navigation, form filling, snapshot
+    capture, and test generation. Dispatch when browsing the web, automating browser interactions, navigating pages, filling
+    forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording
+    traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright.
+    Also dispatch when capturing page content for verification or testing web application behavior. REQUIRED: dispatch via
+    skill() before any browser automation — do not skip this skill. User phrases: browse web, automate browser, fill form,
+    capture snapshot, evaluate JS, mock network, manage cookies, record trace, Playwright test, install Playwright.'
+  classification: c
+  reformulation: 'Browser automation and web interaction skill using Playwright for page navigation, form filling, snapshot
+    capture, and test generation. Dispatch when browsing the web, automating browser interactions, navigating pages, filling
+    forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording
+    traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright.
+    Also dispatch when capturing page content for verification or testing web application behavior. REQUIRED: dispatch via
+    skill() before any browser automation — do not skip this skill'
+- skill: pr-creation-workflow
+  file: skills/pr-creation-workflow/SKILL.md
+  current_description: 'PR authorization and readiness verifier that determines when and how to create pull requests. Dispatch
+    when asking about when to create a PR or whether PR creation is authorized. Also dispatch when verifying PR authorization
+    scope, preparing PR body, or determining PR strategy. Every PR MUST be an authorized, intentional delivery. User phrases:
+    create PR, PR authorized, ready for PR, PR strategy, when to create PR, release PR, release.'
+  classification: c
+  reformulation: PR authorization and readiness verifier that determines when and how to create pull requests. Dispatch when
+    asking about when to create a PR or whether PR creation is authorized. Also dispatch when verifying PR authorization scope,
+    preparing PR body, or determining PR strategy. Every PR MUST be an authorized, intentional delivery
+- skill: pre-analysis
+  file: skills/pre-analysis/SKILL.md
+  current_description: 'Pre-dispatch scope discovery that independently determines affected files and task partitions before
+    execution sub-agents begin work. Dispatch when task()ing any execution sub-agent to independently determine scope, affected
+    files, and task partitions. Also dispatch when discovering scope boundaries before any execution sub-agent begins work.
+    Pre-analysis MUST be performed before dispatch — always required. User phrases: pre-analysis, discover scope, analyze
+    affected files, identify partitions, pre-dispatch analysis.'
+  classification: c
+  reformulation: Pre-dispatch scope discovery that independently determines affected files and task partitions before execution
+    sub-agents begin work. Dispatch when task()ing any execution sub-agent to independently determine scope, affected files,
+    and task partitions. Also dispatch when discovering scope boundaries before any execution sub-agent begins work. Pre-analysis
+    MUST be performed before dispatch — always required
+- skill: programming-principles
+  file: skills/programming-principles/SKILL.md
+  current_description: 'Code design and architecture skill that enforces programming principles, evaluates tradeoffs, and
+    audits code against standards. Dispatch when designing functions, classes, or modules; writing or reviewing implementation
+    code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Also dispatch when auditing
+    code against design principles or detecting principle violations. Programming principles MUST be followed. User phrases:
+    design function, review code, enforce principle, audit code, evaluate tradeoff, code size limit.'
+  classification: c
+  reformulation: Code design and architecture skill that enforces programming principles, evaluates tradeoffs, and audits
+    code against standards. Dispatch when designing functions, classes, or modules; writing or reviewing implementation code;
+    making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Also dispatch when auditing code against
+    design principles or detecting principle violations. Programming principles MUST be followed
+- skill: receiving-code-review
+  file: skills/receiving-code-review/SKILL.md
+  current_description: 'Code review feedback receiver that analyzes comments, generates responses, and implements review-driven
+    changes. Dispatch when receiving code review feedback on a PR, or when addressing review comments. Also dispatch when
+    analyzing review comments, generating responses, or implementing review-driven changes. All review comments MUST be addressed.
+    User phrases: receive review, address comments, respond to review, implement feedback, resolve review.'
+  classification: c
+  reformulation: Code review feedback receiver that analyzes comments, generates responses, and implements review-driven changes.
+    Dispatch when receiving code review feedback on a PR, or when addressing review comments. Also dispatch when analyzing
+    review comments, generating responses, or implementing review-driven changes. All review comments MUST be addressed
+- skill: release-promoter
+  file: skills/release-promoter/SKILL.md
+  current_description: 'Git tag and release promoter for creating annotated tags and GitHub Releases with changelog bodies.
+    Dispatch when creating git tags for releases or promoting releases to GitHub. Also dispatch when creating annotated tags
+    with v prefix or creating GitHub Releases from tags with changelog body. Release promotion is REQUIRED after every release
+    PR merge — not optional. User phrases: tag, release, release-promoter, create release, promote release.'
+  classification: c
+  reformulation: Git tag and release promoter for creating annotated tags and GitHub Releases with changelog bodies. Dispatch
+    when creating git tags for releases or promoting releases to GitHub. Also dispatch when creating annotated tags with v
+    prefix or creating GitHub Releases from tags with changelog body. Release promotion is REQUIRED after every release PR
+    merge — not optional
+- skill: requesting-code-review
+  file: skills/requesting-code-review/SKILL.md
+  current_description: 'PR review request preparer that assesses readiness and generates reviewer context. Dispatch when preparing
+    a PR for code review, or when reviewer context and documentation are needed. Also dispatch when assessing PR readiness
+    or generating reviewer context summaries. Every review request MUST be treated as a quality gate — not a formality. User
+    phrases: request review, prepare for review, reviewer context, PR readiness, diff summary.'
+  classification: c
+  reformulation: PR review request preparer that assesses readiness and generates reviewer context. Dispatch when preparing
+    a PR for code review, or when reviewer context and documentation are needed. Also dispatch when assessing PR readiness
+    or generating reviewer context summaries. Every review request MUST be treated as a quality gate — not a formality
+- skill: research
+  file: skills/research/SKILL.md
+  current_description: 'Information discovery skill that produces findings with source attribution and explicit gap reporting
+    using appropriate modalities. Dispatch when discovering information using appropriate modalities, producing findings with
+    source attribution and explicit gap reporting. Also dispatch when investigating root causes, performing exhaustive research,
+    producing remediation scope analysis, verifying claims against live sources, or producing structured research artifacts.
+    All findings MUST be verified against live sources. User phrases: research, investigate, discover information, find root
+    cause, exhaustive search, source attribution, verify claim.'
+  classification: c
+  reformulation: Information discovery skill that produces findings with source attribution and explicit gap reporting using
+    appropriate modalities. Dispatch when discovering information using appropriate modalities, producing findings with source
+    attribution and explicit gap reporting. Also dispatch when investigating root causes, performing exhaustive research,
+    producing remediation scope analysis, verifying claims against live sources, or producing structured research artifacts.
+    All findings MUST be verified against live sources
+- skill: skill-creator
+  file: skills/skill-creator/SKILL.md
+  current_description: 'Skill lifecycle manager for creating, updating, validating, and auditing skill cards and managing
+    duplicate content blocks. Dispatch when creating a new skill, updating an existing skill, validating skill cards, or managing
+    duplicate content blocks (fragments) across guidelines or skills. Also dispatch when enforcing the farmage description
+    pattern on all skill cards, or auditing skill card structure for compliance. Validation is REQUIRED. User phrases: create
+    skill, new skill, update skill, validate skill, check skill, review skills, skill card audit, skill card review, fragment
+    management, sync fragment, duplicate content.'
+  classification: c
+  reformulation: Skill lifecycle manager for creating, updating, validating, and auditing skill cards and managing duplicate
+    content blocks. Dispatch when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate
+    content blocks (fragments) across guidelines or skills. Also dispatch when enforcing the farmage description pattern on
+    all skill cards, or auditing skill card structure for compliance. Validation is REQUIRED
+- skill: solve
+  file: skills/solve/SKILL.md
+  current_description: 'Z3 constraint solver for workflow correctness, state verification, and dependency ordering validation.
+    Dispatch when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency
+    ordering. Also dispatch when invoked by spec-creation or writing-plans pipeline steps for Z3-verified phase solvability,
+    dependency DAG validation, or state transition verification. Contract YAML files (variable declarations + logical constraints)
+    and state YAML files (variable assignments) are REQUIRED. Workflow constraints MUST be validated with Z3. User phrases:
+    solve constraints, check contract, verify state, prove theorem, check dependency ordering, validate workflow, run Z3,
+    run solve, fallback check, acyclic check.'
+  classification: c
+  reformulation: Z3 constraint solver for workflow correctness, state verification, and dependency ordering validation. Dispatch
+    when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering.
+    Also dispatch when invoked by spec-creation or writing-plans pipeline steps for Z3-verified phase solvability, dependency
+    DAG validation, or state transition verification. Contract YAML files (variable declarations + logical constraints) and
+    state YAML files (variable assignments) are REQUIRED. Workflow constraints MUST be validated with Z3
+- skill: spec-creation
+  file: skills/spec-creation/SKILL.md
+  current_description: 'Specification authoring skill that decomposes problems into success criteria and documents requirements.
+    Dispatch when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying
+    a feature. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change
+    control. Also use when running holistic self-checks on specs before completion, or verifying spec quality against the
+    11-dimension holistic gate. Invoke for: holistic check, self-check, pre-completion check, spec quality verification. Spec
+    creation is REQUIRED before implementation. User phrases: write spec, create spec, draft spec, write specification, create
+    specification, draft specification, spec out, author spec, document requirements, specify feature, define success criteria,
+    extract requirements, holistic check, spec quality verification.'
+  classification: c
+  reformulation: 'Specification authoring skill that decomposes problems into success criteria and documents requirements.
+    Dispatch when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying
+    a feature. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change
+    control. Also use when running holistic self-checks on specs before completion, or verifying spec quality against the
+    11-dimension holistic gate. Invoke for: holistic check, self-check, pre-completion check, spec quality verification. Spec
+    creation is REQUIRED before implementation'
+- skill: sre-runbook
+  file: skills/sre-runbook/SKILL.md
+  current_description: 'Operational runbook generator for infrastructure incidents and procedures. Dispatch when generating
+    operational runbooks for infrastructure incidents or procedures. Also dispatch when documenting incident response steps,
+    recovery procedures, or operational playbooks. SRE discipline is REQUIRED. User phrases: create runbook, write runbook,
+    incident response, recovery procedure, operational playbook.'
+  classification: c
+  reformulation: Operational runbook generator for infrastructure incidents and procedures. Dispatch when generating operational
+    runbooks for infrastructure incidents or procedures. Also dispatch when documenting incident response steps, recovery
+    procedures, or operational playbooks. SRE discipline is REQUIRED
+- skill: sync-guidelines
+  file: skills/sync-guidelines/SKILL.md
+  current_description: 'Cross-repo synchronization tool for guidelines, skills, and tools with drift detection. Dispatch when
+    synchronizing guidelines, skills, or tools between repositories. Also dispatch when detecting drift between source and
+    target, or applying content synchronization. Sync is REQUIRED maintenance. User phrases: sync guidelines, sync skills,
+    sync tools, detect drift, synchronize content, cross-repo sync.'
+  classification: c
+  reformulation: Cross-repo synchronization tool for guidelines, skills, and tools with drift detection. Dispatch when synchronizing
+    guidelines, skills, or tools between repositories. Also dispatch when detecting drift between source and target, or applying
+    content synchronization. Sync is REQUIRED maintenance
+- skill: systematic-debugging
+  file: skills/systematic-debugging/SKILL.md
+  current_description: 'Systematic debugger that performs root cause analysis, hypothesis testing, and failure mode investigation.
+    Dispatch when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Also dispatch
+    when performing root cause analysis, hypothesis testing, or failure mode investigation. Systematic debugging is REQUIRED.
+    User phrases: debug, diagnose bug, root cause analysis, investigate error, reproduce issue, fix verification.'
+  classification: c
+  reformulation: Systematic debugger that performs root cause analysis, hypothesis testing, and failure mode investigation.
+    Dispatch when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Also dispatch
+    when performing root cause analysis, hypothesis testing, or failure mode investigation. Systematic debugging is REQUIRED
+- skill: test-driven-development
+  file: skills/test-driven-development/SKILL.md
+  current_description: 'Test-driven development skill that runs RED/GREEN cycles, writes behavioral enforcement tests, and
+    generates regression test patterns. Dispatch when writing tests before implementation, or when adopting a test-first development
+    approach. Also dispatch when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression
+    test patterns. TDD is REQUIRED. User phrases: write test, TDD, test-first, RED phase, GREEN phase, behavioral test, regression
+    test.'
+  classification: c
+  reformulation: Test-driven development skill that runs RED/GREEN cycles, writes behavioral enforcement tests, and generates
+    regression test patterns. Dispatch when writing tests before implementation, or when adopting a test-first development
+    approach. Also dispatch when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression
+    test patterns. TDD is REQUIRED
+- skill: using-git-worktrees
+  file: skills/using-git-worktrees/SKILL.md
+  current_description: 'Git worktree manager that creates isolated feature branch worktrees for parallel agent work. Dispatch
+    when creating a feature branch or worktree for implementation. Also dispatch when setting up isolated git worktrees for
+    parallel agent work or managing worktree lifecycle. Always invoke before git-workflow pre-work. Worktrees are REQUIRED
+    — always use them. User phrases: create worktree, setup worktree, add worktree, remove worktree, worktree path, isolated
+    branch.'
+  classification: c
+  reformulation: Git worktree manager that creates isolated feature branch worktrees for parallel agent work. Dispatch when
+    creating a feature branch or worktree for implementation. Also dispatch when setting up isolated git worktrees for parallel
+    agent work or managing worktree lifecycle. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always
+    use them
+- skill: verification-before-completion
+  file: skills/verification-before-completion/SKILL.md
+  current_description: 'Completion verification gate that checks success criteria, produces evidence artifacts, and enforces
+    live-source verification before any completion claim. Dispatch when claiming a task is complete, marking a step done,
+    or closing an issue. Also dispatch when running verification checks against success criteria, producing evidence artifacts,
+    or enforcing live-source verification. Verification is REQUIRED and not optional — MUST use before any completion claim
+    — distinct from verification (general claim verification) and verification-enforcement (content generation). User phrases:
+    verify completion, check SC, produce evidence, live-source verify, validate completion.'
+  classification: c
+  reformulation: Completion verification gate that checks success criteria, produces evidence artifacts, and enforces live-source
+    verification before any completion claim. Dispatch when claiming a task is complete, marking a step done, or closing an
+    issue. Also dispatch when running verification checks against success criteria, producing evidence artifacts, or enforcing
+    live-source verification. Verification is REQUIRED and not optional — MUST use before any completion claim — distinct
+    from verification (general claim verification) and verification-enforcement (content generation)
+- skill: verification-enforcement
+  file: skills/verification-enforcement/SKILL.md
+  current_description: 'Content generation verifier that collects evidence artifacts before generation and resolves unverified
+    claims after. Dispatch when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence.
+    Also dispatch when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing
+    proactive verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct
+    from verification (general claim verification) and verification-before-completion (completion gate). User phrases: verify
+    before generation, collect evidence, resolve unverified claims, proactive verification, content verification.'
+  classification: c
+  reformulation: Content generation verifier that collects evidence artifacts before generation and resolves unverified claims
+    after. Dispatch when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also
+    dispatch when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing
+    proactive verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct
+    from verification (general claim verification) and verification-before-completion (completion gate)
+- skill: verification
+  file: skills/verification/SKILL.md
+  current_description: 'Claim verifier that produces PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts using
+    appropriate modalities. Dispatch when verifying claims against evidence using appropriate modalities. Also dispatch when
+    producing PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Verification
+    is REQUIRED — distinct from verification-before-completion (completion gate) and verification-enforcement (content generation).
+    User phrases: verify claim, check evidence, produce verdict, enforce honesty, multi-modal verify.'
+  classification: c
+  reformulation: Claim verifier that produces PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts using appropriate
+    modalities. Dispatch when verifying claims against evidence using appropriate modalities. Also dispatch when producing
+    PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Verification is REQUIRED
+    — distinct from verification-before-completion (completion gate) and verification-enforcement (content generation)
+- skill: version-manager
+  file: skills/version-manager/SKILL.md
+  current_description: 'Version string scanner and semver bumper for discovering and updating version numbers across codebases.
+    Dispatch when discovering version strings in a codebase or bumping versions for a release. Also dispatch when scanning
+    for version patterns across multiple file formats or determining the next version from changelog categories. Version management
+    is REQUIRED before every release — not optional. User phrases: version, bump version, version-manager, discover version,
+    next version.'
+  classification: c
+  reformulation: Version string scanner and semver bumper for discovering and updating version numbers across codebases. Dispatch
+    when discovering version strings in a codebase or bumping versions for a release. Also dispatch when scanning for version
+    patterns across multiple file formats or determining the next version from changelog categories. Version management is
+    REQUIRED before every release — not optional
+- skill: writing-plans
+  file: skills/writing-plans/SKILL.md
+  current_description: 'Implementation plan creator that breaks approved specs into phases, tasks, and work breakdowns. Dispatch
+    when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps,
+    or creating task breakdowns. Also dispatch when retroactively creating a plan for an existing spec, or backfilling plan
+    documentation. Also dispatch when running holistic self-checks on plans before completion, or verifying plan quality against
+    the 11-dimension holistic gate. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline
+    (task()-dispatch pipeline). User phrases: create plan, write plan, draft plan, implementation plan, plan implementation,
+    break down work, define phases, holistic check, plan quality verification.'
+  classification: c
+  reformulation: Implementation plan creator that breaks approved specs into phases, tasks, and work breakdowns. Dispatch
+    when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps,
+    or creating task breakdowns. Also dispatch when retroactively creating a plan for an existing spec, or backfilling plan
+    documentation. Also dispatch when running holistic self-checks on plans before completion, or verifying plan quality against
+    the 11-dimension holistic gate. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline
+    (task()-dispatch pipeline)
+- skill: issue-operations/platforms/gitbucket-api
+  file: skills/issue-operations/platforms/gitbucket-api/SKILL.md
+  current_description: 'GitBucket platform operations via the gb CLI tool for multi-platform issue management. Dispatch when
+    GitBucket platform operations are needed. Also dispatch when routing issue operations to GitBucket via the gb CLI tool,
+    or when GitBucket-specific API capabilities are required. GitBucket operations without platform awareness fail silently.
+    Platform-aware routing is what makes multi-platform workflows reliable. User phrases: GitBucket, gb CLI, GitBucket issue,
+    GitBucket API, GitBucket platform.'
+  classification: c
+  reformulation: GitBucket platform operations via the gb CLI tool for multi-platform issue management. Dispatch when GitBucket
+    platform operations are needed. Also dispatch when routing issue operations to GitBucket via the gb CLI tool, or when
+    GitBucket-specific API capabilities are required. GitBucket operations without platform awareness fail silently. Platform-aware
+    routing is what makes multi-platform workflows reliable
+- skill: issue-operations/platforms/github-mcp
+  file: skills/issue-operations/platforms/github-mcp/SKILL.md
+  current_description: 'GitHub MCP platform operations for issue management via GitHub API tools. Dispatch when GitHub MCP
+    platform operations are needed. Also dispatch when routing issue operations to GitHub via MCP tools, or when GitHub-specific
+    API capabilities are required. API calls without owner/repo verification target the wrong repository. Every misrouted
+    call is wasted effort. Platform-aware routing is REQUIRED — always use the dispatcher. User phrases: GitHub MCP, GitHub
+    issue, GitHub API, GitHub platform, github_* tool.'
+  classification: c
+  reformulation: GitHub MCP platform operations for issue management via GitHub API tools. Dispatch when GitHub MCP platform
+    operations are needed. Also dispatch when routing issue operations to GitHub via MCP tools, or when GitHub-specific API
+    capabilities are required. API calls without owner/repo verification target the wrong repository. Every misrouted call
+    is wasted effort. Platform-aware routing is REQUIRED — always use the dispatcher
+- skill: issue-operations/platforms/local
+  file: skills/issue-operations/platforms/local/SKILL.md
+  current_description: 'Local .issues/ tracking platform for offline issue management with YAML frontmatter and markdown files.
+    Dispatch when local .issues/ tracking is needed. Also dispatch when github.platform is local or unset, or when routing
+    issue operations to the .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be
+    lost. Even local issues MUST have structured tracking. User phrases: local issue, .issues/ directory, local tracking,
+    local platform, offline issue.'
+  classification: c
+  reformulation: Local .issues/ tracking platform for offline issue management with YAML frontmatter and markdown files. Dispatch
+    when local .issues/ tracking is needed. Also dispatch when github.platform is local or unset, or when routing issue operations
+    to the .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local
+    issues MUST have structured tracking

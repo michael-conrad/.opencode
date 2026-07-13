@@ -1,0 +1,92 @@
+artifact_name: blast-radius
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "All files and directories affected by the skill-split change across 7 phases"
+  affected_skill_directories:
+    - path: ".opencode/skills/issue-operations/"
+      change: "Convert SKILL.md to dispatcher; delete tasks/ directory (21 files migrated)"
+    - path: ".opencode/skills/approval-gate/"
+      change: "Convert SKILL.md to dispatcher; delete tasks/ (22 files migrated) and enforcement/ (5 files migrated); post-implementation.md left for Phase 4 pickup"
+    - path: ".opencode/skills/git-workflow/"
+      change: "Convert SKILL.md to dispatcher; delete tasks/ (18 files migrated)"
+    - path: ".opencode/skills/writing-plans/"
+      change: "Convert SKILL.md to dispatcher; delete tasks/ (19 files migrated) and contracts/ (22 templates migrated)"
+    - path: ".opencode/skills/spec-creation/"
+      change: "Convert SKILL.md to dispatcher; delete tasks/ (18 files migrated) and contracts/ (3 templates migrated)"
+  new_sub_skill_directories:
+    - path: ".opencode/skills/issue-operations-core/"
+      change: "Created — 14 task files, SKILL.md with Trigger Dispatch Table"
+    - path: ".opencode/skills/issue-operations-comments/"
+      change: "Created — 1 task file, SKILL.md"
+    - path: ".opencode/skills/issue-operations-sub-issues/"
+      change: "Created — 2 task files, SKILL.md"
+    - path: ".opencode/skills/issue-operations-sync/"
+      change: "Created — 3 task files, SKILL.md"
+    - path: ".opencode/skills/approval-gate-scope/"
+      change: "Created — 22 task files, 5 enforcement files, SKILL.md with Trigger Dispatch Table"
+    - path: ".opencode/skills/git-workflow-branch/"
+      change: "Created — 6 task files (3 original + 3 submodule), SKILL.md"
+    - path: ".opencode/skills/git-workflow-commit/"
+      change: "Created — 3 task files, SKILL.md"
+    - path: ".opencode/skills/git-workflow-pr/"
+      change: "Created — 5 task files (3 original + post-implementation.md + completion), SKILL.md"
+    - path: ".opencode/skills/git-workflow-cleanup/"
+      change: "Created — 3 task files, SKILL.md"
+    - path: ".opencode/skills/git-workflow-conflict/"
+      change: "Created — 1 task file, SKILL.md"
+    - path: ".opencode/skills/writing-plans-creation/"
+      change: "Created — 18 task files (17 original + retroactive merged in), contracts/ directory, SKILL.md"
+    - path: ".opencode/skills/writing-plans-holistic/"
+      change: "Created — 1 task file, SKILL.md"
+    - path: ".opencode/skills/spec-creation-requirements/"
+      change: "Created — 1 task file, SKILL.md"
+    - path: ".opencode/skills/spec-creation-decomposition/"
+      change: "Created — 9 task files, contracts/ directory, SKILL.md"
+    - path: ".opencode/skills/spec-creation-validation/"
+      change: "Created — 6 task files, SKILL.md"
+    - path: ".opencode/skills/spec-creation-change-control/"
+      change: "Created — 1 task file, SKILL.md"
+    - path: ".opencode/skills/spec-creation-operating-protocol/"
+      change: "Created — 1 task file, SKILL.md"
+  preserved_unchanged_directories:
+    - path: ".opencode/skills/issue-operations/platforms/"
+      reason: "Platform sub-skills (github-mcp, gitbucket-api, local) preserved and referenced by dispatcher"
+  guideline_files_updated:
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      change: "Update cross-references to sub-skill paths"
+    - path: ".opencode/guidelines/010-approval-gate.md"
+      change: "Update cross-references to approval-gate-scope sub-skill"
+    - path: ".opencode/guidelines/020-go-prohibitions.md"
+      change: "Update cross-references to sub-skill paths"
+    - path: ".opencode/guidelines/060-tool-usage.md"
+      change: "Update cross-references to sub-skill paths"
+    - path: ".opencode/guidelines/080-code-standards.md"
+      change: "Update cross-references to sub-skill paths"
+    - path: ".opencode/guidelines/140-planning-spec-creation.md"
+      change: "Update cross-references to spec-creation sub-skills"
+    - path: ".opencode/guidelines/141-planning-status-tracking.md"
+      change: "Update cross-references to sub-skill paths"
+    - path: ".opencode/guidelines/INDEX.md"
+      change: "Add dispatcher-template reference"
+    - path: ".opencode/AGENTS.md"
+      change: "Update skill references and build/test commands"
+    - path: ".opencode/README.md"
+      change: "Update skill directory listing"
+  test_files_updated:
+    content_verification_tests:
+      count: 50
+      description: "~50 content-verification test scenarios in .opencode/tests/ updated with sub-skill path references"
+    behavioral_tests:
+      count: 20
+      description: "~20 behavioral tests in .opencode/tests/behaviors/ updated for dispatch routing verification"
+  template_and_validation_files:
+    - path: ".opencode/skills/skill-creator/tasks/validate.md"
+      change: "Update to accept Agent-Intent Pattern descriptions (≤1024 chars, canonical template)"
+    - path: ".opencode/reference/dispatcher-template.md"
+      change: "Created — shared boilerplate for all 5 dispatcher SKILL.md files"
+  total_file_count:
+    created: 20
+    modified: 70
+    deleted: 7
+    total_affected: 97

@@ -1,6 +1,6 @@
 # Phase 7 — Cross-Skill Sweep & Final Gates
 
-**Concern:** Cross-skill validation — verify all 20 sub-skills (3+5+3+5+3+4) are correctly wired with dispatchers, all task files migrated, dispatch routing tested, and PR-ready gate passed.
+**Concern:** Cross-skill validation — verify all 17 sub-skills (4 issue-ops + 1 approval-gate + 5 git-workflow + 2 writing-plans + 5 spec-creation) are correctly wired with dispatchers, all task files migrated, dispatch routing tested, and PR-ready gate passed.
 
 **Files:**
 - `.opencode/skills/implementation-pipeline/SKILL.md` — Verify pipeline state file for cross-skill consistency
@@ -41,10 +41,11 @@
 - All sub-skill directories exist with task files
 
 **Exit conditions:**
-- 20 sub-skills confirmed with correct dispatcher routing
-- All 7 original dispatchers route to sub-skills
+- 17 sub-skills confirmed with correct dispatcher routing
+- All 5 original dispatchers route to sub-skills
 - Full behavioral test suite PASS (all models)
-- sc-count-gate: 20 sub-skills × correct task count
+- sc-count-gate: 17 sub-skills × correct task count
+- SC-9 (anti-lobotomization) verified with behavioral test
 - pre-pr-gate: PR-ready verification
 - No orphaned task files remain in original skill directories
 - Final checkpoint tag created

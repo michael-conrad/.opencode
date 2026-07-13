@@ -1,0 +1,187 @@
+artifact_name: state-analysis
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "State transitions for all files and directories affected by the skill-split change"
+  transitions:
+    - entity: ".opencode/skills/issue-operations/SKILL.md"
+      before: "Full skill definition with task descriptions, 21 task files in tasks/"
+      after: "Dispatcher-only with Trigger Dispatch Table routing to 4 sub-skills, DISPATCH_GATE protocol"
+      phase: 2
+    - entity: ".opencode/skills/issue-operations/tasks/"
+      before: "21 task files"
+      after: "Empty → deleted"
+      phase: 2
+    - entity: ".opencode/skills/issue-operations-core/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md (Agent-Intent Pattern, Trigger Dispatch Table) and tasks/ (14 files)"
+      phase: 2
+    - entity: ".opencode/skills/issue-operations-comments/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (1 file)"
+      phase: 2
+    - entity: ".opencode/skills/issue-operations-sub-issues/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (2 files)"
+      phase: 2
+    - entity: ".opencode/skills/issue-operations-sync/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (3 files)"
+      phase: 2
+    - entity: ".opencode/skills/issue-operations/platforms/"
+      before: "3 platform sub-skills (github-mcp, gitbucket-api, local)"
+      after: "Unchanged — preserved and referenced by dispatcher"
+      phase: 2
+    - entity: ".opencode/skills/approval-gate/SKILL.md"
+      before: "Full skill definition with task descriptions, 22 task files in tasks/, 5 enforcement files in enforcement/"
+      after: "Dispatcher-only with Trigger Dispatch Table routing to approval-gate-scope, DISPATCH_GATE protocol"
+      phase: 3
+    - entity: ".opencode/skills/approval-gate/tasks/"
+      before: "22 task files + post-implementation.md"
+      after: "Only post-implementation.md remains (picked up in Phase 4)"
+      phase: 3
+    - entity: ".opencode/skills/approval-gate/enforcement/"
+      before: "5 enforcement files"
+      after: "Empty → deleted"
+      phase: 3
+    - entity: ".opencode/skills/approval-gate-scope/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md (Agent-Intent Pattern, Trigger Dispatch Table), tasks/ (22 files), enforcement/ (5 files)"
+      phase: 3
+    - entity: ".opencode/skills/git-workflow/SKILL.md"
+      before: "Full skill definition with task descriptions, 18 task files in tasks/"
+      after: "Dispatcher-only with Trigger Dispatch Table routing to 5 sub-skills, DISPATCH_GATE protocol"
+      phase: 4
+    - entity: ".opencode/skills/git-workflow/tasks/"
+      before: "18 task files"
+      after: "Empty → deleted"
+      phase: 4
+    - entity: ".opencode/skills/approval-gate/tasks/post-implementation.md"
+      before: "Located at approval-gate/tasks/"
+      after: "Moved to git-workflow-pr/tasks/"
+      phase: 4
+    - entity: ".opencode/skills/git-workflow-branch/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (6 files: 3 original + 3 submodule)"
+      phase: 4
+    - entity: ".opencode/skills/git-workflow-commit/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (3 files)"
+      phase: 4
+    - entity: ".opencode/skills/git-workflow-pr/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (5 files: 3 original + post-implementation + completion)"
+      phase: 4
+    - entity: ".opencode/skills/git-workflow-cleanup/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (3 files)"
+      phase: 4
+    - entity: ".opencode/skills/git-workflow-conflict/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (1 file)"
+      phase: 4
+    - entity: ".opencode/skills/writing-plans/SKILL.md"
+      before: "Full skill definition with task descriptions, 19 task files in tasks/, 22 contract templates in contracts/"
+      after: "Dispatcher-only with Trigger Dispatch Table routing to 2 sub-skills, DISPATCH_GATE protocol"
+      phase: 5
+    - entity: ".opencode/skills/writing-plans/tasks/"
+      before: "19 task files"
+      after: "Empty → deleted"
+      phase: 5
+    - entity: ".opencode/skills/writing-plans/contracts/"
+      before: "22 contract templates"
+      after: "Empty → deleted"
+      phase: 5
+    - entity: ".opencode/skills/writing-plans-creation/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md, tasks/ (18 files: 17 original + retroactive merged in), contracts/ (22 templates)"
+      phase: 5
+    - entity: ".opencode/skills/writing-plans-holistic/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (1 file)"
+      phase: 5
+    - entity: ".opencode/skills/spec-creation/SKILL.md"
+      before: "Full skill definition with task descriptions, 18 task files in tasks/, 3 contract templates in contracts/"
+      after: "Dispatcher-only with Trigger Dispatch Table routing to 5 sub-skills, DISPATCH_GATE protocol"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation/tasks/"
+      before: "18 task files"
+      after: "Empty → deleted"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation/contracts/"
+      before: "3 contract templates"
+      after: "Empty → deleted"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation-requirements/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (1 file)"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation-decomposition/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md, tasks/ (9 files), contracts/ (3 templates)"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation-validation/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (6 files)"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation-change-control/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (1 file)"
+      phase: 6
+    - entity: ".opencode/skills/spec-creation-operating-protocol/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (1 file)"
+      phase: 6
+    - entity: ".opencode/reference/dispatcher-template.md"
+      before: "Does not exist"
+      after: "Exists with shared boilerplate sections"
+      phase: 1
+    - entity: ".opencode/skills/skill-creator/tasks/validate.md"
+      before: "Accepts full 591-898 char template"
+      after: "Also accepts ≤1024 char Agent-Intent Pattern"
+      phase: 1
+    - entity: ".opencode/guidelines/INDEX.md"
+      before: "No dispatcher-template reference"
+      after: "Includes dispatcher-template entry with trigger pattern and load-when guidance"
+      phase: 1
+  checkpoint_tags:
+    - tag: "feature/1881-skill-split/checkpoint/phase-1-main"
+      phase: 1
+      description: "After pre-flight: validate.md updated, dispatcher template created, INDEX.md updated, SC-9 test written"
+    - tag: "feature/1881-skill-split/checkpoint/phase-2-main"
+      phase: 2
+      description: "After issue-operations split: 4 sub-skills created, dispatcher converted, tasks/ deleted"
+    - tag: "feature/1881-skill-split/checkpoint/phase-3-main"
+      phase: 3
+      description: "After approval-gate split: 1 sub-skill created, dispatcher converted, enforcement/ deleted"
+    - tag: "feature/1881-skill-split/checkpoint/phase-4-main"
+      phase: 4
+      description: "After git-workflow split: 5 sub-skills created, dispatcher converted, post-implementation moved, tasks/ deleted"
+    - tag: "feature/1881-skill-split/checkpoint/phase-5-main"
+      phase: 5
+      description: "After writing-plans split: 2 sub-skills created, dispatcher converted, tasks/ and contracts/ deleted"
+    - tag: "feature/1881-skill-split/checkpoint/phase-6-main"
+      phase: 6
+      description: "After spec-creation split: 5 sub-skills created, dispatcher converted, tasks/ and contracts/ deleted"
+    - tag: "feature/1881-skill-split/checkpoint/phase-7-main"
+      phase: 7
+      description: "After cross-skill sweep: all dispatchers verified, sc-count-gate PASS, pre-pr-gate PASS"
+  solve_state:
+    state_file: "{project_root}/tmp/1881/state/"
+    contract_path: "skills/implementation-pipeline/pipeline-state-machine.yaml"
+    phase_variables:
+      - name: phase_1
+        value: complete
+      - name: phase_2
+        value: complete
+      - name: phase_3
+        value: complete
+      - name: phase_4
+        value: complete
+      - name: phase_5
+        value: complete
+      - name: phase_6
+        value: complete
+      - name: phase_7
+        value: complete
+    verification: "solve check after each phase update"

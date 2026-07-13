@@ -1,0 +1,167 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-07-13
+source: "Spec #1881 and plan files (plan.md, plan-01.md through plan-07.md)"
+content:
+  description: "Cross-cutting concerns across all 7 phases, mapped to SCs and verification gates"
+  cross_cutting_concerns:
+    - sc_id: SC-1
+      name: "Sub-skill task count < 15"
+      evidence_type: structural
+      verification_method: "ls .opencode/skills/*/tasks/ | wc -l per sub-skill; verify each count < 15"
+      phases_affected:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      verification_gate: pre-commit
+      remediation: "Re-count task files; if any sub-skill exceeds 14, split further"
+      phase_1_application: "Pre-flight: verify validate.md accepts Agent-Intent Pattern"
+      phase_2_application: "Verify issue-ops sub-skills each have < 15 tasks"
+      phase_3_application: "Verify approval-gate-scope has < 15 tasks (22 tasks — exceeds limit, requires justification per DEC-3)"
+      phase_4_application: "Verify git-workflow sub-skills each have < 15 tasks"
+      phase_5_application: "Verify writing-plans sub-skills each have < 15 tasks"
+      phase_6_application: "Verify spec-creation sub-skills each have < 15 tasks"
+      phase_7_application: "Sweep-verify all 17 sub-skills meet < 15 task count"
+    - sc_id: SC-2
+      name: "Triggers when: format (agent-intent dispatch conditions, ≤1024 chars)"
+      evidence_type: behavioral
+      verification_method: "opencode-cli run with prompt to create sub-skill description; assert_semantic verifies Triggers when: format with agent-intent conditions; wc -c verifies ≤1024"
+      phases_affected:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      verification_gate: pre-commit
+      remediation: "Update description to use Triggers when: format; trim to ≤1024 chars"
+      phase_1_application: "Pre-flight: RED test for Agent-Intent Pattern validation"
+      phase_2_application: "Verify issue-ops sub-skill descriptions use Triggers when: format"
+      phase_3_application: "Verify approval-gate-scope description uses Triggers when: format"
+      phase_4_application: "Verify git-workflow sub-skill descriptions use Triggers when: format"
+      phase_5_application: "Verify writing-plans sub-skill descriptions use Triggers when: format"
+      phase_6_application: "Verify spec-creation sub-skill descriptions use Triggers when: format"
+      phase_7_application: "Sweep-verify all 20 sub-skill descriptions use Triggers when: format"
+    - sc_id: SC-3
+      name: "Single concern (Single Concern Principle)"
+      evidence_type: structural
+      verification_method: "Inspect each sub-skill's task files; verify all tasks address exactly one concern area per spec's split table"
+      phases_affected:
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      verification_gate: post-implementation
+      remediation: "Reassign misclassified tasks to correct sub-skill"
+      phase_2_application: "Verify issue-ops sub-skills each address one concern (CRUD, comments, sub-issues, sync)"
+      phase_3_application: "Verify approval-gate-scope addresses scope concern (labels/revision/bug-discovery as sub-tasks)"
+      phase_4_application: "Verify git-workflow sub-skills each address one concern (branch, commit, pr, cleanup, conflict)"
+      phase_5_application: "Verify writing-plans sub-skills each address one concern (creation, holistic)"
+      phase_6_application: "Verify spec-creation sub-skills each address one concern (requirements, decomposition, validation, change-control, operating-protocol)"
+      phase_7_application: "Sweep-verify all 17 sub-skills have single concern"
+    - sc_id: SC-4
+      name: "Preserved triggers — dispatcher skills preserve all original trigger phrases"
+      evidence_type: behavioral
+      verification_method: "For each original trigger phrase, opencode-cli run with prompt containing that phrase; assert_semantic verifies correct sub-skill routing"
+      phases_affected:
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      verification_gate: post-implementation
+      remediation: "Add missing trigger phrase to dispatcher description"
+      phase_2_application: "Verify issue-operations dispatcher preserves all original trigger phrases"
+      phase_3_application: "Verify approval-gate dispatcher preserves all original trigger phrases"
+      phase_4_application: "Verify git-workflow dispatcher preserves all original trigger phrases"
+      phase_5_application: "Verify writing-plans dispatcher preserves all original trigger phrases"
+      phase_6_application: "Verify spec-creation dispatcher preserves all original trigger phrases"
+      phase_7_application: "Sweep-verify all 5 dispatchers preserve all original trigger phrases"
+    - sc_id: SC-5
+      name: "No functionality lost — all original task coverage maintained"
+      evidence_type: behavioral
+      verification_method: "For each original task, opencode-cli run with prompt that would trigger that task; verify task accessible via new sub-skill structure"
+      phases_affected:
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      verification_gate: post-implementation
+      remediation: "Re-migrate missing task file to correct sub-skill"
+      phase_2_application: "Verify all 21 issue-ops tasks accessible via 4 sub-skills"
+      phase_3_application: "Verify all 22 approval-gate tasks accessible via scope sub-skill"
+      phase_4_application: "Verify all 18 git-workflow tasks accessible via 5 sub-skills"
+      phase_5_application: "Verify all 19 writing-plans tasks accessible via 2 sub-skills"
+      phase_6_application: "Verify all 18 spec-creation tasks accessible via 5 sub-skills"
+      phase_7_application: "Sweep-verify all ~95 task files accessible via correct sub-skills"
+    - sc_id: SC-6
+      name: "No ambiguous routing — cross-skill trigger conflicts resolved"
+      evidence_type: behavioral
+      verification_method: "For each pair of sub-skills sharing trigger keywords, opencode-cli run with ambiguous prompt; assert_semantic verifies deterministic routing"
+      phases_affected:
+        - 7
+      verification_gate: post-implementation
+      remediation: "Refine trigger dispatch table patterns to be mutually exclusive"
+      phase_7_application: "Cross-skill sweep: verify no ambiguous routing between sub-skills sharing trigger keywords"
+    - sc_id: SC-7
+      name: "Cross-validation — orphaned triggers, missing task files, dispatcher functionality"
+      evidence_type: behavioral
+      verification_method: "Composite: grep for orphaned triggers (string) + structural check for missing task files + behavioral test for dispatcher routing"
+      phases_affected:
+        - 7
+      verification_gate: post-implementation
+      remediation: "Fix each category independently"
+      phase_7_application: "Cross-skill sweep: grep orphaned triggers, verify no missing task files, test dispatcher routing"
+    - sc_id: SC-8
+      name: "Review prep — PR body, compare URL, byline"
+      evidence_type: behavioral
+      verification_method: "Composite: behavioral test for PR body format + string test for compare URL + string test for byline presence"
+      phases_affected:
+        - 7
+      verification_gate: post-implementation
+      remediation: "Regenerate PR body, fix URL, add byline"
+      phase_7_application: "pre-pr-gate: verify PR readiness, structural checks, git status clean"
+    - sc_id: SC-9
+      name: "Anti-lobotomization — no SC may be weakened, deferred, or reclassified"
+      evidence_type: behavioral
+      verification_method: "opencode-cli run with prompt attempting to weaken an SC; assert_semantic verifies agent declines"
+      phases_affected:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      verification_gate: pre-commit
+      remediation: "HALT and report blocker; do not proceed past weakened SC"
+      phase_1_application: "Verified once in Phase 1 (step 15), applies to all subsequent phases"
+      phase_2_application: "SC-9 applies — no SC weakening during issue-ops split"
+      phase_3_application: "SC-9 applies — no SC weakening during approval-gate split"
+      phase_4_application: "SC-9 applies — no SC weakening during git-workflow split"
+      phase_5_application: "SC-9 applies — no SC weakening during writing-plans split"
+      phase_6_application: "SC-9 applies — no SC weakening during spec-creation split"
+      phase_7_application: "SC-9 applies — no SC weakening during cross-skill sweep"
+  cross_cutting_verification_gates:
+    - gate: pre-commit
+      scs:
+        - SC-1
+        - SC-2
+        - SC-9
+    - gate: post-implementation
+      scs:
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8
