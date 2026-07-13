@@ -6,7 +6,7 @@
 
 > **DiMo Role: Path Provider (reference).** This task is a reference document describing the Path Provider role in the DiMo role chain. The Path Provider reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
 >
-> **The authoritative Path Provider (Judger) implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Path Provider is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
+> **The authoritative Path Provider implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Path Provider is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
 > - MUST NOT overrule a PASS/FAIL from the Evaluator
@@ -53,7 +53,7 @@ findings:
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — Path Provider (Judger) role implementation
+- `tasks/cross-validate.md` — Path Provider role implementation
 - `tasks/completion.md` — audit workflow completion
 
 ---

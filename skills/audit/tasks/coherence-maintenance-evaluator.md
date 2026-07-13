@@ -440,7 +440,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/coherence-maintenance-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
 - `tasks/coherence-maintenance-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this Evaluator's verdict.yaml)
+- `tasks/cross-validate.md` — Path Provider role (consumes this Evaluator's verdict.yaml)
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Generator)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement

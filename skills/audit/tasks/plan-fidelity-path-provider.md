@@ -1,6 +1,6 @@
 ---
 name: plan-fidelity-path-provider
-description: "Path Provider (Judger) role for the plan-fidelity DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Path Provider role for the plan-fidelity DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,11 +13,11 @@ compatibility: opencode
 
 ## Purpose
 
-Path Provider (Judger) role for the plan-fidelity DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the DiMo 4-role chain. It synthesizes, not evaluates.
+Path Provider role for the plan-fidelity DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the DiMo 4-role chain. It synthesizes, not evaluates.
 
-> **DiMo Role: Path Provider (Judger).** This task produces the final judgment for plan-fidelity audit by cross-referencing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
+> **DiMo Role: Path Provider.** This task produces the final judgment for plan-fidelity audit by cross-referencing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
 >
-> You are the Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> You are the Path Provider. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
 > - MUST NOT overrule a PASS/FAIL from the Evaluator
@@ -262,7 +262,7 @@ remediation_required: true | false
 - `tasks/plan-fidelity-knowledge-supporter.md` — Knowledge Supporter role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity-evaluator.md` — Evaluator role (produces `verdict.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
-- `tasks/cross-validate.md` — Sole Path Provider (Judger) for verification-audit (reference implementation)
+- `tasks/cross-validate.md` — Sole Path Provider for verification-audit (reference implementation)
 - `tasks/resolve-models.md` — Path Provider role reference documentation
 - `audit/SKILL.md` — DiMo chain dispatch (Generator → Knowledge Supporter → Evaluator → Path Provider)
 - `writing-plans` skill — clean-room plan generation

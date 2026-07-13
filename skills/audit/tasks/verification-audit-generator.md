@@ -187,7 +187,7 @@ summary: "Evidence collected: {sc_count} SCs extracted, {behavioral_sc_count} be
 ## Cross-References
 
 - `tasks/verification-audit.md` — Evaluator role (reads evidence.yaml, writes verdict.yaml)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (reads all artifacts, writes judgment.yaml)
+- `tasks/cross-validate.md` — Path Provider role (reads all artifacts, writes judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Generator → Knowledge Supporter → Evaluator → Path Provider)
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)

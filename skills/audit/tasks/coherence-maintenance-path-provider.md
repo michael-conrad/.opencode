@@ -1,6 +1,6 @@
 ---
 name: coherence-maintenance-path-provider
-description: "Path Provider (Judger) role for the coherence-maintenance DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Path Provider role for the coherence-maintenance DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,11 +13,11 @@ compatibility: opencode
 
 ## Purpose
 
-Path Provider (Judger) role for the coherence-maintenance DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, not evaluates. It does NOT re-evaluate criteria, re-validate evidence, or second-guess upstream roles.
+Path Provider role for the coherence-maintenance DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, not evaluates. It does NOT re-evaluate criteria, re-validate evidence, or second-guess upstream roles.
 
-> **DiMo Role: Path Provider (Judger).** This task produces the final judgment for coherence-maintenance by cross-referencing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
+> **DiMo Role: Path Provider.** This task produces the final judgment for coherence-maintenance by cross-referencing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
 >
-> You are the Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> You are the Path Provider. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 >
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
@@ -495,6 +495,6 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `tasks/coherence-maintenance-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
 - `tasks/coherence-maintenance-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Generator)
-- `tasks/cross-validate.md` — Sole Path Provider (Judger) for general audit chain (analogous role, different domain)
+- `tasks/cross-validate.md` — Sole Path Provider for general audit chain (analogous role, different domain)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement

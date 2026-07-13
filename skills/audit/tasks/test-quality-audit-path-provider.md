@@ -1,6 +1,6 @@
 ---
 name: test-quality-audit-path-provider
-description: "Path Provider (Judger) role for the test-quality-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Path Provider role for the test-quality-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,11 +13,11 @@ compatibility: opencode
 
 ## Purpose
 
-Path Provider (Judger) role for the test-quality-audit DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), and `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the DiMo 4-role chain. It synthesizes, not evaluates.
+Path Provider role for the test-quality-audit DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), and `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the DiMo 4-role chain. It synthesizes, not evaluates.
 
-> **DiMo Role: Path Provider (Judger).** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
+> **DiMo Role: Path Provider.** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
 >
-> You are the Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> You are the Path Provider. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 >
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
@@ -395,7 +395,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
 - `tasks/test-quality-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/test-quality-audit.md` — Main task file (orchestrator-level test-quality-audit)
-- `tasks/cross-validate.md` — Cross-validate Path Provider (Judger) role (separate DiMo chain for cross-validation)
+- `tasks/cross-validate.md` — Cross-validate Path Provider role (separate DiMo chain for cross-validation)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations
 - `080-code-standards.md` §Test Integrity Mandate — no lobotomizing tests

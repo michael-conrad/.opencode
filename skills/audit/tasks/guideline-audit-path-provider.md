@@ -1,6 +1,6 @@
 ---
 name: guideline-audit-path-provider
-description: "Path Provider (Judger) role for the guideline-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Path Provider role for the guideline-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,11 +13,11 @@ compatibility: opencode
 
 ## Purpose
 
-Path Provider (Judger) role for the guideline-audit DiMo chain. Reads all upstream artifacts (`evidence.yaml` from Generator, `reasoning.yaml` from Knowledge Supporter, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
+Path Provider role for the guideline-audit DiMo chain. Reads all upstream artifacts (`evidence.yaml` from Generator, `reasoning.yaml` from Knowledge Supporter, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
 
-> **DiMo Role: Path Provider (Judger).** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
+> **DiMo Role: Path Provider.** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
 >
-> You are the Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> You are the Path Provider. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 >
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
@@ -538,8 +538,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
 - `tasks/guideline-audit-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
 - `tasks/guideline-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
-- `tasks/spec-audit-path-provider.md` — Spec-audit Path Provider (Judger) role (reference implementation)
-- `tasks/plan-fidelity-path-provider.md` — Plan-fidelity Path Provider (Judger) role (reference implementation)
+- `tasks/spec-audit-path-provider.md` — Spec-audit Path Provider role (reference implementation)
+- `tasks/plan-fidelity-path-provider.md` — Plan-fidelity Path Provider role (reference implementation)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - `000-critical-rules.md` §critical-rules-hard-fail — FAIL is a hard gate, never reclassifiable

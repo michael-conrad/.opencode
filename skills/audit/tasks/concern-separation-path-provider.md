@@ -1,6 +1,6 @@
 ---
 name: concern-separation-path-provider
-description: "Path Provider (Judger) role for the concern-separation DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Path Provider role for the concern-separation DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,11 +13,11 @@ compatibility: opencode
 
 ## Purpose
 
-Path Provider (Judger) role for the concern-separation DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. Synthesizes upstream outputs into a single authoritative judgment. Does NOT re-evaluate, re-validate, or second-guess upstream roles.
+Path Provider role for the concern-separation DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Generator), `reasoning.yaml` (Knowledge Supporter), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. Synthesizes upstream outputs into a single authoritative judgment. Does NOT re-evaluate, re-validate, or second-guess upstream roles.
 
-> **DiMo Role: Path Provider (Judger).** This task produces the final judgment for the concern-separation audit by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
+> **DiMo Role: Path Provider.** This task produces the final judgment for the concern-separation audit by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
 >
-> You are the Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> You are the Path Provider. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 >
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate

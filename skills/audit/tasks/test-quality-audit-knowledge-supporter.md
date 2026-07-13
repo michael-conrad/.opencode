@@ -577,7 +577,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/test-quality-audit-generator.md` — Generator role (produces evidence.yaml consumed by this task)
 - `tasks/test-quality-audit.md` — Evaluator role (consumes reasoning.yaml produced by this task)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (reads all artifacts, writes judgment.yaml)
+- `tasks/cross-validate.md` — Path Provider role (reads all artifacts, writes judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Generator → Knowledge Supporter → Evaluator → Path Provider)
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `080-code-standards.md` §Test Integrity Mandate — no lobotomizing tests

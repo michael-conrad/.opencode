@@ -324,7 +324,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/verification-audit-generator.md` — Generator role (produces evidence.yaml consumed by this task)
 - `tasks/verification-audit-knowledge-supporter.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (reads verdict.yaml produced by this task, writes judgment.yaml)
+- `tasks/cross-validate.md` — Path Provider role (reads verdict.yaml produced by this task, writes judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Generator → upstream reasoning role → Evaluator → Path Provider)
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)

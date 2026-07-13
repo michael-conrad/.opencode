@@ -518,7 +518,7 @@ remediation_required: true | false
 
 ## Clean-Room Protocol
 
-- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Generator → upstream reasoning role → Evaluator → Path Provider (Judger). Each role reads upstream artifacts and writes its own.
+- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Generator → upstream reasoning role → Evaluator → Path Provider. Each role reads upstream artifacts and writes its own.
 - **No orchestrator preload**: Sub-agents receive only `{ document_section, source_data_paths, artifact_evidence_dir }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 - **Evidence artifacts on disk**: Each role writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).
@@ -568,7 +568,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/content-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
 - `tasks/content-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this task's verdict.yaml)
+- `tasks/cross-validate.md` — Path Provider role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers

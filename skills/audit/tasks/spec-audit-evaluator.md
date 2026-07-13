@@ -735,7 +735,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/spec-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
 - `tasks/spec-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this task's verdict.yaml)
+- `tasks/cross-validate.md` — Path Provider role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations

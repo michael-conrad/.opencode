@@ -539,7 +539,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/guideline-audit.md` — Evaluator role (consumes this Generator's evidence.yaml)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (consumes all upstream artifacts)
+- `tasks/cross-validate.md` — Path Provider role (consumes all upstream artifacts)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - `065-verification-honesty.md` — live verification requirement

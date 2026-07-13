@@ -332,7 +332,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/drift-detection.md` — Evaluator role (consumes this Generator's evidence.yaml)
-- `tasks/cross-validate.md` — Path Provider (Judger) role (consumes all upstream artifacts)
+- `tasks/cross-validate.md` — Path Provider role (consumes all upstream artifacts)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — spec-code alignment
 - `130-authority-source.md` — code as authoritative source
