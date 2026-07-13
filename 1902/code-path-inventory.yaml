@@ -1,0 +1,166 @@
+# Code path inventory for spec #1902 — 8 changes to create.md
+# Generated: 2026-07-12
+
+spec: "#1902"
+primary_file: .opencode/skills/spec-creation/tasks/create.md
+external_files_affected: []
+
+changes:
+  - id: 1
+    title: Add YAML frontmatter to local spec.md
+    primary_sections:
+      - section: "Step 1: Stub Creation"
+        lines: "29-50"
+        code_paths:
+          - "Step 0 verification gate → stub creation → issue-operations task"
+          - "Frontmatter generation instruction added after recording issue number"
+      - section: "Step 7c: Save Full Spec Locally"
+        lines: "746-751"
+        code_paths:
+          - "Write complete spec body to .issues/{N}/spec.md"
+          - "Frontmatter must be prepended before prose content"
+    external_paths:
+      - .opencode/.issues/{N}/spec.md (all future specs get frontmatter)
+    cross_references:
+      - "Step 5 assembly (lines 51-85) — must understand frontmatter context"
+    template_paths:
+      - "Step 7a example format (lines 713-736) — no frontmatter in remote, only local"
+    notes: "Additive instruction; no code deletion"
+
+  - id: 2
+    title: Add Goals/Non-Goals sections
+    primary_sections:
+      - section: "Step 5: Assemble Spec — content areas"
+        lines: "67-80"
+        code_paths:
+          - "Content area list includes Objectives/Goals → must add mandatory Goals/Non-Goals"
+          - "Insert between Problem and Proposed Changes in spec template"
+      - section: "Step 7a: Exec-Summary Format Rules — example format"
+        lines: "713-736"
+        code_paths:
+          - "Example exec summary must show Goals/Non-Goals section"
+    external_paths:
+      - All future .opencode/.issues/{N}/spec.md files
+    cross_references: []
+    template_paths:
+      - "Step 7a example format (line 723 area) — add Goals/Non-Goals sections"
+    notes: "Non-Goals already exists as optional content at lines 133-138; making it mandatory and repositioning"
+
+  - id: 3
+    title: Remove AI Agent Instructions from remote body
+    primary_sections:
+      - section: "Step 7r — AI Agent Instructions subsection"
+        lines: "644-655"
+        code_paths:
+          - "Full ## AI Agent Instructions block deleted"
+          - "Constraints table (lines 657-668) moved to local-only section"
+      - section: "Step 7a: Exec-Summary Format Rules"
+        lines: "697-736"
+        code_paths:
+          - "Rules table and example format must not reference agent instructions in remote body"
+      - section: "(new — local-only section)"
+        lines: null
+        code_paths:
+          - "Add new local-only section containing URL construction rules (moved from Step 7r lines 619-626)"
+          - "Add character-match verification step"
+          - "Add repo-awareness guard"
+          - "Add substitution verification step"
+          - "Add constraints table"
+    external_paths:
+      - .opencode/guidelines/ (Pre-Response Gate enforcement)
+    cross_references:
+      - "Step 7 line 671 — issue creation no longer needs AI Agent Instructions context"
+    template_paths: []
+    notes: "Content relocation, not pure deletion — URL rules and constraints move to local-only"
+
+  - id: 4
+    title: Rename "Cards" to "Scope of Work"
+    primary_sections:
+      - section: "Step 7a — Example format heading"
+        line: 723
+        code_paths:
+          - "Change `### Cards (dependency order)` → `### Scope of Work (dependency order)`"
+    external_paths: []
+    cross_references:
+      - "Spec #1902 body uses 'Cards' in Scope of Work section header — must verify consistent rename in spec itself"
+    template_paths:
+      - "Line 723 example format template"
+    notes: "Search entire create.md for any other 'Cards' occurrences; spec body already uses 'Scope of Work'"
+
+  - id: 5
+    title: Step 7 renumbering (flat → nested 7.x)
+    primary_sections:
+      - section: "Step 7: Create Issue"
+        lines: "671-690"
+        new_identifier: "7.1: Local Spec Assembly"
+      - section: "Step 7a: Exec-Summary Format Rules"
+        lines: "697-736"
+        new_identifier: "7.2: Remote Issue Body"
+      - section: "Step 7b: Remote Push + Local Mirror"
+        lines: "738-744"
+        new_identifier: "7.3: Post-Creation Sync (merged with 7d)"
+      - section: "Step 7c: Save Full Spec Locally"
+        lines: "746-751"
+        new_identifier: "7.2 sub-step or standalone 7.3"
+      - section: "Step 7d: Sync Local Artifacts to issues-data"
+        lines: "753-758"
+        new_identifier: "7.3 or merge with 7b"
+      - section: "Step 8: User Review on Issue"
+        lines: "760-764"
+        new_identifier: "8 (was step 33)"
+      - section: "Step 9: Transition"
+        lines: "766"
+        new_identifier: "9 (was step 34)"
+      - section: "Context Required"
+        lines: "768-774"
+        code_paths:
+          - "Update any cross-references to old step numbers"
+    external_paths: []
+    cross_references:
+      - "Plan.md references Step 7/7a/7b/7c/7d by old identifiers"
+      - "Any task files referencing Step 7a format by old identifier"
+    template_paths: []
+    notes: "Highest blast radius — cascading renumbering of steps 8-9 (originally 33-34), Context Required section, and any downstream references"
+
+  - id: 6
+    title: Remove Step 7r (contradictory 6-part format)
+    primary_sections:
+      - section: "Entire Step 7r block"
+        lines: "611-669"
+        code_paths:
+          - "Delete lines 611-669 inclusive"
+          - "All step numbers after this point shift up by 59 lines"
+    external_paths: []
+    cross_references:
+      - "Must audit for any cross-references to 'Step 7r' outside line 611 (plan Step 2)"
+      - "No cross-references expected — Step 7r format was standalone"
+    template_paths: []
+    notes: "Destructive deletion; cross-reference audit (plan Step 2) must confirm zero dangling refs before deletion"
+
+  - id: 7
+    title: Fix Step 5 preamble wording
+    primary_sections:
+      - section: "Step 5: Assemble Spec — preamble description"
+        lines: "51-65"
+        code_paths:
+          - "Change preamble/blockquote description to state local-only scope"
+          - "Add note about remote body using Step 6.8 blockquote + Step 7 exec summary format"
+    external_paths:
+      - .opencode/.issues/{N}/spec.md (local files get preamble; remote files do not)
+    cross_references:
+      - "Step 6.8 (line 599-608) — remote body uses this blockquote format, not preamble"
+      - "Step 7 exec summary — remote body format reference"
+    template_paths:
+      - "Lines 57-65 (template compliance blockquote content)"
+    notes: "Wording-only change; clarifies boundary between local/remote content"
+
+  - id: 8
+    title: Write behavioral enforcement tests
+    primary_sections: []
+    lines: null
+    external_paths:
+      - .opencode/tests/behaviors/spec-creation-cards-format.sh (new file)
+      - .opencode/tests/behaviors/helpers.sh (assertion helpers)
+    cross_references: []
+    template_paths: []
+    notes: "No changes to create.md; standalone new test file; must confirm RED before implementation, GREEN after"

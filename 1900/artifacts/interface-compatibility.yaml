@@ -1,0 +1,33 @@
+# Interface Compatibility — Issue #1900
+# Generated: 2026-07-12
+# Provenance: AI-generated
+
+spec: "Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+
+## Interfaces
+
+| Interface | Consumer | Change | Compatible? |
+|-----------|----------|--------|-------------|
+| Pre-Response Gate (default.txt) | All agents (pre-output) | Restructured sections, same content | ✅ Yes — all behavioral content preserved |
+| AGENTS.md Step 1 | All agents (session start) | Wording change | ✅ Yes — clarifies existing behavior |
+| spec-audit.md Step 0a | Spec-audit sub-agent | WARNING → BLOCK/HALT | ✅ Yes — stricter but same interface |
+| spec-audit.md Remediation | Spec-audit sub-agent | New section | ✅ Yes — additive, no existing consumers |
+| 065-verification-honesty.md | VbC/audit sub-agents | Cross-reference target | ✅ Yes — no content change |
+
+## Backward Compatibility
+
+| Change | Backward Compatible? | Migration Needed? |
+|--------|---------------------|-------------------|
+| default.txt restructure | ✅ Yes — same content, different layout | No |
+| AGENTS.md wording | ✅ Yes — clarifies, doesn't change | No |
+| spec-audit.md WARNING→HALT | ⚠️ Breaking — specs without artifacts now blocked | Yes — specs must add artifacts |
+| spec-audit.md Remediation | ✅ Yes — additive | No |
+
+## Consumer Verification
+
+| Consumer | Verifies via |
+|----------|-------------|
+| Agent pre-output behavior | SC-6 (behavioral), SC-7 (behavioral) |
+| Agent intent matching | SC-5 (string) |
+| Spec-audit gate | SC-9 (string) |
+| Audit remediation | SC-10 (string + semantic) |

@@ -1,0 +1,29 @@
+# Cross-Cutting Matrix — Issue #1900
+# Generated: 2026-07-12
+# Provenance: AI-generated
+
+spec: "Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+
+## Cross-Cutting Concerns
+
+| Concern | Affected Files | SC Coverage | Risk |
+|---------|---------------|-------------|------|
+| Positional enforcement integrity | default.txt, AGENTS.md | SC-1, SC-4, SC-6, SC-7 | RISK-1 (over-trimming) |
+| Dual-source alignment | default.txt, AGENTS.md | SC-5 | RISK-2 (divergence) |
+| Behavioral test coverage | tests/behaviors/ | SC-8 | RISK-3 (skipped tests) |
+| Escape hatch prevention | All changed files | No escape hatch confirmed | RISK-4 |
+| Audit gate correctness | spec-audit.md | SC-9 | RISK-5 (gate downgrade) |
+| Remediation completeness | spec-audit.md | SC-10 | RISK-6 (no recovery path) |
+
+## Interaction Matrix
+
+| | Skill dispatch | Forbidden Rationalizations | Evidence Hierarchy | Cost Model | Sub-agent routing | Intent matching | Audit gate | Remediation |
+|---|---|---|---|---|---|---|---|---|
+| Skill dispatch | — | Same section | Cross-ref'd away | Cross-ref'd away | Separate section | Independent | Independent | Independent |
+| Forbidden Rationalizations | Same section | — | Cross-ref'd away | Cross-ref'd away | Separate section | Independent | Independent | Independent |
+| Evidence Hierarchy | Cross-ref'd away | Cross-ref'd away | — | Same cross-ref target | Independent | Independent | Independent | Independent |
+| Cost Model | Cross-ref'd away | Cross-ref'd away | Same cross-ref target | — | Independent | Independent | Independent | Independent |
+| Sub-agent routing | Separate section | Separate section | Independent | Independent | — | Independent | Independent | Independent |
+| Intent matching | Independent | Independent | Independent | Independent | Independent | — | Independent | Independent |
+| Audit gate | Independent | Independent | Independent | Independent | Independent | Independent | — | Same file |
+| Remediation | Independent | Independent | Independent | Independent | Independent | Independent | Same file | — |

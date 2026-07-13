@@ -1,0 +1,33 @@
+# Blast Radius Analysis — Issue #1900
+# Generated: 2026-07-12
+# Provenance: AI-generated
+
+spec: "Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+
+## Affected Files
+
+| File | Change Type | Impact |
+|------|-------------|--------|
+| `.opencode/prompts/default.txt` | Restructure | Pre-Response Gate section reorganized: points 1-3 + Forbidden Rationalizations + Cost Model stay inline; Evidence Hierarchy removed; point 4 separated into own § |
+| `.opencode/AGENTS.md` | Wording change | Step 1: "Evaluate the user message" → "Evaluate your current context and task intent" |
+| `.opencode/skills/audit/tasks/spec-audit.md` | Bug fix | Line 92: WARNING → BLOCK/HALT for missing analytical artifacts |
+| `.opencode/skills/audit/SKILL.md` | No change | Already correct — missing artifacts produce HALT |
+| `.opencode/guidelines/065-verification-honesty.md` | Cross-reference target | Evidence Hierarchy cross-referenced here (no content change) |
+
+## Affected Systems
+
+| System | Impact | Severity |
+|--------|--------|----------|
+| Pre-Response Gate (agent dispatch) | Restructured but all behavioral content preserved inline | Low — no behavioral regression |
+| Spec-audit gate | Missing analytical artifacts now produce HALT instead of WARNING | Medium — stricter enforcement |
+| Agent intent matching | Step 1 wording change shifts from utterance-matching to intent-matching | Low — clarifies existing behavior |
+
+## Unaffected Systems
+
+| System | Why Unaffected |
+|--------|----------------|
+| All other skills | No content changes outside audit skill |
+| All other guidelines | No content changes |
+| Test infrastructure | Behavioral tests added but existing tests unchanged |
+| Issue operations | No changes |
+| Git workflow | No changes |

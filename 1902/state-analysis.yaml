@@ -1,0 +1,260 @@
+# State Analysis — Spec #1902
+# Target: .opencode/skills/spec-creation/tasks/create.md
+
+spec: https://github.com/michael-conrad/.opencode/issues/1902
+analysis_date: 2026-07-12
+analyzer: OpenCode (deepseek-v4-flash-free)
+
+## Workflow States Defined in create.md
+
+workflow_states:
+  - state: pre-creation-validation
+    entry_criteria:
+      - Requirements extraction completed
+      - Prerequisite tasks completed
+    description: Step 7 — issue-operations pre-creation task validates spec before creation
+    transitions:
+      - on_fail: HALT with blocker report, fix and re-validate
+      - on_pass: single-task-check
+
+  - state: single-task-check
+    entry_criteria:
+      - Pre-creation validation PASS
+    description: Step 7 — determines sub-issue needs (single-task vs multi-phase)
+    transitions:
+      - toward: issue-creation
+
+  - state: issue-creation
+    entry_criteria:
+      - Single-task check complete
+    description: Step 7 — issue-operations creation task creates issue on remote platform
+    transitions:
+      - toward: local-spec-save
+      - toward: issue-post-creation-sync
+
+  - state: local-spec-save
+    entry_criteria:
+      - Issue created on remote
+    description: Step 7c — full spec body saved to .issues/{N}/spec.md
+    transitions:
+      - toward: issue-post-creation-sync
+
+  - state: issue-post-creation-sync
+    entry_criteria:
+      - Issue created
+      - Local spec.md saved
+    description: Step 7d — local-issues sync commits and pushes .issues/{N}/ to issues-data branch
+    transitions:
+      - toward: user-review
+
+  - state: user-review
+    entry_criteria:
+      - Issue created and synced
+    description: Step 8 — user reviews spec on GitHub issue
+    transitions:
+      - on_revision: body-edit
+      - on_approval: audit
+
+  - state: body-edit
+    entry_criteria:
+      - User requests revisions via issue comments
+    description: Step 8 — issue-operations body-edit updates issue body
+    transitions:
+      - toward: user-review
+
+  - state: audit
+    entry_criteria:
+      - User approved spec on issue
+    description: Step 9 — spec-audit invoked for quality audit
+    transitions:
+      - toward: terminal
+
+  - state: verification-gate
+    entry_criteria:
+      - Step 0 invoked
+    description: Pre-assembly verification — verification-enforcement collects evidence artifacts
+    transitions:
+      - toward: stub-creation
+
+  - state: stub-creation
+    entry_criteria:
+      - Verification gate complete
+    description: Step 1 — minimal exec summary issue to establish issue number
+    transitions:
+      - toward: spec-assembly
+
+  - state: spec-assembly
+    entry_criteria:
+      - Issue number established
+    description: Steps 1–6 — assemble, self-review, and finalize spec content
+    transitions:
+      - toward: pre-creation-validation
+
+  - state: remote-body-format
+    entry_criteria:
+      - Spec content assembled
+    description: Step 7r (current) — 6-part flat format for remote body. Deprecated.
+    transitions:
+      - toward: issue-creation
+
+  - state: terminal
+    entry_criteria:
+      - Audit completed
+      - Spec creation complete
+    description: End state — spec is created, synced, and ready for approval
+    transitions: []
+
+## Current State Flow (pre-change)
+
+current_flow:
+  - verification-gate
+  - stub-creation
+  - spec-assembly (includes Steps 1–6 with multiple sub-states)
+  - pre-creation-validation
+  - single-task-check
+  - remote-body-format (Step 7r — 6-part flat format, BEFORE creation)
+  - issue-creation (Step 7)
+  - issue-post-creation-sync (Step 7d)
+  - local-spec-save (Step 7c — runs AFTER sync in current code)
+  - user-review (Step 8)
+  - body-edit (loop back to user-review)
+  - audit (Step 9)
+  - terminal
+
+current_flow_issues:
+  - issue: "Step numbering collision: Step 1 appears twice (lines 31 and 51)"
+    severity: low
+    impact: Ambiguous ordering for sub-agents executing create.md. Does not affect runtime but confuses step tracking.
+  - issue: "Step 7r (remote body format) appears BEFORE Step 7 (creation)"
+    severity: medium
+    impact: Logical ordering — you define the remote body format BEFORE creating the issue, not after. Current order is confusing.
+  - issue: "Step 7c (local spec save) appears AFTER Step 7d (sync)"
+    severity: medium
+    impact: You should save the spec locally (7c) before syncing (7d). Current ordering does sync first, meaning spec.md may not be included in the initial sync.
+
+## Proposed State Flow (post-change)
+
+proposed_flow:
+  - verification-gate (Step 0 — unchanged)
+  - stub-creation (Step 1 — unchanged)
+  - spec-assembly (Steps 1–6 — unchanged, deduplicate Step 1 numbering)
+
+  - group: "Step 7 — Issue Creation and Post-Creation (renumbered)"
+    substeps:
+      - "Step 7.1: Local Spec Assembly" (merged from Step 7c, moved earlier)
+      - "Step 7.2: Remote Issue Body" (merged from Step 7a exec-summary format + former Step 7r content)
+      - "Step 7.3: Pre-PR Gate" (new — gate-level enforcement for AI Agent Instructions)
+      - "Step 7.4: Post-Creation Sync" (from Step 7d, now after local spec save)
+
+  - pre-creation-validation (moved to before issue-creation)
+  - single-task-check
+  - issue-creation (Step 7 main — creates issue on remote)
+  - post-creation-sync (Step 7.4)
+  - user-review (Step 8 — unchanged)
+  - body-edit (loop back to user-review — unchanged)
+  - audit (Step 9 — unchanged)
+  - terminal
+
+## State Transition Changes Per Change
+
+change_impact_on_state:
+  - change: "C-1 — YAML frontmatter"
+    affected_states: [local-spec-save, spec-assembly]
+    transition_change: |
+      Step 7c (local spec save) must add frontmatter generation step before writing spec.md.
+      Spec-assembly instructions for Step 1 must include frontmatter guidance.
+    risk_of_deadlock: none
+    risk_of_missing_state: none
+    risk_of_invalid_transition: none
+
+  - change: "C-2 — Goals/Non-Goals"
+    affected_states: [spec-assembly]
+    transition_change: |
+      Spec-assembly must add Goals/Non-Goals sections between Problem and Proposed Changes.
+      No transition logic change — pure content addition.
+    risk_of_deadlock: none
+    risk_of_missing_state: none
+    risk_of_invalid_transition: none
+
+  - change: "C-3 — Remove AI Agent Instructions"
+    affected_states: [remote-body-format, user-review]
+    transition_change: |
+      AI Agent Instructions removed from remote body. Pre-PR Gate state (Step 7.3) added
+      to enforce the constraint at pipeline level. The remote-body-format state is
+      reorganized — its surviving content (Problem/Scope/Approach/Impact) merges into
+      Step 7.2 (remote body format).
+    risk_of_deadlock: |
+      LOW — If Pre-PR Gate (Step 7.3) is not properly defined, agents may skip
+      enforcement. Must verify gate is enforceable before shipping.
+    risk_of_missing_state: |
+      LOW — Pre-PR Gate is a new state that must be added. If omitted, AI Agent
+      Instructions enforcement has no backstop.
+    risk_of_invalid_transition: none
+
+  - change: "C-4 — Rename Cards to Scope of Work"
+    affected_states: [spec-assembly]
+    transition_change: |
+      Section heading rename in Step 7a example format. No state transition change.
+    risk_of_deadlock: none
+    risk_of_missing_state: none
+    risk_of_invalid_transition: none
+
+  - change: "C-5 — Step 7 renumbering"
+    affected_states:
+      - remote-body-format
+      - local-spec-save
+      - issue-post-creation-sync
+      - issue-creation
+      - pre-creation-validation
+      - single-task-check
+    transition_change: |
+      Major structural change. Current flat 7r/7/7a/7b/7c/7d becomes nested 7.1/7.2/7.3/7.4.
+      Step 7r deleted entirely — its surviving content merges into Step 7.2.
+      Steps 8+ renumbered if needed.
+      Current issue: Step 7c (local save) comes AFTER Step 7d (sync) — proposed
+      flow fixes this ordering.
+    risk_of_deadlock: |
+      MEDIUM — If Steps 8+ are not properly renumbered, cross-references will
+      point to wrong step numbers. Plan Step 2 (audit all cross-references) is
+      correctly positioned as prerequisite.
+    risk_of_missing_state: |
+      MEDIUM — The current file has Step 7r (remote body format) BEFORE Step 7
+      (issue creation). Moving the remote body format definition to Step 7.2 (after
+      creation logic at 7.1) is a logical improvement, but verify the agent can
+      still access format guidance when creating the issue body.
+    risk_of_invalid_transition: |
+      MEDIUM — Steps 8 (user-review) and 9 (audit) must be renumbered if Step 7
+      deletion and restructuring changes their position. Verify final numbering.
+
+  - change: "C-6 — Remove Step 7r"
+    affected_states: [remote-body-format]
+    transition_change: |
+      State remote-body-format (as defined by Step 7r's 6-part flat format) is
+      deleted. The cards-based format from Step 7a becomes the sole authoritative
+      format for remote body. The "remote body format" state survives but its
+      content is sourced from Step 7a/7.2, not Step 7r.
+    risk_of_deadlock: |
+      LOW — The cards-based format (Step 7a) was already functional. Removing
+      Step 7r eliminates format ambiguity. All consumers referencing Step 7r
+      must be updated (RISK-1).
+    risk_of_missing_state: |
+      LOW — The "define remote body format" action is not lost — it moves to
+      Step 7.2. Only the 6-part flat format variant is removed.
+    risk_of_invalid_transition: none
+
+  - change: "C-7 — Fix Step 5 preamble wording"
+    affected_states: [spec-assembly]
+    transition_change: |
+      Clarification of existing behavior. No state transition change.
+    risk_of_deadlock: none
+    risk_of_missing_state: none
+    risk_of_invalid_transition: none
+
+  - change: "C-8 — Behavioral enforcement tests"
+    affected_states: []
+    transition_change: |
+      No state transitions affected — tests are verification layer, not part of
+      the workflow state machine.
+    risk_of_deadlock: none
+    risk_of_missing_state: none
+    risk_of_invalid_transition: none

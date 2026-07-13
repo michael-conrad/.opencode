@@ -1,0 +1,64 @@
+# State Analysis — Issue #1900
+# Generated: 2026-07-12
+# Provenance: AI-generated
+
+spec: "Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+
+## State Transitions
+
+### Pre-Response Gate State
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Monolithic 4-point section under single header | As-is | Spec approved + Phase 1 implemented |
+| RESTRUCTURED | Points 1-3 + Forbidden Rationalizations + Cost Model inline; Evidence Hierarchy removed; point 4 in own § | Phase 1 complete | Phase 2 begins |
+
+### AGENTS.md Step 1 State
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | "Evaluate the user message" | As-is | Spec approved + Phase 2 implemented |
+| CLARIFIED | "Evaluate your current context and task intent" | Phase 2 complete | Spec complete |
+
+### Spec-audit Gate State
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Missing analytical artifacts → WARNING | As-is | SC-9 implemented |
+| FIXED | Missing analytical artifacts → BLOCK/HALT | SC-9 implemented | Stable |
+
+### Audit Remediation State
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Empty Remediation section | As-is | SC-10 implemented |
+| POPULATED | Diagnose → remediate → re-audit → escalate | SC-10 implemented | Stable |
+
+## Dependency Order
+
+```
+Phase 1 (default.txt restructure)
+  └── SC-1, SC-2, SC-3, SC-4
+  └── SC-6, SC-7 (behavioral verification)
+Phase 2 (AGENTS.md wording)
+  └── SC-5
+Phase 3 (skill descriptions — separate follow-up)
+Audit fixes (in-scope)
+  └── SC-9 (spec-audit.md WARNING→HALT)
+  └── SC-10 (remediation procedure)
+```
+
+## Invariant Checks
+
+| Invariant | Check | Verifying SC |
+|-----------|-------|-------------|
+| All behavioral content preserved inline | grep default.txt for dispatch points + rationalization patterns | SC-1 |
+| Evidence Hierarchy absent from default.txt | grep default.txt for "Evidence Hierarchy" | SC-2 |
+| Cost Model present in default.txt | grep default.txt for "Cost Model" | SC-3 |
+| Sub-agent routing outside Pre-Response Gate | grep default.txt for section structure | SC-4 |
+| AGENTS.md Step 1 uses intent-matching wording | grep AGENTS.md for "context and task intent" | SC-5 |
+| Agent still dispatches skills | opencode-cli run behavioral test | SC-6 |
+| Agent still applies rationalizations inline | opencode-cli run behavioral test | SC-7 |
+| Behavioral tests exist in RED state | opencode-cli run with --scenario | SC-8 |
+| spec-audit.md emits BLOCK/HALT not WARNING | grep spec-audit.md for forbidden text | SC-9 |
+| Remediation section present and correct | grep + sub-agent read | SC-10 |

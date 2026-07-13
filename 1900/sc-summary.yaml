@@ -10,7 +10,7 @@ scs:
     verification_gate: pre-commit
     plan_phase: 1
   - id: "SC-3"
-    description: "Cost Model section REMOVED from default.txt (present only in 065)"
+    description: "Cost Model stays inline in default.txt (coupled with Forbidden Rationalizations)"
     evidence_type: string
     verification_gate: pre-commit
     plan_phase: 1
@@ -37,5 +37,20 @@ scs:
   - id: "SC-8"
     description: "Behavioral enforcement tests exist in `.opencode/tests/behaviors/` for the new Pre-Response Gate structure; tests fail in RED state before change applied"
     evidence_type: behavioral
+    verification_gate: pre-commit
+    plan_phase: 1
+  - id: "SC-9"
+    description: "`skills/audit/tasks/spec-audit.md` Step 0a line 90-92 emits BLOCK/HALT (not WARNING) for missing analytical artifacts, matching SKILL.md"
+    evidence_type: string
+    verification_gate: pre-commit
+    plan_phase: 1
+  - id: "SC-10"
+    description: "Spec includes mandatory remediation procedure for audit FAIL: (1) generate missing artifacts, (2) re-run audit, (3) if still FAIL escalate to developer"
+    evidence_type: string_semantic
+    verification_gate: pre-commit
+    plan_phase: 1
+  - id: "SC-11"
+    description: "Restructured Pre-Response Gate contains no escape hatch language (\"use best judgment\", \"as needed\", \"TBD\", \"TODO\", \"left to implementor\")"
+    evidence_type: string
     verification_gate: pre-commit
     plan_phase: 1

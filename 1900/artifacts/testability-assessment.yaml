@@ -1,0 +1,45 @@
+# Testability Assessment — Issue #1900
+# Generated: 2026-07-12
+# Provenance: AI-generated
+
+spec: "Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+
+## SC Testability
+
+| SC | Evidence Type | Testable? | Test Method | Difficulty |
+|----|---------------|-----------|-------------|------------|
+| SC-1 | `string` | ✅ Yes | grep for rationalization patterns + dispatch points in default.txt | Trivial |
+| SC-2 | `string` | ✅ Yes | grep for "Evidence Hierarchy" absent from default.txt | Trivial |
+| SC-3 | `string` | ✅ Yes | grep for "Cost Model" present in default.txt | Trivial |
+| SC-4 | `string` | ✅ Yes | grep for sub-agent section outside Pre-Response Gate block | Trivial |
+| SC-5 | `string` | ✅ Yes | grep AGENTS.md for "context and task intent" | Trivial |
+| SC-6 | `behavioral` | ✅ Yes | opencode-cli run with task-triggering prompt → verify skill() in stderr | Medium — requires model |
+| SC-7 | `behavioral` | ✅ Yes | opencode-cli run with rationalization-triggering prompt → verify no rationalization | Medium — requires model |
+| SC-8 | `behavioral` | ✅ Yes | opencode-cli run with --scenario → RED fails, GREEN passes | Medium — requires model + test file |
+| SC-9 | `string` | ✅ Yes | grep for absence of "emit a WARNING" in spec-audit.md Step 0a | Trivial |
+| SC-10 | `string + semantic` | ✅ Yes | grep for remediation section + sub-agent read for correctness | Low — grep + clean-room read |
+
+## Test Infrastructure Requirements
+
+| Requirement | For SCs | Available? |
+|-------------|---------|------------|
+| grep | SC-1 through SC-5, SC-9 | ✅ Yes |
+| opencode-cli run | SC-6, SC-7, SC-8 | ✅ Yes (with-test-home wrapper) |
+| Clean-room sub-agent | SC-10 | ✅ Yes (task() dispatch) |
+
+## Test Gating
+
+| Gate | SCs Verified | When |
+|------|-------------|------|
+| Pre-implementation (RED) | SC-8 (behavioral tests exist and fail) | Before any file change |
+| Post-implementation (GREEN) | SC-1 through SC-5, SC-9 (string grep) | After file changes |
+| Post-implementation (behavioral) | SC-6, SC-7 (behavioral) | After file changes |
+| Post-implementation (semantic) | SC-10 (remediation correctness) | After file changes |
+
+## Risk to Testability
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Model unavailable for behavioral tests | SC-6, SC-7, SC-8 cannot run | Per 065-verification-honesty.md: FAIL is the only valid outcome; attempt remediation (alternative model, timeout increase) |
+| Stale test assertions | SC-8 tests pass when they should fail | RED phase must confirm tests fail before change |
+| Semantic inspector misjudgment | SC-10 false PASS/FAIL | Clean-room sub-agent with no context preloading |

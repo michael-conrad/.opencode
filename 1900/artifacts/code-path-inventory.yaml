@@ -1,0 +1,45 @@
+# Code Path Inventory — Issue #1900
+# Generated: 2026-07-12
+# Provenance: AI-generated
+
+spec: "Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+
+## Code Paths Affected
+
+### Path 1: Pre-Response Gate (agent pre-output decision)
+- **Files**: `.opencode/prompts/default.txt` lines 5-16 (gate block)
+- **Trigger**: Every agent output — fires before any response
+- **Change**: Restructure from monolithic 4-point section into separated sections
+- **Behavioral impact**: None — all behavioral content preserved inline
+- **Verification**: SC-1, SC-2, SC-3, SC-4 (string grep), SC-6, SC-7 (behavioral)
+
+### Path 2: AGENTS.md skill dispatch instructions
+- **Files**: `.opencode/AGENTS.md` lines 30-40 (Universal Skill Dispatch Gate)
+- **Trigger**: Agent reads AGENTS.md at session start
+- **Change**: Step 1 wording from utterance-matching to intent-matching
+- **Behavioral impact**: Agent matches task intent instead of user utterance
+- **Verification**: SC-5 (string grep)
+
+### Path 3: Spec-audit gate
+- **Files**: `.opencode/skills/audit/tasks/spec-audit.md` lines 90-92
+- **Trigger**: Spec-audit pre-flight validation
+- **Change**: Missing analytical artifacts produce BLOCK/HALT instead of WARNING
+- **Behavioral impact**: Stricter enforcement — specs without artifacts are blocked
+- **Verification**: SC-9 (string grep)
+
+### Path 4: Audit remediation
+- **Files**: `.opencode/skills/audit/tasks/spec-audit.md` Remediation section
+- **Trigger**: Spec-audit produces FAIL
+- **Change**: Populated with mandatory remediation procedure
+- **Behavioral impact**: Audit FAIL has defined recovery path
+- **Verification**: SC-10 (string + semantic)
+
+## Unaffected Paths
+
+| Path | Why Unaffected |
+|------|----------------|
+| All other skill dispatch | No changes to skill loading mechanism |
+| Issue operations | No changes |
+| Git workflow | No changes |
+| Test execution | No changes to test infrastructure |
+| Behavioral test harness | No changes |

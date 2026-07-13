@@ -1,0 +1,114 @@
+# Concern boundary map for spec #1902 — 8 changes to create.md
+# Generated: 2026-07-12
+
+spec: "#1902"
+target: .opencode/skills/spec-creation/tasks/create.md
+change_count: 8
+
+concerns:
+  - name: structural
+    description: "Changes to file structure, section numbering, or section existence"
+    changes:
+      - 5  # Step 7 renumbering (flat → nested 7.x)
+      - 6  # Remove Step 7r (delete lines 611-669)
+    rationale: "Both affect the numbered structure of create.md — renumbering cascades through all subsequent steps; deletion removes an entire section"
+
+  - name: content
+    description: "Changes to what the generated spec contains"
+    changes:
+      - 1  # Add YAML frontmatter to local spec.md
+      - 2  # Add Goals/Non-Goals sections
+      - 3  # Remove AI Agent Instructions from remote body
+      - 4  # Rename "Cards" → "Scope of Work"
+      - 7  # Fix Step 5 preamble wording
+    rationale: >-
+      All five affect the content and format of generated specs:
+      frontmatter format (1), section requirements (2), what goes in remote body (3),
+      terminology used (4), and preamble scope declaration (7)
+
+  - name: enforcement
+    description: "Changes to how behavioral compliance is verified"
+    changes:
+      - 8  # Write behavioral enforcement tests
+    rationale: "Standalone test file; verifies the format changes actually produce correct agent behavior"
+
+dependency_order:
+  - step: 1
+    description: "Add YAML frontmatter references"
+    depends_on: null
+    rationale: "Foundation change — frontmatter is a structural prerequisite for spec.md assembly"
+
+  - step: 2
+    description: "Add Goals/Non-Goals sections"
+    depends_on: null
+    rationale: "Independent of frontmatter; can be authored in parallel with change 1"
+
+  - step: 3
+    description: "Remove AI Agent Instructions from remote body"
+    depends_on: null
+    rationale: "Independent of frontmatter and Goals/Non-Goals; content change in different section"
+
+  - step: 4
+    description: "Rename Cards → Scope of Work"
+    depends_on: null
+    rationale: "Simple rename; independent of all other content changes"
+
+  - step: 5
+    description: "Step 7 renumbering"
+    depends_on:
+      - 4  # Rename first so renumbering applies to correct section names
+    rationale: "Renumbering should happen after rename to avoid renumbering then renaming an already-moved section"
+
+  - step: 6
+    description: "Remove Step 7r"
+    depends_on:
+      - 5  # Renumber first so the deleted section is in its correct position
+    rationale: "Must happen after renumbering to maintain coherent new numbering; also requires cross-reference audit (plan Step 2) before deletion"
+
+  - step: 7
+    description: "Fix Step 5 preamble wording"
+    depends_on: null
+    rationale: "Independent; wording-only change in Step 5 area (lines 51-65), not affected by Step 7 changes"
+
+  - step: 8
+    description: "Write behavioral enforcement tests"
+    depends_on:
+      - 6  # Must know the final create.md state to test correct behavior
+      - 7  # Preamble wording affects generated output
+    rationale: "Must run after all create.md edits are complete; tests verify the final file state"
+
+parallelizable_groups:
+  - group: A
+    description: "Content changes (can be authored simultaneously)"
+    changes:
+      - 1  # YAML frontmatter
+      - 2  # Goals/Non-Goals
+      - 3  # Remove AI Agent Instructions
+      - 4  # Rename Cards → Scope of Work
+      - 7  # Fix Step 5 preamble
+
+  - group: B
+    description: "Structural changes (sequential, depend on group A)"
+    changes:
+      - 5  # Step 7 renumbering
+      - 6  # Remove Step 7r
+
+  - group: C
+    description: "Testing (depends on all changes)"
+    changes:
+      - 8  # Behavioral enforcement tests
+
+scope_creep_verification:
+  all_changes_belong: true
+  rationale: >-
+    All 8 changes directly serve the single spec goal: align local/remote spec formats
+    with de facto industry standards verified against 6 frameworks.
+    Change 1 (frontmatter) → machine-parsable metadata standard.
+    Change 2 (Goals/Non-Goals) → KEP/ADR mandatory section pattern.
+    Change 3 (remove AI Agent Instructions) → clean remote/human separation pattern.
+    Change 4 (Cards→Scope of Work) → Stakeholder terminology standard.
+    Change 5 (renumbering) → Standard hierarchical numbering.
+    Change 6 (remove Step 7r) → Eliminate contradictory format.
+    Change 7 (preamble wording) → Local/remote boundary clarity.
+    Change 8 (behavioral tests) → RED/GREEN enforcement gate.
+    No change extends beyond the spec-creation format alignment scope.

@@ -1,0 +1,332 @@
+# Testability Assessment — Spec #1902
+# Target: .opencode/skills/spec-creation/tasks/create.md
+
+spec: https://github.com/michael-conrad/.opencode/issues/1902
+analysis_date: 2026-07-12
+analyzer: OpenCode (deepseek-v4-flash-free)
+
+## Existing Test Infrastructure
+
+existing_tests:
+  content_verification:
+    - suite: test-enforcement.sh
+      location: .opencode/tests/test-enforcement.sh
+      type: content-verification (grep-based)
+      coverage: Guidelines and skill file text content
+      scope: "--changed, --tag, --scenario, --list"
+      relevance: Can verify text-level changes after implementation (GREEN state)
+
+  behavioral:
+    - suite: behaviors/
+      location: .opencode/tests/behaviors/
+      type: behavioral (opencode-cli run with stderr assertions)
+      helper_file: .opencode/tests/behaviors/helpers.sh
+      helpers:
+        - assert_semantic
+        - assert_stderr_pattern_present
+        - assert_stderr_pattern_absent
+        - assert_forbidden_pattern_absent
+        - assert_required_pattern_present
+        - assert_skill_called
+        - assert_tool_calls_made
+      relevance: Primary enforcement gate for behavioral SCs
+      related_scenarios:
+        - spec-creation-related: "Check .opencode/tests/behaviors/ for existing spec-format tests"
+
+  test_harness:
+    - name: with-test-home
+      path: .opencode/tests/with-test-home
+      purpose: Isolates opencode-cli XDG state to prevent SQLite session conflicts
+      usage: "bash .opencode/tests/with-test-home opencode-cli run '<prompt>'"
+
+## Per-Change Testability Assessment
+
+changes:
+  - id: C-1
+    description: "Add YAML frontmatter to local spec.md"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that spec-creation task generates a spec.md with `---` frontmatter
+        containing title, status, created, license, provenance, issue, authors fields
+      - Assert that the remote issue body does NOT contain YAML frontmatter
+    can_test_string_level: true
+    string_test_command: |
+      grep -E '^---$' .issues/{N}/spec.md && grep 'title:' .issues/{N}/spec.md
+    requires_behavioral: false
+    behavioral_rationale: |
+      YAML frontmatter presence is a content-format check, not a runtime behavior
+      change. The agent either adds frontmatter or it doesn't — string evidence suffices.
+    existing_coverage: |
+      content-verification: test-enforcement.sh can verify spec.md contains frontmatter
+      after implementation.
+    new_tests_needed: []
+    difficulty: LOW
+    difficulty_mitigation: null
+
+  - id: C-2
+    description: "Add Goals/Non-Goals sections"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that generated spec.md contains `## Goals` and `## Non-Goals` sections
+      - Assert that both sections appear between `## Problem` and `## Proposed Changes`
+      - Assert that the remote exec summary also includes abbreviated Goals/Non-Goals
+    can_test_string_level: true
+    string_test_command: |
+      grep -q '^## Goals' .issues/{N}/spec.md && grep -q '^## Non-Goals' .issues/{N}/spec.md
+    requires_behavioral: false
+    behavioral_rationale: |
+      Section header presence is purely structural. String matching on generated
+      output is deterministic.
+    existing_coverage: null
+    new_tests_needed: []
+    difficulty: LOW
+    difficulty_mitigation: null
+
+  - id: C-3
+    description: "Remove AI Agent Instructions from remote body"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that create.md no longer contains AI Agent Instructions in the
+        remote body format section
+      - Assert that AI Agent Instructions content (URL construction rules,
+        constraints table, repo-awareness guard) are present in a local-only section
+      - Assert that Step 7.3 (Pre-PR Gate) references the gate-level enforcement
+    can_test_string_level: true
+    string_test_command: |
+      [ $(grep -c 'AI Agent Instructions' .opencode/skills/spec-creation/tasks/create.md) -eq 0 ] || echo "C-3 FAIL: AI Agent Instructions still present in create.md"
+    requires_behavioral: false
+    behavioral_rationale: |
+      Content presence/absence in a task file is a structural check. The behavioral
+      question — "does the agent actually include AI Agent Instructions when creating
+      an issue?" — requires behavioral testing at the agent level, but this change
+      only removes the template from the task file, not the agent's behavior.
+    existing_coverage: null
+    new_tests_needed:
+      - type: behavioral
+        description: |
+          Behavioral test that verifies agent does NOT include AI Agent Instructions
+          section when posting a spec issue body.
+        prompt_type: real-domain ("Create a spec for feature X")
+        assertion: assert_semantic or assert_stderr_pattern_absent
+        dependencies: Requires opencode-cli run with proper model
+        risk: LOW — template removal is structural, behavioral test is regression guard
+    difficulty: LOW
+    difficulty_mitigation: null
+
+  - id: C-4
+    description: "Rename 'Cards' to 'Scope of Work'"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that create.md uses "Scope of Work" in all section headings
+      - Assert that "Cards" no longer appears as a section heading in create.md
+        (exclude false positives like "Card catalogue" or "research cards")
+    can_test_string_level: true
+    string_test_command: |
+      grep -q '### Scope of Work' .opencode/skills/spec-creation/tasks/create.md
+    requires_behavioral: false
+    behavioral_rationale: |
+      Section heading rename in a task file is purely structural.
+    existing_coverage: null
+    new_tests_needed:
+      - type: behavioral
+        description: |
+          Behavioral test that verifies agent uses "Scope of Work" heading
+          (not "Cards") when creating a spec issue. This is a separate concern
+          from the task file content — if the agent's training data has "Cards"
+          baked in, the task file change may not be sufficient.
+        prompt_type: real-domain ("Create a spec for implementing caching")
+        assertion: assert_stderr_pattern_present or assert_semantic
+        dependencies: Requires opencode-cli run
+        risk: LOW — most format decisions come from task file templates
+    difficulty: LOW
+    difficulty_mitigation: null
+
+  - id: C-5
+    description: "Step 7 renumbering (flat 7r/7a/7b/7c/7d to nested 7.1/7.2/7.3/7.4)"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that Step 7r, Step 7a, Step 7b, Step 7c, Step 7d no longer appear
+        as headings in create.md
+      - Assert that Step 7.1, Step 7.2, Step 7.3, Step 7.4 appear as headings
+      - Assert that Step 8 and Step 9 (and any subsequent steps) are renumbered
+        correctly — verify their line ordering is preserved
+      - Verify no dangling cross-references to old step numbers
+    can_test_string_level: true
+    string_test_command: |
+      ! grep -q '^Step 7r' .opencode/skills/spec-creation/tasks/create.md && \
+      grep -q '^Step 7\.1' .opencode/skills/spec-creation/tasks/create.md && \
+      grep -q '^Step 7\.2' .opencode/skills/spec-creation/tasks/create.md && \
+      grep -q '^Step 7\.3' .opencode/skills/spec-creation/tasks/create.md && \
+      grep -q '^Step 7\.4' .opencode/skills/spec-creation/tasks/create.md
+    requires_behavioral: false
+    behavioral_rationale: |
+      Step numbering in a task file is a structural classification concern.
+      The numbering convention does not affect runtime behavior of the agent.
+    existing_coverage: null
+    new_tests_needed: []
+    difficulty: MEDIUM
+    difficulty_mitigation: |
+      RISK-2 (spec body) correctly identifies that Step 7 deletion shifts all
+      subsequent steps. Mitigation: plan Step 2 (audit cross-references before
+      deletion) is mandatory. Use a comprehensive grep across create.md for all
+      old step number references before any edit. Verify Step 8 and Step 9 are
+      renumbered if their position changes.
+
+  - id: C-6
+    description: "Remove Step 7r (lines 611–669)"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that Step 7r section is removed from create.md
+      - Assert zero matches for "Step 7r" in entire create.md
+      - Verify no broken cross-references in other skill files or guidelines
+    can_test_string_level: true
+    string_test_command: |
+      [ $(grep -c 'Step 7r' .opencode/skills/spec-creation/tasks/create.md) -eq 0 ]
+    requires_behavioral: false
+    behavioral_rationale: |
+      Section deletion is structural. The behavioral concern — whether agents
+      still produce the 6-part flat format after deletion — is covered by C-8
+      behavioral tests.
+    existing_coverage: null
+    new_tests_needed: []
+    difficulty: LOW
+    difficulty_mitigation: |
+      Plan Step 2 (cross-reference audit) is critical. Also check .opencode/skills/
+      and .opencode/guidelines/ for any external references to Step 7r or the
+      6-part format. If found, update those references.
+
+  - id: C-7
+    description: "Fix Step 5 preamble wording — local-only clarification"
+    evidence_type: string
+    testing_approach: |
+      Content-verification (grep-based):
+      - Assert that Step 5 wording explicitly states preamble is for local spec.md only
+      - Assert that Step 5 references the blockquote format from Step 6.8
+      - Assert that Step 5 explicitly forbids preamble in remote body
+    can_test_string_level: true
+    string_test_command: |
+      grep -q 'local.*\.issues.*spec\.md' .opencode/skills/spec-creation/tasks/create.md
+    requires_behavioral: false
+    behavioral_rationale: |
+      Wording clarification in task file is purely structural.
+    existing_coverage: null
+    new_tests_needed: []
+    difficulty: LOW
+    difficulty_mitigation: null
+
+  - id: C-8
+    description: "Behavioral enforcement tests"
+    evidence_type: behavioral
+    testing_approach: |
+      Behavioral testing via opencode-cli run:
+      1. RED phase: Send "create a spec" prompt BEFORE implementation changes.
+         Assert that agent produces the flat 6-part format (Problem/Scope/Approach/Impact),
+         includes "Cards" heading, includes AI Agent Instructions in body.
+         Test MUST FAIL at this point.
+      2. GREEN phase: After implementation changes, send same prompt.
+         Assert that agent produces the cards-based format (Exec Summary /
+         Scope of Work / Key Decisions / Risk Callouts), does NOT include
+         AI Agent Instructions in remote body. Test MUST PASS.
+    can_test_string_level: false
+    requires_behavioral: true
+    behavioral_command_template: |
+      bash .opencode/tests/with-test-home opencode-cli run 'Create a spec for implementing a caching layer' --model <model>
+      Assertion: assert_stderr_pattern_present 'Scope of Work' (for GREEN)
+      Assertion: assert_stderr_pattern_absent 'Cards' in heading context (for GREEN)
+      Assertion: assert_stderr_pattern_absent 'AI Agent Instructions' in remote body context (for GREEN)
+    existing_coverage: null
+    new_tests_needed:
+      - file: .opencode/tests/behaviors/spec-creation-cards-format.sh
+        description: |
+          Behavioral test verifying agent produces cards-based format after
+          create.md changes. Covers C-3, C-4, C-5, C-6 combined — verifies
+          the end-to-end agent behavior change.
+        sc_coverage:
+          - SC-7 (from spec — behavioral test exists, RED before GREEN)
+        prompt: 'Create a spec for implementing a custom MCP server'
+        red_assertion: |
+          Agent produces 6-part flat format (Problem/Scope/Approach/Impact)
+          OR includes "Cards" heading OR includes AI Agent Instructions
+        green_assertion: |
+          Agent produces cards-based format (Exec Summary / Scope of Work /
+          Key Decisions / Risk Callouts) WITHOUT AI Agent Instructions in body
+        assertion_tool: assert_semantic (primary) + assert_stderr_pattern_present (secondary corroboration)
+        risk: |
+          MEDIUM — Behavioral tests depend on model availability and inference speed.
+          If the model is slow, timeout may cause false failures. Increase
+          BEHAVIOR_TIMEOUT if needed.
+    difficulty: MEDIUM
+    difficulty_mitigation: |
+      Behavioral testing requires opencode-cli run with a working model.
+      Mitigation: scope behavioral tests to a single focused scenario
+      (spec-creation-cards-format.sh). Use scope-limited execution
+      (--changed or --tag filter) rather than full suite.
+      Plan Step 8 correctly places test creation last (after all edits).
+
+## Testability Summary
+
+summary:
+  total_changes: 8
+  string_level_only: 6
+  behavioral_required: 1 (C-8 — but covers C-3, C-4 combined)
+  mixed_string_behavioral: 1 (C-3 — string for task file, behavioral for agent output)
+  untestable: 0
+
+  behavioral_sc_count: 1
+  behavioral_sc_ids: [SC-7]
+  behavioral_test_files:
+    - .opencode/tests/behaviors/spec-creation-cards-format.sh (new)
+
+  string_sc_count: 6
+  string_sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+  string_test_approach: grep-based content-verification on create.md
+
+  test_execution_order:
+    - step: "1. Run RED behavioral test (fails before changes)"
+      command: bash .opencode/tests/behaviors/spec-creation-cards-format.sh
+      expected: FAIL
+    - step: "2. Apply all 8 changes to create.md"
+      command: Execute plan steps 2–7 in dependency order
+    - step: "3. Run string-level content-verification"
+      command: bash .opencode/tests/test-enforcement.sh --changed
+      expected: PASS
+    - step: "4. Run GREEN behavioral test (passes after changes)"
+      command: bash .opencode/tests/behaviors/spec-creation-cards-format.sh
+      expected: PASS
+    - step: "5. Clean up test homes"
+      command: bash .opencode/tests/with-test-home --clean-all
+
+## Risk Assessment
+
+testing_risks:
+  - risk: "Behavioral test model not available"
+    likelihood: MEDIUM
+    impact: Behavioral SC (SC-7) cannot be verified
+    mitigation: |
+      Run ollama-probe hw to verify model availability. If model is slow,
+      increase BEHAVIOR_TIMEOUT. If model is unavailable, report FAIL per
+      080-code-standards.md Rule 2 — never substitute grep for behavioral test.
+    remediation: |
+      Check opencode-cli models output. Try alternative model.
+      Only after 2+ failed remediation attempts, escalate.
+
+  - risk: "Cross-reference audit misses a Step 7r reference in external file"
+    likelihood: LOW
+    impact: Broken cross-reference after deletion
+    mitigation: |
+      Extend plan Step 2 to search ALL .opencode/ files for "Step 7r",
+      not just create.md. Use: grep -rn 'Step 7r' .opencode/skills/ .opencode/guidelines/
+
+  - risk: "Step 8/9 renumbering incorrect after Step 7 restructuring"
+    likelihood: LOW
+    impact: Step cross-references point to wrong numbers
+    mitigation: |
+      After all edits, run grep on create.md for "Step \d" patterns
+      and verify sequential ordering. Use a simple script to extract
+      and sort step numbers.

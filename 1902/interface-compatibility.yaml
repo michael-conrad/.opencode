@@ -1,0 +1,300 @@
+# Interface Compatibility Analysis — Spec #1902
+# Target: .opencode/skills/spec-creation/tasks/create.md
+
+spec: https://github.com/michael-conrad/.opencode/issues/1902
+analysis_date: 2026-07-12
+analyzer: OpenCode (deepseek-v4-flash-free)
+
+## Interfaces Defined by create.md
+
+interfaces:
+  - name: local-spec-md-format
+    type: template-structure
+    description: Full spec content saved to .issues/{N}/spec.md — includes preamble, compliance blocks, all sections, SC table
+    consumers:
+      - plan-writer (reads spec.md to create plan.md)
+      - spec-auditor (audits spec completeness)
+      - approval-gate (checks for approved-for-* labels)
+      - implementation-agent (reads spec.md for implementation context)
+    format_spec: |
+      - STATUS/CREATED preamble header (local-only)
+      - Compliance blockquote (local-only)
+      - Problem Statement, Context, Goals, Non-Goals, Proposed Changes, Success Criteria, Edge Cases
+      - YAML frontmatter (target: add via change #1)
+      - 14-column SC table
+
+  - name: remote-issue-body-format
+    type: template-structure
+    description: Condensed exec summary posted to GitHub — stakeholder-facing, no implementation details
+    consumers:
+      - human-stakeholders (read for context)
+      - spec-auditor (verifies remote matches local intent)
+      - issue-operations (posts body via creation task)
+    format_spec: |
+      - Spec folder blockquote (top)
+      - Exec Summary (2-3 sentences)
+      - Scope of Work / Cards (dependency-ordered)
+      - Key Decisions
+      - Risk Callouts
+      - AI Agent Instructions (target: remove via change #3)
+
+  - name: step-7r-flat-format
+    type: alternative-format
+    status: deprecated
+    description: Contradictory 6-part flat format (Problem/Scope/Approach/Impact) — target for deletion via change #6
+    consumers: []
+    format_spec: |
+      1. Spec Reference Blockquote
+      2. Problem
+      3. Scope
+      4. Approach
+      5. Impact
+      6. AI Agent Instructions
+
+  - name: step-naming-convention
+    type: structural
+    description: Sequential step numbering throughout create.md
+    consumers:
+      - all sub-agents executing create.md steps
+      - spec-creation SKILL.md routing table
+    current_pattern: "Step 7r, Step 7, Step 7a, Step 7b, Step 7c, Step 7d, Step 8, Step 9"
+    target_pattern: "Step 7 (renumbered as 7.1, 7.2, 7.3, 7.4), Step 8, Step 9"
+
+  - name: sc-summary-yaml-contract
+    type: artifact-contract
+    description: Machine-parseable SC summary generated at Step 1.1
+    consumers:
+      - plan-writer (reads scs flat list)
+      - pre-flight-handoff (validates artifact completeness)
+    format_spec: "YAML with sc_coverage.total, scs[].{id,description,evidence_type,verification_gate,plan_phase}"
+
+  - name: artifact-manifest-contract
+    type: artifact-contract
+    description: spec-to-plan-handoff.yaml listing required artifacts
+    consumers:
+      - implementation-pipeline pre-flight-handoff (validates all artifacts exist)
+    format_spec: "YAML with artifacts[].{path,required} — lists spec.md, sc-summary.yaml, verification-consistency-contract.yaml, revision-re-entry-contract.yaml, spec-to-plan-handoff.yaml"
+
+## Per-Change Impact Assessment
+
+changes:
+  - id: C-1
+    description: "Add YAML frontmatter to local spec.md"
+    alters_interface: true
+    interface: local-spec-md-format
+    change_type: addition
+    details: |
+      Adds `---` delimited frontmatter (title, status, created, license, provenance, issue, authors)
+      at top of .issues/{N}/spec.md. Remote body stays markdown-only.
+    backward_compatibility: FULL
+    backward_rationale: |
+      Frontmatter is additive — existing consumers that read spec.md body content
+      are unaffected. Consumers that parse spec.md as pure markdown may see
+      frontmatter as H1-like content if not stripped, but no existing consumer
+      depends on the exact first line of spec.md being prose.
+    forward_compatibility: FULL
+    forward_rationale: |
+      YAML frontmatter is industry standard — any future tooling will support it.
+      Makes local spec.md machine-parseable without breaking human readability.
+    consumers_needing_update:
+      - Step 7c (save full spec locally) — must add frontmatter generation step
+      - Step 5 preamble wording — must clarify frontmatter is local-only
+
+  - id: C-2
+    description: "Add Goals/Non-Goals sections"
+    alters_interface: true
+    interface: local-spec-md-format
+    change_type: addition
+    details: |
+      New `## Goals` and `## Non-Goals` sections between `## Problem` and `## Proposed Changes`
+      in both local spec.md and remote exec summary.
+    backward_compatibility: FULL
+    backward_rationale: |
+      New optional sections between existing sections — no structural change to
+      existing content. Consumers reading spec.md headers will encounter new headers
+      but no existing header is removed or renamed.
+    forward_compatibility: FULL
+    forward_rationale: |
+      Goals/Non-Goals is industry standard (KEP, ADR, OpenSpec all use it).
+      Makes specs more structured, not less. The section position between
+      Problem and Proposed Changes is the de facto standard position.
+    consumers_needing_update:
+      - Step 7a example format — must include Goals/Non-Goals in template
+      - Step 7r (before deletion) — must also reflect Goals/Non-Goals if kept
+
+  - id: C-3
+    description: "Remove AI Agent Instructions from remote body"
+    alters_interface: true
+    interface: remote-issue-body-format
+    change_type: removal
+    details: |
+      AI Agent Instructions section (URL construction rules, constraints table)
+      removed from remote issue body. Enforcement moves to Pre-Response Gate level.
+      Instructions become local-only content.
+    backward_compatibility: BREAKING
+    backward_rationale: |
+      Agents that previously read AI Agent Instructions from the remote body
+      will no longer find them there. Gate-based enforcement replaces content-based
+      enforcement. Any agent workflow that depends on remote-body instructions
+      being present must be updated to use gate-level enforcement.
+    forward_compatibility: FULL
+    forward_rationale: |
+      Removal aligns with the principle that remote body is human-only exec summary.
+      Gate-level enforcement is more reliable than content-level. Future agents
+      will not depend on remote body for behavioral instructions.
+    consumers_needing_update:
+      - Step 7r (before deletion) — remove AI Agent Instructions subsection
+      - Step 7a — add gate-level enforcement note (pre-PR gate)
+      - spec-creation SKILL.md — verify Pre-Response Gate handles enforcement
+      - Any test that asserts remote body contains AI Agent Instructions
+
+  - id: C-4
+    description: "Rename 'Cards' → 'Scope of Work'"
+    alters_interface: true
+    interface: remote-issue-body-format
+    change_type: rename
+    details: |
+      ### Cards (dependency order) → ### Scope of Work (dependency order)
+      in the Step 7a example format. All "Cards" headings in create.md renamed.
+    backward_compatibility: BREAKING
+    backward_rationale: |
+      Plan writers and agents that pattern-match on "Cards" heading to find the
+      dependency-ordered work list will need to update their patterns to "Scope of Work".
+      Existing behavioral tests that assert "Cards" in output will fail.
+    forward_compatibility: FULL
+    forward_rationale: |
+      "Scope of Work" is the industry-standard stakeholder-facing term.
+      Reduces confusion for human readers unfamiliar with the "Cards" convention.
+    consumers_needing_update:
+      - spec-creation SKILL.md — update any "Cards" references
+      - behavioral tests that assert "Cards" in spec output
+      - Any guideline referencing "Cards" as a spec section name
+
+  - id: C-5
+    description: "Step 7 renumbering (flat → nested 7.x)"
+    alters_interface: true
+    interface: step-naming-convention
+    change_type: structural
+    details: |
+      Current: Step 7r → Step 7 → Step 7a → Step 7b → Step 7c → Step 7d → Step 8 → Step 9
+      Target:  Step 7.1 (local spec), 7.2 (remote body), 7.3 (pre-PR gate), 7.4 (sync) → Step 8 → Step 9
+      Steps 8+ must be renumbered to account for removed Step 7r.
+    backward_compatibility: BREAKING
+    backward_rationale: |
+      All step number cross-references in create.md, SKILL.md, guidelines, and
+      behavioral tests that reference Step 7r, Step 7a, Step 7b, Step 7c, Step 7d
+      must be updated. Step 7r removal shifts all subsequent step numbers.
+      RISK-2 from spec body confirms this is the highest-risk change.
+    forward_compatibility: FULL
+    forward_rationale: |
+      Nested numbering (7.x) is more extensible than flat naming (7r/7a/7b/7c).
+      Future additions to Step 7 can use 7.5, 7.6 without colliding with the
+      removed Step 7r namespace. Eliminates the confusing "r" prefix.
+    consumers_needing_update:
+      - All cross-references in create.md itself (Step 7, Step 7a, Step 7b, Step 7c, Step 7d references)
+      - spec-creation SKILL.md — if it references specific step numbers
+      - Any behavioral test asserting step number in output
+      - RISK-2: must audit ALL step number references in create.md
+
+  - id: C-6
+    description: "Remove Step 7r"
+    alters_interface: true
+    interface: step-7r-flat-format
+    change_type: deletion
+    details: |
+      Delete entire Step 7r section (current lines 611–669). Removes the 6-part
+      flat format, blank template, and duplicate AI Agent Instructions template.
+    backward_compatibility: BREAKING
+    backward_rationale: |
+      Consumers that reference the 6-part format (Problem/Scope/Approach/Impact)
+      will find it gone. The cards-based format (Step 7a) becomes the single
+      authoritative format. Any external documentation or guideline referencing
+      the 6-part format must be updated.
+    forward_compatibility: FULL
+    forward_rationale: |
+      Eliminates contradictory format — the cards-based format was already
+      identified as authoritative (DEC-1). Single format means no ambiguity
+      about which format to use. Simplifies future maintenance.
+    consumers_needing_update:
+      - RISK-1: audit ALL cross-references to "Step 7r" in create.md before deletion
+      - spec-creation SKILL.md — if it references Step 7r
+      - Any guideline referencing the 6-part flat format
+
+  - id: C-7
+    description: "Fix Step 5 preamble wording — local-only clarification"
+    alters_interface: true
+    interface: local-spec-md-format
+    change_type: clarification
+    details: |
+      Change preamble wording in Step 5 to explicitly state that the STATUS/CREATED
+      preamble and compliance blockquote are for local spec.md only. Add instruction
+      that remote body uses the blockquote format from Step 6.8 + exec summary from Step 7.
+    backward_compatibility: FULL
+    backward_rationale: |
+      Clarification only — does not change existing behavior. Agents already
+      mostly followed this pattern (the remote body never contained the full
+      preamble), but the wording was ambiguous. Making it explicit reduces drift.
+    forward_compatibility: FULL
+    forward_rationale: |
+      Explicit boundary between local and remote reduces future ambiguity.
+      No structural change to the format — just clearer prose.
+    consumers_needing_update:
+      - Step 5 itself (the target of the change)
+
+  - id: C-8
+    description: "Behavioral enforcement tests"
+    alters_interface: false
+    interface: null
+    change_type: addition
+    details: |
+      Create `.opencode/tests/behaviors/spec-creation-cards-format.sh` that
+      verifies the agent produces the cards-based format. RED before implementation,
+      GREEN after.
+    backward_compatibility: FULL
+    backward_rationale: |
+      Adding tests does not change any existing interface. Tests are additive.
+    forward_compatibility: FULL
+    forward_rationale: |
+      Behavioral tests protect against format regressions. Future changes to
+      the spec format will be caught by these tests.
+
+## Cross-Reference Impact Summary
+
+all_cross_references:
+  - source: "Step 7r"
+    locations_in_create_md:
+      - line 611 (Step 7r heading — will be deleted)
+      - Any other references (RISK-1: must audit before deletion)
+    action: remove on deletion (C-6), verify zero remaining after
+
+  - source: "Step 7a"
+    locations_in_create_md:
+      - line 697 (Step 7a heading — will be renamed)
+      - Any cross-references elsewhere in create.md
+    action: rename to Step 7.2 (C-5)
+
+  - source: "Step 7b"
+    locations_in_create_md:
+      - line 738 (Step 7b heading — will be renamed)
+    action: rename to Step 7.4 or appropriate substep (C-5)
+
+  - source: "Step 7c"
+    locations_in_create_md:
+      - line 746 (Step 7c heading — will be renamed)
+    action: rename to appropriate 7.x substep (C-5)
+
+  - source: "Step 7d"
+    locations_in_create_md:
+      - line 753 (Step 7d heading)
+    action: rename to appropriate 7.x substep (C-5)
+
+  - source: "Cards"
+    locations_in_create_md:
+      - line 723 (### Cards (dependency order))
+      - Any other "Cards" headings in the file
+    action: rename to "Scope of Work" (C-4)
+
+  - source: "Step 8, Step 9"
+    locations_in_create_md:
+      - lines 760, 766 (Step 8, Step 9 headings)
+    action: renumber if Step 7 deletion shifts their numbers (C-5)

@@ -7,12 +7,13 @@
 
 ## Problem
 
-The Pre-Response Gate exists in two sources (`prompts/default.txt` §Pre-Response Gate and `AGENTS.md` §Universal Skill Dispatch Gate) with different wording and scope. It mixes four concerns:
+The Pre-Response Gate exists in two sources (`prompts/default.txt` §Pre-Response Gate and `AGENTS.md` §Universal Skill Dispatch Gate) with different wording and scope. It mixes five concerns:
 
 1. **Skill dispatch** (points 1-3): Scan `<available_skills>`, call `skill()` when triggered, justify when no match — essential behavioral reinforcement
 2. **Forbidden Rationalizations**: Self-authorization bypass patterns — **must stay inline** (cross-references are ignored at decision points)
-3. **Evidence Hierarchy** + **Cost Model**: Verification quality tiers and cost rationale — **can** cross-ref because they're verified at VbC/audit time, not at the pre-output decision point
-4. **Orchestrator discipline** (point 4): Sub-agent dispatch via `task()` — this fires at the same positional gate (pre-output) but is about pipeline architecture, not skill dispatch
+3. **Evidence Hierarchy**: Verification quality tiers — **can** cross-ref because it's a verification-time taxonomy enforced at VbC/audit gates, not at the pre-output decision point
+4. **Cost Model**: Defect-discovery-latency rationale — **must stay inline** because it directly counters rationalization #4 ("Running the sub-agent costs too many tokens") as a coupled prohibition + counter-argument pair
+5. **Orchestrator discipline** (point 4): Sub-agent dispatch via `task()` — this fires at the same positional gate (pre-output) but is about pipeline architecture, not skill dispatch
 
 Additionally, AGENTS.md's Step 1 frames matching as "Evaluate the user message against ALL available skill descriptions" — reinforcing user-utterance matching over agent-intent matching.
 
@@ -22,8 +23,8 @@ Additionally, AGENTS.md's Step 1 frames matching as "Evaluate the user message a
 
 The Pre-Response Gate is **the single positional enforcement point** — it fires at every pre-output decision. Content in the gate is acted on; content referenced away from the gate is ignored. This means:
 - **Forbidden Rationalizations MUST stay inline** — they are behavioral override instructions the agent must apply *at the decision point*
+- **Cost Model MUST stay inline** — it directly counters rationalization #4 ("Running the sub-agent costs too many tokens") as a coupled prohibition + counter-argument pair; without the positive frame, the prohibition is weaker
 - **Evidence Hierarchy CAN be a cross-reference** — evidence type enforcement happens at VbC/audit gates, not at the pre-output gate
-- **Cost Model CAN be a cross-reference** — cost awareness is background knowledge, not a pre-output decision instruction
 
 ## Root Cause Analysis
 
@@ -68,9 +69,11 @@ The Pre-Response Gate mixes four distinct concerns in a single section with no c
 - Points 1-3 (skill dispatch: scan, call, justify)
 - Forbidden Rationalizations — at the decision point, the agent must be told directly "these are rationalizations, STOP"
 
-**Remove from pre-output gate (too verbose, duplicates canonical sources):**
+**Remove from pre-output gate (verification-time concern, duplicates canonical source):**
 - Evidence Hierarchy — belongs in `065-verification-honesty.md`, enforced at VbC gates
-- Cost Model — background rationale, not a pre-output instruction
+
+**Keep inline (coupled with rationalizations — provides positive counter-argument):**
+- Cost Model — directly counters rationalization #4 ("Running the sub-agent costs too many tokens"); the prohibition alone is weaker without the positive frame
 
 **Evaluate point 4 (sub-agent dispatch):**
 - It fires at the same pre-output decision point
@@ -92,6 +95,16 @@ To:
 
 Skill descriptions should describe **agent-intent dispatch conditions** rather than user-phrase catalogs. This is its own issue post-spec.
 
+## Remediation Procedure
+
+When the spec-audit produces any FAIL:
+
+1. **Diagnose** — Identify which SCs failed and why. Record the root cause in the audit verdict.
+2. **Remediate** — Fix the spec to address the failing SCs (add missing content, generate missing artifacts, correct wording).
+3. **Re-audit** — Re-run spec-audit with the revised spec. All previously failing SCs must now PASS.
+4. **Escalate** — If the FAIL cannot be remediated (e.g., the spec's core design is structurally unsound, or required analytical artifacts cannot be generated without developer input), escalate to the developer with: the specific SC(s) that failed, the root cause, what the developer must do to resolve, and the recommended action.
+5. **Never proceed past FAIL** — A spec with any unremediated FAIL must NOT advance to implementation. The audit verdict is the gate, not a suggestion.
+
 ## Escape Hatch Prohibition
 
 No "use best judgment", "as needed", "TBD", "TODO", or "left to implementor" language is permitted in the restructured gate. Every rule is mandatory. Every gate is non-waivable. If a step cannot be formulated as a hard rule, it must be reformulated or removed.
@@ -106,7 +119,7 @@ Searching both source files (confirmed by reading `prompts/default.txt` lines 1-
 | Point 4 (sub-agent via task()) | Under gate | Inline, own § | Positional but separate concern |
 | Forbidden Rationalizations | Inline | Inline | Positional — ignored if cross-ref'd |
 | Evidence Hierarchy | Inline | Cross-ref to 065 | Enforced at VbC, not pre-output |
-| Cost Model | Inline | Cross-ref to 065 §Cost Model | Background rationale |
+| Cost Model | Inline | Inline | Coupled with rationalization #4 — provides positive counter-argument |
 | "Evaluate the user message" | AGENTS.md | Change to "context and task intent" | Wrong framing |
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
@@ -117,33 +130,42 @@ Searching both source files (confirmed by reading `prompts/default.txt` lines 1-
 |----|-----------|---------------|---------------------|------------|
 | SC-1 | `prompts/default.txt` Pre-Response Gate section contains points 1-3 + Forbidden Rationalizations (all inline) | `string` | grep for each rationalization pattern, each dispatch point — all present | Grep is cheap (~1s); missing a rationalization at the gate costs rework from a bypassed agent — DDL: 1s vs full rework |
 | SC-2 | Evidence Hierarchy section REMOVED from default.txt (present only in 065) | `string` | "Evidence Hierarchy" absent from default.txt; present in 065 | Content-verification sweep is seconds; duplicate definitions cause drift that costs hours of debugging — DDL: seconds vs hours |
-| SC-3 | Cost Model section REMOVED from default.txt (present only in 065) | `string` | "Cost Model" absent from default.txt; present in 065 | Same cost frame as SC-2 — seconds vs hours |
+| SC-3 | Cost Model stays inline in default.txt (coupled with Forbidden Rationalizations) | `string` | "Cost Model" present in default.txt Pre-Response Gate section | String match is instant; a decoupled Cost Model weakens rationalization enforcement — DDL: instant vs weakened enforcement |
 | SC-4 | Sub-agent routing (point 4) is in a separate § in default.txt, not under Pre-Response Gate header | `string` | grep default.txt for sub-agent section outside Pre-Response Gate block | grep is trivial; mis-grouping creates maintainer confusion that compounds with every edit — DDL: trivial vs compounding |
 | SC-5 | AGENTS.md Step 1 changed from "Evaluate the user message" to "context and task intent" | `string` | grep AGENTS.md for "context and task intent" | String match is instant; wrong framing causes the agent to match user utterances instead of task intent — DDL: instant vs repeated mis-dispatch |
 | SC-6 | Agent still dispatches skills when task intent matches | `behavioral` | opencode-cli run with task-triggering prompt → verify skill() call in stderr | Behavioral run costs ~2min; a silent dispatch skip costs the full rework pipeline — DDL: 2min vs full rework |
 | SC-7 | Agent still applies forbidden rationalizations inline (not cross-ref'd away) | `behavioral` | opencode-cli run with rationalization-triggering prompt → verify agent does not rationalize | Behavioral run costs ~2min; a bypassed rationalization causes agent to inline work that must be redone — DDL: 2min vs rework hours |
 | SC-8 | Behavioral enforcement tests exist in `.opencode/tests/behaviors/` for the new Pre-Response Gate structure; tests fail in RED state before change applied | `behavioral` | opencode-cli run with `--scenario` matching each gate SC → RED tests fail before change, GREEN tests pass after | Writing tests costs ~10min; tests that never existed in RED state let defects ship undetected — DDL: 10min vs death spiral |
+| SC-9 | `skills/audit/tasks/spec-audit.md` Step 0a line 90-92 emits BLOCK/HALT (not WARNING) for missing analytical artifacts, matching SKILL.md | `string` | grep for absence of "emit a WARNING" in spec-audit.md Step 0a; grep for presence of "BLOCK/HALT" | String match is instant; a downgraded gate lets defective specs ship — DDL: instant vs production defect |
+| SC-10 | Spec includes mandatory remediation procedure for audit FAIL: (1) generate missing artifacts, (2) re-run audit, (3) if still FAIL escalate to developer | `string + semantic` | grep remediation section present + sub-agent read for correctness of escalation path | Missing remediation lets defective specs proceed — DDL: instant vs production defect |
+| SC-11 | Restructured Pre-Response Gate contains no escape hatch language ("use best judgment", "as needed", "TBD", "TODO", "left to implementor") | `string` | grep restructured default.txt Pre-Response Gate section for absence of all 5 patterns | String match is instant; escape hatch language undermines mandatory gate enforcement — DDL: instant vs production defect |
 
 ## SC-to-Root-Cause Traceability
 
 | SC ID | Root Cause Element | Content Area |
 |-------|-------------------|--------------|
 | SC-1 | Skill dispatch (points 1-3) stayed inline — ensures the core dispatch mechanism remains at the pre-output gate | Phase 1: Keep inline |
-| SC-2/SC-3 | Evidence Hierarchy and Cost Model removed from pre-output gate — separates decision-time from VbC-time concerns | Phase 1: Remove from gate |
+| SC-2 | Evidence Hierarchy removed from pre-output gate — separates verification-time from decision-time concerns | Phase 1: Remove from gate |
+| SC-3 | Cost Model stays inline — coupled with rationalization #4 as prohibition + counter-argument pair | Phase 1: Keep inline |
 | SC-4 | Point 4 separated into own § — eliminates mixing of orchestration and skill dispatch | Phase 1: Separate § |
 | SC-5 | AGENTS.md "user message" → "context and task intent" — fixes divergent source definition | Phase 2: Clarify wording |
 | SC-6 | Agent-intent matching preserved — verifies dispatch still works after restructuring | Behavioral verification |
 | SC-7 | Forbidden Rationalizations stay inline — ensures rationalization patterns are enforced at decision point | Phase 1: Keep inline |
 | SC-8 | Behavioral test mandate — enforces that no change ships without RED/GREEN verification | Pre-implementation gate |
+| SC-9 | Audit procedural bug — spec-audit.md must not downgrade missing-analytical-artifacts from HALT to WARNING | Audit procedural fix |
+| SC-10 | Mandatory remediation procedure — audit FAIL must trigger generate → re-audit → escalate cycle | Audit procedural fix |
+| SC-11 | Escape hatch prohibition — restructured gate must be free of "use best judgment", "as needed", "TBD", "TODO", "left to implementor" | Phase 1: Restructure |
 
 ## Risk Traceability
 
 | Risk ID | Description | Likelihood | Impact | Verifying SC |
 |---------|-------------|------------|--------|-------------|
-| RISK-1 | Over-trimming: removing Evidence Hierarchy and Cost Model breaks agent behavior | Low | Medium — these are enforced at VbC, not pre-output, so removal doesn't affect dispatch behavior | SC-6, SC-7 (agent still dispatches and rationalizes) |
+| RISK-1 | Over-trimming: removing Evidence Hierarchy breaks agent behavior | Low | Medium — enforced at VbC, not pre-output, so removal doesn't affect dispatch behavior | SC-6, SC-7 (agent still dispatches and rationalizes) |
 | RISK-2 | Dual-source divergence: default.txt and AGENTS.md drift further apart | Medium | High — agents reading both sources get contradictory instructions | SC-5 (AGENTS.md wording fix) |
 | RISK-3 | Behavioral tests skipped or not written in RED state | Medium | Critical — no behavioral test means no verification that the restructuring works | SC-8 (behavioral test mandate) |
 | RISK-4 | Restructuring introduces escape hatch language | Low | High — soft language undermines mandatory gate enforcement | No escape hatch confirmed in sources; prohibition is prospective |
+| RISK-5 | Audit gate downgrade — spec-audit.md emits WARNING instead of BLOCK/HALT for missing analytical artifacts | High | Critical — defective specs pass audit and ship to implementation | SC-9 (fix the gate), SC-10 (remediation procedure) |
+| RISK-6 | No remediation procedure — audit FAIL has no defined recovery path | High | Critical — a FAIL with no remediation path stalls the pipeline with no resolution | SC-10 (mandatory remediation procedure) |
 
 ## Risks
 

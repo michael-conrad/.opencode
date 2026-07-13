@@ -1,0 +1,156 @@
+# Blast radius analysis for spec #1902 — 8 changes to create.md
+# Generated: 2026-07-12
+# Source: spec body + plan.md + create.md
+
+analysis:
+  spec: "#1902"
+  target: .opencode/skills/spec-creation/tasks/create.md
+  total_changes: 8
+
+changes:
+  - id: 1
+    title: Add YAML frontmatter to local spec.md
+    affected_sections:
+      - section: "Step 1: Stub Creation"
+        lines: "29-50"
+        detail: "Add instructions to generate YAML frontmatter (--- delimited: title, status, created, license, provenance, issue, authors)"
+      - section: "Step 7c: Save Full Spec Locally"
+        lines: "746-751"
+        detail: "Local spec.md is authoritative; YAML frontmatter must be prepended during save"
+    dependent_files:
+      - .opencode/.issues/{N}/spec.md
+      - .opencode/tools/local-issues
+    downstream_consumers:
+      - "Plan writers (read spec.md for frontmatter metadata)"
+      - "Spec-auditor (validates frontmatter presence)"
+      - "All agents generating specs after this change"
+    risk: medium
+    risk_rationale: "New output format affects all future spec.md files; requires coordination with Step 5 assembly and Step 7c save logic; must ensure remote body stays markdown-only"
+
+  - id: 2
+    title: Add Goals/Non-Goals sections
+    affected_sections:
+      - section: "Step 5: Assemble Spec — content areas"
+        lines: "67-80"
+        detail: "Goals/Non-Goals becomes mandatory section between Problem and Proposed Changes"
+      - section: "Step 7a: Exec-Summary Format Rules — example format"
+        lines: "713-736"
+        detail: "Add Goals/Non-Goals to both local spec.md template and remote exec summary example"
+    dependent_files:
+      - .opencode/.issues/{N}/spec.md (all future specs)
+    downstream_consumers:
+      - "Spec authors generating new specs"
+      - "Spec-auditor (validates Goals/Non-Goals presence)"
+    risk: low
+    risk_rationale: "Purely additive; optional Non-Goals section already exists at lines 133-138; no destructive changes"
+
+  - id: 3
+    title: Remove AI Agent Instructions from remote body
+    affected_sections:
+      - section: "Step 7r — AI Agent Instructions subsection"
+        lines: "644-655"
+        detail: "Full AI Agent Instructions section with constraints table removed from remote body template"
+      - section: "Step 7a: Exec-Summary Format Rules"
+        lines: "697-736"
+        detail: "Execution summary must not contain agent instructions; enforcement moves to Pre-Response Gate level"
+    dependent_files:
+      - .opencode/guidelines/ (Pre-Response Gate enforcement)
+      - .opencode/skills/approval-gate/ (gate-level enforcement)
+    downstream_consumers:
+      - "All AI agents reading remote issue bodies (no longer see instructions there)"
+      - "Pre-Response Gate implementation (must now enforce what was content-level)"
+    risk: medium
+    risk_rationale: "Removes enforcement content from visible location; must verify Pre-Response Gate handles this before shipping; URL construction rules and constraints table must move to local-only section"
+
+  - id: 4
+    title: Rename "Cards" to "Scope of Work"
+    affected_sections:
+      - section: "Step 7a — Example format heading"
+        lines: "723"
+        detail: "Change `### Cards (dependency order)` to `### Scope of Work (dependency order)`"
+      - section: "Entire create.md"
+        lines: "all"
+        detail: "Search and replace any other 'Cards' heading in the file"
+    dependent_files: []
+    downstream_consumers:
+      - "All generated specs (use new terminology)"
+      - "Stakeholders reading issue exec summaries"
+    risk: low
+    risk_rationale: "Search-and-replace rename; no semantic change; single heading in create.md"
+
+  - id: 5
+    title: Step 7 renumbering (flat → nested 7.x)
+    affected_sections:
+      - section: "Step 7: Create Issue"
+        lines: "671-690"
+        detail: "Renumber to 7.1: Local Spec Assembly"
+      - section: "Step 7a: Exec-Summary Format Rules"
+        lines: "697-736"
+        detail: "Renumber to 7.2: Remote Issue Body"
+      - section: "Step 7b: Remote Push + Local Mirror"
+        lines: "738-744"
+        detail: "Renumber to 7.3 or merge into 7.2"
+      - section: "Step 7c: Save Full Spec Locally"
+        lines: "746-751"
+        detail: "Renumber to 7.x"
+      - section: "Step 7d: Sync Local Artifacts"
+        lines: "753-758"
+        detail: "Renumber to 7.x or merge into 7.2"
+      - section: "Step 8: User Review on Issue"
+        line: 760
+        detail: "Renumber to 8 (was 33)"
+      - section: "Step 9: Transition"
+        line: 766
+        detail: "Renumber to 9 (was 34)"
+      - section: "Context Required section"
+        lines: "768-774"
+        detail: "Update cross-references to renamed steps"
+    dependent_files: []
+    downstream_consumers:
+      - "All skill context references that mention Step 7a/7b/7c/7d by old identifiers"
+      - "Spec-auditor task files (if they reference step numbers)"
+    risk: high
+    risk_rationale: "Cascading renumbering affects all step references 7→7.x and 8→9→10; must trace every cross-reference in the file; plan also uses 'Step 7' references that will need updating"
+
+  - id: 6
+    title: Remove Step 7r (contradictory 6-part format)
+    affected_sections:
+      - section: "Entire Step 7r block"
+        lines: "611-669"
+        detail: "Delete 6-part flat format: Spec Reference, Problem, Scope, Approach, Impact, AI Agent Instructions"
+      - section: "Post-removal — Step numbering shift"
+        lines: "671+"
+        detail: "All steps after line 669 shift up by 59 lines after deletion"
+    dependent_files: []
+    downstream_consumers:
+      - "Any external reference to Step 7r format (must audit)"
+    risk: medium
+    risk_rationale: "Destructive deletion; requires cross-reference audit before removal (plan Step 2); content already superseded by Step 7a format but must verify no dangling refs"
+
+  - id: 7
+    title: Fix Step 5 preamble wording
+    affected_sections:
+      - section: "Step 5: Assemble Spec — preamble description"
+        lines: "51-65"
+        detail: "Clarify that preamble/compliance blockquote are local spec.md only, not remote body"
+    dependent_files:
+      - .opencode/.issues/{N}/spec.md
+    downstream_consumers:
+      - "Spec authors (know where to place preamble)"
+    risk: low
+    risk_rationale: "Wording-only change; no structural impact"
+
+  - id: 8
+    title: Write behavioral enforcement tests
+    affected_sections:
+      - section: "(none in create.md)"
+        lines: null
+        detail: "New file at .opencode/tests/behaviors/spec-creation-cards-format.sh"
+    dependent_files:
+      - .opencode/tests/behaviors/spec-creation-cards-format.sh
+      - .opencode/tests/behaviors/helpers.sh (assertion helpers)
+    downstream_consumers:
+      - "CI pipeline (test-enforcement.sh)"
+      - "All future spec-creation changes (regression protection)"
+    risk: low
+    risk_rationale: "Additive only — new test file, no changes to create.md"

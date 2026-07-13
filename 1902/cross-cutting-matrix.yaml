@@ -1,0 +1,171 @@
+# Cross-cutting concerns matrix for spec #1902 — 8 changes to create.md
+# Generated: 2026-07-12
+
+spec: "#1902"
+target: .opencode/skills/spec-creation/tasks/create.md
+total_changes: 8
+
+concerns:
+  - name: documentation
+    description: "Change generates or modifies documentation — inline comments, cross-references, template docs"
+  - name: testing
+    description: "Change requires or includes test artifacts"
+  - name: backwards_compat
+    description: "Change may break existing consumers — generated specs, agents, or readers"
+  - name: naming_consistency
+    description: "Change affects naming conventions — section names, step identifiers, terminology"
+  - name: structural_integrity
+    description: "Change affects file structure — section ordering, numbering integrity, reference validity"
+
+matrix:
+  - change: 1
+    title: "Add YAML frontmatter to local spec.md"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Adds frontmatter generation instructions to Step 1 and Step 7c create.md sections"
+      - concern: testing
+        applies: false
+        rationale: "No test artifacts for frontmatter addition; verified by behavioral test in change 8"
+      - concern: backwards_compat
+        applies: true
+        rationale: "Existing specs without frontmatter remain valid; new specs will have frontmatter — plan writers must handle both formats during transition"
+      - concern: naming_consistency
+        applies: false
+        rationale: "No naming convention changes; frontmatter field names are new, not renamed"
+      - concern: structural_integrity
+        applies: true
+        rationale: "Frontmatter must be inserted before prose in spec.md; ordering invariant (frontmatter first, then prose) must be enforced in Step 7c"
+
+  - change: 2
+    title: "Add Goals/Non-Goals sections"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Updates Step 5 content area list to mandate Goals/Non-Goals; updates Step 7a example format"
+      - concern: testing
+        applies: false
+        rationale: "Covered by behavioral test in change 8"
+      - concern: backwards_compat
+        applies: false
+        rationale: "Additive only — existing specs without Goals/Non-Goals remain valid; new specs include them"
+      - concern: naming_consistency
+        applies: false
+        rationale: "No rename; Goals/Non-Goals is new content with established naming"
+      - concern: structural_integrity
+        applies: true
+        rationale: "Section insertion order (Goals/Non-Goals between Problem and Proposed Changes) must be maintained; existing optional Non-Goals at lines 133-138 may conflict"
+
+  - change: 3
+    title: "Remove AI Agent Instructions from remote body"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Removes AI Agent Instructions block from Step 7r; adds local-only section for URL rules and constraints"
+      - concern: testing
+        applies: false
+        rationale: "Covered by behavioral test in change 8"
+      - concern: backwards_compat
+        applies: true
+        rationale: "Existing agents that read remote body instructions will stop seeing them — Pre-Response Gate must compensate; risk of agent behavior regression if gate not ready"
+      - concern: naming_consistency
+        applies: false
+        rationale: "No naming change"
+      - concern: structural_integrity
+        applies: true
+        rationale: "Content relocation (not deletion) — URL construction rules, constraints, and character-match verification must be preserved in local-only section; missing relocation is a structural defect"
+
+  - change: 4
+    title: "Rename Cards → Scope of Work"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Updates heading in Step 7a example format; may need to update other Cards references in create.md"
+      - concern: testing
+        applies: false
+        rationale: "Covered by behavioral test in change 8"
+      - concern: backwards_compat
+        applies: true
+        rationale: "Existing specs using 'Cards' heading are not invalidated; new specs use 'Scope of Work' — readers must handle both terms during transition"
+      - concern: naming_consistency
+        applies: true
+        rationale: "Primary naming change; must ensure all instances of 'Cards' heading are renamed consistently across create.md and spec body"
+      - concern: structural_integrity
+        applies: false
+        rationale: "No structural impact — heading rename only, not a section move"
+
+  - change: 5
+    title: "Step 7 renumbering (flat → nested 7.x)"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Renumbers 5 sections (7, 7a, 7b, 7c, 7d) to nested 7.x hierarchy; renumbers steps 8-9 (originally 33-34); updates Context Required section"
+      - concern: testing
+        applies: false
+        rationale: "Covered by behavioral test in change 8"
+      - concern: backwards_compat
+        applies: true
+        rationale: "Any external references to Step 7a/7b/7c/7d by old identifiers will break; must audit and update all cross-references"
+      - concern: naming_consistency
+        applies: true
+        rationale: "Changes step identifier naming convention from flat (7, 7a, 7b, 7c, 7d) to nested (7.1, 7.2, 7.3, 7.4)"
+      - concern: structural_integrity
+        applies: true
+        rationale: "Highest structural risk — all subsequent step numbers shift; must ensure no gaps in numbering and all cross-references update correctly"
+
+  - change: 6
+    title: "Remove Step 7r"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Deletes lines 611-669; inline documentation of the 6-part format is removed"
+      - concern: testing
+        applies: true
+        rationale: "Plan Step 2 requires cross-reference audit (grep for Step 7r) before deletion"
+      - concern: backwards_compat
+        applies: false
+        rationale: "Step 7r format is superseded by Step 7a; no consumers should be using the old format — cross-reference audit confirms this"
+      - concern: naming_consistency
+        applies: false
+        rationale: "No naming change; deletion removes an obsolete identifier"
+      - concern: structural_integrity
+        applies: true
+        rationale: "Deleting 59 lines shifts all subsequent step numbering by -59; must verify no dangling cross-references remain"
+
+  - change: 7
+    title: "Fix Step 5 preamble wording"
+    columns:
+      - concern: documentation
+        applies: true
+        rationale: "Wording change in Step 5 preamble description (lines 51-65) to clarify local-only scope"
+      - concern: testing
+        applies: false
+        rationale: "Wording-only change; no test artifact needed"
+      - concern: backwards_compat
+        applies: false
+        rationale: "Clarifies existing behavior — local-only preamble was the de facto rule, now explicit"
+      - concern: naming_consistency
+        applies: false
+        rationale: "No naming change"
+      - concern: structural_integrity
+        applies: false
+        rationale: "Wording-only change in existing section; no structural impact"
+
+  - change: 8
+    title: "Write behavioral enforcement tests"
+    columns:
+      - concern: documentation
+        applies: false
+        rationale: "Test file contains assertions and bash, not documentation"
+      - concern: testing
+        applies: true
+        rationale: "Primary purpose — creates behavioral test verifying all format changes produce correct agent behavior"
+      - concern: backwards_compat
+        applies: false
+        rationale: "Additive test file; no impact on existing consumers"
+      - concern: naming_consistency
+        applies: false
+        rationale: "No naming change"
+      - concern: structural_integrity
+        applies: false
+        rationale: "Standalone new file; no impact on create.md structure"
