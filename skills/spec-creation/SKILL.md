@@ -43,6 +43,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "state analysis" / "state transition" | `state-analysis` | `sub-task` | {spec_context} |
 | "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
 | "testability assessment" / "testability" | `testability-assessment` | `sub-task` | {spec_context} |
+| "analytical artifacts" / "generate artifacts" / "spec artifacts" | `analytical-artifacts` | `sub-task` | {spec_context} |
 | "risk analysis" / "risk assessment" | `risk` | `sub-task` | {spec_context} |
 | "completion" / "spec complete" | `completion` | `sub-task` | {spec_context} |
 | "change control" / "revision" / "spec revision" | `change-control` | `sub-task` | {spec_context} |
@@ -69,6 +70,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | `state-analysis`          |
 | `pipeline-readiness-gate` |
 | `testability-assessment`  |
+| `analytical-artifacts`    |
 | `risk`                    |
 | `create`                  |
 | `completion`              |
@@ -94,6 +96,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | `state-analysis`          | `task(..., prompt: "execute state-analysis task from spec-creation")`                  |
 | `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`         |
 | `testability-assessment`  | `task(..., prompt: "execute testability-assessment task from spec-creation")`          |
+| `analytical-artifacts`    | `task(..., prompt: "execute analytical-artifacts task from spec-creation")`              |
 | `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                             |
 | `create`                  | `task(..., prompt: "execute create task from spec-creation")`                           |
 | `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                      |
