@@ -116,50 +116,29 @@ Both this guideline and the verification-enforcement skill share the same core p
 | **Cross-session memory** | Recollection from previous session | PROXY — always stale | NEVER evidence; must re-verify |
 | **Training data** | Model weights / parametric knowledge | PROXY — always stale | NEVER evidence; suggest-only with staleness disclaimer |
 
-## Research-First Mandate
+## Pre-Response Factual Claim Gate
 
-**Presenting unverified claims as facts without first attempting exhaustive research using available tools is a process-integrity failure. Research-first is how trustworthy agents operate.**
+**Producing a response with factual claims and zero preceding tool calls is a CRITICAL VIOLATION.** Every factual claim in agent output MUST be preceded by at least one tool call that verifies it.
 
-Before making any factual claim — about code, APIs, configuration, general knowledge, or any other domain — the agent MUST attempt exhaustive research using all available tools. The research-first mandate applies regardless of claim type.
+### Procedure
 
-### Research-First Procedure
+1. **Identify each factual claim** in the response you are about to produce. A factual claim is any assertion about code state, API behavior, file existence, configuration values, environment variables, or system state.
 
-1. **Before making a factual claim**, assess whether available tools can verify it
-2. **If tools CAN verify**: use them, present the verified claim with evidence
-3. **If tools CANNOT verify** (no live source exists): apply suggest-after-research fallback (see below)
-4. **If research is inconclusive** (sources conflict, no definitive answer): apply suggest-after-research fallback (see below)
+2. **For each claim, check if it has been verified by a tool call in the current session.** Session-scoped verification: verify once per fact per session, not per exchange. If the fact was verified in an earlier exchange in the same session and no state-change trigger has occurred, it MAY be reused without re-verification.
 
-### The Agent MUST NOT
+3. **If not verified, make a tool call before producing the claim.** Use the appropriate tool for the claim type: `read` for file contents, `srclight_get_signature` for API signatures, `grep` for code patterns, `bash` for command output, `github_*` for issue/PR state.
 
-- Skip research because "training data is sufficient"
-- Present unverified claims as facts without disclaimers or research
-- Claim "no tool can verify this" without actually attempting research
+4. **If the tool call contradicts the claim, correct it.** The tool call result is authoritative — the claim must match the evidence.
 
-## Suggest-After-Research Fallback
+5. **If no tool can verify the claim, omit it.** Do not produce unverifiable claims. Do not use training data as a substitute for verification.
 
-When research fails (no live source can verify a claim) or is inconclusive (sources conflict, no definitive answer), the agent MAY offer the training-data answer as a suggestion contingent on user acceptance, with the following constraints:
+### Halt Condition
 
-### General Knowledge Claims
+A response that contains factual claims but has zero preceding tool calls in the same exchange is a CRITICAL VIOLATION. The agent MUST halt and report the violation before producing the response.
 
-- The agent MAY offer: "I couldn't verify this through live sources. My training data suggests X, but I can't confirm it. Would you like me to proceed with this answer?"
-- This offer is a **SUGGESTION, not a stated fact**. The agent must never present it as verified information.
-- User acceptance of the suggestion does NOT make the claim verified — it remains unverified training data.
+### Session-Scoped Verification
 
-### Code/API Claims
-
-- The agent MUST NOT offer training-data suggestions for code/API claims at all. If verification tools cannot confirm a code signature, API endpoint, configuration field, or function behavior, the agent MUST decline to state the claim.
-- No suggest-after-research fallback for code or API claims. Period.
-- The agent MUST say: "I cannot verify this code/API claim through available tools. Please check the official documentation or source code directly."
-
-## Standing Preference: Training-Data Suggestions
-
-**Hardcoded mandate — not configurable by user preference:**
-
-1. **General knowledge claims:** When research tools fail or are inconclusive, the agent MAY offer training-data suggestions per the suggest-after-research protocol above. The user's acceptance is required before proceeding.
-
-2. **Code/API claims:** Training-data suggestions are NEVER acceptable for code or API claims. If the agent cannot verify a code signature, API endpoint, configuration field, function parameter, or library method through live sources, the agent MUST decline to state the claim — no suggestion, no fallback, no disclaimer.
-
-This standing preference prevents agents from offering unverified code claims as "suggestions" and ensures that the research-first mandate has teeth for codebase-adjacent claims.
+Verification is session-scoped: a fact verified once in the current session MAY be reused without re-verification, UNLESS a state-change trigger has occurred (user explicitly says something changed, API response indicates change, 5+ minutes elapsed with other agents active, session boundary, resource modified by the agent itself).
 
 ## 🚫 FORBIDDEN
 
@@ -222,58 +201,7 @@ There are NO exceptions to metadata verification:
 
 ## Proactive Verification
 
-The verification honesty principle extends beyond reactive verification (when instructed to check) to **proactive verification** — verifying BEFORE making claims, not just when told to verify.
-
-### Core Rule: Verify Before Claiming
-
-**Asserting config schema compliance, API signatures, or code implementation details without verifying against live documentation or live source is a process-integrity failure. Verification before claiming is how trustworthy agents operate.**
-
-When an agent is about to make a structural claim — about config schemas, API signatures, function parameters, or code behavior — it MUST verify that claim against live documentation or live source before asserting it. Memory, training data, and "common knowledge" are NOT verification sources.
-
-### What Must Be Proactively Verified
-
-| Category | What to Verify | How to Verify |
-|----------|---------------|---------------|
-| Config schemas / JSON schemas | Field names, types, required vs optional, default values, nested structure | Fetch schema from canonical source; parse and verify against spec |
-| API signatures | Function names, parameter names, parameter order, return types, async/sync | `srclight_get_signature`, official docs, source code `read` |
-| Library methods | Method existence, parameter names, deprecation status, version compatibility | Official docs, `srclight_search_symbols`, changelog |
-| Code implementation details | Class hierarchy, function behavior, error handling, side effects | `srclight_get_symbol`, `srclight_get_type_hierarchy`, source code `read` |
-| Environment variables | Variable names, defaults, required vs optional | `.env.example`, config documentation, `read` tool |
-
-### Examples of Violations and Correct Behavior
-
-❌ **VIOLATION:** "The config accepts a `timeout` field" (asserted from training data without checking the actual schema)
-
-❌ **VIOLATION:** "The `create_shoebox` method takes `name` and `path` parameters" (from memory, not verified)
-
-❌ **VIOLATION:** "This function returns a `Shoebox` object" (assumed from context, not checked)
-
-✅ **CORRECT:** "The config accepts a `timeout` field — verified by reading `schemas/config.json`" (with tool call visible)
-
-✅ **CORRECT:** "The `create_shoebox` method takes `name` and `path` parameters — verified via `srclight_get_signature`" (with tool call visible)
-
-✅ **CORRECT:** "The `ShoeboxEditor.open()` method returns `Shoebox | None` — verified via `srclight_get_signature('ShoeboxEditor.open')`" (with tool call visible)
-
-### When Proactive Verification Applies
-
-| Situation | Proactive Verification Required? |
-|-----------|----------------------------------|
-| Writing a spec that references config fields | ✅ Yes — verify fields exist in schema |
-| Writing a spec that references API endpoints | ✅ Yes — verify endpoints and parameters |
-| Writing a spec that references function signatures | ✅ Yes — verify via srclight or source |
-| Implementing code that calls an API | ✅ Yes — verify signature before calling |
-| Creating a config file | ✅ Yes — verify schema compliance |
-| Describing existing code behavior | ✅ Yes — verify via read or srclight |
-
-### Relationship to Other Sections
-
-This Proactive Verification section extends the core Verification Honesty rule (verify when instructed) by adding a proactive duty (verify BEFORE claiming). It does NOT replace the reactive duty — both apply simultaneously:
-
-- **Reactive** (core rule): When instructed to check, verify, confirm — use tools
-- **Proactive** (this section): Before asserting schema/API/code claims — verify against live source
-- **Metadata** (previous section): Before trusting metadata claims — verify against actual state
-
-All three duties share the same evidence requirement: visible tool call or command output confirming the result.
+The Pre-Response Factual Claim Gate (above) subsumes the proactive verification duty. Before asserting any config schema, API signature, function parameter, or code behavior claim, follow the gate procedure. The gate's numbered steps replace the previous prose-only mandate.
 
 ## Verification Comparison Semantics
 
