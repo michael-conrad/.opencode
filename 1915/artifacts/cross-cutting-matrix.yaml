@@ -1,0 +1,20 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: "SKILL.md Trigger Dispatch Table updates"
+      affects_phases: [1, 2, 3, 4, 5, 6, 7]
+      description: "Every phase that restructures a task file must also update the corresponding SKILL.md Trigger Dispatch Table"
+      coordination_required: true
+    - concern: "DiMo chain role file directory structure"
+      affects_phases: [5, 6, 7]
+      description: "All 3 DiMo chain splits use the same directory pattern (task-name/role.md) and must be consistent"
+      coordination_required: true
+    - concern: "Reference consistency across skill files"
+      affects_phases: [1, 2, 3, 4, 5, 6, 7]
+      description: "Cross-references to restructured task files must be updated in all SKILL.md files and other task files"
+      coordination_required: true
+    - concern: "Behavioral test infrastructure"
+      affects_phases: [8]
+      description: "Behavioral test must use the with-test-home wrapper and assertion helpers from .opencode/tests/behaviors/helpers.sh"
+      coordination_required: false
