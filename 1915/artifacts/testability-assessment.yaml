@@ -1,0 +1,40 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+testability_assessment:
+  phases:
+    - phase: "Phase 1: Restructure writing-plans/tasks/create.md"
+      testability: high
+      approach: "Content-verification: grep for 'sub-agent' dispatch patterns removed. Behavioral: SC-9 test covers this."
+      risks: []
+    - phase: "Phase 2: Restructure spec-creation/tasks/analytical-artifacts.md"
+      testability: high
+      approach: "Content-verification: grep for 'sub-agent' dispatch patterns removed."
+      risks: []
+    - phase: "Phase 3: Restructure spec-creation/tasks/create.md"
+      testability: high
+      approach: "Content-verification: grep for 'sub-agent' dispatch patterns removed."
+      risks: []
+    - phase: "Phase 4: Restructure verification-before-completion/tasks/behavioral-test-evaluation.md"
+      testability: high
+      approach: "Content-verification: grep for 'sub-agent' dispatch patterns removed."
+      risks: []
+    - phase: "Phase 5: Split audit/tasks/closure-verification.md into DiMo chain"
+      testability: high
+      approach: "Content-verification: verify 4 role files exist. Structural: ls confirms directory structure."
+      risks:
+        - "Existing cross-references to closure-verification.md must be found and updated"
+    - phase: "Phase 6: Split audit/tasks/spec-summary.md into DiMo chain"
+      testability: high
+      approach: "Content-verification: verify 4 role files exist. Structural: ls confirms directory structure."
+      risks:
+        - "Existing cross-references to spec-summary.md must be found and updated"
+    - phase: "Phase 7: Split audit/tasks/coherence-extraction.md into DiMo chain"
+      testability: high
+      approach: "Content-verification: verify 4 role files exist. Structural: ls confirms directory structure."
+      risks:
+        - "Existing cross-references to coherence-extraction.md must be found and updated"
+    - phase: "Phase 8: Behavioral enforcement test for SC-9"
+      testability: high
+      approach: "Behavioral: opencode-cli run with with-test-home wrapper. Assert sub-agent returns BLOCKED."
+      risks:
+        - "Model availability for behavioral test execution"
