@@ -44,7 +44,7 @@ history are secondary and potentially transient or outdated.
 
     Title/objective comparison alone is insufficient. Before classifying overlap, perform the following checklist:
 
-    - [ ] **File-level search:** Extract all file paths mentioned in the active spec's affected-files or file_references sections. For each open `[SPEC]`/`[PLAN]`/`[SPEC-FIX]` issue, compare file paths. Shared files → potential overlap.
+    - [ ] **File-level search:** Extract all file paths mentioned in the active spec's affected-files or file_references sections. For each open `[SPEC]`/`[SPEC-FIX]` issue, and for each local `.issues/{N}/plan.md` file, compare file paths. Shared files → potential overlap.
     - [ ] **Symbol-level search:** Extract all function, class, and module names referenced in the active spec body. For each overlapping open issue, compare symbol names. Shared symbols → potential overlap.
     - [ ] **Concern boundary comparison:** Extract the concern area each phase addresses (what problem each phase solves). For each overlapping open issue, compare concern boundaries. Shared concerns → potential overlap.
     - [ ] **Four-tier classification:** Based on file, symbol, and concern overlap, classify using:
