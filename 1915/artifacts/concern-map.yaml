@@ -1,0 +1,57 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+concern_map:
+  phases:
+    - phase: "Phase 1: Restructure writing-plans/tasks/create.md"
+      primary_concern: "Eliminate sub-agent-dispatching-sub-agents in writing-plans create task"
+      boundaries:
+        - "Remove all instructions telling sub-agents to dispatch other sub-agents via task()"
+        - "Update SKILL.md Trigger Dispatch Table to add orchestrator-level dispatch entries"
+        - "Do NOT change the plan model, plan format, or plan template sections"
+        - "Do NOT change any other writing-plans task files"
+      separation_rationale: "Each affected task file is independently restructured; no shared state between them"
+    - phase: "Phase 2: Restructure spec-creation/tasks/analytical-artifacts.md"
+      primary_concern: "Eliminate sub-agent-dispatching-sub-agents in analytical-artifacts task"
+      boundaries:
+        - "Remove all instructions telling sub-agents to dispatch other sub-agents"
+        - "Update spec-creation SKILL.md Trigger Dispatch Table"
+        - "Do NOT change the artifact schemas or generation logic"
+      separation_rationale: "Independent from writing-plans changes; different skill, different task file"
+    - phase: "Phase 3: Restructure spec-creation/tasks/create.md"
+      primary_concern: "Eliminate sub-agent-dispatching-sub-agents in spec-creation create task"
+      boundaries:
+        - "Remove verification sub-agent dispatch instructions"
+        - "Update spec-creation SKILL.md Trigger Dispatch Table"
+      separation_rationale: "Independent from analytical-artifacts changes; different section of same skill"
+    - phase: "Phase 4: Restructure verification-before-completion/tasks/behavioral-test-evaluation.md"
+      primary_concern: "Eliminate sub-agent-dispatching-sub-agents in behavioral-test-evaluation task"
+      boundaries:
+        - "Remove per-SC sub-agent dispatch instructions"
+        - "Update verification-before-completion SKILL.md Trigger Dispatch Table"
+      separation_rationale: "Independent from spec-creation changes; different skill entirely"
+    - phase: "Phase 5: Split audit/tasks/closure-verification.md into DiMo chain"
+      primary_concern: "Fix DiMo chain bypass in closure-verification task"
+      boundaries:
+        - "Split monolithic task into 4 role files (generator, knowledge-supporter, evaluator, path-provider)"
+        - "Update audit SKILL.md Trigger Dispatch Table for sequential dispatch"
+        - "Do NOT change the DiMo chain protocol itself"
+      separation_rationale: "Each DiMo chain task is independently fixable; no shared state between them"
+    - phase: "Phase 6: Split audit/tasks/spec-summary.md into DiMo chain"
+      primary_concern: "Fix DiMo chain bypass in spec-summary task"
+      boundaries:
+        - "Split monolithic task into 4 role files"
+        - "Update audit SKILL.md Trigger Dispatch Table"
+      separation_rationale: "Independent from closure-verification changes"
+    - phase: "Phase 7: Split audit/tasks/coherence-extraction.md into DiMo chain"
+      primary_concern: "Fix DiMo chain bypass in coherence-extraction task"
+      boundaries:
+        - "Split monolithic task into 4 role files"
+        - "Update audit SKILL.md Trigger Dispatch Table"
+      separation_rationale: "Independent from other audit task changes"
+    - phase: "Phase 8: Behavioral enforcement test for SC-9"
+      primary_concern: "Add behavioral test verifying sub-agent rejects impossible dispatch instructions"
+      boundaries:
+        - "Create behavioral test in .opencode/tests/behaviors/"
+        - "Test verifies sub-agent returns BLOCKED when task file contains sub-agent dispatch instructions"
+        - "Do NOT modify any skill or task files"
+      separation_rationale: "Test-only phase; no production file changes"
