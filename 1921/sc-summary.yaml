@@ -1,0 +1,56 @@
+sc_coverage:
+  total: 8
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1921
+  evidence_types:
+    - behavioral
+    - string
+    - structural
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8]
+      evidence_types: [behavioral, string, structural]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "All 54 task files have old role names replaced with new names"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "SKILL.md Trigger Dispatch Table and DiMo Role Chain Dispatch section use new role names"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "File names containing old role names are renamed"
+      evidence_type: structural
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "Behavioral test files updated to use new names"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-5
+      description: "Audit chain dispatches correctly with new role names"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-6
+      description: "No broken cross-references to old file names"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-7
+      description: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-8
+      description: "Before any implementation, write behavioral enforcement tests; confirm RED state"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
