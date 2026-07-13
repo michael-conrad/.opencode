@@ -497,3 +497,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

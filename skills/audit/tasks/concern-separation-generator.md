@@ -338,3 +338,5 @@ summary: "Evidence collected: {N} phases, {M} symbols, {K} cross-phase overlaps,
 - `tasks/cross-validate.md` — Path Provider (final judgment)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

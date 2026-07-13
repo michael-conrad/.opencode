@@ -192,3 +192,5 @@ summary: "Evidence collected: {sc_count} SCs extracted, {behavioral_sc_count} be
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

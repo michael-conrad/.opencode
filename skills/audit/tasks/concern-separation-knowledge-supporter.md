@@ -441,3 +441,5 @@ summary: "Evidence validated: {N} items checked, {M} VALIDATED, {K} UNVERIFIED, 
 - `tasks/cross-validate.md` — Path Provider (final judgment)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

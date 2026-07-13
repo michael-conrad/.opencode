@@ -330,3 +330,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate, hard failure discipline
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

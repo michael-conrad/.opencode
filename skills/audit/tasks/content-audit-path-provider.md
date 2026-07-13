@@ -417,3 +417,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` §critical-rules-hard-fail — FAIL is a hard gate, never reclassifiable
 - `065-verification-honesty.md` §Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

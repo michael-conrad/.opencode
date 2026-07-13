@@ -366,3 +366,5 @@ remediation_required: true | false
 - `guidelines/000-critical-rules.md` — critical-rules-BEH-EV (PF-STRUCTURAL-FAIL uplift), critical-rules-034 (inline work prohibition)
 - `implementation-pipeline/SKILL.md` — dispatch routing table (PF-SEQUENCE-MATCHES source)
 - `solve/tasks/contract.md` — Contract YAML Structure (PF-Z3-CONTRACT source)
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

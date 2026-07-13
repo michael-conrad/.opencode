@@ -309,3 +309,5 @@ summary: "Evidence validated: {validated_count}/{total_items} items confirmed. {
 - `tasks/resolve-models.md` — Path Provider role reference (consumes `reasoning.yaml`)
 - `audit/SKILL.md` — DiMo chain dispatch (Generator → Knowledge Supporter → Evaluator → Path Provider)
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

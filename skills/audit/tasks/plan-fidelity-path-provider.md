@@ -268,3 +268,5 @@ remediation_required: true | false
 - `writing-plans` skill — clean-room plan generation
 - `guidelines/000-critical-rules.md` — critical-rules-020 (soft-passing prohibition), critical-rules-hard-fail, critical-rules-034 (inline work prohibition)
 - `guidelines/065-verification-honesty.md` — hard failure discipline, self-consistency gate
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

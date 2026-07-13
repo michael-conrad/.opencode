@@ -336,3 +336,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — spec-code alignment
 - `130-authority-source.md` — code as authoritative source
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

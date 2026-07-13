@@ -584,3 +584,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `080-code-standards.md` §Behavioral RED/GREEN as Primary Enforcement Gate
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `000-critical-rules.md` — behavioral evidence mandate
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

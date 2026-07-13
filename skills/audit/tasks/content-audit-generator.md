@@ -360,3 +360,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

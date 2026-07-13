@@ -365,3 +365,5 @@ summary: "Evidence collected: {N} SCs, {M} plan steps, {K} phases. {X} structura
 - `audit/SKILL.md` — DiMo chain dispatch
 - `writing-plans` skill — clean-room plan generation
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

@@ -475,3 +475,5 @@ remediation_required: <true|false>
 - `tasks/cross-validate.md` — Path Provider (final judgment, consumes verdict.yaml)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

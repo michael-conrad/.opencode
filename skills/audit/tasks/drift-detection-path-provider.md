@@ -502,3 +502,5 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `000-critical-rules.md` — spec-code alignment, hard failure discipline
 - `130-authority-source.md` — code as authoritative source
 - `065-verification-honesty.md` — live-source verification mandate, hard failure discipline
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

@@ -498,3 +498,5 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `tasks/cross-validate.md` — Sole Path Provider for general audit chain (analogous role, different domain)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

@@ -447,3 +447,5 @@ remediation_required: <true|false>
 - `audit/SKILL.md` — DiMo role chain dispatch
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

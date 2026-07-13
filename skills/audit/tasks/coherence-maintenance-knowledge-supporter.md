@@ -728,3 +728,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Generator)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

@@ -574,3 +574,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol
 - `065-verification-honesty.md` — live-source verification mandate, hard failure discipline
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

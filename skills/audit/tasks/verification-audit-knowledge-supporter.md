@@ -310,3 +310,5 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
