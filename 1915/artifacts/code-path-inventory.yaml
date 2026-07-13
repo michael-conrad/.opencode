@@ -1,0 +1,101 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+code_path_inventory:
+  phases:
+    - phase: "Phase 1: Restructure writing-plans/tasks/create.md"
+      files:
+        - path: skills/writing-plans/tasks/create.md
+          reason: Primary target - remove sub-agent dispatch instructions
+          changes: Remove all "sub-agent" dispatch instructions; replace with references to orchestrator-provided artifacts
+        - path: skills/writing-plans/SKILL.md
+          reason: Trigger Dispatch Table needs new entries
+          changes: Add orchestrator-level dispatch entries for sub-steps previously dispatched by sub-agents
+    - phase: "Phase 2: Restructure spec-creation/tasks/analytical-artifacts.md"
+      files:
+        - path: skills/spec-creation/tasks/analytical-artifacts.md
+          reason: Primary target - remove sub-agent dispatch instructions
+          changes: Remove all "sub-agent" dispatch instructions; replace with references to orchestrator-provided artifacts
+        - path: skills/spec-creation/SKILL.md
+          reason: Trigger Dispatch Table needs new entries
+          changes: Add orchestrator-level dispatch entries for 7 artifact sub-agents
+    - phase: "Phase 3: Restructure spec-creation/tasks/create.md"
+      files:
+        - path: skills/spec-creation/tasks/create.md
+          reason: Primary target - remove verification sub-agent dispatch instructions
+          changes: Remove verification sub-agent dispatch instructions
+        - path: skills/spec-creation/SKILL.md
+          reason: Trigger Dispatch Table needs new entries
+          changes: Add orchestrator-level dispatch entries for verification sub-agents
+    - phase: "Phase 4: Restructure verification-before-completion/tasks/behavioral-test-evaluation.md"
+      files:
+        - path: skills/verification-before-completion/tasks/behavioral-test-evaluation.md
+          reason: Primary target - remove per-SC sub-agent dispatch instructions
+          changes: Remove per-SC sub-agent dispatch instructions
+        - path: skills/verification-before-completion/SKILL.md
+          reason: Trigger Dispatch Table needs new entries
+          changes: Add orchestrator-level dispatch entries for per-SC sub-agents
+    - phase: "Phase 5: Split audit/tasks/closure-verification.md into DiMo chain"
+      files:
+        - path: skills/audit/tasks/closure-verification.md
+          reason: Monolithic task to be split
+          changes: Convert to reference document or remove; create 4 role files
+        - path: skills/audit/tasks/closure-verification/generator.md
+          reason: New role file
+          changes: Create with generator role instructions
+        - path: skills/audit/tasks/closure-verification/knowledge-supporter.md
+          reason: New role file
+          changes: Create with knowledge-supporter role instructions
+        - path: skills/audit/tasks/closure-verification/evaluator.md
+          reason: New role file
+          changes: Create with evaluator role instructions
+        - path: skills/audit/tasks/closure-verification/path-provider.md
+          reason: New role file
+          changes: Create with path-provider role instructions
+        - path: skills/audit/SKILL.md
+          reason: Trigger Dispatch Table needs sequential dispatch entries
+          changes: Add sequential dispatch entries for 4 roles
+    - phase: "Phase 6: Split audit/tasks/spec-summary.md into DiMo chain"
+      files:
+        - path: skills/audit/tasks/spec-summary.md
+          reason: Monolithic task to be split
+          changes: Convert to reference document or remove; create 4 role files
+        - path: skills/audit/tasks/spec-summary/generator.md
+          reason: New role file
+          changes: Create with generator role instructions
+        - path: skills/audit/tasks/spec-summary/knowledge-supporter.md
+          reason: New role file
+          changes: Create with knowledge-supporter role instructions
+        - path: skills/audit/tasks/spec-summary/evaluator.md
+          reason: New role file
+          changes: Create with evaluator role instructions
+        - path: skills/audit/tasks/spec-summary/path-provider.md
+          reason: New role file
+          changes: Create with path-provider role instructions
+        - path: skills/audit/SKILL.md
+          reason: Trigger Dispatch Table needs sequential dispatch entries
+          changes: Add sequential dispatch entries for 4 roles
+    - phase: "Phase 7: Split audit/tasks/coherence-extraction.md into DiMo chain"
+      files:
+        - path: skills/audit/tasks/coherence-extraction.md
+          reason: Monolithic task to be split
+          changes: Convert to reference document or remove; create 4 role files
+        - path: skills/audit/tasks/coherence-extraction/generator.md
+          reason: New role file
+          changes: Create with generator role instructions
+        - path: skills/audit/tasks/coherence-extraction/knowledge-supporter.md
+          reason: New role file
+          changes: Create with knowledge-supporter role instructions
+        - path: skills/audit/tasks/coherence-extraction/evaluator.md
+          reason: New role file
+          changes: Create with evaluator role instructions
+        - path: skills/audit/tasks/coherence-extraction/path-provider.md
+          reason: New role file
+          changes: Create with path-provider role instructions
+        - path: skills/audit/SKILL.md
+          reason: Trigger Dispatch Table needs sequential dispatch entries
+          changes: Add sequential dispatch entries for 4 roles
+    - phase: "Phase 8: Behavioral enforcement test for SC-9"
+      files:
+        - path: .opencode/tests/behaviors/sub-agent-dispatch-rejection.sh
+          reason: New behavioral test
+          changes: Create behavioral test verifying sub-agent returns BLOCKED on impossible dispatch instructions
