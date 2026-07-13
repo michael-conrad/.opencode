@@ -1,0 +1,40 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+cross_cutting_matrix:
+  concerns:
+    - concern: DiMo 4-role chain dispatch
+      affects_phases:
+        - "Phase 1: SKILL.md Restructure"
+        - "Phase 2: Create Role-Specific Task Files"
+        - "Phase 3: Remove Monolithic Task Files"
+        - "Phase 4: Behavioral Tests"
+      description: The DiMo 4-role chain (Generator → Knowledge Supporter → Evaluator → Path Provider) is the central architectural change. Phase 1 wires it into dispatch, Phase 2 creates the task files, Phase 3 removes the old dispatch path, Phase 4 verifies it works.
+      coordination_required: true
+    - concern: Agent-intent description language
+      affects_phases:
+        - "Phase 1: SKILL.md Restructure"
+      description: The audit skill description must use agent-intent language per #1899 instead of user-utterance matching. This is a Phase 1 concern only.
+      coordination_required: false
+    - concern: Path Provider role ambiguity
+      affects_phases:
+        - "Phase 1: SKILL.md Restructure"
+        - "Phase 3: Remove Monolithic Task Files"
+      description: Two task files (cross-validate.md and completion.md) both claim Path Provider role. Phase 1 clarifies in SKILL.md, Phase 3 resolves in task files.
+      coordination_required: true
+    - concern: Clean-room sub-agent separation
+      affects_phases:
+        - "Phase 2: Create Role-Specific Task Files"
+        - "Phase 4: Behavioral Tests"
+      description: Each DiMo role must be a separate clean-room sub-agent with no shared context. Phase 2 creates the task files, Phase 4 verifies the separation via behavioral test.
+      coordination_required: true
+    - concern: Behavioral test integrity (anti-lobotomization)
+      affects_phases:
+        - "Phase 4: Behavioral Tests"
+      description: SC-8 and SC-11 are behavioral — must not be weakened to structural/string evidence. Phase 4 implements and verifies.
+      coordination_required: false
+    - concern: File deletion safety
+      affects_phases:
+        - "Phase 2: Create Role-Specific Task Files"
+        - "Phase 3: Remove Monolithic Task Files"
+      description: Monolithic task files must not be deleted until replacement role-specific files exist and SC-8 behavioral test passes. Phase 2 creates replacements, Phase 3 deletes originals.
+      coordination_required: true

@@ -1,0 +1,44 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+concern_map:
+  phases:
+    - phase: "Phase 1: SKILL.md Restructure"
+      primary_concern: Rewrite audit skill description and dispatch tables to route through DiMo 4-role chain
+      boundaries:
+        - In scope: audit/SKILL.md description, Trigger Dispatch Table, Invocation section, DiMo Role Chain Dispatch section
+        - In scope: audit/tasks/completion.md role claim removal
+        - In scope: audit/tasks/cross-validate.md role claim clarification
+        - Out of scope: Creating new task files (Phase 2)
+        - Out of scope: Deleting monolithic task files (Phase 3)
+        - Out of scope: Behavioral tests (Phase 4)
+      separation_rationale: SKILL.md is the dispatch entry point — it must be restructured first so that Phase 2 task files have a correct dispatch target
+    - phase: "Phase 2: Create Role-Specific Task Files"
+      primary_concern: Create 36 new role-specific task files (9 audit types × 4 DiMo roles)
+      boundaries:
+        - In scope: Generator task files (9 files)
+        - In scope: Knowledge Supporter task files (9 files)
+        - In scope: Evaluator task files (9 files, rename or new, strip Step 0a)
+        - In scope: Path Provider task files (9 files)
+        - Out of scope: Deleting old monolithic files (Phase 3)
+        - Out of scope: SKILL.md changes (Phase 1)
+        - Out of scope: Behavioral tests (Phase 4)
+      separation_rationale: Task files must exist before old files are deleted to prevent dispatch breakage — creation and deletion are separate concerns
+    - phase: "Phase 3: Remove Monolithic Task Files"
+      primary_concern: Delete 9 monolithic task files and resolve Path Provider role ambiguity
+      boundaries:
+        - In scope: Delete spec-audit.md, verification-audit.md, plan-fidelity.md, concern-separation.md, coherence-maintenance.md, guideline-audit.md, drift-detection.md, content-audit.md, test-quality-audit.md
+        - In scope: Remove Knowledge Supporter Step 0a from Evaluator task files
+        - In scope: Resolve Path Provider role ambiguity (keep cross-validate.md, remove from completion.md)
+        - Out of scope: Creating new task files (Phase 2)
+        - Out of scope: SKILL.md changes (Phase 1)
+        - Out of scope: Behavioral tests (Phase 4)
+      separation_rationale: Deletion is destructive — must be gated behind Phase 2 completion and SC-8 behavioral test PASS
+    - phase: "Phase 4: Behavioral Tests"
+      primary_concern: Add behavioral enforcement test verifying agent dispatches 4-role chain, not monolithic sub-agent
+      boundaries:
+        - In scope: New behavioral test for SC-8 (4-role chain dispatch)
+        - In scope: SC-11 anti-lobotomization behavioral test
+        - Out of scope: Content-verification tests for SC-1 through SC-7, SC-9, SC-10
+        - Out of scope: SKILL.md changes (Phase 1)
+        - Out of scope: Task file changes (Phases 2-3)
+      separation_rationale: Behavioral tests verify the entire restructure works end-to-end — they are the final verification gate

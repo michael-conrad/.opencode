@@ -1,0 +1,43 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+testability_assessment:
+  phases:
+    - phase: "Phase 1: SKILL.md Restructure"
+      test_strategy: string
+      key_test_scenarios:
+        - "SC-1: grep for 'User phrases:' in audit/SKILL.md description — must be absent"
+        - "SC-2: grep Trigger Dispatch Table — no rows dispatching to old monolithic task names"
+        - "SC-7: grep SKILL.md — DiMo section present, old Invocation table absent"
+      testability_concerns:
+        - "String evidence only — no behavioral verification of dispatch routing at this phase"
+        - "SC-7 requires both presence (DiMo section) and absence (old Invocation table) checks"
+    - phase: "Phase 2: Create Role-Specific Task Files"
+      test_strategy: structural
+      key_test_scenarios:
+        - "SC-3: ls audit/tasks/*-generator.md — 9 files"
+        - "SC-4: ls audit/tasks/*-knowledge-supporter.md — 9 files"
+        - "SC-5: ls audit/tasks/*-path-provider.md — 9 files"
+        - "SC-6: grep for 'Knowledge Supporter' in *-evaluator.md — must be absent"
+      testability_concerns:
+        - "Structural evidence only — file existence does not verify content quality"
+        - "SC-6 requires grep across all 9 evaluator files"
+        - "36 new files is a large surface area — risk of missing or empty files"
+    - phase: "Phase 3: Remove Monolithic Task Files"
+      test_strategy: structural
+      key_test_scenarios:
+        - "SC-9: grep for 'Path Provider (Judger)' in audit/tasks/ — exactly one match in cross-validate.md"
+        - "SC-10: ls audit/tasks/spec-audit.md — must be absent (same for all 9 old monolithic files)"
+      testability_concerns:
+        - "SC-10 requires checking absence of 9 specific files"
+        - "Deletion is irreversible — must verify Phase 2 files exist before Phase 3 deletion"
+    - phase: "Phase 4: Behavioral Tests"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "SC-8: opencode-cli run with audit prompt — assert 4 separate task() calls in stderr, not 1 monolithic"
+        - "SC-11: opencode-cli run — verify agent does not lobotomize behavioral SC-8 to structural/string"
+      testability_concerns:
+        - "SC-8 is behavioral — requires actual opencode-cli execution against real AI model"
+        - "SC-11 is behavioral — requires clean-room semantic inspector to verify agent does not weaken SC-8"
+        - "Behavioral test timeout risk — may need increased BEHAVIOR_TIMEOUT"
+        - "Model availability dependency — test requires a working AI model"
+        - "SC-8 and SC-11 are the only behavioral SCs — all others are string or structural"

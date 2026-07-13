@@ -1,9 +1,138 @@
 number: 1900
-title: "[SPEC] Trim Pre-Response Gate — separate orchestration routing, deduplicate reinforcement, clarify intent-matching"
+title: '[SPEC] Trim Pre-Response Gate — separate orchestration routing, deduplicate
+  reinforcement, clarify intent-matching'
 status: draft
 phase: 1
 labels:
-  - spec
-  - needs-approval
+- spec
+- needs-approval
 created: 2026-07-12
 updated: 2026-07-12
+body: "# Plan: Pre-Response Gate Restructure\n\n**Issue:** #1900\n**Status:** Draft\n\
+  **Provenance:** AI-generated\n\n## Goal\n\nRestructure the Pre-Response Gate in\
+  \ `prompts/default.txt` to separate five concerns into independent sections, fix\
+  \ the spec-audit.md Step 0a gate from WARNING to BLOCK/HALT, write behavioral enforcement\
+  \ tests in RED state, and clarify AGENTS.md Step 1 wording from utterance-matching\
+  \ to intent-matching.\n\n## Architecture\n\nThe Pre-Response Gate is a single positional\
+  \ enforcement point in `prompts/default.txt` that fires before every agent output.\
+  \ Currently it mixes five concerns under one header. The restructured version separates\
+  \ them into:\n\n1. **Pre-Response Gate** (points 1-3 + Forbidden Rationalizations\
+  \ + Cost Model) — inline, positional\n2. **Sub-Agent Routing Boundary** (point 4)\
+  \ — own section, same positional enforcement\n3. **Evidence Hierarchy** — removed\
+  \ from default.txt, cross-referenced to `065-verification-honesty.md`\n\nAGENTS.md\
+  \ Step 1 wording is a separate concern in a separate file.\n\n## Affected Files\n\
+  \n| File | Change Type | Phase |\n|------|-------------|-------|\n| `.opencode/prompts/default.txt`\
+  \ | Restructure | 1 |\n| `.opencode/skills/audit/tasks/spec-audit.md` | Bug fix\
+  \ (WARNING → BLOCK/HALT) | 1 |\n| `.opencode/tests/behaviors/` | New behavioral\
+  \ tests (RED state) | 1 |\n| `.opencode/AGENTS.md` | Wording change | 2 |\n\n##\
+  \ Phase Table\n\n| Phase | Description | SCs | Dependencies |\n|-------|-------------|-----|-------------|\n\
+  | 1 | Restructure `prompts/default.txt` — keep points 1-3 + Forbidden Rationalizations\
+  \ + Cost Model inline, remove Evidence Hierarchy, separate point 4 into own section.\
+  \ Fix spec-audit.md Step 0a (WARNING → BLOCK/HALT). Write behavioral enforcement\
+  \ tests in RED state. | SC-1, SC-2, SC-3, SC-4, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11\
+  \ | None |\n| 2 | Clarify AGENTS.md Step 1 wording from \"Evaluate the user message\"\
+  \ to \"Evaluate your current context and task intent\" | SC-5 | Phase 1 |\n\n##\
+  \ SC-to-Step Traceability\n\n### Phase 1\n\n| SC ID | Criterion | Step(s) |\n|-------|-----------|---------|\n\
+  | SC-1 | default.txt Pre-Response Gate contains points 1-3 + Forbidden Rationalizations\
+  \ inline | 1.1, 1.2 |\n| SC-2 | Evidence Hierarchy REMOVED from default.txt | 1.3\
+  \ |\n| SC-3 | Cost Model stays inline in default.txt | 1.1 |\n| SC-4 | Point 4 in\
+  \ separate section outside Pre-Response Gate | 1.4 |\n| SC-6 | Agent still dispatches\
+  \ skills (behavioral) | 1.6 |\n| SC-7 | Agent still applies forbidden rationalizations\
+  \ inline (behavioral) | 1.6 |\n| SC-8 | Behavioral tests exist in RED state before\
+  \ change | 1.5 |\n| SC-9 | spec-audit.md Step 0a emits BLOCK/HALT not WARNING |\
+  \ 1.7 |\n| SC-10 | Remediation procedure for audit FAIL | 1.7 |\n| SC-11 | No escape\
+  \ hatch language in restructured gate | 1.2 |\n\n### Phase 2\n\n| SC ID | Criterion\
+  \ | Step(s) |\n|-------|-----------|---------|\n| SC-5 | AGENTS.md Step 1 changed\
+  \ to \"context and task intent\" | 2.1 |\n\n## Implementation Steps\n\n### Phase\
+  \ 1: Restructure `prompts/default.txt` + Fix spec-audit.md + Behavioral Tests\n\n\
+  **Safety/Rollback:** No destructive operations in this phase — all changes are text\
+  \ edits to `.md` and `.txt` files. Rollback via `git checkout` on individual files.\n\
+  \n**Feasibility:**\n\n| Step | Reference | Verified? | Evidence |\n|------|-----------|-----------|----------|\n\
+  | 1.1 | `.opencode/prompts/default.txt` Pre-Response Gate section | ✅ | Spec confirms\
+  \ lines 5-16 contain the gate block |\n| 1.3 | `.opencode/guidelines/065-verification-honesty.md`\
+  \ | ✅ | Spec confirms Evidence Hierarchy lives in 065 |\n| 1.5 | `.opencode/tests/behaviors/`\
+  \ | ✅ | Directory exists per test infrastructure |\n| 1.7 | `.opencode/skills/audit/tasks/spec-audit.md`\
+  \ line 90-92 | ✅ | Spec confirms Step 0a location |\n\n#### Step 1.1 — Restructure\
+  \ Pre-Response Gate header and points 1-3\n\nEdit `.opencode/prompts/default.txt`:\n\
+  \n- Keep the Pre-Response Gate header\n- Keep points 1-3 (scan available_skills,\
+  \ call skill() when triggered, justify when no match) inline under the header\n\
+  - Keep Forbidden Rationalizations inline under the header\n- Keep Cost Model inline\
+  \ under the header (coupled with rationalization #4)\n- Remove the Evidence Hierarchy\
+  \ subsection from the gate\n- Ensure no escape hatch language (\"use best judgment\"\
+  , \"as needed\", \"TBD\", \"TODO\", \"left to implementor\") is present\n\n**Verification:**\
+  \ `grep` for dispatch points + rationalization patterns present in default.txt Pre-Response\
+  \ Gate section. `grep` for absence of all 5 escape hatch patterns.\n\n#### Step\
+  \ 1.2 — Verify no escape hatch language\n\nConfirm the restructured gate contains\
+  \ none of: \"use best judgment\", \"as needed\", \"TBD\", \"TODO\", \"left to implementor\"\
+  .\n\n**Verification:** `grep -c` each pattern against default.txt — all must return\
+  \ 0.\n\n#### Step 1.3 — Remove Evidence Hierarchy from default.txt\n\nDelete the\
+  \ Evidence Hierarchy subsection from the Pre-Response Gate section. The canonical\
+  \ source is `065-verification-honesty.md` §Evidence Hierarchy.\n\n**Verification:**\
+  \ `grep \"Evidence Hierarchy\" .opencode/prompts/default.txt` returns empty.\n\n\
+  #### Step 1.4 — Separate point 4 into own section\n\nMove point 4 (sub-agent dispatch\
+  \ via `task()`) out of the Pre-Response Gate block into its own section titled \"\
+  Sub-Agent Routing Boundary\" in `default.txt`. Same positional enforcement (fires\
+  \ pre-output), cleaner grouping.\n\n**Verification:** `grep` for sub-agent routing\
+  \ section outside Pre-Response Gate block in default.txt.\n\n#### Step 1.5 — Write\
+  \ behavioral enforcement tests in RED state\n\nCreate behavioral test scripts in\
+  \ `.opencode/tests/behaviors/` that:\n\n- **SC-6 test:** Send a task-triggering\
+  \ prompt via `opencode-cli run`, verify `skill()` call appears in stderr. Must FAIL\
+  \ before the restructuring change (RED state).\n- **SC-7 test:** Send a rationalization-triggering\
+  \ prompt, verify agent does not rationalize. Must FAIL before the restructuring\
+  \ change (RED state).\n- **SC-8 test:** Run with `--scenario` matching each gate\
+  \ SC — RED tests fail before change, GREEN tests pass after.\n\nUse `with-test-home`\
+  \ wrapper. Assertions use `assert_stderr_pattern_present`/`assert_stderr_pattern_absent`\
+  \ for tool dispatch strings, and `assert_semantic` for behavioral SCs.\n\n**Verification:**\
+  \ Run each test — confirm FAIL (RED state) before Phase 1 changes are applied.\n\
+  \n#### Step 1.6 — Run behavioral tests to confirm RED state\n\nExecute the behavioral\
+  \ tests written in Step 1.5. All must FAIL because the restructuring change has\
+  \ not been applied yet. This confirms the tests are valid RED-state tests.\n\n**Verification:**\
+  \ Each test returns non-zero exit code with expected failure output.\n\n#### Step\
+  \ 1.7 — Fix spec-audit.md Step 0a and add remediation procedure\n\nEdit `.opencode/skills/audit/tasks/spec-audit.md`:\n\
+  \n- **Step 0a (line ~90-92):** Change missing analytical artifacts from emitting\
+  \ a WARNING to emitting BLOCK/HALT. The gate must match the SKILL.md which already\
+  \ specifies HALT for missing artifacts.\n- **Remediation section:** Add mandatory\
+  \ procedure for audit FAIL:\n  1. Diagnose — identify which SCs failed and root\
+  \ cause\n  2. Remediate — fix the spec to address failing SCs\n  3. Re-audit — re-run\
+  \ spec-audit with revised spec\n  4. Escalate — if FAIL cannot be remediated, escalate\
+  \ to developer with failing SCs, root cause, and recommended action\n  5. Never\
+  \ proceed past FAIL — unremediated FAIL must not advance to implementation\n\n**Verification:**\
+  \ `grep` for absence of \"emit a WARNING\" in spec-audit.md Step 0a. `grep` for\
+  \ presence of \"BLOCK/HALT\". `grep` for remediation procedure sections (diagnose,\
+  \ remediate, re-audit, escalate).\n\n#### Step 1.8 — Run behavioral tests to confirm\
+  \ GREEN state\n\nRe-run the behavioral tests from Step 1.5. All must PASS now that\
+  \ the restructuring change has been applied. This confirms the tests are valid GREEN-state\
+  \ tests.\n\n**Verification:** Each test returns zero exit code.\n\n### Phase 2:\
+  \ Clarify AGENTS.md Wording\n\n**Safety/Rollback:** No destructive operations. Rollback\
+  \ via `git checkout .opencode/AGENTS.md`.\n\n**Feasibility:**\n\n| Step | Reference\
+  \ | Verified? | Evidence |\n|------|-----------|-----------|----------|\n| 2.1 |\
+  \ `.opencode/AGENTS.md` Step 1 (lines ~30-40) | ✅ | Spec confirms location |\n\n\
+  #### Step 2.1 — Change AGENTS.md Step 1 wording\n\nEdit `.opencode/AGENTS.md` Step\
+  \ 1 from:\n\n> \"Evaluate the user message against ALL available skill descriptions.\"\
+  \n\nTo:\n\n> \"Evaluate your current context and task intent against ALL available\
+  \ skill descriptions. (The match is between what you need to do next and what the\
+  \ skill does — not the literal user utterance.)\"\n\n**Verification:** `grep` AGENTS.md\
+  \ for \"context and task intent\" — must return at least one match. `grep` for \"\
+  Evaluate the user message\" — must return zero matches.\n\n## Exit Criteria\n\n\
+  - [ ] Phase 1 complete: default.txt restructured, spec-audit.md fixed, behavioral\
+  \ tests written in RED state\n- [ ] Phase 2 complete: AGENTS.md Step 1 wording changed\n\
+  - [ ] All string SCs (SC-1 through SC-5, SC-9, SC-11) verified via grep\n- [ ] All\
+  \ behavioral SCs (SC-6, SC-7, SC-8) verified via opencode-cli run\n- [ ] Semantic\
+  \ SC (SC-10) verified via clean-room sub-agent read\n- [ ] Plan committed to feature\
+  \ branch `feature/1900-pre-response-gate-restructure`\n\n## Implementation Pipeline\
+  \ Gate Steps\n\nThe following implementation-pipeline gate steps MUST be executed\
+  \ after plan approval:\n\n| Gate | Skill/Task | When |\n|------|-----------|------|\n\
+  | Pre-work | `git-workflow --task pre-work` | Before any file modification |\n|\
+  \ Implementation | `implementation-pipeline` | Dispatch each phase to clean-room\
+  \ sub-agents |\n| Verification | `verification-before-completion` | After implementation,\
+  \ before completion claim |\n| Finishing checklist | `finishing-a-development-branch\
+  \ --task checklist` | Before PR |\n| Review prep | `git-workflow --task review-prep`\
+  \ | Before PR creation |\n| PR creation | `git-workflow --task pr-creation` | After\
+  \ review prep |\n| Cleanup | `git-workflow --task cleanup` | After PR merge |\n\n\
+  ## Evidence/Provenance\n\n| Claim | Evidence Source | Verified? |\n|-------|----------------|----------|\n\
+  | Spec is approved | `github_issue_read(method=get_labels, issue_number=1900)` →\
+  \ `approved-for-pr` label | ✅ |\n| All 7 analytical artifacts exist | `ls .opencode/.issues/1900/artifacts/`\
+  \ → 7 files | ✅ |\n| default.txt Pre-Response Gate at lines 5-16 | Spec §Root Cause\
+  \ Analysis | ✅ |\n| spec-audit.md Step 0a at lines 90-92 | Spec §Proposed Changes\
+  \ | ✅ |\n| AGENTS.md Step 1 at lines 30-40 | Spec §Root Cause Analysis | ✅ |\n"
+updated_at: '2026-07-13T13:34:20+00:00'

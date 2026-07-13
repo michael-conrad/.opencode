@@ -1,0 +1,103 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+blast_radius:
+  phases:
+    - phase: "Phase 1: SKILL.md Restructure"
+      affected_components:
+        - component: audit/SKILL.md
+          impact: direct
+          description: Rewrite description, Trigger Dispatch Table, Invocation section, and DiMo section
+          ripple_effects:
+            - All orchestrators that dispatch audit tasks will route through the new DiMo chain instead of monolithic task files
+            - Any skill that references audit task names directly (e.g., writing-plans, implementation-pipeline) may need updates
+        - component: audit/tasks/completion.md
+          impact: direct
+          description: Remove Path Provider role claim
+          ripple_effects:
+            - cross-validate.md becomes the sole Path Provider
+        - component: audit/tasks/cross-validate.md
+          impact: direct
+          description: Keep as sole Path Provider, remove ambiguity
+          ripple_effects:
+            - No other task file claims Path Provider role
+      risk_level: medium
+    - phase: "Phase 2: Create Role-Specific Task Files"
+      affected_components:
+        - component: audit/tasks/*-generator.md (9 new files)
+          impact: direct
+          description: New Generator role task files for each audit type
+          ripple_effects:
+            - Orchestrator dispatches Generator as first role in DiMo chain
+        - component: audit/tasks/*-knowledge-supporter.md (9 new files)
+          impact: direct
+          description: New Knowledge Supporter role task files
+          ripple_effects:
+            - Orchestrator dispatches Knowledge Supporter as second role
+        - component: audit/tasks/*-evaluator.md (9 files, rename or new)
+          impact: direct
+          description: Evaluator role task files, stripped of Knowledge Supporter Step 0a
+          ripple_effects:
+            - Evaluator sub-agents no longer perform Knowledge Supporter work
+        - component: audit/tasks/*-path-provider.md (9 new files)
+          impact: direct
+          description: New Path Provider role task files
+          ripple_effects:
+            - Orchestrator dispatches Path Provider as fourth role
+      risk_level: high
+    - phase: "Phase 3: Remove Monolithic Task Files"
+      affected_components:
+        - component: audit/tasks/spec-audit.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Any hardcoded reference to this file path breaks
+        - component: audit/tasks/verification-audit.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Default audit dispatch must route through DiMo chain
+        - component: audit/tasks/plan-fidelity.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - writing-plans pipeline must dispatch through DiMo chain
+        - component: audit/tasks/concern-separation.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - writing-plans pipeline must dispatch through DiMo chain
+        - component: audit/tasks/coherence-maintenance.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Coherence maintenance must route through DiMo chain
+        - component: audit/tasks/guideline-audit.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Guideline audit must route through DiMo chain
+        - component: audit/tasks/drift-detection.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Drift detection must route through DiMo chain
+        - component: audit/tasks/content-audit.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Content audit must route through DiMo chain
+        - component: audit/tasks/test-quality-audit.md
+          impact: direct
+          description: Delete monolithic task file
+          ripple_effects:
+            - Test quality audit must route through DiMo chain
+      risk_level: high
+    - phase: "Phase 4: Behavioral Tests"
+      affected_components:
+        - component: .opencode/tests/behaviors/
+          impact: direct
+          description: New behavioral enforcement test for 4-role chain dispatch
+          ripple_effects:
+            - CI pipeline runs new behavioral test
+            - Test verifies agent dispatches 4 separate task() calls, not 1 monolithic
+      risk_level: low

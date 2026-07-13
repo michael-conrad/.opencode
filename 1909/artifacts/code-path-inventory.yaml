@@ -1,0 +1,129 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+code_path_inventory:
+  phases:
+    - phase: "Phase 1: SKILL.md Restructure"
+      files:
+        - path: .opencode/skills/audit/SKILL.md
+          reason: Primary dispatch entry point — description, Trigger Dispatch Table, Invocation, and DiMo section all need rewrite
+          changes: Rewrite description to agent-intent language, restructure Trigger Dispatch Table to route to DiMo workflow, make DiMo section authoritative, remove old Invocation table
+        - path: .opencode/skills/audit/tasks/completion.md
+          reason: Currently claims Path Provider role — must remove that claim
+          changes: Remove "Path Provider (Judger)" role claim from file
+        - path: .opencode/skills/audit/tasks/cross-validate.md
+          reason: Currently shares Path Provider role with completion.md — must be clarified as sole Path Provider
+          changes: Keep Path Provider role claim, remove ambiguity
+      new_files: []
+    - phase: "Phase 2: Create Role-Specific Task Files"
+      files: []
+      new_files:
+        - path: .opencode/skills/audit/tasks/spec-audit-generator.md
+          purpose: Generator role for spec-audit — collects raw evidence, writes evidence.yaml
+        - path: .opencode/skills/audit/tasks/spec-audit-knowledge-supporter.md
+          purpose: Knowledge Supporter role for spec-audit — validates evidence, writes reasoning.yaml
+        - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+          purpose: Evaluator role for spec-audit — produces binary PASS/FAIL, writes verdict.yaml
+        - path: .opencode/skills/audit/tasks/spec-audit-path-provider.md
+          purpose: Path Provider role for spec-audit — synthesizes final judgment, writes judgment.yaml
+        - path: .opencode/skills/audit/tasks/verification-audit-generator.md
+          purpose: Generator role for verification-audit
+        - path: .opencode/skills/audit/tasks/verification-audit-knowledge-supporter.md
+          purpose: Knowledge Supporter role for verification-audit
+        - path: .opencode/skills/audit/tasks/verification-audit-evaluator.md
+          purpose: Evaluator role for verification-audit
+        - path: .opencode/skills/audit/tasks/verification-audit-path-provider.md
+          purpose: Path Provider role for verification-audit
+        - path: .opencode/skills/audit/tasks/plan-fidelity-generator.md
+          purpose: Generator role for plan-fidelity
+        - path: .opencode/skills/audit/tasks/plan-fidelity-knowledge-supporter.md
+          purpose: Knowledge Supporter role for plan-fidelity
+        - path: .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+          purpose: Evaluator role for plan-fidelity
+        - path: .opencode/skills/audit/tasks/plan-fidelity-path-provider.md
+          purpose: Path Provider role for plan-fidelity
+        - path: .opencode/skills/audit/tasks/concern-separation-generator.md
+          purpose: Generator role for concern-separation
+        - path: .opencode/skills/audit/tasks/concern-separation-knowledge-supporter.md
+          purpose: Knowledge Supporter role for concern-separation
+        - path: .opencode/skills/audit/tasks/concern-separation-evaluator.md
+          purpose: Evaluator role for concern-separation
+        - path: .opencode/skills/audit/tasks/concern-separation-path-provider.md
+          purpose: Path Provider role for concern-separation
+        - path: .opencode/skills/audit/tasks/coherence-maintenance-generator.md
+          purpose: Generator role for coherence-maintenance
+        - path: .opencode/skills/audit/tasks/coherence-maintenance-knowledge-supporter.md
+          purpose: Knowledge Supporter role for coherence-maintenance
+        - path: .opencode/skills/audit/tasks/coherence-maintenance-evaluator.md
+          purpose: Evaluator role for coherence-maintenance
+        - path: .opencode/skills/audit/tasks/coherence-maintenance-path-provider.md
+          purpose: Path Provider role for coherence-maintenance
+        - path: .opencode/skills/audit/tasks/guideline-audit-generator.md
+          purpose: Generator role for guideline-audit
+        - path: .opencode/skills/audit/tasks/guideline-audit-knowledge-supporter.md
+          purpose: Knowledge Supporter role for guideline-audit
+        - path: .opencode/skills/audit/tasks/guideline-audit-evaluator.md
+          purpose: Evaluator role for guideline-audit
+        - path: .opencode/skills/audit/tasks/guideline-audit-path-provider.md
+          purpose: Path Provider role for guideline-audit
+        - path: .opencode/skills/audit/tasks/drift-detection-generator.md
+          purpose: Generator role for drift-detection
+        - path: .opencode/skills/audit/tasks/drift-detection-knowledge-supporter.md
+          purpose: Knowledge Supporter role for drift-detection
+        - path: .opencode/skills/audit/tasks/drift-detection-evaluator.md
+          purpose: Evaluator role for drift-detection
+        - path: .opencode/skills/audit/tasks/drift-detection-path-provider.md
+          purpose: Path Provider role for drift-detection
+        - path: .opencode/skills/audit/tasks/content-audit-generator.md
+          purpose: Generator role for content-audit
+        - path: .opencode/skills/audit/tasks/content-audit-knowledge-supporter.md
+          purpose: Knowledge Supporter role for content-audit
+        - path: .opencode/skills/audit/tasks/content-audit-evaluator.md
+          purpose: Evaluator role for content-audit
+        - path: .opencode/skills/audit/tasks/content-audit-path-provider.md
+          purpose: Path Provider role for content-audit
+        - path: .opencode/skills/audit/tasks/test-quality-audit-generator.md
+          purpose: Generator role for test-quality-audit
+        - path: .opencode/skills/audit/tasks/test-quality-audit-knowledge-supporter.md
+          purpose: Knowledge Supporter role for test-quality-audit
+        - path: .opencode/skills/audit/tasks/test-quality-audit-evaluator.md
+          purpose: Evaluator role for test-quality-audit
+        - path: .opencode/skills/audit/tasks/test-quality-audit-path-provider.md
+          purpose: Path Provider role for test-quality-audit
+    - phase: "Phase 3: Remove Monolithic Task Files"
+      files:
+        - path: .opencode/skills/audit/tasks/spec-audit.md
+          reason: Replaced by 4 role-specific files (spec-audit-{generator,knowledge-supporter,evaluator,path-provider}.md)
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/verification-audit.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/plan-fidelity.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/concern-separation.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/coherence-maintenance.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/guideline-audit.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/drift-detection.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/content-audit.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+        - path: .opencode/skills/audit/tasks/test-quality-audit.md
+          reason: Replaced by 4 role-specific files
+          changes: Delete
+      new_files: []
+    - phase: "Phase 4: Behavioral Tests"
+      files:
+        - path: .opencode/tests/behaviors/
+          reason: New behavioral enforcement test for SC-8 (4-role chain dispatch) and SC-11 (anti-lobotomization)
+          changes: Add new behavioral test scenario
+      new_files:
+        - path: .opencode/tests/behaviors/audit-dimo-4role-dispatch.sh
+          purpose: Behavioral enforcement test verifying agent dispatches 4 separate task() calls for audit, not 1 monolithic sub-agent

@@ -1,0 +1,56 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+state_analysis:
+  phases:
+    - phase: "Phase 1: SKILL.md Restructure"
+      state_transitions:
+        - from: "SKILL.md dispatches to monolithic task files"
+          to: "SKILL.md dispatches to DiMo 4-role chain"
+          trigger: Rewrite Trigger Dispatch Table and Invocation section
+          invariant: All existing audit types must still be dispatchable after restructure
+        - from: "Description uses user-utterance matching"
+          to: "Description uses agent-intent language"
+          trigger: Rewrite description per #1899
+          invariant: Description must still accurately describe what the skill does
+        - from: "DiMo section is documentation only"
+          to: "DiMo section is authoritative dispatch instruction"
+          trigger: Make DiMo Role Chain Dispatch section the authoritative dispatch instruction
+          invariant: DiMo section must be consistent with Trigger Dispatch Table
+    - phase: "Phase 2: Create Role-Specific Task Files"
+      state_transitions:
+        - from: "No Generator task files exist for most audit types"
+          to: "9 Generator task files exist"
+          trigger: Create *-generator.md for each audit type
+          invariant: Each Generator task file must be self-contained with entry/exit criteria
+        - from: "No Knowledge Supporter task files exist for most audit types"
+          to: "9 Knowledge Supporter task files exist"
+          trigger: Create *-knowledge-supporter.md for each audit type
+          invariant: Each Knowledge Supporter must read evidence.yaml, write reasoning.yaml
+        - from: "Evaluator task files contain Knowledge Supporter Step 0a"
+          to: "Evaluator task files are pure Evaluator role only"
+          trigger: Strip Step 0a from Evaluator task files
+          invariant: Evaluator must only read evidence.yaml + reasoning.yaml, write verdict.yaml
+        - from: "No Path Provider task files exist for most audit types"
+          to: "9 Path Provider task files exist"
+          trigger: Create *-path-provider.md for each audit type
+          invariant: Each Path Provider must read all upstream artifacts, write judgment.yaml
+    - phase: "Phase 3: Remove Monolithic Task Files"
+      state_transitions:
+        - from: "9 monolithic task files exist"
+          to: "0 monolithic task files exist"
+          trigger: Delete all 9 monolithic task files
+          invariant: All 36 role-specific task files must exist before any deletion
+        - from: "Two task files claim Path Provider role"
+          to: "One task file claims Path Provider role"
+          trigger: Remove Path Provider claim from completion.md, keep in cross-validate.md
+          invariant: cross-validate.md is the sole Path Provider
+    - phase: "Phase 4: Behavioral Tests"
+      state_transitions:
+        - from: "No behavioral test for 4-role chain dispatch"
+          to: "Behavioral test exists and passes for 4-role chain dispatch"
+          trigger: Create and run behavioral enforcement test
+          invariant: Test must verify 4 separate task() calls, not 1 monolithic dispatch
+        - from: "No anti-lobotomization behavioral test"
+          to: "Anti-lobotomization behavioral test exists and passes"
+          trigger: Create and run SC-11 behavioral test
+          invariant: Test must verify agent does not weaken behavioral SC-8 to structural/string

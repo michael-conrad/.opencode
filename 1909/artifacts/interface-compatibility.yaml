@@ -1,0 +1,58 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1909
+generated_at: "2026-07-12T23:30:00Z"
+interface_compatibility:
+  interfaces:
+    - name: audit/SKILL.md Trigger Dispatch Table
+      status: modified
+      compatibility: breaking_change
+      consumers:
+        - All orchestrators that dispatch audit tasks via skill() + task()
+        - writing-plans pipeline (plan-fidelity, concern-separation audits)
+        - implementation-pipeline (verification-audit)
+        - approval-gate (spec-audit)
+        - issue-operations (closure-verification)
+    - name: audit/tasks/*.md (monolithic task files)
+      status: removed
+      compatibility: breaking_change
+      consumers:
+        - All orchestrators that currently dispatch to monolithic audit task files
+        - Any skill that references monolithic task file names directly
+    - name: audit/tasks/*-generator.md (new)
+      status: new
+      compatibility: internal_only
+      consumers:
+        - audit/SKILL.md DiMo Role Chain Dispatch (role 1)
+    - name: audit/tasks/*-knowledge-supporter.md (new)
+      status: new
+      compatibility: internal_only
+      consumers:
+        - audit/SKILL.md DiMo Role Chain Dispatch (role 2)
+    - name: audit/tasks/*-evaluator.md (renamed/new)
+      status: modified
+      compatibility: breaking_change
+      consumers:
+        - audit/SKILL.md DiMo Role Chain Dispatch (role 3)
+        - Note: Existing Evaluator task files contain Knowledge Supporter Step 0a — this is removed
+    - name: audit/tasks/*-path-provider.md (new)
+      status: new
+      compatibility: internal_only
+      consumers:
+        - audit/SKILL.md DiMo Role Chain Dispatch (role 4)
+    - name: audit/tasks/completion.md
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - audit/SKILL.md completion dispatch
+        - Note: Only role claim removed, procedure unchanged
+    - name: audit/tasks/cross-validate.md
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - audit/SKILL.md cross-validate dispatch
+        - Note: Role claim clarified, procedure unchanged
+    - name: .opencode/tests/behaviors/ (new test)
+      status: new
+      compatibility: internal_only
+      consumers:
+        - CI pipeline
+        - test-enforcement.sh
