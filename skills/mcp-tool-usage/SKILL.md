@@ -1,6 +1,6 @@
 ---
 name: mcp-tool-usage
-description: "Tool selection guide that enforces the five-tier priority hierarchy for file operations, code search, and MCP tool choice. Dispatch when selecting tools for file operations, code search, or any task that could use multiple tool options. Also dispatch when evaluating the five-tier priority hierarchy or choosing between MCP tools and CLI alternatives. Tool selection MUST follow the five-tier priority hierarchy — always required. User phrases: select tool, choose tool, tool hierarchy, MCP tool, tool priority, which tool."
+description: "Tool selection guide that enforces the five-tier priority hierarchy for file operations, code search, and MCP tool choice. Dispatch when selecting tools for file operations, code search, or any task that could use multiple tool options. Also dispatch when evaluating the five-tier priority hierarchy or choosing between MCP tools and CLI alternatives. Tool selection MUST follow the five-tier priority hierarchy — always required"
 license: MIT
 compatibility: opencode
 ---

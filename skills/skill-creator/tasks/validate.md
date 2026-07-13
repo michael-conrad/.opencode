@@ -40,7 +40,7 @@ description: "Dispatch when <primary agent-facing trigger>. Also dispatch when <
 
 **Rejected elements:** `Use when`, `Also use when`, and `Trigger phrases:` are NOT valid in the Agent-Intent format. Skills containing these elements are flagged as deprecated-format violations and MUST be corrected to Agent-Intent format.
 
-**Optional elements:** `User phrases:` is optional — provides example user-facing trigger patterns for semantic dispatch matching. Not required, not rejected. `Invoke for:` is optional — structural reference to task names from dispatch table.
+**Optional elements:** `Triggers when:` is optional — provides agent-intent dispatch conditions describing when the agent should invoke this skill based on its own determination. Not required, not rejected. `Invoke for:` is optional — structural reference to task names from dispatch table.
 
 Skills that fail any of these checks are flagged as Agent-Intent pattern violations and must be corrected.
 

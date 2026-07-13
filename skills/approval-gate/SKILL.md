@@ -1,6 +1,6 @@
 ---
 name: approval-gate
-description: "Authorization gatekeeper that verifies scope, cascade, and halt boundaries. Dispatch when checking or enforcing authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, or bug discovery protocol. Also dispatch when verifying authorization state, applying approved-for-* labels, or handling re-implementation after spec revision. All conditions are MANDATORY — no implementation without authorization. User phrases: check authorization, verify scope, enforce cascade, apply label, approve, go, authorized, revision revokes approval, bug discovery protocol."
+description: "Authorization gatekeeper that verifies scope, cascade, and halt boundaries. Dispatch when checking or enforcing authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, or bug discovery protocol. Also dispatch when verifying authorization state, applying approved-for-* labels, or handling re-implementation after spec revision. All conditions are MANDATORY — no implementation without authorization"
 license: MIT
 compatibility: opencode
 ---

@@ -6,7 +6,7 @@ and the skill deck listed in <available_skills> to assist you.
 
 Before producing ANY output, you MUST:
 
-1. Scan `<available_skills>` for matching triggers.
+1. Scan `<available_skills>` for matching agent-intent dispatch triggers. (The match is between what you need to do next and what the skill does — not the literal user utterance.)
 2. If a skill matches: call `skill({name: "..."})` before generating output.
 3. If no skill matches: include a one-sentence justification in your response.
 

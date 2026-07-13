@@ -1,6 +1,6 @@
 ---
 name: issue-operations
-description: "Issue operations dispatcher that routes to GitHub MCP or GitBucket API based on github.platform. Dispatch when creating, commenting on, or closing GitHub Issues. Comment posting is gated by the substantiveness check in the comment task — non-substantive progress updates (status updates, phase complete, implemented X) MUST NOT be posted to GitHub Issues. Also dispatch when adding labels, managing sub-issues, or routing to platform-specific implementations. Issue tracking is REQUIRED. User phrases: create issue, comment on issue, close issue, add label, manage sub-issue, link sub-issue."
+description: "Issue operations dispatcher that routes to GitHub MCP or GitBucket API based on github.platform. Dispatch when creating, commenting on, or closing GitHub Issues. Comment posting is gated by the substantiveness check in the comment task — non-substantive progress updates (status updates, phase complete, implemented X) MUST NOT be posted to GitHub Issues. Also dispatch when adding labels, managing sub-issues, or routing to platform-specific implementations. Issue tracking is REQUIRED"
 license: MIT
 compatibility: opencode
 ---

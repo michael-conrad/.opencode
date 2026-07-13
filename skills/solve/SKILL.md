@@ -1,6 +1,6 @@
 ---
 name: solve
-description: "Z3 constraint solver for workflow correctness, state verification, and dependency ordering validation. Dispatch when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Also dispatch when invoked by spec-creation or writing-plans pipeline steps for Z3-verified phase solvability, dependency DAG validation, or state transition verification. Contract YAML files (variable declarations + logical constraints) and state YAML files (variable assignments) are REQUIRED. Workflow constraints MUST be validated with Z3. User phrases: solve constraints, check contract, verify state, prove theorem, check dependency ordering, validate workflow, run Z3, run solve, fallback check, acyclic check."
+description: "Z3 constraint solver for workflow correctness, state verification, and dependency ordering validation. Dispatch when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Also dispatch when invoked by spec-creation or writing-plans pipeline steps for Z3-verified phase solvability, dependency DAG validation, or state transition verification. Contract YAML files (variable declarations + logical constraints) and state YAML files (variable assignments) are REQUIRED. Workflow constraints MUST be validated with Z3"
 license: MIT
 compatibility: opencode
 ---

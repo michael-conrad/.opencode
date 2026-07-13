@@ -1,6 +1,6 @@
 ---
 name: sre-runbook
-description: "Operational runbook generator for infrastructure incidents and procedures. Dispatch when generating operational runbooks for infrastructure incidents or procedures. Also dispatch when documenting incident response steps, recovery procedures, or operational playbooks. SRE discipline is REQUIRED. User phrases: create runbook, write runbook, incident response, recovery procedure, operational playbook."
+description: "Operational runbook generator for infrastructure incidents and procedures. Dispatch when generating operational runbooks for infrastructure incidents or procedures. Also dispatch when documenting incident response steps, recovery procedures, or operational playbooks. SRE discipline is REQUIRED"
 license: MIT
 compatibility: opencode
 ---

@@ -1,6 +1,6 @@
 ---
 name: local
-description: "Local .issues/ tracking platform for offline issue management with YAML frontmatter and markdown files. Dispatch when local .issues/ tracking is needed. Also dispatch when github.platform is local or unset, or when routing issue operations to the .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local issues MUST have structured tracking. User phrases: local issue, .issues/ directory, local tracking, local platform, offline issue."
+description: "Local .issues/ tracking platform for offline issue management with YAML frontmatter and markdown files. Dispatch when local .issues/ tracking is needed. Also dispatch when github.platform is local or unset, or when routing issue operations to the .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local issues MUST have structured tracking"
 license: MIT
 compatibility: opencode
 ---

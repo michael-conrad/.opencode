@@ -1,6 +1,6 @@
 ---
 name: programming-principles
-description: "Code design and architecture skill that enforces programming principles, evaluates tradeoffs, and audits code against standards. Dispatch when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Also dispatch when auditing code against design principles or detecting principle violations. Programming principles MUST be followed. User phrases: design function, review code, enforce principle, audit code, evaluate tradeoff, code size limit."
+description: "Code design and architecture skill that enforces programming principles, evaluates tradeoffs, and audits code against standards. Dispatch when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Also dispatch when auditing code against design principles or detecting principle violations. Programming principles MUST be followed"
 license: MIT
 compatibility: opencode
 ---

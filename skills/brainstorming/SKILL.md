@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Requirements exploration and problem decomposition skill. Dispatch when creating a spec, planning a feature, or exploring requirements before implementation. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change control. Brainstorming is REQUIRED before spec creation — it is not optional. User phrases: brainstorm, explore requirements, plan feature, decompose problem, define success criteria, extract requirements."
+description: "Requirements exploration and problem decomposition skill. Dispatch when creating a spec, planning a feature, or exploring requirements before implementation. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change control. Brainstorming is REQUIRED before spec creation — it is not optional"
 license: MIT
 compatibility: opencode
 ---
