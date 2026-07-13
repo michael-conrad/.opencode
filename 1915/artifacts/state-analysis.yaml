@@ -1,0 +1,27 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+state_analysis:
+  pre_condition:
+    - "writing-plans/tasks/create.md contains sub-agent dispatch instructions (Defect 1)"
+    - "spec-creation/tasks/analytical-artifacts.md contains sub-agent dispatch instructions (Defect 1)"
+    - "spec-creation/tasks/create.md contains sub-agent dispatch instructions (Defect 1)"
+    - "verification-before-completion/tasks/behavioral-test-evaluation.md contains sub-agent dispatch instructions (Defect 1)"
+    - "audit/tasks/closure-verification.md is monolithic (Defect 2)"
+    - "audit/tasks/spec-summary.md is monolithic (Defect 2)"
+    - "audit/tasks/coherence-extraction.md is monolithic (Defect 2)"
+    - "No behavioral test exists for SC-9"
+  post_condition:
+    - "writing-plans/tasks/create.md has no sub-agent dispatch instructions"
+    - "spec-creation/tasks/analytical-artifacts.md has no sub-agent dispatch instructions"
+    - "spec-creation/tasks/create.md has no sub-agent dispatch instructions"
+    - "verification-before-completion/tasks/behavioral-test-evaluation.md has no sub-agent dispatch instructions"
+    - "audit/tasks/closure-verification.md is split into 4 role files"
+    - "audit/tasks/spec-summary.md is split into 4 role files"
+    - "audit/tasks/coherence-extraction.md is split into 4 role files"
+    - "Behavioral test for SC-9 exists and passes"
+    - "All 4 SKILL.md Trigger Dispatch Tables updated with orchestrator-level dispatch entries"
+  invariants:
+    - "DiMo chain protocol (generator -> knowledge-supporter -> evaluator -> path-provider) is preserved"
+    - "Plan model (index + phase files) is unchanged"
+    - "Artifact schemas (YAML format) are unchanged"
+    - "Existing correctly-implemented DiMo chain task files are unchanged (SC-10)"
