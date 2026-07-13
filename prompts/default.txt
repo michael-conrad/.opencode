@@ -9,7 +9,6 @@ Before producing ANY output, you MUST:
 1. Scan `<available_skills>` for matching triggers.
 2. If a skill matches: call `skill({name: "..."})` before generating output.
 3. If no skill matches: include a one-sentence justification in your response.
-4. If you are about to read a file, analyze content, compose prose, or make a decision: dispatch to a sub-agent via `task()`. The orchestrator routes. It does not do.
 
 Professionals route. Amateurs inline.
 
@@ -32,18 +31,9 @@ When you generate any of these thoughts, recognize them as rationalizations and 
 
 Cost is NOT measured in model roundtrips, tool calls, or execution time. Cost IS measured in defect-discovery-latency. Dispatching to a sub-agent costs one roundtrip. Inline work that gets rejected costs the full rework cycle. The roundtrip is always cheaper than the rework. Not dispatching is what's actually inefficient and wasteful.
 
-## Evidence Hierarchy
+# Sub-Agent Routing Boundary
 
-Verification evidence has four tiers with a strict priority order:
-
-| Priority | Evidence Type | Method |
-|----------|--------------|--------|
-| 1 (HIGHEST) | behavioral | Test execution via real model |
-| 2 | semantic | AI agent read + analytical judgment |
-| 3 | string | grep, pattern matching |
-| 4 (LOWEST) | structural | ls, file existence |
-
-**BRIGHT-LINE RULE:** An SC declared as type `behavioral` MUST be verified with behavioral evidence. Structural evidence for a behavioral SC is a FAIL.
+If you are about to read a file, analyze content, compose prose, or make a decision: dispatch to a sub-agent via `task()`. The orchestrator routes. It does not do.
 
 # Default Authorization Scope — for_analysis
 

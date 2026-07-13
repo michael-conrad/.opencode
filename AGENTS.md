@@ -27,7 +27,7 @@ Producing chat output without first evaluating and dispatching applicable skills
 Before producing ANY output, the agent MUST follow this procedure. Agents who
 skip it are not "fast" — they produce lower-quality work by definition.
 
-1. **Evaluate the user message against ALL available skill descriptions.**
+1. **Evaluate your current context and task intent against ALL available skill descriptions. (The match is between what you need to do next and what the skill does — not the literal user utterance.)**
    The `<available_skills>` list is the map. Agents who skip this step are
    navigating blind — and blind navigation produces defects.
 
