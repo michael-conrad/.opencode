@@ -1,0 +1,57 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1915
+generated_at: 2026-07-13T13:55:00Z
+interface_compatibility:
+  interfaces:
+    - name: "writing-plans/tasks/create.md (sub-agent interface)"
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - "writing-plans orchestrator (dispatches sub-agents directly)"
+        - "Sub-agents that read create.md for instructions"
+    - name: "spec-creation/tasks/analytical-artifacts.md (sub-agent interface)"
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - "spec-creation orchestrator"
+        - "Sub-agents that read analytical-artifacts.md"
+    - name: "spec-creation/tasks/create.md (sub-agent interface)"
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - "spec-creation orchestrator"
+    - name: "verification-before-completion/tasks/behavioral-test-evaluation.md (sub-agent interface)"
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - "verification-before-completion orchestrator"
+    - name: "audit/tasks/closure-verification.md (task interface)"
+      status: removed
+      compatibility: breaking_change
+      consumers:
+        - "audit SKILL.md Trigger Dispatch Table"
+        - "Any task file referencing closure-verification.md"
+    - name: "audit/tasks/spec-summary.md (task interface)"
+      status: removed
+      compatibility: breaking_change
+      consumers:
+        - "audit SKILL.md Trigger Dispatch Table"
+    - name: "audit/tasks/coherence-extraction.md (task interface)"
+      status: removed
+      compatibility: breaking_change
+      consumers:
+        - "audit SKILL.md Trigger Dispatch Table"
+    - name: "audit/tasks/closure-verification/ (role directory interface)"
+      status: new
+      compatibility: internal_only
+      consumers:
+        - "audit SKILL.md Trigger Dispatch Table (sequential dispatch)"
+    - name: "audit/tasks/spec-summary/ (role directory interface)"
+      status: new
+      compatibility: internal_only
+      consumers:
+        - "audit SKILL.md Trigger Dispatch Table (sequential dispatch)"
+    - name: "audit/tasks/coherence-extraction/ (role directory interface)"
+      status: new
+      compatibility: internal_only
+      consumers:
+        - "audit SKILL.md Trigger Dispatch Table (sequential dispatch)"
