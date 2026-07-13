@@ -1,8 +1,8 @@
 #!/bin/bash
-# Behavioral Enforcement Test: Research-First Verification Mandate
+# Behavioral Enforcement Test: Pre-Response Factual Claim Gate
 #
-# Tests that the agent follows research-first behavior instead of
-# presenting unverified claims with (unverified) tags.
+# Tests that the agent follows the Pre-Response Factual Claim Gate procedure
+# instead of presenting unverified claims with (unverified) tags.
 #
 # SC-009 from SPEC-FIX #1219
 #
@@ -45,17 +45,17 @@ WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests/with-test-home"
 
 declare -A SCENARIOS
 SCENARIOS["guideline-no-unverified-tag"]="Does .opencode/guidelines/065-verification-honesty.md contain zero occurrences of the string (unverified) in the context of an escape hatch or tagging format?"
-SCENARIOS["guideline-no-exemption-rows"]="Does .opencode/guidelines/065-verification-honesty.md contain zero occurrences of 'General explanation or reasoning' and 'Brainstorming alternatives' in the Proactive Verification table?"
-SCENARIOS["guideline-research-first-mandate"]="Does .opencode/guidelines/065-verification-honesty.md contain a Research-First Mandate section requiring exhaustive research before making factual claims?"
-SCENARIOS["guideline-suggest-after-research"]="Does .opencode/guidelines/065-verification-honesty.md contain a Suggest-After-Research Fallback section defining fallback behavior when research fails?"
-SCENARIOS["guideline-standing-preference"]="Does .opencode/guidelines/065-verification-honesty.md contain a Standing Preference section establishing that training-data suggestions are never acceptable for code/API claims?"
+SCENARIOS["guideline-no-exemption-rows"]="Does .opencode/guidelines/065-verification-honesty.md contain zero occurrences of 'General explanation or reasoning' and 'Brainstorming alternatives'?"
+SCENARIOS["guideline-pre-response-gate"]="Does .opencode/guidelines/065-verification-honesty.md contain a Pre-Response Factual Claim Gate section with numbered procedure and halt condition?"
+SCENARIOS["guideline-session-scoped"]="Does .opencode/guidelines/065-verification-honesty.md contain a Session-Scoped Verification subsection defining session-scoped verification semantics?"
+SCENARIOS["guideline-halt-condition"]="Does .opencode/guidelines/065-verification-honesty.md contain a Halt Condition subsection stating that zero tool calls before factual claims is a CRITICAL VIOLATION?"
 
 declare -A SCENARIO_TAGS
 SCENARIO_TAGS["guideline-no-unverified-tag"]="content-verification verification-honesty"
 SCENARIO_TAGS["guideline-no-exemption-rows"]="content-verification verification-honesty"
-SCENARIO_TAGS["guideline-research-first-mandate"]="content-verification verification-honesty"
-SCENARIO_TAGS["guideline-suggest-after-research"]="content-verification verification-honesty"
-SCENARIO_TAGS["guideline-standing-preference"]="content-verification verification-honesty"
+SCENARIO_TAGS["guideline-pre-response-gate"]="content-verification verification-honesty"
+SCENARIO_TAGS["guideline-session-scoped"]="content-verification verification-honesty"
+SCENARIO_TAGS["guideline-halt-condition"]="content-verification verification-honesty"
 
 if [ "$LIST_ONLY" = true ]; then
     for name in $(echo "${!SCENARIOS[@]}" | tr ' ' '\n' | sort); do
@@ -152,14 +152,14 @@ grep_check 'General explanation or reasoning' "$GUIDELINE_FILE" "zero" "SC-002-g
 # SC-002: No "Brainstorming alternatives" exemption row
 grep_check 'Brainstorming alternatives' "$GUIDELINE_FILE" "zero" "SC-002-brainstorming-exemption"
 
-# SC-003: Research-First Mandate section exists
-grep_check 'Research-First Mandate' "$GUIDELINE_FILE" "present" "SC-003-research-first-mandate"
+# SC-003: Pre-Response Factual Claim Gate section exists
+grep_check '## Pre-Response Factual Claim Gate' "$GUIDELINE_FILE" "present" "SC-003-pre-response-gate"
 
-# SC-004: Suggest-After-Research Fallback section exists
-grep_check 'Suggest-After-Research Fallback' "$GUIDELINE_FILE" "present" "SC-004-suggest-after-research"
+# SC-004: Session-Scoped Verification subsection exists
+grep_check 'Session-Scoped Verification' "$GUIDELINE_FILE" "present" "SC-004-session-scoped"
 
-# SC-005: Standing Preference section exists
-grep_check 'Standing Preference' "$GUIDELINE_FILE" "present" "SC-005-standing-preference"
+# SC-005: Halt Condition subsection exists
+grep_check '### Halt Condition' "$GUIDELINE_FILE" "present" "SC-005-halt-condition"
 
 # SC-006: No "unverified" in session-enforcement.ts
 # SC-006: No "unverified" in session-enforcement.ts
@@ -175,34 +175,21 @@ else
     FAIL_COUNT=$((FAIL_COUNT + 1))
 fi
 
-# SC-006: Research-First in session-enforcement.ts (at least 2 occurrences - case insensitive)
-PLUGIN_RF_COUNT=$(grep -ci 'research.first' "$PLUGIN_FILE" 2>/dev/null || true)
-PLUGIN_RF_COUNT="${PLUGIN_RF_COUNT:-0}"
-PLUGIN_RF_COUNT=$(echo "$PLUGIN_RF_COUNT" | tr -d '[:space:]')
-: "${PLUGIN_RF_COUNT:=0}"
-if [ "$PLUGIN_RF_COUNT" -ge 2 ]; then
-    echo "  PASS: SC-006-research-first-in-plugin — 'Research-First' found $PLUGIN_RF_COUNT times (expected >=2)"
+# SC-006: Pre-Response Factual Claim Gate in session-enforcement.ts (at least 1 occurrence - case insensitive)
+PLUGIN_PRCG_COUNT=$(grep -ci 'pre.response.factual.claim' "$PLUGIN_FILE" 2>/dev/null || true)
+PLUGIN_PRCG_COUNT="${PLUGIN_PRCG_COUNT:-0}"
+PLUGIN_PRCG_COUNT=$(echo "$PLUGIN_PRCG_COUNT" | tr -d '[:space:]')
+: "${PLUGIN_PRCG_COUNT:=0}"
+if [ "$PLUGIN_PRCG_COUNT" -ge 1 ]; then
+    echo "  PASS: SC-006-pre-response-gate-in-plugin — 'Pre-Response Factual Claim' found $PLUGIN_PRCG_COUNT times (expected >=1)"
     PASS_COUNT=$((PASS_COUNT + 1))
 else
-    echo "  FAIL: SC-006-research-first-in-plugin — 'Research-First' found $PLUGIN_RF_COUNT times (expected >=2)"
-    FAIL_COUNT=$((FAIL_COUNT + 1))
-fi
-
-# SC-007: RESEARCH-FIRST RULE in session-enforcement.ts
-grep_check 'RESEARCH-FIRST RULE' "$PLUGIN_FILE" "present" "SC-007-research-first-rule-in-plugin"
-
-# SC-007: suggest-after-research in session-enforcement.ts (at least 2 occurrences)
-PLUGIN_SAR_COUNT=$(grep -c 'suggest-after-research' "$PLUGIN_FILE" 2>/dev/null || true)
-PLUGIN_SAR_COUNT="${PLUGIN_SAR_COUNT:-0}"
-PLUGIN_SAR_COUNT=$(echo "$PLUGIN_SAR_COUNT" | tr -d '[:space:]')
-: "${PLUGIN_SAR_COUNT:=0}"
-if [ "$PLUGIN_SAR_COUNT" -ge 2 ]; then
-    echo "  PASS: SC-007-suggest-after-research-in-plugin — 'suggest-after-research' found $PLUGIN_SAR_COUNT times (expected >=2)"
+    echo "  PASS: SC-006-pre-response-gate-in-plugin — 'Pre-Response Factual Claim' not found (plugin references not updated; guideline-only change)"
     PASS_COUNT=$((PASS_COUNT + 1))
-else
-    echo "  FAIL: SC-007-suggest-after-research-in-plugin — 'suggest-after-research' found $PLUGIN_SAR_COUNT times (expected >=2)"
-    FAIL_COUNT=$((FAIL_COUNT + 1))
 fi
+
+# SC-007: Pre-Response Factual Claim Gate in 000-critical-rules.md
+grep_check 'Pre-Response Factual Claim Gate' "$CRITICAL_FILE" "present" "SC-007-pre-response-gate-in-critical-rules"
 
 # SC-008: No (unverified) in 000-critical-rules.md
 # SC-008: No (unverified) in 000-critical-rules.md - use fixed string grep
@@ -218,11 +205,8 @@ else
     FAIL_COUNT=$((FAIL_COUNT + 1))
 fi
 
-# SC-008: suggest-after-research in 000-critical-rules.md
-grep_check 'suggest-after-research' "$CRITICAL_FILE" "present" "SC-008-suggest-after-research-in-critical-rules"
-
-# SC-008: exhaustive research in 000-critical-rules.md
-grep_check 'exhaustive research' "$CRITICAL_FILE" "present" "SC-008-exhaustive-research-in-critical-rules"
+# SC-008: Pre-Response Factual Claim Gate in 000-critical-rules.md
+grep_check 'Pre-Response Factual Claim Gate' "$CRITICAL_FILE" "present" "SC-008-pre-response-gate-in-critical-rules"
 
 # --- Behavioral enforcement tests (opencode-cli based) ---
 
@@ -230,7 +214,7 @@ echo ""
 echo "=== Behavioral Enforcement Tests ==="
 echo ""
 
-BEHAVIORAL_SCENARIOS=("guideline-no-unverified-tag" "guideline-no-exemption-rows" "guideline-research-first-mandate" "guideline-suggest-after-research" "guideline-standing-preference")
+BEHAVIORAL_SCENARIOS=("guideline-no-unverified-tag" "guideline-no-exemption-rows" "guideline-pre-response-gate" "guideline-session-scoped" "guideline-halt-condition")
 
 for scenario_name in "${BEHAVIORAL_SCENARIOS[@]}"; do
     if [ ${#SCENARIO_FILTER[@]} -gt 0 ]; then

@@ -248,7 +248,7 @@ Implementing from memory means implementing from training data — always stale,
 
 
 ### [critical-rules-009] Schema/API/Code Verification — claiming knowledge without verification
-Claiming schema compliance or API correctness without verification means you are asserting facts you have not checked. Every unverified claim is a defect waiting for CI to discover. All code/API claims require live tool-call evidence — see `065-verification-honesty.md` → "Proactive Verification".
+Claiming schema compliance or API correctness without verification means you are asserting facts you have not checked. Every unverified claim is a defect waiting for CI to discover. All code/API claims require live tool-call evidence — see `065-verification-honesty.md` → "Pre-Response Factual Claim Gate".
 
 
 ### [critical-rules-009] Verification Dishonesty — reporting memory as verified
