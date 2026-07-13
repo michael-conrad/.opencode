@@ -2,13 +2,12 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: resolve-models (Path Provider — Reference)
+# Task: resolve-models (Reference)
 
-> **DiMo Role: Path Provider (reference).** This task is a reference document for the Path Provider role in the DiMo role chain. The Path Provider reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
+> **DiMo Role: Path Provider (reference).** This task is a reference document describing the Path Provider role in the DiMo role chain. The Path Provider reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
 >
-> You are the Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
-> 
-> 
+> **The authoritative Path Provider (Judger) implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Path Provider is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
+>
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
 > - MUST NOT overrule a PASS/FAIL from the Evaluator
 > - MUST NOT produce new evidence or re-validate existing evidence
@@ -26,9 +25,9 @@
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/resolve-models/`
 
-### Step 1: Path Provider (Judger)
+### Step 1: Judgment Assembly (Reference)
 
-The Path Provider role is the fourth and final role in the DiMo role chain. It reads all upstream artifacts and produces the final judgment:
+The Path Provider role (implemented in `cross-validate.md`) is the fourth and final role in the DiMo role chain. It reads all upstream artifacts and produces the final judgment:
 
 1. Read `evidence.yaml` (Generator output) — raw evidence and initial findings
 2. Read `reasoning.yaml` (Knowledge Supporter output) — validated evidence with source references
