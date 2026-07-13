@@ -1,6 +1,6 @@
 # Phase 6 — Split spec-creation
 
-**Concern:** spec-creation → 4 sub-skills (spec-creation-requirements, spec-creation-decomposition, spec-creation-validation, spec-creation-change-control)
+**Concern:** spec-creation → 5 sub-skills (spec-creation-requirements, spec-creation-decomposition, spec-creation-validation, spec-creation-change-control, spec-creation-operating-protocol)
 
 **Actual task file count:** 18 files in `spec-creation/tasks/`
 
