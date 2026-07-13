@@ -699,7 +699,7 @@ A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup 
 
 **Remediation-first sequence (mandated by #763):**
 1. **Remediate** the root cause — diagnose what produced the FAIL
-2. **Re-verify** — repeat the verification command/assertion that produced the FAIL
+2. **Re-verify** — When the original FAIL came from an audit, "re-verify" means dispatching a clean-room re-audit via `skill({name: "audit"})` + `task()`. A self-check, inline re-read, or orchestrator-level re-verification is NOT sufficient — the re-audit must be independent of the remediator's context. For non-audit FAILs, repeat the verification command/assertion that produced the FAIL.
 3. **Proceed** only on confirmed PASS from re-verification
 4. **HALT only on double-failure** — if re-verification also fails, report blocker with both failure artifacts
 

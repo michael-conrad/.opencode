@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch when the agent needs to audit specs, plans, code, or generated content. Also dispatch when the agent needs to verify spec fidelity, check plan coherence, detect drift, cross-validate verification results, or audit factual claims in generated content. Audits are not optional — dispatch is MANDATORY."
+description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch when the agent needs to audit specs, plans, code, or generated content. Also dispatch when the agent needs to verify spec fidelity, check plan coherence, detect drift, cross-validate verification results, or audit factual claims in generated content. Also dispatch when the agent has modified a deliverable in response to audit findings and needs independent verification that the remediation resolved all defects before claiming PASS. Audits are not optional — dispatch is MANDATORY."
 license: MIT
 compatibility: opencode
 ---
@@ -51,6 +51,7 @@ Each row dispatches to the DiMo 4-role chain (Generator → Knowledge Supporter 
 | "test quality audit" | `test-quality-audit` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
 | "content audit" / "audit content claims" | `content-audit` | `sub-task` (DiMo chain) | {document_section, source_data_paths, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
 | "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, remediation_artifact_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
 | "blast-radius artifact missing" | HALT | — | — |
 | "concern-map artifact missing" | HALT | — | — |
 | "code-path-inventory artifact missing" | HALT | — | — |
