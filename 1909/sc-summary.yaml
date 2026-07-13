@@ -1,0 +1,80 @@
+sc_coverage:
+  total: 11
+  single_task: false
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1909
+  evidence_types:
+    - behavioral
+    - string
+    - structural
+  phases:
+    - id: phase-1-skill-restructure
+      sc_ids: [SC-1, SC-2, SC-7]
+      evidence_types: [string]
+    - id: phase-2-role-task-files
+      sc_ids: [SC-3, SC-4, SC-5, SC-6, SC-9]
+      evidence_types: [structural, string]
+    - id: phase-3-remove-monolithic
+      sc_ids: [SC-10]
+      evidence_types: [structural]
+    - id: phase-4-behavioral-tests
+      sc_ids: [SC-8, SC-11]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "Description uses agent-intent language, not 'User phrases:' pattern"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1-skill-restructure
+    - id: SC-2
+      description: "Trigger Dispatch Table routes to DiMo workflow, not to individual monolithic task files"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1-skill-restructure
+    - id: SC-3
+      description: "Dedicated Generator task files exist for each audit type"
+      evidence_type: structural
+      verification_gate: pre-commit
+      plan_phase: phase-2-role-task-files
+    - id: SC-4
+      description: "Dedicated Knowledge Supporter task files exist for each audit type"
+      evidence_type: structural
+      verification_gate: pre-commit
+      plan_phase: phase-2-role-task-files
+    - id: SC-5
+      description: "Dedicated Path Provider task files exist for each audit type"
+      evidence_type: structural
+      verification_gate: pre-commit
+      plan_phase: phase-2-role-task-files
+    - id: SC-6
+      description: "Evaluator task files contain no Knowledge Supporter work (no Step 0a)"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-2-role-task-files
+    - id: SC-7
+      description: "DiMo Role Chain Dispatch section is the authoritative dispatch instruction"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1-skill-restructure
+    - id: SC-8
+      description: "Agent dispatches 4-role chain, not monolithic sub-agent"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-4-behavioral-tests
+    - id: SC-9
+      description: "Only one task file claims Path Provider role"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-2-role-task-files
+    - id: SC-10
+      description: "No monolithic task files remain"
+      evidence_type: structural
+      verification_gate: pre-commit
+      plan_phase: phase-3-remove-monolithic
+    - id: SC-11
+      description: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-4-behavioral-tests
