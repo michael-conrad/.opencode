@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch when running audits of specs, plans, code, or generated content. Also dispatch when verifying spec fidelity, checking plan coherence, detecting drift, cross-validating verification results, or auditing factual claims in generated content. Audits are not optional — dispatch is MANDATORY. User phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, content audit."
+description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards. Dispatch when the agent needs to audit specs, plans, code, or generated content. Also dispatch when the agent needs to verify spec fidelity, check plan coherence, detect drift, cross-validate verification results, or audit factual claims in generated content. Audits are not optional — dispatch is MANDATORY."
 license: MIT
 compatibility: opencode
 ---
@@ -33,22 +33,24 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Trigger Dispatch Table
 
+Each row dispatches to the DiMo 4-role chain (Generator → Knowledge Supporter → Evaluator → Path Provider). No row dispatches to a single monolithic task file.
+
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "audit #NNN" / "run audit" | `verification-audit` | `sub-task` | {issue_number, artifact_evidence_dir} |
-| "spec audit #NNN" | `spec-audit` | `sub-task` | {issue_number, spec_local_dir} |
-| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` | {issue_number, plan_local_dir} |
-| "concern separation" / "scope audit" | `concern-separation` | `sub-task` | {issue_number} |
-| "coherence" / "coherence extraction" | `coherence-extraction` | `sub-task` | {issue_number} |
-| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `sub-task` | {issue_number} |
-| "guideline audit" | `guideline-audit` | `sub-task` | {guideline_paths} |
-| "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` | {issue_number} |
-| "spec summary" / "PR summary" | `spec-summary` | `sub-task` | {issue_number} |
-| "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` | {pr_number} |
-| "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {spec_local_dir, artifact_evidence_dir} |
-| "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
-| "content audit" / "audit content claims" | `content-audit` | `sub-task` | {document_section, source_data_paths} |
-| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` | {issue_number, spec_local_dir, analytical_artifact_dir} |
+| "audit #NNN" / "run audit" | `verification-audit` | `sub-task` (DiMo chain) | {issue_number, artifact_evidence_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "spec audit #NNN" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` (DiMo chain) | {issue_number, plan_local_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "concern separation" / "scope audit" | `concern-separation` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "coherence" / "coherence extraction" | `coherence-extraction` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "guideline audit" | `guideline-audit` | `sub-task` (DiMo chain) | {guideline_paths, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "spec summary" / "PR summary" | `spec-summary` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` (DiMo chain) | {pr_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "cross-validate" / "consensus" | `cross-validate` | `sub-task` (DiMo chain) | {spec_local_dir, artifact_evidence_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "test quality audit" | `test-quality-audit` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "content audit" / "audit content claims" | `content-audit` | `sub-task` (DiMo chain) | {document_section, source_data_paths, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
 | "blast-radius artifact missing" | HALT | — | — |
 | "concern-map artifact missing" | HALT | — | — |
 | "code-path-inventory artifact missing" | HALT | — | — |
@@ -57,7 +59,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "state-analysis artifact missing" | HALT | — | — |
 | "testability-assessment artifact missing" | HALT | — | — |
 | "stale analytical artifacts" | HALT | — | — |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| completion / workflow end | `completion` | `sub-task` (DiMo chain) | {workflow_state, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
 
 ## Tasks
 
@@ -80,30 +82,19 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Invocation
 
-`skill({name: "audit"})` — call the skill, then call via task().
+`skill({name: "audit"})` — call the skill, then dispatch via `task()`.
 
-**DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
+**DISPATCH GATE — Inline execution is FORBIDDEN.** Every audit task MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed. Professional orchestrators route to sub-agents. Amateurs inline.
 
-| Task | Call via task() |
-|------|-----------------|
-| `verification-audit` | `task(..., prompt: "execute verification-audit task from audit")` |
-| `spec-audit` | `task(..., prompt: "execute spec-audit task from audit")` |
-| `plan-fidelity` | `task(..., prompt: "execute plan-fidelity task from audit")` |
-| `concern-separation` | `task(..., prompt: "execute concern-separation task from audit")` |
-| `coherence-extraction` | `task(..., prompt: "execute coherence-extraction task from audit")` |
-| `coherence-maintenance` | `task(..., prompt: "execute coherence-maintenance task from audit")` |
-| `guideline-audit` | `task(..., prompt: "execute guideline-audit task from audit")` |
-| `drift-detection` | `task(..., prompt: "execute drift-detection task from audit")` |
-| `spec-summary` | `task(..., prompt: "execute spec-summary task from audit")` |
-| `closure-verification` | `task(..., prompt: "execute closure-verification task from audit")` |
-| `cross-validate` | `task(..., prompt: "execute cross-validate task from audit")` |
-| `test-quality-audit` | `task(..., prompt: "execute test-quality-audit task from audit")` |
-| `content-audit` | `task(..., prompt: "execute content-audit task from audit")` |
-| `completion` | `task(..., prompt: "execute completion task from audit")` |
+### DiMo Chain Invocation
 
-## Blind Dispatch
+All audit tasks dispatch through the DiMo 4-role chain (see DiMo Role Chain Dispatch below). The canonical dispatch string for any audit task is:
 
-Dispatch via `skill()` + `task()`. Standard dispatch fields only. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
+```
+task(..., prompt: "execute <task-name> DiMo chain: generator → knowledge-supporter → evaluator → path-provider")
+```
+
+No task dispatches to a single monolithic task file. The orchestrator dispatches roles in order, passing artifact paths between them. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
 
