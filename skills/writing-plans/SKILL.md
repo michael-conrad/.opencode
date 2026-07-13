@@ -99,7 +99,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 - Spec is approved (check `approved-for-*` label)
 - Authorization scope is `for_plan` or above
-- All 7 analytical artifacts exist in `.issues/{N}/` (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment). Missing artifacts produce BLOCKED with `MISSING_SPEC_ARTIFACT`.
+- All 7 analytical artifacts exist in `.issues/{N}/artifacts/` (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment). Missing artifacts produce BLOCKED with `MISSING_SPEC_ARTIFACT`. Before BLOCKING, attempt auto-generation via `spec-creation/tasks/analytical-artifacts.md` in retroactive mode.
 
 ### Execution Model
 

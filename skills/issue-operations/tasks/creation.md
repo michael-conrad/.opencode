@@ -288,20 +288,9 @@ The body must contain the following 6 sections in order:
 
 - [ ] 1. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
 
-- [ ] 1. **AI Agent Instructions** (mandatory):
+**Post-creation enforcement:** Run this check after Step 2 (issue created) and before Step 4 (report). If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to report until all 5 sections are verified present.
 
-   ```
-   ## AI Agent Instructions
-
-   This issue is an executive summary for human stakeholders.
-   The authoritative spec and plan artifacts are at {html_url}/{owner}/{repo}/tree/issues-data/{N}/.
-   AI agents MUST read the local spec/plan files for implementation
-   and MUST NOT base implementation on this summary.
-   ```
-
-   The URL MUST be constructed per same rules as the Spec Reference Blockquote above (extract from session-init, character-match verify).
-
-**Post-creation enforcement:** Run this check after Step 2 (issue created) and before Step 4 (report). If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to report until all 6 sections are verified present.
+**AI Agent Instructions enforcement:** Per #1902, AI Agent Instructions are now gate-level enforcement, not inline body sections. See `060-tool-usage.md` §Channel-Routing Table (Issue Comments vs. Chat Output) and `000-critical-rules.md` §Audience Separation for the gate-level routing rules. The agent MUST NOT include an "AI Agent Instructions" section in the issue body — that content is internal agent guidance, not stakeholder-facing.
 
 ## Multi-Task Spec Handling
 

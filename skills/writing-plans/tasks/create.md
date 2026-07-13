@@ -229,6 +229,16 @@ Each item is tagged with dispatch scope and chain dependency.
 - Spec is approved and stored in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
 - **Mandatory step completeness enforced:** All steps in the implementation-pipeline SKILL.md Trigger Dispatch Table MUST be included in the generated plan with correct skill/task references. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected at validation. This is non-waivable — no exception for any reason.
+- **Analytical artifacts MUST exist:** All 7 analytical artifacts must be present and non-empty at `{project_root}/{path}/.issues/{N}/artifacts/` before plan creation begins:
+  - `blast-radius.yaml`
+  - `concern-map.yaml`
+  - `code-path-inventory.yaml`
+  - `cross-cutting-matrix.yaml`
+  - `interface-compatibility.yaml`
+  - `state-analysis.yaml`
+  - `testability-assessment.yaml`
+  
+  **On missing artifacts:** Before BLOCKING, attempt auto-generation by dispatching `spec-creation/tasks/analytical-artifacts.md` in retroactive mode. If auto-generation succeeds, proceed with plan creation. If auto-generation also fails, return BLOCKED with `MISSING_SPEC_ARTIFACT` and list which artifacts are missing.
 
 ## Exit Criteria
 

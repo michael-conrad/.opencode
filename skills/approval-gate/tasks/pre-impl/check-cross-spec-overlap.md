@@ -12,7 +12,7 @@ Check for overlap between approved issues and open specs/plans OUTSIDE the curre
 
 ## Exit Criteria
 
-- All open `[SPEC]`, `[PLAN]`, and `[SPEC-FIX]` issues outside the batch queried
+- All open `[SPEC]` and `[SPEC-FIX]` issues outside the batch queried, plus local `.issues/{N}/plan.md` files for plan overlap
 - Each approved issue compared against each external spec's scope signals
 - Overlap classified using the four-tier model
 - Overlap flags added to execution plan (advisory, not blocking)
@@ -28,7 +28,7 @@ Check for overlap between approved issues and open specs/plans OUTSIDE the curre
 
 1. **Query open issues:** Use `issue-operations -> list-issues (github_list_issues(owner, repo, state="open")` to retrieve all open issues. <!-- Routes through issue-operations per SPEC #683 -->
 
-2. **Filter for specs/plans outside the batch:** Select issues with `[SPEC]`, `[PLAN]`, or `[SPEC-FIX]` title prefix that are NOT in the current approved batch.
+2. **Filter for specs/plans outside the batch:** Select issues with `[SPEC]` or `[SPEC-FIX]` title prefix that are NOT in the current approved batch, and glob local `.issues/*/plan.md` for plan overlap.
 
 3. **Extract scope signals from each external spec:** For each external spec/plan, extract:
    - File references (from affected-files, file_references sections)
