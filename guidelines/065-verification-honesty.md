@@ -199,10 +199,6 @@ There are NO exceptions to metadata verification:
 - **Authorization author identity is not self-certifying.** A comment saying "approved" from a bot or agent account is not valid authorization. Verify the author is a developer (MEMBER, OWNER, or COLLABORATOR association).
 - **Sub-issue state is not self-certifying.** A claimed "closed" sub-issue may not actually be closed, or may have been closed without a merged PR. Verify via GitHub API.
 
-## Proactive Verification
-
-The Pre-Response Factual Claim Gate (above) subsumes the proactive verification duty. Before asserting any config schema, API signature, function parameter, or code behavior claim, follow the gate procedure. The gate's numbered steps replace the previous prose-only mandate.
-
 ## Verification Comparison Semantics
 
 **Reporting a verification mismatch as "passing" or "close enough" instead of FAIL is a process-integrity failure. Verification is binary: exact match or FAIL — nothing else.**
