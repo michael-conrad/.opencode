@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
+Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
 
-> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Generator and `reasoning.yaml` from the Knowledge Supporter, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
+> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Generator and `reasoning.yaml` from the upstream reasoning role, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
 >
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The Knowledge Supporter has already validated it. Make the call.
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
 >
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that Knowledge Supporter already validated
+> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
 > - MUST NOT re-collect evidence that Generator already collected
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: any hedging language in a PASS explanation downgrades to FAIL
@@ -30,13 +30,13 @@ Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files
-- `artifact_evidence_dir`: Directory for evidence artifacts (contains `evidence.yaml` from Generator and `reasoning.yaml` from Knowledge Supporter)
+- `artifact_evidence_dir`: Directory for evidence artifacts (contains `evidence.yaml` from Generator and `reasoning.yaml` from upstream reasoning role)
 - `github.owner`, `github.repo`: Repository identity
 
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` (produced by Generator)
-- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` (produced by Knowledge Supporter)
+- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` (produced by upstream reasoning role)
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (readable directory containing upstream artifacts)
 
@@ -85,7 +85,7 @@ remediation: "No reasoning.yaml found in {artifact_evidence_dir}/. Run coherence
 
 ### Step 2: Load Upstream Artifacts
 
-Read and parse the Generator's evidence and Knowledge Supporter's validation:
+Read and parse the Generator's evidence and upstream reasoning role's validation:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml`
 - [ ] 2. Parse the YAML content
@@ -430,7 +430,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | reasoning.yaml not found | Return BLOCKED — run `coherence-maintenance-knowledge-supporter` first |
 | evidence.yaml malformed (missing required keys) | Return BLOCKED with `MALFORMED_EVIDENCE` and missing key name |
 | reasoning.yaml malformed (missing required keys) | Return BLOCKED with `MALFORMED_REASONING` and missing key name |
-| Validation mismatch in reasoning.yaml for a criterion's evidence | Use the Knowledge Supporter's validated values — do NOT re-validate |
+| Validation mismatch in reasoning.yaml for a criterion's evidence | Use the upstream reasoning role's validated values — do NOT re-validate |
 | Evidence item unverifiable in reasoning.yaml | Record as `confidence: reduced` for that criterion — do NOT BLOCK |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
 | All evidence validated but insufficient for judgment | Return FAIL with `INSUFFICIENT_EVIDENCE` — do NOT produce PASS on insufficient data |
@@ -439,7 +439,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/coherence-maintenance-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/coherence-maintenance-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
+- `tasks/coherence-maintenance-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this Evaluator's verdict.yaml)
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Generator)
 - `SKILL.md` — DiMo Role Chain Dispatch specification

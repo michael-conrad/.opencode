@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluate concern-separation evidence against criteria and produce binary PASS/FAIL verdicts. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each criterion, and writes `verdict.yaml` with per-criterion verdicts. Produces judgments, not just evidence.
+Evaluate concern-separation evidence against criteria and produce binary PASS/FAIL verdicts. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion verdicts. Produces judgments, not just evidence.
 
-> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each criterion against the evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
+> **DiMo Role: Evaluator.** This task evaluates concern separation. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion against the evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
 > You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
 >
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that Knowledge Supporter already validated
+> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate before writing the final verdict
 >
@@ -33,7 +33,7 @@ Evaluate concern-separation evidence against criteria and produce binary PASS/FA
 - `spec_local_dir`: Local directory containing spec files
 - `artifact_evidence_dir`: Directory for evidence artifacts
 - `evidence_path`: Path to `evidence.yaml` produced by the Generator
-- `reasoning_path`: Path to `reasoning.yaml` produced by the Knowledge Supporter
+- `reasoning_path`: Path to `reasoning.yaml` produced by the upstream reasoning role
 
 ## Entry Criteria
 
@@ -73,7 +73,7 @@ remediation: "<field_name> is required for concern-separation-evaluator. The orc
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the Knowledge Supporter's validated evidence:
+Read the Generator's evidence and the upstream reasoning role's validated evidence:
 
 ```python
 evidence = read_yaml(f"{project_root}/tmp/{issue-N}/artifacts/concern-separation/evidence.yaml")
@@ -462,7 +462,7 @@ remediation_required: <true|false>
 | Error | Action |
 |-------|--------|
 | `evidence.yaml` not found | Return BLOCKED — Generator must produce evidence first |
-| `reasoning.yaml` not found | Return BLOCKED — Knowledge Supporter must validate evidence first |
+| `reasoning.yaml` not found | Return BLOCKED — upstream reasoning role must validate evidence first |
 | `spec_local_dir` missing or empty | Return BLOCKED — cannot evaluate without source data |
 | Evidence section missing from evidence.yaml | Record `evidence_missing: true` for that criterion, evaluate on available data |
 | Validation section missing from reasoning.yaml | Record `validation_missing: true` for that criterion, evaluate on raw evidence |
@@ -471,7 +471,7 @@ remediation_required: <true|false>
 ## Cross-References
 
 - `tasks/concern-separation-generator.md` — Generator role (produces evidence.yaml)
-- `tasks/concern-separation-knowledge-supporter.md` — Knowledge Supporter role (produces reasoning.yaml)
+- `tasks/concern-separation-knowledge-supporter.md` — upstream reasoning role role (produces reasoning.yaml)
 - `tasks/cross-validate.md` — Path Provider (final judgment, consumes verdict.yaml)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement

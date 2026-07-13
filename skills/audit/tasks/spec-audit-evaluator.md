@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the spec-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each criterion against the spec, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the spec-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion against the spec, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
 > **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The Knowledge Supporter has already validated it. Make the call.
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
 >
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-validate evidence that Knowledge Supporter already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
 > - MUST NOT collect new evidence — that is the Generator's job
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
@@ -47,7 +47,7 @@ Evaluator role for the spec-audit DiMo chain. Reads `evidence.yaml` (Generator) 
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Generator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
-- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Knowledge Supporter completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
+- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the upstream reasoning role completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
 - `spec_local_dir` provided (local issue directory containing Markdown spec files) — MUST be a filesystem directory confirmed to exist before dispatch
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
@@ -92,7 +92,7 @@ remediation: "evidence.yaml is required for spec-audit-evaluator. The orchestrat
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "reasoning.yaml"
-remediation: "reasoning.yaml is required for spec-audit-evaluator. The orchestrator must ensure the Knowledge Supporter completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
+remediation: "reasoning.yaml is required for spec-audit-evaluator. The orchestrator must ensure the upstream reasoning role completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
 ```
 
 - [ ] 5. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
@@ -109,14 +109,14 @@ remediation: "spec_local_dir is required for spec-audit-evaluator. The orchestra
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the Knowledge Supporter's validated reasoning:
+Read the Generator's evidence and the upstream reasoning role's validated reasoning:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml` via `read` tool
 - [ ] 2. Read `{artifact_evidence_dir}/reasoning.yaml` via `read` tool
 - [ ] 3. Parse all top-level sections from both artifacts
 - [ ] 4. Record metadata: `generator`, `knowledge_supporter`, `issue_number`, `generated_at`, `spec_local_dir`
 - [ ] 5. If any expected top-level section is absent from either artifact, record as `section_missing` — do NOT BLOCK, but flag in the verdict
-- [ ] 6. Note the Knowledge Supporter's `overall_validation_status` — this informs evaluation confidence
+- [ ] 6. Note the upstream reasoning role's `overall_validation_status` — this informs evaluation confidence
 
 ### Step 3: Load Spec Content
 
@@ -150,7 +150,7 @@ Evaluate the spec against all 11 holistic dimensions. This gate runs BEFORE narr
 | 11 | Correctness | Does this spec actually solve the right problem? | `holistic_dimension_validation.correctness` |
 
 - [ ] 2. Each dimension gets a single PASS/FAIL — no hedging, no "PASS with concerns"
-- [ ] 3. If the Knowledge Supporter flagged a dimension's evidence as `corrected` or `unvalidated`, factor that into the evaluation
+- [ ] 3. If the upstream reasoning role flagged a dimension's evidence as `corrected` or `unvalidated`, factor that into the evaluation
 - [ ] 4. If any dimension FAILs:
   - Halt — do NOT proceed to narrow criteria (Steps 5+)
   - Record `holistic_status: DRAFT` in the verdict
@@ -224,7 +224,7 @@ holistic_evaluation:
 
 ### Step 5: Evaluate Narrow Criteria
 
-For each narrow criterion, evaluate using the validated evidence from `reasoning.yaml`. The evidence has already been collected (Generator) and validated (Knowledge Supporter). The Evaluator's job is to render judgment.
+For each narrow criterion, evaluate using the validated evidence from `reasoning.yaml`. The evidence has already been collected (Generator) and validated (upstream reasoning role). The Evaluator's job is to render judgment.
 
 #### Step 5a: Evaluate Structural Criteria (SC-1 through SC-14)
 
@@ -247,8 +247,8 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 
 - [ ] 1. For each SC-1 through SC-14, read the corresponding evidence from `reasoning.yaml`
 - [ ] 2. Apply the evaluation rule — render PASS or FAIL
-- [ ] 3. If the Knowledge Supporter flagged the evidence as `corrected`, use the corrected values
-- [ ] 4. If the Knowledge Supporter flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 3. If the upstream reasoning role flagged the evidence as `corrected`, use the corrected values
+- [ ] 4. If the upstream reasoning role flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 #### Step 5b: Evaluate SC-DET (Determinism)
 
@@ -353,8 +353,8 @@ Evaluate the spec's claims for accuracy using validated evidence:
 - [ ] 2. **FABRICATED verdict meta-rule** — When a claim in the spec has NO source evidence (no URL, no tool-call artifact, no code reference):
   - If the claim is presented as factual but has zero supporting evidence → `FABRICATED` verdict
   - Record as: `result: "FABRICATED"` with `explanation: "Claim asserted without source evidence"`
-- [ ] 3. **Negation verification** — When a claim asserts absence, verify the Knowledge Supporter confirmed via exhaustive search
-- [ ] 4. **Interface contract verification** — When a spec references function signatures, verify the Knowledge Supporter confirmed via `srclight_get_signature`
+- [ ] 3. **Negation verification** — When a claim asserts absence, verify the upstream reasoning role confirmed via exhaustive search
+- [ ] 4. **Interface contract verification** — When a spec references function signatures, verify the upstream reasoning role confirmed via `srclight_get_signature`
 
 Record results:
 
@@ -726,15 +726,15 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | spec_local_dir missing or empty | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | spec_local_dir contains no .md files | Return BLOCKED with SPEC_NOT_FOUND |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
-| Knowledge Supporter flagged evidence as unvalidated | Note uncertainty in explanation — still render verdict |
-| Knowledge Supporter flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
+| upstream reasoning role flagged evidence as unvalidated | Note uncertainty in explanation — still render verdict |
+| upstream reasoning role flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
 | Holistic gate FAILs | Halt — do NOT proceed to narrow criteria; return DRAFT verdict |
 | Analytical artifact path provided but artifact missing | Evaluate as FAIL with `artifact_missing` finding |
 
 ## Cross-References
 
 - `tasks/spec-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/spec-audit-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
+- `tasks/spec-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions

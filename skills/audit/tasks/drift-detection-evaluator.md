@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the drift-detection DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each drift detection criterion against the spec and code, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the drift-detection DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each drift detection criterion against the spec and code, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
 > **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The Knowledge Supporter has already validated it. Make the call.
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
 >
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-validate evidence that Knowledge Supporter already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
 > - MUST NOT collect new evidence — that is the Generator's job
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
@@ -40,7 +40,7 @@ Evaluator role for the drift-detection DiMo chain. Reads `evidence.yaml` (Genera
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Generator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
-- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Knowledge Supporter completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
+- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the upstream reasoning role completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
 - `spec_local_dir` provided (local issue directory containing Markdown spec files) — MUST be a filesystem directory confirmed to exist before dispatch
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
@@ -84,7 +84,7 @@ remediation: "evidence.yaml is required for drift-detection-evaluator. The orche
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "reasoning.yaml"
-remediation: "reasoning.yaml is required for drift-detection-evaluator. The orchestrator must ensure the Knowledge Supporter completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
+remediation: "reasoning.yaml is required for drift-detection-evaluator. The orchestrator must ensure the upstream reasoning role completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
 ```
 
 - [ ] 5. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
@@ -103,14 +103,14 @@ remediation: "spec_local_dir is required for drift-detection-evaluator. The orch
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the Knowledge Supporter's validated reasoning:
+Read the Generator's evidence and the upstream reasoning role's validated reasoning:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml` via `read` tool
 - [ ] 2. Read `{artifact_evidence_dir}/reasoning.yaml` via `read` tool
 - [ ] 3. Parse all top-level sections from both artifacts
 - [ ] 4. Record metadata: `generator`, `knowledge_supporter`, `issue_number`, `generated_at`, `spec_local_dir`
 - [ ] 5. If any expected top-level section is absent from either artifact, record as `section_missing` — do NOT BLOCK, but flag in the verdict
-- [ ] 6. Note the Knowledge Supporter's `overall_validation_status` — this informs evaluation confidence
+- [ ] 6. Note the upstream reasoning role's `overall_validation_status` — this informs evaluation confidence
 
 ### Step 3: Load Spec Content
 
@@ -145,8 +145,8 @@ Evaluate whether all spec-required files exist in the codebase:
 - [ ] 2. For each file entry in the spec's file requirements:
   - If `code_file_exists` is `true` → PASS for that file
   - If `code_file_exists` is `false` → FAIL for that file with `SPEC_DRIFT` classification
-- [ ] 3. If the Knowledge Supporter flagged any file presence entry as `corrected`, use the corrected values
-- [ ] 4. If the Knowledge Supporter flagged any file presence entry as `unvalidated`, note the uncertainty but still render a verdict
+- [ ] 3. If the upstream reasoning role flagged any file presence entry as `corrected`, use the corrected values
+- [ ] 4. If the upstream reasoning role flagged any file presence entry as `unvalidated`, note the uncertainty but still render a verdict
 - [ ] 5. Aggregate: DD-1 PASS if ALL spec-required files exist; FAIL if any spec-required file is missing
 
 Record results:
@@ -175,7 +175,7 @@ Evaluate whether the implementation aligns with spec behavior:
 - [ ] 4. For each function with an expected signature:
   - If `expected_signature` matches `actual_signature` → PASS
   - If signatures differ → FAIL with `SIGNATURE_MISMATCH` classification
-- [ ] 5. If the Knowledge Supporter flagged any entry as `corrected`, use the corrected values
+- [ ] 5. If the upstream reasoning role flagged any entry as `corrected`, use the corrected values
 - [ ] 6. Aggregate: DD-2 PASS if ALL spec functions exist and ALL signatures match; FAIL otherwise
 
 Record results:
@@ -212,9 +212,9 @@ Evaluate whether code contains implementation not tracked in the spec:
   - Files with domain logic not in spec → FAIL with `CODE_DRIFT` classification
 - [ ] 4. Read `raw_comparisons_validation.extra_code` from `reasoning.yaml`
 - [ ] 5. For each extra code symbol:
-  - If the Knowledge Supporter flagged it as `false_extra` (actually in spec) → PASS
+  - If the upstream reasoning role flagged it as `false_extra` (actually in spec) → PASS
   - If genuinely not in spec → FAIL with `CODE_DRIFT` classification
-- [ ] 6. If the Knowledge Supporter flagged any entry as `corrected`, use the corrected values
+- [ ] 6. If the upstream reasoning role flagged any entry as `corrected`, use the corrected values
 - [ ] 7. Aggregate: DD-3 PASS if no meaningful untracked implementation exists; FAIL if code implements untracked domain logic
 
 Record results:
@@ -248,7 +248,7 @@ Evaluate whether spec API signatures match code API signatures:
   - FAIL with `SPEC_DRIFT` — spec expects a function with a specific signature that does not exist
 - [ ] 4. For functions where code has a signature but spec does not:
   - FAIL with `CODE_DRIFT` — code implements a function the spec does not document
-- [ ] 5. If the Knowledge Supporter flagged any entry as `corrected`, use the corrected values
+- [ ] 5. If the upstream reasoning role flagged any entry as `corrected`, use the corrected values
 - [ ] 6. Aggregate: DD-4 PASS if ALL spec-defined signatures match code; FAIL otherwise
 
 Record results:
@@ -274,8 +274,8 @@ Evaluate whether spec edge cases are addressed in the implementation:
 - [ ] 2. For each edge case described in the spec:
   - If `related_code_found` is `true` → PASS for that edge case
   - If `related_code_found` is `false` → FAIL with `MISSING_EDGE_CASE` classification
-- [ ] 3. If the Knowledge Supporter flagged any entry as `corrected`, use the corrected values
-- [ ] 4. If the Knowledge Supporter flagged any entry as `unvalidated`, note the uncertainty but still render a verdict
+- [ ] 3. If the upstream reasoning role flagged any entry as `corrected`, use the corrected values
+- [ ] 4. If the upstream reasoning role flagged any entry as `unvalidated`, note the uncertainty but still render a verdict
 - [ ] 5. Aggregate: DD-5 PASS if ALL edge cases have related code; FAIL if any edge case is unaddressed
 
 Record results:
@@ -508,15 +508,15 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | spec_local_dir missing or empty | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | spec_local_dir contains no .md files | Return BLOCKED with SPEC_NOT_FOUND |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
-| Knowledge Supporter flagged evidence as unvalidated | Note uncertainty in explanation — still render verdict |
-| Knowledge Supporter flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
+| upstream reasoning role flagged evidence as unvalidated | Note uncertainty in explanation — still render verdict |
+| upstream reasoning role flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
 | No target files identified in evidence | Return BLOCKED — need file paths |
 | Code not parseable (from evidence) | Skip function, log warning in explanation |
 
 ## Cross-References
 
 - `tasks/drift-detection-generator.md` — Generator role (produces the `evidence.yaml` consumed by this task)
-- `tasks/drift-detection-knowledge-supporter.md` — Knowledge Supporter role (produces the `reasoning.yaml` consumed by this task)
+- `tasks/drift-detection-knowledge-supporter.md` — upstream reasoning role role (produces the `reasoning.yaml` consumed by this task)
 - `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
 - `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this task's `verdict.yaml`)
 - `SKILL.md` — DiMo Role Chain Dispatch specification

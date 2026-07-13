@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each test quality criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each test quality criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
 > **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The Knowledge Supporter has already validated it. Make the call.
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
 >
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-validate evidence that Knowledge Supporter already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
 > - MUST NOT collect new evidence — that is the Generator's job
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
@@ -41,7 +41,7 @@ Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Gen
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Generator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
-- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Knowledge Supporter completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
+- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the upstream reasoning role completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
 - `spec_local_dir` provided (local issue directory containing Markdown spec files) — MUST be a filesystem directory confirmed to exist before dispatch
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
@@ -85,7 +85,7 @@ remediation: "evidence.yaml is required for test-quality-audit-evaluator. The or
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "reasoning.yaml"
-remediation: "reasoning.yaml is required for test-quality-audit-evaluator. The orchestrator must ensure the Knowledge Supporter completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
+remediation: "reasoning.yaml is required for test-quality-audit-evaluator. The orchestrator must ensure the upstream reasoning role completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
 ```
 
 - [ ] 5. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
@@ -112,14 +112,14 @@ remediation: "file_paths_changed is required for test-quality-audit-evaluator. T
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the Knowledge Supporter's validated reasoning:
+Read the Generator's evidence and the upstream reasoning role's validated reasoning:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml` via `read` tool
 - [ ] 2. Read `{artifact_evidence_dir}/reasoning.yaml` via `read` tool
 - [ ] 3. Parse all top-level sections from both artifacts
 - [ ] 4. Record metadata: `generator`, `knowledge_supporter`, `issue_number`, `generated_at`, `spec_local_dir`
 - [ ] 5. If any expected top-level section is absent from either artifact, record as `section_missing` — do NOT BLOCK, but flag in the verdict
-- [ ] 6. Note the Knowledge Supporter's validation summary — this informs evaluation confidence
+- [ ] 6. Note the upstream reasoning role's validation summary — this informs evaluation confidence
 
 ### Step 3: Load Spec Content
 
@@ -141,7 +141,7 @@ Evaluate whether test assertions reference specific expected values from the spe
   - Do the test assertions reference specific expected values from the SC's criterion text?
   - Are any assertions tautological (assert True, assert result is not None only)?
   - Do expected values in assertions match the values specified in the SC?
-- [ ] 4. If the Knowledge Supporter flagged assertion validation issues, factor those into the evaluation
+- [ ] 4. If the upstream reasoning role flagged assertion validation issues, factor those into the evaluation
 - [ ] 5. Render PASS or FAIL:
   - PASS: All assertions reference specific expected values from the spec SCs
   - FAIL: Any assertion is tautological or references values unrelated to SCs
@@ -194,7 +194,7 @@ Evaluate whether tests cover boundary values, error conditions, and null/empty i
   - Are boundary values tested (0, -1, None, empty, max, min)?
   - Are error conditions tested (exception raising, invalid input)?
   - Are null/empty input tests present?
-- [ ] 4. If the Knowledge Supporter flagged edge case validation issues, factor those into the evaluation
+- [ ] 4. If the upstream reasoning role flagged edge case validation issues, factor those into the evaluation
 - [ ] 5. Render PASS or FAIL:
   - PASS: At least one test per function, plus separate tests for boundary values, error conditions, empty/null inputs
   - FAIL: Single test per function, missing edge cases
@@ -218,7 +218,7 @@ Evaluate whether git history shows expected values changing while implementation
 - [ ] 1. Read `git_history_validation` from `reasoning.yaml`
 - [ ] 2. For each assertion change entry, evaluate:
   - Did expected values change in the test while the implementation remained unchanged?
-  - Is `expected_value_weakened` confirmed by the Knowledge Supporter?
+  - Is `expected_value_weakened` confirmed by the upstream reasoning role?
   - Is `implementation_changed_same_commit` consistent with the evidence?
 - [ ] 3. If git history is unavailable, evaluate whether the criterion should be FAIL (no evidence of RED state) or whether the single-commit context makes this criterion inapplicable
 - [ ] 4. Render PASS or FAIL:
@@ -246,7 +246,7 @@ Evaluate whether there is evidence that the test was confirmed FAIL before imple
 - [ ] 3. Evaluate:
   - Does git history show the test was committed before the implementation?
   - Does the VbC artifact confirm RED phase was executed?
-  - Is `test_before_implementation` confirmed by the Knowledge Supporter?
+  - Is `test_before_implementation` confirmed by the upstream reasoning role?
 - [ ] 4. If neither git history nor VbC artifact provides RED evidence, evaluate whether the evidence gap is structural (no history available) or behavioral (test was created alongside implementation)
 - [ ] 5. Render PASS or FAIL:
   - PASS: Git history or VbC artifact shows test was run and failed before implementation began
@@ -272,7 +272,7 @@ Evaluate whether multiple test items show individual RED/GREEN cycles:
 - [ ] 2. Evaluate:
   - Do multiple items show individual RED/GREEN cycles — each test confirmed FAIL before its implementation was written?
   - Or were tests for multiple items all written before any implementation (RED-ALL → GREEN-ALL pattern)?
-  - Is the `pattern` classification validated by the Knowledge Supporter?
+  - Is the `pattern` classification validated by the upstream reasoning role?
 - [ ] 3. If only a single item exists, evaluate whether the criterion is N/A (single-item change) or FAIL (insufficient evidence of TDD discipline)
 - [ ] 4. Render PASS or FAIL:
   - PASS: Multiple items show individual RED/GREEN cycles — each test confirmed FAIL before its implementation was written
@@ -305,7 +305,7 @@ For each SC referenced in the test quality criteria, verify evidence type compli
 | string | grep/pattern matching | file-existence used instead |
 | structural | file existence | N/A |
 
-- [ ] 4. If the Knowledge Supporter flagged `evidence_type_matches_spec: false` for any SC, record as FAIL with `EVIDENCE_TYPE_MISMATCH`
+- [ ] 4. If the upstream reasoning role flagged `evidence_type_matches_spec: false` for any SC, record as FAIL with `EVIDENCE_TYPE_MISMATCH`
 - [ ] 5. If the declared type is `behavioral` and only structural evidence exists → FAIL with `EVIDENCE_TYPE_MISMATCH`
 - [ ] 6. If the declared type is `semantic` and only string evidence exists → FAIL with `EVIDENCE_TYPE_MISMATCH`
 
@@ -444,8 +444,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | spec_local_dir contains no .md files | Return BLOCKED with SPEC_NOT_FOUND |
 | file_paths_changed missing or empty | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
-| Knowledge Supporter flagged evidence as unvalidated | Note uncertainty in finding — still render verdict |
-| Knowledge Supporter flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
+| upstream reasoning role flagged evidence as unvalidated | Note uncertainty in finding — still render verdict |
+| upstream reasoning role flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
 | No test files found in evidence | Record as FAIL for relevant criteria — do NOT BLOCK |
 | Git history unavailable | Record as FAIL for assertion_weakening, red_evidence, sequential_tdd — do NOT BLOCK |
 | VbC artifact unavailable | Record as FAIL for red_evidence if no git history alternative — do NOT BLOCK |
@@ -454,7 +454,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/test-quality-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/test-quality-audit-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
+- `tasks/test-quality-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations

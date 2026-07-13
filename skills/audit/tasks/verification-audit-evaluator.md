@@ -13,15 +13,15 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each success criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. It evaluates.
+Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each success criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. It evaluates.
 
-> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each criterion, and writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml`.
 >
 > You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that Knowledge Supporter already validated
+> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
 > - MUST NOT collect new evidence — the Generator already did that
 > - MUST write `verdict.yaml` as the primary output artifact
 
@@ -79,7 +79,7 @@ remediation: "evidence.yaml is required for verification-audit-evaluator. The Ge
 status: BLOCKED
 error: MISSING_REASONING_YAML
 missing: "./tmp/{issue-N}/artifacts/verification-audit/reasoning.yaml"
-remediation: "reasoning.yaml is required for verification-audit-evaluator. The Knowledge Supporter must produce reasoning.yaml before the Evaluator can produce verdicts."
+remediation: "reasoning.yaml is required for verification-audit-evaluator. The upstream reasoning role must produce reasoning.yaml before the Evaluator can produce verdicts."
 ```
 
 - [ ] 5. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
@@ -104,7 +104,7 @@ remediation: "artifact_evidence_dir is required for verification-audit-evaluator
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's `evidence.yaml` and the Knowledge Supporter's `reasoning.yaml`:
+Read the Generator's `evidence.yaml` and the upstream reasoning role's `reasoning.yaml`:
 
 - [ ] 1. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/verification-audit/evidence.yaml` via `read` tool
 - [ ] 2. Parse the evidence structure: `spec`, `evidence_artifacts`, `sc_evidence_map`
@@ -131,7 +131,7 @@ Map spec SCs to validated evidence from `reasoning.yaml`. For each SC, construct
 | SC-1 through SC-N | Per spec SC declaration | From spec | From evidence.yaml | From reasoning.yaml |
 
 For each SC, determine:
-- Whether the Knowledge Supporter found any validation issues (from `sc_validation` and `issues`)
+- Whether the upstream reasoning role found any validation issues (from `sc_validation` and `issues`)
 - Whether evidence artifacts exist and are readable (from `artifact_metadata_validation`)
 - Whether evidence type compliance is satisfied (from `evidence_type_validation`)
 - Whether the SC exists in the spec and the criterion text matches (from `sc_validation`)
@@ -166,7 +166,7 @@ For each SC with valid evidence, evaluate whether the evidence demonstrates the 
 | Evidence contradicts the SC criterion | FAIL |
 | Evidence is absent for this SC | FAIL |
 | Evidence type does not match declared type | FAIL |
-| Knowledge Supporter flagged validation issues for this SC | FAIL |
+| upstream reasoning role flagged validation issues for this SC | FAIL |
 | Any hedging language in evidence explanation | FAIL |
 
 ### Step 6: Verify Evidence Type Compliance
@@ -180,7 +180,7 @@ For each SC, verify that the evidence method matches the declared evidence type 
 | string | grep/pattern matching | file-existence used instead |
 | structural | file existence | N/A |
 
-Cross-reference with `evidence_type_validation` from `reasoning.yaml`. If the Knowledge Supporter flagged an `EVIDENCE_TYPE_GAP` for this SC, the verdict is FAIL with `EVIDENCE_TYPE_MISMATCH`.
+Cross-reference with `evidence_type_validation` from `reasoning.yaml`. If the upstream reasoning role flagged an `EVIDENCE_TYPE_GAP` for this SC, the verdict is FAIL with `EVIDENCE_TYPE_MISMATCH`.
 
 ### Step 7: Generate Per-Criterion Findings
 
@@ -323,9 +323,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/verification-audit-generator.md` — Generator role (produces evidence.yaml consumed by this task)
-- `tasks/verification-audit-knowledge-supporter.md` — Knowledge Supporter role (produces reasoning.yaml consumed by this task)
+- `tasks/verification-audit-knowledge-supporter.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Path Provider (Judger) role (reads verdict.yaml produced by this task, writes judgment.yaml)
-- `audit/SKILL.md` — DiMo Role Chain Dispatch (Generator → Knowledge Supporter → Evaluator → Path Provider)
+- `audit/SKILL.md` — DiMo Role Chain Dispatch (Generator → upstream reasoning role → Evaluator → Path Provider)
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate, hard failure discipline

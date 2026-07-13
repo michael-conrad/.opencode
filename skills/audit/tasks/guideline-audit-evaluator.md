@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the guideline-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (Knowledge Supporter), evaluates each criterion against the guideline files, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the guideline-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion against the guideline files, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
 > **DiMo Role: Evaluator.** This task evaluates guideline quality. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The Knowledge Supporter has already validated it. Make the call.
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
 >
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
 > - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-validate evidence that Knowledge Supporter already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
 > - MUST NOT collect new evidence — that is the Generator's job
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
@@ -31,14 +31,14 @@ Evaluator role for the guideline-audit DiMo chain. Reads `evidence.yaml` (Genera
 
 ## Dispatch Contract
 
-- `guideline_paths`: List of guideline file paths that were audited (same as passed to Generator and Knowledge Supporter)
+- `guideline_paths`: List of guideline file paths that were audited (same as passed to Generator and upstream reasoning role)
 - `artifact_evidence_dir`: Directory containing `evidence.yaml` and `reasoning.yaml` from upstream roles
 - `github.owner`, `github.repo`: Repository identity
 
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Generator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
-- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Knowledge Supporter completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
+- `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the upstream reasoning role completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
 - `guideline_paths` provided — either a non-empty list of file paths or a valid glob pattern matching the files the Generator audited
 - `artifact_evidence_dir` provided (writable directory for verdict artifacts)
 - `github.owner`, `github.repo` available
@@ -79,7 +79,7 @@ remediation: "evidence.yaml is required for guideline-audit-evaluator. The orche
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "reasoning.yaml"
-remediation: "reasoning.yaml is required for guideline-audit-evaluator. The orchestrator must ensure the Knowledge Supporter completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
+remediation: "reasoning.yaml is required for guideline-audit-evaluator. The orchestrator must ensure the upstream reasoning role completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
 ```
 
 - [ ] 5. Verify `guideline_paths` is provided and non-empty — expand glob if needed via `glob` tool
@@ -89,21 +89,21 @@ remediation: "reasoning.yaml is required for guideline-audit-evaluator. The orch
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "guideline_paths"
-remediation: "guideline_paths is required for guideline-audit-evaluator. The orchestrator must provide the same guideline file paths that were passed to the Generator and Knowledge Supporter."
+remediation: "guideline_paths is required for guideline-audit-evaluator. The orchestrator must provide the same guideline file paths that were passed to the Generator and upstream reasoning role."
 ```
 
 - [ ] 7. Verify `artifact_evidence_dir` is writable — create it if it does not exist
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the Knowledge Supporter's validated reasoning:
+Read the Generator's evidence and the upstream reasoning role's validated reasoning:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml` via `read` tool
 - [ ] 2. Read `{artifact_evidence_dir}/reasoning.yaml` via `read` tool
 - [ ] 3. Parse all top-level sections from both artifacts
 - [ ] 4. Record metadata: `generator`, `knowledge_supporter`, `generated_at`, `guideline_paths`
 - [ ] 5. If any expected top-level section is absent from either artifact, record as `section_missing` — do NOT BLOCK, but flag in the verdict
-- [ ] 6. Note the Knowledge Supporter's `overall_validation_status` — this informs evaluation confidence
+- [ ] 6. Note the upstream reasoning role's `overall_validation_status` — this informs evaluation confidence
 
 ### Step 3: Evaluate GA-1 — Rule Conditions Are Unambiguous
 
@@ -117,8 +117,8 @@ Evaluate whether rule conditions are unambiguous and parseable using validated e
 - [ ] 6. **Either/or ambiguity check** — For each either/or instance in `ambiguity_validation.either_or_ambiguity`, evaluate whether the ambiguity appears in a required action. If either/or ambiguity exists in a required action, flag as FAIL with `either_or_in_required_action`.
 - [ ] 7. **Concrete action check** — For each rule entry in `rule_condition_validation`, evaluate `has_concrete_action_match`. If any rule lacks a concrete action, flag as FAIL with `no_concrete_action`.
 - [ ] 8. **Concrete values check** — For each rule entry in `rule_condition_validation`, evaluate `concrete_values_present_match`. If any rule lacks concrete values, flag as FAIL with `no_concrete_values`.
-- [ ] 9. If the Knowledge Supporter flagged evidence as `corrected`, use the corrected values
-- [ ] 10. If the Knowledge Supporter flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 9. If the upstream reasoning role flagged evidence as `corrected`, use the corrected values
+- [ ] 10. If the upstream reasoning role flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 Record results:
 
@@ -162,13 +162,13 @@ ga_1_evaluation:
 Evaluate whether any rules contradict each other using validated evidence:
 
 - [ ] 1. Read `conflict_indicator_validation` from `reasoning.yaml`
-- [ ] 2. **Within-file conflicts** — For each within-file conflict in `conflict_indicator_validation.within_file`, evaluate whether the conflict is genuine (not a false conflict flagged by the Knowledge Supporter). If genuine within-file conflicts exist, flag as FAIL with `within_file_conflict`.
+- [ ] 2. **Within-file conflicts** — For each within-file conflict in `conflict_indicator_validation.within_file`, evaluate whether the conflict is genuine (not a false conflict flagged by the upstream reasoning role). If genuine within-file conflicts exist, flag as FAIL with `within_file_conflict`.
 - [ ] 3. **Cross-file conflicts** — For each cross-file conflict in `conflict_indicator_validation.cross_file`, evaluate whether the conflict is genuine. If genuine cross-file conflicts exist, flag as FAIL with `cross_file_conflict`.
 - [ ] 4. **Tier vs. override conflicts** — For each tier/override conflict in `conflict_indicator_validation.tier_override_conflicts`, evaluate whether the declared tier and override behavior are inconsistent. If tier/override conflicts exist, flag as FAIL with `tier_override_conflict`.
 - [ ] 5. **Scope boundary conflicts** — For each scope boundary conflict in `conflict_indicator_validation.scope_boundary_conflicts`, evaluate whether scope boundaries genuinely overlap or contradict. If scope boundary conflicts exist, flag as FAIL with `scope_boundary_conflict`.
-- [ ] 6. **Missed conflicts** — If the Knowledge Supporter identified missed conflicts (`missed_conflicts` in any sub-section), evaluate whether those missed conflicts are genuine. If genuine missed conflicts exist, flag as FAIL with `missed_conflict`.
-- [ ] 7. If the Knowledge Supporter flagged evidence as `corrected`, use the corrected values
-- [ ] 8. If the Knowledge Supporter flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 6. **Missed conflicts** — If the upstream reasoning role identified missed conflicts (`missed_conflicts` in any sub-section), evaluate whether those missed conflicts are genuine. If genuine missed conflicts exist, flag as FAIL with `missed_conflict`.
+- [ ] 7. If the upstream reasoning role flagged evidence as `corrected`, use the corrected values
+- [ ] 8. If the upstream reasoning role flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 Record results:
 
@@ -214,8 +214,8 @@ Evaluate whether rule actions are executable by an LLM agent using validated evi
 - [ ] 5. **Enforcement mechanism presence** — For each rule, verify that an enforcement mechanism is referenced (hooks, plugins, session-enforcement.ts, pre-commit, watchdog). If a rule has no enforcement mechanism, flag as FAIL with `no_enforcement_mechanism`.
 - [ ] 6. **Halt condition clarity** — For each halt condition in `enforcement_pattern_validation.halt_conditions`, evaluate whether the trigger text is specific enough for an LLM to execute. If halt conditions are vague, flag as FAIL with `vague_halt_condition`.
 - [ ] 7. **TBD/TODO markers** — For each TBD/TODO marker in `ambiguity_validation.tbd_todo_markers`, evaluate whether the marker appears in a rule action. If TBD/TODO markers exist in rule actions, flag as FAIL with `tbd_in_rule_action`.
-- [ ] 8. If the Knowledge Supporter flagged evidence as `corrected`, use the corrected values
-- [ ] 9. If the Knowledge Supporter flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 8. If the upstream reasoning role flagged evidence as `corrected`, use the corrected values
+- [ ] 9. If the upstream reasoning role flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 Record results:
 
@@ -255,12 +255,12 @@ ga_3_evaluation:
 Evaluate whether cross-references are non-redundant using validated evidence:
 
 - [ ] 1. Read `cross_reference_validation` from `reasoning.yaml`
-- [ ] 2. **Duplicate source check** — For each entry in `cross_reference_validation.duplicate_sources`, evaluate whether the duplicate is genuine (not a false duplicate flagged by the Knowledge Supporter). If genuine duplicates exist, flag as FAIL with `duplicate_source_reference`.
-- [ ] 3. **Missed duplicates** — If the Knowledge Supporter identified missed duplicates (`missed_duplicates`), evaluate whether those missed duplicates are genuine. If genuine missed duplicates exist, flag as FAIL with `missed_duplicate_reference`.
+- [ ] 2. **Duplicate source check** — For each entry in `cross_reference_validation.duplicate_sources`, evaluate whether the duplicate is genuine (not a false duplicate flagged by the upstream reasoning role). If genuine duplicates exist, flag as FAIL with `duplicate_source_reference`.
+- [ ] 3. **Missed duplicates** — If the upstream reasoning role identified missed duplicates (`missed_duplicates`), evaluate whether those missed duplicates are genuine. If genuine missed duplicates exist, flag as FAIL with `missed_duplicate_reference`.
 - [ ] 4. **Broken references** — For each broken reference in any sub-section (`broken_refs`), evaluate whether the broken reference impacts rule enforceability. If broken references exist, flag as FAIL with `broken_cross_reference`.
 - [ ] 5. **Reference consolidation opportunity** — If the same source is referenced from multiple locations with different reference text, flag as FAIL with `reference_consolidation_needed`.
-- [ ] 6. If the Knowledge Supporter flagged evidence as `corrected`, use the corrected values
-- [ ] 7. If the Knowledge Supporter flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 6. If the upstream reasoning role flagged evidence as `corrected`, use the corrected values
+- [ ] 7. If the upstream reasoning role flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 Record results:
 
@@ -301,8 +301,8 @@ Evaluate whether guideline content fits within LLM context limits using validate
 - [ ] 4. **Per-rule token limit** — For each rule entry in `token_count_validation.per_rule`, evaluate whether `estimated_tokens` exceeds a reasonable per-rule limit (default: 2000 tokens). If any rule exceeds the limit, flag as FAIL with `rule_exceeds_token_limit`.
 - [ ] 5. **Total corpus size** — Evaluate whether `token_count_validation.total_corpus.total_estimated_tokens` is within a reasonable range for the guideline corpus. If the total corpus is excessively large, flag as FAIL with `corpus_exceeds_token_limit`.
 - [ ] 6. **Largest sections** — For the `largest_sections` list, evaluate whether the top sections are disproportionately large compared to the rest. If the largest sections dominate the corpus, flag as FAIL with `disproportionate_section_size`.
-- [ ] 7. If the Knowledge Supporter flagged evidence as `corrected`, use the corrected values
-- [ ] 8. If the Knowledge Supporter flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 7. If the upstream reasoning role flagged evidence as `corrected`, use the corrected values
+- [ ] 8. If the upstream reasoning role flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 Record results:
 
@@ -345,9 +345,9 @@ Evaluate whether guideline files are logically organized using validated evidenc
 - [ ] 4. **Related rules proximity** — For each entry in `related_rules`, evaluate whether sibling rules in the same section are logically related. If unrelated rules are grouped together, flag as FAIL with `unrelated_rules_grouped`.
 - [ ] 5. **File groupings** — For each grouping in `file_groupings`, evaluate whether the files in each group share a coherent topic. If files are grouped under an incoherent topic, flag as FAIL with `incoherent_file_grouping`.
 - [ ] 6. **Coverage gaps** — For each gap in `coverage_gaps`, evaluate whether the missing file represents a genuine coverage gap. If genuine coverage gaps exist, flag as FAIL with `coverage_gap`.
-- [ ] 7. **Missed groupings** — If the Knowledge Supporter identified missed groupings (`missed_groupings`), evaluate whether those groupings are genuine. If genuine missed groupings exist, flag as FAIL with `missed_file_grouping`.
-- [ ] 8. If the Knowledge Supporter flagged evidence as `corrected`, use the corrected values
-- [ ] 9. If the Knowledge Supporter flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 7. **Missed groupings** — If the upstream reasoning role identified missed groupings (`missed_groupings`), evaluate whether those groupings are genuine. If genuine missed groupings exist, flag as FAIL with `missed_file_grouping`.
+- [ ] 8. If the upstream reasoning role flagged evidence as `corrected`, use the corrected values
+- [ ] 9. If the upstream reasoning role flagged evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 Record results:
 
@@ -538,15 +538,15 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | guideline_paths missing or empty | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | Glob expansion returns no files | Return BLOCKED with NO_GUIDELINE_FILES_FOUND |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
-| Knowledge Supporter flagged evidence as unvalidated | Note uncertainty in explanation — still render verdict |
-| Knowledge Supporter flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
+| upstream reasoning role flagged evidence as unvalidated | Note uncertainty in explanation — still render verdict |
+| upstream reasoning role flagged evidence as corrected | Use corrected values — do NOT use original evidence values |
 | Expected evidence section missing from reasoning.yaml | Record as `section_missing` — do NOT BLOCK, but flag in verdict |
 | Write permission denied | Return BLOCKED — cannot write verdict.yaml |
 
 ## Cross-References
 
 - `tasks/guideline-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/guideline-audit-knowledge-supporter.md` — Knowledge Supporter role (produces the reasoning.yaml consumed by this task)
+- `tasks/guideline-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Path Provider (Judger) role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions
