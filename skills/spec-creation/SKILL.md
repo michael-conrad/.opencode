@@ -44,6 +44,13 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
 | "testability assessment" / "testability" | `testability-assessment` | `sub-task` | {spec_context} |
 | "analytical artifacts" / "generate artifacts" / "spec artifacts" | `analytical-artifacts` | `sub-task` | {spec_context} |
+| "blast-radius artifact" / "generate blast-radius" | `blast-radius-artifact` | `sub-task` | {spec_context} |
+| "concern-map artifact" / "generate concern-map" | `concern-map-artifact` | `sub-task` | {spec_context} |
+| "code-path-inventory artifact" / "generate code-path-inventory" | `code-path-inventory-artifact` | `sub-task` | {spec_context} |
+| "cross-cutting-matrix artifact" / "generate cross-cutting-matrix" | `cross-cutting-matrix-artifact` | `sub-task` | {spec_context} |
+| "interface-compatibility artifact" / "generate interface-compatibility" | `interface-compatibility-artifact` | `sub-task` | {spec_context} |
+| "state-analysis artifact" / "generate state-analysis" | `state-analysis-artifact` | `sub-task` | {spec_context} |
+| "testability-assessment artifact" / "generate testability-assessment" | `testability-assessment-artifact` | `sub-task` | {spec_context} |
 | "risk analysis" / "risk assessment" | `risk` | `sub-task` | {spec_context} |
 | "completion" / "spec complete" | `completion` | `sub-task` | {spec_context} |
 | "change control" / "revision" / "spec revision" | `change-control` | `sub-task` | {spec_context} |

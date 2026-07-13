@@ -51,6 +51,17 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "state-analysis artifact missing for plan" | HALT | — | — |
 | "testability-assessment artifact missing for plan" | HALT | — | — |
 | "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {plan_context} |
+| "holistic spec evaluation" / "pre-flight gate" | `holistic-spec-evaluation` | `sub-task` | {spec_issue_number, spec_body} |
+| "research step in pipeline" | `research` | `sub-task` | {spec_issue_number, spec_body} |
+| "artifact-validation step in pipeline" | `artifact-validation` | `sub-task` | {spec_issue_number, project_root, path} |
+| "readiness step in pipeline" | `readiness` | `sub-task` | {spec_issue_number, research_output} |
+| "structure step in pipeline" | `structure` | `sub-task` | {spec_issue_number, readiness_output} |
+| "solve step in pipeline" | `solve` | `sub-task` | {spec_issue_number, structure_output} |
+| "write step in pipeline" | `write` | `sub-task` | {spec_issue_number, solve_output} |
+| "revisit step in pipeline" | `revisit` | `sub-task` | {spec_issue_number, write_output} |
+| "validate step in pipeline" | `validate` | `sub-task` | {spec_issue_number, plan_file_path} |
+| "audit-fidelity step in pipeline" | `audit-fidelity` | `sub-task` | {spec_issue_number, plan_file_path, audit_phase} |
+| "audit-concern step in pipeline" | `audit-concern` | `sub-task` | {spec_issue_number, plan_file_path, audit_phase} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
