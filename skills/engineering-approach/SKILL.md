@@ -1,6 +1,6 @@
 ---
 name: engineering-approach
-description: "Engineering discipline enforcer that verifies design decisions, scope boundaries, and constraint compliance. Dispatch when implementing a spec, or when design, verification, and scope discipline are needed. Also dispatch when verifying design decisions against constraints, analyzing scope boundaries, or enforcing engineering discipline. Design, verification, and scope discipline are REQUIRED — not optional. User phrases: engineering approach, design verification, scope discipline, constraint analysis, implementation approach."
+description: "Engineering discipline enforcer that verifies design decisions, scope boundaries, and constraint compliance. Dispatch when implementing a spec, or when design, verification, and scope discipline are needed. Also dispatch when verifying design decisions against constraints, analyzing scope boundaries, or enforcing engineering discipline. Design, verification, and scope discipline are REQUIRED — not optional"
 license: MIT
 compatibility: opencode
 ---

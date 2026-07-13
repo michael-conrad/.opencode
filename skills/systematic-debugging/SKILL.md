@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: "Systematic debugger that performs root cause analysis, hypothesis testing, and failure mode investigation. Dispatch when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Also dispatch when performing root cause analysis, hypothesis testing, or failure mode investigation. Systematic debugging is REQUIRED. User phrases: debug, diagnose bug, root cause analysis, investigate error, reproduce issue, fix verification."
+description: "Systematic debugger that performs root cause analysis, hypothesis testing, and failure mode investigation. Dispatch when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Also dispatch when performing root cause analysis, hypothesis testing, or failure mode investigation. Systematic debugging is REQUIRED"
 license: MIT
 compatibility: opencode
 ---

@@ -1,6 +1,6 @@
 ---
 name: completeness-gate
-description: "Non-audit completeness gate that verifies deliverable covers all success criteria before routing to auditor. Dispatch when running a completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to auditor. Also dispatch when verifying that a deliverable covers all success criteria from the spec. Completeness check is MANDATORY before routing to audit — not optional. User phrases: check completeness, verify deliverable, SC coverage, pre-audit check, readiness check."
+description: "Non-audit completeness gate that verifies deliverable covers all success criteria before routing to auditor. Dispatch when running a completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to auditor. Also dispatch when verifying that a deliverable covers all success criteria from the spec. Completeness check is MANDATORY before routing to audit — not optional"
 license: MIT
 compatibility: opencode
 ---

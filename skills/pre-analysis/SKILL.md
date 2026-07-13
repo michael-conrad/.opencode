@@ -1,6 +1,6 @@
 ---
 name: pre-analysis
-description: "Pre-dispatch scope discovery that independently determines affected files and task partitions before execution sub-agents begin work. Dispatch when task()ing any execution sub-agent to independently determine scope, affected files, and task partitions. Also dispatch when discovering scope boundaries before any execution sub-agent begins work. Pre-analysis MUST be performed before dispatch — always required. User phrases: pre-analysis, discover scope, analyze affected files, identify partitions, pre-dispatch analysis."
+description: "Pre-dispatch scope discovery that independently determines affected files and task partitions before execution sub-agents begin work. Dispatch when task()ing any execution sub-agent to independently determine scope, affected files, and task partitions. Also dispatch when discovering scope boundaries before any execution sub-agent begins work. Pre-analysis MUST be performed before dispatch — always required"
 license: MIT
 compatibility: opencode
 ---

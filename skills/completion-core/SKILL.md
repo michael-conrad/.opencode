@@ -1,6 +1,6 @@
 ---
 name: completion-core
-description: "Shared completion operations for skill task workflows including push, URL generation, lifecycle event append, and executive summary reporting. Dispatch when completing skill task workflows. Also dispatch when generating structured completion signals or appending lifecycle events to issue bodies. Completion signals MUST be clear and structured — always required. User phrases: complete task, signal completion, generate URL, append lifecycle event, executive summary."
+description: "Shared completion operations for skill task workflows including push, URL generation, lifecycle event append, and executive summary reporting. Dispatch when completing skill task workflows. Also dispatch when generating structured completion signals or appending lifecycle events to issue bodies. Completion signals MUST be clear and structured — always required"
 license: MIT
 compatibility: opencode
 ---

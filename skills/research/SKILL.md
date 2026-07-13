@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Information discovery skill that produces findings with source attribution and explicit gap reporting using appropriate modalities. Dispatch when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Also dispatch when investigating root causes, performing exhaustive research, producing remediation scope analysis, verifying claims against live sources, or producing structured research artifacts. All findings MUST be verified against live sources. User phrases: research, investigate, discover information, find root cause, exhaustive search, source attribution, verify claim."
+description: "Information discovery skill that produces findings with source attribution and explicit gap reporting using appropriate modalities. Dispatch when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Also dispatch when investigating root causes, performing exhaustive research, producing remediation scope analysis, verifying claims against live sources, or producing structured research artifacts. All findings MUST be verified against live sources"
 license: MIT
 compatibility: opencode
 ---

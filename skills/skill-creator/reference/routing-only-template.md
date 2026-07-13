@@ -26,7 +26,7 @@ description: "<Noun phrase describing what the skill is>. Dispatch when <agent-f
 - `— distinct from` — exclusion clauses for skills that could false-match
 - Max 1024 characters (opencode limit)
 - **Rejected elements:** `Use when`, `Also use when`, `Trigger phrases:` — deprecated Farmage format, MUST NOT appear
-- **Optional elements:** `User phrases:` — example user-facing trigger patterns for semantic dispatch matching (not required, not rejected); `Invoke for:` — structural reference to task names from dispatch table
+- **Optional elements:** `Triggers when:` — agent-intent dispatch conditions describing when the agent should invoke this skill based on its own determination (not user utterance matching); `Invoke for:` — structural reference to task names from dispatch table
 license: MIT
 provenance: AI-generated
 ---
