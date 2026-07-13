@@ -153,7 +153,7 @@ Verification is session-scoped: a fact verified once in the current session MAY 
 - Always use a tool or command when instructed to check, verify, confirm, look up, or ensure
 - Show the tool call and relevant output as evidence
 - Re-verify before significant actions even if previously checked
-- Attempt exhaustive research before making any factual claim; if research fails, follow suggest-after-research fallback
+- Follow the Pre-Response Factual Claim Gate procedure before making any factual claim
 - Treat verification as mandatory work, not optional confirmation
 
 ## Metadata Verification Extension
