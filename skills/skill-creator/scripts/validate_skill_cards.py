@@ -162,8 +162,8 @@ def validate_req1(
                     file_path=file_path,
                 )
             )
-        # User phrases: is optional — provides example user-facing trigger patterns
-        # for semantic dispatch matching. Not required, not rejected.
+        # Agent-intent dispatch pattern: description must start with "Dispatch when"
+        # to describe the agent-side trigger condition, not user utterance patterns.
         if "Dispatch when" not in desc:
             violations.append(
                 Violation(
@@ -234,8 +234,8 @@ def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> l
                 severity="ERROR", pass_fail="FAIL",
             )
         )
-    # User phrases: is optional — provides example user-facing trigger patterns
-    # for semantic dispatch matching. Not required, not rejected.
+    # Agent-intent dispatch pattern: description must start with "Dispatch when"
+    # to describe the agent-side trigger condition, not user utterance patterns.
     return violations
 
 MANDATORY_KEYWORDS = re.compile(
