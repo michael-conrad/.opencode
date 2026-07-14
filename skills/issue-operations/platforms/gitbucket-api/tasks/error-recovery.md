@@ -4,9 +4,9 @@
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "Bad credentials" | Basic auth attempted | Use `GB_TOKEN` environment variable only |
+| "Bad credentials" | Basic auth attempted | Use `gb auth login` with token |
 | "Not Found" | Wrong endpoint URL | Verify path and owner/repo names |
-| "Unauthorized" | Token missing or invalid | Check `GB_TOKEN` environment variable |
+| "Unauthorized" | Token missing or invalid | Run `gb auth status` to check auth state |
 | 422 Unprocessable Entity | Validation error | Check request body format |
 | TOOL_MISSING | `gb` CLI not installed | Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs |
 
@@ -27,18 +27,17 @@ fi
 
 **Correct**:
 ```bash
-export GB_TOKEN=your-token
-export GB_HOST=https://gitbucket.example.com/gitbucket/
+gb auth login -H https://gitbucket.example.com/gitbucket/
 ```
 
-**Explanation**: GitBucket does not support HTTP Basic authentication for API calls. Token authentication is required for all API operations.
+**Explanation**: GitBucket does not support HTTP Basic authentication for API calls. Use `gb auth login` with a token for all API operations.
 
 ### "Unauthorized"
 
 **Cause**: Token missing, empty, or invalid.
 
 **Solution**:
-- [ ] 1. Check `GB_TOKEN` is set: `echo $GB_TOKEN`
+- [ ] 1. Run `gb auth status` to check current auth state
 - [ ] 2. Verify token has correct scopes
 - [ ] 3. Regenerate token in GitBucket UI if corrupted
 - [ ] 4. Run `gb auth status` to check current auth state

@@ -147,16 +147,9 @@ if ! command -v gb &>/dev/null; then
 fi
 ```
 
-### Environment Variables
-
-| Variable | Purpose |
-|----------|---------|
-| `GB_TOKEN` | GitBucket personal access token |
-| `GB_HOST` | GitBucket host URL |
-| `GB_USER` | GitBucket username (web fallback) |
-| `GB_PASSWORD` | GitBucket password (web fallback) |
-
 ---
+
+
 
 ## Project Structure
 

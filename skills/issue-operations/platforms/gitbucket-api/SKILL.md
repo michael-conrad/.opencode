@@ -245,5 +245,4 @@ All `list` endpoints return arrays, NOT objects. Use `--json --no-pager` flags f
 | GitHub platform | `../github-mcp/SKILL.md` |
 | Session init plugin | GitBucket detection and credentials |
 | `reference/` | OpenAPI v4.42.1 specification |
-| `tests/` | API verification test suite |
-| `API-DEFICIENCIES.md` | Detailed deficiency documentation |
+
