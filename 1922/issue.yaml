@@ -2,6 +2,105 @@ title: '[SPEC] Remove outdated GitBucket API deficiency documentation'
 status: open
 labels:
 - SPEC,needs-approval
-body: ''
+body: "---\ntitle: \"[SPEC] Remove outdated GitBucket API deficiency documentation\"\
+  \nstatus: draft\ncreated: 2026-07-13\nlicense: MIT\nprovenance: AI-generated\nissue:\
+  \ .opencode#1922\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n---\n\
+  \n**STATUS:** DRAFT\n**CREATED:** 2026-07-13\n\n> **Compliance Requirement:** All\
+  \ steps and sub-steps in this document MUST be followed in order. Failure to comply\
+  \ with any step — including but not limited to verification gates, test phases,\
+  \ audit checkpoints, and review steps — will result in the feature branch being\
+  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
+  \ work. There is no valid reason to skip, compress, reorder, or omit any step. If\
+  \ a step appears redundant or unnecessary, follow it anyway — the cost of following\
+  \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
+  \n## Problem\n\nThe `gb` CLI tool (v0.6.1) has replaced the old Python-based `gitbucket_api.py`\
+  \ client. Several files documenting and testing API deficiencies against the raw\
+  \ GitBucket REST API are now obsolete. These files reference a direct-API approach\
+  \ that no longer exists — the `gitbucket_api.py` module has been removed and `gb`\
+  \ is the sole API interface.\n\n## Goals\n\nRemove all obsolete API deficiency documentation\
+  \ and test files that reference the deprecated direct-API approach, and clean up\
+  \ the SKILL.md cross-reference table.\n\n## Non-Goals\n\n- Replacing or updating\
+  \ the `gb` CLI tool itself\n- Changing any functional behavior of the gitbucket-api\
+  \ skill\n- Modifying any other skill or guideline files\n\n## Root Cause Analysis\n\
+  \nWhen the `gb` CLI (v0.6.1) replaced the bespoke `gitbucket-api` Python tool, the\
+  \ following files were left behind as dead artifacts:\n\n1. **`API-DEFICIENCIES.md`**\
+  \ — Documents API deficiencies (PATCH 404, label ops returning empty arrays) discovered\
+  \ against the raw GitBucket REST API. These are irrelevant because `gb` handles\
+  \ all operations with its own auth and capability model.\n2. **`tests/test_api_deficiencies.py`**\
+  \ — Tests the 3 documented deficiencies via direct `requests` calls. Obsolete —\
+  \ `gb` is the sole API interface.\n3. **`tests/verify_api.py`** — General API verification\
+  \ via direct `requests` calls. Obsolete.\n4. **`tests/test_pr_idempotency.py`**\
+  \ — Unit tests for the deprecated `gitbucket_api.py` Python client. The `gitbucket_api.py`\
+  \ module no longer exists.\n\n## Alternatives Considered & Why Discarded\n\n- **Keep\
+  \ files as historical reference** — Discarded. The `gb` CLI has its own auth mechanism\
+  \ (handled automatically via `GB_TOKEN` env var). If `gb` isn't authorized, the\
+  \ agent escalates to the user — no separate deficiency doc needed. Keeping dead\
+  \ files creates confusion for future agents.\n- **Consolidate into a single file**\
+  \ — Discarded. The content is entirely obsolete; there is nothing to consolidate.\n\
+  \n## Safety Considerations\n\n- No references to `API-DEFICIENCIES` or `test_api_deficiencies`\
+  \ exist outside the gitbucket-api skill directory (verified by grep)\n- All files\
+  \ are self-contained within `.opencode/skills/issue-operations/platforms/gitbucket-api/`\n\
+  - Rollback: `git restore` on the deleted files and SKILL.md\n\n## Anti-Lobotomization\n\
+  \nTests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion\
+  \ to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION.\
+  \ SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified\
+  \ to a lower evidence type to evade implementation. See `080-code-standards.md`\
+  \ Test Integrity Mandate.\n\n## Affected Files\n\n| File | Action |\n|------|--------|\n\
+  | `.opencode/skills/issue-operations/platforms/gitbucket-api/API-DEFICIENCIES.md`\
+  \ | Delete |\n| `.opencode/skills/issue-operations/platforms/gitbucket-api/tests/test_api_deficiencies.py`\
+  \ | Delete |\n| `.opencode/skills/issue-operations/platforms/gitbucket-api/tests/verify_api.py`\
+  \ | Delete |\n| `.opencode/skills/issue-operations/platforms/gitbucket-api/tests/test_pr_idempotency.py`\
+  \ | Delete |\n| `.opencode/skills/issue-operations/platforms/gitbucket-api/tests/`\
+  \ | Remove (empty after deletions) |\n| `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`\
+  \ | Remove `API-DEFICIENCIES.md` row from Cross-References table |\n\n> **Compliance\
+  \ Requirement:** All steps and sub-steps in this document MUST be followed in order.\
+  \ Failure to comply with any step — including but not limited to verification gates,\
+  \ test phases, audit checkpoints, and review steps — will result in the feature\
+  \ branch being rejected and discarded, requiring a full rework from scratch and\
+  \ loss of all prior work. There is no valid reason to skip, compress, reorder, or\
+  \ omit any step. If a step appears redundant or unnecessary, follow it anyway —\
+  \ the cost of following an extra step is negligible compared to the cost of rework\
+  \ from a skipped step.\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type\
+  \ | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | `API-DEFICIENCIES.md` is deleted | `structural` | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/API-DEFICIENCIES.md`\
+  \ returns \"No such file\" |\n| SC-2 | `test_api_deficiencies.py` is deleted | `structural`\
+  \ | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/tests/test_api_deficiencies.py`\
+  \ returns \"No such file\" |\n| SC-3 | `verify_api.py` is deleted | `structural`\
+  \ | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/tests/verify_api.py`\
+  \ returns \"No such file\" |\n| SC-4 | `test_pr_idempotency.py` is deleted | `structural`\
+  \ | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/tests/test_pr_idempotency.py`\
+  \ returns \"No such file\" |\n| SC-5 | The `tests/` directory is removed (empty\
+  \ after deletions) | `structural` | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/tests/`\
+  \ returns \"No such file or directory\" |\n| SC-6 | The `API-DEFICIENCIES.md` row\
+  \ is removed from SKILL.md Cross-References table | `string` | `grep \"API-DEFICIENCIES\"\
+  \ .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` returns no\
+  \ matches |\n| SC-7 | No stale references remain anywhere in the codebase | `string`\
+  \ | `grep -r \"API-DEFICIENCIES\\|test_api_deficiencies\\|verify_api\\|test_pr_idempotency\"\
+  \ .opencode/skills/` returns only self-references within deleted files |\n\n## Risk\
+  \ and Edge Cases\n\n- **Empty directory removal**: The `tests/` directory MUST only\
+  \ be removed if it is empty after file deletions. If any file remains, the directory\
+  \ MUST NOT be removed.\n- **SKILL.md formatting**: Removing the `API-DEFICIENCIES.md`\
+  \ row from the Cross-References table MUST NOT disrupt the table formatting.\n\n\
+  ## Implementation Approach\n\nAfter this spec is approved, invoke `writing-plans`\
+  \ to create `.opencode/.issues/1922/plan.md` before implementation begins.\n\nThe\
+  \ implementation is a single-phase cleanup: delete 4 files, remove the empty `tests/`\
+  \ directory, and update the SKILL.md cross-reference table.\n\n## Documentation\
+  \ Sources\n\n| Source Category | What Was Consulted | Purpose |\n|----------------|-------------------|---------|\n\
+  | Direct source search | `grep -r \"API-DEFICIENCIES\" .opencode/` | Verify no external\
+  \ references |\n| Direct source search | `grep -r \"test_api_deficiencies\" .opencode/`\
+  \ | Verify no external references |\n| Direct source search | `grep -r \"verify_api\"\
+  \ .opencode/` | Verify no external references |\n| Direct source search | `grep\
+  \ -r \"test_pr_idempotency\" .opencode/` | Verify no external references |\n| Direct\
+  \ source search | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/tests/`\
+  \ | Confirm files exist |\n| Direct source search | `ls .opencode/skills/issue-operations/platforms/gitbucket-api/`\
+  \ | Confirm API-DEFICIENCIES.md exists |\n\n## Interdependency\n\nNo interdependencies\
+  \ — this spec is independent of other open issues.\n\n## Revision Policy\n\n| Artifact\
+  \ | Cascade Trigger | Action on Parent Revision |\n|----------|----------------|---------------------------|\n\
+  | Implementation plan | MUST | Revise to match revised spec |\n| Behavioral tests\
+  \ | SHOULD | Review for continued validity |\n\n## Decomposition Classification\n\
+  \n| Classification | Number of Phases | Phase Artifact Requirements | PR Strategy\
+  \ |\n| -------------- | ---------------- | --------------------------- | -----------\
+  \ |\n| single-task | 1 | Single `plan.md` file | single PR |\n\n---\nCo-authored\
+  \ with AI: OpenCode (ollama-cloud/deepseek-v4-flash)\n"
 created_at: '2026-07-14T00:31:03+00:00'
-updated_at: '2026-07-14T00:31:03+00:00'
+updated_at: '2026-07-14T00:31:23+00:00'
