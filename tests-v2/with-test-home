@@ -1,0 +1,285 @@
+#!/bin/bash
+# with-test-home — Run a command in an isolated XDG environment for opencode testing.
+#
+# Creates a project-relative temporary home directory with clean XDG state,
+# eliminating SQLite session conflicts between opencode desktop and CLI.
+#
+# Usage:
+#   bash .opencode/tests-v2/with-test-home <command> [args...]
+#   bash .opencode/tests-v2/with-test-home --setup
+#   bash .opencode/tests-v2/with-test-home --clean
+#   bash .opencode/tests-v2/with-test-home --clean-all
+#   bash .opencode/tests-v2/with-test-home --keep <command> [args...]   (default)
+#
+# Options:
+#   --setup      Create test home, seed config, run smoke tests, print TEST_HOME=<path>
+#   --keep       Preserve test home after execution (default)
+#   --clean      Remove the most recent test home directory
+#   --clean-all  Remove ALL test home directories under tmp/
+#
+# Exit codes:
+#   0  - Command succeeded (or clean succeeded)
+#   1  - Script error or command failed
+#   2  - Usage error
+#
+# Environment variable isolation — uses env -i with ONLY these vars:
+#   HOME, PWD, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR,
+#   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN
+#
+# FORBIDDEN: GITHUB_TOKEN, GH_TOKEN, OPENCODE_CONFIG_CONTENT, NODE_ENV,
+#            VIRTUAL_ENV, CONDA_DEFAULT_ENV, shell-specific vars
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$SCRIPT_DIR"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+TMP_DIR="$PROJECT_DIR/tmp"
+
+# Use snap run opencode (v1.17.18) — the snap binary at /snap/bin/opencode
+# is a symlink to /usr/bin/snap and requires snap daemon communication.
+# Direct invocation without snap run hangs in isolated environments.
+# opencode-cli (v1.14.33) is the fallback.
+if command -v snap &>/dev/null && snap info opencode &>/dev/null 2>&1; then
+    OPENCODE_CMD=(snap run opencode)
+elif [ -x /usr/bin/opencode-cli ]; then
+    echo "WARNING: snap opencode not available, falling back to opencode-cli" >&2
+    OPENCODE_CMD=(/usr/bin/opencode-cli)
+else
+    echo "FATAL: no opencode binary found" >&2
+    exit 1
+fi
+
+usage() {
+    echo "Usage: bash .opencode/tests-v2/with-test-home [--setup|--keep|--clean|--clean-all] [command...]" >&2
+    echo "" >&2
+    echo "  --setup           Create env, run smoke tests, print TEST_HOME=<path>" >&2
+    echo "  --keep            Preserve test home after execution (default)" >&2
+    echo "  --clean           Remove the most recent test home directory" >&2
+    echo "  --clean-all       Remove ALL test home directories under tmp/" >&2
+    exit 2
+}
+
+do_clean() {
+    local latest
+    latest="$(find "$TMP_DIR" -maxdepth 1 -mindepth 1 -type d -name 'test-home-*' 2>/dev/null | sort | tail -1)"
+    if [ -z "$latest" ]; then
+        echo "No test home directories found to clean." >&2
+        return 0
+    fi
+    echo "Removing: $latest" >&2
+    rm -rf "$latest"
+    echo "Clean removed: $(basename "$latest")" >&2
+    return 0
+}
+
+do_clean_all() {
+    local count=0
+    while IFS= read -r -d '' dir; do
+        echo "Removing: $dir" >&2
+        rm -rf "$dir"
+        count=$((count + 1))
+    done < <(find "$TMP_DIR" -maxdepth 1 -mindepth 1 -type d -name 'test-home-*' -print0 2>/dev/null || true)
+    echo "Clean removed $count test home directories." >&2
+    return 0
+}
+
+seed_model_config() {
+    mkdir -p "$TEST_HOME/.config/opencode"
+
+    local models=()
+    local model
+    while IFS= read -r model; do
+        if [ -n "$model" ]; then
+            models+=("$model")
+        fi
+    done < <("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/' | sed 's/ .*//' || true)
+
+    if [ ${#models[@]} -eq 0 ]; then
+        echo "HARNESS_FAILURE: no models available" >&2
+        exit 2
+    fi
+
+    local model_entries=""
+    local first=true
+    local model
+    for model in "${models[@]}"; do
+        if [ "$first" != "true" ]; then
+            model_entries+=",
+        "
+        fi
+        first=false
+        local bare="${model#ollama/}"
+        model_entries+="\"$bare\": {}"
+    done
+
+    cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        $model_entries
+      }
+    }
+  }
+}
+JSONC
+}
+
+do_setup() {
+    local timestamp
+    timestamp=$(date +%Y%m%d-%H%M%S)
+    local test_home="$TMP_DIR/test-home-$timestamp"
+    mkdir -p "$test_home"
+
+    local test_project="$test_home/project"
+    mkdir -p "$test_project"
+
+    git init -q "$test_project"
+    git -C "$test_project" config user.email "test@test.dev"
+    git -C "$test_project" config user.name "Test"
+
+    local submodule_remote_url
+    if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+        submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+    fi
+    if [ -z "$submodule_remote_url" ]; then
+        submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+    fi
+    submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
+
+    git clone -q "$submodule_remote_url" "$test_project/.opencode" 2>/dev/null || {
+        echo "HARNESS_FAILURE: git clone failed for .opencode from $submodule_remote_url" >&2
+        exit 1
+    }
+
+    git -C "$test_project" add -A 2>/dev/null || true
+    git -C "$test_project" commit -q --allow-empty -m "init" 2>/dev/null || true
+
+    export TEST_HOME="$test_home"
+    export TEST_PROJECT="$test_project"
+
+    seed_model_config
+
+    local smoke_output
+    smoke_output=$("${OPENCODE_CMD[@]}" models 2>&1 || true)
+    if ! echo "$smoke_output" | grep -q '^ollama/'; then
+        echo "HARNESS_FAILURE: smoke test failed — 'opencode models' returned no models" >&2
+        echo "  Output: $smoke_output" >&2
+        exit 1
+    fi
+
+    local default_model
+    if [ -f "$SCRIPT_DIR/default-model.sh" ]; then
+        source "$SCRIPT_DIR/default-model.sh"
+        default_model="$DEFAULT_TEST_MODEL"
+    fi
+    if [ -z "${default_model:-}" ]; then
+        default_model="ollama/gpt-oss:20b-cloud"
+    fi
+    local hello_output
+    hello_output=$("${OPENCODE_CMD[@]}" run "hello world" --model "$default_model" 2>&1 || true)
+    if [ -z "$hello_output" ] || echo "$hello_output" | grep -qi 'error\|timeout\|unavailable\|retired\|Gone:'; then
+        echo "HARNESS_FAILURE: smoke test failed — 'opencode run \"hello world\"' did not produce output" >&2
+        echo "  Model: $default_model" >&2
+        echo "  Output: $hello_output" >&2
+        exit 1
+    fi
+
+    echo "TEST_HOME=$test_home"
+    echo "TEST_PROJECT=$test_project"
+}
+
+# Sourcing guard
+if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+    return 0
+fi
+
+MODE="${1:-}"
+case "$MODE" in
+    --setup)
+        do_setup
+        exit 0
+        ;;
+    --clean)
+        do_clean
+        exit 0
+        ;;
+    --clean-all)
+        do_clean_all
+        exit 0
+        ;;
+    --keep)
+        KEEP_TEST_HOME=1
+        shift
+        ;;
+    --help|-h)
+        usage
+        exit 0
+        ;;
+    *)
+        # Default: preserve test home
+        KEEP_TEST_HOME=1
+        ;;
+esac
+
+# Run command inside isolated env
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+TEST_HOME="$TMP_DIR/test-home-$TIMESTAMP"
+mkdir -p "$TEST_HOME"
+
+TEST_PROJECT="$TEST_HOME/project"
+mkdir -p "$TEST_PROJECT"
+
+git init -q "$TEST_PROJECT"
+git -C "$TEST_PROJECT" config user.email "test@test.dev"
+git -C "$TEST_PROJECT" config user.name "Test"
+
+SUBMODULE_REMOTE_URL="https://github.com/michael-conrad/.opencode.git"
+if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+    SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")
+fi
+SUBMODULE_REMOTE_URL=$(echo "$SUBMODULE_REMOTE_URL" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
+
+git clone -q "$SUBMODULE_REMOTE_URL" "$TEST_PROJECT/.opencode" 2>/dev/null || {
+    echo "HARNESS_FAILURE: git clone failed for .opencode from $SUBMODULE_REMOTE_URL" >&2
+    exit 1
+}
+
+git -C "$TEST_PROJECT" add -A 2>/dev/null || true
+git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
+
+seed_model_config
+
+# Isolate XDG state to test home while preserving parent env for binary compat.
+# snap run opencode needs the real HOME to find its snap data — do NOT override HOME.
+# We override XDG vars to redirect state to the test home.
+RC=0
+(
+    cd "$TEST_PROJECT"
+    export XDG_CONFIG_HOME="$TEST_HOME/.config"
+    export XDG_CACHE_HOME="$TEST_HOME/.cache"
+    export XDG_RUNTIME_DIR="$TEST_HOME/.runtime"
+    export XDG_DATA_HOME="$TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$TEST_HOME/.local/state"
+    export GIT_CONFIG_NOSYSTEM=1
+    "$@"
+) 2>&1 || RC=$?
+
+if [ "${KEEP_TEST_HOME:-0}" != "1" ]; then
+    rm -rf "$TEST_HOME"
+fi
+
+exit $RC
