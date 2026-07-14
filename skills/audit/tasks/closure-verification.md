@@ -14,10 +14,10 @@ Verify merge evidence after PR merge. This task has been split into a DiMo 4-rol
 
 The orchestrator dispatches the 4 roles sequentially:
 
-1. **Generator** (`generator.md`) — Fetches PR, identifies spec issue, produces `evidence.yaml`
-2. **Knowledge Supporter** (`knowledge-supporter.md`) — Validates evidence against source data, produces `reasoning.yaml`
+1. **Investigator** (`investigator.md`) — Fetches PR, identifies spec issue, produces `evidence.yaml`
+2. **Validator** (`validator.md`) — Validates evidence against source data, produces `reasoning.yaml`
 3. **Evaluator** (`evaluator.md`) — Evaluates criteria against evidence, produces `verdict.yaml`
-4. **Path Provider** (`path-provider.md`) — Provides resolution paths, produces final result contract
+4. **Arbiter** (`arbiter.md`) — Provides resolution paths, produces final result contract
 
 ## Dispatch Contract
 
@@ -38,7 +38,7 @@ The orchestrator dispatches the 4 roles sequentially:
 
 ## Cross-References
 
-- **Generator:** `closure-verification/generator.md`
-- **Knowledge Supporter:** `closure-verification/knowledge-supporter.md`
+- **Investigator:** `closure-verification/investigator.md`
+- **Validator:** `closure-verification/validator.md`
 - **Evaluator:** `closure-verification/evaluator.md`
-- **Path Provider:** `closure-verification/path-provider.md`
+- **Arbiter:** `closure-verification/arbiter.md`

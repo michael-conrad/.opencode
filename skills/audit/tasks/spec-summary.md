@@ -12,10 +12,10 @@ Verify PR/spec consistency before merge. This task has been split into a DiMo 4-
 
 The orchestrator dispatches the 4 roles sequentially:
 
-1. **Generator** (`spec-summary/generator.md`) — Fetches PR, loads spec, produces `evidence.yaml`
-2. **Knowledge Supporter** (`spec-summary/knowledge-supporter.md`) — Validates evidence, produces `reasoning.yaml`
+1. **Investigator** (`spec-summary/investigator.md`) — Fetches PR, loads spec, produces `evidence.yaml`
+2. **Validator** (`spec-summary/validator.md`) — Validates evidence, produces `reasoning.yaml`
 3. **Evaluator** (`spec-summary/evaluator.md`) — Evaluates criteria, produces `verdict.yaml`
-4. **Path Provider** (`spec-summary/path-provider.md`) — Provides recommendations, produces final result contract
+4. **Arbiter** (`spec-summary/arbiter.md`) — Provides recommendations, produces final result contract
 
 ## Dispatch Contract
 
@@ -37,7 +37,7 @@ The orchestrator dispatches the 4 roles sequentially:
 
 ## Cross-References
 
-- **Generator:** `spec-summary/generator.md`
-- **Knowledge Supporter:** `spec-summary/knowledge-supporter.md`
+- **Investigator:** `spec-summary/investigator.md`
+- **Validator:** `spec-summary/validator.md`
 - **Evaluator:** `spec-summary/evaluator.md`
-- **Path Provider:** `spec-summary/path-provider.md`
+- **Arbiter:** `spec-summary/arbiter.md`

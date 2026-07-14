@@ -3,8 +3,8 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-13 (behavioral): Agent dispatches DiMo role chain (Knowledge Supporter,
-# Path Provider, Evaluator, Judger) during adversarial audit, not cross-model
+# SC-13 (behavioral): Agent dispatches DiMo role chain (Validator,
+# Arbiter, Evaluator, Arbiter) during adversarial audit, not cross-model
 # auditors via resolve-models.
 #
 # Real-domain task: user asks to run an adversarial audit — agent should

@@ -13,9 +13,9 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
+Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
 
-> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Generator and `reasoning.yaml` from the upstream reasoning role, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
+> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Investigator and `reasoning.yaml` from the upstream reasoning role, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
 >
 > You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
 >
@@ -23,19 +23,19 @@ Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
 > - MUST NOT defer to upstream roles — the verdict is yours alone
 > - MUST NOT re-evaluate evidence that upstream reasoning role already validated
-> - MUST NOT re-collect evidence that Generator already collected
+> - MUST NOT re-collect evidence that Investigator already collected
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: any hedging language in a PASS explanation downgrades to FAIL
 
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files
-- `artifact_evidence_dir`: Directory for evidence artifacts (contains `evidence.yaml` from Generator and `reasoning.yaml` from upstream reasoning role)
+- `artifact_evidence_dir`: Directory for evidence artifacts (contains `evidence.yaml` from Investigator and `reasoning.yaml` from upstream reasoning role)
 - `github.owner`, `github.repo`: Repository identity
 
 ## Entry Criteria
 
-- `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` (produced by Generator)
+- `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` (produced by Investigator)
 - `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` (produced by upstream reasoning role)
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (readable directory containing upstream artifacts)
@@ -85,7 +85,7 @@ remediation: "No reasoning.yaml found in {artifact_evidence_dir}/. Run coherence
 
 ### Step 2: Load Upstream Artifacts
 
-Read and parse the Generator's evidence and upstream reasoning role's validation:
+Read and parse the Investigator's evidence and upstream reasoning role's validation:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml`
 - [ ] 2. Parse the YAML content
@@ -438,10 +438,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/coherence-maintenance-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/coherence-maintenance-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider role (consumes this Evaluator's verdict.yaml)
-- `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Generator)
+- `tasks/coherence-maintenance-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
+- `tasks/coherence-maintenance-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
+- `tasks/cross-validate.md` — Arbiter role (consumes this Evaluator's verdict.yaml)
+- `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Investigator)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement
 

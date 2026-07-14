@@ -13,16 +13,16 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each success criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. It evaluates.
+Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each success criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. It evaluates.
 
-> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml`.
+> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml`.
 >
 > You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
 >
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
 > - MUST NOT defer to upstream roles — the verdict is yours alone
 > - MUST NOT re-evaluate evidence that upstream reasoning role already validated
-> - MUST NOT collect new evidence — the Generator already did that
+> - MUST NOT collect new evidence — the Investigator already did that
 > - MUST write `verdict.yaml` as the primary output artifact
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
@@ -69,7 +69,7 @@ Validate that all required inputs are present before proceeding:
 status: BLOCKED
 error: MISSING_EVIDENCE_YAML
 missing: "./tmp/{issue-N}/artifacts/verification-audit/evidence.yaml"
-remediation: "evidence.yaml is required for verification-audit-evaluator. The Generator must produce evidence.yaml before the Evaluator can produce verdicts."
+remediation: "evidence.yaml is required for verification-audit-evaluator. The Investigator must produce evidence.yaml before the Evaluator can produce verdicts."
 ```
 
 - [ ] 3. Verify `reasoning.yaml` exists at `./tmp/{issue-N}/artifacts/verification-audit/reasoning.yaml` — read the file and confirm it is non-empty
@@ -104,7 +104,7 @@ remediation: "artifact_evidence_dir is required for verification-audit-evaluator
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's `evidence.yaml` and the upstream reasoning role's `reasoning.yaml`:
+Read the Investigator's `evidence.yaml` and the upstream reasoning role's `reasoning.yaml`:
 
 - [ ] 1. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/verification-audit/evidence.yaml` via `read` tool
 - [ ] 2. Parse the evidence structure: `spec`, `evidence_artifacts`, `sc_evidence_map`
@@ -322,10 +322,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/verification-audit-generator.md` — Generator role (produces evidence.yaml consumed by this task)
-- `tasks/verification-audit-knowledge-supporter.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider role (reads verdict.yaml produced by this task, writes judgment.yaml)
-- `audit/SKILL.md` — DiMo Role Chain Dispatch (Generator → upstream reasoning role → Evaluator → Path Provider)
+- `tasks/verification-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
+- `tasks/verification-audit-validator.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
+- `tasks/cross-validate.md` — Arbiter role (reads verdict.yaml produced by this task, writes judgment.yaml)
+- `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
 - `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate, hard failure discipline

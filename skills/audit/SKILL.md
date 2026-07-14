@@ -43,25 +43,25 @@ When any audit produces a FAIL verdict, the following remediation procedure MUST
 
 ## Trigger Dispatch Table
 
-Each row dispatches to the DiMo 4-role chain (Generator → Knowledge Supporter → Evaluator → Path Provider). No row dispatches to a single monolithic task file.
+Each row dispatches to the DiMo 4-role chain (Investigator → Validator → Evaluator → Arbiter). No row dispatches to a single monolithic task file.
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "audit #NNN" / "run audit" | `verification-audit` | `sub-task` (DiMo chain) | {issue_number, artifact_evidence_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "spec audit #NNN" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` (DiMo chain) | {issue_number, plan_local_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "concern separation" / "scope audit" | `concern-separation` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "coherence" / "coherence extraction" | `coherence-extraction` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "guideline audit" | `guideline-audit` | `sub-task` (DiMo chain) | {guideline_paths, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "spec summary" / "PR summary" | `spec-summary` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` (DiMo chain) | {pr_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "cross-validate" / "consensus" | `cross-validate` | `sub-task` (DiMo chain) | {spec_local_dir, artifact_evidence_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "test quality audit" | `test-quality-audit` | `sub-task` (DiMo chain) | {issue_number, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "content audit" / "audit content claims" | `content-audit` | `sub-task` (DiMo chain) | {document_section, source_data_paths, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
-| "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, remediation_artifact_dir, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| "audit #NNN" / "run audit" | `verification-audit` | `sub-task` (DiMo chain) | {issue_number, artifact_evidence_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "spec audit #NNN" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` (DiMo chain) | {issue_number, plan_local_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "concern separation" / "scope audit" | `concern-separation` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "coherence" / "coherence extraction" | `coherence-extraction` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "guideline audit" | `guideline-audit` | `sub-task` (DiMo chain) | {guideline_paths, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "spec summary" / "PR summary" | `spec-summary` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` (DiMo chain) | {pr_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "cross-validate" / "consensus" | `cross-validate` | `sub-task` (DiMo chain) | {spec_local_dir, artifact_evidence_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "test quality audit" | `test-quality-audit` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "content audit" / "audit content claims" | `content-audit` | `sub-task` (DiMo chain) | {document_section, source_data_paths, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, remediation_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
 | "blast-radius artifact missing" | HALT | — | — |
 | "concern-map artifact missing" | HALT | — | — |
 | "code-path-inventory artifact missing" | HALT | — | — |
@@ -70,7 +70,7 @@ Each row dispatches to the DiMo 4-role chain (Generator → Knowledge Supporter 
 | "state-analysis artifact missing" | HALT | — | — |
 | "testability-assessment artifact missing" | HALT | — | — |
 | "stale analytical artifacts" | HALT | — | — |
-| completion / workflow end | `completion` | `sub-task` (DiMo chain) | {workflow_state, role_chain: [generator, knowledge-supporter, evaluator, path-provider]} |
+| completion / workflow end | `completion` | `sub-task` (DiMo chain) | {workflow_state, role_chain: [investigator, validator, evaluator, arbiter]} |
 
 ## Tasks
 
@@ -86,7 +86,7 @@ Each row dispatches to the DiMo 4-role chain (Generator → Knowledge Supporter 
 | `drift-detection` | Detect documentation-code drift |
 | `spec-summary` | Summarize spec for PR body |
 | `closure-verification` | Verify issue closure criteria |
-| `cross-validate` | Path Provider (Judger) — reads upstream artifacts, produces final judgment |
+| `cross-validate` | Arbiter — reads upstream artifacts, produces final judgment |
 | `test-quality-audit` | Audit test coverage and quality against spec SCs |
 | `content-audit` | Audit of factual claims in generated content — verification of quantitative claims, file references, and assertions against local source data |
 | `completion` | Complete audit workflow with output |
@@ -102,7 +102,7 @@ Each row dispatches to the DiMo 4-role chain (Generator → Knowledge Supporter 
 All audit tasks dispatch through the DiMo 4-role chain (see DiMo Role Chain Dispatch below). The canonical dispatch string for any audit task is:
 
 ```
-task(..., prompt: "execute <task-name> DiMo chain: generator → knowledge-supporter → evaluator → path-provider")
+task(..., prompt: "execute <task-name> DiMo chain: investigator → validator → evaluator → arbiter")
 ```
 
 No task dispatches to a single monolithic task file. The orchestrator dispatches roles in order, passing artifact paths between them. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
@@ -113,10 +113,10 @@ No task dispatches to a single monolithic task file. The orchestrator dispatches
 
 Each audit task follows a sequential role chain dispatched via `task(subagent_type="general")`. The orchestrator dispatches roles in order, passing artifact paths between them:
 
-1. **Generator** — writes `evidence.yaml` with raw evidence and initial findings
-2. **Knowledge Supporter** — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
+1. **Investigator** — writes `evidence.yaml` with raw evidence and initial findings
+2. **Validator** — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
 3. **Evaluator** — reads `evidence.yaml` + `reasoning.yaml`, writes `verdict.yaml` with per-criterion PASS/FAIL
-4. **Path Provider (Judger)** — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`
+4. **Arbiter** — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`
 
 Artifact directory: `./tmp/{issue-N}/artifacts/{task-name}/`
 

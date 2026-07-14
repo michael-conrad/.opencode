@@ -13,7 +13,7 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each test quality criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each test quality criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
 > **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
@@ -23,7 +23,7 @@ Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Gen
 > - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
 > - MUST NOT defer to upstream roles — the verdict is yours alone
 > - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
-> - MUST NOT collect new evidence — that is the Generator's job
+> - MUST NOT collect new evidence — that is the Investigator's job
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
 
@@ -40,7 +40,7 @@ Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Gen
 
 ## Entry Criteria
 
-- `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Generator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
+- `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Investigator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
 - `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the upstream reasoning role completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
 - `spec_local_dir` provided (local issue directory containing Markdown spec files) — MUST be a filesystem directory confirmed to exist before dispatch
 - `spec_issue_number` provided
@@ -75,7 +75,7 @@ Validate that all required inputs are present before proceeding:
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "evidence.yaml"
-remediation: "evidence.yaml is required for test-quality-audit-evaluator. The orchestrator must ensure the Generator completed successfully and wrote evidence.yaml before dispatching the Evaluator."
+remediation: "evidence.yaml is required for test-quality-audit-evaluator. The orchestrator must ensure the Investigator completed successfully and wrote evidence.yaml before dispatching the Evaluator."
 ```
 
 - [ ] 3. Verify `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — read the file to confirm it is non-empty and valid YAML
@@ -112,7 +112,7 @@ remediation: "file_paths_changed is required for test-quality-audit-evaluator. T
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the upstream reasoning role's validated reasoning:
+Read the Investigator's evidence and the upstream reasoning role's validated reasoning:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml` via `read` tool
 - [ ] 2. Read `{artifact_evidence_dir}/reasoning.yaml` via `read` tool
@@ -453,9 +453,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/test-quality-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/test-quality-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider role (consumes this task's verdict.yaml)
+- `tasks/test-quality-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
+- `tasks/test-quality-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
+- `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations
 - `080-code-standards.md` §Test Integrity Mandate — no lobotomizing tests
