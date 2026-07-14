@@ -1,0 +1,300 @@
+# Code Path Inventory — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+inventory:
+  - path: .opencode/skills/audit/SKILL.md
+    type: skill_definition
+    role_references:
+      - Trigger Dispatch Table (role name strings)
+      - DiMo Role Chain Dispatch section
+      - Role descriptions and purpose statements
+    rename_impact: content_strings
+
+  - path: .opencode/skills/audit/tasks/closure-verification.md
+    type: parent_task
+    role_references: coordinator references to generator, knowledge-supporter, path-provider
+    rename_impact: content_strings
+
+  - path: .opencode/skills/audit/tasks/closure-verification/generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/closure-verification/knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/closure-verification/path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/closure-verification/evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/coherence-extraction.md
+    type: parent_task
+    role_references: coordinator references to generator, knowledge-supporter, path-provider
+    rename_impact: content_strings
+
+  - path: .opencode/skills/audit/tasks/coherence-extraction/generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/coherence-extraction/knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/coherence-extraction/path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/coherence-extraction/evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/coherence-maintenance-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/coherence-maintenance-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/coherence-maintenance-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/coherence-maintenance-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/concern-separation-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/concern-separation-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/concern-separation-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/concern-separation-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/content-audit-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/content-audit-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/content-audit-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/content-audit-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/cross-validate.md
+    type: parent_task
+    role_references: references to all 4 roles
+    rename_impact: content_strings
+
+  - path: .opencode/skills/audit/tasks/drift-detection-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/drift-detection-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/drift-detection-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/drift-detection-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/guideline-audit-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/guideline-audit-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/guideline-audit-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/guideline-audit-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/plan-fidelity-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/plan-fidelity-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/plan-fidelity-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/resolve-models.md
+    type: parent_task
+    role_references: references to all 4 roles
+    rename_impact: content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/spec-audit-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-audit-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-audit-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-summary.md
+    type: parent_task
+    role_references: coordinator references to generator, knowledge-supporter, path-provider
+    rename_impact: content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-summary/generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-summary/knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-summary/path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/spec-summary/evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/test-quality-audit-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/test-quality-audit-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/test-quality-audit-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/test-quality-audit-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/verification-audit-evaluator.md
+    type: role_task
+    role: Evaluator
+    rename_impact: none (unchanged)
+
+  - path: .opencode/skills/audit/tasks/verification-audit-generator.md
+    type: role_task
+    role: Generator
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/verification-audit-knowledge-supporter.md
+    type: role_task
+    role: Knowledge Supporter
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/verification-audit-path-provider.md
+    type: role_task
+    role: Path Provider
+    rename_impact: file_name + content_strings
+
+  - path: .opencode/skills/audit/tasks/completion.md
+    type: parent_task
+    role_references: references to all 4 roles
+    rename_impact: content_strings
+
+  - path: .opencode/tests/behaviors/dimo-role-chain-dispatch.sh
+    type: behavioral_test
+    role_references: all 4 role names in prompts and assertions
+    rename_impact: content_strings
+
+  - path: .opencode/tests/behaviors/1246-sc3-resolve-models-preflight.sh
+    type: behavioral_test
+    role_references: role names in prompts and assertions
+    rename_impact: content_strings
+
+summary:
+  total_files: 57
+  files_needing_rename: 24
+  files_needing_content_update_only: 30
+  files_needing_both: 24
+  files_unchanged: 3 (evaluator files — name stays)
+  files_with_no_role_references: 0

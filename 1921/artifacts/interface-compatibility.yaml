@@ -1,0 +1,79 @@
+# Interface Compatibility Analysis — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+# This rename is purely textual — no interface, API, or dispatch
+# logic changes. The analysis confirms zero compatibility impact.
+
+change_type: textual_rename_only
+dispatch_logic_unchanged: true
+pipeline_semantics_unchanged: true
+artifact_names_unchanged: true
+
+interfaces_checked:
+  - interface: DiMo Role Chain Dispatch
+    status: UNCHANGED
+    rationale: >
+      The dispatch logic routes by role position in the chain
+      (1st=Investigator, 2nd=Validator, 3rd=Evaluator,
+      4th=Arbiter), not by role name string. Role name strings
+      are human-readable labels only. The dispatch table in
+      SKILL.md maps role names to task files, but the routing
+      logic itself is position-based.
+
+  - interface: Task file cross-references
+    status: COMPATIBLE_AFTER_RENAME
+    rationale: >
+      Task files reference other role task files by filename.
+      After renaming files, all cross-references must be updated
+      to point to new filenames. This is a one-time update —
+      no ongoing compatibility concern.
+
+  - interface: Behavioral test assertions
+    status: COMPATIBLE_AFTER_UPDATE
+    rationale: >
+      Behavioral tests assert role name strings in stderr output
+      and semantic evaluation. After updating test assertions to
+      use new names, compatibility is restored.
+
+  - interface: SKILL.md Trigger Dispatch Table
+    status: COMPATIBLE_AFTER_UPDATE
+    rationale: >
+      The dispatch table maps role names to task file paths.
+      After updating both the role name strings and the file
+      path references, the table routes correctly.
+
+  - interface: Sub-agent task() dispatch
+    status: UNCHANGED
+    rationale: >
+      Sub-agents are dispatched by task() with role-based
+      routing. The role name strings in dispatch instructions
+      are human-readable labels — the actual routing uses
+      file paths and position in the chain.
+
+  - interface: External consumers
+    status: NONE
+    rationale: >
+      No external consumers of DiMo role names. The audit skill
+      is internal to the .opencode submodule.
+
+compatibility_verification:
+  - check: grep for old role names after rename
+    expected: zero matches in skills/audit/ and tests/behaviors/
+    sc_reference: SC-1, SC-2, SC-4, SC-6
+
+  - check: grep for new role names in SKILL.md dispatch table
+    expected: Investigator, Validator, Evaluator, Arbiter present
+    sc_reference: SC-2
+
+  - check: behavioral test dispatch verification
+    expected: agent dispatches Investigator → Validator → Evaluator → Arbiter chain
+    sc_reference: SC-5
+
+  - check: grep for old file name references in cross-references
+    expected: zero matches for generator, knowledge-supporter, path-provider
+    sc_reference: SC-6
+
+breaking_changes: []
+deprecations: []
+api_changes: []

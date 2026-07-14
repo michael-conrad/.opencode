@@ -1,0 +1,154 @@
+# Cross-Cutting Matrix — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+# Maps each concern (C-1 through C-6) to each affected file category,
+# showing which concerns apply to which files.
+
+file_categories:
+  - id: FC-SKILL
+    name: SKILL.md
+    count: 1
+    files:
+      - .opencode/skills/audit/SKILL.md
+
+  - id: FC-FLAT-ROLE
+    name: Flat task files with role in filename
+    count: 24
+    pattern: .opencode/skills/audit/tasks/*-{role}.md
+    description: Files whose names contain old role names
+
+  - id: FC-FLAT-NO-ROLE
+    name: Flat task files without role in filename
+    count: 21
+    pattern: .opencode/skills/audit/tasks/*.md (excluding role-named files)
+    description: Parent/coordinator files and evaluator files
+
+  - id: FC-SUBDIR-ROLE
+    name: Subdirectory role files
+    count: 9
+    pattern: .opencode/skills/audit/tasks/{audit_type}/{role}.md
+    description: Role files in subdirectories
+
+  - id: FC-SUBDIR-PARENT
+    name: Subdirectory parent files
+    count: 3
+    pattern: .opencode/skills/audit/tasks/{audit_type}.md
+    description: Parent coordinator files in subdirectory audit types
+
+  - id: FC-TEST
+    name: Behavioral test files
+    count: 2
+    pattern: .opencode/tests/behaviors/*.sh
+
+matrix:
+  - concern: C-1 (string replacement)
+    applies_to:
+      - FC-SKILL: true
+      - FC-FLAT-ROLE: true
+      - FC-FLAT-NO-ROLE: true
+      - FC-SUBDIR-ROLE: true
+      - FC-SUBDIR-PARENT: true
+      - FC-TEST: true
+    notes: All files with role name references need string replacement
+
+  - concern: C-2 (file renaming)
+    applies_to:
+      - FC-SKILL: false
+      - FC-FLAT-ROLE: true
+      - FC-FLAT-NO-ROLE: false
+      - FC-SUBDIR-ROLE: true
+      - FC-SUBDIR-PARENT: false
+      - FC-TEST: false
+    notes: Only files with role names in their filenames
+
+  - concern: C-3 (SKILL.md dispatch)
+    applies_to:
+      - FC-SKILL: true
+      - FC-FLAT-ROLE: false
+      - FC-FLAT-NO-ROLE: false
+      - FC-SUBDIR-ROLE: false
+      - FC-SUBDIR-PARENT: false
+      - FC-TEST: false
+    notes: Exclusive to SKILL.md
+
+  - concern: C-4 (behavioral tests)
+    applies_to:
+      - FC-SKILL: false
+      - FC-FLAT-ROLE: false
+      - FC-FLAT-NO-ROLE: false
+      - FC-SUBDIR-ROLE: false
+      - FC-SUBDIR-PARENT: false
+      - FC-TEST: true
+    notes: Exclusive to 2 test files
+
+  - concern: C-5 (cross-references)
+    applies_to:
+      - FC-SKILL: false
+      - FC-FLAT-ROLE: true
+      - FC-FLAT-NO-ROLE: true
+      - FC-SUBDIR-ROLE: true
+      - FC-SUBDIR-PARENT: true
+      - FC-TEST: false
+    notes: All task files may reference other task files by old file name
+
+  - concern: C-6 (anti-lobotomization)
+    applies_to:
+      - FC-SKILL: false
+      - FC-FLAT-ROLE: false
+      - FC-FLAT-NO-ROLE: false
+      - FC-SUBDIR-ROLE: false
+      - FC-SUBDIR-PARENT: false
+      - FC-TEST: true
+    notes: Meta-concern for behavioral test integrity
+
+shared_file_overlap:
+  - file_group: FC-FLAT-ROLE + FC-SUBDIR-ROLE
+    concerns: C-1, C-2, C-5
+    count: 33
+    risk: high
+    mitigation: >
+      These files need both file rename and content update.
+      Cross-references between them must be updated after rename.
+
+  - file_group: FC-FLAT-NO-ROLE + FC-SUBDIR-PARENT
+    concerns: C-1, C-5
+    count: 24
+    risk: medium
+    mitigation: >
+      Content-only updates. Cross-references to renamed files
+      must use new file names.
+
+  - file_group: FC-TEST
+    concerns: C-1, C-4, C-6
+    count: 2
+    risk: high
+    mitigation: >
+      Behavioral tests must be updated and verified with RED/GREEN
+      cycle. Anti-lobotomization check required.
+
+conflict_zones:
+  - zone: File rename vs. content update ordering
+    description: >
+      Files must be renamed before or simultaneously with content
+      updates. If content is updated first, the old filename still
+      exists. If renamed first, git mv preserves content.
+    resolution: Rename files first, then update contents.
+
+  - zone: Cross-reference staleness during rename
+    description: >
+      While files are being renamed, cross-references in other
+      files point to non-existent paths.
+    resolution: >
+      Perform all renames in a single batch, then update all
+      cross-references in a single batch. No partial state.
+
+  - zone: Behavioral test RED/GREEN cycle
+    description: >
+      SC-8 requires behavioral tests to fail before rename (RED)
+      and pass after rename (GREEN). This means tests must be
+      written with new names before the rename, and must fail
+      because old names are still in use.
+    resolution: >
+      Write tests with new name assertions first (RED), then
+      perform rename (GREEN). Do not update tests after rename.

@@ -1,0 +1,146 @@
+# Testability Assessment — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+overall_testability: HIGH
+rationale: >
+  This is a purely textual rename with no logic changes.
+  Verification is straightforward grep-based string matching
+  plus behavioral test execution. The spec defines 8 success
+  criteria with clear verification methods.
+
+success_criteria_testability:
+  - id: SC-1
+    description: All 54 task files have old role names replaced
+    evidence_type: string
+    testability: TRIVIAL
+    test_method: grep -r for old role names
+    automation: fully automatable
+    risk: low
+
+  - id: SC-2
+    description: SKILL.md uses new role names
+    evidence_type: string
+    testability: TRIVIAL
+    test_method: grep for old and new names in SKILL.md
+    automation: fully automatable
+    risk: low
+
+  - id: SC-3
+    description: File names renamed correctly
+    evidence_type: structural
+    testability: TRIVIAL
+    test_method: ls for old and new file name patterns
+    automation: fully automatable
+    risk: low
+
+  - id: SC-4
+    description: Behavioral test files updated
+    evidence_type: string
+    testability: TRIVIAL
+    test_method: grep for old role names in test files
+    automation: fully automatable
+    risk: low
+
+  - id: SC-5
+    description: Audit chain dispatches correctly with new names
+    evidence_type: behavioral
+    testability: MODERATE
+    test_method: opencode-cli run with audit dispatch prompt
+    automation: requires opencode-cli + model
+    risk: medium
+    risk_factors:
+      - Model availability for behavioral test execution
+      - opencode-cli infrastructure requirements
+      - Semantic inspector model for assert_semantic
+
+  - id: SC-6
+    description: No broken cross-references
+    evidence_type: string
+    testability: TRIVIAL
+    test_method: grep for old file name patterns in task files
+    automation: fully automatable
+    risk: low
+
+  - id: SC-7
+    description: No lobotomized tests
+    evidence_type: behavioral
+    testability: MODERATE
+    test_method: opencode-cli run with implementation prompt
+    automation: requires opencode-cli + model
+    risk: medium
+    risk_factors:
+      - Same as SC-5
+
+  - id: SC-8
+    description: RED/GREEN behavioral test cycle
+    evidence_type: behavioral
+    testability: MODERATE
+    test_method: opencode-cli run before and after rename
+    automation: requires opencode-cli + model
+    risk: medium
+    risk_factors:
+      - Same as SC-5
+      - Requires two test runs (pre and post change)
+
+test_infrastructure_requirements:
+  - tool: opencode-cli
+    required_for: SC-5, SC-7, SC-8
+    available: true (per AGENTS.md)
+  - tool: grep
+    required_for: SC-1, SC-2, SC-3, SC-4, SC-6
+    available: true
+  - tool: ls
+    required_for: SC-3
+    available: true
+  - tool: assert_semantic (clean-room AI inspector)
+    required_for: SC-5, SC-7, SC-8
+    available: requires model availability
+
+test_phases:
+  - phase: Pre-implementation (RED)
+    scs: SC-8
+    description: >
+      Write behavioral tests with new name assertions.
+      Tests must FAIL because old names are still in use.
+    evidence: behavioral test failure output
+
+  - phase: Post-implementation (GREEN)
+    scs: SC-1, SC-2, SC-3, SC-4, SC-6
+    description: >
+      Run grep-based verification for all string/structural SCs.
+      All must PASS.
+    evidence: grep output showing zero old name matches
+
+  - phase: Behavioral verification
+    scs: SC-5, SC-7
+    description: >
+      Run behavioral tests with new names. Tests must PASS.
+    evidence: behavioral test PASS output
+
+test_risks:
+  - risk: Behavioral test model unavailability
+    impact: Cannot verify SC-5, SC-7, SC-8
+    mitigation: >
+      Per 065-verification-honesty.md anti-evasion rules,
+      attempt alternative model, increase timeout, then
+      report FAIL with evidence. Do NOT substitute grep.
+
+  - risk: Behavioral test timeout
+    impact: Test fails to complete
+    mitigation: >
+      Increase BEHAVIOR_TIMEOUT. Inspect stdout/stderr logs.
+      Diagnose root cause before retry.
+
+  - risk: Cross-reference false positives
+    impact: grep matches in comments/documentation that are not actual references
+    mitigation: >
+      Review each match context to confirm it is a real
+      cross-reference, not a descriptive mention.
+
+test_coverage:
+  string_evidence_scs: 4 (SC-1, SC-2, SC-4, SC-6)
+  structural_evidence_scs: 1 (SC-3)
+  behavioral_evidence_scs: 3 (SC-5, SC-7, SC-8)
+  total_scs: 8
+  coverage: 100%

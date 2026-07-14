@@ -1,0 +1,110 @@
+# Concern Map — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+concerns:
+  - id: C-1
+    name: Role name string replacement
+    description: >
+      Replace all occurrences of old role name strings with new role
+      name strings in file contents across all affected files.
+    affected_roles:
+      - Generator → Investigator
+      - Knowledge Supporter → Validator
+      - Path Provider → Arbiter
+      - Judger → Arbiter
+    affected_files:
+      - All 54 task files
+      - SKILL.md
+      - 2 behavioral test files
+    risk: low
+    risk_rationale: >
+      Straightforward find-and-replace. Risk of missed occurrences
+      mitigated by exhaustive grep verification.
+
+  - id: C-2
+    name: File name renaming
+    description: >
+      Rename files whose names contain old role names to use new
+      role names. Includes both flat files and subdirectory files.
+    affected_patterns:
+      - '*-generator.md' → '*-investigator.md' (8 flat files)
+      - '*-knowledge-supporter.md' → '*-validator.md' (8 flat files)
+      - '*-path-provider.md' → '*-arbiter.md' (8 flat files)
+      - 'generator.md' → 'investigator.md' (3 subdir files)
+      - 'knowledge-supporter.md' → 'validator.md' (3 subdir files)
+      - 'path-provider.md' → 'arbiter.md' (3 subdir files)
+    risk: medium
+    risk_rationale: >
+      Git mv required. Cross-references in other task files that
+      link to these files by old name must be updated. SC-6
+      specifically verifies no broken cross-references.
+
+  - id: C-3
+    name: SKILL.md dispatch table update
+    description: >
+      Update the Trigger Dispatch Table and DiMo Role Chain Dispatch
+      section in SKILL.md to use new role names.
+    affected_files:
+      - .opencode/skills/audit/SKILL.md
+    risk: medium
+    risk_rationale: >
+      The dispatch table is the routing hub. Incorrect role names
+      here break the entire audit chain. SC-2 and SC-5 verify this.
+
+  - id: C-4
+    name: Behavioral test update
+    description: >
+      Update behavioral test files that reference old role names
+      in prompts, assertions, and expected output patterns.
+    affected_files:
+      - .opencode/tests/behaviors/dimo-role-chain-dispatch.sh
+      - .opencode/tests/behaviors/1246-sc3-resolve-models-preflight.sh
+    risk: high
+    risk_rationale: >
+      Behavioral tests must dispatch with new names. SC-4 and SC-5
+      verify this. SC-8 requires RED/GREEN cycle — tests must fail
+      before rename and pass after.
+
+  - id: C-5
+    name: Cross-reference integrity
+    description: >
+      All task files that reference other DiMo role task files by
+      old file name must be updated to use new file names.
+    affected_files:
+      - All 54 task files (cross-reference sections)
+    risk: medium
+    risk_rationale: >
+      Cross-references use lowercase file name patterns. SC-6
+      verifies no remaining references to old file names.
+
+  - id: C-6
+    name: Anti-lobotomization enforcement
+    description: >
+      Ensure behavioral tests are not weakened or removed during
+      the rename process.
+    risk: low
+    risk_rationale: >
+      This is a textual rename — no behavioral test logic changes
+      needed. SC-7 verifies no lobotomization.
+
+concern_boundaries:
+  independent:
+    - C-1 (string replacement) and C-2 (file renaming) are tightly coupled
+    - C-3 (SKILL.md) is a subset of C-1
+    - C-4 (behavioral tests) is a subset of C-1
+    - C-5 (cross-references) is a consequence of C-2
+    - C-6 (anti-lobotomization) is a meta-concern
+
+  shared_files:
+    - All concerns touch overlapping file sets
+    - C-1 and C-2 share all 24 files with role names in filenames
+    - C-3 is exclusive to SKILL.md
+    - C-4 is exclusive to 2 test files
+    - C-5 is a verification concern across all task files
+
+  ordering:
+    - C-2 (file rename) must precede or be simultaneous with C-1 (content replace)
+    - C-5 (cross-reference) must follow C-2
+    - C-4 (behavioral tests) can be done independently
+    - C-3 (SKILL.md) can be done independently

@@ -1,0 +1,97 @@
+# Blast Radius Analysis — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+change:
+  type: textual_rename
+  scope: DiMo audit role names in .opencode/skills/audit/ and .opencode/tests/behaviors/
+  description: >
+    Rename 4 DiMo audit role names to match human semantic intent.
+    Generator→Investigator, Knowledge Supporter→Validator,
+    Path Provider→Arbiter, Evaluator unchanged.
+
+affected_directories:
+  - path: .opencode/skills/audit/
+    description: Audit skill root — SKILL.md + tasks/
+    total_files: 55
+  - path: .opencode/skills/audit/tasks/
+    description: Task files organized by audit type
+    total_files: 54
+  - path: .opencode/tests/behaviors/
+    description: Behavioral enforcement test files
+    total_files: 2
+
+affected_file_categories:
+  - category: SKILL.md
+    count: 1
+    files:
+      - .opencode/skills/audit/SKILL.md
+    impact: >
+      Trigger Dispatch Table and DiMo Role Chain Dispatch section
+      reference role names. Must update all role name strings.
+
+  - category: task_files_flat
+    count: 45
+    pattern: .opencode/skills/audit/tasks/*.md
+    description: >
+      Flat task files (not in subdirectories). Each audit type has
+      4 role-specific files (generator, knowledge-supporter,
+      evaluator, path-provider) plus optional parent/coordinator files.
+    impact: >
+      File names containing old role names must be renamed.
+      File contents referencing role names must be updated.
+
+  - category: task_files_subdir
+    count: 9
+    pattern: .opencode/skills/audit/tasks/{audit_type}/{role}.md
+    description: >
+      Task files in subdirectories (closure-verification/,
+      coherence-extraction/, spec-summary/). Each has 3 role files
+      (generator, knowledge-supporter, path-provider) plus parent.
+    impact: >
+      File names must be renamed. Contents must be updated.
+
+  - category: behavioral_tests
+    count: 2
+    files:
+      - .opencode/tests/behaviors/dimo-role-chain-dispatch.sh
+      - .opencode/tests/behaviors/1246-sc3-resolve-models-preflight.sh
+    impact: >
+      Test scripts that reference old role names in assertions
+      and prompts must be updated.
+
+role_rename_map:
+  Generator: Investigator
+  Knowledge Supporter: Validator
+  Path Provider: Arbiter
+  Judger: Arbiter
+  Evaluator: Evaluator (unchanged)
+
+file_name_rename_map:
+  -generator: -investigator
+  -knowledge-supporter: -validator
+  -path-provider: -arbiter
+
+subdirectory_file_rename_map:
+  generator.md: investigator.md
+  knowledge-supporter.md: validator.md
+  path-provider.md: arbiter.md
+
+total_files_affected: 57
+breakdown:
+  task_files_with_role_in_name: 24
+  task_files_with_role_in_content_only: 30
+  skil_lmd: 1
+  behavioral_test_files: 2
+
+no_impact_zones:
+  - zone: Dispatch logic
+    reason: No changes to DiMo chain dispatch logic — only role name strings change
+  - zone: Pipeline stage order
+    reason: gather → validate → evaluate → judge pipeline unchanged
+  - zone: Artifact names
+    reason: evidence.yaml, reasoning.yaml, verdict.yaml, judgment.yaml unchanged
+  - zone: Evaluator role
+    reason: Evaluator name stays as-is
+  - zone: Files outside skills/audit/ and tests/behaviors/
+    reason: Out of scope per spec constraints

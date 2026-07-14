@@ -1,0 +1,86 @@
+# State Analysis — DiMo Audit Role Rename
+# Retroactive mode: derived from spec body, no live-source verification
+# Spec: .opencode#1921
+
+# This is a stateless textual rename. No runtime state, database,
+# cache, or persistent configuration is affected.
+
+state_type: stateless
+runtime_state_affected: false
+persistent_state_affected: false
+database_affected: false
+cache_affected: false
+configuration_affected: false
+
+state_analysis:
+  - component: DiMo chain dispatch state
+    status: UNCHANGED
+    rationale: >
+      The DiMo chain dispatches sub-agents sequentially. The
+      dispatch logic uses position-based routing (1st, 2nd, 3rd,
+      4th in chain), not role name strings. No runtime state
+      changes.
+
+  - component: Sub-agent task context
+    status: UNCHANGED
+    rationale: >
+      Sub-agents receive role context via task() parameters.
+      Role name strings in task context are labels — the
+      actual behavior is determined by the task file content
+      and dispatch position.
+
+  - component: Behavioral test state
+    status: UPDATED
+    rationale: >
+      Test files contain role name strings in prompts and
+      assertions. These must be updated to use new names.
+      No state machine or runtime state involved.
+
+  - component: File system state
+    status: CHANGED
+    rationale: >
+      24 files will be renamed (git mv). This changes the
+      file system state but is a one-time operation with
+      no ongoing state management.
+
+  - component: Git history
+    status: PRESERVED
+    rationale: >
+      git mv preserves file history. No history rewrite needed.
+
+  - component: Cross-reference state
+    status: STALE_DURING_RENAME
+    rationale: >
+      During the rename window, cross-references in unrenamed
+      files point to old filenames. This is resolved by
+      performing all renames and cross-reference updates in
+      a single atomic change.
+
+state_transitions:
+  - from: old_role_names_in_files
+    to: new_role_names_in_files
+    trigger: find-and-replace on all affected files
+    verification: grep for old names returns zero
+
+  - from: old_filenames
+    to: new_filenames
+    trigger: git mv on 24 files
+    verification: ls for old patterns returns no such file
+
+  - from: stale_cross_references
+    to: updated_cross_references
+    trigger: find-and-replace file name references
+    verification: grep for old file name patterns returns zero
+
+  - from: old_behavioral_test_assertions
+    to: new_behavioral_test_assertions
+    trigger: find-and-replace in test files
+    verification: behavioral test PASS with new names
+
+no_state_concerns:
+  - No database migrations needed
+  - No cache invalidation needed
+  - No configuration file changes needed
+  - No runtime state migration needed
+  - No session state affected
+  - No persistent data affected
