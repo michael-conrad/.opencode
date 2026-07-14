@@ -8,10 +8,10 @@ Generate baseline coherence state from guidelines and skills. This task has been
 
 The orchestrator dispatches the 4 roles sequentially:
 
-1. **Generator** (`coherence-extraction/generator.md`) — Scans guidelines and skills, produces `evidence.yaml`
-2. **Knowledge Supporter** (`coherence-extraction/knowledge-supporter.md`) — Validates evidence, produces `reasoning.yaml`
+1. **Investigator** (`coherence-extraction/investigator.md`) — Scans guidelines and skills, produces `evidence.yaml`
+2. **Validator** (`coherence-extraction/validator.md`) — Validates evidence, produces `reasoning.yaml`
 3. **Evaluator** (`coherence-extraction/evaluator.md`) — Computes metrics, runs Z3 check, evaluates evidence type mismatches, produces `verdict.yaml`
-4. **Path Provider** (`coherence-extraction/path-provider.md`) — Provides recommendations, produces final result contract
+4. **Arbiter** (`coherence-extraction/arbiter.md`) — Provides recommendations, produces final result contract
 
 ## Dispatch Contract
 
@@ -35,7 +35,7 @@ The orchestrator dispatches the 4 roles sequentially:
 
 ## Cross-References
 
-- **Generator:** `coherence-extraction/generator.md`
-- **Knowledge Supporter:** `coherence-extraction/knowledge-supporter.md`
+- **Investigator:** `coherence-extraction/investigator.md`
+- **Validator:** `coherence-extraction/validator.md`
 - **Evaluator:** `coherence-extraction/evaluator.md`
-- **Path Provider:** `coherence-extraction/path-provider.md`
+- **Arbiter:** `coherence-extraction/arbiter.md`

@@ -4,9 +4,9 @@
 
 # Task: resolve-models (Reference)
 
-> **DiMo Role: Path Provider (reference).** This task is a reference document describing the Path Provider role in the DiMo role chain. The Path Provider reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
+> **DiMo Role: Arbiter (reference).** This task is a reference document describing the Arbiter role in the DiMo role chain. The Arbiter reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
 >
-> **The authoritative Path Provider implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Path Provider is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
+> **The authoritative Arbiter implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Arbiter is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
 >
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
 > - MUST NOT overrule a PASS/FAIL from the Evaluator
@@ -27,10 +27,10 @@
 
 ### Step 1: Judgment Assembly (Reference)
 
-The Path Provider role (implemented in `cross-validate.md`) is the fourth and final role in the DiMo role chain. It reads all upstream artifacts and produces the final judgment:
+The Arbiter role (implemented in `cross-validate.md`) is the fourth and final role in the DiMo role chain. It reads all upstream artifacts and produces the final judgment:
 
-1. Read `evidence.yaml` (Generator output) — raw evidence and initial findings
-2. Read `reasoning.yaml` (Knowledge Supporter output) — validated evidence with source references
+1. Read `evidence.yaml` (Investigator output) — raw evidence and initial findings
+2. Read `reasoning.yaml` (Validator output) — validated evidence with source references
 3. Read `verdict.yaml` (Evaluator output) — per-criterion PASS/FAIL verdicts
 4. **Self-consistency gate**: For each finding where `result: "PASS"`, inspect the `explanation` field. If it contains any critique/hedging language ("should be", "needs", "missing", "could improve", "minor", "some issues", "mostly", "generally"), downgrade that finding's `result` to `FAIL` and set `self_consistency_downgrade: true` in the finding. A PASS verdict with hedging language is internally inconsistent — the explanation contradicts the result.
 5. Write `judgment.yaml` — final judgment with cross-reference summary and `next_step`
@@ -53,7 +53,7 @@ findings:
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — Path Provider role implementation
+- `tasks/cross-validate.md` — Arbiter role implementation
 - `tasks/completion.md` — audit workflow completion
 
 ---

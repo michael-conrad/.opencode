@@ -2,17 +2,17 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: cross-validate — Sole Path Provider (Judger)
+# Task: cross-validate — Sole Arbiter (Arbiter)
 
-**This file is the sole Path Provider (Judger) in the audit skill. No other file owns this role. No other file produces `judgment.yaml`. No other file performs cross-validation of upstream verdicts. This is the single authoritative Judger — there is no ambiguity.**
+**This file is the sole Arbiter (Arbiter) in the audit skill. No other file owns this role. No other file produces `judgment.yaml`. No other file performs cross-validation of upstream verdicts. This is the single authoritative Arbiter — there is no ambiguity.**
 
 ## Purpose
 
-Sole Path Provider (Judger) role. Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. This file is the exclusive owner of the Judger role — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
+Sole Arbiter (Arbiter) role. Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. This file is the exclusive owner of the Arbiter role — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
 
-> **DiMo Role: Sole Path Provider (Judger).** This task — and only this task — produces the final judgment by cross-referencing all upstream artifacts. Reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`. No other file in the audit skill or any other skill performs this function.
+> **DiMo Role: Sole Arbiter (Arbiter).** This task — and only this task — produces the final judgment by cross-referencing all upstream artifacts. Reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`. No other file in the audit skill or any other skill performs this function.
 >
-> You are the sole Path Provider (Judger). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> You are the sole Arbiter (Arbiter). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 > 
 > 
 > - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate

@@ -13,9 +13,9 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluate plan fidelity against spec using evidence collected and validated by upstream DiMo roles. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This is the Evaluator role in the DiMo 4-role chain — it produces judgments, not just evidence.
+Evaluate plan fidelity against spec using evidence collected and validated by upstream DiMo roles. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This is the Evaluator role in the DiMo 4-role chain — it produces judgments, not just evidence.
 
-> **DiMo Role: Evaluator.** This task evaluates plan fidelity against spec. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
+> **DiMo Role: Evaluator.** This task evaluates plan fidelity against spec. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
 >
 > You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
 >
@@ -29,12 +29,12 @@ Evaluate plan fidelity against spec using evidence collected and validated by up
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files
-- `artifact_evidence_dir`: Directory for evidence artifacts — contains `evidence.yaml` from Generator and `reasoning.yaml` from upstream reasoning role
+- `artifact_evidence_dir`: Directory for evidence artifacts — contains `evidence.yaml` from Investigator and `reasoning.yaml` from upstream reasoning role
 - `github.owner`, `github.repo` available
 
 ## Entry Criteria
 
-- `evidence.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/evidence.yaml` — produced by the Generator role
+- `evidence.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/evidence.yaml` — produced by the Investigator role
 - `reasoning.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/reasoning.yaml` — produced by the upstream reasoning role role
 - `spec_local_dir` is present and non-empty — contains at minimum `spec.md`
 - Plan files exist in `spec_local_dir/` — either `plan.md` + `plan-*.md` phase files, or plan embedded in spec body
@@ -69,7 +69,7 @@ Validate that all required inputs are present before proceeding:
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "evidence.yaml"
-remediation: "evidence.yaml is required for plan-fidelity-evaluator. The Generator role must produce evidence.yaml before the Evaluator can produce verdicts."
+remediation: "evidence.yaml is required for plan-fidelity-evaluator. The Investigator role must produce evidence.yaml before the Evaluator can produce verdicts."
 ```
 
 - [ ] 5. If `reasoning.yaml` is missing, return BLOCKED:
@@ -94,7 +94,7 @@ remediation: "spec_local_dir is required for plan-fidelity-evaluator. The orches
 
 ### Step 2: Read Upstream Artifacts
 
-- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/evidence.yaml` — raw evidence from Generator
+- [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/evidence.yaml` — raw evidence from Investigator
 - [ ] 2. Read `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/reasoning.yaml` — validated evidence from upstream reasoning role
 - [ ] 3. Cross-reference: for each evidence item, confirm the upstream reasoning role's validation status
 - [ ] 4. Identify items marked `unverifiable: true` — these cannot be used as evidence for PASS verdicts
@@ -357,11 +357,11 @@ remediation_required: true | false
 
 ## Cross-References
 
-- `tasks/plan-fidelity-generator.md` — Generator role (produces `evidence.yaml` consumed by this task)
-- `tasks/plan-fidelity-knowledge-supporter.md` — upstream reasoning role role (produces `reasoning.yaml` consumed by this task)
+- `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
+- `tasks/plan-fidelity-validator.md` — upstream reasoning role role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
-- `tasks/resolve-models.md` — Path Provider role (consumes this task's `verdict.yaml`)
-- `audit/SKILL.md` — DiMo chain dispatch (Generator → upstream reasoning role → Evaluator → Path Provider)
+- `tasks/resolve-models.md` — Arbiter role (consumes this task's `verdict.yaml`)
+- `audit/SKILL.md` — DiMo chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
 - `guidelines/000-critical-rules.md` — critical-rules-BEH-EV (PF-STRUCTURAL-FAIL uplift), critical-rules-034 (inline work prohibition)
 - `implementation-pipeline/SKILL.md` — dispatch routing table (PF-SEQUENCE-MATCHES source)

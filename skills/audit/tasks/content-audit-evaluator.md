@@ -13,7 +13,7 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the content-audit DiMo chain. Reads `evidence.yaml` (Generator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the content-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
 > **DiMo Role: Evaluator.** This task evaluates factual claims in generated content. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each claim, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts.
 >
@@ -23,7 +23,7 @@ Evaluator role for the content-audit DiMo chain. Reads `evidence.yaml` (Generato
 > - MUST produce a binary PASS, FAIL, or FABRICATED for every claim — no hedging, no "PASS with concerns", no INCONCLUSIVE
 > - MUST NOT defer to upstream roles — the verdict is yours alone
 > - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
-> - MUST NOT collect new evidence — that is the Generator's job
+> - MUST NOT collect new evidence — that is the Investigator's job
 > - MUST write `verdict.yaml` as the primary output artifact
 > - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
 
@@ -37,7 +37,7 @@ Evaluator role for the content-audit DiMo chain. Reads `evidence.yaml` (Generato
 
 ## Entry Criteria
 
-- `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Generator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
+- `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Investigator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
 - `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the upstream reasoning role completed successfully and wrote `reasoning.yaml` before dispatching the Evaluator. Dispatching without a valid `reasoning.yaml` is a CRITICAL VIOLATION.
 - `document_section` provided — the generated content section containing claims to verify. MUST be non-empty text.
 - `source_data_paths` provided — local file paths to source data that the claims reference. No GitHub routing fields — verification is against local source data only.
@@ -69,7 +69,7 @@ Validate that all required inputs are present before proceeding:
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "evidence.yaml"
-remediation: "evidence.yaml is required for content-audit-evaluator. The orchestrator must ensure the Generator completed successfully and wrote evidence.yaml before dispatching the Evaluator."
+remediation: "evidence.yaml is required for content-audit-evaluator. The orchestrator must ensure the Investigator completed successfully and wrote evidence.yaml before dispatching the Evaluator."
 ```
 
 - [ ] 3. Verify `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` — read the file to confirm it is non-empty and valid YAML
@@ -112,7 +112,7 @@ reason: "content-audit-evaluator verifies against local source data only. GitHub
 
 ### Step 2: Load Upstream Artifacts
 
-Read the Generator's evidence and the upstream reasoning role's validated reasoning:
+Read the Investigator's evidence and the upstream reasoning role's validated reasoning:
 
 - [ ] 1. Read `{artifact_evidence_dir}/evidence.yaml` via `read` tool
 - [ ] 2. Read `{artifact_evidence_dir}/reasoning.yaml` via `read` tool
@@ -327,7 +327,7 @@ Evaluate whether claims have corresponding source data:
 
 - [ ] 1. Read `source_coverage_validation` from `reasoning.yaml`
 - [ ] 2. For each claim in `source_coverage_validation`:
-  - If `coverage_matches: false` — the Generator's coverage assessment was inaccurate
+  - If `coverage_matches: false` — the Investigator's coverage assessment was inaccurate
   - If `actual_source_data_available: false` — no source data exists for this claim
 - [ ] 3. For claims with `actual_source_data_available: false`:
   - If the claim is a factual assertion about the codebase → FABRICATED (no source evidence)
@@ -518,7 +518,7 @@ remediation_required: true | false
 
 ## Clean-Room Protocol
 
-- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Generator → upstream reasoning role → Evaluator → Path Provider. Each role reads upstream artifacts and writes its own.
+- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Investigator → upstream reasoning role → Evaluator → Arbiter. Each role reads upstream artifacts and writes its own.
 - **No orchestrator preload**: Sub-agents receive only `{ document_section, source_data_paths, artifact_evidence_dir }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 - **Evidence artifacts on disk**: Each role writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).
@@ -566,9 +566,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/content-audit-generator.md` — Generator role (produces the evidence.yaml consumed by this task)
-- `tasks/content-audit-knowledge-supporter.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Path Provider role (consumes this task's verdict.yaml)
+- `tasks/content-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
+- `tasks/content-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
+- `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
