@@ -96,7 +96,7 @@ Is operation in gb command table?
 
 ```bash
 gb auth status
-# If auth fails, check GB_HOST environment variable
+# If auth fails, run gb auth status
 ```
 
 ### API Error (Classified)
@@ -124,16 +124,11 @@ gb issue create -t "Bug report" -R org/project --body "Description" --label bug,
 # gb issue edit supports --add-label/--remove-label but GitBucket REST may not apply them
 ```
 
-## Admin Operations (Basic Auth Required)
+## Admin Operations
 
-Admin operations require Basic authentication, not token:
-
-```bash
-# Admin operations are not available via gb CLI
-# Use gb api passthrough with GB_USER/GB_PASSWORD env vars for admin tasks
-```
+Admin operations are not available via the `gb` CLI. Use the GitBucket web UI for admin tasks.
 
 ## Source Code
 
 - `gb` CLI tool — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
-- Environment: `GB_HOST`, `GB_REPO`, `GB_USER`, `GB_PASSWORD`
+- `gb` manages its own config via `gb auth login` — no environment variables needed

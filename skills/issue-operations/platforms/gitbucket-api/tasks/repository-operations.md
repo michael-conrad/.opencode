@@ -129,4 +129,4 @@ gb repo view org/fork-repo
 ## Source Code
 
 - `gb` CLI — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
-- Environment: `GB_HOST`, `GB_REPO`
+- `gb` manages its own config via `gb auth login` — no environment variables needed
