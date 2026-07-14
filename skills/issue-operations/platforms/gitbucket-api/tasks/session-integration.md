@@ -20,7 +20,6 @@ Credentials are loaded in this order:
 - [ ] 1. **Environment variables**
    ```bash
    export GB_HOST=https://gitbucket.example.com/gitbucket/
-   export GB_TOKEN=your-token
    export GB_USER=username
    export GB_PASSWORD=password
    ```
@@ -29,7 +28,6 @@ Credentials are loaded in this order:
    ```bash
    # .env
    GB_HOST=https://gitbucket.example.com/gitbucket/
-   GB_TOKEN=your-token
    GB_USER=username
    GB_PASSWORD=password
    ```
@@ -50,7 +48,6 @@ Credentials are loaded in this order:
 gb auth login -H https://gitbucket.example.com/gitbucket/
 
 # Or set environment variables
-export GB_TOKEN=your-token
 export GB_HOST=https://gitbucket.example.com/gitbucket/
 ```
 
@@ -68,16 +65,14 @@ GitBucket credentials come from `.env` file:
 ```bash
 # .env
 GB_HOST=https://gitbucket.example.com/gitbucket/
-GB_TOKEN=your-personal-access-token
 GB_USER=username
 GB_PASSWORD=password
 ```
 
-**Token vs Basic Auth:**
+**Auth Methods:**
 
 | Method | Use Case | Environment Variables | Status |
 |--------|----------|----------------------|--------|
-| Token | All operations | `GB_TOKEN` | ✅ Working |
 | Basic | Web fallback | `GB_USER`, `GB_PASSWORD` | ✅ Working (web fallback) |
 
 ## Credential Validation
@@ -90,7 +85,6 @@ gb auth status
 ## Best Practices
 
 - [ ] 1. **Use `gb auth login`** - Authenticate with token for persistent credentials
-- [ ] 2. **Token auth primary** - Use `GB_TOKEN` for all API operations
-- [ ] 3. **Web fallback** - `GB_USER`/`GB_PASSWORD` preseed web fallback prompts
+- [ ] 2. **Web fallback** - `GB_USER`/`GB_PASSWORD` preseed web fallback prompts
 - [ ] 4. **Error handling** - Check `gb auth status` output for specific error types
 - [ ] 5. **Cross-platform** - Config locations work on Linux, macOS, Windows

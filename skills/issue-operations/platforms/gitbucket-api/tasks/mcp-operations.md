@@ -96,7 +96,7 @@ Is operation in gb command table?
 
 ```bash
 gb auth status
-# If auth fails, check GB_TOKEN and GB_HOST environment variables
+# If auth fails, check GB_HOST environment variable
 ```
 
 ### API Error (Classified)
@@ -106,7 +106,7 @@ gb issue view 999 -R org/nonexistent
 # Error: 404 Not Found - Check owner/repo names
 
 gb issue list -R org/project
-# Error: 401 Unauthorized - Check GB_TOKEN
+# Error: 401 Unauthorized - Check gb auth status
 
 gb issue create -t "Test" -R org/project
 # Error: 422 Unprocessable Entity - Check request body format
@@ -136,4 +136,4 @@ Admin operations require Basic authentication, not token:
 ## Source Code
 
 - `gb` CLI tool — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
-- Environment: `GB_TOKEN`, `GB_HOST`, `GB_REPO`, `GB_USER`, `GB_PASSWORD`
+- Environment: `GB_HOST`, `GB_REPO`, `GB_USER`, `GB_PASSWORD`

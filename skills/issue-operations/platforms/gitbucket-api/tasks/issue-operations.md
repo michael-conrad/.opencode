@@ -198,4 +198,4 @@ gb issue create -t "Test" -R org/project --label "invalid label!"
 ## Source Code
 
 - `gb` CLI — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
-- Environment: `GB_TOKEN`, `GB_HOST`, `GB_REPO`
+- Environment: `GB_HOST`, `GB_REPO`
