@@ -298,6 +298,16 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 
 ---
 
+## Cross-Reference Load Directive — MANDATORY
+
+When a guideline or skill file references another file or skill, the reference is a load directive, not a citation:
+
+1. "See `FILENAME.md` §SECTION" or "See `SKILLNAME` skill" — This is a load directive. The text before "see" is a summary. The complete rule lives at the referenced location. Search your context for the referenced section before acting on the rule. Do not treat the summary as the complete rule.
+
+2. "Read [Text](path)" — This is an instruction to call `read` on that path. The referenced content is not pre-loaded in your context. Follow the link to get the complete rule.
+
+---
+
 ## editor MCP Plugin
 
 This repo uses [editor](https://github.com/michael-conrad/viewport-editor) as its editing MCP server.
