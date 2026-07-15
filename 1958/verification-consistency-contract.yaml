@@ -1,0 +1,55 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1958
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: test-execution
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1958/
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: documentation
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1958/test-record.md
+    - id: SC-3
+      evidence_type: structural
+      verification_gate: pre-commit
+      pipeline_step_binding: test-execution
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: tmp/behavioral-evidence-*/
+    - id: SC-4
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: analysis
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1958/winning-verb-analysis.md
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: documentation
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1958/winning-verb-analysis.md
+    - id: SC-6
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: audit
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1958/
+    - id: SC-7
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      pipeline_step_binding: test-execution
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/tests-v2/behaviors/
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'

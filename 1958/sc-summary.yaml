@@ -1,0 +1,51 @@
+sc_coverage:
+  total: 7
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1958
+  evidence_types:
+    - behavioral
+    - string
+    - structural
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+      evidence_types: [behavioral, string, structural]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: All 10 candidate verb forms are tested at least 2 times each against model ollama/qwen3.6:35b-256k
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-2
+      description: A test record table is produced with required columns
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-3
+      description: Each test run produces behavioral evidence artifacts
+      evidence_type: structural
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-4
+      description: A winning verb form is identified based on read call rate and zero grep/search substitution
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-5
+      description: The winning verb form is documented with a recommendation for implementation
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-6
+      description: No SC may be weakened, deferred, or reclassified to a lower evidence type
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-7
+      description: Behavioral enforcement tests written before implementation; confirm RED state
+      evidence_type: behavioral
+      verification_gate: pre-approval-gate
+      plan_phase: phase-1
