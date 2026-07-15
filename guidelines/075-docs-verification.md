@@ -151,7 +151,7 @@ database_url = os.environ.get("DATABASE_URL", "sqlite:///./default.db")
 
 ## Integration with Engineering Approach
 
-This verification is MANDATORY before and during implementation. See `engineering-approach` skill for the pre-implementation and during-implementation checklists.
+This verification is MANDATORY before and during implementation. Read [engineering-approach skill](skills/engineering-approach/SKILL.md) for the pre-implementation and during-implementation checklists.
 
 ## Related Guidelines
 
