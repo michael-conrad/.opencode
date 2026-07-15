@@ -30,11 +30,11 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 | -- | -- | -- |
 | **Tier 1** | `full` | Create issue + PR in submodule repo |
 | **Tier 2** | `issue-only` | Create issue only in submodule repo |
-| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Tag-based provenance via parent-prefixed tags (see `AGENTS.md` §Tag Layers) |
+| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Tag-based provenance via parent-prefixed tags (see Read [Tag Layers](AGENTS.md)) |
 
 **HALT on fallback:** Any fallback from primary path causes HALT with degradation report in the halt message. No issue comments for chat-level status.
 
-**Tag-based provenance (Tier 3):** Submodule SHAs are tagged with `<parent>/<issue-number>` tags per `AGENTS.md` §Tag-Based Hash Permanence. These tags serve as the provenance record — no separate issue or PR needed.
+**Tag-based provenance (Tier 3):** Submodule SHAs are tagged with `<parent>/<issue-number>` tags per Read [Tag-Based Hash Permanence](AGENTS.md). These tags serve as the provenance record — no separate issue or PR needed.
 
 ## Procedure
 
@@ -68,7 +68,7 @@ For submodule push operations during review-prep: creates issue + PR (Tier 1), i
 | submodule_path | Path of pushed submodule in parent |
 | change_description | Brief description of what changed |
 
-**Tag layer reference:** See `AGENTS.md` §Tag Layers for the tag types:
+**Tag layer reference:** Read [Tag Layers](AGENTS.md) for the tag types:
 
 | Tag | When Created | Example |
 |-----|-------------|---------|

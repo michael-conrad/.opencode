@@ -79,7 +79,7 @@ Sub-agent searches all listed directories for evidence files via `glob`/`read`.
 
 **🚫 FORBIDDEN:** Silently skipping uncovered changes. A changed file with no matching SC is a code path executing at runtime with zero behavioral verification — the agent "verified" the spec's SCs but never asked whether the implementation went beyond the spec.
 
-**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, Issue #836
+**Authority:** Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Issue #836
 
 ### 0.76. Blast Radius Coverage Gate (MANDATORY — After Coverage Completeness, Before Per-SC Verification)
 
@@ -169,7 +169,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 ### 0.5a. Header Verification Checkpoint (MANDATORY — For New Files)
 
-**For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in `080-code-standards.md` §"Header Format by File Type".**
+**For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in Read [Header Format by File Type](guidelines/080-code-standards.md).**
 
 - [ ] 1. Identify all files added (not modified) during this implementation: `git diff --diff-filter=A --name-only "$DEFAULT_BRANCH"`
 - [ ] 2. For each new file, determine its file type and check for required headers:
@@ -177,7 +177,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
    - SKILL.md: `license` and `provenance` fields in YAML frontmatter
    - Markdown (`.md`): SPDX copyright, SPDX license, Provenance as HTML comments
    - Scala (`.scala`): SPDX copyright, SPDX license (project-appropriate), Provenance header, AI byline in ScalaDoc
-   - Other languages: Fallback rule per `080-code-standards.md` §"Other Languages (Fallback Rule)"
+   - Other languages: Fallback rule per Read [Other Languages (Fallback Rule)](guidelines/080-code-standards.md)
 - [ ] 3. If ANY new file is missing required headers:
    - Report as FAIL with specific file and missing header(s)
    - Do NOT proceed to Step 1 until headers are added
@@ -260,7 +260,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 **🚫 FORBIDDEN:** Accepting single-model results as cross-model-validated; treating `PASS` from one model as equivalent to cross-model verification.
 
-**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), Spec #262
+**AUTHORITY:** Read [Model-Aware Clean-Room task()](guidelines/000-critical-rules.md), Spec #262
 
 ### How to Run Behavioral Tests for SC Verification
 
@@ -452,7 +452,7 @@ When verifying live values against specifications, use this row-by-row compariso
 | -- | -- | -- | -- | -- | -- |
 | SC-1 | \[criterion text\] | structural/string/semantic/behavioral | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
 
-The **Evidence Type** column is MANDATORY. It MUST match the evidence type declared in the spec's success criteria table. If the spec does not declare evidence types, default to `string` per `080-code-standards.md` §Evidence Type Taxonomy.
+The **Evidence Type** column is MANDATORY. It MUST match the evidence type declared in the spec's success criteria table. If the spec does not declare evidence types, default to `string` per Read [Evidence Type Taxonomy](guidelines/080-code-standards.md).
 
 **Every row's evidence MUST match or exceed the declared evidence type:**
 

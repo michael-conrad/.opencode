@@ -457,10 +457,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
-- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations
-- `080-code-standards.md` §Test Integrity Mandate — no lobotomizing tests
-- `080-code-standards.md` §Behavioral RED/GREEN as Primary Enforcement Gate
-- `000-critical-rules.md` — behavioral evidence mandate
-- `065-verification-honesty.md` §Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
+- Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)
+- Read [behavioral evidence mandate](guidelines/000-critical-rules.md)
+- Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

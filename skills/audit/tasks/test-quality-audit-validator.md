@@ -579,9 +579,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit.md` — Evaluator role (consumes reasoning.yaml produced by this task)
 - `tasks/cross-validate.md` — Arbiter role (reads all artifacts, writes judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → Validator → Evaluator → Arbiter)
-- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
-- `080-code-standards.md` §Test Integrity Mandate — no lobotomizing tests
-- `080-code-standards.md` §Behavioral RED/GREEN as Primary Enforcement Gate
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
+- Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `000-critical-rules.md` — behavioral evidence mandate
 

@@ -13,9 +13,9 @@ Collect evidence for incomplete success criteria when verification identifies ga
 
 **🚫 FAIL RULE:** If evidence collection uses Tier 2 (structural grep/read) for a Tier 1 SC (behavioral/correctness/output), the collection MUST be reclassified as FAIL with `STRUCTURAL_EVIDENCE` classification. The agent MUST re-run collection using behavioral test execution.
 
-**Evidence type uplift defaults:** When collecting evidence, if a change affects runtime behavior, default the SC evidence type to `behavioral` regardless of declaration. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+**Evidence type uplift defaults:** When collecting evidence, if a change affects runtime behavior, default the SC evidence type to `behavioral` regardless of declaration. Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
 
-**Preservation protocol:** Behavioral evidence artifacts written to `{project_root}/tmp/{issue-N}/behavioral-evidence-*.{log,json}` are NOT cleaned up until PR merge cleanup (`git-workflow --task cleanup`). See `guidelines/060-tool-usage.md`.
+**Preservation protocol:** Behavioral evidence artifacts written to `{project_root}/tmp/{issue-N}/behavioral-evidence-*.{log,json}` are NOT cleaned up until PR merge cleanup (`git-workflow --task cleanup`). Read [tool-usage guidelines](guidelines/060-tool-usage.md).
 
 For each missing criterion:
 
@@ -233,7 +233,7 @@ Each entry in the evidence file includes:
 
 ## Live Verification: Evidence Collection Claims (MANDATORY)
 
-**Each collected evidence item MUST be verified as genuinely produced by a tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
+**Each collected evidence item MUST be verified as genuinely produced by a tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per Read [verification-honesty guidelines](guidelines/065-verification-honesty.md).**
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
@@ -254,7 +254,7 @@ These files are **exempt from mandatory cleanup** per `060-tool-usage.md` and MU
 
 **🚫 FORBIDDEN:** Deleting `{project_root}/tmp/{issue-N}/behavioral-evidence-*` files at any pipeline stage before merger confirmation. The ONLY authorized cleanup point is `git-workflow --task cleanup` after PR merge.
 
-**Authority:** `guidelines/060-tool-usage.md` §Temp Files & Cleanliness, Issue #836
+**Authority:** Read [Temp Files & Cleanliness](guidelines/060-tool-usage.md), Issue #836
 
 ### Finding Classification
 

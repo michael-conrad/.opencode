@@ -425,8 +425,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/cross-validate.md` — Cross-validate Arbiter role (separate DiMo chain for cross-validation)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
-- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations
-- `000-critical-rules.md` §critical-rules-hard-fail — FAIL is a hard gate, never reclassifiable
-- `065-verification-honesty.md` §Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
+- Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
