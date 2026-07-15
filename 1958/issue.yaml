@@ -131,7 +131,17 @@ body: "---\ntitle: Imperative verb forms for cross-reference load directive — 
   \ The verb directive is also injected into a local copy of `default.txt` to simulate\
   \ the production guideline context\n\n### Multi-Model Test Matrix\n\nEach verb form\
   \ MUST be tested against ALL of the following models to account for model-specific\
-  \ behavior differences:\n\n| Model | Size | Type | Rationale |\n|-------|------|------|----------|\n\
+  \ behavior differences:\n\n> **⚠️ No parallel tasking.** Only one model can be loaded\
+  \ into GPU memory at a time. Tests MUST be run sequentially per model — complete\
+  \ all verb tests for one model before switching to the next.\n>\n> **⚠️ Preflight\
+  \ warmup required on model switch.** When switching to a different model, a preflight\
+  \ warmup run MUST be completed and verified before recording any timing data. The\
+  \ warmup run loads the model into GPU memory and stabilizes inference latency. Timing\
+  \ data from the warmup run MUST be discarded — only timing from post-warmup runs\
+  \ is valid.\n>\n> **⚠️ Timing gate.** Timing for each test run MUST only be recorded\
+  \ after the preflight warmup is verified (model loaded, first inference completed\
+  \ without errors). Pre-warmup timing is invalid and MUST NOT be included in the\
+  \ test record.\n\n| Model | Size | Type | Rationale |\n|-------|------|------|----------|\n\
   | `ollama/qwen3.6:35b-256k` | 35B / 256k ctx | Local (default) | Default test model;\
   \ baseline for all comparisons |\n| `ollama/laguna-xs-2.1:q4_K_M-256k` | ~20B /\
   \ 256k ctx | Local (quantized) | Tests whether quantized models behave differently\
@@ -184,17 +194,24 @@ body: "---\ntitle: Imperative verb forms for cross-reference load directive — 
   \ guideline improves adherence.\n6. **Document all findings** in `.opencode/.issues/1958/winning-verb-analysis.md`\
   \ with recommendations for the next iteration.\n\n### What \"Works\" Means\n\nA\
   \ verb form is considered to \"work\" when ALL of the following conditions are met:\n\
-  \n1. **Agent calls `read` tool on the referenced file path** — the stderr log MUST\
-  \ contain evidence of a `read` tool call targeting the exact file path (e.g., `tmp/verb-test/target-a.md`)\n\
-  2. **Agent does NOT use grep/search as a substitute** — the stderr log MUST NOT\
-  \ show `grep` or `search` tool calls targeting the same content\n3. **Agent does\
-  \ NOT rely on pre-loaded context to answer** — the agent MUST NOT answer the prompt\
-  \ correctly without having read the target files (verified by checking that the\
-  \ answer contains content only available in the target files)\n\n### Test Record\
-  \ Format\n\nEach test run produces a row in the test record table:\n\n| Verb | Directive\
-  \ text | Model | Did agent call read on target file? | Did agent use grep/search\
-  \ instead? | Did agent use other tool? | Time | Notes |\n\n### Test Execution\n\n\
-  Each verb variant MUST be tested at least 2 times to account for model non-determinism.\
+  \n1. **Agent loads the referenced file content into context using ANY available\
+  \ tool** — the agent may use the `read` tool, the editor MCP `read_file` tool, or\
+  \ any other tool that retrieves file content. The stderr log MUST contain evidence\
+  \ of a file-loading tool call targeting the exact file path (e.g., `tmp/verb-test/target-a.md`).\
+  \ The agent is NOT required to use the `read` tool specifically — it may choose\
+  \ any tool that accomplishes the same goal.\n2. **Agent does NOT use grep/search\
+  \ as a substitute** — the stderr log MUST NOT show `grep` or `search` tool calls\
+  \ targeting the same content. Grep/search is a discovery mechanism, not a file-loading\
+  \ mechanism.\n3. **Agent does NOT rely on pre-loaded context to answer** — the agent\
+  \ MUST NOT answer the prompt correctly without having read the target files (verified\
+  \ by checking that the answer contains content only available in the target files)\n\
+  \n### Test Record Format\n\nEach test run produces a row in the test record table:\n\
+  \n| Verb | Variant (plain/checkbox) | Model | Context (orch/sub) | Warmup run? |\
+  \ Did agent load target file? | Tool used | Did agent use grep/search instead? |\
+  \ Time (post-warmup) | Notes |\n\nThe `Warmup run?` column indicates whether this\
+  \ run is a preflight warmup (timing discarded) or a recorded test run. Only runs\
+  \ marked `No` in this column have valid timing data.\n\n### Test Execution\n\nEach\
+  \ verb variant MUST be tested at least 2 times to account for model non-determinism.\
   \ A verb is classified as \"reliable\" if it triggers `read` in at least 2 out of\
   \ 2 runs.\n\n### Test Script Modifications\n\nThe existing `test-verb-variant.sh`\
   \ script MUST be used as-is for the first test run. If modifications are needed\
@@ -229,11 +246,11 @@ body: "---\ntitle: Imperative verb forms for cross-reference load directive — 
   \ artifact directory exists for each of the 192 runs | Re-run failed runs | test-execution\
   \ | `tmp/behavioral-evidence-*/` | Test Methodology | Phase 1 | pre-commit | sequential\
   \ | — | — | `test-verb-variant.sh` | Phase 1 |\n| SC-5 | A winning verb form is\
-  \ identified based on the criterion: triggers `read` in at least 2 out of 2 runs\
-  \ per model, does NOT trigger grep/search substitute | behavioral | Analyze test\
-  \ record table; select verb with highest `read` call rate and zero grep/search substitution\
-  \ across all models and contexts | If no verb meets criterion, document the best\
-  \ performer and note the gap | analysis | `.opencode/.issues/1958/winning-verb-analysis.md`\
+  \ identified based on the criterion: triggers file-loading (any tool) in at least\
+  \ 2 out of 2 runs per model, does NOT trigger grep/search substitute | behavioral\
+  \ | Analyze test record table; select verb with highest file-loading call rate and\
+  \ zero grep/search substitution across all models and contexts | If no verb meets\
+  \ criterion, document the best performer and note the gap | analysis | `.opencode/.issues/1958/winning-verb-analysis.md`\
   \ | What \"Works\" Means | Phase 1 | pre-commit | sequential | — | — | — | Phase\
   \ 1 |\n| SC-6 | If adherence rate across all combinations is ≤ 25% or zero, remediation\
   \ research is conducted: additional verb forms, link description text wording, emphasis\
@@ -310,4 +327,4 @@ body: "---\ntitle: Imperative verb forms for cross-reference load directive — 
   \ or unnecessary, follow it anyway — the cost of following an extra step is negligible\
   \ compared to the cost of rework from a skipped step.\n\n---\n\nCo-authored with\
   \ AI: OpenCode (deepseek-v4-flash)\n"
-updated_at: '2026-07-15T23:29:50+00:00'
+updated_at: '2026-07-15T23:33:48+00:00'

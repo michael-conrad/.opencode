@@ -125,6 +125,12 @@ Each test uses the existing `test-verb-variant.sh` script at `.opencode/tests-v2
 
 Each verb form MUST be tested against ALL of the following models to account for model-specific behavior differences:
 
+> **⚠️ No parallel tasking.** Only one model can be loaded into GPU memory at a time. Tests MUST be run sequentially per model — complete all verb tests for one model before switching to the next.
+>
+> **⚠️ Preflight warmup required on model switch.** When switching to a different model, a preflight warmup run MUST be completed and verified before recording any timing data. The warmup run loads the model into GPU memory and stabilizes inference latency. Timing data from the warmup run MUST be discarded — only timing from post-warmup runs is valid.
+>
+> **⚠️ Timing gate.** Timing for each test run MUST only be recorded after the preflight warmup is verified (model loaded, first inference completed without errors). Pre-warmup timing is invalid and MUST NOT be included in the test record.
+
 | Model | Size | Type | Rationale |
 |-------|------|------|----------|
 | `ollama/qwen3.6:35b-256k` | 35B / 256k ctx | Local (default) | Default test model; baseline for all comparisons |
@@ -164,15 +170,17 @@ If the adherence rate across all verb+model+context combinations is **low (≤ 2
 
 A verb form is considered to "work" when ALL of the following conditions are met:
 
-1. **Agent calls `read` tool on the referenced file path** — the stderr log MUST contain evidence of a `read` tool call targeting the exact file path (e.g., `tmp/verb-test/target-a.md`)
-2. **Agent does NOT use grep/search as a substitute** — the stderr log MUST NOT show `grep` or `search` tool calls targeting the same content
+1. **Agent loads the referenced file content into context using ANY available tool** — the agent may use the `read` tool, the editor MCP `read_file` tool, or any other tool that retrieves file content. The stderr log MUST contain evidence of a file-loading tool call targeting the exact file path (e.g., `tmp/verb-test/target-a.md`). The agent is NOT required to use the `read` tool specifically — it may choose any tool that accomplishes the same goal.
+2. **Agent does NOT use grep/search as a substitute** — the stderr log MUST NOT show `grep` or `search` tool calls targeting the same content. Grep/search is a discovery mechanism, not a file-loading mechanism.
 3. **Agent does NOT rely on pre-loaded context to answer** — the agent MUST NOT answer the prompt correctly without having read the target files (verified by checking that the answer contains content only available in the target files)
 
 ### Test Record Format
 
 Each test run produces a row in the test record table:
 
-| Verb | Directive text | Model | Did agent call read on target file? | Did agent use grep/search instead? | Did agent use other tool? | Time | Notes |
+| Verb | Variant (plain/checkbox) | Model | Context (orch/sub) | Warmup run? | Did agent load target file? | Tool used | Did agent use grep/search instead? | Time (post-warmup) | Notes |
+
+The `Warmup run?` column indicates whether this run is a preflight warmup (timing discarded) or a recorded test run. Only runs marked `No` in this column have valid timing data.
 
 ### Test Execution
 
@@ -190,7 +198,7 @@ The existing `test-verb-variant.sh` script MUST be used as-is for the first test
 | SC-2 | Each verb+model combination is tested in BOTH orchestrator context (directive in `default.txt`) and sub-agent context (directive in Tier 2 guideline) | behavioral | Verify test record has separate rows for orchestrator and sub-agent contexts for each combination | Re-run missing context tests | test-execution | `.opencode/.issues/1958/` | Agent Context Test Matrix | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
 | SC-3 | A test record table is produced with columns: Verb, Directive text, Model, Context (orchestrator/sub-agent), Did agent call read on target file?, Did agent use grep/search instead?, Did agent use other tool?, Time, Notes | string | Verify the table exists in `.opencode/.issues/1958/test-record.md` with all 12 verbs × 4 models × 2 contexts × 2 runs = 192 rows | Re-generate table from raw test artifacts | documentation | `.opencode/.issues/1958/test-record.md` | Test Record Format | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
 | SC-4 | Each test run produces behavioral evidence artifacts (stdout.log, stderr.log, manifest.yaml, exit_code) in `tmp/behavioral-evidence-*/` | structural | Verify artifact directory exists for each of the 192 runs | Re-run failed runs | test-execution | `tmp/behavioral-evidence-*/` | Test Methodology | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
-| SC-5 | A winning verb form is identified based on the criterion: triggers `read` in at least 2 out of 2 runs per model, does NOT trigger grep/search substitute | behavioral | Analyze test record table; select verb with highest `read` call rate and zero grep/search substitution across all models and contexts | If no verb meets criterion, document the best performer and note the gap | analysis | `.opencode/.issues/1958/winning-verb-analysis.md` | What "Works" Means | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
+| SC-5 | A winning verb form is identified based on the criterion: triggers file-loading (any tool) in at least 2 out of 2 runs per model, does NOT trigger grep/search substitute | behavioral | Analyze test record table; select verb with highest file-loading call rate and zero grep/search substitution across all models and contexts | If no verb meets criterion, document the best performer and note the gap | analysis | `.opencode/.issues/1958/winning-verb-analysis.md` | What "Works" Means | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
 | SC-6 | If adherence rate across all combinations is ≤ 25% or zero, remediation research is conducted: additional verb forms, link description text wording, emphasis markers, position effects, repetition | behavioral | Verify `.opencode/.issues/1958/winning-verb-analysis.md` contains remediation research findings | Conduct remediation research per Adherence Rate Threshold section | analysis | `.opencode/.issues/1958/winning-verb-analysis.md` | Adherence Rate Threshold and Remediation | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
 | SC-7 | The winning verb form (or best performer) is documented with a recommendation for implementation in guidelines and default.txt, including any context-specific differences (orchestrator vs sub-agent) | string | Verify `.opencode/.issues/1958/winning-verb-analysis.md` contains a recommendation section with context-specific findings | Update recommendation based on additional analysis | documentation | `.opencode/.issues/1958/winning-verb-analysis.md` | Success Criteria | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
 | SC-8 | No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation | structural | Verify all SCs maintain their declared evidence type throughout implementation | Restore any weakened SC to original evidence type | audit | `.opencode/.issues/1958/` | Anti-Lobotomization | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
