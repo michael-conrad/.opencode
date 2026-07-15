@@ -52,6 +52,15 @@ The root cause is that the agent's training data contains many imperative verb f
 |-------|---------------|-------------|
 | [#1958](https://github.com/michael-conrad/.opencode/issues/1958) | BLOCKS | This spec blocks the follow-up implementation spec for the winning verb form |
 
+## Research Cards
+
+The following research cards were created during the investigation phase and MUST be consulted before implementation:
+
+| Card | Path | Key Findings |
+|------|------|-------------|
+| Microsoft markdown link patterns | `.issues/research-cards/microsoft-markdown-link-patterns.md` | VS Code uses passive references, not load directives. `Read [Text](path)` is NOT cargo-culted from Microsoft — it's an independent convention. |
+| Imperative verb forms for LLM load directives | `.issues/research-cards/imperative-verb-forms-load-directives.md` | No production system uses `Read [Text](path)` except OpenCode. Amp uses `@-mention`. No research exists on verb effectiveness. "See [file]" is documented as defective. |
+
 ## Documentation Sources
 
 | Source Category | What Was Consulted | Purpose |
@@ -63,23 +72,37 @@ The root cause is that the agent's training data contains many imperative verb f
 | Local docs | `.opencode/tests-v2/behaviors/test-verb-variant.sh` | Understand existing verb test script |
 | Local docs | `.opencode/tests-v2/default-model.sh` | Confirm default model is `ollama/qwen3.6:35b-256k` |
 | Local docs | `.opencode/prompts/default.txt` | Understand where directives are injected |
+| Research card | `.issues/research-cards/microsoft-markdown-link-patterns.md` | Microsoft's passive reference pattern vs OpenCode's active load directive |
+| Research card | `.issues/research-cards/imperative-verb-forms-load-directives.md` | Candidate verb forms, production system patterns, known defective patterns |
+| Web | VS Code prompt files docs | Microsoft's documented markdown link pattern |
+| Web | Amp AGENTS.md docs | `@-mention` syntax for file references |
+| Web | OpenAI Codex AGENTS.md spec | Imperative "MUST" language for agent instructions |
+| Web | Anthropic CLAUDE.md best practices | Emphasis markers and native auto-loading |
+| Web | Future AGI prompt best practices | Instruction-first ordering, constraint pinning |
+| Web | Agent Patterns documentation | 9-section structure for agent prompts |
+| Web | Paxrel AI agent prompt patterns | 10 patterns for AI agent prompts |
+| Web | arxiv papers (Arbiter, Prompt Template Analysis) | Academic context for prompt engineering |
 
 ## Candidate Verb List
 
-The following 10 imperative verb forms MUST be tested:
+The following 12 imperative verb forms MUST be tested. The list was derived from research findings (see Research Cards section) and includes the current form, alternatives from production systems, and hypotheses:
 
-| # | Verb | Directive Text Template | Rationale |
-|---|------|------------------------|-----------|
-| 1 | Read | `Read [the authorization token list](tmp/verb-test/target-a.md).` | Current form — baseline |
-| 2 | Load | `Load [the authorization token list](tmp/verb-test/target-a.md).` | Common programming term |
-| 3 | Fetch | `Fetch [the authorization token list](tmp/verb-test/target-a.md).` | Implies retrieval action |
-| 4 | Consult | `Consult [the authorization token list](tmp/verb-test/target-a.md).` | Suggests reference lookup |
-| 5 | Open | `Open [the authorization token list](tmp/verb-test/target-a.md).` | Direct file operation verb |
-| 6 | Retrieve | `Retrieve [the authorization token list](tmp/verb-test/target-a.md).` | Formal retrieval term |
-| 7 | Access | `Access [the authorization token list](tmp/verb-test/target-a.md).` | Implies reaching a resource |
-| 8 | Follow instructions in | `Follow instructions in [the authorization token list](tmp/verb-test/target-a.md).` | Multi-word directive |
-| 9 | Check | `Check [the authorization token list](tmp/verb-test/target-a.md).` | Common verification verb |
-| 10 | Look up | `Look up [the authorization token list](tmp/verb-test/target-a.md).` | Common reference verb |
+| # | Verb | Directive Text Template | Rationale | Source |
+|---|------|------------------------|-----------|--------|
+| 1 | Read | `Read [the authorization token list](tmp/verb-test/target-a.md).` | Current form — baseline | OpenCode convention |
+| 2 | Load | `Load [the authorization token list](tmp/verb-test/target-a.md).` | Common programming term | Hypothesis |
+| 3 | Fetch | `Fetch [the authorization token list](tmp/verb-test/target-a.md).` | Implies retrieval action | Hypothesis |
+| 4 | Consult | `Consult [the authorization token list](tmp/verb-test/target-a.md).` | Suggests reference lookup | Hypothesis |
+| 5 | Open | `Open [the authorization token list](tmp/verb-test/target-a.md).` | Direct file operation verb | Hypothesis |
+| 6 | Retrieve | `Retrieve [the authorization token list](tmp/verb-test/target-a.md).` | Formal retrieval term | Hypothesis |
+| 7 | Access | `Access [the authorization token list](tmp/verb-test/target-a.md).` | Implies reaching a resource | Hypothesis |
+| 8 | Follow instructions in | `Follow instructions in [the authorization token list](tmp/verb-test/target-a.md).` | Multi-word directive | Hypothesis |
+| 9 | Check | `Check [the authorization token list](tmp/verb-test/target-a.md).` | Common verification verb | Hypothesis |
+| 10 | Look up | `Look up [the authorization token list](tmp/verb-test/target-a.md).` | Common reference verb | Hypothesis |
+| 11 | MUST read | `You MUST read [the authorization token list](tmp/verb-test/target-a.md).` | OpenAI Codex-style imperative | OpenAI Codex AGENTS.md spec |
+| 12 | See @ | `See @tmp/verb-test/target-a.md` | Amp-style @-mention | Amp AGENTS.md docs |
+
+**Note on #12 (See @):** The `See [file]` pattern without `@` is documented as defective — agents treat it as a citation to ignore. The `@` prefix from Amp's system is included to test whether the `@` symbol changes behavior. If `@` is not supported by the test harness, this variant may be skipped and noted in the test record.
 
 ## Test Methodology
 
