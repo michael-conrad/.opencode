@@ -75,13 +75,13 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Operating Protocol
 
-See `verification-before-completion/tasks/operating-protocol.md` for the full operating protocol and authorization context.
+Read [the full operating protocol and authorization context](verification-before-completion/tasks/operating-protocol.md)
 
 **Behavioral test evaluation gate:** The verify task (`verify.md`) enforces the behavioral-test-evaluation dispatch procedurally in Step 2 (evidence type classification) and Step 2b (Behavioral Test Evaluation Gate). The verify.md workflow is the canonical enforcement point — the operating protocol §7 cross-references it. The orchestrator MUST NOT claim PASS for behavioral SCs without clean-room evaluation from `behavioral-test-evaluation`.
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

@@ -59,7 +59,7 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Operating Protocol
 
-See `using-git-worktrees/tasks/operating-protocol.md` for the full operating protocol.
+Read [the full operating protocol](using-git-worktrees/tasks/operating-protocol.md)
 
 ## Sub-Agent Routing
 
