@@ -2,16 +2,16 @@
 
 ## Entry Criteria
 
-See `writing-plans/SKILL.md` §Operating Protocol — 22-Step Pipeline for the full operating protocol.
+Read [Operating Protocol — 22-Step Pipeline](skills/writing-plans/SKILL.md) for the full operating protocol.
 
 ## Execution Model
 
-See `writing-plans/SKILL.md` §Operating Protocol — 22-Step Pipeline for the execution model and pipeline steps.
+Read [Operating Protocol — 22-Step Pipeline](skills/writing-plans/SKILL.md) for the execution model and pipeline steps.
 
 ## Retroactive Operating Protocol
 
-See `writing-plans/SKILL.md` §Operating Protocol — 22-Step Pipeline for the retroactive operating protocol.
+Read [Operating Protocol — 22-Step Pipeline](skills/writing-plans/SKILL.md) for the retroactive operating protocol.
 
 ## Exit Criteria
 
-See `writing-plans/SKILL.md` §Operating Protocol — 22-Step Pipeline for exit criteria.
+Read [Operating Protocol — 22-Step Pipeline](skills/writing-plans/SKILL.md) for exit criteria.

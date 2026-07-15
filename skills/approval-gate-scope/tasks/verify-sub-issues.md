@@ -234,15 +234,15 @@ parent_check = issue-operations -> read-sub-issues (github_issue_read(method="ge
 
 ### Task-Specific Findings
 
-See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
+Read [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) (auto-fix as remediation action only) and evidence artifact format.
 
 ## Context Required
 
 - Related tasks: `verify-authorization`, `verify-codebase`
-- Label state machine: `141-planning-status-tracking.md §10` (label transitions when creating sub-issues under plan)
+- Label state machine: Read [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) (label transitions when creating sub-issues under plan)
 
 ## Enforcement References
 
-- Evidence format + finding classification: see `enforcement/adversarial-verification.md`
-- Scope parsing: see `enforcement/scope-parsing.md`
-- Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
+- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)
+- Sub-issue graph traversal: Read [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)

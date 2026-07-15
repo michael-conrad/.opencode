@@ -36,11 +36,11 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **For code-changing specs**: Include a success criterion that mandates "Before any implementation, write unit or integration tests that verify the changed behavior; confirm RED state (test fails before change). If the tests are missing from the working tree when implementation begins, they must be re-created before any source changes."
 
-    **Cross-reference:** See `091-incremental-build.md` → Per-Item TDD Cycle → RED phase, `080-code-standards.md` → SC-to-Test Traceability and RED-Phase Ordering, and `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY) for the behavioral RED/GREEN gate.
+    **Cross-reference:** Read [Per-Item TDD Cycle → RED phase](guidelines/091-incremental-build.md), Read [SC-to-Test Traceability and RED-Phase Ordering](guidelines/080-code-standards.md), and Read [Behavioral Enforcement Tests (PRIMARY)](guidelines/080-code-standards.md) for the behavioral RED/GREEN gate.
 
     **Sequential per-item TDD:** Implementation phases in spec MUST enforce sequential RED/GREEN pairing per the TDD skill. Each RED must be immediately followed by its GREEN before the next RED begins. Combined RED/GREEN phases are prohibited.
 
-    **Cost-frame mandate in SCs:** Each success criterion MUST carry a short cost-frame reformation statement that reframes what "expensive" means for that SC's domain. The statement uses the dark-prose-007 formula from `250-dark-prose-reference.md` §Section 3 — the implementing agent derives the exact prose autonomously based on the SC's verification method. Each SC's verification method MUST require a real test execution command — not a structural check (file exists, grep match). Structural verification is NEVER a valid substitute for behavioral execution: a skipped runtime equals a defect undiscovered. The death spiral / break dynamics are formalized in `065-verification-honesty.md` §Cost Model — behavioral PASS is a break (zero downstream cost); structural-only PASS is a death spiral (compounding exponential cost).
+    **Cost-frame mandate in SCs:** Each success criterion MUST carry a short cost-frame reformation statement that reframes what "expensive" means for that SC's domain. The statement uses the dark-prose-007 formula from Read [Section 3](guidelines/250-dark-prose-reference.md) — the implementing agent derives the exact prose autonomously based on the SC's verification method. Each SC's verification method MUST require a real test execution command — not a structural check (file exists, grep match). Structural verification is NEVER a valid substitute for behavioral execution: a skipped runtime equals a defect undiscovered. The death spiral / break dynamics are formalized in Read [Cost Model](guidelines/065-verification-honesty.md) — behavioral PASS is a break (zero downstream cost); structural-only PASS is a death spiral (compounding exponential cost).
 
 - [ ] 4. **Step 3: Behavioral Test Definition — Stderr-Based Evidence (MANDATORY)** — Valid behavioral enforcement tests use **stderr-based assertion helpers** (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) to verify agent actions (skill dispatches, file reads, tool invocations). **Prose-recall prompts** (e.g., "Describe how you would resolve models") produce stdout prose, not behavioral evidence, and are NOT accepted as valid behavioral tests.
 
@@ -368,7 +368,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     ```markdown
     ## Anti-Lobotomization
 
-    Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. See `080-code-standards.md` Test Integrity Mandate.
+    Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. Read [Test Integrity Mandate](guidelines/080-code-standards.md).
     ```
 
     Also add a success criterion in the SC table that explicitly forbids test lobotomization. The SC should read: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation" with evidence type `behavioral`.
@@ -447,7 +447,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
 
-    See `reference/sc-table-columns.md` for column definitions, rendering note, and per-column conditionality. See the Evidence Type Classification Gate section below for classification rules when applying these columns.
+    Read [column definitions, rendering note, and per-column conditionality](reference/sc-table-columns.md). See the Evidence Type Classification Gate section below for classification rules when applying these columns.
 
 - [ ] 18. **Evidence Type Classification Gate (MANDATORY)** — When authoring success criteria, the agent MUST classify each SC's evidence type by asking: "Does this change affect runtime behavior? If YES, evidence type MUST be behavioral."
 
@@ -462,7 +462,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **Remediation:** If the agent classifies an SC as structural/string for a runtime-behavioral change, the VbC pre-flight classification gate will uplift it to behavioral anyway. Classifying correctly at authorship time prevents downstream rework.
 
-    **Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, `guidelines/080-code-standards.md` §Evidence Type Taxonomy
+    **Authority:** Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Read [Evidence Type Taxonomy](guidelines/080-code-standards.md)
 
     <!-- Fragment ID: sc-enforcement-gate -->
 
@@ -472,7 +472,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - Edge case coverage
     - Negative test cases (what must NOT happen)
     - Integration test expectations
-    - **Behavioral test assertions for rule-changing SCs** — Success criteria that change agent behavior (guideline rules, skill enforcement, critical violations) MUST include a behavioral test assertion describing the RED state (agent behavior without the rule) and GREEN state (agent behavior with the rule), not just a content-verification grep command. Content-verification commands are SECONDARY for rule-changing SCs; behavioral assertions are PRIMARY. See `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY).
+    - **Behavioral test assertions for rule-changing SCs** — Success criteria that change agent behavior (guideline rules, skill enforcement, critical violations) MUST include a behavioral test assertion describing the RED state (agent behavior without the rule) and GREEN state (agent behavior with the rule), not just a content-verification grep command. Content-verification commands are SECONDARY for rule-changing SCs; behavioral assertions are PRIMARY. Read [Behavioral Enforcement Tests (PRIMARY)](guidelines/080-code-standards.md).
     - **Semantic intent field** — Each success criterion MUST include a brief prose annotation explaining WHY the exact criterion value matters and what semantic distinction it represents. This prevents substituting functionally similar values. Example: "Exit code 2 specifically signals removal of a feature, distinct from exit code 1 which signals a validation failure — these are different error categories for different consumer behaviors." Without semantic intent, an SC is a checklist — it verifies that something happened, but not that the right thing happened for the right reason.
 
 - [ ] 19. **Step 4: Determinism Gate** — For each success criterion, ask: **"If two different auditors read this SC, will they independently produce the same PASS/FAIL result against the same implementation?"**

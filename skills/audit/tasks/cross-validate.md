@@ -95,7 +95,7 @@ When an SC is uplifted:
 
 **🚫 FORBIDDEN:** Accepting structural evidence for an uplifted SC. The uplift is automatic and non-negotiable.
 
-**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, `guidelines/080-code-standards.md` §Evidence Type Taxonomy
+**Authority:** Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Read [Evidence Type Taxonomy](guidelines/080-code-standards.md)
 
 ## Exit Criteria
 
@@ -266,7 +266,7 @@ The cross-validate result contract MUST use the following finding type classific
 | `EVIDENCE_TYPE_MISMATCH` | Wrong evidence type for SC tier — structural evidence for behavioral SC | FAIL |
 | `ANTI_EVASION` | Agent evading behavioral testing — claiming model unavailability, "too slow", or test-not-needed for runtime-behavioral changes | FAIL |
 
-**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, §critical-rules-hard-fail, §critical-rules-060
+**Authority:** Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Read [critical-rules-hard-fail](guidelines/000-critical-rules.md), Read [critical-rules-060](guidelines/000-critical-rules.md)
 
 ### Step 6: Compute Aggregate Consensus
 
