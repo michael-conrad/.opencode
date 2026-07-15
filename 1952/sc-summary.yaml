@@ -1,0 +1,35 @@
+sc_coverage:
+  total: 4
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1952
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4]
+      evidence_types: [behavioral, string]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "Behavioral enforcement test exists that verifies agent dispatches matching skill on 'yes' confirmation"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "Test file created at .opencode/tests-v2/behaviors/pre-response-gate-enforcement.sh following template"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "Behavioral test PASSES (RED then GREEN)"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "No SC may be weakened, deferred, or reclassified to a lower evidence type"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1

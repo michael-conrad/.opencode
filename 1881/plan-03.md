@@ -10,7 +10,7 @@
 - `.opencode/skills/approval-gate/tasks/post-implementation.md` — LEFT in place (moved in Phase 4)
 - `.opencode/tests/behaviors/` — approval-gate related tests updated
 
-**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5
+**SCs:** SC-2, SC-3, SC-4, SC-5
 
 **Dependencies:** Phase 1 (dispatcher template exists)
 
@@ -33,7 +33,7 @@
 - All 22 task files maintain original behavior from new locations
 - Labels, revision, bug-discovery triggers all route to scope (single sub-skill)
 
-**Cross-Cutting SCs:** SC-1 (dispatcher template), SC-2 (sub-skill task ownership), SC-3 (preserved triggers), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
+**Cross-Cutting SCs:** SC-2 (sub-skill task ownership), SC-3 (preserved triggers), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
 
 **Interface Boundaries:**
 - Labels, revision, bug-discovery are NOT separate sub-skills — they are sub-tasks within scope per DEC-3
@@ -52,14 +52,14 @@
 - [ ] 37. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED tests fail with expected failure reasons — confirm no false-negatives. **→ SC-2, SC-5**
 - [ ] 38. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code. **→ SC-2, SC-5**
 
-- [ ] 39. **GREEN: Create approval-gate-scope sub-skill (**sub-agent**).** Create `.opencode/skills/approval-gate-scope/` directory with SKILL.md (Agent-Intent Pattern, Trigger Dispatch Table). Move 22 task files from `approval-gate/tasks/` to `scope/tasks/`. Move 5 enforcement files from `approval-gate/enforcement/` to `scope/enforcement/`. Labels, revision, and bug-discovery concerns are embedded as sub-tasks within scope task files — no separate sub-skills created. **→ SC-1, SC-2, SC-4**
+- [ ] 39. **GREEN: Create approval-gate-scope sub-skill (**sub-agent**).** Create `.opencode/skills/approval-gate-scope/` directory with SKILL.md (Agent-Intent Pattern, Trigger Dispatch Table). Move 22 task files from `approval-gate/tasks/` to `scope/tasks/`. Move 5 enforcement files from `approval-gate/enforcement/` to `scope/enforcement/`. Labels, revision, and bug-discovery concerns are embedded as sub-tasks within scope task files — no separate sub-skills created. **→ SC-2, SC-4**
 - [ ] 40. **per-item-VbC: Verify scope sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm scope sub-skill has SKILL.md, tasks/ with 22 files, enforcement/ with 5 files. **→ SC-2**
 
 - [ ] 41. **GREEN: Convert approval-gate SKILL.md to dispatcher (**sub-agent**).** Rewrite `.opencode/skills/approval-gate/SKILL.md` as a dispatcher. Keep all trigger phrases. Add Trigger Dispatch Table routing to `approval-gate-scope` (single sub-skill). Add DISPATCH_GATE protocol. Note: post-implementation.md stays in original tasks/ directory. **→ SC-3, SC-5**
 - [ ] 42. **per-item-VbC: Verify dispatcher routing (**green-vbc**: `verification-before-completion --task completion`).** Verify dispatcher Trigger Dispatch Table references `approval-gate-scope` and preserves all original trigger phrases. **→ SC-3, SC-5**
 
-- [ ] 43. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm: (1) 1 sub-skill dir exists (approval-gate-scope), (2) scope has tasks/ (22 files) + enforcement/ (5 files), (3) post-implementation.md remains, (4) dispatcher routes to scope, (5) RED tests PASS after split. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 44. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-1 through SC-5 have VbC evidence for Phase 3. **→ SC-ALL**
+- [ ] 43. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm: (1) 1 sub-skill dir exists (approval-gate-scope), (2) scope has tasks/ (22 files) + enforcement/ (5 files), (3) post-implementation.md remains, (4) dispatcher routes to scope, (5) RED tests PASS after split. **→ SC-2, SC-3, SC-4, SC-5**
+- [ ] 44. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-5 have VbC evidence for Phase 3. **→ SC-ALL**
 - [ ] 45. **structural-checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run lint/typecheck on Phase 3 modified files. **→ SC-ALL**
 
 - [ ] 46. **Cleanup: Delete empty original enforcement/ directory (**sub-agent**).** Dispatch `git-workflow --task commit-prep` with cleanup instruction — `rmdir .opencode/skills/approval-gate/enforcement/` (confirm empty first). Original tasks/ NOT deleted (post-implementation.md remains). **→ SC-2**

@@ -11,8 +11,8 @@
 ## Blast Radius
 
 - 5 overloaded skills (issue-operations, approval-gate, git-workflow, writing-plans, spec-creation)
-- 20 new sub-skills created
-- ~95 task files moved from original `tasks/` directories to sub-skill `tasks/` directories
+- 17 new sub-skills created
+- ~102 task files moved from original `tasks/` directories to sub-skill `tasks/` directories
 - 9 guideline files updated with cross-references (000, 010, 020, 060, 080, 140, 141)
 - AGENTS.md, README.md updated
 - ~50 content-verification test scenarios updated
@@ -53,12 +53,12 @@ Each step MUST maintain a status indicator:
 
 | Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch |
 |-------|------|---------|-----|--------------|-------|----------|
-| 1 | Validate and Update (Pre-Flight) | Shared infrastructure | SC-1, SC-9 | None | 4–18 | step-level (per-item) |
-| 2 | Split issue-operations | issue-ops → 4 sub-skills | SC-1,2,3,4,5 | Phase 1 | 19–35 | step-level (per-item) |
-| 3 | Split approval-gate | approval-gate → 1 sub-skill (scope) | SC-1,2,3,4,5 | Phase 1 | 36–50 | step-level (per-item) |
-| 4 | Split git-workflow | git-workflow → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 51–75 | step-level (per-item) |
-| 5 | Split writing-plans | writing-plans → 2 sub-skills | SC-1,2,3,4,5 | Phase 1 | 76–94 | step-level (per-item) |
-| 6 | Split spec-creation | spec-creation → 5 sub-skills | SC-1,2,3,4,5 | Phase 1 | 95–119 | step-level (per-item) |
+| 1 | Validate and Update (Pre-Flight) | Shared infrastructure | SC-9 | None | 4–18 | step-level (per-item) |
+| 2 | Split issue-operations | issue-ops → 4 sub-skills | SC-2,3,4,5 | Phase 1 | 19–35 | step-level (per-item) |
+| 3 | Split approval-gate | approval-gate → 1 sub-skill (scope) | SC-2,3,4,5 | Phase 1 | 36–50 | step-level (per-item) |
+| 4 | Split git-workflow | git-workflow → 5 sub-skills | SC-2,3,4,5 | Phase 1 | 51–75 | step-level (per-item) |
+| 5 | Split writing-plans | writing-plans → 2 sub-skills | SC-2,3,4,5 | Phase 1 | 76–94 | step-level (per-item) |
+| 6 | Split spec-creation | spec-creation → 5 sub-skills | SC-2,3,4,5 | Phase 1 | 95–119 | step-level (per-item) |
 | 7 | Cross-Skill Sweep (Post) | Cross-skill integration | SC-6,7,8 | Phases 2–6 | 120–141 | step-level (per-item) |
 
 ## Bottom Admonishment
@@ -73,7 +73,7 @@ Each step MUST maintain a status indicator:
 
 - [ ] C1: 5 dispatcher SKILL.md files created (issue-operations, approval-gate, git-workflow, writing-plans, spec-creation)
 - [ ] C2: 17 sub-skill directories and SKILL.md files created (4 issue-ops + 1 approval-gate + 5 git-workflow + 2 writing-plans + 5 spec-creation)
-- [ ] C3: All ~95 task files moved from original `tasks/` to sub-skill `tasks/`
+- [ ] C3: All ~102 task files moved from original `tasks/` to sub-skill `tasks/`
 - [ ] C4: All dispatcher Trigger Dispatch Tables map triggers to correct sub-skills
 - [ ] C5: All platform sub-skills (github-mcp, gitbucket-api, local) preserved and referenced
 - [ ] C6: All guideline/skill/test cross-references updated

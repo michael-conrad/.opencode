@@ -8,10 +8,10 @@
 - `.opencode/skills/writing-plans-creation/tasks/` — 18 task files (17 original + retroactive merged in)
 - `.opencode/skills/writing-plans-creation/contracts/` — Contracts directory moved from parent
 - `.opencode/skills/writing-plans-holistic/SKILL.md` — New
-- `.opencode/skills/writing-plans-holistic/tasks/` — 2 task files (holistic-self-check, audit-fidelity, audit-concern)
+- `.opencode/skills/writing-plans-holistic/tasks/` — 1 task file (holistic-self-check)
 - `.opencode/tests/behaviors/` — writing-plans related tests updated
 
-**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5
+**SCs:** SC-2, SC-3, SC-4, SC-5
 
 **Dependencies:** Phase 1 (dispatcher template exists)
 
@@ -33,7 +33,7 @@
 - Contracts move with creation sub-skill (used by create pipeline)
 - Retroactive plan creation routed to creation sub-skill
 
-**Cross-Cutting SCs:** SC-1 (dispatcher template), SC-2 (sub-skill task ownership), SC-3 (preserved triggers), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
+**Cross-Cutting SCs:** SC-2 (sub-skill task ownership), SC-3 (preserved triggers), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
 
 **Interface Boundaries:**
 - Holistic check is a standalone sub-skill (1 task file)
@@ -52,17 +52,17 @@
 - [ ] 79. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED tests fail with expected failure reasons — confirm no false-negatives. **→ SC-2, SC-5**
 - [ ] 80. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code. **→ SC-2, SC-5**
 
-- [ ] 81. **GREEN: Create writing-plans-creation sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-creation/` with SKILL.md. Move 18 task files from original tasks/ (17 creation pipeline + retroactive merged in). Move contracts/ to `creation/contracts/`. **→ SC-1, SC-2, SC-4**
+- [ ] 81. **GREEN: Create writing-plans-creation sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-creation/` with SKILL.md. Move 18 task files from original tasks/ (17 creation pipeline + retroactive merged in). Move contracts/ to `creation/contracts/`. **→ SC-2, SC-4**
 - [ ] 82. **per-item-VbC: Verify creation sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm creation sub-skill exists with 18 task files and contracts/ directory. **→ SC-2**
 
-- [ ] 83. **GREEN: Create writing-plans-holistic sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-holistic/` with SKILL.md. Move 1 task file (holistic-self-check) from original tasks/. **→ SC-1, SC-2, SC-4**
+- [ ] 83. **GREEN: Create writing-plans-holistic sub-skill (**sub-agent**).** Create `.opencode/skills/writing-plans-holistic/` with SKILL.md. Move 1 task file (holistic-self-check) from original tasks/. **→ SC-2, SC-4**
 - [ ] 84. **per-item-VbC: Verify holistic sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm holistic sub-skill exists with 1 task file. **→ SC-2**
 
 - [ ] 85. **GREEN: Convert writing-plans SKILL.md to dispatcher (**sub-agent**).** Rewrite `.opencode/skills/writing-plans/SKILL.md` as dispatcher. Add Trigger Dispatch Table routing to 2 sub-skills. Keep all trigger phrases including `holistic check`, `plan quality verification`, `retroactive plan`, `backfill plan`. Retroactive triggers route to `writing-plans-creation`. **→ SC-3, SC-5**
 - [ ] 86. **per-item-VbC: Verify dispatcher routing (**green-vbc**: `verification-before-completion --task completion`).** Verify dispatcher Trigger Dispatch Table references both sub-skills and preserves all original trigger phrases. **→ SC-3, SC-5**
 
 - [ ] 87. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm: (1) 2 sub-skill dirs exist, (2) creation has 18 task files + contracts/, (3) holistic has 1 task file, (4) original tasks/ and contracts/ empty, (5) RED tests PASS after split. **→ SC-2, SC-3, SC-5**
-- [ ] 88. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-1 through SC-5 have VbC evidence for Phase 5. **→ SC-ALL**
+- [ ] 88. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-5 have VbC evidence for Phase 5. **→ SC-ALL**
 - [ ] 89. **structural-checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run lint/typecheck on Phase 5 modified files. **→ SC-ALL**
 
 - [ ] 90. **Cleanup: Delete empty original directories (**sub-agent**).** Dispatch `git-workflow --task commit-prep` with cleanup instruction — `rmdir .opencode/skills/writing-plans/tasks/` and `rmdir .opencode/skills/writing-plans/contracts/` (confirm both empty first). **→ SC-2**

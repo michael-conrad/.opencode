@@ -4,12 +4,10 @@
 
 ## Exec Summary
 
-Fixes two root causes discovered during post-merge cleanup of PR #1876: (1) the parent repo is left on a stale feature branch after submodule PR merge, and (2) `branch-cleanup.md` contains 40+ hardcoded `dev` references that conflict with trunk-based development using `main`.
+Fixes hardcoded `dev` references in `cleanup.md` that conflict with trunk-based development using `main`. The `branch-cleanup.md` file was already fixed in a prior commit (0f901a3e). The `git branch --show-current` check and parent repo inclusion in repos-to-clean list are already implemented.
 
 ### Cards (dependency order)
-1. **Replace hardcoded `dev` with `$DEFAULT_BRANCH`** — All 40+ occurrences of `dev` in `branch-cleanup.md` must use the dynamically resolved default branch variable
-2. **Add `git branch --show-current` to cleanup.md Step 3** — Post-cleanup verification must check current branch (was supposed to be done in #1873 but wasn't)
-3. **Ensure parent repo is included in repos-to-clean list** — The cleanup task must park the parent repo on trunk, not just submodules
+1. **Replace hardcoded `dev` in cleanup.md** — 7 occurrences of `dev` in prose/step descriptions must use `$DEFAULT_BRANCH` or trunk-equivalent prose
 
 ### Key Decisions
 - **DEC-1**: Use `$DEFAULT_BRANCH` (dynamically resolved via `git remote show origin`) instead of hardcoded `dev` — MUST

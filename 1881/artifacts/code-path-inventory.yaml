@@ -114,7 +114,7 @@ content:
       description: "rebase-pending"
     writing_plans_creation:
       count: 18
-      description: "All creation pipeline tasks + holistic-self-check + retroactive merged as pipeline variants"
+      description: "All creation pipeline tasks + retroactive merged as pipeline variants"
     writing_plans_holistic:
       count: 1
       description: "Standalone holistic check"

@@ -1,0 +1,17 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1952
+generated_at: 2026-07-15T13:06:00Z
+sc_coverage_total: 4
+decomposition_classification: single-task
+phase_count: 1
+status: complete
+artifacts:
+  - path: .opencode/.issues/1952/spec.md
+    required: true
+  - path: .opencode/.issues/1952/sc-summary.yaml
+    required: true
+  - path: .opencode/.issues/1952/verification-consistency-contract.yaml
+    required: true
+  - path: .opencode/.issues/1952/revision-re-entry-contract.yaml
+    required: true
+  - path: .opencode/.issues/1952/spec-to-plan-handoff.yaml
+    required: true

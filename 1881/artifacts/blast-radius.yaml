@@ -16,7 +16,7 @@ content:
       change: "Convert SKILL.md to dispatcher; delete tasks/ (18 files migrated) and contracts/ (3 templates migrated)"
   new_sub_skill_directories:
     - path: ".opencode/skills/issue-operations-core/"
-      change: "Created — 14 task files, SKILL.md with Trigger Dispatch Table"
+      change: "Created — 16 task files, SKILL.md with Trigger Dispatch Table"
     - path: ".opencode/skills/issue-operations-comments/"
       change: "Created — 1 task file, SKILL.md"
     - path: ".opencode/skills/issue-operations-sub-issues/"

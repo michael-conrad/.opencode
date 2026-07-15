@@ -1,4 +1,4 @@
-# Plan: Cleanup leaves parent repo on stale branch, hardcoded dev references
+# Plan: Cleanup leaves parent repo on stale branch, hardcoded dev references in cleanup.md
 
 **Issue:** [michael-conrad/.opencode#1877](https://github.com/michael-conrad/.opencode/issues/1877)
 **Authorization Scope:** `for_pr`
@@ -8,67 +8,64 @@
 
 ## Goal
 
-Fix two root causes in the cleanup workflow:
-1. Replace all hardcoded `dev` occurrences in `branch-cleanup.md` with `$DEFAULT_BRANCH`
-2. Add `git branch --show-current` to `cleanup.md` Step 3 post-cleanup verification
-3. Ensure parent repo is included in the repos-to-clean list in `cleanup.md` Step 4
+Replace all 7 hardcoded `dev` references in `cleanup.md` with `$DEFAULT_BRANCH` or trunk-equivalent prose. The `branch-cleanup.md` file was already fixed in commit 0f901a3e and requires no changes. The `git branch --show-current` check and parent repo inclusion in repos-to-clean list are already implemented.
 
 ## Architecture
 
-This is a single-phase plan (no split needed). Three file modifications to two files, plus behavioral enforcement tests. All changes are string-level edits to markdown task files in the `.opencode/skills/git-workflow/tasks/cleanup/` directory.
+Single-phase plan. One file modification to `cleanup.md` (7 prose replacements), plus behavioral enforcement tests. All changes are string-level edits to a markdown task file.
 
 ## Affected Files
 
 | File | Change |
 |------|--------|
-| `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` | Replace all hardcoded `dev` with `$DEFAULT_BRANCH` |
-| `.opencode/skills/git-workflow/tasks/cleanup.md` | Add `git branch --show-current` to Step 3; ensure parent repo in repos-to-clean list |
-| `.opencode/tests/behaviors/` (new) | Behavioral enforcement tests for cleanup behavior |
+| `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md` | Replace 7 hardcoded `dev` references with `$DEFAULT_BRANCH` or trunk-equivalent prose |
+| `.opencode/tests-v2/behaviors/` (new) | Behavioral enforcement test for cleanup dev references |
 
 ## Phase Table
 
 | Phase | Description | Steps | SCs |
 |-------|-------------|-------|-----|
-| 1 | Replace hardcoded `dev` in branch-cleanup.md, add show-current check, ensure parent repo in list, write behavioral tests | 1-10 | SC-1, SC-2, SC-3, SC-4 |
+| 1 | Replace hardcoded `dev` in cleanup.md, write behavioral tests | 1-6 | SC-1, SC-2 |
 
 ## SC-to-Step Traceability
 
 | SC ID | Criterion | Phase | Step(s) |
 |-------|-----------|-------|---------|
-| SC-1 | All hardcoded `dev` references in branch-cleanup.md replaced with `$DEFAULT_BRANCH` | 1 | 1, 2, 3 |
-| SC-2 | `cleanup.md` Step 3 or Step 4 includes `git branch --show-current` verification | 1 | 4, 5 |
-| SC-3 | Parent repo is included in repos-to-clean list in `cleanup.md` Step 4 | 1 | 6 |
-| SC-4 | Behavioral enforcement tests verify new cleanup behavior | 1 | 7, 8, 9, 10 |
+| SC-1 | All 7 hardcoded `dev` references in cleanup.md replaced with `$DEFAULT_BRANCH` or trunk-equivalent prose | 1 | 1, 2, 3 |
+| SC-2 | Behavioral enforcement tests verify the agent uses `$DEFAULT_BRANCH` instead of hardcoded `dev` in cleanup context | 1 | 4, 5, 6 |
 
-## Phase 1: Fix Cleanup Workflow
+## Phase 1: Replace hardcoded `dev` in cleanup.md
 
-### Step 1: Research — identify all hardcoded `dev` references in branch-cleanup.md
+### Step 1: Research — identify all 7 hardcoded `dev` references in cleanup.md
 
 **Dispatch:** Sub-agent via `task()`
 **Chain:** `none`
 **SC:** SC-1
 
-Scan `branch-cleanup.md` for all occurrences of `dev` used as a branch name reference. Produce a list of line numbers and context for each occurrence. Distinguish between:
-- Prose references to `dev` (e.g., "sync dev", "Dev branch synced")
-- Code block references (e.g., `git branch --merged "$DEFAULT_BRANCH"` already correct, but `git branch --merged dev` is wrong)
-- Evidence artifact references (e.g., "dev tip")
+Scan `cleanup.md` for all occurrences of `dev` used as a branch name reference. Produce a list of section locations and context for each occurrence. Distinguish between:
+- Prose references to `dev` (e.g., "Switches to dev", "dev tip")
+- Code block references (already use `$DEFAULT_BRANCH` — no change needed)
+- False positives (`/dev/null`, `2>/dev/null`, `DEFAULT_BRANCH` variable name, `cd -`, `--delete`)
 
 **Evidence artifact:** `{project_root}/tmp/1877/dev-references.txt`
 
-### Step 2: Replace hardcoded `dev` in branch-cleanup.md
+### Step 2: Replace hardcoded `dev` in cleanup.md
 
 **Dispatch:** Sub-agent via `task()`
 **Chain:** `step_1`
 **SC:** SC-1
 
-Edit `branch-cleanup.md` to replace all hardcoded `dev` branch name references with `$DEFAULT_BRANCH`. Specific locations from the spec:
+Edit `cleanup.md` to replace all 7 hardcoded `dev` branch name references with `$DEFAULT_BRANCH` or trunk-equivalent prose. Specific locations (stable anchors — section headers):
 
-- Line 5: Purpose statement — "sync dev" → "sync trunk"
-- Line 18: Exit criteria — "Dev branch synced" → "Trunk synced"
-- Lines 300, 305, 341, 343, 429, 441: Prose and code block references
-- Evidence artifact references: "dev tip" → "trunk tip"
+1. **Exit Criteria** — "Submodule dev restored" → "Submodule trunk restored"
+2. **Step 3 Purpose** — "Switches to dev" → "Switches to trunk"
+3. **Step 4.3.a** — "Get local dev HEAD" → "Get local trunk HEAD"
+4. **Step 4.3.b** — "Get remote dev HEAD" → "Get remote trunk HEAD"
+5. **Step 4.3.e** — "repo is at dev tip" → "repo is at trunk tip"
+6. **Step 4.5** — "All repos at dev tip" → "All repos at trunk tip"
+7. **Step 1.5** — "Verify dev sync" → "Verify trunk sync"
 
-**Verification:** Run `grep -n '\bdev\b' .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` and confirm no branch-name usage of `dev` remains. False positives (e.g., "developer", "submodule") are acceptable.
+**Verification:** Run `grep -n '\bdev\b' .opencode/skills/git-workflow-cleanup/tasks/cleanup.md` and confirm no branch-name usage of `dev` remains. False positives (`/dev/null`, `2>/dev/null`, `DEFAULT_BRANCH`, `cd -`, `--delete`) are acceptable.
 
 **Evidence artifact:** Diff of changes made.
 
@@ -79,143 +76,78 @@ Edit `branch-cleanup.md` to replace all hardcoded `dev` branch name references w
 **SC:** SC-1
 
 ```bash
-grep -c '\bdev\b' .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md
+grep -n '\bdev\b' .opencode/skills/git-workflow-cleanup/tasks/cleanup.md | grep -iv 'default_branch\|/dev/null\|--delete\|2>/dev/null\|cd -'
 ```
 
-Expected: returns 0 for branch-name usage. If non-zero, inspect each match and fix remaining occurrences.
+Expected: returns 0 matches. If non-zero, inspect each match and fix remaining occurrences.
 
-### Step 4: Add `git branch --show-current` to cleanup.md Step 3
+### Step 4: Write behavioral enforcement test (RED phase)
 
 **Dispatch:** Sub-agent via `task()`
 **Chain:** `step_3`
 **SC:** SC-2
 
-Edit `cleanup.md` Step 3 (Branch Cleanup and Sync) to add a `git branch --show-current` verification step after the branch-cleanup sub-task completes. The check should verify the repo is on the trunk branch after cleanup.
+Create a behavioral enforcement test in `.opencode/tests-v2/behaviors/` that verifies the agent uses `$DEFAULT_BRANCH` instead of hardcoded `dev` in cleanup context.
 
-Add to Step 3:
-```markdown
-- [ ] **Post-cleanup branch verification:**
-   ```bash
-   CURRENT_BRANCH=$(git branch --show-current)
-   DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-   if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
-   if [ "$CURRENT_BRANCH" != "$DEFAULT_BRANCH" ]; then
-       echo "WARNING: On branch '$CURRENT_BRANCH', expected '$DEFAULT_BRANCH'"
-   else
-       echo "Verified: on trunk branch '$DEFAULT_BRANCH'"
-   fi
-   ```
-```
+Test scenario: **`cleanup-dev-references.sh`**: Send a prompt that triggers cleanup behavior. Assert the agent uses `$DEFAULT_BRANCH` or trunk references instead of hardcoded `dev`. Use `assert_stderr_pattern_absent` for `dev` branch references and `assert_stderr_pattern_present` for `$DEFAULT_BRANCH` or trunk references.
 
-**Verification:** `grep 'git branch --show-current' .opencode/skills/git-workflow/tasks/cleanup.md` returns match.
+**Evidence artifact:** Test script file in `.opencode/tests-v2/behaviors/`.
 
-### Step 5: Verify SC-2 — show-current check present
+### Step 5: Run behavioral test — confirm RED state
 
 **Dispatch:** Inline
 **Chain:** `step_4`
 **SC:** SC-2
 
 ```bash
-grep 'git branch --show-current' .opencode/skills/git-workflow/tasks/cleanup.md
+bash .opencode/tests-v2/behaviors/cleanup-dev-references.sh
 ```
 
-Expected: at least one match in Step 3 or Step 4 context.
+Expected: returns non-zero (RED — test fails because changes haven't been made yet).
 
-### Step 6: Ensure parent repo in repos-to-clean list in cleanup.md Step 4
+### Step 6: Implement changes and confirm GREEN state
 
 **Dispatch:** Sub-agent via `task()`
 **Chain:** `step_5`
-**SC:** SC-3
+**SC:** SC-1, SC-2
 
-Review `cleanup.md` Step 4 (Post-Cleanup Dev-Tip Verification). The spec says Step 4 already builds a `repos_to_check` list that includes the parent repo at index 0. Verify this is correct. If the parent repo is not explicitly included, add it.
+Apply the changes identified in Step 2 to `cleanup.md`. This is the GREEN phase — make the changes that make the behavioral test pass.
 
-The current Step 4 already has:
-- Step 4.1: Detect parent repo path via `git rev-parse --show-superproject-working-tree`
-- Step 4.2: Build repo list with parent at index 0 + submodules
-- Step 4.3: For each repo, verify checked-out branch and compare hashes
-
-If the parent repo inclusion is already correct, no change needed — document the verification.
-
-**Verification:** `grep -A5 'parent.*repo\|repos_to_check\|index 0' .opencode/skills/git-workflow/tasks/cleanup.md` confirms parent repo is included.
-
-### Step 7: Write behavioral enforcement tests (RED phase)
-
-**Dispatch:** Sub-agent via `task()`
-**Chain:** `step_6`
-**SC:** SC-4
-
-Create behavioral enforcement tests in `.opencode/tests/behaviors/` that verify the new cleanup behavior. Tests MUST fail (RED) before implementation changes are applied.
-
-Test scenarios:
-1. **`cleanup-branch-dev-references.sh`**: Send a prompt that triggers cleanup behavior. Assert the agent uses `$DEFAULT_BRANCH` instead of hardcoded `dev`. Use `assert_stderr_pattern_absent` for `dev` branch references and `assert_stderr_pattern_present` for `$DEFAULT_BRANCH` or trunk references.
-2. **`cleanup-show-current.sh`**: Send a prompt that triggers cleanup post-verification. Assert the agent runs `git branch --show-current` as part of verification.
-
-**Evidence artifact:** Test script files in `.opencode/tests/behaviors/`.
-
-### Step 8: Run behavioral tests — confirm RED state
-
-**Dispatch:** Inline
-**Chain:** `step_7`
-**SC:** SC-4
-
+After implementation, run:
 ```bash
-bash .opencode/tests/behaviors/cleanup-branch-dev-references.sh
-bash .opencode/tests/behaviors/cleanup-show-current.sh
+bash .opencode/tests-v2/behaviors/cleanup-dev-references.sh
 ```
 
-Expected: Both tests return non-zero (RED — tests fail because changes haven't been made yet).
-
-### Step 9: Implement changes (GREEN phase)
-
-**Dispatch:** Sub-agent via `task()`
-**Chain:** `step_8`
-**SC:** SC-1, SC-2, SC-3
-
-Apply the changes identified in Steps 2, 4, and 6 to the affected files. This is the GREEN phase — make the changes that make the behavioral tests pass.
-
-### Step 10: Run behavioral tests — confirm GREEN state
-
-**Dispatch:** Inline
-**Chain:** `step_9`
-**SC:** SC-4
-
-```bash
-bash .opencode/tests/behaviors/cleanup-branch-dev-references.sh
-bash .opencode/tests/behaviors/cleanup-show-current.sh
-```
-
-Expected: Both tests return zero (GREEN — tests pass after changes).
+Expected: returns zero (GREEN — test passes after changes).
 
 ## Safety/Rollback Considerations
 
 **Phase 1 — Safety/Rollback:**
-- Destructive operations: None (all changes are string edits to markdown task files)
-- Rollback plan: `git checkout -- .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md .opencode/skills/git-workflow/tasks/cleanup.md` to revert all changes
+- Destructive operations: None (all changes are string edits to a markdown task file)
+- Rollback plan: `git checkout -- .opencode/skills/git-workflow-cleanup/tasks/cleanup.md` to revert all changes
 - Data loss risk: none
 
 ## Feasibility Verification
 
 | Step | Reference | Verified? | Evidence |
 |------|-----------|-----------|----------|
-| 1, 2 | `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` | ✅ | `editor_read_file` confirmed file exists with 471 lines |
-| 4, 6 | `.opencode/skills/git-workflow/tasks/cleanup.md` | ✅ | `editor_read_file` confirmed file exists with 356 lines |
-| 7 | `.opencode/tests/behaviors/` | ✅ | `glob` confirmed directory exists |
+| 1, 2 | `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md` | ✅ | `editor_read_file` confirmed file exists with 356 lines |
+| 4 | `.opencode/tests-v2/behaviors/` | ✅ | `glob` confirmed directory exists |
 
 ## Evidence/Provenance
 
 | Claim | Evidence Source | Verified? |
 |-------|----------------|----------|
-| `branch-cleanup.md` has 40+ hardcoded `dev` references | Spec body (verified by reading file) | ✅ |
-| `cleanup.md` Step 3 routes to `cleanup/branch-cleanup` | `editor_read_file` of `cleanup.md` line 116 | ✅ |
-| `cleanup.md` Step 4 builds `repos_to_check` list | `editor_read_file` of `cleanup.md` lines 120-195 | ✅ |
+| `cleanup.md` has 7 hardcoded `dev` references | `grep -n '\bdev\b'` on actual file, filtered for false positives | ✅ |
+| `branch-cleanup.md` has 0 hardcoded `dev` references | `grep -n '\bdev\b'` on actual file, filtered for false positives | ✅ |
+| `git branch --show-current` already exists in both files | `grep -n 'git branch --show-current'` on both files | ✅ |
+| Parent repo already in repos-to-clean list | `editor_read_file` of cleanup.md Step 4.2 | ✅ |
 | Spec is approved with `approved-for-pr` label | `github_issue_read(method=get_labels)` | ✅ |
 
 ## Exit Criteria
 
-- [ ] SC-1: `grep -c '\bdev\b' branch-cleanup.md` returns 0 for branch-name usage (evidence_type: string)
-- [ ] SC-2: `grep 'git branch --show-current' cleanup.md` returns match (evidence_type: string)
-- [ ] SC-3: Parent repo is included in repos-to-clean list in cleanup.md Step 4 (evidence_type: string)
-- [ ] SC-4: Behavioral tests pass (evidence_type: behavioral) — requires `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch before PASS verdict
+- [ ] SC-1: `grep -n '\bdev\b' cleanup.md` returns 0 for branch-name usage (evidence_type: string)
+- [ ] SC-2: Behavioral test passes (evidence_type: behavioral) — requires `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch before PASS verdict
 
 ## Implementation Pipeline Gates
 
@@ -231,10 +163,8 @@ After plan creation, the following pipeline gates MUST execute in order:
 ## Plan-Spec Alignment
 
 The plan implements exactly what the spec defines:
-- SC-1 → Steps 1-3: Replace hardcoded `dev` in branch-cleanup.md
-- SC-2 → Steps 4-5: Add `git branch --show-current` to cleanup.md
-- SC-3 → Step 6: Ensure parent repo in repos-to-clean list
-- SC-4 → Steps 7-10: Behavioral enforcement tests (RED → GREEN)
+- SC-1 → Steps 1-3: Replace 7 hardcoded `dev` references in cleanup.md
+- SC-2 → Steps 4-6: Behavioral enforcement test (RED → GREEN)
 
 No phases added beyond what the spec requires. No scope creep.
 

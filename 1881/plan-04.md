@@ -17,7 +17,7 @@
 - `.opencode/skills/approval-gate/tasks/post-implementation.md` — MOVED to git-workflow-pr/tasks/
 - `.opencode/tests/behaviors/` — git-workflow related tests updated
 
-**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5
+**SCs:** SC-2, SC-3, SC-4, SC-5
 
 **Dependencies:** Phase 1 (dispatcher template exists)
 
@@ -40,7 +40,7 @@
 - Pair-mode WIP-commit switching tasks distributed to lifecycle-matching sub-skills
 - Submodule management tasks assigned to git-workflow-branch
 
-**Cross-Cutting SCs:** SC-1 (dispatcher template), SC-2 (sub-skill task ownership), SC-3 (preserved triggers), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
+**Cross-Cutting SCs:** SC-2 (sub-skill task ownership), SC-3 (preserved triggers), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
 
 **Interface Boundaries:**
 - post-implementation.md currently lives under approval-gate — must be physically moved during this phase
@@ -60,19 +60,19 @@
 - [ ] 52. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED tests fail with expected failure reasons — confirm no false-negatives. **→ SC-2, SC-5**
 - [ ] 53. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code. **→ SC-2, SC-5**
 
-- [ ] 54. **GREEN: Create git-workflow-branch sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-branch/` with SKILL.md. Include pre-work, submodule-sync, pre-commit-pointer-check, and provenance tasks. Move 3 + 3 task files from original tasks/. **→ SC-1, SC-2, SC-4**
+- [ ] 54. **GREEN: Create git-workflow-branch sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-branch/` with SKILL.md. Include pre-work, submodule-sync, pre-commit-pointer-check, and provenance tasks. Move 3 + 3 task files from original tasks/. **→ SC-2, SC-4**
 - [ ] 55. **per-item-VbC: Verify branch sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm branch sub-skill exists with 6 task files and correct SKILL.md. **→ SC-2**
 
-- [ ] 56. **GREEN: Create git-workflow-commit sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-commit/` with SKILL.md. Move 3 task files (commit, pair-commit, amend) from original tasks/. **→ SC-1, SC-2, SC-4**
+- [ ] 56. **GREEN: Create git-workflow-commit sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-commit/` with SKILL.md. Move 3 task files (commit, pair-commit, amend) from original tasks/. **→ SC-2, SC-4**
 - [ ] 57. **per-item-VbC: Verify commit sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm commit sub-skill exists with 3 task files. **→ SC-2**
 
-- [ ] 58. **GREEN: Create git-workflow-pr sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-pr/` with SKILL.md. Move 3 task files from original tasks/. RECEIVE post-implementation.md from `.opencode/skills/approval-gate/tasks/post-implementation.md` (physical move to `git-workflow-pr/tasks/`). **→ SC-1, SC-2, SC-4**
+- [ ] 58. **GREEN: Create git-workflow-pr sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-pr/` with SKILL.md. Move 3 task files from original tasks/. RECEIVE post-implementation.md from `.opencode/skills/approval-gate/tasks/post-implementation.md` (physical move to `git-workflow-pr/tasks/`). **→ SC-2, SC-4**
 - [ ] 59. **per-item-VbC: Verify PR sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm PR sub-skill exists with 4 task files (3 original + post-implementation.md), and approval-gate/tasks/ is empty. **→ SC-2**
 
-- [ ] 60. **GREEN: Create git-workflow-cleanup sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-cleanup/` with SKILL.md. Move 3 task files (cleanup, pair-cleanup, merge cleanup) from original tasks/. **→ SC-1, SC-2, SC-4**
+- [ ] 60. **GREEN: Create git-workflow-cleanup sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-cleanup/` with SKILL.md. Move 3 task files (cleanup, pair-cleanup, merge cleanup) from original tasks/. **→ SC-2, SC-4**
 - [ ] 61. **per-item-VbC: Verify cleanup sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm cleanup sub-skill exists with 3 task files. **→ SC-2**
 
-- [ ] 62. **GREEN: Create git-workflow-conflict sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-conflict/` with SKILL.md. Move 1 task file (rebase/merge conflict resolution) from original tasks/. Reference `conflict-resolution` skill. **→ SC-1, SC-2, SC-4**
+- [ ] 62. **GREEN: Create git-workflow-conflict sub-skill (**sub-agent**).** Create `.opencode/skills/git-workflow-conflict/` with SKILL.md. Move 1 task file (rebase/merge conflict resolution) from original tasks/. Reference `conflict-resolution` skill. **→ SC-2, SC-4**
 - [ ] 63. **per-item-VbC: Verify conflict sub-skill (**green-vbc**: `verification-before-completion --task completion`).** Confirm conflict sub-skill exists with 1 task file and correct cross-reference. **→ SC-2**
 
 - [ ] 64. **GREEN: Distribute pair-* and submodule tasks (**sub-agent**).** Distribute pair-pre-work → branch, pair-commit → commit, pair-pr-creation → pr, pair-cleanup → cleanup, pair-mode-resume → branch. Assign submodule-sync, pre-commit-pointer-check, provenance → branch. **→ SC-2**
@@ -82,7 +82,7 @@
 - [ ] 67. **per-item-VbC: Verify dispatcher routing (**green-vbc**: `verification-before-completion --task completion`).** Verify dispatcher Trigger Dispatch Table references all 5 sub-skills and preserves all original trigger phrases. **→ SC-3, SC-5**
 
 - [ ] 68. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm: (1) 5 sub-skill dirs exist, (2) all task files present, (3) post-implementation.md moved to git-workflow-pr/, (4) approval-gate/tasks/ empty, (5) dispatcher references all 5 sub-skills, (6) RED tests PASS after split. **→ SC-2, SC-3, SC-5**
-- [ ] 69. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-1 through SC-5 have VbC evidence for Phase 4. **→ SC-ALL**
+- [ ] 69. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-5 have VbC evidence for Phase 4. **→ SC-ALL**
 - [ ] 70. **structural-checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run lint/typecheck on Phase 4 modified files. **→ SC-ALL**
 
 - [ ] 71. **Cleanup: Delete empty original tasks/ directories (**sub-agent**).** Dispatch `git-workflow --task commit-prep` with cleanup instruction — `rmdir .opencode/skills/git-workflow/tasks/` and `rmdir .opencode/skills/approval-gate/tasks/` (confirm both empty first). **→ SC-2**

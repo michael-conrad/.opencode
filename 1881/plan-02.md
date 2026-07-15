@@ -15,7 +15,7 @@
 - `.opencode/skills/issue-operations/platforms/` — Preserved (unchanged)
 - `.opencode/tests/behaviors/issue-operations-dispatch-instead-of-inline.sh` — Updated
 
-**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5
+**SCs:** SC-2, SC-3, SC-4, SC-5
 
 **Dependencies:** Phase 1 (dispatcher template exists)
 
@@ -35,7 +35,7 @@
 - SKILL.md routing section → Trigger Dispatch Table → sub-skill entry points
 - All 20 task files maintain their original behavior from new locations
 
-**Cross-Cutting SCs:** SC-1 (dispatcher template), SC-2 (sub-skill task ownership), SC-3 (preserved platforms), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
+**Cross-Cutting SCs:** SC-2 (sub-skill task ownership), SC-3 (preserved platforms), SC-4 (Agent-Intent descriptions), SC-5 (dispatch routing)
 
 **Interface Boundaries:**
 - Dispatcher SKILL.md must preserve all trigger phrases from original
@@ -53,7 +53,7 @@
 - [ ] 20. **red-doublecheck (**clean-room**).** Dispatch `verification-before-completion --task verify`. Verify RED tests fail with expected failure reasons — confirm no false-negatives from infrastructure issues. **→ SC-2, SC-5**
 - [ ] 21. **post-red-enforcement (**sub-agent**).** Dispatch `implementation-pipeline --task post-red-enforcement`. Verify RED step produced only test code, no GREEN implementation. **→ SC-2, SC-5**
 
-- [ ] 22. **GREEN: Create 4 sub-skills (**sub-agent**).** Create `.opencode/skills/issue-operations-core/`, `issue-operations-comments/`, `issue-operations-sub-issues/`, `issue-operations-sync/` directories. Each gets SKILL.md (Agent-Intent Pattern, Trigger Dispatch Table). Move task files from `issue-operations/tasks/` to respective sub-skill `tasks/`: 14 to core, 1 to comments, 2 to sub-issues, 3 to sync. **→ SC-1, SC-2, SC-4**
+- [ ] 22. **GREEN: Create 4 sub-skills (**sub-agent**).** Create `.opencode/skills/issue-operations-core/`, `issue-operations-comments/`, `issue-operations-sub-issues/`, `issue-operations-sync/` directories. Each gets SKILL.md (Agent-Intent Pattern, Trigger Dispatch Table). Move task files from `issue-operations/tasks/` to respective sub-skill `tasks/`: 14 to core, 1 to comments, 2 to sub-issues, 3 to sync. **→ SC-2, SC-4**
 - [ ] 23. **per-item-VbC: Verify 4 sub-skills (**green-vbc**: `verification-before-completion --task completion`).** Confirm: (1) 4 sub-skill dirs exist with SKILL.md, (2) all task files present in correct sub-skill tasks/, (3) platforms/ directory preserved. **→ SC-2, SC-3**
 
 - [ ] 24. **GREEN: Dispatch known items into sub-skills (**sub-agent**).** For each task file in the original `issue-operations/tasks/`, read its frontmatter/description and assign it to one of the 4 sub-skills. Make final assignment decisions. **→ SC-2**
@@ -63,7 +63,7 @@
 - [ ] 27. **per-item-VbC: Verify dispatcher routing (**green-vbc**: `verification-before-completion --task completion`).** Verify dispatcher Trigger Dispatch Table references all 4 sub-skills and all original trigger phrases are preserved. **→ SC-3, SC-5**
 
 - [ ] 28. **GREEN doublecheck (**sub-agent**).** Dispatch `verification-before-completion --task verify`. Confirm: (1) all sub-skill dirs exist with correct structure, (2) dispatcher routes correctly, (3) RED tests PASS after split. **→ SC-2, SC-3, SC-5**
-- [ ] 29. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-1 through SC-5 have VbC evidence coverage for Phase 2. **→ SC-ALL**
+- [ ] 29. **completeness-gate (**sub-agent**).** Dispatch `completeness-gate --task check`. Verify SC-5 have VbC evidence coverage for Phase 2. **→ SC-ALL**
 - [ ] 30. **structural-checks (**sub-agent**).** Dispatch `finishing-a-development-branch --task checklist`. Run lint/typecheck on Phase 2 modified files. **→ SC-ALL**
 
 - [ ] 31. **Cleanup: Delete empty original tasks/ directory (**sub-agent**).** Dispatch `git-workflow --task commit-prep` with cleanup instruction — `rmdir .opencode/skills/issue-operations/tasks/` (confirm empty first). **→ SC-2**

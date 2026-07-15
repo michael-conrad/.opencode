@@ -9,20 +9,6 @@ verification_consistency:
       phase_binding: Phase 1
       artifact_path: .opencode/.issues/1877/
     - id: SC-2
-      evidence_type: string
-      verification_gate: pre-commit
-      pipeline_step_binding: red-green
-      re_entry_step: null
-      phase_binding: Phase 2
-      artifact_path: .opencode/.issues/1877/
-    - id: SC-3
-      evidence_type: string
-      verification_gate: pre-commit
-      pipeline_step_binding: red-green
-      re_entry_step: null
-      phase_binding: Phase 3
-      artifact_path: .opencode/.issues/1877/
-    - id: SC-4
       evidence_type: behavioral
       verification_gate: pre-commit
       pipeline_step_binding: red-green

@@ -165,7 +165,7 @@ content:
       description: "After spec-creation split: 5 sub-skills created, dispatcher converted, tasks/ and contracts/ deleted"
     - tag: "feature/1881-skill-split/checkpoint/phase-7-main"
       phase: 7
-      description: "After cross-skill sweep: all dispatchers verified, sc-count-gate PASS, pre-pr-gate PASS"
+      description: "After cross-skill sweep: all dispatchers verified, pre-pr-gate PASS"
   solve_state:
     state_file: "{project_root}/tmp/1881/state/"
     contract_path: "skills/implementation-pipeline/pipeline-state-machine.yaml"

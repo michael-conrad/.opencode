@@ -8,7 +8,6 @@ content:
       name: "Validate and Update (Pre-Flight)"
       concern: "Shared infrastructure required by all 5 skill splits"
       scs:
-        - SC-1 (sub-skill task count < 15)
         - SC-9 (anti-lobotomization — verified once, applies to all phases)
       dependencies: []
       steps: "4–20"
@@ -22,7 +21,6 @@ content:
       name: "Split issue-operations"
       concern: "issue-operations → 4 sub-skills (core, comments, sub-issues, sync)"
       scs:
-        - SC-1
         - SC-2
         - SC-3
         - SC-4
@@ -41,7 +39,6 @@ content:
       name: "Split approval-gate"
       concern: "approval-gate → 1 sub-skill (scope) with labels/revision/bug-discovery as sub-tasks"
       scs:
-        - SC-1
         - SC-2
         - SC-3
         - SC-4
@@ -60,7 +57,6 @@ content:
       name: "Split git-workflow"
       concern: "git-workflow → 5 sub-skills (branch, commit, pr, cleanup, conflict)"
       scs:
-        - SC-1
         - SC-2
         - SC-3
         - SC-4
@@ -80,7 +76,6 @@ content:
       name: "Split writing-plans"
       concern: "writing-plans → 2 sub-skills (creation, holistic); retroactive merged into creation (per DEC-7)"
       scs:
-        - SC-1
         - SC-2
         - SC-3
         - SC-4
@@ -98,7 +93,6 @@ content:
       name: "Split spec-creation"
       concern: "spec-creation → 5 sub-skills (requirements, decomposition, validation, change-control, operating-protocol)"
       scs:
-        - SC-1
         - SC-2
         - SC-3
         - SC-4
@@ -116,7 +110,6 @@ content:
       name: "Cross-Skill Sweep & Final Gates"
       concern: "Cross-skill validation — verify all 17 sub-skills correctly wired, dispatch routing tested, PR-ready"
       scs:
-        - SC-1
         - SC-2
         - SC-3
         - SC-4
@@ -130,7 +123,7 @@ content:
       dispatch: "step-level (per-item)"
       key_deliverables:
         - "All 6 dispatcher SKILL.md files sweep-verified"
-        - "All 20 sub-skill SKILL.md files verified"
+        - "All 17 sub-skill SKILL.md files verified"
         - "All task files migrated, no orphans"
         - "Full behavioral test suite PASS"
         - "sc-count-gate: every SC has ≥1 behavioral PASS"

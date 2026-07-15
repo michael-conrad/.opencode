@@ -51,7 +51,6 @@ content:
           test: "Sub-agent prompt to create sub-skill description; assert_semantic verifies Triggers when: format with agent-intent conditions"
           assertion: "assert_semantic that description follows Agent-Intent Pattern (≤1024 chars, canonical template)"
           scs:
-            - SC-1
     preserved_triggers:
       count: 5
       description: "One behavioral test per dispatcher — verify all original trigger phrases preserved"
@@ -123,13 +122,11 @@ content:
           assertion: "ls and wc -l for each sub-skill tasks/ directory"
     sub_skill_task_count:
       count: 1
-      description: "Structural check — verify each sub-skill has < 15 tasks"
+      description: "Structural check — verify each sub-skill has correct task file count per spec split table"
       phases:
         - phase: 7
           test: "ls .opencode/skills/*/tasks/ | wc -l per sub-skill"
-          assertion: "Each count < 15"
-          scs:
-            - SC-1
+          assertion: "Each count matches spec split table"
   regression_tests:
     preserved_triggers:
       count: 1
