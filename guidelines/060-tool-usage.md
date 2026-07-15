@@ -20,7 +20,7 @@ load_when: sub-agent
 
 ## 1. Tool Priority Hierarchy
 
-> **See `mcp-tool-usage` skill for the complete five-tier hierarchy with tool selection tables.**
+> **Read [the mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md) for the complete five-tier hierarchy with tool selection tables.**
 
 ### Tier Summary
 
@@ -95,7 +95,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **All paths MUST be resolved against `project_root` (emitted by session-init as `git rev-parse --show-toplevel`), not against the current working directory.** When the agent's CWD is inside a git submodule (e.g., `.opencode/`), relative paths like `{project_root}/tmp/` resolve against the submodule root, not the project root. Using `project_root` eliminates this ambiguity.
 
-**CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. See `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories.
+**CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. Read [§Creating .opencode/.opencode/ Nested Directories](000-critical-rules.md).
 
 | Path Pattern | Correct Resolution | Wrong Resolution |
 | -- | -- | -- |

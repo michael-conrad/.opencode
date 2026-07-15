@@ -24,9 +24,9 @@ AI agents MUST follow the **Spec-Driven Development** (Gated Workflow) approach 
 
 **CRITICAL**: Investigation and Planning phases are AUTO-COMPLETED before the spec is created. The spec file ONLY contains implementation and verification phases.
 
-**INVESTIGATION CHECKPOINT**: Before creating a spec, the agent MUST verify investigation is complete. See `142-planning-archive-workflow.md` for investigation completion criteria and permissible test activities.
+**INVESTIGATION CHECKPOINT**: Before creating a spec, the agent MUST verify investigation is complete. Read [investigation completion criteria and permissible test activities](142-planning-archive-workflow.md).
 
-**SPEC REVISION**: When a spec is revised, all linked plan approvals are revoked. The old plan is closed and a new plan must be created and approved. See `010-approval-gate.md` §"Revision Revokes Approval" and §"Re-implementation Workflow".
+**SPEC REVISION**: When a spec is revised, all linked plan approvals are revoked. The old plan is closed and a new plan must be created and approved. Read [§"Revision Revokes Approval"](010-approval-gate.md) and [§"Re-implementation Workflow"](010-approval-gate.md).
 
 ______________________________________________________________________
 
