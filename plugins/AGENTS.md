@@ -54,9 +54,9 @@ When migrating from `PluginInput` to the destructured context:
 ## Testing Guidance
 
 - Run `tsc --noEmit` to verify TypeScript compilation before testing
-- Use `with-test-home opencode-cli run "test"` to verify the plugin loads without errors
+- Use `with-test-home opencode run "test"` to verify the plugin loads without errors
 - Check stderr for `Plugin export is not a function` — if present, the export style is wrong
-- Behavioral tests for plugins go in `.opencode/tests/behaviors/`
+- Behavioral tests for plugins go in `.opencode/tests-v2/behaviors/`
 
 ---
 

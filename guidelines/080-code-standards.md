@@ -429,11 +429,11 @@ Behavioral enforcement tests verify that the agent actually behaves differently 
 
 **Principle:** Behavioral tests answer "Does the agent actually behave differently?" Content-verification tests answer "Does the rule text exist in the file?" Both are needed, but behavioral is the PRIMARY enforcement gate.
 
-**Prompt construction:** Behavioral test prompts MUST be real-domain tasks that trigger natural agent behavior — never interview-style prose-recall prompts. See `.opencode/tests/AGENTS.md` §9 Prompt Construction Mandate for the full specification.
+**Prompt construction:** Behavioral test prompts MUST be real-domain tasks that trigger natural agent behavior — never interview-style prose-recall prompts. See `.opencode/tests-v2/AGENTS.md` §9 Prompt Construction Mandate for the full specification.
 
 **Root case:** Bug #1217 demonstrated that the agent had all the correct guideline text about verification but still answered a general knowledge question with zero tool-call verification. Content-verification alone was insufficient — the agent behavior did not match the rule text.
 
-Every critical violation change MUST have at least one behavioral test that verifies the agent follows the new rule. Behavioral tests use the assertion helpers in `.opencode/tests/behaviors/helpers.sh`:
+Every critical violation change MUST have at least one behavioral test that verifies the agent follows the new rule. Behavioral tests use the assertion helpers in `.opencode/tests-v2/behaviors/helpers.sh`:
 
 - `assert_tool_calls_made` — verify the agent made at least N tool calls of a specified type
 - `assert_forbidden_pattern_absent` — verify the agent's response does NOT contain a specified pattern (e.g., `(unverified)` tags)
@@ -477,17 +477,17 @@ Content-verification tests are valuable as a fast check that files haven't regre
 - Creating a new guideline without a BEHAVIORAL enforcement test that sends a prompt and verifies the agent's behavior
 - Modifying a guideline or skill without updating the corresponding BEHAVIORAL enforcement test
 - Content-verification tests (checking rule text exists) as the ONLY enforcement for a behavioral rule change
-- Running `opencode-cli run` directly without the `with-test-home` wrapper
+- Running `opencode run` directly without the `with-test-home` wrapper
 
 ### ✅ REQUIRED
 
 - Every guideline/skill change comes with a BEHAVIORAL enforcement test that verifies agent behavior
 - Content-verification tests as a supplementary sanity check, NOT the primary enforcement gate
 - Add the BEHAVIORAL test FIRST (RED), then make the change (GREEN) — behavioral TDD for rules
-- Run individual behavioral test scripts (`bash .opencode/tests/behaviors/<scenario>.sh`) for behavioral tests
-- Run scope-filtered `bash .opencode/tests/test-enforcement.sh --tag <tag>` or `--changed` for content-verification tests
-- Use `bash .opencode/tests/with-test-home opencode-cli run '<message>'` for all opencode-cli testing — never run bare `opencode-cli run`
-- Clean up test homes after testing: `bash .opencode/tests/with-test-home --clean-all`
+- Run individual behavioral test scripts (`bash .opencode/tests-v2/behaviors/<scenario>.sh`) for behavioral tests
+- Run scope-filtered `bash .opencode/tests-v2/test-enforcement.sh --tag <tag>` or `--changed` for content-verification tests
+- Use `bash .opencode/tests-v2/with-test-home opencode run '<message>'` for all opencode testing — never run bare `opencode run`
+- Clean up test homes after testing: `bash .opencode/tests-v2/with-test-home --clean-all`
 
 ### Per-Change TDD Pattern
 
@@ -504,7 +504,7 @@ Enforcement tests are the verification layer that proves agent guidelines are ac
 
 The `with-test-home` wrapper prevents SQLite session conflicts between the desktop app and CLI tests.
 
-**See `091-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure, helpers, and template.**
+**See `091-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests-v2/README.md` for the enforcement test template and usage guide. See `.opencode/tests-v2/behaviors/` for behavioral test infrastructure, helpers, and template.**
 
 ### Evidence Type Taxonomy (MANDATORY)
 
@@ -512,7 +512,7 @@ Every spec success criterion MUST declare an evidence type from the four-type ta
 
 | Evidence Type | Method | Verifies | Minimum Acceptable | Cost | Gate Position |
 |---|---|---|---|---|---|
-| `behavioral` | Test execution (`opencode-cli run`, `pytest`, `bash test.sh`) | Agent behavior, runtime output, functional correctness | Test execution with output inspection | Lowest: behavioral FAIL at gate 1 → immediate fix → zero downstream cost | pre-commit / pre-RED |
+| `behavioral` | Test execution (`opencode run`, `pytest`, `bash test.sh`) | Agent behavior, runtime output, functional correctness | Test execution with output inspection | Lowest: behavioral FAIL at gate 1 → immediate fix → zero downstream cost | pre-commit / pre-RED |
 | `semantic` | AI agent read + analytical judgment | Intent and meaning, not just pattern | Sub-agent read + judgment | Medium: semantic PASS → behavioral FAIL at CI → 100x rework | pre-PR / review |
 | `string` | `grep`, pattern matching | Content pattern present or absent | `grep` | High: string PASS → behavioral FAIL in production → NIST 29x escalation | CI / static analysis |
 | `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` | Highest: structural PASS → defect ships → death spiral → compounding exponential cost | none / irrelevant |
@@ -555,7 +555,7 @@ Content-verification tests (checking rule text existence) are SECONDARY — they
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | SKILL.md routes only to Trigger Dispatch Table | `string + semantic` | grep + sub-agent read |
-| SC-14 | Agent dispatches sub-agents, no inline work | `behavioral` | `opencode-cli run` → stderr assertions |
+| SC-14 | Agent dispatches sub-agents, no inline work | `behavioral` | `opencode run` → stderr assertions |
 ```
 
 The Evidence Type column is MANDATORY in all spec success criteria tables. Specs missing the Evidence Type column fail the spec-audit SC-DET check with a warning (not a block) until updated.
@@ -581,7 +581,7 @@ Content-verification tests (grep for text presence) are SECONDARY. Behavioral te
 
 The TDD RED/GREEN cycle for rule changes MUST use behavioral enforcement tests, not just content-verification tests:
 
-1. **RED phase**: Write a behavioral enforcement test that sends the agent a prompt and verifies the agent does NOT follow the new rule yet. The test MUST FAIL at this point because the rule change hasn't been made. Use assertion helpers from `.opencode/tests/behaviors/helpers.sh` (`assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`, `assert_stderr_pattern_present_all_models`, `assert_stderr_pattern_absent_all_models`).
+1. **RED phase**: Write a behavioral enforcement test that sends the agent a prompt and verifies the agent does NOT follow the new rule yet. The test MUST FAIL at this point because the rule change hasn't been made. Use assertion helpers from `.opencode/tests-v2/behaviors/helpers.sh` (`assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`, `assert_stderr_pattern_present_all_models`, `assert_stderr_pattern_absent_all_models`).
 2. **GREEN phase**: Make the guideline/rule change and re-run the behavioral test. The test MUST PASS because the agent now follows the rule.
 3. **No exceptions**: This gate applies to ALL rule changes — guideline files, skill files, task files, critical violation sections, system prompt blocks.
 
@@ -636,8 +636,8 @@ Removing or weakening a behavioral (semantic, functional) test assertion to work
 
 When a behavioral test times out, the agent MUST:
 1. Inspect `stdout.log` and `stderr.log` from the test run
-2. Run `opencode-cli models` to verify model availability — never assume unavailability from memory or training data
-3. Run a direct `with-test-home opencode-cli run "test ping" --model <model>` to verify the model works
+2. Run `opencode models` to verify model availability — never assume unavailability from memory or training data
+3. Run a direct `with-test-home opencode run "test ping" --model <model>` to verify the model works
 4. Report the actual root cause (timeout duration, model load time, network latency, etc.)
 
 **Never claim "model not available" or "model timed out" without tool-call evidence.** This is already covered by `065-verification-honesty.md` but the pattern keeps recurring in behavioral test contexts, so this rule cannonizes it specifically for the test integrity domain.
@@ -646,7 +646,7 @@ When a behavioral test times out, the agent MUST:
 
 When the remediation cycle (increase timeout → inspect output → diagnose → fix) fails to resolve the issue after 2+ attempts, the agent MUST dispatch a research sub-agent to investigate known solutions for:
 - LLM inference timeouts in CI environments
-- `opencode-cli run` timeout patterns and mitigation
+- `opencode run` timeout patterns and mitigation
 - Model loading latency in test environments
 - Behavioral test harness reliability patterns
 

@@ -709,7 +709,7 @@ Deleting a branch without verifying its content against the target branch means 
 
 
 ### [critical-rules-042] Model-Aware Clean-Room task() for Behavioral Testing
-Running behavioral tests through grep and static analysis instead of `opencode-cli run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
+Running behavioral tests through grep and static analysis instead of `opencode run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
 
 
 ### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
@@ -1043,7 +1043,7 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 
 ### [critical-rules-060] Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute
 
-"Functional test" and "behavioral test" are synonymous — both verify actual agent behavior by executing code and observing output. When a behavioral/functional test CANNOT be executed (model unavailable, timeout, infrastructure failure, `opencode-cli` not installed), the ONLY valid outcome is FAIL. The agent MUST NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks for behavioral/functional test execution.
+"Functional test" and "behavioral test" are synonymous — both verify actual agent behavior by executing code and observing output. When a behavioral/functional test CANNOT be executed (model unavailable, timeout, infrastructure failure, `opencode` not installed), the ONLY valid outcome is FAIL. The agent MUST NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks for behavioral/functional test execution.
 
 #### Authority Sources
 

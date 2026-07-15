@@ -46,7 +46,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] VbC 4-column table (ID, Criterion, Test, Result) present in PR body
 - [ ] VbC table format matches spec (read PR body and confirm column headers, row structure)
 - [ ] VbC table populated from VbC output artifacts, not hand-written (verify source is `tmp/behavioral-evidence-*` or equivalent artifact path)
-- [ ] For behavioral SCs, re-run `bash .opencode/tests/behaviors/<scenario>.sh` and verify PASS — do NOT accept a prior run's output as evidence; agent state may have changed between implementation and completion
+- [ ] For behavioral SCs, re-run `bash .opencode/tests-v2/behaviors/<scenario>.sh` and verify PASS — do NOT accept a prior run's output as evidence; agent state may have changed between implementation and completion
 
 ### Structural & Acceptance Verification
 - [ ] Structural completeness verified (all checklist items in scope are checked)

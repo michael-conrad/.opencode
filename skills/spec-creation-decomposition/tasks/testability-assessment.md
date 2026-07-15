@@ -27,7 +27,7 @@ For every SC in the spec, classify the evidence type required to verify it:
 
 | Evidence Type | Method | Verifies | Example SC |
 |---------------|--------|----------|------------|
-| **behavioral** | Test execution (opencode-cli run, pytest, bash test.sh) | Agent behavior, runtime output, functional correctness | "Agent dispatches sub-agents, no inline work" |
+| **behavioral** | Test execution (opencode run, pytest, bash test.sh) | Agent behavior, runtime output, functional correctness | "Agent dispatches sub-agents, no inline work" |
 | **semantic** | AI agent read + analytical judgment | Intent and meaning, not just pattern | "SKILL.md routes only to Trigger Dispatch Table" |
 | **string** | grep, pattern matching | Content pattern present or absent | "requirements.md includes adversarial verification" |
 | **structural** | ls, wc, file existence | File exists, file is non-empty, file has correct name | "blast-radius.md exists" |
@@ -38,7 +38,7 @@ For each SC, verify that the required verification method is available in the cu
 
 | Evidence Type | Required Tooling | Availability Check |
 |---------------|-----------------|-------------------|
-| **behavioral** | opencode-cli, test models, test home isolation | Check opencode-cli is installed, check model availability via opencode-cli models, check with-test-home wrapper exists |
+| **behavioral** | opencode, test models, test home isolation | Check opencode is installed, check model availability via opencode models, check with-test-home wrapper exists |
 | **semantic** | AI agent with read access | Check that a sub-agent can be dispatched with read access to the deliverable |
 | **string** | grep, file read | Always available |
 | **structural** | ls, file existence check | Always available |

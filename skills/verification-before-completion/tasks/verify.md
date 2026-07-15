@@ -264,20 +264,20 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 ### How to Run Behavioral Tests for SC Verification
 
-**The existing behavioral test infrastructure in `.opencode/tests/behaviors/` is the verified mechanism for behavioral SC verification.** Do NOT recreate test infrastructure from scratch.
+**The existing behavioral test infrastructure in `.opencode/tests-v2/behaviors/` is the verified mechanism for behavioral SC verification.** Do NOT recreate test infrastructure from scratch.
 
-- **Entry point:** `bash .opencode/tests/behaviors/<scenario>.sh` — each scenario script sources `helpers.sh` and calls `behavior_run()` which wraps `with-test-home` for XDG state isolation
+- **Entry point:** `bash .opencode/tests-v2/behaviors/<scenario>.sh` — each scenario script sources `helpers.sh` and calls `behavior_run()` which wraps `with-test-home` for XDG state isolation
 - **Assertion helpers** in `helpers.sh`: `assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`, `assert_semantic`
 - **`with-test-home`** is baked into `behavior_run()` — no manual XDG isolation setup needed
 - **Test output** goes to `./tmp/` — captured by `behavior_run()` automatically
 
 **🚫 FORBIDDEN:**
-- Running bare `opencode-cli run` without `with-test-home` wrapper — causes SQLite session conflicts with desktop app
+- Running bare `opencode run` without `with-test-home` wrapper — causes SQLite session conflicts with desktop app
 - Ad-hoc test recreation — writing inline test infrastructure instead of using existing scripts
-- Inline test infrastructure from scratch — the 40+ existing scripts in `.opencode/tests/behaviors/` cover the patterns needed
+- Inline test infrastructure from scratch — the 40+ existing scripts in `.opencode/tests-v2/behaviors/` cover the patterns needed
 
 **✅ REQUIRED:**
-- `bash .opencode/tests/behaviors/<scenario>.sh` for behavioral SC verification
+- `bash .opencode/tests-v2/behaviors/<scenario>.sh` for behavioral SC verification
 - Source `helpers.sh` and use its assertion helpers for structured assertions
 - Use `behavior_run()` for test execution — it handles isolation, capture, and cleanup
 
@@ -301,7 +301,7 @@ Grep/pattern-match verification is FORBIDDEN even for prose content. The agent m
 
 | Change Type | Evidence Requirement | Method |
 |-------------|---------------------|--------|
-| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `bash .opencode/tests/behaviors/<scenario>.sh` (wraps `behavior_run()` which wraps `with-test-home`), `pytest`, lint, typecheck — all with saved artifacts in `{project_root}/tmp/{issue-N}/artifacts/` |
+| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `bash .opencode/tests-v2/behaviors/<scenario>.sh` (wraps `behavior_run()` which wraps `with-test-home`), `pytest`, lint, typecheck — all with saved artifacts in `{project_root}/tmp/{issue-N}/artifacts/` |
 | Non-testable prose (docs, runbooks, guidelines) | Semantic intent verification by direct AI agent read | Read the file, understand the prose, verify semantic intent against spec — NOT grep/pattern matching |
 | | | |
 | Structural-only evidence (grep/read/file-exists) for testable code | **TOTAL FAIL** — entire verification gate returns FAIL | No exceptions. No metadata exemption. |
@@ -332,7 +332,7 @@ Reading a test implementation file and confirming it exists is structural eviden
 
 ### When Behavioral/Functional Tests Cannot Execute
 
-If a behavioral/functional test cannot run (model unavailable, timeout, infrastructure error, `opencode-cli` not installed):
+If a behavioral/functional test cannot run (model unavailable, timeout, infrastructure error, `opencode` not installed):
 
 | Outcome | Classification | Correct Report |
 |---------|---------------|-----------------|
@@ -367,7 +367,7 @@ When a baseline test failure is detected:
 
 | Column | Required Content | Example |
 |--------|-----------------|---------|
-| Verification Command Run | Full command with path | `bash .opencode/tests/behaviors/my-scenario.sh` |
+| Verification Command Run | Full command with path | `bash .opencode/tests-v2/behaviors/my-scenario.sh` |
 | | | `pytest test/test_file.py::test_function` |
 | | | `uvx ruff check src/` |
 
