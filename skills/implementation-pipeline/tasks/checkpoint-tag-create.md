@@ -8,7 +8,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Purpose
 
-Create a checkpoint git tag after a pipeline step completes successfully. The tag enables rollback to the last known-good state per `000-critical-rules.md` §Checkpoint Rollback Exception.
+Create a checkpoint git tag after a pipeline step completes successfully. The tag enables rollback to the last known-good state per Read [Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
 
 ## Context Required
 

@@ -189,8 +189,8 @@ summary: "Evidence collected: {sc_count} SCs extracted, {behavioral_sc_count} be
 - `tasks/verification-audit.md` — Evaluator role (reads evidence.yaml, writes verdict.yaml)
 - `tasks/cross-validate.md` — Arbiter role (reads all artifacts, writes judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → Validator → Evaluator → Arbiter)
-- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
-- `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
-- `000-critical-rules.md` — behavioral evidence mandate
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
+- Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

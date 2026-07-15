@@ -541,8 +541,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
-- `000-critical-rules.md` — guideline standards and critical rule definitions
-- `065-verification-honesty.md` — live verification requirement
-- `080-code-standards.md` — enforcement test mandate and evidence type taxonomy
+- Read [000-critical-rules.md](guidelines/000-critical-rules.md) — guideline standards and critical rule definitions
+- Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live verification requirement
+- Read [080-code-standards.md](guidelines/080-code-standards.md) — enforcement test mandate and evidence type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

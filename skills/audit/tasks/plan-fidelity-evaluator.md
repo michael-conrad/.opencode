@@ -125,7 +125,7 @@ Evaluate each criterion against the validated evidence. Expected values referenc
 | PF-GLOBAL-NUMBERING | Steps numbered globally across all phases | No per-phase restart — step N+1 follows step N across phase boundaries |
 | PF-ONE-STEP | One-step-at-a-time protocol admonishment present at top of plan | FAIL if missing |
 | PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
-| PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
+| PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
 
 ### Step 4: Evaluate Each Criterion
 
@@ -363,8 +363,8 @@ remediation_required: true | false
 - `tasks/resolve-models.md` — Arbiter role (consumes this task's `verdict.yaml`)
 - `audit/SKILL.md` — DiMo chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
-- `guidelines/000-critical-rules.md` — critical-rules-BEH-EV (PF-STRUCTURAL-FAIL uplift), critical-rules-034 (inline work prohibition)
-- `implementation-pipeline/SKILL.md` — dispatch routing table (PF-SEQUENCE-MATCHES source)
-- `solve/tasks/contract.md` — Contract YAML Structure (PF-Z3-CONTRACT source)
+- Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md) (PF-STRUCTURAL-FAIL uplift), Read [critical-rules-034](guidelines/000-critical-rules.md) (inline work prohibition)
+- Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — dispatch routing table (PF-SEQUENCE-MATCHES source)
+- Read [Contract YAML Structure](skills/solve/tasks/contract.md) (PF-Z3-CONTRACT source)
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

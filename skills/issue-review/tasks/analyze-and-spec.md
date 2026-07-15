@@ -69,7 +69,7 @@ Create a fix spec using the `issue-operations` skill. The fix spec must include:
 
 - [ ] 1. **Title**: `[SPEC] Fix: <brief bug description>`
 - [ ] 2. **Body** (minimum required sections):
-   - **Root Cause**: Prose description of the identified root cause. This section is MANDATORY — a fix spec without a "Root Cause" section that identifies the underlying cause is a CRITICAL GUIDELINE VIOLATION (see `000-critical-rules.md` → "Symptom-Only Fix-Specs"). The root cause must explain WHY the bug occurs, not just WHAT the bug is.
+   - **Root Cause**: Prose description of the identified root cause. This section is MANDATORY — a fix spec without a "Root Cause" section that identifies the underlying cause is a CRITICAL GUIDELINE VIOLATION (Read [Symptom-Only Fix-Specs](guidelines/000-critical-rules.md)). The root cause must explain WHY the bug occurs, not just WHAT the bug is.
    - **Fix Approach**: Minimal targeted fix targeting root cause (not symptoms). If the fix approach only masks the symptom without eliminating the root cause, it is a symptom-only patch and a CRITICAL GUIDELINE VIOLATION. Every fix approach MUST explain how it eliminates the root cause, not just how it hides the symptom.
    - **Success Criteria**: Testable conditions confirming the fix works
    - **Affected Files**: Files that need modification
@@ -104,7 +104,7 @@ SC-to-test mapping: [
 
 **If RED state is NOT confirmed:** HALT. Do NOT create the fix spec sub-issue. The enforcement test assertions MUST exist and fail before the fix spec is persisted.
 
-**Cross-reference:** See `091-incremental-build.md` → Per-Item TDD Cycle → RED phase, and `080-code-standards.md` → SC-to-Test Traceability and RED-Phase Ordering.
+**Cross-reference:** Read [Per-Item TDD Cycle → RED phase](guidelines/091-incremental-build.md), and Read [SC-to-Test Traceability and RED-Phase Ordering](guidelines/080-code-standards.md).
 
 **Root Cause Anti-Patterns (FORBIDDEN):**
 
@@ -127,7 +127,7 @@ Before creating the fix spec sub-issue, evaluate clarity:
 | Bug is a duplicate of an existing issue | HALT — report duplicate in chat, suggest linking instead |
 | Bug requires design decisions before fixing | HALT — report design questions in chat, wait for answers |
 
-**When auto-proceeding:** The agent creates the fix spec sub-issue without pausing for confirmation. This is justified because the fix spec still requires explicit authorization before any code changes (per `approval-gate`).
+**When auto-proceeding:** The agent creates the fix spec sub-issue without pausing for confirmation. This is justified because the fix spec still requires explicit authorization before any code changes (Read [approval-gate skill](skills/approval-gate/SKILL.md)).
 
 **When HALTing:** Report the analysis findings and open questions in chat. Do NOT create the fix spec until ambiguity is resolved. The developer may provide clarification that allows re-entry at Step 4.
 

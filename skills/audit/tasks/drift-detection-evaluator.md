@@ -520,8 +520,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's `verdict.yaml`)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
-- `000-critical-rules.md` — spec-code alignment
-- `130-authority-source.md` — code as authoritative source
-- `065-verification-honesty.md` §Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+- Read [000-critical-rules.md](guidelines/000-critical-rules.md) — spec-code alignment
+- Read [130-authority-source.md](guidelines/130-authority-source.md) — code as authoritative source
+- Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

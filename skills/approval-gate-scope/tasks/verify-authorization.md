@@ -65,11 +65,11 @@ When `verify-authorization` is dispatched as a sub-agent and returns empty or wh
 
 ## Enforcement References
 
-- Evidence format + finding classification: see `enforcement/adversarial-verification.md`
-- Scope parsing: see `enforcement/scope-parsing.md`
-- Dispatch routing: see `enforcement/auto-dispatch-table.md`
-- Closed-issue verification: see `enforcement/closed-issue-verification.md`
-- Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
+- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)
+- Dispatch routing: Read [auto-dispatch-table](enforcement/auto-dispatch-table.md)
+- Closed-issue verification: Read [closed-issue-verification](enforcement/closed-issue-verification.md)
+- Sub-issue graph traversal: Read [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)
 
 ## Result Contract
 

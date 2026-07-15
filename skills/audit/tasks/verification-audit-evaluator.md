@@ -326,9 +326,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/verification-audit-validator.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Arbiter role (reads verdict.yaml produced by this task, writes judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
-- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
-- `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
-- `000-critical-rules.md` — behavioral evidence mandate, hard failure discipline
-- `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
+- Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate, hard failure discipline
+- Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live-source verification mandate, stale evidence prohibition
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
