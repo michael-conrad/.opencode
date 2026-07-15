@@ -496,6 +496,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
-- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

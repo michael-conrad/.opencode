@@ -36,4 +36,4 @@ Read the spec's `sc-summary.yaml` to get the total SC count, count verified SCs 
 
 - `spec-creation/tasks/create.md` — produces `sc-summary.yaml`
 - `verification-before-completion/tasks/verify.md` — produces SC verdicts
-- `000-critical-rules.md` §critical-rules-sc-lobotomy — SC skip prohibition
+- Read [critical-rules-sc-lobotomy](guidelines/000-critical-rules.md) — SC skip prohibition

@@ -59,7 +59,7 @@ For each dependency listed in spec:
 
 ## Adversarial Verification: Blocker State
 
-Adversarial verification model (evidence format, binary PASS/FAIL classification): see `enforcement/adversarial-verification.md`
+Adversarial verification model (evidence format, binary PASS/FAIL classification): Read [adversarial-verification](enforcement/adversarial-verification.md)
 
 ### Verify Blocker Issues Exist and Are Actually Blocking
 
@@ -127,7 +127,7 @@ Labels are advisory visibility markers only — they do NOT gate execution. If t
 
 ### Task-Specific Findings
 
-See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
+Read [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Context Required
 
@@ -136,5 +136,5 @@ See `enforcement/adversarial-verification.md` for the binary PASS/FAIL classific
 
 ## Enforcement References
 
-- Evidence format + finding classification: see `enforcement/adversarial-verification.md`
-- Scope parsing: see `enforcement/scope-parsing.md`
+- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)

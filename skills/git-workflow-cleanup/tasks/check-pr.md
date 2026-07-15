@@ -2,7 +2,7 @@
 
 ## ⚠️ Enforcement Gate
 
-**This task is MANDATORY when the user says "check pr", "check prs", "check merged prs", "check merged pr", or "check pull request(s)". The agent MUST NOT respond with a raw PR listing without routing through this task's phases. Bypassing this gate to list PRs directly is a CRITICAL GUIDELINE VIOLATION — see `000-critical-rules.md` §"Listing Merged PRs Without Invoking Cleanup".**
+**This task is MANDATORY when the user says "check pr", "check prs", "check merged prs", "check merged pr", or "check pull request(s)". The agent MUST NOT respond with a raw PR listing without routing through this task's phases. Bypassing this gate to list PRs directly is a CRITICAL GUIDELINE VIOLATION — Read [Listing Merged PRs Without Invoking Cleanup](guidelines/000-critical-rules.md).**
 
 ## Purpose
 
