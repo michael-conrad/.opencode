@@ -87,22 +87,27 @@ The following research cards were created during the investigation phase and MUS
 
 The following 12 imperative verb forms MUST be tested. The list was derived from research findings (see Research Cards section) and includes the current form, alternatives from production systems, and hypotheses:
 
-| # | Verb | Directive Text Template | Rationale | Source |
-|---|------|------------------------|-----------|--------|
-| 1 | Read | `Read [the authorization token list](tmp/verb-test/target-a.md).` | Current form — baseline | OpenCode convention |
-| 2 | Load | `Load [the authorization token list](tmp/verb-test/target-a.md).` | Common programming term | Hypothesis |
-| 3 | Fetch | `Fetch [the authorization token list](tmp/verb-test/target-a.md).` | Implies retrieval action | Hypothesis |
-| 4 | Consult | `Consult [the authorization token list](tmp/verb-test/target-a.md).` | Suggests reference lookup | Hypothesis |
-| 5 | Open | `Open [the authorization token list](tmp/verb-test/target-a.md).` | Direct file operation verb | Hypothesis |
-| 6 | Retrieve | `Retrieve [the authorization token list](tmp/verb-test/target-a.md).` | Formal retrieval term | Hypothesis |
-| 7 | Access | `Access [the authorization token list](tmp/verb-test/target-a.md).` | Implies reaching a resource | Hypothesis |
-| 8 | Follow instructions in | `Follow instructions in [the authorization token list](tmp/verb-test/target-a.md).` | Multi-word directive | Hypothesis |
-| 9 | Check | `Check [the authorization token list](tmp/verb-test/target-a.md).` | Common verification verb | Hypothesis |
-| 10 | Look up | `Look up [the authorization token list](tmp/verb-test/target-a.md).` | Common reference verb | Hypothesis |
-| 11 | MUST read | `You MUST read [the authorization token list](tmp/verb-test/target-a.md).` | OpenAI Codex-style imperative | OpenAI Codex AGENTS.md spec |
-| 12 | See @ | `See @tmp/verb-test/target-a.md` | Amp-style @-mention | Amp AGENTS.md docs |
+| # | Verb | Directive Text Template | Checkbox Variant | Rationale | Source |
+|---|------|------------------------|------------------|-----------|--------|
+| 1 | Read | `Read [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Read [the authorization token list](tmp/verb-test/target-a.md).` | Current form — baseline | OpenCode convention |
+| 2 | Load | `Load [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Load [the authorization token list](tmp/verb-test/target-a.md).` | Common programming term | Hypothesis |
+| 3 | Fetch | `Fetch [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Fetch [the authorization token list](tmp/verb-test/target-a.md).` | Implies retrieval action | Hypothesis |
+| 4 | Consult | `Consult [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Consult [the authorization token list](tmp/verb-test/target-a.md).` | Suggests reference lookup | Hypothesis |
+| 5 | Open | `Open [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Open [the authorization token list](tmp/verb-test/target-a.md).` | Direct file operation verb | Hypothesis |
+| 6 | Retrieve | `Retrieve [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Retrieve [the authorization token list](tmp/verb-test/target-a.md).` | Formal retrieval term | Hypothesis |
+| 7 | Access | `Access [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Access [the authorization token list](tmp/verb-test/target-a.md).` | Implies reaching a resource | Hypothesis |
+| 8 | Follow instructions in | `Follow instructions in [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Follow instructions in [the authorization token list](tmp/verb-test/target-a.md).` | Multi-word directive | Hypothesis |
+| 9 | Check | `Check [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Check [the authorization token list](tmp/verb-test/target-a.md).` | Common verification verb | Hypothesis |
+| 10 | Look up | `Look up [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] Look up [the authorization token list](tmp/verb-test/target-a.md).` | Common reference verb | Hypothesis |
+| 11 | MUST read | `You MUST read [the authorization token list](tmp/verb-test/target-a.md).` | `- [ ] You MUST read [the authorization token list](tmp/verb-test/target-a.md).` | OpenAI Codex-style imperative | OpenAI Codex AGENTS.md spec |
+| 12 | See @ | `See @tmp/verb-test/target-a.md` | `- [ ] See @tmp/verb-test/target-a.md` | Amp-style @-mention | Amp AGENTS.md docs |
+| 13 | (none — checkbox only) | — | `- [ ] [the authorization token list](tmp/verb-test/target-a.md).` | Tests whether checkbox alone (no verb) triggers read | Hypothesis |
 
 **Note on #12 (See @):** The `See [file]` pattern without `@` is documented as defective — agents treat it as a citation to ignore. The `@` prefix from Amp's system is included to test whether the `@` symbol changes behavior. If `@` is not supported by the test harness, this variant may be skipped and noted in the test record.
+
+**Note on #13 (checkbox only):** This variant has no imperative verb at all — just a markdown checkbox followed by a link. If this triggers `read` tool calls, it indicates that the checkbox prefix alone is sufficient to make the agent treat the link as an actionable task, regardless of verb choice.
+
+**Checkbox variant rationale:** Markdown task list checkboxes (`- [ ]`) are a common pattern in LLM training data for indicating actionable items. Agents trained on GitHub issues, PRs, and project management data may treat checkbox-prefixed items as tasks to be completed rather than informational text. Testing the checkbox variant for each verb form determines whether the checkbox prefix improves adherence independently of the verb choice.
 
 ## Test Methodology
 
@@ -110,12 +115,50 @@ The following 12 imperative verb forms MUST be tested. The list was derived from
 
 Each test uses the existing `test-verb-variant.sh` script at `.opencode/tests-v2/behaviors/test-verb-variant.sh` with the following configuration:
 
-- **Model:** `ollama/qwen3.6:35b-256k` (the default model from `default-model.sh`)
 - **Test project:** Isolated git repo with `.opencode` submodule cloned from remote
 - **Guideline:** A test guideline (`999-verb-test.md`) is injected with the verb form under test, referencing two target files via the directive
 - **Target files:** `tmp/verb-test/target-a.md` (authorization tokens) and `tmp/verb-test/target-b.md` (tool usage rules)
 - **Prompt:** A real-domain task asking the agent to verify authorization using the token list and determine the correct path protocol — this triggers natural agent behavior, not prose recall
 - **Directive injection:** The verb directive is also injected into a local copy of `default.txt` to simulate the production guideline context
+
+### Multi-Model Test Matrix
+
+Each verb form MUST be tested against ALL of the following models to account for model-specific behavior differences:
+
+| Model | Size | Type | Rationale |
+|-------|------|------|----------|
+| `ollama/qwen3.6:35b-256k` | 35B / 256k ctx | Local (default) | Default test model; baseline for all comparisons |
+| `ollama/laguna-xs-2.1:q4_K_M-256k` | ~20B / 256k ctx | Local (quantized) | Tests whether quantized models behave differently |
+| `ollama/gpt-oss:20b-128k` | 20B / 128k ctx | Local | Smaller model; tests whether model size affects adherence |
+| `ollama/ornith:35b-256k` | 35B / 256k ctx | Local | Alternative 35B model; tests whether model architecture affects adherence |
+
+Each verb form has TWO variants: plain directive text and checkbox-prefixed directive text (`- [ ]` prefix). Additionally, a checkbox-only variant (#13) tests whether the checkbox alone (no verb) triggers read. This produces a 4 (models) × 13 (verb forms) × 2 (plain/checkbox) × 2 (runs) = **208 total test runs** minimum for the orchestrator context alone, plus the same for sub-agent context = **416 total test runs** minimum across all combinations.
+
+### Agent Context Test Matrix
+
+Each verb+model combination MUST be tested in TWO agent contexts to determine whether the orchestrator and sub-agents behave differently:
+
+| Context | How Tested | What It Simulates |
+|---------|-----------|-------------------|
+| **Orchestrator** | `opencode run` with the verb directive injected into `default.txt` (the system prompt) | The orchestrator receives the directive as part of its initial system prompt — tests whether the directive is followed when pre-loaded |
+| **Sub-agent** | `opencode run` with the verb directive in a Tier 2 guideline file (loaded on-demand via `load_when: sub-agent`) | The sub-agent encounters the directive when loading a guideline during task execution — tests whether the directive is followed when discovered dynamically |
+
+**Rationale:** If sub-agents read the cross-references but the orchestrator does not, this indicates a possible defect in the orchestrator's system prompt injection — the orchestrator may be receiving only relevant portions of the injected prompts, or the Tier 1 pre-loading may suppress the directive. If the orchestrator reads but sub-agents do not, the issue is in how guidelines are loaded for sub-agents.
+
+**Test procedure for sub-agent context:** The verb directive is placed ONLY in the Tier 2 test guideline (`999-verb-test.md`), NOT in `default.txt`. The prompt triggers the guideline's `trigger_on` pattern, causing the orchestrator to dispatch a sub-agent. The sub-agent loads the guideline, encounters the verb directive, and should follow it. The test checks whether the sub-agent's stderr shows `read` tool calls to the target files.
+
+**Test procedure for orchestrator context:** The verb directive is placed in `default.txt` (the system prompt). The prompt does NOT need to trigger a guideline — the directive is already in the orchestrator's context. The test checks whether the orchestrator's stderr shows `read` tool calls to the target files.
+
+### Adherence Rate Threshold and Remediation
+
+If the adherence rate across all verb+model+context combinations is **low (≤ 25%) or zero**, the following remediation steps MUST be taken:
+
+1. **Research additional verb forms** — search for verb forms and link description text wordings used in production LLM systems that may produce better adherence. Document findings in `.issues/research-cards/imperative-verb-forms-load-directives.md`.
+2. **Research link description text wording** — test variations of the link description text (e.g., "the authorization token list" vs "the file containing authorization tokens" vs "the rules in this file") to determine whether description text affects adherence.
+3. **Test emphasis markers** — test with emphasis markers (e.g., `**IMPORTANT**: Read [file]`, `⚠️ You MUST read [file]`) to determine whether emphasis improves adherence.
+4. **Test position effects** — test whether placing the directive at the top vs bottom of the guideline affects adherence.
+5. **Test repetition** — test whether repeating the directive multiple times in the same guideline improves adherence.
+6. **Document all findings** in `.opencode/.issues/1958/winning-verb-analysis.md` with recommendations for the next iteration.
 
 ### What "Works" Means
 
@@ -141,15 +184,17 @@ The existing `test-verb-variant.sh` script MUST be used as-is for the first test
 
 ## Success Criteria
 
-| ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
-|----|-----------|-------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
-| SC-1 | All 10 candidate verb forms are tested at least 2 times each against model `ollama/qwen3.6:35b-256k` | Run `test-verb-variant.sh` for each verb variant 2 times; verify 20 total runs completed | Re-run any missing variant runs | test-execution | `.opencode/.issues/1958/` | Candidate Verb List | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
-| SC-2 | A test record table is produced with columns: Verb, Directive text, Model, Did agent call read on target file?, Did agent use grep/search instead?, Did agent use other tool?, Time, Notes | Verify the table exists in `.opencode/.issues/1958/test-record.md` with all 10 verbs and 20 rows | Re-generate table from raw test artifacts | documentation | `.opencode/.issues/1958/test-record.md` | Test Record Format | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
-| SC-3 | Each test run produces behavioral evidence artifacts (stdout.log, stderr.log, manifest.yaml, exit_code) in `tmp/behavioral-evidence-*/` | Verify artifact directory exists for each of the 20 runs | Re-run failed runs | test-execution | `tmp/behavioral-evidence-*/` | Test Methodology | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
-| SC-4 | A winning verb form is identified based on the criterion: triggers `read` in at least 2 out of 2 runs, does NOT trigger grep/search substitute | Analyze test record table; select verb with highest `read` call rate and zero grep/search substitution | If no verb meets criterion, document the best performer and note the gap | analysis | `.opencode/.issues/1958/winning-verb-analysis.md` | What "Works" Means | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
-| SC-5 | The winning verb form is documented with a recommendation for implementation in guidelines and default.txt | Verify `.opencode/.issues/1958/winning-verb-analysis.md` contains a recommendation section | Update recommendation based on additional analysis | documentation | `.opencode/.issues/1958/winning-verb-analysis.md` | Success Criteria | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
-| SC-6 | No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation | Verify all SCs maintain their declared evidence type throughout implementation | Restore any weakened SC to original evidence type | audit | `.opencode/.issues/1958/` | Anti-Lobotomization | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
-| SC-7 | Before any implementation, write behavioral enforcement tests in `.opencode/tests-v2/behaviors/` that verify the new rule; confirm RED state (test fails before change) | Verify behavioral test script exists and fails before implementation changes are applied | Re-create behavioral test if missing | test-execution | `.opencode/tests-v2/behaviors/` | Behavioral Test Mandate | Phase 1 | pre-approval-gate | sequential | — | — | — | Phase 1 |
+| ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
+|----|-----------|---------------|-------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
+| SC-1 | All 13 candidate verb forms (12 verbs + 1 checkbox-only) are tested in BOTH plain and checkbox-prefixed variants, at least 2 times each, against ALL 4 models (`qwen3.6:35b-256k`, `laguna-xs-2.1:q4_K_M-256k`, `gpt-oss:20b-128k`, `ornith:35b-256k`) | behavioral | Run `test-verb-variant.sh` for each verb×model×variant combination 2 times; verify 208 runs completed for orchestrator context | Re-run any missing variant runs | test-execution | `.opencode/.issues/1958/` | Candidate Verb List, Multi-Model Test Matrix, Checkbox Variant | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
+| SC-2 | Each verb+model combination is tested in BOTH orchestrator context (directive in `default.txt`) and sub-agent context (directive in Tier 2 guideline) | behavioral | Verify test record has separate rows for orchestrator and sub-agent contexts for each combination | Re-run missing context tests | test-execution | `.opencode/.issues/1958/` | Agent Context Test Matrix | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
+| SC-3 | A test record table is produced with columns: Verb, Directive text, Model, Context (orchestrator/sub-agent), Did agent call read on target file?, Did agent use grep/search instead?, Did agent use other tool?, Time, Notes | string | Verify the table exists in `.opencode/.issues/1958/test-record.md` with all 12 verbs × 4 models × 2 contexts × 2 runs = 192 rows | Re-generate table from raw test artifacts | documentation | `.opencode/.issues/1958/test-record.md` | Test Record Format | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
+| SC-4 | Each test run produces behavioral evidence artifacts (stdout.log, stderr.log, manifest.yaml, exit_code) in `tmp/behavioral-evidence-*/` | structural | Verify artifact directory exists for each of the 192 runs | Re-run failed runs | test-execution | `tmp/behavioral-evidence-*/` | Test Methodology | Phase 1 | pre-commit | sequential | — | — | `test-verb-variant.sh` | Phase 1 |
+| SC-5 | A winning verb form is identified based on the criterion: triggers `read` in at least 2 out of 2 runs per model, does NOT trigger grep/search substitute | behavioral | Analyze test record table; select verb with highest `read` call rate and zero grep/search substitution across all models and contexts | If no verb meets criterion, document the best performer and note the gap | analysis | `.opencode/.issues/1958/winning-verb-analysis.md` | What "Works" Means | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
+| SC-6 | If adherence rate across all combinations is ≤ 25% or zero, remediation research is conducted: additional verb forms, link description text wording, emphasis markers, position effects, repetition | behavioral | Verify `.opencode/.issues/1958/winning-verb-analysis.md` contains remediation research findings | Conduct remediation research per Adherence Rate Threshold section | analysis | `.opencode/.issues/1958/winning-verb-analysis.md` | Adherence Rate Threshold and Remediation | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
+| SC-7 | The winning verb form (or best performer) is documented with a recommendation for implementation in guidelines and default.txt, including any context-specific differences (orchestrator vs sub-agent) | string | Verify `.opencode/.issues/1958/winning-verb-analysis.md` contains a recommendation section with context-specific findings | Update recommendation based on additional analysis | documentation | `.opencode/.issues/1958/winning-verb-analysis.md` | Success Criteria | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
+| SC-8 | No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation | structural | Verify all SCs maintain their declared evidence type throughout implementation | Restore any weakened SC to original evidence type | audit | `.opencode/.issues/1958/` | Anti-Lobotomization | Phase 1 | pre-commit | sequential | — | — | — | Phase 1 |
+| SC-9 | Before any implementation, write behavioral enforcement tests in `.opencode/tests-v2/behaviors/` that verify the new rule; confirm RED state (test fails before change) | behavioral | Verify behavioral test script exists and fails before implementation changes are applied | Re-create behavioral test if missing | test-execution | `.opencode/tests-v2/behaviors/` | Behavioral Test Mandate | Phase 1 | pre-approval-gate | sequential | — | — | — | Phase 1 |
 
 ## Edge Cases
 
@@ -160,6 +205,9 @@ The existing `test-verb-variant.sh` script MUST be used as-is for the first test
 | Test script needs modification | Document modification in test record; use modified script for remaining runs |
 | Verb triggers partial read (reads some but not all target files) | Record as "partial" in Notes column; does not count as full PASS |
 | Verb triggers read but also triggers grep/search | Record both; verb is disqualified if grep/search substitutes for read content |
+| Model not available (e.g., not installed locally) | Skip that model for all verb tests; note in test record; continue with remaining models |
+| Orchestrator and sub-agent produce different results | Record both results separately; flag for analysis in winning verb analysis |
+| Adherence rate is zero across all combinations | Trigger remediation research per Adherence Rate Threshold section; do NOT conclude "nothing works" without remediation |
 
 ## Implementation Approach
 
