@@ -13,7 +13,7 @@
 ### Content-Verification Enforcement Tests (182 scenarios)
 
 ```
-bash .opencode/tests/test-enforcement.sh
+bash .opencode/tests-v2/test-enforcement.sh
 ```
 
 **Result:** EXIT CODE 0 — ALL 182 SCENARIOS PASS
@@ -25,12 +25,12 @@ All scenarios including spec-auditor, verification-before-completion, git-workfl
 ### Behavioral Enforcement Tests
 
 ```
-bash .opencode/tests/behaviors/<scenario>.sh
+bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
 
 **Result:** EXIT CODE 2 — INCONCLUSIVE
 
-Behavioral tests require a live Ollama model for `opencode-cli run` dispatch. Local `qwen3.6:35b` (23 GB) exceeds available VRAM; remaining models are cloud-only. This is a pre-existing infrastructure limitation, not a regression from PR #702 changes.
+Behavioral tests require a live Ollama model for `opencode run` dispatch. Local `qwen3.6:35b` (23 GB) exceeds available VRAM; remaining models are cloud-only. This is a pre-existing infrastructure limitation, not a regression from PR #702 changes.
 
 Models available: `qwen3.6:35b`, `qwen3.6:27b` (local, too large), `mistral-large-3:675b-cloud`, `deepseek-v4-pro:cloud` (cloud-only)
 

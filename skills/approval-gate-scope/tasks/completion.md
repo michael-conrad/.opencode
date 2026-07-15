@@ -140,9 +140,9 @@ When the workflow halts due to a blocker (authorization denied, missing spec, va
 
 ### Behavioral Enforcement Test Reference
 
-This format is verified by behavioral enforcement tests in `.opencode/tests/behaviors/test-blocker-report-format.sh`. Any change to this section requires updating the corresponding behavioral test.
+This format is verified by behavioral enforcement tests in `.opencode/tests-v2/behaviors/test-blocker-report-format.sh`. Any change to this section requires updating the corresponding behavioral test.
 
-**See `.opencode/tests/behaviors/README.md` for test infrastructure details.**
+**See `.opencode/tests-v2/behaviors/README.md` for test infrastructure details.**
 
 ## Adversarial Verification: Completion Claims
 

@@ -241,7 +241,7 @@ The following rationalization patterns are enumerated as explicit violations:
 
 Before finalizing the judgment for each criterion, cross-validate MUST verify that the upstream verdict actually inspected the behavioral evidence artifacts. This gate prevents PASS verdicts on behavioral SCs without engaging the behavioral test output.
 
-**Key principle:** Evidence type is determined at **production time**, not consumption time. When the orchestrator passes `artifact_evidence_dir`, it declares "these are behavioral test results" (the orchestrator ran `opencode-cli run`). The sub-agent's inspection tool (`read`, `grep`) does NOT re-classify the evidence type. Reading a `timeline.yaml` from `opencode-cli run` is behavioral evidence inspection — the same way reading a pytest output log is behavioral evidence inspection.
+**Key principle:** Evidence type is determined at **production time**, not consumption time. When the orchestrator passes `artifact_evidence_dir`, it declares "these are behavioral test results" (the orchestrator ran `opencode run`). The sub-agent's inspection tool (`read`, `grep`) does NOT re-classify the evidence type. Reading a `timeline.yaml` from `opencode run` is behavioral evidence inspection — the same way reading a pytest output log is behavioral evidence inspection.
 
 **For each criterion (from the loaded spec SCs in Step 0):**
 

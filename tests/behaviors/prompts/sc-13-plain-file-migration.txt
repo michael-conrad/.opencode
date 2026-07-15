@@ -1,1 +1,0 @@
-There's a claim that the local-issues tool loses existing issue data when it transitions from plain-file mode to worktree mode. Use ./.opencode/tools/local-issues to create an issue and report what happens. Check git worktree list and whether the issue is readable.

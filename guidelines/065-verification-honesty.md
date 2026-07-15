@@ -327,10 +327,10 @@ Evasion patterns are predictable. When a behavioral test cannot run, agents prod
 
 ### Pattern (a): Claiming Model Unavailability Without Tool-Call Evidence
 
-An agent claiming a model is unavailable MUST produce tool-call evidence before the claim is accepted. "The model timed out" is not evidence — `opencode-cli models` output showing the model is not listed, or a timed-out execution log showing the timeout duration, is evidence.
+An agent claiming a model is unavailable MUST produce tool-call evidence before the claim is accepted. "The model timed out" is not evidence — `opencode models` output showing the model is not listed, or a timed-out execution log showing the timeout duration, is evidence.
 
 **Remediation-first protocol (minimum 2 steps before FAIL):**
-1. Run `opencode-cli models` to verify model availability
+1. Run `opencode models` to verify model availability
 2. Attempt alternative model selection (select a different available model)
 3. Increase timeout and retry
 4. Only after 2+ remediation attempts: report FAIL with tool-call evidence of each attempt
@@ -357,7 +357,7 @@ Per `080-code-standards.md` §Test Integrity Mandate — removing or weakening b
 
 ### 🚫 FORBIDDEN
 
-- Claiming model unavailability without tool-call evidence (`opencode-cli models` output, execution logs)
+- Claiming model unavailability without tool-call evidence (`opencode models` output, execution logs)
 - Claiming "too slow" or "too many tool calls" as justification for skipping any verification step
 - Declaring a runtime-behavioral change as `structural` to avoid behavioral testing
 - Producing an INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected — the verdict MUST be FAIL

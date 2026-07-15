@@ -39,4 +39,4 @@ Signal OVERFLOW only on concrete, observable signs:
 - Required spec, plan, or file content cannot be included in task context because earlier content fills the window
 - Previously read content is no longer accessible due to context displacement
 
-Sub-process dispatch (opencode-cli run, task()) spawns independent processes — they do not affect orchestrator context allocation.
+Sub-process dispatch (opencode run, task()) spawns independent processes — they do not affect orchestrator context allocation.

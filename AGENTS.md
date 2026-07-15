@@ -99,23 +99,23 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | Dead code scan | `uvx vulture src/` | Python ONLY |
 | Markdown lint | `uvx pymarkdownlnt scan -r .opencode/guidelines/ docs/` | Markdown ONLY |
 | Markdown format | `uvx --with mdformat-frontmatter --with mdformat-tables --with mdformat-config --with mdformat-gfm mdformat --number --compact-tables --check .opencode/guidelines/ docs/` | Markdown ONLY |
-| Skill enforcement test (content-verification) | `bash .opencode/tests/test-enforcement.sh` | opencode-cli |
-| Skill enforcement test (filtered) | `bash .opencode/tests/test-enforcement.sh --scenario NAME [...]` | opencode-cli |
-| Skill enforcement test (by tag) | `bash .opencode/tests/test-enforcement.sh --tag TAG [...]` | opencode-cli |
-| Skill enforcement test (changed files) | `bash .opencode/tests/test-enforcement.sh --changed [--base BRANCH]` | opencode-cli |
-| Skill enforcement test (list scenarios) | `bash .opencode/tests/test-enforcement.sh --list` | opencode-cli |
-| Skill enforcement test (list tags) | `bash .opencode/tests/test-enforcement.sh --list-tags` | opencode-cli |
-| Behavioral enforcement test | `bash .opencode/tests/behaviors/<scenario>.sh` | opencode-cli |
+| Skill enforcement test (content-verification) | `bash .opencode/tests-v2/test-enforcement.sh` | opencode |
+| Skill enforcement test (filtered) | `bash .opencode/tests-v2/test-enforcement.sh --scenario NAME [...]` | opencode |
+| Skill enforcement test (by tag) | `bash .opencode/tests-v2/test-enforcement.sh --tag TAG [...]` | opencode |
+| Skill enforcement test (changed files) | `bash .opencode/tests-v2/test-enforcement.sh --changed [--base BRANCH]` | opencode |
+| Skill enforcement test (list scenarios) | `bash .opencode/tests-v2/test-enforcement.sh --list` | opencode |
+| Skill enforcement test (list tags) | `bash .opencode/tests-v2/test-enforcement.sh --list-tags` | opencode |
+| Behavioral enforcement test | `bash .opencode/tests-v2/behaviors/<scenario>.sh` | opencode |
 | TypeScript check | `PATH=.tools/node/bin:$PATH npx tsc --noEmit` | TypeScript |
 | TypeScript check (alt) | `PATH=.node/bin:$PATH npx tsc --noEmit` | TypeScript |
-| Isolated opencode-cli run | `bash .opencode/tests/with-test-home opencode-cli run '<message>'` | opencode-cli |
-| Clean test artifacts | `bash .opencode/tests/with-test-home --clean` | opencode-cli |
+| Isolated opencode run | `bash .opencode/tests-v2/with-test-home opencode run '<message>'` | opencode |
+| Clean test artifacts | `bash .opencode/tests-v2/with-test-home --clean` | opencode |
 
 **Never** use bare `python`, `python3`, or `pip`. Always prefix with `uv run` for project commands.
 
 **Ruff version sync:** When bumping the ruff version, update BOTH `pyproject.toml` (`[dependency-groups] dev` and `[tool.ruff] required-version`) AND `.pre-commit-config.yaml` (`rev:` for `ruff-pre-commit`) to keep them in sync. The `ruff-pre-commit` rev maps 1:1 to ruff releases (e.g., `v0.11.0` → ruff `0.11.0`).
 
-**Isolated test environment:** The `with-test-home` wrapper isolates opencode-cli XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session. When a test session fails, see the Session Failure Diagnosis section in `tests/AGENTS.md` for a diagnostic checklist covering model availability, artifact integrity, lock contention, and test home cleanup — the 6-check table and 5 common root causes cover the vast majority of harness failures.
+**Isolated test environment:** The `with-test-home` wrapper isolates opencode XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session. When a test session fails, see the Session Failure Diagnosis section in `tests-v2/AGENTS.md` for a diagnostic checklist covering model availability, artifact integrity, lock contention, and test home cleanup — the 6-check table and 5 common root causes cover the vast majority of harness failures.
 
 ---
 

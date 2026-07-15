@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Incremental Build Discipline
 
-**Enforced by `000-critical-rules.md` §Monolithic Implementation. Also covered by `tests/behaviors/tier1-mandate-enforcement.sh` for the overarching incremental build discipline.** See `000-critical-rules.md` §Monolithic Implementation for the critical violation.
+**Enforced by `000-critical-rules.md` §Monolithic Implementation. Also covered by `tests-v2/behaviors/tier1-mandate-enforcement.sh` for the overarching incremental build discipline.** See `000-critical-rules.md` §Monolithic Implementation for the critical violation.
 
 ## Mandate
 
@@ -30,9 +30,9 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 | REFACTOR | Clean up cross-references, verify consistency |
 | COMMIT | Test + change committed together as one working slice |
 
-**Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode-cli run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
+**Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
 
-**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.** See `.opencode/tests/AGENTS.md` §9 Prompt Construction Mandate for the centralized specification of valid vs invalid prompt types.
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.** See `.opencode/tests-v2/AGENTS.md` §9 Prompt Construction Mandate for the centralized specification of valid vs invalid prompt types.
 
 ## Anti-Patterns (Critical Violations)
 
