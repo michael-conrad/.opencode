@@ -338,14 +338,13 @@ behavior_run() {
             exit_code=1
         else
             echo "HARNESS_FAILURE: behavior_run produced empty output after all retries"
-            echo "  BEHAVIOR_TIMEOUT=$BEHAVIOR_TIMEOUT, BEHAVIOR_MODEL=$model"
-            echo "  stdout: empty, stderr word count: $(wc -w < "$err_file" 2>/dev/null || echo 0)"
+            echo "  model=$model, stderr word count: $(wc -w < "$err_file" 2>/dev/null || echo 0)"
             echo "HARNESS_FAILURE: empty output" >> "$output_file"
             exit_code=1
         fi
     elif [ "${word_count:-0}" -le 3 ]; then
-        echo "  NOTE: behavior_run produced short output (${word_count} words). Consider increasing BEHAVIOR_TIMEOUT if this is unexpected."
-        echo "  BEHAVIOR_TIMEOUT=$BEHAVIOR_TIMEOUT, BEHAVIOR_MODEL=$model"
+        echo "  NOTE: behavior_run produced short output (${word_count} words). Consider increasing the bash tool timeout if this is unexpected."
+        echo "  model=$model"
     fi
 
     sleep 1
