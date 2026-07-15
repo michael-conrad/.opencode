@@ -81,28 +81,28 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 ## Invocation
 
-`skill({name: "issue-operations"})` — call the skill, then call via task():
+`skill({name: "issue-operations"})` — call the skill, then dispatch to sub-skills via task():
 
-| Task | Call via task() |
-
-| `pre-creation` | `task(..., prompt: "execute pre-creation task from issue-operations")` |
-| `creation` | `task(..., prompt: "execute creation task from issue-operations")` |
-| `comment` | `task(..., prompt: "execute comment task from issue-operations")` |
-| `close` | `task(..., prompt: "execute close task from issue-operations")` |
-| `link-sub-issue` | `task(..., prompt: "execute link-sub-issue task from issue-operations")` |
-| `verify-merge` | `task(..., prompt: "execute verify-merge task from issue-operations")` |
-| `completion` | `task(..., prompt: "execute completion task from issue-operations")` |
-| `read-issue` | `task(..., prompt: "execute read-issue task from issue-operations")` |
-| `read-comments` | `task(..., prompt: "execute read-comments task from issue-operations")` |
-| `read-labels` | `task(..., prompt: "execute read-labels task from issue-operations")` |
-| `read-sub-issues` | `task(..., prompt: "execute read-sub-issues task from issue-operations")` |
-| `list-issues` | `task(..., prompt: "execute list-issues task from issue-operations")` |
-| `search-issues` | `task(..., prompt: "execute search-issues task from issue-operations")` |
-| `update-issue` | `task(..., prompt: "execute update-issue task from issue-operations")` |
-| `sync-pull-to-local` | `task(..., prompt: "execute sync-pull-to-local task from issue-operations")` |
-| `sync-from-remote` | `task(..., prompt: "execute sync-from-remote task from issue-operations")` |
-| `import-remote` | `task(..., prompt: "execute import-remote task from issue-operations")` |
-| `push-artifacts` | `task(..., prompt: "execute push-artifacts task from issue-operations")` |
+| Task | Sub-Skill | Canonical Dispatch String |
+|------|-----------|--------------------------|
+| `pre-creation` | `issue-operations-core` | `task(..., prompt: "execute pre-creation from issue-operations-core. Read \`issue-operations-core/tasks/pre-creation.md\` first")` |
+| `creation` | `issue-operations-core` | `task(..., prompt: "execute creation from issue-operations-core. Read \`issue-operations-core/tasks/creation.md\` first")` |
+| `comment` | `issue-operations-comments` | `task(..., prompt: "execute comment from issue-operations-comments. Read \`issue-operations-comments/tasks/comment.md\` first")` |
+| `close` | `issue-operations-core` | `task(..., prompt: "execute close from issue-operations-core. Read \`issue-operations-core/tasks/close.md\` first")` |
+| `link-sub-issue` | `issue-operations-sub-issues` | `task(..., prompt: "execute link-sub-issue from issue-operations-sub-issues. Read \`issue-operations-sub-issues/tasks/link-sub-issue.md\` first")` |
+| `verify-merge` | `issue-operations-core` | `task(..., prompt: "execute verify-merge from issue-operations-core. Read \`issue-operations-core/tasks/verify-merge.md\` first")` |
+| `completion` | `issue-operations-core` | `task(..., prompt: "execute completion from issue-operations-core. Read \`issue-operations-core/tasks/completion.md\` first")` |
+| `read-issue` | `issue-operations-core` | `task(..., prompt: "execute read-issue from issue-operations-core. Read \`issue-operations-core/tasks/read-issue.md\` first")` |
+| `read-comments` | `issue-operations-core` | `task(..., prompt: "execute read-comments from issue-operations-core. Read \`issue-operations-core/tasks/read-comments.md\` first")` |
+| `read-labels` | `issue-operations-core` | `task(..., prompt: "execute read-labels from issue-operations-core. Read \`issue-operations-core/tasks/read-labels.md\` first")` |
+| `read-sub-issues` | `issue-operations-sub-issues` | `task(..., prompt: "execute read-sub-issues from issue-operations-sub-issues. Read \`issue-operations-sub-issues/tasks/read-sub-issues.md\` first")` |
+| `list-issues` | `issue-operations-core` | `task(..., prompt: "execute list-issues from issue-operations-core. Read \`issue-operations-core/tasks/list-issues.md\` first")` |
+| `search-issues` | `issue-operations-core` | `task(..., prompt: "execute search-issues from issue-operations-core. Read \`issue-operations-core/tasks/search-issues.md\` first")` |
+| `update-issue` | `issue-operations-core` | `task(..., prompt: "execute update-issue from issue-operations-core. Read \`issue-operations-core/tasks/update-issue.md\` first")` |
+| `sync-pull-to-local` | `issue-operations-sync` | `task(..., prompt: "execute sync-pull-to-local from issue-operations-sync. Read \`issue-operations-sync/tasks/sync-pull-to-local.md\` first")` |
+| `sync-from-remote` | `issue-operations-sync` | `task(..., prompt: "execute sync-from-remote from issue-operations-sync. Read \`issue-operations-sync/tasks/sync-from-remote.md\` first")` |
+| `import-remote` | `issue-operations-sync` | `task(..., prompt: "execute import-remote from issue-operations-sync. Read \`issue-operations-sync/tasks/import-remote.md\` first")` |
+| `push-artifacts` | `local (platform)` | `task(..., prompt: "execute push-artifacts from local. Read \`issue-operations/platforms/local/tasks/push-artifacts.md\` first")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "issue-operations"})` ``
 
@@ -136,7 +136,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 | Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
-| Missing task file discovery directive | "execute creation task from issue-operations" without task file path | "execute creation task from issue-operations. Read `issue-operations/tasks/creation.md` first" |
+| Missing task file discovery directive | "execute creation from issue-operations-core" without task file path | "execute creation from issue-operations-core. Read `issue-operations-core/tasks/creation.md` first" |
 
 ## Required: Sub-agent Task File Discovery Directive
 
