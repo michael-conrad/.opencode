@@ -291,13 +291,30 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 
 ---
 
-## Cross-Reference Load Directive — MANDATORY
+## Read-Link Cross-Reference Rule — MANDATORY
 
-When a guideline or skill file references another file or skill, the reference is a load directive, not a citation:
+When agent-facing text (guidelines, skill cards, task cards, prompts) references content in another file, the agent MUST use the `Read [Text](path)` pattern. This is an instruction to call the `read` tool on that path — the agent reads the referenced content into its context before proceeding.
 
-1. "See `FILENAME.md` §SECTION" or "See `SKILLNAME` skill" — This is a load directive. The text before "see" is a summary. The complete rule lives at the referenced location. Search your context for the referenced section before acting on the rule. Do not treat the summary as the complete rule.
+### 🚫 FORBIDDEN
 
-2. "Read [Text](path)" — This is an instruction to call `read` on that path. The referenced content is not pre-loaded in your context. Follow the link to get the complete rule.
+- "See `FILENAME.md` §SECTION" — Agents treat this as a citation (informational text to be ignored), not an instruction to read. The pattern is defective and MUST NOT appear in new or updated agent-facing text.
+- "See `SKILLNAME` skill" — Same defect. The agent does not load the skill from a "see" reference.
+- Any cross-reference that relies on the agent inferring it should read the referenced file.
+
+### ✅ REQUIRED
+
+- `Read [Text](path)` — The agent MUST call the `read` tool on the path and load the referenced content into context. Example: `Read [the DISPATCH_GATE protocol](.opencode/.guidelines/dispatch-gate-protocol.md)`
+- When the referenced content is too large to inline (e.g., full task file procedures), use `Read [Text](path)` to direct the agent to load it.
+- When a rule, distinction, or definition must be visible at multiple decision points, inline the full content at each location. Do not rely on the agent following a pointer to another file.
+
+### Why This Matters
+
+| Pattern | Agent Behavior | Result |
+|---------|---------------|--------|
+| "See `file` §section" | Treated as citation, ignored | Agent never reads the referenced content |
+| `Read [Text](path)` | Treated as instruction to call `read` tool | Agent loads referenced content into context |
+
+The `Read [Text](path)` pattern is the only cross-reference form that produces reliable agent behavior. All other forms are defective and must not be used.
 
 ---
 

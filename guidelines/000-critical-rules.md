@@ -165,6 +165,45 @@ Deleting a tracked file from the repository is a destructive operation equivalen
 A "why" question, a complaint about redundancy, or any interpretive inference is NEVER authorization to delete files. The agent MUST NOT run `git rm` or delete tracked files without both spec and authorization.
 
 
+### [critical-rules-XXX] CRITICAL VIOLATION — Dispatching SKILL.md to sub-agents — category error
+
+Dispatching SKILL.md content (the skill card) to a sub-agent via `task()` is a category error. The skill card contains orchestrator-level routing instructions (Trigger Dispatch Table, DISPATCH_GATE protocol, Invocation section, Orchestrator Entry Criteria) that a sub-agent cannot execute. Sub-agents cannot call `task()`, cannot follow Trigger Dispatch Tables, and cannot satisfy Orchestrator Entry Criteria.
+
+The skill card (SKILL.md) tells the orchestrator WHAT to dispatch. The task card (tasks/<name>.md) tells the sub-agent HOW to execute. Dispatching the skill card to a sub-agent means the sub-agent receives instructions about dispatching — which it cannot do.
+
+| Artifact | File | Consumer | Content | Action |
+|----------|------|----------|---------|--------|
+| Skill Card | SKILL.md | Orchestrator | Routing metadata (Trigger Dispatch Table, Invocation, DISPATCH_GATE) | Load via skill(), read in own context, do NOT dispatch |
+| Task Card | tasks/<name>.md | Sub-agent | Execution procedure (entry criteria, steps, exit criteria) | Dispatch via task() using canonical string from Invocation |
+
+The correct pattern:
+1. Orchestrator calls `skill({name: "..."})` → skill card loads into orchestrator context
+2. Orchestrator reads Trigger Dispatch Table and Invocation section in own context
+3. Orchestrator dispatches the **task card** (`tasks/<name>.md`) to a sub-agent via `task()`
+4. Sub-agent reads the task card, executes the procedure, returns a result contract
+
+#### 🚫 FORBIDDEN
+- Forwarding skill card content (Trigger Dispatch Table, DISPATCH_GATE, Invocation, Orchestrator Entry Criteria) to a sub-agent via `task()`
+- Treating the `skill()` tool as a "dispatch to sub-agent" mechanism — it loads routing metadata into the orchestrator's context
+- Including skill card routing sections in `task()` prompts
+- Sending SKILL.md content to a sub-agent and expecting the sub-agent to "follow its instructions" — the instructions say "dispatch to sub-agents via task()" which the sub-agent cannot do
+
+#### ✅ REQUIRED
+- Call `skill({name: "..."})` to load the skill card into orchestrator context
+- Read the Trigger Dispatch Table and Invocation section in the orchestrator's own context
+- Dispatch the **task card** (`tasks/<name>.md`) to a sub-agent via `task()` using the canonical dispatch string
+- The sub-agent receives only the task card path and routing context — never the skill card content
+
+#### 4-Way Violation Distinction
+
+| Violation | ID | What Happens |
+|-----------|-----|-------------|
+| Pre-read skill + inline execute | critical-rules-048 | Agent reads task card `.md` file, executes steps manually without calling `skill()` |
+| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
+| Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
+| **Skill card dispatched to sub-agent** | **critical-rules-XXX** | **Agent dispatches SKILL.md content (skill card) to sub-agent via task(); sub-agent receives orchestrator-level routing instructions it cannot execute** |
+
+
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
