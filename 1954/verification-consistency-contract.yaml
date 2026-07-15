@@ -1,0 +1,34 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1954
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1954/
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1954/
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: green
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1954/
+    - id: SC-4
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: green
+      re_entry_step: null
+      phase_binding: phase-1
+      artifact_path: .opencode/.issues/1954/
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
