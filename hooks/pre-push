@@ -6,6 +6,7 @@
 
 SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
 DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+[ -z "$DEFAULT_BRANCH" ] && DEFAULT_BRANCH=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|^origin/||')
 
 # Read stdin refspecs. For each line, evaluate all gates.
 # If any line triggers a block, the hook exits 1.
@@ -94,13 +95,9 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     # Submodule-only bump PRs are against policy — they create review overhead
     # with no functional change. Local submodule pointer commits are fine.
     if [ "$IS_DELETE" = false ] && [ -f ".gitmodules" ]; then
-        # On first push of a new branch, REMOTE_SHA is 0000... (all zeros).
-        # Compare against default branch tip instead to get the full diff.
-        if echo "$REMOTE_SHA" | grep -q '^0\{40\}$'; then
-            CHANGED_FILES=$(git diff --name-only "origin/$DEFAULT_BRANCH".."$LOCAL_SHA" 2>/dev/null || true)
-        else
-            CHANGED_FILES=$(git diff --name-only "$REMOTE_SHA".."$LOCAL_SHA" 2>/dev/null || true)
-        fi
+        # Always diff against trunk tip — checks whether the ENTIRE branch
+        # is submodule-pointer-only, not just the latest push.
+        CHANGED_FILES=$(git diff --name-only "origin/$DEFAULT_BRANCH".."$LOCAL_SHA" 2>/dev/null || true)
         SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
 
         if [ -n "$CHANGED_FILES" ] && [ -n "$SUBMODULE_PATHS" ]; then
