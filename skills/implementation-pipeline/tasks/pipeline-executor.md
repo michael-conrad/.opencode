@@ -74,6 +74,6 @@ When all steps have been processed:
 ## Cross-References
 
 - `assemble-work.md` — Creates the work state and plan input
-- `SKILL.md` §Trigger Dispatch Table — `step-dispatch` row
-- `SKILL.md` §Overview — Step-level dispatch mandate
+- Read [Trigger Dispatch Table](skills/implementation-pipeline/SKILL.md) — `step-dispatch` row
+- Read [Overview](skills/implementation-pipeline/SKILL.md) — Step-level dispatch mandate
 - `enforcement/dispatch-mode-verification.md` — Dispatch mode verification gate

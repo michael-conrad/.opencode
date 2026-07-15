@@ -121,7 +121,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
 | Task() sub-agent for submodule ops | Step 2.5/3 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
-| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
+| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by Read [Skipping Git Pre-Check](guidelines/000-critical-rules.md) | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 6 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
 **Automatic classification conditions (ALL must be true):**
@@ -143,7 +143,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 
 The agent MUST NOT ask for confirmation, permission, or readiness before performing any operation listed in the table above. These are mechanical prerequisites that the agent MUST execute as part of the approved workflow.
 
-**See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
+**See also:** Read [Pushing Agent Intelligence Decisions to the User](guidelines/000-critical-rules.md) — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
 
 ### Sub-Agent Boundary: Submodule Operations — Orchestrator Dispatch
 
