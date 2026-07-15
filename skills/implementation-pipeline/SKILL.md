@@ -83,7 +83,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Pre-Flight
 
-See `implementation-pipeline/tasks/pre-flight.md` for pre-flight verification and authorization context requirements.
+Read [pre-flight verification and authorization context requirements](implementation-pipeline/tasks/pre-flight.md)
 
 ## Step Labels (for #932 naming convention)
 
@@ -135,7 +135,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 
 **Orchestrator entry point:** The orchestrator reads the plan and dispatches each step per the Trigger Dispatch Table using step-level dispatch. The orchestrator reads each step's dispatch indicator: `(**inline**)` for direct execution, `(**sub-agent**)` or `(**clean-room**)` for individual `task()` dispatch. No phase-level batching. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. See audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
 **Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
 
