@@ -15,7 +15,7 @@ All six items MUST be completed before proposing any approach in a spec or bug r
 5. Confirm architectural layer (`read` target module + imports)
 6. Check for existing alternatives (`srclight_hybrid_search`)
 
-**Incomplete inspection = `000-critical-rules.md` §Spec Without Investigation — CRITICAL VIOLATION.**
-**See `brainstorming` skill -> `explore` task for the mandatory checklist integration.**
+**Incomplete inspection = Read [Spec Without Investigation](000-critical-rules.md) — CRITICAL VIOLATION.**
+**Read [brainstorming skill -> explore task](skills/brainstorming/SKILL.md) for the mandatory checklist integration.**
 
 Each item requires its own tool-call evidence. A single "read the file" grep is NOT sufficient — every item must be independently verified with the specified tool.

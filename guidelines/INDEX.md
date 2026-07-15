@@ -12,7 +12,7 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `015-pre-spec-inspection.md` | 2 | code inspection, pre-spec, investigate codebase | Pre-spec creation |
 | `016-srclight-preference.md` | 2 | srclight, code search, symbol lookup | Code analysis |
 | `020-go-prohibitions.md` | 1 | GO, prohibited, forbidden, never do, soliciting, solicitation | Authorization handling |
-| `020-go-prohibitions.md §1.6` | 1 | research, research card, card catalogue, cached findings | Research dispatch |
+| Read [§1.6](020-go-prohibitions.md) | 1 | research, research card, card catalogue, cached findings | Research dispatch |
 | `045-open-questions.md` | 2 | open questions, unresolved, Q&A, clarify | Spec review |
 | `050-scope-autonomy.md` | 2 | scope, autonomy, agent discretion, agent decision | Agent classification |
 | `060-tool-usage.md` | 1 | tool, path rule, temp file, command restriction | File operations |

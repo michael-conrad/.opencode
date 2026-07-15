@@ -73,7 +73,7 @@ When the agent detects uncommitted changes on a protected branch (the trunk) —
 3. The agent suggests a branch name: `pair-feature/<issue>-<description>` or `pair-spec/<issue>-<description>`
 4. The developer confirms or declines — pair mode entry requires developer confirmation (constraint C4)
 
-This is a behavioral trigger from `<SESSION_TRIGGERS>`, not a `pair-` branch detection. See `117-session-trigger-behavior.md` for the complete trigger behavior map.
+This is a behavioral trigger from `<SESSION_TRIGGERS>`, not a `pair-` branch detection. Read [117-session-trigger-behavior.md](117-session-trigger-behavior.md) for the complete trigger behavior map.
 
 ## Task Sequence
 

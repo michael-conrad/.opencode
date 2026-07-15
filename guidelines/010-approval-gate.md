@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Approval Gate
 
-**Enforced by `hooks/pre-commit` Gate 2b (authorization_scope + halt_at check).** See `approval-gate` skill for complete procedural workflow.
+**Enforced by `hooks/pre-commit` Gate 2b (authorization_scope + halt_at check).** Read [approval-gate skill](skills/approval-gate/SKILL.md) for complete procedural workflow.
 
 ## Tier 0: Zero Tolerance Rules
 
@@ -19,7 +19,7 @@ load_when: sub-agent
 | 5 | Branch before any file modification | approval-gate-004 | `git-workflow` / `pre-commit` Gate 1 |
 | 6 | Human-only merge | approval-gate-005 | GitHub branch protection |
 | 7 | Silent halt — no prompts | — | `000-critical-rules.md` |
-| 8 | Search before halt (no spec found) | — | `000-critical-rules.md` §Silent Halt |
+| 8 | Search before halt (no spec found) | — | Read [Silent Halt](000-critical-rules.md) |
 | 9 | PR requires explicit instruction (except `for_pr` scope) | critical-rules-019 | `pr-creation-workflow` skill |
 | 10 | Close issues only after PR merge confirmed | critical-rules-013 | `git-workflow cleanup` |
 | 11 | Spec-to-Plan cascade (auto-approve faithful plan) | approval-gate-001a-cascade | `approval-gate` skill |
