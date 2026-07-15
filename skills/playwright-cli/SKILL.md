@@ -27,19 +27,19 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Quick start
 
-See `playwright-cli/tasks/commands-reference.md` for quick start commands.
+Read [quick start commands](skills/playwright-cli/tasks/commands-reference.md).
 
 ## Commands
 
-See `playwright-cli/tasks/commands-reference.md` for the complete commands reference (Core, Navigation, Keyboard, Mouse, Save as, Tabs, Storage, Network, DevTools).
+Read [the complete commands reference](skills/playwright-cli/tasks/commands-reference.md) (Core, Navigation, Keyboard, Mouse, Save as, Tabs, Storage, Network, DevTools).
 
 ## Raw output
 
-The global `--raw` option strips page status, generated code, and snapshot sections from the output, returning only the result value. See `playwright-cli/tasks/commands-reference.md` for raw output examples.
+The global `--raw` option strips page status, generated code, and snapshot sections from the output, returning only the result value. Read [raw output examples](skills/playwright-cli/tasks/commands-reference.md).
 
 ## Open parameters
 
-See `playwright-cli/tasks/commands-reference.md` for open parameters.
+Read [open parameters](skills/playwright-cli/tasks/commands-reference.md).
 
 ## Trigger Dispatch Table
 

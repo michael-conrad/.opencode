@@ -49,8 +49,8 @@ Commit management sub-skill of git-workflow. Handles implementation commits, com
 
 ## Cross-References
 
-- See `git-workflow` skill for the parent workflow and full task documentation
-- See `000-critical-rules.md` §critical-rules-026 for commit authorization rules
-- See `000-critical-rules.md` §critical-rules-040 for single-commit discipline
-- See `080-code-standards.md` for AI co-authored attribution requirements
-- See `020-go-prohibitions.md` §1 for `--no-verify` restrictions
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [critical-rules-026](guidelines/000-critical-rules.md) for commit authorization rules
+- Read [critical-rules-040](guidelines/000-critical-rules.md) for single-commit discipline
+- Read [AI co-authored attribution requirements](guidelines/080-code-standards.md)
+- Read [§1](guidelines/020-go-prohibitions.md) for `--no-verify` restrictions

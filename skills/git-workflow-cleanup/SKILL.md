@@ -49,11 +49,11 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 
 ## Cross-References
 
-- See `git-workflow` skill for the parent workflow and full task documentation
-- See `000-critical-rules.md` §critical-rules-013 for issue closure timing rules
-- See `000-critical-rules.md` §critical-rules-039 for parent/child closure ordering
-- See `000-critical-rules.md` §critical-rules-041 for cleanup-on-PR-check trigger
-- See `000-critical-rules.md` §critical-rules-042 for content verification before branch deletion
-- See `000-critical-rules.md` §critical-rules-049 for submodule-only PR prohibition during cleanup
-- See `000-critical-rules.md` §critical-rules-070 for issue closure outside cleanup workflow
-- See `060-tool-usage.md` §3 for behavioral evidence artifact preservation rules
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [critical-rules-013](guidelines/000-critical-rules.md) for issue closure timing rules
+- Read [critical-rules-039](guidelines/000-critical-rules.md) for parent/child closure ordering
+- Read [critical-rules-041](guidelines/000-critical-rules.md) for cleanup-on-PR-check trigger
+- Read [critical-rules-042](guidelines/000-critical-rules.md) for content verification before branch deletion
+- Read [critical-rules-049](guidelines/000-critical-rules.md) for submodule-only PR prohibition during cleanup
+- Read [critical-rules-070](guidelines/000-critical-rules.md) for issue closure outside cleanup workflow
+- Read [§3](guidelines/060-tool-usage.md) for behavioral evidence artifact preservation rules
