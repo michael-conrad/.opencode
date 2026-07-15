@@ -51,15 +51,15 @@ This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skil
 | `pre-implementation-analysis` | `task(..., prompt: "execute pre-implementation-analysis from approval-gate-scope. Read \`approval-gate-scope/tasks/pre-implementation-analysis.md\` first")` |
 | `verify-blockers` | `task(..., prompt: "execute verify-blockers from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-blockers.md\` first")` |
 | `verify-closed-issue` | `task(..., prompt: "execute verify-closed-issue from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-closed-issue.md\` first")` |
-| `spec-to-plan-cascade` | `task(..., prompt: "execute spec-to-plan-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/spec-to-plan-cascade.md\` first")` |
-| `item-decomposition-check` | `task(..., prompt: "execute item-decomposition-check from approval-gate-scope. Read \`approval-gate-scope/tasks/item-decomposition-check.md\` first")` |
-| `auto-dispatch` | `task(..., prompt: "execute auto-dispatch from approval-gate-scope. Read \`approval-gate-scope/tasks/auto-dispatch.md\` first")` |
+| `spec-to-plan-cascade` | `task(..., prompt: "execute spec-to-plan-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/spec-to-plan-cascade.md\` first")` |
+| `item-decomposition-check` | `task(..., prompt: "execute item-decomposition-check from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/item-decomposition-check.md\` first")` |
+| `auto-dispatch` | `task(..., prompt: "execute auto-dispatch from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/auto-dispatch.md\` first")` |
 | `verify-already-implemented` | `task(..., prompt: "execute verify-already-implemented from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-already-implemented.md\` first")` |
-| `approval-cascade` | `task(..., prompt: "execute approval-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/approval-cascade.md\` first")` |
-| `check-halt-boundary` | `task(..., prompt: "execute check-halt-boundary from approval-gate-scope. Read \`approval-gate-scope/tasks/check-halt-boundary.md\` first")` |
-| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate-scope. Read \`approval-gate-scope/tasks/apply-label.md\` first")` |
-| `revision-revocation` | `task(..., prompt: "execute revision-revocation from approval-gate-scope. Read \`approval-gate-scope/tasks/revision-revocation.md\` first")` |
-| `bug-discovery-protocol` | `task(..., prompt: "execute bug-discovery-protocol from approval-gate-scope. Read \`approval-gate-scope/tasks/bug-discovery-protocol.md\` first")` |
+| `approval-cascade` | `task(..., prompt: "execute approval-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/gap-fill-cascade.md\` first")` |
+| `check-halt-boundary` | `task(..., prompt: "execute check-halt-boundary from approval-gate-scope. Read \`approval-gate-scope/tasks/authorization-context.md\` first")` |
+| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
+| `revision-revocation` | `task(..., prompt: "execute revision-revocation from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
+| `bug-discovery-protocol` | `task(..., prompt: "execute bug-discovery-protocol from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
 | `verify-plan-pipeline` | `task(..., prompt: "execute verify-plan-pipeline from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-plan-pipeline.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from approval-gate-scope. Read \`approval-gate-scope/tasks/completion.md\` first")` |
 
