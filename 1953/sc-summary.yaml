@@ -1,0 +1,36 @@
+sc_coverage:
+  total: 4
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1953
+  evidence_types:
+    - string
+    - semantic
+    - structural
+  phases:
+    - id: link-text-replacement
+      sc_ids: [SC-1, SC-2, SC-3, SC-4]
+      evidence_types: [string, semantic, structural]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "Every Read [§N](...) link is replaced with Read [<descriptive text>](...)"
+      evidence_type: string
+      verification_gate: post-implementation
+      plan_phase: link-text-replacement
+    - id: SC-2
+      description: "Links that already use descriptive text (e.g., Read [§Cost Model]) are left unchanged"
+      evidence_type: string
+      verification_gate: post-implementation
+      plan_phase: link-text-replacement
+    - id: SC-3
+      description: "Link text accurately describes the target section's content"
+      evidence_type: semantic
+      verification_gate: post-implementation
+      plan_phase: link-text-replacement
+    - id: SC-4
+      description: "No functional changes to any file — only link text modified"
+      evidence_type: structural
+      verification_gate: post-implementation
+      plan_phase: link-text-replacement

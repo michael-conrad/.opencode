@@ -1,0 +1,13 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1953
+generated_at: 2026-07-15T18:54:00Z
+sc_coverage_total: 4
+decomposition_classification: single-task
+phase_count: 1
+status: complete
+artifacts:
+  - path: .opencode/.issues/1953/spec.md
+    required: true
+  - path: .opencode/.issues/1953/sc-summary.yaml
+    required: true
+  - path: .opencode/.issues/1953/spec-to-plan-handoff.yaml
+    required: true
