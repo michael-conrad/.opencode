@@ -542,8 +542,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/plan-fidelity-arbiter.md` — Plan-fidelity Arbiter role (reference implementation)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions
-- `000-critical-rules.md` §critical-rules-hard-fail — FAIL is a hard gate, never reclassifiable
-- `065-verification-honesty.md` §Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+- Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
+- Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 - `080-code-standards.md` — enforcement test mandate and evidence type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
