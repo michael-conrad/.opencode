@@ -34,6 +34,8 @@
 > **Compliance Requirement:** All steps and sub-steps in this plan MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 > **One-step-at-a-time protocol:** Execute exactly one step at a time. Do NOT batch, combine, or parallelize steps. Each step must complete and be verified before the next step begins. The "sub-agent dispatch implies independence" rationalization is explicitly prohibited.
+>
+> **No test batching:** Each individual test run (one verb × one variant × one model × one context × one run) is a separate dispatch cycle. Do NOT batch multiple test runs into a single script execution. Each test run must be dispatched independently, complete, and produce its own behavioral evidence artifacts before the next test run begins. This ensures clean isolation between tests and prevents cross-contamination of model state, GPU memory, or agent context.
 
 > **Step Status:** Every step MUST be marked with its current status: `- [ ]` = not started, `- [x]` = completed, `- [~]` = in progress. No step may be skipped or marked complete without verification.
 

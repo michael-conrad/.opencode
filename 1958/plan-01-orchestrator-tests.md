@@ -47,12 +47,12 @@
   - **Expected:** Model loaded, first inference completes without errors
   - **Note:** Timing data from this run MUST be discarded
 
-- [ ] 1.3 Run all 13 verb forms × 2 variants × 2 runs = 52 tests on `qwen3.6:35b-256k` in orchestrator context
-  - **Dispatch:** For each verb+variant+run combination, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/qwen3.6:35b-256k authorization-token`
+- [ ] 1.3 Run 52 individual test dispatches on `qwen3.6:35b-256k` in orchestrator context — one per verb×variant×run combination
+  - **Dispatch:** Each test run is a SEPARATE dispatch cycle. Do NOT batch. For each of the 52 combinations, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/qwen3.6:35b-256k authorization-token` independently. Each call completes and produces artifacts before the next call begins.
   - **SC:** SC-1, SC-3
   - **Expected:** 52 behavioral evidence artifact directories created in `tmp/behavioral-evidence-*/`
   - **Verification:** Count artifact directories — confirm 52 exist
-  - **Note:** Sequential execution — one test at a time, no parallel tasking
+  - **Note:** Sequential execution — one test at a time, no parallel tasking. Each test is a fresh dispatch cycle with clean isolation.
 
 ### Model 2: `ollama/laguna-xs-2.1:q4_K_M-256k` — Orchestrator Context
 
@@ -62,8 +62,8 @@
   - **Expected:** Model loaded, first inference completes without errors
   - **Note:** Timing data from this run MUST be discarded
 
-- [ ] 1.5 Run all 13 verb forms × 2 variants × 2 runs = 52 tests on `laguna-xs-2.1:q4_K_M-256k` in orchestrator context
-  - **Dispatch:** For each verb+variant+run combination, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/laguna-xs-2.1:q4_K_M-256k authorization-token`
+- [ ] 1.5 Run 52 individual test dispatches on `laguna-xs-2.1:q4_K_M-256k` in orchestrator context — one per verb×variant×run combination
+  - **Dispatch:** Each test run is a SEPARATE dispatch cycle. Do NOT batch. For each of the 52 combinations, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/laguna-xs-2.1:q4_K_M-256k authorization-token` independently. Each call completes and produces artifacts before the next call begins.
   - **SC:** SC-1, SC-3
   - **Expected:** 52 behavioral evidence artifact directories created
   - **Verification:** Count artifact directories — confirm 52 exist
@@ -76,8 +76,8 @@
   - **Expected:** Model loaded, first inference completes without errors
   - **Note:** Timing data from this run MUST be discarded
 
-- [ ] 1.7 Run all 13 verb forms × 2 variants × 2 runs = 52 tests on `gpt-oss:20b-128k` in orchestrator context
-  - **Dispatch:** For each verb+variant+run combination, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/gpt-oss:20b-128k authorization-token`
+- [ ] 1.7 Run 52 individual test dispatches on `gpt-oss:20b-128k` in orchestrator context — one per verb×variant×run combination
+  - **Dispatch:** Each test run is a SEPARATE dispatch cycle. Do NOT batch. For each of the 52 combinations, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/gpt-oss:20b-128k authorization-token` independently. Each call completes and produces artifacts before the next call begins.
   - **SC:** SC-1, SC-3
   - **Expected:** 52 behavioral evidence artifact directories created
   - **Verification:** Count artifact directories — confirm 52 exist
@@ -90,8 +90,8 @@
   - **Expected:** Model loaded, first inference completes without errors
   - **Note:** Timing data from this run MUST be discarded
 
-- [ ] 1.9 Run all 13 verb forms × 2 variants × 2 runs = 52 tests on `ornith:35b-256k` in orchestrator context
-  - **Dispatch:** For each verb+variant+run combination, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/ornith:35b-256k authorization-token`
+- [ ] 1.9 Run 52 individual test dispatches on `ornith:35b-256k` in orchestrator context — one per verb×variant×run combination
+  - **Dispatch:** Each test run is a SEPARATE dispatch cycle. Do NOT batch. For each of the 52 combinations, call `bash .opencode/tests-v2/behaviors/test-verb-variant.sh <verb> "<directive>" ollama/ornith:35b-256k authorization-token` independently. Each call completes and produces artifacts before the next call begins.
   - **SC:** SC-1, SC-3
   - **Expected:** 52 behavioral evidence artifact directories created
   - **Verification:** Count artifact directories — confirm 52 exist
