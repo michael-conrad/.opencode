@@ -37,19 +37,26 @@ const GIT_FALLBACK_PATHS = [
   "/snap/bin/git",
 ];
 
+let gitPath: string | null = null;
+
 function resolveGitPath(): string | null {
-  // Try `which git` first (works in normal PATH environments)
+  if (gitPath !== null) return gitPath;
+  // Try `command -v git` first (POSIX-standard, available on all Unix-like systems)
   try {
-    const whichResult = execSync("which git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
-    if (whichResult) return whichResult;
+    const result = execSync("command -v git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
+    if (result) {
+      gitPath = result;
+      return gitPath;
+    }
   } catch {
-    // `which` failed — fall through to common paths
+    // `command -v` failed — fall through to common paths
   }
   for (const candidate of GIT_FALLBACK_PATHS) {
     if (fs.existsSync(candidate)) {
       try {
         execSync(`"${candidate}" --version`, { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] });
-        return candidate;
+        gitPath = candidate;
+        return gitPath;
       } catch {
         continue;
       }
@@ -57,8 +64,6 @@ function resolveGitPath(): string | null {
   }
   return null;
 }
-
-const gitPath = resolveGitPath();
 
 interface GitConfigBaseline {
   configHash: string;

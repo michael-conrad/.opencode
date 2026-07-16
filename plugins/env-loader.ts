@@ -32,19 +32,26 @@ const GIT_FALLBACK_PATHS = [
   "/snap/bin/git",
 ];
 
+let _gitPath: string | null = null;
+
 function resolveGitPath(): string | null {
-  // Try `which git` first (works in normal PATH environments)
+  if (_gitPath !== null) return _gitPath;
+  // Try `command -v git` first (POSIX-standard, available on all Unix-like systems)
   try {
-    const whichResult = execSync("which git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
-    if (whichResult) return whichResult;
+    const result = execSync("command -v git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
+    if (result) {
+      _gitPath = result;
+      return _gitPath;
+    }
   } catch {
-    // `which` failed — fall through to common paths
+    // `command -v` failed — fall through to common paths
   }
   for (const candidate of GIT_FALLBACK_PATHS) {
     if (fs.existsSync(candidate)) {
       try {
         execSync(`"${candidate}" --version`, { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] });
-        return candidate;
+        _gitPath = candidate;
+        return _gitPath;
       } catch {
         continue;
       }
@@ -296,7 +303,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
         }
         try {
           const result = await Promise.race([
-            $.nothrow()`${gitPath} ${cmd}`,
+            $.nothrow()`sh -c "${gitPath} ${cmd}"`,
             new Promise<null>((_, reject) =>
               setTimeout(() => reject(new Error(`git command timed out: ${cmd}`)), GIT_CMD_TIMEOUT_MS)
             ),
