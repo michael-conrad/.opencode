@@ -1,0 +1,8 @@
+# Goal state for issue #1960 — all phases complete, all SCs verified
+phase_1_complete: true
+sc_1_verified: true
+sc_2_verified: true
+sc_3_verified: true
+sc_4_verified: true
+sc_5_verified: true
+all_sc_verified: true

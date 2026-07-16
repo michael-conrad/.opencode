@@ -1,0 +1,40 @@
+sc_coverage:
+  total: 5
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1968
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
+      evidence_types: [behavioral, string]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "git config --local --list is called 0 times on the 2nd+ message turn"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "git rev-parse --git-dir is called 0 times on the 2nd+ message turn"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "git remote -v is called 0 times on the 2nd+ message turn"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "Git config baseline is still captured at plugin startup (line 753)"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-5
+      description: "Watchdog still fires on first turn if config was mutated between startup and first message"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1

@@ -1,0 +1,36 @@
+# Contract for issue #1960 — Git path resolution plan
+# Single-phase plan: Phase 1 implements all 5 SCs
+
+variables:
+  phase_1_complete:
+    type: bool
+    nullable: false
+  sc_1_verified:
+    type: bool
+    nullable: false
+  sc_2_verified:
+    type: bool
+    nullable: false
+  sc_3_verified:
+    type: bool
+    nullable: false
+  sc_4_verified:
+    type: bool
+    nullable: false
+  sc_5_verified:
+    type: bool
+    nullable: false
+  all_sc_verified:
+    type: bool
+    nullable: false
+
+preconditions:
+  - "z3.BoolVal(True)"
+
+invariants:
+  - "z3.Implies(phase_1_complete, all_sc_verified)"
+  - "all_sc_verified == z3.And(sc_1_verified, sc_2_verified, sc_3_verified, sc_4_verified, sc_5_verified)"
+
+postconditions:
+  - "phase_1_complete == z3.BoolVal(True)"
+  - "all_sc_verified == z3.BoolVal(True)"

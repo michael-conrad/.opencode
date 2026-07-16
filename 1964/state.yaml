@@ -1,0 +1,5 @@
+# State for issue 1964 — initial state (pre-implementation)
+hooks_installed_parent: false
+submodule_paths_discovered: false
+hooks_installed_submodules: false
+idempotent: false

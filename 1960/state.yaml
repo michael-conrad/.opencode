@@ -1,0 +1,10 @@
+# State for issue #1960 — Git path resolution plan
+# Initial state: plan created, no phases complete, no SCs verified
+
+phase_1_complete: false
+sc_1_verified: false
+sc_2_verified: false
+sc_3_verified: false
+sc_4_verified: false
+sc_5_verified: false
+all_sc_verified: false
