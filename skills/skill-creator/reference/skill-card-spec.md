@@ -81,7 +81,7 @@ All new skills MUST use the routing-only template. The SKILL.md variant of the M
 The `description` field in YAML frontmatter uses the **agent-intent pattern**:
 
 ```
-<Noun phrase describing what the skill is>. Dispatch when <agent-facing trigger conditions>. Also dispatch when <additional trigger conditions>. <Enforcement statement>. User phrases: <preserved user-facing trigger phrases>.
+<Agent-intent statement describing what the skill does>. Load via skill() when <agent-decision conditions>. <Enforcement statement>. User phrases: <comma-separated list>.
 ```
 
 See `routing-only-template.md` for the canonical template and validation rules.

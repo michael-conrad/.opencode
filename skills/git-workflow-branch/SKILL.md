@@ -1,6 +1,6 @@
 ---
 name: git-workflow-branch
-description: "Dispatch when the agent needs to create or manage feature branches, sync submodules, or verify provenance. Also dispatch when the agent needs to set up pair mode branches or resume pair mode sessions. Triggers when: agent determines a branch operation is needed, agent needs to sync submodules, agent needs to verify provenance, agent needs to set up pair mode."
+description: "Feature branch creation and management, submodule sync, and provenance verification. Load via skill() when the agent needs to create or manage feature branches, sync submodules, or verify provenance. Also load when setting up pair mode branches or resuming pair mode sessions. Branch creation is REQUIRED before any file modification. User phrases: create branch, manage branch, sync submodules, verify provenance, pair mode"
 license: MIT
 provenance: AI-generated
 ---

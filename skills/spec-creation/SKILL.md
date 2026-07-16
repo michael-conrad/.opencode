@@ -1,6 +1,6 @@
 ---
 name: spec-creation
-description: "Specification authoring skill dispatcher that routes to sub-skills. Dispatch when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change control. Also use when running holistic self-checks on specs before completion, or verifying spec quality against the 11-dimension holistic gate. Invoke for: holistic check, self-check, pre-completion check, spec quality verification. Spec creation is REQUIRED before implementation"
+description: "Specification authoring dispatcher that routes to sub-skills. Load via skill() when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also load when decomposing a problem into success criteria, extracting requirements, or documenting change control. Also load when running holistic self-checks on specs before completion, or verifying spec quality against the 11-dimension holistic gate. Spec creation is REQUIRED before implementation. User phrases: create spec, write specification, draft requirements, author spec, holistic check"
 license: MIT
 compatibility: opencode
 provenance: AI-generated

@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: "Plan executor that dispatches each step to clean-room sub-agents and progresses through implementation gates. Dispatch when executing an approved plan step-by-step or moving through implementation gates sequentially. Also dispatch when dispatching each plan step to clean-room sub-agents for independent execution. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional"
+description: "Plan executor that dispatches each step to clean-room sub-agents and progresses through implementation gates. Load via skill() when executing an approved plan step-by-step or moving through implementation gates sequentially. Also load when dispatching each plan step to clean-room sub-agents for independent execution. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional. User phrases: execute plan, run implementation, dispatch steps, progress through gates"
 license: MIT
 compatibility: opencode
 ---

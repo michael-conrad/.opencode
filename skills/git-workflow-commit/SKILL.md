@@ -1,6 +1,6 @@
 ---
 name: git-workflow-commit
-description: "Dispatch when the agent needs to commit changes or prepare commit messages. Also dispatch when the agent needs to implement changes and commit them, or handle pair mode commits. Triggers when: agent determines a commit is needed, agent needs to prepare commit messages, agent needs to implement and commit changes."
+description: "Change implementation and commit preparation. Load via skill() when the agent needs to commit changes or prepare commit messages. Also load when implementing changes and committing them, or handling pair mode commits. Commits MUST be atomic and well-described. User phrases: commit changes, prepare commit, implement and commit, pair mode commit"
 license: MIT
 provenance: AI-generated
 ---

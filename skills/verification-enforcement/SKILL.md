@@ -1,6 +1,6 @@
 ---
 name: verification-enforcement
-description: "Content generation verifier that collects evidence artifacts before generation and resolves unverified claims after. Dispatch when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also dispatch when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct from verification (general claim verification) and verification-before-completion (completion gate)"
+description: "Content generation verifier that collects evidence artifacts before generation and resolves unverified claims after. Load via skill() when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also load when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Live-source verification before generation is REQUIRED — always mandatory, never optional. — distinct from verification (general claim verification) and verification-before-completion (completion gate). User phrases: verify content, collect evidence, resolve claims, enforce verification"
 license: MIT
 compatibility: opencode
 ---

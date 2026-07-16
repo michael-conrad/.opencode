@@ -1,6 +1,6 @@
 ---
 name: git-workflow-pr
-description: "Dispatch when the agent needs to create pull requests, prepare reviews, or handle PR lifecycle completion. Also dispatch when the agent needs to handle pair mode PR creation or post-implementation tasks. Triggers when: agent determines a PR operation is needed, agent needs to prepare a review, agent needs to complete a PR lifecycle, agent needs to handle post-implementation tasks."
+description: "Pull request creation, review preparation, and PR lifecycle management. Load via skill() when the agent needs to create pull requests, prepare reviews, or handle PR lifecycle completion. Also load when handling pair mode PR creation or post-implementation tasks. Every PR MUST be an authorized, intentional delivery. User phrases: create PR, prepare review, complete PR lifecycle, pair mode PR"
 license: MIT
 provenance: AI-generated
 ---

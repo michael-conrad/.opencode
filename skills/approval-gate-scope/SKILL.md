@@ -1,6 +1,6 @@
 ---
 name: approval-gate-scope
-description: "Dispatch when the agent needs to verify authorization scope, apply approval labels, handle spec revision revocation, or execute bug discovery protocol. Also dispatch when the agent needs to check approval state, enforce pipeline halt boundaries, or manage spec-to-plan cascade. Triggers when: agent determines authorization verification is needed, agent needs to apply or remove approved-for-* labels, agent detects a spec revision that revokes plan approval, agent discovers a bug during implementation."
+description: "Authorization scope verification and label management. Load via skill() when the agent needs to verify authorization scope, apply approval labels, handle spec revision revocation, or execute bug discovery protocol. Also load when checking approval state, enforcing pipeline halt boundaries, or managing spec-to-plan cascade. Authorization verification is REQUIRED before any implementation. User phrases: verify authorization, check approval, apply label, approved, go, authorization"
 license: MIT
 provenance: AI-generated
 ---

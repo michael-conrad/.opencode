@@ -1,6 +1,6 @@
 ---
 name: spec-creation-requirements
-description: "Requirements extraction and documentation for spec creation. Dispatch when extracting requirements from problem statements or documenting requirements in spec format. Triggers when: agent needs to extract requirements from a problem statement, agent needs to document requirements in spec format."
+description: "Requirements extraction and documentation for spec creation. Load via skill() when extracting requirements from problem statements or documenting requirements in spec format. Requirements MUST be extracted before spec creation. User phrases: extract requirements, document requirements, spec requirements"
 license: MIT
 provenance: AI-generated
 ---

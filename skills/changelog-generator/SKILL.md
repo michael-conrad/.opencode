@@ -1,6 +1,6 @@
 ---
 name: changelog-generator
-description: "Release note and changelog generator for version-to-version change documentation. Dispatch when creating release notes, documenting changes between versions, or preparing a changelog. Also dispatch when comparing diffs between releases or generating structured version history. Changelog generation is REQUIRED before every release — not optional"
+description: "Release note and changelog generator for version-to-version change documentation. Load via skill() when creating release notes, documenting changes between versions, or preparing a changelog. Also load when comparing diffs between releases or generating structured version history. Changelog generation is REQUIRED before every release — not optional. User phrases: create changelog, generate release notes, document changes, version history"
 license: MIT
 compatibility: opencode
 ---

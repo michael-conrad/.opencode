@@ -15,18 +15,17 @@ This template defines the canonical structure for a routing-only SKILL.md file. 
 ```markdown
 ---
 name: skill-name
-description: "<Noun phrase describing what the skill is>. Dispatch when <agent-facing trigger conditions>. Also dispatch when <additional trigger conditions>. Invoke for: <comma-separated task names (OPTIONAL)>. <Enforcement statement>. — distinct from <exclusion clauses>."
+description: "<Agent-intent statement describing what the skill does>. Load via skill() when <agent-decision conditions>. <Enforcement statement>. User phrases: <comma-separated list>. — distinct from <exclusion clauses>."
 
 **Description format (agent-intent pattern):**
-- `<Noun phrase>` — what the skill IS (not when to use it)
-- `Dispatch when` — primary agent-facing trigger conditions (what the agent is doing)
-- `Also dispatch when` — additional agent-facing trigger conditions
-- `Invoke for:` — optional structural reference to task names from dispatch table
+- `<Agent-intent statement>` — what the skill does (the agent's role when it loads this skill)
+- `Load via skill() when` — primary agent-facing load conditions (when the agent should call skill())
 - Enforcement statement — e.g., "Spec creation is REQUIRED before implementation."
+- `User phrases:` — comma-separated list of natural language phrases a user might say
 - `— distinct from` — exclusion clauses for skills that could false-match
 - Max 1024 characters (opencode limit)
 - **Rejected elements:** `Use when`, `Also use when`, `Trigger phrases:` — deprecated Farmage format, MUST NOT appear
-- **Optional elements:** `Triggers when:` — agent-intent dispatch conditions describing when the agent should invoke this skill based on its own determination (not user utterance matching); `Invoke for:` — structural reference to task names from dispatch table
+- **Rejected elements:** `Dispatch when`, `Also dispatch when` — deprecated dispatch pattern, replaced by "Load via skill() when"
 license: MIT
 provenance: AI-generated
 ---

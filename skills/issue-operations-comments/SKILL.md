@@ -1,6 +1,6 @@
 ---
 name: issue-operations-comments
-description: "Issue comment gating and posting skill that enforces the substantive comment gate. Dispatch when posting comments to issues or PRs. Also dispatch when checking whether comment content is substantive enough to post. Comment posting is gated by the substantiveness check — non-substantive progress updates MUST NOT be posted to GitHub Issues"
+description: "Issue comment gating and posting that enforces the substantive comment gate. Load via skill() when posting comments to issues or PRs. Also load when checking whether comment content is substantive enough to post. Comment posting is gated by the substantiveness check — non-substantive progress updates MUST NOT be posted to GitHub Issues. User phrases: post comment, check substantiveness, gate comment"
 license: MIT
 provenance: AI-generated
 ---

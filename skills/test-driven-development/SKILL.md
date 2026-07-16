@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: "Test-driven development skill that runs RED/GREEN cycles, writes behavioral enforcement tests, and generates regression test patterns. Dispatch when writing tests before implementation, or when adopting a test-first development approach. Also dispatch when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression test patterns. TDD is REQUIRED"
+description: "Test-driven development that runs RED/GREEN cycles, writes behavioral enforcement tests, and generates regression test patterns. Load via skill() when writing tests before implementation, or when adopting a test-first development approach. Also load when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression test patterns. TDD is REQUIRED. User phrases: write test, RED phase, GREEN phase, TDD, behavioral test, regression test"
 license: MIT
 compatibility: opencode
 ---

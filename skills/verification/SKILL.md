@@ -1,6 +1,6 @@
 ---
 name: verification
-description: "Claim verifier that produces PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts using appropriate modalities. Dispatch when verifying claims against evidence using appropriate modalities. Also dispatch when producing PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Verification is REQUIRED — distinct from verification-before-completion (completion gate) and verification-enforcement (content generation)"
+description: "Claim verifier that produces PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts using appropriate modalities. Load via skill() when verifying claims against evidence using appropriate modalities. Also load when producing PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Verification is REQUIRED. — distinct from verification-before-completion (completion gate) and verification-enforcement (content generation). User phrases: verify claim, check evidence, produce verdict, enforce honesty"
 license: MIT
 compatibility: opencode
 ---

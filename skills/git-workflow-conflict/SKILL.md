@@ -1,6 +1,6 @@
 ---
 name: git-workflow-conflict
-description: "Dispatch when the agent needs to resolve git conflicts during rebase, merge, or cherry-pick operations. Triggers when: agent determines a conflict resolution is needed, agent encounters a rebase conflict, agent needs to resolve merge conflicts."
+description: "Git conflict resolution during rebase, merge, or cherry-pick operations. Load via skill() when the agent needs to resolve git conflicts during rebase, merge, or cherry-pick operations. Conflict resolution MUST analyze intent before applying changes. User phrases: resolve conflict, rebase conflict, merge conflict, cherry-pick conflict"
 license: MIT
 provenance: AI-generated
 ---

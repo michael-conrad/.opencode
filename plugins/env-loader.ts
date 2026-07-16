@@ -22,8 +22,36 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 
 const ENV_FILE = ".env";
+
+const GIT_FALLBACK_PATHS = [
+  "/usr/bin/git",
+  "/usr/local/bin/git",
+  "/snap/bin/git",
+];
+
+function resolveGitPath(): string | null {
+  // Try `which git` first (works in normal PATH environments)
+  try {
+    const whichResult = execSync("which git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
+    if (whichResult) return whichResult;
+  } catch {
+    // `which` failed — fall through to common paths
+  }
+  for (const candidate of GIT_FALLBACK_PATHS) {
+    if (fs.existsSync(candidate)) {
+      try {
+        execSync(`"${candidate}" --version`, { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] });
+        return candidate;
+      } catch {
+        continue;
+      }
+    }
+  }
+  return null;
+}
 
 interface PluginDiagnostic {
   source: string;
@@ -259,11 +287,16 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
       }
 
       const GIT_CMD_TIMEOUT_MS = 5000;
+      const gitPath = resolveGitPath();
 
       async function gitCmd(cmd: string): Promise<{ exitCode: number; text: () => string } | null> {
+        if (!gitPath) {
+          console.error("[env-loader] git binary not found — skipping git operations");
+          return null;
+        }
         try {
           const result = await Promise.race([
-            $.nothrow()`${cmd}`,
+            $.nothrow()`${gitPath} ${cmd}`,
             new Promise<null>((_, reject) =>
               setTimeout(() => reject(new Error(`git command timed out: ${cmd}`)), GIT_CMD_TIMEOUT_MS)
             ),
@@ -275,7 +308,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
       }
 
       try {
-        const branchResult = await gitCmd("git branch --show-current");
+        const branchResult = await gitCmd("branch --show-current");
         if (branchResult && branchResult.exitCode === 0) {
           const branch = branchResult.text().trim();
           if (branch) {
@@ -283,7 +316,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
           }
         }
 
-        const remoteResult = await gitCmd("git remote get-url origin");
+        const remoteResult = await gitCmd("remote get-url origin");
         if (remoteResult && remoteResult.exitCode === 0) {
           const remoteUrl = remoteResult.text().trim();
 
@@ -314,7 +347,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
           }
         }
 
-        const nameResult = await gitCmd("git config user.name");
+        const nameResult = await gitCmd("config user.name");
         if (nameResult && nameResult.exitCode === 0) {
           const name = nameResult.text().trim();
           if (name) {
@@ -322,7 +355,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
           }
         }
 
-        const emailResult = await gitCmd("git config user.email");
+        const emailResult = await gitCmd("config user.email");
         if (emailResult && emailResult.exitCode === 0) {
           const email = emailResult.text().trim();
           if (email) {

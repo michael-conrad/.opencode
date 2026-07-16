@@ -1,6 +1,6 @@
 ---
 name: implementation-pipeline
-description: "Implementation pipeline that dispatches stages to clean-room sub-agents, manages state, and handles remediation routing. Dispatch when executing an approved plan through the implementation pipeline. Also dispatch when dispatching pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. MUST dispatch here after plan approval, before any file modification"
+description: "Implementation pipeline that dispatches stages to clean-room sub-agents, manages state, and handles remediation routing. Load via skill() when executing an approved plan through the implementation pipeline. Also load when dispatching pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. MUST dispatch here after plan approval, before any file modification. User phrases: execute pipeline, dispatch stages, manage state, handle remediation"
 license: MIT
 compatibility: opencode
 ---

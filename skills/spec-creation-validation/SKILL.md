@@ -1,6 +1,6 @@
 ---
 name: spec-creation-validation
-description: "Spec validation, creation, completion, and quality checking. Dispatch when creating a spec, validating spec content, running holistic self-checks, checking pipeline readiness, assessing risk, or verifying traceability. Also dispatch when running holistic self-checks on specs before completion. Triggers when: agent needs to create or validate a spec, agent needs to run a holistic self-check, agent needs to assess risk or verify traceability."
+description: "Spec validation, creation, completion, and quality checking. Load via skill() when creating a spec, validating spec content, running holistic self-checks, checking pipeline readiness, assessing risk, or verifying traceability. Also load when running holistic self-checks on specs before completion. Spec validation is REQUIRED before implementation. User phrases: validate spec, check quality, assess risk, verify traceability, holistic check"
 license: MIT
 provenance: AI-generated
 ---
