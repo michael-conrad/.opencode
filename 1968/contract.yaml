@@ -1,0 +1,46 @@
+# Contract for Phase 1: Gate watchdog behind isFirstTurn
+variables:
+  watchdog_gated:
+    type: bool
+    nullable: false
+  baseline_unchanged:
+    type: bool
+    nullable: false
+  behavioral_test_written:
+    type: bool
+    nullable: false
+  red_green_passed:
+    type: bool
+    nullable: false
+  sc1_pass:
+    type: bool
+    nullable: false
+  sc2_pass:
+    type: bool
+    nullable: false
+  sc3_pass:
+    type: bool
+    nullable: false
+  sc4_pass:
+    type: bool
+    nullable: false
+  sc5_pass:
+    type: bool
+    nullable: false
+
+preconditions:
+  - "z3.Not(watchdog_gated)"
+  - "baseline_unchanged"
+
+invariants:
+  - "baseline_unchanged"
+
+postconditions:
+  - "watchdog_gated"
+  - "sc1_pass"
+  - "sc2_pass"
+  - "sc3_pass"
+  - "sc4_pass"
+  - "sc5_pass"
+  - "red_green_passed"
+  - "behavioral_test_written"

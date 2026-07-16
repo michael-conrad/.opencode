@@ -1,0 +1,11 @@
+# State for Phase 1: Gate watchdog behind isFirstTurn
+# Initial state (before implementation)
+watchdog_gated: false
+baseline_unchanged: true
+behavioral_test_written: false
+red_green_passed: false
+sc1_pass: false
+sc2_pass: false
+sc3_pass: false
+sc4_pass: false
+sc5_pass: false
