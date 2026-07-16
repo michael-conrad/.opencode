@@ -1,0 +1,111 @@
+# Interface Compatibility — Spec #1961
+# All interfaces affected by the description pattern change.
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: interface-compatibility
+
+interfaces:
+  - id: IF-1
+    name: validate_req1()
+    file: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    signature: validate_req1(description: str) -> list[str]
+    change_required: false
+    description: >
+      Validates that description does not contain angle brackets (REQ-1).
+      The new pattern does not use angle brackets, so this function's
+      signature and logic remain unchanged.
+    compatibility: full
+
+  - id: IF-2
+    name: validate_sc_lint_001()
+    file: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    signature: validate_sc_lint_001(description: str) -> list[str]
+    change_required: false
+    description: >
+      Validates that description uses the required pattern. The function
+      signature (str -> list[str]) does not change. Only the internal
+      pattern-matching logic changes to accept "Load via skill() when".
+    compatibility: full
+    notes: >
+      Internal logic changes only. The function contract (input: str,
+      output: list[str] of violations) is preserved. Callers are unaffected.
+
+  - id: IF-3
+    name: loadSkillDescriptions()
+    file: .opencode/plugins/session-enforcement.ts
+    signature: loadSkillDescriptions(skillDirs: string[]): SkillDescription[]
+    change_required: false
+    description: >
+      Reads name and description from frontmatter, renders into
+      <available_skills> XML block. No changes needed — the runtime
+      renders descriptions verbatim regardless of content.
+    compatibility: full
+    notes: >
+      The runtime does not validate description content. Only the
+      comment at line 600 is updated.
+
+  - id: IF-4
+    name: init_skill.py template
+    file: .opencode/skills/skill-creator/scripts/init_skill.py
+    signature: (template string at line 29)
+    change_required: true
+    description: >
+      Template description string used when creating new skills. The
+      template format (YAML frontmatter with name, description, slash
+      fields) does not change. Only the description text content changes.
+    compatibility: full
+    notes: >
+      Template structure is preserved. Only the description value string
+      is updated from "Dispatch when" to "Load via skill() when".
+
+  - id: IF-5
+    name: routing-only-template.md documentation
+    file: .opencode/skills/skill-creator/reference/routing-only-template.md
+    signature: (documentation section at lines 18-28)
+    change_required: true
+    description: >
+      Documents the description format for skill cards. The documentation
+      structure (headings, sections) does not change. Only the example
+      text and pattern specification change.
+    compatibility: full
+    notes: >
+      Documentation format is preserved. Content updated to reflect new
+      pattern.
+
+  - id: IF-6
+    name: skill-card-spec.md documentation
+    file: .opencode/skills/skill-creator/reference/skill-card-spec.md
+    signature: (documentation section at lines 81-84)
+    change_required: true
+    description: >
+      Reference specification for skill card format. The specification
+      structure does not change. Only the description format text changes.
+    compatibility: full
+    notes: >
+      Specification format is preserved. Content updated to reflect new
+      pattern.
+
+  - id: IF-7
+    name: SKILL.md frontmatter format
+    file: .opencode/skills/*/SKILL.md (60 files)
+    signature: (YAML frontmatter: name, description, slash)
+    change_required: true
+    description: >
+      The `description` field value changes from "Dispatch when" pattern
+      to "Load via skill() when" pattern. The frontmatter structure
+      (name, description, slash fields) does not change.
+    compatibility: full
+    notes: >
+      Frontmatter structure is preserved. Only the description value
+      string changes. No new frontmatter fields are added.
+
+summary:
+  total_interfaces: 7
+  changes_required: 4
+  changes_not_required: 3
+  breaking_changes: 0
+  notes: >
+    All interface signatures remain unchanged. Only internal logic
+    (validate_sc_lint_001) and content strings (templates, docs,
+    descriptions) are updated. No callers are affected.

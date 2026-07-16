@@ -1,0 +1,230 @@
+# Testability Assessment — Spec #1961
+# Test strategy mapped to each success criterion.
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: testability-assessment
+
+overall_assessment:
+  testable: true
+  total_scs: 13
+  testable_scs: 13
+  untestable_scs: 0
+  notes: >
+    All 13 SCs are testable. 9 SCs use string/structural evidence (grep
+    or validate exit code), 4 SCs use behavioral evidence (opencode run
+    or bash test execution). No SC requires manual inspection.
+
+test_strategy:
+  - sc_id: SC-1
+    criterion: All 60 SKILL.md descriptions use the new agent-intent pattern
+    evidence_type: string
+    verification_method: grep
+    command: grep -L 'User phrases:' .opencode/skills/*/SKILL.md
+    expected_result: empty output
+    remediation: Rewrite any file still using old pattern
+    phase: Phase 2
+    testability: trivial
+    notes: >
+      Single grep command. Fast, deterministic, no model dependency.
+      Can be run after each batch of rewrites.
+
+  - sc_id: SC-2
+    criterion: No SKILL.md description starts with "Use when"
+    evidence_type: string
+    verification_method: grep
+    command: grep -r 'description: "Use when' .opencode/skills/*/SKILL.md
+    expected_result: empty output
+    remediation: Rewrite any file still using old pattern
+    phase: Phase 2
+    testability: trivial
+    notes: >
+      Single grep command. Fast, deterministic, no model dependency.
+
+  - sc_id: SC-3
+    criterion: All descriptions include "User phrases:" suffix
+    evidence_type: string
+    verification_method: grep
+    command: grep -L 'User phrases:' .opencode/skills/*/SKILL.md
+    expected_result: empty output
+    remediation: Add missing User phrases section
+    phase: Phase 2
+    testability: trivial
+    notes: >
+      Same command as SC-1. Combined verification.
+
+  - sc_id: SC-4
+    criterion: validate_skill_cards.py passes on all 60 files with new pattern
+    evidence_type: behavioral
+    verification_method: uv run validate
+    command: uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    expected_result: exit code 0
+    remediation: Fix validation failures
+    phase: Phase 1
+    testability: automated
+    notes: >
+      Runs the actual validation script. Tests both the validator update
+      (Phase 1) and the description rewrites (Phase 2). Must be run after
+      each batch during Phase 2.
+
+  - sc_id: SC-5
+    criterion: session-enforcement.ts accepts new description pattern without warnings
+    evidence_type: behavioral
+    verification_method: opencode run
+    command: with-test-home opencode run "list skills"
+    expected_result: >
+      No stderr lines matching Warning:|error parsing frontmatter from
+      session-enforcement.ts
+    remediation: Fix session-enforcement.ts validation
+    phase: Phase 1
+    testability: automated
+    notes: >
+      Requires opencode CLI and test home isolation. Tests that the
+      runtime does not produce frontmatter warnings for the new pattern.
+      Model-dependent — may require model availability.
+
+  - sc_id: SC-6
+    criterion: init_skill.py template uses new description pattern
+    evidence_type: string
+    verification_method: grep
+    command: grep 'Load via skill()' .opencode/skills/skill-creator/scripts/init_skill.py
+    expected_result: non-empty match
+    remediation: Update template
+    phase: Phase 1
+    testability: trivial
+    notes: >
+      Single grep command. Fast, deterministic, no model dependency.
+
+  - sc_id: SC-7
+    criterion: routing-only-template.md documents new description pattern
+    evidence_type: string
+    verification_method: grep
+    command: grep 'Load via skill()' .opencode/skills/skill-creator/reference/routing-only-template.md
+    expected_result: non-empty match
+    remediation: Update template docs
+    phase: Phase 1
+    testability: trivial
+    notes: >
+      Single grep command. Fast, deterministic, no model dependency.
+
+  - sc_id: SC-8
+    criterion: skill-card-spec.md documents new description pattern
+    evidence_type: string
+    verification_method: grep
+    command: grep 'Load via skill()' .opencode/skills/skill-creator/reference/skill-card-spec.md
+    expected_result: non-empty match
+    remediation: Update reference docs
+    phase: Phase 1
+    testability: trivial
+    notes: >
+      Single grep command. Fast, deterministic, no model dependency.
+
+  - sc_id: SC-9
+    criterion: Behavioral test exists and verifies agent dispatches skills correctly
+    evidence_type: behavioral
+    verification_method: bash test execution
+    command: bash .opencode/tests-v2/behaviors/skill-description-pattern.sh
+    expected_result: exit code 0
+    remediation: Fix test or descriptions
+    phase: Phase 0
+    testability: automated
+    notes: >
+      Requires opencode CLI and model availability. The test must assert
+      that the agent calls skill() for a matching task description and
+      does NOT call skill() for a non-matching task description. Uses
+      with-test-home wrapper for isolation.
+
+  - sc_id: SC-10
+    criterion: No description exceeds 1024 characters
+    evidence_type: string
+    verification_method: validate SC-LINT-004
+    command: uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    expected_result: SC-LINT-004 passes for all files
+    remediation: Trim description to comply
+    phase: Phase 2
+    testability: automated
+    notes: >
+      Validated as part of the full validation run. No separate command
+      needed.
+
+  - sc_id: SC-11
+    criterion: All descriptions include mandatory keyword
+    evidence_type: string
+    verification_method: validate SC-LINT-002
+    command: uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    expected_result: SC-LINT-002 passes for all files
+    remediation: Add enforcement keyword
+    phase: Phase 2
+    testability: automated
+    notes: >
+      Validated as part of the full validation run. No separate command
+      needed.
+
+  - sc_id: SC-12
+    criterion: No SC may be weakened, deferred, or reclassified
+    evidence_type: behavioral
+    verification_method: audit
+    command: >
+      skill({name: "audit"}) — audit confirms all 13 SCs retain their
+      declared evidence types and are fully implemented with matching
+      evidence artifacts
+    expected_result: PASS — all SCs retain original evidence types
+    remediation: Restore original evidence type and implement
+    phase: Phase 3
+    testability: automated
+    notes: >
+      Requires audit skill dispatch. The auditor verifies that no SC
+      has been weakened, deferred, or reclassified to a lower evidence
+      type. This is a meta-SC that enforces the anti-lobotomization
+      constraint.
+
+  - sc_id: SC-13
+    criterion: Behavioral test written before implementation, RED then GREEN
+    evidence_type: behavioral
+    verification_method: bash test execution (RED/GREEN cycle)
+    command: >
+      Phase 0: bash .opencode/tests-v2/behaviors/skill-description-pattern.sh
+      must FAIL (exit non-zero) before any description changes.
+      Phase 3: same command must PASS (exit 0) after all changes.
+    expected_result: >
+      Phase 0: FAIL (RED) — test fails because descriptions still use
+      old pattern.
+      Phase 3: PASS (GREEN) — test passes because descriptions use
+      new pattern.
+    remediation: Write missing tests
+    phase: Phase 0
+    testability: automated
+    notes: >
+      Same test file as SC-9. The RED/GREEN cycle is verified by running
+      the test at two different points: before any changes (must fail)
+      and after all changes (must pass).
+
+evidence_type_summary:
+  string: 9
+  behavioral: 4
+  total: 13
+
+test_execution_summary:
+  grep_commands: 6
+  validate_commands: 1
+  opencode_run_commands: 1
+  bash_test_commands: 2
+  audit_dispatches: 1
+
+risks:
+  - risk: >
+      Behavioral tests (SC-5, SC-9, SC-13) require opencode CLI and
+      model availability. If the model is unavailable, these tests
+      cannot execute.
+    mitigation: >
+      Run with-test-home wrapper for isolation. Verify model availability
+      with opencode models before running. Increase timeout if needed.
+
+  - risk: >
+      SC-12 (audit) requires the audit skill to be functional. If the
+      audit skill itself has a defective description, the audit may
+      produce incorrect results.
+    mitigation: >
+      Audit the audit skill's description first (it is one of the 60
+      files being rewritten). Run the audit as a final verification
+      step after all other SCs pass.

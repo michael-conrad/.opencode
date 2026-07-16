@@ -1,0 +1,111 @@
+# Code Path Inventory — Spec #1961
+# All code paths affected by the description pattern change.
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: code-path-inventory
+
+code_paths:
+  - id: CP-1
+    file: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    lines: 143-177
+    function: validate_req1()
+    purpose: >
+      Validates that the description does not contain angle brackets (REQ-1).
+      Must continue to work unchanged — the new pattern does not use angle
+      brackets.
+    change_required: false
+    notes: No change needed. REQ-1 validation is pattern-agnostic.
+
+  - id: CP-2
+    file: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    lines: 210-238
+    function: validate_sc_lint_001()
+    purpose: >
+      Validates that the description uses the "Dispatch when" pattern
+      (SC-LINT-001). This is the primary validation gate that must be
+      updated to accept "Load via skill() when".
+    change_required: true
+    change: >
+      Update regex/pattern matching to accept "Load via skill() when"
+      alongside "Dispatch when" during transition (Phases 1-2), then
+      require "Load via skill() when" exclusively (Phase 3).
+    current_pattern: "Dispatch when"
+    new_pattern: "Load via skill() when"
+
+  - id: CP-3
+    file: .opencode/plugins/session-enforcement.ts
+    line: 600
+    function: (inline comment)
+    purpose: >
+      Comment documenting the description pattern convention. Must be
+      updated to reference the new "Load via skill() when" pattern.
+    change_required: true
+    change: >
+      Update comment text from "Dispatch when" to "Load via skill() when".
+    notes: Comment-only change. No runtime behavior impact.
+
+  - id: CP-4
+    file: .opencode/skills/skill-creator/scripts/init_skill.py
+    line: 29
+    function: (template string)
+    purpose: >
+      Template description used when creating new skills. Must use the
+      new "Load via skill() when" pattern so new skills follow the
+      convention.
+    change_required: true
+    change: >
+      Replace "Dispatch when" template text with "Load via skill() when".
+    notes: Template content only. No structural change to the template system.
+
+  - id: CP-5
+    file: .opencode/skills/skill-creator/reference/routing-only-template.md
+    lines: 18-28
+    function: (documentation section)
+    purpose: >
+      Documents the description format for skill cards. Must be updated
+      to show the new "Load via skill() when" pattern.
+    change_required: true
+    change: >
+      Update example and specification text to use "Load via skill() when".
+    notes: Documentation only. No behavioral impact.
+
+  - id: CP-6
+    file: .opencode/skills/skill-creator/reference/skill-card-spec.md
+    lines: 81-84
+    function: (documentation section)
+    purpose: >
+      Reference specification for skill card format. Must be updated to
+      document the new description pattern.
+    change_required: true
+    change: >
+      Update description format specification to use "Load via skill() when".
+    notes: Documentation only. No behavioral impact.
+
+  - id: CP-7
+    file: .opencode/tests-v2/behaviors/skill-description-pattern.sh
+    lines: 1-end
+    function: (new behavioral test)
+    purpose: >
+      Behavioral enforcement test verifying agent dispatches skills
+      correctly with new descriptions. Must assert skill() is called
+      for matching tasks and NOT called for non-matching tasks.
+    change_required: true
+    change: >
+      New file created in Phase 0. Must fail (RED) before any description
+      changes, pass (GREEN) after all changes.
+    notes: Behavioral test — uses opencode run, not grep.
+
+  - id: CP-8
+    file: .opencode/skills/*/SKILL.md (60 files)
+    lines: (description frontmatter field)
+    function: (skill card description)
+    purpose: >
+      The `description` field rendered verbatim into <available_skills>
+      XML block. Must be rewritten from "Dispatch when" to "Load via
+      skill() when" pattern.
+    change_required: true
+    change: >
+      Mechanical text transformation: agent-intent statement + load
+      conditions + enforcement + user phrases.
+    notes: Content-only. No frontmatter field changes beyond description.

@@ -1,0 +1,88 @@
+# Blast Radius Analysis — Spec #1961
+# Rewrite SKILL.md descriptions from "Dispatch when" to "Load via skill() when"
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: blast-radius
+
+affected_files:
+  description: >
+    60 SKILL.md description frontmatter fields, 5 tooling/validation files,
+    1 behavioral enforcement test file. No runtime code changes.
+  counts:
+    skill_md_files: 60
+    tooling_files: 5
+    behavioral_test_files: 1
+    runtime_files: 0
+
+skill_md_files:
+  pattern: .opencode/skills/*/SKILL.md and .opencode/skills/*/platforms/*/SKILL.md
+  count: 60
+  change_type: content-only
+  field: description
+  scope: >
+    Only the `description` frontmatter field is modified. No changes to
+    `name`, `slash`, or any other frontmatter field. No changes to task
+    card files, guideline files, or runtime code.
+
+tooling_files:
+  - path: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    change_type: validation logic
+    functions_affected:
+      - validate_req1()
+      - validate_sc_lint_001()
+    scope: >
+      Accept both "Dispatch when" and "Load via skill() when" during
+      transition (Phases 1-2), then require "Load via skill() when"
+      exclusively (Phase 3).
+
+  - path: .opencode/plugins/session-enforcement.ts
+    change_type: comment-only
+    location: line 600
+    scope: >
+      Update inline comment to reference new description pattern.
+      No runtime behavior change.
+
+  - path: .opencode/skills/skill-creator/scripts/init_skill.py
+    change_type: template content
+    location: line 29
+    scope: >
+      Update template description to use "Load via skill() when" pattern.
+      No structural change to the template system.
+
+  - path: .opencode/skills/skill-creator/reference/routing-only-template.md
+    change_type: documentation
+    location: lines 18-28
+    scope: >
+      Update description format documentation to reflect new pattern.
+
+  - path: .opencode/skills/skill-creator/reference/skill-card-spec.md
+    change_type: documentation
+    location: lines 81-84
+    scope: >
+      Update description format documentation to reflect new pattern.
+
+behavioral_test_file:
+  path: .opencode/tests-v2/behaviors/skill-description-pattern.sh
+  change_type: new file
+  scope: >
+    Created in Phase 0 as prerequisite. Verifies agent dispatches skills
+    correctly with new descriptions. Must fail (RED) before any changes,
+    pass (GREEN) after all changes.
+
+dependents:
+  description: >
+    Every skill's Trigger Dispatch Table references the description for
+    routing decisions. The description is rendered verbatim into the
+    <available_skills> XML block in the system prompt. The LLM reads it
+    and decides whether to call skill(). No code changes to runtime.
+  runtime_impact: none
+  trigger_dispatch_tables: all 60 skills
+  system_prompt_rendering: verbatim (no change to rendering logic)
+
+no_impact:
+  - Task card files (299 files) — use ## Purpose headings, not YAML frontmatter
+  - Guideline files (31 files) — use trigger_on frontmatter, not description
+  - Runtime code (packages/core/src/skill.ts) — no changes
+  - session-enforcement.ts runtime logic — comment-only change
+  - Any .py, .ts, .sh files outside the 5 listed tooling files

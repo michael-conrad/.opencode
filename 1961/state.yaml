@@ -1,0 +1,5 @@
+# State for #1961 — initial state (pre-implementation)
+phase_0: no_test
+phase_1: old_pattern_only
+phase_2: old_descriptions
+phase_3: implemented

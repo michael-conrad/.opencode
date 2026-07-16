@@ -1,0 +1,96 @@
+# Cross-Cutting Matrix — Spec #1961
+# Concerns that span multiple phases and require coordinated attention.
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: cross-cutting-matrix
+
+cross_cutting_concerns:
+  - id: XC-1
+    name: validation-consistency
+    description: >
+      All 60 SKILL.md files must pass validation after rewrite. The
+      validator must accept the new pattern before descriptions are
+      rewritten, and must reject the old pattern after the transition
+      period ends.
+    affected_phases: [Phase 1, Phase 2, Phase 3]
+    affected_concerns: [C-1, C-2]
+    coordination_requirement: >
+      Validator update (Phase 1) must precede description rewrites
+      (Phase 2). If descriptions are rewritten before the validator
+      accepts the new pattern, all 60 files will fail validation.
+    verification: >
+      Run validate_skill_cards.py after each batch of description
+      rewrites. Must exit 0 throughout Phase 2.
+
+  - id: XC-2
+    name: transition-period
+    description: >
+      During the transition period (Phases 1-2), the validator must
+      accept both "Dispatch when" and "Load via skill() when" patterns.
+      After Phase 3, the validator must require "Load via skill() when"
+      exclusively.
+    affected_phases: [Phase 1, Phase 2, Phase 3]
+    affected_concerns: [C-1, C-2]
+    transition_states:
+      - phase: Phase 1
+        validator_accepts: [old, new]
+        description_files: old
+        status: "Validator updated, descriptions not yet rewritten"
+      - phase: Phase 2
+        validator_accepts: [old, new]
+        description_files: mixed (batch-by-batch)
+        status: "Descriptions being rewritten incrementally"
+      - phase: Phase 3
+        validator_accepts: [new]
+        description_files: new
+        status: "All descriptions rewritten, validator finalized"
+    risk: >
+      If the validator is finalized to require "Load via skill() when"
+      before all 60 descriptions are rewritten, partial rewrites will
+      fail validation.
+
+  - id: XC-3
+    name: behavioral-test-coverage
+    description: >
+      The behavioral enforcement test must cover both positive cases
+      (agent calls skill() for matching descriptions) and negative cases
+      (agent does NOT call skill() for non-matching descriptions). The
+      test must be created in Phase 0 and pass only after all changes
+      are complete.
+    affected_phases: [Phase 0, Phase 3]
+    affected_concerns: [C-5]
+    coordination_requirement: >
+      Test must be created before any description changes (Phase 0).
+      Test must fail (RED) before changes, pass (GREEN) after changes.
+    verification: >
+      bash .opencode/tests-v2/behaviors/skill-description-pattern.sh
+      exits 0 in Phase 3.
+
+  - id: XC-4
+    name: documentation-consistency
+    description: >
+      All 3 documentation/template files (init_skill.py,
+      routing-only-template.md, skill-card-spec.md) must consistently
+      reference the new pattern. Inconsistency between these files
+      would cause confusion for future skill creators.
+    affected_phases: [Phase 1]
+    affected_concerns: [C-3, C-4]
+    coordination_requirement: >
+      All 3 files should be updated in a single batch to ensure
+      consistency. No partial documentation updates.
+    verification: >
+      grep 'Load via skill()' on all 3 files returns matches.
+
+  - id: XC-5
+    name: session-enforcement-comment-consistency
+    description: >
+      The comment in session-enforcement.ts line 600 must reference the
+      same pattern as the validator and documentation. Inconsistency
+      would mislead future developers reading the source.
+    affected_phases: [Phase 1]
+    affected_concerns: [C-6]
+    coordination_requirement: >
+      Comment update should be coordinated with validator update to
+      ensure consistent terminology.
+    verification: Visual inspection.

@@ -1,0 +1,145 @@
+# State Analysis — Spec #1961
+# Current state, target state, and transition state for the description pattern change.
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: state-analysis
+
+current_state:
+  description: >
+    All 60 SKILL.md descriptions use the "Dispatch when" pattern.
+    The validator (validate_skill_cards.py) enforces "Dispatch when"
+    via validate_sc_lint_001(). Templates and documentation reference
+    "Dispatch when".
+  skill_md_descriptions:
+    pattern: "Dispatch when"
+    count: 60
+    status: all_current
+  validator:
+    file: validate_skill_cards.py
+    accepted_patterns: ["Dispatch when"]
+    rejected_patterns: ["Load via skill() when"]
+    status: enforcing_old
+  templates:
+    - file: init_skill.py
+      pattern: "Dispatch when"
+      status: current
+    - file: routing-only-template.md
+      pattern: "Dispatch when"
+      status: current
+    - file: skill-card-spec.md
+      pattern: "Dispatch when"
+      status: current
+  comments:
+    - file: session-enforcement.ts
+      line: 600
+      pattern: "Dispatch when"
+      status: current
+  behavioral_tests:
+    - file: skill-description-pattern.sh
+      status: does_not_exist
+
+target_state:
+  description: >
+    All 60 SKILL.md descriptions use the "Load via skill() when" pattern.
+    The validator enforces "Load via skill() when" exclusively. Templates
+    and documentation reference "Load via skill() when". Behavioral test
+    exists and passes.
+  skill_md_descriptions:
+    pattern: "Load via skill() when"
+    count: 60
+    status: all_new
+  validator:
+    file: validate_skill_cards.py
+    accepted_patterns: ["Load via skill() when"]
+    rejected_patterns: ["Dispatch when"]
+    status: enforcing_new
+  templates:
+    - file: init_skill.py
+      pattern: "Load via skill() when"
+      status: updated
+    - file: routing-only-template.md
+      pattern: "Load via skill() when"
+      status: updated
+    - file: skill-card-spec.md
+      pattern: "Load via skill() when"
+      status: updated
+  comments:
+    - file: session-enforcement.ts
+      line: 600
+      pattern: "Load via skill() when"
+      status: updated
+  behavioral_tests:
+    - file: skill-description-pattern.sh
+      status: exists_and_passing
+
+transition_state:
+  description: >
+    During Phases 1-2, the validator accepts both "Dispatch when" and
+    "Load via skill() when" patterns. Descriptions are rewritten
+    incrementally (batch by batch). Templates and documentation are
+    updated in Phase 1 before description rewrites begin.
+  duration: Phases 1-2
+  validator_accepted_patterns: ["Dispatch when", "Load via skill() when"]
+  description_file_states:
+    - phase: Phase 1 start
+      old_pattern_count: 60
+      new_pattern_count: 0
+      status: all_old
+    - phase: Phase 2 (batch 1)
+      old_pattern_count: 50
+      new_pattern_count: 10
+      status: mixed
+    - phase: Phase 2 (batch 2)
+      old_pattern_count: 40
+      new_pattern_count: 20
+      status: mixed
+    - phase: Phase 2 (batch 3)
+      old_pattern_count: 20
+      new_pattern_count: 40
+      status: mixed
+    - phase: Phase 2 (batch 4)
+      old_pattern_count: 0
+      new_pattern_count: 60
+      status: all_new
+  template_states:
+    - phase: Phase 1
+      status: updated_to_new
+    - phase: Phase 2
+      status: updated_to_new
+  behavioral_test_states:
+    - phase: Phase 0
+      status: exists_and_failing (RED)
+    - phase: Phase 1
+      status: exists_and_failing (RED)
+    - phase: Phase 2
+      status: exists_and_passing (GREEN) — after all descriptions rewritten
+    - phase: Phase 3
+      status: exists_and_passing (GREEN)
+
+state_transitions:
+  - from: current
+    to: transition
+    trigger: Phase 1 — validator updated to accept both patterns
+    condition: validate_sc_lint_001() updated
+
+  - from: transition
+    to: target
+    trigger: Phase 3 — validator updated to require new pattern exclusively
+    condition: All 60 descriptions rewritten, behavioral test passing
+
+risks:
+  - risk: >
+      If the validator is finalized to require "Load via skill() when"
+      before all 60 descriptions are rewritten, partial rewrites will
+      fail validation.
+    mitigation: >
+      Keep validator in transition mode (accept both) until Phase 3.
+      Only finalize after all descriptions are confirmed rewritten.
+
+  - risk: >
+      If descriptions are rewritten before the validator accepts the
+      new pattern, all 60 files will fail validation.
+    mitigation: >
+      Phase ordering is enforced: Phase 1 (validator update) must
+      complete before Phase 2 (description rewrites) begins.

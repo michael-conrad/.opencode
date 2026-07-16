@@ -1,0 +1,20 @@
+handoff:
+  spec_issue: 1960
+  spec_title: "[SPEC-FIX] Plugins fail under snap — bun cannot find git binary"
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1960
+  classification: single-task
+  phases:
+    - id: phase-1
+      name: "Git path resolution in both plugins"
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
+  artifacts:
+    - path: .opencode/.issues/1960/spec.md
+      type: spec_body
+    - path: .opencode/.issues/1960/sc-summary.yaml
+      type: sc_coverage
+    - path: .opencode/.issues/1960/verification-consistency-contract.yaml
+      type: verification_contract
+    - path: .opencode/.issues/1960/revision-re-entry-contract.yaml
+      type: revision_contract
+    - path: tmp/1960/lifecycle.yaml
+      type: lifecycle

@@ -1,0 +1,41 @@
+# Contract for #1961 — SKILL.md Description Rewrite
+variables:
+  - name: phase_0
+    type: string
+    domain: [no_test, test_created, red_confirmed]
+    nullable: false
+  - name: phase_1
+    type: string
+    domain: [old_pattern_only, dual_pattern_accepted]
+    nullable: false
+  - name: phase_2
+    type: string
+    domain: [old_descriptions, new_descriptions]
+    nullable: false
+  - name: phase_3
+    type: string
+    domain: [implemented, verified]
+    nullable: false
+
+preconditions:
+  - "phase_0 == StringVal('no_test')"
+  - "phase_1 == StringVal('old_pattern_only')"
+  - "phase_2 == StringVal('old_descriptions')"
+  - "phase_3 == StringVal('implemented')"
+
+invariants:
+  - "Implies(phase_0 == StringVal('red_confirmed'), phase_1 == StringVal('old_pattern_only'))"
+  - "Implies(phase_1 == StringVal('dual_pattern_accepted'), phase_0 == StringVal('red_confirmed'))"
+  - "Implies(phase_2 == StringVal('new_descriptions'), phase_1 == StringVal('dual_pattern_accepted'))"
+  - "Implies(phase_3 == StringVal('verified'), phase_2 == StringVal('new_descriptions'))"
+  - "Implies(phase_0 == StringVal('test_created'), phase_0 == StringVal('no_test'))"
+  - "Implies(phase_0 == StringVal('red_confirmed'), phase_0 == StringVal('test_created'))"
+  - "Implies(phase_1 == StringVal('dual_pattern_accepted'), phase_1 == StringVal('old_pattern_only'))"
+  - "Implies(phase_2 == StringVal('new_descriptions'), phase_2 == StringVal('old_descriptions'))"
+  - "Implies(phase_3 == StringVal('verified'), phase_3 == StringVal('implemented'))"
+
+postconditions:
+  - "phase_0 == StringVal('red_confirmed')"
+  - "phase_1 == StringVal('dual_pattern_accepted')"
+  - "phase_2 == StringVal('new_descriptions')"
+  - "phase_3 == StringVal('verified')"

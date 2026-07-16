@@ -1,0 +1,40 @@
+# Dependency contract for issue 1964 — Submodule Hook Installation
+variables:
+  - name: hooks_installed_parent
+    type: boolean
+    domain: [true, false]
+    nullable: false
+  - name: submodule_paths_discovered
+    type: boolean
+    domain: [true, false]
+    nullable: false
+  - name: hooks_installed_submodules
+    type: boolean
+    domain: [true, false]
+    nullable: false
+  - name: idempotent
+    type: boolean
+    domain: [true, false]
+    nullable: false
+
+preconditions:
+  - name: pre_hooks_installed_parent
+    expr: "Not(hooks_installed_parent)"
+  - name: pre_submodule_paths_discovered
+    expr: "Not(submodule_paths_discovered)"
+  - name: pre_hooks_installed_submodules
+    expr: "Not(hooks_installed_submodules)"
+  - name: pre_idempotent
+    expr: "Not(idempotent)"
+
+invariants:
+  - name: inv_hooks_installed_parent_before_submodules
+    expr: "Implies(hooks_installed_submodules, hooks_installed_parent)"
+  - name: inv_discovery_before_install
+    expr: "Implies(hooks_installed_submodules, submodule_paths_discovered)"
+
+postconditions:
+  - name: post_all_hooks_installed
+    expr: "And(hooks_installed_parent, submodule_paths_discovered, hooks_installed_submodules)"
+  - name: post_idempotent_safe
+    expr: "idempotent"

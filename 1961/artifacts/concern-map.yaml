@@ -1,0 +1,116 @@
+# Concern Map — Spec #1961
+# Each phase maps to exactly one concern. Concerns are independent and
+# can be verified in isolation.
+---
+spec: 1961
+generated_at: 2026-07-16
+analysis_type: concern-map
+
+concerns:
+  - id: C-1
+    name: description-text
+    description: >
+      Rewrite the `description` frontmatter field in all 60 SKILL.md files
+      from "Dispatch when" pattern to "Load via skill() when" pattern.
+    affected_files: 60
+    file_pattern: .opencode/skills/*/SKILL.md, .opencode/skills/*/platforms/*/SKILL.md
+    change_type: mechanical text transformation
+    phase: Phase 2
+    verification: >
+      grep -L 'User phrases:' returns empty (SC-1),
+      grep -r 'description: "Use when' returns empty (SC-2),
+      grep -L 'User phrases:' returns empty (SC-3),
+      validate_skill_cards.py exits 0 (SC-4, SC-10, SC-11)
+    independence: >
+      Fully independent of other concerns. Descriptions can be rewritten
+      in any order. No cross-file dependencies between SKILL.md files.
+
+  - id: C-2
+    name: validation-logic
+    description: >
+      Update validate_skill_cards.py to accept "Load via skill() when"
+      pattern alongside "Dispatch when" during transition, then require
+      "Load via skill() when" exclusively after Phase 3.
+    affected_files: 1
+    file_pattern: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    change_type: validation rule update
+    phase: Phase 1
+    functions_affected:
+      - validate_req1()
+      - validate_sc_lint_001()
+    verification: >
+      uv run validate_skill_cards.py exits 0 on all 60 files (SC-4)
+    independence: >
+      Must be updated before Phase 2 to prevent false validation failures.
+      After Phase 3, must be updated again to require new pattern exclusively.
+
+  - id: C-3
+    name: template
+    description: >
+      Update init_skill.py template to use "Load via skill() when" pattern
+      for new skill descriptions.
+    affected_files: 1
+    file_pattern: .opencode/skills/skill-creator/scripts/init_skill.py
+    change_type: template content update
+    phase: Phase 1
+    location: line 29
+    verification: >
+      grep 'Load via skill()' init_skill.py matches (SC-6)
+    independence: >
+      Independent of other concerns. Template change does not affect
+      existing descriptions.
+
+  - id: C-4
+    name: documentation
+    description: >
+      Update routing-only-template.md and skill-card-spec.md to document
+      the new description pattern.
+    affected_files: 2
+    file_pattern: >
+      .opencode/skills/skill-creator/reference/routing-only-template.md,
+      .opencode/skills/skill-creator/reference/skill-card-spec.md
+    change_type: documentation update
+    phase: Phase 1
+    verification: >
+      grep 'Load via skill()' on both files matches (SC-7, SC-8)
+    independence: >
+      Independent of other concerns. Documentation changes do not affect
+      validation or descriptions.
+
+  - id: C-5
+    name: behavioral-testing
+    description: >
+      Create behavioral enforcement test file that verifies agent dispatches
+      skills correctly with new descriptions. Confirm RED state before any
+      description changes, GREEN state after all changes.
+    affected_files: 1
+    file_pattern: .opencode/tests-v2/behaviors/skill-description-pattern.sh
+    change_type: new file
+    phase: Phase 0
+    verification: >
+      bash test exits 0 (SC-9), RED before changes (SC-13)
+    independence: >
+      Must be created before any other changes (Phase 0 prerequisite).
+      Test file is independent of description content — it tests agent
+      behavior, not text patterns.
+
+  - id: C-6
+    name: session-enforcement-comment
+    description: >
+      Update inline comment in session-enforcement.ts line 600 to reference
+      the new description pattern.
+    affected_files: 1
+    file_pattern: .opencode/plugins/session-enforcement.ts
+    change_type: comment-only
+    phase: Phase 1
+    location: line 600
+    verification: >
+      Visual inspection confirms comment references new pattern
+    independence: >
+      Fully independent. Comment change has no behavioral effect.
+
+phase_to_concern_map:
+  Phase 0: [C-5]                    # Behavioral testing (prerequisite)
+  Phase 1: [C-2, C-3, C-4, C-6]    # Tooling updates (validation, template, docs, comment)
+  Phase 2: [C-1]                    # Description rewrites (60 files)
+  Phase 3: [C-2]                    # Finalize validator (require new pattern exclusively)
