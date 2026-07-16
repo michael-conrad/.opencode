@@ -1,0 +1,24 @@
+contract:
+  name: revision-re-entry-1960
+  description: "Revision re-entry protocol for SPEC-FIX #1960"
+  cascade_triggers:
+    - scope: minor
+      description: "Non-substantive changes (typo fixes, formatting, evidence type corrections)"
+      action: "Update spec body, no re-authorization needed"
+      affected_artifacts:
+        - spec.md
+    - scope: moderate
+      description: "Changes to SC wording, verification methods, or implementation approach"
+      action: "Update spec body + sc-summary.yaml + verification-consistency-contract.yaml; re-authorization required"
+      affected_artifacts:
+        - spec.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+    - scope: major
+      description: "Changes to SC count, scope, or affected files"
+      action: "Full re-spec: update all artifacts; re-authorization required; plan must be re-created"
+      affected_artifacts:
+        - spec.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+        - plan.md

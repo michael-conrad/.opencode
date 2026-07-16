@@ -1,0 +1,32 @@
+contract:
+  name: verification-consistency-1960
+  description: "Verification consistency contract for SPEC-FIX #1960 — git path resolution in plugins"
+  variables:
+    - name: sc_1_passes
+      type: boolean
+      description: "SC-1: git path resolution with fallback paths present in both plugins"
+    - name: sc_2_passes
+      type: boolean
+      description: "SC-2: no bare execSync git calls in session-enforcement.ts"
+    - name: sc_3_passes
+      type: boolean
+      description: "SC-3: no bare git calls in env-loader.ts gitCmd"
+    - name: sc_4_passes
+      type: boolean
+      description: "SC-4: graceful degradation on missing git"
+    - name: sc_5_passes
+      type: boolean
+      description: "SC-5: no regression in normal environments"
+  constraints:
+    - "sc_1_passes == true"
+    - "sc_2_passes == true"
+    - "sc_3_passes == true"
+    - "sc_4_passes == true"
+    - "sc_5_passes == true"
+  compliance_matrix:
+    - criterion: "All string SCs pass before implementation"
+      check: "sc_1_passes and sc_2_passes and sc_3_passes"
+    - criterion: "All behavioral SCs pass after implementation"
+      check: "sc_4_passes and sc_5_passes"
+    - criterion: "All SCs pass for completion"
+      check: "sc_1_passes and sc_2_passes and sc_3_passes and sc_4_passes and sc_5_passes"

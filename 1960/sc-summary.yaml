@@ -1,0 +1,40 @@
+sc_coverage:
+  total: 5
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1960
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
+      evidence_types: [behavioral, string]
+  cross_cutting:
+    sc_ids: [SC-5]
+    verified_in_phase: phase-1
+  scs:
+    - id: SC-1
+      description: "Both plugins resolve git path at startup using Bun.which with fallback to common full paths"
+      evidence_type: string
+      verification_gate: pre-approval-gate
+      plan_phase: phase-1
+    - id: SC-2
+      description: "All execSync git calls in session-enforcement.ts use the resolved path"
+      evidence_type: string
+      verification_gate: pre-approval-gate
+      plan_phase: phase-1
+    - id: SC-3
+      description: "All $.nothrow() git calls in env-loader.ts use the resolved path"
+      evidence_type: string
+      verification_gate: pre-approval-gate
+      plan_phase: phase-1
+    - id: SC-4
+      description: "Graceful fallback when no git binary is found: no crash, diagnostic logged"
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      plan_phase: phase-1
+    - id: SC-5
+      description: "Plugin loads without command not found errors in normal environments"
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      plan_phase: phase-1
