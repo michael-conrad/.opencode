@@ -3,6 +3,138 @@ status: open
 labels:
 - spec-fix
 - plugin
-body: ''
+body: "> **Spec Reference:** This is a SPEC-FIX for the `session-enforcement.ts` and\
+  \ `env-loader.ts` plugins. After approval, invoke `writing-plans` to create `.opencode/.issues/1960/plan.md`\
+  \ before implementation begins.\n\n## Problem\n\nWhen opencode is installed via\
+  \ snap (`/snap/bin/opencode`, classic confinement), both plugins (`session-enforcement.ts`,\
+  \ `env-loader.ts`) produce errors like:\n\n```\nbun: command not found: git branch\
+  \ --show-current\n```\n\nThe bash tool and standalone `bun` CLI both find `git`\
+  \ fine from the same environment. The root cause is unknown — it may be a PATH issue\
+  \ inside the compiled binary's embedded bun runtime, or something else entirely.\n\
+  \n## Root Cause Analysis\n\nThe root cause is a **PATH isolation issue** in the\
+  \ snap confinement environment. When opencode is installed via snap, the embedded\
+  \ bun runtime inherits a restricted PATH that does not include standard system binary\
+  \ directories. The bash tool and standalone `bun` CLI work because they inherit\
+  \ the user's full interactive shell PATH (which includes `/usr/bin`, `/usr/local/bin`,\
+  \ `/snap/bin`), but the plugin runtime's `execSync` and `Bun.$` calls use a stripped-down\
+  \ PATH.\n\nThis is not a bug in the plugins themselves — it is an environment mismatch\
+  \ between the snap confinement and the plugin runtime. The fix is to make the plugins\
+  \ PATH-independent by resolving the git binary path at startup.\n\n## Alternatives\
+  \ Considered & Why Discarded\n\n| Alternative | Rationale for Discard |\n|-------------|----------------------|\n\
+  | Fix the snap confinement PATH | Not under plugin control — snap configuration\
+  \ is managed by the snapcraft build, not by opencode plugins |\n| Use `Bun.which(\"\
+  git\")` only, no fallback | `Bun.which` may also fail under snap confinement if\
+  \ the restricted PATH doesn't include git's location |\n| Hardcode `/usr/bin/git`\
+  \ only | Insufficient — git may be at `/usr/local/bin/git` (Homebrew) or `/snap/bin/git`\
+  \ (snap-installed git) |\n| Set PATH in plugin startup | Modifying environment variables\
+  \ in plugin context is unreliable and may conflict with other plugins |\n| Use `which\
+  \ git` via execSync | Adds a redundant shell invocation; `Bun.which` is the canonical\
+  \ Bun API for binary resolution |\n\n## Objectives\n\n- Make both plugins resolve\
+  \ the git binary path at startup using `Bun.which(\"git\")` with fallback to common\
+  \ full paths\n- Use the resolved path for all subsequent git commands in both `execSync`\
+  \ and `Bun.$` calls\n- Gracefully degrade when no git binary is found (log diagnostic,\
+  \ skip git operations, do not crash)\n\n## Non-Goals\n\n- **Fixing snap confinement\
+  \ PATH** — Out of scope; this is a snap packaging concern, not a plugin concern\n\
+  - **Refactoring plugin architecture** — The fix is scoped to git path resolution\
+  \ only; no structural changes to plugin hooks or data flow\n- **Cross-platform git\
+  \ path resolution** — Only Linux snap paths are addressed; Windows/macOS git paths\
+  \ are not affected by this issue\n\n## Constraints and Scope\n\n- **Affected files:**\
+  \ `plugins/session-enforcement.ts`, `plugins/env-loader.ts`\n- **Affected repo:**\
+  \ `.opencode` submodule (michael-conrad/.opencode)\n- **No new dependencies:** The\
+  \ fix uses only built-in Bun APIs (`Bun.which`) and Node.js `fs.existsSync`\n- **No\
+  \ plugin API changes:** The fix is internal to each plugin; no hook signatures or\
+  \ export interfaces change\n\n## Decision Ledger\n\n| DEC-ID | Decision | Rationale\
+  \ | Requirement Key | Affected SCs |\n|--------|----------|-----------|-----------------|--------------|\n\
+  | DEC-1 | Resolve git path once at module scope | Avoids redundant resolution on\
+  \ every hook invocation | MUST | SC-1, SC-2, SC-3 |\n| DEC-2 | Fallback order: `/usr/bin/git`,\
+  \ `/usr/local/bin/git`, `/snap/bin/git` | Covers standard Linux, Homebrew, and snap-installed\
+  \ git | MUST | SC-1 |\n| DEC-3 | Verify each candidate with `--version` before accepting\
+  \ | Prevents using a non-executable or broken binary | MUST | SC-1 |\n| DEC-4 |\
+  \ Graceful degradation: skip git ops, log diagnostic, no crash | Ensures plugin\
+  \ loads even when git is unavailable | MUST | SC-4 |\n\n## Implementation Approach\n\
+  \n### Phase 1: Git path resolution utility\n\nCreate a shared `resolveGitPath()`\
+  \ function (or inline in each plugin) that:\n\n1. Calls `Bun.which(\"git\")` — returns\
+  \ the resolved full path if git is in PATH\n2. If null, checks common full paths\
+  \ in order: `/usr/bin/git`, `/usr/local/bin/git`, `/snap/bin/git`\n3. For each candidate,\
+  \ verifies it works via `fs.existsSync` + `execSync(\"candidate --version\")`\n\
+  4. Returns the first working path, or `null` if none found\n\n### Phase 2: session-enforcement.ts\
+  \ changes\n\n- Resolve `gitPath` at module scope (or at startup in the plugin function)\n\
+  - Replace all `execSync(\"git ...\")` calls with `execSync(gitPath + \" ...\")`:\n\
+  \  - `captureGitConfigBaseline`: `execSync(\"git config --local --list\")` and `execSync(\"\
+  git remote -v\")`\n  - `resolveGitDir`: `execSync(\"git rev-parse --git-dir\")`\n\
+  \  - Startup baseline: `execSync(\"git config --local --list\")`\n  - Mutation watchdog:\
+  \ `execSync(\"git config --local --list\")`\n- When `gitPath` is null, skip git\
+  \ operations and log a diagnostic\n\n### Phase 3: env-loader.ts changes\n\n- Resolve\
+  \ `gitPath` at startup in the plugin function\n- Modify `gitCmd` to use the resolved\
+  \ path: `$.nothrow()\\`${gitPath} branch --show-current\\``\n- All four `gitCmd`\
+  \ calls use the resolved path\n\n## Risk and Edge Cases\n\n| RISK-ID | Risk Description\
+  \ | Likelihood | Impact | Mitigation | Verifying SC |\n|---------|-----------------|------------|--------|------------|--------------|\n\
+  | RISK-1 | `Bun.which` also fails under snap confinement | Medium | High | Fallback\
+  \ to common full paths covers this case | SC-1 |\n| RISK-2 | Git binary exists but\
+  \ is non-functional (broken install) | Low | Medium | Verify with `--version` before\
+  \ accepting | SC-1 |\n| RISK-3 | All fallback paths fail — git completely unavailable\
+  \ | Low | Medium | Graceful degradation: skip git ops, log diagnostic, no crash\
+  \ | SC-4 |\n| RISK-4 | Regression: existing non-snap environments break | Low |\
+  \ High | `Bun.which(\"git\")` returns the same path as bare `\"git\"` in normal\
+  \ environments — behavior is identical | SC-5 |\n\n## Success Criteria\n\n| ID |\
+  \ Criterion | Evidence Type | Verification Method | Cost Frame |\n|----|-----------|---------------|---------------------|------------|\n\
+  | SC-1 | Both plugins resolve git path at startup using `Bun.which(\"git\")` with\
+  \ fallback to `/usr/bin/git`, `/usr/local/bin/git`, `/snap/bin/git`, verifying each\
+  \ candidate with `--version` | `string` | grep for `Bun.which(\"git\")` and fallback\
+  \ paths in both plugin files | A skipped fallback path is a defect undiscovered\
+  \ — grep is sufficient for static path presence |\n| SC-2 | All `execSync` git calls\
+  \ in `session-enforcement.ts` use the resolved path (not bare `\"git\"`) | `string`\
+  \ | grep for `execSync(` — confirm no bare `\"git \"` strings remain | A bare `\"\
+  git \"` execSync that survives into production is a snap crash waiting to happen\
+  \ — grep catches it at the static analysis gate |\n| SC-3 | All `$.nothrow()` git\
+  \ calls in `env-loader.ts` use the resolved path (not bare `\"git\"`) | `string`\
+  \ | grep for `gitCmd(` — confirm no bare `\"git \"` strings remain | Same as SC-2\
+  \ — a single missed bare call reproduces the bug |\n| SC-4 | Graceful fallback when\
+  \ no git binary is found: plugin loads without crash, skips git operations, logs\
+  \ diagnostic | `behavioral` | `opencode run` with simulated missing git → verify\
+  \ no crash, diagnostic logged | A crash-on-missing-git is a production incident\
+  \ — behavioral test catches what grep cannot |\n| SC-5 | Plugin loads without `command\
+  \ not found` errors in normal (non-snap) environments | `behavioral` | `opencode\
+  \ run` in normal environment → verify no git-related errors in stderr | Regression\
+  \ in normal environments is the most expensive defect — behavioral test at pre-commit\
+  \ gate catches it before CI |\n\n## SC-to-Root-Cause Traceability\n\n| SC-ID | Root\
+  \ Cause Element | Verification |\n|-------|-------------------|--------------|\n\
+  | SC-1 | PATH isolation in snap confinement — bun runtime cannot find git via bare\
+  \ name | Resolved path bypasses PATH dependency |\n| SC-2 | `execSync(\"git ...\"\
+  )` relies on inherited PATH | Resolved path used in all execSync calls |\n| SC-3\
+  \ | `$.nothrow()\\`git ...\\`` relies on inherited PATH | Resolved path used in\
+  \ all Bun.$ calls |\n| SC-4 | No git available at all (edge case) | Graceful degradation\
+  \ prevents crash |\n| SC-5 | Regression in non-snap environments | Behavioral test\
+  \ confirms no regression |\n\n## Cross-Cutting SCs\n\n**Cross-Cutting SCs:** SC-5\n\
+  — Verified once, applies to all phases.\n\n## Regression Invariants\n\n- [ ] 1.\
+  \ Existing plugin hook signatures MUST remain unchanged\n- [ ] 2. Existing plugin\
+  \ export names MUST remain unchanged\n- [ ] 3. All existing git operations MUST\
+  \ continue to work in non-snap environments\n- [ ] 4. Plugin diagnostics format\
+  \ MUST remain unchanged\n\n## Documentation Sources\n\n| Source Category | What\
+  \ Was Consulted | Purpose |\n|----------------|-------------------|---------|\n\
+  | Direct source search | `srclight_search_symbols(\"execSync\")` in session-enforcement.ts\
+  \ | Identify all execSync git call sites |\n| Direct source search | `srclight_search_symbols(\"\
+  gitCmd\")` in env-loader.ts | Identify all gitCmd call sites |\n| MCP search | `editor_read_file(\"\
+  plugins/session-enforcement.ts\")` | Verify execSync patterns and line numbers |\n\
+  | MCP search | `editor_read_file(\"plugins/env-loader.ts\")` | Verify gitCmd patterns\
+  \ and Bun.$ usage |\n| Documentation URLs | [Bun.which docs](https://bun.sh/docs/api/utils#bun-which)\
+  \ | Verify Bun.which API signature |\n| Documentation URLs | [Node.js child_process.execSync\
+  \ docs](https://nodejs.org/api/child_process.html#child_processexecsynccommand-options)\
+  \ | Verify execSync accepts full paths |\n\n## Revision Policy\n\n| Artifact | Cascade\
+  \ Trigger | Action on Parent Revision |\n|----------|----------------|---------------------------|\n\
+  | Implementation plan | MUST | Revise to match revised spec |\n| Behavioral tests\
+  \ | SHOULD | Review for continued validity |\n| Risk traceability | MAY | Update\
+  \ if new risks introduced |\n\n## Decomposition Classification\n\n| Classification\
+  \ | Number of Phases | Phase Artifact Requirements | PR Strategy |\n| --------------\
+  \ | ---------------- | --------------------------- | ----------- |\n| single-task\
+  \ | 1 | Single `plan.md` file | single PR |\n\n---\n\n> **Compliance Requirement:**\
+  \ All steps and sub-steps in this document MUST be followed in order. Failure to\
+  \ comply with any step — including but not limited to verification gates, test phases,\
+  \ audit checkpoints, and review steps — will result in the feature branch being\
+  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
+  \ work. There is no valid reason to skip, compress, reorder, or omit any step. If\
+  \ a step appears redundant or unnecessary, follow it anyway — the cost of following\
+  \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
+  \n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)\n"
 created_at: '2026-07-16T04:04:36+00:00'
-updated_at: '2026-07-16T04:04:36+00:00'
+updated_at: '2026-07-16T04:05:10+00:00'
