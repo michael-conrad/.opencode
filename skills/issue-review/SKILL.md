@@ -1,6 +1,6 @@
 ---
 name: issue-review
-description: "Issue review skill that gathers context from comments, classifies review paths, and delegates to downstream skills. Dispatch when reviewing a GitHub issue for comments, audits, or Q/A. Also dispatch when gathering context from issue comments, classifying review paths, or delegating to downstream skills. All comments MUST be read before acting on any issue"
+description: "Issue review that gathers context from comments, classifies review paths, and delegates to downstream skills. Load via skill() when reviewing a GitHub issue for comments, audits, or Q/A. Also load when gathering context from issue comments, classifying review paths, or delegating to downstream skills. All comments MUST be read before acting on any issue. User phrases: review issue, read comments, classify review, gather context"
 license: MIT
 compatibility: opencode
 ---

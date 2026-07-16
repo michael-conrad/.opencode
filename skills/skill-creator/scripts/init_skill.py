@@ -26,7 +26,7 @@ from pathlib import Path
 
 SKILL_TEMPLATE = """---
 name: {skill_name}
-description: "[TODO: <noun phrase describing skill>. Dispatch when ...]"
+description: "[TODO: <agent-intent statement describing skill>. Load via skill() when ...]"
 license: MIT
 provenance: AI-generated
 ---

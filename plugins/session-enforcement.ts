@@ -714,7 +714,7 @@ interface FrontmatterError {
  * Load skill descriptions from YAML frontmatter in SKILL.md files.
  * Adapted from obra/superpowers/plugins/superpowers.js skill discovery pattern.
  *
- * Description format: noun phrase identity with embedded "Dispatch when" clause.
+ * Description format: agent-intent statement with embedded "Load via skill() when" clause.
  * See .opencode/reference/skill-card-schema.md for the canonical schema.
  *
  * Returns { skills, errors } where errors collects frontmatter validation issues.

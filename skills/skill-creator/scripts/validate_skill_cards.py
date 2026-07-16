@@ -162,15 +162,15 @@ def validate_req1(
                     file_path=file_path,
                 )
             )
-        # Agent-intent dispatch pattern: description must start with "Dispatch when"
+        # Agent-intent dispatch pattern: description must contain "Dispatch when" or "Load via skill() when"
         # to describe the agent-side trigger condition, not user utterance patterns.
-        if "Dispatch when" not in desc:
+        if "Dispatch when" not in desc and "Load via skill() when" not in desc:
             violations.append(
                 Violation(
                     "REQ-1",
                     name,
                     "description",
-                    "Description missing 'Dispatch when' (required in agent-intent pattern)",
+                    "Description missing 'Dispatch when' or 'Load via skill() when' (required in agent-intent pattern)",
                     desc[:60],
                     file_path=file_path,
                 )
@@ -207,11 +207,11 @@ def validate_req1(
 def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     desc = fields.get("description", "")
-    if "Dispatch when" not in desc:
+    if "Dispatch when" not in desc and "Load via skill() when" not in desc:
         violations.append(
             Violation(
                 "SC-LINT", name, "SC-LINT-001",
-                "Description missing 'Dispatch when' (required in agent-intent pattern)",
+                "Description missing 'Dispatch when' or 'Load via skill() when' (required in agent-intent pattern)",
                 desc[:60], file_path=file_path,
                 severity="ERROR", pass_fail="FAIL",
             )
@@ -234,7 +234,7 @@ def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> l
                 severity="ERROR", pass_fail="FAIL",
             )
         )
-    # Agent-intent dispatch pattern: description must start with "Dispatch when"
+    # Agent-intent dispatch pattern: description must contain "Dispatch when" or "Load via skill() when"
     # to describe the agent-side trigger condition, not user utterance patterns.
     return violations
 

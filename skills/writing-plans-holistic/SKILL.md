@@ -1,6 +1,6 @@
 ---
 name: writing-plans-holistic
-description: "Standalone holistic self-check for implementation plans. Dispatch when running a holistic quality check on a plan before completion, or verifying plan quality against the 11-dimension holistic gate. Triggers when: agent determines a plan quality check is needed, agent needs to verify plan completeness before routing to audit."
+description: "Standalone holistic self-check for implementation plans. Load via skill() when running a holistic quality check on a plan before completion, or verifying plan quality against the 11-dimension holistic gate. Holistic checks MUST be run before plan completion. User phrases: holistic check, verify plan quality, plan completeness check"
 license: MIT
 provenance: AI-generated
 ---

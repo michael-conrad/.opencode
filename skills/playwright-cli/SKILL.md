@@ -1,6 +1,6 @@
 ---
 name: playwright-cli
-description: "Browser automation and web interaction skill using Playwright for page navigation, form filling, snapshot capture, and test generation. Dispatch when browsing the web, automating browser interactions, navigating pages, filling forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright. Also dispatch when capturing page content for verification or testing web application behavior. REQUIRED: dispatch via skill() before any browser automation — do not skip this skill"
+description: "Browser automation and web interaction using Playwright for page navigation, form filling, snapshot capture, and test generation. Load via skill() when browsing the web, automating browser interactions, navigating pages, filling forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright. Also load when capturing page content for verification or testing web application behavior. REQUIRED: dispatch via skill() before any browser automation — do not skip this skill. User phrases: browse web, automate browser, fill form, capture snapshot, run Playwright test"
 allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
 license: Apache-2.0
 compatibility: opencode

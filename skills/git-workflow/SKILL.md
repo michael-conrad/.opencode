@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Git branch, commit, push, and PR workflow dispatcher that routes to sub-skills. Dispatch when creating a branch, committing, pushing, or creating a PR. Also dispatch when handling rebase/merge conflicts, checking PR state and cleanup, or running provenance tracking. Triggers when: agent determines a branch operation is needed, agent needs to commit changes, agent needs to create a PR, agent needs to clean up after merge, agent encounters a rebase conflict."
+description: "Branch, commit, push, and PR workflow dispatcher that routes to sub-skills. Load via skill() when creating a branch, committing, pushing, or creating a PR. Also load when handling rebase/merge conflicts, checking PR state and cleanup, or running provenance tracking. Branch-and-PR discipline is REQUIRED — always follow the workflow. User phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, cleanup, provenance"
 license: MIT
 compatibility: opencode
 provenance: AI-generated

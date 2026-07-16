@@ -1,6 +1,6 @@
 ---
 name: correspondence
-description: "Stakeholder communication drafter for emails, status updates, and external correspondence. Dispatch when drafting stakeholder emails, status updates, or external communications. Also dispatch when analyzing audience context, maintaining audience separation, or generating structured correspondence. Audience separation MUST be maintained — always required. Internal audit findings and raw status updates go to chat only — never to stakeholder channels"
+description: "Stakeholder communication drafter for emails, status updates, and external correspondence. Load via skill() when drafting stakeholder emails, status updates, or external communications. Also load when analyzing audience context, maintaining audience separation, or generating structured correspondence. Audience separation MUST be maintained — always required. Internal audit findings and raw status updates go to chat only — never to stakeholder channels. User phrases: draft email, write status update, compose correspondence, stakeholder communication"
 license: MIT
 compatibility: opencode
 ---

@@ -1,6 +1,6 @@
 ---
 name: writing-plans-creation
-description: "Implementation plan creator that breaks approved specs into phases, tasks, and work breakdowns. Dispatch when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also dispatch when retroactively creating a plan for an existing spec, or backfilling plan documentation. Triggers when: agent determines a plan creation is needed, agent needs to decompose a spec into phases, agent needs to create task breakdowns, agent needs to retroactively document a plan."
+description: "Implementation plan creator that breaks approved specs into phases, tasks, and work breakdowns. Load via skill() when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also load when retroactively creating a plan for an existing spec, or backfilling plan documentation. Plans MUST be created before implementation. User phrases: create plan, break down work, plan phases, create task breakdown"
 license: MIT
 provenance: AI-generated
 ---

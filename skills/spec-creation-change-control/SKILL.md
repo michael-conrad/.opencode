@@ -1,6 +1,6 @@
 ---
 name: spec-creation-change-control
-description: "Change control documentation for spec revisions. Dispatch when documenting change control for spec revisions or tracking spec revision history. Triggers when: agent needs to document change control for a spec revision, agent needs to track spec revision history."
+description: "Change control documentation for spec revisions. Load via skill() when documenting change control for spec revisions or tracking spec revision history. Change control documentation is REQUIRED for all spec revisions. User phrases: document change control, track revision history, spec revision"
 license: MIT
 provenance: AI-generated
 ---

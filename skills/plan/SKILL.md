@@ -1,6 +1,6 @@
 ---
 name: plan
-description: "Formal AI planning skill for phase solvability, PDDL conversion, action grounding, and state file management. Dispatch when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding action schemas, discovering action schemas, or managing state files. Also dispatch when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. An approved spec stored as a local `spec.md` file is REQUIRED before any plan operation. Planning is REQUIRED before implementation. — distinct from writing-plans (implementation plans from specs) and plan-creation-pipeline (6-step orchestrator)"
+description: "Formal AI planning for phase solvability, PDDL conversion, action grounding, and state file management. Load via skill() when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding action schemas, discovering action schemas, or managing state files. Also load when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. An approved spec stored as a local spec.md file is REQUIRED before any plan operation. Planning is REQUIRED before implementation. — distinct from writing-plans (implementation plans from specs) and plan-creation-pipeline (6-step orchestrator). User phrases: create plan, validate plan, PDDL conversion, action grounding, state management"
 license: MIT
 compatibility: opencode
 ---

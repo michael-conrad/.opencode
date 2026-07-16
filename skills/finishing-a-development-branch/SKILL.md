@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: "Branch finishing gate that runs final checks, readiness verification, and pre-PR preparation. Dispatch when implementation is complete and branch needs final checks before PR. Also dispatch when running the finishing checklist, verifying branch readiness, or preparing for PR submission. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps"
+description: "Branch finishing gate that runs final checks, readiness verification, and pre-PR preparation. Load via skill() when implementation is complete and branch needs final checks before PR. Also load when running the finishing checklist, verifying branch readiness, or preparing for PR submission. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps. User phrases: finish branch, prepare for PR, run checklist, verify readiness, pre-PR checks"
 license: MIT
 compatibility: opencode
 ---

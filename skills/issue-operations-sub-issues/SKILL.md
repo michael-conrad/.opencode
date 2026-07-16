@@ -1,6 +1,6 @@
 ---
 name: issue-operations-sub-issues
-description: "Sub-issue management skill for linking and reading sub-issues. Dispatch when creating sub-issues under parent plan issues or reading sub-issue relationships. Also dispatch when verifying authorization cascade or closure order through sub-issue structure. Sub-issue tracking is REQUIRED for multi-task plans"
+description: "Sub-issue management for linking and reading sub-issue relationships. Load via skill() when creating sub-issues under parent plan issues or reading sub-issue relationships. Also load when verifying authorization cascade or closure order through sub-issue structure. Sub-issue tracking is REQUIRED for multi-task plans. User phrases: create sub-issue, link sub-issue, read sub-issues, verify hierarchy"
 license: MIT
 provenance: AI-generated
 ---

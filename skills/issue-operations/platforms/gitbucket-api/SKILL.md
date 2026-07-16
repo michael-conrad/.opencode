@@ -1,6 +1,6 @@
 ---
 name: gitbucket-api
-description: "GitBucket platform operations via the gb CLI tool for multi-platform issue management. Dispatch when GitBucket platform operations are needed. Also dispatch when routing issue operations to GitBucket via the gb CLI tool, or when GitBucket-specific API capabilities are required. GitBucket operations without platform awareness fail silently. Platform-aware routing is what makes multi-platform workflows reliable"
+description: "GitBucket platform operations via the gb CLI tool for multi-platform issue management. Load via skill() when GitBucket platform operations are needed. Also load when routing issue operations to GitBucket via the gb CLI tool, or when GitBucket-specific API capabilities are required. GitBucket operations without platform awareness fail silently. Platform-aware routing is REQUIRED. User phrases: GitBucket operations, gb CLI, GitBucket API, platform routing"
 license: MIT
 compatibility: opencode
 ---

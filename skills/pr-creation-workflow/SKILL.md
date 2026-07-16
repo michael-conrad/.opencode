@@ -1,6 +1,6 @@
 ---
 name: pr-creation-workflow
-description: "PR authorization and readiness verifier that determines when and how to create pull requests. Dispatch when asking about when to create a PR or whether PR creation is authorized. Also dispatch when verifying PR authorization scope, preparing PR body, or determining PR strategy. Every PR MUST be an authorized, intentional delivery"
+description: "PR authorization and readiness verifier that determines when and how to create pull requests. Load via skill() when asking about when to create a PR or whether PR creation is authorized. Also load when verifying PR authorization scope, preparing PR body, or determining PR strategy. Every PR MUST be an authorized, intentional delivery. User phrases: create PR, check PR authorization, prepare PR body, determine PR strategy"
 license: MIT
 compatibility: opencode
 ---

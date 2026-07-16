@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: "Implementation plan creator dispatcher that routes to sub-skills. Dispatch when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also dispatch when retroactively creating a plan for an existing spec, or backfilling plan documentation. Also dispatch when running holistic self-checks on plans before completion, or verifying plan quality against the 11-dimension holistic gate. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline)"
+description: "Implementation plan creator dispatcher that routes to sub-skills. Load via skill() when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also load when retroactively creating a plan for an existing spec, or backfilling plan documentation. Also load when running holistic self-checks on plans before completion, or verifying plan quality against the 11-dimension holistic gate. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline). User phrases: create plan, write implementation plan, break down work, plan phases"
 license: MIT
 compatibility: opencode
 provenance: AI-generated

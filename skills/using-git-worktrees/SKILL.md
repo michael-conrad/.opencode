@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: "Git worktree manager that creates isolated feature branch worktrees for parallel agent work. Dispatch when creating a feature branch or worktree for implementation. Also dispatch when setting up isolated git worktrees for parallel agent work or managing worktree lifecycle. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always use them"
+description: "Git worktree manager that creates isolated feature branch worktrees for parallel agent work. Load via skill() when creating a feature branch or worktree for implementation. Also load when setting up isolated git worktrees for parallel agent work or managing worktree lifecycle. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always use them. User phrases: create worktree, set up worktree, manage worktree, isolated branch"
 license: MIT
 compatibility: opencode
 ---

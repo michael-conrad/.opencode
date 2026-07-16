@@ -1,6 +1,6 @@
 ---
 name: multimodal-dispatch
-description: "Modality-aware model router that probes Ollama capabilities and dispatches sub-agents to appropriate models. Dispatch when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Also dispatch when assessing hardware capabilities or resolving modality hints for model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality"
+description: "Modality-aware model router that probes Ollama capabilities and dispatches sub-agents to appropriate models. Load via skill() when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Also load when assessing hardware capabilities or resolving modality hints for model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality. User phrases: route to model, probe capabilities, dispatch sub-agent, assess hardware"
 license: MIT
 compatibility: opencode
 ---

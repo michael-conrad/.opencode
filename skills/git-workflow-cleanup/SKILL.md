@@ -1,6 +1,6 @@
 ---
 name: git-workflow-cleanup
-description: "Dispatch when the agent needs to clean up after a PR merge, check PR state, or handle pair mode cleanup. Also dispatch when the agent needs to verify merge status or close completed issues. Triggers when: agent determines cleanup is needed, agent needs to check PR state, agent needs to handle post-merge cleanup."
+description: "Post-merge cleanup, PR state verification, and issue closure. Load via skill() when the agent needs to clean up after a PR merge, check PR state, or handle pair mode cleanup. Also load when verifying merge status or closing completed issues. Cleanup is REQUIRED after every merge — not optional. User phrases: cleanup after merge, check PR state, close issues, post-merge cleanup"
 license: MIT
 provenance: AI-generated
 ---

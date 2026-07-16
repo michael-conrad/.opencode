@@ -1,6 +1,6 @@
 ---
 name: sync-guidelines
-description: "Cross-repo synchronization tool for guidelines, skills, and tools with drift detection. Dispatch when synchronizing guidelines, skills, or tools between repositories. Also dispatch when detecting drift between source and target, or applying content synchronization. Sync is REQUIRED maintenance"
+description: "Cross-repo synchronization for guidelines, skills, and tools with drift detection. Load via skill() when synchronizing guidelines, skills, or tools between repositories. Also load when detecting drift between source and target, or applying content synchronization. Sync is REQUIRED maintenance. User phrases: sync guidelines, sync skills, detect drift, synchronize tools"
 license: MIT
 compatibility: opencode
 ---

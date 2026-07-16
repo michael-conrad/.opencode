@@ -1,6 +1,6 @@
 ---
 name: issue-operations-sync
-description: "Issue synchronization skill for reconciling remote and local issue tracking. Dispatch when syncing issues from remote to local, mirroring remote issue bodies to local spec files, or retroactively importing pre-existing remote issues into local tracking. Sync is REQUIRED maintenance for multi-platform issue workflows"
+description: "Issue synchronization for reconciling remote and local issue tracking. Load via skill() when syncing issues from remote to local, mirroring remote issue bodies to local spec files, or retroactively importing pre-existing remote issues into local tracking. Sync is REQUIRED maintenance for multi-platform issue workflows. User phrases: sync issues, mirror remote, import issues, reconcile tracking"
 license: MIT
 provenance: AI-generated
 ---

@@ -1,6 +1,6 @@
 ---
 name: spec-creation-operating-protocol
-description: "Operating protocol documentation for spec creation workflows. Dispatch when documenting or updating operating protocols for spec creation. Triggers when: agent needs to document operating protocols for spec creation, agent needs to update spec creation workflow procedures."
+description: "Operating protocol documentation for spec creation workflows. Load via skill() when documenting or updating operating protocols for spec creation. Operating protocols MUST be documented for all spec creation workflows. User phrases: document protocol, update operating protocol, spec creation workflow"
 license: MIT
 provenance: AI-generated
 ---

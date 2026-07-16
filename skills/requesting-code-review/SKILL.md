@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: "PR review request preparer that assesses readiness and generates reviewer context. Dispatch when preparing a PR for code review, or when reviewer context and documentation are needed. Also dispatch when assessing PR readiness or generating reviewer context summaries. Every review request MUST be treated as a quality gate — not a formality"
+description: "PR review request preparer that assesses readiness and generates reviewer context. Load via skill() when preparing a PR for code review, or when reviewer context and documentation are needed. Also load when assessing PR readiness or generating reviewer context summaries. Every review request MUST be treated as a quality gate — not a formality. User phrases: request review, prepare PR review, assess readiness, generate reviewer context"
 license: MIT
 compatibility: opencode
 ---

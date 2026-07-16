@@ -1,6 +1,6 @@
 ---
 name: conflict-resolution
-description: "Git conflict resolver that analyzes intent, classifies tiers, and applies resolution strategies. Dispatch when resolving git conflicts during rebase, merge, or cherry-pick operations. Also dispatch when analyzing conflict intent, classifying conflict tiers, or applying resolution strategies. Intent analysis MUST be performed before resolution — always required"
+description: "Git conflict resolver that analyzes intent, classifies tiers, and applies resolution strategies. Load via skill() when resolving git conflicts during rebase, merge, or cherry-pick operations. Also load when analyzing conflict intent, classifying conflict tiers, or applying resolution strategies. Intent analysis MUST be performed before resolution — always required. User phrases: resolve conflict, merge conflict, rebase conflict, cherry-pick conflict, conflict analysis"
 license: MIT
 compatibility: opencode
 ---
