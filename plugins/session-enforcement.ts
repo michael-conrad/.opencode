@@ -31,6 +31,35 @@ import { execSync } from "child_process";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+const GIT_FALLBACK_PATHS = [
+  "/usr/bin/git",
+  "/usr/local/bin/git",
+  "/snap/bin/git",
+];
+
+function resolveGitPath(): string | null {
+  // Try `which git` first (works in normal PATH environments)
+  try {
+    const whichResult = execSync("which git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
+    if (whichResult) return whichResult;
+  } catch {
+    // `which` failed — fall through to common paths
+  }
+  for (const candidate of GIT_FALLBACK_PATHS) {
+    if (fs.existsSync(candidate)) {
+      try {
+        execSync(`"${candidate}" --version`, { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] });
+        return candidate;
+      } catch {
+        continue;
+      }
+    }
+  }
+  return null;
+}
+
+const gitPath = resolveGitPath();
+
 interface GitConfigBaseline {
   configHash: string;
   localConfigHash: string;
@@ -85,13 +114,15 @@ function captureGitConfigBaseline(projectDir: string): GitConfigBaseline | null 
 
     let localConfigOutput = "";
     try {
-      localConfigOutput = execSync("git config --local --list", {
-        cwd: projectDir,
-        encoding: "utf8",
-        input: "",
-        timeout: 5000,
-        stdio: ["pipe", "pipe", "pipe"],
-      }).trim();
+      if (gitPath) {
+        localConfigOutput = execSync(gitPath + " config --local --list", {
+          cwd: projectDir,
+          encoding: "utf8",
+          input: "",
+          timeout: 5000,
+          stdio: ["pipe", "pipe", "pipe"],
+        }).trim();
+      }
     } catch {
       // No local config or git unavailable
     }
@@ -99,13 +130,15 @@ function captureGitConfigBaseline(projectDir: string): GitConfigBaseline | null 
 
     let remoteOutput = "";
     try {
-      remoteOutput = execSync("git remote -v", {
-        cwd: projectDir,
-        encoding: "utf8",
-        input: "",
-        timeout: 5000,
-        stdio: ["pipe", "pipe", "pipe"],
-      }).trim();
+      if (gitPath) {
+        remoteOutput = execSync(gitPath + " remote -v", {
+          cwd: projectDir,
+          encoding: "utf8",
+          input: "",
+          timeout: 5000,
+          stdio: ["pipe", "pipe", "pipe"],
+        }).trim();
+      }
     } catch {
       // No remotes or git unavailable
     }
@@ -296,8 +329,9 @@ const injectedFirstTurnSessions = new Set<string>();
 const sessionParentCache = new Map<string, string>();
 
 function resolveGitDir(projectDir: string): string | null {
+  if (!gitPath) return null;
   try {
-    const result = execSync("git rev-parse --git-dir", {
+    const result = execSync(gitPath + " rev-parse --git-dir", {
       cwd: projectDir,
       encoding: "utf8",
       input: "",
@@ -306,6 +340,48 @@ function resolveGitDir(projectDir: string): string | null {
     }).trim();
     if (path.isAbsolute(result)) return result;
     return path.resolve(projectDir, result);
+  } catch {
+    return null;
+  }
+}
+
+function getSubmodulePaths(projectDir: string): string[] {
+  if (!gitPath) return [];
+  try {
+    const result = execSync(gitPath + " submodule status", {
+      cwd: projectDir,
+      encoding: "utf8",
+      input: "",
+      timeout: 10000,
+      stdio: ["pipe", "pipe", "pipe"],
+    }).trim();
+    if (!result) return [];
+    return result.split("\n")
+      .filter(line => line.trim().length > 0 && !line.trim().startsWith("-"))
+      .map(line => line.trim().split(/\s+/)[1])
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function resolveSubmoduleGitDir(submodulePath: string, projectDir: string): string | null {
+  const gitPath = path.join(projectDir, submodulePath, ".git");
+  try {
+    if (!fs.existsSync(gitPath)) return null;
+    const stat = fs.statSync(gitPath);
+    if (stat.isDirectory()) {
+      return gitPath;
+    }
+    if (stat.isFile()) {
+      const content = fs.readFileSync(gitPath, "utf8").trim();
+      const match = content.match(/^gitdir:\s*(.+)$/);
+      if (match) {
+        const resolved = path.resolve(projectDir, submodulePath, match[1]);
+        return resolved;
+      }
+    }
+    return null;
   } catch {
     return null;
   }
@@ -359,6 +435,47 @@ function ensureHooksInstalled(projectDir: string): void {
     if (needsCopy) {
       fs.copyFileSync(sourcePath, targetPath);
       fs.chmodSync(targetPath, 0o755);
+    }
+  }
+
+  const submodulePaths = getSubmodulePaths(projectDir);
+  for (const submodulePath of submodulePaths) {
+    const submoduleGitDir = resolveSubmoduleGitDir(submodulePath, projectDir);
+    if (!submoduleGitDir) {
+      console.warn(`[session-enforcement] Could not resolve .git directory for submodule: ${submodulePath}`);
+      writeDiagnostic(projectDir, {
+        source: "session-enforcement",
+        level: "warning",
+        message: `Could not resolve .git directory for submodule: ${submodulePath}`,
+      });
+      continue;
+    }
+
+    const submoduleHooksTargetDir = path.join(submoduleGitDir, "hooks");
+    fs.mkdirSync(submoduleHooksTargetDir, { recursive: true });
+
+    for (const hookName of sourceEntries) {
+      const sourcePath = path.join(hooksSourceDir, hookName);
+      if (!fs.statSync(sourcePath).isFile()) continue;
+      if (hookName.endsWith(".sample")) continue;
+
+      const targetPath = path.join(submoduleHooksTargetDir, hookName);
+      let needsCopy = false;
+
+      if (!fs.existsSync(targetPath)) {
+        needsCopy = true;
+      } else {
+        const sourceContent = fs.readFileSync(sourcePath, "utf8");
+        const targetContent = fs.readFileSync(targetPath, "utf8");
+        if (sourceContent !== targetContent) {
+          needsCopy = true;
+        }
+      }
+
+      if (needsCopy) {
+        fs.copyFileSync(sourcePath, targetPath);
+        fs.chmodSync(targetPath, 0o755);
+      }
     }
   }
 }
@@ -751,9 +868,9 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
 
   // Capture git config baseline for mutation watchdog
   gitConfigBaseline = captureGitConfigBaseline(projectDir);
-  if (gitConfigBaseline) {
+  if (gitConfigBaseline && gitPath) {
     try {
-      baselineLocalConfig = execSync("git config --local --list", {
+      baselineLocalConfig = execSync(gitPath + " config --local --list", {
         cwd: projectDir,
         encoding: "utf8",
         input: "",
@@ -971,9 +1088,10 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       }
 
       // --- Per-turn: Git config mutation watchdog ---
-      if (gitConfigBaseline) {
+      // Gated to first-turn-only: baseline captured at startup, comparison runs once.
+      if (isFirstTurn && gitConfigBaseline && gitPath) {
         try {
-          const currentLocalConfig = execSync("git config --local --list", {
+          const currentLocalConfig = execSync(gitPath + " config --local --list", {
             cwd: projectDir,
             encoding: "utf8",
             input: "",
