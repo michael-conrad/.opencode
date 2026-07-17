@@ -12,12 +12,12 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 
 | Aspect | v1 (`.opencode/tests/`) | v2 (`.opencode/tests-v2/`) |
 |--------|------------------------|----------------------------|
-| CLI binary | `opencode-cli` | `opencode` (`/snap/bin/opencode`) |
+| CLI binary | `opencode-cli` | `opencode` from PATH (resolved via `command -v`) |
 | Model discovery | `opencode-cli models` | `opencode models` |
 | Test runner | `with-test-home` (v1) | `with-test-home` (v2, rewritten) |
 | Env isolation | Partial `env` passthrough | `env -i` with explicit allowlist |
 | Smoke tests | Optional | Mandatory (`opencode models` + `opencode run "hello world"`) |
-| Test project | Flat test home | `{test_home}/project/` with `git init` + `.opencode` clone |
+| Test project | Flat test home | `{test_home}/project/` with `git init` + local `.opencode` checkout |
 
 ## Table of Contents
 
@@ -146,34 +146,79 @@ bash .opencode/tests-v2/behaviors/<scenario>.sh
 
 ### Binary
 
-- **`opencode`** at `/snap/bin/opencode` (v1.17.18) — the ONLY binary used
-- **`opencode-cli`** at `/usr/bin/opencode-cli` (v1.14.33) — NOT used in v2
+`opencode` is resolved from PATH via `command -v opencode` in both `with-test-home` and `helpers.sh`. The binary is NOT hardcoded to `/snap/bin/opencode` or any specific path.
 
-### `with-test-home` — XDG-Isolated Test Runner
+**Why PATH resolution instead of hardcoding:** The snap wrapper at `/snap/bin/opencode` → `/usr/bin/snap` ignores `$HOME` and hardcodes `SNAP_USER_DATA=~/snap/opencode/`, which leaks production state into test environments. Resolving from PATH allows the test harness to use any opencode installation while maintaining `HOME` isolation.
 
-**MUST be used for ALL opencode testing.** Never run `opencode run` directly — it causes SQLite session conflicts with the desktop app.
+**DO NOT hardcode a specific binary path.** If the binary location changes, update the PATH, not the script.
 
-The wrapper creates an isolated temporary home directory (`tmp/test-home-<timestamp>`) with clean XDG state.
+### `with-test-home` — Fully Isolated Test Runner
 
-**Environment variable isolation** — uses `env -i` with ONLY these vars:
-- `HOME`, `PWD`, `XDG_CONFIG_HOME`, `XDG_CACHE_HOME`, `XDG_RUNTIME_DIR`, `XDG_DATA_HOME`, `XDG_STATE_HOME`
-- `PATH` (parent env)
-- `SHELL`, `USER`, `LOGNAME`, `LANG`, `TERM` (parent env)
-- `GB_TOKEN` (parent env, if set)
+**MUST be used for ALL opencode testing.** Never run `opencode run` directly — it causes SQLite session conflicts with the desktop app and leaks production state.
+
+The wrapper creates an isolated temporary home directory (`tmp/test-home-<timestamp>`) with clean XDG state and runs commands inside a `env -i` subshell.
+
+#### Environment Variable Isolation
+
+Uses `env -i` with an explicit allowlist. Only these variables are passed through:
+
+| Variable | Source | Purpose |
+|----------|--------|---------|
+| `HOME` | Set to test home | Isolates snap data, XDG state, and all home-directory config |
+| `PATH` | Parent env | Allows opencode and other tools to be found |
+| `XDG_CONFIG_HOME` | Set to test home | Isolates opencode config |
+| `XDG_CACHE_HOME` | Set to test home | Isolates cache |
+| `XDG_RUNTIME_DIR` | Set to test home | Isolates runtime files |
+| `XDG_DATA_HOME` | Set to test home | Isolates data (SQLite DB, repos) |
+| `XDG_STATE_HOME` | Set to test home | Isolates state (locks) |
+| `SNAP_USER_DATA` | Set to test home | Overrides snap's hardcoded `~/snap/opencode/` to prevent production DB pollution |
+| `SNAP_USER_COMMON` | Set to test home | Overrides snap's common data directory |
+| `GIT_CONFIG_NOSYSTEM` | `1` | Prevents system git config from leaking |
+| `SHELL` | Parent env | Required by some tools |
+| `USER` | Parent env | Required by some tools |
+| `LOGNAME` | Parent env | Required by some tools |
+| `LANG` | Parent env | Locale |
+| `TERM` | Parent env | Terminal type |
+| `GB_TOKEN` | Parent env (if set) | GitBucket API token |
 
 **FORBIDDEN** — no `GITHUB_TOKEN`, `GH_TOKEN`, `OPENCODE_CONFIG_CONTENT`, `NODE_ENV`, `VIRTUAL_ENV`, `CONDA_DEFAULT_ENV`, or shell-specific vars.
+
+#### Working Directory
+
+The command runs from `TEST_PROJECT` (the test project directory inside the test home). This ensures opencode discovers the test project's `.opencode/` as its project root, not the production project's.
+
+#### Local Submodule Checkout
+
+`.opencode/` is checked out locally via `cp -a` from the parent repo, NOT cloned from remote. This ensures the test environment sees unmerged feature branch changes. The checkout includes all feature branch modifications (config files, test scripts, etc.).
+
+#### Model Config Generation
+
+`seed_model_config()` generates a minimal `opencode.jsonc` by querying the Ollama API (`curl http://localhost:11434/api/tags`) for available models. It does NOT copy the production `opencode.jsonc` — that file contains secrets, API keys, and environment-specific settings that must not leak into test environments.
+
+#### Isolation Verification Procedure
+
+After running `with-test-home --setup`, verify isolation by inspecting the SQLite DB:
+
+```bash
+sqlite3 $TEST_HOME/.local/share/opencode/opencode.db "SELECT worktree FROM project;"
+# Expected: /path/to/tmp/test-home-<timestamp>/project
+# NOT:      /home/user/git/production-project
+```
+
+The `project.worktree` field MUST contain the test project path (under `tmp/test-home-*`), not the production project path. If it contains the production path, isolation is broken.
 
 ### Test Environment Setup Steps
 
 1. Create test home directory at `{project_root}/tmp/test-home-{timestamp}`
-2. Set XDG vars to test home paths
-3. Set `PATH` to parent env PATH only
-4. Create test sub-folder: `{test_home}/project/`
-5. `git init` the test sub-folder
-6. Clone `.opencode/` submodule from remote into the test project
-7. Seed `opencode.jsonc` config with available models
-8. Run `opencode models` to verify CLI works (smoke test)
-9. Run `opencode run "hello world"` to verify model works (smoke test)
+2. Set `HOME` and all XDG vars to test home paths
+3. Set `SNAP_USER_DATA`/`SNAP_USER_COMMON` to test home paths (overrides snap's hardcoded `~/snap/opencode/`)
+4. Set `PATH` to parent env PATH only
+5. Create test sub-folder: `{test_home}/project/`
+6. `git init` the test sub-folder
+7. Checkout `.opencode/` locally via `cp -a` from parent repo (NOT cloned from remote)
+8. Seed `opencode.jsonc` config by querying Ollama API for available models
+9. Run `opencode models` to verify CLI works (smoke test)
+10. Run `opencode run "hello world"` to verify model works (smoke test)
 
 ### Smoke Test Requirements
 
@@ -198,7 +243,7 @@ The harness uses `flock` (file lock) for mutual exclusion. A lock file at `tmp/.
 
 ```bash
 # Run a single test message
-bash .opencode/tests-v2/with-test-home /snap/bin/opencode run "hello" --model ollama/ornith:35b-256k
+bash .opencode/tests-v2/with-test-home opencode run "hello" --model ollama/qwen3.6:35b-256k
 
 # Setup only (create env, run smoke tests, print path)
 bash .opencode/tests-v2/with-test-home --setup
@@ -237,7 +282,31 @@ This document is AI-agent-facing text. Per `080-code-standards.md` §Mandatory T
 | `255-distribution-shifting-reference.md` | Signal — required vs optional fields are explicitly marked. The paradigm statement uses corrupt-success contrast. |
 | `257-procedural-discipline-reference.md` | Structure — dependency-order gate: artifact generation REQUIRES a model run. Controlled vocabulary pairs define exact vocabulary. |
 
-## 9. Prompt Construction Mandate
+## 9. Change Control
+
+### Default Model
+
+The default test model is defined in `default-model.sh` as `DEFAULT_TEST_MODEL`. This is the single source of truth — do not embed model strings elsewhere.
+
+**DO NOT CHANGE the default model unless explicitly directed to do so by an approved spec.** The default model (`ollama/qwen3.6:35b-256k`) is verified to work with the test harness. Changing it without a spec risks:
+- Breaking tests that depend on model behavior
+- Introducing model-specific flakiness
+- Circumventing the spec-first workflow
+
+If a spec requires a different model, override via environment variable:
+```bash
+DEFAULT_TEST_MODEL="ollama/other-model:tag" bash .opencode/tests-v2/behaviors/<scenario>.sh
+```
+
+### Binary Resolution
+
+`opencode` is resolved from PATH via `command -v opencode`. **DO NOT hardcode a specific binary path** (e.g., `/snap/bin/opencode`). The snap wrapper ignores `$HOME` and leaks production state. If the binary location changes, update the PATH, not the script.
+
+### Isolation Requirements
+
+The isolation contract (environment variables, working directory, submodule checkout, model config generation) is defined in §5. **DO NOT change isolation requirements without an approved spec.** Changes to the `env -i` allowlist, `HOME`/`SNAP_USER_DATA` handling, or submodule checkout pattern can silently break isolation and leak production state.
+
+## 10. Prompt Construction Mandate
 
 Behavioral test prompts MUST trigger natural agent behavior — they MUST NOT interview the agent about what it *would* do.
 

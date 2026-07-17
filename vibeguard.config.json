@@ -1,0 +1,36 @@
+{
+  "enabled": true,
+  "patterns": {
+    "regex": [
+      {
+        "name": "openai-api-key",
+        "pattern": "sk-[A-Za-z0-9]{20,}",
+        "description": "OpenAI API key format"
+      },
+      {
+        "name": "github-pat",
+        "pattern": "ghp_[A-Za-z0-9]{36,}",
+        "description": "GitHub personal access token"
+      },
+      {
+        "name": "aws-access-key",
+        "pattern": "AKIA[0-9A-Z]{16}",
+        "description": "AWS access key ID"
+      }
+    ],
+    "builtin": [
+      "email",
+      "phone",
+      "id",
+      "uuid",
+      "ipv4",
+      "mac_address"
+    ],
+    "keywords": [
+      "secret",
+      "password",
+      "token",
+      "key"
+    ]
+  }
+}
