@@ -1,0 +1,31 @@
+> **Full spec and plan artifacts: [https://github.com/michael-conrad/.opencode/tree/issues-data/1975/]** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/1975/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+## Problem
+
+The session-enforcement.ts plugin contains a git config mutation watchdog and makes direct git calls via execSync, violating its single responsibility of session context injection and mode-switch stripping.
+
+## Goals
+
+- Remove git config watchdog, all direct git calls, hook installation, secret redaction, guidelines/skill indexes, frontmatter validation, sub-agent tracking, session triggers, and diagnostics
+- Keep only session-init injection and mode-switch stripping
+
+## Non-Goals
+
+- Modifying session-init script, session_context_triggers.py, env-loader.ts, or opencode-vibeguard plugin
+
+## Scope
+
+- session-enforcement.ts plugin file only
+- Named export required for OpenCode plugin system
+
+## Approach
+
+Minimal rewrite already exists in working directory (~74 lines vs ~1,100 in HEAD). Commit this version.
+
+## Impact
+
+Top 3 risks: opencode-vibeguard dependency for secret redaction, session-init dependency for context injection, no git config enforcement at runtime. Mitigations: verify npm plugin installed, session-init unchanged, pre-commit hooks cover git config.
+
+🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)
