@@ -133,5 +133,8 @@
       "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.3.4", "viewport-editor"],
       "enabled": true
     }
-  }
+  },
+  "plugins": [
+    "opencode-vibeguard@0.1.0"
+  ]
 }
