@@ -1,0 +1,19 @@
+# Cross-Cutting Matrix — .opencode#1974
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+generated_at: 2026-07-17
+
+cross_cutting_concerns:
+  - concern: behavioral-testing
+    affected_scs: [SC-12, SC-13]
+    verified_in_phase: Phase 1
+    rationale: Behavioral tests verify all plugin SCs; anti-lobotomization check applies to all SCs
+
+  - concern: config-consistency
+    affected_scs: [SC-4, SC-9, SC-10, SC-11]
+    verified_in_phase: Phase 1
+    rationale: All config-related SCs verified together in vibeguard.config.json
+
+no_cross_cutting:
+  - No cross-cutting concerns between this spec and other open issues
+  - No shared files with other active specs
+  - No dependency on other plugin infrastructure changes

@@ -1,0 +1,26 @@
+# Blast Radius Analysis — .opencode#1974
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+generated_at: 2026-07-17
+
+affected_files:
+  - path: .opencode/plugins/session-enforcement.ts
+    change: Remove redactSecrets() function (already removed), preserve mode-switch stripping
+    risk: low
+    rationale: Function already removed; only verification needed
+  - path: .opencode/opencode.jsonc
+    change: Add "opencode-vibeguard@0.1.0" to plugin array
+    risk: low
+    rationale: Plugin array addition only; no structural config changes
+  - path: .opencode/vibeguard.config.json
+    change: Create new config file with regex, keywords, builtin PII patterns
+    risk: low
+    rationale: New file, no existing config affected
+
+unaffected_areas:
+  - opencode core runtime — plugin is external npm package
+  - Other plugins — vibeguard is independent
+  - Guidelines/skills — no behavioral changes to agent rules
+  - Test infrastructure — new test files only
+
+blast_radius: contained
+rationale: Changes touch 3 files (1 already modified, 1 new config, 1 config addition). No cascading dependencies.

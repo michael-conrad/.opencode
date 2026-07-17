@@ -15,3 +15,17 @@ artifacts:
     required: true
   - path: .issues/1974/spec-to-plan-handoff.yaml
     required: true
+  - path: .issues/1974/artifacts/blast-radius.yaml
+    required: true
+  - path: .issues/1974/artifacts/concern-map.yaml
+    required: true
+  - path: .issues/1974/artifacts/code-path-inventory.yaml
+    required: true
+  - path: .issues/1974/artifacts/cross-cutting-matrix.yaml
+    required: true
+  - path: .issues/1974/artifacts/interface-compatibility.yaml
+    required: true
+  - path: .issues/1974/artifacts/state-analysis.yaml
+    required: true
+  - path: .issues/1974/artifacts/testability-assessment.yaml
+    required: true

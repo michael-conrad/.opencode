@@ -1,0 +1,35 @@
+# Code Path Inventory — .opencode#1974
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+generated_at: 2026-07-17
+
+code_paths:
+  - path: .opencode/plugins/session-enforcement.ts
+    symbols:
+      - isModeSwitchSynthetic (preserve)
+      - redactSecrets (verify removed)
+    callers: []
+    callees: []
+    notes: Function already removed; only verification needed
+
+  - path: .opencode/opencode.jsonc
+    symbols: []
+    callers: []
+    callees: []
+    notes: Add plugin key to existing config
+
+  - path: .opencode/vibeguard.config.json
+    symbols: []
+    callers: []
+    callees: []
+    notes: New file, no existing code paths affected
+
+  - path: .opencode/tests-v2/behaviors/secret-redaction/
+    symbols: []
+    callers: []
+    callees: []
+    notes: New test directory, no existing test infrastructure changes
+
+no_impact_paths:
+  - .opencode/guidelines/ — no guideline changes
+  - .opencode/skills/ — no skill changes
+  - src/ — no source code changes

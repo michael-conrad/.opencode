@@ -1,0 +1,68 @@
+# Testability Assessment — .opencode#1974
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+generated_at: 2026-07-17
+
+testability:
+  overall: high
+  rationale: Plugin behavior is observable via debug logs and behavioral test harness
+
+sc_testability:
+  - id: SC-1
+    testable: true
+    method: grep for redactSecrets in session-enforcement.ts
+    difficulty: trivial
+  - id: SC-2
+    testable: true
+    method: jq query on opencode.jsonc plugin array
+    difficulty: trivial
+  - id: SC-3
+    testable: true
+    method: grep for isModeSwitchSynthetic in session-enforcement.ts
+    difficulty: trivial
+  - id: SC-4
+    testable: true
+    method: jq query on vibeguard.config.json patterns.regex length
+    difficulty: trivial
+  - id: SC-5
+    testable: true
+    method: opencode run with OPENCODE_VIBEGUARD_DEBUG=1, grep for "replace count"
+    difficulty: medium
+    notes: Requires plugin installed and working; debug mode must be enabled
+  - id: SC-6
+    testable: true
+    method: opencode run with debug, grep for "restore"
+    difficulty: medium
+  - id: SC-7
+    testable: true
+    method: opencode run with debug, grep for "historical"
+    difficulty: medium
+  - id: SC-8
+    testable: true
+    method: opencode run with debug, grep for "text-end"
+    difficulty: medium
+  - id: SC-9
+    testable: true
+    method: jq query on vibeguard.config.json regex patterns
+    difficulty: trivial
+  - id: SC-10
+    testable: true
+    method: jq query on vibeguard.config.json builtin patterns
+    difficulty: trivial
+  - id: SC-11
+    testable: true
+    method: jq query on vibeguard.config.json keywords length
+    difficulty: trivial
+  - id: SC-12
+    testable: true
+    method: bash run.sh in behavioral test directory
+    difficulty: medium
+    notes: Requires opencode CLI with plugin installed
+  - id: SC-13
+    testable: true
+    method: grep for evidence type downgrades in sc-summary.yaml
+    difficulty: trivial
+
+test_infrastructure:
+  - opencode CLI with with-test-home wrapper
+  - OPENCODE_VIBEGUARD_DEBUG env var for plugin debug logs
+  - Behavioral test helpers in .opencode/tests-v2/behaviors/helpers.sh

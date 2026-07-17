@@ -1,0 +1,38 @@
+# State Analysis — .opencode#1974
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+generated_at: 2026-07-17
+
+current_state:
+  - file: .opencode/plugins/session-enforcement.ts
+    state: redactSecrets() already removed; isModeSwitchSynthetic preserved
+    status: partially_complete
+  - file: .opencode/opencode.jsonc
+    state: No plugin key present
+    status: needs_change
+  - file: .opencode/vibeguard.config.json
+    state: Does not exist
+    status: needs_creation
+  - file: .opencode/tests-v2/behaviors/secret-redaction/
+    state: Does not exist
+    status: needs_creation
+
+target_state:
+  - file: .opencode/plugins/session-enforcement.ts
+    state: No redactSecrets(); isModeSwitchSynthetic preserved; secret redaction delegated to plugin
+  - file: .opencode/opencode.jsonc
+    state: plugin array contains "opencode-vibeguard@0.1.0"
+  - file: .opencode/vibeguard.config.json
+    state: Exists with regex patterns, keywords, builtin PII detectors
+  - file: .opencode/tests-v2/behaviors/secret-redaction/
+    state: Behavioral tests exist and pass
+
+state_transitions:
+  - from: current
+    to: target
+    phase: Phase 1
+    steps:
+      - Add plugin key to opencode.jsonc
+      - Create vibeguard.config.json
+      - Verify redactSecrets() remains removed
+      - Write behavioral tests
+      - Run verification

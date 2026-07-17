@@ -1,0 +1,30 @@
+# Interface Compatibility — .opencode#1974
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+generated_at: 2026-07-17
+
+interfaces:
+  - name: opencode.jsonc plugin array
+    type: config
+    change: Add "opencode-vibeguard@0.1.0" string to plugin array
+    compatible: true
+    rationale: Plugin array accepts npm package name strings; opencode auto-installs via Bun
+
+  - name: vibeguard.config.json schema
+    type: config
+    change: Create new config file
+    compatible: true
+    rationale: Plugin reads config from standard paths; no schema conflicts
+
+  - name: session-enforcement.ts exports
+    type: module
+    change: None (redactSecrets already removed, no new exports)
+    compatible: true
+    rationale: No interface changes to the module
+
+  - name: opencode plugin hooks
+    type: runtime
+    change: Plugin registers hooks (chat.messages.transform, tool.execute.before)
+    compatible: true
+    rationale: Plugin uses standard opencode plugin API hooks
+
+compatibility_verdict: all_compatible
