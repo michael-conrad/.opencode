@@ -25,6 +25,10 @@
 # Environment variable isolation — uses env -i with ONLY these vars:
 #   HOME, PWD, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR,
 #   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN
+# USER is set to "opencode-test-user" in the test environment.
+#
+# SNAP_USER_DATA/SNAP_USER_COMMON override snap's hardcoded ~/snap/opencode/
+# to redirect state to the test home instead of the production DB.
 #
 # FORBIDDEN: GITHUB_TOKEN, GH_TOKEN, OPENCODE_CONFIG_CONTENT, NODE_ENV,
 #            VIRTUAL_ENV, CONDA_DEFAULT_ENV, shell-specific vars
@@ -39,14 +43,11 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
 
-# Use snap run opencode (v1.17.18) — the snap binary at /snap/bin/opencode
-# is a symlink to /usr/bin/snap and requires snap daemon communication.
-# Direct invocation without snap run hangs in isolated environments.
-# opencode-cli (v1.14.33) is the fallback.
-if command -v snap &>/dev/null && snap info opencode &>/dev/null 2>&1; then
-    OPENCODE_CMD=(snap run opencode)
+# Resolve opencode from PATH — NEVER use /snap/bin/opencode or snap run (leaks production state).
+if command -v opencode &>/dev/null; then
+    OPENCODE_CMD=("$(command -v opencode)")
 elif [ -x /usr/bin/opencode-cli ]; then
-    echo "WARNING: snap opencode not available, falling back to opencode-cli" >&2
+    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
     OPENCODE_CMD=(/usr/bin/opencode-cli)
 else
     echo "FATAL: no opencode binary found" >&2
@@ -90,31 +91,13 @@ do_clean_all() {
 seed_model_config() {
     mkdir -p "$TEST_HOME/.config/opencode"
 
-    local models=()
-    local model
-    while IFS= read -r model; do
-        if [ -n "$model" ]; then
-            models+=("$model")
-        fi
-    done < <("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/' | sed 's/ .*//' || true)
-
-    if [ ${#models[@]} -eq 0 ]; then
-        echo "HARNESS_FAILURE: no models available" >&2
-        exit 2
+    # Use the default test model only — NEVER call opencode models (reads production DB).
+    # Model discovery via Ollama API only returns local models, not cloud models.
+    if [ -f "$SCRIPT_DIR/default-model.sh" ]; then
+        source "$SCRIPT_DIR/default-model.sh"
     fi
-
-    local model_entries=""
-    local first=true
-    local model
-    for model in "${models[@]}"; do
-        if [ "$first" != "true" ]; then
-            model_entries+=",
-        "
-        fi
-        first=false
-        local bare="${model#ollama/}"
-        model_entries+="\"$bare\": {}"
-    done
+    local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.6:35b-256k}"
+    local bare="${default_model#ollama/}"
 
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
 {
@@ -125,7 +108,7 @@ seed_model_config() {
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        $model_entries
+        "$bare": {}
       }
     }
   }
@@ -168,29 +151,95 @@ do_setup() {
 
     seed_model_config
 
-    local smoke_output
-    smoke_output=$("${OPENCODE_CMD[@]}" models 2>&1 || true)
-    if ! echo "$smoke_output" | grep -q '^ollama/'; then
-        echo "HARNESS_FAILURE: smoke test failed — 'opencode models' returned no models" >&2
-        echo "  Output: $smoke_output" >&2
+    # Warmup: run inside isolated subshell to verify setup without polluting production DB.
+    (
+        cd "$test_project"
+        export XDG_CONFIG_HOME="$test_home/.config"
+        export XDG_CACHE_HOME="$test_home/.cache"
+        export XDG_RUNTIME_DIR="$test_home/.runtime"
+        export XDG_DATA_HOME="$test_home/.local/share"
+        export XDG_STATE_HOME="$test_home/.local/state"
+        export SNAP_USER_DATA="$test_home/snap/opencode"
+        export SNAP_USER_COMMON="$test_home/snap/opencode"
+        export USER="opencode-test-user"
+        export GIT_CONFIG_NOSYSTEM=1
+
+        local smoke_output
+        smoke_output=$("${OPENCODE_CMD[@]}" models 2>&1 || true)
+        if ! echo "$smoke_output" | grep -q '^ollama/'; then
+            echo "HARNESS_FAILURE: warmup failed — 'opencode models' returned no models" >&2
+            echo "  Output: $smoke_output" >&2
+            exit 1
+        fi
+
+        local default_model
+        if [ -f "$SCRIPT_DIR/default-model.sh" ]; then
+            source "$SCRIPT_DIR/default-model.sh"
+            default_model="$DEFAULT_TEST_MODEL"
+        fi
+        if [ -z "${default_model:-}" ]; then
+            default_model="ollama/qwen3.6:35b-256k"
+        fi
+        local hello_output
+        hello_output=$("${OPENCODE_CMD[@]}" run "hello world" --model "$default_model" 2>&1 || true)
+        if [ -z "$hello_output" ] || echo "$hello_output" | grep -qi 'error\|timeout\|unavailable\|retired\|Gone:'; then
+            echo "HARNESS_FAILURE: warmup failed — 'opencode run \"hello world\"' did not produce output" >&2
+            echo "  Model: $default_model" >&2
+            echo "  Output: $hello_output" >&2
+            exit 1
+        fi
+    ) || exit $?
+
+    # Isolation verification: confirm test home only has opencode files and production DB is untouched.
+    local prod_db="$HOME/.local/share/opencode/opencode.db"
+    local prod_db_before=""
+    if [ -f "$prod_db" ]; then
+        prod_db_before=$(sha256sum "$prod_db" 2>/dev/null | cut -d' ' -f1)
+    fi
+
+    local test_db="$test_home/.local/share/opencode/opencode.db"
+    local test_config="$test_home/.config/opencode/opencode.jsonc"
+    local test_logs="$test_home/.local/share/opencode/logs"
+
+    if [ -f "$test_db" ]; then
+        echo "  [isolation] test DB exists at $test_db"
+    fi
+    if [ -f "$test_config" ]; then
+        echo "  [isolation] test config exists at $test_config"
+    fi
+
+    # Verify no production files leaked into test home.
+    local leak_found=0
+    while IFS= read -r -d '' f; do
+        local rel="${f#$test_home/}"
+        case "$rel" in
+            .config/opencode/*|.local/share/opencode/*|.cache/opencode/*|.runtime/*|.local/state/opencode/*|snap/opencode/*|project/*|.git/*)
+                ;;
+            .gitignore|.gitattributes)
+                ;;
+            *)
+                echo "  [isolation] WARNING: unexpected file in test home: $rel" >&2
+                leak_found=1
+                ;;
+        esac
+    done < <(find "$test_home" -not -path '*/project/.opencode/*' -not -path '*/.git/objects/*' -not -path '*/.git/refs/*' -print0 2>/dev/null || true)
+
+    if [ "$leak_found" -eq 1 ]; then
+        echo "  [isolation] FAIL: test home contains unexpected files" >&2
         exit 1
     fi
 
-    local default_model
-    if [ -f "$SCRIPT_DIR/default-model.sh" ]; then
-        source "$SCRIPT_DIR/default-model.sh"
-        default_model="$DEFAULT_TEST_MODEL"
-    fi
-    if [ -z "${default_model:-}" ]; then
-        default_model="ollama/gpt-oss:20b-cloud"
-    fi
-    local hello_output
-    hello_output=$("${OPENCODE_CMD[@]}" run "hello world" --model "$default_model" 2>&1 || true)
-    if [ -z "$hello_output" ] || echo "$hello_output" | grep -qi 'error\|timeout\|unavailable\|retired\|Gone:'; then
-        echo "HARNESS_FAILURE: smoke test failed — 'opencode run \"hello world\"' did not produce output" >&2
-        echo "  Model: $default_model" >&2
-        echo "  Output: $hello_output" >&2
-        exit 1
+    # Verify production DB was not modified by the test setup.
+    if [ -n "$prod_db_before" ]; then
+        local prod_db_after
+        prod_db_after=$(sha256sum "$prod_db" 2>/dev/null | cut -d' ' -f1)
+        if [ "$prod_db_before" != "$prod_db_after" ]; then
+            echo "  [isolation] FAIL: production DB was modified during test setup!" >&2
+            exit 1
+        fi
+        echo "  [isolation] PASS: production DB unchanged (sha256 match)"
+    else
+        echo "  [isolation] PASS: no production DB found (local-only environment)"
     fi
 
     echo "TEST_HOME=$test_home"
@@ -263,9 +312,9 @@ git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
 
 seed_model_config
 
-# Isolate XDG state to test home while preserving parent env for binary compat.
-# snap run opencode needs the real HOME to find its snap data — do NOT override HOME.
-# We override XDG vars to redirect state to the test home.
+# Isolate XDG state AND snap data to test home.
+# FORBIDDEN: /snap/bin/opencode and snap run hardcode SNAP_USER_DATA=~/snap/opencode/
+# Override SNAP_USER_DATA to redirect the SQLite DB to the test home instead of production.
 RC=0
 (
     cd "$TEST_PROJECT"
@@ -274,6 +323,9 @@ RC=0
     export XDG_RUNTIME_DIR="$TEST_HOME/.runtime"
     export XDG_DATA_HOME="$TEST_HOME/.local/share"
     export XDG_STATE_HOME="$TEST_HOME/.local/state"
+    export SNAP_USER_DATA="$TEST_HOME/snap/opencode"
+    export SNAP_USER_COMMON="$TEST_HOME/snap/opencode"
+    export USER="opencode-test-user"
     export GIT_CONFIG_NOSYSTEM=1
     "$@"
 ) 2>&1 || RC=$?
