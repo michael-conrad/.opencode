@@ -97,11 +97,11 @@ Every factual claim in this spec is backed by a tool-call artifact:
 | SC ID | Root Cause Element |
 |-------|-------------------|
 | SC-1 | Home-grown `redactSecrets()` only has 4 hardcoded patterns |
-| SC-2 | No pre-request redaction for LLM requests |
-| SC-3 | No pre-tool restoration for tool execution |
-| SC-4 | No historical redaction of tool outputs in conversation history |
-| SC-5 | No streaming edge case handling |
-| SC-6 | No configurable pattern extensibility |
+| SC-2 | No plugin-based secret redaction infrastructure |
+| SC-3 | Mode-switch stripping at risk of collateral removal |
+| SC-4 | No config-driven secret redaction patterns |
+| SC-5 | No pre-request redaction for LLM requests |
+| SC-6 | No pre-tool restoration for tool execution |
 | SC-7 | No PII detection (email, phone, ID, UUID, IP, MAC) |
 | SC-8 | No streaming edge case handling (placeholder visible during text-delta) |
 | SC-9 | No regex patterns for API key formats (OpenAI sk-, GitHub ghp_, AWS AKIA) |
@@ -123,7 +123,7 @@ All referenced files and artifacts exist:
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|---------------|-------------------------|---------------|------------------|------------------|----------------|--------------|-----------|---------------|
-| SC-1 | Home-grown `redactSecrets()` removed from `session-enforcement.ts` | behavioral | `grep -c redactSecrets .opencode/plugins/session-enforcement.ts` → 0 | Re-apply removal | RED | .issues/1974/artifacts/redact-removed.log | Root cause: home-grown function | Phase 1 | red-green | sequential | redaction-removal | RED | .opencode/tests-v2/behaviors/secret-redaction/SC-1.sh | Phase 1 |
+| SC-1 | Home-grown `redactSecrets()` confirmed removed from `session-enforcement.ts` (already removed by PR #1976) | behavioral | `grep -c redactSecrets .opencode/plugins/session-enforcement.ts` → 0 | Verify removal (already satisfied) | pre-commit | .issues/1974/artifacts/redact-removed.log | Root cause: home-grown function | Phase 1 | pre-commit | sequential | redaction-removal | pre-work | .opencode/tests-v2/behaviors/secret-redaction/SC-1.sh | Phase 1 |
 | SC-2 | `opencode-vibeguard@0.1.0` installed via `opencode.jsonc` plugins array | behavioral | `cat .opencode/opencode.jsonc | jq -r '.plugin[]' | grep opencode-vibeguard@0.1.0` | Add to plugins array | pre-commit | .issues/1974/artifacts/config-valid.log | Install plugin | Phase 1 | pre-commit | sequential | plugin-install | pre-work | .opencode/tests-v2/behaviors/secret-redaction/SC-2.sh | Phase 1 |
 | SC-3 | Mode-switch stripping preserved in `session-enforcement.ts` | behavioral | `grep -c "isModeSwitchSynthetic" .opencode/plugins/session-enforcement.ts` → ≥1 | Restore from git | RED | .issues/1974/artifacts/mode-switch-preserved.log | Separate concern, mandatory | Phase 1 | red-green | sequential | mode-switch | RED | .opencode/tests-v2/behaviors/secret-redaction/SC-3.sh | Phase 1 |
 | SC-4 | `vibeguard.config.json` created in `.opencode/` with regex patterns | behavioral | `cat .opencode/vibeguard.config.json | jq '.patterns.regex | length'` → ≥3 | Create config file | RED | .issues/1974/artifacts/regex-patterns.log | Config-driven patterns | Phase 1 | red-green | sequential | config-patterns | RED | .opencode/tests-v2/behaviors/secret-redaction/SC-4.sh | Phase 1 |

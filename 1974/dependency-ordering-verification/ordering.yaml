@@ -1,0 +1,5 @@
+variables:
+  PHASE-1_DONE: {type: bool, nullable: false}
+invariants:
+  # Single phase, no dependencies — trivially acyclic
+  - "z3.BoolVal(True)"

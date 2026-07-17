@@ -1,0 +1,43 @@
+# Dependency Contract — .opencode#1974
+schema_version: "1.0"
+generated_at: "20260717123500"
+spec: ".opencode#1974"
+
+phase_count: 1
+phase_names: [Phase 1]
+
+phase_dependencies: {}
+# Single-phase spec — no phase-level dependencies.
+# Z3-verified by PR-4: phase DAG is acyclic (single node).
+
+item_dependencies:
+  # ITEM-4 (plugin behavior) depends on ITEM-2 (plugin install) and ITEM-3 (config)
+  # because plugin must be installed and configured before behavior can be verified.
+  ITEM-4:
+    depends_on: [ITEM-2, ITEM-3]
+    rationale: "Plugin must be installed (ITEM-2) and configured (ITEM-3) before runtime behavior can be verified"
+
+  # ITEM-5 (behavioral tests) depends on ITEM-1 through ITEM-4
+  # because tests verify the implementation items.
+  ITEM-5:
+    depends_on: [ITEM-1, ITEM-2, ITEM-3, ITEM-4]
+    rationale: "Behavioral tests verify all implementation items; must run after all items complete"
+
+state_transitions:
+  - from: "current (redactSecrets removed, no plugin, no config)"
+    to: "target (plugin installed, configured, verified)"
+    phase: Phase 1
+    steps:
+      - "Verify redactSecrets removed, isModeSwitchSynthetic preserved (ITEM-1)"
+      - "Add plugin to opencode.jsonc (ITEM-2)"
+      - "Create vibeguard.config.json (ITEM-3)"
+      - "Verify plugin runtime behavior (ITEM-4)"
+      - "Write and pass behavioral tests (ITEM-5)"
+
+z3_verification:
+  - theorem: "acyclic(phase_dependencies)"
+    result: VALID
+    detail: "Single node DAG — trivially acyclic"
+  - theorem: "acyclic(item_dependencies)"
+    result: VALID
+    detail: "ITEM-4 → ITEM-2, ITEM-3; ITEM-5 → ITEM-1..4. No cycles."

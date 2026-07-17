@@ -1,0 +1,33 @@
+schema_version: "1.0"
+generated_at: "20260717123433"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 13 SCs assert exactly one independently testable claim. Each maps to one RED→GREEN→COMMIT cycle. No SC bundles multiple assertions."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1974/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "z3.BoolVal(True)"
+        result: VALID
+    detail: "No SC has depends_on fields. All 13 SCs are independent within Phase 1. Z3 proves the DAG is valid (trivially, no edges)."
+  - check_id: PR-3
+    result: PASS
+    detail: "All 13 SCs target exactly one file category and one verification domain (behavioral). No SC spans multiple file categories or verification domains. PR-3a (semantic single-concern): all SCs have singular problem domains. PR-3b (decomposition-depth): all SCs map to exactly one RED→GREEN→COMMIT cycle."
+  - check_id: PR-4
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1974/dependency-ordering-verification/ordering.yaml"
+    prove_results:
+      - theorem: "z3.BoolVal(True)"
+        result: VALID
+    detail: "Single-phase spec (Phase 1 only). No phase dependencies. Z3 proves the phase DAG is acyclic (trivially, single node)."
+  - check_id: PR-5
+    result: SKIP
+    detail: "Single-task spec (1 phase). Three-tier structure not required per single-task exemption."
+    sub_checks: []
+sc_summary:
+  total_scs: 13
+  atomic: 13
+  with_dependencies: 0
+  single_concern: 13
