@@ -8,9 +8,6 @@
  * Sources (independently gathered, no cross-plugin coupling):
  * - .env file — all parsed key-value pairs including secrets
  * - input.worktree — WORKTREE_PATH for bash commands
- * - input.$ (git) — BRANCH_NAME, GIT_OWNER, GIT_REPO, GIT_PLATFORM,
- *   DEV_NAME, DEV_EMAIL, GITHUB_HTML_URL, GITBUCKET_HTML_URL,
- *   GITBUCKET_SSH_URL, GITBUCKET_HAS_CREDENTIALS
  *
  * Hook: shell.env ONLY — no system.transform, no LLM output.
  *
@@ -22,36 +19,10 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 
 const ENV_FILE = ".env";
 
-const GIT_FALLBACK_PATHS = [
-  "/usr/bin/git",
-  "/usr/local/bin/git",
-  "/snap/bin/git",
-];
 
-function resolveGitPath(): string | null {
-  // Try `which git` first (works in normal PATH environments)
-  try {
-    const whichResult = execSync("which git", { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] }).trim();
-    if (whichResult) return whichResult;
-  } catch {
-    // `which` failed — fall through to common paths
-  }
-  for (const candidate of GIT_FALLBACK_PATHS) {
-    if (fs.existsSync(candidate)) {
-      try {
-        execSync(`"${candidate}" --version`, { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] });
-        return candidate;
-      } catch {
-        continue;
-      }
-    }
-  }
-  return null;
-}
 
 interface PluginDiagnostic {
   source: string;
@@ -154,93 +125,6 @@ function isEnvGitignored(projectDir: string): boolean {
   }
 }
 
-// ---------- Git remote URL parsing (TypeScript, for shell.env KEY=VALUE output) ----------
-
-function parseGitHubUrl(url: string): { owner: string; repo: string } | null {
-  // SSH: git@github.com:owner/repo.git
-  const sshMatch = url.match(/^git@github\.com:([^/]+)\/([^/]+?)(?:\.git)?$/);
-  if (sshMatch) {
-    return { owner: sshMatch[1], repo: sshMatch[2] };
-  }
-  // HTTPS: https://github.com/owner/repo.git
-  const httpsMatch = url.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?$/);
-  if (httpsMatch) {
-    return { owner: httpsMatch[1], repo: httpsMatch[2] };
-  }
-  return null;
-}
-
-function parseGitBucketUrl(
-  url: string,
-  projectDir: string,
-): { baseUrl: string | null; owner: string; repo: string; sshUrl: string | null } | null {
-  let owner: string | null = null;
-  let repo: string | null = null;
-
-  // SSH with port: ssh://git@hostname:port/owner/repo.git
-  const sshUrlMatch = url.match(/^ssh:\/\/git@([^:/]+):(\d+)\/([^/]+)\/([^/]+?)(?:\.git)?$/);
-  if (sshUrlMatch) {
-    owner = sshUrlMatch[3];
-    repo = sshUrlMatch[4];
-  }
-
-  if (!owner) {
-    // SSH short: git@hostname:owner/repo.git
-    const sshShortMatch = url.match(/^git@([^:]+):([^/]+)\/([^/]+?)(?:\.git)?$/);
-    if (sshShortMatch) {
-      owner = sshShortMatch[2];
-      repo = sshShortMatch[3];
-    }
-  }
-
-  if (!owner) {
-    // HTTPS: https://hostname/owner/repo.git
-    const httpsMatch = url.match(/^https:\/\/([^/]+)\/([^/]+)\/([^/]+?)(?:\.git)?$/);
-    if (httpsMatch) {
-      owner = httpsMatch[2];
-      repo = httpsMatch[3];
-    }
-  }
-
-  if (!owner || !repo) {
-    return null;
-  }
-
-  // Extract SSH base URL for GitBucket
-  let sshUrl: string | null = null;
-  const sshBaseMatch = url.match(/^(ssh:\/\/git@[^:/]+:\d+)/);
-  if (sshBaseMatch) {
-    sshUrl = sshBaseMatch[1];
-  }
-
-  // Base URL comes from .env, not from remote URL
-  const baseUrl = readGitBucketUrlFromEnv(path.join(projectDir, ENV_FILE));
-
-  return { baseUrl, owner, repo, sshUrl };
-}
-
-function readGitBucketUrlFromEnv(envPath: string): string | null {
-  try {
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, "utf8");
-      let htmlUrl: string | null = null;
-      let legacyUrl: string | null = null;
-      for (const line of content.split("\n")) {
-        const trimmed = line.trim();
-        if (trimmed.startsWith("GITBUCKET_HTML_URL=")) {
-          htmlUrl = trimmed.split("=", 2)[1].trim();
-        } else if (trimmed.startsWith("GITBUCKET_URL=")) {
-          legacyUrl = trimmed.split("=", 2)[1].trim();
-        }
-      }
-      return htmlUrl || legacyUrl;
-    }
-  } catch {
-    // Ignore read errors
-  }
-  return null;
-}
-
 export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
   const projectDir = directory || process.cwd();
   const envPath = path.join(projectDir, ENV_FILE);
@@ -286,85 +170,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
         output.env["WORKTREE_PATH"] = worktreeDir;
       }
 
-      const GIT_CMD_TIMEOUT_MS = 5000;
-      const gitPath = resolveGitPath();
 
-      async function gitCmd(cmd: string): Promise<{ exitCode: number; text: () => string } | null> {
-        if (!gitPath) {
-          console.error("[env-loader] git binary not found — skipping git operations");
-          return null;
-        }
-        try {
-          const result = await Promise.race([
-            $.nothrow()`${gitPath} ${cmd}`,
-            new Promise<null>((_, reject) =>
-              setTimeout(() => reject(new Error(`git command timed out: ${cmd}`)), GIT_CMD_TIMEOUT_MS)
-            ),
-          ]);
-          return result as { exitCode: number; text: () => string };
-        } catch {
-          return null;
-        }
-      }
-
-      try {
-        const branchResult = await gitCmd("branch --show-current");
-        if (branchResult && branchResult.exitCode === 0) {
-          const branch = branchResult.text().trim();
-          if (branch) {
-            output.env["BRANCH_NAME"] = branch;
-          }
-        }
-
-        const remoteResult = await gitCmd("remote get-url origin");
-        if (remoteResult && remoteResult.exitCode === 0) {
-          const remoteUrl = remoteResult.text().trim();
-
-          if (remoteUrl.includes("github.com")) {
-            output.env["GIT_PLATFORM"] = "github";
-            const parsed = parseGitHubUrl(remoteUrl);
-            if (parsed) {
-              output.env["GIT_OWNER"] = parsed.owner;
-              output.env["GIT_REPO"] = parsed.repo;
-            }
-            output.env["GITHUB_HTML_URL"] = "https://github.com/";
-          } else {
-            output.env["GIT_PLATFORM"] = "gitbucket";
-            const parsed = parseGitBucketUrl(remoteUrl, projectDir);
-            if (parsed) {
-              output.env["GIT_OWNER"] = parsed.owner;
-              output.env["GIT_REPO"] = parsed.repo;
-              if (parsed.baseUrl) {
-                output.env["GITBUCKET_HTML_URL"] = parsed.baseUrl;
-              }
-              if (parsed.sshUrl) {
-                output.env["GITBUCKET_SSH_URL"] = parsed.sshUrl;
-              }
-              const hasToken = output.env["GITBUCKET_TOKEN"] && output.env["GITBUCKET_TOKEN"].length > 0;
-              const hasUrl = output.env["GITBUCKET_HTML_URL"] || output.env["GITBUCKET_URL"];
-              output.env["GITBUCKET_HAS_CREDENTIALS"] = (hasToken && hasUrl) ? "true" : "false";
-            }
-          }
-        }
-
-        const nameResult = await gitCmd("config user.name");
-        if (nameResult && nameResult.exitCode === 0) {
-          const name = nameResult.text().trim();
-          if (name) {
-            output.env["DEV_NAME"] = name;
-          }
-        }
-
-        const emailResult = await gitCmd("config user.email");
-        if (emailResult && emailResult.exitCode === 0) {
-          const email = emailResult.text().trim();
-          if (email) {
-            output.env["DEV_EMAIL"] = email;
-          }
-        }
-      } catch {
-        // Git commands unavailable — skip git env values
-      }
     },
   };
 }

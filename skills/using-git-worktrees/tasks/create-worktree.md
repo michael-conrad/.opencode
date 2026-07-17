@@ -36,6 +36,7 @@ project=$(basename "$(git rev-parse --show-toplevel)")
 Before creating a new worktree, check if a worktree for this branch already exists:
 
 ```bash
+BRANCH_NAME=$(git branch --show-current)
 BRANCH_NAME_SANITIZED=$(echo "$BRANCH_NAME" | tr '/' '-')
 WT_PATH=".worktrees/$BRANCH_NAME_SANITIZED"
 

@@ -32,15 +32,20 @@ Two URL patterns depending on workflow type:
 
 **Compare URL** (for git push workflows — implementation, git-workflow, finishing):
 
-Construct from session-init values with character-match verification:
-
-1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session init
-2. Construct: `<html_url>/<owner>/<repo>/compare/$DEFAULT_BRANCH...<branch>` using the platform's base URL from session-init
-3. **Character-match verification:** Confirm `GIT_OWNER` and `GIT_REPO` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
-4. If any mismatch: HALT and report
+Extract owner/repo from the remote URL:
 
 ```bash
-COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/$DEFAULT_BRANCH...$(git branch --show-current)"
+REMOTE_URL=$(git remote get-url origin)
+if echo "$REMOTE_URL" | grep -q "github.com"; then
+  HTML_URL="https://github.com"
+  OWNER=$(echo "$REMOTE_URL" | sed -n 's/.*github.com[:\/]\([^/]*\)\/.*/\1/p')
+  REPO=$(echo "$REMOTE_URL" | sed -n 's/.*github.com[:\/][^/]*\/\(.*\)\.git/\1/p')
+else
+  HTML_URL=""
+  OWNER=$(echo "$REMOTE_URL" | sed -n 's/.*[:\/]\([^/]*\)\/\([^/]*\)\.git/\1/p')
+  REPO=$(echo "$REMOTE_URL" | sed -n 's/.*[:\/]\([^/]*\)\/\([^/]*\)\.git/\2/p')
+fi
+COMPARE_URL="${HTML_URL}/${OWNER}/${REPO}/compare/$DEFAULT_BRANCH...$(git branch --show-current)"
 ```
 
 **Action URL** (for creation workflows — issue creation, approval gate):

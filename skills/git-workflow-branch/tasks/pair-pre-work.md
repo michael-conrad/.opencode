@@ -25,7 +25,7 @@ When pair mode is active (branch name starts with `pair-`):
    git add -A
    git commit -m "WIP: $(git branch --show-current) [pair-mode]
 
-   Co-authored-by: $DEV_NAME <$DEV_EMAIL>
+   Co-authored-by: $(git config user.name) <$(git config user.email)>
    Co-authored-by: AI: $AGENT_NAME ($MODEL_ID) [pair-mode]"
    ```
 
