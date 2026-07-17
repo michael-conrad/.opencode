@@ -1,0 +1,33 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1974
+revision_re_entry:
+  revision_scopes:
+    - scope: full
+      cascade_artifacts:
+        - plan.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+      requires_re_approval: true
+      valid_re_entry_steps:
+        - step: verify-authorization
+        - step: pre-work
+        - step: RED
+        - step: GREEN
+        - step: verification-before-completion
+        - step: finishing-checklist
+        - step: review-prep
+        - step: cleanup
+      constraints:
+        - 'on_full_revision: all_artifacts_must_be_regenerated'
+    - scope: partial
+      cascade_artifacts:
+        - plan.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+      requires_re_approval: false
+      valid_re_entry_steps:
+        - step: verify-authorization
+        - step: RED
+        - step: GREEN
+        - step: verification-before-completion
+      constraints:
+        - 'on_partial_revision: cascade_is_limited_to_affected_scs'

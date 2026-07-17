@@ -1,0 +1,18 @@
+concerns:
+  - id: C1
+    name: POSIX compliance
+    description: Replace non-POSIX `which` with POSIX `command -v`
+    affected_files:
+      - plugins/session-enforcement.ts
+      - plugins/env-loader.ts
+  - id: C2
+    name: Argument splitting
+    description: Fix $.nothrow() tagged template to pass git args separately
+    affected_files:
+      - plugins/env-loader.ts
+  - id: C3
+    name: Lazy initialization
+    description: Move resolveGitPath() from module scope to lazy init
+    affected_files:
+      - plugins/session-enforcement.ts
+      - plugins/env-loader.ts

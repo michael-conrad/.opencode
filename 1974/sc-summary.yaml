@@ -1,0 +1,79 @@
+sc_coverage:
+  total: 13
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1974
+  evidence_types:
+    - behavioral
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: [SC-12, SC-13]
+    verified_in_phase: Phase 1
+  scs:
+    - id: SC-1
+      description: "Home-grown redactSecrets() removed from session-enforcement.ts"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-2
+      description: "opencode-vibeguard@0.1.0 installed via opencode.jsonc plugins array"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: Phase 1
+    - id: SC-3
+      description: "Mode-switch stripping preserved in session-enforcement.ts"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-4
+      description: "vibeguard.config.json created in .opencode/ with regex patterns"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-5
+      description: "Pre-request redaction: secrets redacted before LLM requests"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-6
+      description: "Pre-tool restoration: placeholders restored before tool execution"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-7
+      description: "Historical redaction: tool outputs redacted in conversation history"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-8
+      description: "Streaming edge case handled: placeholder briefly visible but sanitized at text-end"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-9
+      description: "Config supports regex patterns for API keys (OpenAI, GitHub, AWS)"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-10
+      description: "Config supports builtin PII detectors (email, phone, ID, UUID, IP, MAC)"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-11
+      description: "Config supports keyword patterns for custom secrets"
+      evidence_type: behavioral
+      verification_gate: red-green
+      plan_phase: Phase 1
+    - id: SC-12
+      description: "Behavioral enforcement tests written and pass (RED→GREEN cycle)"
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      plan_phase: Phase 1
+    - id: SC-13
+      description: "No SC weakened, deferred, or reclassified to lower evidence type"
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      plan_phase: Phase 1

@@ -1,0 +1,15 @@
+cross_cutting:
+  - concern: POSIX compliance (C1)
+    shared_by:
+      - plugins/session-enforcement.ts
+      - plugins/env-loader.ts
+    coupling: identical pattern — both have resolveGitPath() with "which git"
+  - concern: Lazy initialization (C3)
+    shared_by:
+      - plugins/session-enforcement.ts
+      - plugins/env-loader.ts
+    coupling: same pattern — module-scope call to resolveGitPath()
+  - concern: Argument splitting (C2)
+    shared_by:
+      - plugins/env-loader.ts only
+    coupling: isolated to env-loader.ts gitCmd()

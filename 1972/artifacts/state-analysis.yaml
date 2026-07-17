@@ -1,0 +1,13 @@
+state:
+  - component: gitPath (session-enforcement.ts)
+    current: module-scope const, initialized at import time
+    target: lazy, initialized on first use
+    transition: move from module scope to getter/cached variable
+  - component: gitPath (env-loader.ts)
+    current: const inside shell.env hook function
+    target: lazy, initialized on first use
+    transition: already inside function scope — add caching
+  - component: gitCmd (env-loader.ts)
+    current: async function wrapping $.nothrow()
+    target: removed, replaced with inline $.nothrow() calls
+    transition: inline all 4 call sites

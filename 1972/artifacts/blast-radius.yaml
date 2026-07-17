@@ -1,0 +1,12 @@
+blast_radius:
+  affected_files:
+    - plugins/session-enforcement.ts
+    - plugins/env-loader.ts
+  affected_consumers:
+    - All opencode sessions using these plugins
+  risk_level: low
+  rationale: >
+    Changes are scoped to git binary resolution and command execution.
+    No behavioral logic changes. Both plugins are loaded at session start;
+    incorrect git path resolution causes silent fallback to null, which
+    is already handled by null checks in both plugins.

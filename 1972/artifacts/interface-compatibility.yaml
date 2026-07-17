@@ -1,0 +1,14 @@
+interfaces:
+  - name: resolveGitPath
+    signature: () => string | null
+    consumers:
+      - session-enforcement.ts: const gitPath (module scope)
+      - env-loader.ts: const gitPath (inside shell.env hook)
+    change: internal implementation only — no signature change
+    compatibility: full
+  - name: gitCmd
+    signature: (cmd: string) => Promise<{exitCode: number; text: () => string} | null>
+    consumers:
+      - env-loader.ts: 4 call sites
+    change: replaced with inline $.nothrow() calls
+    compatibility: removed — callers updated inline

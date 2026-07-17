@@ -1,0 +1,18 @@
+testability:
+  assessment: high
+  behavioral_test:
+    - description: Plugin loads without git errors
+      method: opencode run with with-test-home wrapper
+      sc: SC-4
+  string_tests:
+    - description: grep for "which git" returns no matches
+      method: grep -r "which git" plugins/
+      sc: SC-1
+    - description: grep for "${gitPath} ${cmd}" returns no matches
+      method: grep -r '\$\{gitPath\} \$\{cmd\}' plugins/
+      sc: SC-2, SC-3
+    - description: grep for module-scope resolveGitPath() call
+      method: grep -n 'const gitPath = resolveGitPath()' plugins/
+      sc: SC-5
+  risks:
+    - Behavioral test requires opencode runtime — may not be available in all environments

@@ -1,0 +1,25 @@
+code_paths:
+  - file: plugins/session-enforcement.ts
+    function: resolveGitPath
+    lines: 40-59
+    calls:
+      - execSync("which git", ...)  # line 43 — BUG 1
+    consumers:
+      - const gitPath = resolveGitPath()  # line 61 — module scope
+  - file: plugins/env-loader.ts
+    function: resolveGitPath
+    lines: 35-54
+    calls:
+      - execSync("which git", ...)  # line 38 — BUG 1
+    consumers:
+      - const gitPath = resolveGitPath()  # line 290 — inside shell.env hook
+  - file: plugins/env-loader.ts
+    function: gitCmd
+    lines: 292-308
+    calls:
+      - $.nothrow()`${gitPath} ${cmd}`  # line 299 — BUG 2
+    callers:
+      - gitCmd("branch --show-current")  # line 311
+      - gitCmd("remote get-url origin")  # line 319
+      - gitCmd("config user.name")       # line 350
+      - gitCmd("config user.email")      # line 358
