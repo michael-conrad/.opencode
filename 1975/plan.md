@@ -76,6 +76,8 @@ Apply the working directory minimal rewrite (~74 lines) as the committed version
 
 ### Phase 1 Exit Criteria
 
+**Behavioral SC verification (SC-11, SC-12):** For behavioral SCs, after artifact generation via `grep`, dispatch `behavioral-test-evaluation` (clean-room sub-agent) before allowing PASS verdict.
+
 | SC ID | Verification Method | Evidence Type |
 |-------|-------------------|---------------|
 | SC-1 | `grep -r "gitConfigBaseline\|captureGitConfigBaseline\|buildGitConfigMutationBlock\|SECURITY_RELEVANT_KEY_PATTERNS" .opencode/plugins/session-enforcement.ts` — no matches | `string` |
@@ -88,8 +90,8 @@ Apply the working directory minimal rewrite (~74 lines) as the committed version
 | SC-8 | `grep -r "subAgentSessions\|injectedFirstTurnSessions\|sessionParentCache\|session\.created" .opencode/plugins/session-enforcement.ts` — no matches | `string` |
 | SC-9 | `grep -r "runSessionContextTriggers\|session_context_triggers\|SESSION_TRIGGERS" .opencode/plugins/session-enforcement.ts` — no matches | `string` |
 | SC-10 | `grep -r "writeDiagnostic\|collectDiagnostics\|buildDiagnosticBlock\|DIAGNOSTICS_PATH" .opencode/plugins/session-enforcement.ts` — no matches | `string` |
-| SC-11 | `grep -r "runSessionInit\|session-init" .opencode/plugins/session-enforcement.ts` — matches found | `behavioral` |
-| SC-12 | `grep -r "isModeSwitchSynthetic\|mode-switch\|Plan Mode" .opencode/plugins/session-enforcement.ts` — matches found | `behavioral` |
+| SC-11 | 1. `grep -r "runSessionInit\|session-init" .opencode/plugins/session-enforcement.ts` — matches found 2. Dispatch `behavioral-test-evaluation` (clean-room) to verify runtime behavior: session-init injection works end-to-end | `behavioral` |
+| SC-12 | 1. `grep -r "isModeSwitchSynthetic\|mode-switch\|Plan Mode" .opencode/plugins/session-enforcement.ts` — matches found 2. Dispatch `behavioral-test-evaluation` (clean-room) to verify runtime behavior: mode-switch stripping works end-to-end | `behavioral` |
 | SC-13 | `grep -r "export const SessionEnforcementPlugin" .opencode/plugins/session-enforcement.ts` — match found | `string` |
 | SC-14 | `grep -r "import\|require" .opencode/plugins/session-enforcement.ts` — only `@opencode-ai/plugin` and `child_process` | `string` |
 
