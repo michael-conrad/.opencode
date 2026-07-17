@@ -24,7 +24,16 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 source "$(dirname "${BASH_SOURCE[0]}")/default-model.sh"
 
-OPENCODE_BIN="/snap/bin/opencode"
+# Resolve opencode from PATH — NEVER hardcode /snap/bin/opencode.
+if command -v opencode &>/dev/null; then
+    OPENCODE_BIN="$(command -v opencode)"
+elif [ -x /usr/bin/opencode-cli ]; then
+    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
+    OPENCODE_BIN="/usr/bin/opencode-cli"
+else
+    echo "FATAL: no opencode binary found" >&2
+    exit 1
+fi
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests-v2/with-test-home"
 
 SCENARIO_FILTER=()
