@@ -12,7 +12,7 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 
 | Aspect | v1 (`.opencode/tests/`) | v2 (`.opencode/tests-v2/`) |
 |--------|------------------------|----------------------------|
-| CLI binary | `opencode-cli` | `opencode` from PATH (resolved via `command -v`) |
+| CLI binary | `opencode-cli` | `opencode` (resolved from PATH) |
 | Model discovery | `opencode-cli models` | `opencode models` |
 | Test runner | `with-test-home` (v1) | `with-test-home` (v2, rewritten) |
 | Env isolation | Partial `env` passthrough | `env -i` with explicit allowlist |
@@ -146,7 +146,8 @@ bash .opencode/tests-v2/behaviors/<scenario>.sh
 
 ### Binary
 
-`opencode` is resolved from PATH via `command -v opencode` in both `with-test-home` and `helpers.sh`. The binary is NOT hardcoded to `/snap/bin/opencode` or any specific path.
+- **`opencode`** resolved from PATH — the ONLY binary used. NEVER hardcode `/snap/bin/opencode`.
+- **`opencode-cli`** at `/usr/bin/opencode-cli` — fallback only, NOT the primary binary.
 
 **Why PATH resolution instead of hardcoding:** The snap wrapper at `/snap/bin/opencode` → `/usr/bin/snap` ignores `$HOME` and hardcodes `SNAP_USER_DATA=~/snap/opencode/`, which leaks production state into test environments. Resolving from PATH allows the test harness to use any opencode installation while maintaining `HOME` isolation.
 
@@ -232,12 +233,26 @@ The harness uses `flock` (file lock) for mutual exclusion. A lock file at `tmp/.
 
 ### Bash Tool Timeout Mandate — ZERO TOLERANCE
 
-**The bash tool's `timeout` parameter is the ONLY kill signal that may be used when running behavioral tests.** Any use of the `timeout` command inside a bash script invoked by the bash tool is FORBIDDEN.
+**The bash tool's `timeout` parameter is the ONLY kill signal that may be used when running behavioral tests.** Any use of the `timeout` command (GNU timeout) inside a bash script invoked by the bash tool is FORBIDDEN — nested timeouts create orphaned processes that hold the flock lock and hang all subsequent test runs.
 
 **Mandated bash tool invocation:**
 ```
 # timeout=600000 (600 seconds, milliseconds). NEVER omit.
 ```
+
+### Test Isolation Mandates — ZERO TOLERANCE
+
+The following mandates are non-waivable. Violation = pipeline halt.
+
+| # | Mandate | Enforcement |
+|---|---------|-------------|
+| 1 | **`snap run` is FORBIDDEN** — `snap run opencode` hardcodes `SNAP_USER_DATA=~/snap/opencode/` and writes to the production DB. The only acceptable reference to `snap run` is as a forbidden pattern example in comments. | grep for `snap run` in executable code returns 0 matches |
+| 2 | **`/snap/bin/opencode` is FORBIDDEN** — never hardcode the binary path. Always resolve `opencode` from PATH. | grep for `/snap/bin/opencode` returns 0 matches |
+| 3 | **`timeout` command (GNU timeout) is FORBIDDEN** in test scripts. The bash tool `timeout` parameter is the ONLY kill signal. | grep for `^timeout ` in test scripts returns 0 matches |
+| 4 | **`USER=opencode-test-user` MUST be set** in the test environment. Tests must use a non-production user identity. | grep for `opencode-test-user` in `with-test-home` returns match |
+| 5 | **Default model MUST NOT be changed** without an approved spec. `DEFAULT_TEST_MODEL` in `default-model.sh` is the single source of truth. | grep for model strings outside `default-model.sh` returns 0 matches |
+| 6 | **Smoke test is MANDATORY** — `opencode models` + `opencode run "hello world"` must pass before the test home is considered ready. | `do_setup()` in `with-test-home` runs both |
+| 7 | **Isolation verification is MANDATORY** — after warmup, verify test home only contains opencode config/db/log files and production DB is untouched (sha256 comparison). | `do_setup()` in `with-test-home` runs isolation check |
 
 ### Invocation Examples
 

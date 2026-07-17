@@ -24,8 +24,8 @@
 # ║  Always pass `timeout: 600000` (600 seconds, milliseconds) to the bash tool  ║
 # ║  when invoking any script in tests-v2/behaviors/.                            ║
 # ║                                                                              ║
-# ║  NO NESTED TIMEOUTS — the bash tool timeout is the ONLY kill signal.         ║
-# ║  Do NOT use the `timeout` command or any timer utility inside this script.   ║
+# ║  FORBIDDEN: The `timeout` command (GNU timeout) MUST NOT appear in any      ║
+# ║  test script. The bash tool `timeout` parameter is the ONLY kill signal.     ║
 # ║  GNU timeout does NOT forward SIGTERM to its children — orphaned opencode    ║
 # ║  processes hold the flock lock and hang all subsequent test runs.            ║
 # ║                                                                              ║
@@ -42,10 +42,10 @@ BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests-v2/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
 BEHAVIOR_HARNESS_VERSION="${BEHAVIOR_HARNESS_VERSION:-1}"
 
-if command -v snap &>/dev/null && snap info opencode &>/dev/null 2>&1; then
-    OPENCODE_CMD=(snap run opencode)
+if command -v opencode &>/dev/null; then
+    OPENCODE_CMD=("$(command -v opencode)")
 elif [ -x /usr/bin/opencode-cli ]; then
-    echo "WARNING: snap opencode not available, falling back to opencode-cli" >&2
+    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
     OPENCODE_CMD=(/usr/bin/opencode-cli)
 else
     echo "FATAL: no opencode binary found" >&2
@@ -338,13 +338,14 @@ behavior_run() {
             exit_code=1
         else
             echo "HARNESS_FAILURE: behavior_run produced empty output after all retries"
-            echo "  model=$model, stderr word count: $(wc -w < "$err_file" 2>/dev/null || echo 0)"
+            echo "  BEHAVIOR_MODEL=$model"
+            echo "  stdout: empty, stderr word count: $(wc -w < "$err_file" 2>/dev/null || echo 0)"
             echo "HARNESS_FAILURE: empty output" >> "$output_file"
             exit_code=1
         fi
     elif [ "${word_count:-0}" -le 3 ]; then
-        echo "  NOTE: behavior_run produced short output (${word_count} words). Consider increasing the bash tool timeout if this is unexpected."
-        echo "  model=$model"
+        echo "  NOTE: behavior_run produced short output (${word_count} words)."
+        echo "  BEHAVIOR_MODEL=$model"
     fi
 
     sleep 1
