@@ -134,7 +134,7 @@
       "enabled": true
     }
   },
-  "plugins": [
+  "plugin": [
     "opencode-vibeguard@0.1.0"
   ]
 }
