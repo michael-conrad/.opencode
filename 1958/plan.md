@@ -4,92 +4,68 @@
 
 **Files:**
 - `.opencode/.issues/1958/plan.md` — This index
+- `.opencode/.issues/1958/plan-00-pre-work.md` — Pre-work: branch, submodule tagging
 - `.opencode/.issues/1958/plan-01-discovery.md` — Phase 1: Discovery and inventory
-- `.opencode/.issues/1958/plan-02-replacement.md` — Phase 2: Replace all non-conforming references
+- `.opencode/.issues/1958/plan-02-replacement.md` — Phase 2: Replace all non-conforming references (per-item TDD)
 - `.opencode/.issues/1958/plan-03-close.md` — Phase 3: Close and inform
+- `.opencode/.issues/1958/plan-99-post.md` — Post-implementation: VbC, finishing checklist, review-prep, behavioral verification
 - `.opencode/.issues/1958/data/cross-reference-inventory.yaml` — Phase 1 output
 
 ## Blast Radius
 
-- `.opencode/guidelines/*.md` — All 34 guideline files
-- `.opencode/skills/*/SKILL.md` — All 59 SKILL.md files
+- `.opencode/guidelines/*.md` — All guideline files
+- `.opencode/skills/*/SKILL.md` — All SKILL.md files
 - `.opencode/skills/*/tasks/*.md` — All task files
 - `.opencode/prompts/default.txt` — Cross-reference directive
 - `.opencode/scripts/*.py` — May contain cross-references in docstrings
 
 ## Phase Table
 
-| Phase | Name | Concern | SCs | Dependencies | Step Range | Dispatch |
-|-------|------|---------|-----|-------------|------------|----------|
-| 1 | Discovery and Inventory | Scan all files, classify cross-references, output inventory YAML | SC-1 | None | 1.1–1.5 | Inline sub-agent |
-| 2 | Replace All Non-Conforming References | Convert every reference to canonical Load[text](path) form | SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | Phase 1 complete | 2.1–2.7 | Inline sub-agent |
-| 3 | Close and Inform | Close #1953, comment on #1925 and #1926 | SC-8, SC-9 | Phase 2 complete | 3.1–3.3 | Inline sub-agent |
+| Phase | Name | Concern | SCs | Dependencies | Items | Dispatch |
+|-------|------|---------|-----|-------------|-------|----------|
+| 0 | Pre-work | Branch, submodule tagging | — | None | 1 | `git-workflow --task pre-work` |
+| 1 | Discovery and Inventory | Scan all files, classify cross-references, output inventory YAML | SC-1 | Phase 0 | 1 | Clean-room sub-agent |
+| 2 | Replace All Non-Conforming References | Per-item TDD: RED (behavioral test) → GREEN (edit) → REFACTOR → COMMIT | SC-2 through SC-7 | Phase 1 | N items (one per file group) | `implementation-pipeline` |
+| 3 | Close and Inform | Close #1953, comment on #1925 and #1926 | SC-8, SC-9 | Phase 2 | 3 | `issue-operations` |
+| 4 | Post-Implementation | VbC, finishing checklist, review-prep, behavioral verification | All SCs | Phase 3 | 4 | `verification-before-completion`, `finishing-a-development-branch`, `git-workflow --task review-prep` |
 
 ## SC-to-Step Traceability
 
-| SC ID | Criterion | Phase | Step(s) |
-|-------|-----------|-------|---------|
-| SC-1 | Cross-reference inventory produced | 1 | 1.5 |
-| SC-2 | 000-critical-rules.md updated to Load[Text](path) | 2 | 2.1 |
-| SC-3 | No See[ or Read[ in any SKILL.md | 2 | 2.2 |
-| SC-4 | No See[ or Read[ in any guideline | 2 | 2.3 |
-| SC-5 | No §N or §Name bare references in any SKILL.md | 2 | 2.4 |
-| SC-6 | No resolution table patterns in any SKILL.md | 2 | 2.5 |
-| SC-7 | No non-linked text references in any SKILL.md | 2 | 2.6 |
-| SC-8 | #1953 closed as superseded | 3 | 3.1 |
-| SC-9 | #1925 and #1926 have comments linking to this spec | 3 | 3.2, 3.3 |
+| SC ID | Criterion | Evidence Type | Phase | Item(s) |
+|-------|-----------|---------------|-------|---------|
+| SC-1 | Cross-reference inventory produced | structural | 1 | 1.1 |
+| SC-2 | 000-critical-rules.md updated to `Load [Text](path)` | behavioral | 2 | 2.1 |
+| SC-3 | No `See [` or `Read [` in any SKILL.md | behavioral | 2 | 2.2 |
+| SC-4 | No `See [` or `Read [` in any guideline | behavioral | 2 | 2.3 |
+| SC-5 | No `§N` or `§Name` bare references in any SKILL.md | behavioral | 2 | 2.4 |
+| SC-6 | No resolution table patterns in any SKILL.md | behavioral | 2 | 2.5 |
+| SC-7 | No non-linked text references in any SKILL.md | behavioral | 2 | 2.6 |
+| SC-8 | #1953 closed as superseded | structural | 3 | 3.1 |
+| SC-9 | #1925 and #1926 have comments linking to this spec | structural | 3 | 3.2, 3.3 |
 
-## Safety/Rollback Considerations
+**Note:** SC-2 through SC-7 are auto-uplifted from `string` to `behavioral` per [critical-rules-BEH-EV] — changing cross-reference patterns IS a runtime-behavioral change (it affects how agents interpret and act on cross-references). Each item in Phase 2 requires a behavioral enforcement test (RED) before the edit (GREEN).
 
-**Phase 1 — Safety/Rollback:**
-- Destructive operations: None (read-only scan)
-- Rollback plan: N/A
-- Data loss risk: None
+## Pipeline Chain
 
-**Phase 2 — Safety/Rollback:**
-- Destructive operations: File edits to guidelines, SKILL.md, task files, default.txt
-- Rollback plan: `git checkout .opencode/guidelines/ .opencode/skills/ .opencode/prompts/` to restore originals
-- Data loss risk: Low (all changes are text replacements; git preserves history)
+```
+pre-work → implementation-pipeline (per-item TDD) → VbC → finishing-checklist → review-prep
+```
 
-**Phase 3 — Safety/Rollback:**
-- Destructive operations: Issue closure (irreversible)
-- Rollback plan: Reopen #1953 if closed in error
-- Data loss risk: Low
+Every step is MANDATORY. No step may be skipped.
 
-## Feasibility Verification
+## Safety/Rollback
 
-| Step | Reference | Verified? | Evidence |
-|------|-----------|-----------|----------|
-| 1.1 | `.opencode/guidelines/` directory | ✅ | `ls` |
-| 1.2 | `.opencode/skills/*/SKILL.md` files | ✅ | `find` |
-| 1.3 | `.opencode/skills/*/tasks/*.md` files | ✅ | `find` |
-| 1.4 | `.opencode/prompts/default.txt` | ✅ | `ls` |
-| 2.1 | `000-critical-rules.md` | ✅ | `ls` |
-| 2.2 | SKILL.md files | ✅ | `find` |
-| 2.3 | Guideline files | ✅ | `ls` |
-| 2.4 | Task files | ✅ | `find` |
-| 2.5 | `default.txt` | ✅ | `ls` |
-| 3.1 | Issue #1953 | ✅ | GitHub API |
-| 3.2 | Issue #1925 | ✅ | GitHub API |
-| 3.3 | Issue #1926 | ✅ | GitHub API |
-
-## Evidence/Provenance
-
-| Claim | Evidence Source | Verified? |
-|-------|----------------|----------|
-| 34 guideline files exist | `find .opencode/guidelines/ -name '*.md' \| wc -l` | ✅ |
-| 59 SKILL.md files exist | `find .opencode/skills/ -name 'SKILL.md' \| wc -l` | ✅ |
-| Task files exist | `find .opencode/skills/ -path '*/tasks/*.md' \| wc -l` | ✅ |
-| default.txt exists | `ls .opencode/prompts/default.txt` | ✅ |
-| #1953 exists | `github_issue_read` | ✅ |
-| #1925 exists | `github_issue_read` | ✅ |
-| #1926 exists | `github_issue_read` | ✅ |
+- Phase 1: Read-only — no rollback needed
+- Phase 2: `git checkout .opencode/` to restore originals; checkpoint tags at each item boundary
+- Phase 3: Reopen #1953 if closed in error
+- Phase 4: All verification gates must PASS before PR creation
 
 ## Exit Criteria
 
-- [ ] C1: Phase 1 complete — cross-reference inventory produced at `.opencode/.issues/1958/data/cross-reference-inventory.yaml`
-- [ ] C2: Phase 2 complete — all non-conforming references replaced with canonical `Load [text](path)` form
-- [ ] C3: Phase 3 complete — #1953 closed, #1925 and #1926 have comments
-- [ ] C4: All SCs verified PASS
-- [ ] C5: No SC weakened, deferred, or reclassified
-- [ ] C6: Behavioral enforcement tests written and confirmed RED before implementation changes
+- [ ] C1: Phase 0 complete — feature branch created, submodule tagged
+- [ ] C2: Phase 1 complete — cross-reference inventory produced
+- [ ] C3: Phase 2 complete — all items through TDD cycle, all behavioral tests PASS
+- [ ] C4: Phase 3 complete — #1953 closed, #1925 and #1926 have comments
+- [ ] C5: Phase 4 complete — VbC PASS, finishing checklist PASS, review-prep complete
+- [ ] C6: All SCs verified PASS with correct evidence type
+- [ ] C7: No SC weakened, deferred, or reclassified
