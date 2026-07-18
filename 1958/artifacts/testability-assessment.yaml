@@ -1,0 +1,38 @@
+testability:
+  sc_1:
+    criterion: "Cross-reference inventory produced"
+    evidence_type: structural
+    verification: "file-exists check on .opencode/.issues/1958/data/cross-reference-inventory.yaml"
+  sc_2:
+    criterion: "000-critical-rules.md updated to Load[Text](path)"
+    evidence_type: string
+    verification: "grep for 'Load [Text]' in 000-critical-rules.md"
+  sc_3:
+    criterion: "No See[ or Read[ in any SKILL.md"
+    evidence_type: string
+    verification: "grep -r 'See \\[' .opencode/skills/*/SKILL.md; grep -r 'Read \\[' .opencode/skills/*/SKILL.md"
+  sc_4:
+    criterion: "No See[ or Read[ in any guideline"
+    evidence_type: string
+    verification: "grep -r 'See \\[' .opencode/guidelines/*.md; grep -r 'Read \\[' .opencode/guidelines/*.md"
+  sc_5:
+    criterion: "No §N or §Name bare references in any SKILL.md"
+    evidence_type: string
+    verification: "grep for '§' in .opencode/skills/*/SKILL.md"
+  sc_6:
+    criterion: "No resolution table patterns in any SKILL.md"
+    evidence_type: string
+    verification: "grep for '| Reference | File |' in .opencode/skills/*/SKILL.md"
+  sc_7:
+    criterion: "No non-linked text references in any SKILL.md"
+    evidence_type: string
+    verification: "grep for 'See [A-Z]' patterns in .opencode/skills/*/SKILL.md"
+  sc_8:
+    criterion: "#1953 closed as superseded"
+    evidence_type: structural
+    verification: "GitHub API check on issue #1953 state"
+  sc_9:
+    criterion: "#1925 and #1926 have comments linking to this spec"
+    evidence_type: structural
+    verification: "GitHub API check for comments on #1925 and #1926"
+  risk: "grep-based SCs may miss edge cases — manual spot-check of 5 random SKILL.md files recommended"

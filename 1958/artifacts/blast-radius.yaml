@@ -1,0 +1,27 @@
+blast_radius:
+  description: "All files in .opencode/ submodule containing cross-references"
+  affected_areas:
+    - path: ".opencode/guidelines/*.md"
+      count: 34
+      impact: "Replace See[text](path)/Read[text](path) with Load[text](path); replace bare §N/§Name with inline links"
+    - path: ".opencode/skills/*/SKILL.md"
+      count: 59
+      impact: "Replace See[text](path)/Read[text](path) with Load[text](path); remove resolution tables; replace bare §N/§Name"
+    - path: ".opencode/skills/*/tasks/*.md"
+      count: "~200"
+      impact: "Replace See[text](path)/Read[text](path) with Load[text](path)"
+    - path: ".opencode/prompts/default.txt"
+      count: 1
+      impact: "Update cross-reference directive"
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      count: 1
+      impact: "Read[Text](path) -> Load[Text](path) in cross-reference rule"
+    - path: ".opencode/scripts/*.py"
+      count: "~5"
+      impact: "May contain cross-references in docstrings"
+  non_affected:
+    - ".opencode/tools/"  # Shell scripts, not markdown
+    - ".opencode/plugins/"  # TypeScript, not markdown
+    - ".opencode/hooks/"  # Shell scripts
+    - ".opencode/tests-v2/"  # Test infrastructure, not agent-facing
+  risk: "Some bare §N references may be in prose that needs rewriting, not just link replacement"

@@ -1,0 +1,31 @@
+concerns:
+  - id: discovery
+    name: "Cross-reference discovery and inventory"
+    description: "Scan all files in .opencode/ and classify every cross-reference by form"
+    phases: [1]
+    scs: [SC-1]
+  - id: replacement-guidelines
+    name: "Guideline cross-reference replacement"
+    description: "Replace non-conforming references in all guideline files"
+    phases: [2]
+    scs: [SC-2, SC-4]
+  - id: replacement-skills
+    name: "SKILL.md cross-reference replacement"
+    description: "Replace non-conforming references in all SKILL.md files"
+    phases: [2]
+    scs: [SC-3, SC-5, SC-6, SC-7]
+  - id: replacement-tasks
+    name: "Task file cross-reference replacement"
+    description: "Replace non-conforming references in all task files"
+    phases: [2]
+    scs: [SC-3, SC-5, SC-6, SC-7]
+  - id: replacement-default
+    name: "default.txt cross-reference update"
+    description: "Update cross-reference directive in default.txt"
+    phases: [2]
+    scs: [SC-3]
+  - id: closure
+    name: "Issue closure and notification"
+    description: "Close #1953 as superseded, comment on #1925 and #1926"
+    phases: [3]
+    scs: [SC-8, SC-9]

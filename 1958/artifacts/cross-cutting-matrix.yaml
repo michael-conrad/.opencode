@@ -1,0 +1,17 @@
+cross_cutting:
+  - concern: "Load verb consistency"
+    description: "Every file must use 'Load' as the verb — no 'See', 'Read', 'Fetch', or bare symbols"
+    affected_phases: [2]
+    affected_scs: [SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+  - concern: "Link path correctness"
+    description: "Every Load[text](path) must have a valid relative path that resolves from the referencing file"
+    affected_phases: [2]
+    affected_scs: [SC-3, SC-4, SC-5, SC-6, SC-7]
+  - concern: "Descriptive link text"
+    description: "Link text must be descriptive, not bare section numbers or generic text"
+    affected_phases: [2]
+    affected_scs: [SC-5]
+  - concern: "Resolution table removal"
+    description: "Resolution tables with admonitions must be removed from SKILL.md files"
+    affected_phases: [2]
+    affected_scs: [SC-6]

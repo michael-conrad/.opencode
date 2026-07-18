@@ -1,0 +1,21 @@
+code_paths:
+  - path: ".opencode/guidelines/"
+    file_count: 34
+    file_types: [".md"]
+    cross_ref_forms_expected: ["See [text](path)", "Read [text](path)", "§N", "§Name", "non-linked text"]
+  - path: ".opencode/skills/*/SKILL.md"
+    file_count: 59
+    file_types: [".md"]
+    cross_ref_forms_expected: ["See [text](path)", "Read [text](path)", "§N", "§Name", "resolution table", "non-linked text", "Load [text](path)"]
+  - path: ".opencode/skills/*/tasks/*.md"
+    file_count: "~200"
+    file_types: [".md"]
+    cross_ref_forms_expected: ["See [text](path)", "Read [text](path)", "§N", "§Name", "non-linked text"]
+  - path: ".opencode/prompts/default.txt"
+    file_count: 1
+    file_types: [".txt"]
+    cross_ref_forms_expected: ["See [text](path)", "Read [text](path)"]
+  - path: ".opencode/scripts/"
+    file_count: "~5"
+    file_types: [".py"]
+    cross_ref_forms_expected: ["See [text](path)", "Read [text](path)"]

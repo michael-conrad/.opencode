@@ -1,0 +1,11 @@
+interfaces:
+  - name: "Cross-reference format"
+    current: "Multiple inconsistent forms (See[text](path), Read[text](path), §N, §Name, resolution tables, non-linked text)"
+    target: "Single canonical form: Load[descriptive text](relative/path.md)"
+    compatibility: "No breaking changes — all references are internal to .opencode/ submodule"
+    consumers:
+      - "AI agents reading SKILL.md files"
+      - "AI agents reading guideline files"
+      - "AI agents reading task files"
+      - "AI agents reading default.txt"
+    backward_compatibility: "Not required — all consumers are in the same submodule and updated atomically"

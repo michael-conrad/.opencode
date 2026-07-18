@@ -1,63 +1,95 @@
-# Implementation Plan — [#1958](https://github.com/michael-conrad/.opencode/issues/1958) — Imperative verb forms for cross-reference load directive
+# Implementation Plan — [#1958](https://github.com/michael-conrad/.opencode/issues/1958) — Canonical cross-reference format rollout
 
-**Goal:** Systematically test 13 verb forms (12 verbs + 1 checkbox-only) × 2 variants (plain/checkbox) × 4 models × 2 contexts (orchestrator/sub-agent) × 2 runs = 416 minimum test runs to identify the verb form that most reliably triggers `read` tool invocation.
-
-**Architecture:** Sequential per-model test execution using `test-verb-variant.sh` harness. No parallel tasking — only one model can be loaded into GPU memory at a time. Preflight warmup required on model switch.
+**Goal:** Replace all non-conforming cross-references in `.opencode/` with the canonical `Load [descriptive text](relative/path.md)` form.
 
 **Files:**
-- `.opencode/tests-v2/behaviors/test-verb-variant.sh` — Test harness
-- `.opencode/tests-v2/behaviors/helpers.sh` — Assertion helpers
 - `.opencode/.issues/1958/plan.md` — This index
-- `.opencode/.issues/1958/plan-01-orchestrator-tests.md` — Phase 1
-- `.opencode/.issues/1958/plan-02-sub-agent-tests.md` — Phase 2
-- `.opencode/.issues/1958/plan-03-analysis.md` — Phase 3
-- `.opencode/.issues/1958/test-record.md` — Test record table (output)
-- `.opencode/.issues/1958/winning-verb-analysis.md` — Analysis document (output)
-
-**Dispatch:** All test execution steps dispatch via `bash .opencode/tests-v2/behaviors/test-verb-variant.sh`. Analysis steps are inline sub-agent tasks.
+- `.opencode/.issues/1958/plan-01-discovery.md` — Phase 1: Discovery and inventory
+- `.opencode/.issues/1958/plan-02-replacement.md` — Phase 2: Replace all non-conforming references
+- `.opencode/.issues/1958/plan-03-close.md` — Phase 3: Close and inform
+- `.opencode/.issues/1958/data/cross-reference-inventory.yaml` — Phase 1 output
 
 ## Blast Radius
 
-- `.opencode/tests-v2/behaviors/test-verb-variant.sh` — May be modified if harness needs adjustment
-- `.opencode/.issues/1958/` — All plan and analysis artifacts
-- `.opencode/guidelines/000-critical-rules.md` — Future: winning verb form replaces `Read [Text](path)` pattern
-- `.opencode/prompts/default.txt` — Future: winning verb form injected into system prompt
-
-## Concern Map Reference
-
-| Concern | Phase | Description |
-|---------|-------|-------------|
-| Orchestrator context tests | 1 | Test all verb forms with directive in `default.txt` (system prompt) |
-| Sub-agent context tests | 2 | Test all verb forms with directive in Tier 2 guideline (loaded on-demand) |
-| Analysis and recommendation | 3 | Identify winning verb, document findings, produce recommendation |
-
-> **Compliance Requirement:** All steps and sub-steps in this plan MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
-
-> **One-step-at-a-time protocol:** Execute exactly one step at a time. Do NOT batch, combine, or parallelize steps. Each step must complete and be verified before the next step begins. The "sub-agent dispatch implies independence" rationalization is explicitly prohibited.
->
-> **No test batching:** Each individual test run (one verb × one variant × one model × one context × one run) is a separate dispatch cycle. Do NOT batch multiple test runs into a single script execution. Each test run must be dispatched independently, complete, and produce its own behavioral evidence artifacts before the next test run begins. This ensures clean isolation between tests and prevents cross-contamination of model state, GPU memory, or agent context.
-
-> **Step Status:** Every step MUST be marked with its current status: `- [ ]` = not started, `- [x]` = completed, `- [~]` = in progress. No step may be skipped or marked complete without verification.
+- `.opencode/guidelines/*.md` — All 34 guideline files
+- `.opencode/skills/*/SKILL.md` — All 59 SKILL.md files
+- `.opencode/skills/*/tasks/*.md` — All task files
+- `.opencode/prompts/default.txt` — Cross-reference directive
+- `.opencode/scripts/*.py` — May contain cross-references in docstrings
 
 ## Phase Table
 
 | Phase | Name | Concern | SCs | Dependencies | Step Range | Dispatch |
 |-------|------|---------|-----|-------------|------------|----------|
-| 1 | Orchestrator Context Tests | Test all 13 verb forms × 2 variants × 4 models × 2 runs in orchestrator context (208 runs) | SC-1, SC-3, SC-8, SC-9 | None | 1.1–1.12 | `test-verb-variant.sh` |
-| 2 | Sub-agent Context Tests | Test all 13 verb forms × 2 variants × 4 models × 2 runs in sub-agent context (208 runs) | SC-2, SC-3, SC-8 | Phase 1 complete | 2.1–2.12 | `test-verb-variant.sh` |
-| 3 | Analysis and Recommendation | Identify winning verb, document findings, produce recommendation | SC-4, SC-5, SC-6, SC-7 | Phase 2 complete | 3.1–3.5 | Inline sub-agent |
+| 1 | Discovery and Inventory | Scan all files, classify cross-references, output inventory YAML | SC-1 | None | 1.1–1.5 | Inline sub-agent |
+| 2 | Replace All Non-Conforming References | Convert every reference to canonical Load[text](path) form | SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | Phase 1 complete | 2.1–2.7 | Inline sub-agent |
+| 3 | Close and Inform | Close #1953, comment on #1925 and #1926 | SC-8, SC-9 | Phase 2 complete | 3.1–3.3 | Inline sub-agent |
 
-> **Compliance Requirement:** All steps and sub-steps in this plan MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+## SC-to-Step Traceability
 
-> **Self-remediation protocol:** If a step fails, diagnose the root cause, fix it, and re-run the step. Do NOT skip the step or mark it as "pass with caveats." If the failure cannot be remediated after 2 attempts, escalate to the developer with the failure details and proposed resolution.
+| SC ID | Criterion | Phase | Step(s) |
+|-------|-----------|-------|---------|
+| SC-1 | Cross-reference inventory produced | 1 | 1.5 |
+| SC-2 | 000-critical-rules.md updated to Load[Text](path) | 2 | 2.1 |
+| SC-3 | No See[ or Read[ in any SKILL.md | 2 | 2.2 |
+| SC-4 | No See[ or Read[ in any guideline | 2 | 2.3 |
+| SC-5 | No §N or §Name bare references in any SKILL.md | 2 | 2.4 |
+| SC-6 | No resolution table patterns in any SKILL.md | 2 | 2.5 |
+| SC-7 | No non-linked text references in any SKILL.md | 2 | 2.6 |
+| SC-8 | #1953 closed as superseded | 3 | 3.1 |
+| SC-9 | #1925 and #1926 have comments linking to this spec | 3 | 3.2, 3.3 |
+
+## Safety/Rollback Considerations
+
+**Phase 1 — Safety/Rollback:**
+- Destructive operations: None (read-only scan)
+- Rollback plan: N/A
+- Data loss risk: None
+
+**Phase 2 — Safety/Rollback:**
+- Destructive operations: File edits to guidelines, SKILL.md, task files, default.txt
+- Rollback plan: `git checkout .opencode/guidelines/ .opencode/skills/ .opencode/prompts/` to restore originals
+- Data loss risk: Low (all changes are text replacements; git preserves history)
+
+**Phase 3 — Safety/Rollback:**
+- Destructive operations: Issue closure (irreversible)
+- Rollback plan: Reopen #1953 if closed in error
+- Data loss risk: Low
+
+## Feasibility Verification
+
+| Step | Reference | Verified? | Evidence |
+|------|-----------|-----------|----------|
+| 1.1 | `.opencode/guidelines/` directory | ✅ | `ls` |
+| 1.2 | `.opencode/skills/*/SKILL.md` files | ✅ | `find` |
+| 1.3 | `.opencode/skills/*/tasks/*.md` files | ✅ | `find` |
+| 1.4 | `.opencode/prompts/default.txt` | ✅ | `ls` |
+| 2.1 | `000-critical-rules.md` | ✅ | `ls` |
+| 2.2 | SKILL.md files | ✅ | `find` |
+| 2.3 | Guideline files | ✅ | `ls` |
+| 2.4 | Task files | ✅ | `find` |
+| 2.5 | `default.txt` | ✅ | `ls` |
+| 3.1 | Issue #1953 | ✅ | GitHub API |
+| 3.2 | Issue #1925 | ✅ | GitHub API |
+| 3.3 | Issue #1926 | ✅ | GitHub API |
+
+## Evidence/Provenance
+
+| Claim | Evidence Source | Verified? |
+|-------|----------------|----------|
+| 34 guideline files exist | `find .opencode/guidelines/ -name '*.md' \| wc -l` | ✅ |
+| 59 SKILL.md files exist | `find .opencode/skills/ -name 'SKILL.md' \| wc -l` | ✅ |
+| Task files exist | `find .opencode/skills/ -path '*/tasks/*.md' \| wc -l` | ✅ |
+| default.txt exists | `ls .opencode/prompts/default.txt` | ✅ |
+| #1953 exists | `github_issue_read` | ✅ |
+| #1925 exists | `github_issue_read` | ✅ |
+| #1926 exists | `github_issue_read` | ✅ |
 
 ## Exit Criteria
 
-- [ ] C1: Phase 1 complete — all 208 orchestrator context test runs completed with behavioral evidence artifacts
-- [ ] C2: Phase 2 complete — all 208 sub-agent context test runs completed with behavioral evidence artifacts
-- [ ] C3: Test record table produced at `.opencode/.issues/1958/test-record.md` with all required columns
-- [ ] C4: Winning verb form identified based on file-loading call rate and zero grep/search substitution
-- [ ] C5: Winning verb analysis documented at `.opencode/.issues/1958/winning-verb-analysis.md` with recommendation
-- [ ] C6: Remediation research conducted if adherence rate ≤ 25%
-- [ ] C7: No SC weakened, deferred, or reclassified
-- [ ] C8: Behavioral enforcement tests written and confirmed RED before implementation changes
+- [ ] C1: Phase 1 complete — cross-reference inventory produced at `.opencode/.issues/1958/data/cross-reference-inventory.yaml`
+- [ ] C2: Phase 2 complete — all non-conforming references replaced with canonical `Load [text](path)` form
+- [ ] C3: Phase 3 complete — #1953 closed, #1925 and #1926 have comments
+- [ ] C4: All SCs verified PASS
+- [ ] C5: No SC weakened, deferred, or reclassified
+- [ ] C6: Behavioral enforcement tests written and confirmed RED before implementation changes

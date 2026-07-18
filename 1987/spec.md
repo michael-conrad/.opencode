@@ -14,6 +14,14 @@ authors:
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
+## DiMo Binary Verdict Gate
+
+**Every DiMo role step (Investigator, Validator, Evaluator, Arbiter) produces exactly one of two verdicts: 100% clean PASS, or FAIL. There is no third state. No caveats. No justifications. No upgrades. No "PASS with concerns". No "functionally equivalent". No "mostly correct". No "close enough". No "with notes".**
+
+If a role's output contains any hedging, caveat, justification, or non-confirmatory language alongside a PASS result, that PASS is invalid. The downstream role or orchestrator downgrades it to FAIL. The offending role's output is discarded. The root cause is diagnosed and remediated. Only after remediation is complete does the entire audit chain restart from the Investigator with fresh clean-room sub-agents. No partial state is preserved.
+
+This gate applies to ALL DiMo roles in ALL audit chains. It is non-waivable.
+
 ## Anti-Lobotomization
 
 Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. Read [Test Integrity Mandate](guidelines/080-code-standards.md).
