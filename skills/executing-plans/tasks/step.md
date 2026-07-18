@@ -21,7 +21,7 @@ For each step in the plan:
 ### 3. Verify Step
 
 - Run step verification method
-- **Behavioral uplift at step verification:** If the change affects runtime behavior, uplift the SC evidence type to `behavioral`. Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
+- **Behavioral uplift at step verification:** If the change affects runtime behavior, uplift the SC evidence type to `behavioral`. Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
 - Check all evidence collected
 - Update step status to ☑
 

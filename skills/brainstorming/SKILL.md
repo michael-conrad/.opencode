@@ -73,11 +73,11 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Operating Protocol
 
-Read [the full operating protocol](skills/brainstorming/tasks/operating-protocol.md).
+Load [the full operating protocol](skills/brainstorming/tasks/operating-protocol.md).
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. Load [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
@@ -149,7 +149,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Ideation-Time Classification
 
-When brainstorming specs, if a proposed change affects runtime behavior, its SCs MUST declare `behavioral` evidence type. The classification question ("Does this change affect runtime behavior?") is substrate-determined — not intent-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+When brainstorming specs, if a proposed change affects runtime behavior, its SCs MUST declare `behavioral` evidence type. The classification question ("Does this change affect runtime behavior?") is substrate-determined — not intent-determined. Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
 
 ## Cross-References
 

@@ -43,7 +43,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
 ## Label State Machine
 
-Before adding or removing labels in completion, Read [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) for the complete label transition matrix and the GitHub `labels` parameter warning (replaces all labels, not additive).
+Before adding or removing labels in completion, Load [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) for the complete label transition matrix and the GitHub `labels` parameter warning (replaces all labels, not additive).
 
 ## Report Phase
 
@@ -70,7 +70,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 
 ## Live Verification: Completion Evidence (MANDATORY)
 
-**Each completion state check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings per Read [verification-honesty guidelines](guidelines/065-verification-honesty.md).**
+**Each completion state check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings per Load [verification-honesty guidelines](guidelines/065-verification-honesty.md).**
 
 | Claim | Verification Action | Tool Call (routed) | Problem Class |
 |-------|-------------------|-----------|---------------|

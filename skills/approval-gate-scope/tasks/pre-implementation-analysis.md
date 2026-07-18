@@ -49,15 +49,15 @@ collect-screening-results → reconcile-status → build-dependency-graph
 
 ## Cross-References
 
-- Read [Pushing Agent Intelligence Decisions to the User](guidelines/000-critical-rules.md) — structural decisions are agent intelligence concerns
-- Read [GO Prohibitions §1](guidelines/020-go-prohibitions.md) — no prompts for authorization; "approved to PR" covers the full pipeline
-- Read [screen-issue task](skills/approval-gate-scope/tasks/screen-issue.md) — exhaustive `requires_developer: true` conditions
-- Read [Task Order](skills/approval-gate/SKILL.md) — "MUST auto-dispatch" after analysis completes
+- Load [Pushing Agent Intelligence Decisions to the User](guidelines/000-critical-rules.md) — structural decisions are agent intelligence concerns
+- Load [GO Prohibitions §1](guidelines/020-go-prohibitions.md) — no prompts for authorization; "approved to PR" covers the full pipeline
+- Load [screen-issue task](skills/approval-gate-scope/tasks/screen-issue.md) — exhaustive `requires_developer: true` conditions
+- Load [Task Order](skills/approval-gate/SKILL.md) — "MUST auto-dispatch" after analysis completes
 
 ## Enforcement References
 
-- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
-- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)
-- Auto-dispatch routing: Read [auto-dispatch-table](enforcement/auto-dispatch-table.md)
-- Closed-issue verification: Read [closed-issue-verification](enforcement/closed-issue-verification.md)
-- Sub-issue graph traversal: Read [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)
+- Evidence format + finding classification: Load [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Load [scope-parsing](enforcement/scope-parsing.md)
+- Auto-dispatch routing: Load [auto-dispatch-table](enforcement/auto-dispatch-table.md)
+- Closed-issue verification: Load [closed-issue-verification](enforcement/closed-issue-verification.md)
+- Sub-issue graph traversal: Load [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)

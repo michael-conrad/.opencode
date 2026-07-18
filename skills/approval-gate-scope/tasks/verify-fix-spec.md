@@ -53,7 +53,7 @@ Examine sub-issues for:
 **If fix spec is missing:**
 - Report "fix spec sub-issue NOT found for bug report"
 - Recommend invoking `issue-review --issue N --task analyze-and-spec`
-- This is a **blocking condition** for bug report closure per Read [000-critical-rules.md](guidelines/000-critical-rules.md)
+- This is a **blocking condition** for bug report closure per Load [000-critical-rules.md](guidelines/000-critical-rules.md)
 
 ## Edge Cases
 
@@ -68,7 +68,7 @@ Examine sub-issues for:
 
 **🚫 CRITICAL: A closed bug report does NOT mean the fix is already resolved.** Before skipping verification for a closed bug report, verify that the closure is legitimate per the closed-issue verification module.
 
-- Read [closed-issue-verification](enforcement/closed-issue-verification.md) for the complete closed-state verification procedure, state_reason classification, and merged PR evidence requirements
+- Load [closed-issue-verification](enforcement/closed-issue-verification.md) for the complete closed-state verification procedure, state_reason classification, and merged PR evidence requirements
 
 ## Cross-References
 
@@ -89,6 +89,6 @@ Examine sub-issues for:
 
 ## Enforcement References
 
-- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
-- Closed-issue verification procedure: Read [closed-issue-verification](enforcement/closed-issue-verification.md)
-- Sub-issue graph traversal: Read [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)
+- Evidence format + finding classification: Load [adversarial-verification](enforcement/adversarial-verification.md)
+- Closed-issue verification procedure: Load [closed-issue-verification](enforcement/closed-issue-verification.md)
+- Sub-issue graph traversal: Load [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)

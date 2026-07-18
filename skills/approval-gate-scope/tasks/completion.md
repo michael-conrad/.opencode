@@ -25,7 +25,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
 ## Label State Machine
 
-Before adding or removing labels in completion, Read [§10](guidelines/141-planning-status-tracking.md) for the complete label transition matrix and the GitHub `labels` parameter warning (replaces all labels, not additive).
+Before adding or removing labels in completion, Load [§10](guidelines/141-planning-status-tracking.md) for the complete label transition matrix and the GitHub `labels` parameter warning (replaces all labels, not additive).
 
 ## Completion Guarantee
 
@@ -58,7 +58,7 @@ Issue URL: <html_url from issue-operations -> update-issue or issue-operations -
 🤖 <AgentName> (<ModelId>) <status>
 ```
 
-**Post-Creation URL Extraction (MANDATORY — Read [URL Sourcing](guidelines/000-critical-rules.md)):**
+**Post-Creation URL Extraction (MANDATORY — Load [URL Sourcing](guidelines/000-critical-rules.md)):**
 
 The Issue URL MUST be extracted from the API response `html_url` field — NEVER constructed from template variables:
 
@@ -67,7 +67,7 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 - [ ] 3. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
 - [ ] 4. If `html_url` is not available in the API response: HALT and report
 
-URL is ALWAYS last — Read [000-critical-rules.md](guidelines/000-critical-rules.md).
+URL is ALWAYS last — Load [000-critical-rules.md](guidelines/000-critical-rules.md).
 
 ### Format Verification Before Halt (MANDATORY)
 
@@ -142,7 +142,7 @@ When the workflow halts due to a blocker (authorization denied, missing spec, va
 
 This format is verified by behavioral enforcement tests in `.opencode/tests-v2/behaviors/test-blocker-report-format.sh`. Any change to this section requires updating the corresponding behavioral test.
 
-**Read [test infrastructure details](.opencode/tests-v2/behaviors/README.md).**
+**Load [test infrastructure details](.opencode/tests-v2/behaviors/README.md).**
 
 ## Adversarial Verification: Completion Claims
 
@@ -167,8 +167,8 @@ The agent's visible output is generated:
 
 ## Enforcement References
 
-- Evidence format + finding classification: Read [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
-- Scope parsing: Read [scope-parsing.md](skills/approval-gate-scope/tasks/enforcement/scope-parsing.md)
+- Evidence format + finding classification: Load [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
+- Scope parsing: Load [scope-parsing.md](skills/approval-gate-scope/tasks/enforcement/scope-parsing.md)
 
 ## Pipeline Signal
 

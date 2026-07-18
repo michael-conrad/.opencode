@@ -97,7 +97,7 @@ For each SC, verify it meets the decomposition-depth mandate from `decompose.md`
 | PASS/FAIL of the SC cannot be split across two assertions | The SC references multiple files or verification domains in the same criterion |
 | The SC maps to exactly one RED→GREEN→COMMIT cycle | The SC would require multiple implementation steps to satisfy |
 
-**Cross-reference:** Read [Decomposition-Depth Mandate](decompose.md), Read [Per-Item TDD Cycle](guidelines/091-incremental-build.md).
+**Cross-reference:** Load [Decomposition-Depth Mandate](decompose.md), Load [Per-Item TDD Cycle](guidelines/091-incremental-build.md).
 
 Record each SC as `decomposition_depth_valid: true | false`. Any SC failing this check must be split before the spec proceeds to implementation.
 

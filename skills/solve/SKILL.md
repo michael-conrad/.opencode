@@ -35,7 +35,7 @@ You are a Z3 Constraint Solver Specialist. Your focus is formal verification of 
 
 ## Contract YAML Schema
 
-Read [the full schema reference](tasks/contract.md) — variables section (type, domain, nullable), preconditions, invariants, postconditions, and theorem. Z3 expression syntax: Implies, And, Or, Not, StringVal, BoolVal, IntVal, Distinct.
+Load [the full schema reference](tasks/contract.md) — variables section (type, domain, nullable), preconditions, invariants, postconditions, and theorem. Z3 expression syntax: Implies, And, Or, Not, StringVal, BoolVal, IntVal, Distinct.
 
 ## Tasks
 

@@ -111,21 +111,21 @@ Evaluate each criterion against the validated evidence. Expected values referenc
 | PF-3 | Steps cover ALL success criteria; missing any is automatic FAIL per spec gate | Each SC has corresponding step — missing any is automatic FAIL |
 | PF-4 | No missing critical steps | Edge cases, error recovery included |
 | PF-5 | Approach consistent | Clean-room and existing use same strategy |
-| PF-6 | TDD checkpoints present with RED/GREEN separation; every step has dispatch mode indicator | RED GREEN REFACTOR structure present; RED and GREEN are separate phases, not combined; every step has a valid dispatch indicator per Read [Dispatch Indicators](skills/writing-plans/tasks/write.md) — exactly one of the three |
+| PF-6 | TDD checkpoints present with RED/GREEN separation; every step has dispatch mode indicator | RED GREEN REFACTOR structure present; RED and GREEN are separate phases, not combined; every step has a valid dispatch indicator per Load [Dispatch Indicators](skills/writing-plans/tasks/write.md) — exactly one of the three |
 | PF-7a | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
 | PF-7 | SC gate language preserved in plan tasks | Plan task structure references the all-or-nothing gate from spec; each TDD RED checkpoint is a sub-gate in the chain |
-| PF-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs in plan instructions | If a plan phase's verification instructions accept structural evidence (grep/read/file-exists) for a behavioral SC, return FAIL with `STRUCTURAL_EVIDENCE` classification. **PF-STRUCTURAL-FAIL uplift:** When checking plan fidelity, if an implementation change affects runtime behavior, uplift the SC evidence type to `behavioral`. Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md). Verification instructions MUST require behavioral test execution — structural checks do not verify behavior. |
-| PF-Z3-CONTRACT | Z3 contract completeness and correctness | Check: (1) Contract follows Read [Contract YAML Structure](skills/solve/tasks/contract.md) — typed variables (`type`, `domain`, `nullable`) with Z3 expression constraints. (2) NO preconditions declared (preconditions block valid state transitions). (3) Invariants enforce serial ordering (implies pN, pN-1). Any check fails → PF-BLOCKED. |
+| PF-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs in plan instructions | If a plan phase's verification instructions accept structural evidence (grep/read/file-exists) for a behavioral SC, return FAIL with `STRUCTURAL_EVIDENCE` classification. **PF-STRUCTURAL-FAIL uplift:** When checking plan fidelity, if an implementation change affects runtime behavior, uplift the SC evidence type to `behavioral`. Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md). Verification instructions MUST require behavioral test execution — structural checks do not verify behavior. |
+| PF-Z3-CONTRACT | Z3 contract completeness and correctness | Check: (1) Contract follows Load [Contract YAML Structure](skills/solve/tasks/contract.md) — typed variables (`type`, `domain`, `nullable`) with Z3 expression constraints. (2) NO preconditions declared (preconditions block valid state transitions). (3) Invariants enforce serial ordering (implies pN, pN-1). Any check fails → PF-BLOCKED. |
 | PF-PRESCRIPTIVE-CODE | No prescriptive code in RED/GREEN conditions | RED/GREEN conditions contain NO line numbers, exact code, or file paths. RED describes "what fails". GREEN describes "what must be true". Prescriptive content → flag if present. |
 | PF-CHECKLIST-FORMAT | All steps use `- [ ] N.` format with sub-bullets | Every step is a numbered checkbox with at least one sub-bullet containing metadata, SC reference, or command |
-| PF-DISPATCH-MODE | Every step has valid dispatch mode indicator | Every step title contains a valid dispatch indicator per Read [Dispatch Indicators](skills/writing-plans/tasks/write.md) — exactly one of the three |
+| PF-DISPATCH-MODE | Every step has valid dispatch mode indicator | Every step title contains a valid dispatch indicator per Load [Dispatch Indicators](skills/writing-plans/tasks/write.md) — exactly one of the three |
 | PF-DISPATCH-DEFECTS | Dispatch marking defects detected: (a) missing Dispatch declaration, (b) `inline` phase with only sub-agent steps, (c) `sub-agent-clean-room` phase with `(**inline**)` steps | Check plan phase table for `Dispatch` column (split plans) or `**Dispatch:**` field (non-split plans). If missing → FAIL. If `Dispatch: inline` and all steps are `(**sub-agent**)`/`(**clean-room**)` → FAIL. If `Dispatch: sub-agent-clean-room` and any step is `(**inline**)` → FAIL. |
 | PF-SUBSTEP-EXPAND | No collapsed multi-operation steps | Every sub-operation from pipeline task files gets its own `- [ ] N.` entry. No step describes more than one atomic action |
 | PF-ADMONISHMENT | Compliance admonishment present at top and bottom | Full canonical text blockquote: "rework from scratch and loss of all prior work" — present at both prologue and epilogue |
 | PF-GLOBAL-NUMBERING | Steps numbered globally across all phases | No per-phase restart — step N+1 follows step N across phase boundaries |
 | PF-ONE-STEP | One-step-at-a-time protocol admonishment present at top of plan | FAIL if missing |
 | PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
-| PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
+| PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
 
 ### Step 4: Evaluate Each Criterion
 
@@ -363,8 +363,8 @@ remediation_required: true | false
 - `tasks/resolve-models.md` — Arbiter role (consumes this task's `verdict.yaml`)
 - `audit/SKILL.md` — DiMo chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
-- Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md) (PF-STRUCTURAL-FAIL uplift), Read [critical-rules-034](guidelines/000-critical-rules.md) (inline work prohibition)
-- Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — dispatch routing table (PF-SEQUENCE-MATCHES source)
-- Read [Contract YAML Structure](skills/solve/tasks/contract.md) (PF-Z3-CONTRACT source)
+- Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md) (PF-STRUCTURAL-FAIL uplift), Load [critical-rules-034](guidelines/000-critical-rules.md) (inline work prohibition)
+- Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — dispatch routing table (PF-SEQUENCE-MATCHES source)
+- Load [Contract YAML Structure](skills/solve/tasks/contract.md) (PF-Z3-CONTRACT source)
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
