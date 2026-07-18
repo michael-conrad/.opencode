@@ -42,8 +42,11 @@ BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests-v2/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
 BEHAVIOR_HARNESS_VERSION="${BEHAVIOR_HARNESS_VERSION:-1}"
 
+# Use bare command name so with-test-home's env -i PATH resolution
+# finds $TEST_HOME/bin/opencode (the standalone binary copy).
+# NEVER resolve to an absolute path — that bypasses PATH isolation.
 if command -v opencode &>/dev/null; then
-    OPENCODE_CMD=("$(command -v opencode)")
+    OPENCODE_CMD=("opencode")
 elif [ -x /usr/bin/opencode-cli ]; then
     echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
     OPENCODE_CMD=(/usr/bin/opencode-cli)
@@ -394,14 +397,26 @@ behavior_get_stderr() {
     cat "$BEHAVIOR_STDERR"
 }
 
-HELPERS_OC_MODELS=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
-mapfile -t BEHAVIORAL_MODEL_POOL <<< "$HELPERS_OC_MODELS"
-unset HELPERS_OC_MODELS
-if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
-    echo "WARNING: no cloud models found via 'opencode models' — BEHAVIORAL_MODEL_POOL empty" >&2
-fi
+# Lazy-init: BEHAVIORAL_MODEL_POOL is populated on first call to behavior_run_pool.
+# NOT at source time — sourcing helpers.sh must NOT run opencode models against production DB.
+BEHAVIORAL_MODEL_POOL_INITIALIZED=0
+BEHAVIORAL_MODEL_POOL=()
+
+__init_model_pool() {
+    if [ "$BEHAVIORAL_MODEL_POOL_INITIALIZED" = "1" ]; then
+        return
+    fi
+    local pool
+    pool=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
+    mapfile -t BEHAVIORAL_MODEL_POOL <<< "$pool"
+    BEHAVIORAL_MODEL_POOL_INITIALIZED=1
+    if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
+        echo "WARNING: no cloud models found via 'opencode models' — BEHAVIORAL_MODEL_POOL empty" >&2
+    fi
+}
 
 behavior_run_pool() {
+    __init_model_pool
     local scenario_name="$1"
     local message="$2"
 
