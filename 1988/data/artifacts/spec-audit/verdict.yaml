@@ -1,0 +1,58 @@
+spec_title: "Inline cf. form with resolution table and admonition — systematic comparison against Agent Skills spec inline link form"
+spec_number: 1988
+evaluator_model: deepseek-v4-flash
+evaluation_date: "2026-07-17"
+
+criteria:
+  - criterion_name: Problem clarity
+    status: PASS
+    finding: "Lines 5-11 clearly state the atomic-read limitation and the need for systematic comparison of cross-reference forms. The Key Fact section (lines 13-17) provides essential context about the agent's reading model."
+    severity: minor
+
+  - criterion_name: Goals definition
+    status: PASS
+    finding: "4 explicit, measurable goals: compare Forms A/B/C, determine best B variant, test sub-agent handoff, produce recommendation."
+    severity: minor
+
+  - criterion_name: Non-goals
+    status: PASS
+    finding: "4 non-goals clearly listed (lines 26-31), including the explicit exclusion of Form C verb variant testing — resolving validator finding #4."
+    severity: minor
+
+  - criterion_name: Scope
+    status: PASS
+    finding: "Well-defined scope (lines 33-42): 3 forms, 3 B variants, 4 fixtures, 2 tiers, 3 runs per cell (cell defined at line 39 — resolving validator finding #3), 15 runs per fixture, default and fallback models."
+    severity: minor
+
+  - criterion_name: Design/forms
+    status: PASS
+    finding: "Forms A, B, C fully described with syntax examples (lines 44-75). B variants (B1 bare, B2 bracketed, B3 conditional) explicitly listed. Fixture types (A-D) described with concrete examples (lines 77-99)."
+    severity: minor
+
+  - criterion_name: Success criteria
+    status: PASS
+    finding: "6 SCs (SC-0 through SC-5) with IDs, evidence types, PASS thresholds, and verification methods. SC-0 added for Form A baseline (resolving validator finding #6). SC-1 threshold corrected to ≥12 of 15 runs (resolving validator finding #1). SC-3 threshold corrected to ≥9 of 12 runs for 4 fixtures (resolving validator finding #2). SC-4 clarified as absolute difference ≤1 with example (resolving validator finding #5)."
+    severity: minor
+
+  - criterion_name: Measurements
+    status: PASS
+    finding: "4 measurements (File access, Read selection, Read depth, Time) with evidence types, descriptions, and thresholds (lines 126-133)."
+    severity: minor
+
+  - criterion_name: Approach
+    status: PASS
+    finding: "6-step approach (lines 142-149) is clear and reproducible. Fixture selection criteria and winning-form decision criteria explicitly defined."
+    severity: minor
+
+  - criterion_name: Impact/risks
+    status: PASS
+    finding: "2 risks (model variability, fixture refinement) and 1 key dependency documented (lines 151-155). Adequate for a comparison spec."
+    severity: advisory
+
+  - criterion_name: Structural completeness
+    status: PASS
+    finding: "All required sections present: Problem, Goals, Non-Goals, Scope, Forms, Fixtures, Test Tiers, Success Criteria, Measurements, Test Fixtures Required, Approach, Impact. The Key Fact section (lines 13-17) sits between Problem and Goals — a minor structural interleaving noted by the investigator but not blocking."
+    severity: minor
+
+overall_status: PASS
+verdict_summary: "All 10 evaluation criteria pass. The spec is well-structured with clear problem statement, measurable goals, explicit non-goals, and well-defined scope. All 6 validator findings from the previous audit have been resolved: SC-0 added for Form A baseline, SC-1 threshold corrected to 15 runs, SC-3 threshold corrected to 4 fixtures, 'cell' term defined, Form C verb variant exclusion stated in Non-Goals, and SC-4 tolerance clarified as absolute difference ≤1. The only remaining minor concern is the Key Fact section interleaved between Problem and Goals, which is contextualized and non-blocking."

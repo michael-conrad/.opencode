@@ -1,0 +1,16 @@
+spec_title: "Inline cf. form with resolution table and admonition — systematic comparison against Agent Skills spec inline link form"
+spec_number: 1988
+spec_state: open
+has_problem_statement: true
+has_goals: true
+has_non_goals: true
+has_scope: true
+has_forms_or_design: true
+has_success_criteria: true
+has_measurements: true
+has_approach: true
+has_impact_risks: true
+has_call_to_action: true
+structural_issues:
+  - "Key Fact section (lines 13-17) still interrupts flow between Problem and Goals. While now contextualized with a #1958 cross-reference, it remains a prose block that breaks the Problem→Goals narrative sequence. Minor — not blocking."
+evidence_summary: "The revised spec addresses all 8 previous audit findings. SC table is present with 5 criteria (SC-1 through SC-5), each with evidence type, PASS threshold, and verification method. Fallback model (qwen3.1:24b) is specified. Fixture selection criteria and winning-form decision criteria are explicitly defined. Irrelevant-file handling is specified as neutral signal. The only remaining minor concern is the Key Fact section still interleaved between Problem and Goals, but it is now better contextualized."

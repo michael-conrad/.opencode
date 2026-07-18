@@ -1,0 +1,68 @@
+spec_title: "Inline cf. form with resolution table and admonition — systematic comparison against Agent Skills spec inline link form"
+spec_number: 1988
+validated_claims:
+  - claim: "has_problem_statement: true"
+    verdict: confirmed
+    reasoning: "Lines 5-11 contain a clear problem statement describing the atomic-read limitation and the need for a systematic comparison of cross-reference forms."
+  - claim: "has_goals: true"
+    verdict: confirmed
+    reasoning: "Lines 19-24 list 4 explicit goals: compare Forms A/B/C, determine best B variant, test sub-agent handoff, produce recommendation."
+  - claim: "has_non_goals: true"
+    verdict: confirmed
+    reasoning: "Lines 26-30 list 3 non-goals: not testing non-reference forms, not testing the cross-reference pattern itself, not implementing the winning form."
+  - claim: "has_scope: true"
+    verdict: confirmed
+    reasoning: "Lines 32-40 define scope: 3 forms, 3 B variants, 4 fixtures, 2 tiers, 3 runs per cell, default and fallback models."
+  - claim: "has_forms_or_design: true"
+    verdict: confirmed
+    reasoning: "Lines 42-73 describe Forms A, B, C with full syntax examples. Lines 75-97 describe 4 fixture types with examples."
+  - claim: "has_success_criteria: true"
+    verdict: confirmed
+    reasoning: "Lines 113-121 contain an SC table with 5 criteria (SC-1 through SC-5), each with evidence type, PASS threshold, and verification method."
+  - claim: "has_measurements: true"
+    verdict: confirmed
+    reasoning: "Lines 123-130 contain a measurement table with 4 measurements (File access, Read selection, Read depth, Time) with evidence types and descriptions."
+  - claim: "has_approach: true"
+    verdict: confirmed
+    reasoning: "Lines 139-146 contain a 6-step approach: create fixtures, run Tier 1, analyze results, run Tier 2, produce comparison, identify winner."
+  - claim: "has_impact_risks: true"
+    verdict: confirmed
+    reasoning: "Lines 148-152 list 2 risks (model variability, fixture refinement) and 1 key dependency (opencode CLI with qwen3.6:35b-256k)."
+  - claim: "has_call_to_action: true"
+    verdict: confirmed
+    reasoning: "Line 153: 'Review and approve this spec to begin systematic testing.'"
+  - claim: "Key Fact section (lines 13-17) interrupts flow between Problem and Goals"
+    verdict: confirmed
+    reasoning: "The Key Fact section at lines 13-17 sits between the Problem section (lines 5-11) and Goals section (lines 19-24). It breaks the Problem→Goals narrative sequence. The #1958 cross-reference contextualizes it but does not resolve the structural interleaving. Agreed: minor, not blocking."
+  - claim: "SC table is present with 5 criteria, each with evidence type, PASS threshold, and verification method"
+    verdict: confirmed
+    reasoning: "SC table at lines 115-121 has 5 rows (SC-1 through SC-5) with all 4 columns populated: ID, Criterion, Evidence Type, PASS Threshold, Verification Method."
+  - claim: "Fallback model (qwen3.1:24b) is specified"
+    verdict: confirmed
+    reasoning: "Line 40: 'Fallback model: qwen3.1:24b (if default unavailable or times out)'"
+  - claim: "Fixture selection criteria and winning-form decision criteria are explicitly defined"
+    verdict: confirmed
+    reasoning: "Line 111 defines fixture selection criteria (widest spread, tiebreak by representativeness). Line 146 defines winning-form criteria (highest mean access rate, tiebreak by read depth, then time)."
+  - claim: "Irrelevant-file handling is specified as neutral signal"
+    verdict: confirmed
+    reasoning: "Line 97: 'Accessing irrelevant files is a neutral signal (not penalized, not rewarded).'"
+additional_findings:
+  - finding: "SC-1 PASS threshold math does not match the test structure"
+    severity: medium
+    detail: "SC-1 threshold says '≥10 of 12 runs for 1 fixture × 3 forms × 3 runs + 3 B-variant runs'. But the approach (line 142) says '4 fixtures × 3 forms × 3 runs = 36 runs' — this does not account for B variants. If B variants are tested as separate runs, the total per fixture is 15 runs (3 A + 3 B1 + 3 B2 + 3 B3 + 3 C), not 12. If B variants are the 3 Form B runs (one per variant), then the '+ 3 B-variant runs' is double-counting and the threshold should be ≥8 of 9 (80% of 9), not ≥10 of 12. The threshold math is inconsistent with the stated test structure."
+  - finding: "SC-3 PASS threshold references 3 fixtures but spec defines 4 fixtures"
+    severity: medium
+    detail: "SC-3 threshold says '≥7 of 9 runs for 1 variant × 3 fixtures × 3 runs'. The scope (line 36) defines 4 fixture types (Configuration, Rules/Policy, Procedure Steps, Validation Criteria). With 4 fixtures, the correct count is 1 variant × 4 fixtures × 3 runs = 12 runs, and 70% of 12 = 8.4, so threshold should be ≥9 of 12, not ≥7 of 9. Either the threshold is wrong or SC-3 is intended to exclude one fixture without stating so."
+  - finding: "Term 'cell' used without definition"
+    severity: low
+    detail: "Line 38: '3 runs per cell'. The term 'cell' is not defined anywhere in the spec. From context it appears to mean 'per form+fixture combination' but this should be explicit to avoid ambiguity in test execution."
+  - finding: "Form C verb variants are not tested for variant-level performance"
+    severity: low
+    detail: "Form B has 3 inline ref variants (B1 bare, B2 bracketed, B3 conditional) with SC-3 specifically testing variant-level performance. Form C has 3 explicit verb variants ('Read §X', 'Refer to §X', 'Use §X when...') but no SC tests which verb variant performs best. This asymmetry means the spec cannot determine whether a specific verb form within Form C outperforms others."
+  - finding: "SC-4 threshold 'within 1 run' is ambiguous"
+    severity: low
+    detail: "SC-4 threshold: 'Tier 2 rate within 1 run of Tier 1 rate for same form+fixture'. 'Within 1 run' could mean absolute difference ≤1 run (e.g., Tier 1 = 3/3, Tier 2 = 2/3 or 3/3) or proportional difference. With 3 runs per cell, 'within 1 run' means a difference of 33 percentage points is acceptable, which is a wide tolerance. This should be clarified."
+  - finding: "No SC for Form A baseline performance"
+    severity: low
+    detail: "SC-1 and SC-2 compare Forms B/C against Form A, but there is no SC establishing Form A's baseline performance. If Form A achieves 0% access rate, then SC-2's '≥20pp advantage over Form A' is trivially easy. If Form A achieves 80%, it may be impossible. The spec would benefit from an SC establishing Form A's expected baseline."
+reasoning_summary: "The investigator correctly identified all 10 structural section claims and the Key Fact interleaving issue. All claims are confirmed against the spec text. However, the investigator missed 6 additional findings: SC-1 threshold math is inconsistent with the test structure (12-run formula doesn't match 15-run reality), SC-3 threshold incorrectly references 3 fixtures instead of 4, the undefined term 'cell' creates ambiguity, Form C verb variants lack variant-level testing, SC-4's 'within 1 run' tolerance is ambiguous, and there is no baseline SC for Form A performance. These are medium-severity issues that should be resolved before implementation, particularly the SC-1 and SC-3 threshold math errors which could cause false PASS/FAIL outcomes during verification."
