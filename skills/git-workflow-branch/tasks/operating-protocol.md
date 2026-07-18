@@ -16,7 +16,7 @@
 - [ ] 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
 - [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 - [ ] 9. **Release branches:** use `release/v{semver}` naming convention. Release PRs use `compare/$DEFAULT_BRANCH...<target>` compare URL.
-- [ ] 10. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. Read [Tag Layers](AGENTS.md).
+- [ ] 10. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. Load [Tag Layers](AGENTS.md).
 - [ ] 11. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ### Tag Convention (Canonical)

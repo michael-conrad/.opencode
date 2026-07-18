@@ -47,11 +47,11 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## TDD Heading Format Requirement
 
-Read [the TDD heading format requirements and SC-ID extraction contract](skills/test-driven-development/tasks/operating-protocol.md).
+Load [the TDD heading format requirements and SC-ID extraction contract](skills/test-driven-development/tasks/operating-protocol.md).
 
 ## ASCII Cycle Diagram
 
-Read [the TDD cycle diagram](skills/test-driven-development/tasks/operating-protocol.md).
+Load [the TDD cycle diagram](skills/test-driven-development/tasks/operating-protocol.md).
 
 ## Tasks
 
@@ -88,7 +88,7 @@ Invoked after REFACTOR completes. Re-computes blast radius, runs full suite. Rem
 
 ### Completeness Gate (After TDD Cycle, Before Audit)
 
-After Phase 4 passes and before routing to audit, the orchestrator MUST run `completeness-gate --task check` on the deliverable. This gate verifies the deliverable covers all spec success criteria and is structurally sound. The gate is non-adversarial and read-only — it checks presence and coverage, not correctness depth. Read [completeness-gate skill](skills/completeness-gate/SKILL.md) for routing decisions.
+After Phase 4 passes and before routing to audit, the orchestrator MUST run `completeness-gate --task check` on the deliverable. This gate verifies the deliverable covers all spec success criteria and is structurally sound. The gate is non-adversarial and read-only — it checks presence and coverage, not correctness depth. Load [completeness-gate skill](skills/completeness-gate/SKILL.md) for routing decisions.
 
 ## Cycle-Reset Discipline
 

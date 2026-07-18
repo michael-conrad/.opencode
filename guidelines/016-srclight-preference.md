@@ -211,7 +211,7 @@ pycharm_rename_refactoring(pathInProject="src/main.py", symbolName="foo", newNam
 
 ### Worktree Path Resolution
 
-When `worktree.path` is set (working in a git worktree), all file operation tools must prefix paths with the worktree path. Read [060-tool-usage.md](060-tool-usage.md) for the complete tool-by-tool table.
+When `worktree.path` is set (working in a git worktree), all file operation tools must prefix paths with the worktree path. Load [060-tool-usage.md](060-tool-usage.md) for the complete tool-by-tool table.
 
 ```
 # ✅ CORRECT: In worktree context, prefix with worktree.path

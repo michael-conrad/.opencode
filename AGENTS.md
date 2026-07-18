@@ -8,7 +8,7 @@ The AI agent must determine its identity from the system prompt on EVERY session
 2. **Report identity** in byline format: `🤖 <AgentName> (<ModelId>) <status-icon> <status>`
 3. **Examples**: `🤖 OpenCode (ollama-cloud/glm-5) ✅ completed`, `🤖 OpenCode (ollama-cloud/glm-5) 🔄 working`
 
-**Programmatic validation**: The `session-enforcement.ts` plugin injects expected identity values into the `IDENTITY_ECHO` directive and validates the agent's first response against them. On mismatch, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, halting all operations. Read [Inferring GitHub Owner](guidelines/000-critical-rules.md).
+**Programmatic validation**: The `session-enforcement.ts` plugin injects expected identity values into the `IDENTITY_ECHO` directive and validates the agent's first response against them. On mismatch, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, halting all operations. Load [Inferring GitHub Owner](guidelines/000-critical-rules.md).
 
 **WHY**: Different agents/loaders provide different context. System prompt tells you what you are.
 
@@ -229,7 +229,7 @@ The `local-issues` tool handles this resolution automatically via qualified name
 
 **🚫 CRITICAL: Agents MUST NOT read/write `.issues/` files directly through git operations.** Using `read()`, `write()`, `edit()`, `glob()`, or `grep()` on `.issues/` paths in the parent repo silently targets the wrong repository and corrupts git state. All `.issues/` operations MUST go through `.opencode/tools/local-issues` or explicit `git -C <tree>/.issues/` commands.
 
-**Read [the `.issues/` workspace guide](.issues/AGENTS.md) for the complete `.issues/` workspace guide.**
+**Load [the `.issues/` workspace guide](.issues/AGENTS.md) for the complete `.issues/` workspace guide.**
 
 ---
 
@@ -262,7 +262,7 @@ Credential status values: `verified` (token exists + API ping succeeds), `presen
 | **Direct-branch (default)** | `WORKTREE_REQUIRED` NOT set | Relative paths work directly; `worktree.path` NOT set |
 | **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | All paths prefixed with `worktree.path` |
 
-**Branch and submodule state model:** Read [git-workflow skill](skills/git-workflow/SKILL.md) → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
+**Branch and submodule state model:** Load [git-workflow skill](skills/git-workflow/SKILL.md) → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
 
 **Submodule discipline:**
 - Dev parking: `git checkout $DEFAULT_BRANCH && git pull && git submodule init && git submodule foreach "git checkout $DEFAULT_BRANCH && git pull"`
@@ -283,7 +283,7 @@ When the current branch starts with `pair-`, the agent operates in **dev-pair mo
 | `feature/789-xyz` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
 | `spec/789-abc` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
 
-Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. Read [git-workflow skill](skills/git-workflow/SKILL.md) for full task documentation.
+Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. Load [git-workflow skill](skills/git-workflow/SKILL.md) for full task documentation.
 
 ---
 
@@ -293,7 +293,7 @@ Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-clean
 - Create feature branch BEFORE any filesystem change
 - Wait for explicit authorization ("approved" or "go") before implementing
 - SILENTLY HALT after completing a task
-- Use appropriate tools per five-tier hierarchy (Read [mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md))
+- Use appropriate tools per five-tier hierarchy (Load [mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md))
 - Verify before completing. Verification IS completion.
 
 **✅ Multi-Task Spec Workflow (CRITICAL):**
@@ -320,9 +320,9 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 
 ---
 
-## Read-Link Cross-Reference Rule — MANDATORY
+## Load-Link Cross-Reference Rule — MANDATORY
 
-When agent-facing text (guidelines, skill cards, task cards, prompts) references content in another file, the agent MUST use the `Read [Text](path)` pattern. This is an instruction to call the `read` tool on that path — the agent reads the referenced content into its context before proceeding.
+When agent-facing text (guidelines, skill cards, task cards, prompts) references content in another file, the agent MUST use the `Load [Text](path)` pattern. This is an instruction to call the `read` tool on that path — the agent reads the referenced content into its context before proceeding.
 
 ### 🚫 FORBIDDEN
 
@@ -332,8 +332,8 @@ When agent-facing text (guidelines, skill cards, task cards, prompts) references
 
 ### ✅ REQUIRED
 
-- `Read [Text](path)` — The agent MUST call the `read` tool on the path and load the referenced content into context. Example: `Read [the DISPATCH_GATE protocol](.opencode/.guidelines/dispatch-gate-protocol.md)`
-- When the referenced content is too large to inline (e.g., full task file procedures), use `Read [Text](path)` to direct the agent to load it.
+- `Load [Text](path)` — The agent MUST call the `read` tool on the path and load the referenced content into context. Example: `Load [the DISPATCH_GATE protocol](.opencode/.guidelines/dispatch-gate-protocol.md)`
+- When the referenced content is too large to inline (e.g., full task file procedures), use `Load [Text](path)` to direct the agent to load it.
 - When a rule, distinction, or definition must be visible at multiple decision points, inline the full content at each location. Do not rely on the agent following a pointer to another file.
 
 ### Why This Matters
@@ -341,9 +341,9 @@ When agent-facing text (guidelines, skill cards, task cards, prompts) references
 | Pattern | Agent Behavior | Result |
 |---------|---------------|--------|
 | "See `file` §section" | Treated as citation, ignored | Agent never reads the referenced content |
-| `Read [Text](path)` | Treated as instruction to call `read` tool | Agent loads referenced content into context |
+| `Load [Text](path)` | Treated as instruction to call `read` tool | Agent loads referenced content into context |
 
-The `Read [Text](path)` pattern is the only cross-reference form that produces reliable agent behavior. All other forms are defective and must not be used.
+The `Load [Text](path)` pattern is the only cross-reference form that produces reliable agent behavior. All other forms are defective and must not be used.
 
 ---
 

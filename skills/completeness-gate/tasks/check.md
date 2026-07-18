@@ -100,7 +100,7 @@ Return the structured output contract with completeness result and findings.
 
 ## Behavioral Uplift in Non-Adversatorial Check
 
-When running completeness checks, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. The classification question ("Does this change affect runtime behavior?") is substrate-determined. If YES, structural evidence is `EVIDENCE_TYPE_MISMATCH` — Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
+When running completeness checks, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. The classification question ("Does this change affect runtime behavior?") is substrate-determined. If YES, structural evidence is `EVIDENCE_TYPE_MISMATCH` — Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
 
 ## Single-Pass Enforcement
 

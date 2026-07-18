@@ -85,7 +85,7 @@ Framing skipping one gate as equivalent to skipping ALL gates. Overreach induces
 | Plan bodies and implementation plans                    | Dependency-Order Gate                                | Medium    | p-dis-001             |
 | Verification-before-completion sections                 | Self-Drift Contrast + Verification-Signal Discipline | Strong    | p-dis-002 + p-dis-006 |
 | Post-merge cleanup documentation                        | Dependency-Order Gate                                | Medium    | p-dis-001             |
-| Context cost compliance (Read [§1.1](020-go-prohibitions.md)) | Verification-Signal Discipline                       | Strong    | p-dis-006             |
+| Context cost compliance (Load [§1.1](020-go-prohibitions.md)) | Verification-Signal Discipline                       | Strong    | p-dis-006             |
 
 ## Section 3: Pattern Formulas (Canonical)
 
@@ -152,7 +152,7 @@ When patterns from this reference card (257) co-apply with patterns from other r
 
    - If the content defines pipeline ordering or dependency structure: p-dis-001 or p-dis-005 takes precedence — structural ordering is procedural discipline territory.
    - If the content defines identity or quality standard: dark-prose-001/002/003 takes precedence — identity-framing is dark prose territory.
-   - If the content defines verification evidence requirements: p-dis-006 takes precedence with dark-prose-007 cost-frame companion. **Canonical cost model:** Read [§Cost Model](065-verification-honesty.md) for death spiral / break dynamics — cost-frame formula lives in 250, DDL rationale with tiered table lives in 065.
+   - If the content defines verification evidence requirements: p-dis-006 takes precedence with dark-prose-007 cost-frame companion. **Canonical cost model:** Load [§Cost Model](065-verification-honesty.md) for death spiral / break dynamics — cost-frame formula lives in 250, DDL rationale with tiered table lives in 065.
    - If both apply equally: apply both with agency-respecting formulation.
 
 5. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.

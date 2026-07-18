@@ -178,7 +178,7 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 
 ## Worktree Exemption
 
-`.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) files are non-behavioral metadata. Exempt from worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from branching requirement (no direct commits to `$DEFAULT_BRANCH`/`main`).
+`.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) files are non-behavioral metadata. Exempt from worktree requirement per Load [060-tool-usage.md §Worktree Exemption](guidelines/060-tool-usage.md), but NOT exempt from branching requirement (no direct commits to `$DEFAULT_BRANCH`/`main`).
 
 ## Sub-Agent Tasks
 
@@ -267,7 +267,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | Router             | `../../SKILL.md` (issue-operations)                                       |
 | GitBucket platform | `../gitbucket-api/SKILL.md`                                               |
 | GitHub platform    | `../github-mcp/SKILL.md`                                                  |
-| Worktree exemption | `060-tool-usage.md` §Worktree Exemption                                   |
-| Critical rules     | `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories |
+| Worktree exemption | Load [060-tool-usage.md §Worktree Exemption](guidelines/060-tool-usage.md) |
+| Critical rules     | Load [000-critical-rules.md §Creating .opencode/.opencode/ Nested Directories](guidelines/000-critical-rules.md) |
 | Card-020           | `.issues/979/cards/card-020-local-skill-capability-contract.md`           |
 

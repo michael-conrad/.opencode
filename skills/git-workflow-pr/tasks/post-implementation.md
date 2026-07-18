@@ -129,7 +129,7 @@ PR URL: <html_url from github_create_pull_request API response>
 | No branch pushed (no-changes path) | ❌ No | Omit URL element entirely; byline follows outcome directly |
 | PR already created | ✅ Yes | Use PR URL label with `pull/<N>` format instead of "Compare URL" |
 
-**Finding Classification:** Read [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
+**Finding Classification:** Load [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 **Auto-fix on failure:** If any element is missing or misordered, fix the output before sending. Missing elements are auto-fixed before output is sent — NOT reported after the fact.
 
@@ -157,8 +157,8 @@ PR URL: <html_url from github_create_pull_request API response>
 
 ## Enforcement References
 
-- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
-- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)
+- Evidence format + finding classification: Load [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Load [scope-parsing](enforcement/scope-parsing.md)
 
 ## Pipeline Signal
 

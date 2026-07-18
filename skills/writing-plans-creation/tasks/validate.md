@@ -57,7 +57,7 @@ Check an existing plan for placeholders and completeness.
   - Expected: file exists
 
 - [ ] 11. (**inline**) Pipeline-gate completeness — All implementation-pipeline gate steps present with correct skill/task references
-  - Command: Read [the Trigger Dispatch Table](skills/implementation-pipeline/SKILL.md), compare against plan. Every step in the dispatch table MUST be present in the plan with the correct skill/task name. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected. This is non-waivable — no exception for any reason.
+  - Command: Load [the Trigger Dispatch Table](skills/implementation-pipeline/SKILL.md), compare against plan. Every step in the dispatch table MUST be present in the plan with the correct skill/task name. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected. This is non-waivable — no exception for any reason.
   - SC: SC-13
   - Expected: all gate steps present in plan's exit criteria or phase structure with correct skill/task references
 
@@ -72,7 +72,7 @@ Check an existing plan for placeholders and completeness.
   - Expected: all steps use checkbox format
 
 - [ ] 14. (**inline**) Phase workflow completeness — Every phase contains full implementation workflow step sequence with correct skill/task references
-  - Command: Read [the Trigger Dispatch Table](skills/implementation-pipeline/SKILL.md), compare each phase. Every step in the dispatch table MUST be present in each phase with the correct skill/task name. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected. This is non-waivable — no exception for any reason.
+  - Command: Load [the Trigger Dispatch Table](skills/implementation-pipeline/SKILL.md), compare each phase. Every step in the dispatch table MUST be present in each phase with the correct skill/task name. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected. This is non-waivable — no exception for any reason.
   - SC: SC-13
   - Expected: each phase has complete RED/GREEN chain with correct skill/task references
 
@@ -239,7 +239,7 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 
 ## Live Verification: Validation Evidence (MANDATORY)
 
-**Each validation check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings — Read [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
+**Each validation check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings — Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |

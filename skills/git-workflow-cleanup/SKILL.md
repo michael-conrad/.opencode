@@ -49,11 +49,11 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 
 ## Cross-References
 
-- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
-- Read [critical-rules-013](guidelines/000-critical-rules.md) for issue closure timing rules
-- Read [critical-rules-039](guidelines/000-critical-rules.md) for parent/child closure ordering
-- Read [critical-rules-041](guidelines/000-critical-rules.md) for cleanup-on-PR-check trigger
-- Read [critical-rules-042](guidelines/000-critical-rules.md) for content verification before branch deletion
-- Read [critical-rules-049](guidelines/000-critical-rules.md) for submodule-only PR prohibition during cleanup
-- Read [critical-rules-070](guidelines/000-critical-rules.md) for issue closure outside cleanup workflow
-- Read [§3](guidelines/060-tool-usage.md) for behavioral evidence artifact preservation rules
+- Load [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Load [critical-rules-013](guidelines/000-critical-rules.md) for issue closure timing rules
+- Load [critical-rules-039](guidelines/000-critical-rules.md) for parent/child closure ordering
+- Load [critical-rules-041](guidelines/000-critical-rules.md) for cleanup-on-PR-check trigger
+- Load [critical-rules-042](guidelines/000-critical-rules.md) for content verification before branch deletion
+- Load [critical-rules-049](guidelines/000-critical-rules.md) for submodule-only PR prohibition during cleanup
+- Load [critical-rules-070](guidelines/000-critical-rules.md) for issue closure outside cleanup workflow
+- Load [§3](guidelines/060-tool-usage.md) for behavioral evidence artifact preservation rules

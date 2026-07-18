@@ -204,7 +204,7 @@ When a spec has multiple phases/tasks, each phase SHOULD be tracked as a separat
 
 **Single-task exemption:** When a spec has exactly one task, no sub-issues are required.
 
-**Read [issue-operations skill -> link-sub-issue task](skills/issue-operations/SKILL.md) for the complete auto-create workflow and phase-level structure.**
+**Load [issue-operations skill -> link-sub-issue task](skills/issue-operations/SKILL.md) for the complete auto-create workflow and phase-level structure.**
 
 ______________________________________________________________________
 

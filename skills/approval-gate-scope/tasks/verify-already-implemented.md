@@ -51,7 +51,7 @@ For each success criterion:
 - Record evidence: file path, line number, code/content snippet
 - Mark each criterion PASS or FAIL with evidence
 
-**⚠️ CRITICAL: Use tool calls for every verification. Memory recall is NOT evidence. Per Read [verification-honesty guidelines](guidelines/065-verification-honesty.md), reporting unverified information as verified is a critical violation.**
+**⚠️ CRITICAL: Use tool calls for every verification. Memory recall is NOT evidence. Per Load [verification-honesty guidelines](guidelines/065-verification-honesty.md), reporting unverified information as verified is a critical violation.**
 
 ### Step 3: Gate Evidence Audit (MANDATORY)
 
@@ -163,7 +163,7 @@ When `verify-already-implemented` identifies issues that were already implemente
    - The merged PR that verified the implementation
    - Byline: `🤖 <AgentName> (<ModelId>) completed`
 
-**⚠️ CRITICAL:** Do NOT close issues without verifying PR merge via the GitHub API. Assuming a PR was merged without API confirmation is a verification dishonesty violation per Read [verification-honesty guidelines](guidelines/065-verification-honesty.md).
+**⚠️ CRITICAL:** Do NOT close issues without verifying PR merge via the GitHub API. Assuming a PR was merged without API confirmation is a verification dishonesty violation per Load [verification-honesty guidelines](guidelines/065-verification-honesty.md).
 
 ## Pre-Autoclose Sub-Issue Verification
 
@@ -239,7 +239,7 @@ For each sub-issue verified as legitimately closed:
 
 ### Pre-Autoclose Verification Finding Classification
 
-Read [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
+Load [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## What This Is NOT
 
@@ -252,7 +252,7 @@ This task ONLY handles the case where an approved spec describes changes that ar
 
 ## Relationship to PR Requirements
 
-Read [Skipping PR for Documentation/Guideline Changes](guidelines/000-critical-rules.md):
+Load [Skipping PR for Documentation/Guideline Changes](guidelines/000-critical-rules.md):
 
 | Scenario | PR Required? |
 |----------|-------------|
@@ -273,14 +273,14 @@ Autoclose bypasses the PR workflow because no branch, commits, or PR are needed 
 
 ## Enforcement References
 
-- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
-- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)
-- Closed-issue verification: Read [closed-issue-verification](enforcement/closed-issue-verification.md)
-- Sub-issue graph traversal: Read [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)
+- Evidence format + finding classification: Load [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Load [scope-parsing](enforcement/scope-parsing.md)
+- Closed-issue verification: Load [closed-issue-verification](enforcement/closed-issue-verification.md)
+- Sub-issue graph traversal: Load [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)
 
 ## Context Required
 
 - Preceded by: `verify-authorization`, `verify-codebase`, `verify-blockers`
 - Supersedes: None (new task)
 - Related: `post-implementation` (used when implementation IS needed)
-- Label state machine: Read [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) (remove `needs-approval` on autoclose)
+- Label state machine: Load [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) (remove `needs-approval` on autoclose)

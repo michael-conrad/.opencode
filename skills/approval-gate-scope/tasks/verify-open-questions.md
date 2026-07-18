@@ -43,7 +43,7 @@ If ANY open questions remain unresolved:
 
 ## Adversarial Verification: Question Resolution State
 
-Adversarial verification model (evidence format, classification tiers, tier actions): Read [adversarial-verification](enforcement/adversarial-verification.md)
+Adversarial verification model (evidence format, classification tiers, tier actions): Load [adversarial-verification](enforcement/adversarial-verification.md)
 
 ### Verify Open Questions Against All Comments
 
@@ -87,7 +87,7 @@ comments = issue-operations -> read-comments (github_issue_read(method="get_comm
 
 ### Task-Specific Findings
 
-Read [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
+Load [adversarial-verification](enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Context Required
 
@@ -97,4 +97,4 @@ Read [adversarial-verification](enforcement/adversarial-verification.md) for the
 
 ## Enforcement References
 
-- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
+- Evidence format + finding classification: Load [adversarial-verification](enforcement/adversarial-verification.md)

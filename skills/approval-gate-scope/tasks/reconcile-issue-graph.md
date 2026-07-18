@@ -1,10 +1,10 @@
 # Task: reconcile-issue-graph
 
-Act on findings from the issue graph traversal performed by Read [§5.5](skills/approval-gate-scope/tasks/verify-authorization.md). This task takes the traversal findings and resolves them — auto-closing verified-complete tickets, reopening verified-incomplete tickets, and flagging uncertain tickets for developer action.
+Act on findings from the issue graph traversal performed by Load [§5.5](skills/approval-gate-scope/tasks/verify-authorization.md). This task takes the traversal findings and resolves them — auto-closing verified-complete tickets, reopening verified-incomplete tickets, and flagging uncertain tickets for developer action.
 
 ## Pre-Conditions
 
-- Graph traversal complete via Read [§5.5](skills/approval-gate-scope/tasks/verify-authorization.md)
+- Graph traversal complete via Load [§5.5](skills/approval-gate-scope/tasks/verify-authorization.md)
 - Findings list available from traversal output
 - `<github.owner>` and `<github.repo>` from session context
 
@@ -169,7 +169,7 @@ session_vars:
   dev.email: <from-session>
   worktree.path: <from-session>
 ```## Enforcement References
--  Evidence format + finding classification: Read [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
--  Scope parsing: Read [scope-parsing.md](skills/approval-gate-scope/tasks/enforcement/scope-parsing.md)
--  Closed-issue verification: Read [closed-issue-verification.md](skills/approval-gate-scope/tasks/enforcement/closed-issue-verification.md)
--  Sub-issue graph traversal: Read [sub-issue-graph-traversal.md](skills/approval-gate-scope/tasks/enforcement/sub-issue-graph-traversal.md)
+-  Evidence format + finding classification: Load [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
+-  Scope parsing: Load [scope-parsing.md](skills/approval-gate-scope/tasks/enforcement/scope-parsing.md)
+-  Closed-issue verification: Load [closed-issue-verification.md](skills/approval-gate-scope/tasks/enforcement/closed-issue-verification.md)
+-  Sub-issue graph traversal: Load [sub-issue-graph-traversal.md](skills/approval-gate-scope/tasks/enforcement/sub-issue-graph-traversal.md)

@@ -163,4 +163,4 @@ Bash/shell commands ONLY when no other tool covers the operation or it's inheren
 
 ## Critical Rules
 
-`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. Read [§2 for worktree path resolution rules](guidelines/060-tool-usage.md) and Read [§1 for notebook MCP mandate](guidelines/060-tool-usage.md)
+`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. Load [§2 for worktree path resolution rules](guidelines/060-tool-usage.md) and Load [§1 for notebook MCP mandate](guidelines/060-tool-usage.md)
