@@ -1,0 +1,99 @@
+# Evaluator Report — Plan-Fidelity DiMo Chain
+# Role: Weighted assessment of plan fidelity, identifying any gaps or concerns
+
+## Assessment Dimensions
+
+### Dimension 1: SC Coverage (weight: high)
+
+coverage:
+  total_scs: 9
+  traced: 9
+  untraced: 0
+  score: 1.0
+  assessment: "Complete — every SC has at least one plan item"
+
+### Dimension 2: Step-to-SC Mapping (weight: high)
+
+mapping:
+  total_phases: 5
+  mapped: 5
+  unmapped: 0
+  score: 1.0
+  assessment: "Complete — every phase maps to SCs (Phase 0 is prerequisite, explicitly noted)"
+
+### Dimension 3: Faithfulness to Spec Phases (weight: high)
+
+faithfulness:
+  spec_phases: 3
+  plan_phases: 5
+  note: "Plan adds Phase 0 (pre-work) and Phase 4 (post-implementation) — these are standard pipeline gates required by the spec's 'Implementation' section, not scope creep"
+  score: 1.0
+  assessment: "Faithful — plan phases 1-3 are 1:1 with spec phases; phases 0 and 4 are mandatory pipeline gates"
+
+### Dimension 4: Risk Coverage (weight: medium)
+
+risk_coverage:
+  spec_risks: 2
+  addressed: 2
+  unaddressed: 0
+  score: 1.0
+  assessment: "Both spec risks are addressed in the plan"
+
+### Dimension 5: Evidence Type Alignment (weight: medium)
+
+evidence_alignment:
+  exact_matches: 2
+  uplift_acknowledged: 7
+  mismatches: 0
+  score: 1.0
+  assessment: "SC-1, SC-8, SC-9 match exactly. SC-2 through SC-7 are correctly uplifted from string to behavioral with explicit acknowledgment in plan.md and plan-02-replacement.md"
+
+### Dimension 6: Pipeline Chain Completeness (weight: high)
+
+pipeline:
+  required_steps: ["pre-work", "implementation-pipeline", "VbC", "finishing-checklist", "review-prep"]
+  included: 5
+  missing: 0
+  score: 1.0
+  assessment: "Full pipeline chain documented in plan.md lines 49-54 and implemented across phases 0, 2, and 4"
+
+### Dimension 7: Supporting Item Coverage (weight: low)
+
+supporting_items:
+  - item: "2.7 — Task files"
+    sc_coverage: "Not directly mapped to a single SC"
+    justification: "Spec Phase 2 explicitly includes 'All task files' in scope. SC-3/SC-5/SC-7 cover SKILL.md only. Task files are a separate file group within the same replacement concern."
+    verdict: ACCEPTABLE
+
+  - item: "2.8 — default.txt and scripts"
+    sc_coverage: "Not directly mapped to a single SC"
+    justification: "Spec Phase 2 explicitly includes 'default.txt' and 'Any other file in .opencode/ with cross-references'. These are within spec scope."
+    verdict: ACCEPTABLE
+
+  - item: "2.9 — Final verification sweep"
+    sc_coverage: "Covers all SCs (grep + behavioral + spot-check)"
+    justification: "This is a consolidation/verification item, not a new SC. It verifies all SCs are met."
+    verdict: ACCEPTABLE
+
+## Weighted Score
+
+weighted_score:
+  dimensions: 7
+  max_score: 7.0
+  actual_score: 7.0
+  percentage: 100.0
+  grade: PASS
+
+## Concerns
+
+concerns: []
+  # No concerns identified. The plan is complete, faithful, and well-structured.
+
+## Summary
+
+summary: >
+  The plan demonstrates complete fidelity to the spec. All 9 SCs are traced to plan items,
+  all 5 phases map to SCs, the evidence type uplift is explicitly acknowledged, both spec
+  risks are addressed, and the full pipeline chain is included. The three supporting items
+  (2.7, 2.8, 2.9) that lack direct single-SC mapping are within spec scope and are
+  necessary for completeness. No gaps, no scope creep, no evidence type mismatches.

@@ -1,0 +1,174 @@
+# Validator Report — Plan-Fidelity DiMo Chain
+# Role: Cross-check investigator findings against actual plan/spec content
+
+## Validation Checks
+
+### Check 1: Every SC traced to at least one plan step
+
+validation:
+  - sc: SC-1
+    plan_refs: ["plan-01-discovery.md Item 1.1"]
+    actual_content: "Item 1.1 — Scan and classify all cross-references — includes 'Aggregate all findings into .opencode/.issues/1958/data/cross-reference-inventory.yaml'"
+    verdict: PASS
+
+  - sc: SC-2
+    plan_refs: ["plan-02-replacement.md Item 2.1"]
+    actual_content: "Item 2.1 — Update 000-critical-rules.md — RED/GREEN/REFACTOR/COMMIT cycle for Load[Text](path)"
+    verdict: PASS
+
+  - sc: SC-3
+    plan_refs: ["plan-02-replacement.md Item 2.2"]
+    actual_content: "Item 2.2 — Update all SKILL.md files (verb replacement) — replaces See/Read with Load"
+    verdict: PASS
+
+  - sc: SC-4
+    plan_refs: ["plan-02-replacement.md Item 2.3"]
+    actual_content: "Item 2.3 — Update all guideline files (verb replacement)"
+    verdict: PASS
+
+  - sc: SC-5
+    plan_refs: ["plan-02-replacement.md Item 2.4"]
+    actual_content: "Item 2.4 — Remove bare §N and §Name references from SKILL.md"
+    verdict: PASS
+
+  - sc: SC-6
+    plan_refs: ["plan-02-replacement.md Item 2.5"]
+    actual_content: "Item 2.5 — Remove resolution table patterns from SKILL.md"
+    verdict: PASS
+
+  - sc: SC-7
+    plan_refs: ["plan-02-replacement.md Item 2.6"]
+    actual_content: "Item 2.6 — Remove non-linked text references from SKILL.md"
+    verdict: PASS
+
+  - sc: SC-8
+    plan_refs: ["plan-03-close.md Item 3.1"]
+    actual_content: "Item 3.1 — Close #1953 as superseded — includes comment, close, verification"
+    verdict: PASS
+
+  - sc: SC-9
+    plan_refs: ["plan-03-close.md Items 3.2, 3.3"]
+    actual_content: "Item 3.2 — Comment on #1925; Item 3.3 — Comment on #1926"
+    verdict: PASS
+
+### Check 2: Every plan step maps to at least one SC
+
+  - phase: 0
+    items: ["0.1"]
+    scs: []
+    note: "Prerequisite — no SCs. Plan.md line 26 explicitly states 'SCs: — (prerequisite)'"
+    verdict: PASS (prerequisite exemption)
+
+  - phase: 1
+    items: ["1.1"]
+    scs: ["SC-1"]
+    verdict: PASS
+
+  - phase: 2
+    items: ["2.1".."2.9"]
+    scs: ["SC-2".."SC-7"]
+    note: "Items 2.7 (task files), 2.8 (default.txt/scripts), 2.9 (final sweep) are supporting items. Spec Phase 2 description explicitly includes 'All task files' and 'Any other file in .opencode/ with cross-references' — these items implement that scope."
+    verdict: PASS
+
+  - phase: 3
+    items: ["3.1", "3.2", "3.3"]
+    scs: ["SC-8", "SC-9"]
+    verdict: PASS
+
+  - phase: 4
+    items: ["4.1", "4.2", "4.3", "4.4"]
+    scs: ["All SCs"]
+    verdict: PASS
+
+### Check 3: Plan faithfully implements spec phases
+
+spec_phases:
+  - spec_phase: "Phase 1 — Discovery and Inventory"
+    plan_phase: "Phase 1 — Discovery and Inventory"
+    alignment: "1:1 match — both scan all files, classify references, output inventory YAML"
+    verdict: FAITHFUL
+
+  - spec_phase: "Phase 2 — Replace All Non-Conforming References"
+    plan_phase: "Phase 2 — Replace All Non-Conforming References"
+    alignment: "1:1 match — plan decomposes into per-item TDD (2.1-2.6 per SC, 2.7 task files, 2.8 scripts, 2.9 final sweep)"
+    note: "Plan adds TDD structure (RED/GREEN/REFACTOR/COMMIT) that spec implies but doesn't detail — this is faithful elaboration, not scope creep"
+    verdict: FAITHFUL
+
+  - spec_phase: "Phase 3 — Close and Inform"
+    plan_phase: "Phase 3 — Close and Inform"
+    alignment: "1:1 match — both close #1953, comment on #1925 and #1926"
+    verdict: FAITHFUL
+
+### Check 4: Risks addressed
+
+risks:
+  - risk: "grep-based SCs may miss edge cases — manual spot-check of 5 random SKILL.md files"
+    plan_coverage: "Item 2.9 line 204: 'Manual spot-check of 5 random SKILL.md files for edge cases'"
+    verdict: ADDRESSED
+
+  - risk: "Bare §N references may need prose rewriting, not just link replacement"
+    plan_coverage: "Item 2.4 GREEN step: 'Path determined from context or resolution table content' — acknowledges rewriting"
+    verdict: ADDRESSED
+
+### Check 5: Evidence type alignment
+
+evidence_types:
+  - sc: SC-1
+    spec: structural
+    plan: structural
+    verdict: MATCH
+
+  - sc: SC-2 through SC-7
+    spec: string
+    plan: behavioral
+    verdict: UPLIFT_ACKNOWLEDGED
+    evidence: "plan.md line 46: 'SC-2 through SC-7 are auto-uplifted from string to behavioral per [critical-rules-BEH-EV]'; plan-02-replacement.md line 10: same note"
+    note: "Plan correctly acknowledges the auto-uplift. The plan's behavioral evidence type is correct per critical-rules-BEH-EV."
+
+  - sc: SC-8
+    spec: structural
+    plan: structural
+    verdict: MATCH
+
+  - sc: SC-9
+    spec: structural
+    plan: structural
+    verdict: MATCH
+
+### Check 6: Pipeline chain
+
+pipeline_chain:
+  - step: pre-work
+    plan_location: "Phase 0 — plan-00-pre-work.md"
+    verdict: INCLUDED
+
+  - step: implementation-pipeline
+    plan_location: "Phase 2 dispatch — plan-02-replacement.md line 8"
+    verdict: INCLUDED
+
+  - step: VbC
+    plan_location: "Phase 4 Item 4.1 — plan-99-post.md"
+    verdict: INCLUDED
+
+  - step: finishing-checklist
+    plan_location: "Phase 4 Item 4.2 — plan-99-post.md"
+    verdict: INCLUDED
+
+  - step: review-prep
+    plan_location: "Phase 4 Item 4.3 — plan-99-post.md"
+    verdict: INCLUDED
+
+  - note: "plan.md lines 49-54 explicitly documents the pipeline chain: 'pre-work → implementation-pipeline (per-item TDD) → VbC → finishing-checklist → review-prep' with 'Every step is MANDATORY. No step may be skipped.'"
+    verdict: FULLY_DOCUMENTED
+
+## Overall Validation
+
+overall_verdict: PASS
+findings_count: 0
+notes:
+  - "All 9 SCs have 1:1 traceability to plan items"
+  - "All 5 plan phases map to SCs (Phase 0 is prerequisite, explicitly exempted)"
+  - "Auto-uplift from string to behavioral is explicitly acknowledged in both plan.md and plan-02-replacement.md"
+  - "Full pipeline chain is documented and included"
+  - "Both spec risks are addressed in the plan"
+  - "Items 2.7, 2.8, 2.9 are supporting items that implement spec scope not captured by individual SCs — this is correct, not a gap"

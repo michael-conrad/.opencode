@@ -1,0 +1,78 @@
+# Arbiter Report — Plan-Fidelity DiMo Chain
+# Role: Final consensus verdict synthesizing investigator, validator, and evaluator
+
+## Chain Summary
+
+chain:
+  investigator: "Raw mapping — all 9 SCs traced, all phases mapped, risks addressed, pipeline included"
+  validator: "Cross-checked against actual plan/spec content — all claims verified, no discrepancies"
+  evaluator: "Weighted assessment — 7/7 dimensions PASS, 100% score, zero concerns"
+  arbiter: "Consensus verdict below"
+
+## Consensus Verdict
+
+verdict: PASS
+grade: FULL_FIDELITY
+
+## Check Results
+
+| # | Check | Investigator | Validator | Evaluator | Arbiter |
+|---|-------|-------------|-----------|-----------|---------|
+| 1 | Every SC traced to ≥1 plan step | TRACED (9/9) | PASS | 1.0 | PASS |
+| 2 | Every plan step maps to ≥1 SC | COVERED (5/5) | PASS | 1.0 | PASS |
+| 3 | Plan faithfully implements spec phases | FAITHFUL | FAITHFUL | 1.0 | PASS |
+| 4 | Spec risks addressed | ADDRESSED (2/2) | ADDRESSED | 1.0 | PASS |
+| 5 | Evidence type alignment | UPLIFT_ACKNOWLEDGED | MATCH/UPLIFT | 1.0 | PASS |
+| 6 | Pipeline chain included | INCLUDED (5/5) | INCLUDED | 1.0 | PASS |
+
+## Detailed Findings
+
+### Finding 1: SC-to-Step Traceability — COMPLETE
+
+All 9 SCs have at least one plan item. SC-1 maps to Phase 1 Item 1.1. SC-2 through SC-7 map to Phase 2 Items 2.1-2.6 respectively. SC-8 maps to Phase 3 Item 3.1. SC-9 maps to Phase 3 Items 3.2 and 3.3.
+
+### Finding 2: Step-to-SC Mapping — COMPLETE
+
+All 5 phases map to SCs. Phase 0 is a prerequisite (explicitly noted as having no SCs). Phase 1 maps to SC-1. Phase 2 maps to SC-2 through SC-7. Phase 3 maps to SC-8 and SC-9. Phase 4 covers all SCs via verification.
+
+### Finding 3: Spec-Phase Faithfulness — FAITHFUL
+
+Plan phases 1-3 are 1:1 with spec phases. Plan adds Phase 0 (pre-work) and Phase 4 (post-implementation) — these are mandatory pipeline gates required by the spec's "Implementation" section, not scope creep.
+
+### Finding 4: Risk Coverage — COMPLETE
+
+Both spec risks are addressed:
+- "grep-based SCs may miss edge cases" → Item 2.9 includes manual spot-check of 5 random SKILL.md files
+- "Bare §N references may need prose rewriting" → Item 2.4 acknowledges path determination from context
+
+### Finding 5: Evidence Type Alignment — CORRECT
+
+SC-1, SC-8, SC-9: exact match (structural). SC-2 through SC-7: plan correctly uplifts from string to behavioral per critical-rules-BEH-EV, with explicit acknowledgment in plan.md line 46 and plan-02-replacement.md line 10.
+
+### Finding 6: Pipeline Chain — COMPLETE
+
+Full chain documented: pre-work (Phase 0) → implementation-pipeline (Phase 2) → VbC (Phase 4 Item 4.1) → finishing-checklist (Phase 4 Item 4.2) → review-prep (Phase 4 Item 4.3). plan.md lines 49-54 explicitly state "Every step is MANDATORY. No step may be skipped."
+
+## Supporting Items Note
+
+Items 2.7 (task files), 2.8 (default.txt/scripts), and 2.9 (final sweep) lack direct single-SC mapping. This is ACCEPTABLE because:
+- Spec Phase 2 explicitly includes "All task files" and "Any other file in .opencode/ with cross-references"
+- Item 2.9 is a consolidation/verification item, not a new SC
+- These items implement spec scope not captured by individual SCs
+
+## Artifacts
+
+artifacts:
+  - path: "tmp/1958/artifacts/plan-fidelity/01-investigator.yaml"
+    role: "Raw SC-to-step mapping and findings"
+  - path: "tmp/1958/artifacts/plan-fidelity/02-validator.yaml"
+    role: "Cross-check against actual plan/spec content"
+  - path: "tmp/1958/artifacts/plan-fidelity/03-evaluator.yaml"
+    role: "Weighted assessment and scoring"
+  - path: "tmp/1958/artifacts/plan-fidelity/04-arbiter.yaml"
+    role: "Final consensus verdict (this file)"
+
+## Byline
+
+verdict_by: "Plan-Fidelity DiMo Chain (Investigator → Validator → Evaluator → Arbiter)"
+verdict_date: "2026-07-18"

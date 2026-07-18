@@ -1,0 +1,252 @@
+# Investigator Report — Plan-Fidelity DiMo Chain
+# Role: Raw mapping of spec SCs to plan steps, plan steps to SCs
+
+## SC-to-Step Traceability
+
+sc_to_step:
+  - sc: SC-1
+    criterion: "Cross-reference inventory produced at .opencode/.issues/1958/data/cross-reference-inventory.yaml"
+    spec_evidence_type: structural
+    plan_evidence_type: structural
+    plan_phase: 1
+    plan_items: ["1.1"]
+    plan_file: plan-01-discovery.md
+    status: TRACED
+
+  - sc: SC-2
+    criterion: "000-critical-rules.md updated to Load [Text](path)"
+    spec_evidence_type: string
+    plan_evidence_type: behavioral
+    plan_phase: 2
+    plan_items: ["2.1"]
+    plan_file: plan-02-replacement.md
+    uplift_note: "Auto-uplifted from string to behavioral per critical-rules-BEH-EV — acknowledged in plan.md line 46 and plan-02-replacement.md line 10"
+    status: TRACED
+
+  - sc: SC-3
+    criterion: "No See [ or Read [ in any SKILL.md"
+    spec_evidence_type: string
+    plan_evidence_type: behavioral
+    plan_phase: 2
+    plan_items: ["2.2"]
+    plan_file: plan-02-replacement.md
+    uplift_note: "Auto-uplifted — acknowledged"
+    status: TRACED
+
+  - sc: SC-4
+    criterion: "No See [ or Read [ in any guideline"
+    spec_evidence_type: string
+    plan_evidence_type: behavioral
+    plan_phase: 2
+    plan_items: ["2.3"]
+    plan_file: plan-02-replacement.md
+    uplift_note: "Auto-uplifted — acknowledged"
+    status: TRACED
+
+  - sc: SC-5
+    criterion: "No §N or §Name bare references in any SKILL.md"
+    spec_evidence_type: string
+    plan_evidence_type: behavioral
+    plan_phase: 2
+    plan_items: ["2.4"]
+    plan_file: plan-02-replacement.md
+    uplift_note: "Auto-uplifted — acknowledged"
+    status: TRACED
+
+  - sc: SC-6
+    criterion: "No resolution table patterns in any SKILL.md"
+    spec_evidence_type: string
+    plan_evidence_type: behavioral
+    plan_phase: 2
+    plan_items: ["2.5"]
+    plan_file: plan-02-replacement.md
+    uplift_note: "Auto-uplifted — acknowledged"
+    status: TRACED
+
+  - sc: SC-7
+    criterion: "No non-linked text references (See file.md, See SKILLNAME) in any SKILL.md"
+    spec_evidence_type: string
+    plan_evidence_type: behavioral
+    plan_phase: 2
+    plan_items: ["2.6"]
+    plan_file: plan-02-replacement.md
+    uplift_note: "Auto-uplifted — acknowledged"
+    status: TRACED
+
+  - sc: SC-8
+    criterion: "#1953 closed as superseded"
+    spec_evidence_type: structural
+    plan_evidence_type: structural
+    plan_phase: 3
+    plan_items: ["3.1"]
+    plan_file: plan-03-close.md
+    status: TRACED
+
+  - sc: SC-9
+    criterion: "#1925 and #1926 have comments linking to this spec"
+    spec_evidence_type: structural
+    plan_evidence_type: structural
+    plan_phase: 3
+    plan_items: ["3.2", "3.3"]
+    plan_file: plan-03-close.md
+    status: TRACED
+
+## Step-to-SC Mapping
+
+step_to_sc:
+  - phase: 0
+    name: Pre-work
+    items: ["0.1"]
+    scs_covered: []
+    note: "Prerequisite — no SCs"
+    status: COVERED
+
+  - phase: 1
+    name: Discovery and Inventory
+    items: ["1.1"]
+    scs_covered: ["SC-1"]
+    status: COVERED
+
+  - phase: 2
+    name: Replace All Non-Conforming References
+    items: ["2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9"]
+    scs_covered: ["SC-2", "SC-3", "SC-4", "SC-5", "SC-6", "SC-7"]
+    note: "Items 2.7 (task files), 2.8 (default.txt/scripts), 2.9 (final sweep) are supporting items not directly mapped to a single SC but necessary for completeness"
+    status: COVERED
+
+  - phase: 3
+    name: Close and Inform
+    items: ["3.1", "3.2", "3.3"]
+    scs_covered: ["SC-8", "SC-9"]
+    status: COVERED
+
+  - phase: 4
+    name: Post-Implementation
+    items: ["4.1", "4.2", "4.3", "4.4"]
+    scs_covered: ["All SCs"]
+    status: COVERED
+
+## Risk Coverage
+
+risks_addressed:
+  - risk: "grep-based SCs may miss edge cases"
+    plan_coverage: "Item 2.9 includes manual spot-check of 5 random SKILL.md files (line 204)"
+    status: ADDRESSED
+
+  - risk: "Bare §N references may need prose rewriting, not just link replacement"
+    plan_coverage: "Item 2.4 GREEN step specifies 'Path determined from context or resolution table content' — acknowledges rewriting need"
+    status: ADDRESSED
+
+## Pipeline Chain Coverage
+
+pipeline_chain:
+  - step: pre-work
+    plan_phase: 0
+    plan_file: plan-00-pre-work.md
+    status: INCLUDED
+
+  - step: implementation-pipeline
+    plan_phase: 2
+    plan_file: plan-02-replacement.md
+    note: "Phase 2 dispatch uses implementation-pipeline per plan.md line 28"
+    status: INCLUDED
+
+  - step: VbC (verification-before-completion)
+    plan_phase: 4
+    plan_file: plan-99-post.md
+    item: 4.1
+    status: INCLUDED
+
+  - step: finishing-checklist
+    plan_phase: 4
+    plan_file: plan-99-post.md
+    item: 4.2
+    status: INCLUDED
+
+  - step: review-prep
+    plan_phase: 4
+    plan_file: plan-99-post.md
+    item: 4.3
+    status: INCLUDED
+
+## Evidence Type Alignment
+
+evidence_type_alignment:
+  - sc: SC-1
+    spec_type: structural
+    plan_type: structural
+    match: EXACT
+
+  - sc: SC-2
+    spec_type: string
+    plan_type: behavioral
+    match: UPLIFT (acknowledged)
+    note: "Plan explicitly acknowledges auto-uplift at plan.md:46 and plan-02-replacement.md:10"
+
+  - sc: SC-3
+    spec_type: string
+    plan_type: behavioral
+    match: UPLIFT (acknowledged)
+
+  - sc: SC-4
+    spec_type: string
+    plan_type: behavioral
+    match: UPLIFT (acknowledged)
+
+  - sc: SC-5
+    spec_type: string
+    plan_type: behavioral
+    match: UPLIFT (acknowledged)
+
+  - sc: SC-6
+    spec_type: string
+    plan_type: behavioral
+    match: UPLIFT (acknowledged)
+
+  - sc: SC-7
+    spec_type: string
+    plan_type: behavioral
+    match: UPLIFT (acknowledged)
+
+  - sc: SC-8
+    spec_type: structural
+    plan_type: structural
+    match: EXACT
+
+  - sc: SC-9
+    spec_type: structural
+    plan_type: structural
+    match: EXACT
+
+## Findings Summary
+
+findings:
+  - id: F-1
+    severity: INFO
+    description: "All 9 SCs are traced to at least one plan step"
+    evidence: "sc_to_step table — all 9 SCs have TRACED status"
+
+  - id: F-2
+    severity: INFO
+    description: "All plan phases map to at least one SC (Phase 0 is prerequisite, explicitly noted)"
+    evidence: "step_to_sc table — all phases have COVERED status"
+
+  - id: F-3
+    severity: INFO
+    description: "Auto-uplift from string to behavioral is explicitly acknowledged in plan.md and plan-02-replacement.md"
+    evidence: "plan.md line 46, plan-02-replacement.md line 10"
+
+  - id: F-4
+    severity: INFO
+    description: "Full pipeline chain (pre-work → implementation-pipeline → VbC → finishing-checklist → review-prep) is included"
+    evidence: "plan.md lines 49-54, plan-99-post.md items 4.1-4.3"
+
+  - id: F-5
+    severity: INFO
+    description: "Both spec risks are addressed in the plan"
+    evidence: "risk_coverage table — manual spot-check and prose-rewriting acknowledgment"
+
+  - id: F-6
+    severity: NOTE
+    description: "Items 2.7 (task files), 2.8 (default.txt/scripts), 2.9 (final sweep) are not directly mapped to a single SC but are necessary supporting items"
+    evidence: "Spec's Phase 2 description includes 'All task files' and 'Any other file in .opencode/' — these items cover that scope"
