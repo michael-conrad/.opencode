@@ -162,4 +162,4 @@ Orchestrator                          Sub-agent
 
 ## Cross-References
 
-Sub-skills: `spec-creation-requirements`, `spec-creation-decomposition`, `spec-creation-validation`, `spec-creation-change-control`, `spec-creation-operating-protocol`. Skills: `brainstorming`, `writing-plans`, `audit`, `approval-gate`.
+Sub-skills: Load [spec-creation-requirements](skills/spec-creation-requirements/SKILL.md), Load [spec-creation-decomposition](skills/spec-creation-decomposition/SKILL.md), Load [spec-creation-validation](skills/spec-creation-validation/SKILL.md), Load [spec-creation-change-control](skills/spec-creation-change-control/SKILL.md), Load [spec-creation-operating-protocol](skills/spec-creation-operating-protocol/SKILL.md). Skills: Load [brainstorming](skills/brainstorming/SKILL.md), Load [writing-plans](skills/writing-plans/SKILL.md), Load [audit](skills/audit/SKILL.md), Load [approval-gate](skills/approval-gate/SKILL.md).
