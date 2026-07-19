@@ -2,132 +2,208 @@ title: '[SPEC-FIX] Cleanup workflow must verify merge via git state, not PR meta
 status: open
 labels:
 - spec-fix
-body: '## Summary
+body: '# Implementation Plan — [.opencode#1999](https://github.com/michael-conrad/.opencode/issues/1999)
+  — Cleanup workflow must verify merge via git state, not PR metadata
 
 
-  The cleanup workflow (`check-pr`, `verify-merge`) relies exclusively on GitHub API
-  PR metadata (`merged_at`, `state`, `merged`) to confirm merge status. PR metadata
-  is process metadata — it is not evidence of actual code state. The workflow must
-  verify merges against actual git state: merge commit existence in trunk history,
-  branch reachability, and PR-to-spec cross-reference.
+  **Goal:** Fix 5 structural defects in the cleanup workflow where PR metadata is
+  used as evidence of merge status instead of actual git state. Add merge commit SHA
+  extraction, git log verification, branch reachability checks, PR-to-spec cross-referencing,
+  and behavioral tests.
 
 
-  ## Root Cause
+  **Architecture:** The cleanup workflow spans three task files (`check-pr.md`, `verify-merge.md`,
+  `cleanup.md`) and behavioral tests. Changes are additive — adding verification gates
+  before destructive actions (branch deletion, issue closure) without altering existing
+  workflow structure.
 
 
-  The investigation identified 5 structural defects:
+  **Files:**
 
+  - `skills/git-workflow-cleanup/tasks/check-pr.md` — Add `merge_commit_sha` to mergeability
+  diagnosis; fix Step 2.5 git log check; add branch reachability check; add PR-to-spec
+  cross-reference
 
-  **Defect 1 — Merge commit SHA never extracted.** `check-pr.md` Phase 2 Step 2.5
-  has a `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>` check, but `<merge_sha>`
-  is never populated. The merge commit SHA is not part of the 6-field mergeability
-  diagnosis. The step is structurally broken — it cannot execute.
-
-
-  **Defect 2 — No merge commit verification.** `cleanup/verify-merge.md` Step 1 checks
-  `merged_at is not None` from the PR API, but never runs `git log --oneline "$DEFAULT_BRANCH"
-  | grep <merge_sha>` to confirm the merge commit actually exists in local trunk history.
-
-
-  **Defect 3 — No branch reachability check.** Before deleting the feature branch,
-  the workflow never runs `git branch --merged "$DEFAULT_BRANCH"` to confirm the branch''s
-  commits are reachable from the trunk. If the branch was force-pushed or the merge
-  was reverted, the branch deletion destroys unreachable work.
-
-
-  **Defect 4 — No PR-to-spec cross-reference.** The workflow never reads the PR''s
-  changed files via the API and cross-references them against the spec''s affected
-  files or success criteria. This means a PR that claims to fix issue #N but doesn''t
-  actually touch the spec''s affected files will pass cleanup verification.
-
-
-  **Defect 5 — No issue reference verification from git log.** The workflow never
-  checks `git log --oneline "$DEFAULT_BRANCH"` for commit messages that reference
-  the issues being closed. If the merge commit message doesn''t reference the issue,
-  the issue closure may be incorrect.
-
-
-  ## Affected Files
-
-
-  | File | Change |
-
-  |------|--------|
-
-  | `skills/git-workflow-cleanup/tasks/check-pr.md` | Add merge commit SHA extraction
-  to Phase 2; fix Step 2.5 git log check; add branch reachability check; add PR-to-spec
-  cross-reference |
-
-  | `skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md` | Add merge commit
+  - `skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md` — Add merge commit
   verification via git log; add branch reachability check; add PR-to-spec cross-reference
-  |
 
-  | `skills/git-workflow-cleanup/tasks/cleanup.md` | Add merge commit verification
-  to Live Verification Table; add PR-to-spec cross-reference step |
+  - `skills/git-workflow-cleanup/tasks/cleanup.md` — Add merge commit verification
+  to Live Verification Table; add PR-to-spec cross-reference step
 
-  | `tests-v2/behaviors/` | Add behavioral tests for git-state-based merge verification
-  |
+  - `tests-v2/behaviors/` — Add behavioral tests for git-state-based merge verification
 
 
-  ## Success Criteria
+  **Dispatch:** `skill({name: "implementation-pipeline"})` — orchestrator dispatches
+  each phase to clean-room sub-agents via `task()`.
 
 
-  | ID | Criterion | Evidence Type | Verification Method |
-
-  |----|-----------|---------------|---------------------|
-
-  | SC-1 | `check-pr.md` Phase 2 extracts `merge_commit_sha` from PR API response
-  and adds it to the mergeability diagnosis | `string` | grep for `merge_commit_sha`
-  in check-pr.md |
-
-  | SC-2 | `check-pr.md` Phase 2 Step 2.5 uses the extracted `merge_commit_sha` in
-  `git log --oneline "$DEFAULT_BRANCH" \| grep <merge_sha>` | `string` | grep for
-  `git log.*merge_commit_sha` in check-pr.md |
-
-  | SC-3 | `verify-merge.md` Step 1 runs `git log --oneline "$DEFAULT_BRANCH" \| grep
-  <merge_sha>` after confirming `merged_at` is not None | `string` | grep for `git
-  log.*merge_commit_sha` in verify-merge.md |
-
-  | SC-4 | `verify-merge.md` Step 1 runs `git branch --merged "$DEFAULT_BRANCH"` to
-  confirm feature branch is reachable | `string` | grep for `git branch --merged`
-  in verify-merge.md |
-
-  | SC-5 | `verify-merge.md` reads PR changed files via API and cross-references against
-  spec affected files | `semantic` | Sub-agent reads verify-merge.md — confirms PR-to-spec
-  cross-reference step exists |
-
-  | SC-6 | `cleanup.md` Live Verification Table includes a row for merge commit verification
-  with `git log` evidence | `string` | grep for merge commit verification row in cleanup.md
-  |
-
-  | SC-7 | Behavioral test exists that verifies the agent runs `git log` to confirm
-  merge commit before cleanup | `behavioral` | `opencode run` with "pr merged" prompt
-  — stderr shows `git log` on trunk |
-
-  | SC-8 | Behavioral test exists that verifies the agent runs `git branch --merged`
-  before branch deletion | `behavioral` | `opencode run` with "pr merged" prompt —
-  stderr shows `git branch --merged` |
-
-  | SC-9 | Behavioral test exists that verifies the agent cross-references PR files
-  against spec affected files | `behavioral` | `opencode run` with "pr merged" prompt
-  — stderr shows PR file read + spec file read |
+  ## Blast Radius
 
 
-  ## Risk Assessment
+  - `check-pr.md` Phase 2: mergeability diagnosis fields and Step 2.5 git log check
+
+  - `verify-merge.md` Step 1: merge verification procedure
+
+  - `cleanup.md` Step 1: Live Verification Table and cross-reference step
+
+  - `tests-v2/behaviors/`: new behavioral test files
 
 
-  **Low risk.** The changes add verification steps to existing workflows — they do
-  not change the workflow structure, only add gates before destructive actions (branch
-  deletion, issue closure). The behavioral tests are the primary risk: they require
-  `opencode run` with a real model and a test repo with a merged PR. The test setup
-  must create a PR, merge it, then verify the agent''s behavior.
+  ## Concern Map Reference
 
 
-  ## Dependencies
+  | Concern | Phase | Files |
+
+  |---------|-------|-------|
+
+  | Merge commit SHA extraction and git log verification | 1 | check-pr.md, verify-merge.md,
+  cleanup.md |
+
+  | Branch reachability check | 1 | check-pr.md, verify-merge.md |
+
+  | PR-to-spec cross-reference | 1 | verify-merge.md, cleanup.md |
+
+  | Behavioral tests | 1 | tests-v2/behaviors/ |
 
 
-  - None — this is a standalone fix spec
+  > **⚠️ COMPLIANCE REQUIREMENT:** This plan is a MANDATORY checklist. Every step
+  MUST be executed in order. No step may be skipped, combined, or reordered. Each
+  step''s verification MUST pass before proceeding to the next step. The agent MUST
+  NOT proceed past a failed verification — remediate and re-verify before continuing.
+
+
+  > **⚠️ ONE STEP AT A TIME:** Execute exactly one step at a time. Do not read ahead,
+  do not batch steps, do not combine concerns. After each step, verify the output
+  before proceeding to the next step.
+
+
+  > **⚠️ STEP STATUS:** After each step, update the step status: mark completed steps
+  with `[x]`, leave pending steps as `[ ]`. Report current step number and status
+  before starting each new step.
+
+
+  ## Phase Table
+
+
+  | Phase | Name | Concern | SCs | Dependencies | Step Range | Dispatch |
+
+  |-------|------|---------|-----|-------------|------------|----------|
+
+  | 1 | Git-state merge verification | Fix all 5 defects in cleanup workflow | SC-1
+  through SC-9 | None | 1.1–1.12 | `implementation-pipeline` |
+
+
+  ## SC-to-Step Traceability
+
+
+  | SC ID | Criterion | Phase | Step(s) |
+
+  |-------|-----------|-------|---------|
+
+  | SC-1 | `check-pr.md` extracts `merge_commit_sha` | 1 | 1.1 |
+
+  | SC-2 | `check-pr.md` Step 2.5 uses `merge_commit_sha` in git log | 1 | 1.2 |
+
+  | SC-3 | `verify-merge.md` runs git log after merged_at check | 1 | 1.3 |
+
+  | SC-4 | `verify-merge.md` runs `git branch --merged` | 1 | 1.4 |
+
+  | SC-5 | `verify-merge.md` PR-to-spec cross-reference | 1 | 1.5 |
+
+  | SC-6 | `cleanup.md` Live Verification Table merge commit row | 1 | 1.6 |
+
+  | SC-7 | Behavioral test: git log merge commit | 1 | 1.7 |
+
+  | SC-8 | Behavioral test: git branch --merged | 1 | 1.8 |
+
+  | SC-9 | Behavioral test: PR-to-spec cross-reference | 1 | 1.9 |
+
+
+  ## Safety/Rollback
+
+
+  **Phase 1 — Safety/Rollback:**
+
+  - Destructive operations: None — all changes are additive (adding verification steps
+  to existing task files)
+
+  - Rollback plan: N/A — no destructive operations
+
+  - Data loss risk: None
+
+
+  ## Feasibility Verification
+
+
+  | Step | Reference | Verified? | Evidence |
+
+  |------|-----------|-----------|----------|
+
+  | 1.1 | `skills/git-workflow-cleanup/tasks/check-pr.md` | ✅ | Read in session |
+
+  | 1.3 | `skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md` | ✅ | Read in
+  session |
+
+  | 1.6 | `skills/git-workflow-cleanup/tasks/cleanup.md` | ✅ | Read in session |
+
+  | 1.7 | `tests-v2/behaviors/` | ✅ | Glob confirmed directory exists |
+
+
+  ## Evidence/Provenance
+
+
+  | Claim | Evidence Source | Verified? |
+
+  |-------|----------------|----------|
+
+  | `check-pr.md` has Phase 2 with 6-field diagnosis | `editor_read_file` | ✅ |
+
+  | `verify-merge.md` Step 1 checks `merged_at` | `editor_read_file` | ✅ |
+
+  | `cleanup.md` has Live Verification Table | `editor_read_file` | ✅ |
+
+  | Feature branch exists | `git branch` | ✅ |
+
+
+  > **⚠️ COMPLIANCE REQUIREMENT:** This plan is a MANDATORY checklist. Every step
+  MUST be executed in order. No step may be skipped, combined, or reordered. Each
+  step''s verification MUST pass before proceeding to the next step. The agent MUST
+  NOT proceed past a failed verification — remediate and re-verify before continuing.
+
+
+  > **⚠️ SELF-REMEDIATION PROTOCOL:** If a step fails verification, the agent MUST:
+  (1) diagnose the root cause, (2) remediate the defect, (3) re-verify, (4) only after
+  PASS, proceed to the next step. If remediation fails after 2 attempts, report BLOCKED
+  with both failure artifacts and HALT.
+
+
+  ## Exit Criteria
+
+
+  - [ ] C1: `check-pr.md` Phase 2 mergeability diagnosis includes `merge_commit_sha`
+  field
+
+  - [ ] C2: `check-pr.md` Step 2.5 uses `merge_commit_sha` in `git log` check
+
+  - [ ] C3: `verify-merge.md` Step 1 runs `git log --oneline "$DEFAULT_BRANCH" | grep
+  <merge_sha>` after `merged_at` check
+
+  - [ ] C4: `verify-merge.md` Step 1 runs `git branch --merged "$DEFAULT_BRANCH"`
+  before branch deletion
+
+  - [ ] C5: `verify-merge.md` has PR-to-spec cross-reference step
+
+  - [ ] C6: `cleanup.md` Live Verification Table includes merge commit verification
+  row
+
+  - [ ] C7: Behavioral test for git log merge commit exists and passes
+
+  - [ ] C8: Behavioral test for `git branch --merged` exists and passes
+
+  - [ ] C9: Behavioral test for PR-to-spec cross-reference exists and passes
+
+  - [ ] C10: All changes committed to feature branch `feature/1996-1999-trunk-tip-cleanup-verify`
 
   '
 created_at: '2026-07-19T14:32:05+00:00'
-updated_at: '2026-07-19T14:32:33+00:00'
+updated_at: '2026-07-19T14:33:12+00:00'
