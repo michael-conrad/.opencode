@@ -1,0 +1,97 @@
+# Implementation Plan — [.opencode#1999](https://github.com/michael-conrad/.opencode/issues/1999) — Cleanup workflow must verify merge via git state, not PR metadata
+
+**Goal:** Fix 5 structural defects in the cleanup workflow where PR metadata is used as evidence of merge status instead of actual git state. Add merge commit SHA extraction, git log verification, branch reachability checks, PR-to-spec cross-referencing, and behavioral tests.
+
+**Architecture:** The cleanup workflow spans three task files (`check-pr.md`, `verify-merge.md`, `cleanup.md`) and behavioral tests. Changes are additive — adding verification gates before destructive actions (branch deletion, issue closure) without altering existing workflow structure.
+
+**Files:**
+- `skills/git-workflow-cleanup/tasks/check-pr.md` — Add `merge_commit_sha` to mergeability diagnosis; fix Step 2.5 git log check; add branch reachability check; add PR-to-spec cross-reference
+- `skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md` — Add merge commit verification via git log; add branch reachability check; add PR-to-spec cross-reference
+- `skills/git-workflow-cleanup/tasks/cleanup.md` — Add merge commit verification to Live Verification Table; add PR-to-spec cross-reference step
+- `tests-v2/behaviors/` — Add behavioral tests for git-state-based merge verification
+
+**Dispatch:** `skill({name: "implementation-pipeline"})` — orchestrator dispatches each phase to clean-room sub-agents via `task()`.
+
+## Blast Radius
+
+- `check-pr.md` Phase 2: mergeability diagnosis fields and Step 2.5 git log check
+- `verify-merge.md` Step 1: merge verification procedure
+- `cleanup.md` Step 1: Live Verification Table and cross-reference step
+- `tests-v2/behaviors/`: new behavioral test files
+
+## Concern Map Reference
+
+| Concern | Phase | Files |
+|---------|-------|-------|
+| Merge commit SHA extraction and git log verification | 1 | check-pr.md, verify-merge.md, cleanup.md |
+| Branch reachability check | 1 | check-pr.md, verify-merge.md |
+| PR-to-spec cross-reference | 1 | verify-merge.md, cleanup.md |
+| Behavioral tests | 1 | tests-v2/behaviors/ |
+
+> **⚠️ COMPLIANCE REQUIREMENT:** This plan is a MANDATORY checklist. Every step MUST be executed in order. No step may be skipped, combined, or reordered. Each step's verification MUST pass before proceeding to the next step. The agent MUST NOT proceed past a failed verification — remediate and re-verify before continuing.
+
+> **⚠️ ONE STEP AT A TIME:** Execute exactly one step at a time. Do not read ahead, do not batch steps, do not combine concerns. After each step, verify the output before proceeding to the next step.
+
+> **⚠️ STEP STATUS:** After each step, update the step status: mark completed steps with `[x]`, leave pending steps as `[ ]`. Report current step number and status before starting each new step.
+
+## Phase Table
+
+| Phase | Name | Concern | SCs | Dependencies | Step Range | Dispatch |
+|-------|------|---------|-----|-------------|------------|----------|
+| 1 | Git-state merge verification | Fix all 5 defects in cleanup workflow | SC-1 through SC-9 | None | 1.1–1.12 | `implementation-pipeline` |
+
+## SC-to-Step Traceability
+
+| SC ID | Criterion | Phase | Step(s) |
+|-------|-----------|-------|---------|
+| SC-1 | `check-pr.md` extracts `merge_commit_sha` | 1 | 1.1 |
+| SC-2 | `check-pr.md` Step 2.5 uses `merge_commit_sha` in git log | 1 | 1.2 |
+| SC-3 | `verify-merge.md` runs git log after merged_at check | 1 | 1.3 |
+| SC-4 | `verify-merge.md` runs `git branch --merged` | 1 | 1.4 |
+| SC-5 | `verify-merge.md` PR-to-spec cross-reference | 1 | 1.5 |
+| SC-6 | `cleanup.md` Live Verification Table merge commit row | 1 | 1.6 |
+| SC-7 | Behavioral test: git log merge commit | 1 | 1.7 |
+| SC-8 | Behavioral test: git branch --merged | 1 | 1.8 |
+| SC-9 | Behavioral test: PR-to-spec cross-reference | 1 | 1.9 |
+
+## Safety/Rollback
+
+**Phase 1 — Safety/Rollback:**
+- Destructive operations: None — all changes are additive (adding verification steps to existing task files)
+- Rollback plan: N/A — no destructive operations
+- Data loss risk: None
+
+## Feasibility Verification
+
+| Step | Reference | Verified? | Evidence |
+|------|-----------|-----------|----------|
+| 1.1 | `skills/git-workflow-cleanup/tasks/check-pr.md` | ✅ | Read in session |
+| 1.3 | `skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md` | ✅ | Read in session |
+| 1.6 | `skills/git-workflow-cleanup/tasks/cleanup.md` | ✅ | Read in session |
+| 1.7 | `tests-v2/behaviors/` | ✅ | Glob confirmed directory exists |
+
+## Evidence/Provenance
+
+| Claim | Evidence Source | Verified? |
+|-------|----------------|----------|
+| `check-pr.md` has Phase 2 with 6-field diagnosis | `editor_read_file` | ✅ |
+| `verify-merge.md` Step 1 checks `merged_at` | `editor_read_file` | ✅ |
+| `cleanup.md` has Live Verification Table | `editor_read_file` | ✅ |
+| Feature branch exists | `git branch` | ✅ |
+
+> **⚠️ COMPLIANCE REQUIREMENT:** This plan is a MANDATORY checklist. Every step MUST be executed in order. No step may be skipped, combined, or reordered. Each step's verification MUST pass before proceeding to the next step. The agent MUST NOT proceed past a failed verification — remediate and re-verify before continuing.
+
+> **⚠️ SELF-REMEDIATION PROTOCOL:** If a step fails verification, the agent MUST: (1) diagnose the root cause, (2) remediate the defect, (3) re-verify, (4) only after PASS, proceed to the next step. If remediation fails after 2 attempts, report BLOCKED with both failure artifacts and HALT.
+
+## Exit Criteria
+
+- [ ] C1: `check-pr.md` Phase 2 mergeability diagnosis includes `merge_commit_sha` field
+- [ ] C2: `check-pr.md` Step 2.5 uses `merge_commit_sha` in `git log` check
+- [ ] C3: `verify-merge.md` Step 1 runs `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>` after `merged_at` check
+- [ ] C4: `verify-merge.md` Step 1 runs `git branch --merged "$DEFAULT_BRANCH"` before branch deletion
+- [ ] C5: `verify-merge.md` has PR-to-spec cross-reference step
+- [ ] C6: `cleanup.md` Live Verification Table includes merge commit verification row
+- [ ] C7: Behavioral test for git log merge commit exists and passes
+- [ ] C8: Behavioral test for `git branch --merged` exists and passes
+- [ ] C9: Behavioral test for PR-to-spec cross-reference exists and passes
+- [ ] C10: All changes committed to feature branch `feature/1996-1999-trunk-tip-cleanup-verify`
