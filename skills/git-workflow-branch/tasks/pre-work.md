@@ -74,6 +74,12 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 ## Procedure
 
+### Step 0: Trunk-Tip Verification (**sub-agent**)
+
+**Mandatory first step before any work begins.** Verify the repository is at a clean trunk-tip state:
+
+- [ ] 0. **Trunk-tip verification (**sub-agent**).** `task(..., prompt: "execute trunk-tip-verification from git-workflow-branch")`. If BLOCKED, HALT with blocker report. Do NOT proceed to branch creation.
+
 ### Step 1: Verify Authorization Context
 
 **This task receives authorization context from orchestration layer. DO NOT re-check authorization.**

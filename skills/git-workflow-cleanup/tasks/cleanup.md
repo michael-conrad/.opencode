@@ -91,6 +91,15 @@ Before any cleanup operations, detect and build routing context for submodules u
 Verifies PR merge via GitHub API, runs SC-verification gate, phase-completion gate, and rebase pending PRs.
 
 
+### Step 1.1: PR-to-Spec Cross-Reference
+
+After merge verification, cross-reference PR changed files against the spec's affected files to confirm the PR actually addresses the spec's scope.
+
+- [ ] 1. Read PR changed files via `github_pull_request_read(method="get_files", ...)`
+- [ ] 2. Read spec issue body to extract affected files
+- [ ] 3. Verify intersection: PR files must overlap with spec affected files
+- [ ] 4. If no overlap: report VERIFICATION-GAP and HALT
+
 ### Step 1.5: Post-Merge Release Detection
 
 If the merged PR was a release PR (detected via branch name pattern `release/` or PR label), dispatch release-promoter tasks:
@@ -365,6 +374,7 @@ Each verification point requires a tool call for evidence. Assertions without to
 | Local dev synced | `git log --oneline -1 "$DEFAULT_BRANCH"` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
 | Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
 | All repos at dev tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
+| Merge commit verified | `git log --oneline "$DEFAULT_BRANCH" \| grep <merge_sha>` | Must return match | VERIFICATION-GAP → HALT |
 
 ## Sub-Task Files
 

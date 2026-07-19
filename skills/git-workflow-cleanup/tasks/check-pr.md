@@ -50,10 +50,11 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 | `created_at` | PR API response | Creation timestamp |
 | `state` | PR API response | PR state (`open`, `closed`) |
 | `merged` | PR API response | Whether PR was already merged |
+| `merge_commit_sha` | PR API response | Merge commit SHA for git log verification |
 
 ### Step 2.1: Read Mergeability Fields
 
-- [ ] For each merged PR, read all 6 fields via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get, pullNumber=<N>)` for `mergeable`, `base.sha`, `updated_at`, `created_at`, `state`, `merged`; `gitbucket` → `gb pr view <N>` for equivalent fields; `local` → N/A)
+- [ ] For each merged PR, read all 7 fields via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get, pullNumber=<N>)` for `mergeable`, `base.sha`, `updated_at`, `created_at`, `state`, `merged`, `merge_commit_sha`; `gitbucket` → `gb pr view <N>` for equivalent fields; `local` → N/A)
 
 ### Step 2.2: Diagnose `mergeable` Status
 
@@ -95,7 +96,7 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
   - Computation triggered: yes|no (if updated_at == created_at)
   - Action required: <none|rebase needed|conflict resolution|wait for computation>
   ```
-- [ ] Verify the merge commit exists in local trunk history: `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>`
+- [ ] Verify the merge commit exists in local trunk history: `git log --oneline "$DEFAULT_BRANCH" | grep "$merge_commit_sha"`
 - [ ] Report PASS/FAIL per PR with evidence artifact
 
 ## Phase 3: Close Linked Issues

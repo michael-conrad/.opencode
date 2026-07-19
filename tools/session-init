@@ -364,6 +364,65 @@ def collect_repo_info() -> list[dict[str, str]]:
     return entries
 
 
+def get_default_branch() -> str:
+    """Determine the default branch name from remote HEAD or fallback to 'main'."""
+    branch = run_git_command(["rev-parse", "--abbrev-ref", "origin/HEAD"])
+    if branch and branch.startswith("origin/"):
+        return branch[len("origin/"):]
+    return "main"
+
+
+def check_trunk_tip_status() -> dict:
+    """Check trunk tip status for the repo and its submodules.
+
+    Returns a dict with:
+        trunk_clean: bool — current branch is default and working tree is clean
+        parent_branch: str — current branch name
+        parent_clean: bool — working tree has no uncommitted changes
+        parent_at_tip: bool — current branch is at remote tracking tip
+        submodules_clean: list[dict] — per-submodule status
+    """
+    default_branch = get_default_branch()
+    current_branch = get_current_branch() or "unknown"
+    on_default = current_branch == default_branch
+
+    status_output = run_git_command(["status", "--short"])
+    parent_clean = status_output == "" or status_output is None
+
+    local_sha = run_git_command(["rev-parse", default_branch])
+    remote_sha = run_git_command(["rev-parse", f"origin/{default_branch}"])
+    parent_at_tip = (
+        local_sha is not None
+        and remote_sha is not None
+        and local_sha == remote_sha
+    )
+
+    trunk_clean = on_default and parent_clean and parent_at_tip
+
+    submodules_clean: list[dict] = []
+    submodule_status = run_git_command(["submodule", "status"])
+    if submodule_status:
+        for line in submodule_status.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            prefix = line[0] if line else " "
+            path = line[1:].strip().split()[0] if len(line) > 1 else ""
+            is_dirty = prefix == "+"
+            submodules_clean.append({
+                "path": path,
+                "dirty": is_dirty,
+            })
+
+    return {
+        "trunk_clean": trunk_clean,
+        "parent_branch": current_branch,
+        "parent_clean": parent_clean,
+        "parent_at_tip": parent_at_tip,
+        "submodules_clean": submodules_clean,
+    }
+
+
 def get_source_hooks_dir() -> str | None:
     """Find the .opencode/hooks/ directory or None if missing."""
     hooks_dir = os.path.join(os.getcwd(), ".opencode", "hooks")
@@ -765,6 +824,22 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+
+    # Emit ## Trunk Tip Status section
+    trunk_status = check_trunk_tip_status()
+    print("## Trunk Tip Status")
+    print(f"trunk_clean: {str(trunk_status['trunk_clean']).lower()}")
+    print(f"parent_branch: {trunk_status['parent_branch']}")
+    print(f"parent_clean: {str(trunk_status['parent_clean']).lower()}")
+    print(f"parent_at_tip: {str(trunk_status['parent_at_tip']).lower()}")
+    submodules = trunk_status["submodules_clean"]
+    if submodules:
+        print("submodules_clean:")
+        for sm in submodules:
+            print(f"  - path: {sm['path']}")
+            print(f"    dirty: {str(sm['dirty']).lower()}")
+    else:
+        print("submodules_clean: []")
 
     # Emit project_root — absolute top-level git root for submodule-aware path resolution
     project_root = run_git_command(["rev-parse", "--show-toplevel"])
