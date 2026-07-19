@@ -9,7 +9,7 @@ compatibility: opencode
 
 ## Overview
 
-Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline. Every step is one atomic concern. No placeholders. Pipeline steps dispatch to sub-agents via `task()` for independent execution.
+Transforms approved specs into actionable implementation plans using a Z3-enforced pipeline defined in `create.md`. Every step is one atomic concern. No placeholders. Pipeline steps dispatch to sub-agents via `task()` for independent execution.
 
 ## Worktree Mode
 
@@ -34,13 +34,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
-| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" / "retroactive" / "retroactive plan" / "backfill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
-| "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
-| "pre-plan-readiness" / "readiness check" / "verify prerequisites" | `pre-plan-readiness` | `sub-task` | {spec_issue_number} |
 | "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {plan_context} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
 
@@ -50,7 +46,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 ## Tasks
 
-| `create` | `completion` | `retroactive` | `pre-plan-readiness` | `holistic-self-check` |
+| `create` | `update` | `holistic-self-check` |
 
 ## Plan Model
 
@@ -75,16 +71,15 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 | Task | Execution |
 |------|-----------|
 | `create` | Sub-agent via `task(..., prompt: "execute create task from writing-plans")` |
-| `retroactive` | Sub-agent via `task(..., prompt: "execute retroactive task from writing-plans")` |
 | `update` | Sub-agent via `task(..., prompt: "execute update task from writing-plans")` |
-| `completion` | Sub-agent via `task(..., prompt: "execute completion task from writing-plans")` |
 | `holistic-self-check` | Sub-agent via `task(..., prompt: "execute holistic-self-check task from writing-plans")` |
+| `completion` | Sub-agent via `task(..., prompt: "execute completion task from writing-plans")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 
-## Operating Protocol — 22-Step Pipeline
+## Pipeline
 
-See `writing-plans/tasks/operating-protocol.md` for the full 22-step pipeline with chain dependencies and retroactive protocol.
+The pipeline is defined in `writing-plans-creation/tasks/create.md`. It consists of sequential steps dispatched by the orchestrator via the Trigger Dispatch Table, with Z3 contract verification between each step. See `create.md` for the full step list, dispatch modes, and contract table.
 
 ## Sub-Agent Routing
 
@@ -92,7 +87,7 @@ Pipeline steps dispatch to sub-agents via `task()` for independent execution. Th
 
 ## Cross-References
 
-Skills: `approval-gate`, `issue-operations`, `executing-plans`, `audit --task plan-fidelity`, `audit --task concern-separation`, `verification-enforcement`, `solve`, `plan`. References: `skill-card-change-types.md`. Guidelines: `010-approval-gate.md`, `140-planning-spec-creation.md`.
+Load [approval-gate](skills/approval-gate/SKILL.md), Load [issue-operations](skills/issue-operations/SKILL.md), Load [executing-plans](skills/executing-plans/SKILL.md), Load [audit](skills/audit/SKILL.md), Load [verification-enforcement](skills/verification-enforcement/SKILL.md), Load [solve](skills/solve/SKILL.md), Load [plan](skills/plan/SKILL.md). Load [010-approval-gate.md](guidelines/010-approval-gate.md), Load [140-planning-spec-creation.md](guidelines/140-planning-spec-creation.md).
 
 ```yaml+symbolic
 schema_version: "2.0"

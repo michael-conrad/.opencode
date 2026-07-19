@@ -34,7 +34,7 @@ Creates implementation plans from approved specs. Breaks work into phases, tasks
 
 ## Contracts
 
-- contracts/ (22 contract templates)
+- contracts/ (contract templates — see contracts/INDEX.md for mapping)
 
 ## Cross-References
 

@@ -28,12 +28,12 @@ Verify that the local spec file and feature branch exist before allowing plan cr
 3. Check `local-issues sync` has been run (verify `.issues/{N}/` directory is synced)
    - If not synced: return `status: BLOCKED` with `reason: LOCAL_ISSUES_NOT_SYNCED`
 4. Verify all 7 analytical artifacts exist in `.issues/{N}/`:
-   - `blast-radius.md`
-   - `concern-map.md`
-   - `code-path-inventory.md`
-   - `cross-cutting-matrix.md`
-   - `interface-compatibility.md`
-   - `state-analysis.md`
-   - `testability-assessment.md`
+   - `blast-radius.yaml`
+   - `concern-map.yaml`
+   - `code-path-inventory.yaml`
+   - `cross-cutting-matrix.yaml`
+   - `interface-compatibility.yaml`
+   - `state-analysis.yaml`
+   - `testability-assessment.yaml`
    - If any missing: return `status: BLOCKED` with `reason: MISSING_SPEC_ARTIFACT` and list the missing artifacts
 5. Return `status: PASS` with `finding_summary: "All prerequisites met"`

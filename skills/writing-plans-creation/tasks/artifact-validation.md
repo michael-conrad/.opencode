@@ -75,6 +75,6 @@ Validate that all expected analytical artifacts from spec-creation exist, are no
 
 ## Context Required
 
-- Related tasks: `create` (21-step pipeline)
-- Related skills: `spec-creation`
-- Related guidelines: `060-tool-usage.md`
+- Load [create](tasks/create.md)
+- Load [spec-creation](skills/spec-creation/SKILL.md)
+- Load [060-tool-usage.md](guidelines/060-tool-usage.md)

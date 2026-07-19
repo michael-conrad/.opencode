@@ -212,6 +212,8 @@ The parent repo MUST be on $DEFAULT_BRANCH at remote tracking tip, all submodule
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
 ### [critical-rules-XXX] CRITICAL VIOLATION — Sub-agent task cards MUST NOT contain task() or skill() calls. Only orchestrator-level SKILL.md files may contain dispatch instructions. A task card that contains a task() or skill() call is structurally defective — the sub-agent cannot execute it. This applies to ALL task cards across ALL skills. Violation: HALT with blocker report.
+### [critical-rules-XXX] CRITICAL VIOLATION — Direct `github_issue_write` for spec content bypasses spec-creation pipeline
+Using `github_issue_write` to write spec content directly instead of dispatching to `skill({name: "spec-creation"})` → `task()` is a Tier 2 violation. The spec-creation pipeline exists and is functional — the orchestrator MUST route through it. Direct writes produce defective deliverables lacking analytical artifacts, SC coverage YAML, verification consistency contracts, lifecycle manifests, holistic self-checks, and spec audits. Violation: HALT with blocker report. Load [spec-creation skill](skills/spec-creation/SKILL.md).
 ### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED
 Using stash+checkout means contaminating your workspace state. Professional engineers isolate work in worktrees — amateurs juggle stashes and risk losing uncommitted context.
 
