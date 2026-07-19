@@ -37,7 +37,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | Task | Canonical Dispatch String |
 |------|--------------------------|
 | `create` | `task(..., prompt: "execute create from spec-creation-validation. Read \`spec-creation-validation/tasks/create.md\` first")` |
-| `revise` | `task(..., prompt: "execute revise from spec-creation-validation. Read \`spec-creation-validation/tasks/revise.md\` first")` |
+| `revise` | `task(..., prompt: "execute change-control from spec-creation-change-control. Read \`spec-creation-change-control/tasks/change-control.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from spec-creation-validation. Read \`spec-creation-validation/tasks/completion.md\` first")` |
 
 ## Pipeline
