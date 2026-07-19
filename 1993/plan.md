@@ -24,12 +24,19 @@
 
 > **Step status:** Each step MUST be marked `[ ]` (pending), `[x]` (completed), or `[~]` (in progress) as work progresses.
 
+> **Dispatch Protocol:**
+> - `(**inline**)` — Orchestrator executes the step directly. No `task()` call. The step description contains the exact command or action to perform.
+> - `(**sub-agent**)` — Orchestrator dispatches a sub-agent via `task()` with scoped context. The step description contains the exact `task()` call. Sub-agent receives only `{issue_number, target_file, sc_reference, action}` — no plan file references, no orchestrator reasoning.
+> - `(**clean-room**)` — Orchestrator dispatches a sub-agent via `task()` with routing metadata only. The step description MUST NOT contain inline verification instructions. Sub-agent receives only `{issue_number, scs}` and independently determines what to verify from the spec.
+
 ---
 
 ## Phase 1 — SKILL.md restructure
 
 **Concern:** Dispatch table integrity and pipeline definition
 **SCs:** SC-1, SC-3, SC-7, SC-8, SC-9, SC-10
+
+- [ ] 0. **Submodule sync (**inline**).** `git submodule update --init && git submodule foreach "git checkout main && git pull"` (skip if no `.gitmodules`)
 
 - [ ] 1. **Coherence gate — Phase 1 (**inline**).** Verify plan items match spec SCs for Phase 1. If any SC is not covered, HALT.
 
