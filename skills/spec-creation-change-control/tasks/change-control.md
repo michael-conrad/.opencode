@@ -43,12 +43,7 @@ For each change, document:
 
 ### Step 3.5: Mandatory Re-Audit (Audit-Triggered Revisions Only)
 
-**When the revision was triggered by spec-audit FAILs**, the change-control task MUST dispatch a re-audit to confirm the fixes resolved the original findings:
-
-- [ ] 1. Dispatch `audit --task spec-audit` on the revised spec
-- [ ] 2. Confirm all prior audit FAILs are now PASS
-- [ ] 3. If re-audit produces new FAILs: HALT — the fixes did not resolve the original findings
-- [ ] 4. If re-audit produces different FAILs than the original: HALT — the fixes introduced new issues
+**When the revision was triggered by spec-audit FAILs**, the change-control task MUST note that a re-audit is required. The SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
 
 **When the revision was NOT triggered by spec-audit FAILs** (user feedback, scope adjustments, etc.), skip this step — re-audit is not required.
 
