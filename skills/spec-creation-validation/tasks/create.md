@@ -26,9 +26,9 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 ## Procedure
 
-- [ ] 1. **Step 0: Verification Gate (MANDATORY FIRST)** — Before assembling the spec, invoke `verification-enforcement --task verify`. This gate task()s section-based sub-agents to collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
+- [ ] 1. **Step 0: Verification Gate (MANDATORY FIRST)** — Before assembling the spec, collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass. (The SKILL.md pipeline handles verification-enforcement dispatch as an inline orchestrator step — this sub-agent does not call it.)
 
-- [ ] 2. **Step 1: Stub Creation (SC-22 — behavioral)** — Invoke `issue-operations --task creation` with a minimal exec summary body to establish the remote issue number. Include the spec title, brief problem statement, and `needs-approval` label. Record the returned issue number for all subsequent artifact paths. The full spec body will be populated in Step 7 via `issue-operations --task body-edit`.
+- [ ] 2. **Step 1: Stub Creation (SC-22 — behavioral)** — The SKILL.md pipeline handles create-remote-stub as a separate sub-task step before this sub-agent runs. This sub-agent reads the spec number from `.issues/{N}/remote.md` and uses it for all subsequent artifact paths. The full spec body will be populated in Step 7.
 
 - [ ] 3. **Step 2: Behavioral Test Mandate in Success Criteria (MANDATORY)** — Behavioral enforcement tests are NOT written during spec creation. They are written during implementation, per the post-approval spec mandate. However, the spec MUST include a Success Criterion mandating behavioral test creation before implementation.
 
@@ -533,11 +533,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     MUST return SAT. UNSAT → HALT with blocker report. No fallback paths.
 
-    Then invoke the `plan` utility to validate spec phase structure for solvability. Load the `plan` skill for subcommand reference:
-
-    ```bash
-    skill({name: "plan"})   # load reference for plan subcommands and status codes
-    ```
+    Then invoke the `plan` utility to validate spec phase structure for solvability. The SKILL.md pipeline handles plan plan as an inline orchestrator step — this sub-agent does not call it.
 
     Proceed with phase solvability check:
 
@@ -622,7 +618,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **These verifications are MANDATORY after self-review. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
-- [ ] 27. **Post-Review: Verification Revisit (MANDATORY)** — After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment.
+- [ ] 27. **Post-Review: Verification Revisit (MANDATORY)** — After Step 6 self-review and Step 6.5 evidence verification, scan the spec for any remaining `⚠️ UNVERIFIED` markers and attempt to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment. (The SKILL.md pipeline handles verification-enforcement revisit as an inline orchestrator step — this sub-agent does not call it.)
 
 - [ ] 28. **Step 6.8: Generate Spec Folder URL (SC-6)** — Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the `.issues/AGENTS.md` pattern:
 
@@ -736,7 +732,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - If user approves the spec on the issue: proceed to Step 9
     - Do NOT re-dump the spec to chat for any reason
 
-- [ ] 34. **Step 9: Transition** — After user approval of the spec on the issue, invoke `skill({name: "audit"})` then `task(..., prompt: "execute spec-audit task from audit")` for quality audit.
+- [ ] 34. **Step 9: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
 
 ## Context Required
 
