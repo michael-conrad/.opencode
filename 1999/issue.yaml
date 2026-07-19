@@ -2,6 +2,132 @@ title: '[SPEC-FIX] Cleanup workflow must verify merge via git state, not PR meta
 status: open
 labels:
 - spec-fix
-body: ''
+body: '## Summary
+
+
+  The cleanup workflow (`check-pr`, `verify-merge`) relies exclusively on GitHub API
+  PR metadata (`merged_at`, `state`, `merged`) to confirm merge status. PR metadata
+  is process metadata — it is not evidence of actual code state. The workflow must
+  verify merges against actual git state: merge commit existence in trunk history,
+  branch reachability, and PR-to-spec cross-reference.
+
+
+  ## Root Cause
+
+
+  The investigation identified 5 structural defects:
+
+
+  **Defect 1 — Merge commit SHA never extracted.** `check-pr.md` Phase 2 Step 2.5
+  has a `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>` check, but `<merge_sha>`
+  is never populated. The merge commit SHA is not part of the 6-field mergeability
+  diagnosis. The step is structurally broken — it cannot execute.
+
+
+  **Defect 2 — No merge commit verification.** `cleanup/verify-merge.md` Step 1 checks
+  `merged_at is not None` from the PR API, but never runs `git log --oneline "$DEFAULT_BRANCH"
+  | grep <merge_sha>` to confirm the merge commit actually exists in local trunk history.
+
+
+  **Defect 3 — No branch reachability check.** Before deleting the feature branch,
+  the workflow never runs `git branch --merged "$DEFAULT_BRANCH"` to confirm the branch''s
+  commits are reachable from the trunk. If the branch was force-pushed or the merge
+  was reverted, the branch deletion destroys unreachable work.
+
+
+  **Defect 4 — No PR-to-spec cross-reference.** The workflow never reads the PR''s
+  changed files via the API and cross-references them against the spec''s affected
+  files or success criteria. This means a PR that claims to fix issue #N but doesn''t
+  actually touch the spec''s affected files will pass cleanup verification.
+
+
+  **Defect 5 — No issue reference verification from git log.** The workflow never
+  checks `git log --oneline "$DEFAULT_BRANCH"` for commit messages that reference
+  the issues being closed. If the merge commit message doesn''t reference the issue,
+  the issue closure may be incorrect.
+
+
+  ## Affected Files
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `skills/git-workflow-cleanup/tasks/check-pr.md` | Add merge commit SHA extraction
+  to Phase 2; fix Step 2.5 git log check; add branch reachability check; add PR-to-spec
+  cross-reference |
+
+  | `skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md` | Add merge commit
+  verification via git log; add branch reachability check; add PR-to-spec cross-reference
+  |
+
+  | `skills/git-workflow-cleanup/tasks/cleanup.md` | Add merge commit verification
+  to Live Verification Table; add PR-to-spec cross-reference step |
+
+  | `tests-v2/behaviors/` | Add behavioral tests for git-state-based merge verification
+  |
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `check-pr.md` Phase 2 extracts `merge_commit_sha` from PR API response
+  and adds it to the mergeability diagnosis | `string` | grep for `merge_commit_sha`
+  in check-pr.md |
+
+  | SC-2 | `check-pr.md` Phase 2 Step 2.5 uses the extracted `merge_commit_sha` in
+  `git log --oneline "$DEFAULT_BRANCH" \| grep <merge_sha>` | `string` | grep for
+  `git log.*merge_commit_sha` in check-pr.md |
+
+  | SC-3 | `verify-merge.md` Step 1 runs `git log --oneline "$DEFAULT_BRANCH" \| grep
+  <merge_sha>` after confirming `merged_at` is not None | `string` | grep for `git
+  log.*merge_commit_sha` in verify-merge.md |
+
+  | SC-4 | `verify-merge.md` Step 1 runs `git branch --merged "$DEFAULT_BRANCH"` to
+  confirm feature branch is reachable | `string` | grep for `git branch --merged`
+  in verify-merge.md |
+
+  | SC-5 | `verify-merge.md` reads PR changed files via API and cross-references against
+  spec affected files | `semantic` | Sub-agent reads verify-merge.md — confirms PR-to-spec
+  cross-reference step exists |
+
+  | SC-6 | `cleanup.md` Live Verification Table includes a row for merge commit verification
+  with `git log` evidence | `string` | grep for merge commit verification row in cleanup.md
+  |
+
+  | SC-7 | Behavioral test exists that verifies the agent runs `git log` to confirm
+  merge commit before cleanup | `behavioral` | `opencode run` with "pr merged" prompt
+  — stderr shows `git log` on trunk |
+
+  | SC-8 | Behavioral test exists that verifies the agent runs `git branch --merged`
+  before branch deletion | `behavioral` | `opencode run` with "pr merged" prompt —
+  stderr shows `git branch --merged` |
+
+  | SC-9 | Behavioral test exists that verifies the agent cross-references PR files
+  against spec affected files | `behavioral` | `opencode run` with "pr merged" prompt
+  — stderr shows PR file read + spec file read |
+
+
+  ## Risk Assessment
+
+
+  **Low risk.** The changes add verification steps to existing workflows — they do
+  not change the workflow structure, only add gates before destructive actions (branch
+  deletion, issue closure). The behavioral tests are the primary risk: they require
+  `opencode run` with a real model and a test repo with a merged PR. The test setup
+  must create a PR, merge it, then verify the agent''s behavior.
+
+
+  ## Dependencies
+
+
+  - None — this is a standalone fix spec
+
+  '
 created_at: '2026-07-19T14:32:05+00:00'
-updated_at: '2026-07-19T14:32:05+00:00'
+updated_at: '2026-07-19T14:32:33+00:00'
