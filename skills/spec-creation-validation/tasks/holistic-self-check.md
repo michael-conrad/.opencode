@@ -61,7 +61,7 @@ Evaluate a spec against the 11-dimension holistic semantic gate before finalizat
           name: "<dimension name>"
           finding: "<what failed>"
           resolution: "<what needs to be fixed>"
-      artifact_path: "{project_root}/tmp/{issue-N}/holistic-self-check.yaml"
+      artifact_path: ".issues/{N}/artifacts/holistic-self-check.yaml"
     ```
 
 - [ ] 5. **If all PASS** — Return `status: DONE` with the verdict artifact. Spec is ready for finalization.
@@ -79,6 +79,6 @@ Evaluate a spec against the 11-dimension holistic semantic gate before finalizat
 ```yaml
 status: DONE | BLOCKED
 finding_summary: "Holistic self-check: <N>/11 PASS, <M>/11 FAIL. Failed: <dimension names>"
-artifact_path: "{project_root}/tmp/{issue-N}/holistic-self-check.yaml"
+artifact_path: ".issues/{N}/artifacts/holistic-self-check.yaml"
 blocker_reason: "HOLISTIC_GATE_FAILED: <dimension names> failed. See artifact for details."  # if BLOCKED
 ```
