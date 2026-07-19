@@ -639,98 +639,20 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - [ ] The plan writer reads from `.issues/{N}/spec.md`, not from the remote issue body
     - [ ] Verify the file was written: `ls .issues/{N}/spec.md`
 
-- [ ] 39. **Step 39: Remote Issue Body (Exec Summary)** — Create the remote issue body as a stakeholder-facing exec summary with the spec reference blockquote:
-
-    - [ ] **Spec Reference Blockquote (top of body):** Generate the blockquote from Step 6.8 and prepend it to the issue body
-    - [ ] **URL Construction (mandatory):** Follow the URL construction rules below when building the spec reference URL
-    - [ ] **Invoke `issue-operations --task pre-creation`** to validate (check for conflicts, superseded issues, content coverage); if validation fails → HALT and report, fix issues and re-validate
-    - [ ] **Invoke `issue-operations --task single-task-check`** to determine sub-issue needs
-    - [ ] **Invoke `issue-operations --task creation`** to create the issue with the blockquote-prepended exec summary body
-    - [ ] **Record the issue number and URL**
-    - [ ] **Save mirror:** Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
-
-    **URL Construction Rules (pre-creation URL per URL Sourcing Rule 2):**
-
-    - [ ] Resolve `html_url`, `owner`, `repo` from the session-init `## Repo Information` entry whose `path` matches the issue's repo. The session-init section provides per-repo values — do NOT use hardcoded `github.html_url` or root repo values.
-    - [ ] Construct the URL: `{html_url}/{owner}/{repo}/tree/issues-data/{N}/`
-    - [ ] **Character-match verification**: Confirm the constructed URL contains the exact `{owner}` and `{repo}` strings from session-init (character-for-character match, no typos)
-    - [ ] **Substitution verification**: After URL construction, verify `{html_url}` was substituted (not left as a literal placeholder). If `{html_url}` remains in the constructed URL, HALT with blocker — the placeholder was not resolved.
-    - [ ] **Repo-awareness guard**: Confirm owner/repo matches the target issue's repository before URL construction. If the issue resides in a submodule repo with different owner/repo, use that repo's session-init values
-    - [ ] All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`)
-
-    **Exec Summary Structure (embedded in the remote issue body, 5-part mandatory format):**
-
-    ```
-    > **Full spec and plan artifacts: {html_url}/{owner}/{repo}/tree/issues-data/{N}/**
-
-    ## Problem
-    What problem this solves, why now, business/user impact. BLUF — lead with outcome, not mechanism.
-
-    ## Goals
-    Specific, measurable goals this spec targets. Binary outcome statements.
-
-    ## Non-Goals
-    Explicitly out of scope: what this spec does NOT address. Each non-goal with rationale.
-
-    ## Scope
-    3-5 bullets in-scope. Explicit out-of-scope list. Stakeholder-facing outcomes.
-
-    ## Approach
-    High-level solution in 3-5 sentences. Names the approach, not the implementation.
-
-    ## Impact
-    Top 3 risks with one-line mitigation. Key dependencies. Call to action.
-    ```
-
-    **Exec Summary Constraints (local-only reference — not in the remote body):**
-
-    | Constraint | Value |
-    | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-    | Length | Concise — 150-300 words, 1 page max (readability guideline, not complexity measure) |
-    | Structure | BLUF — conclusion/action first, context second, evidence third |
-    | Tone | Assertive, decision-oriented, jargon-free, third-person |
-    | Independence | Fully readable without clicking any link |
-    | Links | All links MUST be full resolved URLs from session-init — no platform-specific shortcuts. Repo-awareness guard required. |
-    | Exclusions | No implementation details, file paths, algorithms, methodology, unreferenced acronyms |
-    | Platform | Platform-agnostic — no hardcoded GitHub/GitBucket tool names |
-
-    **Exec-Summary Format Rules:**
-
-    - **No checkboxes, no status markers, no completion flags** — the issue body is a requirements document, not a project tracker
-    - **Scope of Work listed in dependency order** — implementable sequence, not alphabetical or priority order
-    - **Include `Key Decisions` section** — document trade-offs and rationale from the card catalogue
-    - **Include `Risk Callouts` section** — surface risks that affect implementation approach or timeline
-
-    **Chat output is ONLY:**
-
-    ```
-    <exec summary>
-
-    <issue URL>
-
-    🤖 <AgentName> (<ModelId>) created
-    ```
-
-    **🚫 NEVER:**
-
-    - Dump full spec content to chat as the "review" step
-    - Claim spec is "written" without an issue URL
-    - Ask the user to review the spec in chat
-
-- [ ] 40. **Step 40: Post-Creation Sync (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
+- [ ] 39. **Step 39: Post-Creation Sync (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
 
     - [ ] Run `.opencode/tools/local-issues sync` to commit all local `.issues/{N}/` files and push to the `issues-data` branch
     - [ ] This ensures links in the remote issue body that refer to the spec folder (`.issues/{N}/`) resolve correctly
     - [ ] The `issues-data` branch is the canonical store for all spec artifacts — without sync, downstream consumers (plan writer, auditors) cannot access the local files
     - [ ] Run `local-issues sync` after EVERY change to files in `.issues/{N}/` — not just at creation time
 
-- [ ] 41. **Step 41: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
+- [ ] 40. **Step 40: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
     - If user requests revisions via issue comments: invoke `issue-operations --task body-edit` to update the issue body, then post update summary + URL + byline to chat
     - If user approves the spec on the issue: proceed to Step 9
     - Do NOT re-dump the spec to chat for any reason
 
-- [ ] 42. **Step 42: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
+- [ ] 41. **Step 41: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
 
 ## Context Required
 
