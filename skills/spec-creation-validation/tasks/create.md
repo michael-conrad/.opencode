@@ -26,11 +26,11 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 ## Procedure
 
-- [ ] 1. **Step 0: Verification Gate (MANDATORY FIRST)** — Before assembling the spec, collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass. (The SKILL.md pipeline handles verification-enforcement dispatch as an inline orchestrator step — this sub-agent does not call it.)
+- [ ] 1. **Step 1: Verification Gate (MANDATORY FIRST)** — Before assembling the spec, collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass. (The SKILL.md pipeline handles verification-enforcement dispatch as an inline orchestrator step — this sub-agent does not call it.)
 
-- [ ] 2. **Step 1: Stub Creation (SC-22 — behavioral)** — The SKILL.md pipeline handles create-remote-stub as a separate sub-task step before this sub-agent runs. This sub-agent reads the spec number from `.issues/{N}/remote.md` and uses it for all subsequent artifact paths. The full spec body will be populated in Step 7.
+- [ ] 2. **Step 2: Stub Creation (SC-22 — behavioral)** — The SKILL.md pipeline handles create-remote-stub as a separate sub-task step before this sub-agent runs. This sub-agent reads the spec number from `.issues/{N}/remote.md` and uses it for all subsequent artifact paths. The full spec body will be populated in Step 7.
 
-- [ ] 3. **Step 2: Behavioral Test Mandate in Success Criteria (MANDATORY)** — Behavioral enforcement tests are NOT written during spec creation. They are written during implementation, per the post-approval spec mandate. However, the spec MUST include a Success Criterion mandating behavioral test creation before implementation.
+- [ ] 3. **Step 3: Behavioral Test Mandate in Success Criteria (MANDATORY)** — Behavioral enforcement tests are NOT written during spec creation. They are written during implementation, per the post-approval spec mandate. However, the spec MUST include a Success Criterion mandating behavioral test creation before implementation.
 
     **For rule-changing specs** (guidelines, skills, critical violations): Include a success criterion that mandates "Before any implementation, write behavioral enforcement tests in `.opencode/tests-v2/behaviors/` that verify the new rule; confirm RED state (test fails before change). If the tests are missing from the working tree when implementation begins, they must be re-created before any source changes."
 
@@ -42,13 +42,13 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **Cost-frame mandate in SCs:** Each success criterion MUST carry a short cost-frame reformation statement that reframes what "expensive" means for that SC's domain. The statement uses the dark-prose-007 formula from Load [Section 3](guidelines/250-dark-prose-reference.md) — the implementing agent derives the exact prose autonomously based on the SC's verification method. Each SC's verification method MUST require a real test execution command — not a structural check (file exists, grep match). Structural verification is NEVER a valid substitute for behavioral execution: a skipped runtime equals a defect undiscovered. The death spiral / break dynamics are formalized in Load [Cost Model](guidelines/065-verification-honesty.md) — behavioral PASS is a break (zero downstream cost); structural-only PASS is a death spiral (compounding exponential cost).
 
-- [ ] 4. **Step 3: Behavioral Test Definition — Stderr-Based Evidence (MANDATORY)** — Valid behavioral enforcement tests use **stderr-based assertion helpers** (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) to verify agent actions (skill dispatches, file reads, tool invocations). **Prose-recall prompts** (e.g., "Describe how you would resolve models") produce stdout prose, not behavioral evidence, and are NOT accepted as valid behavioral tests.
+- [ ] 4. **Step 4: Behavioral Test Definition — Stderr-Based Evidence (MANDATORY)** — Valid behavioral enforcement tests use **stderr-based assertion helpers** (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) to verify agent actions (skill dispatches, file reads, tool invocations). **Prose-recall prompts** (e.g., "Describe how you would resolve models") produce stdout prose, not behavioral evidence, and are NOT accepted as valid behavioral tests.
 
     **Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence.**
 
     When creating the behavioral test success criterion, ensure it mandates real-domain prompts and stderr-based assertions, not prose-recall prompts.
 
-- [ ] 5. **Step 1: Assemble Spec** — The generated spec body MUST include YAML frontmatter at the top of the LOCAL `.issues/{N}/spec.md` file. The remote issue body remains markdown-only (no frontmatter).
+- [ ] 5. **Step 5: Assemble Spec** — The generated spec body MUST include YAML frontmatter at the top of the LOCAL `.issues/{N}/spec.md` file. The remote issue body remains markdown-only (no frontmatter).
 
     The local `spec.md` MUST begin with YAML frontmatter:
 
@@ -205,7 +205,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
         This section is MANDATORY for all specs. Each URL listed MUST be verified as reachable before the spec is submitted. Unreachable URLs MUST be replaced or marked with `⚠️ UNREACHABLE`. Online (live) documentation is preferred; local docs are fallback only.
 
-- [ ] 6. **Step 1a: Generate Spec Artifacts (MANDATORY)** — Generate the following permanent artifacts:
+- [ ] 6. **Step 6: Generate Spec Artifacts (MANDATORY)** — Generate the following permanent artifacts:
 
     - [ ] **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
     - [ ] **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
@@ -214,7 +214,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Artifact generation occurs during Step 1 assembly. Self-review (Step 6) validates YAML-vs-prose consistency.
 
-- [ ] 7. **Step 1b: Plan Creation Mandate in Spec Body (MANDATORY)** — The generated spec body MUST include a paragraph in the preamble or before the Success Criteria section that mandates plan creation via `writing-plans`:
+- [ ] 7. **Step 7: Plan Creation Mandate in Spec Body (MANDATORY)** — The generated spec body MUST include a paragraph in the preamble or before the Success Criteria section that mandates plan creation via `writing-plans`:
 
     ```markdown
     After this spec is approved, invoke `writing-plans` to create `.issues/{N}/plan.md` before implementation begins.
@@ -222,7 +222,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Where `{N}` is the actual issue number, substituted at generation time. This mandate is in the spec content (what the writer generates), not just the task procedure.
 
-- [ ] 8. **Step 1.1: SC Coverage YAML Generation (SC-4, SC-28)** — After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/sc-summary.yaml`:
+- [ ] 8. **Step 8: SC Coverage YAML Generation (SC-4, SC-28)** — After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/sc-summary.yaml`:
 
     ```yaml
     sc_coverage:
@@ -253,7 +253,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Required validation: cross-reference `sc_coverage.total` against the prose SC table row count. Mismatch MUST be flagged as a STRUCTURE-VIOLATION.
 
-- [ ] 9. **Step 1.2: Verification Consistency Contract Generation (SC-8)** — Generate a verification consistency solve contract at `.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
+- [ ] 9. **Step 9: Verification Consistency Contract Generation (SC-8)** — Generate a verification consistency solve contract at `.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -274,7 +274,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     The pre-approval gate validates every SC's Verification Gate against its Evidence Type. SAT for compliant specs, UNSAT with unsat_core for non-compliant.
 
-- [ ] 10. **Step 1.3: Lifecycle Manifest Initialization (SC-6)** — Initialize the append-only lifecycle manifest at `.issues/{N}/lifecycle.yaml` with a `spec_created` event:
+- [ ] 10. **Step 10: Lifecycle Manifest Initialization (SC-6)** — Initialize the append-only lifecycle manifest at `.issues/{N}/lifecycle.yaml` with a `spec_created` event:
 
     ```yaml
     events:
@@ -287,7 +287,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Each pipeline stage appends its event. Blocker events appended on FAIL with severity, reason, and resolution fields.
 
-- [ ] 11. **Step 1.35: Spec-to-Plan Handoff Manifest Generation (SC-27)** — Generate a spec-to-plan handoff manifest at `.issues/{issue-N}/spec-to-plan-handoff.yaml` that the plan writer and pre-flight handoff use to verify artifact completeness:
+- [ ] 11. **Step 11: Spec-to-Plan Handoff Manifest Generation (SC-27)** — Generate a spec-to-plan handoff manifest at `.issues/{issue-N}/spec-to-plan-handoff.yaml` that the plan writer and pre-flight handoff use to verify artifact completeness:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -311,7 +311,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     The handoff manifest is consumed by `implementation-pipeline/tasks/pre-flight-handoff.md` which validates that all required artifacts exist before the pipeline proceeds. If any required artifact is missing, pre-flight returns BLOCKED.
 
-- [ ] 12. **Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
+- [ ] 12. **Step 12: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -332,22 +332,22 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     `solve check` returns SAT for valid re-entry plans, UNSAT for insufficient replay scope.
 
-- [ ] 13. **Step 1d: Forward-Looking Mandate (SC-1/SC-4)** — Every spec is from the point of view "NEEDS TO BE IMPLEMENTED — HERE ARE THE REQUIREMENTS." Never describe what has been done; describe what must be done.
+- [ ] 13. **Step 13: Forward-Looking Mandate (SC-1/SC-4)** — Every spec is from the point of view "NEEDS TO BE IMPLEMENTED — HERE ARE THE REQUIREMENTS." Never describe what has been done; describe what must be done.
 
     - **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the issue as labels, not in the spec prose.
     - **Use MUST/SHOULD/MAY (RFC 2119)** for all requirements. "The system MUST log errors" not "The system logs errors". This enforces the forward-looking stance of describing what the implementation MUST achieve, not what has been decided.
     - **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in ``, not in the spec itself.
 
-- [ ] 13.5. **Step 1d.5: Research Card References (MANDATORY)** — Include references to consulted research cards in the spec body. If research cards were consulted during requirements extraction, reference them in the Documentation Sources section. Format: `| Research cards | \`.opencode/.issues/research-cards/<card-name>.md\` | Findings incorporated for <topic> |`
+- [ ] 14. **Step 14: Research Card References (MANDATORY)** — Include references to consulted research cards in the spec body. If research cards were consulted during requirements extraction, reference them in the Documentation Sources section. Format: `| Research cards | \`.opencode/.issues/research-cards/<card-name>.md\` | Findings incorporated for <topic> |`
 
-- [ ] 13.6. **Step 1d.6: Live Documentation URL Verification (MANDATORY)** — Before the spec is finalized, verify that all documentation source URLs listed in the Documentation Sources section are live and reachable. For each URL:
+- [ ] 15. **Step 15: Live Documentation URL Verification (MANDATORY)** — Before the spec is finalized, verify that all documentation source URLs listed in the Documentation Sources section are live and reachable. For each URL:
     - Use `webfetch` or `ddg-search_fetch_content` to confirm the URL returns a 200-level response
     - If a URL is unreachable, replace it with a working alternative or mark it as `⚠️ UNREACHABLE` with a note
     - Prefer online (live) documentation over local; local docs are fallback only
     - Document which URLs were verified and which were unreachable in the spec body
     - This verification MUST be performed before the spec is submitted to the remote platform
 
-- [ ] 13.7. **Step 1d.7: Interdependency Section (MANDATORY)** — Add an Interdependency section to the spec body listing related issues with classification. Format:
+- [ ] 16. **Step 16: Interdependency Section (MANDATORY)** — Add an Interdependency section to the spec body listing related issues with classification. Format:
 
     ```markdown
     ## Interdependency
@@ -363,7 +363,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Classifications: BLOCKS, BLOCKED_BY, RELATED, SUPERSEDES, SUPERSEDED_BY. Mark interdependencies explicitly in both this spec and the interdependent issues.
 
-- [ ] 13.8. **Step 1d.8: Anti-Lobotomization Preamble (MANDATORY)** — Add an anti-lobotomization section to the spec body preamble. This section MUST appear in every generated spec. Language:
+- [ ] 17. **Step 17: Anti-Lobotomization Preamble (MANDATORY)** — Add an anti-lobotomization section to the spec body preamble. This section MUST appear in every generated spec. Language:
 
     ```markdown
     ## Anti-Lobotomization
@@ -373,28 +373,28 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Also add a success criterion in the SC table that explicitly forbids test lobotomization. The SC should read: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation" with evidence type `behavioral`.
 
-- [ ] 13.9. **Step 1d.9: Anti-Merge Gate (MANDATORY)** — Before finalizing the spec, verify that no SC conflicts with already-merged specs. Check merged PRs for related functionality. If a merged spec has SCs that conflict with this spec's SCs, flag the conflict and HALT. Do NOT proceed with conflicting SCs.
+- [ ] 18. **Step 18: Anti-Merge Gate (MANDATORY)** — Before finalizing the spec, verify that no SC conflicts with already-merged specs. Check merged PRs for related functionality. If a merged spec has SCs that conflict with this spec's SCs, flag the conflict and HALT. Do NOT proceed with conflicting SCs.
 
-- [ ] 13.10. **Step 1d.10: Doc-Source-Currency Check (MANDATORY)** — Verify that all documentation sources referenced in the spec are current (not stale). For each source:
+- [ ] 19. **Step 19: Doc-Source-Currency Check (MANDATORY)** — Verify that all documentation sources referenced in the spec are current (not stale). For each source:
     - Check the last-modified date or version of the source
     - If the source is a GitHub file, check its last commit date
     - If the source is an external URL, verify the content is still relevant
     - If a source is stale (outdated by more than 30 days for guidelines, 90 days for other docs), flag it and find a current replacement
     - Document which sources were checked and their currency status
 
-- [ ] 13.11. **Step 1d.11: SC-ID Traceability Check (MANDATORY)** — Verify that every SC ID in the spec maps to a unique, traceable requirement. For each SC:
+- [ ] 20. **Step 20: SC-ID Traceability Check (MANDATORY)** — Verify that every SC ID in the spec maps to a unique, traceable requirement. For each SC:
     - Confirm the SC ID is unique (no duplicates)
     - Confirm the SC maps to at least one requirement in the spec body
     - Confirm the SC has a defined verification method
     - If any SC fails traceability, flag it as a STRUCTURE-VIOLATION and fix before submission
 
-- [ ] 14. **Step 1e: Sub-Folder References, No Hardcoded File Lists (SC-9)** — Reference artifact directories by sub-folder path (e.g., ``) rather than listing individual files. Agents discover content by globbing directories; hardcoded file lists go stale when files are renamed or reorganized.
+- [ ] 21. **Step 21: Sub-Folder References, No Hardcoded File Lists (SC-9)** — Reference artifact directories by sub-folder path (e.g., ``) rather than listing individual files. Agents discover content by globbing directories; hardcoded file lists go stale when files are renamed or reorganized.
 
     **Correct:** "See `research/` for capability probe results"
 
     **Wrong:** "See `research/fastmcp-capabilities.md` for capability probe results"
 
-- [ ] 15. **Step 1f: No Bare #N References (SC-10)** — Never use bare `#N` in any spec content. Always use the full URL: `{browser_url}/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
+- [ ] 22. **Step 22: No Bare #N References (SC-10)** — Never use bare `#N` in any spec content. Always use the full URL: `{browser_url}/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
 
     | Pattern | Classification | Action |
     | ------- | -------------- | --------------------------------------------- |
@@ -405,7 +405,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     The agent MUST check the entire spec body for bare `#N` patterns before submission and replace any found. This applies to all cross-references regardless of whether they point to the same repo or a different repo.
 
-- [ ] 16. **Step 2: Eliminate Ambiguity (Principle #4)** — Review every requirement statement:
+- [ ] 23. **Step 23: Eliminate Ambiguity (Principle #4)** — Review every requirement statement:
 
     - Replace vague terms with measurable, testable statements
     - Replace "should" with "MUST", "SHALL", or "MAY"
@@ -415,13 +415,13 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-- [ ] 16a. **Step 2a: Resolve Either/Or in Required Actions (SC-1)** — After eliminating ambiguity, scan all Required Actions for either/or patterns ("or", "either", "alternatively") that present two or more possible outcomes. Each Required Action MUST resolve to a single concrete outcome before the spec is finalized. If an either/or pattern is found, the agent MUST:
+- [ ] 24. **Step 24: Resolve Either/Or in Required Actions (SC-1)** — After eliminating ambiguity, scan all Required Actions for either/or patterns ("or", "either", "alternatively") that present two or more possible outcomes. Each Required Action MUST resolve to a single concrete outcome before the spec is finalized. If an either/or pattern is found, the agent MUST:
     - Identify which outcome is the correct single path
     - Remove the alternative outcome
     - Document the decision rationale in the Decision Ledger
     - Verify no remaining either/or ambiguity exists
 
-- [ ] 16b. **Step 2b: Concretize Delegation Targets (SC-2)** — After resolving either/or patterns, scan all Required Actions for "delegate to", "unified", "merged into", or "replaced by" references. Each such reference MUST specify:
+- [ ] 25. **Step 25: Concretize Delegation Targets (SC-2)** — After resolving either/or patterns, scan all Required Actions for "delegate to", "unified", "merged into", or "replaced by" references. Each such reference MUST specify:
     - The exact file changes for each capability being migrated
     - Routing table updates (if the target file has a routing/dispatch table)
     - Cross-reference updates (if other files reference the removed file)
@@ -429,7 +429,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     
     If any delegation reference lacks these details, the agent MUST add them before the spec is finalized.
 
-- [ ] 17. **Step 3: Define Acceptance Criteria (Principle #6)** — **🚫 SC-FAIL CASCADING GATE: Any SC that is skipped, deferred, weakened, or otherwise bypassed marks ALL SCs as FAIL. A PR containing any such bypass MUST be immediately rejected and trashed as defective and unusable. There is no partial credit. There is no 'close enough.' 100% clean PASS on ALL SCs is the only acceptable outcome.**
+- [ ] 26. **Step 26: Define Acceptance Criteria (Principle #6)** — **🚫 SC-FAIL CASCADING GATE: Any SC that is skipped, deferred, weakened, or otherwise bypassed marks ALL SCs as FAIL. A PR containing any such bypass MUST be immediately rejected and trashed as defective and unusable. There is no partial credit. There is no 'close enough.' 100% clean PASS on ALL SCs is the only acceptable outcome.**
 
     | Rule | Description |
     | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -449,7 +449,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Load [column definitions, rendering note, and per-column conditionality](reference/sc-table-columns.md). See the Evidence Type Classification Gate section below for classification rules when applying these columns.
 
-- [ ] 18. **Evidence Type Classification Gate (MANDATORY)** — When authoring success criteria, the agent MUST classify each SC's evidence type by asking: "Does this change affect runtime behavior? If YES, evidence type MUST be behavioral."
+- [ ] 27. **Step 27: Evidence Type Classification Gate (MANDATORY)** — When authoring success criteria, the agent MUST classify each SC's evidence type by asking: "Does this change affect runtime behavior? If YES, evidence type MUST be behavioral."
 
     The declared evidence type in the SC table MUST reflect the classification question's answer:
 
@@ -475,7 +475,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - **Behavioral test assertions for rule-changing SCs** — Success criteria that change agent behavior (guideline rules, skill enforcement, critical violations) MUST include a behavioral test assertion describing the RED state (agent behavior without the rule) and GREEN state (agent behavior with the rule), not just a content-verification grep command. Content-verification commands are SECONDARY for rule-changing SCs; behavioral assertions are PRIMARY. Load [Behavioral Enforcement Tests (PRIMARY)](guidelines/080-code-standards.md).
     - **Semantic intent field** — Each success criterion MUST include a brief prose annotation explaining WHY the exact criterion value matters and what semantic distinction it represents. This prevents substituting functionally similar values. Example: "Exit code 2 specifically signals removal of a feature, distinct from exit code 1 which signals a validation failure — these are different error categories for different consumer behaviors." Without semantic intent, an SC is a checklist — it verifies that something happened, but not that the right thing happened for the right reason.
 
-- [ ] 19. **Step 4: Determinism Gate** — For each success criterion, ask: **"If two different auditors read this SC, will they independently produce the same PASS/FAIL result against the same implementation?"**
+- [ ] 28. **Step 28: Determinism Gate** — For each success criterion, ask: **"If two different auditors read this SC, will they independently produce the same PASS/FAIL result against the same implementation?"**
 
     If the answer is "no", the SC must be rewritten.
 
@@ -493,11 +493,11 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     ✅ **Gate presence verification:** Verify the all-or-nothing gate statement is present in the assembled spec body. If absent → `STRUCTURE-VIOLATION` requiring rewrite before submission.
 
-- [ ] 20. **Step 5: Structure the Deliverable (Principle #10)** — Content coverage matters more than section structure. The agent chooses the optimal structure for the spec's complexity:
+- [ ] 29. **Step 29: Structure the Deliverable (Principle #10)** — Content coverage matters more than section structure. The agent chooses the optimal structure for the spec's complexity:
 
     **All specs are mandatory.** Every spec MUST include: Problem Statement, Context, Success Criteria, and Edge Cases. Additional sections (Intent and Executive Summary, Affected Files, Fix Approach, Dependencies, Risk, Decision Rationale, Phases) are included as needed based on spec complexity. The agent decides the structure that best serves the specific spec. No section may be skipped based on a "simple" or "minimal" classification.
 
-- [ ] 21. **Step 5.5: Spec/Plan Boundary Check** — Review the assembled spec for plan-level content that belongs in the implementation plan, not the spec. Specs describe **WHAT** and **WHY**; plans describe **HOW**.
+- [ ] 30. **Step 30: Spec/Plan Boundary Check** — Review the assembled spec for plan-level content that belongs in the implementation plan, not the spec. Specs describe **WHAT** and **WHY**; plans describe **HOW**.
 
     **Replacement rules:**
 
@@ -511,7 +511,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
-- [ ] 22. **Step 5.6: `solve` and `plan` Utility Invocation (SC-2)** — After the spec/plan boundary check, invoke the `solve` utility to produce a dependency-ordering constraints contract:
+- [ ] 31. **Step 31: `solve` and `plan` Utility Invocation (SC-2)** — After the spec/plan boundary check, invoke the `solve` utility to produce a dependency-ordering constraints contract:
 
     ```bash
     ./.opencode/tools/solve model \
@@ -546,14 +546,14 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     On success: planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY per `plan` skill → `plan.md` task.
     On UNSOLVABLE or utility unavailable: **HALT** with blocker report. Refer to `plan` skill → `fallback.md` task for manual acyclic check when planner is unavailable.
 
-- [ ] 23. **Plan Format Requirements** — The spec MUST mandate the following plan format requirements in its preamble or before the Success Criteria section:
+- [ ] 32. **Step 32: Plan Format Requirements** — The spec MUST mandate the following plan format requirements in its preamble or before the Success Criteria section:
 
     - Every dispatch step in a plan MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> task from <skill>")` form
     - Plan steps MUST NOT contain inline procedure text — the plan is a routing document, not a re-implementation of skill task cards
     - The full implementation pipeline must be enumerated with no skipped or combined steps, each referencing the correct skill/task combination
     - The full pipeline enumeration includes: coherence gate, pre-red-baseline, RED/GREEN per item, VbC, audit, cross-validate, regression check, finishing checklist, review-prep, cleanup
 
-- [ ] 24. **Step 6: Self-Review** — After writing the spec, review with fresh eyes:
+- [ ] 33. **Step 33: Self-Review** — After writing the spec, review with fresh eyes:
 
     - [ ] **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
     - [ ] **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
@@ -577,7 +577,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
        - Every SC ID in `sc-summary.yaml` appears in the prose table
        - Mismatch in any direction → STRUCTURE-VIOLATION requiring YAML regeneration
 
-- [ ] 25. **Step 6.2: Post-SC Uplift Check (MANDATORY)** — After self-review, before evidence artifact verification, perform a post-creation SC evidence type uplift check:
+- [ ] 34. **Step 34: Post-SC Uplift Check (MANDATORY)** — After self-review, before evidence artifact verification, perform a post-creation SC evidence type uplift check:
 
     1. **SC evidence type re-check**: For each SC in the spec body, evaluate the substrate question: "Does this change affect runtime behavior?"
     2. **Uplift misclassified SCs**: If runtime-behavioral YES but evidence type is NOT behavioral → auto-uplift to `behavioral`. Log the uplift action as a finding.
@@ -588,7 +588,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     5. **Re-check**: After remediation, re-run the classification check. Confirm no remaining misclassifications.
     6. **Evidence artifact**: Write findings to `.issues/{N}/post-sc-uplift-check.yaml`
 
-- [ ] 26. **Step 6.5: Evidence Artifact Verification (MANDATORY)** — **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
+- [ ] 35. **Step 35: Evidence Artifact Verification (MANDATORY)** — **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
     | Checkpoint | Verification Action | Tool Call | Problem Class |
     | ---------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- |
@@ -618,9 +618,9 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **These verifications are MANDATORY after self-review. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
-- [ ] 27. **Post-Review: Verification Revisit (MANDATORY)** — After Step 6 self-review and Step 6.5 evidence verification, scan the spec for any remaining `⚠️ UNVERIFIED` markers and attempt to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment. (The SKILL.md pipeline handles verification-enforcement revisit as an inline orchestrator step — this sub-agent does not call it.)
+- [ ] 36. **Step 36: Post-Review: Verification Revisit (MANDATORY)** — After Step 6 self-review and Step 6.5 evidence verification, scan the spec for any remaining `⚠️ UNVERIFIED` markers and attempt to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment. (The SKILL.md pipeline handles verification-enforcement revisit as an inline orchestrator step — this sub-agent does not call it.)
 
-- [ ] 28. **Step 6.8: Generate Spec Folder URL (SC-6)** — Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the `.issues/AGENTS.md` pattern:
+- [ ] 37. **Step 37: Generate Spec Folder URL (SC-6)** — Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the `.issues/AGENTS.md` pattern:
 
     ```
     > **Full spec and artifacts: [`.issues/{N}/`]({html_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
@@ -632,14 +632,14 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
-- [ ] 29. **Step 7.1: Local Spec Assembly (SC-29)** — After creating the remote issue, save the full spec content to the local `.issues/{N}/spec.md` file:
+- [ ] 38. **Step 38: Local Spec Assembly (SC-29)** — After creating the remote issue, save the full spec content to the local `.issues/{N}/spec.md` file:
 
     - [ ] Write the complete spec body (including all sections, SC table, compliance blocks, preamble, byline, and YAML frontmatter) to `.issues/{N}/spec.md`
     - [ ] The local spec.md is the authoritative spec — the remote issue body is a condensed exec summary
     - [ ] The plan writer reads from `.issues/{N}/spec.md`, not from the remote issue body
     - [ ] Verify the file was written: `ls .issues/{N}/spec.md`
 
-- [ ] 30. **Step 7.2: Remote Issue Body (Exec Summary)** — Create the remote issue body as a stakeholder-facing exec summary with the spec reference blockquote:
+- [ ] 39. **Step 39: Remote Issue Body (Exec Summary)** — Create the remote issue body as a stakeholder-facing exec summary with the spec reference blockquote:
 
     - [ ] **Spec Reference Blockquote (top of body):** Generate the blockquote from Step 6.8 and prepend it to the issue body
     - [ ] **URL Construction (mandatory):** Follow the URL construction rules below when building the spec reference URL
@@ -717,22 +717,22 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - Claim spec is "written" without an issue URL
     - Ask the user to review the spec in chat
 
-- [ ] 31. **Step 7.3: Pre-PR Gate (Enforcement Constraint)** — The URL construction rules, character-match verification, substitution verification, repo-awareness guard, and exec summary constraints defined in Step 7.2 are enforced at the pre-PR pipeline stage. If the remote issue body does not comply, the pipeline MUST NOT proceed past the finishing-a-development-branch checklist. The spec-creation task documents these constraints for downstream enforcement but does not validate them at creation time — the pre-PR gate is the enforcement point.
+- [ ] 40. **Step 40: Pre-PR Gate (Enforcement Constraint)** — The URL construction rules, character-match verification, substitution verification, repo-awareness guard, and exec summary constraints defined in Step 7.2 are enforced at the pre-PR pipeline stage. If the remote issue body does not comply, the pipeline MUST NOT proceed past the finishing-a-development-branch checklist. The spec-creation task documents these constraints for downstream enforcement but does not validate them at creation time — the pre-PR gate is the enforcement point.
 
-- [ ] 32. **Step 7.4: Post-Creation Sync (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
+- [ ] 41. **Step 41: Post-Creation Sync (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
 
     - [ ] Run `.opencode/tools/local-issues sync` to commit all local `.issues/{N}/` files and push to the `issues-data` branch
     - [ ] This ensures links in the remote issue body that refer to the spec folder (`.issues/{N}/`) resolve correctly
     - [ ] The `issues-data` branch is the canonical store for all spec artifacts — without sync, downstream consumers (plan writer, auditors) cannot access the local files
     - [ ] Run `local-issues sync` after EVERY change to files in `.issues/{N}/` — not just at creation time
 
-- [ ] 33. **Step 8: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
+- [ ] 42. **Step 42: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
     - If user requests revisions via issue comments: invoke `issue-operations --task body-edit` to update the issue body, then post update summary + URL + byline to chat
     - If user approves the spec on the issue: proceed to Step 9
     - Do NOT re-dump the spec to chat for any reason
 
-- [ ] 34. **Step 9: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
+- [ ] 43. **Step 43: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
 
 ## Context Required
 
