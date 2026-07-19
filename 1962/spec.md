@@ -27,7 +27,7 @@ The `writing-plans` skill and its sub-skill `writing-plans-creation` have multip
 7. **Missing canonical dispatch strings** — `writing-plans` Invocation section lacks step-level dispatch strings per DISPATCH_GATE protocol
 8. **`writing-plans-creation` description implies direct dispatchability** — The SKILL.md description says "Load via skill() when creating an implementation plan..." but it is a task container, not a dispatchable skill. Task containers should describe what they CONTAIN, not how to invoke them.
 
-Additionally, issue #1962 requires `create` to dispatch through `plan-creation-pipeline` with Z3 gates instead of bare inspection — this fix must be incorporated.
+Additionally, the `create` workflow must dispatch through `plan-creation-pipeline` with Z3 gates instead of bare inspection — this fix must be incorporated.
 
 ## Root Cause Analysis
 
@@ -45,14 +45,14 @@ The contract path error stems from copying the `spec-creation` pattern where con
 - [ ] G2: `writing-plans` Pipeline section documents all workflows with step-level dispatch classification
 - [ ] G3: `writing-plans-creation` is a task card (not a skill card) — no YAML frontmatter, no "Skill:" header, no TDT, no Invocation. Plain markdown file listing tasks.
 - [ ] G4: All contract paths in `create.md`, `update.md`, `retroactive.md` resolve to existing files
-- [ ] G5: `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates (per #1962)
-- [ ] G6: `pre-plan-readiness` has `solve` readiness gate (per #1962)
+- [ ] G5: `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates
+- [ ] G6: `pre-plan-readiness` has `solve` readiness gate
 - [ ] G7: All canonical dispatch strings follow DISPATCH_GATE format in Invocation
 - [ ] G8: No orphaned tasks in `writing-plans-creation/tasks/`
 
 ## Non-Goals
 
-- **Rewriting pipeline logic** — Pipeline step procedures in `create.md`, `update.md`, `retroactive.md` remain unchanged except for contract paths and #1962 fixes
+- **Rewriting pipeline logic** — Pipeline step procedures in `create.md`, `update.md`, `retroactive.md` remain unchanged except for contract paths and plan-creation-pipeline integration
 - **Modifying task file internals** — Only dispatch routing and contract paths change
 - **Changing skill boundaries** — `writing-plans`, `writing-plans-creation`, `writing-plans-holistic` remain as-is
 
@@ -61,7 +61,7 @@ The contract path error stems from copying the `spec-creation` pattern where con
 **In Scope:**
 - `writing-plans/SKILL.md` — TDT (4 entries), Pipeline section (4 workflows), Invocation (4 entries)
 - `writing-plans-creation/SKILL.md` — Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section, keep plain task list
-- `writing-plans-creation/tasks/create.md` — Contract path fixes, #1962 integration
+- `writing-plans-creation/tasks/create.md` — Contract path fixes, plan-creation-pipeline integration
 - `writing-plans-creation/tasks/update.md` — Contract path fixes
 - `writing-plans-creation/tasks/retroactive.md` — Contract path fixes
 - `writing-plans-creation/tasks/pre-plan-readiness.md` — Add solve readiness gate
@@ -106,8 +106,8 @@ The contract path error stems from copying the `spec-creation` pattern where con
 | SC-2 | `writing-plans` Pipeline section documents 4 workflows (`create`, `update`, `retroactive`, `holistic-self-check`) with step-level dispatch classification | structural | `read` SKILL.md → find Pipeline section with 4 workflows | Add Pipeline section | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G2 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-3 | `writing-plans-creation` is a task card (not a skill card) — no YAML frontmatter, no "Skill:" header, no TDT, no Invocation | structural | `read` SKILL.md → no YAML frontmatter, no "Skill:" header | Convert SKILL.md to plain task card | spec-creation | `.opencode/skills/writing-plans-creation/SKILL.md` | G3 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-4 | All contract paths in `create.md`, `update.md`, `retroactive.md` resolve | structural | `bash` check each path exists | Fix paths to writing-plans-creation/contracts/ | spec-creation | `.opencode/skills/writing-plans-creation/tasks/*.md` | G4 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
-| SC-5 | `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates | behavioral | `opencode run` → verify skill dispatch in stderr | Add plan-creation-pipeline step to create workflow | spec-creation | `.opencode/skills/writing-plans-creation/tasks/create.md` | G5, #1962 | single-task | pre-approval-gate | sub-agent | writing-plans | spec-creation | N/A | Phase 1 |
-| SC-6 | `pre-plan-readiness` has `solve` readiness gate | structural | `read` pre-plan-readiness.md → find solve check | Add solve check step | spec-creation | `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | G6, #1962 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
+| SC-5 | `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates | behavioral | `opencode run` → verify skill dispatch in stderr | Add plan-creation-pipeline step to create workflow | spec-creation | `.opencode/skills/writing-plans-creation/tasks/create.md` | G5 | single-task | pre-approval-gate | sub-agent | writing-plans | spec-creation | N/A | Phase 1 |
+| SC-6 | `pre-plan-readiness` has `solve` readiness gate | structural | `read` pre-plan-readiness.md → find solve check | Add solve check step | spec-creation | `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | G6 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-7 | All canonical dispatch strings follow DISPATCH_GATE format | structural | `read` Invocation sections → verify format | Fix format in Invocation | spec-creation | Both SKILL.md files | G7 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-8 | No orphaned tasks in `writing-plans-creation/tasks/` | structural | `ls tasks/` vs Pipeline task refs → diff empty | Add missing task refs to Pipeline | spec-creation | Both SKILL.md files | G8 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 
@@ -215,10 +215,10 @@ Every sub-task step follows the frugal contract pattern. The orchestrator passes
 
 ## Interdependency
 
-| Issue | Classification | Description |
-|-------|---------------|-------------|
-| [#1962](https://github.com/michael-conrad/.opencode/issues/1962) | SUPERSEDES | This spec supersedes #1962 by incorporating its fixes plus comprehensive workflow remediation |
-| [#1311](https://github.com/michael-conrad/.opencode/issues/1311) | RELATED | Plan writer must dispatch to implementation skills — related dispatch pattern |
+| Issue | Direction | Classification | Description |
+|-------|-----------|---------------|-------------|
+| [#2008](https://github.com/michael-conrad/.opencode/issues/2008) | upstream | SUPERSEDES | This spec supersedes #2008 (old approach: add TDT to writing-plans-creation) with corrected architecture (task card, no TDT). |
+| [#1311](https://github.com/michael-conrad/.opencode/issues/1311) | upstream | RELATED | Plan writer must dispatch to implementation skills — related dispatch pattern |
 
 ## Anti-Lobotomization
 
@@ -260,7 +260,7 @@ selectors:
 
 ## Explicit Non-Goals
 
-- **Rewriting pipeline step logic** — Pipeline procedures unchanged except contract paths and #1962 integration
+- **Rewriting pipeline step logic** — Pipeline procedures unchanged except contract paths and plan-creation-pipeline integration
 - **Modifying other skills** — Only writing-plans and writing-plans-creation skills affected
 - **Changing skill boundaries** — Three-skill structure maintained
 

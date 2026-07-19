@@ -7,7 +7,7 @@
 
 ## Goal
 
-Fix structural defects in `writing-plans` and `writing-plans-creation` skills: correct TDT entries, contract paths, dispatch routing, add Z3 gates per #1962, and ensure all 8 spec SCs are satisfied.
+Fix structural defects in `writing-plans` and `writing-plans-creation` skills: correct TDT entries, contract paths, dispatch routing, add Z3 gates, convert `writing-plans-creation` to task card, and ensure all 8 spec SCs are satisfied.
 
 ## Architecture
 
@@ -26,9 +26,9 @@ Single-phase plan. All changes are structural/config modifications to skill meta
 
 ## Phase Table
 
-| Phase | Description | Steps | SCs |
-|-------|-------------|-------|-----|
-| 1 | Fix skill metadata and task files | 1-8 | SC-1 through SC-8 |
+| Phase | File | Description | Steps | SCs |
+|-------|------|-------------|-------|-----|
+| 1 | `plan-01.md` | Fix skill metadata and task files | 1-8 | SC-1 through SC-8 |
 
 ## Exit Criteria
 
