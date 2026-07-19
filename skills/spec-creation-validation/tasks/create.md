@@ -44,7 +44,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - [ ] 4. **Step 4: Behavioral Test Definition — Stderr-Based Evidence (MANDATORY)** — Valid behavioral enforcement tests use **stderr-based assertion helpers** (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) to verify agent actions (skill dispatches, file reads, tool invocations). **Prose-recall prompts** (e.g., "Describe how you would resolve models") produce stdout prose, not behavioral evidence, and are NOT accepted as valid behavioral tests.
 
-    **Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence.**
+    **Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence.**
 
     When creating the behavioral test success criterion, ensure it mandates real-domain prompts and stderr-based assertions, not prose-recall prompts.
 
@@ -646,13 +646,13 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     - [ ] The `issues-data` branch is the canonical store for all spec artifacts — without sync, downstream consumers (plan writer, auditors) cannot access the local files
     - [ ] Run `local-issues sync` after EVERY change to files in `.issues/{N}/` — not just at creation time
 
-- [ ] 40. **Step 40: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
+- [ ] 41. **Step 41: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
     - If user requests revisions via issue comments: invoke `issue-operations --task body-edit` to update the issue body, then post update summary + URL + byline to chat
     - If user approves the spec on the issue: proceed to Step 9
     - Do NOT re-dump the spec to chat for any reason
 
-- [ ] 41. **Step 41: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
+- [ ] 42. **Step 42: Transition** — After user approval of the spec on the issue, the SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
 
 ## Context Required
 
