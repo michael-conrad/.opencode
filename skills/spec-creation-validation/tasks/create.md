@@ -1,7 +1,7 @@
 # Task: write
 
-<!-- Dimensions synced from .opencode/reference/holistic-dimensions.yaml -->
-<!-- Sync locations: see cross-reference table in that file -->
+<!-- Dimensions synced from Load [holistic-dimensions.yaml](.opencode/reference/holistic-dimensions.yaml) -->
+<!-- Sync locations: Load [cross-reference table](.opencode/reference/holistic-dimensions.yaml) -->
 
 ## Purpose
 
@@ -309,7 +309,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
         required: true
     ```
 
-    The handoff manifest is consumed by `implementation-pipeline/tasks/pre-flight-handoff.md` which validates that all required artifacts exist before the pipeline proceeds. If any required artifact is missing, pre-flight returns BLOCKED.
+    The handoff manifest is consumed by Load [pre-flight-handoff.md](implementation-pipeline/tasks/pre-flight-handoff.md) which validates that all required artifacts exist before the pipeline proceeds. If any required artifact is missing, pre-flight returns BLOCKED.
 
 - [ ] 12. **Step 12: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
@@ -564,7 +564,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **Prose-structure check:** After checking for placeholders, consistency, scope, and ambiguity, verify that the spec body is prose-first. Rigid numbered procedures where flowing prose would serve better, tabular mappings that should be prose descriptions, and fixed checklists that have replaced narrative should be flagged and rewritten. Success criteria table FORMAT and affected file tables are exempt from this check as they are naturally structured content. However, the VERIFICATION METHOD CONTENT within SC table columns must meet the same precision standards as prose — a verification method that says "check exit code" is no more acceptable inside a table cell than it would be in a paragraph.
 
-    **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per `140-planning-spec-creation.md` Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
+    **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per Load [140-planning-spec-creation.md](guidelines/140-planning-spec-creation.md) Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
 
     - [ ] **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
 
@@ -588,7 +588,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     5. **Re-check**: After remediation, re-run the classification check. Confirm no remaining misclassifications.
     6. **Evidence artifact**: Write findings to `.issues/{N}/post-sc-uplift-check.yaml`
 
-- [ ] 35. **Step 35: Evidence Artifact Verification (MANDATORY)** — **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
+- [ ] 35. **Step 35: Evidence Artifact Verification (MANDATORY)** — **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
 
     | Checkpoint | Verification Action | Tool Call | Problem Class |
     | ---------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- |
@@ -620,7 +620,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - [ ] 36. **Step 36: Post-Review: Verification Revisit (MANDATORY)** — After Step 6 self-review and Step 6.5 evidence verification, scan the spec for any remaining `⚠️ UNVERIFIED` markers and attempt to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment. (The SKILL.md pipeline handles verification-enforcement revisit as an inline orchestrator step — this sub-agent does not call it.)
 
-- [ ] 37. **Step 37: Generate Spec Folder URL (SC-6)** — Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the `.issues/AGENTS.md` pattern:
+- [ ] 37. **Step 37: Generate Spec Folder URL (SC-6)** — Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the pattern from Load [AGENTS.md](.issues/AGENTS.md):
 
     ```
     > **Full spec and artifacts: [`.issues/{N}/`]({html_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
@@ -628,7 +628,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     > **Local artifacts:** `.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
     ```
 
-    The URL follows the pattern: `{html_url}/{owner}/{repo}/tree/issues-data/{N}` where `{html_url}`, `{owner}`, and `{repo}` are resolved from the session-init repo entry whose `path` matches the issue's repo. See `.issues/AGENTS.md` for the canonical URL convention.
+    The URL follows the pattern: `{html_url}/{owner}/{repo}/tree/issues-data/{N}` where `{html_url}`, `{owner}`, and `{repo}` are resolved from the session-init repo entry whose `path` matches the issue's repo. Load [AGENTS.md](.issues/AGENTS.md) for the canonical URL convention.
 
     Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
