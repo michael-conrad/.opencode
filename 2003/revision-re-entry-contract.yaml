@@ -1,0 +1,13 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2003
+revision_re_entry:
+  revision_scopes:
+    - scope: full
+      cascade_artifacts:
+        - plan.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+      requires_re_approval: true
+      valid_re_entry_steps:
+        - step: spec-creation
+      constraints:
+        - 'on_full_revision: all_artifacts_must_be_regenerated'

@@ -1,0 +1,40 @@
+sc_coverage:
+  total: 5
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/2003
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
+      evidence_types: [behavioral, string]
+  cross_cutting:
+    sc_ids: [SC-5]
+    verified_in_phase: phase-1
+  scs:
+    - id: SC-1
+      description: "Behavioral enforcement test exists in tests-v2/behaviors/ that verifies agent dispatches to spec-creation when asked to create a spec"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-2
+      description: "Critical-rules entry exists in guidelines/000-critical-rules.md classifying direct github_issue_write for spec content as a Tier 2 violation"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-3
+      description: "The behavioral test is in RED state before implementation (fails without the rule change)"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-4
+      description: "The behavioral test is in GREEN state after implementation (passes with the rule change)"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-5
+      description: "No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
