@@ -17,7 +17,8 @@ Verify that the local spec file and feature branch exist before allowing plan cr
 - BLOCKED if feature branch is missing
 - BLOCKED if `local-issues sync` has not been run
 - BLOCKED if any analytical artifact is missing (returns `MISSING_SPEC_ARTIFACT`)
-- PASS if all prerequisites are met
+- BLOCKED if `solve check` fails on readiness contract
+- PASS if all prerequisites are met and Z3 verification passes
 
 ## Procedure
 
@@ -36,4 +37,6 @@ Verify that the local spec file and feature branch exist before allowing plan cr
    - `state-analysis.yaml`
    - `testability-assessment.yaml`
    - If any missing: return `status: BLOCKED` with `reason: MISSING_SPEC_ARTIFACT` and list the missing artifacts
-5. Return `status: PASS` with `finding_summary: "All prerequisites met"`
+5. Run `solve check` on readiness output contract `.opencode/skills/writing-plans-creation/contracts/readiness-output-template.yaml`
+   - If Z3 returns UNSAT: return `status: BLOCKED` with `reason: READINESS_CONTRACT_UNSAT`
+6. Return `status: PASS` with `finding_summary: "All prerequisites met"`

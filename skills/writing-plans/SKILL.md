@@ -37,6 +37,20 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" / "retroactive" / "retroactive plan" / "backfill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
 | "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {plan_context} |
+| "verify spec approved" / "check spec approval" | `verify-spec-approved` | `sub-task` | {spec_issue_number} |
+| "research evidence" / "gather evidence" | `research` | `sub-task` | {spec_issue_number, spec_body} |
+| "artifact validation" / "validate artifacts" | `artifact-validation` | `sub-task` | {spec_issue_number, project_root, path} |
+| "readiness gate" / "check readiness" | `readiness` | `sub-task` | {spec_issue_number, research_output} |
+| "structure phases" / "define phases" | `structure` | `sub-task` | {spec_issue_number, readiness_output} |
+| "solve constraints" / "z3 solve" | `solve` | `sub-task` | {spec_issue_number, structure_output} |
+| "write plan" / "generate plan" | `write` | `sub-task` | {spec_issue_number, solve_output} |
+| "revisit plan" / "resolve conflicts" | `revisit` | `sub-task` | {spec_issue_number, write_output} |
+| "validate plan" / "check plan" | `validate` | `sub-task` | {spec_issue_number, plan_file_path} |
+| "audit fidelity" / "fidelity audit" | `audit-fidelity` | `sub-task` | {spec_issue_number, plan_file_path, audit_phase} |
+| "audit concern" / "concern audit" | `audit-concern` | `sub-task` | {spec_issue_number, plan_file_path, audit_phase} |
+| "complete plan" / "finish plan" | `completion` | `sub-task` | {workflow_state} |
+| "retroactive plan" / "retroactive" | `retroactive` | `sub-task` | {spec_issue_number} |
+| "clean-room plan" / "independent plan" | `clean-room` | `sub-task` | {problem_statement} |
 
 ## Persona
 
@@ -46,7 +60,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 ## Tasks
 
-| `create` | `update` | `holistic-self-check` |
+| `create` | `update` | `holistic-self-check` | `verify-spec-approved` | `research` | `artifact-validation` | `readiness` | `structure` | `solve` | `write` | `revisit` | `validate` | `audit-fidelity` | `audit-concern` | `completion` | `retroactive` | `clean-room` |
 
 ## Plan Model
 
@@ -70,10 +84,23 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 | Task | Execution |
 |------|-----------|
-| `create` | Sub-agent via `task(..., prompt: "execute create task from writing-plans")` |
-| `update` | Sub-agent via `task(..., prompt: "execute update task from writing-plans")` |
-| `holistic-self-check` | Sub-agent via `task(..., prompt: "execute holistic-self-check task from writing-plans")` |
-| `completion` | Sub-agent via `task(..., prompt: "execute completion task from writing-plans")` |
+| `create` | Sub-agent via `task(..., prompt: "execute create from writing-plans. Read \`writing-plans-creation/tasks/create.md\` first")` |
+| `update` | Sub-agent via `task(..., prompt: "execute update from writing-plans. Read \`writing-plans-creation/tasks/update.md\` first")` |
+| `holistic-self-check` | Sub-agent via `task(..., prompt: "execute holistic-self-check from writing-plans. Read \`writing-plans-holistic/tasks/holistic-self-check.md\` first")` |
+| `verify-spec-approved` | Sub-agent via `task(..., prompt: "execute verify-spec-approved from writing-plans-creation. Read \`writing-plans-creation/tasks/pre-plan-readiness.md\` first")` |
+| `research` | Sub-agent via `task(..., prompt: "execute research from writing-plans-creation. Read \`writing-plans-creation/tasks/research.md\` first")` |
+| `artifact-validation` | Sub-agent via `task(..., prompt: "execute artifact-validation from writing-plans-creation. Read \`writing-plans-creation/tasks/artifact-validation.md\` first")` |
+| `readiness` | Sub-agent via `task(..., prompt: "execute readiness from writing-plans-creation. Read \`writing-plans-creation/tasks/readiness.md\` first")` |
+| `structure` | Sub-agent via `task(..., prompt: "execute structure from writing-plans-creation. Read \`writing-plans-creation/tasks/structure.md\` first")` |
+| `solve` | Sub-agent via `task(..., prompt: "execute solve from writing-plans-creation. Read \`writing-plans-creation/tasks/solve.md\` first")` |
+| `write` | Sub-agent via `task(..., prompt: "execute write from writing-plans-creation. Read \`writing-plans-creation/tasks/write.md\` first")` |
+| `revisit` | Sub-agent via `task(..., prompt: "execute revisit from writing-plans-creation. Read \`writing-plans-creation/tasks/revisit.md\` first")` |
+| `validate` | Sub-agent via `task(..., prompt: "execute validate from writing-plans-creation. Read \`writing-plans-creation/tasks/validate.md\` first")` |
+| `audit-fidelity` | Sub-agent via `task(..., prompt: "execute audit-fidelity from writing-plans-creation. Read \`writing-plans-creation/tasks/audit-fidelity.md\` first")` |
+| `audit-concern` | Sub-agent via `task(..., prompt: "execute audit-concern from writing-plans-creation. Read \`writing-plans-creation/tasks/audit-concern.md\` first")` |
+| `completion` | Sub-agent via `task(..., prompt: "execute completion from writing-plans-creation. Read \`writing-plans-creation/tasks/completion.md\` first")` |
+| `retroactive` | Sub-agent via `task(..., prompt: "execute retroactive from writing-plans-creation. Read \`writing-plans-creation/tasks/retroactive.md\` first")` |
+| `clean-room` | Sub-agent via `task(..., prompt: "execute clean-room from writing-plans-creation. Read \`writing-plans-creation/tasks/clean-room.md\` first")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 
