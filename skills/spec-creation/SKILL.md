@@ -27,15 +27,6 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | User says / Context | Task | Dispatches To | Dispatch | Context passed |
 |---------------------|------|---------------|----------|----------------|
 | "create spec" / "write spec" / "draft spec" | `create` | `spec-creation-validation --task create` | `sub-task` | {issue_number} |
-| "requirements" / "extract requirements" | `requirements` | `spec-creation-requirements --task requirements` | `sub-task` | {issue_number} |
-| "decompose" / "analytical artifacts" | `decompose` | `spec-creation-decomposition --task decompose` | `sub-task` | {issue_number} |
-| "blast radius" / "code path analysis" | `analytical-artifacts` | `spec-creation-decomposition --task analytical-artifacts` | `sub-task` | {issue_number} |
-| "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `spec-creation-validation --task holistic-self-check` | `sub-task` | {issue_number} |
-| "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `spec-creation-validation --task pipeline-readiness-gate` | `sub-task` | {issue_number} |
-| "risk assessment" / "risk" | `risk` | `spec-creation-validation --task risk` | `sub-task` | {issue_number} |
-| "traceability" / "verify traceability" | `traceability` | `spec-creation-validation --task traceability` | `sub-task` | {issue_number} |
-| "change control" / "revision history" | `change-control` | `spec-creation-change-control --task change-control` | `sub-task` | {issue_number} |
-| "operating protocol" / "update protocol" | `operating-protocol` | `spec-creation-operating-protocol --task operating-protocol` | `sub-task` | {issue_number} |
 | completion / workflow end | `completion` | `spec-creation-validation --task completion` | `sub-task` | {workflow_state} |
 
 ## Invocation
@@ -45,15 +36,6 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | Task | Canonical Dispatch String |
 |------|--------------------------|
 | `create` | `task(..., prompt: "execute create from spec-creation-validation. Read \`spec-creation-validation/tasks/create.md\` first")` |
-| `requirements` | `task(..., prompt: "execute requirements from spec-creation-requirements. Read \`spec-creation-requirements/tasks/requirements.md\` first")` |
-| `decompose` | `task(..., prompt: "execute decompose from spec-creation-decomposition. Read \`spec-creation-decomposition/tasks/decompose.md\` first")` |
-| `analytical-artifacts` | `task(..., prompt: "execute analytical-artifacts from spec-creation-decomposition. Read \`spec-creation-decomposition/tasks/analytical-artifacts.md\` first")` |
-| `holistic-self-check` | `task(..., prompt: "execute holistic-self-check from spec-creation-validation. Read \`spec-creation-validation/tasks/holistic-self-check.md\` first")` |
-| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate from spec-creation-validation. Read \`spec-creation-validation/tasks/pipeline-readiness-gate.md\` first")` |
-| `risk` | `task(..., prompt: "execute risk from spec-creation-validation. Read \`spec-creation-validation/tasks/risk.md\` first")` |
-| `traceability` | `task(..., prompt: "execute traceability from spec-creation-validation. Read \`spec-creation-validation/tasks/traceability.md\` first")` |
-| `change-control` | `task(..., prompt: "execute change-control from spec-creation-change-control. Read \`spec-creation-change-control/tasks/change-control.md\` first")` |
-| `operating-protocol` | `task(..., prompt: "execute operating-protocol from spec-creation-operating-protocol. Read \`spec-creation-operating-protocol/tasks/operating-protocol.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from spec-creation-validation. Read \`spec-creation-validation/tasks/completion.md\` first")` |
 
 ## Cross-References
