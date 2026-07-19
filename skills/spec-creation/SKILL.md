@@ -20,7 +20,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | `spec-creation-decomposition` | Analytical artifact generation (blast radius, code paths, etc.) | 9 task files + 3 contracts |
 | `spec-creation-validation` | Spec creation, validation, holistic checks, risk, traceability | 6 task files |
 | `spec-creation-change-control` | Change control documentation | 1 task file |
-| `spec-creation-operating-protocol` | Operating protocol documentation | 1 task file |
+| `spec-creation-operating-protocol` | Operating protocol documentation (pipeline moved to SKILL.md) | 0 task files |
 
 ## Trigger Dispatch Table
 
