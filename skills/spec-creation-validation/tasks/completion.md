@@ -1,7 +1,7 @@
 # Task: completion
 
-<!-- Dimensions synced from .opencode/reference/holistic-dimensions.yaml -->
-<!-- Sync locations: see cross-reference table in that file -->
+<!-- Dimensions synced from Load [holistic-dimensions.yaml](.opencode/reference/holistic-dimensions.yaml) -->
+<!-- Sync locations: Load [cross-reference table](.opencode/reference/holistic-dimensions.yaml) -->
 
 Idempotent completion subtask for spec-creation. Ensures mandatory steps ran regardless of where the workflow halted.
 
@@ -11,7 +11,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 - [ ] 2. **spec-auditor invoked:** Verify spec-auditor was invoked after spec creation
 - [ ] 3. **Self-review evidence:** Verify self-review was performed (placeholder scan, consistency check, ambiguity check)
 - [ ] 3a. **Post-SC uplift check:** Verify post-SC uplift check (Step 6.2) was performed after self-review
-- [ ] 3b. **Holistic self-check:** Verify holistic self-check was performed (11 dimensions from `.opencode/reference/holistic-dimensions.yaml`). If not performed, run it now before finalization.
+- [ ] 3b. **Holistic self-check:** Verify holistic self-check was performed (11 dimensions from Load [holistic-dimensions.yaml](.opencode/reference/holistic-dimensions.yaml)). If not performed, run it now before finalization.
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with spec URL
 
 ## Skill-Specific Completion
@@ -39,7 +39,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 - [ ] 5. **Spec folder URL blockquote** (if not already present in issue body):
    - Generate the spec folder URL: `{html_url}/{owner}/{repo}/tree/issues-data/{N}/`
    - Check if the issue body already contains the `.issues/{N}/` blockquote
-   - If missing: prepend the blockquote (per Step 6.8 of write.md) and update the issue body
+   - If missing: prepend the blockquote (per Step 6.8 of Load [write.md](skills/spec-creation-validation/tasks/create.md)) and update the issue body
 
 - [ ] 6. **Push artifacts to issues-data** (after spec issue exists):
    - Run `.opencode/tools/local-issues sync` to commit and push local artifacts
@@ -47,7 +47,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 
 ## Shared Completion Delegation
 
-Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
+Load [completion-core.md](skills/completion-core/completion-core.md) for reporting:
 
 - [ ] 1. Report executive summary in chat (always runs)
 - [ ] 2. Action URL (spec issue URL) as the URL (ALWAYS last)
