@@ -1,5 +1,5 @@
 ---
-title: "[SPEC-FIX] Plan template must mandate full implementation pipeline; remote spec body format must be enforced"
+title: "[SPEC-FIX] Plan template must mandate full implementation pipeline; spec-creation pipeline must be enforced as sole spec creation path"
 status: draft
 created: 2026-07-19
 license: MIT
@@ -18,19 +18,21 @@ authors:
 
 Two structural defects were discovered during the #1962 plan creation workflow:
 
-### Defect 1: Remote spec body format not enforced
+### Defect 1: Spec-creation pipeline not enforced as sole spec creation path
 
-The `spec-creation-validation/tasks/revise-remote-body.md` task defines the correct remote issue body format:
-- Blockquote with link to `.issues/{N}/` on `issues-data` branch
-- Exec Summary with cards, key decisions, risk callouts
-- Success Criteria table
-- AI Agent Instructions
+The spec-creation pipeline (defined in `spec-creation/SKILL.md` Pipeline section) is the mandatory path for ALL spec creation. It produces:
+- Local spec at `.issues/{N}/spec.md` with full analytical artifacts
+- Remote issue body with blockquote links, exec summary, and AI agent instructions
+- All 7 analytical artifacts at `.issues/{N}/artifacts/`
 
-However, specs created outside the spec-creation pipeline (e.g., manually, via brainstorming, or by direct `github_issue_write`) produce arbitrary remote bodies. The spec-audit does not check remote body format. This means:
-- Remote issue bodies may contain full spec content instead of exec summary
-- Blockquote links may be missing or incorrect
-- AI Agent Instructions may be absent
+However, agents can bypass the pipeline by calling `github_issue_write` directly or writing spec content inline. When this happens:
+- Remote issue bodies contain arbitrary content (full spec body, no blockquote links, no AI agent instructions)
+- No analytical artifacts are generated
+- No local `.issues/{N}/` entry is created
 - Human reviewers cannot find the authoritative spec
+- The spec fails spec-audit's provenance check
+
+The fix is NOT an audit check — the fix is behavioral enforcement that agents MUST route ALL spec creation through the spec-creation pipeline. Direct `github_issue_write` for spec content is a critical violation.
 
 ### Defect 2: Plan template missing mandatory implementation pipeline
 
@@ -47,11 +49,11 @@ Without this mandate, every plan produced by writing-plans is structurally defec
 
 ## Root Cause Analysis
 
-### Root Cause 1: No spec-audit check for remote body format
+### Root Cause 1: No behavioral enforcement that spec-creation pipeline is the sole spec creation path
 
-The `spec-audit` task validates spec content (structure, determinism, documentation sources) but does not check the remote issue body format. The `revise-remote-body.md` task is a procedural step in the spec-creation pipeline, not an enforcement gate. Specs created outside the pipeline bypass it entirely.
+The `000-critical-rules.md` has a rule against direct `github_issue_write` for spec content (critical-rules-XXX), but it's a Tier 2 rule (process-integrity, overridable). The spec-creation pipeline is the mandatory path — bypassing it should be Tier 1 (safety-critical, never overridable). Additionally, there is no behavioral enforcement test that verifies agents route through the pipeline.
 
-**Fix target:** Add remote body format check to `spec-audit` evaluator task.
+**Fix target:** Upgrade critical-rules-XXX to Tier 1. Add behavioral enforcement test.
 
 ### Root Cause 2: Plan template has no pipeline mandate
 
@@ -63,21 +65,23 @@ The `implementation-pipeline/SKILL.md` Trigger Dispatch Table defines the canoni
 
 ## Goals
 
-- [ ] G1: spec-audit checks remote issue body format (blockquote links, exec summary, AI agent instructions)
-- [ ] G2: writing-plans plan template includes mandatory Pipeline Steps section with all implementation pipeline stages
-- [ ] G3: Plan-fidelity audit checks for mandatory pipeline steps and FAILs if missing
-- [ ] G4: All 8 SCs from #1962 remain satisfied
+- [ ] G1: Direct `github_issue_write` for spec content is Tier 1 CRITICAL VIOLATION — never overridable
+- [ ] G2: Behavioral enforcement test verifies agent routes spec creation through spec-creation pipeline
+- [ ] G3: writing-plans plan template includes mandatory Pipeline Steps section with all implementation pipeline stages
+- [ ] G4: Plan-fidelity audit checks for mandatory pipeline steps and FAILs if missing
+- [ ] G5: All 8 SCs from #1962 remain satisfied
 
 ## Non-Goals
 
 - **Rewriting the implementation pipeline** — Pipeline steps are already defined in `implementation-pipeline/SKILL.md`. This spec only adds enforcement that plans must include them.
 - **Retroactively fixing existing plans** — Only newly created plans must comply. Existing plans are grandfathered.
-- **Changing the spec-creation pipeline** — Only adding an audit check, not modifying the pipeline itself.
+- **Changing the spec-creation pipeline** — Only adding enforcement, not modifying the pipeline itself.
 
 ## Constraints and Scope
 
 **In Scope:**
-- `spec-creation-validation/tasks/spec-audit-evaluator.md` — Add remote body format check
+- `000-critical-rules.md` — Upgrade spec-creation bypass rule to Tier 1
+- `.opencode/tests-v2/behaviors/` — Add behavioral enforcement test for spec-creation pipeline routing
 - `writing-plans-creation/tasks/write.md` — Add mandatory Pipeline Steps section to plan template
 - `audit/tasks/plan-fidelity-evaluator.md` — Add pipeline completeness check
 
@@ -88,54 +92,54 @@ The `implementation-pipeline/SKILL.md` Trigger Dispatch Table defines the canoni
 
 ## Safety Considerations
 
-- **No destructive operations** — Only task file modifications
+- **No destructive operations** — Only task file modifications and rule upgrades
 - **No database/schema changes** — Pure enforcement additions
-- **Rollback:** `git revert` on affected task files
+- **Rollback:** `git revert` on affected files
 - **Data loss risk:** None
 
 ## Alternatives Considered & Why Discarded
 
 | Alternative | Discard Rationale |
 |-------------|-------------------|
-| Add pipeline mandate to writing-plans/SKILL.md plan model | Plan model describes file structure, not content. Content mandate belongs in write.md template. |
-| Create separate spec for each defect | Defects share root cause (missing enforcement gates). Single spec is more efficient. |
-| Fix via guideline change | Guidelines are advisory. Task file changes are enforceable. |
+| Add audit check for remote body format (old approach) | Band-aid fix. Root cause is pipeline bypass, not format. Behavioral enforcement prevents bypass entirely. |
+| Create separate spec for each defect | Defects share root cause (missing enforcement). Single spec is more efficient. |
+| Fix via guideline only | Guidelines are advisory. Tier 1 critical violation + behavioral test is enforceable. |
 
 ## Evidence/Provenance
 
 | Claim | Evidence Source |
 |-------|-----------------|
-| `revise-remote-body.md` defines remote body format | `read` task file |
 | `write.md` plan template has no Pipeline Steps section | `read` task file |
 | `implementation-pipeline/SKILL.md` TDT defines 15+ pipeline stages | `read` SKILL.md |
-| spec-audit does not check remote body format | `read` spec-audit-evaluator.md |
-| plan-fidelity audit does not check pipeline completeness | `read` plan-fidelity-evaluator.md |
+| critical-rules-XXX is Tier 2 (overridable) | `read` 000-critical-rules.md |
+| No behavioral test for spec-creation pipeline routing | `ls tests-v2/behaviors/` → no matching file |
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Artifact Path |
 |----|-----------|---------------|---------------------|-------------|--------------|
-| SC-1 | `write.md` plan template includes mandatory Pipeline Steps section with all 15 stages (assemble-work, sc-coherence-gate, pre-red-baseline, RED/GREEN per item with Z3 checks, VbC, sc-count-gate, pre-pr-gate, audit, cross-validate, regression-check, review-prep, create-pr, exec-summary) | structural | `read` write.md → find Pipeline Steps section with all stages | Add Pipeline Steps section to plan template | `.opencode/skills/writing-plans-creation/tasks/write.md` |
-| SC-2 | spec-audit evaluator checks remote body format (blockquote links, exec summary, AI agent instructions) and FAILs if missing | behavioral | `opencode run` → verify spec-audit FAILs on missing blockquote | Add remote body format check to evaluator | `.opencode/skills/spec-creation-validation/tasks/spec-audit-evaluator.md` |
-| SC-3 | Plan-fidelity audit checks for mandatory pipeline steps and FAILs if missing | behavioral | `opencode run` → verify plan-fidelity FAILs on missing pipeline steps | Add pipeline completeness check to evaluator | `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` |
-| SC-4 | All 8 SCs from #1962 remain satisfied | structural | `grep` for SC-1 through SC-8 in #1962 spec → all present | No changes to #1962 spec | `.opencode/.issues/1962/spec.md` |
+| SC-1 | Direct `github_issue_write` for spec content is Tier 1 CRITICAL VIOLATION in 000-critical-rules.md | structural | `read` 000-critical-rules.md → find rule with Tier 1 classification | Upgrade rule to Tier 1 | `.opencode/guidelines/000-critical-rules.md` |
+| SC-2 | Behavioral enforcement test verifies agent routes spec creation through spec-creation pipeline (FAILs on direct write) | behavioral | `opencode run` → verify agent uses spec-creation pipeline, not direct write | Create behavioral test | `.opencode/tests-v2/behaviors/` |
+| SC-3 | `write.md` plan template includes mandatory Pipeline Steps section with all 15 stages (assemble-work, sc-coherence-gate, pre-red-baseline, RED/GREEN per item with Z3 checks, VbC, sc-count-gate, pre-pr-gate, audit, cross-validate, regression-check, review-prep, create-pr, exec-summary) | structural | `read` write.md → find Pipeline Steps section with all stages | Add Pipeline Steps section to plan template | `.opencode/skills/writing-plans-creation/tasks/write.md` |
+| SC-4 | Plan-fidelity audit checks for mandatory pipeline steps and FAILs if missing | behavioral | `opencode run` → verify plan-fidelity FAILs on missing pipeline steps | Add pipeline completeness check to evaluator | `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` |
+| SC-5 | All 8 SCs from #1962 remain satisfied | structural | `grep` for SC-1 through SC-8 in #1962 spec → all present | No changes to #1962 spec | `.opencode/.issues/1962/spec.md` |
 
 ## Pipeline / Workflows
 
-### Workflow 1: Fix plan template (write.md)
+### Workflow 1: Upgrade critical rule + add behavioral test
+
+```
+ 1. [sub-task] Upgrade critical-rules-XXX to Tier 1 in 000-critical-rules.md
+ 2. [sub-task] Create behavioral enforcement test for spec-creation pipeline routing
+ 3. [inline]  Verify: behavioral test FAILs on direct write, PASSes on pipeline routing
+```
+
+### Workflow 2: Fix plan template (write.md)
 
 ```
  1. [sub-task] Read current write.md plan template
  2. [sub-task] Add mandatory Pipeline Steps section with all 15 stages
  3. [inline]  Verify: read write.md → Pipeline Steps section present
-```
-
-### Workflow 2: Fix spec-audit evaluator
-
-```
- 1. [sub-task] Read current spec-audit-evaluator.md
- 2. [sub-task] Add remote body format check (blockquote links, exec summary, AI agent instructions)
- 3. [inline]  Verify: behavioral test confirms FAIL on missing blockquote
 ```
 
 ### Workflow 3: Fix plan-fidelity evaluator
@@ -149,11 +153,12 @@ The `implementation-pipeline/SKILL.md` Trigger Dispatch Table defines the canoni
 ## Implementation Approach
 
 **Phase 1 (single spec, single plan):**
-1. Update `writing-plans-creation/tasks/write.md` — Add mandatory Pipeline Steps section to plan template
-2. Update `spec-creation-validation/tasks/spec-audit-evaluator.md` — Add remote body format check
-3. Update `audit/tasks/plan-fidelity-evaluator.md` — Add pipeline completeness check
-4. Run `local-issues sync` after each file change
-5. Self-review per spec-creation-validation Step 33-35
+1. Update `000-critical-rules.md` — Upgrade spec-creation bypass rule to Tier 1
+2. Create behavioral enforcement test in `tests-v2/behaviors/`
+3. Update `writing-plans-creation/tasks/write.md` — Add mandatory Pipeline Steps section to plan template
+4. Update `audit/tasks/plan-fidelity-evaluator.md` — Add pipeline completeness check
+5. Run `local-issues sync` after each file change
+6. Self-review per spec-creation-validation Step 33-35
 
 ## Interdependency
 
@@ -170,19 +175,19 @@ Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion
 
 | Source Category | What Was Consulted | Purpose |
 |----------------|-------------------|---------|
-| Direct source search | `read spec-creation-validation/tasks/revise-remote-body.md` | Verify remote body format definition |
 | Direct source search | `read writing-plans-creation/tasks/write.md` | Verify plan template content |
 | Direct source search | `read implementation-pipeline/SKILL.md` | Verify pipeline stage definitions |
-| Direct source search | `read spec-creation-validation/tasks/spec-audit-evaluator.md` | Verify current audit scope |
-| Direct source search | `read audit/tasks/plan-fidelity-evaluator.md` | Verify current audit scope |
+| Direct source search | `read 000-critical-rules.md` | Verify current Tier classification |
+| Direct source search | `ls tests-v2/behaviors/` | Verify no existing test for this concern |
 
 ## Decision Ledger
 
 | DEC-ID | Decision | Rationale | Requirement Key | Affected SCs |
 |--------|----------|-----------|-----------------|--------------|
-| DEC-1 | Pipeline mandate in write.md template (not plan model) | Plan model describes file structure. Content mandate belongs in write task. | MUST | SC-1 |
-| DEC-2 | Enforcement via audit (not guideline) | Guidelines are advisory. Audit FAILs are enforceable gates. | MUST | SC-2, SC-3 |
-| DEC-3 | Existing plans grandfathered | Retroactive enforcement would break existing work. | SHOULD NOT | SC-4 |
+| DEC-1 | Tier 1 enforcement (not audit check) | Behavioral enforcement prevents bypass. Audit check only catches it after the fact. | MUST | SC-1, SC-2 |
+| DEC-2 | Pipeline mandate in write.md template (not plan model) | Plan model describes file structure. Content mandate belongs in write task. | MUST | SC-3 |
+| DEC-3 | Enforcement via plan-fidelity audit | Plans missing pipeline steps fail audit. This is an enforceable gate. | MUST | SC-4 |
+| DEC-4 | Existing plans grandfathered | Retroactive enforcement would break existing work. | SHOULD NOT | SC-5 |
 
 ## Revision Policy
 
@@ -197,19 +202,19 @@ Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion
 family: plan-pipeline-mandate
 selectors:
   - spec: #2009
+  - spec: glob(pattern: ".opencode/guidelines/000-critical-rules.md")
   - spec: glob(pattern: ".opencode/skills/writing-plans-creation/tasks/write.md")
-  - spec: glob(pattern: ".opencode/skills/spec-creation-validation/tasks/spec-audit-evaluator.md")
   - spec: glob(pattern: ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md")
 
 ## Explicit Non-Goals
 
 - **Rewriting the implementation pipeline** — Pipeline steps are already defined. This spec only adds enforcement.
 - **Retroactively fixing existing plans** — Only newly created plans must comply.
-- **Changing the spec-creation pipeline** — Only adding an audit check.
+- **Changing the spec-creation pipeline** — Only adding enforcement, not modifying the pipeline itself.
 
 ## Regression Invariants
 
-- [ ] 1. Existing spec-audit checks still pass
+- [ ] 1. Existing critical-rules Tier 1 rules unchanged
 - [ ] 2. Existing plan-fidelity checks still pass
 - [ ] 3. Existing write.md plan template sections preserved
 - [ ] 4. #1962 SCs remain satisfied
