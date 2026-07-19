@@ -34,5 +34,5 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 
 ## Context Required
 
-- Related tasks: `create` (21-step pipeline)
-- Related skills: `solve`, `plan`
+- Load [create](tasks/create.md)
+- Load [solve](skills/solve/SKILL.md), Load [plan](skills/plan/SKILL.md)

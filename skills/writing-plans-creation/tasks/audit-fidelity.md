@@ -18,7 +18,7 @@ Load the `audit` skill and execute `--task plan-fidelity` inline with auditor su
 
 ## Procedure
 
-- [ ] 1. Load `audit` skill: `skill({name: "audit"})`
+- [ ] 1. (**orchestrator**) Load `audit` skill — orchestrator dispatches via SKILL.md Trigger Dispatch Table
 - [ ] 2. Execute `--task plan-fidelity` inline with auditor sub-agent type context, passing `clean_room_plan` as context
 - [ ] 3. Collect audit artifact path
 - [ ] 4. If PASS: return PASS with artifact_path
@@ -26,5 +26,5 @@ Load the `audit` skill and execute `--task plan-fidelity` inline with auditor su
 
 ## Context Required
 
-- Related skills: `audit`
+- Load [audit](skills/audit/SKILL.md)
 - Related tools: `resolve-models` for auditor sub-agent type selection

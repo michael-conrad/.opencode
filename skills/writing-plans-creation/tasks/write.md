@@ -186,5 +186,5 @@ Numbered checklist C1 through C{N} at the end of the plan, after the bottom admo
 
 ## Context Required
 
-- Related tasks: `create` (21-step pipeline)
-- Related skills: `issue-operations`
+- Load [create](tasks/create.md)
+- Load [issue-operations](skills/issue-operations/SKILL.md)

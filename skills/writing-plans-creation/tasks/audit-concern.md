@@ -17,7 +17,7 @@ Load the `audit` skill and execute `--task concern-separation` inline with audit
 
 ## Procedure
 
-- [ ] 1. Load `audit` skill: `skill({name: "audit"})`
+- [ ] 1. (**orchestrator**) Load `audit` skill — orchestrator dispatches via SKILL.md Trigger Dispatch Table
 - [ ] 2. Execute `--task concern-separation` inline with auditor sub-agent type context
 - [ ] 3. Collect audit artifact path
 - [ ] 4. If PASS: return PASS with artifact_path
@@ -25,5 +25,5 @@ Load the `audit` skill and execute `--task concern-separation` inline with audit
 
 ## Context Required
 
-- Related skills: `audit`
+- Load [audit](skills/audit/SKILL.md)
 - Related tools: `resolve-models` for auditor sub-agent type selection

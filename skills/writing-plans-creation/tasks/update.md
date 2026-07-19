@@ -31,7 +31,7 @@ Update an existing implementation plan to reflect a non-substantive spec revisio
 
 **MANDATORY GATE — MUST NOT be skipped.** Before any plan revision steps, dispatch a clean-room sub-agent to evaluate the revised spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
 
-- [ ] 0. (**sub-agent**) Holistic spec evaluation — `task(..., prompt: "Evaluate the spec body against all 11 spec_dimensions from .opencode/reference/holistic-dimensions.yaml. For each dimension, produce PASS or FAIL with evidence. If any dimension FAILs, return BLOCKED with the failing dimension IDs, names, and resolution guidance.")`
+- [ ] 0. (**orchestrator**) Holistic spec evaluation — orchestrator dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `none`
   - Context passed: `{ spec_issue_number, spec_body }`
   - Expected: PASS for all 11 dimensions

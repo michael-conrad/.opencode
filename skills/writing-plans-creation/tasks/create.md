@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. The orchestrator dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps. The orchestrator handles all sub-agent dispatch from the SKILL.md Trigger Dispatch Table; this task file contains only the step procedures and artifact expectations.
+Create an implementation plan from an approved spec. The orchestrator dispatches the pipeline to a sub-agent, which reads this task file and executes the steps. The orchestrator handles all sub-agent dispatch from the SKILL.md Trigger Dispatch Table; this task file contains only the step procedures and artifact expectations.
 
 ## Step 0: Holistic Spec Evaluation (Pre-Flight Gate)
 
@@ -128,7 +128,7 @@ The following steps are dispatched by the orchestrator from the SKILL.md Trigger
 | audit-concern | `{ spec_issue_number, plan_file_path, audit_phase }` | PASS |
 | completion | `{ workflow_state }` | lifecycle event |
 
-## Operating Protocol — 21-Step Pipeline
+## Operating Protocol
 
 **Sequential step ordering:** Every step with a chain dependency MUST execute sequentially. No parallel dispatch of chain-dependent steps. Each step's output is the next step's input. The "sub-agent dispatch implies independence" rationalization is explicitly prohibited.
 

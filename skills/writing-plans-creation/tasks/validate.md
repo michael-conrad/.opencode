@@ -239,7 +239,7 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 
 ## Live Verification: Validation Evidence (MANDATORY)
 
-**Each validation check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings — Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
+**Each validation check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings — Load [065-verification-honesty.md](.opencode/guidelines/065-verification-honesty.md).**
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |

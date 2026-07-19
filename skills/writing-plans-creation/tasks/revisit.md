@@ -17,7 +17,7 @@ Load the `verification-enforcement` skill and execute `--task revisit` inline, s
 
 ## Procedure
 
-- [ ] 1. Load `verification-enforcement` skill: `skill({name: "verification-enforcement"})`
+- [ ] 1. (**orchestrator**) Load `verification-enforcement` skill — orchestrator dispatches via SKILL.md Trigger Dispatch Table
 - [ ] 2. Execute `--task revisit` inline within this context
 - [ ] 3. Scan plan document for `⚠️ UNVERIFIED` markers
 - [ ] 4. For each marker: attempt to resolve with live-source verification
@@ -27,5 +27,5 @@ Load the `verification-enforcement` skill and execute `--task revisit` inline, s
 
 ## Context Required
 
-- Related skills: `verification-enforcement`
-- Related guidelines: `065-verification-honesty.md`
+- Load [verification-enforcement](skills/verification-enforcement/SKILL.md)
+- Load [065-verification-honesty.md](guidelines/065-verification-honesty.md)
