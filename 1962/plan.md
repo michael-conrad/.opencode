@@ -17,8 +17,8 @@ Single-phase plan. All changes are structural/config modifications to skill meta
 
 | File | Change | SCs |
 |------|--------|-----|
-| `.opencode/skills/writing-plans/SKILL.md` | TDT → 4 entries (`create`, `update`, `retroactive`, `holistic-self-check`), Pipeline section with 4 workflows, Invocation with 4 canonical dispatch strings. Document `clean-room` as internal/referenced task (not a TDT entry). | SC-1, SC-2, SC-7, SC-8 |
-| `.opencode/skills/writing-plans-creation/SKILL.md` | Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section, remove TDT/Invocation (already absent). Keep plain task list. | SC-3 |
+| `.opencode/skills/writing-plans/SKILL.md` | TDT → 4 entries (`create`, `update`, `retroactive`, `holistic-self-check`), Pipeline section with 4 workflows, Invocation with 4 canonical dispatch strings. Document `clean-room` as internal/referenced task. | SC-1, SC-2, SC-7, SC-8 |
+| `.opencode/skills/writing-plans-creation/SKILL.md` | Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section. Keep plain task list. | SC-3 |
 | `.opencode/skills/writing-plans-creation/tasks/create.md` | Fix 11 contract paths from `writing-plans/contracts/` to `writing-plans-creation/contracts/`. Add plan-creation-pipeline dispatch step. Update chain refs. | SC-4, SC-5 |
 | `.opencode/skills/writing-plans-creation/tasks/update.md` | Fix contract paths from `writing-plans/contracts/` to `writing-plans-creation/contracts/`. | SC-4 |
 | `.opencode/skills/writing-plans-creation/tasks/retroactive.md` | Fix contract paths from `writing-plans/contracts/` to `writing-plans-creation/contracts/`. | SC-4 |
