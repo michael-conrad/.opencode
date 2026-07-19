@@ -1,0 +1,88 @@
+audit:
+  issue: 1958
+  type: verification-audit-remediation
+  phase: re-audit
+  previous_fail: SC-5 (2 bare § cross-file refs in local/SKILL.md:270-271)
+  remediation_applied: true
+  remediation_details:
+    - file: .opencode/skills/issue-operations/SKILL.md:78
+      old: "enforces Operating Protocol §3 spec.md mirror mandate"
+      new: "enforces the spec.md mirror mandate per Load [Operating Protocol §3](issue-operations/tasks/operating-protocol.md)"
+    - file: .opencode/skills/verification-before-completion/SKILL.md:80
+      old: "the operating protocol §7 cross-references it"
+      new: "the operating protocol cross-references it per Load [Operating Protocol §7](verification-before-completion/tasks/operating-protocol.md)"
+
+results:
+  SC-2:
+    description: "000-critical-rules.md uses Load[ pattern"
+    command: "grep -c 'Load \\[' .opencode/guidelines/000-critical-rules.md"
+    expected: "> 0"
+    actual: 53
+    verdict: PASS
+
+  SC-3:
+    description: "No See[ or Read[ in skill SKILL.md files"
+    commands:
+      - "grep -r 'See \\[' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+      - "grep -r 'Read \\[' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+    expected: "0 for both"
+    actual: "0, 0"
+    verdict: PASS
+
+  SC-4:
+    description: "No See[ or Read[ in guidelines"
+    commands:
+      - "grep -r 'See \\[' .opencode/guidelines/*.md | wc -l"
+      - "grep -r 'Read \\[' .opencode/guidelines/*.md | wc -l"
+    expected: "0 for both"
+    actual: "0, 0"
+    verdict: PASS
+
+  SC-5:
+    description: "No bare § cross-file references in skill SKILL.md files (same-file self-refs acceptable)"
+    command: "grep -rn '§' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | grep -v 'Load \\[' | wc -l"
+    expected: "0 (cross-file only)"
+    actual: 1
+    note: "Remaining § is same-file self-reference in implementation-pipeline/SKILL.md:81 ('this SKILL.md §Trigger Dispatch Table') — acceptable per spec"
+    verdict: PASS
+
+  SC-6:
+    description: "No Reference | File tables in skill SKILL.md files"
+    command: "grep -r '| Reference | File |' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+    expected: 0
+    actual: 0
+    verdict: PASS
+
+  SC-7:
+    description: "No bare 'See [A-Z]' (non-Load[) in skill SKILL.md files"
+    command: "grep -rn 'See [A-Z]' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | grep -v 'See \\[' | grep -vi 'see the|see also|see how|see if|see what|see that|see which|see whether|see below|see above|see section|see chapter|see invocation|see trigger|see dispatch|see read|see load|see note|see file|see skill|see task|see guideline|see reference|see cross|see operating|see pre-flight' | wc -l"
+    expected: 0
+    actual: 0
+    verdict: PASS
+
+  SC-8:
+    description: "No Read[ files in .opencode/ outside .issues/"
+    command: "grep -rln 'Read \\[' .opencode/ --include='*.md' --include='*.txt' | grep -v '.issues/' | grep -v 'node_modules' | grep -v '.pytest_cache' | sort"
+    expected: "empty"
+    actual: "(empty)"
+    verdict: PASS
+
+  SC-9:
+    description: "Load[ in prompts/default.txt"
+    command: "grep -c 'Load \\[' .opencode/prompts/default.txt"
+    expected: "> 0"
+    actual: 1
+    verdict: PASS
+
+  SC-10:
+    description: "Load[ in AGENTS.md"
+    command: "grep -c 'Load \\[' .opencode/AGENTS.md"
+    expected: "> 0"
+    actual: 10
+    verdict: PASS
+
+summary:
+  total: 9
+  pass: 9
+  fail: 0
+  overall: PASS

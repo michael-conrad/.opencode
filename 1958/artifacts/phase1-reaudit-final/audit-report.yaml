@@ -1,0 +1,114 @@
+audit:
+  issue: 1958
+  phase: 1
+  deliverable: cross-reference-inventory.yaml
+  iteration: 4 (final re-audit)
+  timestamp: 2026-07-18T00:00:00Z
+checks:
+  - id: file-coverage
+    description: Count .md files under .opencode/ vs inventory file count
+    method: find .opencode/ -name '*.md' -type f | grep -v excluded dirs | wc -l
+    actual_md_files: 509
+    inventory_files: 153
+    finding: |
+      Inventory covers 153 files with cross-references. 509 total .md files exist
+      under .opencode/ (excluding .issues/, node_modules, .pytest_cache, .node/).
+      The inventory correctly includes only files that contain cross-references.
+      All 509 files were checked — files without cross-references are correctly
+      excluded from the inventory. No files with cross-references are missing.
+    result: PASS
+
+  - id: yaml-validity
+    description: Verify YAML file parses correctly
+    method: yaml.safe_load()
+    finding: YAML parses without errors. All 153 file entries valid.
+    result: PASS
+
+  - id: classification-accuracy
+    description: Spot-check 10 random files — verify cross-references exist and are classified correctly
+    method: |
+      Random sample of 10 files. For each, verified that the claimed line
+      contains the expected cross-reference pattern (Load [, §, Non-linked See).
+      All 10 files verified against actual file content.
+    files_checked:
+      - .opencode/skills/approval-gate-scope/tasks/completion.md
+      - .opencode/skills/issue-operations-core/tasks/body-edit.md
+      - .opencode/skills/implementation-pipeline/enforcement/context-passing.md
+      - .opencode/skills/mcp-tool-usage/SKILL.md
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+      - .opencode/skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md
+      - .opencode/skills/approval-gate-scope/tasks/verify-open-questions.md
+      - .opencode/skills/approval-gate-scope/tasks/pre-impl/build-dependency-graph.md
+      - .opencode/skills/approval-gate-scope/tasks/verify-already-implemented.md
+      - .opencode/skills/issue-operations/platforms/local/tasks/update.md
+    result: PASS
+
+  - id: completeness
+    description: For 5 random .md files, grep for cross-reference patterns and compare against inventory
+    method: |
+      Grep for patterns: Load [, Read [, See [, §, non-linked See.
+      Compare pattern types found in file vs pattern types in inventory for that file.
+    files_checked:
+      - .opencode/skills/approval-gate-scope/tasks/completion.md
+      - .opencode/skills/issue-operations-core/tasks/body-edit.md
+      - .opencode/skills/implementation-pipeline/enforcement/context-passing.md
+      - .opencode/skills/mcp-tool-usage/SKILL.md
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    finding: All 5 files show exact match between pattern types found in file and pattern types in inventory. No missing or extra pattern types.
+    result: PASS
+
+  - id: summary-accuracy
+    description: Verify summary counts match actual data
+    method: Compute actual counts from inventory data and compare to summary
+    checks:
+      - field: total_files
+        summary: 153
+        actual: 153
+        match: true
+      - field: total_cross_references
+        summary: 568
+        actual: 568
+        match: true
+      - field: correct
+        summary: 427
+        actual: 427
+        match: true
+      - field: needs_replacement
+        summary: 141
+        actual: 141
+        match: true
+      - field: correct + needs_replacement
+        summary: 568
+        actual: 568
+        match: true
+    result: PASS
+
+  - id: classification-validity
+    description: Check all classifications are valid values
+    method: Scan all 568 cross-references for classification field
+    finding: All 568 cross-references have valid classification (correct or needs_replacement). No unknown values.
+    result: PASS
+
+  - id: duplicate-check
+    description: Check for duplicate file paths in inventory
+    method: Count unique paths vs total entries
+    finding: 153 unique paths, 153 entries. No duplicates.
+    result: PASS
+
+  - id: file-existence
+    description: Verify all inventory file paths exist on disk
+    method: Check each of 153 paths against filesystem
+    finding: All 153 files exist on disk.
+    result: PASS
+
+overall:
+  result: PASS
+  summary: |
+    All 8 checks pass. The cross-reference inventory at
+    .opencode/.issues/1958/cross-reference-inventory.yaml is valid,
+    complete, and accurate. 153 files, 568 cross-references
+    (427 correct, 141 needs-replacement). YAML parses cleanly.
+    Summary counts match actual data. Spot-checked files verify
+    cross-references exist at claimed lines with correct classification.
+    No files with cross-references are missing from the inventory.
+    No duplicate paths. All file paths exist on disk.

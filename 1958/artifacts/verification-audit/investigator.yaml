@@ -1,0 +1,90 @@
+# Investigator — Raw Evidence Collection
+# issue: 1958
+# timestamp: 2026-07-18T12:00:00Z
+# agent: OpenCode (deepseek-v4-flash)
+
+evidence:
+  SC-2:
+    description: "000-critical-rules.md updated to Load [Text](path)"
+    command: "grep -c 'Load \\[' .opencode/guidelines/000-critical-rules.md"
+    result: "53"
+    threshold: "> 0"
+    status: PASS
+
+  SC-3:
+    description: "No See[ or Read[ in any SKILL.md"
+    commands:
+      - name: "See[ in SKILL.md"
+        command: "grep -r 'See \\[' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+        result: "0"
+        threshold: "0"
+        status: PASS
+      - name: "Read[ in SKILL.md"
+        command: "grep -r 'Read \\[' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+        result: "0"
+        threshold: "0"
+        status: PASS
+
+  SC-4:
+    description: "No See[ or Read[ in any guideline"
+    commands:
+      - name: "See[ in guidelines"
+        command: "grep -r 'See \\[' .opencode/guidelines/*.md | wc -l"
+        result: "0"
+        threshold: "0"
+        status: PASS
+      - name: "Read[ in guidelines"
+        command: "grep -r 'Read \\[' .opencode/guidelines/*.md | wc -l"
+        result: "0"
+        threshold: "0"
+        status: PASS
+
+  SC-5:
+    description: "No bare § cross-file references in SKILL.md"
+    command: "grep -rn '§' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | grep -v 'Load \\[' | wc -l"
+    result: "5"
+    threshold: "0 (cross-file); same-file self-references acceptable"
+    detail: |
+      3 same-file self-references (acceptable):
+        - implementation-pipeline/SKILL.md:81 — §Trigger Dispatch Table (same-file)
+        - issue-operations/SKILL.md:78 — §3 (same-file)
+        - verification-before-completion/SKILL.md:80 — §7 (same-file)
+      2 cross-file references (FAIL — should be Load [text](path)):
+        - local/SKILL.md:270 — §Worktree Exemption (refers to 060-tool-usage.md)
+        - local/SKILL.md:271 — §Creating .opencode/.opencode/ Nested Directories (refers to 000-critical-rules.md)
+    status: FAIL
+
+  SC-6:
+    description: "No resolution table headers in SKILL.md"
+    command: "grep -r '| Reference | File |' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+    result: "0"
+    threshold: "0"
+    status: PASS
+
+  SC-7:
+    description: "No bare 'See [A-Z]' (non-Load) references in SKILL.md"
+    command: "grep -rn 'See [A-Z]' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | grep -v 'See \\[' | grep -vi 'see the|see also|see how|see if|see what|see that|see which|see whether|see below|see above|see section|see chapter|see invocation|see trigger|see dispatch|see read|see load|see note|see file|see skill|see task|see guideline|see reference|see cross|see operating|see pre-flight' | wc -l"
+    result: "0"
+    threshold: "0"
+    status: PASS
+
+  ADDITIONAL-1:
+    description: "No Read[ in any .opencode/ file"
+    command: "grep -rln 'Read \\[' .opencode/ --include='*.md' --include='*.txt' | grep -v '.issues/' | grep -v 'node_modules' | grep -v '.pytest_cache' | sort"
+    result: "(empty)"
+    threshold: "empty"
+    status: PASS
+
+  ADDITIONAL-2:
+    description: "Load[ in default.txt"
+    command: "grep -c 'Load \\[' .opencode/prompts/default.txt"
+    result: "1"
+    threshold: "> 0"
+    status: PASS
+
+  ADDITIONAL-3:
+    description: "Load[ in AGENTS.md"
+    command: "grep -c 'Load \\[' .opencode/AGENTS.md"
+    result: "10"
+    threshold: "> 0"
+    status: PASS

@@ -1,0 +1,84 @@
+# Phase 2 Re-Audit Report — Fresh (Phase 1 Clean)
+# Issue: #1958 — Canonical Cross-Reference Rollout
+# Date: 2026-07-18
+# Agent: OpenCode (deepseek-v4-flash)
+
+## Summary
+status: PASS
+phase: 2
+re-audit: fresh
+phase1_clean: true
+
+## SC Results
+
+SC-2:
+  description: "Load [text](path) present in 000-critical-rules.md"
+  command: "grep -c 'Load [' .opencode/guidelines/000-critical-rules.md"
+  expected: "> 0"
+  actual: 53
+  result: PASS
+
+SC-3:
+  description: "No See[ or Read[ in skill SKILL.md files"
+  commands:
+    - "grep -r 'See [' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+    - "grep -r 'Read [' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+  expected: "0 for both"
+  actual: "0, 0"
+  result: PASS
+
+SC-4:
+  description: "No See[ or Read[ in guideline files"
+  commands:
+    - "grep -r 'See [' .opencode/guidelines/*.md | wc -l"
+    - "grep -r 'Read [' .opencode/guidelines/*.md | wc -l"
+  expected: "0 for both"
+  actual: "0, 0"
+  result: PASS
+
+SC-5:
+  description: "No bare § cross-file references in skill SKILL.md files"
+  command: "grep -rn '§' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | grep -v 'Load [' | wc -l"
+  expected: "0 (same-file self-references acceptable)"
+  actual: 1
+  note: "Single hit is same-file self-reference (§Trigger Dispatch Table in implementation-pipeline/SKILL.md:81) — acceptable per SC-5 carveout"
+  result: PASS
+
+SC-6:
+  description: "No | Reference | File | tables in skill SKILL.md files"
+  command: "grep -r '| Reference | File |' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | wc -l"
+  expected: 0
+  actual: 0
+  result: PASS
+
+SC-7:
+  description: "No bare 'See [A-Z]' cross-file references in skill SKILL.md files"
+  command: "grep -rn 'See [A-Z]' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md | grep -v 'See [' | grep -vi 'see the|see also|see how|see if|see what|see that|see which|see whether|see below|see above|see section|see chapter|see invocation|see trigger|see dispatch|see read|see load|see note|see file|see skill|see task|see guideline|see reference|see cross|see operating|see pre-flight' | wc -l"
+  expected: 0
+  actual: 0
+  result: PASS
+
+SC-extra-1:
+  description: "No Read[ anywhere in .opencode/ (excluding .issues/, node_modules, .pytest_cache, .node/)"
+  command: "grep -rln 'Read [' .opencode/ --include='*.md' --include='*.txt' --include='*.py' | grep -v '.issues/' | grep -v 'node_modules' | grep -v '.pytest_cache' | grep -v '.node/' | sort"
+  expected: "empty"
+  actual: "(no output)"
+  result: PASS
+
+SC-extra-2:
+  description: "Load[ present in default.txt"
+  command: "grep -c 'Load [' .opencode/prompts/default.txt"
+  expected: "> 0"
+  actual: 1
+  result: PASS
+
+SC-extra-3:
+  description: "Load[ present in AGENTS.md"
+  command: "grep -c 'Load [' .opencode/AGENTS.md"
+  expected: "> 0"
+  actual: 10
+  result: PASS
+
+## Overall Verdict
+result: PASS
+all_sc_pass: true

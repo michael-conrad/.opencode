@@ -1,0 +1,62 @@
+# Evaluator — PASS/FAIL per SC
+# issue: 1958
+# timestamp: 2026-07-18T12:00:00Z
+# agent: OpenCode (deepseek-v4-flash)
+
+verdicts:
+  SC-2:
+    verdict: PASS
+    evidence: "53 Load[ references found in 000-critical-rules.md (threshold: > 0)"
+    detail: "All Read[ → Load[ replacements complete in 000-critical-rules.md"
+
+  SC-3:
+    verdict: PASS
+    evidence: "0 See[ and 0 Read[ in all SKILL.md files"
+    detail: "All SKILL.md files clean of deprecated cross-reference verbs"
+
+  SC-4:
+    verdict: PASS
+    evidence: "0 See[ and 0 Read[ in all guideline files"
+    detail: "All guideline files clean of deprecated cross-reference verbs"
+
+  SC-5:
+    verdict: FAIL
+    evidence: "5 bare § references found; 3 same-file (acceptable), 2 cross-file (FAIL)"
+    detail: |
+      Two cross-file bare § references remain in local/SKILL.md:
+        - Line 270: "§Worktree Exemption" (refers to 060-tool-usage.md)
+        - Line 271: "§Creating .opencode/.opencode/ Nested Directories" (refers to 000-critical-rules.md)
+      These should be converted to Load [text](path) format.
+    remediation: "Edit local/SKILL.md lines 270-271 to use Load [text](path) format"
+
+  SC-6:
+    verdict: PASS
+    evidence: "0 resolution table headers found"
+    detail: "All resolution tables removed from SKILL.md files"
+
+  SC-7:
+    verdict: PASS
+    evidence: "0 bare 'See [A-Z]' non-Load references in SKILL.md"
+    detail: "All bare See references removed from SKILL.md files"
+
+  ADDITIONAL-1:
+    verdict: PASS
+    evidence: "No Read[ found in any .opencode/ file"
+    detail: "All .opencode/ files clean of Read[ pattern"
+
+  ADDITIONAL-2:
+    verdict: PASS
+    evidence: "1 Load[ reference in default.txt"
+    detail: "default.txt updated with Load[ cross-reference directive"
+
+  ADDITIONAL-3:
+    verdict: PASS
+    evidence: "10 Load[ references in AGENTS.md"
+    detail: "AGENTS.md updated with Load[ cross-reference directives"
+
+summary:
+  total: 10
+  pass: 9
+  fail: 1
+  overall: FAIL
+  blocker: "SC-5: 2 cross-file bare § references remain in local/SKILL.md"
