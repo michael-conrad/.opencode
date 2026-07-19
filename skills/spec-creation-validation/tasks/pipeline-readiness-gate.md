@@ -89,7 +89,7 @@ Beyond file category and verification domain, verify the SC's actual problem dom
 
 ### Step 3b: Decomposition-Depth Validation (PR-3b)
 
-For each SC, verify it meets the decomposition-depth mandate from `decompose.md`:
+For each SC, verify it meets the decomposition-depth mandate from Load [decompose.md](skills/spec-creation-decomposition/tasks/decompose.md):
 
 | Pass Condition | Fail Condition |
 |---|---|
