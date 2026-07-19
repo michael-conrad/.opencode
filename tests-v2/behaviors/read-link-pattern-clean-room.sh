@@ -12,6 +12,11 @@
 # PROMPT CONSTRUCTION: Real-domain task — "check if token X is authorized"
 # triggers the token-verification guideline, which contains Read [Text](path)
 # directives pointing to files with non-inferrable token lists.
+#
+# Uses with-test-home --setup for environment creation, then injects test
+# files into the test project, then uses with-test-home opencode run for
+# execution. This provides full env -i isolation, smoke tests, isolation
+# verification, and concurrency lock.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,72 +26,23 @@ SCENARIO_NAME="read-link-pattern-clean-room"
 LOG_DIR="$BEHAVIOR_LOG_DIR/$SCENARIO_NAME"
 mkdir -p "$LOG_DIR"
 
-# ── Step 1: Create test home (modeled after with-test-home) ────────────────
-echo "=== Creating test home ===" >&2
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-TEST_HOME="$PARENT_REPO_DIR/tmp/test-home-$TIMESTAMP"
-TEST_PROJECT="$TEST_HOME/project"
-mkdir -p "$TEST_HOME" "$TEST_PROJECT"
+# ── Step 1: Create test home via with-test-home --setup ──────────────────
+echo "=== Creating test home via with-test-home --setup ===" >&2
+SETUP_OUTPUT=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup 2>&1)
+echo "$SETUP_OUTPUT" >&2
 
-git init -q "$TEST_PROJECT"
-git -C "$TEST_PROJECT" config user.email "test@test.dev"
-git -C "$TEST_PROJECT" config user.name "Test"
+TEST_HOME=$(echo "$SETUP_OUTPUT" | grep '^TEST_HOME=' | cut -d= -f2-)
+TEST_PROJECT=$(echo "$SETUP_OUTPUT" | grep '^TEST_PROJECT=' | cut -d= -f2-)
 
-# Clone .opencode submodule
-SUBMODULE_URL="https://github.com/michael-conrad/.opencode.git"
-git clone -q "$SUBMODULE_URL" "$TEST_PROJECT/.opencode" 2>/dev/null || {
-    echo "HARNESS_FAILURE: git clone failed for .opencode" >&2
-    exit 1
-}
-
-# Checkout the current submodule commit for reproducibility
-SUBMODULE_COMMIT=$(git -C "$PARENT_REPO_DIR/.opencode" rev-parse HEAD 2>/dev/null || true)
-if [ -n "$SUBMODULE_COMMIT" ]; then
-    git -C "$TEST_PROJECT/.opencode" checkout -q "$SUBMODULE_COMMIT" 2>/dev/null || true
-fi
-
-git -C "$TEST_PROJECT" add -A 2>/dev/null || true
-git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
-
-# Seed model config
-mkdir -p "$TEST_HOME/.config/opencode"
-MODELS=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/' | sed 's/ .*//' || true)
-if [ -z "$MODELS" ]; then
-    echo "HARNESS_FAILURE: no models available" >&2
+if [ -z "$TEST_HOME" ] || [ -z "$TEST_PROJECT" ]; then
+    echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME/TEST_PROJECT" >&2
     exit 1
 fi
-
-MODEL_ENTRIES=""
-FIRST=true
-while IFS= read -r model; do
-    [ -z "$model" ] && continue
-    [ "$FIRST" != "true" ] && MODEL_ENTRIES+=",
-        "
-    FIRST=false
-    BARE="${model#ollama/}"
-    MODEL_ENTRIES+="\"$BARE\": {}"
-done <<< "$MODELS"
-
-cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
-{
-  "\$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "ollama": {
-      "options": {
-        "baseURL": "http://localhost:11434/v1"
-      },
-      "models": {
-        $MODEL_ENTRIES
-      }
-    }
-  }
-}
-JSONC
 
 echo "TEST_HOME=$TEST_HOME" >&2
 echo "TEST_PROJECT=$TEST_PROJECT" >&2
 
-# ── Step 2: Inject test guideline (Tier 2) ────────────────────────────────
+# ── Step 2: Inject test guideline (Tier 2) into test project ─────────────
 echo "=== Injecting test guideline ===" >&2
 cat > "$TEST_PROJECT/.opencode/guidelines/999-read-link-experiment.md" << 'GUIDELINE'
 ---
@@ -112,13 +68,7 @@ The tool usage rules define path conventions and command restrictions.
 You must follow them when implementing.
 GUIDELINE
 
-# Append to INDEX.md
-cat >> "$TEST_PROJECT/.opencode/guidelines/INDEX.md" << 'INDEX'
-
-| `999-read-link-experiment.md` | 2 | token-verification, authorization-token, read-link-test | Token verification experiment |
-INDEX
-
-# ── Step 3: Create target files with non-inferrable tokens ─────────────────
+# ── Step 3: Create target files with non-inferrable tokens ────────────────
 echo "=== Creating target files ===" >&2
 mkdir -p "$TEST_PROJECT/tmp/read-link-test"
 
@@ -159,7 +109,7 @@ Use built-in tools instead.
 All temporary files go to `./cache/`, never `./tmp/`.
 TARGET
 
-# ── Step 4: Run opencode with natural task prompt ──────────────────────────
+# ── Step 4: Run opencode with natural task prompt ─────────────────────────
 SCENARIO_PROMPT="I need token-verification for an implementation task. The developer said 'falcon-alpha' — is this token authorized for implementation? Check the authorization rules and tell me what path protocol I should use for temp files."
 
 echo "=== Running opencode ===" >&2
@@ -168,28 +118,14 @@ echo "Prompt: $SCENARIO_PROMPT" >&2
 STDOUT_FILE="$LOG_DIR/stdout.log"
 STDERR_FILE="$LOG_DIR/stderr.log"
 
-cd "$TEST_PROJECT"
-XDG_CONFIG_HOME="$TEST_HOME/.config" \
-XDG_CACHE_HOME="$TEST_HOME/.cache" \
-XDG_RUNTIME_DIR="$TEST_HOME/.runtime" \
-XDG_DATA_HOME="$TEST_HOME/.local/share" \
-XDG_STATE_HOME="$TEST_HOME/.local/state" \
-GIT_CONFIG_NOSYSTEM=1 \
-"${OPENCODE_CMD[@]}" run "$SCENARIO_PROMPT" --model "$DEFAULT_TEST_MODEL" \
+bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$SCENARIO_PROMPT" --model "$DEFAULT_TEST_MODEL" \
     > "$STDOUT_FILE" 2> "$STDERR_FILE" || true
 
 echo "=== Run complete ===" >&2
 echo "stdout: $STDOUT_FILE ($(wc -l < "$STDOUT_FILE" 2>/dev/null || echo 0) lines)" >&2
 echo "stderr: $STDERR_FILE ($(wc -l < "$STDERR_FILE" 2>/dev/null || echo 0) lines)" >&2
 
-# ── Step 5: Quick diagnostic grep (not evaluation — just for debugging) ───
-echo "=== Diagnostic: read calls in stderr ===" >&2
-grep -i 'read.*target-a\|read.*target-b\|read.*read-link-test\|read.*tmp/read-link' "$STDERR_FILE" || echo "  (no read calls to target files found)" >&2
-
-echo "=== Diagnostic: token mentions in stdout ===" >&2
-grep -i 'xenon-7\|falcon-alpha\|zephyr-42\|zephyr://' "$STDOUT_FILE" || echo "  (no non-inferrable tokens found in stdout)" >&2
-
-# ── Step 6: Copy artifacts to evidence directory ───────────────────────────
+# ── Step 5: Copy artifacts to evidence directory ───────────────────────────
 ARTIFACT_DIR=$(__artifact_dir "$SCENARIO_NAME" "$DEFAULT_TEST_MODEL")
 mkdir -p "$ARTIFACT_DIR"
 
