@@ -738,9 +738,30 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - Preceded by: `requirements` (mandatory), `decompose`, `traceability`, `risk` (or explicitly skipped)
 - Extends: brainstorming Steps 7-9 (adapted, not verbatim move)
-- Calls: `issue-operations` (pre-creation → single-task-check → creation → body-edit)
 - Calls: `.opencode/tools/local-issues sync` (after all `.issues/{N}/` file changes)
 - Followed by: `spec-auditor`, then user review on the issue
+
+## Input Artifacts
+
+This sub-agent reads prior artifacts from the following paths under `.issues/{N}/artifacts/`:
+
+| # | Artifact | Path |
+|---|----------|------|
+| 1 | Pre-spec inspection | `.issues/{N}/artifacts/pre-spec-inspection.yaml` |
+| 2 | Research cards consulted | `.issues/{N}/artifacts/research-cards-consulted.yaml` |
+| 3 | Requirements | `.issues/{N}/artifacts/requirements.yaml` |
+| 4 | Concern map | `.issues/{N}/artifacts/concern-map.yaml` |
+| 5 | Decomposition | `.issues/{N}/artifacts/decomposition.yaml` |
+| 6 | Blast radius | `.issues/{N}/artifacts/blast-radius.yaml` |
+| 7 | Cross-cutting matrix | `.issues/{N}/artifacts/cross-cutting-matrix.yaml` |
+| 8 | Traceability | `.issues/{N}/artifacts/traceability.yaml` |
+| 9 | Code path inventory | `.issues/{N}/artifacts/code-path-inventory.yaml` |
+| 10 | Interface compatibility | `.issues/{N}/artifacts/interface-compatibility.yaml` |
+| 11 | State analysis | `.issues/{N}/artifacts/state-analysis.yaml` |
+| 12 | SC pipeline readiness | `.issues/{N}/artifacts/sc-pipeline-readiness.yaml` |
+| 13 | Testability assessment | `.issues/{N}/artifacts/testability-assessment.yaml` |
+| 14 | Risk | `.issues/{N}/artifacts/risk.yaml` |
+| 15 | Interdependency check | `.issues/{N}/artifacts/interdependency-check.yaml` |
 
 ## Result Contract
 
