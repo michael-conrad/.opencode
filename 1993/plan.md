@@ -44,7 +44,7 @@
 | Critical violation enforcement | Phase 3 |
 | Regression prevention | Phase 3 |
 
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 > **One-step-at-a-time protocol:** Execute exactly one step at a time. Do not read ahead, batch steps, or combine edits. After each step, verify the result before proceeding to the next. If a step fails, stop and report — do not attempt to recover by skipping ahead.
 
@@ -54,13 +54,28 @@
 
 | Phase | Name | Concern | SCs | Depends On | Steps | Dispatch |
 |-------|------|---------|-----|------------|-------|----------|
-| 1 | SKILL.md restructure | Dispatch table + pipeline | SC-1, SC-3, SC-7, SC-8, SC-9, SC-10 | — | 1–9 | `skill({name: "spec-creation"})` |
-| 2 | Task card cleanup | Task card structure + contracts | SC-2, SC-4, SC-11–SC-21 | Phase 1 | 10–27 | `skill({name: "spec-creation"})` |
-| 3 | Critical violation + verification | Enforcement + regression | SC-5, SC-6 | Phase 2 | 28–30 | `skill({name: "spec-creation"})` |
+| 1 | SKILL.md restructure | Dispatch table + pipeline | SC-1, SC-3, SC-7, SC-8, SC-9, SC-10 | — | 1–17 | `skill({name: "spec-creation"})` |
+| 2 | Task card cleanup | Task card structure + contracts | SC-2, SC-4, SC-11–SC-21 | Phase 1 | 18–86 | `skill({name: "spec-creation"})` |
+| 3 | Critical violation + verification | Enforcement + regression | SC-5, SC-6 | Phase 2 | 87–95 | `skill({name: "spec-creation"})` |
 
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 > **Self-remediation protocol:** If a step fails, the agent MUST self-remediate before escalating. Diagnosis → fix → re-verify. Only after 2+ failed remediation attempts may the agent escalate. Do not skip remediation — every failure is agent-owned.
+
+## Global Pipeline Gates
+
+The following global gates wrap each phase. They are executed by the orchestrator, not by sub-agents.
+
+- [ ] G1. **Coherence gate (**inline**).** Verify plan items match spec SCs for the current phase. If any SC is not covered by a plan item, HALT.
+- [ ] G2. **Pre-red-baseline (**inline**).** Run `git stash` to capture clean state. Run existing tests to confirm baseline PASS.
+- [ ] G3. **Per-item RED/GREEN (**inline**).** Execute the phase file steps sequentially. Each RED → GREEN → GREEN doublecheck → Checkpoint commit chain is a single item.
+- [ ] G4. **VbC (**inline**).** Verify all SCs for this phase pass. If any SC fails, remediate and re-verify.
+- [ ] G5. **Audit (**inline**).** `skill({name: "audit"})` then `task(..., prompt: "execute spec-audit task from audit for issue 1993")`
+- [ ] G6. **Cross-validate (**inline**).** Verify audit PASS, no regressions.
+- [ ] G7. **Regression check (**inline**).** Run `git stash pop`, re-run tests, confirm no breakage.
+- [ ] G8. **Finishing checklist (**inline**).** `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
+- [ ] G9. **Review-prep (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`
+- [ ] G10. **Cleanup (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`
 
 ## Exit Criteria
 
