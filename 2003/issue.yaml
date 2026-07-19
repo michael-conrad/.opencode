@@ -1,0 +1,8 @@
+title: '[SPEC] Orchestrator bypasses spec-creation pipeline — direct github_issue_write
+  for spec content'
+status: open
+labels:
+- '[SPEC],needs-approval'
+body: ''
+created_at: '2026-07-19T14:44:28+00:00'
+updated_at: '2026-07-19T14:44:28+00:00'
