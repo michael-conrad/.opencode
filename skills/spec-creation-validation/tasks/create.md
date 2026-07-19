@@ -741,3 +741,12 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - Calls: `issue-operations` (pre-creation → single-task-check → creation → body-edit)
 - Calls: `.opencode/tools/local-issues sync` (after all `.issues/{N}/` file changes)
 - Followed by: `spec-auditor`, then user review on the issue
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| `status` | `DONE` \| `BLOCKED` |
+| `finding_summary` | `"Spec #N written with M SCs"` |
+| `artifact_path` | `.issues/{N}/spec.md` |
+| `blocker_reason` | `<why if BLOCKED>` |
