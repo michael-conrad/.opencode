@@ -38,6 +38,7 @@ Validator role for the guideline-audit DiMo chain. Reads `evidence.yaml` produce
 - `guideline_paths` provided — either a non-empty list of file paths or a valid glob pattern matching the files the Investigator audited
 - `artifact_evidence_dir` provided (writable directory for reasoning artifacts)
 - `github.owner`, `github.repo` available
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

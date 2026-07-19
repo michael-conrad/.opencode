@@ -42,6 +42,7 @@ Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Inv
 - `artifact_evidence_dir` provided — MUST be present and non-empty
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -324,8 +325,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/verification-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/verification-audit-validator.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Arbiter role (reads verdict.yaml produced by this task, writes judgment.yaml)
-- `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
+- `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
 - Load [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
 - Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
 - Load [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate, hard failure discipline

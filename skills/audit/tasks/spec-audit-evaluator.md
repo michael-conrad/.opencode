@@ -52,13 +52,14 @@ Evaluator role for the spec-audit DiMo chain. Reads `evidence.yaml` (Investigato
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for verdict artifacts)
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
 - `verdict.yaml` written to `{artifact_evidence_dir}/verdict.yaml`
 - Every criterion evaluated with binary PASS/FAIL — no INCONCLUSIVE, no "PASS with concerns"
 - Holistic dimensions evaluated (11 dimensions from `.opencode/reference/holistic-dimensions.yaml`)
-- Narrow criteria evaluated (SC-1 through SC-14, SC-DET, SC-STRUCTURAL-FAIL, SC-EVIDENCE-TYPE, SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, SC-PIPELINE-GATES, SC-CANONICAL-PLAN-FORM, SC-ADMONISHMENT, SC-REASONING, SC-CLAIM, SC-BLAST-RADIUS, SC-CONCERN-MAP, SC-CODE-PATH, SC-CROSS-CUTTING, SC-INTERFACE, SC-STATE, SC-TESTABILITY)
+- Narrow criteria evaluated (SC-1 through SC-14 excluding SC-7, SC-DET, SC-STRUCTURAL-FAIL, SC-EVIDENCE-TYPE, SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, SC-PIPELINE-GATES, SC-CANONICAL-PLAN-FORM, SC-ADMONISHMENT, SC-REASONING, SC-CLAIM, SC-BLAST-RADIUS, SC-CONCERN-MAP, SC-CODE-PATH, SC-CROSS-CUTTING, SC-INTERFACE, SC-STATE, SC-TESTABILITY)
 - SC-SEM criteria evaluated (if spec is a skill card audit)
 - Analytical artifact criteria evaluated (if artifact paths provided)
 - Self-consistency gate applied to all PASS verdicts
@@ -106,6 +107,15 @@ remediation: "spec_local_dir is required for spec-audit-evaluator. The orchestra
 ```
 
 - [ ] 7. Verify `artifact_evidence_dir` is writable — create it if it does not exist
+- [ ] 8. Verify plan-fidelity `verdict.yaml` exists at `./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml` — this is a cross-chain dependency. The spec-audit evaluator MUST NOT produce a verdict without the plan-fidelity audit having completed first. The orchestrator MUST ensure plan-fidelity completed before dispatching the spec-audit evaluator.
+- [ ] 9. If plan-fidelity `verdict.yaml` is missing, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_PLAN_FIDELITY_VERDICT
+missing: "./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml"
+remediation: "Plan-fidelity verdict.yaml is required for spec-audit-evaluator. The orchestrator must ensure the plan-fidelity audit completed successfully before dispatching the Evaluator. The plan-fidelity audit produces verdict.yaml at ./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml."
+```
 
 ### Step 2: Load Upstream Artifacts
 
@@ -226,7 +236,7 @@ holistic_evaluation:
 
 For each narrow criterion, evaluate using the validated evidence from `reasoning.yaml`. The evidence has already been collected (Investigator) and validated (upstream reasoning role). The Evaluator's job is to render judgment.
 
-#### Step 5a: Evaluate Structural Criteria (SC-1 through SC-14)
+#### Step 5a: Evaluate Structural Criteria (SC-1 through SC-14, excluding SC-7)
 
 | Criterion ID | Description | Evidence Source | Evaluation Rule |
 |--------------|-------------|-----------------|-----------------|
@@ -236,7 +246,6 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 | SC-4 | Steps actionable | `spec_structure_validation` | PASS if each step has a file path or task reference |
 | SC-5 | Dependencies identified | `reasoning_validation` | PASS if phase dependencies are documented |
 | SC-6 | Concerns separated | `spec_structure_validation.phases` | PASS if single concern per phase |
-| SC-7 | Fidelity maintained | `spec_structure_validation` | PASS if plan matches spec structure |
 | SC-8 | Operational clarity | `reasoning_validation.edge_cases` | PASS if edge cases and error recovery defined |
 | SC-9 | Determinism achieved | `determinism_validation` | PASS if repeatable execution path (see also SC-DET) |
 | SC-10 | Prose structure valid | `spec_structure_validation.prose_elements` | PASS if headers, lists, tables properly formatted |
@@ -245,7 +254,7 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 | SC-13 | Cost-frame prose + runtime execution in SCs | `prose_validation.cost_frame_language` | PASS if each SC carries cost-frame reformation language |
 | SC-14 | SC Enforcement Gate present and explicit | `spec_structure_validation` | PASS if spec contains all-or-nothing gate statement |
 
-- [ ] 1. For each SC-1 through SC-14, read the corresponding evidence from `reasoning.yaml`
+- [ ] 1. For each SC-1 through SC-14 (excluding SC-7, which is now handled by plan-fidelity), read the corresponding evidence from `reasoning.yaml`
 - [ ] 2. Apply the evaluation rule — render PASS or FAIL
 - [ ] 3. If the upstream reasoning role flagged the evidence as `corrected`, use the corrected values
 - [ ] 4. If the upstream reasoning role flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict

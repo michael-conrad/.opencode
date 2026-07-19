@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Produce the final judgment on audit workflow completion. Reads all artifacts, writes `judgment.yaml`.
+Produce the final judgment on audit workflow completion. Reads `cross-validate`'s `judgment.yaml` and reports the verdict.
 
 
 ## Dispatch Contract
@@ -16,15 +16,19 @@ Produce the final judgment on audit workflow completion. Reads all artifacts, wr
 
 Idempotent completion subtask for audit. Ensures mandatory steps ran regardless of where the workflow halted.
 
+## Entry Criteria
+
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
 ## Procedure
 
 ### Step 0: Pre-clean
 
 - [ ] 0. Pre-clean: remove artifact files for this task from `./tmp/{issue-N}/artifacts/completion/`
 
-### Write judgment.yaml
+### Read cross-validate judgment.yaml
 
-Write final judgment to `./tmp/{issue-N}/artifacts/completion/judgment.yaml`
+Read `cross-validate`'s `judgment.yaml` from `./tmp/{issue-N}/artifacts/cross-validate/judgment.yaml` and report the verdict.
 
 ## Remediation
 

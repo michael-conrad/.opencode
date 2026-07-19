@@ -41,6 +41,7 @@ Investigator role for the drift-detection DiMo chain. Reads spec requirements fr
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for evidence artifacts)
 - Optional: `target_files` list of specific file paths to scan
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

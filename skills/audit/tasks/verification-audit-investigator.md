@@ -39,6 +39,7 @@ Collect raw evidence for verification-audit. Reads spec success criteria and beh
 - `artifact_evidence_dir` provided — MUST be present and non-empty. Behavioral evidence artifacts from the implementation run MUST exist. If absent: return BLOCKED with MISSING_EVIDENCE_DIR.
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

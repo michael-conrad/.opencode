@@ -40,6 +40,7 @@ Validator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` p
 - `.opencode/guidelines/` directory exists and is readable
 - `.opencode/skills/` directory exists and is readable
 - Baseline file exists at `{project_root}/tmp/{issue-N}/artifacts/baseline-*.json`
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

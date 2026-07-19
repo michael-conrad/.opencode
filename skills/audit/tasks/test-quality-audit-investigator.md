@@ -43,6 +43,7 @@ Investigator role for the test-quality-audit DiMo chain. Reads test files, spec 
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for evidence artifacts)
 - `vbc_artifact_path` provided (optional — if absent, RED evidence collection will note it)
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

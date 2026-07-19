@@ -39,6 +39,7 @@ Investigator role for the coherence-maintenance DiMo chain. Reads the baseline c
 - `artifact_evidence_dir` provided (writable directory for evidence artifacts)
 - `.opencode/guidelines/` directory exists and is readable
 - `.opencode/skills/` directory exists and is readable
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

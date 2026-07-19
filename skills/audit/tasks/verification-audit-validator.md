@@ -41,6 +41,7 @@ Validator role for the verification-audit DiMo chain. Reads `evidence.yaml` prod
 - `artifact_evidence_dir` provided — MUST be present and non-empty
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

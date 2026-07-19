@@ -212,12 +212,36 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### ✅ ALWAYS DO — IMMEDIATELY After Merge Confirmation
 
-- [ ] 1. Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
-- [ ] 2. Verify dev sync: `git log --oneline -5` must show the merge commit
-- [ ] 3. Delete local feature branch: `git branch -d <branch-name>`
-- [ ] 4. Delete remote branch: `git push origin --delete <branch-name>`
-- [ ] 5. Verify cleanup: `git branch -vv`
-- [ ] 6. Prune remote references: `git fetch --prune && git remote prune origin`
+- [ ] 1. **Detect worktree conflict:** Run `git worktree list` and check if `$DEFAULT_BRANCH` is already checked out in a worktree
+   ```bash
+   WORKTREE_CONFLICT=false
+   WORKTREE_PATH=""
+   while IFS= read -r line; do
+     if echo "$line" | grep -q "\[$DEFAULT_BRANCH\]"; then
+       WORKTREE_CONFLICT=true
+       WORKTREE_PATH=$(echo "$line" | awk '{print $1}')
+       break
+     fi
+   done < <(git worktree list 2>/dev/null || true)
+   ```
+- [ ] 2. **Remove conflicting worktree (if detected):** When `WORKTREE_CONFLICT=true`, remove the worktree before switching branches
+   ```bash
+   if [ "$WORKTREE_CONFLICT" = true ] && [ -n "$WORKTREE_PATH" ]; then
+     git worktree remove "$WORKTREE_PATH" 2>/dev/null || git worktree remove -f "$WORKTREE_PATH"
+   fi
+   ```
+- [ ] 3. **Switch to trunk and sync:** `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
+- [ ] 4. **Recreate the worktree (if removed):** When `WORKTREE_CONFLICT=true`, recreate the worktree so it is available for future sessions
+   ```bash
+   if [ "$WORKTREE_CONFLICT" = true ] && [ -n "$WORKTREE_PATH" ]; then
+     git worktree add "$WORKTREE_PATH" "$DEFAULT_BRANCH"
+   fi
+   ```
+- [ ] 5. Verify dev sync: `git log --oneline -5` must show the merge commit
+- [ ] 6. Delete local feature branch: `git branch -d <branch-name>`
+- [ ] 7. Delete remote branch: `git push origin --delete <branch-name>`
+- [ ] 8. Verify cleanup: `git branch -vv`
+- [ ] 9. Prune remote references: `git fetch --prune && git remote prune origin`
 
 ## Branch Status Categories
 
