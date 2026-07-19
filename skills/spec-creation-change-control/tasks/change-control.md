@@ -60,7 +60,7 @@ After revision, the spec needs fresh authorization:
 
 ## Adversarial Verification of STATUS Exemption (MANDATORY)
 
-**🚫 CRITICAL: Every STATUS marker claiming exemption from change control MUST be verified against actual revision history. Unverified exemption claims are CONFLICTING findings per `065-verification-honesty.md`.**
+**🚫 CRITICAL: Every STATUS marker claiming exemption from change control MUST be verified against actual revision history. Unverified exemption claims are CONFLICTING findings per Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
 
 ### Verification Procedure
 
@@ -96,7 +96,7 @@ Action: [auto-fix|FAIL]
 
 ## Code-Level Backward Compatibility Impact Analysis (MANDATORY)
 
-When a spec changes an API signature, config key, or data format, assess what existing consumers would break. This is the spec-level counterpart to the backward compatibility analysis in `risk.md` — it operates at the code level rather than the architecture level.
+When a spec changes an API signature, config key, or data format, assess what existing consumers would break. This is the spec-level counterpart to the backward compatibility analysis in Load [risk.md](skills/spec-creation-validation/tasks/risk.md) — it operates at the code level rather than the architecture level.
 
 ### Step 5: Identify Changed Code Contracts
 
