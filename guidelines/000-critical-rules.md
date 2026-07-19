@@ -207,6 +207,7 @@ The correct pattern:
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
+### [critical-rules-XXX] CRITICAL VIOLATION — Sub-agent task cards MUST NOT contain task() or skill() calls. Only orchestrator-level SKILL.md files may contain dispatch instructions. A task card that contains a task() or skill() call is structurally defective — the sub-agent cannot execute it. This applies to ALL task cards across ALL skills. Violation: HALT with blocker report.
 ### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED
 Using stash+checkout means contaminating your workspace state. Professional engineers isolate work in worktrees — amateurs juggle stashes and risk losing uncommitted context.
 
