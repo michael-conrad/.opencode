@@ -1,0 +1,8 @@
+cross_cutting_scs:
+  - SC-1: affects all pipeline steps (TDT structure)
+  - SC-2: affects writing-plans TDT routing
+  - SC-3: affects create.md, update.md, retroactive.md (contract paths)
+  - SC-7: affects writing-plans Invocation section
+  - SC-8: affects create.md step annotations
+  - SC-10: affects update.md and retroactive.md
+  - SC-12: affects all Z3 check steps

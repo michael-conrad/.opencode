@@ -1,0 +1,31 @@
+risks:
+  - id: R1
+    description: "Contract path fix in create.md may break if writing-plans-creation/contracts/ directory structure changes"
+    probability: low
+    impact: high
+    mitigation: "Contracts directory is stable; fix is one-time path correction"
+  - id: R2
+    description: "TDT additions may conflict with existing writing-plans TDT entries if not carefully merged"
+    probability: medium
+    impact: medium
+    mitigation: "Replace entire TDT section with complete new table; verify all 3 original entries preserved"
+  - id: R3
+    description: "plan-creation-pipeline dispatch may require additional context not currently passed"
+    probability: medium
+    impact: high
+    mitigation: "Verify plan-creation-pipeline entry criteria; add context fields to create.md step 2 dispatch"
+  - id: R4
+    description: "retroactive.md and update.md may have drift from create.md pipeline structure"
+    probability: high
+    impact: medium
+    mitigation: "Apply identical contract path fixes and step classification to all three pipeline files"
+  - id: R5
+    description: "writing-plans-holistic has no TDT; adding one may break existing holistic-self-check dispatch"
+    probability: low
+    impact: medium
+    mitigation: "Follow existing pattern; only one task so simple TDT"
+  - id: R6
+    description: "Z3 solve check steps require correct contract templates — if templates don't exist, checks fail"
+    probability: medium
+    impact: high
+    mitigation: "Verify all 11 contract templates exist in writing-plans-creation/contracts/ before implementation"

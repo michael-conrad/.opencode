@@ -1,0 +1,15 @@
+affected_files:
+  - .opencode/skills/writing-plans/SKILL.md
+  - .opencode/skills/writing-plans-creation/SKILL.md
+  - .opencode/skills/writing-plans-creation/tasks/create.md
+  - .opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md
+  - .opencode/skills/writing-plans-creation/tasks/retroactive.md
+  - .opencode/skills/writing-plans-creation/tasks/clean-room.md
+  - .opencode/skills/writing-plans-creation/contracts/*.yaml
+impact_zones:
+  - trigger_dispatch_table_routing
+  - contract_path_resolution
+  - task_discoverability
+  - pipeline_step_classification
+  - canonical_dispatch_strings
+  - plan_creation_pipeline_integration

@@ -1,0 +1,48 @@
+states:
+  - name: "spec_created"
+    description: "Spec #1962 created with all analytical artifacts"
+  - name: "spec_approved"
+    description: "Spec approved via approval gate"
+    transitions_from: ["spec_created"]
+  - name: "plan_create_triggered"
+    description: "Plan creation triggered for spec #1962"
+    transitions_from: ["spec_approved"]
+  - name: "research_complete"
+    description: "Research step completed for plan"
+    transitions_from: ["plan_create_triggered"]
+  - name: "artifact_validation_complete"
+    description: "Analytical artifacts validated"
+    transitions_from: ["research_complete"]
+  - name: "readiness_complete"
+    description: "Readiness gate passed"
+    transitions_from: ["artifact_validation_complete"]
+  - name: "structure_complete"
+    description: "Plan structure defined with phase boundaries"
+    transitions_from: ["readiness_complete"]
+  - name: "solve_complete"
+    description: "Z3 solve completed for phase solvability"
+    transitions_from: ["structure_complete"]
+  - name: "write_complete"
+    description: "Plan written to .issues/{N}/plan.md and phase files"
+    transitions_from: ["solve_complete"]
+  - name: "clean_room_complete"
+    description: "Clean-room plan generated for fidelity comparison"
+    transitions_from: ["write_complete"]
+  - name: "revisit_complete"
+    description: "Unverified claims resolved"
+    transitions_from: ["clean_room_complete"]
+  - name: "validate_complete"
+    description: "Plan validation passed"
+    transitions_from: ["revisit_complete"]
+  - name: "audit_fidelity_complete"
+    description: "Plan fidelity audit passed"
+    transitions_from: ["validate_complete"]
+  - name: "audit_concern_complete"
+    description: "Concern separation audit passed"
+    transitions_from: ["audit_fidelity_complete"]
+  - name: "completion_complete"
+    description: "Plan completion lifecycle event emitted"
+    transitions_from: ["audit_concern_complete"]
+  - name: "plan_approved"
+    description: "Plan auto-approved via cascade"
+    transitions_from: ["completion_complete"]

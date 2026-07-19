@@ -1,0 +1,49 @@
+scs:
+  - sc_id: SC-1
+    criterion: "writing-plans-creation/SKILL.md has complete Trigger Dispatch Table with 12 pipeline step entries"
+    evidence_type: structural
+    verification_method: "grep -c 'Trigger Dispatch Table' .opencode/skills/writing-plans-creation/SKILL.md && grep -c 'research|artifact-validation|readiness|structure|solve|write|clean-room|revisit|validate|audit-fidelity|audit-concern|completion' .opencode/skills/writing-plans-creation/SKILL.md"
+  - sc_id: SC-2
+    criterion: "writing-plans/SKILL.md TDT routes all 11 pipeline steps with correct dispatch classification"
+    evidence_type: structural
+    verification_method: "grep -c 'sub-agent\|clean-room\|inline' .opencode/skills/writing-plans/SKILL.md (within TDT section)"
+  - sc_id: SC-3
+    criterion: "All contract references in create.md point to writing-plans-creation/contracts/"
+    evidence_type: structural
+    verification_method: "grep 'contracts/create-output-template.yaml' .opencode/skills/writing-plans-creation/tasks/create.md | grep -v 'writing-plans-creation'"
+  - sc_id: SC-4
+    criterion: "pre-plan-readiness.md has TDT entry and positioned before readiness"
+    evidence_type: structural
+    verification_method: "grep 'pre-plan-readiness' .opencode/skills/writing-plans-creation/SKILL.md"
+  - sc_id: SC-5
+    criterion: "retroactive.md has TDT entry for direct dispatch"
+    evidence_type: structural
+    verification_method: "grep 'retroactive' .opencode/skills/writing-plans/SKILL.md (TDT section)"
+  - sc_id: SC-6
+    criterion: "clean-room.md has TDT entry classified as clean-room dispatch"
+    evidence_type: structural
+    verification_method: "grep 'clean-room' .opencode/skills/writing-plans-creation/SKILL.md (TDT section)"
+  - sc_id: SC-7
+    criterion: "writing-plans/SKILL.md Invocation has canonical dispatch strings for all 12 pipeline steps"
+    evidence_type: structural
+    verification_method: "grep 'execute.*from writing-plans-creation' .opencode/skills/writing-plans/SKILL.md | wc -l (should be 12)"
+  - sc_id: SC-8
+    criterion: "Pipeline steps in create.md annotated with dispatch classification"
+    evidence_type: structural
+    verification_method: "grep '(**inline**)|(**sub-agent**)|(**clean-room**)' .opencode/skills/writing-plans-creation/tasks/create.md | wc -l (should be 22+)"
+  - sc_id: SC-9
+    criterion: "create pipeline dispatches to plan-creation-pipeline for Z3 phase solvability AND retains internal solve steps"
+    evidence_type: behavioral
+    verification_method: "grep 'plan-creation-pipeline' .opencode/skills/writing-plans-creation/tasks/create.md"
+  - sc_id: SC-10
+    criterion: "update.md and retroactive.md pipelines updated with same fixes"
+    evidence_type: structural
+    verification_method: "grep 'writing-plans-creation/contracts' .opencode/skills/writing-plans-creation/tasks/update.md && grep 'writing-plans-creation/contracts' .opencode/skills/writing-plans-creation/tasks/retroactive.md"
+  - sc_id: SC-11
+    criterion: "writing-plans-holistic/SKILL.md TDT added for holistic-self-check"
+    evidence_type: structural
+    verification_method: "grep 'Trigger Dispatch Table' .opencode/skills/writing-plans-holistic/SKILL.md"
+  - sc_id: SC-12
+    criterion: "All Z3 solve check steps validate against correct contract templates per step"
+    evidence_type: behavioral
+    verification_method: "Run solve check on each step output contract after implementation"

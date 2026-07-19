@@ -1,0 +1,29 @@
+concerns:
+  - name: "Dispatch Routing"
+    description: "Trigger Dispatch Table structure and routing for all pipeline steps"
+    phase: 1
+    related_scs: [SC-1, SC-2, SC-7]
+  - name: "Contract Resolution"
+    description: "Contract path references in create.md, update.md, retroactive.md"
+    phase: 2
+    related_scs: [SC-3]
+  - name: "Task Discoverability"
+    description: "TDT entries for orphaned tasks (pre-plan-readiness, retroactive, clean-room)"
+    phase: 3
+    related_scs: [SC-4, SC-5, SC-6]
+  - name: "Pipeline Step Classification"
+    description: "Inline vs sub-agent vs clean-room annotation per step"
+    phase: 4
+    related_scs: [SC-8]
+  - name: "Plan-Creation-Pipeline Integration"
+    description: "Dispatch to plan-creation-pipeline for Z3 phase solvability per #1962"
+    phase: 5
+    related_scs: [SC-9]
+  - name: "Update/Retroactive Parity"
+    description: "Same fixes applied to update.md and retroactive.md pipelines"
+    phase: 6
+    related_scs: [SC-10]
+  - name: "Holistic Skill TDT"
+    description: "writing-plans-holistic TDT for holistic-self-check"
+    phase: 7
+    related_scs: [SC-11]

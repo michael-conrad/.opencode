@@ -1,0 +1,23 @@
+interfaces:
+  - name: "Skill Trigger Dispatch Table"
+    type: "YAML table in SKILL.md"
+    consumers:
+      - writing-plans orchestrator
+      - writing-plans-creation sub-skill
+    compatibility: "Must follow DISPATCH_GATE canonical dispatch string format"
+  - name: "Contract Output Templates"
+    type: "YAML schema in contracts/"
+    consumers:
+      - writing-plans-creation create/update/retroactive pipelines
+      - solve check steps
+    compatibility: "Schema must match step output exactly"
+  - name: "Canonical Dispatch Strings"
+    type: "String in Invocation section"
+    consumers:
+      - writing-plans orchestrator
+    compatibility: "Must include 'Read `<skill>/tasks/<task>.md` first' directive"
+  - name: "Sub-Agent Context Contract"
+    type: "JSON/YAML passed to task()"
+    consumers:
+      - All sub-agent dispatched steps
+    compatibility: "Only routing metadata: worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase"
