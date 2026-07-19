@@ -27,6 +27,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | User says / Context | Task | Dispatches To | Dispatch | Context passed |
 |---------------------|------|---------------|----------|----------------|
 | "create spec" / "write spec" / "draft spec" | `create` | `spec-creation-validation --task create` | `sub-task` | {issue_number} |
+| "revise spec" / "update spec" / "edit spec" | `revise` | `spec-creation-validation --task revise` | `sub-task` | {issue_number} |
 | completion / workflow end | `completion` | `spec-creation-validation --task completion` | `sub-task` | {workflow_state} |
 
 ## Invocation
@@ -36,6 +37,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | Task | Canonical Dispatch String |
 |------|--------------------------|
 | `create` | `task(..., prompt: "execute create from spec-creation-validation. Read \`spec-creation-validation/tasks/create.md\` first")` |
+| `revise` | `task(..., prompt: "execute revise from spec-creation-validation. Read \`spec-creation-validation/tasks/revise.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from spec-creation-validation. Read \`spec-creation-validation/tasks/completion.md\` first")` |
 
 ## Cross-References
