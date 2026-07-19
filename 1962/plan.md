@@ -7,7 +7,7 @@
 
 ## Goal
 
-Fix structural defects in `writing-plans` and `writing-plans-creation` skills: correct TDT entries, contract paths, dispatch routing, add Z3 gates per #1962, and ensure all 12 spec SCs are satisfied.
+Fix structural defects in `writing-plans` and `writing-plans-creation` skills: correct TDT entries, contract paths, dispatch routing, add Z3 gates per #1962, and ensure all 8 spec SCs are satisfied.
 
 ## Architecture
 
@@ -15,39 +15,33 @@ Single-phase plan. All changes are structural/config modifications to skill meta
 
 ## Files
 
-| File | Change | SC |
-|------|--------|----|
-| `.opencode/skills/writing-plans/SKILL.md` | TDT → 4 entries, add Pipeline section (4 workflows), fix Invocation with canonical dispatch strings for all 12 pipeline steps | SC-2, SC-7 |
-| `.opencode/skills/writing-plans-creation/SKILL.md` | Convert to task card: remove YAML frontmatter, "Skill:" header, Contracts section. Add complete TDT with 12 pipeline step entries and Invocation | SC-1, SC-3 |
-| `.opencode/skills/writing-plans-creation/tasks/create.md` | Fix 11 contract paths to `writing-plans-creation/contracts/`, add plan-creation-pipeline dispatch, annotate all steps with dispatch classification | SC-3, SC-8, SC-9 |
-| `.opencode/skills/writing-plans-creation/tasks/update.md` | Fix contract paths, add dispatch classification, align with create.md pattern | SC-10 |
-| `.opencode/skills/writing-plans-creation/tasks/retroactive.md` | Fix contract paths, add dispatch classification, add TDT entry | SC-5, SC-10 |
-| `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | Add solve readiness gate, add TDT entry | SC-4 |
-| `.opencode/skills/writing-plans-creation/tasks/clean-room.md` | Add TDT entry classified as clean-room dispatch | SC-6 |
-| `.opencode/skills/writing-plans-holistic/SKILL.md` | Add Trigger Dispatch Table for holistic-self-check dispatch | SC-11 |
+| File | Change | SCs |
+|------|--------|-----|
+| `.opencode/skills/writing-plans/SKILL.md` | TDT → 4 entries (`create`, `update`, `retroactive`, `holistic-self-check`), Pipeline section with 4 workflows, Invocation with 4 canonical dispatch strings. Document `clean-room` as internal/referenced task (not a TDT entry). | SC-1, SC-2, SC-7, SC-8 |
+| `.opencode/skills/writing-plans-creation/SKILL.md` | Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section, remove TDT/Invocation (already absent). Keep plain task list. | SC-3 |
+| `.opencode/skills/writing-plans-creation/tasks/create.md` | Fix 11 contract paths from `writing-plans/contracts/` to `writing-plans-creation/contracts/`. Add plan-creation-pipeline dispatch step. Update chain refs. | SC-4, SC-5 |
+| `.opencode/skills/writing-plans-creation/tasks/update.md` | Fix contract paths from `writing-plans/contracts/` to `writing-plans-creation/contracts/`. | SC-4 |
+| `.opencode/skills/writing-plans-creation/tasks/retroactive.md` | Fix contract paths from `writing-plans/contracts/` to `writing-plans-creation/contracts/`. | SC-4 |
+| `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | Add solve readiness gate (already done per eda50974). | SC-6 |
 
 ## Phase Table
 
 | Phase | Description | Steps | SCs |
 |-------|-------------|-------|-----|
-| 1 | Fix skill metadata and task files | 1-12 | SC-1 through SC-12 |
+| 1 | Fix skill metadata and task files | 1-8 | SC-1 through SC-8 |
 
 ## Exit Criteria
 
 | SC ID | Criterion | Evidence Type | Verification |
 |-------|-----------|---------------|-------------|
-| SC-1 | `writing-plans-creation/SKILL.md` has complete TDT with 12 pipeline step entries | structural | `read` SKILL.md → count TDT rows = 12 |
-| SC-2 | `writing-plans/SKILL.md` TDT routes all 11 pipeline steps with correct dispatch classification | structural | `read` SKILL.md → verify TDT entries match pipeline steps |
-| SC-3 | All contract references in `create.md` point to `writing-plans-creation/contracts/` | structural | `grep` create.md → no matches for `writing-plans/contracts/` |
-| SC-4 | `pre-plan-readiness.md` has TDT entry and is positioned as pre-flight gate before readiness | structural | `read` pre-plan-readiness.md → find TDT entry + solve gate |
-| SC-5 | `retroactive.md` has TDT entry for direct dispatch via "retroactive plan" trigger | structural | `read` retroactive.md → find TDT entry |
-| SC-6 | `clean-room.md` has TDT entry classified as clean-room dispatch | structural | `read` clean-room.md → find TDT entry with clean-room classification |
-| SC-7 | `writing-plans/SKILL.md` Invocation section has canonical dispatch strings for all 12 pipeline steps | structural | `read` Invocation → verify 12 dispatch strings |
-| SC-8 | Pipeline steps in `create.md` annotated with `(**inline**)`, `(**sub-agent**)`, or `(**clean-room**)` classification | structural | `grep` create.md → verify all steps have classification tags |
-| SC-9 | `create` pipeline dispatches to `plan-creation-pipeline` for Z3-verified phase solvability AND retains internal `solve` steps | behavioral | `opencode run` → verify skill dispatch in stderr |
-| SC-10 | `update.md` and `retroactive.md` pipelines updated with same fixes | structural | `read` each file → verify contract paths + dispatch classification |
-| SC-11 | `writing-plans-holistic/SKILL.md` TDT added for `holistic-self-check` dispatch | structural | `read` SKILL.md → find TDT section |
-| SC-12 | All Z3 `solve check` steps validate against correct contract templates per step | behavioral | `opencode run` → verify solve check in stderr |
+| SC-1 | `writing-plans` TDT has exactly 4 user-facing workflow entries (`create`, `update`, `retroactive`, `holistic-self-check`) | structural | `read` SKILL.md → count TDT rows = 4 |
+| SC-2 | `writing-plans` Pipeline section documents 4 workflows with step-level dispatch classification | structural | `read` SKILL.md → find Pipeline section with 4 workflows |
+| SC-3 | `writing-plans-creation` is a task card (not a skill card) — no YAML frontmatter, no "Skill:" header, no TDT, no Invocation | structural | `read` SKILL.md → no YAML frontmatter, no "Skill:" header |
+| SC-4 | All contract paths in `create.md`, `update.md`, `retroactive.md` resolve to `writing-plans-creation/contracts/` | structural | `bash` check each path exists; `grep` for no remaining `writing-plans/contracts/` |
+| SC-5 | `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates | behavioral | `opencode run` → verify skill dispatch in stderr |
+| SC-6 | `pre-plan-readiness` has `solve` readiness gate | structural | `read` pre-plan-readiness.md → find solve check |
+| SC-7 | All canonical dispatch strings follow DISPATCH_GATE format in Invocation | structural | `read` Invocation sections → verify format |
+| SC-8 | No orphaned tasks in `writing-plans-creation/tasks/` — all tasks referenced by Pipeline or documented as internal | structural | `ls tasks/` vs Pipeline task refs → diff empty |
 
 ## Safety/Rollback
 
@@ -66,46 +60,41 @@ Single-phase plan. All changes are structural/config modifications to skill meta
 | 4 | `.opencode/skills/writing-plans-creation/tasks/update.md` | ✅ | `ls` confirmed |
 | 5 | `.opencode/skills/writing-plans-creation/tasks/retroactive.md` | ✅ | `ls` confirmed |
 | 6 | `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | ✅ | `ls` confirmed |
-| 7 | `.opencode/skills/writing-plans-creation/tasks/clean-room.md` | ✅ | `ls` confirmed |
-| 8 | `.opencode/skills/writing-plans-creation/contracts/` | ✅ | `ls` confirmed (22 contract files) |
-| 9 | `.opencode/skills/writing-plans-holistic/SKILL.md` | ✅ | `ls` confirmed |
-| 10 | `.opencode/.issues/1962/artifacts/` | ✅ | `ls` confirmed (9 artifact files) |
+| 7 | `.opencode/skills/writing-plans-creation/contracts/` | ✅ | `ls` confirmed |
 
 ## Evidence/Provenance
 
 | Claim | Evidence Source | Verified? |
 |-------|----------------|----------|
 | `writing-plans-creation` has 16 task files, 0 TDT entries | `ls tasks/` + `read(SKILL.md)` | ✅ |
-| Contract files at `writing-plans-creation/contracts/` (22 files) | `ls contracts/` | ✅ |
+| Contract files at `writing-plans-creation/contracts/` | `ls contracts/` | ✅ |
 | `create.md` references `writing-plans/contracts/` (11 matches) | `grep "writing-plans/contracts" create.md` | ✅ |
 | `spec-creation` parent routes to sub-skills with 3 TDT entries | `read(SKILL.md)` | ✅ |
 | `spec-creation-decomposition` has no TDT | `read(SKILL.md)` | ✅ |
-| Analytical artifacts exist at `.opencode/.issues/1962/artifacts/` | `ls artifacts/` | ✅ |
 
 ## SC-to-Step Traceability
 
 | SC ID | Criterion | Phase | Step(s) |
 |-------|-----------|-------|---------|
-| SC-1 | writing-plans-creation/SKILL.md has TDT with 12 entries | 1 | 2 |
-| SC-2 | writing-plans/SKILL.md TDT routes all 11 pipeline steps | 1 | 1 |
-| SC-3 | Contract paths in create.md point to writing-plans-creation/contracts/ | 1 | 3 |
-| SC-4 | pre-plan-readiness.md has TDT entry + solve gate | 1 | 6 |
-| SC-5 | retroactive.md has TDT entry | 1 | 5 |
-| SC-6 | clean-room.md has TDT entry | 1 | 7 |
-| SC-7 | Invocation has canonical dispatch strings for all 12 steps | 1 | 1 |
-| SC-8 | Pipeline steps annotated with dispatch classification | 1 | 3 |
-| SC-9 | create dispatches to plan-creation-pipeline + retains solve steps | 1 | 3 |
-| SC-10 | update.md and retroactive.md updated with same fixes | 1 | 4, 5 |
-| SC-11 | writing-plans-holistic/SKILL.md has TDT | 1 | 8 |
-| SC-12 | Z3 solve check steps validate against correct contract templates | 1 | 3, 6 |
+| SC-1 | TDT has exactly 4 entries | 1 | 1 |
+| SC-2 | Pipeline section with 4 workflows | 1 | 1 |
+| SC-3 | writing-plans-creation is task card (no YAML, no "Skill:") | 1 | 2 |
+| SC-4 | Contract paths resolve to writing-plans-creation/contracts/ | 1 | 3, 4, 5 |
+| SC-5 | plan-creation-pipeline dispatch | 1 | 3 |
+| SC-6 | pre-plan-readiness solve gate | 1 | 6 |
+| SC-7 | Canonical dispatch strings | 1 | 1 |
+| SC-8 | No orphaned tasks | 1 | 1, 2 |
 
 ## Self-Review Evidence
 
 - [ ] Plan goal matches spec goal: ✅ — both target writing-plans workflow defects
-- [ ] All SCs traced to steps: ✅ — 12 SCs, 8 step groups
+- [ ] All SCs traced to steps: ✅ — 8 SCs, 6 step groups
 - [ ] No scope creep: ✅ — only files in scope per spec
 - [ ] Feasibility verified: ✅ — all files confirmed to exist
 - [ ] Safety documented: ✅ — no destructive operations
 - [ ] Rollback plan exists: ✅ — `git checkout` revert
-- [ ] All 12 spec SCs represented in exit criteria: ✅
-- [ ] Evidence types match spec: ✅ — structural + behavioral per spec
+- [ ] All 8 spec SCs represented in exit criteria: ✅
+- [ ] Evidence types match spec: ✅ — 7 structural + 1 behavioral per spec
+- [ ] writing-plans-creation has NO TDT (task card): ✅
+- [ ] clean-room documented as internal/referenced, not TDT entry: ✅
+- [ ] retroactive is 4th TDT entry: ✅

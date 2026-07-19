@@ -59,7 +59,7 @@ The contract path error stems from copying the `spec-creation` pattern where con
 ## Constraints and Scope
 
 **In Scope:**
-- `writing-plans/SKILL.md` — TDT (3 entries), Pipeline section, Invocation (3 entries)
+- `writing-plans/SKILL.md` — TDT (4 entries), Pipeline section (4 workflows), Invocation (4 entries)
 - `writing-plans-creation/SKILL.md` — Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section, keep plain task list
 - `writing-plans-creation/tasks/create.md` — Contract path fixes, #1962 integration
 - `writing-plans-creation/tasks/update.md` — Contract path fixes
@@ -103,7 +103,7 @@ The contract path error stems from copying the `spec-creation` pattern where con
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
 | SC-1 | `writing-plans` TDT has exactly 4 user-facing workflow entries (`create`, `update`, `retroactive`, `holistic-self-check`) | structural | `read` SKILL.md → count TDT rows = 4 | Replace TDT with 4 entries | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G1 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
-| SC-2 | `writing-plans` Pipeline section documents 3 workflows with step-level dispatch | structural | `read` SKILL.md → find Pipeline section with 3 workflows | Add Pipeline section | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G2 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
+| SC-2 | `writing-plans` Pipeline section documents 4 workflows (`create`, `update`, `retroactive`, `holistic-self-check`) with step-level dispatch classification | structural | `read` SKILL.md → find Pipeline section with 4 workflows | Add Pipeline section | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G2 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-3 | `writing-plans-creation` is a task card (not a skill card) — no YAML frontmatter, no "Skill:" header, no TDT, no Invocation | structural | `read` SKILL.md → no YAML frontmatter, no "Skill:" header | Convert SKILL.md to plain task card | spec-creation | `.opencode/skills/writing-plans-creation/SKILL.md` | G3 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-4 | All contract paths in `create.md`, `update.md`, `retroactive.md` resolve | structural | `bash` check each path exists | Fix paths to writing-plans-creation/contracts/ | spec-creation | `.opencode/skills/writing-plans-creation/tasks/*.md` | G4 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-5 | `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates | behavioral | `opencode run` → verify skill dispatch in stderr | Add plan-creation-pipeline step to create workflow | spec-creation | `.opencode/skills/writing-plans-creation/tasks/create.md` | G5, #1962 | single-task | pre-approval-gate | sub-agent | writing-plans | spec-creation | N/A | Phase 1 |
@@ -239,7 +239,7 @@ Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion
 | DEC-ID | Decision | Rationale | Requirement Key | Affected SCs |
 |--------|----------|-----------|-----------------|--------------|
 | DEC-1 | Fix contract paths in create.md (not symlink) | Explicit paths required; symlinks non-portable | MUST | SC-4 |
-| DEC-2 | writing-plans TDT has only 3 workflow entries | Dispatcher pattern: parent routes user triggers | MUST | SC-1 |
+| DEC-2 | writing-plans TDT has exactly 4 workflow entries (`create`, `update`, `retroactive`, `holistic-self-check`) | Dispatcher pattern: parent routes user triggers; retroactive added as 4th workflow per spec review | MUST | SC-1 |
 | DEC-3 | writing-plans-creation has NO TDT | Task container pattern: parent reads Pipeline | MUST | SC-3 |
 | DEC-4 | Pipeline section documents dispatch classification | Orchestrator needs inline/sub-agent/clean-room per step | MUST | SC-2 |
 
