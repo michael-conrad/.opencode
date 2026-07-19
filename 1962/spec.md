@@ -25,6 +25,7 @@ The `writing-plans` skill and its sub-skill `writing-plans-creation` have multip
 5. **`retroactive.md` not directly dispatchable** — Has its own pipeline but no TDT entry
 6. **`clean-room.md` only reachable via audit skill** — No direct dispatch path
 7. **Missing canonical dispatch strings** — `writing-plans` Invocation section lacks step-level dispatch strings per DISPATCH_GATE protocol
+8. **`writing-plans-creation` description implies direct dispatchability** — The SKILL.md description says "Load via skill() when creating an implementation plan..." but it is a task container, not a dispatchable skill. Task containers should describe what they CONTAIN, not how to invoke them.
 
 Additionally, issue #1962 requires `create` to dispatch through `plan-creation-pipeline` with Z3 gates instead of bare inspection — this fix must be incorporated.
 
@@ -40,9 +41,9 @@ The contract path error stems from copying the `spec-creation` pattern where con
 
 ## Goals
 
-- [ ] G1: `writing-plans` TDT has ONLY 3 user-facing workflow entries (`create`, `update`, `holistic-self-check`)
+- [ ] G1: `writing-plans` TDT has exactly 4 user-facing workflow entries (`create`, `update`, `retroactive`, `holistic-self-check`)
 - [ ] G2: `writing-plans` Pipeline section documents all workflows with step-level dispatch classification
-- [ ] G3: `writing-plans-creation` has NO TDT (pure task container like `spec-creation-decomposition`)
+- [ ] G3: `writing-plans-creation` is a task card (not a skill card) — no YAML frontmatter, no "Skill:" header, no TDT, no Invocation. Plain markdown file listing tasks.
 - [ ] G4: All contract paths in `create.md`, `update.md`, `retroactive.md` resolve to existing files
 - [ ] G5: `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates (per #1962)
 - [ ] G6: `pre-plan-readiness` has `solve` readiness gate (per #1962)
@@ -59,7 +60,7 @@ The contract path error stems from copying the `spec-creation` pattern where con
 
 **In Scope:**
 - `writing-plans/SKILL.md` — TDT (3 entries), Pipeline section, Invocation (3 entries)
-- `writing-plans-creation/SKILL.md` — Remove TDT and Invocation, keep Tasks list only
+- `writing-plans-creation/SKILL.md` — Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section, keep plain task list
 - `writing-plans-creation/tasks/create.md` — Contract path fixes, #1962 integration
 - `writing-plans-creation/tasks/update.md` — Contract path fixes
 - `writing-plans-creation/tasks/retroactive.md` — Contract path fixes
@@ -68,6 +69,7 @@ The contract path error stems from copying the `spec-creation` pattern where con
 **Out of Scope:**
 - Other writing-plans-creation task files (no code changes needed)
 - writing-plans-holistic skill (already correct)
+- spec-creation-decomposition/SKILL.md (separate issue — same defect, different skill)
 - Implementation-pipeline skill (reference pattern only)
 
 ## Safety Considerations
@@ -100,9 +102,9 @@ The contract path error stems from copying the `spec-creation` pattern where con
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|---------------|---------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
-| SC-1 | `writing-plans` TDT has exactly 3 user-facing workflow entries | structural | `read` SKILL.md → count TDT rows = 3 | Replace TDT with 3 entries | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G1 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
+| SC-1 | `writing-plans` TDT has exactly 4 user-facing workflow entries (`create`, `update`, `retroactive`, `holistic-self-check`) | structural | `read` SKILL.md → count TDT rows = 4 | Replace TDT with 4 entries | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G1 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-2 | `writing-plans` Pipeline section documents 3 workflows with step-level dispatch | structural | `read` SKILL.md → find Pipeline section with 3 workflows | Add Pipeline section | spec-creation | `.opencode/skills/writing-plans/SKILL.md` | G2 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
-| SC-3 | `writing-plans-creation` has NO TDT, no Invocation | structural | `read` SKILL.md → TDT section absent | Remove TDT and Invocation | spec-creation | `.opencode/skills/writing-plans-creation/SKILL.md` | G3 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
+| SC-3 | `writing-plans-creation` is a task card (not a skill card) — no YAML frontmatter, no "Skill:" header, no TDT, no Invocation | structural | `read` SKILL.md → no YAML frontmatter, no "Skill:" header | Convert SKILL.md to plain task card | spec-creation | `.opencode/skills/writing-plans-creation/SKILL.md` | G3 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-4 | All contract paths in `create.md`, `update.md`, `retroactive.md` resolve | structural | `bash` check each path exists | Fix paths to writing-plans-creation/contracts/ | spec-creation | `.opencode/skills/writing-plans-creation/tasks/*.md` | G4 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-5 | `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates | behavioral | `opencode run` → verify skill dispatch in stderr | Add plan-creation-pipeline step to create workflow | spec-creation | `.opencode/skills/writing-plans-creation/tasks/create.md` | G5, #1962 | single-task | pre-approval-gate | sub-agent | writing-plans | spec-creation | N/A | Phase 1 |
 | SC-6 | `pre-plan-readiness` has `solve` readiness gate | structural | `read` pre-plan-readiness.md → find solve check | Add solve check step | spec-creation | `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | G6, #1962 | single-task | pre-approval-gate | inline | writing-plans | spec-creation | N/A | Phase 1 |
@@ -111,7 +113,7 @@ The contract path error stems from copying the `spec-creation` pattern where con
 
 ## Pipeline / Workflows
 
-Per `spec-creation` pattern, the `writing-plans` skill defines THREE user-facing workflows in its Pipeline section. The TDT has exactly 3 entries. Pipeline steps are documented for the orchestrator — they are NOT TDT entries.
+Per `spec-creation` pattern, the `writing-plans` skill defines FOUR user-facing workflows in its Pipeline section. The TDT has exactly 4 entries. Pipeline steps are documented for the orchestrator — they are NOT TDT entries.
 
 ### Workflow 1: `create` — Full Plan Creation Pipeline (22 steps)
 
@@ -158,7 +160,36 @@ Per `spec-creation` pattern, the `writing-plans` skill defines THREE user-facing
 10. [inline]  solve check                                 # verify completion contract
 ```
 
-### Workflow 3: `holistic-self-check` — Plan Quality Verification (1 step)
+### Workflow 3: `retroactive` — Retroactive Plan Creation (20 steps)
+
+Same pipeline as `create` but without artifact-validation (spec already exists) and without plan-creation-pipeline (no Z3 phase solvability for existing specs). Research step loads existing spec body as evidence source.
+
+```
+ 1. [inline]  local-issues sync
+ 2. [sub-task] verify-spec-exists                        # check spec file exists
+ 3. [sub-task] research                                   # load existing spec body (research.md)
+ 4. [inline]  solve check                                 # verify research output contract
+ 5. [sub-task] readiness                                  # pipeline-readiness gate (readiness.md)
+ 6. [inline]  solve check                                 # verify readiness output contract
+ 7. [sub-task] structure                                  # define phase structure (structure.md)
+ 8. [inline]  solve check                                 # verify structure output contract
+ 9. [sub-task] solve                                      # Z3 constraint solving (solve.md)
+10. [inline]  solve check                                 # verify solve output contract
+11. [sub-task] write                                      # write plan files (write.md)
+12. [inline]  solve check                                 # verify write output contract
+13. [sub-task] revisit                                    # resolve unverified claims (revisit.md)
+14. [inline]  solve check                                 # verify revisit output contract
+15. [sub-task] validate                                   # validate plan (validate.md)
+16. [inline]  solve check                                 # verify validate output contract
+17. [sub-task] audit-fidelity                             # fidelity audit (audit skill)
+18. [inline]  solve check                                 # verify audit-fidelity output contract
+19. [sub-task] audit-concern                              # concern audit (audit skill)
+20. [inline]  solve check                                 # verify audit-concern output contract
+21. [sub-task] completion                                 # lifecycle event (completion.md)
+22. [inline]  solve check                                 # verify completion output contract
+```
+
+### Workflow 4: `holistic-self-check` — Plan Quality Verification (1 step)
 
 ```
  1. [sub-task] holistic-self-check                       # 11-dimension evaluation (writing-plans-holistic)
@@ -172,8 +203,8 @@ Every sub-task step follows the frugal contract pattern. The orchestrator passes
 ## Implementation Approach
 
 **Phase 1 (single spec, single plan):**
-1. Update `writing-plans/SKILL.md` — TDT with 3 entries, Pipeline section with 3 workflows, Invocation with 3 canonical strings
-2. Update `writing-plans-creation/SKILL.md` — Remove TDT and Invocation, keep Tasks list
+1. Update `writing-plans/SKILL.md` — TDT with 4 entries (`create`, `update`, `retroactive`, `holistic-self-check`), Pipeline section with 4 workflows, Invocation with 4 canonical strings. Document `clean-room` as internal/referenced task (not a TDT entry).
+2. Update `writing-plans-creation/SKILL.md` — Convert from skill card to task card: remove YAML frontmatter, remove "Skill:" header, remove Contracts section, keep plain task list
 3. Update `writing-plans-creation/tasks/create.md` — Fix 11 contract paths, add plan-creation-pipeline dispatch step, update chain refs
 4. Update `writing-plans-creation/tasks/update.md` — Fix contract paths
 5. Update `writing-plans-creation/tasks/retroactive.md` — Fix contract paths

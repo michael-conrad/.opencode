@@ -1,0 +1,95 @@
+# Plan: writing-plans workflow defects fix
+
+**Issue:** #1962
+**Spec:** `.opencode/.issues/1962/spec.md`
+**Status:** DRAFT
+**Created:** 2026-07-19
+
+## Goal
+
+Fix structural defects in `writing-plans` and `writing-plans-creation` skills: correct TDT entries, contract paths, dispatch routing, and add Z3 gates per #1962.
+
+## Architecture
+
+Single-phase plan. All changes are structural/config modifications to skill metadata files and task files. No pipeline logic changes. The plan follows the dispatcher pattern established by `spec-creation`/`spec-creation-decomposition`.
+
+## Files
+
+| File | Change | SC |
+|------|--------|----|
+| `.opencode/skills/writing-plans/SKILL.md` | TDT → 4 entries, add Pipeline section (4 workflows), fix Invocation, document clean-room as internal | SC-1, SC-2, SC-7, SC-8 |
+| `.opencode/skills/writing-plans-creation/SKILL.md` | Convert to task card: remove YAML frontmatter, "Skill:" header, Contracts section | SC-3 |
+| `.opencode/skills/writing-plans-creation/tasks/create.md` | Fix 11 contract paths, add plan-creation-pipeline step | SC-4, SC-5 |
+| `.opencode/skills/writing-plans-creation/tasks/update.md` | Fix contract paths | SC-4 |
+| `.opencode/skills/writing-plans-creation/tasks/retroactive.md` | Fix contract paths | SC-4 |
+| `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | Add solve readiness gate | SC-6 |
+
+## Phase Table
+
+| Phase | Description | Steps | SCs |
+|-------|-------------|-------|-----|
+| 1 | Fix skill metadata and task files | 1-8 | SC-1 through SC-8 |
+
+## Exit Criteria
+
+| SC ID | Criterion | Evidence Type | Verification |
+|-------|-----------|---------------|-------------|
+| SC-1 | `writing-plans` TDT has exactly 3 user-facing workflow entries | structural | `read` SKILL.md → count TDT rows = 3 |
+| SC-2 | `writing-plans` Pipeline section documents 3 workflows with step-level dispatch | structural | `read` SKILL.md → find Pipeline section with 3 workflows |
+| SC-3 | `writing-plans-creation` has NO TDT, no Invocation | structural | `read` SKILL.md → TDT section absent |
+| SC-4 | All contract paths in `create.md`, `update.md`, `retroactive.md` resolve | structural | `bash` check each path exists |
+| SC-5 | `create` workflow dispatches to `plan-creation-pipeline` with Z3 gates | behavioral | `opencode run` → verify skill dispatch in stderr |
+| SC-6 | `pre-plan-readiness` has `solve` readiness gate | structural | `read` pre-plan-readiness.md → find solve check |
+| SC-7 | All canonical dispatch strings follow DISPATCH_GATE format | structural | `read` Invocation sections → verify format |
+| SC-8 | No orphaned tasks in `writing-plans-creation/tasks/` | structural | `ls tasks/` vs Pipeline task refs → diff empty |
+
+## Safety/Rollback
+
+**Phase 1 — Safety/Rollback:**
+- Destructive operations: None — only file edits to skill metadata and task files
+- Rollback plan: `git checkout -- .opencode/skills/writing-plans*/` to revert all changes
+- Data loss risk: None
+
+## Feasibility Verification
+
+| Step | Reference | Verified? | Evidence |
+|------|-----------|-----------|----------|
+| 1 | `.opencode/skills/writing-plans/SKILL.md` | ✅ | `ls` confirmed |
+| 2 | `.opencode/skills/writing-plans-creation/SKILL.md` | ✅ | `ls` confirmed |
+| 3 | `.opencode/skills/writing-plans-creation/tasks/create.md` | ✅ | `ls` confirmed |
+| 4 | `.opencode/skills/writing-plans-creation/tasks/update.md` | ✅ | `ls` confirmed |
+| 5 | `.opencode/skills/writing-plans-creation/tasks/retroactive.md` | ✅ | `ls` confirmed |
+| 6 | `.opencode/skills/writing-plans-creation/tasks/pre-plan-readiness.md` | ✅ | `ls` confirmed |
+| 7 | `.opencode/skills/writing-plans-creation/contracts/` | ✅ | `ls` confirmed |
+
+## Evidence/Provenance
+
+| Claim | Evidence Source | Verified? |
+|-------|----------------|----------|
+| `writing-plans-creation` has 16 task files, 0 TDT entries | `ls tasks/` + `read(SKILL.md)` | ✅ |
+| Contract files at `writing-plans-creation/contracts/` | `ls contracts/` | ✅ |
+| `create.md` references `writing-plans/contracts/` (11 matches) | `grep "writing-plans/contracts" create.md` | ✅ |
+| `spec-creation` parent routes to sub-skills with 3 TDT entries | `read(SKILL.md)` | ✅ |
+| `spec-creation-decomposition` has no TDT | `read(SKILL.md)` | ✅ |
+
+## SC-to-Step Traceability
+
+| SC ID | Criterion | Phase | Step(s) |
+|-------|-----------|-------|---------|
+| SC-1 | TDT has exactly 4 entries | 1 | 1 |
+| SC-2 | Pipeline section with 3 workflows | 1 | 1 |
+| SC-3 | writing-plans-creation has no TDT | 1 | 2 |
+| SC-4 | Contract paths resolve | 1 | 3, 4, 5 |
+| SC-5 | plan-creation-pipeline dispatch | 1 | 3 |
+| SC-6 | pre-plan-readiness solve gate | 1 | 6 |
+| SC-7 | Canonical dispatch strings | 1 | 1, 2 |
+| SC-8 | No orphaned tasks | 1 | 7 |
+
+## Self-Review Evidence
+
+- [ ] Plan goal matches spec goal: ✅ — both target writing-plans workflow defects
+- [ ] All SCs traced to steps: ✅ — 8 SCs, 8 step groups
+- [ ] No scope creep: ✅ — only files in scope per spec
+- [ ] Feasibility verified: ✅ — all files confirmed to exist
+- [ ] Safety documented: ✅ — no destructive operations
+- [ ] Rollback plan exists: ✅ — `git checkout` revert
