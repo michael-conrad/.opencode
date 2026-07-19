@@ -219,7 +219,7 @@ Each item is tagged with dispatch scope and chain dependency.
 - [ ] 20. (**inline**) Z3 check — `solve check` verify audit-concern output has PASS AND `all_criteria_pass == true` per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:audit-concern`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
   - Chain: `step_19`
 
-- [ ] 21. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")`
+- [ ] 21. (**orchestrator**) Completion — orchestrator dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_20`
   - Expected: lifecycle event in completion output
 
