@@ -76,17 +76,7 @@
 
 - [ ] 19. **VbC — Phase 1 (**clean-room**).** `task(..., prompt: "Verify all Phase 1 SCs pass. SCs: SC-1 (3 dispatch entries), SC-3 (pipeline section exists), SC-7 (no contracts/ paths), SC-8 (read/write specified), SC-9 (contract format specified), SC-10 (pipeline starts/ends with sync). Issue 1993.")`
 
-- [ ] 20. **Audit — Phase 1 (**inline**).** `skill({name: "audit"})` then `task(..., prompt: "execute spec-audit task from audit for issue 1993")`
-
-- [ ] 21. **Cross-validate — Phase 1 (**inline**).** Verify audit PASS, no regressions.
-
-- [ ] 22. **Regression check — Phase 1 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
-
-- [ ] 23. **Finishing checklist — Phase 1 (**inline**).** `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
-
-- [ ] 24. **Review-prep — Phase 1 (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`
-
-- [ ] 25. **Cleanup — Phase 1 (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`
+- [ ] 20. **Regression check — Phase 1 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
 
 ---
 
@@ -237,17 +227,7 @@
 
 - [ ] 96. **VbC — Phase 2 (**clean-room**).** `task(..., prompt: "Verify all Phase 2 SCs pass. SCs: SC-2 (no task() calls), SC-4 (no orchestrator instructions), SC-11 (no remote issue creation), SC-12 (create-remote-stub exists), SC-13 (pre-spec-inspection exists), SC-14 (revise-remote-body exists), SC-15 (no task/skill calls), SC-16 (no tmp paths), SC-17 (result contract), SC-18 (read-from-disk), SC-19 (sequential steps), SC-20 (local reads), SC-21 (no pre-PR gate). Issue 1993.")`
 
-- [ ] 97. **Audit — Phase 2 (**inline**).** `skill({name: "audit"})` then `task(..., prompt: "execute spec-audit task from audit for issue 1993")`
-
-- [ ] 98. **Cross-validate — Phase 2 (**inline**).** Verify audit PASS, no regressions.
-
-- [ ] 99. **Regression check — Phase 2 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
-
-- [ ] 100. **Finishing checklist — Phase 2 (**inline**).** `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
-
-- [ ] 101. **Review-prep — Phase 2 (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`
-
-- [ ] 102. **Cleanup — Phase 2 (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`
+- [ ] 97. **Regression check — Phase 2 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
 
 ---
 
@@ -278,17 +258,84 @@
 
 - [ ] 113. **VbC — Phase 3 (**clean-room**).** `task(..., prompt: "Verify all Phase 3 SCs pass. SCs: SC-5 (critical violation entry exists), SC-6 (13 clean task cards unmodified). Issue 1993.")`
 
-- [ ] 114. **Audit — Phase 3 (**inline**).** `skill({name: "audit"})` then `task(..., prompt: "execute spec-audit task from audit for issue 1993")`
+- [ ] 114. **Regression check — Phase 3 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
 
-- [ ] 115. **Cross-validate — Phase 3 (**inline**).** Verify audit PASS, no regressions.
+---
 
-- [ ] 116. **Regression check — Phase 3 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
+## Phase 4 — Fix file references to `Load [Text](path)` pattern
 
-- [ ] 117. **Finishing checklist — Phase 3 (**inline**).** `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
+**Concern:** All 48 defective file references across 18 spec-creation files must use the `Load [Text](path)` pattern per AGENTS.md Load-Link Cross-Reference Rule.
+**SCs:** SC-22, SC-23, SC-24, SC-25
 
-- [ ] 118. **Review-prep — Phase 3 (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`
+- [ ] 115. **Coherence gate — Phase 4 (**inline**).** Verify plan items match spec SCs for Phase 4. If any SC is not covered, HALT.
 
-- [ ] 119. **Cleanup — Phase 3 (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`
+- [ ] 116. **Pre-red-baseline — Phase 4 (**inline**).** `git stash` to capture clean state. Run existing tests to confirm baseline PASS.
+
+- [ ] 117. **RED: Fix file references in SKILL.md (**sub-agent**).** `task(..., prompt: "Write a behavioral test for SC-23: verify SKILL.md has no bare path or backtick ref file references outside code fences. The test must fail because 5 bare path references exist. Target file: .opencode/skills/spec-creation/SKILL.md")` **→ SC-23**
+
+- [ ] 118. **GREEN: Fix file references in SKILL.md (**sub-agent**).** `task(..., prompt: "Edit .opencode/skills/spec-creation/SKILL.md. Convert all bare path references to Load [Text](path) pattern. Specifically: convert 'spec-creation-requirements', 'spec-creation-decomposition', 'spec-creation-validation', 'spec-creation-change-control', 'spec-creation-operating-protocol' in the Cross-References section to Load [Text](path). Convert 'brainstorming', 'writing-plans', 'audit', 'approval-gate' to Load [Text](path). SC-23")` **→ SC-23**
+
+- [ ] 119. **GREEN doublecheck: Fix file references in SKILL.md (**inline**).** `grep -E '(skills/|guidelines/|\.md|\.yaml)' .opencode/skills/spec-creation/SKILL.md | grep -v 'Load \[' | grep -v '```'` — should be 0 matches.
+
+- [ ] 120. **Checkpoint commit: Fix file references in SKILL.md (**inline**).** `git commit -m "1993: convert file references to Load [Text](path) in SKILL.md"`
+
+- [ ] 121. **RED: Fix file references in create.md (**sub-agent**).** `task(..., prompt: "Write a behavioral test for SC-22: verify create.md has no bare path or see ref file references. The test must fail because 6 bare path/see ref references exist. Target file: .opencode/skills/spec-creation-validation/tasks/create.md")` **→ SC-22**
+
+- [ ] 122. **GREEN: Fix file references in create.md (**sub-agent**).** `task(..., prompt: "Edit .opencode/skills/spec-creation-validation/tasks/create.md. Convert all bare path and see ref references to Load [Text](path) pattern. Specifically: line 3 'see cross-reference table in that file' -> Load [Text](reference/holistic-dimensions.yaml). Line 312 'implementation-pipeline/tasks/pre-flight-handoff.md' -> Load [Text](implementation-pipeline/tasks/pre-flight-handoff.md). Line 567 '140-planning-spec-creation.md' -> Load [Text](guidelines/140-planning-spec-creation.md). Line 631 '.issues/AGENTS.md' -> Load [Text](.issues/AGENTS.md). Line 661 '.opencode/tools/local-issues sync' -> Load [Text](.opencode/tools/local-issues). SC-22")` **→ SC-22**
+
+- [ ] 123. **GREEN doublecheck: Fix file references in create.md (**inline**).** `grep -E '(skills/|guidelines/|\.md|\.yaml)' .opencode/skills/spec-creation-validation/tasks/create.md | grep -v 'Load \[' | grep -v '```'` — should be 0 matches.
+
+- [ ] 124. **Checkpoint commit: Fix file references in create.md (**inline**).** `git commit -m "1993: convert file references to Load [Text](path) in create.md"`
+
+- [ ] 125. **RED: Fix file references in completion.md (**sub-agent**).** `task(..., prompt: "Write a behavioral test for SC-24: verify completion.md has no bare path or see ref references. The test must fail because 5 references exist. Target file: .opencode/skills/spec-creation-validation/tasks/completion.md")` **→ SC-24**
+
+- [ ] 126. **GREEN: Fix file references in completion.md (**sub-agent**).** `task(..., prompt: "Edit .opencode/skills/spec-creation-validation/tasks/completion.md. Convert all bare path and see ref references to Load [Text](path). Specifically: line 3 'see cross-reference table in that file' -> Load [Text](reference/holistic-dimensions.yaml). Line 14 '.opencode/reference/holistic-dimensions.yaml' -> Load [Text](reference/holistic-dimensions.yaml). SC-24")` **→ SC-24**
+
+- [ ] 127. **GREEN doublecheck: Fix file references in completion.md (**inline**).** `grep -E '(skills/|guidelines/|\.md|\.yaml)' .opencode/skills/spec-creation-validation/tasks/completion.md | grep -v 'Load \[' | grep -v '```'` — should be 0 matches.
+
+- [ ] 128. **Checkpoint commit: Fix file references in completion.md (**inline**).** `git commit -m "1993: convert file references to Load [Text](path) in completion.md"`
+
+- [ ] 129. **RED: Fix file references in change-control.md (**sub-agent**).** `task(..., prompt: "Write a behavioral test for SC-25: verify change-control.md has no bare path references. The test must fail because 4 references exist. Target file: .opencode/skills/spec-creation-change-control/tasks/change-control.md")` **→ SC-25**
+
+- [ ] 130. **GREEN: Fix file references in change-control.md (**sub-agent**).** `task(..., prompt: "Edit .opencode/skills/spec-creation-change-control/tasks/change-control.md. Convert all bare path references to Load [Text](path). SC-25")` **→ SC-25**
+
+- [ ] 131. **GREEN doublecheck: Fix file references in change-control.md (**inline**).** `grep -E '(skills/|guidelines/|\.md|\.yaml)' .opencode/skills/spec-creation-change-control/tasks/change-control.md | grep -v 'Load \[' | grep -v '```'` — should be 0 matches.
+
+- [ ] 132. **Checkpoint commit: Fix file references in change-control.md (**inline**).** `git commit -m "1993: convert file references to Load [Text](path) in change-control.md"`
+
+- [ ] 133. **RED: Fix file references in analytical-artifacts.md (**sub-agent**).** `task(..., prompt: "Write a behavioral test for SC-22: verify analytical-artifacts.md has no bare path references. The test must fail because 5 references exist. Target file: .opencode/skills/spec-creation-decomposition/tasks/analytical-artifacts.md")` **→ SC-22**
+
+- [ ] 134. **GREEN: Fix file references in analytical-artifacts.md (**sub-agent**).** `task(..., prompt: "Edit .opencode/skills/spec-creation-decomposition/tasks/analytical-artifacts.md. Convert all bare path references to Load [Text](path). SC-22")` **→ SC-22**
+
+- [ ] 135. **GREEN doublecheck: Fix file references in analytical-artifacts.md (**inline**).** `grep -E '(skills/|guidelines/|\.md|\.yaml)' .opencode/skills/spec-creation-decomposition/tasks/analytical-artifacts.md | grep -v 'Load \[' | grep -v '```'` — should be 0 matches.
+
+- [ ] 136. **Checkpoint commit: Fix file references in analytical-artifacts.md (**inline**).** `git commit -m "1993: convert file references to Load [Text](path) in analytical-artifacts.md"`
+
+- [ ] 137. **RED: Fix file references in remaining 13 task cards (**sub-agent**).** `task(..., prompt: "Write a behavioral test for SC-22: verify all 13 remaining spec-creation task cards have no bare path references. The test must fail because 28 references exist across 13 files. Search path: .opencode/skills/spec-creation-*/tasks/")` **→ SC-22**
+
+- [ ] 138. **GREEN: Fix file references in remaining 13 task cards (**sub-agent**).** `task(..., prompt: "Edit all 13 remaining spec-creation task cards to convert bare path references to Load [Text](path) pattern. Files: requirements.md, decompose.md, blast-radius.md, code-path-analysis.md, concern-analysis.md, cross-cutting.md, state-analysis.md, testability-assessment.md, interface-compatibility.md, holistic-self-check.md, pipeline-readiness-gate.md, risk.md, traceability.md. Each file's Context Required section (preceded by/feeds into) and comment blocks are the primary targets. SC-22")` **→ SC-22**
+
+- [ ] 139. **GREEN doublecheck: Fix file references in remaining 13 task cards (**inline**).** `grep -rnE '(skills/|guidelines/|\.md|\.yaml)' .opencode/skills/spec-creation-*/tasks/ --include='*.md' | grep -v 'Load \[' | grep -v '```'` — should be 0 matches.
+
+- [ ] 140. **Checkpoint commit: Fix file references in remaining 13 task cards (**inline**).** `git commit -m "1993: convert file references to Load [Text](path) in remaining 13 task cards"`
+
+- [ ] 141. **VbC — Phase 4 (**clean-room**).** `task(..., prompt: "Verify all Phase 4 SCs pass. SCs: SC-22 (no bare path references in any spec-creation file), SC-23 (SKILL.md clean), SC-24 (completion.md clean), SC-25 (change-control.md clean). Issue 1993.")`
+
+- [ ] 142. **Regression check — Phase 4 (**inline**).** `git stash pop`, re-run tests, confirm no breakage.
+
+---
+
+## Final Gates (once, after all 4 phases)
+
+- [ ] 115. **Spec audit — full (**inline**).** `skill({name: "audit"})` then dispatch DiMo chain: `task(..., prompt: "execute spec-audit investigator from audit. Read audit/tasks/spec-audit-investigator.md first")` → `task(..., prompt: "execute spec-audit validator from audit. Read audit/tasks/spec-audit-validator.md first")` → `task(..., prompt: "execute spec-audit evaluator from audit. Read audit/tasks/spec-audit-evaluator.md first")`
+
+- [ ] 116. **Cross-validate (**inline**).** Verify audit PASS, no regressions.
+
+- [ ] 117. **Finishing checklist (**inline**).** `skill({name: "finishing-a-development-branch"})` then `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
+
+- [ ] 118. **Review-prep (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute review-prep task from git-workflow")`
+
+- [ ] 119. **Cleanup (**inline**).** `skill({name: "git-workflow"})` then `task(..., prompt: "execute cleanup task from git-workflow")`
 
 ---
 
