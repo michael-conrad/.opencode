@@ -28,6 +28,7 @@ Collect raw evidence about how faithfully the plan implements the spec. Reads th
 - Plan files exist in `spec_local_dir/` — either `plan.md` + `plan-*.md` phase files, or plan embedded in spec body
 - `github.owner`, `github.repo` available
 - Write access to `{project_root}/tmp/{issue-N}/artifacts/`
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

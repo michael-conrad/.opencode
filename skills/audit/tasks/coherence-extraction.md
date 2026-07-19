@@ -23,6 +23,7 @@ The orchestrator dispatches the 4 roles sequentially:
 - Baseline not yet generated OR refresh requested
 - `github.owner`, `github.repo` available
 - Write access to `{project_root}/tmp/{issue-N}/artifacts/`
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

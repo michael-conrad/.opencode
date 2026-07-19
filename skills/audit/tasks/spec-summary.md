@@ -27,6 +27,7 @@ The orchestrator dispatches the 4 roles sequentially:
 - PR number provided
 - Spec issue number provided (linked from PR)
 - `github.owner`, `github.repo` available
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

@@ -43,6 +43,7 @@ Validator role for the drift-detection DiMo chain. Reads `evidence.yaml` produce
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for reasoning artifacts)
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

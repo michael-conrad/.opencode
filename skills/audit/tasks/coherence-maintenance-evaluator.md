@@ -39,6 +39,7 @@ Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (
 - `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` (produced by upstream reasoning role)
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (readable directory containing upstream artifacts)
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

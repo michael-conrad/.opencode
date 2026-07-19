@@ -40,6 +40,7 @@ Investigator role for the spec-audit DiMo chain. Reads the spec file(s) from `sp
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for evidence artifacts)
 - Optional: `failure_description` from prior implementation attempt
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

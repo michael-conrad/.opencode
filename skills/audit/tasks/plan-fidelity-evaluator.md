@@ -39,6 +39,7 @@ Evaluate plan fidelity against spec using evidence collected and validated by up
 - `spec_local_dir` is present and non-empty — contains at minimum `spec.md`
 - Plan files exist in `spec_local_dir/` — either `plan.md` + `plan-*.md` phase files, or plan embedded in spec body
 - Write access to `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/`
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -360,8 +361,7 @@ remediation_required: true | false
 - `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
 - `tasks/plan-fidelity-validator.md` — upstream reasoning role role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
-- `tasks/resolve-models.md` — Arbiter role (consumes this task's `verdict.yaml`)
-- `audit/SKILL.md` — DiMo chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
+- `tasks/cross-validate.md` — Arbiter role (consumes this task's `verdict.yaml`)
 - `writing-plans` skill — clean-room plan generation
 - Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md) (PF-STRUCTURAL-FAIL uplift), Load [critical-rules-034](guidelines/000-critical-rules.md) (inline work prohibition)
 - Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — dispatch routing table (PF-SEQUENCE-MATCHES source)

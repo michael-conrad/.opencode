@@ -38,6 +38,7 @@ Validate evidence collected by the Investigator for plan-fidelity audit. Reads `
 - `spec_local_dir` is present and non-empty — contains at minimum `spec.md`
 - Plan files exist in `spec_local_dir/` — either `plan.md` + `plan-*.md` phase files, or plan embedded in spec body
 - Write access to `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/`
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

@@ -109,6 +109,22 @@ No task dispatches to a single monolithic task file. The orchestrator dispatches
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
 
+## Explicit Dispatch Protocol
+
+The following protocol governs how the orchestrator dispatches audit tasks. Violations produce contaminated audit results that must be discarded.
+
+### Orchestrator MUST NOT dispatch SKILL.md content to a sub-agent
+
+The SKILL.md file contains orchestrator-level routing metadata (Trigger Dispatch Table, Invocation section, DISPATCH_GATE protocol). Dispatching this content to a sub-agent is a category error — sub-agents cannot call `task()`, cannot follow Trigger Dispatch Tables, and cannot satisfy Orchestrator Entry Criteria. The orchestrator loads SKILL.md via `skill()`, reads routing metadata in its own context, and dispatches task cards (not the skill card) to sub-agents.
+
+### Orchestrator MUST dispatch each role as separate `task()` calls
+
+The DiMo chain has four distinct roles: Investigator, Validator, Evaluator, Arbiter. Each role MUST be dispatched as a separate `task(subagent_type="general")` call. The orchestrator MUST NOT combine roles into a single task() call, and MUST NOT dispatch a single monolithic task file that attempts to perform all four roles. Each role receives only the artifacts produced by the previous role — no orchestrator preload, no cached context.
+
+### Orchestrator MUST NOT preload execution context into task() prompts
+
+When dispatching a role via `task()`, the orchestrator MUST NOT include file paths, step sequences, expected outcomes, or orchestrator reasoning in the prompt. The canonical dispatch string from the Invocation section is the only content the prompt should contain. Preloaded context produces PRELOADED_CONTEXT_REJECTED from the sub-agent.
+
 ## DiMo Role Chain Dispatch
 
 Each audit task follows a sequential role chain dispatched via `task(subagent_type="general")`. The orchestrator dispatches roles in order, passing artifact paths between them:

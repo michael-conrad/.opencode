@@ -33,6 +33,7 @@ Validate every evidence item in the Investigator's `evidence.yaml` against live 
 - `spec_local_dir` present and non-empty
 - `github.owner`, `github.repo` available
 - Write access to `{project_root}/tmp/{issue-N}/artifacts/`
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 

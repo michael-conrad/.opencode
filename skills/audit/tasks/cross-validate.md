@@ -8,9 +8,9 @@
 
 ## Purpose
 
-Sole Arbiter (Arbiter) role. Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. This file is the exclusive owner of the Arbiter role — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
+Sole Arbiter (Arbiter) role. Reads `verdict.yaml` from ALL 9 audit chains (spec-audit, plan-fidelity, verification-audit, concern-separation, coherence-maintenance, guideline-audit, drift-detection, test-quality-audit, content-audit) and produces the final `judgment.yaml`. This file is the exclusive owner of the Arbiter role — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
 
-> **DiMo Role: Sole Arbiter (Arbiter).** This task — and only this task — produces the final judgment by cross-referencing all upstream artifacts. Reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`. No other file in the audit skill or any other skill performs this function.
+> **DiMo Role: Sole Arbiter (Arbiter).** This task — and only this task — produces the final judgment by cross-referencing all 9 chain verdicts. Reads all chain `verdict.yaml` files, writes `judgment.yaml`. No other file in the audit skill or any other skill performs this function.
 >
 > You are the sole Arbiter (Arbiter). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
 > 
@@ -32,13 +32,25 @@ Sole Arbiter (Arbiter) role. Reads all upstream artifacts (`evidence.yaml`, `rea
 
 - `spec_local_dir`: Local directory containing Markdown spec files
 - `artifact_evidence_dir`: Path to directory containing upstream YAML verdict artifacts on disk
+- `verdict.yaml` from ALL 9 audit chains MUST be present in `artifact_evidence_dir`:
+  - `spec-audit/verdict.yaml`
+  - `plan-fidelity/verdict.yaml`
+  - `verification-audit/verdict.yaml`
+  - `concern-separation/verdict.yaml`
+  - `coherence-maintenance/verdict.yaml`
+  - `guideline-audit/verdict.yaml`
+  - `drift-detection/verdict.yaml`
+  - `test-quality-audit/verdict.yaml`
+  - `content-audit/verdict.yaml`
+- If any chain's `verdict.yaml` is missing, return BLOCKED with `MISSING_CHAIN_VERDICT` error identifying the missing chain
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Cross-Validate Checklist
 
 - [ ] 1. Load Spec + extract SCs from spec_local_dir
 - [ ] 2. Pre-Inspection Classification Gate — runtime-behavioral uplift check for each SC
-- [ ] 3. Load upstream verdict artifacts from artifact_evidence_dir
-- [ ] 4. Per-SC evaluation: does the verdict match the evidence?
+- [ ] 3. Load ALL 9 chain verdict.yaml files from artifact_evidence_dir (spec-audit, plan-fidelity, verification-audit, concern-separation, coherence-maintenance, guideline-audit, drift-detection, test-quality-audit, content-audit)
+- [ ] 4. Per-SC evaluation: cross-reference verdicts across ALL 9 chains — does each chain's verdict match the evidence?
 - [ ] 5. Evidence Type Matrix enforcement — downgrade PASS with EVIDENCE_TYPE_MISMATCH to FAIL
 - [ ] 6. Write judgment.yaml to disk
 - [ ] 7. Return frugal contract with verdict summary
@@ -113,6 +125,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 |------|-----------|------------|--------|
 | MISSING_INPUT | `spec_local_dir` missing or empty, or no .md files readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
 | MISSING_EVIDENCE_DIR | `artifact_evidence_dir` missing, null, or empty | `MISSING_EVIDENCE_DIR` | Return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }` |
+| MISSING_CHAIN_VERDICT | One or more chain `verdict.yaml` files missing from `artifact_evidence_dir` | `MISSING_CHAIN_VERDICT` | Return `{ status: "BLOCKED", error: "MISSING_CHAIN_VERDICT", missing_chains: ["<chain-name>", ...] }` |
 | ARTIFACT_UNREADABLE | Upstream YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
 
 ## Procedure
@@ -155,9 +168,24 @@ Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-age
 - If `artifact_evidence_dir` is missing or null: return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }`.
 - If artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
 
-### Step 3: Read and Parse Upstream Verdicts from Disk
+### Step 3: Read and Parse Upstream Verdicts from ALL 9 Chains
 
-For each YAML file discovered via glob/read in `artifact_evidence_dir`, read the verdict file from disk using the `read` tool. Expected format per verdict file:
+Load `verdict.yaml` from each of the 9 audit chains. The expected directory layout under `artifact_evidence_dir` is:
+
+```
+artifact_evidence_dir/
+  spec-audit/verdict.yaml
+  plan-fidelity/verdict.yaml
+  verification-audit/verdict.yaml
+  concern-separation/verdict.yaml
+  coherence-maintenance/verdict.yaml
+  guideline-audit/verdict.yaml
+  drift-detection/verdict.yaml
+  test-quality-audit/verdict.yaml
+  content-audit/verdict.yaml
+```
+
+For each chain's `verdict.yaml`, read the file from disk using the `read` tool. If any chain's `verdict.yaml` is missing, return BLOCKED with `MISSING_CHAIN_VERDICT` identifying the missing chain(s). Expected format per verdict file:
 
 ```
 ---
@@ -193,30 +221,30 @@ If an auditor's YAML artifact has extra criterion ids not in `evaluation_criteri
 
 If an auditor's YAML artifact is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
-### Step 5: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
+### Step 5: Cross-Reference Verdicts Across ALL 9 Chains — Monotonic Non-Increasing Invariant
 
 **Cross-validate verdicts are monotonic non-increasing in PASSness.** Verdicts must never increase in PASSness at the cross-validate stage. Cross-validate is a rejection filter, not a remediation gate.
 
 | Direction | Allowed? | Mechanism |
 |---|---|---|
-| FAIL → FAIL | ✅ Stays | If both return FAIL, or one returns FAIL, consensus = FAIL |
+| FAIL → FAIL | ✅ Stays | If all 9 chains return FAIL, or any chain returns FAIL, consensus = FAIL |
 | PASS → FAIL | ✅ De-elevation | Caught by Step 5.7 self-check (narrative override, PASS+critique, hedging, weak evidence) |
 | FAIL → PASS | 🚫 FORBIDDEN | Only a fresh audit cycle with new clean-room auditors can produce a new verdict on a revised deliverable |
-| PASS → PASS | ✅ Stays | Both auditors return clean PASS — confirmed by Step 5.7 self-check |
+| PASS → PASS | ✅ Stays | All 9 chains return clean PASS — confirmed by Step 5.7 self-check |
 
-For each criterion in `evaluation_criteria`:
+For each criterion in `evaluation_criteria`, cross-reference across ALL 9 chains:
 
 | Rule | Result |
 |---|---|
-| Both auditors return `PASS` | `consensus = PASS` |
-| Either auditor returns `FAIL` | `consensus = FAIL` |
+| ALL 9 chains return `PASS` | `consensus = PASS` |
+| ANY chain returns `FAIL` | `consensus = FAIL` |
 | Non-PASS result (any non-binary verdict) | `consensus = BLOCKED` — auditors should never produce this |
-| Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
-| Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
+| Any chain's verdict is missing or unparseable | `consensus = FAIL` |
+| Chains disagree (some PASS, some FAIL) | `consensus = FAIL` |
 
 Non-PASS (only valid non-PASS verdict is FAIL) = BLOCKED pipeline. FAIL is terminal — no reclassification permitted. Any non-binary verdict (AUDIT_FAIL, FABRICATED, LIMITED-EVIDENCE, INCONCLUSIVE) means the auditor is operating outside spec — BLOCK pipeline and flag the auditor card for correction. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
-Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
+Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split across chains is different from all chains returning `FAIL`.
 
 #### FAIL Is Terminal — No Reclassification (MANDATORY)
 
@@ -362,6 +390,21 @@ Create `{project_root}/tmp/{issue-N}/artifacts/` if needed (write tool creates i
 ### Step 8: Write judgment.yaml
 
 Write final judgment to `./tmp/{issue-N}/artifacts/cross-validate/judgment.yaml`
+
+The `judgment.yaml` MUST declare which chain verdicts were consumed:
+
+```yaml
+chains_consumed:
+  - spec-audit
+  - plan-fidelity
+  - verification-audit
+  - concern-separation
+  - coherence-maintenance
+  - guideline-audit
+  - drift-detection
+  - test-quality-audit
+  - content-audit
+```
 
 ## Remediation
 

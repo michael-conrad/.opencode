@@ -47,6 +47,7 @@ Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Inv
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for verdict artifacts)
 - `file_paths_changed` provided and non-empty
+- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
