@@ -29,10 +29,8 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - If missing: perform self-review (placeholder scan, consistency check)
 
 - [ ] 3b. **Holistic self-check** (MANDATORY before finalization):
-   - Dispatch `task(..., prompt: "execute holistic-self-check task from spec-creation")` with `{ spec_context, issue_number }`
-   - Collect the result contract
-   - If `status: DONE` (all 11 dimensions PASS): proceed to finalization
-   - If `status: BLOCKED` with `reason: HOLISTIC_GATE_FAILED`: return spec to create task for revision with failed dimensions listed. Do NOT finalize.
+   - Read `.issues/{N}/artifacts/holistic-self-check.yaml` to verify all 11 dimensions PASS
+   - If the file does not exist or any dimension FAIL: return spec to create task for revision. Do NOT finalize.
 
 - [ ] 4. **Chat executive summary** (if not already produced):
    - Verify exec summary was posted to chat with spec URL
@@ -44,13 +42,8 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - If missing: prepend the blockquote (per Step 6.8 of write.md) and update the issue body
 
 - [ ] 6. **Push artifacts to issues-data** (after spec issue exists):
-   - Dispatch `task(..., prompt: "execute push-artifacts task from issue-operations")` with issue number
-   - Collect `artifact_url` from the result contract
-   - Embed `artifact_url` in the spec issue body by appending a blockquote:
-     ```
-     > **Artifacts:** [spec-artifacts](<artifact_url>)
-     ```
-   - Use `issue-operations --task update-issue` to apply the body update
+   - Run `.opencode/tools/local-issues sync` to commit and push local artifacts
+   - The sync command handles all git operations automatically
 
 ## Shared Completion Delegation
 
@@ -100,3 +93,12 @@ HALT
 - [ ] URL present IF relevant (after outcome, before byline)
 - [ ] AI byline present as **LAST** element
 - [ ] No stale todowrite items remain (all cleared or N/A)
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| `status` | `DONE` \| `BLOCKED` |
+| `finding_summary` | `"Completion check for spec #N: all mandatory steps verified"` |
+| `artifact_path` | `.issues/{N}/lifecycle.yaml` |
+| `blocker_reason` | `<why if BLOCKED>` |
