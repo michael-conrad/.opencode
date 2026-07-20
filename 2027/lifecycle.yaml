@@ -1,6 +1,0 @@
-events:
-  - event: spec_created
-    timestamp: 2026-07-20T15:00:00Z
-    issuer: OpenCode (deepseek-v4-flash)
-    description: "Spec #2027 created — SPEC-FIX: Missing task cards in spec-creation pipeline"
-    severity: info
