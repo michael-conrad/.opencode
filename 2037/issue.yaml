@@ -4,6 +4,31 @@ labels:
 - SPEC
 body: '> **Full spec and artifacts: [`.issues/2037/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2037)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.issues/2037/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings'
+> **Local artifacts:** `.issues/2037/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+# SPEC: Universal discussion discipline — no question tool, no pigeon-holing, single topics, order of importance, always discuss
+
+## Problem
+
+The agent discussion discipline rules are scattered and inconsistently scoped across 5 files. Five distinct problems:
+
+1. **`question` tool prohibition is scoped** — appears in §1.6 (discussion mode only), critical-rules-037 (for_pr scope only), pre-implementation-analysis (post-plan only)
+2. **Pigeon-holing in natural language not enforced** — same anti-pattern as question tool, but not a critical rule
+3. **Single-topic discipline not enforced** — exists as advisory text, not a critical rule
+4. **Order of importance rule missing** — no rule exists for topic ordering
+5. **"Always discuss" not the default** — discussion framed as a mode, not the default
+
+## Affected Files
+
+- `.opencode/guidelines/020-go-prohibitions.md` — add top-level Tier 1 prohibitions
+- `.opencode/guidelines/000-critical-rules.md` — update critical-rules-037, add 4 new critical rules
+- `.opencode/guidelines/010-approval-gate.md` — update edge case table
+- `.opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md` — remove scope qualifier
+- `.opencode/guidelines/140-planning-spec-creation.md` — remove contradictory question tool instruction
+- `.opencode/tests-v2/behaviors/` — behavioral enforcement test
+
+## Success Criteria
+
+7 SCs (6 behavioral, 1 string). See full spec for details.'
 created_at: '2026-07-20T23:18:58+00:00'
 updated_at: '2026-07-20T23:19:45+00:00'
