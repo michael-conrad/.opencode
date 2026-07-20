@@ -201,7 +201,7 @@ def check_cli_auth_status() -> list[str]:
     if gh_path:
         try:
             result = subprocess.run(
-                ["gh", "auth", "status", "--no-interactive"],
+                ["gh", "auth", "status"],
                 capture_output=True,
                 text=True,
                 check=False,
