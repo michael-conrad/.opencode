@@ -34,6 +34,16 @@ TIER 5 — LAST RESORT: Direct CLI (bash)
 ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance, no fallback)
 ```
 
+### Prefer Built-ins Over Bespoke Code
+
+**Global mandate:** ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or existing add-ons over writing bespoke code (custom scripts, inline shell commands, ad-hoc Python, one-off utilities). Load [the full mandate in AGENTS.md](AGENTS.md) and [080-code-standards.md](guidelines/080-code-standards.md).
+
+The five-tier hierarchy above defines the preferred tool chain. Bespoke code (custom scripts, inline shell commands, ad-hoc Python) is implicitly demoted below Tier 3 — it should only be used when no existing tool in Tiers 1-3 suffices.
+
+**Feasibility justification required:** Any spec or plan that proposes new bespoke code MUST include a justification explaining why none of the existing alternatives suffice. A one-sentence rationale is sufficient.
+
+**Scope:** Forward-looking — this mandate applies to new work only. Existing bespoke code is grandfathered and does not need to be replaced.
+
 ### 🚫 PROHIBITED (Hard stop violation)
 
 - ANY direct access to `.ipynb` files (use `the-notebook-mcp` exclusively)

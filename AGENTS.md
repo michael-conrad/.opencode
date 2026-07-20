@@ -148,6 +148,25 @@ The snap binary at `/snap/bin/opencode` hardcodes `SNAP_USER_DATA=~/snap/opencod
 
 ---
 
+## Prefer Built-ins Over Bespoke Code
+
+**Global mandate:** ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or existing add-ons over writing bespoke code (custom scripts, inline shell commands, ad-hoc Python, one-off utilities).
+
+**Preferred alternatives (non-exhaustive):**
+- opencode built-in tools: `read`, `write`, `edit`, `glob`, `grep`
+- MCP servers: `srclight` (code search), `editor` (file editing), `the-notebook-mcp` (notebooks), GitHub MCP (API operations)
+- `vibeguard` plugin for guardrail enforcement
+- Standard shell commands (`ls`, `git`, `uv`, `bash`)
+- Python standard library (`pathlib`, `shutil`, `json`, `csv`, `re`)
+- Published packages via `pip`, `npm`, `cargo`, `go install`
+- Existing `.opencode/tools/` scripts
+
+**Feasibility justification required:** Any spec or plan that proposes new bespoke code MUST include a justification explaining why none of the existing alternatives suffice. A one-sentence rationale is sufficient.
+
+**Scope:** Forward-looking — this mandate applies to new work only. Existing bespoke code is grandfathered and does not need to be replaced.
+
+---
+
 ## `gb` CLI Tool — GitBucket Operations
 
 This repo uses the [`gb` CLI](https://github.com/Masahiro-Obuchi/gitbucket-cli-rs) (v0.6.1) for all GitBucket API operations. The `gb` tool replaces the previous bespoke `gitbucket-api` Python tool.
