@@ -336,8 +336,23 @@ git clone -q "$SUBMODULE_REMOTE_URL" "$TEST_PROJECT/.opencode" 2>/dev/null || {
     exit 1
 }
 
+# If BEHAVIOR_SUBMODULE_COMMIT is set, fetch and checkout that commit so
+# feature-branch changes are visible in the test project's .opencode.
+if [ -n "${BEHAVIOR_SUBMODULE_COMMIT:-}" ]; then
+    git -C "$TEST_PROJECT/.opencode" fetch -q origin 2>/dev/null || true
+    git -C "$TEST_PROJECT/.opencode" checkout -q "$BEHAVIOR_SUBMODULE_COMMIT" 2>/dev/null || {
+        echo "WARNING: could not checkout BEHAVIOR_SUBMODULE_COMMIT=$BEHAVIOR_SUBMODULE_COMMIT" >&2
+    }
+fi
+
 git -C "$TEST_PROJECT" add -A 2>/dev/null || true
 git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
+
+# Copy fixture evidence from TEST_WORKDIR into test project so the agent can find it.
+if [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR/tmp/behavioral-evidence-fixture" ]; then
+    mkdir -p "$TEST_PROJECT/tmp"
+    cp -r "$TEST_WORKDIR/tmp/behavioral-evidence-fixture" "$TEST_PROJECT/tmp/behavioral-evidence-fixture" 2>/dev/null || true
+fi
 
 seed_model_config
 
@@ -371,6 +386,8 @@ env -i -C "$TEST_PROJECT" \
     LANG="${LANG:-C.UTF-8}" \
     TERM="${TERM:-xterm-256color}" \
     GB_TOKEN="${GB_TOKEN:-}" \
+    BEHAVIOR_SUBMODULE_COMMIT="${BEHAVIOR_SUBMODULE_COMMIT:-}" \
+    TEST_WORKDIR="${TEST_WORKDIR:-}" \
     sh -c '
 echo "  [test-env] HOME=$HOME"
 echo "  [test-env] PATH=$PATH"
