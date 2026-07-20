@@ -1,0 +1,4 @@
+status: DONE
+finding_summary: "Research complete for spec #2020. 7 total defects identified: 5 active (D1-D6), 2 resolved (D7, SC-16). Violation A (spec-creation and writing-plans Invocation dispatching pipelines with [sub-task] steps) is the primary systemic issue. Violations B and C are already resolved. 6 phases of work required: audit Invocation sections (2 skills), fix Invocation sections (2 skills), fix writing-plans dispatch classification (6 items), fix assemble-work.md completeness (4 items), add critical-rules entry (already done), behavioral tests (4 tests)."
+artifact_path: ".opencode/.issues/2020/research/findings.yaml"
+blocker_reason: null

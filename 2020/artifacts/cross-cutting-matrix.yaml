@@ -1,0 +1,16 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: SKILL.md Invocation section correctness
+      affects_phases: [1, 2]
+      description: Phase 1 audits all SKILL.md Invocation sections; Phase 2 fixes the ones that dispatch pipelines. The audit scope determines the fix scope.
+      coordination_required: true
+    - concern: writing-plans/SKILL.md consistency
+      affects_phases: [2, 3]
+      description: Phase 2 fixes general Invocation patterns; Phase 3 fixes writing-plans-specific defects. Must ensure no conflict between general fix and specific fix.
+      coordination_required: true
+    - concern: Behavioral test coverage
+      affects_phases: [6]
+      description: Tests verify the fixes from Phases 2-5 are correct. Must be created after fixes are applied.
+      coordination_required: false

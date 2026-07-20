@@ -1,0 +1,44 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+interface_compatibility:
+  interfaces:
+    - name: spec-creation/SKILL.md Invocation section
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - orchestrator (reads Invocation to dispatch tasks)
+    - name: writing-plans/SKILL.md Invocation section
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - orchestrator (reads Invocation to dispatch tasks)
+    - name: writing-plans/SKILL.md Trigger Dispatch Table
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - orchestrator (reads TDT to classify dispatch scope)
+    - name: writing-plans-creation/tasks/audit-fidelity.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - sub-agent (reads task file for execution)
+    - name: writing-plans-creation/tasks/audit-concern.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - sub-agent (reads task file for execution)
+    - name: writing-plans-creation/tasks/completion.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - sub-agent (reads task file for execution)
+    - name: implementation-pipeline/tasks/assemble-work.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - sub-agent (reads task file for execution)
+    - name: guidelines/000-critical-rules.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - AI agent (reads guidelines for enforcement)

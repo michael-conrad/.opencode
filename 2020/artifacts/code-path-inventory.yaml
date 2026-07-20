@@ -1,0 +1,59 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+code_path_inventory:
+  phases:
+    - phase: 1
+      files:
+        - path: .opencode/skills/spec-creation/SKILL.md
+          reason: Read Invocation section to classify pipeline dispatch pattern
+          changes: Read-only audit, no modifications
+        - path: .opencode/skills/writing-plans/SKILL.md
+          reason: Read Invocation section to classify pipeline dispatch pattern
+          changes: Read-only audit, no modifications
+      new_files: []
+    - phase: 2
+      files:
+        - path: .opencode/skills/spec-creation/SKILL.md
+          reason: Fix Invocation entries that dispatch pipelines to inline (orchestrator executes)
+          changes: Change Invocation entries from pipeline-dispatch to inline; add TDT entries for each [sub-task] step
+        - path: .opencode/skills/writing-plans/SKILL.md
+          reason: Fix Invocation entries that dispatch pipelines to inline
+          changes: Change Invocation entries from pipeline-dispatch to inline; add TDT entries for each [sub-task] step
+      new_files: []
+    - phase: 3
+      files:
+        - path: .opencode/skills/writing-plans/SKILL.md
+          reason: Fix TDT classification, Invocation table, Sub-Agent Routing, .issues/ refs
+          changes: Change create/retroactive from sub-task to orchestrator; add completion entry; fix Invocation; fix routing claims; add dual pattern explanation
+        - path: .opencode/skills/writing-plans-creation/tasks/audit-fidelity.md
+          reason: Remove "with auditor sub-agent type context"
+          changes: Line 5 text removal
+        - path: .opencode/skills/writing-plans-creation/tasks/audit-concern.md
+          reason: Remove "with auditor sub-agent type context"
+          changes: Line 5 text removal
+        - path: .opencode/skills/writing-plans-creation/tasks/completion.md
+          reason: Fix path reference
+          changes: completion-core/completion-core.md → completion-core/SKILL.md
+      new_files: []
+    - phase: 4
+      files:
+        - path: .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+          reason: Add entry proof marker, OVERFLOW handling, work state verification, completion checkpoint
+          changes: Add 4 content sections
+      new_files: []
+    - phase: 5
+      files:
+        - path: .opencode/guidelines/000-critical-rules.md
+          reason: Add critical violation entry for sub-agent task() dispatch
+          changes: Add new critical-rules-XXX entry
+      new_files: []
+    - phase: 6
+      files:
+        - path: .opencode/tests-v2/behaviors/
+          reason: Create behavioral enforcement tests
+          changes: New test files for each violation type
+      new_files:
+        - path: .opencode/tests-v2/behaviors/dispatch-boundary-spec-creation.sh
+          purpose: Behavioral test for spec-creation pipeline dispatch
+        - path: .opencode/tests-v2/behaviors/dispatch-boundary-writing-plans.sh
+          purpose: Behavioral test for writing-plans pipeline dispatch

@@ -1,0 +1,40 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+state_analysis:
+  phases:
+    - phase: 1
+      states:
+        - name: audit-complete
+          entry_conditions: All SKILL.md Invocation sections read and classified
+          exit_conditions: Classification results documented
+          invariants: No files modified
+    - phase: 2
+      states:
+        - name: invocation-fixed
+          entry_conditions: Phase 1 audit results available
+          exit_conditions: All marked Invocation sections fixed; TDT entries added
+          invariants: Each [sub-task] step has a TDT dispatch entry
+    - phase: 3
+      states:
+        - name: writing-plans-fixed
+          entry_conditions: Phase 2 complete
+          exit_conditions: All writing-plans defects (D1-D7) resolved
+          invariants: writing-plans/SKILL.md is consistent with general fix from Phase 2
+    - phase: 4
+      states:
+        - name: assemble-work-complete
+          entry_conditions: Phase 3 complete
+          exit_conditions: All 4 content sections added to assemble-work.md
+          invariants: assemble-work.md has entry proof, OVERFLOW, work state verification, completion checkpoint
+    - phase: 5
+      states:
+        - name: guideline-added
+          entry_conditions: Phase 4 complete
+          exit_conditions: Critical violation entry added to 000-critical-rules.md
+          invariants: Entry references sub-agent task() dispatch prohibition
+    - phase: 6
+      states:
+        - name: tests-created
+          entry_conditions: Phase 5 complete
+          exit_conditions: Behavioral tests created and passing
+          invariants: Tests verify each violation type

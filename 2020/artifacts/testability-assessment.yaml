@@ -1,0 +1,99 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+testability_assessment:
+  scs:
+    - id: SC-1
+      testable: true
+      test_type: string
+      verification_command: grep for [sub-task] in Invocation sections
+      blockers: []
+    - id: SC-2
+      testable: true
+      test_type: string
+      verification_command: grep for create.*orchestrator in writing-plans/SKILL.md
+      blockers: []
+    - id: SC-3
+      testable: true
+      test_type: string
+      verification_command: grep for retroactive.*orchestrator in writing-plans/SKILL.md
+      blockers: []
+    - id: SC-4
+      testable: true
+      test_type: string
+      verification_command: grep for completion.*orchestrator in writing-plans/SKILL.md
+      blockers: []
+    - id: SC-5
+      testable: true
+      test_type: string
+      verification_command: grep for task(.*execute create in Invocation section
+      blockers: []
+    - id: SC-6
+      testable: true
+      test_type: string
+      verification_command: grep for "with auditor sub-agent type context" in audit-fidelity.md
+      blockers: []
+    - id: SC-7
+      testable: true
+      test_type: string
+      verification_command: grep for "with auditor sub-agent type context" in audit-concern.md
+      blockers: []
+    - id: SC-8
+      testable: true
+      test_type: string
+      verification_command: grep for "All tasks run via" in writing-plans/SKILL.md
+      blockers: []
+    - id: SC-9
+      testable: true
+      test_type: string
+      verification_command: grep for "No inline work" in writing-plans/SKILL.md
+      blockers: []
+    - id: SC-10
+      testable: true
+      test_type: string
+      verification_command: grep for completion-core/SKILL.md in completion.md
+      blockers: []
+    - id: SC-11
+      testable: true
+      test_type: string
+      verification_command: grep for "root repo.*submodule" or "root repo.*sub-repo" in writing-plans/SKILL.md
+      blockers: []
+    - id: SC-12
+      testable: true
+      test_type: string
+      verification_command: grep for "entry proof" or "Step 1.5" in assemble-work.md
+      blockers: []
+    - id: SC-13
+      testable: true
+      test_type: string
+      verification_command: grep for "OVERFLOW" in assemble-work.md
+      blockers: []
+    - id: SC-14
+      testable: true
+      test_type: string
+      verification_command: grep for "work state" in assemble-work.md
+      blockers: []
+    - id: SC-15
+      testable: true
+      test_type: string
+      verification_command: grep for "completion checkpoint" or "hash mismatch" in assemble-work.md
+      blockers: []
+    - id: SC-16
+      testable: true
+      test_type: string
+      verification_command: grep for "sub-agent.*task()" or "task().*sub-agent" in critical-rules.md
+      blockers: []
+    - id: SC-17
+      testable: true
+      test_type: behavioral
+      verification_command: opencode run → stderr assertions
+      blockers: []
+    - id: SC-18
+      testable: true
+      test_type: behavioral
+      verification_command: opencode run → stderr assertions
+      blockers: []
+    - id: SC-19
+      testable: true
+      test_type: behavioral
+      verification_command: opencode run → stderr assertions
+      blockers: []

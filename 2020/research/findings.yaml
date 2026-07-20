@@ -1,0 +1,120 @@
+# Research findings for spec #2020
+# Generated: 2026-07-20
+# Status: DONE
+
+violations:
+  violation_a:
+    title: "SKILL.md Invocation dispatches pipelines with [sub-task] steps to sub-agents"
+    status: ACTIVE
+    affected_skills:
+      - skill: spec-creation/SKILL.md
+        pipeline: create (Workflow 1)
+        sub_task_count: 23
+        invocation_line: 46
+        invocation_text: 'task(..., prompt: "execute create from spec-creation-validation. Read `spec-creation-validation/tasks/create.md` first")'
+        problem: "Invocation dispatches entire 25-step pipeline (23 [sub-task] steps) to sub-agent. Sub-agent cannot call task()."
+      - skill: writing-plans/SKILL.md
+        pipeline: create (Workflow 1)
+        sub_task_count: 16
+        invocation_line: 74
+        invocation_text: 'task(..., prompt: "execute create from writing-plans-creation. Read `writing-plans-creation/tasks/create.md` first")'
+        problem: "Invocation dispatches entire 23-step pipeline (16 [sub-task] steps) to sub-agent. Sub-agent cannot call task()."
+
+  violation_b:
+    title: "Task cards contain task() calls"
+    status: RESOLVED
+    evidence: "Zero task() calls found in any task card. Only match is a prose example in spec-creation-validation/tasks/create.md:557. No work needed."
+
+  violation_c:
+    title: "Missing orchestrator entry points"
+    status: RESOLVED
+    evidence: "implementation-pipeline/SKILL.md has orchestrator entry point at TDT line 49. tasks/assemble-work.md exists. No work needed."
+
+related_defects:
+  - id: D1
+    title: "writing-plans/SKILL.md TDT classifies create, retroactive as sub-task"
+    status: ACTIVE
+    location: "writing-plans/SKILL.md lines 37, 39"
+    detail: "TDT classifies `create` and `retroactive` as `sub-task` dispatch. Should be `orchestrator`. `completion` not in TDT at all."
+    evidence:
+      - "Line 37: `create` | `sub-task`"
+      - "Line 39: `retroactive` | `sub-task`"
+      - "No `completion` entry in TDT"
+
+  - id: D2
+    title: "writing-plans/SKILL.md Invocation dispatches create as task() call"
+    status: ACTIVE
+    location: "writing-plans/SKILL.md line 74"
+    detail: "Invocation dispatches `create` as `task(..., prompt: \"execute create from writing-plans-creation...\")` — sends entire pipeline to sub-agent."
+    evidence: "Line 74: `task(..., prompt: \"execute create from writing-plans-creation. Read \\`writing-plans-creation/tasks/create.md\\` first\")`"
+
+  - id: D3
+    title: "audit-fidelity.md and audit-concern.md contain 'with auditor sub-agent type context'"
+    status: ACTIVE
+    locations:
+      - "writing-plans-creation/tasks/audit-fidelity.md line 5"
+      - "writing-plans-creation/tasks/audit-concern.md line 5"
+    detail: "Both files contain the phrase 'with auditor sub-agent type context' in their Purpose section. This is a stale reference to a sub-agent type that no longer exists as a distinct concept."
+    evidence:
+      - "audit-fidelity.md:5: 'Load the `audit` skill and execute `--task plan-fidelity` inline with auditor sub-agent type context.'"
+      - "audit-concern.md:5: 'Load the `audit` skill and execute `--task concern-separation` inline with auditor sub-agent type context.'"
+
+  - id: D4
+    title: "writing-plans/SKILL.md uses .issues/{N}/ without dual pattern explanation"
+    status: ACTIVE
+    location: "writing-plans/SKILL.md lines 141, 142, 143, 148, 149, 158, 159"
+    detail: "All .issues/{N}/ references in the Dispatch Contract and Rules sections use hardcoded `.issues/{N}/` paths without explaining the dual pattern (root repo vs submodule)."
+    evidence:
+      - "Line 141: `Reads input from .issues/{N}/spec.md`"
+      - "Line 142: `Reads prior artifacts from .issues/{N}/artifacts/`"
+      - "Line 143: `Writes output to .issues/{N}/artifacts/{name}.yaml`"
+      - "Line 148: `artifact_path: .issues/{N}/artifacts/{name}.yaml`"
+      - "Line 158: `Sub-agent reads from disk — .issues/{N}/spec.md`"
+      - "Line 159: `Sub-agent reads from disk — .issues/{N}/artifacts/`"
+
+  - id: D5
+    title: "assemble-work.md lacks entry proof, OVERFLOW, work state verification, completion checkpoint"
+    status: ACTIVE
+    location: "implementation-pipeline/tasks/assemble-work.md"
+    detail: "Missing 4 required elements per spec Phase 4."
+    evidence:
+      - "entry proof marker (Step 1.5): NOT FOUND"
+      - "OVERFLOW handling: NOT FOUND"
+      - "work state verification: FOUND (lines 44, 62, 76) — references work state but lacks post-sub-agent verification with hash mismatch detection"
+      - "completion checkpoint with hash mismatch: NOT FOUND"
+
+  - id: D6
+    title: "writing-plans/SKILL.md Sub-Agent Routing claims contradict TDT classification"
+    status: ACTIVE
+    location: "writing-plans/SKILL.md lines 173-174"
+    detail: "Sub-Agent Routing section says 'Pipeline steps dispatch to sub-agents via task() for independent execution' and 'The orchestrator routes each step to a clean-room sub-agent' — but TDT classifies `create` as `sub-task` (entire pipeline dispatched as one task, not step-by-step)."
+    evidence:
+      - "Line 173: 'Pipeline steps dispatch to sub-agents via `task()` for independent execution.'"
+      - "Line 174: 'The orchestrator routes each step to a clean-room sub-agent.'"
+      - "Contradiction: TDT line 37 classifies `create` as `sub-task` — entire pipeline dispatched at once, not step-by-step."
+
+  - id: D7
+    title: "completion.md path reference"
+    status: RESOLVED
+    location: "writing-plans-creation/tasks/completion.md line 45"
+    detail: "Already references `skills/completion-core/SKILL.md` — correct path. No work needed."
+    evidence: "Line 45: `Load [completion-core](skills/completion-core/SKILL.md)`"
+
+  - id: SC-16
+    title: "000-critical-rules.md has entry for sub-agent task() dispatch"
+    status: RESOLVED
+    location: "000-critical-rules.md line 218"
+    detail: "Critical violation entry exists: `### [critical-rules-XXX] CRITICAL VIOLATION — Sub-agent task cards MUST NOT contain task() or skill() calls.`"
+    evidence: "Line 218: '### [critical-rules-XXX] CRITICAL VIOLATION — Sub-agent task cards MUST NOT contain task() or skill() calls.'"
+
+summary:
+  total_defects: 7
+  active: 5  # D1, D2, D3, D4, D5, D6 (D7 resolved)
+  resolved: 2  # D7, SC-16
+  phases_required:
+    phase_1: "Audit and classify all SKILL.md Invocation sections — 2 skills affected (spec-creation, writing-plans)"
+    phase_2: "Fix SKILL.md Invocation sections — 2 skills need Invocation rewrite"
+    phase_3: "Fix writing-plans/SKILL.md dispatch classification and related defects — 6 items (D1-D6)"
+    phase_4: "Fix assemble-work.md content completeness — 4 items to add"
+    phase_5: "Add critical violation to guidelines — already resolved (SC-16)"
+    phase_6: "Behavioral enforcement tests — 4 tests needed"

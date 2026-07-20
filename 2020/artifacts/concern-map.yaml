@@ -1,0 +1,38 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+concern_map:
+  phases:
+    - phase: 1
+      primary_concern: Audit and classify all SKILL.md Invocation sections for pipeline dispatch patterns
+      boundaries:
+        - Read Invocation sections of all SKILL.md files under .opencode/skills/
+        - Classify each entry as pipeline-dispatch or single-task-dispatch
+        - Do NOT modify any files in this phase
+      separation_rationale: Read-only audit phase establishes the scope of work before any modifications
+    - phase: 2
+      primary_concern: Fix SKILL.md Invocation sections that dispatch pipelines to sub-agents
+      boundaries:
+        - Modify only Invocation sections and Trigger Dispatch Tables
+        - Do NOT touch task files or guidelines
+      separation_rationale: Structural fix to SKILL.md routing metadata, independent of task content
+    - phase: 3
+      primary_concern: Fix writing-plans/SKILL.md dispatch classification and related defects
+      boundaries:
+        - writing-plans/SKILL.md TDT, Invocation, Sub-Agent Routing, .issues/ refs
+        - audit-fidelity.md, audit-concern.md, completion.md in writing-plans-creation/tasks/
+      separation_rationale: writing-plans-specific defects isolated from general SKILL.md fixes
+    - phase: 4
+      primary_concern: Fix assemble-work.md content completeness
+      boundaries:
+        - implementation-pipeline/tasks/assemble-work.md only
+      separation_rationale: Independent content fix for a single task file
+    - phase: 5
+      primary_concern: Add critical violation entry to guidelines
+      boundaries:
+        - guidelines/000-critical-rules.md only
+      separation_rationale: Guideline change is independent of code/skill changes
+    - phase: 6
+      primary_concern: Create behavioral enforcement tests
+      boundaries:
+        - tests-v2/behaviors/ directory only
+      separation_rationale: Tests are independent verification artifacts

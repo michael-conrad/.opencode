@@ -1,0 +1,28 @@
+spec: .opencode#2020
+generated_at: 2026-07-20T13:35:00Z
+status: DONE
+readiness:
+  spec_exists: true
+  spec_path: .opencode/.issues/2020/spec.md
+  research_complete: true
+  research_path: .opencode/.issues/2020/research/findings.yaml
+  research_status: DONE
+  analytical_artifacts:
+    all_present: true
+    count: 7
+    paths:
+      - blast-radius.yaml
+      - code-path-inventory.yaml
+      - concern-map.yaml
+      - cross-cutting-matrix.yaml
+      - interface-compatibility.yaml
+      - state-analysis.yaml
+      - testability-assessment.yaml
+  feature_branch_exists: true
+  feature_branch: feature/2020-dispatch-boundary-fix
+  authorization_scope: for_pr
+  spec_stale: false
+  superseding_issues: none
+  submodule_on_trunk: true
+  blockers: []
+  notes: "writing-plans-creation/tasks/create.md does not exist — this is the dispatch boundary violation (Violation A) that spec #2020 aims to fix. The Invocation dispatches the entire pipeline to a sub-agent whose skill directory doesn't exist. Readiness executed as orchestrator inline since sub-agent dispatch path is broken."

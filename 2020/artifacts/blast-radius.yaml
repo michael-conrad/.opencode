@@ -1,0 +1,61 @@
+spec: https://github.com/michael-conrad/opencode-config/issues/2020
+generated_at: 2026-07-20T12:00:00Z
+blast_radius:
+  phases:
+    - phase: 1
+      affected_components:
+        - component: spec-creation/SKILL.md
+          impact: direct
+          description: Invocation section dispatches pipeline with [sub-task] steps to sub-agent; must be fixed to orchestrator-executed
+          ripple_effects:
+            - All skills with similar Invocation patterns
+        - component: writing-plans/SKILL.md
+          impact: direct
+          description: Invocation section dispatches create pipeline as task() call; must be fixed
+          ripple_effects:
+            - writing-plans-creation task files
+      risk_level: medium
+    - phase: 2
+      affected_components:
+        - component: spec-creation/SKILL.md
+          impact: direct
+          description: Fix Invocation entries that dispatch pipelines to inline (orchestrator executes)
+          ripple_effects:
+            - Trigger Dispatch Table entries for each [sub-task] step
+        - component: writing-plans/SKILL.md
+          impact: direct
+          description: Fix Invocation entries that dispatch pipelines to inline
+          ripple_effects:
+            - Trigger Dispatch Table entries for each [sub-task] step
+      risk_level: medium
+    - phase: 3
+      affected_components:
+        - component: writing-plans/SKILL.md
+          impact: direct
+          description: Fix TDT classification, Invocation table, Sub-Agent Routing, .issues/ refs
+          ripple_effects:
+            - writing-plans-creation/tasks/audit-fidelity.md
+            - writing-plans-creation/tasks/audit-concern.md
+            - writing-plans-creation/tasks/completion.md
+      risk_level: low
+    - phase: 4
+      affected_components:
+        - component: implementation-pipeline/tasks/assemble-work.md
+          impact: direct
+          description: Add entry proof marker, OVERFLOW handling, work state verification, completion checkpoint
+          ripple_effects: []
+      risk_level: low
+    - phase: 5
+      affected_components:
+        - component: guidelines/000-critical-rules.md
+          impact: direct
+          description: Add critical violation entry for sub-agent task() dispatch
+          ripple_effects: []
+      risk_level: low
+    - phase: 6
+      affected_components:
+        - component: tests-v2/behaviors/
+          impact: direct
+          description: Create behavioral enforcement tests for each violation type
+          ripple_effects: []
+      risk_level: low
