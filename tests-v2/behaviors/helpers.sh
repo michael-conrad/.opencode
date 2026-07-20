@@ -265,6 +265,12 @@ behavior_run() {
         setup_story_fixtures "$workdir"
     fi
 
+    CODE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-code-fixtures.sh"
+    if [ -f "$CODE_SETUP" ]; then
+        source "$CODE_SETUP"
+        setup_code_fixtures "$workdir"
+    fi
+
     LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
     mkdir -p "$(dirname "$LOCK_FILE")"
     exec 200>"$LOCK_FILE"
