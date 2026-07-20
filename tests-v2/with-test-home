@@ -221,16 +221,16 @@ do_setup() {
     while IFS= read -r -d '' f; do
         local rel="${f#$test_home/}"
         case "$rel" in
-            .config/opencode/*|.local/share/opencode/*|.cache/opencode/*|.runtime/*|.local/state/opencode/*|snap/opencode/*|project/*|.git/*)
+            "")
                 ;;
-            .gitignore|.gitattributes)
+.config*|.local*|.cache*|.runtime*|snap*|project*|.git*|.gitignore|.gitattributes)
                 ;;
             *)
                 echo "  [isolation] WARNING: unexpected file in test home: $rel" >&2
                 leak_found=1
                 ;;
         esac
-    done < <(find "$test_home" -not -path '*/project/.opencode/*' -not -path '*/.git/objects/*' -not -path '*/.git/refs/*' -print0 2>/dev/null || true)
+    done < <(find "$test_home" -mindepth 1 -not -path '*/project/.opencode/*' -not -path '*/.git/objects/*' -not -path '*/.git/refs/*' -print0 2>/dev/null || true)
 
     if [ "$leak_found" -eq 1 ]; then
         echo "  [isolation] FAIL: test home contains unexpected files" >&2

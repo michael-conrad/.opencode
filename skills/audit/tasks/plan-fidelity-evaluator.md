@@ -127,6 +127,7 @@ Evaluate each criterion against the validated evidence. Expected values referenc
 | PF-ONE-STEP | One-step-at-a-time protocol admonishment present at top of plan | FAIL if missing |
 | PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
 | PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
+| PF-PIPELINE-COMPLETENESS | All 19 mandatory pipeline stages present in plan | Plan MUST include all of: assemble-work, sc-coherence-gate, pre-red-baseline, red-phase, z3-check-red, red-doublecheck, green-phase, z3-check-green, green-doublecheck, checkpoint-tag-create, checkpoint-commit, green-vbc, sc-count-gate, pre-pr-gate, audit, cross-validate, regression-check, review-prep, create-pr, exec-summary. Missing any stage → FAIL. |
 
 ### Step 4: Evaluate Each Criterion
 
