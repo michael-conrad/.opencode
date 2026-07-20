@@ -1,0 +1,4 @@
+number: 140
+title: [SPEC-FIX] Change default BEHAVIOR_MODEL from glm-5.1:cloud to deepseek-v4-flash:cloud
+state: CLOSED
+labels: [{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}]

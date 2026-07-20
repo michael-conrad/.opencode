@@ -1,0 +1,4 @@
+number: 31
+title: [SPEC-FIX] Sub-Agent Per-Turn Injection Gating — Add isSubAgent Guards to Context-Dependent Runtime Probes
+state: CLOSED
+labels: []

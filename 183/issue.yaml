@@ -1,0 +1,4 @@
+number: 183
+title: [SPEC] local-issues: print available repo qualifiers on repo-not-found errors
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}]

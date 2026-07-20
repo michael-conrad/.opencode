@@ -1,0 +1,4 @@
+number: 28
+title: [SPEC-FIX] Walk-up root detection loops lack filesystem-root guard — infinite loop on missing .opencode/
+state: CLOSED
+labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}]

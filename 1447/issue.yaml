@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec-fix
+number: 1447
+state: OPEN
+title: "[SPEC-FIX] Plan phase structure inconsistency \u2014 structure.md and write.md\
+  \ disagree on pre/post phase organization"

@@ -1,0 +1,8 @@
+labels:
+- '[SPEC]'
+- skill-creator
+- adversarial-audit
+number: 1358
+state: OPEN
+title: '[SPEC] Reorganize Skill Cards and Task Cards with Workflow-Grouped Checklist
+  Dispatch'

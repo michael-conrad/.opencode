@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1494
+state: CLOSED
+title: '[SPEC] Fix: local Skill Description Compliance'

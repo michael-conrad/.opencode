@@ -1,0 +1,9 @@
+labels:
+- plan
+- approved-for-pr
+- '[SPEC-FIX]'
+- audit
+number: 1380
+state: CLOSED
+title: '[SPEC-FIX] Plan writer and auditor hardening: global numbering, mandatory
+  gates, hard FAIL coercion'

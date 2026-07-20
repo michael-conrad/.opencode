@@ -1,0 +1,4 @@
+number: 185
+title: [SPEC] Replace .issues/ worktree and wiki submodule with sibling peer repos
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}]

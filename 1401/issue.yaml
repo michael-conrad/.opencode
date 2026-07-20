@@ -1,0 +1,7 @@
+labels:
+- bug
+- spec-fix
+number: 1401
+state: OPEN
+title: '[BUG] verification-audit pre-flight gate unconditionally requires behavioral
+  evidence artifacts, blocking audits of structural/string/semantic-only specs'

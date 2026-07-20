@@ -1,0 +1,6 @@
+labels:
+- needs-approval
+- '[SPEC-FIX]'
+number: 1420
+state: CLOSED
+title: '[SPEC-FIX] Missing rule mandating YAML for LLM-to-LLM structured data transfers'

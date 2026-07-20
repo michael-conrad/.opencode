@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec-fix
+number: 1512
+state: OPEN
+title: '[SPEC-FIX] completion-core: description missing mandatory dispatch signal
+  (D2=FAIL, D4=FAIL)'

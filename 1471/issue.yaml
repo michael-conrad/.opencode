@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1471
+state: CLOSED
+title: '[SPEC] Fix: completion-core Skill Description Compliance'

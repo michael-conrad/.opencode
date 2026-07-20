@@ -1,0 +1,6 @@
+labels:
+- bug
+- '[SPEC-FIX]'
+number: 1452
+state: OPEN
+title: '[SPEC-FIX] Clean-room plan generator overwrites plan being audited'

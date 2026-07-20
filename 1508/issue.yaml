@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1508
+state: CLOSED
+title: '[SPEC] Fix: verification-before-completion Skill Description Compliance'

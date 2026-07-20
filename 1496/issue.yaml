@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1496
+state: CLOSED
+title: '[SPEC] Fix: issue-operations Skill Description Compliance'

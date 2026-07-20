@@ -1,0 +1,4 @@
+number: 49
+title: [SPEC-FIX] Plugin export pattern: env-loader.ts fails to load
+state: CLOSED
+labels: [{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "plugin", "color": "ededed", "description": ""}]

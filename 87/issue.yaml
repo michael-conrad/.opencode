@@ -1,0 +1,4 @@
+number: 87
+title: [SPEC] Trim parent AGENTS.md to repo purpose only
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}]

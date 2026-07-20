@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1349
+state: OPEN
+title: '[SPEC-FIX] Phase 4 of #571 incomplete: 100+ direct github_* MCP calls remain
+  in consuming skills'

@@ -1,0 +1,4 @@
+number: 101
+title: [SPEC-FIX] Behavioral test infra: XDG runtime, sourcing guard, model pool, and deepseek-v3.2 tool-path aversion
+state: CLOSED
+labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "spec", "color": "ededed", "description": ""}]

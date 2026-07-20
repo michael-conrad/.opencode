@@ -1,0 +1,7 @@
+labels:
+- '[SPEC]'
+- skill-creator
+number: 1397
+state: CLOSED
+title: "[SPEC] Fix spec-creation SKILL.md \u2014 remove dead diagram task, add missing\
+  \ change-control invocation"

@@ -1,0 +1,4 @@
+number: 51
+title: [SPEC] Purge branch status trigger noise (protected_branch_with_changes, on_main_branch, stale_submodule) and resulting dead code
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}]

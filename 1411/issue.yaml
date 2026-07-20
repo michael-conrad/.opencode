@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- test-harness
+number: 1411
+state: CLOSED
+title: '[SPEC-FIX] Add flock timeout to behavior_run and remove dead BEHAVIOR_CONCURRENT
+  docs'

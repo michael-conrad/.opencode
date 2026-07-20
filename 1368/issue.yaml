@@ -1,0 +1,6 @@
+labels:
+- bug
+- needs-approval
+number: 1368
+state: CLOSED
+title: 'test: repo ownership gate'

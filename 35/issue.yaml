@@ -1,0 +1,4 @@
+number: 35
+title: [SPEC-FIX] Frontmatter validation warnings ignored by agent — promote to fatal halt
+state: CLOSED
+labels: []

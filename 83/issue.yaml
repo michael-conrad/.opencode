@@ -1,0 +1,4 @@
+number: 83
+title: resolve-models returns raw model strings instead of subagent_type auditor strings
+state: CLOSED
+labels: [{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "resolve-models", "color": "ededed", "description": ""}, {"name": "adversarial-audit", "color": "ededed", "description": ""}]

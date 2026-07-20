@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1509
+state: CLOSED
+title: '[SPEC] Fix: verification-enforcement Skill Description Compliance'

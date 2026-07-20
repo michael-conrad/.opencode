@@ -1,0 +1,4 @@
+number: 102
+title: [SPEC-FIX] Bash guard for PEP 723 scripts — mandate + remediation
+state: CLOSED
+labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}]

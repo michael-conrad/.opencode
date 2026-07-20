@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1492
+state: CLOSED
+title: '[SPEC] Fix: gitbucket-api Skill Description Compliance'

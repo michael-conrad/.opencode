@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- approved-for-pr
+number: 1366
+state: CLOSED
+title: '[SPEC-FIX] Add repo-ownership pre-creation gate to prevent wrong-repo issue
+  routing'

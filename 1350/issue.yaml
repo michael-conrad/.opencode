@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1350
+state: OPEN
+title: "[SPEC] Platform-agnostic PR operations skill \u2014 route github_create_pull_request,\
+  \ github_pull_request_read, github_search_pull_requests through dispatcher"

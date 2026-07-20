@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1406
+state: OPEN
+title: "[SPEC-FIX] Orchestrator dispatch-gate bypass prevention \u2014 structural\
+  \ enforcement for inline-work prohibition"

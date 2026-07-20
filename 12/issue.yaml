@@ -1,0 +1,4 @@
+number: 12
+title: Bug: Question-Response Gate — Agent Collapses Interrogative Premise Into Authorization Directive
+state: CLOSED
+labels: [{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "priority-high", "color": "ededed", "description": ""}]

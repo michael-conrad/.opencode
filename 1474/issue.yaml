@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1474
+state: CLOSED
+title: '[SPEC] Fix: local Platform Sub-Skill Description Compliance'

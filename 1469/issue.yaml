@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- plan
+- fix
+number: 1469
+state: CLOSED
+title: '[PLAN] Fix completion-core description and dispatch mapping'

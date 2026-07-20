@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1498
+state: CLOSED
+title: '[SPEC] Fix: playwright-cli Skill Description Compliance'

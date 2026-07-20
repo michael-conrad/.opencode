@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- tools
+number: 1460
+state: CLOSED
+title: '[SPEC-FIX] Solve tool: add --output json flag for agent-parsable structured
+  output'

@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1505
+state: CLOSED
+title: '[SPEC] Fix: sync-guidelines Skill Description Compliance'

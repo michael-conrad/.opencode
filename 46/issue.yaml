@@ -1,0 +1,4 @@
+number: 46
+title: [SPEC] Track and commit pending local work: .issues/ cleanup, auditor qualification docs, behavioral tests
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}]

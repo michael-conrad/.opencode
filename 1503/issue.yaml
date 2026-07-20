@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1503
+state: CLOSED
+title: '[SPEC] Fix: spec-creation Skill Description Compliance'

@@ -1,0 +1,6 @@
+labels:
+- needs-approval
+- '[SPEC]'
+number: 1418
+state: CLOSED
+title: '[SPEC] Gap-fill cascade state-verification checklist model'

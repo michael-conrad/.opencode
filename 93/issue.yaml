@@ -1,0 +1,4 @@
+number: 93
+title: [SPEC] Revert SSE timeout auto-retry plugin (PR .opencode#611, #612)
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}, {"name": "revert", "color": "ededed", "description": ""}]

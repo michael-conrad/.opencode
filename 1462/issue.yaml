@@ -1,0 +1,8 @@
+labels:
+- documentation
+- needs-approval
+- spec-fix
+- writing-plans
+number: 1462
+state: OPEN
+title: '[SPEC-FIX] Writing-plans skill: document plan tool applicability domain boundaries'

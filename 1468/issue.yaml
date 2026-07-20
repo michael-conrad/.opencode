@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- plan
+- fix
+number: 1468
+state: CLOSED
+title: '[PLAN] Fix platform sub-skill descriptions and add Trigger Dispatch Tables'

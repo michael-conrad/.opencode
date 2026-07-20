@@ -1,0 +1,4 @@
+number: 57
+title: [SPEC-FIX] GREEN phase allows structural verification as proxy for execution-based SC verification
+state: CLOSED
+labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "critical", "color": "ededed", "description": ""}, {"name": "tier-1", "color": "ededed", "description": ""}]

@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1501
+state: CLOSED
+title: '[SPEC] Fix: researcher Skill Description Compliance'

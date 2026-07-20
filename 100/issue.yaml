@@ -1,0 +1,4 @@
+number: 100
+title: [SPEC] Wire Declared Adversarial Audit Gates Into Implementation Pipeline
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}, {"name": "audit-infrastructure", "color": "ededed", "description": ""}, {"name": "pipeline", "color": "ededed", "description": ""}]

@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1504
+state: CLOSED
+title: '[SPEC] Fix: sre-runbook Skill Description Compliance'

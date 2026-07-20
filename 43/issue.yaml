@@ -1,0 +1,4 @@
+number: 43
+title: [SPEC-FIX] Blacklist deepseek-v4-pro (expense) and devstral-2 (performance) from auditor pool
+state: CLOSED
+labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "needs-approval", "color": "ededed", "description": ""}]

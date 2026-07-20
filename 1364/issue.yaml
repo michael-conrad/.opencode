@@ -1,0 +1,7 @@
+labels:
+- '[SPEC-FIX]'
+- approval-gate
+number: 1364
+state: OPEN
+title: "[SPEC-FIX] for_pr scope model bypasses plan execution \u2014 gap-fill must\
+  \ route through executing-plans, not skip to PR"

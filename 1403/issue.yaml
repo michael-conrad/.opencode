@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- implementation-pipeline
+number: 1403
+state: CLOSED
+title: '[SPEC-FIX] Implementation pipeline nested sub-agent dispatch and contradictory
+  dispatch classification'

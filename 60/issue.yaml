@@ -1,0 +1,4 @@
+number: 60
+title: [SPEC] Consolidate All Auditor Skills into adversarial-audit with Unified Architecture
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}, {"name": "consolidation", "color": "ededed", "description": ""}, {"name": "architecture", "color": "ededed", "description": ""}, {"name": "audit-infrastructure", "color": "ededed", "description": ""}]

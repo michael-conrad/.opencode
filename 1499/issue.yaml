@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1499
+state: CLOSED
+title: '[SPEC] Fix: pr-creation-workflow Skill Description Compliance'

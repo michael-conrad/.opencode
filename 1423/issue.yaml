@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- opencode
+number: 1423
+state: CLOSED
+title: "[SPEC-FIX] Plan writer protocol admonishment: fix \"sub-agent dispatch\" wording,\
+  \ remove RED\u2192GREEN-specific language, add dispatch indicator validation"

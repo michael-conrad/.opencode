@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1473
+state: CLOSED
+title: '[SPEC] Fix: github-mcp Skill Description Compliance'

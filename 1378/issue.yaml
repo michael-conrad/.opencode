@@ -1,0 +1,8 @@
+labels:
+- '[SPEC-FIX]'
+- guideline
+- skill
+number: 1378
+state: CLOSED
+title: '[SPEC-FIX] Evidence type classification gate for agent-facing configuration
+  changes'

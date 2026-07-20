@@ -1,0 +1,5 @@
+labels:
+- plan
+number: 1405
+state: CLOSED
+title: '[PLAN] Fix verification-audit pre-flight gate to be SC-type-aware'

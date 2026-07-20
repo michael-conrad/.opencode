@@ -1,0 +1,5 @@
+labels:
+- plan
+number: 1444
+state: CLOSED
+title: '[PLAN] Phase 2: create.md Z3 enforcement + behavioral tests'

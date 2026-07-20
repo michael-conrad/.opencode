@@ -1,0 +1,4 @@
+number: 108
+title: [SPEC] Exploration as default floor mode — agent defaults to discuss/explore when intent is ambiguous
+state: CLOSED
+labels: [{"name": "spec", "color": "ededed", "description": ""}, {"name": "brainstorming", "color": "ededed", "description": ""}, {"name": "default-behavior", "color": "ededed", "description": ""}]

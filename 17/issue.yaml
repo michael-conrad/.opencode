@@ -1,0 +1,4 @@
+number: 17
+title: [SPEC] Remove dispatch-table.yaml cruft and stale references
+state: CLOSED
+labels: [{"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "spec", "color": "ededed", "description": ""}]

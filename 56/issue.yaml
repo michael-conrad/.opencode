@@ -1,0 +1,4 @@
+number: 56
+title: [SPEC] Remove Identity Validation from session-enforcement.ts — Circular Self-Check with Broken Parser
+state: CLOSED
+labels: [{"name": "[SPEC]", "color": "ededed", "description": ""}]

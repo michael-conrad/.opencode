@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1495
+state: CLOSED
+title: '[SPEC] Fix: implementation-pipeline Skill Description Compliance'

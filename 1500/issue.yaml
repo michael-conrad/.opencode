@@ -1,0 +1,6 @@
+labels:
+- spec
+- fix
+number: 1500
+state: CLOSED
+title: '[SPEC] Fix: pre-analysis Skill Description Compliance'

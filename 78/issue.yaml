@@ -1,0 +1,4 @@
+number: 78
+title: [SPEC-FIX] Cleanup pipeline: auto-authorize destructive git ops on non-protected branches
+state: CLOSED
+labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "skill-fix", "color": "ededed", "description": ""}]

@@ -1,0 +1,7 @@
+labels:
+- '[SPEC]'
+- skill-creator
+number: 1398
+state: OPEN
+title: '[SPEC] Fix spec-creation SKILL.md: remove dead diagram entry, add missing
+  change-control entry'

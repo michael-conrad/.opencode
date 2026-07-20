@@ -1,0 +1,6 @@
+labels:
+- approved-for-pr
+number: 1440
+state: CLOSED
+title: '[BUG] Implementation pipeline missing mandatory submodule sync verification
+  at entry point'

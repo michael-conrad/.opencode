@@ -1,0 +1,9 @@
+labels:
+- needs-approval
+- spec-fix
+- pipeline
+- writing-plans
+number: 1461
+state: OPEN
+title: '[SPEC-FIX] Writing-plans pipeline: replace inline Z3 passthrough with real
+  contract verification'
