@@ -2,3 +2,20 @@ comments:
 - type: internal
   body: 'Authorization received: for_pr scope. Proceeding with plan creation and implementation.'
   timestamp: '2026-07-20T23:29:54+00:00'
+- type: internal
+  body: 'PR created: https://github.com/michael-conrad/.opencode/pull/2038
+
+
+    Fix: Removed (orchestrator) and (inline) dispatch markers from writing-plans-creation/tasks/create.md
+    task card. These markers belong in the SKILL.md Pipeline section, not in a task
+    card executed by a sub-agent.
+
+
+    SC-1: spec-creation SKILL.md Invocation already dispatches task card (no change)
+
+    SC-2: writing-plans SKILL.md Invocation already dispatches task card (no change)
+
+    SC-3: No [sub-task] in any Invocation section (verified)
+
+    SC-4: Task cards have entry/exit criteria (already present)'
+  timestamp: '2026-07-20T23:37:32+00:00'
