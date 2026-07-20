@@ -1,0 +1,65 @@
+domain: dispatch-boundary-fix
+types:
+  - name: phase
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+  - name: p4
+    type: phase
+  - name: p5
+    type: phase
+  - name: p6
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute-p1
+    preconditions:
+      - not completed(p1)
+    effects:
+      - completed(p1)
+  - name: execute-p2
+    preconditions:
+      - not completed(p2)
+      - completed(p1)
+    effects:
+      - completed(p2)
+  - name: execute-p3
+    preconditions:
+      - not completed(p3)
+      - completed(p2)
+    effects:
+      - completed(p3)
+  - name: execute-p4
+    preconditions:
+      - not completed(p4)
+      - completed(p3)
+    effects:
+      - completed(p4)
+  - name: execute-p5
+    preconditions:
+      - not completed(p5)
+      - completed(p4)
+    effects:
+      - completed(p5)
+  - name: execute-p6
+    preconditions:
+      - not completed(p6)
+      - completed(p5)
+    effects:
+      - completed(p6)
+init: []
+goals:
+  - completed(p1)
+  - completed(p2)
+  - completed(p3)
+  - completed(p4)
+  - completed(p5)
+  - completed(p6)

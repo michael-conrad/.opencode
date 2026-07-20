@@ -1,0 +1,191 @@
+spec: .opencode#2020
+generated_at: 2026-07-20T13:40:00Z
+status: DONE
+phase_definitions:
+  - phase: 1
+    name: "Audit and classify all SKILL.md Invocation sections"
+    primary_concern: Read-only audit of all SKILL.md Invocation sections to classify pipeline dispatch patterns
+    affected_files:
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/writing-plans/SKILL.md
+    changes: Read-only — no modifications
+    sc_coverage:
+      - SC-1 (audit scope determines fix scope)
+    entry_conditions:
+      - Phase 1 audit results available from research
+    exit_conditions:
+      - All SKILL.md Invocation sections read and classified
+      - Classification results documented
+    invariants:
+      - No files modified
+    safety_rollback: No destructive operations in this phase
+    dependencies: []
+
+  - phase: 2
+    name: "Fix SKILL.md Invocation sections"
+    primary_concern: Fix Invocation entries that dispatch pipelines with [sub-task] steps to sub-agents
+    affected_files:
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/writing-plans/SKILL.md
+    changes: |
+      - Change Invocation entries from pipeline-dispatch to inline (orchestrator executes)
+      - Add TDT entries for each [sub-task] step
+    sc_coverage:
+      - SC-1 (no [sub-task] in Invocation sections)
+    entry_conditions:
+      - Phase 1 audit results available
+    exit_conditions:
+      - All marked Invocation sections fixed
+      - Each [sub-task] step has a TDT dispatch entry
+    invariants:
+      - Invocation sections no longer dispatch pipelines to sub-agents
+    safety_rollback: |
+      - Destructive operations: SKILL.md content edits
+      - Rollback: git checkout -- .opencode/skills/spec-creation/SKILL.md .opencode/skills/writing-plans/SKILL.md
+      - Data loss risk: low
+    dependencies:
+      - phase: 1
+
+  - phase: 3
+    name: "Fix writing-plans/SKILL.md dispatch classification and related defects"
+    primary_concern: Fix TDT classification, Invocation table, Sub-Agent Routing claims, .issues/ refs, and related task file defects
+    affected_files:
+      - .opencode/skills/writing-plans/SKILL.md
+      - .opencode/skills/writing-plans-creation/tasks/audit-fidelity.md
+      - .opencode/skills/writing-plans-creation/tasks/audit-concern.md
+      - .opencode/skills/writing-plans-creation/tasks/completion.md
+    changes: |
+      - D1: Change create/retroactive from sub-task to orchestrator in TDT; add completion entry
+      - D2: Fix Invocation — create is orchestrator-executed, not task() dispatched
+      - D3: Remove "with auditor sub-agent type context" from audit-fidelity.md and audit-concern.md
+      - D4: Add dual pattern explanation to .issues/{N}/ references
+      - D6: Fix Sub-Agent Routing claims
+      - D7: Already resolved (completion.md path correct)
+    sc_coverage:
+      - SC-2 (create classified as orchestrator)
+      - SC-3 (retroactive classified as orchestrator)
+      - SC-4 (completion entry as orchestrator)
+      - SC-5 (Invocation does not dispatch create as task())
+      - SC-6 (audit-fidelity.md clean)
+      - SC-7 (audit-concern.md clean)
+      - SC-8 (no "All tasks run via task()")
+      - SC-9 (no "No inline work")
+      - SC-10 (completion.md references correct path)
+      - SC-11 (dual pattern explanation for .issues/ refs)
+    entry_conditions:
+      - Phase 2 complete (general Invocation fix applied before writing-plans-specific fix)
+    exit_conditions:
+      - All writing-plans defects (D1-D6) resolved
+      - writing-plans/SKILL.md consistent with general fix from Phase 2
+    invariants:
+      - No conflict between Phase 2 general fix and Phase 3 specific fix
+    safety_rollback: |
+      - Destructive operations: SKILL.md and task file content edits
+      - Rollback: git checkout -- .opencode/skills/writing-plans/SKILL.md .opencode/skills/writing-plans-creation/tasks/
+      - Data loss risk: low
+    dependencies:
+      - phase: 2
+
+  - phase: 4
+    name: "Fix assemble-work.md content completeness"
+    primary_concern: Add entry proof marker, OVERFLOW handling, work state verification, and completion checkpoint to assemble-work.md
+    affected_files:
+      - .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+    changes: |
+      - Add entry proof marker (Step 1.5)
+      - Add OVERFLOW handling
+      - Add work state verification
+      - Add post-sub-agent completion checkpoint with hash mismatch detection
+    sc_coverage:
+      - SC-12 (entry proof marker)
+      - SC-13 (OVERFLOW handling)
+      - SC-14 (work state verification)
+      - SC-15 (completion checkpoint)
+    entry_conditions:
+      - Phase 3 complete
+    exit_conditions:
+      - All 4 content sections added to assemble-work.md
+    invariants:
+      - assemble-work.md has entry proof, OVERFLOW, work state verification, completion checkpoint
+    safety_rollback: |
+      - Destructive operations: task file content edits
+      - Rollback: git checkout -- .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+      - Data loss risk: low
+    dependencies:
+      - phase: 3
+
+  - phase: 5
+    name: "Add critical violation to guidelines"
+    primary_concern: Add critical violation entry for sub-agent task() dispatch to 000-critical-rules.md
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+    changes: Add new critical-rules-XXX entry for sub-agent task() dispatch prohibition
+    sc_coverage:
+      - SC-16 (critical-rules.md entry)
+    entry_conditions:
+      - Phase 4 complete
+    exit_conditions:
+      - Critical violation entry added
+    invariants:
+      - Entry references sub-agent task() dispatch prohibition
+    safety_rollback: |
+      - Destructive operations: guideline file edit
+      - Rollback: git checkout -- .opencode/guidelines/000-critical-rules.md
+      - Data loss risk: low
+    dependencies:
+      - phase: 4
+    notes: "Research indicates SC-16 is already RESOLVED — critical-rules.md already has the entry. Phase 5 may be a no-op. Verify before executing."
+
+  - phase: 6
+    name: "Behavioral enforcement tests"
+    primary_concern: Create behavioral enforcement tests for each violation type
+    affected_files:
+      - .opencode/tests-v2/behaviors/dispatch-boundary-spec-creation.sh
+      - .opencode/tests-v2/behaviors/dispatch-boundary-writing-plans.sh
+    changes: New behavioral test files
+    sc_coverage:
+      - SC-17 (behavioral test for spec-creation pipeline dispatch)
+      - SC-18 (behavioral test for writing-plans pipeline dispatch)
+      - SC-19 (behavioral test for writing-plans TDT classification)
+    entry_conditions:
+      - Phase 5 complete (guidelines updated)
+    exit_conditions:
+      - Behavioral tests created and passing
+    invariants:
+      - Tests verify each violation type
+    safety_rollback: No destructive operations in this phase
+    dependencies:
+      - phase: 5
+
+dependency_contract:
+  ordering:
+    - phase: 1
+      depends_on: []
+      rationale: "Read-only audit establishes scope before any modifications"
+    - phase: 2
+      depends_on: [1]
+      rationale: "Phase 2 needs Phase 1 audit results to know which Invocations to fix"
+    - phase: 3
+      depends_on: [2]
+      rationale: "Phase 2 general Invocation fix must precede writing-plans-specific fix to avoid conflict (cross-cutting concern: writing-plans/SKILL.md consistency)"
+    - phase: 4
+      depends_on: [3]
+      rationale: "Sequential ordering per state analysis; no cross-cutting conflict"
+    - phase: 5
+      depends_on: [4]
+      rationale: "Sequential ordering per state analysis; may be no-op (already resolved)"
+    - phase: 6
+      depends_on: [5]
+      rationale: "Tests must verify fixes from Phases 2-5; must be created after fixes are applied"
+  parallel_possible: []
+  cross_cutting_coordination:
+    - concern: "SKILL.md Invocation section correctness"
+      affects_phases: [1, 2]
+      coordination: "Phase 1 audit scope determines Phase 2 fix scope. Sequential required."
+    - concern: "writing-plans/SKILL.md consistency"
+      affects_phases: [2, 3]
+      coordination: "Phase 2 general fix and Phase 3 specific fix must not conflict. Sequential required."
+  notes:
+    - "Phase 5 (SC-16) is already RESOLVED per research findings. Verify before executing — may be a no-op."
+    - "D7 (completion.md path) is already RESOLVED per research findings. No work needed."
+    - "Violation B (task cards with task() calls) and Violation C (missing orchestrator entry points) are already RESOLVED."

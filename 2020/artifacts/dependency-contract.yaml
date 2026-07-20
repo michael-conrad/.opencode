@@ -1,0 +1,89 @@
+spec: .opencode#2020
+generated_at: 2026-07-20T13:40:00Z
+variables:
+  phase_1_done:
+    type: bool
+    description: "Phase 1 (Audit) completed"
+  phase_2_done:
+    type: bool
+    description: "Phase 2 (Fix Invocations) completed"
+  phase_3_done:
+    type: bool
+    description: "Phase 3 (Fix writing-plans) completed"
+  phase_4_done:
+    type: bool
+    description: "Phase 4 (Fix assemble-work.md) completed"
+  phase_5_done:
+    type: bool
+    description: "Phase 5 (Add critical violation) completed"
+  phase_6_done:
+    type: bool
+    description: "Phase 6 (Behavioral tests) completed"
+preconditions:
+  - "z3.BoolVal(True)"
+invariants:
+  - z3.Implies(phase_2_done, phase_1_done)
+  - z3.Implies(phase_3_done, phase_2_done)
+  - z3.Implies(phase_4_done, phase_3_done)
+  - z3.Implies(phase_5_done, phase_4_done)
+  - z3.Implies(phase_6_done, phase_5_done)
+postconditions:
+  - phase_6_done
+phases:
+  - phase: 1
+    name: "Audit and classify all SKILL.md Invocation sections"
+    dependencies: []
+    invariants:
+      - "No files modified"
+  - phase: 2
+    name: "Fix SKILL.md Invocation sections"
+    dependencies: [1]
+    invariants:
+      - "Invocation sections no longer dispatch pipelines to sub-agents"
+  - phase: 3
+    name: "Fix writing-plans/SKILL.md dispatch classification and related defects"
+    dependencies: [2]
+    invariants:
+      - "No conflict between Phase 2 general fix and Phase 3 specific fix"
+  - phase: 4
+    name: "Fix assemble-work.md content completeness"
+    dependencies: [3]
+    invariants:
+      - "assemble-work.md has entry proof, OVERFLOW, work state verification, completion checkpoint"
+  - phase: 5
+    name: "Add critical violation to guidelines"
+    dependencies: [4]
+    invariants:
+      - "Entry references sub-agent task() dispatch prohibition"
+  - phase: 6
+    name: "Behavioral enforcement tests"
+    dependencies: [5]
+    invariants:
+      - "Tests verify each violation type"
+ordering:
+  - phase: 1
+    depends_on: []
+    rationale: "Read-only audit establishes scope before any modifications"
+  - phase: 2
+    depends_on: [1]
+    rationale: "Phase 2 needs Phase 1 audit results to know which Invocations to fix"
+  - phase: 3
+    depends_on: [2]
+    rationale: "Phase 2 general Invocation fix must precede writing-plans-specific fix to avoid conflict"
+  - phase: 4
+    depends_on: [3]
+    rationale: "Sequential ordering per state analysis; no cross-cutting conflict"
+  - phase: 5
+    depends_on: [4]
+    rationale: "Sequential ordering per state analysis; may be no-op (already resolved)"
+  - phase: 6
+    depends_on: [5]
+    rationale: "Tests must verify fixes from Phases 2-5; must be created after fixes are applied"
+parallel_possible: []
+cross_cutting_coordination:
+  - concern: "SKILL.md Invocation section correctness"
+    affects_phases: [1, 2]
+    coordination: "Phase 1 audit scope determines Phase 2 fix scope. Sequential required."
+  - concern: "writing-plans/SKILL.md consistency"
+    affects_phases: [2, 3]
+    coordination: "Phase 2 general fix and Phase 3 specific fix must not conflict. Sequential required."
