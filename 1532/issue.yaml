@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1532
+state: OPEN
+title: '[SPEC] Fix: verification-before-completion Skill Description Compliance'

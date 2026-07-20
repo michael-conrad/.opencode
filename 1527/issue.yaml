@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1527
+state: OPEN
+title: '[SPEC] Fix: spec-creation Skill Description Compliance'

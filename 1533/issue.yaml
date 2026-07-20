@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1533
+state: OPEN
+title: '[SPEC] Fix: verification-enforcement Skill Description Compliance'

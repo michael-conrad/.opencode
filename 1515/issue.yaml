@@ -1,0 +1,6 @@
+labels:
+- needs-approval
+- spec-fix
+number: 1515
+state: OPEN
+title: '[SPEC-FIX] github-mcp: NO_TDT + narrative-only content (D3=NO_TDT, D4=FAIL)'

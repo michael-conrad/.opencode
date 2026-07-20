@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1520
+state: OPEN
+title: '[SPEC] Fix: playwright-cli Skill Description Compliance'

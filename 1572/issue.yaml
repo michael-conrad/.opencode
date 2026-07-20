@@ -1,0 +1,5 @@
+labels:
+- bug
+number: 1572
+state: CLOSED
+title: '[BUG] playwright-cli/SKILL.md YAML frontmatter fails to parse'

@@ -1,0 +1,6 @@
+labels:
+- skill-fix
+number: 1548
+state: CLOSED
+title: '[SKILL-FIX] writing-plans: fix references to non-existent contract/template
+  YAML files'

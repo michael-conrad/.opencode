@@ -1,0 +1,7 @@
+labels:
+- spec
+- audit
+number: 1541
+state: CLOSED
+title: "[AUDIT] Skill deck guidelines incorrectly use word/line/token counts as implementation\
+  \ effort proxies \u2014 holistic audit + fix needed"

@@ -1,0 +1,6 @@
+labels:
+- bug
+- spec-fix
+number: 1568
+state: OPEN
+title: '[SPEC-FIX] Mandatory bug reports for regression check failures'

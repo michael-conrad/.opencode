@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1517
+state: OPEN
+title: '[SPEC] Fix: implementation-pipeline Skill Description Compliance'

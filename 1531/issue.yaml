@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1531
+state: OPEN
+title: '[SPEC] Fix: test-driven-development Skill Description Compliance'

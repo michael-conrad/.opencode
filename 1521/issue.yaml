@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1521
+state: OPEN
+title: '[SPEC] Fix: pr-creation-workflow Skill Description Compliance'

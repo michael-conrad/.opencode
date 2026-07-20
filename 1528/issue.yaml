@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1528
+state: OPEN
+title: '[SPEC] Fix: sre-runbook Skill Description Compliance'

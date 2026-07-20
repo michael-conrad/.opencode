@@ -1,0 +1,7 @@
+labels:
+- bug
+- '[SPEC]'
+number: 1593
+state: CLOSED
+title: '[SPEC] Auto-revision exception: pipeline-initiated spec revisions auto-update
+  plan without re-authorization'

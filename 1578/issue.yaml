@@ -1,0 +1,7 @@
+labels:
+- bug
+- approved-for-plan
+- content-verification
+number: 1578
+state: CLOSED
+title: '[BUG] playwright-cli/SKILL.md YAML frontmatter parse error'

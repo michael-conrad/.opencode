@@ -1,0 +1,5 @@
+labels: []
+number: 1576
+state: OPEN
+title: '[BUG] local-issues link --help returns "Error: invalid issue number" instead
+  of usage'

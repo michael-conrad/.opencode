@@ -1,0 +1,4 @@
+labels: []
+number: 1574
+state: OPEN
+title: '[BUG] local-issues create --body and --parent flags silently ignored'

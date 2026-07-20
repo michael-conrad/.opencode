@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1518
+state: OPEN
+title: '[SPEC] Fix: issue-operations Skill Description Compliance'

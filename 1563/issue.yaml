@@ -1,0 +1,7 @@
+labels:
+- bug
+- needs-approval
+number: 1563
+state: OPEN
+title: 'Fix critical-rules-044: Remove overbroad verification_sub_agent condition
+  from symbolic rules'

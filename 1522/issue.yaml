@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1522
+state: OPEN
+title: '[SPEC] Fix: pre-analysis Skill Description Compliance'

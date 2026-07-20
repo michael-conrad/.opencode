@@ -1,0 +1,6 @@
+labels:
+- approved-for-pr
+number: 1587
+state: CLOSED
+title: "[SPEC-FIX] Orchestrator read-then-inline pattern \u2014 enforce canonical\
+  \ dispatch and sub-agent rejection of preloaded context"

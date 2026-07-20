@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1519
+state: OPEN
+title: '[SPEC] Fix: issue-review Skill Description Compliance'

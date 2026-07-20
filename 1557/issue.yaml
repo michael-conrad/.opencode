@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1557
+state: CLOSED
+title: '[SPEC-FIX] Remove ''unless explicitly marked as inline'' structural escape
+  hatch in 37 SKILL.md files'

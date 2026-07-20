@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1523
+state: OPEN
+title: '[SPEC] Fix: researcher Skill Description Compliance'

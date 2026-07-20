@@ -1,0 +1,7 @@
+labels:
+- '[SPEC]'
+- critical
+number: 1589
+state: CLOSED
+title: "[SPEC] Pre-Response Gate re-entry for gap-fill cascade \u2014 skill dispatch\
+  \ on sub-decisions"

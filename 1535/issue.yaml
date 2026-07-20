@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1535
+state: OPEN
+title: '[SPEC] Fix: writing-plans Skill Description Compliance'

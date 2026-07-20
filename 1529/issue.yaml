@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1529
+state: OPEN
+title: '[SPEC] Fix: sync-guidelines Skill Description Compliance'

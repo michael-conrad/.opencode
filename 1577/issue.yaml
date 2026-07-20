@@ -1,0 +1,6 @@
+labels:
+- approved-for-plan
+number: 1577
+state: CLOSED
+title: '[BUG] pre-commit Gate 2a blocks commits on implementation branches with no
+  work state file creation workflow'

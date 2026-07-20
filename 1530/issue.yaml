@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1530
+state: OPEN
+title: '[SPEC] Fix: systematic-debugging Skill Description Compliance'

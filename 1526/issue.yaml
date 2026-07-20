@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+- fix
+number: 1526
+state: CLOSED
+title: '[SPEC] Fix: solve Skill Description Compliance'

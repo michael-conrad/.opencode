@@ -1,0 +1,6 @@
+labels:
+- bug
+- BRANCH-MANAGEMENT
+number: 1580
+state: CLOSED
+title: '[BUG] Release PR prompt halts on submodule state instead of routing to pr-creation-workflow'
