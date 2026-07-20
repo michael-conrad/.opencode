@@ -1,0 +1,7 @@
+labels:
+- '[SPEC-FIX]'
+- adversarial-audit
+number: 1365
+state: OPEN
+title: '[SPEC-FIX] spec-audit task card missing codebase-accuracy and feasibility
+  criteria'

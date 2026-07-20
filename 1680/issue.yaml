@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec-fix
+number: 1680
+state: CLOSED
+title: "[SPEC-FIX] Orchestrator MUST use canonical dispatch string \u2014 no custom\
+  \ prompts with preloaded context"

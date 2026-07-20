@@ -1,0 +1,5 @@
+labels: []
+number: 1966
+state: OPEN
+title: '[BUG] VbC DISPATCH_CHAIN_VIOLATION gate requires skill() call logging that
+  agents cannot produce'

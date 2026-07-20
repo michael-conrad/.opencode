@@ -1,0 +1,6 @@
+labels:
+- bug
+number: 1963
+state: OPEN
+title: "[BUG] Agent bypassed skill dispatch for GitHub issue listing \u2014 \"simple\"\
+  \ read-only rationalization"

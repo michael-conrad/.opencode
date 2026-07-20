@@ -1,0 +1,8 @@
+labels:
+- needs-approval
+- spec-fix
+- process-integrity
+number: 1994
+state: OPEN
+title: "[SPEC-FIX] Plan writer produces structurally defective plans \u2014 6 defect\
+  \ categories identified"

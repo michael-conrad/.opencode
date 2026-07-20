@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 2023
+state: OPEN
+title: "[SPEC-FIX] Revise workflow missing local spec update step \u2014 spec mirror\
+  \ drifts after revision"

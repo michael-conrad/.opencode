@@ -1,0 +1,1 @@
+Superseded by #1673 (SC-6: rename canonical dispatch from "create" to "write") and #864/#865 (DISPATCH_GATE protocol across all skills). The problem identified in this session is already tracked by those issues.

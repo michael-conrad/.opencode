@@ -1,0 +1,8 @@
+labels:
+- needs-approval
+- spec-fix
+- process-integrity
+number: 1969
+state: OPEN
+title: "[SPEC-FIX] Mandatory full compliance with spec-creation task procedure \u2014\
+  \ no exceptions, no bypasses, no escape hatches"

@@ -1,0 +1,8 @@
+labels:
+- '[SPEC]'
+- approved-for-pr
+- implementation-pipeline
+number: 1347
+state: CLOSED
+title: '[SPEC] Add checkpoint tag creation as explicit step in implementation-pipeline
+  dispatch routing table'

@@ -1,0 +1,5 @@
+labels:
+- spec
+number: 1959
+state: OPEN
+title: '[SPEC] Restore playwright-cli skill task cards and reconcile with upstream'

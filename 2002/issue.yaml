@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 2002
+state: CLOSED
+title: "[SPEC-FIX] Orchestrator bypasses spec-creation pipeline \u2014 writes spec\
+  \ content directly via github_issue_write"

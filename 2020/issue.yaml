@@ -1,0 +1,5 @@
+labels: []
+number: 2020
+state: OPEN
+title: '[BUG] Systemic: multiple skill SKILL.md Invocation sections dispatch pipelines
+  with [sub-task] steps to sub-agents that cannot call task()'

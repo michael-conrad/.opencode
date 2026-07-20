@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1995
+state: OPEN
+title: '[SPEC] Plan writer skill: mandate indented sub-bullet format for step parameters
+  in write.md'

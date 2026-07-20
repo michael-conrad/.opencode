@@ -1,0 +1,7 @@
+labels:
+- bug
+- spec-fix
+number: 1971
+state: CLOSED
+title: "[SPEC-FIX] check-pr task file contains invalid git commands \u2014 rebase/force-push\
+  \ on merged branches, glob tag deletion, redundant prune"

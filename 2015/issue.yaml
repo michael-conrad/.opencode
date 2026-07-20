@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+number: 2015
+state: OPEN
+title: "[SPEC] Three-layer spec hierarchy: Project Charter \u2192 Phase Specs \u2192\
+  \ Implementation Plans"

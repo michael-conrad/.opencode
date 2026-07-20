@@ -1,0 +1,4 @@
+labels: []
+number: 1965
+state: OPEN
+title: '[BUG] Agent rationalizes away mandatory pipeline gates for "simple" changes'

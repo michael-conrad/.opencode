@@ -1,0 +1,5 @@
+labels:
+- bug
+number: 2013
+state: OPEN
+title: '[BUG] pre-red-baseline SUBMODULE-DRIFT check too strict for stacked PR workflows'

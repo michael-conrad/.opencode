@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 2024
+state: OPEN
+title: '[SPEC-FIX] change-control task mandates useless notification comments on spec
+  revisions'
