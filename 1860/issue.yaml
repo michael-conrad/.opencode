@@ -1,0 +1,9 @@
+labels:
+- spec-fix
+- critical
+- authorization
+- go-prohibitions
+number: 1860
+state: OPEN
+title: "[SPEC-FIX] CRITICAL: Prohibit sycophantic action-on-question \u2014 agent\
+  \ MUST investigate and answer before any modification"

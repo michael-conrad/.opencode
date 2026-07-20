@@ -1,0 +1,5 @@
+labels:
+- plan
+number: 1745
+state: CLOSED
+title: Add filesystem-root guards to walk-up root detection loops

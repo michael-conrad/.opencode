@@ -1,0 +1,6 @@
+labels:
+- needs-approval
+- spec-fix
+number: 1776
+state: CLOSED
+title: '[SPEC-FIX] Add mandatory rebase-before-push gate to prevent stale branch development'

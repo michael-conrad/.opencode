@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+- approved-for-pr
+number: 1842
+state: CLOSED
+title: '[SPEC-FIX] Legacy format warning does not state correct format'

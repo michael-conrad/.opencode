@@ -1,0 +1,5 @@
+labels:
+- plan
+number: 1762
+state: CLOSED
+title: '[SPEC-FIX] Sub-agent Task File Discovery Directive for DISPATCH_GATE Protocol'

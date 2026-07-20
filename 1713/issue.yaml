@@ -1,0 +1,6 @@
+labels:
+- approved-for-implementation
+number: 1713
+state: CLOSED
+title: "[PLAN] #1712 \u2014 PR creation flow re-uses closed PRs instead of creating\
+  \ fresh ones"

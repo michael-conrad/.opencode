@@ -1,0 +1,7 @@
+labels:
+- approved-for-pr
+- '[SPEC-FIX]'
+- critical
+number: 1619
+state: CLOSED
+title: '[SPEC-FIX] Remove sub-step entries from spec-creation dispatch table and invocation'

@@ -1,0 +1,6 @@
+labels:
+- needs-approval
+- spec
+number: 1643
+state: CLOSED
+title: '[SPEC] Behavioral enforcement tests for adversarial-audit architecture'

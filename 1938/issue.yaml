@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1938
+state: CLOSED
+title: "[SPEC-FIX] Remove Step 0.6 submodule context detection gate \u2014 blocks\
+  \ legitimate submodule PRs"

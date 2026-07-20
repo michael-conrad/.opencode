@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1894
+state: CLOSED
+title: "[SPEC-FIX] implementation-pipeline Step-Level Dispatch Mandate \u2014 eliminate\
+  \ phase-level batching modes"

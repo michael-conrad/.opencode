@@ -1,0 +1,6 @@
+labels:
+- approved-for-implementation
+number: 1630
+state: CLOSED
+title: '[PLAN] Add mandatory submodule sync verification to implementation pipeline
+  entry point'

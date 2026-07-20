@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+- phase
+number: 1699
+state: CLOSED
+title: Add behavioral-test-evaluation task to verification-before-completion skill

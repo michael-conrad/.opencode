@@ -1,0 +1,7 @@
+labels:
+- bug
+- superseded
+number: 1648
+state: CLOSED
+title: "[BUG] AI agent skips test creation \u2014 uses file-existence/grep instead\
+  \ of TDD with existing test frameworks"

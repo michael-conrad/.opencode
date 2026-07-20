@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- approved-for-pr
+number: 1664
+state: CLOSED
+title: '[SPEC-FIX] local-issues init fails for repos on master branch with no issues-data
+  branch'

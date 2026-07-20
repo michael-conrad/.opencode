@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1897
+state: CLOSED
+title: "[SPEC-FIX] Complete #1709 Phase 10 \u2014 missing behavioral tests for version-manager\
+  \ and release-promoter"

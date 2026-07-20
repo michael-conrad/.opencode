@@ -1,0 +1,5 @@
+labels:
+- spec
+number: 1775
+state: CLOSED
+title: Fix SC-9 Behavioral Test Timeout + Add Pre-PR Gate

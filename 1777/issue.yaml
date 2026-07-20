@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec-fix
+number: 1777
+state: CLOSED
+title: '[SPEC-FIX] Add micro-management prohibition admonishment to spec-creation
+  and writing-plans Persona sections'

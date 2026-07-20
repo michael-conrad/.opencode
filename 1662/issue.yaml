@@ -1,0 +1,4 @@
+labels: []
+number: 1662
+state: CLOSED
+title: '[PLAN] Replace /skill CLI convention with proper skill() invocation syntax'

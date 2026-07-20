@@ -1,0 +1,6 @@
+labels:
+- plan
+number: 1763
+state: CLOSED
+title: "[SPEC-FIX] orchestrator DISPATCH_GATE violation \u2014 canonical dispatch\
+  \ enforcement"

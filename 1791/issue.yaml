@@ -1,0 +1,6 @@
+labels:
+- approved-for-pr
+number: 1791
+state: CLOSED
+title: "[SPEC-FIX] Plan writer generates structural-only exit criteria for behavioral\
+  \ SCs \u2014 missing model-execution-and-evaluation steps"

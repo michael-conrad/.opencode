@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec-fix
+- approved-for-pr
+number: 1862
+state: CLOSED
+title: '[SPEC-FIX] session-init: Add CLI Auth Status Reporting (gh, gb)'

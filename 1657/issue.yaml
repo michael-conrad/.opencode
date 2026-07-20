@@ -1,0 +1,7 @@
+labels:
+- '[SPEC]'
+- approved-for-implementation
+number: 1657
+state: CLOSED
+title: '[SPEC] Remove all dev branch auto-creation and references for trunk-based
+  development'

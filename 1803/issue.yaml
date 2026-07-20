@@ -1,0 +1,5 @@
+labels:
+- sub-issue
+number: 1803
+state: CLOSED
+title: '[SUB] Phase 4: Migrate procedure content to tasks/*.md'

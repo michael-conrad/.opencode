@@ -1,0 +1,5 @@
+labels: []
+number: 1729
+state: CLOSED
+title: "[SPEC-FIX] Pre-push hook Gate 2 fails on new branch pushes \u2014 REMOTE_SHA\
+  \ is all zeros"

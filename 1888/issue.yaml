@@ -1,0 +1,6 @@
+labels:
+- TRASH
+- REJECTED
+number: 1888
+state: CLOSED
+title: "[Task: #1881] Phase 2 \u2014 Split issue-operations"

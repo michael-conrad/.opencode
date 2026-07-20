@@ -1,0 +1,8 @@
+labels:
+- spec-fix
+- enforcement
+- behavioral-test
+number: 1951
+state: CLOSED
+title: '[SPEC-FIX] Pre-Response Gate enforcement: behavioral test for cascading rationalization
+  bypass'

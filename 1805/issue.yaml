@@ -1,0 +1,5 @@
+labels:
+- sub-issue
+number: 1805
+state: CLOSED
+title: '[SUB] Phase 2: Add DISPATCH_GATE to routing-only template'

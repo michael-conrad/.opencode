@@ -1,0 +1,5 @@
+labels:
+- spec-fix
+number: 1688
+state: CLOSED
+title: '[SPEC-FIX] Prohibit parallel-execution rationalization in pipeline step ordering'

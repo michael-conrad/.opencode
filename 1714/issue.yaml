@@ -1,0 +1,5 @@
+labels:
+- approved-for-pr
+number: 1714
+state: CLOSED
+title: '[SPEC] Move submodule-pointer-only gate from pre-commit to pre-push'

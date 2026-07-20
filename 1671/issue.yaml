@@ -1,0 +1,8 @@
+labels:
+- '[SPEC]'
+- dispatch-gate
+- skill-card
+number: 1671
+state: CLOSED
+title: '[SPEC] Add complete DISPATCH_GATE subsections to 3 defective skill cards,
+  2 templates, and validation script'

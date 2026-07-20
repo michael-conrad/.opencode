@@ -1,0 +1,7 @@
+labels:
+- enhancement
+- spec-fix
+number: 1696
+state: CLOSED
+title: '[SPEC-FIX] Upgrade viewport-editor MCP plugin to v0.3.4 and adopt new config
+  key "editor"'

@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1697
+state: CLOSED
+title: "[SPEC-FIX] Behavioral test evaluation gate \u2014 mandatory clean-room evaluation,\
+  \ prompt validation, and remediation loop"

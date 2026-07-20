@@ -1,0 +1,6 @@
+labels:
+- needs-approval
+- spec
+number: 1632
+state: CLOSED
+title: '[SPEC] Redesign pre-push Gate 1 for trunk-based development (supersedes #1356)'

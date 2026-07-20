@@ -1,0 +1,6 @@
+labels:
+- approved-for-pr
+number: 1711
+state: CLOSED
+title: "[SPEC] Fix implementation-pipeline dispatch table \u2014 route to owning skills,\
+  \ remove phantom entries"

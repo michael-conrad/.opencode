@@ -1,0 +1,5 @@
+labels:
+- spec
+number: 1773
+state: CLOSED
+title: '[SPEC] Canonical project_root variable for submodule-aware path resolution'

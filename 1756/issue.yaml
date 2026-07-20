@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1756
+state: CLOSED
+title: "[SPEC-FIX] Pipeline enforcement gaps \u2014 contract paths, step-skip on FAIL,\
+  \ RED deliverable defects, dispatch directives"

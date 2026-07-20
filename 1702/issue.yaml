@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+- phase
+number: 1702
+state: CLOSED
+title: Add behavioral-test-remediation step to implementation-pipeline

@@ -1,0 +1,7 @@
+labels:
+- bug
+- spec-fix
+number: 1642
+state: OPEN
+title: '[SPEC-FIX] feedback-authorization-boundary.sh violates artifact-only generator
+  paradigm'

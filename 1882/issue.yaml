@@ -1,0 +1,9 @@
+labels:
+- spec-fix
+- approved-for-pr
+- skill-creator
+- validation
+number: 1882
+state: CLOSED
+title: '[SPEC-FIX] Resolve Conflicting Skill Description Format Mandates (Agent-Intent
+  vs Farmage)'

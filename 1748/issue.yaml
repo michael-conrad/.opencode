@@ -1,0 +1,5 @@
+labels:
+- plan
+number: 1748
+state: CLOSED
+title: Staleness Check for PR-Creation Enforcement Gate

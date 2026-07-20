@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- approved-for-pr
+number: 1705
+state: CLOSED
+title: '[SPEC-FIX] Channel-Routing Table: "PR created" must route to Chat only, not
+  Issue comment'

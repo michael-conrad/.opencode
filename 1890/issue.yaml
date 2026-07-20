@@ -1,0 +1,6 @@
+labels:
+- TRASH
+- REJECTED
+number: 1890
+state: CLOSED
+title: "[Task: #1881] Phase 4 \u2014 Split git-workflow"

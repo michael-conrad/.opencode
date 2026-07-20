@@ -1,0 +1,7 @@
+labels:
+- needs-approval
+- spec
+number: 1675
+state: CLOSED
+title: "[SPEC] Fix implementation pipeline workflow model \u2014 delete assemble-work.md\
+  \ and pipeline-executor.md, make SKILL.md dispatch table the single source of truth"

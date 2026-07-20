@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+- phase
+number: 1700
+state: CLOSED
+title: "Add \"Artifact generated \u2260 PASS\" rule to code standards guideline"

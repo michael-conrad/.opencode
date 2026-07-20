@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1670
+state: CLOSED
+title: '[SPEC-FIX] #1669 spec body contains unresolved template placeholder and broken
+  URL'

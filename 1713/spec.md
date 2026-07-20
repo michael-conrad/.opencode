@@ -1,0 +1,1 @@
+Spec #1712 approved → plan #1713 auto-approved via spec-to-plan cascade (faithful to spec SC table and pipeline gate table).

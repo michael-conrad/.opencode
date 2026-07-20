@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1751
+state: CLOSED
+title: "[SPEC] tools/plan MCP layer \u2014 MCP server, regenerate-loop enforcement,\
+  \ fail-closed defaults"

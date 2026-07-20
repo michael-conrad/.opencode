@@ -1,0 +1,6 @@
+labels:
+- '[SPEC-FIX]'
+number: 1852
+state: CLOSED
+title: '[SPEC-FIX] spec-creation must produce specs that pass the 11-dimension holistic
+  gate'

@@ -1,0 +1,6 @@
+labels:
+- TRASH
+- REJECTED
+number: 1889
+state: CLOSED
+title: "[Task: #1881] Phase 3 \u2014 Split approval-gate"

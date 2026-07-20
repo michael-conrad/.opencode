@@ -1,0 +1,6 @@
+labels:
+- plan
+number: 1821
+state: CLOSED
+title: "[PLAN] Audit tasks produce PASS+hedging verdicts \u2014 no self-consistency\
+  \ gate prevents \"minor defects are acceptable\" persona"

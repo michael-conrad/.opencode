@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1769
+state: CLOSED
+title: '[SPEC-FIX] Restructure writing-plans skill: fix Trigger Dispatch Table routing
+  and per-step markers'

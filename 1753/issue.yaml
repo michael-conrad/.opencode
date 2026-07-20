@@ -1,0 +1,5 @@
+labels:
+- spec
+number: 1753
+state: CLOSED
+title: '[SPEC-FIX] review-prep generates compare URL without pushing branch to remote'

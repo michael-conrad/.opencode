@@ -1,0 +1,9 @@
+labels:
+- spec
+- adversarial-audit
+- pipeline
+- touchpoint
+number: 1646
+state: CLOSED
+title: "[SPEC] Pipeline touchpoint verification \u2014 auto-invocation of adversarial-audit\
+  \ at each pipeline stage"

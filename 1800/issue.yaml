@@ -1,0 +1,5 @@
+labels: []
+number: 1800
+state: CLOSED
+title: "[SPEC-FIX] Destructive git operations require spec + authorization \u2014\
+  \ prevent unauthorized file deletion"

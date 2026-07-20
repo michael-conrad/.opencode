@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1757
+state: CLOSED
+title: '[SPEC-FIX] Audit dispatch: frugal contract enforcement + post-audit orchestrator
+  validation'

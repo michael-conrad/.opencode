@@ -1,0 +1,7 @@
+labels:
+- bug
+- spec-fix
+- approved-for-pr
+number: 1841
+state: CLOSED
+title: '[SPEC-FIX] local-issues list duplicates entries from root repo'

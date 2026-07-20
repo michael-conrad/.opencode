@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- approved-for-pr
+number: 1732
+state: CLOSED
+title: "[SPEC-FIX] Prevent routing-bypass on \"pr merged\" trigger \u2014 agent skips\
+  \ git-workflow cleanup dispatch"

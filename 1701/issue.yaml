@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+- phase
+number: 1701
+state: CLOSED
+title: Add validate-behavioral-prompt task to TDD skill

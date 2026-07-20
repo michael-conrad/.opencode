@@ -1,0 +1,5 @@
+labels:
+- spec
+number: 1752
+state: CLOSED
+title: '[SPEC-FIX] Cross-validate: context pollution checks + clean contract requirement'

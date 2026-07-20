@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- approved-for-pr
+number: 1919
+state: CLOSED
+title: '[SPEC-FIX] Implement behavioral test stubs and clean up validate_skill_cards.py
+  comments'

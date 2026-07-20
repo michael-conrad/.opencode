@@ -1,0 +1,6 @@
+labels:
+- spec-fix
+number: 1932
+state: CLOSED
+title: "[SPEC-FIX] Orchestrator dispatches SKILL.md to sub-agents \u2014 category\
+  \ error: skill cards are orchestrator routing instructions, not sub-agent tasks"

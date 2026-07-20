@@ -1,0 +1,5 @@
+labels:
+- spec
+number: 1747
+state: CLOSED
+title: '[SPEC] Stale-branch detection before PR creation'

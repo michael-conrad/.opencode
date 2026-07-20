@@ -1,0 +1,7 @@
+labels:
+- spec-fix
+- skill-deck
+number: 1863
+state: CLOSED
+title: '[SPEC-FIX] Resolve committed merge conflict markers in writing-plans SKILL.md
+  and create.md'

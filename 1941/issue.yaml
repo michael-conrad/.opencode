@@ -1,0 +1,5 @@
+labels:
+- spec-fix
+number: 1941
+state: CLOSED
+title: '[SPEC-FIX] Correct default test model in default-model.sh'

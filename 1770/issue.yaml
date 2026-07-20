@@ -1,0 +1,6 @@
+labels:
+- spec
+number: 1770
+state: CLOSED
+title: '[SPEC-FIX] Restructure implementation-pipeline skill: fix Trigger Dispatch
+  Table routing and per-step markers'

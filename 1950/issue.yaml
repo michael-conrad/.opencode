@@ -1,0 +1,6 @@
+labels:
+- spec
+- cleanup
+number: 1950
+state: CLOSED
+title: "[SPEC] Replace bare \xA7N Read links with descriptive link text across .opencode/"
