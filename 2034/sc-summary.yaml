@@ -1,0 +1,65 @@
+sc_coverage:
+  total: 7
+  single_task: false
+  spec_url: https://github.com/michael-conrad/.opencode/issues/2034
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1]
+      evidence_types: [behavioral]
+    - id: phase-2
+      sc_ids: [SC-2]
+      evidence_types: [behavioral]
+    - id: phase-3
+      sc_ids: [SC-6]
+      evidence_types: [string]
+    - id: phase-4
+      sc_ids: [SC-3]
+      evidence_types: [behavioral]
+    - id: phase-5
+      sc_ids: [SC-4]
+      evidence_types: [behavioral]
+    - id: phase-6
+      sc_ids: [SC-5]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: [SC-7]
+    verified_in_phase: phase-1
+  scs:
+    - id: SC-1
+      description: "020-go-prohibitions.md has top-level Tier 1 prohibition: Never use the question tool"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-2
+      description: "000-critical-rules.md critical-rules-037 removes halt_at >= pr_created qualifier"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-2
+    - id: SC-3
+      description: "pre-implementation-analysis.md removes after presenting qualifier"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-4
+    - id: SC-4
+      description: "140-planning-spec-creation.md removes Use the question tool instruction"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-5
+    - id: SC-5
+      description: "Behavioral enforcement test exists for universal question tool prohibition"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-6
+    - id: SC-6
+      description: "010-approval-gate.md edge case table updated for universal scope"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-3
+    - id: SC-7
+      description: "No SC may be weakened, deferred, or reclassified to lower evidence type"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: common

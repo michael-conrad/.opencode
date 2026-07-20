@@ -1,0 +1,6 @@
+events:
+  - event: spec_created
+    timestamp: 2026-07-20T19:00:00Z
+    issuer: OpenCode (ollama-cloud/deepseek-v4-flash)
+    description: 'Spec #2034 created'
+    severity: info
