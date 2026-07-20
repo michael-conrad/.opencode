@@ -1,0 +1,48 @@
+# Holistic Self-Check — .opencode#2012
+# Generated: 2026-07-20T13:31:47+00:00
+
+spec_dimensions:
+  - id: 1
+    name: Implementability
+    status: PASS
+    notes: "Single approach (remove --no-interactive), unambiguous SCs, consistent output across implementors"
+  - id: 2
+    name: Internal Consistency
+    status: PASS
+    notes: "Preamble (bug report) matches SCs (remove flag, verify output), no contradictions"
+  - id: 3
+    name: Completeness
+    status: PASS
+    notes: "No TBD/TODO markers, all terms defined, SCs cover fix and verification"
+  - id: 4
+    name: Scope Discipline
+    status: PASS
+    notes: "Stays within stated boundary: fix gh auth status invocation only"
+  - id: 5
+    name: Testability
+    status: PASS
+    notes: "SC-1/SC-2 are string-verifiable (grep), SC-3 is behavioral (run session-init)"
+  - id: 6
+    name: Escape Hatches
+    status: PASS
+    notes: "No escape hatch language found"
+  - id: 7
+    name: Provenance
+    status: PASS
+    notes: "Root cause references specific line 204, flag version gh v2.45.0"
+  - id: 8
+    name: Feasibility
+    status: PASS
+    notes: "Fix is a one-line removal, no unavailable dependencies"
+  - id: 9
+    name: Safety
+    status: PASS
+    notes: "No destructive operations, no data loss risk"
+  - id: 10
+    name: Traceability
+    status: PASS
+    notes: "Root cause (--no-interactive flag) maps to SC-1/SC-2, fix maps to SC-3"
+  - id: 11
+    name: Correctness
+    status: PASS
+    notes: "Root cause correctly identified, fix approach matches problem"

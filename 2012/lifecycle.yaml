@@ -1,0 +1,28 @@
+completed_at: '2026-07-20T13:32:00+00:00'
+created_at: '2026-07-20T13:31:24+00:00'
+issue: .opencode#2012
+steps:
+- note: SPEC-FIX issue created with [SPEC-FIX] prefix
+  status: DONE
+  step: spec_created
+- note: needs-approval label applied
+  status: DONE
+  step: needs_approval_label
+- note: spec-auditor not yet invoked
+  status: PENDING
+  step: spec_auditor_invoked
+- note: Placeholder scan, consistency check, ambiguity check passed
+  status: DONE
+  step: self_review
+- note: 'Evidence types verified: SC-1/SC-2 string, SC-3 behavioral'
+  status: DONE
+  step: post_sc_uplift_check
+- note: All 11 dimensions PASS
+  status: DONE
+  step: holistic_self_check
+- note: Spec folder URL blockquote prepended to issue body
+  status: DONE
+  step: blockquote_added
+- note: Awaiting local-issues sync
+  status: PENDING
+  step: artifacts_pushed

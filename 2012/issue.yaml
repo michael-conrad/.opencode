@@ -2,8 +2,13 @@ title: 'session-init: gh auth status --no-interactive flag does not exist'
 status: open
 labels:
 - SPEC-FIX
-body: "# SPEC-FIX: session-init reports `gh: not_logged_in` incorrectly\n\n## Bug\n\
-  \n`session-init` reports `gh: not_logged_in` even when `gh` is fully authenticated.\n\
+- needs-approval
+body: "> **Full spec and artifacts: [`.opencode/.issues/2012/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2012)**\
+  \ — this issue is a condensed exec summary; the authoritative spec lives in the\
+  \ `issues-data` branch.\n>\n> **Local artifacts:** `.opencode/.issues/2012/` — implementation\
+  \ plan, card catalogue, dependency contracts, research, designs, audit findings\n\
+  \n# SPEC-FIX: session-init reports `gh: not_logged_in` incorrectly\n\n## Bug\n\n\
+  `session-init` reports `gh: not_logged_in` even when `gh` is fully authenticated.\n\
   \n## Root Cause\n\nLine 204 of `.opencode/tools/session-init`:\n\n```python\nresult\
   \ = subprocess.run(\n    [\"gh\", \"auth\", \"status\", \"--no-interactive\"],\n\
   \    ...\n)\n```\n\nThe `--no-interactive` flag does not exist for `gh auth status`\
@@ -21,6 +26,6 @@ body: "# SPEC-FIX: session-init reports `gh: not_logged_in` incorrectly\n\n## Bu
   \ be present without `--no-interactive` |\n| SC-3 | `session-init` correctly reports\
   \ `gh: not_logged_in` only when gh is actually not authenticated | `behavioral`\
   \ | Run `session-init` with authenticated gh — must report `gh: ✓ Logged in` or\
-  \ equivalent positive status |\n"
+  \ equivalent positive status |\n\n"
 created_at: '2026-07-20T13:31:24+00:00'
-updated_at: '2026-07-20T13:31:47+00:00'
+updated_at: '2026-07-20T13:32:00+00:00'
