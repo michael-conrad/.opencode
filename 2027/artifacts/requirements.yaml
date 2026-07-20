@@ -1,0 +1,151 @@
+requirements:
+  - id: "REQ-1"
+    text: "Create missing task file `spec-creation-validation/tasks/research-card-consultation.md` — referenced in spec-creation/SKILL.md pipeline step 4 and contract table, but does not exist on disk"
+    type: explicit
+    source: "Spec #2027 context: missing artifact documented in SPEC-FIX"
+    verified: true
+    verification_evidence: "glob('spec-creation-validation/tasks/research-card-consultation.md') → no results; spec-creation/SKILL.md line 58 references step 4 as `research-card-consultation`; contract table line 140 defines reads/writes"
+    risk_if_wrong: "high"
+    maps_to_sc: ["SC-1"]
+
+  - id: "REQ-2"
+    text: "Create missing task file `spec-creation-validation/tasks/interdependency-check.md` — referenced in spec-creation/SKILL.md pipeline step 20 and contract table, but does not exist on disk"
+    type: explicit
+    source: "Spec #2027 context: missing artifact documented in SPEC-FIX"
+    verified: true
+    verification_evidence: "glob('spec-creation-validation/tasks/interdependency-check.md') → no results; spec-creation/SKILL.md line 74 references step 20 as `interdependency-check`; contract table line 153 defines reads/writes"
+    risk_if_wrong: "high"
+    maps_to_sc: ["SC-2"]
+
+  - id: "REQ-3"
+    text: "Correct sub-skills task count in spec-creation/SKILL.md — table at line 28 says spec-creation-validation has 6 task files, but the directory actually has 9"
+    type: explicit
+    source: "Spec #2027 context: count mismatch documented in SPEC-FIX"
+    verified: true
+    verification_evidence: "read('spec-creation-validation/tasks/') → 9 entries (completion.md, create-remote-stub.md, create.md, holistic-self-check.md, pipeline-readiness-gate.md, pre-spec-inspection.md, revise-remote-body.md, risk.md, traceability.md); spec-creation/SKILL.md line 28 says '6 task files'"
+    risk_if_wrong: "medium"
+    maps_to_sc: ["SC-3"]
+
+  - id: "REQ-4"
+    text: "Update spec-creation-validation/SKILL.md tasks list to include all 9 task files — current list at lines 16-21 only lists 6 (completion.md, create.md, holistic-self-check.md, pipeline-readiness-gate.md, risk.md, traceability.md), missing create-remote-stub.md, pre-spec-inspection.md, and revise-remote-body.md"
+    type: explicit
+    source: "Spec #2027 context: incomplete task list in sub-skill SKILL.md"
+    verified: true
+    verification_evidence: "read('spec-creation-validation/SKILL.md') lines 16-21 list 6 tasks; directory listing shows 9 files including create-remote-stub.md, pre-spec-inspection.md, revise-remote-body.md"
+    risk_if_wrong: "medium"
+    maps_to_sc: ["SC-4"]
+
+  - id: "REQ-5"
+    text: "The research-card-consultation task file must follow the contract table in spec-creation/SKILL.md: reads `.opencode/.issues/research-cards/*.md`, writes `.issues/{N}/artifacts/research-cards-consulted.yaml`, returns standard result contract"
+    type: implicit
+    source: "spec-creation/SKILL.md contract table line 140"
+    verified: true
+    verification_evidence: "read('spec-creation/SKILL.md') line 140: 'research-card-consultation | .opencode/.issues/research-cards/*.md | .issues/{N}/artifacts/research-cards-consulted.yaml'"
+    risk_if_wrong: "medium"
+    maps_to_sc: ["SC-1"]
+
+  - id: "REQ-6"
+    text: "The interdependency-check task file must follow the contract table in spec-creation/SKILL.md: reads GitHub API for open specs, writes `.issues/{N}/artifacts/interdependency-check.yaml`, returns standard result contract"
+    type: implicit
+    source: "spec-creation/SKILL.md contract table line 153"
+    verified: true
+    verification_evidence: "read('spec-creation/SKILL.md') line 153: 'interdependency-check | GitHub API for open specs | .issues/{N}/artifacts/interdependency-check.yaml'"
+    risk_if_wrong: "medium"
+    maps_to_sc: ["SC-2"]
+
+  - id: "REQ-7"
+    text: "Both new task files must follow the existing task file format in spec-creation-validation/tasks/ (YAML frontmatter, Purpose, Entry Criteria, Exit Criteria, Procedure sections)"
+    type: constraint
+    source: "Codebase convention — all existing task files in spec-creation-validation/tasks/ follow this format"
+    verified: true
+    verification_evidence: "read('spec-creation-validation/tasks/create.md') → YAML frontmatter + Purpose + Entry Criteria + Exit Criteria + Procedure sections"
+    risk_if_wrong: "low"
+    maps_to_sc: ["SC-1", "SC-2"]
+
+  - id: "REQ-8"
+    text: "The research-card-consultation step (pipeline step 4) must handle the case where no research cards exist — `.opencode/.issues/research-cards/` directory may be empty or absent"
+    type: implicit
+    source: "glob('.opencode/.issues/research-cards/*.md') → no results; directory may not exist"
+    verified: true
+    verification_evidence: "glob('.opencode/.issues/research-cards/*.md') → no files found; directory may be absent"
+    risk_if_wrong: "medium"
+    maps_to_sc: ["SC-1"]
+
+  - id: "REQ-9"
+    text: "This SPEC-FIX documents missing artifacts and prescribes their creation — it does NOT implement the creation of the missing files. Implementation is a separate phase."
+    type: non-requirement
+    source: "Spec #2027 context: SPEC-FIX scope boundary"
+    verified: true
+    verification_evidence: "Spec context explicitly states 'The spec is a SPEC-FIX — it documents missing artifacts and prescribes their creation'"
+    risk_if_wrong: "critical"
+    maps_to_sc: ["SC-5"]
+
+  - id: "REQ-10"
+    text: "The sub-skills table count correction (REQ-3) and the SKILL.md tasks list update (REQ-4) are documentation fixes — they do not require new task file creation"
+    type: non-requirement
+    source: "Scope boundary: count correction is a metadata fix, not a new artifact"
+    verified: true
+    verification_evidence: "spec-creation/SKILL.md line 28 and spec-creation-validation/SKILL.md lines 16-21 are documentation metadata, not task files"
+    risk_if_wrong: "low"
+    maps_to_sc: ["SC-3", "SC-4"]
+
+constraints:
+  - id: "CON-1"
+    text: "Task files must follow the existing YAML-frontmatter + section format used by all other task files in spec-creation-validation/tasks/"
+    source: "Codebase convention — verified by reading create.md"
+    how_to_confirm: "Compare new task files against create.md format"
+
+  - id: "CON-2"
+    text: "Research-card-consultation must handle empty/missing research cards directory gracefully"
+    source: "Investigation — no research cards exist in the codebase"
+    how_to_confirm: "Verify task file includes a no-cards-found path"
+
+  - id: "CON-3"
+    text: "Interdependency-check must use GitHub API to query open specs — no local-only fallback"
+    source: "spec-creation/SKILL.md contract table line 153"
+    how_to_confirm: "Verify task file references github_issue_read or equivalent API calls"
+
+  - id: "CON-4"
+    text: "This SPEC-FIX is documentation-only — no implementation work is authorized"
+    source: "Spec context: SPEC-FIX scope boundary"
+    how_to_confirm: "Verify no implementation steps are included in the spec body"
+
+assumptions:
+  - id: "ASM-1"
+    text: "The existing task files in spec-creation-validation/tasks/ are the correct reference format for new task files"
+    how_to_confirm: "Read any existing task file and confirm it follows the expected pattern"
+    verified: true
+
+  - id: "ASM-2"
+    text: "The contract table in spec-creation/SKILL.md accurately describes the intended behavior of the missing task files"
+    how_to_confirm: "Cross-reference contract table entries with pipeline step descriptions"
+    verified: true
+
+  - id: "ASM-3"
+    text: "The research-card-consultation step is a sub-task (not inline) per the pipeline diagram"
+    how_to_confirm: "spec-creation/SKILL.md line 58 shows `[sub-task] research-card-consultation`"
+    verified: true
+
+  - id: "ASM-4"
+    text: "The interdependency-check step is a sub-task (not inline) per the pipeline diagram"
+    how_to_confirm: "spec-creation/SKILL.md line 74 shows `[sub-task] interdependency-check`"
+    verified: true
+
+non_requirements:
+  - id: "NR-1"
+    text: "Creating the actual task file content for research-card-consultation.md and interdependency-check.md"
+    why_out_of_scope: "SPEC-FIX documents and prescribes — implementation is a separate phase"
+    boundary_marker: "No task files are created or modified in this spec"
+    reentry_condition: "A separate implementation spec or plan for the missing task files"
+
+  - id: "NR-2"
+    text: "Modifying any existing task file content in spec-creation-validation/tasks/"
+    why_out_of_scope: "Only the missing files and metadata counts are in scope"
+    boundary_marker: "No edits to existing task files"
+    reentry_condition: "A separate spec targeting specific task file revisions"
+
+  - id: "NR-3"
+    text: "Adding new pipeline steps to spec-creation/SKILL.md beyond the two missing task files"
+    why_out_of_scope: "Only the two referenced-but-missing steps are in scope"
+    boundary_marker: "No new pipeline steps added"
+    reentry_condition: "A separate spec for pipeline expansion"

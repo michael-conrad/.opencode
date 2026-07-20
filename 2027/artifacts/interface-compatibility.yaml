@@ -1,0 +1,121 @@
+interface_compatibility:
+  spec: 2027
+  generated_at: "2026-07-20"
+
+  connected_pairs:
+    - pair_id: "P-1"
+      producer: "UNIT-C — Fix sub-skills count in spec-creation/SKILL.md"
+      consumer: "UNIT-A — Create research-card-consultation.md task file"
+      connection_type: "shared-read (same file, different lines)"
+      data_flow: "UNIT-C writes spec-creation/SKILL.md line 28 (count). UNIT-A reads spec-creation/SKILL.md line 140 (contract table). Different lines — no data dependency."
+      verdict: "INDEPENDENT — no producer-consumer relationship"
+
+    - pair_id: "P-2"
+      producer: "UNIT-A — Create research-card-consultation.md task file"
+      consumer: "UNIT-B — Create interdependency-check.md task file"
+      connection_type: "shared-output-directory (same tasks/ directory)"
+      data_flow: "Both write to spec-creation-validation/tasks/. No unit reads the other's output. Filesystem-level co-location only."
+      verdict: "INDEPENDENT — no producer-consumer relationship"
+
+    - pair_id: "P-3"
+      producer: "UNIT-C — Fix sub-skills count in spec-creation/SKILL.md"
+      consumer: "UNIT-D — Update tasks list in spec-creation-validation/SKILL.md"
+      connection_type: "none"
+      data_flow: "UNIT-C modifies spec-creation/SKILL.md. UNIT-D modifies spec-creation-validation/SKILL.md. Different files entirely."
+      verdict: "INDEPENDENT — no producer-consumer relationship"
+
+    - pair_id: "P-4"
+      producer: "UNIT-E — SPEC-FIX scope boundary documentation"
+      consumer: "UNIT-A, UNIT-B, UNIT-C, UNIT-D"
+      connection_type: "constraint (not data flow)"
+      data_flow: "UNIT-E documents the scope boundary. All other units must respect it. This is a universal constraint, not a data dependency."
+      verdict: "CONSTRAINT — no data dependency, no type/contract compatibility issue"
+
+  type_compatibility_matrix:
+    - pair_id: "P-1"
+      producer_output_type: "N/A — single-line text edit to spec-creation/SKILL.md line 28"
+      consumer_input_type: "N/A — reads spec-creation/SKILL.md line 140 (different line)"
+      compatibility: "NOT_APPLICABLE — different lines, no type interaction"
+      notes: "UNIT-C modifies line 28 (count). UNIT-A reads line 140 (contract table). These are independent sections of the same file."
+
+    - pair_id: "P-2"
+      producer_output_type: "YAML frontmatter + markdown task file at spec-creation-validation/tasks/research-card-consultation.md"
+      consumer_input_type: "N/A — UNIT-B does not read UNIT-A's output"
+      compatibility: "NOT_APPLICABLE — no type interaction"
+      notes: "Both write to the same directory but neither reads the other's output."
+
+    - pair_id: "P-3"
+      producer_output_type: "Text edit to spec-creation/SKILL.md line 28"
+      consumer_input_type: "N/A — UNIT-D reads spec-creation-validation/SKILL.md lines 16-21 (different file)"
+      compatibility: "NOT_APPLICABLE — different files, no type interaction"
+      notes: "UNIT-C and UNIT-D modify different files entirely."
+
+    - pair_id: "P-4"
+      producer_output_type: "Scope boundary text in spec body"
+      consumer_input_type: "N/A — constraint, not data input"
+      compatibility: "NOT_APPLICABLE — constraint, not type interaction"
+      notes: "UNIT-E produces a documentation constraint. Other units must respect the SPEC-FIX boundary, but this is a process constraint, not a type compatibility concern."
+
+  contract_verification:
+    - pair_id: "P-1"
+      producer_postconditions:
+        - "spec-creation/SKILL.md line 28 updated to '9 task files'"
+        - "No other changes to SKILL.md"
+      consumer_preconditions:
+        - "spec-creation/SKILL.md contract table at line 140 is readable"
+        - "Contract table defines reads/writes for research-card-consultation"
+      satisfaction: "SATISFIED"
+      rationale: "UNIT-C modifies line 28 only. UNIT-A reads line 140. These are independent sections — UNIT-C's edit does not affect UNIT-A's precondition."
+
+    - pair_id: "P-2"
+      producer_postconditions:
+        - "research-card-consultation.md exists at spec-creation-validation/tasks/"
+        - "File follows YAML frontmatter + section format"
+      consumer_preconditions:
+        - "spec-creation-validation/tasks/ directory exists (for writing)"
+      satisfaction: "SATISFIED"
+      rationale: "Both units write to the same directory. Neither depends on the other's file existing. The directory must exist for both, which is a shared precondition satisfied by the project structure."
+
+    - pair_id: "P-3"
+      producer_postconditions:
+        - "spec-creation/SKILL.md line 28 count corrected to 9"
+      consumer_preconditions:
+        - "spec-creation-validation/SKILL.md lines 16-21 are readable"
+      satisfaction: "SATISFIED"
+      rationale: "Different files entirely. No precondition/postcondition interaction."
+
+    - pair_id: "P-4"
+      producer_postconditions:
+        - "Scope boundary documented in spec body"
+        - "No implementation steps in spec"
+      consumer_preconditions:
+        - "Scope boundary is known and respected"
+      satisfaction: "SATISFIED"
+      rationale: "UNIT-E documents the constraint. Other units must respect it, but this is a process-level constraint, not a data-level contract. All units are documentation-only per the SPEC-FIX scope."
+
+  mismatch_report: []
+
+  violation_report: []
+
+  coverage_verification:
+    all_units_covered: true
+    units_in_pairs:
+      - "UNIT-A — appears in P-1 (shared-read), P-2 (shared-output-directory), P-4 (constraint)"
+      - "UNIT-B — appears in P-2 (shared-output-directory), P-4 (constraint)"
+      - "UNIT-C — appears in P-1 (shared-read), P-3 (independent), P-4 (constraint)"
+      - "UNIT-D — appears in P-3 (independent), P-4 (constraint)"
+      - "UNIT-E — appears in P-4 (constraint)"
+    connection_types_covered:
+      - "shared-read (same file, different lines)"
+      - "shared-output-directory (same directory)"
+      - "constraint (non-data-flow)"
+    type_mismatches_documented: true
+    contract_violations_documented: true
+    notes: "All 5 units appear in at least one pair. No type mismatches or contract violations found — all units are independent with no producer-consumer data dependencies. The single-phase flat structure is valid."
+
+  summary:
+    total_pairs_analyzed: 4
+    independent_pairs: 4
+    type_mismatches: 0
+    contract_violations: 0
+    key_finding: "All 5 units are independent — no producer-consumer data dependencies exist. The single-phase flat structure is valid for parallel execution. UNIT-E is a constraint unit that documents scope boundaries but does not produce data consumed by other units."

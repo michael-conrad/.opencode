@@ -1,0 +1,97 @@
+blast_radius:
+  spec: "#2027 — SPEC-FIX: Missing task files in spec-creation-validation"
+  classification: documentation-only
+  rationale: "All 5 units are documentation-only (new task files, metadata corrections, scope boundary). No implementation code is modified. Blast radius is confined to SKILL.md metadata and the spec body — no runtime behavior changes, no code consumers affected."
+
+  root_symbols:
+    - id: "ROOT-A"
+      symbol: "spec-creation-validation/tasks/research-card-consultation.md"
+      change: "Create new task file"
+      type: "new_file"
+      exists: false
+    - id: "ROOT-B"
+      symbol: "spec-creation-validation/tasks/interdependency-check.md"
+      change: "Create new task file"
+      type: "new_file"
+      exists: false
+    - id: "ROOT-C"
+      symbol: "spec-creation/SKILL.md line 28"
+      change: "Fix sub-skills count from 6 to 9"
+      type: "metadata_correction"
+      exists: true
+    - id: "ROOT-D"
+      symbol: "spec-creation-validation/SKILL.md lines 16-21"
+      change: "Add 3 missing task files to tasks list"
+      type: "metadata_correction"
+      exists: true
+    - id: "ROOT-E"
+      symbol: "Spec body scope section"
+      change: "Document SPEC-FIX scope boundary"
+      type: "documentation"
+      exists: true
+
+  affected_symbols:
+    - symbol: "spec-creation/SKILL.md §Sub-Skills table"
+      classification: "direct_consumer"
+      propagation_path: ["ROOT-C → sub-skills table count field"]
+      impact: "Count field updated from 6 to 9. No structural or behavioral change — metadata correction only."
+      severity: "cosmetic"
+
+    - symbol: "spec-creation/SKILL.md §Pipeline step 4"
+      classification: "direct_consumer"
+      propagation_path: ["ROOT-A → pipeline step 4 references research-card-consultation"]
+      impact: "Step 4 already references research-card-consultation. New task file makes the reference resolvable. No behavioral change — the step was already documented."
+      severity: "none"
+
+    - symbol: "spec-creation/SKILL.md §Pipeline step 20"
+      classification: "direct_consumer"
+      propagation_path: ["ROOT-B → pipeline step 20 references interdependency-check"]
+      impact: "Step 20 already references interdependency-check. New task file makes the reference resolvable. No behavioral change — the step was already documented."
+      severity: "none"
+
+    - symbol: "spec-creation/SKILL.md §Step-by-Step Contract Table lines 140, 153"
+      classification: "direct_consumer"
+      propagation_path: ["ROOT-A → contract table line 140", "ROOT-B → contract table line 153"]
+      impact: "Contract entries already exist. New task files make the contracts actionable. No behavioral change."
+      severity: "none"
+
+    - symbol: "spec-creation-validation/SKILL.md §Tasks list"
+      classification: "direct_consumer"
+      propagation_path: ["ROOT-D → tasks list entries"]
+      impact: "Tasks list updated from 6 to 9 entries. No structural or behavioral change — metadata correction only."
+      severity: "cosmetic"
+
+    - symbol: "spec-creation-validation/tasks/create.md step 15"
+      classification: "indirect_consumer"
+      propagation_path: ["ROOT-B → spec-creation/SKILL.md pipeline step 20 → create.md step 15 references interdependency-check"]
+      impact: "create.md step 15 already references interdependency-check artifact path. New task file makes the reference resolvable. No behavioral change."
+      severity: "none"
+
+    - symbol: "spec-creation/SKILL.md §Sub-task Step Contract (lines 99-132)"
+      classification: "indirect_consumer"
+      propagation_path: ["ROOT-A → contract pattern → step contract section", "ROOT-B → contract pattern → step contract section"]
+      impact: "Contract section already documents the frugal contract pattern. New task files follow the same pattern. No behavioral change."
+      severity: "none"
+
+  boundary_symbols:
+    - symbol: "spec-creation/SKILL.md"
+      boundary_type: "file_boundary"
+      rationale: "No changes propagate outside this file — count fix and pipeline references are self-contained within spec-creation SKILL.md"
+    - symbol: "spec-creation-validation/SKILL.md"
+      boundary_type: "file_boundary"
+      rationale: "Tasks list update is self-contained within spec-creation-validation SKILL.md"
+    - symbol: "spec-creation-validation/tasks/"
+      boundary_type: "directory_boundary"
+      rationale: "New task files are created within this directory only — no other directories affected"
+    - symbol: "Spec body"
+      boundary_type: "document_boundary"
+      rationale: "Scope boundary documentation is self-contained within the spec body — no code files affected"
+
+  coverage_verification:
+    status: "VERIFIED"
+    checks:
+      - "Every direct consumer of a changed symbol is listed: YES — 5 root symbols, 7 affected symbols"
+      - "Every indirect consumer reachable through a direct consumer is listed: YES — create.md step 15 is the only indirect consumer"
+      - "Every data-flow dependent reachable through a data chain is listed: N/A — no data flow changes (documentation-only)"
+      - "No symbol within the natural boundary is omitted: YES — all SKILL.md references and task file dependencies covered"
+      - "No runtime code consumers affected: YES — documentation-only change, no code modified"

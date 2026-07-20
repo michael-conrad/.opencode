@@ -1,0 +1,198 @@
+cross_cutting_analysis:
+  spec: 2027
+  generated_at: "2026-07-20"
+  classification: single-task
+  phase_structure: flat
+  total_phases: 1
+
+  recurring_pattern_scan:
+    - pattern: "Missing artifact creation"
+      units: ["UNIT-A", "UNIT-B"]
+      classification: cross-cutting
+      rationale: "Two separate task files need creation (research-card-consultation.md, interdependency-check.md). Both follow the same creation pattern: write YAML-frontmatter + section-format file at spec-creation-validation/tasks/. This is a genuine cross-cutting concern — not coincidental — because both units share the same file format, directory target, and creation procedure."
+
+    - pattern: "SKILL.md metadata correction"
+      units: ["UNIT-C", "UNIT-D"]
+      classification: cross-cutting
+      rationale: "Two SKILL.md files need metadata fixes (count in spec-creation/SKILL.md, task list in spec-creation-validation/SKILL.md). Both are documentation accuracy corrections to SKILL.md metadata. Genuine cross-cutting — same correction pattern applied to different files."
+
+    - pattern: "Contract fidelity enforcement"
+      units: ["UNIT-A", "UNIT-B"]
+      classification: cross-cutting
+      rationale: "Both new task files must match their contract table entries in spec-creation/SKILL.md. Each has a distinct contract (different reads/writes), but the enforcement pattern — verify contract match before writing — is shared."
+
+    - pattern: "Convention compliance"
+      units: ["UNIT-A", "UNIT-B"]
+      classification: cross-cutting
+      rationale: "Both new task files must follow the same YAML-frontmatter + section format as existing spec-creation-validation/tasks/ files. Shared format standard, not coincidental."
+
+    - pattern: "Scope discipline"
+      units: ["UNIT-A", "UNIT-B", "UNIT-C", "UNIT-D", "UNIT-E"]
+      classification: cross-cutting
+      rationale: "All units must stay within the SPEC-FIX documentation-only boundary. Universal constraint — applies to every unit regardless of type."
+
+    - pattern: "Empty/missing directory handling"
+      units: ["UNIT-A"]
+      classification: coincidental
+      rationale: "Only UNIT-A (research-card-consultation) needs to handle empty/missing research cards directory. UNIT-B's input (GitHub API) is always available. Not cross-cutting — singular to one unit."
+
+  cross_cutting_concerns:
+    - id: "XC-1"
+      name: "Scope Discipline"
+      concern_ref: "C-6"
+      scope: ["UNIT-A", "UNIT-B", "UNIT-C", "UNIT-D", "UNIT-E"]
+      uniformity: uniform
+      rationale: "All units are documentation-only. No unit may create, modify, or delete implementation code. The constraint is identical across all units."
+      centralization: ad-hoc
+      rationale: "No central enforcement mechanism — each unit must self-enforce the scope boundary. The spec body documents the boundary, but individual task execution must respect it."
+
+    - id: "XC-2"
+      name: "Missing Artifact Creation"
+      concern_ref: "C-1"
+      scope: ["UNIT-A", "UNIT-B"]
+      uniformity: uniform
+      rationale: "Both task files follow the same creation pattern: write to spec-creation-validation/tasks/ with YAML frontmatter + Purpose + Entry Criteria + Exit Criteria + Procedure sections."
+      centralization: ad-hoc
+      rationale: "No shared creation utility — each task file is written independently. The shared format is a convention, not a centralized mechanism."
+
+    - id: "XC-3"
+      name: "SKILL.md Metadata Correction"
+      concern_ref: "C-2"
+      scope: ["UNIT-C", "UNIT-D"]
+      uniformity: varied
+      rationale: "UNIT-C fixes a numeric count (6→9). UNIT-D adds missing list entries. Different correction types (value vs. list), same category (metadata accuracy)."
+      centralization: ad-hoc
+      rationale: "Each SKILL.md is edited independently. No shared metadata validation tool."
+
+    - id: "XC-4"
+      name: "Contract Fidelity"
+      concern_ref: "C-3"
+      scope: ["UNIT-A", "UNIT-B"]
+      uniformity: varied
+      rationale: "UNIT-A follows the research-card-consultation contract (reads research cards, writes research-cards-consulted.yaml). UNIT-B follows the interdependency-check contract (reads GitHub API, writes interdependency-check.yaml). Different contracts, same fidelity pattern."
+      centralization: centralized
+      rationale: "Both contracts are defined in spec-creation/SKILL.md contract table. The contract table is the single source of truth. Fidelity is verified against this central table."
+
+    - id: "XC-5"
+      name: "Convention Compliance"
+      concern_ref: "C-5"
+      scope: ["UNIT-A", "UNIT-B"]
+      uniformity: uniform
+      rationale: "Both task files must follow the same format: YAML frontmatter + Purpose + Entry Criteria + Exit Criteria + Procedure sections. Identical convention applied to both."
+      centralization: centralized
+      rationale: "The convention is defined by existing task files in spec-creation-validation/tasks/. These files serve as the canonical format reference."
+
+  propagation_maps:
+    - concern: "XC-1 — Scope Discipline"
+      entry_points:
+        - "Spec body scope section — documents the SPEC-FIX boundary"
+        - "UNIT-E (Scope boundary documentation) — explicitly documents the constraint"
+      propagation_path:
+        - "Spec body → all unit implementations → each unit self-enforces the boundary"
+        - "UNIT-E documents the boundary → all other units reference it"
+      exit_points:
+        - "No exit — scope discipline is a permanent constraint on all units"
+      handling_points:
+        - "UNIT-E: Explicit scope boundary documentation in spec body"
+        - "Each unit: Self-enforcement during implementation"
+        - "Review/audit: Catches scope violations post-implementation"
+
+    - concern: "XC-2 — Missing Artifact Creation"
+      entry_points:
+        - "spec-creation/SKILL.md contract table — references task files that don't exist"
+        - "spec-creation-validation/tasks/ directory listing — shows 6 files vs 9 expected"
+      propagation_path:
+        - "Contract table → UNIT-A creates research-card-consultation.md"
+        - "Contract table → UNIT-B creates interdependency-check.md"
+        - "Both files land in spec-creation-validation/tasks/"
+      exit_points:
+        - "Files exist at spec-creation-validation/tasks/research-card-consultation.md"
+        - "Files exist at spec-creation-validation/tasks/interdependency-check.md"
+      handling_points:
+        - "UNIT-A: Write research-card-consultation.md"
+        - "UNIT-B: Write interdependency-check.md"
+        - "Verification: File existence check + format validation"
+
+    - concern: "XC-3 — SKILL.md Metadata Correction"
+      entry_points:
+        - "spec-creation/SKILL.md line 28 — incorrect count '6 task files'"
+        - "spec-creation-validation/SKILL.md lines 16-21 — incomplete task list"
+      propagation_path:
+        - "Incorrect count → UNIT-C fixes spec-creation/SKILL.md line 28"
+        - "Incomplete list → UNIT-D updates spec-creation-validation/SKILL.md lines 16-21"
+      exit_points:
+        - "spec-creation/SKILL.md line 28 shows '9 task files'"
+        - "spec-creation-validation/SKILL.md lines 16-21 list all 9 tasks"
+      handling_points:
+        - "UNIT-C: Single-line count fix"
+        - "UNIT-D: List entry additions"
+        - "Verification: grep for correct count + list completeness"
+
+    - concern: "XC-4 — Contract Fidelity"
+      entry_points:
+        - "spec-creation/SKILL.md contract table — defines reads/writes for each task"
+      propagation_path:
+        - "Contract table → UNIT-A reads contract for research-card-consultation → writes matching task file"
+        - "Contract table → UNIT-B reads contract for interdependency-check → writes matching task file"
+      exit_points:
+        - "Task files match their contract table entries exactly"
+      handling_points:
+        - "UNIT-A: Verify contract match before writing research-card-consultation.md"
+        - "UNIT-B: Verify contract match before writing interdependency-check.md"
+        - "Pipeline coherence gate: Catches contract mismatch"
+
+    - concern: "XC-5 — Convention Compliance"
+      entry_points:
+        - "Existing task files in spec-creation-validation/tasks/ — canonical format reference"
+      propagation_path:
+        - "Existing files → UNIT-A reads format → writes matching file"
+        - "Existing files → UNIT-B reads format → writes matching file"
+      exit_points:
+        - "New task files match existing file format conventions"
+      handling_points:
+        - "UNIT-A: Read existing task files for format reference before writing"
+        - "UNIT-B: Read existing task files for format reference before writing"
+        - "Review/audit: Catches format deviations"
+
+  concern_to_phase_matrix:
+    phase: "Phase 1 — Document SPEC-FIX artifacts and metadata corrections"
+    units: ["UNIT-A", "UNIT-B", "UNIT-C", "UNIT-D", "UNIT-E"]
+
+    matrix:
+      - concern: "XC-1 — Scope Discipline"
+        phase_1: true
+        handling_strategy: "Self-enforcement per unit + spec body documentation (UNIT-E) + review gate"
+        notes: "Universal constraint — applies to all 5 units. No central enforcement mechanism."
+
+      - concern: "XC-2 — Missing Artifact Creation"
+        phase_1: true
+        handling_strategy: "Independent file creation per unit (UNIT-A, UNIT-B) with shared format convention"
+        notes: "Two task files, same creation pattern, independent execution."
+
+      - concern: "XC-3 — SKILL.md Metadata Correction"
+        phase_1: true
+        handling_strategy: "Independent metadata fix per SKILL.md (UNIT-C, UNIT-D)"
+        notes: "Different correction types (count vs. list), same accuracy category."
+
+      - concern: "XC-4 — Contract Fidelity"
+        phase_1: true
+        handling_strategy: "Centralized contract table verification — each unit validates against spec-creation/SKILL.md contract table before writing"
+        notes: "Centralized source of truth (contract table) with per-unit verification."
+
+      - concern: "XC-5 — Convention Compliance"
+        phase_1: true
+        handling_strategy: "Centralized format reference — each unit reads existing task files as canonical format before writing"
+        notes: "Centralized format reference (existing files) with per-unit compliance."
+
+  coverage_verification:
+    all_cross_cutting_listed: true
+    all_phases_marked: true
+    all_handling_strategies_assigned: true
+    no_missed_concerns: true
+    verification_notes:
+      - "All 5 cross-cutting concerns (XC-1 through XC-5) are listed in the matrix"
+      - "All 5 concerns apply to Phase 1 — correctly marked"
+      - "Each concern has a designated handling strategy"
+      - "C-4 (Operational Robustness) correctly classified as coincidental — singular to UNIT-A only"
+      - "All 4 units from concern map are covered by at least one cross-cutting concern"
+      - "UNIT-E (Scope boundary documentation) is covered by XC-1 (Scope Discipline)"
