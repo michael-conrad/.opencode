@@ -1,5 +1,4 @@
-title: 'SPEC: Universal discussion discipline — no question tool, no pigeon-holing,
-  single topics, order of importance, always discuss'
+title: 'SPEC: Fix post-merge cleanup workflow — submodule-first depth-first cleanup'
 status: open
 labels:
 - SPEC
@@ -227,4 +226,4 @@ body: "---\ntitle: \"Universal discussion discipline — no question tool, no pi
   \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
   \n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
 created_at: '2026-07-20T15:47:27+00:00'
-updated_at: '2026-07-20T23:17:06+00:00'
+updated_at: '2026-07-20T23:18:15+00:00'
