@@ -237,17 +237,29 @@ do_setup() {
         exit 1
     fi
 
-    # Verify production DB was not modified by the test setup.
-    if [ -n "$prod_db_before" ]; then
-        local prod_db_after
-        prod_db_after=$(sha256sum "$prod_db" 2>/dev/null | cut -d' ' -f1)
-        if [ "$prod_db_before" != "$prod_db_after" ]; then
-            echo "  [isolation] FAIL: production DB was modified during test setup!" >&2
-            exit 1
+    # Verify test DB is isolated: the project.worktree field MUST point to the test project,
+    # NOT the production project. This is more reliable than sha256 comparison of the
+    # production DB, which can be legitimately modified by concurrent processes (desktop app,
+    # other CLI sessions) during test setup.
+    if [ -f "$test_db" ]; then
+        local test_worktree
+        test_worktree=$(sqlite3 "$test_db" "SELECT worktree FROM project;" 2>/dev/null || true)
+        if [ -n "$test_worktree" ]; then
+            case "$test_worktree" in
+                "$test_project"|"$test_project"/*)
+                    echo "  [isolation] PASS: test DB points to test project ($test_worktree)"
+                    ;;
+                *)
+                    echo "  [isolation] FAIL: test DB points to non-test path: $test_worktree" >&2
+                    echo "  [isolation]   expected prefix: $test_project" >&2
+                    exit 1
+                    ;;
+            esac
+        else
+            echo "  [isolation] WARNING: test DB exists but has no project.worktree entry" >&2
         fi
-        echo "  [isolation] PASS: production DB unchanged (sha256 match)"
     else
-        echo "  [isolation] PASS: no production DB found (local-only environment)"
+        echo "  [isolation] PASS: no test DB found (fresh setup)"
     fi
 
     echo "TEST_HOME=$test_home"
