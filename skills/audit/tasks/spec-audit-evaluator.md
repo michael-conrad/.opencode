@@ -607,16 +607,48 @@ When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM
 
 - [ ] 4. For each SC-SEM criterion, render PASS or FAIL with explanation and remediation guidance
 
-### Step 16: Process Verdicts
+### Step 16: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each SC whose declared evidence type is `behavioral`, the evaluator MUST NOT render a verdict from upstream artifacts alone. Behavioral SCs require clean-room evaluation of actual test execution output.
+
+- [ ] 1. Identify all SCs with `declared_evidence_type: behavioral` from `determinism_validation.evidence_type_declarations` in `reasoning.yaml`
+- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path:
+
+```yaml
+prompt: "Evaluate behavioral SCs from artifact directory: {artifact_evidence_dir}"
+```
+
+The sub-agent receives:
+- The artifact directory path (containing `stdout.log`, `stderr.log`, `manifest.yaml`)
+- The SC criteria text inline
+- NO orchestrator reasoning, expected outcomes, or cached results
+
+- [ ] 3. Collect the result contract from each clean-room sub-agent dispatch
+- [ ] 4. If the clean-room sub-agent returns `verdict: FAIL` for any SC, the evaluator's verdict for that SC is FAIL — regardless of what upstream evidence suggests
+- [ ] 5. File-existence alone is NEVER sufficient evidence for behavioral SCs. If the artifact directory exists but the clean-room sub-agent judges the agent's actions did not satisfy the SC, the verdict is FAIL
+- [ ] 6. Record the behavioral SC verdicts in the per-criterion array with `evidence: "clean-room behavioral-sc-evaluator"`
+
+Record results:
+
+```yaml
+behavioral_sc_evaluation:
+  - sc_id: "<SC-N>"
+    declared_evidence_type: behavioral
+    clean_room_verdict: "PASS|FAIL"
+    evaluator_verdict: "PASS|FAIL"
+    evidence: "clean-room behavioral-sc-evaluator at {artifact_evidence_dir}"
+```
+
+### Step 17: Process Verdicts
 
 Compile all per-criterion verdicts and apply consensus rules:
 
-- [ ] 1. Collect all verdicts from Steps 4-15 into a single `per_criterion` array
+- [ ] 1. Collect all verdicts from Steps 4-16 into a single `per_criterion` array
 - [ ] 2. Each entry must include: `criterion_id`, `declared_evidence_type`, `result`, `evidence`, `explanation`, `remediation`, `next_step`, `tool_calls_made`
 - [ ] 3. `next_step` is `"proceed"` when result is PASS, `"remediate"` when result is FAIL
 - [ ] 4. Count total, pass, and fail verdicts
 
-### Step 17: Apply Self-Consistency Gate
+### Step 18: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -626,7 +658,7 @@ Apply a self-consistency check to every PASS verdict:
   - A PASS verdict must be strictly confirmatory with no critique or hedging
 - [ ] 2. Re-count pass/fail after self-consistency downgrades
 
-### Step 18: Generate Bidirectional Findings
+### Step 19: Generate Bidirectional Findings
 
 Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the findings table.
 
@@ -641,7 +673,7 @@ Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the f
 - [ ] 2. Present revision options for developer decision
 - [ ] 3. Include specific remediation guidance for each FAIL
 
-### Step 19: Write verdict.yaml
+### Step 20: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -687,7 +719,7 @@ bidirectional_findings:
     revision_option: "<guidance>"
 ```
 
-### Step 20: Return Frugal Result Contract
+### Step 21: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -718,11 +750,12 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 13. Evaluate Cross-Reference Completeness (A9) → INVALID if skipped
 - [ ] 14. Evaluate Analytical Artifact Criteria → INVALID if skipped
 - [ ] 15. Evaluate Semantic Auditor Criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
-- [ ] 16. Process Verdicts → INVALID if skipped
-- [ ] 17. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 18. Generate Bidirectional Findings → INVALID if skipped
-- [ ] 19. Write verdict.yaml → INVALID if skipped
-- [ ] 20. Return Frugal Result Contract → INVALID if skipped
+- [ ] 16. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped (behavioral SCs without clean-room evaluation are EVIDENCE_TYPE_MISMATCH)
+- [ ] 17. Process Verdicts → INVALID if skipped
+- [ ] 18. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 19. Generate Bidirectional Findings → INVALID if skipped
+- [ ] 20. Write verdict.yaml → INVALID if skipped
+- [ ] 21. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
@@ -745,6 +778,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/spec-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/spec-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
+- `tasks/behavioral-sc-evaluator.md` — Clean-room sub-agent for behavioral SC evaluation
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
 - Load [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations

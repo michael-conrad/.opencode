@@ -48,8 +48,10 @@ Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (
 - Each verdict backed by evidence from `evidence.yaml` and validation from `reasoning.yaml`
 - Drift classified as controlled or uncontrolled per criterion
 - Migration candidates evaluated for completeness
+- Behavioral SCs evaluated via clean-room `behavioral-sc-evaluator` sub-agent — never from evaluator's own context
+- File-existence alone is NEVER sufficient evidence for behavioral SCs
 - Self-consistency gate applied — no hedging language in PASS explanations
-- Overall verdict computed: PASS if all criteria PASS, FAIL otherwise
+- Overall verdict computed: PASS if all criteria PASS and all behavioral SCs PASS, FAIL otherwise
 - No re-collection of evidence — judgments only
 
 ## Procedure
@@ -298,7 +300,37 @@ state_analysis_evaluation:
 
 **Note:** State analysis absence is NOT a FAIL condition for the overall verdict. It reduces confidence but does not block PASS.
 
-### Step 9: Compute Overall Verdict
+### Step 9: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each behavioral success criterion identified in the spec, dispatch a clean-room sub-agent to evaluate the behavioral evidence. The evaluator MUST NOT evaluate behavioral SCs from its own context — only the clean-room sub-agent may render a verdict.
+
+- [ ] 1. From `evidence.yaml` → `spec_scs`, identify all SCs with `evidence_type: behavioral`
+- [ ] 2. For each behavioral SC:
+  - [ ] 2a. Dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path (`{artifact_evidence_dir}`) and the SC criterion text — no orchestrator reasoning, no expected outcomes, no cached results
+  - [ ] 2b. Collect the result contract from the clean-room sub-agent
+  - [ ] 2c. If the sub-agent returns `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`, re-task with the same minimal context (max 2 retries)
+- [ ] 3. For each behavioral SC verdict from the clean-room sub-agent:
+  - [ ] 3a. If verdict is FAIL → the evaluator's verdict for that SC is FAIL
+  - [ ] 3b. If verdict is PASS → the evaluator's verdict for that SC is PASS
+  - [ ] 3c. File-existence alone is NEVER sufficient evidence for behavioral SCs — if the clean-room sub-agent reports PASS based on file existence, the evaluator MUST downgrade to FAIL
+- [ ] 4. Record behavioral SC verdicts:
+
+```yaml
+behavioral_sc_evaluation:
+  total_behavioral_scs: <N>
+  clean_room_passes: <N>
+  clean_room_fails: <N>
+  per_sc:
+    - sc_id: "<SC-N>"
+      clean_room_verdict: PASS | FAIL
+      evaluator_verdict: PASS | FAIL
+      justification: "<from clean-room sub-agent>"
+  file_existence_downgrades: <N>
+```
+
+- [ ] 5. If any behavioral SC has a FAIL verdict, the overall verdict MUST be FAIL regardless of CM-1 through CM-5 results
+
+### Step 10: Compute Overall Verdict
 
 Compute the overall coherence maintenance verdict from per-criterion results:
 
@@ -319,7 +351,7 @@ coherence_health:
   overall_score: <float 0.0-1.0>
 ```
 
-### Step 10: Apply Self-Consistency Gate
+### Step 11: Apply Self-Consistency Gate
 
 Before accepting the verdict, run a self-consistency check on every criterion entry:
 
@@ -418,10 +450,11 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 6. Evaluate CM-4 (Cross-Reference Consistency) → INVALID if skipped
 - [ ] 7. Evaluate CM-5 (Migration Candidate Identification) → INVALID if skipped
 - [ ] 8. Evaluate State Analysis Evidence → INVALID if skipped
-- [ ] 9. Compute Overall Verdict → INVALID if skipped
-- [ ] 10. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 11. Write verdict.yaml → INVALID if skipped
-- [ ] 12. Return Frugal Result Contract → INVALID if skipped
+- [ ] 9. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
+- [ ] 10. Compute Overall Verdict → INVALID if skipped
+- [ ] 11. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 12. Write verdict.yaml → INVALID if skipped
+- [ ] 13. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 

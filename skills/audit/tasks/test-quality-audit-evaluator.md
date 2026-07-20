@@ -321,16 +321,52 @@ evidence_type_compliance:
     finding: "<brief finding>"
 ```
 
-### Step 11: Process Verdicts
+### Step 11: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each SC with declared evidence type `behavioral`, dispatch a clean-room sub-agent to evaluate the behavioral evidence artifacts. File-existence alone is NOT sufficient evidence for behavioral SCs.
+
+- [ ] 1. Read the SC table from Step 3 to identify all SCs with declared evidence type `behavioral`
+- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path:
+
+```yaml
+task(
+  subagent_type="general",
+  prompt: "execute behavioral-sc-evaluator task from audit",
+  context: {
+    artifact_evidence_dir: "<artifact_evidence_dir>",
+    sc_id: "<SC-N>",
+    worktree.path: "<if set>",
+    github.owner: "<from session>",
+    github.repo: "<from session>"
+  }
+)
+```
+
+- [ ] 3. Collect the result contract from each clean-room sub-agent dispatch
+- [ ] 4. If the clean-room sub-agent returns `status: FAIL` for any behavioral SC, the evaluator verdict for that SC is FAIL — do NOT override with PASS
+- [ ] 5. If the clean-room sub-agent returns `status: DONE` with PASS, the evaluator verdict for that SC is PASS
+- [ ] 6. If the clean-room sub-agent returns `status: BLOCKED` (e.g., no behavioral evidence artifacts found), the evaluator verdict for that SC is FAIL — file-existence alone is NOT sufficient evidence for behavioral SCs
+- [ ] 7. Record each behavioral SC verdict:
+
+```yaml
+behavioral_sc_evaluation:
+  - sc_id: "SC-N"
+    clean_room_verdict: "PASS|FAIL"
+    evaluator_verdict: "PASS|FAIL"
+    artifact_path: "<artifact_evidence_dir>"
+    finding: "<brief finding>"
+```
+
+### Step 12: Process Verdicts
 
 Compile all per-criterion verdicts and apply consensus rules:
 
-- [ ] 1. Collect all verdicts from Steps 4-10 into a single `per_criterion` array
+- [ ] 1. Collect all verdicts from Steps 4-11 into a single `per_criterion` array
 - [ ] 2. Each entry must include: `criterion_id`, `result`, `evidence_source`, `finding`, `remediation`, `recommendation`
 - [ ] 3. Count total, pass, and fail verdicts
 - [ ] 4. Determine `all_criteria_pass` and `remediation_required`
 
-### Step 12: Apply Self-Consistency Gate
+### Step 13: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -341,7 +377,7 @@ Apply a self-consistency check to every PASS verdict:
 - [ ] 2. Re-count pass/fail after self-consistency downgrades
 - [ ] 3. Log downgrades in a `self_consistency_downgrades` field
 
-### Step 13: Write verdict.yaml
+### Step 14: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -403,7 +439,7 @@ self_consistency_downgrades:
     hedging_phrase: "<matched phrase>"
 ```
 
-### Step 14: Return Frugal Result Contract
+### Step 15: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -428,10 +464,11 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 8. Evaluate RED Evidence (TQ-5) → INVALID if skipped
 - [ ] 9. Evaluate Sequential TDD (TQ-6) → INVALID if skipped
 - [ ] 10. Evaluate Evidence Type Compliance → INVALID if skipped
-- [ ] 11. Process Verdicts → INVALID if skipped
-- [ ] 12. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 13. Write verdict.yaml → INVALID if skipped
-- [ ] 14. Return Frugal Result Contract → INVALID if skipped
+- [ ] 11. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
+- [ ] 12. Process Verdicts → INVALID if skipped
+- [ ] 13. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 14. Write verdict.yaml → INVALID if skipped
+- [ ] 15. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 

@@ -318,7 +318,45 @@ dd_structural_fail:
       reason: "Structural evidence (file existence) does not verify behavioral correctness"
 ```
 
-### Step 11: Classify Drift Severity
+### Step 11: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each SC in the spec whose evidence type is `behavioral`, dispatch a clean-room sub-agent to evaluate the actual agent behavior from test artifacts. The evaluator MUST NOT rely on file-existence or structural checks for behavioral SCs.
+
+- [ ] 1. Read the spec's Success Criteria table from Step 3 to identify all SCs with evidence type `behavioral`
+- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path and the SC criterion text:
+
+```yaml
+task_context:
+  artifact_path: "<artifact_evidence_dir>"
+  sc_criteria:
+    - sc_id: "<SC-N>"
+      criterion: "<criterion text from spec>"
+```
+
+- [ ] 3. The clean-room sub-agent receives ONLY the artifact directory path and SC criteria — no orchestrator reasoning, no expected outcomes, no cached results
+- [ ] 4. Collect the result contract from each `behavioral-sc-evaluator` dispatch
+- [ ] 5. For each behavioral SC:
+  - If the clean-room sub-agent returns `verdict: PASS` → the evaluator verdict for that SC is PASS
+  - If the clean-room sub-agent returns `verdict: FAIL` → the evaluator verdict for that SC is FAIL
+  - If the clean-room sub-agent returns `status: BLOCKED` → the evaluator verdict for that SC is FAIL with `CLEAN_ROOM_BLOCKED` classification
+- [ ] 6. File-existence alone is NEVER sufficient evidence for behavioral SCs — if the only evidence available is structural (stdout.log/stderr.log do not exist or are empty), the verdict is FAIL
+- [ ] 7. Record behavioral SC evaluation results:
+
+```yaml
+behavioral_sc_evaluation:
+  total_behavioral_scs: <N>
+  pass: <N>
+  fail: <N>
+  per_sc:
+    - sc_id: "<SC-N>"
+      verdict: "PASS|FAIL"
+      clean_room_verdict: "PASS|FAIL"
+      justification: "<from clean-room sub-agent result>"
+```
+
+- [ ] 8. Aggregate: if ANY behavioral SC receives a FAIL verdict from the clean-room sub-agent, the overall drift detection verdict is FAIL
+
+### Step 12: Classify Drift Severity
 
 For each FAIL criterion, classify drift severity:
 
@@ -331,12 +369,12 @@ For each FAIL criterion, classify drift severity:
 | MISSING_EDGE_CASE | MEDIUM | Edge case not implemented |
 | STRUCTURAL_EVIDENCE | HIGH | Behavioral SC evaluated with structural evidence only |
 
-- [ ] 1. For each FAIL finding across DD-1 through DD-5 and DD-STRUCTURAL-FAIL, assign a severity
+- [ ] 1. For each FAIL finding across DD-1 through DD-5, DD-STRUCTURAL-FAIL, and behavioral SC evaluation, assign a severity
 - [ ] 2. HIGH severity findings block implementation — must be resolved before proceeding
 - [ ] 3. MEDIUM severity findings require attention but may not block
 - [ ] 4. LOW severity findings are informational
 
-### Step 12: Generate Bidirectional Findings
+### Step 13: Generate Bidirectional Findings
 
 Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the findings table.
 
@@ -364,16 +402,16 @@ bidirectional_findings:
       - "<option 2>"
 ```
 
-### Step 13: Process Verdicts
+### Step 14: Process Verdicts
 
 Compile all per-criterion verdicts and apply consensus rules:
 
-- [ ] 1. Collect all verdicts from Steps 5-10 into a single `per_criterion` array
+- [ ] 1. Collect all verdicts from Steps 5-11 into a single `per_criterion` array
 - [ ] 2. Each entry must include: `criterion_id`, `result`, `evidence`, `explanation`, `remediation`, `drift_type`, `severity`
 - [ ] 3. Count total, pass, and fail verdicts
 - [ ] 4. Determine overall verdict: PASS if ALL criteria pass; FAIL if any criterion fails
 
-### Step 14: Apply Self-Consistency Gate
+### Step 15: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -401,7 +439,7 @@ for each entry in per_criterion:
         break
 ```
 
-### Step 15: Write verdict.yaml
+### Step 16: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -432,6 +470,15 @@ dd3_extra_implementation: {...}
 dd4_signature_match: {...}
 dd5_edge_cases: {...}
 dd_structural_fail: {...}
+behavioral_sc_evaluation:
+  total_behavioral_scs: <N>
+  pass: <N>
+  fail: <N>
+  per_sc:
+    - sc_id: "<SC-N>"
+      verdict: "PASS|FAIL"
+      clean_room_verdict: "PASS|FAIL"
+      justification: "<from clean-room sub-agent result>"
 drift_summary:
   spec_drift_count: <N>
   code_drift_count: <N>
@@ -454,7 +501,7 @@ bidirectional_findings:
 - [ ] 2. Write `verdict.yaml` with the complete verdict structure
 - [ ] 3. Verify the file was written and is non-empty
 
-### Step 16: Return Frugal Result Contract
+### Step 17: Return Frugal Result Contract
 
 Return only routing-significant data:
 
@@ -491,12 +538,13 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 8. Evaluate DD-4 — Function Signatures Match → INVALID if skipped
 - [ ] 9. Evaluate DD-5 — Edge Cases Covered → INVALID if skipped
 - [ ] 10. Evaluate DD-STRUCTURAL-FAIL → INVALID if skipped
-- [ ] 11. Classify Drift Severity → INVALID if skipped
-- [ ] 12. Generate Bidirectional Findings → INVALID if skipped
-- [ ] 13. Process Verdicts → INVALID if skipped
-- [ ] 14. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 15. Write verdict.yaml → INVALID if skipped
-- [ ] 16. Return Frugal Result Contract → INVALID if skipped
+- [ ] 11. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
+- [ ] 12. Classify Drift Severity → INVALID if skipped
+- [ ] 13. Generate Bidirectional Findings → INVALID if skipped
+- [ ] 14. Process Verdicts → INVALID if skipped
+- [ ] 15. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 16. Write verdict.yaml → INVALID if skipped
+- [ ] 17. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
