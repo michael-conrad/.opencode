@@ -3,29 +3,185 @@ status: open
 labels:
 - SPEC-FIX
 - needs-approval
-body: "> **Full spec and artifacts: [`.opencode/.issues/2012/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2012)**\
-  \ — this issue is a condensed exec summary; the authoritative spec lives in the\
-  \ `issues-data` branch.\n>\n> **Local artifacts:** `.opencode/.issues/2012/` — implementation\
-  \ plan, card catalogue, dependency contracts, research, designs, audit findings\n\
-  \n# SPEC-FIX: session-init reports `gh: not_logged_in` incorrectly\n\n## Bug\n\n\
-  `session-init` reports `gh: not_logged_in` even when `gh` is fully authenticated.\n\
-  \n## Root Cause\n\nLine 204 of `.opencode/tools/session-init`:\n\n```python\nresult\
-  \ = subprocess.run(\n    [\"gh\", \"auth\", \"status\", \"--no-interactive\"],\n\
-  \    ...\n)\n```\n\nThe `--no-interactive` flag does not exist for `gh auth status`\
-  \ in gh v2.45.0. The command fails with exit code 1 and the error `unknown flag:\
-  \ --no-interactive`. The script's fallback at line 228-229 interprets any non-zero\
-  \ exit as `not_logged_in`.\n\n## Fix\n\nRemove `--no-interactive`. The correct invocation\
-  \ is just `gh auth status` — it is non-interactive by default when stdout is not\
-  \ a TTY (which `subprocess.run` with `capture_output=True` ensures).\n\n## Affected\
-  \ Version\n\ngh v2.45.0, session-init as of 2026-07-19\n\n## Success Criteria\n\n\
-  | ID | Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
-  | SC-1 | `gh auth status` is called without `--no-interactive` flag | `string` |\
-  \ grep for `--no-interactive` in `.opencode/tools/session-init` — must be absent\
-  \ |\n| SC-2 | `gh auth status` is called with `capture_output=True` (non-TTY) |\
-  \ `string` | grep for `gh auth status` in `.opencode/tools/session-init` — must\
-  \ be present without `--no-interactive` |\n| SC-3 | `session-init` correctly reports\
-  \ `gh: not_logged_in` only when gh is actually not authenticated | `behavioral`\
-  \ | Run `session-init` with authenticated gh — must report `gh: ✓ Logged in` or\
-  \ equivalent positive status |\n\n"
+body: '# Implementation Plan: .opencode#2012 — Fix gh auth status flag
+
+
+  ## Goal
+
+
+  Remove `--no-interactive` from `gh auth status` invocation in `.opencode/tools/session-init`
+  line 204 so that `session-init` correctly reports `gh: ✓ Logged in` when gh is authenticated.
+
+
+  ## Architecture
+
+
+  Single-file change to `.opencode/tools/session-init`. No new files, no dependency
+  changes, no config changes.
+
+
+  ## Files
+
+
+  | File | Action |
+
+  |------|--------|
+
+  | `.opencode/tools/session-init` | Edit line 204: remove `--no-interactive` from
+  args list |
+
+
+  ## Phase Table
+
+
+  | Phase | Concern | Steps |
+
+  |-------|---------|-------|
+
+  | 1 | Remove `--no-interactive` flag | 1.1–1.5 |
+
+
+  ## SC-to-Step Traceability
+
+
+  | SC ID | Criterion | Phase | Step(s) |
+
+  |-------|-----------|-------|---------|
+
+  | SC-1 | `gh auth status` called without `--no-interactive` | 1 | 1.1 |
+
+  | SC-2 | `gh auth status` called with `capture_output=True` (non-TTY) | 1 | 1.1
+  |
+
+  | SC-3 | `session-init` correctly reports positive status when authenticated | 1
+  | 1.4 |
+
+
+  ## Exit Criteria
+
+
+  - [ ] SC-1: grep for `--no-interactive` in `.opencode/tools/session-init` — must
+  be absent
+
+  - [ ] SC-2: grep for `gh auth status` in `.opencode/tools/session-init` — must be
+  present without `--no-interactive`
+
+  - [ ] SC-3: Run `session-init` with authenticated gh — must report `gh: ✓ Logged
+  in` or equivalent positive status
+
+
+  ## Safety/Rollback
+
+
+  **Phase 1 — Safety/Rollback:**
+
+  - Destructive operations: None (single-line edit, fully reversible)
+
+  - Rollback plan: `git checkout -- .opencode/tools/session-init` to restore original
+
+  - Data loss risk: None
+
+
+  ## Feasibility Verification
+
+
+  | Step | Reference | Verified? | Evidence |
+
+  |------|-----------|-----------|----------|
+
+  | 1.1 | `.opencode/tools/session-init` line 204 | ✅ | `read` confirmed `--no-interactive`
+  present |
+
+
+  ## Evidence/Provenance
+
+
+  | Claim | Evidence Source | Verified? |
+
+  |-------|----------------|----------|
+
+  | `--no-interactive` exists on line 204 | `read` of session-init | ✅ |
+
+  | `gh auth status` is called with `capture_output=True` | `read` of session-init
+  | ✅ |
+
+  | `gh` v2.45.0 does not support `--no-interactive` for `auth status` | Spec root
+  cause | ✅ |
+
+
+  ## Phase 1 — Remove `--no-interactive` flag
+
+
+  ### Step 1.1 — Edit session-init line 204
+
+
+  **Action:** Remove `"--no-interactive"` from the `subprocess.run` args list.
+
+
+  ```python
+
+  # Before:
+
+  ["gh", "auth", "status", "--no-interactive"],
+
+  # After:
+
+  ["gh", "auth", "status"],
+
+  ```
+
+
+  **File:** `.opencode/tools/session-init` line 204
+
+
+  **Dispatch:** `sub-task` — edit the file
+
+
+  **Evidence type:** `string` — grep for `--no-interactive` must be absent
+
+
+  ### Step 1.2 — Verify SC-1 (string)
+
+
+  **Action:** Run `grep --no-interactive .opencode/tools/session-init` — must return
+  no match.
+
+
+  **Dispatch:** `inline`
+
+
+  ### Step 1.3 — Verify SC-2 (string)
+
+
+  **Action:** Run `grep "gh auth status" .opencode/tools/session-init` — must show
+  the invocation without `--no-interactive`.
+
+
+  **Dispatch:** `inline`
+
+
+  ### Step 1.4 — Verify SC-3 (behavioral)
+
+
+  **Action:** Run `session-init` and check that `gh:` line shows positive status (e.g.,
+  `✓ Logged in`).
+
+
+  **Dispatch:** `sub-task` — run session-init, capture output, verify gh status line
+
+
+  **Evidence type:** `behavioral` — requires actual execution
+
+
+  ### Step 1.5 — Commit
+
+
+  **Action:** Commit the change with message `fix: remove --no-interactive from gh
+  auth status (opencode#2012)`
+
+
+  **Dispatch:** `sub-task` — git-workflow commit
+
+  '
 created_at: '2026-07-20T13:31:24+00:00'
-updated_at: '2026-07-20T13:32:00+00:00'
+updated_at: '2026-07-20T13:44:16+00:00'
