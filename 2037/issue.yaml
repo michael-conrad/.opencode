@@ -5,7 +5,7 @@ labels:
 - SPEC
 body: "---\ntitle: \"Universal discussion discipline — no question tool, no pigeon-holing,\
   \ single topics, order of importance, always discuss\"\nstatus: draft\ncreated:\
-  \ 2026-07-20\nlicense: MIT\nprovenance: AI-generated\nissue: 2036\nauthors:\n  -\
+  \ 2026-07-20\nlicense: MIT\nprovenance: AI-generated\nissue: 2037\nauthors:\n  -\
   \ OpenCode (ollama-cloud/deepseek-v4-flash)\n---\n\n**STATUS:** DRAFT\n**CREATED:**\
   \ 2026-07-20\n\n> **Compliance Requirement:** All steps and sub-steps in this document\
   \ MUST be followed in order. Failure to comply with any step — including but not\
@@ -227,4 +227,4 @@ body: "---\ntitle: \"Universal discussion discipline — no question tool, no pi
   \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
   \n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
 created_at: '2026-07-20T23:18:58+00:00'
-updated_at: '2026-07-20T23:19:12+00:00'
+updated_at: '2026-07-20T23:19:45+00:00'
