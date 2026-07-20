@@ -73,7 +73,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 19. [inline]  plan plan                                   # phase solvability validation
 20. [sub-task] interdependency-check                     # check for conflicting open specs
 21. [sub-task] create (local only)                        # write spec.md + sub-artifacts
-22. [sub-task] revise-remote-body                         # update links to .issues/{N}/ folder
+22. [sub-task] revise-remote-body                         # update links to {project_root}/{path}/.issues/{N}/ folder
 23. [inline]  local-issues sync                           # push artifacts so links resolve
 24. [sub-task] completion                                 # state check and report
 25. [inline]  spec-audit                                  # quality audit
@@ -108,14 +108,14 @@ Orchestrator                          Sub-agent
     │  task(..., {issue_number})            │
     │─────────────────────────────────────>│
     │                                      │
-    │                         Reads input from .issues/{N}/spec.md
-    │                         Reads prior artifacts from .issues/{N}/artifacts/
-    │                         Writes output to .issues/{N}/artifacts/{name}.yaml
+    │                         Reads input from {project_root}/{path}/.issues/{N}/spec.md
+    │                         Reads prior artifacts from {project_root}/{path}/.issues/{N}/artifacts/
+    │                         Writes output to {project_root}/{path}/.issues/{N}/artifacts/{name}.yaml
     │                                      │
     │  Result contract:                     │
     │    status: DONE | BLOCKED            │
     │    finding_summary: "<1-3 sentences>"│
-    │    artifact_path: .issues/{N}/artifacts/{name}.yaml
+    │    artifact_path: {project_root}/{path}/.issues/{N}/artifacts/{name}.yaml
     │    blocker_reason: ""               │
     │<─────────────────────────────────────│
     │                                      │
@@ -125,8 +125,8 @@ Orchestrator                          Sub-agent
 
 **Rules:**
 1. Orchestrator passes ONLY `{issue_number}` — no preloaded context, no file paths, no expected outcomes, no orchestrator reasoning
-2. Sub-agent reads from disk — `.issues/{N}/spec.md` for the spec body, `.issues/{N}/artifacts/` for prior step outputs
-3. Sub-agent writes to disk — `.issues/{N}/artifacts/{name}.yaml` for its output
+2. Sub-agent reads from disk — `{project_root}/{path}/.issues/{N}/spec.md` for the spec body, `{project_root}/{path}/.issues/{N}/artifacts/` for prior step outputs
+3. Sub-agent writes to disk — `{project_root}/{path}/.issues/{N}/artifacts/{name}.yaml` for its output
 4. Sub-agent returns frugal result contract — `{status, finding_summary, artifact_path, blocker_reason}`
 5. Orchestrator reads artifact files ONLY for routing-significant data — never for full content
 6. No contract YAML files at `{project_root}/tmp/{N}/contracts/` — those are phantom infrastructure, stripped
@@ -135,27 +135,27 @@ Orchestrator                          Sub-agent
 
 | Step | Sub-agent Reads | Sub-agent Writes | Result Contract |
 |------|----------------|-----------------|-----------------|
-| create-remote-stub | (none — platform check only) | `.issues/{N}/remote.md` | `{status: DONE, finding_summary: "Issue #N created via ", artifact_path: ".issues/{N}/remote.md", spec_number: N}` |
-| pre-spec-inspection | GitHub API for open specs, codebase | `.issues/{N}/artifacts/pre-spec-inspection.yaml` | `{status: DONE \| BLOCKED, finding_summary: "...", artifact_path: "...", blocker_reason: "..."}` |
-| research-card-consultation | `.opencode/.issues/research-cards/*.md` | `.issues/{N}/artifacts/research-cards-consulted.yaml` | `{status: DONE, finding_summary: "...", artifact_path: "...", blocker_reason: null}` |
-| requirements | brainstorming output | `.issues/{N}/artifacts/requirements.yaml` | same |
-| concern-analysis | `.issues/{N}/artifacts/requirements.yaml` | `.issues/{N}/artifacts/concern-map.yaml` | same |
-| decompose | `.issues/{N}/artifacts/requirements.yaml`, `.issues/{N}/artifacts/concern-map.yaml` | `.issues/{N}/artifacts/decomposition.yaml` | same |
-| blast-radius | `.issues/{N}/artifacts/decomposition.yaml` | `.issues/{N}/artifacts/blast-radius.yaml` | same |
-| cross-cutting | `.issues/{N}/artifacts/decomposition.yaml`, `.issues/{N}/artifacts/concern-map.yaml` | `.issues/{N}/artifacts/cross-cutting-matrix.yaml` | same |
-| traceability | `.issues/{N}/artifacts/requirements.yaml`, `.issues/{N}/artifacts/decomposition.yaml` | `.issues/{N}/artifacts/traceability.yaml` | same |
-| code-path-analysis | `.issues/{N}/artifacts/decomposition.yaml`, `.issues/{N}/artifacts/blast-radius.yaml` | `.issues/{N}/artifacts/code-path-inventory.yaml` | same |
-| interface-compatibility | `.issues/{N}/artifacts/decomposition.yaml`, `.issues/{N}/artifacts/concern-map.yaml` | `.issues/{N}/artifacts/interface-compatibility.yaml` | same |
-| state-analysis | `.issues/{N}/artifacts/decomposition.yaml`, `.issues/{N}/artifacts/interface-compatibility.yaml` | `.issues/{N}/artifacts/state-analysis.yaml` | same |
-| pipeline-readiness-gate | `.issues/{N}/spec.md` (SC table), `.issues/{N}/artifacts/*.yaml` | `.issues/{N}/artifacts/sc-pipeline-readiness.yaml` | same |
-| testability-assessment | `.issues/{N}/artifacts/requirements.yaml`, `.issues/{N}/artifacts/code-path-inventory.yaml` | `.issues/{N}/artifacts/testability-assessment.yaml` | same |
-| risk | `.issues/{N}/artifacts/requirements.yaml`, `.issues/{N}/artifacts/decomposition.yaml` | `.issues/{N}/artifacts/risk.yaml` | same |
-| interdependency-check | GitHub API for open specs | `.issues/{N}/artifacts/interdependency-check.yaml` | same |
-| create (local) | All prior artifacts in `.issues/{N}/artifacts/` | `.issues/{N}/spec.md`, `.issues/{N}/sc-summary.yaml`, `.issues/{N}/verification-consistency-contract.yaml`, `.issues/{N}/spec-to-plan-handoff.yaml`, `.issues/{N}/revision-re-entry-contract.yaml`, `.issues/{N}/lifecycle.yaml` | `{status: DONE \| BLOCKED, finding_summary: "Spec #N written with M SCs", artifact_path: ".issues/{N}/spec.md", blocker_reason: null}` |
-| revise-remote-body | `.issues/{N}/spec.md`, session-init values | (updates remote issue body) | `{status: DONE \| SKIPPED, finding_summary: "Remote body updated" \| "No remote API — skipped", artifact_path: null, blocker_reason: null}` |
-| completion | `.issues/{N}/spec.md`, `.issues/{N}/artifacts/` | State check report | same |
-| holistic-self-check | `.issues/{N}/spec.md` | `.issues/{N}/artifacts/holistic-self-check.yaml` | same |
-| change-control | `.issues/{N}/spec.md` (current and prior versions) | `.issues/{N}/artifacts/change-control.yaml` | same |
+| create-remote-stub | (none — platform check only) | `{project_root}/{path}/.issues/{N}/remote.md` | `{status: DONE, finding_summary: "Issue #N created via ", artifact_path: "{project_root}/{path}/.issues/{N}/remote.md", spec_number: N}` |
+| pre-spec-inspection | GitHub API for open specs, codebase | `{project_root}/{path}/.issues/{N}/artifacts/pre-spec-inspection.yaml` | `{status: DONE \| BLOCKED, finding_summary: "...", artifact_path: "...", blocker_reason: "..."}` |
+| research-card-consultation | `.opencode/.issues/research-cards/*.md` | `{project_root}/{path}/.issues/{N}/artifacts/research-cards-consulted.yaml` | `{status: DONE, finding_summary: "...", artifact_path: "...", blocker_reason: null}` |
+| requirements | brainstorming output | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml` | same |
+| concern-analysis | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/concern-map.yaml` | same |
+| decompose | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/concern-map.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml` | same |
+| blast-radius | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/blast-radius.yaml` | same |
+| cross-cutting | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/concern-map.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/cross-cutting-matrix.yaml` | same |
+| traceability | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/traceability.yaml` | same |
+| code-path-analysis | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/blast-radius.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/code-path-inventory.yaml` | same |
+| interface-compatibility | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/concern-map.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/interface-compatibility.yaml` | same |
+| state-analysis | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/interface-compatibility.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/state-analysis.yaml` | same |
+| pipeline-readiness-gate | `{project_root}/{path}/.issues/{N}/spec.md` (SC table), `{project_root}/{path}/.issues/{N}/artifacts/*.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/sc-pipeline-readiness.yaml` | same |
+| testability-assessment | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/code-path-inventory.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/testability-assessment.yaml` | same |
+| risk | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml`, `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml` | `{project_root}/{path}/.issues/{N}/artifacts/risk.yaml` | same |
+| interdependency-check | GitHub API for open specs | `{project_root}/{path}/.issues/{N}/artifacts/interdependency-check.yaml` | same |
+| create (local) | All prior artifacts in `{project_root}/{path}/.issues/{N}/artifacts/` | `{project_root}/{path}/.issues/{N}/spec.md`, `{project_root}/{path}/.issues/{N}/sc-summary.yaml`, `{project_root}/{path}/.issues/{N}/verification-consistency-contract.yaml`, `{project_root}/{path}/.issues/{N}/spec-to-plan-handoff.yaml`, `{project_root}/{path}/.issues/{N}/revision-re-entry-contract.yaml`, `{project_root}/{path}/.issues/{N}/lifecycle.yaml` | `{status: DONE \| BLOCKED, finding_summary: "Spec #N written with M SCs", artifact_path: "{project_root}/{path}/.issues/{N}/spec.md", blocker_reason: null}` |
+| revise-remote-body | `{project_root}/{path}/.issues/{N}/spec.md`, session-init values | (updates remote issue body) | `{status: DONE \| SKIPPED, finding_summary: "Remote body updated" \| "No remote API — skipped", artifact_path: null, blocker_reason: null}` |
+| completion | `{project_root}/{path}/.issues/{N}/spec.md`, `{project_root}/{path}/.issues/{N}/artifacts/` | State check report | same |
+| holistic-self-check | `{project_root}/{path}/.issues/{N}/spec.md` | `{project_root}/{path}/.issues/{N}/artifacts/holistic-self-check.yaml` | same |
+| change-control | `{project_root}/{path}/.issues/{N}/spec.md` (current and prior versions) | `{project_root}/{path}/.issues/{N}/artifacts/change-control.yaml` | same |
 
 ### Inline Steps (orchestrator executes directly)
 

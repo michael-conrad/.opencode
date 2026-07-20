@@ -23,7 +23,7 @@ Validate that spec success criteria are structurally fit for the implementation 
 - PR-3 (single concern): PASS — every SC targets one file category and one verification domain
 - PR-4 (phase dependency): PASS — `solve prove` confirms phase dependency graph is acyclic
 - PR-5 (three-tier structure): PASS — multi-phase specs have three-tier phase structure (SC-31)
-- Artifact `.issues/{issue-N}/sc-pipeline-readiness.yaml` written with status PASS/FAIL
+- Artifact `{project_root}/{path}/.issues/{issue-N}/sc-pipeline-readiness.yaml` written with status PASS/FAIL
 
 ## Procedure
 
@@ -44,7 +44,7 @@ Extract the SC dependency graph from `depends_on` fields:
 
 - [ ] 1. Collect all SC-ID → `depends_on: [SC-IDs]` mappings
 - [ ] 1. Verify every referenced SC-ID in `depends_on` is defined in the SC table
-- [ ] 1. Generate a Z3 ordering contract at `.issues/{issue-N}/sc-dependency-contract.yaml`
+- [ ] 1. Generate a Z3 ordering contract at `{project_root}/{path}/.issues/{issue-N}/sc-dependency-contract.yaml`
 
    Contract schema (SC DAG ordering):
 
@@ -63,7 +63,7 @@ Extract the SC dependency graph from `depends_on` fields:
 
    The theorem `sc_dag_is_valid` is a Z3 assertion that the conjunction of all implication invariants is SAT (the dependency graph has no contradictions). If Z3 returns UNSAT, the dependency graph is invalid.
 
-- [ ] 1. Run `solve prove --contract-path .issues/{issue-N}/sc-dependency-contract.yaml --theorem "sc_dag_is_valid"` to validate the DAG
+- [ ] 1. Run `solve prove --contract-path {project_root}/{path}/.issues/{issue-N}/sc-dependency-contract.yaml --theorem "sc_dag_is_valid"` to validate the DAG
 - [ ] 1. If any cycle or missing dependency is found: PR-2 = FAIL
 
 ### Step 3: Validate Single Concern (PR-3)
@@ -106,7 +106,7 @@ Record each SC as `decomposition_depth_valid: true | false`. Any SC failing this
 Extract the phase dependency graph:
 
 - [ ] 1. Collect all phase → `depends_on: [phase-names]` mappings
-- [ ] 1. Generate a Z3 ordering contract at `.issues/{issue-N}/dependency-ordering-verification/ordering.yaml`
+- [ ] 1. Generate a Z3 ordering contract at `{project_root}/{path}/.issues/{issue-N}/dependency-ordering-verification/ordering.yaml`
 
    Contract schema (phase DAG ordering) — same structure as Step 2:
 
@@ -122,7 +122,7 @@ Extract the phase dependency graph:
      - "phase_dag_is_acyclic"
    ```
 
-- [ ] 1. Run `solve prove --contract-path .issues/{issue-N}/dependency-ordering-verification/ordering.yaml --theorem "phase_dag_is_acyclic"` to validate
+- [ ] 1. Run `solve prove --contract-path {project_root}/{path}/.issues/{issue-N}/dependency-ordering-verification/ordering.yaml --theorem "phase_dag_is_acyclic"` to validate
 - [ ] 1. If any cycle is found: PR-4 = FAIL
 
 ### Step 4.5: Validate Three-Tier Phase Structure (PR-5 — SC-31)
@@ -147,7 +147,7 @@ For multi-phase specs (2+ phases), validate that the phase structure follows the
 
 Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
 
-Write `.issues/{issue-N}/sc-pipeline-readiness.yaml`:
+Write `{project_root}/{path}/.issues/{issue-N}/sc-pipeline-readiness.yaml`:
 
 ```yaml
 schema_version: "1.0"
@@ -159,7 +159,7 @@ checks:
     detail: "..."
   - check_id: PR-2
     result: PASS | FAIL
-    solve_contract_path: ".issues/{issue-N}/sc-dependency-contract.yaml"
+    solve_contract_path: "{project_root}/{path}/.issues/{issue-N}/sc-dependency-contract.yaml"
     prove_results:
       - theorem: "sc_dag_is_valid"
         result: VALID | INVALID
@@ -168,7 +168,7 @@ checks:
     detail: "..."
   - check_id: PR-4
     result: PASS | FAIL
-    solve_contract_path: ".issues/{issue-N}/dependency-ordering-verification/ordering.yaml"
+    solve_contract_path: "{project_root}/{path}/.issues/{issue-N}/dependency-ordering-verification/ordering.yaml"
     prove_results:
       - theorem: "phase_dag_is_acyclic"
         result: VALID | INVALID
