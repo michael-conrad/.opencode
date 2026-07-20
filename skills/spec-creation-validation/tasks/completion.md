@@ -29,7 +29,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - If missing: perform self-review (placeholder scan, consistency check)
 
 - [ ] 3b. **Holistic self-check** (MANDATORY before finalization):
-   - Read `.issues/{N}/artifacts/holistic-self-check.yaml` to verify all 11 dimensions PASS
+   - Read `{project_root}/{path}/.issues/{N}/artifacts/holistic-self-check.yaml` to verify all 11 dimensions PASS
    - If the file does not exist or any dimension FAIL: return spec to create task for revision. Do NOT finalize.
 
 - [ ] 4. **Chat executive summary** (if not already produced):
@@ -38,7 +38,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 
 - [ ] 5. **Spec folder URL blockquote** (if not already present in issue body):
    - Generate the spec folder URL: `{html_url}/{owner}/{repo}/tree/issues-data/{N}/`
-   - Check if the issue body already contains the `.issues/{N}/` blockquote
+   - Check if the issue body already contains the `{path}/.issues/{N}/` blockquote
    - If missing: prepend the blockquote (per Step 6.8 of Load [write.md](skills/spec-creation-validation/tasks/create.md)) and update the issue body
 
 - [ ] 6. **Push artifacts to issues-data** (after spec issue exists):
@@ -100,5 +100,5 @@ HALT
 |-------|-------|
 | `status` | `DONE` \| `BLOCKED` |
 | `finding_summary` | `"Completion check for spec #N: all mandatory steps verified"` |
-| `artifact_path` | `.issues/{N}/lifecycle.yaml` |
+| `artifact_path` | `{project_root}/{path}/.issues/{N}/lifecycle.yaml` |
 | `blocker_reason` | `<why if BLOCKED>` |

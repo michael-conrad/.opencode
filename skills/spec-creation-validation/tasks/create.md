@@ -19,16 +19,16 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - Chat output is ONLY: `<exec summary>` + `<issue URL>` + `<byline>` (no full spec dump)
 - User reviews spec ON THE ISSUE (not in chat)
 - Ready for spec-auditor and approval-gate
-- `.issues/{N}/spec-to-plan-handoff.yaml` generated with artifact manifest (SC-27)
-- `.issues/{N}/sc-summary.yaml` includes flat `scs` list with `id`, `description`, `evidence_type`, `verification_gate`, `plan_phase` per SC (SC-28)
-- `.issues/{N}/spec.md` saved with full spec content (SC-29)
-- `.opencode/tools/local-issues sync` run after all `.issues/{N}/` file changes (SC-33)
+- `{project_root}/{path}/.issues/{N}/spec-to-plan-handoff.yaml` generated with artifact manifest (SC-27)
+- `{project_root}/{path}/.issues/{N}/sc-summary.yaml` includes flat `scs` list with `id`, `description`, `evidence_type`, `verification_gate`, `plan_phase` per SC (SC-28)
+- `{project_root}/{path}/.issues/{N}/spec.md` saved with full spec content (SC-29)
+- `.opencode/tools/local-issues sync` run after all `{project_root}/{path}/.issues/{N}/` file changes (SC-33)
 
 ## Procedure
 
 - [ ] 1. **Step 1: Verification Gate (MANDATORY FIRST)** — Before assembling the spec, collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass. (The SKILL.md pipeline handles verification-enforcement dispatch as an inline orchestrator step — this sub-agent does not call it.)
 
-- [ ] 2. **Step 2: Stub Creation (SC-22 — behavioral)** — The SKILL.md pipeline handles create-remote-stub as a separate sub-task step before this sub-agent runs. This sub-agent reads the spec number from `.issues/{N}/remote.md` and uses it for all subsequent artifact paths. The full spec body will be populated in Step 7.
+- [ ] 2. **Step 2: Stub Creation (SC-22 — behavioral)** — The SKILL.md pipeline handles create-remote-stub as a separate sub-task step before this sub-agent runs. This sub-agent reads the spec number from `{project_root}/{path}/.issues/{N}/remote.md` and uses it for all subsequent artifact paths. The full spec body will be populated in Step 7.
 
 - [ ] 3. **Step 3: Behavioral Test Mandate in Success Criteria (MANDATORY)** — Behavioral enforcement tests are NOT written during spec creation. They are written during implementation, per the post-approval spec mandate. However, the spec MUST include a Success Criterion mandating behavioral test creation before implementation.
 
@@ -48,7 +48,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     When creating the behavioral test success criterion, ensure it mandates real-domain prompts and stderr-based assertions, not prose-recall prompts.
 
-- [ ] 5. **Step 5: Assemble Spec** — The generated spec body MUST include YAML frontmatter at the top of the LOCAL `.issues/{N}/spec.md` file. The remote issue body remains markdown-only (no frontmatter).
+- [ ] 5. **Step 5: Assemble Spec** — The generated spec body MUST include YAML frontmatter at the top of the LOCAL `{project_root}/{path}/.issues/{N}/spec.md` file. The remote issue body remains markdown-only (no frontmatter).
 
     The local `spec.md` MUST begin with YAML frontmatter:
 
@@ -65,9 +65,9 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     ---
     ```
 
-    This frontmatter is for the LOCAL `.issues/{N}/spec.md` file ONLY. The remote issue body (GitHub Issue) uses markdown-only format without frontmatter.
+    This frontmatter is for the LOCAL `{project_root}/{path}/.issues/{N}/spec.md` file ONLY. The remote issue body (GitHub Issue) uses markdown-only format without frontmatter.
 
-    The local `.issues/{N}/spec.md` file also includes a STATUS/CREATED preamble header and compliance statement blockquotes at the top and bottom. These are for the LOCAL spec file ONLY — the remote issue body does NOT use this format.
+    The local `{project_root}/{path}/.issues/{N}/spec.md` file also includes a STATUS/CREATED preamble header and compliance statement blockquotes at the top and bottom. These are for the LOCAL spec file ONLY — the remote issue body does NOT use this format.
 
     **Template — STATUS/CREATED header (top of local spec.md, after YAML frontmatter):**
 
@@ -207,22 +207,22 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - [ ] 6. **Step 6: Generate Spec Artifacts (MANDATORY)** — Generate the following permanent artifacts:
 
-    - [ ] **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
-    - [ ] **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
-    - [ ] **Lifecycle manifest** — Create `.issues/{N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
-    - [ ] **Revision re-entry protocol contract** — Create `.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
+    - [ ] **SC coverage summary YAML** — Create `{project_root}/{path}/.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
+    - [ ] **Verification consistency contract** — Create `{project_root}/{path}/.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
+    - [ ] **Lifecycle manifest** — Create `{project_root}/{path}/.issues/{N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+    - [ ] **Revision re-entry protocol contract** — Create `{project_root}/{path}/.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
     Artifact generation occurs during Step 1 assembly. Self-review (Step 6) validates YAML-vs-prose consistency.
 
 - [ ] 7. **Step 7: Plan Creation Mandate in Spec Body (MANDATORY)** — The generated spec body MUST include a paragraph in the preamble or before the Success Criteria section that mandates plan creation via `writing-plans`:
 
     ```markdown
-    After this spec is approved, invoke `writing-plans` to create `.issues/{N}/plan.md` before implementation begins.
+    After this spec is approved, invoke `writing-plans` to create `{project_root}/{path}/.issues/{N}/plan.md` before implementation begins.
     ```
 
     Where `{N}` is the actual issue number, substituted at generation time. This mandate is in the spec content (what the writer generates), not just the task procedure.
 
-- [ ] 8. **Step 8: SC Coverage YAML Generation (SC-4, SC-28)** — After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/sc-summary.yaml`:
+- [ ] 8. **Step 8: SC Coverage YAML Generation (SC-4, SC-28)** — After assembling the spec content, generate a machine-parseable SC coverage summary at `{project_root}/{path}/.issues/{issue-N}/sc-summary.yaml`:
 
     ```yaml
     sc_coverage:
@@ -253,7 +253,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Required validation: cross-reference `sc_coverage.total` against the prose SC table row count. Mismatch MUST be flagged as a STRUCTURE-VIOLATION.
 
-- [ ] 9. **Step 9: Verification Consistency Contract Generation (SC-8)** — Generate a verification consistency solve contract at `.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
+- [ ] 9. **Step 9: Verification Consistency Contract Generation (SC-8)** — Generate a verification consistency solve contract at `{project_root}/{path}/.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -274,7 +274,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     The pre-approval gate validates every SC's Verification Gate against its Evidence Type. SAT for compliant specs, UNSAT with unsat_core for non-compliant.
 
-- [ ] 10. **Step 10: Lifecycle Manifest Initialization (SC-6)** — Initialize the append-only lifecycle manifest at `.issues/{N}/lifecycle.yaml` with a `spec_created` event:
+- [ ] 10. **Step 10: Lifecycle Manifest Initialization (SC-6)** — Initialize the append-only lifecycle manifest at `{project_root}/{path}/.issues/{N}/lifecycle.yaml` with a `spec_created` event:
 
     ```yaml
     events:
@@ -287,7 +287,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Each pipeline stage appends its event. Blocker events appended on FAIL with severity, reason, and resolution fields.
 
-- [ ] 11. **Step 11: Spec-to-Plan Handoff Manifest Generation (SC-27)** — Generate a spec-to-plan handoff manifest at `.issues/{issue-N}/spec-to-plan-handoff.yaml` that the plan writer and pre-flight handoff use to verify artifact completeness:
+- [ ] 11. **Step 11: Spec-to-Plan Handoff Manifest Generation (SC-27)** — Generate a spec-to-plan handoff manifest at `{project_root}/{path}/.issues/{issue-N}/spec-to-plan-handoff.yaml` that the plan writer and pre-flight handoff use to verify artifact completeness:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -297,21 +297,21 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     phase_count: <integer>
     status: <complete | partial>
     artifacts:
-      - path: .issues/{N}/spec.md
+      - path: {project_root}/{path}/.issues/{N}/spec.md
         required: true
-      - path: .issues/{N}/sc-summary.yaml
+      - path: {project_root}/{path}/.issues/{N}/sc-summary.yaml
         required: true
-      - path: .issues/{N}/verification-consistency-contract.yaml
+      - path: {project_root}/{path}/.issues/{N}/verification-consistency-contract.yaml
         required: true
-      - path: .issues/{N}/revision-re-entry-contract.yaml
+      - path: {project_root}/{path}/.issues/{N}/revision-re-entry-contract.yaml
         required: true
-      - path: .issues/{N}/spec-to-plan-handoff.yaml
+      - path: {project_root}/{path}/.issues/{N}/spec-to-plan-handoff.yaml
         required: true
     ```
 
     The handoff manifest is consumed by Load [pre-flight-handoff.md](implementation-pipeline/tasks/pre-flight-handoff.md) which validates that all required artifacts exist before the pipeline proceeds. If any required artifact is missing, pre-flight returns BLOCKED.
 
-- [ ] 12. **Step 12: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
+- [ ] 12. **Step 12: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `{project_root}/{path}/.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -495,7 +495,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     | Missing expected values | "returns the correct result", "validates input" | No concrete expected value to compare against |
     | Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
 
-    **Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `read(filePath=.issues/{N}/spec.md)` with specific field check). If no executable command can be written, the SC is not deterministic.
+    **Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `read(filePath={project_root}/{path}/.issues/{N}/spec.md)` with specific field check). If no executable command can be written, the SC is not deterministic.
 
     ✅ **Gate presence verification:** Verify the all-or-nothing gate statement is present in the assembled spec body. If absent → `STRUCTURE-VIOLATION` requiring rewrite before submission.
 
@@ -521,11 +521,11 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     ```bash
     ./.opencode/tools/solve model \
-      --contract-path .issues/{issue-N}/pre-approval-gate-contract.yaml \
-      --output .issues/{N}/artifacts/constraints-contract.yaml
+      --contract-path {project_root}/{path}/.issues/{issue-N}/pre-approval-gate-contract.yaml \
+      --output {project_root}/{path}/.issues/{N}/artifacts/constraints-contract.yaml
     ```
 
-    On success: constraints contract written to `.issues/{N}/artifacts/constraints-contract.yaml`.
+    On success: constraints contract written to `{project_root}/{path}/.issues/{N}/artifacts/constraints-contract.yaml`.
     On UNSAT: **HALT** with blocker report — do NOT proceed with manual fallback.
     On utility unavailable: **HALT** with blocker report — do NOT proceed without solve verification.
 
@@ -533,8 +533,8 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     ```bash
     ./.opencode/tools/solve check \
-      --state-path .issues/{N}/artifacts/constraints-contract.yaml \
-      --contract-path .issues/{issue-N}/pre-approval-gate-contract.yaml
+      --state-path {project_root}/{path}/.issues/{N}/artifacts/constraints-contract.yaml \
+      --contract-path {project_root}/{path}/.issues/{issue-N}/pre-approval-gate-contract.yaml
     ```
 
     MUST return SAT. UNSAT → HALT with blocker report. No fallback paths.
@@ -545,8 +545,8 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     ```bash
     ./.opencode/tools/plan plan \
-      --problem .issues/{N}/artifacts/phase-plan-problem.yaml \
-      --output .issues/{N}/artifacts/phase-plan-validated.yaml
+      --problem {project_root}/{path}/.issues/{N}/artifacts/phase-plan-problem.yaml \
+      --output {project_root}/{path}/.issues/{N}/artifacts/phase-plan-validated.yaml
     ```
 
     On success: planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY per `plan` skill → `plan.md` task.
@@ -592,16 +592,16 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
        - `structural` → `behavioral`: Must add a real test execution command (e.g., `opencode run`, `pytest`, `bash test.sh`)
        - `string` → `behavioral`: Must replace grep assertion with test execution + semantic inspection
     5. **Re-check**: After remediation, re-run the classification check. Confirm no remaining misclassifications.
-    6. **Evidence artifact**: Write findings to `.issues/{N}/post-sc-uplift-check.yaml`
+    6. **Evidence artifact**: Write findings to `{project_root}/{path}/.issues/{N}/post-sc-uplift-check.yaml`
 
 - [ ] 35. **Step 35: Evidence Artifact Verification (MANDATORY)** — **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
 
     | Checkpoint | Verification Action | Tool Call | Problem Class |
     | ---------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- |
-    | No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `read(filePath=.issues/{N}/spec.md)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
-    | Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `read(filePath=.issues/{N}/spec.md)` → parse section anchors vs referenced IDs | CONFLICTING |
-    | Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `read(filePath=.issues/{N}/spec.md)` → count affected files, check for phase markers | VERIFICATION-GAP |
-    | Ambiguity resolved | Verify no requirement can be interpreted two ways | `read(filePath=.issues/{N}/spec.md)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION |
+    | No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `read(filePath={project_root}/{path}/.issues/{N}/spec.md)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
+    | Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `read(filePath={project_root}/{path}/.issues/{N}/spec.md)` → parse section anchors vs referenced IDs | CONFLICTING |
+    | Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `read(filePath={project_root}/{path}/.issues/{N}/spec.md)` → count affected files, check for phase markers | VERIFICATION-GAP |
+    | Ambiguity resolved | Verify no requirement can be interpreted two ways | `read(filePath={project_root}/{path}/.issues/{N}/spec.md)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION |
 
     **Evidence format:**
 
@@ -629,28 +629,28 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - [ ] 37. **Step 37: Generate Spec Folder URL (SC-6)** — Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the pattern from Load [AGENTS.md](.issues/AGENTS.md):
 
     ```
-    > **Full spec and artifacts: [`.issues/{N}/`]({html_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+    > **Full spec and artifacts: [`{path}/.issues/{N}/`]({html_url}/{owner}/{repo}/tree/issues-data/{path}/.issues/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
     >
-    > **Local artifacts:** `.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+    > **Local artifacts:** `{path}/.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
     ```
 
     The URL follows the pattern: `{html_url}/{owner}/{repo}/tree/issues-data/{N}` where `{html_url}`, `{owner}`, and `{repo}` are resolved from the session-init repo entry whose `path` matches the issue's repo. Load [AGENTS.md](.issues/AGENTS.md) for the canonical URL convention.
 
     Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
-- [ ] 38. **Step 38: Local Spec Assembly (SC-29)** — After creating the remote issue, save the full spec content to the local `.issues/{N}/spec.md` file:
+- [ ] 38. **Step 38: Local Spec Assembly (SC-29)** — After creating the remote issue, save the full spec content to the local `{project_root}/{path}/.issues/{N}/spec.md` file:
 
-    - [ ] Write the complete spec body (including all sections, SC table, compliance blocks, preamble, byline, and YAML frontmatter) to `.issues/{N}/spec.md`
+    - [ ] Write the complete spec body (including all sections, SC table, compliance blocks, preamble, byline, and YAML frontmatter) to `{project_root}/{path}/.issues/{N}/spec.md`
     - [ ] The local spec.md is the authoritative spec — the remote issue body is a condensed exec summary
-    - [ ] The plan writer reads from `.issues/{N}/spec.md`, not from the remote issue body
-    - [ ] Verify the file was written: `ls .issues/{N}/spec.md`
+    - [ ] The plan writer reads from `{project_root}/{path}/.issues/{N}/spec.md`, not from the remote issue body
+    - [ ] Verify the file was written: `ls {project_root}/{path}/.issues/{N}/spec.md`
 
-- [ ] 39. **Step 39: Post-Creation Sync (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
+- [ ] 39. **Step 39: Post-Creation Sync (SC-33)** — After creating or modifying any files in `{project_root}/{path}/.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
 
-    - [ ] Run `.opencode/tools/local-issues sync` to commit all local `.issues/{N}/` files and push to the `issues-data` branch
-    - [ ] This ensures links in the remote issue body that refer to the spec folder (`.issues/{N}/`) resolve correctly
+    - [ ] Run `.opencode/tools/local-issues sync` to commit all local `{project_root}/{path}/.issues/{N}/` files and push to the `issues-data` branch
+    - [ ] This ensures links in the remote issue body that refer to the spec folder (`{path}/.issues/{N}/`) resolve correctly
     - [ ] The `issues-data` branch is the canonical store for all spec artifacts — without sync, downstream consumers (plan writer, auditors) cannot access the local files
-    - [ ] Run `local-issues sync` after EVERY change to files in `.issues/{N}/` — not just at creation time
+    - [ ] Run `local-issues sync` after EVERY change to files in `{project_root}/{path}/.issues/{N}/` — not just at creation time
 
 - [ ] 41. **Step 41: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
@@ -664,30 +664,30 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - Preceded by: `requirements` (mandatory), `decompose`, `traceability`, `risk` (or explicitly skipped)
 - Extends: brainstorming Steps 7-9 (adapted, not verbatim move)
-- Calls: `.opencode/tools/local-issues sync` (after all `.issues/{N}/` file changes)
+- Calls: `.opencode/tools/local-issues sync` (after all `{project_root}/{path}/.issues/{N}/` file changes)
 - Followed by: `spec-auditor`, then user review on the issue
 
 ## Input Artifacts
 
-This sub-agent reads prior artifacts from the following paths under `.issues/{N}/artifacts/`:
+This sub-agent reads prior artifacts from the following paths under `{project_root}/{path}/.issues/{N}/artifacts/`:
 
 | # | Artifact | Path |
 |---|----------|------|
-| 1 | Pre-spec inspection | `.issues/{N}/artifacts/pre-spec-inspection.yaml` |
-| 2 | Research cards consulted | `.issues/{N}/artifacts/research-cards-consulted.yaml` |
-| 3 | Requirements | `.issues/{N}/artifacts/requirements.yaml` |
-| 4 | Concern map | `.issues/{N}/artifacts/concern-map.yaml` |
-| 5 | Decomposition | `.issues/{N}/artifacts/decomposition.yaml` |
-| 6 | Blast radius | `.issues/{N}/artifacts/blast-radius.yaml` |
-| 7 | Cross-cutting matrix | `.issues/{N}/artifacts/cross-cutting-matrix.yaml` |
-| 8 | Traceability | `.issues/{N}/artifacts/traceability.yaml` |
-| 9 | Code path inventory | `.issues/{N}/artifacts/code-path-inventory.yaml` |
-| 10 | Interface compatibility | `.issues/{N}/artifacts/interface-compatibility.yaml` |
-| 11 | State analysis | `.issues/{N}/artifacts/state-analysis.yaml` |
-| 12 | SC pipeline readiness | `.issues/{N}/artifacts/sc-pipeline-readiness.yaml` |
-| 13 | Testability assessment | `.issues/{N}/artifacts/testability-assessment.yaml` |
-| 14 | Risk | `.issues/{N}/artifacts/risk.yaml` |
-| 15 | Interdependency check | `.issues/{N}/artifacts/interdependency-check.yaml` |
+| 1 | Pre-spec inspection | `{project_root}/{path}/.issues/{N}/artifacts/pre-spec-inspection.yaml` |
+| 2 | Research cards consulted | `{project_root}/{path}/.issues/{N}/artifacts/research-cards-consulted.yaml` |
+| 3 | Requirements | `{project_root}/{path}/.issues/{N}/artifacts/requirements.yaml` |
+| 4 | Concern map | `{project_root}/{path}/.issues/{N}/artifacts/concern-map.yaml` |
+| 5 | Decomposition | `{project_root}/{path}/.issues/{N}/artifacts/decomposition.yaml` |
+| 6 | Blast radius | `{project_root}/{path}/.issues/{N}/artifacts/blast-radius.yaml` |
+| 7 | Cross-cutting matrix | `{project_root}/{path}/.issues/{N}/artifacts/cross-cutting-matrix.yaml` |
+| 8 | Traceability | `{project_root}/{path}/.issues/{N}/artifacts/traceability.yaml` |
+| 9 | Code path inventory | `{project_root}/{path}/.issues/{N}/artifacts/code-path-inventory.yaml` |
+| 10 | Interface compatibility | `{project_root}/{path}/.issues/{N}/artifacts/interface-compatibility.yaml` |
+| 11 | State analysis | `{project_root}/{path}/.issues/{N}/artifacts/state-analysis.yaml` |
+| 12 | SC pipeline readiness | `{project_root}/{path}/.issues/{N}/artifacts/sc-pipeline-readiness.yaml` |
+| 13 | Testability assessment | `{project_root}/{path}/.issues/{N}/artifacts/testability-assessment.yaml` |
+| 14 | Risk | `{project_root}/{path}/.issues/{N}/artifacts/risk.yaml` |
+| 15 | Interdependency check | `{project_root}/{path}/.issues/{N}/artifacts/interdependency-check.yaml` |
 
 ## Result Contract
 
@@ -695,5 +695,5 @@ This sub-agent reads prior artifacts from the following paths under `.issues/{N}
 |-------|-------|
 | `status` | `DONE` \| `BLOCKED` |
 | `finding_summary` | `"Spec #N written with M SCs"` |
-| `artifact_path` | `.issues/{N}/spec.md` |
+| `artifact_path` | `{project_root}/{path}/.issues/{N}/spec.md` |
 | `blocker_reason` | `<why if BLOCKED>` |

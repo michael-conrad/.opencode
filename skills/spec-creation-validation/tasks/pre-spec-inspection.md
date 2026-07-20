@@ -19,7 +19,7 @@ Check for superseding issues, overlapping specs, and codebase conflicts before s
      - **PARTIAL-OVERLAP:** Specs share files/symbols but have different core concerns → Surface to developer
      - **CONFLICT-RISK:** Same files modified with conflicting intent → BLOCKED
      - **INDEPENDENT:** No meaningful overlap → Proceed
-- [ ] 5. **Write findings** — Save to `.issues/{N}/artifacts/pre-spec-inspection.yaml` with classification and evidence.
+- [ ] 5. **Write findings** — Save to `{project_root}/{path}/.issues/{N}/artifacts/pre-spec-inspection.yaml` with classification and evidence.
 
 ## Result Contract
 
@@ -27,5 +27,5 @@ Check for superseding issues, overlapping specs, and codebase conflicts before s
 |-------|-------|
 | `status` | `DONE` \| `BLOCKED` |
 | `finding_summary` | `"Pre-spec inspection: <classification> — <summary>"` |
-| `artifact_path` | `.issues/{N}/artifacts/pre-spec-inspection.yaml` |
+| `artifact_path` | `{project_root}/{path}/.issues/{N}/artifacts/pre-spec-inspection.yaml` |
 | `blocker_reason` | `<why if BLOCKED>` |

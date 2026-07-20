@@ -2,21 +2,21 @@
 
 ## Purpose
 
-Generate 7 analytical artifacts from a completed spec body. Each artifact is a YAML file stored at `.issues/{N}/artifacts/{name}.yaml`.
+Generate 7 analytical artifacts from a completed spec body. Each artifact is a YAML file stored at `{project_root}/{path}/.issues/{N}/artifacts/{name}.yaml`.
 
 ## Entry Criteria
 
-- Completed spec body at `.issues/{N}/spec.md`
+- Completed spec body at `{project_root}/{path}/.issues/{N}/spec.md`
 - Spec body includes all required sections (SC table, preamble, compliance blocks)
 - All Step 1 sub-artifacts exist (sc-summary.yaml, verification-consistency-contract.yaml, lifecycle.yaml, spec-to-plan-handoff.yaml, revision-re-entry-contract.yaml)
 
 ## Input Artifacts
 
-This sub-agent reads from `.issues/{N}/spec.md` and prior artifacts in `.issues/{N}/artifacts/`.
+This sub-agent reads from `{project_root}/{path}/.issues/{N}/spec.md` and prior artifacts in `{project_root}/{path}/.issues/{N}/artifacts/`.
 
 ## Procedure
 
-Generate all 7 artifacts sequentially — each artifact may inform the next. Write each to `.issues/{N}/artifacts/{name}.yaml`.
+Generate all 7 artifacts sequentially — each artifact may inform the next. Write each to `{project_root}/{path}/.issues/{N}/artifacts/{name}.yaml`.
 
 - [ ] 1. Generate `blast-radius.yaml` — Analyze the spec body and identify affected components and ripple effects per phase. Schema:
 
@@ -144,5 +144,5 @@ Generate all 7 artifacts sequentially — each artifact may inform the next. Wri
 |-------|-------|
 | `status` | `DONE` \| `BLOCKED` |
 | `finding_summary` | `"Generated 7 analytical artifacts for spec #N"` |
-| `artifact_path` | `.issues/{N}/artifacts/` |
+| `artifact_path` | `{project_root}/{path}/.issues/{N}/artifacts/` |
 | `blocker_reason` | `<why if BLOCKED>` |
