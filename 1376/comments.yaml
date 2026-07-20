@@ -1,0 +1,6 @@
+comments:
+- type: internal
+  body: 'Partially subsumed by #2020. The missing assemble-work task file and orchestrator
+    entry point are in scope of #2020 Phase 5. See `.opencode/.issues/2020/spec.md`
+    §Supersession.'
+  timestamp: '2026-07-20T15:56:26+00:00'

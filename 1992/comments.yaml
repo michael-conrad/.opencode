@@ -1,1 +1,6 @@
-comments: []
+comments:
+- type: internal
+  body: 'Partially subsumed by #2020. The architectural invariant (task cards MUST
+    NOT contain task() calls) is in scope of #2020 Phase 3. The 9 violating task cards
+    are being fixed. See `.opencode/.issues/2020/spec.md` §Supersession.'
+  timestamp: '2026-07-20T15:56:26+00:00'
