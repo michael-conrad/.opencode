@@ -460,6 +460,12 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **🚫 FORBIDDEN:** Declaring a runtime-behavioral change as `structural` or `string` evidence type. The classification question is substrate-determined — the code path either executes at runtime or it does not.
 
+    **Presumptive runtime-behavioral file types:** The following file types ALWAYS affect runtime agent behavior and MUST be classified as `behavioral` unless the agent can prove otherwise:
+    - `SKILL.md` — Trigger Dispatch Tables, Invocation sections, DISPATCH_GATE protocols control agent dispatch decisions
+    - `tasks/*.md` — Task file procedures control sub-agent execution behavior
+    - `guidelines/*.md` — Enforcement blocks, critical violation sections, and procedural rules control agent compliance
+    - `enforcement/*.md` — Enforcement gate definitions control pipeline routing
+
     **Remediation:** If the agent classifies an SC as structural/string for a runtime-behavioral change, the VbC pre-flight classification gate will uplift it to behavioral anyway. Classifying correctly at authorship time prevents downstream rework.
 
     **Authority:** Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Load [Evidence Type Taxonomy](guidelines/080-code-standards.md)

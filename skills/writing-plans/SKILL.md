@@ -34,8 +34,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" / "retroactive" / "retroactive plan" / "backfill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
+| "retroactive plan" / "retroactive" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number, spec_body} |
 | "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {plan_context} |
 
 ## Persona
@@ -68,18 +69,105 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 **DISPATCH GATE — Pipeline steps dispatch to sub-agents.** The orchestrator routes each step to a clean-room sub-agent via `task()`. The orchestrator reads each step procedure from its task file and dispatches it. When external skills are needed (e.g., audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
 
-| Task | Execution |
-|------|-----------|
-| `create` | Sub-agent via `task(..., prompt: "execute create task from writing-plans")` |
-| `update` | Sub-agent via `task(..., prompt: "execute update task from writing-plans")` |
-| `holistic-self-check` | Sub-agent via `task(..., prompt: "execute holistic-self-check task from writing-plans")` |
-| `completion` | Sub-agent via `task(..., prompt: "execute completion task from writing-plans")` |
+| Task | Canonical Dispatch String |
+|------|--------------------------|
+| `create` | `task(..., prompt: "execute create from writing-plans-creation. Read \`writing-plans-creation/tasks/create.md\` first")` |
+| `update` | `task(..., prompt: "execute update from writing-plans-creation. Read \`writing-plans-creation/tasks/update.md\` first")` |
+| `retroactive` | `task(..., prompt: "execute retroactive from writing-plans-creation. Read \`writing-plans-creation/tasks/retroactive.md\` first")` |
+| `holistic-self-check` | `task(..., prompt: "execute holistic-self-check from writing-plans. Read \`writing-plans-holistic/tasks/holistic-self-check.md\` first")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 
 ## Pipeline
 
-The pipeline is defined in `writing-plans-creation/tasks/create.md`. It consists of sequential steps dispatched by the orchestrator via the Trigger Dispatch Table, with Z3 contract verification between each step. See `create.md` for the full step list, dispatch modes, and contract table.
+### Workflow 1: `create` — Full pipeline (17 steps)
+
+```
+ 1. [sub-task] Verify spec approved (pre-plan-readiness)
+ 2. [sub-task] Research
+ 3. [inline]  Z3 check — solve check verify research output
+ 4. [sub-task] Readiness
+ 5. [sub-task] Artifact validation
+ 6. [inline]  Z3 check — solve check verify readiness output
+ 7. [sub-task] Structure
+ 8. [inline]  Z3 check — solve check verify structure output
+ 9. [sub-task] Solve
+10. [inline]  Z3 check — solve check verify solve output
+11. [sub-task] Plan creation pipeline (dispatches to plan-creation-pipeline skill)
+12. [sub-task] Write
+13. [inline]  Z3 check — solve check verify write output
+14. [sub-task] Revisit
+15. [inline]  Z3 check — solve check verify revisit output
+16. [sub-task] Validate
+17. [inline]  Z3 check — solve check verify validate output
+18. [sub-task] Audit fidelity
+19. [inline]  Z3 check — solve check verify audit-fidelity output
+20. [sub-task] Audit concern
+21. [inline]  Z3 check — solve check verify audit-concern output
+22. [sub-task] Completion
+23. [inline]  Z3 check — solve check verify completion output
+```
+
+### Workflow 2: `update` — Plan revision (delegates to writing-plans-creation update task)
+
+```
+ 1. [sub-task] Update
+```
+
+### Workflow 3: `retroactive` — Retroactive plan creation (delegates to writing-plans-creation retroactive task)
+
+```
+ 1. [sub-task] Retroactive
+```
+
+### Workflow 4: `holistic-self-check` — Quality gate (delegates to writing-plans-holistic)
+
+```
+ 1. [sub-task] Holistic self-check
+```
+
+### Sub-task Step Contract
+
+Every sub-task step follows the frugal contract pattern. The orchestrator passes only `{spec_issue_number, spec_body}` — no preloaded context, no file paths, no expected outcomes. The sub-agent reads its input from disk, writes its output to disk, and returns a frugal result contract.
+
+**Dispatch contract:**
+
+```
+Orchestrator                          Sub-agent
+    │                                      │
+    │  task(..., {spec_issue_number, spec_body})
+    │─────────────────────────────────────>│
+    │                                      │
+    │                         Reads input from .issues/{N}/spec.md
+    │                         Reads prior artifacts from .issues/{N}/artifacts/
+    │                         Writes output to .issues/{N}/artifacts/{name}.yaml
+    │                                      │
+    │  Result contract:                     │
+    │    status: DONE | BLOCKED            │
+    │    finding_summary: "<1-3 sentences>"│
+    │    artifact_path: .issues/{N}/artifacts/{name}.yaml
+    │    blocker_reason: ""               │
+    │<─────────────────────────────────────│
+    │                                      │
+    │  Reads artifact file ONLY if         │
+    │  routing-significant data needed     │
+```
+
+**Rules:**
+1. Orchestrator passes ONLY `{spec_issue_number, spec_body}` — no preloaded context, no file paths, no expected outcomes, no orchestrator reasoning
+2. Sub-agent reads from disk — `.issues/{N}/spec.md` for the spec body, `.issues/{N}/artifacts/` for prior step outputs
+3. Sub-agent writes to disk — `.issues/{N}/artifacts/{name}.yaml` for its output
+4. Sub-agent returns frugal result contract — `{status, finding_summary, artifact_path, blocker_reason}`
+5. Orchestrator reads artifact files ONLY for routing-significant data — never for full content
+6. No contract YAML files at `{project_root}/tmp/{N}/contracts/` — those are phantom infrastructure, stripped
+
+### Inline Steps (orchestrator executes directly)
+
+| Step | What the Orchestrator Does |
+|------|---------------------------|
+| Verify spec approved | Run `github_issue_read(method=get_labels, issue_number={N})` |
+| Z3 check | Run `.opencode/tools/solve check` with contract |
+| Plan creation pipeline | Dispatch to `plan-creation-pipeline` skill via SKILL.md Trigger Dispatch Table |
 
 ## Sub-Agent Routing
 

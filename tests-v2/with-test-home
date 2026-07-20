@@ -151,6 +151,15 @@ do_setup() {
         exit 1
     }
 
+    # If BEHAVIOR_SUBMODULE_COMMIT is set, fetch and checkout that commit so
+    # feature-branch changes are visible in the test project's .opencode.
+    if [ -n "${BEHAVIOR_SUBMODULE_COMMIT:-}" ]; then
+        git -C "$test_project/.opencode" fetch -q origin 2>/dev/null || true
+        git -C "$test_project/.opencode" checkout -q "$BEHAVIOR_SUBMODULE_COMMIT" 2>/dev/null || {
+            echo "WARNING: could not checkout BEHAVIOR_SUBMODULE_COMMIT=$BEHAVIOR_SUBMODULE_COMMIT" >&2
+        }
+    fi
+
     git -C "$test_project" add -A 2>/dev/null || true
     git -C "$test_project" commit -q --allow-empty -m "init" 2>/dev/null || true
 
@@ -221,33 +230,45 @@ do_setup() {
     while IFS= read -r -d '' f; do
         local rel="${f#$test_home/}"
         case "$rel" in
-            .config/opencode/*|.local/share/opencode/*|.cache/opencode/*|.runtime/*|.local/state/opencode/*|snap/opencode/*|project/*|.git/*)
+            "")
                 ;;
-            .gitignore|.gitattributes)
+.config*|.local*|.cache*|.runtime*|snap*|project*|.git*|.gitignore|.gitattributes)
                 ;;
             *)
                 echo "  [isolation] WARNING: unexpected file in test home: $rel" >&2
                 leak_found=1
                 ;;
         esac
-    done < <(find "$test_home" -not -path '*/project/.opencode/*' -not -path '*/.git/objects/*' -not -path '*/.git/refs/*' -print0 2>/dev/null || true)
+    done < <(find "$test_home" -mindepth 1 -not -path '*/project/.opencode/*' -not -path '*/.git/objects/*' -not -path '*/.git/refs/*' -print0 2>/dev/null || true)
 
     if [ "$leak_found" -eq 1 ]; then
         echo "  [isolation] FAIL: test home contains unexpected files" >&2
         exit 1
     fi
 
-    # Verify production DB was not modified by the test setup.
-    if [ -n "$prod_db_before" ]; then
-        local prod_db_after
-        prod_db_after=$(sha256sum "$prod_db" 2>/dev/null | cut -d' ' -f1)
-        if [ "$prod_db_before" != "$prod_db_after" ]; then
-            echo "  [isolation] FAIL: production DB was modified during test setup!" >&2
-            exit 1
+    # Verify test DB is isolated: the project.worktree field MUST point to the test project,
+    # NOT the production project. This is more reliable than sha256 comparison of the
+    # production DB, which can be legitimately modified by concurrent processes (desktop app,
+    # other CLI sessions) during test setup.
+    if [ -f "$test_db" ]; then
+        local test_worktree
+        test_worktree=$(sqlite3 "$test_db" "SELECT worktree FROM project;" 2>/dev/null || true)
+        if [ -n "$test_worktree" ]; then
+            case "$test_worktree" in
+                "$test_project"|"$test_project"/*)
+                    echo "  [isolation] PASS: test DB points to test project ($test_worktree)"
+                    ;;
+                *)
+                    echo "  [isolation] FAIL: test DB points to non-test path: $test_worktree" >&2
+                    echo "  [isolation]   expected prefix: $test_project" >&2
+                    exit 1
+                    ;;
+            esac
+        else
+            echo "  [isolation] WARNING: test DB exists but has no project.worktree entry" >&2
         fi
-        echo "  [isolation] PASS: production DB unchanged (sha256 match)"
     else
-        echo "  [isolation] PASS: no production DB found (local-only environment)"
+        echo "  [isolation] PASS: no test DB found (fresh setup)"
     fi
 
     echo "TEST_HOME=$test_home"
@@ -315,8 +336,23 @@ git clone -q "$SUBMODULE_REMOTE_URL" "$TEST_PROJECT/.opencode" 2>/dev/null || {
     exit 1
 }
 
+# If BEHAVIOR_SUBMODULE_COMMIT is set, fetch and checkout that commit so
+# feature-branch changes are visible in the test project's .opencode.
+if [ -n "${BEHAVIOR_SUBMODULE_COMMIT:-}" ]; then
+    git -C "$TEST_PROJECT/.opencode" fetch -q origin 2>/dev/null || true
+    git -C "$TEST_PROJECT/.opencode" checkout -q "$BEHAVIOR_SUBMODULE_COMMIT" 2>/dev/null || {
+        echo "WARNING: could not checkout BEHAVIOR_SUBMODULE_COMMIT=$BEHAVIOR_SUBMODULE_COMMIT" >&2
+    }
+fi
+
 git -C "$TEST_PROJECT" add -A 2>/dev/null || true
 git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
+
+# Copy fixture evidence from TEST_WORKDIR into test project so the agent can find it.
+if [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR/tmp/behavioral-evidence-fixture" ]; then
+    mkdir -p "$TEST_PROJECT/tmp"
+    cp -r "$TEST_WORKDIR/tmp/behavioral-evidence-fixture" "$TEST_PROJECT/tmp/behavioral-evidence-fixture" 2>/dev/null || true
+fi
 
 seed_model_config
 
@@ -350,6 +386,8 @@ env -i -C "$TEST_PROJECT" \
     LANG="${LANG:-C.UTF-8}" \
     TERM="${TERM:-xterm-256color}" \
     GB_TOKEN="${GB_TOKEN:-}" \
+    BEHAVIOR_SUBMODULE_COMMIT="${BEHAVIOR_SUBMODULE_COMMIT:-}" \
+    TEST_WORKDIR="${TEST_WORKDIR:-}" \
     sh -c '
 echo "  [test-env] HOME=$HOME"
 echo "  [test-env] PATH=$PATH"

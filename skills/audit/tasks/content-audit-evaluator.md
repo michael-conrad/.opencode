@@ -408,6 +408,45 @@ issue_impact:
       reason: "<description>"
 ```
 
+
+### Step 13: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each behavioral SC in the spec, dispatch a clean-room sub-agent to evaluate the test artifacts:
+
+- [ ] 1. Identify all behavioral SCs from the spec's success criteria table (evidence type `behavioral`)
+- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path:
+
+```yaml
+task(
+  prompt: "execute behavioral-sc-evaluator task from audit"
+  context: {
+    artifact_dir: "<path to behavioral test artifact directory>",
+    sc_id: "<SC-N>",
+    sc_criterion: "<exact SC text from spec>"
+  }
+)
+```
+
+- [ ] 3. The clean-room sub-agent receives ONLY the artifact directory path and SC criterion — NO orchestrator reasoning, expected outcomes, or cached results
+- [ ] 4. If the clean-room sub-agent returns `status: DONE` with `verdict: PASS` → the evaluator verdict for that SC is PASS
+- [ ] 5. If the clean-room sub-agent returns `status: DONE` with `verdict: FAIL` → the evaluator verdict for that SC is FAIL
+- [ ] 6. If the clean-room sub-agent returns `status: BLOCKED` or errors → the evaluator verdict for that SC is FAIL
+- [ ] 7. File-existence alone is NEVER sufficient evidence for behavioral SCs — the sub-agent must evaluate actual agent behavior from stdout.log and stderr.log
+- [ ] 8. Record behavioral SC verdicts:
+
+```yaml
+behavioral_sc_evaluation:
+  scs_evaluated: <N>
+  scs_pass: <N>
+  scs_fail: <N>
+  per_sc:
+    - sc_id: "<SC-N>"
+      verdict: "PASS | FAIL"
+      artifact_dir: "<path>"
+      justification: "<1-2 sentence summary from sub-agent result>"
+```
+
+- [ ] 9. If ANY behavioral SC returns FAIL, set `all_claims_pass: false` in the final verdict regardless of other domain verdicts
 ### Step 12: Process Verdicts
 
 Compile all per-claim verdicts and apply consensus rules:
@@ -418,7 +457,7 @@ Compile all per-claim verdicts and apply consensus rules:
 - [ ] 4. Count total, pass, fail, and fabricated verdicts
 - [ ] 5. Compute `all_claims_pass: true` only if every claim is PASS
 
-### Step 13: Apply Self-Consistency Gate
+### Step 14: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -438,7 +477,7 @@ self_consistency_downgrades:
     hedging_phrase: "<matched phrase>"
 ```
 
-### Step 14: Write verdict.yaml
+### Step 15: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -496,7 +535,7 @@ self_consistency_downgrades:
 - [ ] 2. Write `verdict.yaml` with the complete verdict structure
 - [ ] 3. Verify the file was written and is non-empty
 
-### Step 15: Return Frugal Result Contract
+### Step 16: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -539,9 +578,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 10. Evaluate Source Data Inventory → INVALID if skipped
 - [ ] 11. Evaluate Issues from upstream reasoning role → INVALID if skipped
 - [ ] 12. Process Verdicts → INVALID if skipped
-- [ ] 13. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 14. Write verdict.yaml → INVALID if skipped
-- [ ] 15. Return Frugal Result Contract → INVALID if skipped
+- [ ] 13. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
+- [ ] 14. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 15. Write verdict.yaml → INVALID if skipped
+- [ ] 16. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 

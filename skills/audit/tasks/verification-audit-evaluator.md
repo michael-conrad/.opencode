@@ -156,19 +156,22 @@ For each SC with valid evidence, evaluate whether the evidence demonstrates the 
 - **Structural SC**: Verify the file exists with expected content. Read the evidence artifact and confirm the file path, existence, and content match the SC criterion.
 - **String SC**: Verify the expected pattern is present. Read the evidence artifact and confirm the grep/pattern match result satisfies the SC criterion.
 - **Semantic SC**: Read the evidence artifact and apply analytical judgment. Does the implementation's intent and meaning satisfy the SC criterion? This requires reading the evidence content and reasoning about whether the implementation achieves the SC's intent.
-- **Behavioral SC**: Read the behavioral test output (session logs, stderr/stdout captures, YAML verdicts). Does the test execution output confirm the agent's behavior matches the SC criterion? Look for tool-call evidence, dispatch traces, and behavioral assertions in the test output.
+- **Behavioral SC**: Evaluation is delegated to a clean-room sub-agent via Step 5a. The evaluator does NOT evaluate behavioral SCs inline — it dispatches to `behavioral-sc-evaluator` and uses the returned verdict.
+
+### Step 5a: Clean-Room Dispatch for Behavioral SCs
+
+For each behavioral SC identified in Step 3, the evaluator MUST NOT evaluate the evidence inline. Instead, it dispatches a clean-room sub-agent:
+
+- [ ] 1. For each behavioral SC, collect the artifact directory path from `artifact_evidence_dir`
+- [ ] 2. Dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path and the SC criterion text — no orchestrator reasoning, no expected outcomes, no cached results
+- [ ] 3. Receive the result contract from the clean-room sub-agent
+- [ ] 4. If the clean-room sub-agent returns `verdict: FAIL` for any SC, the evaluator's verdict for that SC is FAIL (not PASS)
+- [ ] 5. File-existence alone is NOT sufficient evidence for behavioral SCs — the clean-room sub-agent must confirm the agent took the correct action
+- [ ] 6. If the clean-room sub-agent returns `status: BLOCKED` or produces no result, the evaluator verdict for that SC is FAIL with reason `CLEAN_ROOM_EVALUATION_FAILED`
+
+The clean-room sub-agent's verdict is authoritative for behavioral SCs. The evaluator does NOT override a PASS from the clean-room sub-agent, but MUST override a FAIL from the clean-room sub-agent into the evaluator's verdict.
 
 #### Verdict Rules
-
-| Condition | Verdict |
-|-----------|---------|
-| Evidence 100% confirms SC is satisfied, no caveats | PASS |
-| Evidence partially confirms, any uncertainty, any caveat | FAIL |
-| Evidence contradicts the SC criterion | FAIL |
-| Evidence is absent for this SC | FAIL |
-| Evidence type does not match declared type | FAIL |
-| upstream reasoning role flagged validation issues for this SC | FAIL |
-| Any hedging language in evidence explanation | FAIL |
 
 ### Step 6: Verify Evidence Type Compliance
 

@@ -131,6 +131,35 @@ Every step MUST use one of three dispatch indicators:
 | `(**sub-agent**)` | Dispatch via `task()` with phase file + orchestrator-provided context | Phase file + orchestrator-provided context | `- [ ] 3. **RED (**sub-agent**).**` |
 | `(**clean-room**)` | Dispatch via `task()` with phase file only (routing metadata) | Phase file only (routing metadata) | `- [ ] 1. **Coherence gate (**clean-room**).**` |
 
+### Mandatory Pipeline Steps
+
+Every plan MUST include the full implementation pipeline. Plans missing any of these stages are structurally defective and MUST be rejected by plan-fidelity audit.
+
+**Pre-RED common steps (before any RED/GREEN cycle):**
+1. `assemble-work` — read plan, verify dispatch indicators, create work state
+2. `sc-coherence-gate` — dispatch audit coherence-extraction
+3. `pre-red-baseline` — dispatch pre-red-baseline, init solve state
+
+**RED/GREEN chained pipeline per item (repeat for each implementation item):**
+4. `red-phase` — write failing behavioral test
+5. `z3-check-red` — solve check verify RED test fails
+6. `red-doublecheck` — verification-before-completion verify RED
+7. `green-phase` — implement the change
+8. `z3-check-green` — solve check verify GREEN test passes
+9. `green-doublecheck` — verification-before-completion verify GREEN
+10. `checkpoint-tag-create` — create checkpoint tag
+11. `checkpoint-commit` — save checkpoint
+
+**Post-GREEN common steps (after all RED/GREEN cycles):**
+12. `green-vbc` — verification-before-completion for all SCs
+13. `sc-count-gate` — verify all SCs have verdicts
+14. `pre-pr-gate` — verify no FAIL verdicts
+15. `audit` — dispatch verification-audit + cross-validate
+16. `regression-check` — run regression tests
+17. `review-prep` — prepare for review
+18. `create-pr` — create pull request
+19. `exec-summary` — report final status
+
 ### Prohibited Patterns
 
 - **No dispatch tables** — do not include implementation-pipeline dispatch tables in plan files. The plan defines WHAT to do; the orchestrator determines HOW to dispatch.

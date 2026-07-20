@@ -265,6 +265,12 @@ behavior_run() {
         setup_story_fixtures "$workdir"
     fi
 
+    CODE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-code-fixtures.sh"
+    if [ -f "$CODE_SETUP" ]; then
+        source "$CODE_SETUP"
+        setup_code_fixtures "$workdir"
+    fi
+
     LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
     mkdir -p "$(dirname "$LOCK_FILE")"
     exec 200>"$LOCK_FILE"
@@ -288,11 +294,19 @@ behavior_run() {
 
     local test_home=""
     local setup_output
-    setup_output=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup)
+    setup_output=$(BEHAVIOR_SUBMODULE_COMMIT="$submodule_commit" bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup)
     test_home=$(echo "$setup_output" | grep '^TEST_HOME=' | cut -d= -f2-)
     if [ -z "$test_home" ]; then
         echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME" >&2
         return 1
+    fi
+
+    # Copy fixture evidence from workdir into test project so the agent can find it.
+    local test_project
+    test_project=$(echo "$setup_output" | grep '^TEST_PROJECT=' | cut -d= -f2-)
+    if [ -n "$test_project" ] && [ -d "$workdir/tmp/behavioral-evidence-fixture" ]; then
+        mkdir -p "$test_project/tmp"
+        cp -r "$workdir/tmp/behavioral-evidence-fixture" "$test_project/tmp/behavioral-evidence-fixture" 2>/dev/null || true
     fi
 
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
@@ -300,6 +314,7 @@ behavior_run() {
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
         TEST_WORKDIR="$workdir" \
+        BEHAVIOR_SUBMODULE_COMMIT="$submodule_commit" \
         bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true

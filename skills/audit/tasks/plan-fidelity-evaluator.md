@@ -127,6 +127,7 @@ Evaluate each criterion against the validated evidence. Expected values referenc
 | PF-ONE-STEP | One-step-at-a-time protocol admonishment present at top of plan | FAIL if missing |
 | PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
 | PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
+| PF-PIPELINE-COMPLETENESS | All 19 mandatory pipeline stages present in plan | Plan MUST include all of: assemble-work, sc-coherence-gate, pre-red-baseline, red-phase, z3-check-red, red-doublecheck, green-phase, z3-check-green, green-doublecheck, checkpoint-tag-create, checkpoint-commit, green-vbc, sc-count-gate, pre-pr-gate, audit, cross-validate, regression-check, review-prep, create-pr, exec-summary. Missing any stage → FAIL. |
 
 ### Step 4: Evaluate Each Criterion
 
@@ -277,6 +278,38 @@ Before writing verdict.yaml, run the self-consistency gate on every criterion:
   - If ANY hedging pattern is found, downgrade `result` to `FAIL` and set `remediation` to `"Self-consistency gate: PASS verdict contradicted by hedging in explanation"`
 - [ ] 2. If `result: "FAIL"` and `explanation` contains no hedging or critique, the verdict stands — no upgrade to PASS
 - [ ] 3. Log the self-consistency check result in the verdict YAML under `self_consistency_gate: { triggered: true|false, downgraded_criteria: ["<criterion IDs>"] }`
+
+### Step 12.5: Behavioral SC Clean-Room Evaluation
+
+For each behavioral SC identified in the evaluation criteria, dispatch a clean-room sub-agent to evaluate the behavioral evidence independently. The evaluator MUST NOT use file-existence or structural checks as evidence for behavioral SCs.
+
+- [ ] 1. **Identify behavioral SCs** — scan the evaluation criteria for SCs with `behavioral` evidence type. These require clean-room evaluation.
+- [ ] 2. **For each behavioral SC**, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path and the SC criterion text:
+  - `artifact_path`: `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/`
+  - `sc_criteria`: the behavioral SC text to evaluate against
+  - MUST NOT include orchestrator reasoning, expected outcomes, or cached results
+- [ ] 3. **Collect result contract** — the clean-room sub-agent returns:
+  ```yaml
+  status: DONE
+  artifact_path: "<artifact directory path>"
+  summary: "Evaluated {N} behavioral SCs: {M} PASS, {K} FAIL"
+  per_sc:
+    - sc_id: "<SC-N>"
+      verdict: PASS|FAIL
+      justification: "<1-2 sentence explanation based on actual agent output>"
+  ```
+- [ ] 4. **Apply clean-room verdict** — for each behavioral SC:
+  - If clean-room sub-agent returns `PASS` → evaluator verdict for that SC is `PASS`
+  - If clean-room sub-agent returns `FAIL` → evaluator verdict for that SC is `FAIL` (overrides any upstream evidence)
+  - If clean-room sub-agent returns `BLOCKED` → evaluator verdict for that SC is `FAIL` with `remediation: "Clean-room evaluation blocked — behavioral evidence could not be assessed"`
+- [ ] 5. **File-existence is NOT sufficient** — if the only evidence for a behavioral SC is that a file exists (stdout.log, stderr.log, or any artifact), the verdict MUST be `FAIL`. Behavioral SCs require behavioral evidence: the agent must have taken the correct action, not just produced output files.
+- [ ] 6. **Log behavioral evaluation** — record the clean-room evaluation results in the verdict YAML under `behavioral_sc_evaluation`:
+  ```yaml
+  behavioral_sc_evaluation:
+    - sc_id: "<SC-N>"
+      clean_room_verdict: PASS|FAIL
+      justification: "<from clean-room sub-agent>"
+  ```
 
 ### Step 13: Write verdict.yaml
 

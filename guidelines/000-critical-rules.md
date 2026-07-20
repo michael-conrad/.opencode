@@ -38,6 +38,10 @@ Rules that prevent **irreversible harm**: data loss, security breach, production
 Load [§1](guidelines/020-go-prohibitions.md). ONLY "approved"/"go" authorize action.
 
 
+### [critical-rules-XXX] CRITICAL VIOLATION — Direct `github_issue_write` for spec content bypasses spec-creation pipeline
+Direct `github_issue_write` for spec content bypasses the mandatory spec-creation pipeline. ALL spec creation MUST route through `skill({name: "spec-creation"})` → `task()`. Direct `github_issue_write` for spec content is a CRITICAL VIOLATION — never overridable, never waivable. Tier 1.
+
+
 ### [critical-rules-006] CRITICAL VIOLATION — Routing-bypass rationalization as self-authorization variant
 The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses dispatch has committed a routing-bypass self-authorization violation. Load [§1](guidelines/020-go-prohibitions.md).
 
@@ -212,8 +216,6 @@ The parent repo MUST be on $DEFAULT_BRANCH at remote tracking tip, all submodule
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
 ### [critical-rules-XXX] CRITICAL VIOLATION — Sub-agent task cards MUST NOT contain task() or skill() calls. Only orchestrator-level SKILL.md files may contain dispatch instructions. A task card that contains a task() or skill() call is structurally defective — the sub-agent cannot execute it. This applies to ALL task cards across ALL skills. Violation: HALT with blocker report.
-### [critical-rules-XXX] CRITICAL VIOLATION — Direct `github_issue_write` for spec content bypasses spec-creation pipeline
-Using `github_issue_write` to write spec content directly instead of dispatching to `skill({name: "spec-creation"})` → `task()` is a Tier 2 violation. The spec-creation pipeline exists and is functional — the orchestrator MUST route through it. Direct writes produce defective deliverables lacking analytical artifacts, SC coverage YAML, verification consistency contracts, lifecycle manifests, holistic self-checks, and spec audits. Violation: HALT with blocker report. Load [spec-creation skill](skills/spec-creation/SKILL.md).
 ### [critical-rules-XXX] CRITICAL VIOLATION — Behavioral tests MUST be executed, not just created
 Creating a behavioral test file and claiming PASS without running it is a Tier 2 violation. Behavioral tests MUST be executed via `bash tests-v2/behaviors/<scenario>.sh` and produce non-empty artifact directories (stdout.log, stderr.log, manifest.yaml) before the corresponding SC can be claimed PASS. File existence alone is structural evidence — behavioral SCs require behavioral evidence (test execution with output inspection). Violation: HALT with blocker report.
 

@@ -49,9 +49,10 @@ Evaluator role for the guideline-audit DiMo chain. Reads `evidence.yaml` (Invest
 - `verdict.yaml` written to `{artifact_evidence_dir}/verdict.yaml`
 - Every criterion evaluated with binary PASS/FAIL — no INCONCLUSIVE, no "PASS with concerns"
 - GA-1 through GA-6 criteria evaluated using validated evidence from `reasoning.yaml`
+- Behavioral SCs evaluated via clean-room `behavioral-sc-evaluator` sub-agent — NOT self-evaluated
 - Self-consistency gate applied to all PASS verdicts
 - Bidirectional findings generated for FAIL criteria
-- No new evidence collected — all evaluation based on upstream artifacts
+- No new evidence collected — all evaluation based on upstream artifacts or clean-room sub-agent output
 
 ## Procedure
 
@@ -385,16 +386,27 @@ ga_6_evaluation:
   remediation: "<if FAIL, what to fix>"
 ```
 
-### Step 9: Process Verdicts
+### Step 9: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each behavioral SC identified in the spec, dispatch a clean-room sub-agent to evaluate the behavioral evidence. The evaluator MUST NOT evaluate behavioral SCs itself — it MUST delegate to the clean-room sub-agent.
+
+- [ ] 1. Identify all behavioral SCs from the spec's success criteria table (those with `evidence_type: behavioral`)
+- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path and the SC criterion text — no orchestrator reasoning, no expected outcomes, no cached results
+- [ ] 3. Collect the result contract from each clean-room sub-agent dispatch
+- [ ] 4. If the clean-room sub-agent returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL — do NOT override or soft-pass
+- [ ] 5. File-existence alone is NEVER sufficient evidence for behavioral SCs — the clean-room sub-agent must evaluate actual agent behavior from stdout.log and stderr.log
+- [ ] 6. Record each behavioral SC verdict in the per_criterion array alongside GA-1 through GA-6 verdicts
+
+### Step 10: Process Verdicts
 
 Compile all per-criterion verdicts and apply consensus rules:
 
-- [ ] 1. Collect all verdicts from Steps 3-8 into a single `per_criterion` array
+- [ ] 1. Collect all verdicts from Steps 3-8 and Step 9 (behavioral SCs) into a single `per_criterion` array
 - [ ] 2. Each entry must include: `criterion_id`, `result`, `evidence`, `explanation`, `remediation`, `next_step`, `tool_calls_made`
 - [ ] 3. `next_step` is `"proceed"` when result is PASS, `"remediate"` when result is FAIL
 - [ ] 4. Count total, pass, and fail verdicts
 
-### Step 10: Apply Self-Consistency Gate
+### Step 11: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -404,7 +416,7 @@ Apply a self-consistency check to every PASS verdict:
   - A PASS verdict must be strictly confirmatory with no critique or hedging
 - [ ] 2. Re-count pass/fail after self-consistency downgrades
 
-### Step 11: Generate Bidirectional Findings
+### Step 12: Generate Bidirectional Findings
 
 Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the findings table.
 
@@ -421,7 +433,7 @@ Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the f
 - [ ] 2. Present revision options for developer decision
 - [ ] 3. Include specific remediation guidance for each FAIL
 
-### Step 12: Write verdict.yaml
+### Step 13: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -499,7 +511,7 @@ bidirectional_findings:
     revision_option: "<guidance>"
 ```
 
-### Step 13: Return Frugal Result Contract
+### Step 14: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -522,11 +534,12 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 6. Evaluate GA-4 (No Redundant Cross-File References) → INVALID if skipped
 - [ ] 7. Evaluate GA-5 (Context Fits in LLM Window) → INVALID if skipped
 - [ ] 8. Evaluate GA-6 (File Organization Logical) → INVALID if skipped
-- [ ] 9. Process Verdicts → INVALID if skipped
-- [ ] 10. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 11. Generate Bidirectional Findings → INVALID if skipped
-- [ ] 12. Write verdict.yaml → INVALID if skipped
-- [ ] 13. Return Frugal Result Contract → INVALID if skipped
+- [ ] 9. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
+- [ ] 10. Process Verdicts → INVALID if skipped
+- [ ] 11. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 12. Generate Bidirectional Findings → INVALID if skipped
+- [ ] 13. Write verdict.yaml → INVALID if skipped
+- [ ] 14. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
@@ -548,6 +561,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/guideline-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/guideline-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
+- `tasks/behavioral-sc-evaluator.md` — Clean-room sub-agent for evaluating behavioral SC evidence
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions

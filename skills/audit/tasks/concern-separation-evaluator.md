@@ -356,6 +356,36 @@ self_consistency:
 
 - [ ] 3. Update `all_criteria_pass` to `false` and `remediation_required` to `true` if any downgrade occurred
 
+### Step 15.5: Evaluate Behavioral SCs via Clean-Room Sub-Agent
+
+For each SC in the spec that has evidence type `behavioral`, dispatch a clean-room sub-agent to evaluate the behavioral test artifacts. The evaluator MUST NOT rely on file-existence alone — it must read actual agent output.
+
+- [ ] 1. Identify all behavioral SCs from the spec's SC table (evidence type = `behavioral`)
+- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path:
+  ```yaml
+  task(
+    subagent_type: "general",
+    prompt: "execute behavioral-sc-evaluator task from audit",
+    context: {
+      artifact_dir: "{project_root}/tmp/{issue-N}/artifacts/behavioral-evidence-{sc_id}/",
+      sc_id: "<SC-N>",
+      sc_criterion: "<criterion text>"
+    }
+  )
+  ```
+- [ ] 3. If the clean-room sub-agent returns `verdict: FAIL` for any behavioral SC, the evaluator verdict for that SC is FAIL (not PASS)
+- [ ] 4. File-existence alone is NEVER sufficient evidence for behavioral SCs — the sub-agent must read `stdout.log` and `stderr.log` to verify the agent's actual actions
+- [ ] 5. Record the behavioral SC verdicts in the per_criterion section alongside CS-1 through CS-ROUTING
+
+```yaml
+behavioral_sc_evaluations:
+  - sc_id: "<SC-N>"
+    verdict: "PASS|FAIL"
+    artifact_dir: "{project_root}/tmp/{issue-N}/artifacts/behavioral-evidence-{sc_id}/"
+    sub_agent_verdict: "PASS|FAIL"
+    explanation: "<1-2 sentence summary of clean-room evaluation>"
+```
+
 ### Step 16: Write verdict.yaml
 
 Write the full verdict to `{project_root}/tmp/{issue-N}/artifacts/concern-separation/verdict.yaml`:
