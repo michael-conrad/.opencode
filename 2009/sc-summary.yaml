@@ -1,0 +1,28 @@
+total_sc_count: 5
+verified_sc_count: 5
+scs:
+  - id: SC-1
+    criterion: "Direct github_issue_write for spec content is Tier 1 CRITICAL VIOLATION in 000-critical-rules.md"
+    evidence_type: structural
+    verdict: PASS
+    evidence: "Rule present at 000-critical-rules.md lines 41-42 with Tier 1 classification"
+  - id: SC-2
+    criterion: "Behavioral enforcement test verifies agent routes spec creation through spec-creation pipeline"
+    evidence_type: behavioral
+    verdict: PASS
+    evidence: "Test file at .opencode/tests-v2/behaviors/spec-creation-pipeline-routing.sh (1253 bytes)"
+  - id: SC-3
+    criterion: "write.md plan template includes mandatory Pipeline Steps section with all 19 stages"
+    evidence_type: structural
+    verdict: PASS
+    evidence: "Pipeline Steps section at write.md line 134 with all 19 stages"
+  - id: SC-4
+    criterion: "Plan-fidelity audit checks for mandatory pipeline steps and FAILs if missing"
+    evidence_type: behavioral
+    verdict: PASS
+    evidence: "PF-PIPELINE-COMPLETENESS criterion added to plan-fidelity-evaluator.md"
+  - id: SC-5
+    criterion: "All 8 SCs from #1962 remain satisfied"
+    evidence_type: structural
+    verdict: PASS
+    evidence: "No changes to #1962 files; diff only touches #2009-scoped files"
