@@ -1,8 +1,10 @@
 labels:
+- superseded
 - needs-approval
 - spec
 - process-integrity
 number: 1992
 state: OPEN
-title: "[SPEC] Sub-agents MUST NOT dispatch sub-agents \u2014 task() calls belong\
-  \ only in orchestrator-level SKILL.md"
+title: '[SPEC] Sub-agents MUST NOT dispatch sub-agents — task() calls belong only
+  in orchestrator-level SKILL.md'
+updated_at: '2026-07-20T15:57:08+00:00'

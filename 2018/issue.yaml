@@ -1,5 +1,7 @@
-labels: []
+labels:
+- superseded
 number: 2018
 state: OPEN
 title: '[BUG] spec-creation SKILL.md Invocation dispatches pipeline with [sub-task]
   steps to sub-agent that cannot call task()'
+updated_at: '2026-07-20T15:57:08+00:00'
