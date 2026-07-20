@@ -10,8 +10,6 @@ Task files for the writing-plans creation pipeline. Consumed by the `writing-pla
 - clean-room.md
 - completion.md
 - create.md
-- handoffs/ (directory)
-- operating-protocol.md
 - pre-plan-readiness.md
 - readiness.md
 - research.md

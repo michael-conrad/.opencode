@@ -34,8 +34,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" / "retroactive" / "retroactive plan" / "backfill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
+| "retroactive plan" / "retroactive" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number, spec_body} |
 | "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `sub-task` | {plan_context} |
 
 ## Persona
@@ -72,6 +73,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 |------|--------------------------|
 | `create` | `task(..., prompt: "execute create from writing-plans-creation. Read \`writing-plans-creation/tasks/create.md\` first")` |
 | `update` | `task(..., prompt: "execute update from writing-plans-creation. Read \`writing-plans-creation/tasks/update.md\` first")` |
+| `retroactive` | `task(..., prompt: "execute retroactive from writing-plans-creation. Read \`writing-plans-creation/tasks/retroactive.md\` first")` |
 | `holistic-self-check` | `task(..., prompt: "execute holistic-self-check from writing-plans. Read \`writing-plans-holistic/tasks/holistic-self-check.md\` first")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
@@ -81,7 +83,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 ### Workflow 1: `create` — Full pipeline (17 steps)
 
 ```
- 1. [inline]  Verify spec approved (check `approved-for-*` label)
+ 1. [sub-task] Verify spec approved (pre-plan-readiness)
  2. [sub-task] Research
  3. [inline]  Z3 check — solve check verify research output
  4. [sub-task] Readiness
@@ -112,7 +114,13 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
  1. [sub-task] Update
 ```
 
-### Workflow 3: `holistic-self-check` — Quality gate (delegates to writing-plans-holistic)
+### Workflow 3: `retroactive` — Retroactive plan creation (delegates to writing-plans-creation retroactive task)
+
+```
+ 1. [sub-task] Retroactive
+```
+
+### Workflow 4: `holistic-self-check` — Quality gate (delegates to writing-plans-holistic)
 
 ```
  1. [sub-task] Holistic self-check
