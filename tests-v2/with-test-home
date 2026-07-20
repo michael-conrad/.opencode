@@ -151,6 +151,14 @@ do_setup() {
         exit 1
     }
 
+    # If BEHAVIOR_SUBMODULE_COMMIT is set, checkout that commit so feature-branch
+    # changes are visible in the test project's .opencode.
+    if [ -n "${BEHAVIOR_SUBMODULE_COMMIT:-}" ]; then
+        git -C "$test_project/.opencode" checkout -q "$BEHAVIOR_SUBMODULE_COMMIT" 2>/dev/null || {
+            echo "WARNING: could not checkout BEHAVIOR_SUBMODULE_COMMIT=$BEHAVIOR_SUBMODULE_COMMIT" >&2
+        }
+    fi
+
     git -C "$test_project" add -A 2>/dev/null || true
     git -C "$test_project" commit -q --allow-empty -m "init" 2>/dev/null || true
 
