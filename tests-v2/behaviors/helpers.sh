@@ -294,7 +294,7 @@ behavior_run() {
 
     local test_home=""
     local setup_output
-    setup_output=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup)
+    setup_output=$(BEHAVIOR_SUBMODULE_COMMIT="$submodule_commit" bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup)
     test_home=$(echo "$setup_output" | grep '^TEST_HOME=' | cut -d= -f2-)
     if [ -z "$test_home" ]; then
         echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME" >&2
@@ -306,6 +306,7 @@ behavior_run() {
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
         TEST_WORKDIR="$workdir" \
+        BEHAVIOR_SUBMODULE_COMMIT="$submodule_commit" \
         bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
