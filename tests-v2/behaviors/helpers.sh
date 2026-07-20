@@ -301,6 +301,14 @@ behavior_run() {
         return 1
     fi
 
+    # Copy fixture evidence from workdir into test project so the agent can find it.
+    local test_project
+    test_project=$(echo "$setup_output" | grep '^TEST_PROJECT=' | cut -d= -f2-)
+    if [ -n "$test_project" ] && [ -d "$workdir/tmp/behavioral-evidence-fixture" ]; then
+        mkdir -p "$test_project/tmp"
+        cp -r "$workdir/tmp/behavioral-evidence-fixture" "$test_project/tmp/behavioral-evidence-fixture" 2>/dev/null || true
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"

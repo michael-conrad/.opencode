@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="behavioral-sc-evaluator-reads-artifacts"
-SCENARIO_PROMPT="Read .opencode/skills/audit/tasks/behavioral-sc-evaluator.md and verify it requires reading stdout.log and stderr.log to render binary PASS/FAIL. Write your findings to tmp/audit-findings.md."
+SCENARIO_PROMPT="Read .opencode/skills/audit/tasks/behavioral-sc-evaluator.md. Then dispatch a clean-room sub-agent via task() to evaluate the behavioral test artifacts at tmp/behavioral-evidence-fixture/ against the SC: 'The agent must read stdout.log and stderr.log and render a binary PASS/FAIL verdict.' The sub-agent must read stdout.log and stderr.log from the artifact directory."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
