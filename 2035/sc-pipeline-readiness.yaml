@@ -1,0 +1,20 @@
+spec_issue_number: 2035
+spec_title: "[SPEC-FIX] Prefer built-ins/libraries/add-ons over bespoke code"
+pipeline_readiness: true
+sc_count: 6
+sc_evidence_types:
+  - string
+  - string
+  - string
+  - string
+  - string
+  - string
+phases: 1
+artifacts_present:
+  - blast-radius.yaml
+  - concern-map.yaml
+  - code-path-inventory.yaml
+  - cross-cutting-matrix.yaml
+  - interface-compatibility.yaml
+  - state-analysis.yaml
+  - testability-assessment.yaml
