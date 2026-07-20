@@ -1,0 +1,147 @@
+version: 1.1
+previous_version: 1.0
+status: REVISED - NEEDS APPROVAL
+date: 2026-07-20
+trigger: spec-audit FAIL — EVIDENCE_TYPE_MISMATCH per critical-rules-BEH-EV
+
+changes:
+  - id: CC-1
+    section: Success Criteria — Evidence Type column
+    what: Changed evidence type for all 5 SCs from `string` to `behavioral`
+    why: >
+      The change is runtime-behavioral (affects whether the agent BLOCKs or PASSes
+      based on submodule state at runtime). Per critical-rules-BEH-EV, structural/string
+      evidence for a runtime-behavioral change is EVIDENCE_TYPE_MISMATCH — automatic
+      uplift to `behavioral` is required.
+    impact: >
+      Verification method changes from grep-based (static) to opencode-run-based
+      (runtime). Test harness must use with-test-home wrapper. All 5 SCs need
+      behavioral test scenarios.
+    affected_requirements:
+      - Root Cause (unchanged)
+      - Fix Approach (unchanged)
+    affected_success_criteria:
+      - SC-1 (evidence type: string → behavioral)
+      - SC-2 (evidence type: string → behavioral)
+      - SC-3 (evidence type: string → behavioral)
+      - SC-4 (evidence type: string → behavioral)
+      - SC-5 (evidence type: string → behavioral)
+    traceability_mapping_changed: true
+    requires_re_audit: true
+
+  - id: CC-2
+    section: Test Assertions table
+    what: >
+      Replace grep-based assertions with behavioral test assertions that verify
+      the actual code path via opencode run (three-way classification at runtime)
+    why: >
+      Grep-based assertions verify text presence in files, not runtime behavior.
+      The SCs require verifying that the agent actually performs three-way
+      classification (detached/unknown/feature-branch) at runtime, not that the
+      text describing it exists in the task files.
+    impact: >
+      Test scenarios change from single grep-based scenario to multiple behavioral
+      scenarios. Each SC needs a separate opencode run that sets up a specific
+      submodule state and asserts the agent's response (BLOCK vs PASS).
+    affected_requirements:
+      - Fix Approach (unchanged)
+    affected_success_criteria:
+      - SC-1 (verification method: grep → opencode run)
+      - SC-2 (verification method: grep → opencode run)
+      - SC-3 (verification method: grep → opencode run)
+      - SC-4 (verification method: grep → opencode run)
+      - SC-5 (verification method: grep → opencode run)
+    traceability_mapping_changed: true
+    requires_re_audit: true
+
+  - id: CC-3
+    section: Verification Method column
+    what: >
+      Update Verification Method for all 5 SCs from grep-based descriptions to
+      behavioral test descriptions (opencode run with submodule state setup)
+    why: >
+      Consequential change from CC-1 and CC-2 — the Verification Method column
+      must match the evidence type.
+    impact: >
+      Each SC's Verification Method now describes a behavioral test scenario
+      (e.g., "opencode run with submodule on feature branch → assert PASS")
+      instead of a grep command.
+    affected_requirements: none
+    affected_success_criteria:
+      - SC-1 (verification method updated)
+      - SC-2 (verification method updated)
+      - SC-3 (verification method updated)
+      - SC-4 (verification method updated)
+      - SC-5 (verification method updated)
+    traceability_mapping_changed: true
+    requires_re_audit: true
+
+impact_analysis:
+  summary: >
+    All 5 SCs change from string/structural evidence to behavioral evidence.
+    The spec's root cause analysis and fix approach remain unchanged — only the
+    verification methodology is corrected to match the runtime-behavioral nature
+    of the change. No scope, requirements, or implementation approach changes.
+  backward_compatibility: COMPATIBLE — no code contracts changed
+  re_audit_required: true
+  re_audit_reason: >
+    Revision was triggered by spec-audit FAIL (EVIDENCE_TYPE_MISMATCH).
+    All prior audit FAILs must resolve to PASS before re-approval.
+
+proposed_spec_revision:
+  success_criteria:
+    - id: SC-1
+      criterion: SUBMODULE-DRIFT check in pre-red-baseline uses three-way classification (detached/unknown/feature-branch)
+      evidence_type: behavioral
+      verification_method: >
+        opencode run with submodule in feature-branch state → assert agent
+        produces PASS (no drift). Repeat with detached HEAD → assert BLOCK
+        with SUBMODULE-DRIFT (reason: detached). Repeat with unknown branch →
+        assert BLOCK with SUBMODULE-DRIFT (reason: unknown-branch).
+    - id: SC-2
+      criterion: SUBMODULE-DRIFT check in pre-flight uses three-way classification
+      evidence_type: behavioral
+      verification_method: Same as SC-1 but targeting pre-flight.md code path
+    - id: SC-3
+      criterion: Detached HEAD submodule state produces BLOCK with SUBMODULE-DRIFT
+      evidence_type: behavioral
+      verification_method: >
+        opencode run with submodule in detached HEAD state → assert stderr
+        contains BLOCK with SUBMODULE-DRIFT and reason: detached
+    - id: SC-4
+      criterion: Feature branch submodule state produces PASS (no drift)
+      evidence_type: behavioral
+      verification_method: >
+        opencode run with submodule on a named feature branch → assert
+        agent does NOT produce SUBMODULE-DRIFT block
+    - id: SC-5
+      criterion: Unknown/untracked branch submodule state produces BLOCK with SUBMODULE-DRIFT
+      evidence_type: behavioral
+      verification_method: >
+        opencode run with submodule on an unrecognized branch → assert
+        stderr contains BLOCK with SUBMODULE-DRIFT and reason: unknown-branch
+
+  test_assertions:
+    - sc_id: SC-1
+      scenario: submodule-drift-three-way-pre-red
+      assertion: >
+        behavioral: opencode run with submodule on feature branch → PASS;
+        detached HEAD → BLOCK (detached); unknown branch → BLOCK (unknown-branch)
+    - sc_id: SC-2
+      scenario: submodule-drift-three-way-pre-flight
+      assertion: Same three-way classification test targeting pre-flight code path
+    - sc_id: SC-3
+      scenario: submodule-drift-detached
+      assertion: >
+        behavioral: opencode run with submodule in detached HEAD →
+        assert_stderr_pattern_present 'SUBMODULE-DRIFT' and 'detached'
+    - sc_id: SC-4
+      scenario: submodule-drift-feature-branch
+      assertion: >
+        behavioral: opencode run with submodule on feature branch →
+        assert_stderr_pattern_absent 'SUBMODULE-DRIFT'
+    - sc_id: SC-5
+      scenario: submodule-drift-unknown-branch
+      assertion: >
+        behavioral: opencode run with submodule on unknown branch →
+        assert_stderr_pattern_present 'SUBMODULE-DRIFT' and 'unknown-branch'
