@@ -1,0 +1,8 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: CLI auth status reporting
+      affects_phases: [1]
+      description: Single invocation change in one file — no cross-cutting concerns
+      coordination_required: false

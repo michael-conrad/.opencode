@@ -1,0 +1,10 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+concern_map:
+  phases:
+    - phase: 1
+      primary_concern: Fix gh auth status invocation flag
+      boundaries:
+        - in scope: Remove --no-interactive from line 204 of session-init
+        - out of scope: Any other gh auth status changes, gb auth status, other CLI checks
+      separation_rationale: Single concern — fix one incorrect flag in one invocation

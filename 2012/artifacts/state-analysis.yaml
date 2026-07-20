@@ -1,0 +1,9 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+state_analysis:
+  phases:
+    - phase: 1
+      pre_state: gh auth status called with --no-interactive flag — fails with unknown flag error, reports not_logged_in even when authenticated
+      post_state: gh auth status called without --no-interactive — succeeds when authenticated, correctly reports login status
+      state_transition: Remove one CLI argument from subprocess.run args list
+      reversibility: Fully reversible — add --no-interactive back

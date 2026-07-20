@@ -1,0 +1,8 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+interface_compatibility:
+  interfaces:
+    - name: session-init CLI output
+      status: modified
+      compatibility: backward_compatible
+      details: Output format unchanged — only the flag that caused the false negative is removed

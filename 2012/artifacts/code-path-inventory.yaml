@@ -1,0 +1,10 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+code_path_inventory:
+  phases:
+    - phase: 1
+      files:
+        - path: .opencode/tools/session-init
+          reason: Contains the gh auth status invocation with --no-interactive flag
+          changes: Remove --no-interactive from the subprocess.run args list
+      new_files: []

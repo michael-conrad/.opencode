@@ -1,0 +1,13 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+blast_radius:
+  phases:
+    - phase: 1
+      affected_components:
+        - component: .opencode/tools/session-init
+          impact: direct
+          description: Remove --no-interactive flag from gh auth status invocation on line 204
+          ripple_effects:
+            - gh auth status output parsing (unchanged)
+            - CLI auth status reporting in session output
+      risk_level: low

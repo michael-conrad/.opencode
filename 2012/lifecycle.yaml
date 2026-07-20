@@ -23,6 +23,6 @@ steps:
 - note: Spec folder URL blockquote prepended to issue body
   status: DONE
   step: blockquote_added
-- note: Awaiting local-issues sync
-  status: PENDING
+- note: Synced via local-issues sync
+  status: DONE
   step: artifacts_pushed

@@ -1,0 +1,14 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2012
+generated_at: 2026-07-20T13:35:00Z
+testability_assessment:
+  phases:
+    - phase: 1
+      testability: high
+      verification_methods:
+        - type: string
+          description: grep for --no-interactive in session-init — must be absent (SC-1)
+        - type: string
+          description: grep for gh auth status in session-init — must be present without --no-interactive (SC-2)
+        - type: behavioral
+          description: Run session-init with authenticated gh — must report positive status (SC-3)
+      constraints: SC-3 requires gh to be authenticated on the test machine
