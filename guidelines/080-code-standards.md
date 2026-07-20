@@ -819,3 +819,20 @@ Session-init and env-loader are two independent pipelines with separate naming c
 `GIT_OWNER`, `GIT_REPO`, `GIT_PLATFORM`, `GITHUB_HTML_URL`, `GITBUCKET_HTML_URL`, `GITBUCKET_SSH_URL`, `GITBUCKET_HAS_CREDENTIALS`, `DEV_NAME`, `DEV_EMAIL`, `BRANCH_NAME`, `WORKTREE_PATH`, `WORKTREE_FATAL`
 
 These pipelines are independent. Changing session-init output names does NOT require changes to env-loader, and vice versa.
+
+## Prefer Built-ins Over Bespoke Code
+
+**Global mandate:** ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or existing add-ons over writing bespoke code (custom scripts, inline shell commands, ad-hoc Python, one-off utilities).
+
+**Preferred alternatives (non-exhaustive):**
+- opencode built-in tools: `read`, `write`, `edit`, `glob`, `grep`
+- MCP servers: `srclight` (code search), `editor` (file editing), `the-notebook-mcp` (notebooks), GitHub MCP (API operations)
+- `vibeguard` plugin for guardrail enforcement
+- Standard shell commands (`ls`, `git`, `uv`, `bash`)
+- Python standard library (`pathlib`, `shutil`, `json`, `csv`, `re`)
+- Published packages via `pip`, `npm`, `cargo`, `go install`
+- Existing `.opencode/tools/` scripts
+
+**Feasibility justification required:** Any spec or plan that proposes new bespoke code MUST include a justification explaining why none of the existing alternatives suffice. A one-sentence rationale is sufficient.
+
+**Scope:** Forward-looking — this mandate applies to new work only. Existing bespoke code is grandfathered and does not need to be replaced.
