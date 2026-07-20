@@ -1,8 +1,33 @@
-title: 'SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task]
-  steps to sub-agents that cannot call task()'
+title: 'SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task] steps to sub-agents that cannot call task()'
 status: open
 labels:
 - SPEC-FIX
-body: ''
+body: '> **Full spec and artifacts: [`.issues/2032/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2032)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.issues/2032/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+# SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task] steps to sub-agents that cannot call task()
+
+## Problem
+
+Multiple SKILL.md Invocation sections dispatch entire pipelines containing `[sub-task]` steps to sub-agents via `task()`. A sub-agent **cannot** call `task()` — that is an orchestrator-level capability. This is a category error: skill card content (routing metadata) dispatched to a sub-agent.
+
+## Root Cause
+
+The Invocation section in each SKILL.md defines a canonical dispatch string that sends the entire pipeline to a sub-agent. But the pipeline contains steps marked `[sub-task]` — steps that require the executor to call `task()` to dispatch further sub-agents. A sub-agent cannot do this.
+
+## Fix
+
+For each affected SKILL.md, restructure the Invocation section so the canonical dispatch string sends a **task card** (a single `.md` file with entry criteria, steps, exit criteria) — not the entire pipeline.
+
+## Affected Files
+
+- `.opencode/skills/spec-creation/SKILL.md`
+- `.opencode/skills/writing-plans/SKILL.md`
+- Any other SKILL.md whose Invocation dispatches a pipeline containing `[sub-task]` steps
+
+## Success Criteria
+
+5 SCs (4 string, 1 behavioral). See full spec for details.'
 created_at: '2026-07-20T23:28:08+00:00'
 updated_at: '2026-07-20T23:28:08+00:00'
