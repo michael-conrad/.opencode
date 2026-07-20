@@ -1,0 +1,14 @@
+spec: https://github.com/anomalyco/opencode-config/issues/2035
+generated_at: 2026-07-20T12:00:00Z
+concern_map:
+  phases:
+    - phase: add-prefer-builtins-mandate
+      primary_concern: Establish a standing mandate that agent work must prefer built-in tools, MCP servers, standard libraries, and add-ons over bespoke code
+      boundaries:
+        - Adding mandate text to 3 documentation files
+        - Mandate applies globally to ALL agent work
+        - Mandate requires feasibility justification for new bespoke code
+        - Existing bespoke code is grandfathered (not modified, not removed)
+        - No code changes — documentation-only
+        - No behavioral enforcement tests required (string evidence only)
+      separation_rationale: Single concern — documentation mandate. No code modification, no behavioral changes, no existing code audit. The concern is isolated to text insertion in 3 files with no cross-phase dependencies.

@@ -1,0 +1,34 @@
+spec: https://github.com/anomalyco/opencode-config/issues/2035
+generated_at: 2026-07-20T12:00:00Z
+testability_assessment:
+  scs:
+    - id: SC-1
+      testable: true
+      test_type: string
+      verification_command: grep -q "Prefer Built-ins" .opencode/AGENTS.md
+      blockers: []
+    - id: SC-2
+      testable: true
+      test_type: string
+      verification_command: grep -q "Prefer Built-ins" .opencode/guidelines/080-code-standards.md
+      blockers: []
+    - id: SC-3
+      testable: true
+      test_type: string
+      verification_command: grep -q "bespoke" .opencode/guidelines/060-tool-usage.md
+      blockers: []
+    - id: SC-4
+      testable: true
+      test_type: string
+      verification_command: grep -qE "(all work|global)" .opencode/AGENTS.md
+      blockers: []
+    - id: SC-5
+      testable: true
+      test_type: string
+      verification_command: grep -c -E "(opencode built-in|MCP server|vibeguard|standard shell|Python stdlib|npm|pip)" .opencode/AGENTS.md
+      blockers: []
+    - id: SC-6
+      testable: true
+      test_type: string
+      verification_command: grep -qE "(feasibility|justification)" .opencode/AGENTS.md
+      blockers: []

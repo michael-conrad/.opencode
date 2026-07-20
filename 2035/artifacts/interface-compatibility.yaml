@@ -1,0 +1,26 @@
+spec: https://github.com/anomalyco/opencode-config/issues/2035
+generated_at: 2026-07-20T12:00:00Z
+interface_compatibility:
+  interfaces:
+    - name: .opencode/AGENTS.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - All agents reading AGENTS.md for build/lint/test commands and workflow rules
+    - name: .opencode/guidelines/080-code-standards.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - All agents writing or reviewing code against code standards
+    - name: .opencode/guidelines/060-tool-usage.md
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - All agents selecting tools for file operations and code search
+    - name: Agent decision-making pipeline
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - Spec creation (feasibility justification requirement)
+        - Plan creation (bespoke code proposals)
+        - Code review (enforcement of built-in preference)

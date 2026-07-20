@@ -1,0 +1,18 @@
+spec: https://github.com/anomalyco/opencode-config/issues/2035
+generated_at: 2026-07-20T12:00:00Z
+state_analysis:
+  phases:
+    - phase: add-prefer-builtins-mandate
+      states:
+        - name: pre-mandate
+          entry_conditions: Current state — no "Prefer Built-ins" mandate exists in any of the 3 target files
+          exit_conditions: All 3 target files have been updated with the mandate text
+          invariants: Existing bespoke code is grandfathered and unchanged
+        - name: post-mandate
+          entry_conditions: All 3 target files contain the "Prefer Built-ins" mandate
+          exit_conditions: N/A — mandate is permanent documentation
+          invariants:
+            - Mandate applies to all future agent work
+            - New bespoke code requires feasibility justification in spec/plan
+            - Existing bespoke components remain untouched
+            - No behavioral enforcement tests required (string evidence only)

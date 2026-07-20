@@ -1,0 +1,305 @@
+# Invocation Section Audit Classification
+# Generated: 2026-07-20
+# Total SKILL.md files audited: 57
+
+## Classification Summary
+
+total_skills: 57
+clean_single_task: 42
+needs_fix_pipeline: 5
+missing_orchestrator_entry: 0
+sub_skill_task_container: 7
+reference_only: 3
+
+## Per-Skill Classification
+
+skills:
+  - name: approval-gate
+    classification: clean
+    reason: "Dispatcher to sub-skill. Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: approval-gate-scope
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: audit
+    classification: needs_fix
+    reason: "DiMo 4-role chain (Investigator → Validator → Evaluator → Arbiter). Invocation section describes a multi-step pipeline where orchestrator dispatches each role as separate task() calls. Orchestrator executes the pipeline sequentially."
+    fix_required: true
+    fix_type: "pipeline_with_sub_task_steps"
+
+  - name: brainstorming
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: changelog-generator
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: completeness-gate
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: completion-core
+    classification: clean
+    reason: "Single task in Invocation. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: conflict-resolution
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: correspondence
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: engineering-approach
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: executing-plans
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: finishing-a-development-branch
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: git-workflow
+    classification: clean
+    reason: "Dispatcher to sub-skills. Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: git-workflow-branch
+    classification: clean
+    reason: "Each Trigger Dispatch Table entry dispatches a single sub-task. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: git-workflow-cleanup
+    classification: clean
+    reason: "Each Trigger Dispatch Table entry dispatches a single sub-task. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: git-workflow-commit
+    classification: clean
+    reason: "Each Trigger Dispatch Table entry dispatches a single sub-task. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: git-workflow-conflict
+    classification: clean
+    reason: "Each Trigger Dispatch Table entry dispatches a single sub-task. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: git-workflow-pr
+    classification: clean
+    reason: "Each Trigger Dispatch Table entry dispatches a single sub-task. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: implementation-pipeline
+    classification: needs_fix
+    reason: "Complex pipeline with 28+ steps. Invocation section has orchestrator-level tasks (read and execute directly) and sub-agent tasks. Orchestrator reads the plan and dispatches each step sequentially. Pipeline with multiple sub-task steps."
+    fix_required: true
+    fix_type: "pipeline_with_sub_task_steps"
+
+  - name: issue-operations
+    classification: clean
+    reason: "Dispatcher to sub-skills. Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: issue-operations-comments
+    classification: clean
+    reason: "Single task in Invocation. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: issue-operations-core
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: issue-operations-sub-issues
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: issue-operations-sync
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: issue-review
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: mcp-tool-usage
+    classification: clean
+    reason: "Single task in Invocation. No pipeline orchestration needed."
+    fix_required: false
+
+  - name: multimodal-dispatch
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: plan
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: plan-creation-pipeline
+    classification: needs_fix
+    reason: "6-step pipeline. Invocation says 'dispatch each step via task()'. Orchestrator executes the pipeline sequentially with multiple sub-task steps."
+    fix_required: true
+    fix_type: "pipeline_with_sub_task_steps"
+
+  - name: playwright-cli
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: pr-creation-workflow
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: pre-analysis
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: programming-principles
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: receiving-code-review
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: release-promoter
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: requesting-code-review
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: research
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: skill-creator
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: solve
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: spec-creation
+    classification: needs_fix
+    reason: "Dispatcher to sub-skills. Has a 25-step pipeline in the Pipeline section with [sub-task] and [inline] steps. Orchestrator executes the pipeline sequentially."
+    fix_required: true
+    fix_type: "pipeline_with_sub_task_steps"
+
+  - name: spec-creation-change-control
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Sub-skill task container consumed by spec-creation dispatcher. By design — not dispatched directly."
+    fix_required: false
+
+  - name: spec-creation-decomposition
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Sub-skill task container consumed by spec-creation dispatcher. By design — not dispatched directly."
+    fix_required: false
+
+  - name: spec-creation-operating-protocol
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Sub-skill task container consumed by spec-creation dispatcher. By design — not dispatched directly."
+    fix_required: false
+
+  - name: spec-creation-requirements
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Sub-skill task container consumed by spec-creation dispatcher. By design — not dispatched directly."
+    fix_required: false
+
+  - name: spec-creation-validation
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Sub-skill task container consumed by spec-creation dispatcher. By design — not dispatched directly."
+    fix_required: false
+
+  - name: sre-runbook
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: sync-guidelines
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: systematic-debugging
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: test-driven-development
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: using-git-worktrees
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: verification
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: verification-before-completion
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: verification-enforcement
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: version-manager
+    classification: clean
+    reason: "Each Invocation entry dispatches a single task card via task(). No pipeline orchestration needed."
+    fix_required: false
+
+  - name: writing-plans
+    classification: needs_fix
+    reason: "Has a 23-step pipeline in the Pipeline section with [sub-task] and [inline] steps. Orchestrator executes the pipeline sequentially with multiple sub-task steps."
+    fix_required: true
+    fix_type: "pipeline_with_sub_task_steps"
+
+  - name: writing-plans-holistic
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Sub-skill task container consumed by writing-plans dispatcher. By design — not dispatched directly."
+    fix_required: false
+
+  - name: writing-plans-creation
+    classification: sub_skill_task_container
+    reason: "No Invocation section. Task container consumed by writing-plans dispatcher. By design — not dispatched directly."
+    fix_required: false

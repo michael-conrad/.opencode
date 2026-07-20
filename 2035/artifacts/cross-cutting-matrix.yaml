@@ -1,0 +1,14 @@
+spec: https://github.com/anomalyco/opencode-config/issues/2035
+generated_at: 2026-07-20T12:00:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: Mandate consistency
+      affects_phases:
+        - add-prefer-builtins-mandate
+      description: The mandate text must be consistent across all 3 files — same scope, same preferred alternatives list, same feasibility justification requirement
+      coordination_required: false
+    - concern: Forward-looking scope
+      affects_phases:
+        - add-prefer-builtins-mandate
+      description: All 3 files must clearly state the mandate is forward-looking and grandfathers existing bespoke code
+      coordination_required: false

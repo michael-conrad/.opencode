@@ -1,0 +1,46 @@
+---
+title: "[SPEC-FIX] Prefer built-ins/libraries/add-ons over bespoke code"
+labels: ["spec-fix"]
+---
+
+## Problem
+
+The agent routinely writes bespoke code (custom scripts, inline shell commands, ad-hoc Python) when built-in tools, MCP servers, standard libraries, or existing add-ons would suffice. This creates:
+
+- **Maintenance burden** — bespoke code must be tested, reviewed, and maintained like any other code
+- **Reliability risk** — bespoke code lacks the battle-testing of established libraries and tools
+- **Context waste** — writing and debugging bespoke code consumes agent context that should go toward the actual problem
+- **Inconsistency** — different agents write different bespoke solutions for the same problem
+
+There is no standing mandate to prefer built-ins/libraries/add-ons over bespoke code. Without one, the agent continues to write bespoke solutions when existing alternatives suffice, and existing bespoke components are never audited for replacement.
+
+## Scope
+
+- **AGENTS.md** — Add a standing mandate section applying to ALL work the agent performs
+- **guidelines/080-code-standards.md** — Add a "Prefer Built-ins" section with the global mandate
+- **guidelines/060-tool-usage.md** — Add a "Prefer Built-ins" subsection under Tool Priority Hierarchy
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | AGENTS.md contains a "Prefer Built-ins" section stating that ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or add-ons over bespoke code | `string` | grep for "Prefer Built-ins" in AGENTS.md |
+| SC-2 | 080-code-standards.md contains a "Prefer Built-ins" section with the same global mandate | `string` | grep for "Prefer Built-ins" in 080-code-standards.md |
+| SC-3 | 060-tool-usage.md Tool Priority Hierarchy references the global mandate (prefer Tier 1-3 over bespoke) | `string` | grep for "bespoke" in 060-tool-usage.md |
+| SC-4 | The mandate applies globally to ALL work the agent performs — not just changes to `.opencode/` itself | `string` | grep for "all work" or "global" in the mandate text |
+| SC-5 | The mandate includes a non-exhaustive list of preferred alternatives: opencode built-in tools (read/write/edit/glob/grep), MCP servers (srclight, editor, the-notebook-mcp), vibeguard plugin, standard shell commands, Python stdlib, npm/pip packages | `string` | grep for at least 4 of the listed alternatives |
+| SC-6 | The mandate requires a feasibility justification in any spec or plan that proposes new bespoke code — why existing alternatives are insufficient | `string` | grep for "feasibility" or "justification" in the mandate text |
+
+## Affected Files
+
+- `.opencode/AGENTS.md`
+- `.opencode/guidelines/080-code-standards.md`
+- `.opencode/guidelines/060-tool-usage.md`
+
+## Implementation Notes
+
+- This is a documentation-only change — no code is modified
+- The mandate is forward-looking: it governs NEW work. Existing bespoke components are grandfathered but SHOULD be audited for replacement in future specs
+- Place the AGENTS.md section under a new "Prefer Built-ins" heading, near the existing "Build / Lint / Test Commands" section
+- In 080-code-standards.md, add as a new top-level section
+- In 060-tool-usage.md, add as a subsection under the Tool Priority Hierarchy
