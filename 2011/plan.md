@@ -11,13 +11,13 @@ Fix behavioral SC evidence pipeline: add BEH-EV classification gate at spec-writ
 
 ## Architecture
 
-Single-phase plan. 4 implementation items covering 11 files: spec-creation/write.md, 8 evaluator tasks, cross-validate.md, and a new behavioral-sc-evaluator.md task.
+Single-phase plan. 4 implementation items covering 12 files: spec-creation-validation/tasks/create.md, 9 evaluator tasks, cross-validate.md, and a new behavioral-sc-evaluator.md task.
 
 ## Files
 
 | File | Change | SCs |
 |------|--------|-----|
-| `spec-creation/tasks/write.md` | Add mandatory BEH-EV classification step with presumptive runtime-behavioral file types | SC-1 |
+| `spec-creation-validation/tasks/create.md` | Add mandatory BEH-EV classification step with presumptive runtime-behavioral file types | SC-1 |
 | `audit/tasks/behavioral-sc-evaluator.md` | New clean-room evaluation task — receives artifact dir only, reads stdout.log/stderr.log, renders binary PASS/FAIL | SC-3 |
 | `audit/tasks/verification-audit-evaluator.md` | Add clean-room sub-agent dispatch for behavioral SCs | SC-2 |
 | `audit/tasks/spec-audit-evaluator.md` | Add clean-room sub-agent dispatch for behavioral SCs | SC-2 |
@@ -27,6 +27,7 @@ Single-phase plan. 4 implementation items covering 11 files: spec-creation/write
 | `audit/tasks/drift-detection-evaluator.md` | Add clean-room sub-agent dispatch for behavioral SCs | SC-2 |
 | `audit/tasks/test-quality-audit-evaluator.md` | Add clean-room sub-agent dispatch for behavioral SCs | SC-2 |
 | `audit/tasks/content-audit-evaluator.md` | Add clean-room sub-agent dispatch for behavioral SCs | SC-2 |
+| `audit/tasks/guideline-audit-evaluator.md` | Add clean-room sub-agent dispatch for behavioral SCs | SC-2 |
 | `audit/tasks/cross-validate.md` | Add EVIDENCE_TYPE_MISMATCH detection for file-path-only behavioral verdicts | SC-4 |
 
 ## Phase Table
@@ -39,8 +40,8 @@ Single-phase plan. 4 implementation items covering 11 files: spec-creation/write
 
 | SC ID | Criterion | Evidence Type | Verification |
 |-------|-----------|---------------|-------------|
-| SC-1 | spec-creation/write.md has mandatory BEH-EV classification step with presumptive file types | structural | `read` write.md → find "Evidence Type Classification Gate" section |
-| SC-2 | ALL 8 evaluator tasks dispatch clean-room sub-agent for behavioral SCs | behavioral | `opencode run` → verify clean-room sub-agent dispatch in stderr |
+| SC-1 | spec-creation-validation/tasks/create.md has mandatory BEH-EV classification step with presumptive file types | behavioral | `opencode run` → verify spec-creation agent includes BEH-EV classification step |
+| SC-2 | ALL 9 evaluator tasks dispatch clean-room sub-agent for behavioral SCs | behavioral | `opencode run` → verify clean-room sub-agent dispatch in stderr |
 | SC-3 | Clean-room sub-agent reads stdout.log/stderr.log, renders binary PASS/FAIL | behavioral | `opencode run` → verify clean-room sub-agent returns binary verdict |
 | SC-4 | Cross-validate detects EVIDENCE_TYPE_MISMATCH on file-path-only behavioral verdicts | behavioral | `opencode run` → verify cross-validate FAILs on file-path-only verdict |
 | SC-5 | All 5 SCs from #2009 remain satisfied | structural | `grep` for SC-1 through SC-5 in #2009 spec → all present |
@@ -56,7 +57,7 @@ Single-phase plan. 4 implementation items covering 11 files: spec-creation/write
 
 | Step | Reference | Verified? | Evidence |
 |------|-----------|-----------|----------|
-| 1 | `spec-creation/tasks/write.md` | ✅ | `ls` confirmed |
+| 1 | `spec-creation-validation/tasks/create.md` | ✅ | `ls` confirmed |
 | 2 | `audit/tasks/` | ✅ | `ls` confirmed |
 | 3-10 | Each evaluator file | ✅ | `ls` confirmed |
 | 11 | `audit/tasks/cross-validate.md` | ✅ | `ls` confirmed |
@@ -65,7 +66,7 @@ Single-phase plan. 4 implementation items covering 11 files: spec-creation/write
 
 | SC ID | Criterion | Phase | Step(s) |
 |-------|-----------|-------|---------|
-| SC-1 | BEH-EV classification step in write.md | 1 | 4 (RED), 5 (GREEN) |
+| SC-1 | BEH-EV classification step in create.md | 1 | 4 (RED), 5 (GREEN) |
 | SC-2 | All 8 evaluators dispatch clean-room sub-agent | 1 | 6-13 (RED/GREEN per evaluator) |
 | SC-3 | Clean-room evaluator task created | 1 | 6 (GREEN) |
 | SC-4 | Cross-validate EVIDENCE_TYPE_MISMATCH detection | 1 | 14 (RED), 15 (GREEN) |

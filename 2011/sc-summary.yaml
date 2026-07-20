@@ -1,0 +1,51 @@
+# SC-ID traceability summary for #2011
+# Generated: 2026-07-20
+
+scs:
+  - id: SC-1
+    criterion: spec-creation-validation/tasks/create.md has mandatory BEH-EV classification step
+    evidence_type: behavioral
+    plan_item: A
+    plan_phase: 1
+    steps:
+      - 4 (RED)
+      - 5 (GREEN)
+
+  - id: SC-2
+    criterion: ALL 9 evaluator tasks dispatch clean-room sub-agent for behavioral SCs
+    evidence_type: behavioral
+    plan_item: B
+    plan_phase: 1
+    steps:
+      - 7 (GREEN)
+      - 8 (GREEN)
+      - 9 (GREEN)
+      - 10 (GREEN)
+      - 11 (GREEN)
+      - 12 (GREEN)
+      - 13 (GREEN)
+
+  - id: SC-3
+    criterion: Clean-room sub-agent reads stdout.log/stderr.log, renders binary PASS/FAIL
+    evidence_type: behavioral
+    plan_item: B
+    plan_phase: 1
+    steps:
+      - 6 (GREEN)
+
+  - id: SC-4
+    criterion: Cross-validate detects EVIDENCE_TYPE_MISMATCH on file-path-only behavioral verdicts
+    evidence_type: behavioral
+    plan_item: C
+    plan_phase: 1
+    steps:
+      - 14 (RED)
+      - 15 (GREEN)
+
+  - id: SC-5
+    criterion: All 5 SCs from #2009 remain satisfied
+    evidence_type: structural
+    plan_item: N/A
+    plan_phase: 1
+    steps:
+      - 16 (VbC)

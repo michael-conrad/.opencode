@@ -18,17 +18,17 @@ Behavioral SC evidence pipeline: classification at spec-writing, clean-room eval
 
 ## Implementation Items
 
-### Item A: BEH-EV classification step in spec-creation/write.md
+### Item A: BEH-EV classification step in spec-creation-validation/tasks/create.md
 
 **SCs:** SC-1
-**Files:** `.opencode/skills/spec-creation/tasks/write.md`
+**Files:** `.opencode/skills/spec-creation-validation/tasks/create.md`
 
 Add mandatory "Evidence Type Classification Gate" step between SC definition and spec finalization. Include presumptive runtime-behavioral file types: SKILL.md, tasks/*.md, guidelines/*.md, enforcement/*.md.
 
-### Item B: Clean-room evaluation task + fix all 8 evaluators
+### Item B: Clean-room evaluation task + fix all 9 evaluators
 
 **SCs:** SC-2, SC-3
-**Files:** `.opencode/skills/audit/tasks/behavioral-sc-evaluator.md` (new), all 8 `*-evaluator.md` files
+**Files:** `.opencode/skills/audit/tasks/behavioral-sc-evaluator.md` (new), all 9 `*-evaluator.md` files
 
 Create `behavioral-sc-evaluator.md` — receives ONLY artifact directory path, reads stdout.log/stderr.log, renders binary PASS/FAIL. File-existence alone returns FAIL. Then add dispatch step to each of the 8 evaluator tasks.
 
@@ -72,7 +72,7 @@ Add detection: if behavioral SC verdict cites only file paths (no content analys
 **Dispatch:** `(**sub-agent**)`
 **Chain:** step 3
 
-- [ ] 4.1 `(**sub-agent**)` Dispatch `test-driven-development --task red` — write behavioral test verifying spec-creation agent includes BEH-EV classification step when writing specs. Test MUST FAIL because write.md has no classification step yet.
+- [ ] 4.1 `(**sub-agent**)` Dispatch `test-driven-development --task red` — write behavioral test verifying spec-creation agent includes BEH-EV classification step when writing specs. Test MUST FAIL because create.md has no classification step yet.
 - [ ] 4.2 `(**inline**)` Z3 check: `solve check` — verify RED test fails
 - [ ] 4.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm RED test fails
 
@@ -81,7 +81,7 @@ Add detection: if behavioral SC verdict cites only file paths (no content analys
 **Dispatch:** `(**sub-agent**)`
 **Chain:** step 4
 
-- [ ] 5.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — implement: add "Evidence Type Classification Gate" step to `spec-creation/tasks/write.md` between SC definition and spec finalization. Include presumptive runtime-behavioral file types.
+- [ ] 5.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — implement: add "Evidence Type Classification Gate" step to `spec-creation-validation/tasks/create.md` between SC definition and spec finalization. Include presumptive runtime-behavioral file types.
 - [ ] 5.2 `(**inline**)` Z3 check: `solve check` — verify GREEN test passes
 - [ ] 5.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm SC-1 passes
 - [ ] 5.4 `(**inline**)` Create checkpoint tag: `opencode-config/checkpoint/2011/phase-1-item-A-opencode-config`
@@ -150,12 +150,12 @@ Add detection: if behavioral SC verdict cites only file paths (no content analys
 - [ ] 12.2 `(**inline**)` Z3 check
 - [ ] 12.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
 
-### Step 13: GREEN phase — Item B (fix test-quality-audit and content-audit evaluators)
+### Step 13: GREEN phase — Item B (fix test-quality-audit, content-audit, and guideline-audit evaluators)
 
 **Dispatch:** `(**sub-agent**)`
 **Chain:** step 12
 
-- [ ] 13.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `test-quality-audit-evaluator.md` and `content-audit-evaluator.md`
+- [ ] 13.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `test-quality-audit-evaluator.md`, `content-audit-evaluator.md`, and `guideline-audit-evaluator.md`
 - [ ] 13.2 `(**inline**)` Z3 check
 - [ ] 13.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
 
@@ -233,7 +233,7 @@ Add detection: if behavioral SC verdict cites only file paths (no content analys
 
 | Item | RED | GREEN |
 |------|-----|-------|
-| A | write.md has no BEH-EV classification step | write.md has "Evidence Type Classification Gate" step |
+| A | create.md has no BEH-EV classification step | create.md has "Evidence Type Classification Gate" step |
 | B | No behavioral-sc-evaluator.md; evaluators accept file-existence | behavioral-sc-evaluator.md created; all 8 evaluators dispatch clean-room |
 | C | cross-validate has no EVIDENCE_TYPE_MISMATCH check | cross-validate FAILs on file-path-only behavioral verdicts |
 
@@ -241,7 +241,7 @@ Add detection: if behavioral SC verdict cites only file paths (no content analys
 
 | SC | Verification | Evidence |
 |----|-------------|----------|
-| SC-1 | `read` write.md → "Evidence Type Classification Gate" section | File content |
+| SC-1 | `opencode run` → spec-creation agent includes BEH-EV classification step | stderr log |
 | SC-2 | `opencode run` → clean-room dispatch in stderr for each evaluator | stderr log |
 | SC-3 | `opencode run` → clean-room sub-agent returns binary verdict | stderr log |
 | SC-4 | `opencode run` → cross-validate FAILs on file-path-only verdict | stderr log |

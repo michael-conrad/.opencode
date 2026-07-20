@@ -42,7 +42,7 @@ This defect exists in ALL evaluator tasks (verification-audit, spec-audit, plan-
 
 The `spec-creation/tasks/write.md` task defines the spec body template but has no mandatory step for classifying evidence types against the substrate-determined question ("does this change affect runtime behavior?"). The author can declare any evidence type without being flagged.
 
-**Fix target:** `spec-creation/tasks/write.md` — Add mandatory BEH-EV classification step with presumptive runtime-behavioral file types.
+**Fix target:** `spec-creation-validation/tasks/create.md` — Add mandatory BEH-EV classification step with presumptive runtime-behavioral file types.
 
 ### Root Cause 2: All evaluators accept file-existence for behavioral SCs
 
@@ -52,7 +52,7 @@ Every evaluator task in `audit/tasks/` has the same pattern: check if evidence a
 
 ## Goals
 
-- [ ] G1: spec-creation/write.md has mandatory BEH-EV classification step with presumptive runtime-behavioral file types
+- [ ] G1: spec-creation-validation/tasks/create.md has mandatory BEH-EV classification step with presumptive runtime-behavioral file types
 - [ ] G2: ALL evaluator tasks dispatch clean-room sub-agent for behavioral SCs (receives artifact dir only, no orchestrator context)
 - [ ] G3: Clean-room sub-agent reads stdout.log/stderr.log and renders binary PASS/FAIL — file-existence alone is FAIL
 - [ ] G4: Cross-validate arbiter detects EVIDENCE_TYPE_MISMATCH when behavioral SC verdict cites only file paths
@@ -68,7 +68,7 @@ Every evaluator task in `audit/tasks/` has the same pattern: check if evidence a
 ## Constraints and Scope
 
 **In Scope:**
-- `spec-creation/tasks/write.md` — Add mandatory BEH-EV classification step
+- `spec-creation-validation/tasks/create.md` — Add mandatory BEH-EV classification step
 - `audit/tasks/verification-audit-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
 - `audit/tasks/spec-audit-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
 - `audit/tasks/plan-fidelity-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
@@ -77,6 +77,7 @@ Every evaluator task in `audit/tasks/` has the same pattern: check if evidence a
 - `audit/tasks/drift-detection-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
 - `audit/tasks/test-quality-audit-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
 - `audit/tasks/content-audit-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
+- `audit/tasks/guideline-audit-evaluator.md` — Add clean-room sub-agent dispatch for behavioral SCs
 - `audit/tasks/cross-validate.md` — Add EVIDENCE_TYPE_MISMATCH detection
 - `audit/tasks/behavioral-sc-evaluator.md` — New clean-room evaluation task
 
@@ -118,8 +119,8 @@ Every evaluator task in `audit/tasks/` has the same pattern: check if evidence a
 
 | ID | Criterion | Evidence Type | Verification Method | Remediation | Artifact Path |
 |----|-----------|---------------|---------------------|-------------|--------------|
-| SC-1 | spec-creation/write.md contains mandatory BEH-EV classification step with presumptive runtime-behavioral file types (SKILL.md, tasks/*.md, guidelines/*.md, enforcement/*.md) | structural | `read` write.md → find "Evidence Type Classification Gate" section with presumptive file types | Add classification step | `.opencode/skills/spec-creation/tasks/write.md` |
-| SC-2 | ALL 8 evaluator tasks dispatch clean-room sub-agent for behavioral SCs (receives artifact dir only, no orchestrator context) | behavioral | `opencode run` → verify clean-room sub-agent dispatch in stderr for each evaluator | Add clean-room dispatch step to each evaluator | `.opencode/skills/audit/tasks/*-evaluator.md` |
+| SC-1 | spec-creation-validation/tasks/create.md contains mandatory BEH-EV classification step with presumptive runtime-behavioral file types (SKILL.md, tasks/*.md, guidelines/*.md, enforcement/*.md) | behavioral | `opencode run` → verify spec-creation agent includes BEH-EV classification step when writing specs | Add classification step | `.opencode/skills/spec-creation-validation/tasks/create.md` |
+| SC-2 | ALL 9 evaluator tasks dispatch clean-room sub-agent for behavioral SCs (receives artifact dir only, no orchestrator context) | behavioral | `opencode run` → verify clean-room sub-agent dispatch in stderr for each evaluator | Add clean-room dispatch step to each evaluator | `.opencode/skills/audit/tasks/*-evaluator.md` |
 | SC-3 | Clean-room sub-agent (behavioral-sc-evaluator.md) reads stdout.log/stderr.log and renders binary PASS/FAIL — file-existence alone is FAIL | behavioral | `opencode run` → verify clean-room sub-agent reads artifacts and returns binary verdict | Create clean-room evaluation task | `.opencode/skills/audit/tasks/behavioral-sc-evaluator.md` |
 | SC-4 | Cross-validate arbiter detects EVIDENCE_TYPE_MISMATCH when behavioral SC verdict cites only file paths (no content analysis) | behavioral | `opencode run` → verify cross-validate FAILs on file-path-only behavioral verdict | Add EVIDENCE_TYPE_MISMATCH check to cross-validate | `.opencode/skills/audit/tasks/cross-validate.md` |
 | SC-5 | All 5 SCs from #2009 remain satisfied | structural | `grep` for SC-1 through SC-5 in #2009 spec → all present | No changes to #2009 spec | `.opencode/.issues/2009/spec.md` |
