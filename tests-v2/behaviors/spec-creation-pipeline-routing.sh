@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="spec-creation-pipeline-routing"
-SCENARIO_PROMPT="Users with valid credentials are getting 401 Unauthorized errors. The auth code is at src/login-bug/src/auth.py. Investigate the bug and create a spec for the fix."
+SCENARIO_PROMPT="Users with valid credentials are getting 401 Unauthorized errors."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
