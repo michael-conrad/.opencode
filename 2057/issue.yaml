@@ -8,15 +8,11 @@ body: "---\ntitle: '[SPEC] Fix approval-gate + approval-gate-scope — remove su
   \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
   \ work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
   >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
-  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> STATUS:\
-  \ **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance requirement:** This is a fix\
-  \ spec (F-2). It modifies the approval-gate and approval-gate-scope skill cards\
-  \ and their task files. The canonical templates are now materialized at `.opencode/skills/templates/SKILL.md`\
-  \ and `.opencode/skills/templates/task.md`.\n>\n> **Master spec reference:** See\
-  \ `tmp/spec-per-step-dispatch.md` for the full interdependency analysis, dispatch\
-  \ vocabulary, and shared definitions.\n\n## Problem\n\nThe approval-gate skill card\
-  \ routes 16 task references through an indirection layer: the parent TDT dispatches\
-  \ to `approval-gate-scope --task <name>`, which loads `approval-gate-scope/SKILL.md`\
+  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> **Master\
+  \ spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency\
+  \ analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\nThe approval-gate\
+  \ skill card routes 16 task references through an indirection layer: the parent\
+  \ TDT dispatches to `approval-gate-scope --task <name>`, which loads `approval-gate-scope/SKILL.md`\
   \ (a sub-skill stub with no dispatch information), which lists task filenames. The\
   \ sub-agent then has to find the task file by name.\n\nThis sub-skill indirection\
   \ is dead weight. The task files are referenced by path from the parent TDT and\
@@ -60,11 +56,11 @@ body: "---\ntitle: '[SPEC] Fix approval-gate + approval-gate-scope — remove su
   \ — | F-6: Implementation-pipeline fix — parallel |\n| #2056 | — | F-7: Standalone\
   \ cards fix — parallel |\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
   \ Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
-  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n"
+  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Fix approval-gate + approval-gate-scope — remove sub-skill indirection,
   per-step dispatch'
-updated_at: '2026-07-21T21:05:49+00:00'
+updated_at: '2026-07-21T21:12:05+00:00'
