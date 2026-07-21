@@ -1,22 +1,49 @@
-## Description
+# SPEC-FIX: session-init reports `gb: ✓ Logged in` false positive
 
-The `pre-red-baseline` task in `implementation-pipeline` has a SUBMODULE-DRIFT check that BLOCKs when the `.opencode` submodule is on a feature branch instead of `main` tip. This is too strict for stacked PR workflows where the submodule is intentionally on a feature branch.
+## Bug
 
-## The Problematic Check
+`session-init` reports `gb: ✓ Logged in` even when `gb` is not authenticated.
 
-The SUBMODULE-DRIFT check in `pre-red-baseline` compares the submodule HEAD against `main` tip and BLOCKs on any mismatch. It does not distinguish between:
-- **Detached HEAD** (unintentional, should block)
-- **Unknown/untracked branch** (should block)
-- **Feature branch** (intentional in stacked PR workflows - should NOT block)
+## Root Cause
 
-## Why It Blocks Stacked PR Workflows
+Lines 247-267 of `.opencode/tools/session-init`:
 
-In a stacked PR workflow, the parent repo creates a feature branch (e.g. `feature/1962-writing-plans-workflow-fix`) and the `.opencode` submodule tracks a corresponding feature branch. This is expected behavior - the submodule is intentionally on a feature branch that matches the parent repo's branch. The SUBMODULE-DRIFT check should not flag this as drift.
+```python
+result = subprocess.run(
+    ["gb", "auth", "status"],
+    capture_output=True,
+    text=True,
+    check=False,
+    stdin=subprocess.DEVNULL,
+    timeout=NETWORK_TIMEOUT,
+)
+if result.returncode == 0:
+    ...
+    status_lines.append("gb: ✓ Logged in")
+```
 
-## Suggested Fix
+`gb auth status` returns exit code **0** even when not logged in. The output is:
 
-Modify the SUBMODULE-DRIFT check to only flag drift when:
-- The submodule is on a **detached HEAD** (not pointing to any branch)
-- The submodule is on an **unknown branch** (not `main` and not a recognized feature branch pattern)
+```
+Not logged in to any GitBucket instance.
+Run `gb auth login` to authenticate.
+```
 
-Being on a feature branch should be accepted as valid state in stacked PR workflows.
+The script enters the `returncode == 0` branch, the regex `Logged in to (\S+) as (\S+)` doesn't match `"Not logged in..."`, so it falls to the `else` and appends `gb: ✓ Logged in` — a false positive.
+
+## Fix
+
+Parse the output text for negative indicators before reporting success. The `gb` check must detect `"Not logged in"` in the output text and report `gb: not_logged_in` regardless of exit code.
+
+## Affected Version
+
+`gb` CLI v0.6.1, `session-init` as of 2026-07-21
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | `gb` check parses output text for `"Not logged in"` before reporting success | `string` | grep for `Not logged in` in `.opencode/tools/session-init` — must be present in the `gb` auth check block |
+| SC-2 | `session-init` reports `gb: not_logged_in` when `gb` is not authenticated | `behavioral` | Run `session-init` with unauthenticated `gb` — must report `gb: not_logged_in` |
+| SC-3 | `session-init` reports `gb: ✓ Logged in` when `gb` is authenticated | `behavioral` | Run `session-init` with authenticated `gb` — must report `gb: ✓ Logged in` or equivalent positive status |
+| SC-4 | Fix does not use exit code as the sole determinant of `gb` auth status | `string` | grep for `result.returncode == 0` in the `gb` block — must not be the only check before reporting success |

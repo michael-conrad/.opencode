@@ -1,5 +1,32 @@
 labels:
-- bug
+- SPEC-FIX
 number: 2013
 state: OPEN
-title: '[BUG] pre-red-baseline SUBMODULE-DRIFT check too strict for stacked PR workflows'
+title: 'SPEC-FIX: session-init reports gb: ✓ Logged in false positive'
+body: "# SPEC-FIX: session-init reports `gb: ✓ Logged in` false positive\n\n## Bug\n\
+  \n`session-init` reports `gb: ✓ Logged in` even when `gb` is not authenticated.\n\
+  \n## Root Cause\n\nLines 247-267 of `.opencode/tools/session-init`:\n\n```python\n\
+  result = subprocess.run(\n    [\"gb\", \"auth\", \"status\"],\n    capture_output=True,\n\
+  \    text=True,\n    check=False,\n    stdin=subprocess.DEVNULL,\n    timeout=NETWORK_TIMEOUT,\n\
+  )\nif result.returncode == 0:\n    ...\n    status_lines.append(\"gb: ✓ Logged in\"\
+  )\n```\n\n`gb auth status` returns exit code **0** even when not logged in. The\
+  \ output is:\n\n```\nNot logged in to any GitBucket instance.\nRun `gb auth login`\
+  \ to authenticate.\n```\n\nThe script enters the `returncode == 0` branch, the regex\
+  \ `Logged in to (\\S+) as (\\S+)` doesn't match `\"Not logged in...\"`, so it falls\
+  \ to the `else` and appends `gb: ✓ Logged in` — a false positive.\n\n## Fix\n\n\
+  Parse the output text for negative indicators before reporting success. The `gb`\
+  \ check must detect `\"Not logged in\"` in the output text and report `gb: not_logged_in`\
+  \ regardless of exit code.\n\n## Affected Version\n\n`gb` CLI v0.6.1, `session-init`\
+  \ as of 2026-07-21\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type |\
+  \ Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | `gb` check parses output text for `\"Not logged in\"` before reporting\
+  \ success | `string` | grep for `Not logged in` in `.opencode/tools/session-init`\
+  \ — must be present in the `gb` auth check block |\n| SC-2 | `session-init` reports\
+  \ `gb: not_logged_in` when `gb` is not authenticated | `behavioral` | Run `session-init`\
+  \ with unauthenticated `gb` — must report `gb: not_logged_in` |\n| SC-3 | `session-init`\
+  \ reports `gb: ✓ Logged in` when `gb` is authenticated | `behavioral` | Run `session-init`\
+  \ with authenticated `gb` — must report `gb: ✓ Logged in` or equivalent positive\
+  \ status |\n| SC-4 | Fix does not use exit code as the sole determinant of `gb`\
+  \ auth status | `string` | grep for `result.returncode == 0` in the `gb` block —\
+  \ must not be the only check before reporting success |\n"
+updated_at: '2026-07-21T22:33:55+00:00'
