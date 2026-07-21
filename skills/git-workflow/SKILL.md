@@ -31,8 +31,8 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | "review-prep" / "prepare review" | `review-prep` | `git-workflow-pr --task review-prep` | `sub-task` | {branch_name} |
 | "pr-creation" / "create PR" | `pr-creation` | `git-workflow-pr --task pr-creation` | `sub-task` | {branch_name, spec_summary} |
 | "rebase" / "rebase pending" | `rebase-pending` | `git-workflow-conflict --task rebase-pending` | `sub-task` | {branch_name} |
-| "cleanup" / "post-merge cleanup" | `cleanup` | `git-workflow-cleanup --task cleanup` | `sub-task` | {pr_merge_status} |
-| "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `git-workflow-cleanup --task check-pr` | `sub-task` | {branch_name} |
+| "cleanup" / "post-merge cleanup" / "pr merged" | `cleanup` | `git-workflow-cleanup --task cleanup` | `sub-task` | {pr_merge_status} |
+| "check pr" / "check prs" / "check merged prs" | `check-pr` | `git-workflow-cleanup --task check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `git-workflow-branch --task provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `git-workflow-branch --task submodule-sync` | `sub-task` | {submodule_paths} |
 | "release" / "release/v" | `pre-work` | `git-workflow-branch --task pre-work` | `sub-task` | {branch_name: release/v{semver}} |
