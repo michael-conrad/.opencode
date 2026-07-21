@@ -1,7 +1,7 @@
 body: "---\ntitle: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch, pre-flight\
   \ gate, task file contracts'\nstatus: draft\ncreated: 2026-07-21\nlicense: MIT\n\
   provenance: AI-generated\nissue: 2053\nauthors:\n  - OpenCode (deepseek-v4-flash)\n\
-  ---\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance Requirement:**\
+  ---\n\n> STATUS: **COMPLETE**\n> CREATED: 2026-07-21\n\n> **Compliance Requirement:**\
   \ All steps and sub-steps in this document MUST be followed in order. Failure to\
   \ comply with any step — including but not limited to verification gates, test phases,\
   \ audit checkpoints, and review steps — will result in the feature branch being\

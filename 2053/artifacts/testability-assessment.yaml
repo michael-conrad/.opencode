@@ -1,0 +1,47 @@
+testability_assessment:
+  overall: "All SCs are string evidence type — verifiable by grep/file-existence checks. No behavioral testing required for this spec."
+  sc_analysis:
+    - sc: SC-1
+      evidence_type: string
+      verification: "grep for '## Pre-Flight Gate' as first content section in SKILL.md"
+      testable: true
+      difficulty: easy
+    - sc: SC-2
+      evidence_type: string
+      verification: "grep confirms absence of '## Invocation' and '## DISPATCH_GATE' sections"
+      testable: true
+      difficulty: easy
+    - sc: SC-3
+      evidence_type: string
+      verification: "grep for enumerated workflow sections (### 1., ### 2., etc.)"
+      testable: true
+      difficulty: easy
+    - sc: SC-4
+      evidence_type: string
+      verification: "grep for 'orchestrator: 4 sequential task() calls' in TDT"
+      testable: true
+      difficulty: easy
+    - sc: SC-5
+      evidence_type: string
+      verification: "grep each task file for '## Dispatch Contract', '## Output Contract', '## Frugal Contract'"
+      testable: true
+      difficulty: medium (25 files to check)
+    - sc: SC-6
+      evidence_type: string
+      verification: "grep 4 DiMo role files for '## Clean-Room Validation'"
+      testable: true
+      difficulty: easy
+    - sc: SC-7
+      evidence_type: string
+      verification: "grep evaluator and arbiter files for 'expected-determination rejection'"
+      testable: true
+      difficulty: easy
+    - sc: SC-8
+      evidence_type: string
+      verification: "grep all task files for 'PRELOADED_CONTEXT_REJECTED'"
+      testable: true
+      difficulty: medium (25 files to check)
+  risks:
+    - "25 task files is a large batch — risk of missing some files"
+    - "Template consistency across 25 files requires careful attention"
+    - "Some task files may have unique structures that don't fit the template"

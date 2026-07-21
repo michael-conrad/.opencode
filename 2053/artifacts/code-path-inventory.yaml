@@ -1,0 +1,37 @@
+code_path_inventory:
+  files:
+    - path: .opencode/skills/audit/SKILL.md
+      current_state: "Has global Invocation/DISPATCH_GATE sections, single `sub-task (DiMo chain)` dispatch, no Pre-Flight Gate, no enumerated workflow sections"
+      target_state: "Pre-Flight Gate as first content section, no global Invocation/DISPATCH_GATE, enumerated workflow sections with per-step dispatch, TDT uses `orchestrator: 4 sequential task() calls`"
+      operations:
+        - Add Pre-Flight Gate section
+        - Remove global Invocation and DISPATCH_GATE sections
+        - Add enumerated workflow sections (1-4) with per-step dispatch
+        - Update TDT Dispatch column
+    - path: .opencode/skills/audit/tasks/verification-audit-investigator.md
+      current_state: "No contract sections, no Clean-Room Validation"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, Clean-Room Validation, PRELOADED_CONTEXT_REJECTED"
+    - path: .opencode/skills/audit/tasks/verification-audit-validator.md
+      current_state: "No contract sections, no Clean-Room Validation"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, Clean-Room Validation, PRELOADED_CONTEXT_REJECTED"
+    - path: .opencode/skills/audit/tasks/verification-audit-evaluator.md
+      current_state: "No contract sections, no Clean-Room Validation"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, Clean-Room Validation, PRELOADED_CONTEXT_REJECTED, expected-determination rejection"
+    - path: .opencode/skills/audit/tasks/verification-audit-arbiter.md
+      current_state: "No contract sections, no Clean-Room Validation"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, Clean-Room Validation, PRELOADED_CONTEXT_REJECTED, expected-determination rejection"
+    - path: .opencode/skills/audit/tasks/spec-audit-*.md (~5 files)
+      current_state: "No contract sections"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, PRELOADED_CONTEXT_REJECTED"
+    - path: .opencode/skills/audit/tasks/plan-audit-*.md (~5 files)
+      current_state: "No contract sections"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, PRELOADED_CONTEXT_REJECTED"
+    - path: .opencode/skills/audit/tasks/code-audit-*.md (~5 files)
+      current_state: "No contract sections"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, PRELOADED_CONTEXT_REJECTED"
+    - path: .opencode/skills/audit/tasks/cross-validate-*.md (~5 files)
+      current_state: "No contract sections"
+      target_state: "Dispatch Contract, Output Contract, Frugal Contract, PRELOADED_CONTEXT_REJECTED"
+  total_files_modified: 26
+  template_source: .opencode/skills/templates/task.md
+  template_skill_source: .opencode/skills/templates/SKILL.md

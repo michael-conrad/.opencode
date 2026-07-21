@@ -1,0 +1,54 @@
+state_analysis:
+  initial_state:
+    audit_SKILL_md:
+      has_pre_flight_gate: false
+      has_global_invocation: true
+      has_global_dispatch_gate: true
+      has_enumerated_workflows: false
+      tdt_dispatch_type: "sub-task (DiMo chain)"
+    task_files:
+      has_dispatch_contract: false
+      has_output_contract: false
+      has_frugal_contract: false
+      has_clean_room_validation: false
+      has_preloaded_context_rejected: false
+      has_expected_determination_rejection: false
+  target_state:
+    audit_SKILL_md:
+      has_pre_flight_gate: true
+      has_global_invocation: false
+      has_global_dispatch_gate: false
+      has_enumerated_workflows: true
+      tdt_dispatch_type: "orchestrator: 4 sequential task() calls"
+    task_files:
+      has_dispatch_contract: true
+      has_output_contract: true
+      has_frugal_contract: true
+      has_clean_room_validation: true (4 DiMo role files only)
+      has_preloaded_context_rejected: true (all task files)
+      has_expected_determination_rejection: true (evaluator + arbiter files only)
+  state_transitions:
+    - from: "no Pre-Flight Gate"
+      to: "Pre-Flight Gate as first content section"
+      step: "Edit SKILL.md header"
+    - from: "has global Invocation/DISPATCH_GATE"
+      to: "no global Invocation/DISPATCH_GATE"
+      step: "Remove sections from SKILL.md"
+    - from: "no enumerated workflows"
+      to: "enumerated workflow sections with per-step dispatch"
+      step: "Add workflow sections to SKILL.md"
+    - from: "tdt: sub-task (DiMo chain)"
+      to: "tdt: orchestrator: 4 sequential task() calls"
+      step: "Update TDT Dispatch column"
+    - from: "no contract sections"
+      to: "Dispatch Contract + Output Contract + Frugal Contract"
+      step: "Add contract sections to each task file"
+    - from: "no Clean-Room Validation"
+      to: "Clean-Room Validation section"
+      step: "Add to 4 DiMo role files"
+    - from: "no expected-determination rejection"
+      to: "expected-determination rejection in Dispatch Contract"
+      step: "Add to evaluator and arbiter files"
+    - from: "no PRELOADED_CONTEXT_REJECTED"
+      to: "PRELOADED_CONTEXT_REJECTED in Dispatch Contract"
+      step: "Add to all task files"

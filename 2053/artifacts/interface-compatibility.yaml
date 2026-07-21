@@ -1,0 +1,30 @@
+interface_compatibility:
+  contracts:
+    - interface: "Dispatch Contract"
+      consumers:
+        - "Orchestrator (provides context fields)"
+        - "Sub-agent (reads context fields)"
+      compatibility: "Template task.md defines the canonical Dispatch Contract format. All 25 task files must match this format."
+      risk: "Inconsistent field names across task files break orchestrator dispatch"
+    - interface: "Output Contract"
+      consumers:
+        - "Sub-agent (writes output)"
+        - "Orchestrator (reads result contract)"
+      compatibility: "Must include artifact_path, artifact_format, and task-specific output fields"
+      risk: "Missing fields cause orchestrator to receive incomplete results"
+    - interface: "Frugal Contract"
+      consumers:
+        - "Sub-agent (returns to orchestrator)"
+        - "Orchestrator (reads routing-significant data only)"
+      compatibility: "Must return exactly status, finding_summary, artifact_path, blocker_reason"
+      risk: "Extra fields bloat orchestrator context; missing fields break routing"
+    - interface: "Pre-Flight Gate"
+      consumers:
+        - "Orchestrator (reads before dispatch)"
+      compatibility: "Must be first content section in SKILL.md, must check task() availability"
+      risk: "Wrong position or missing check breaks the gate"
+    - interface: "Enumerated workflow sections"
+      consumers:
+        - "Orchestrator (reads to determine dispatch type per step)"
+      compatibility: "Each workflow step must specify dispatch type, dispatch string, input, output"
+      risk: "Missing dispatch type causes orchestrator to use wrong dispatch pattern"

@@ -1,0 +1,17 @@
+blast_radius:
+  scope: single_skill
+  affected_skill: audit
+  affected_files:
+    - .opencode/skills/audit/SKILL.md
+    - .opencode/skills/audit/tasks/*.md (~25 files)
+  downstream_consumers:
+    - approval-gate (calls audit for spec/plan/code audits)
+    - verification-before-completion (calls audit for VbC)
+    - implementation-pipeline (calls audit at verification gates)
+    - finishing-a-development-branch (calls audit in checklist)
+  risk_level: high
+  risk_rationale: "The DiMo chain is the most complex dispatch pattern. Breaking it blocks all audit workflows across the entire pipeline. All downstream consumers depend on audit dispatch working correctly."
+  no_impact:
+    - Other skill cards (F-2 through F-7 are independent)
+    - Behavioral enforcement tests (covered by #2054)
+    - Core opencode infrastructure

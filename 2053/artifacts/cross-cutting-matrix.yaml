@@ -1,0 +1,22 @@
+cross_cutting_matrix:
+  dimensions:
+    - name: "Contract section format consistency"
+      concern_ids: [C2, C3, C4, C5]
+      description: "All task files must use identical section headers and structure for Dispatch Contract, Output Contract, Frugal Contract, Clean-Room Validation"
+      risk: "Inconsistent formatting across 25 files creates maintenance burden"
+      mitigation: "Use template task.md as canonical source; apply uniformly"
+    - name: "PRELOADED_CONTEXT_REJECTED pattern"
+      concern_ids: [C5]
+      description: "Every task file's Dispatch Contract must include PRELOADED_CONTEXT_REJECTED"
+      risk: "Missing in some files creates gaps in clean-room enforcement"
+      mitigation: "Apply to all task files in one pass; verify with grep after"
+    - name: "Expected-determination rejection scope"
+      concern_ids: [C4]
+      description: "Only Evaluator and Arbiter files need expected-determination rejection (they produce PASS/FAIL verdicts)"
+      risk: "Applying to Investigator/Validator would be incorrect"
+      mitigation: "Target only *-evaluator.md and *-arbiter.md files"
+    - name: "Clean-Room Validation scope"
+      concern_ids: [C3]
+      description: "Only the 4 DiMo role files (Investigator, Validator, Evaluator, Arbiter) need Clean-Room Validation"
+      risk: "Applying to non-DiMo task files would be scope creep"
+      mitigation: "Target only the 4 verification-audit role files"

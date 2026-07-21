@@ -1,0 +1,40 @@
+concern_map:
+  concerns:
+    - id: C1
+      name: "SKILL.md structure and dispatch"
+      description: "Pre-Flight Gate, removal of global Invocation/DISPATCH_GATE, enumerated workflow sections, TDT update"
+      scs: [SC-1, SC-2, SC-3, SC-4]
+      files:
+        - .opencode/skills/audit/SKILL.md
+    - id: C2
+      name: "Task file contract sections"
+      description: "Add Dispatch Contract, Output Contract, Frugal Contract to all ~25 task files"
+      scs: [SC-5]
+      files:
+        - .opencode/skills/audit/tasks/*.md
+    - id: C3
+      name: "Clean-room validation for DiMo roles"
+      description: "Add Clean-Room Validation section to Investigator, Validator, Evaluator, Arbiter task files"
+      scs: [SC-6]
+      files:
+        - .opencode/skills/audit/tasks/verification-audit-investigator.md
+        - .opencode/skills/audit/tasks/verification-audit-validator.md
+        - .opencode/skills/audit/tasks/verification-audit-evaluator.md
+        - .opencode/skills/audit/tasks/verification-audit-arbiter.md
+    - id: C4
+      name: "Expected-determination rejection"
+      description: "Add expected-determination rejection to Evaluator and Arbiter task files"
+      scs: [SC-7]
+      files:
+        - .opencode/skills/audit/tasks/*-evaluator.md
+        - .opencode/skills/audit/tasks/*-arbiter.md
+    - id: C5
+      name: "PRELOADED_CONTEXT_REJECTED in clean-room tasks"
+      description: "Add PRELOADED_CONTEXT_REJECTED to Dispatch Contract of all clean-room task files"
+      scs: [SC-8]
+      files:
+        - .opencode/skills/audit/tasks/*.md
+  concern_boundaries:
+    - C1 is independent of C2-C5 (different files)
+    - C2 is prerequisite for C3-C5 (contract sections must exist before adding clean-room/expected-determination)
+    - C3, C4, C5 can be done in parallel after C2
