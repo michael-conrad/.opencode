@@ -1,0 +1,58 @@
+evaluation_type: plan_holistic
+plan: .opencode/.issues/2034/plan.md
+phase_files:
+  - .opencode/.issues/2034/plan-01-fix-git-workflow-trigger.md
+  - .opencode/.issues/2034/plan-02-fix-cleanup-trigger.md
+  - .opencode/.issues/2034/plan-03-verify-branch-cleanup.md
+  - .opencode/.issues/2034/plan-04-extract-check-pr.md
+  - .opencode/.issues/2034/plan-05-behavioral-test.md
+evaluated_at: 2026-07-20T23:37:00Z
+evaluator: OpenCode (deepseek-v4-flash)
+status: PASS
+dimensions:
+  - id: 1
+    name: Implementability
+    result: PASS
+    evidence: Single clear sequence — 5 phases with explicit dependency chain (Phases 1-3 independent, Phase 4 depends on 3, Phase 5 depends on all). Phase ordering matches dependency DAG. No unresolved dependencies.
+  - id: 2
+    name: Internal Consistency
+    result: PASS
+    evidence: Phase preconditions match actions. Phase 4 (extract from check-pr.md) correctly depends on Phase 3 (verify branch-cleanup.md). Phase ordering matches dependency DAG. No contradictions.
+  - id: 3
+    name: Completeness
+    result: PASS
+    evidence: All 7 SCs covered across 5 phases. No TBD/TODO markers. All handoffs specified. Step counts per phase documented in Phase Table.
+  - id: 4
+    name: Scope Discipline
+    result: PASS
+    evidence: All 5 phases stay within spec's 4 affected files + 1 new test file. No phases implementing things spec didn't ask for. Blast radius matches spec.
+  - id: 5
+    name: Testability
+    result: PASS
+    evidence: Each phase has exit criteria in plan.md. Phase 5 has explicit behavioral test with clean-room evaluation requirement. No subjective judgment steps.
+  - id: 6
+    name: Escape Hatches
+    result: PASS
+    evidence: No "skip if fails", "TBD", "TODO", "if time permits", "left to implementor", or similar escape hatch language. Compliance requirements explicitly prohibit short-circuiting.
+  - id: 7
+    name: Provenance
+    result: PASS
+    evidence: All 6 affected files listed with specific paths. File references match spec's affected files section. No unverified claims about code state.
+  - id: 8
+    name: Feasibility
+    result: PASS
+    evidence: All referenced files exist in the codebase (verified by audit). Phase ordering is physically possible. No unavailable dependencies.
+  - id: 9
+    name: Safety
+    result: PASS
+    evidence: No destructive operations without rollback. Phase 3 is read-only verification. Phase 4 extracts content (no deletion). Phase 5 creates new file. Self-remediation protocol documented for step failures.
+  - id: 10
+    name: Traceability
+    result: PASS
+    evidence: All 7 SCs trace to phases in Phase Table. All 4 root causes from spec addressed. Concern Map Reference maps each concern to exactly one phase. No orphan steps.
+  - id: 11
+    name: Correctness
+    result: PASS
+    evidence: Plan goal matches spec goal. All 4 root causes addressed. No extra phases. No omitted required phases. Fidelity audit confirms plan is fully faithful to spec.
+finding_summary: All 11 plan dimensions PASS. Plan is implementable, consistent, complete, scoped, testable, safe, and correct. Fidelity and concern audits also PASS.
+artifact_path: .opencode/.issues/2034/artifacts/holistic-self-check.yaml

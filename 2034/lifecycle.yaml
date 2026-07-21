@@ -4,3 +4,8 @@ events:
     issuer: OpenCode (ollama-cloud/deepseek-v4-flash)
     description: 'Spec #2034 created'
     severity: info
+  - event: plan_created
+    timestamp: 2026-07-20T23:37:00Z
+    issuer: OpenCode (ollama-cloud/deepseek-v4-flash)
+    description: 'Plan #2034 created — 5 phases, 7 SCs, fidelity+concern audits PASS, holistic self-check PASS'
+    severity: info
