@@ -3,6 +3,89 @@ title: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch, pre-flight
 status: open
 labels:
 - spec
-body: ''
+body: "---\ntitle: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch, pre-flight\
+  \ gate, task file contracts'\nstatus: draft\ncreated: 2026-07-21\nlicense: MIT\n\
+  provenance: AI-generated\nissue: 2053\nauthors:\n  - OpenCode (deepseek-v4-flash)\n\
+  ---\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance Requirement:**\
+  \ All steps and sub-steps in this document MUST be followed in order. Failure to\
+  \ comply with any step — including but not limited to verification gates, test phases,\
+  \ audit checkpoints, and review steps — will result in the feature branch being\
+  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
+  \ work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
+  \n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
+  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> STATUS:\
+  \ **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance requirement:** This is a fix\
+  \ spec (F-1). It modifies the audit skill card and all audit task files. All changes\
+  \ MUST conform to the canonical templates defined in T-1 (issue #318) and T-2 (issue\
+  \ #316).\n\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for\
+  \ the full interdependency analysis, dispatch vocabulary, and shared definitions.\n\
+  \n## Problem\n\nThe audit skill card (`audit/SKILL.md`) has the global Invocation/DISPATCH_GATE\
+  \ defect. Its DiMo (Discrete Multi-role) chain — Investigator → Validator → Evaluator\
+  \ → Arbiter — is the most complex dispatch pattern in the skill deck. The current\
+  \ single `sub-task (DiMo chain)` dispatch label causes the orchestrator to dispatch\
+  \ the entire SKILL.md to one sub-agent, which cannot execute the multi-role chain.\n\
+  \nAdditionally, the ~25 audit task files lack Dispatch Contract, Output Contract,\
+  \ and Frugal Contract sections. The clean-room task files (Investigator, Validator,\
+  \ Evaluator, Arbiter) lack PRELOADED_CONTEXT_REJECTED and expected-determination\
+  \ rejection.\n\n## Scope\n\nThis spec covers the audit skill card and all its task\
+  \ files. It is the highest priority fix spec because the DiMo chain is completely\
+  \ broken — no audit workflow can execute until this is fixed.\n\n**Out of scope:**\
+  \ Other skill cards (covered by F-2 through F-7). Behavioral enforcement tests (covered\
+  \ by issue #326).\n\n## Key Changes\n\n1. Add `## Pre-Flight Gate` section to `audit/SKILL.md`\
+  \ as the first content section\n2. Remove global `## Invocation` and `## DISPATCH_GATE`\
+  \ sections from `audit/SKILL.md`\n3. Add enumerated workflow sections for each audit\
+  \ workflow (verification-audit, spec-audit, plan-audit, code-audit, cross-validate)\
+  \ with per-step dispatch\n4. Update TDT `Dispatch` column to use `orchestrator:\
+  \ N sequential task() calls` for DiMo chain workflows\n5. Add Dispatch Contract,\
+  \ Output Contract, and Frugal Contract to all ~25 task files\n6. Add Clean-Room\
+  \ Validation section to Investigator, Validator, Evaluator, and Arbiter task files\n\
+  7. Add expected-determination rejection to Evaluator and Arbiter task files (they\
+  \ produce PASS/FAIL verdicts)\n8. Remove \"dispatch via task()\" language from Overview\
+  \ and Persona sections\n\n## Affected Files\n\n| File | Change |\n|------|--------|\n\
+  | `audit/SKILL.md` | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add enumerated\
+  \ workflows, update TDT |\n| `audit/tasks/verification-audit-investigator.md` |\
+  \ Add contract sections + Clean-Room Validation |\n| `audit/tasks/verification-audit-validator.md`\
+  \ | Add contract sections + Clean-Room Validation |\n| `audit/tasks/verification-audit-evaluator.md`\
+  \ | Add contract sections + Clean-Room Validation + expected-determination rejection\
+  \ |\n| `audit/tasks/verification-audit-arbiter.md` | Add contract sections + Clean-Room\
+  \ Validation + expected-determination rejection |\n| `audit/tasks/spec-audit-*.md`\
+  \ (~5 files) | Add contract sections |\n| `audit/tasks/plan-audit-*.md` (~5 files)\
+  \ | Add contract sections |\n| `audit/tasks/code-audit-*.md` (~5 files) | Add contract\
+  \ sections |\n| `audit/tasks/cross-validate-*.md` (~5 files) | Add contract sections\
+  \ |\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
+  | SC-1 | `audit/SKILL.md` has Pre-Flight Gate as first content section | `string`\
+  \ |\n| SC-2 | `audit/SKILL.md` has no global Invocation or DISPATCH_GATE section\
+  \ | `string` |\n| SC-3 | `audit/SKILL.md` has enumerated workflow sections with\
+  \ per-step dispatch for all audit workflows | `string` |\n| SC-4 | TDT Dispatch\
+  \ column uses `orchestrator: 4 sequential task() calls` for DiMo chain workflows\
+  \ | `string` |\n| SC-5 | All ~25 task files have Dispatch Contract, Output Contract,\
+  \ and Frugal Contract sections | `string` |\n| SC-6 | Investigator, Validator, Evaluator,\
+  \ Arbiter task files have Clean-Room Validation section | `string` |\n| SC-7 | Evaluator\
+  \ and Arbiter task files have expected-determination rejection in Dispatch Contract\
+  \ | `string` |\n| SC-8 | All clean-room task files have PRELOADED_CONTEXT_REJECTED\
+  \ in Dispatch Contract | `string` |\n\n## Dependencies\n\n- **BLOCKED by T-1 (issue\
+  \ #318):** Canonical skill card structure template must be defined first\n- **BLOCKED\
+  \ by T-2 (issue #316):** Canonical task card structure template must be defined\
+  \ first\n\n## Implementation Order\n\nThis is the highest priority fix spec (F-1).\
+  \ It serves as the proof of concept for the per-step dispatch pattern.\n\n```\n\
+  Phase 1: T-1, T-2 (templates) — prerequisite\nPhase 2: F-1 (this spec) — proof of\
+  \ concept, most complex\nPhase 3: F-2 through F-7 (parallel — independent of each\
+  \ other)\n```\n\n## Dependencies\\n\\n- **BLOCKED_BY #2047 (T-2):** Canonical task\
+  \ card structure template must be defined first\\n- **BLOCKED_BY #2052 (T-1):**\
+  \ Canonical skill card structure template must be defined first\\n\\n## Prerequisite\
+  \ For\\n\\nNone. Independent of other fix specs.\n\n## Interdependency\\n\\n| Issue\
+  \ | Classification | Description |\\n|-------|---------------|-------------|\\n|\
+  \ #2047 | BLOCKS | T-2: Task card template — prerequisite for all fix specs |\\\
+  n| #2052 | BLOCKS | T-1: Skill card template — prerequisite for all fix specs |\\\
+  n| #2053 | BLOCKED_BY #2047, #2052 | F-1: Audit fix — blocked by templates |\\n|\
+  \ #2057 | BLOCKED_BY #2047, #2052 | F-2: Approval-gate fix — blocked by templates\
+  \ |\\n| #2049 | BLOCKED_BY #2047, #2052 | F-3: Git-workflow fix — blocked by templates\
+  \ |\\n| #2048 | BLOCKED_BY #2047, #2052 | F-4: Spec-creation fix — blocked by templates\
+  \ |\\n| #2050 | BLOCKED_BY #2047, #2052 | F-5: Writing-plans fix — blocked by templates\
+  \ |\\n| #2051 | BLOCKED_BY #2047, #2052 | F-6: Implementation-pipeline fix — blocked\
+  \ by templates |\\n| #2056 | BLOCKED_BY #2047, #2052 | F-7: Standalone cards fix\
+  \ — blocked by templates |\\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
+  \ Cleanup — blocked by fix specs |\\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
+  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n"
 created_at: '2026-07-21T17:42:18+00:00'
-updated_at: '2026-07-21T17:42:18+00:00'
+updated_at: '2026-07-21T17:50:01+00:00'
