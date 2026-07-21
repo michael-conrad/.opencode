@@ -15,8 +15,8 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "cleanup" / "post-merge cleanup" | `cleanup` | `sub-task` | {pr_merge_status, branch_name} |
-| "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
+| "cleanup" / "post-merge cleanup" / "pr merged" | `cleanup` | `sub-task` | {pr_merge_status, branch_name} |
+| "check pr" / "check prs" / "check merged prs" | `check-pr` | `sub-task` | {branch_name} |
 | "pair-cleanup" / "pair cleanup" | `pair-cleanup` | `sub-task` | {branch_name} |
 
 ## DISPATCH_GATE
