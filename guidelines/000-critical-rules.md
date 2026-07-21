@@ -208,8 +208,18 @@ The correct pattern:
 | **Skill card dispatched to sub-agent** | **critical-rules-XXX** | **Agent dispatches SKILL.md content (skill card) to sub-agent via task(); sub-agent receives orchestrator-level routing instructions it cannot execute** |
 
 
+
 ### [critical-rules-XXX] CRITICAL VIOLATION — Starting work from non-trunk-tip state
 The parent repo MUST be on $DEFAULT_BRANCH at remote tracking tip, all submodules MUST be on $DEFAULT_BRANCH at remote tracking tip, there MUST be zero pending changes, and the submodule pointer MUST match the committed SHA before any work begins. Violation: HALT with blocker report. Discard all work and restart from clean trunk tip. This gate is enforced by `git-workflow-branch/tasks/trunk-tip-verification.md` and MUST be the first step of every pre-work task.
+
+### [critical-rules-XXX] CRITICAL VIOLATION — Single-Topic Discipline — multi-topic messages must be decomposed into single-topic turns
+Every response addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns. Violation is a Tier 1 critical rule. Read [§1](guidelines/020-go-prohibitions.md).
+
+### [critical-rules-XXX] CRITICAL VIOLATION — Order of Importance — topics must be addressed in descending order of importance
+When multiple topics are raised, address them in descending order of importance. The most important topic must be presented first. Violation is a Tier 1 critical rule. Read [§1](guidelines/020-go-prohibitions.md).
+
+### [critical-rules-XXX] CRITICAL VIOLATION — Always discuss as default — open-ended discussion is the default communication mode
+Structured output (specs, plans, checklists, tables) is opt-in and requires explicit developer request. Read [§1](guidelines/020-go-prohibitions.md).
 
 
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
@@ -1031,8 +1041,12 @@ Load [approval-gate --task verify-authorization](skills/approval-gate/SKILL.md) 
 Verify byline presence before ANY API call posting AI-authored content.
 
 
-### [critical-rules-037] Structural Decision Solicitation Under for_pr Scope
-No `question` tool for structural decisions when `halt_at >= pr_created`.
+### [critical-rules-037] Question Tool Prohibition — Universal
+No `question` tool for structural decisions.
+
+
+### [critical-rules-038] Natural Language Pigeon-Holing Prohibition — Universal
+Never pigeon-hole in natural language — presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern as the question tool. Read [§1](guidelines/020-go-prohibitions.md).
 
 
 ### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup

@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close linked issues, clean up branches (submodules before parent), reconcile submodules, and park the repo in a clean final state.
+Execute a 4-phase serial chain to scan for merged PRs, verify each merge, close linked issues, delegate branch cleanup to cleanup workflow, and park the repo in a clean final state.
 
 ## Default Branch Resolution
 
@@ -24,8 +24,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 - All merged PRs identified and verified
 - Linked issues closed depth-first (sub-repos first, then parent)
-- Submodule branches cleaned up (trunk switch, branch delete, tag delete, prune)
-- Parent branches cleaned up (trunk switch, branch delete, checkpoint-tag delete, prune)
+- Branch cleanup is delegated to the cleanup workflow
 - All repos iterated depth-first with branch-aware parking
 - Working tree clean, repo parked on appropriate branch
 
@@ -105,25 +104,9 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 - [ ] Check sub-issues, siblings, parents, and cross-repo issues for closure eligibility
 - [ ] Close depth-first: sub-repos first, children before parents, cross-repo
 - [ ] Close silently — no comment churn unless substantively necessary
+- [ ] After issue closure, delegate branch cleanup to the cleanup workflow: `skill({name: "git-workflow-cleanup"})` → `task(..., prompt: "execute cleanup from git-workflow-cleanup")`
 
-## Phase 4: Submodule Branch Cleanup
-
-- [ ] Detect submodules via filesystem glob scan: `ls -d .git/ */.git/ */.git/`
-- [ ] For each submodule with a feature branch, clean up the merged branch
-- [ ] Restore submodules to trunk tip via sub-agent task()
-- [ ] Do NOT create dependency-sync PRs — leave submodule pointers dirty
-
-## Phase 5: Parent Branch Cleanup
-
-- [ ] Switch to trunk and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH" --ff-only`
-- [ ] For each merged branch, verify content exists on trunk via `git diff --stat origin/"$DEFAULT_BRANCH"...<branch>` — produce content comparison table
-- [ ] Delete local merged branch: `git branch -d <branch>`
-- [ ] Delete remote branch: `git push origin --delete <branch>`
-- [ ] Preserve hash-permanence tags — do NOT delete
-- [ ] Delete checkpoint tags only: `git tag -d <parent>/checkpoint/*` and `git push origin --delete <parent>/checkpoint/*`
-- [ ] Prune remote references: `git fetch --prune && git remote prune origin`
-
-## Phase 6: Depth-First Final State
+## Phase 4: Depth-First Final State
 
 - [ ] Iterate ALL discovered repos depth-first: submodule tips, then parent tip
 - [ ] Branch-aware parking per current branch type:

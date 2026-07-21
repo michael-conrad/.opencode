@@ -43,7 +43,7 @@ collect-screening-results → reconcile-status → build-dependency-graph
 - Never present dependency analysis only in agent reasoning (MUST be in chat)
 - Never assume all issues are independent without analysis
 - Never execute must-precede issues out of order
-- Never use `question` tool after presenting the execution plan
+- Never use `question` tool
 - Never HALT between plan presentation and the implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table
 - Never escalate status inconsistencies to the developer (use `reconcile-issue-graph`)
 

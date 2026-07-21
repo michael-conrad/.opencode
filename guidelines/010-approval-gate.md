@@ -245,7 +245,7 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 | Confirmation ≠ authorization | critical-rules-027 |
 | Feedback ≠ authorization | critical-rules-027 |
 | Question/ complaint ≠ authorization | critical-rules-question-auth-001 |
-| for_pr scope → no halt for structural decisions | approval-gate-014, critical-rules-037 |
+| Question tool prohibition (universal) | critical-rules-037 |
 | Multi-task plan → authorization cascades to ALL sub-issues | critical-rules-018 |
 | No `approved-for-*` label → awaiting approval | approval-gate-003 |
 | Audit auto-fix (non-substantive GitHub Issue body only) → exempt | approval-gate-008 |

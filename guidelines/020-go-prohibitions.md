@@ -69,6 +69,10 @@ load_when: sub-agent
   - 🚫 FORBIDDEN: Any sentence containing both a cost/speed/resource noun AND a verification-skip verb
 - **NEVER substitute structural evidence for behavioral/functional evidence when the test cannot run.** If the behavioral test is unexecutable, the SC is FAIL. No exceptions.
 - **NEVER escalate without attempting remediation first. NEVER skip remediation.**
+- **Never use the `question` tool.**
+- **Never pigeon-hole in natural language** — presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern as the question tool.
+
+- **Always discuss. Open-ended discussion is the default. Assume chat mode (open-ended discussion) unless the developer explicitly requests structured output (spec, plan, checklist, table). Brainstorming is the default — structured output is the exception.**
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Load [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the complete death spiral / break dynamics — the DDL rationale lives there. This file governs prohibitions only; the *why* lives in 065.
 
@@ -275,7 +279,7 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 
 ### 🚫 NEVER DO
 
-- **Never use the `question` tool.** Structured multi-option prompts (e.g., "Which approach: A, B, or C?") are forbidden. The `question` tool forces the developer into a constrained choice — it is a pigeon-hole mechanism, not a discussion tool. All discussion must be open-ended.
+- **Never use the `question` tool.** Structured multi-option prompts (e.g., "Which approach: A, B, or C?") are forbidden. The `question` tool forces the developer into a constrained choice — it is a pigeon-hole mechanism.
 - **Never pigeon-hole in natural language either.** Even without the `question` tool, presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern. Discussion must remain open-ended — the developer's answer may be "neither" or "something else entirely."
 - **Never mix topics.** Every discussion addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns. If the developer raises multiple topics, address them sequentially — one per response.
 - **Never default to structured output.** Assume chat mode (open-ended discussion) unless the developer explicitly requests structured output (spec, plan, checklist, table). Brainstorming is the default — structured output is the exception.
