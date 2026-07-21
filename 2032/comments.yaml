@@ -19,3 +19,27 @@ comments:
 
     SC-4: Task cards have entry/exit criteria (already present)'
   timestamp: '2026-07-20T23:37:32+00:00'
+- type: internal
+  body: 'SUPERSEDED by #2020.
+
+
+    Issue #2020 (created earlier today, 2026-07-20) covers the same problem space
+    with a more comprehensive scope. It supersedes #2018, #1372, #1992, #1376, and
+    partially #1987. It has a 6-phase plan with 19 SCs, plan files, and research artifacts
+    already in place.
+
+
+    Key findings from #2032 that should be incorporated into #2020:
+
+    - Z3 solve confirmed the contradiction: 13 subtasks + 1 task card = UNSAT
+
+    - Plan tool confirmed correct design: 13 task cards, 50 actions, SOLVED_SATISFICING,
+    validated
+
+    - Clean-room vs context-aware dispatch distinction formalized
+
+    - Task card cannot dispatch other sub-agents — it is not physically possible
+
+
+    PR #2038 should be closed as superseded.'
+  timestamp: '2026-07-21T00:04:23+00:00'

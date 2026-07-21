@@ -1,1 +1,33 @@
-comments: []
+comments:
+- type: internal
+  body: 'Cross-reference from #2032.
+
+
+    #2032 was created to fix the same dispatch boundary issue but is now SUPERSEDED
+    by this issue. Key findings from #2032 that may be useful:
+
+
+    1. **Z3 solve confirmed the contradiction** — contract at /tmp/opencode/skill-contract.yaml,
+    state at /tmp/opencode/state-current.yaml. 13 subtasks + 1 task card = UNSAT (task_card_describes_other_subagents=True
+    but subagent_can_call_task=False).
+
+
+    2. **Plan tool confirmed correct design** — domain at /tmp/opencode/skill-dispatch-problem.yaml,
+    plan at /tmp/opencode/plan-clean.yaml. 13 task cards, 50 actions, SOLVED_SATISFICING,
+    validated.
+
+
+    3. **Clean-room vs context-aware dispatch distinction** — first-in-chain steps
+    receive only issue_number (clean-room). Subsequent steps receive prior artifact
+    paths (context-aware). The orchestrator passes only the path, never the content.
+
+
+    4. **Task card cannot dispatch** — a sub-agent reading a task card cannot call
+    task(). Each [sub-task] must have its own task card describing exactly one sub-agent''s
+    work.
+
+
+    5. **PR #2038** was created with a partial fix (removing dispatch markers from
+    writing-plans-creation/tasks/create.md) but should be closed as superseded by
+    this issue''s comprehensive plan.'
+  timestamp: '2026-07-21T00:04:23+00:00'
