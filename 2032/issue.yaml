@@ -1,6 +1,6 @@
 title: 'SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task]
   steps to sub-agents that cannot call task()'
-status: open
+status: closed
 labels:
 - SPEC-FIX
 body: "---\ntitle: \"SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with\
@@ -79,4 +79,7 @@ body: "---\ntitle: \"SPEC-FIX: SKILL.md Invocation sections dispatch pipelines w
   \ search | `local-issues list` + read #2020 | Identify superseding issue with comprehensive\
   \ scope |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
 created_at: '2026-07-20T23:28:08+00:00'
-updated_at: '2026-07-21T00:04:15+00:00'
+updated_at: '2026-07-21T00:08:43+00:00'
+closed_at: '2026-07-21T00:08:43+00:00'
+close_reason: duplicate
+duplicate_of: 2020
