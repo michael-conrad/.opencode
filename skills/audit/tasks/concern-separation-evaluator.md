@@ -26,6 +26,14 @@ Evaluate concern-separation evidence against criteria and produce binary PASS/FA
 - `evidence_path`: Path to `evidence.yaml` produced by the Investigator
 - `reasoning_path`: Path to `reasoning.yaml` produced by the upstream reasoning role
 
+**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
+
+```yaml
+status: BLOCKED
+reason: EXPECTED_DETERMINATION_REJECTED
+message: "Expected determination detected. Dispatch without pre-judgment."
+```
+
 ## Entry Criteria
 
 - `evidence.yaml` present at `{project_root}/tmp/{issue-N}/artifacts/concern-separation/evidence.yaml`
@@ -508,3 +516,27 @@ remediation_required: <true|false>
 - `065-verification-honesty.md` — live verification requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+
+## Output Contract
+
+| Field | Required | Format | Description |
+|-------|----------|--------|-------------|
+| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
+| `artifact_format` | Yes | `yaml` | Format of the output artifact |
+| `status` | Yes | `DONE | BLOCKED` | Task completion status |
+| `summary` | Yes | `string` | 1-3 sentence summary of findings |
+
+The output artifact MUST be written to `artifact_path` before returning.
+
+## Frugal Contract
+
+The sub-agent MUST return only the following fields to the orchestrator:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to the full evidence artifact on disk |
+| `blocker_reason` | If BLOCKED | Why the task was blocked |
+
+Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.
