@@ -7,160 +7,86 @@ body: "---\ntitle: \"SPEC-FIX: Task cards contain dispatch-level markers that on
   \ the orchestrator can execute\"\nstatus: draft\ncreated: 2026-07-20\nupdated: 2026-07-20\n\
   license: MIT\nprovenance: AI-generated\nissue: 2032\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
   ---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-20\n\n> **Compliance Requirement:**\
-  \ All steps and sub-steps in this document MUST be followed in order. Failure to\
-  \ comply with any step — including but not limited to verification gates, test phases,\
-  \ audit checkpoints, and review steps — will result in the feature branch being\
-  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
-  \ work. There is no valid reason to skip, compress, reorder, or omit any step. If\
-  \ a step appears redundant or unnecessary, follow it anyway — the cost of following\
-  \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
-  \n## Problem\n\nTask cards (files in `tasks/` directories) are consumed by sub-agents.\
-  \ A sub-agent can ONLY execute steps inline — it cannot call `task()`, cannot dispatch\
-  \ other sub-agents, and cannot route to other skills. However, **46 task cards**\
-  \ across the skill deck contain dispatch-level markers that only the orchestrator\
-  \ can execute.\n\n### The Two Defect Classes\n\n| Class | Count | Description |\
-  \ Severity |\n|-------|-------|-------------|----------|\n| **Instructional** |\
-  \ 20 | Task card tells the sub-agent to call `task()`, route to other task files,\
-  \ or dispatch other sub-agents | HIGH — sub-agent receives instructions it cannot\
-  \ execute |\n| **Documentation** | 26 | Task card contains `(**orchestrator**)`\
-  \ tags, DiMo chain descriptions, or \"orchestrator dispatches\" language describing\
-  \ what the orchestrator does | MEDIUM — dispatch-level markers in a task card |\n\
-  \n### Root Cause\n\nThe skill card architecture has three structural defects:\n\n\
-  1. **Skill cards lack enumerated workflow lists.** The main SKILL.md should contain\
-  \ enumerated lists with proper headings that the orchestrator matches to workflow\
-  \ steps. Currently, workflow steps are scattered between Pipeline sections (diagrams)\
-  \ and task cards.\n\n2. **Task cards contain orchestrator-level routing.** Dispatch\
-  \ markers (`[sub-task]`, `[clean-room]`, `[inline]`, `(**orchestrator**)`), sub-agent\
-  \ dispatch tables, and DiMo chain descriptions belong in the SKILL.md, not in task\
-  \ cards.\n\n3. **Task cards are not self-contained.** Many task cards reference\
-  \ other task files via `task()` instructions, making them dependent on orchestrator\
-  \ dispatch that the sub-agent cannot perform.\n\n### Correct Architecture\n\n| Artifact\
-  \ | Consumer | Content | Rules |\n|----------|----------|---------|-------|\n| **SKILL.md**\
-  \ | Orchestrator | YAML description (agent entry workflow points), enumerated workflow\
-  \ lists with proper headings, Trigger Dispatch Table, Invocation section with canonical\
-  \ dispatch strings | Workflow steps are enumerated lists with `[sub-task]`/`[inline]`/`[clean-room]`\
-  \ markers. Orchestrator reads these to know the sequence and dispatches each step.\
-  \ |\n| **Task card** (`tasks/<name>.md`) | Sub-agent | Self-contained procedure\
-  \ with entry criteria, inline-only steps, exit criteria | NO dispatch markers. NO\
-  \ `task()` references. NO sub-agent dispatch tables. NO DiMo chain descriptions.\
-  \ Sub-agent reads and executes inline. |\n| **Clean-room task card** | Sub-agent\
-  \ (clean-room) | Same as task card, but receives ONLY file paths and issue numbers\
-  \ — no orchestrator reasoning | Same rules as task card. Must be self-contained.\
-  \ |\n\n## Audit Findings\n\n### Instructional DEFECT (20 task cards — sub-agent\
-  \ told to dispatch)\n\n| # | File | Dispatch Markers |\n|---|------|-----------------|\n\
-  | 1 | `issue-operations-core/tasks/body-edit.md` | \"Sub-Agent Dispatch Table\"\
-  \ header, 4-phase dispatch routing table |\n| 2 | `issue-operations-core/tasks/list-issues.md`\
-  \ | \"Route to platforms/local/tasks/list.md via task()\" |\n| 3 | `issue-operations-core/tasks/close.md`\
-  \ | \"Route to platforms/local/tasks/close.md via task()\" |\n| 4 | `issue-operations-core/tasks/update-issue.md`\
-  \ | \"Route to platforms/local/tasks/update.md via task()\" |\n| 5 | `issue-operations-core/tasks/read-comments.md`\
-  \ | \"Route to platforms/local/tasks/comment.md via task()\" |\n| 6 | `issue-operations-core/tasks/search-issues.md`\
-  \ | \"Route to platforms/local/tasks/search.md via task()\" |\n| 7 | `issue-operations-core/tasks/read-labels.md`\
-  \ | \"Route to platforms/local/tasks/read.md via task()\" |\n| 8 | `issue-operations-core/tasks/read-issue.md`\
-  \ | \"Route to platforms/local/tasks/read.md via task()\" |\n| 9 | `issue-operations-core/tasks/creation.md`\
-  \ | 7x \"Route to ... via task()\" references |\n| 10 | `issue-operations-sync/tasks/import-remote.md`\
-  \ | \"Route to ... via task()\" references |\n| 11 | `issue-operations-sync/tasks/sync-pull-to-local.md`\
-  \ | 4x \"route to ... via task()\" references |\n| 12 | `audit/tasks/content-audit-evaluator.md`\
-  \ | \"dispatch behavioral-sc-evaluator via task()\" |\n| 13 | `audit/tasks/spec-audit-evaluator.md`\
-  \ | \"dispatch behavioral-sc-evaluator via task()\" |\n| 14 | `audit/tasks/drift-detection-evaluator.md`\
-  \ | \"dispatch behavioral-sc-evaluator via task()\" |\n| 15 | `audit/tasks/coherence-maintenance-evaluator.md`\
-  \ | \"Dispatch behavioral-sc-evaluator via task()\" |\n| 16 | `audit/tasks/guideline-audit-evaluator.md`\
-  \ | \"dispatch behavioral-sc-evaluator via task()\" |\n| 17 | `audit/tasks/concern-separation-evaluator.md`\
-  \ | \"dispatch behavioral-sc-evaluator via task()\" |\n| 18 | `audit/tasks/verification-audit-evaluator.md`\
-  \ | \"Dispatch behavioral-sc-evaluator via task()\" |\n| 19 | `audit/tasks/plan-fidelity-evaluator.md`\
-  \ | \"dispatch behavioral-sc-evaluator via task()\" |\n| 20 | `audit/tasks/test-quality-audit-evaluator.md`\
-  \ | \"Collect result contract from clean-room sub-agent dispatch\" |\n\n### Documentation\
-  \ DEFECT (26 task cards — dispatch markers present but not instructional)\n\n| #\
-  \ | File | Markers |\n|---|------|---------|\n| 21-23 | `audit/tasks/coherence-extraction.md`,\
-  \ `closure-verification.md`, `spec-summary.md` | DiMo 4-role chain descriptions\
-  \ |\n| 24 | `audit/tasks/resolve-models.md` | DiMo Arbiter role reference |\n| 25\
-  \ | `audit/tasks/cross-validate.md` | \"Never task() auditors from within cross-validate\"\
-  \ |\n| 26-35 | `writing-plans-creation/tasks/create.md`, `retroactive.md`, `clean-room.md`,\
-  \ `revisit.md`, `audit-fidelity.md`, `audit-concern.md`, `completion.md`, `update.md`,\
-  \ `research.md` | `(**orchestrator**)` tags, \"orchestrator dispatches via SKILL.md\"\
-  \ |\n| 36 | `git-workflow-branch/tasks/pre-work.md` | \"sub-agent task()\" references\
-  \ |\n| 37 | `git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | \"orchestrator\
-  \ dispatches\" references |\n| 38 | `git-workflow-pr/tasks/review-prep/push-and-cleanup.md`\
-  \ | \"orchestrator dispatches\" |\n| 39 | `git-workflow-pr/tasks/pr-creation/enforcement-gate.md`\
-  \ | \"orchestrator dispatches\" |\n| 40 | `implementation-pipeline/tasks/pipeline-executor.md`\
-  \ | Dispatch indicator table `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`\
-  \ |\n| 41 | `verification-before-completion/tasks/verify.md` | \"Orchestrator dispatches\
-  \ structural-verify sub-agent\" |\n| 42 | `verification-enforcement/tasks/verify.md`\
-  \ | \"orchestrator dispatches content audit\" |\n| 43-45 | `issue-operations/platforms/local/tasks/update.md`,\
-  \ `body-edit.md`, `close.md` | \"orchestrator dispatches\" references |\n| 46 |\
-  \ `research/tasks/research-multi.md` | \"orchestrator dispatches research sub-agent\"\
-  \ |\n\n## Fix\n\n### Phase 1: Strip dispatch markers from task cards (46 files)\n\
-  \nFor each of the 46 affected task cards, remove or relocate dispatch-level content:\n\
-  \n- **Instructional (20):** Replace `\"Route to ... via task()\"` with `\"The orchestrator\
-  \ handles platform routing. This sub-agent produces {output}.\"` Remove sub-agent\
-  \ dispatch tables. Remove `\"dispatch ... via task()\"` instructions.\n- **Documentation\
-  \ (26):** Remove `(**orchestrator**)` tags. Remove DiMo chain descriptions (these\
-  \ belong in SKILL.md). Remove \"orchestrator dispatches\" language. Replace with\
-  \ self-contained inline steps.\n\n### Phase 2: Restructure SKILL.md workflow sections\n\
-  \nFor each affected SKILL.md, add enumerated workflow lists with proper headings:\n\
-  \n```markdown\n## Workflow: create\n\n1. [sub-task] Verify spec approved — orchestrator\
-  \ dispatches pre-plan-readiness\n2. [sub-task] Research — orchestrator dispatches\
-  \ research sub-agent\n3. [inline]  Z3 check — orchestrator runs solve check\n...\n\
-  ```\n\nThe Pipeline section (diagram) is replaced by enumerated lists. Each step\
-  \ has:\n- Step number\n- Dispatch marker (`[sub-task]`, `[inline]`, `[clean-room]`)\n\
-  - Step name\n- Brief description of what the orchestrator dispatches\n\n### Phase\
-  \ 3: Make task cards self-contained\n\nEach task card must:\n- Have entry criteria\
-  \ (what must be true before execution)\n- Have inline-only steps (no dispatch markers,\
-  \ no `task()` references)\n- Have exit criteria (what the sub-agent produces)\n\
-  - Be clean-room where appropriate (receive only file paths and issue numbers)\n\n\
-  ## Affected Files\n\n| Category | Count | Files |\n|----------|-------|-------|\n\
-  | Instructional DEFECT | 20 | `issue-operations-core/tasks/` (9), `issue-operations-sync/tasks/`\
-  \ (2), `audit/tasks/*-evaluator.md` (9) |\n| Documentation DEFECT | 26 | `audit/tasks/`\
-  \ (4), `writing-plans-creation/tasks/` (10), `git-workflow-*/tasks/` (3), `implementation-pipeline/tasks/`\
-  \ (1), `verification-*/tasks/` (2), `issue-operations/platforms/local/tasks/` (3),\
-  \ `research/tasks/` (1), `multimodal-dispatch/tasks/` (1) |\n| SKILL.md workflow\
-  \ sections | 2+ | `spec-creation/SKILL.md`, `writing-plans/SKILL.md` (and any other\
-  \ SKILL.md with Pipeline sections) |\n\n## Success Criteria\n\n| ID | Criterion\
-  \ | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
-  | SC-1 | No task card contains `[sub-task]`, `[clean-room]`, `[inline]`, or `(**orchestrator**)`\
-  \ markers | `string` | grep for all 4 patterns in all `tasks/*.md` files — must\
-  \ return 0 matches |\n| SC-2 | No task card contains `\"via task()\"` or `\"dispatch.*sub-agent\"\
-  ` instructional language | `string` | grep for both patterns in all `tasks/*.md`\
-  \ files — must return 0 matches |\n| SC-3 | No task card contains a \"Sub-Agent\
-  \ Dispatch Table\" or equivalent routing table | `string` | grep for \"Sub-Agent\
-  \ Dispatch\" in all `tasks/*.md` files — must return 0 matches |\n| SC-4 | No task\
-  \ card contains DiMo chain descriptions (Investigator → Validator → Evaluator →\
-  \ Arbiter) | `string` | grep for \"DiMo.*chain\" or \"4-role chain\" in all `tasks/*.md`\
-  \ files — must return 0 matches |\n| SC-5 | Each affected SKILL.md has enumerated\
-  \ workflow lists replacing Pipeline diagram sections | `string` | Verify each SKILL.md\
-  \ has numbered step lists with dispatch markers |\n| SC-6 | Each affected task card\
-  \ has entry criteria, inline-only steps, and exit criteria | `string` | Sample audit\
-  \ of 10 remediated task cards |\n| SC-7 | Behavioral test: sub-agent receiving a\
-  \ remediated task card executes inline without attempting dispatch | `behavioral`\
-  \ | `opencode run` with task card execution prompt — verify stderr shows no `task()`\
-  \ calls from sub-agent |\n\n## Risk and Edge Cases\n\n| Risk | Likelihood | Impact\
-  \ | Mitigation |\n|------|------------|--------|------------|\n| Removing dispatch\
-  \ markers breaks orchestrator routing | Medium | High | Verify SKILL.md Trigger\
-  \ Dispatch Table and Invocation section still reference correct task cards |\n|\
-  \ Task cards become incomplete without dispatch context | Medium | Medium | Ensure\
-  \ entry criteria specify what the sub-agent receives (file paths, issue numbers)\
-  \ |\n| Some task cards need restructuring to be self-contained | Medium | Medium\
-  \ | Each task card must be independently executable by a sub-agent |\n\n## Documentation\
-  \ Sources\n\n| Source Category | What Was Consulted | Purpose |\n|----------------|-------------------|---------|\n\
-  | Direct source search | `grep -r \"\\[sub-task\\]\" .opencode/skills/*/tasks/`\
-  \ | Identify task cards with sub-task markers |\n| Direct source search | `grep\
-  \ -r \"via task()\" .opencode/skills/*/tasks/` | Identify task cards with task()\
-  \ instructions |\n| Direct source search | `grep -r \"orchestrator dispatches\"\
-  \ .opencode/skills/*/tasks/` | Identify task cards with orchestrator dispatch language\
-  \ |\n| Direct source search | `grep -r \"Sub-Agent Dispatch\" .opencode/skills/*/tasks/`\
-  \ | Identify task cards with dispatch tables |\n| Direct source search | `grep -r\
-  \ \"DiMo.*chain\\|4-role chain\" .opencode/skills/*/tasks/` | Identify task cards\
-  \ with DiMo chain descriptions |\n| Full audit | Read first 80 lines of all 310\
-  \ task cards | Comprehensive structural audit |\n\n> **Compliance Requirement:**\
-  \ All steps and sub-steps in this document MUST be followed in order. Failure to\
-  \ comply with any step — including but not limited to verification gates, test phases,\
-  \ audit checkpoints, and review steps — will result in the feature branch being\
-  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
-  \ work. There is no valid reason to skip, compress, reorder, or omit any step. If\
-  \ a step appears redundant or unnecessary, follow it anyway — the cost of following\
-  \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
-  \n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
+  \ All steps and sub-steps in this document MUST be followed in order.\n\n## Problem\n\
+  \nTask cards (files in `tasks/` directories) are consumed by sub-agents. A sub-agent\
+  \ can ONLY execute steps inline — it cannot call `task()`, cannot dispatch other\
+  \ sub-agents, and cannot route to other skills. However, **19 task cards** across\
+  \ the skill deck contain dispatch-level markers (DiMo role descriptions, chain flow\
+  \ documentation) that belong in the SKILL.md, not in task cards.\n\nAdditionally,\
+  \ the DiMo 4-role chain dispatch pattern (Investigator → Validator → Evaluator →\
+  \ Arbiter) is described in task cards when it should be documented only in the SKILL.md\
+  \ Trigger Dispatch Table.\n\n### Scope\n\nThis spec is scoped to **fixing dispatch-level\
+  \ content in task cards** only. The following systemic problems discovered during\
+  \ audit are tracked as separate sub-issues:\n\n| Issue | Problem |\n|-------|---------|\n\
+  | #2038 | 28 task cards referenced in TDTs but missing from `tasks/` directories\
+  \ |\n| #2039 | 42 orphaned task card files not referenced by any TDT |\n| #2040\
+  \ | 6 skills with task directories but no TDT in SKILL.md |\n| #2041 | 4 naming\
+  \ inconsistency patterns across skill deck |\n\n### Root Cause\n\nTask cards were\
+  \ written with orchestrator-level routing content (DiMo role descriptions, chain\
+  \ flow documentation, `(**orchestrator**)` tags). This content belongs in the SKILL.md\
+  \ Pipeline section or Trigger Dispatch Table, not in task cards that sub-agents\
+  \ read.\n\n### Correct Architecture\n\n| Artifact | Consumer | Content | Rules |\n\
+  |----------|----------|---------|-------|\n| **SKILL.md** | Orchestrator | YAML\
+  \ description, enumerated workflow lists, Trigger Dispatch Table, Invocation | Workflow\
+  \ steps with `[sub-task]`/`[inline]`/`[clean-room]` markers. Orchestrator reads\
+  \ these to know the sequence. |\n| **Task card** (`tasks/<name>.md`) | Sub-agent\
+  \ | Self-contained procedure with entry criteria, inline-only steps, exit criteria\
+  \ | NO dispatch markers. NO `task()` references. NO DiMo chain descriptions. Sub-agent\
+  \ reads and executes inline. |\n\n## Audit Findings\n\n### Task Cards with Dispatch\
+  \ Content (19 files)\n\nAll 19 are **documentation-type** (DiMo role descriptions,\
+  \ chain flow descriptions) — not instructional. They do not tell the sub-agent to\
+  \ call `task()`. However, they contain dispatch-level markers that belong in the\
+  \ SKILL.md.\n\n| # | File | Content |\n|---|------|---------|\n| 1-4 | `audit/tasks/closure-verification.md`\
+  \ + sub-roles | DiMo 4-role chain description |\n| 5-8 | `audit/tasks/coherence-extraction.md`\
+  \ + sub-roles | DiMo 4-role chain description |\n| 9-12 | `audit/tasks/spec-summary.md`\
+  \ + sub-roles | DiMo 4-role chain description |\n| 13 | `audit/tasks/resolve-models.md`\
+  \ | DiMo Arbiter role reference |\n| 14 | `audit/tasks/cross-validate.md` | \"Never\
+  \ task() auditors from within cross-validate\" |\n| 15 | `audit/tasks/spec-audit-evaluator.md`\
+  \ | DiMo Role: Evaluator |\n| 16 | `audit/tasks/spec-audit-investigator.md` | DiMo\
+  \ Role: Investigator |\n| 17 | `audit/tasks/spec-audit-validator.md` | DiMo Role:\
+  \ Validator |\n| 18 | `audit/tasks/content-audit-evaluator.md` | DiMo Role: Evaluator\
+  \ |\n| 19 | `audit/tasks/behavioral-sc-evaluator.md` | DiMo Role reference |\n\n\
+  ## Fix\n\n### Phase 1: Strip dispatch markers from 19 task cards\n\nFor each affected\
+  \ task card:\n- Remove DiMo role descriptions (these belong in SKILL.md Trigger\
+  \ Dispatch Table)\n- Remove chain flow documentation (Investigator → Validator →\
+  \ Evaluator → Arbiter)\n- Replace with self-contained inline steps\n- Add entry\
+  \ criteria and exit criteria where missing\n\n### Phase 2: Update SKILL.md Trigger\
+  \ Dispatch Tables\n\nEnsure the SKILL.md for each affected skill documents the DiMo\
+  \ chain dispatch pattern in its Trigger Dispatch Table, not in task cards.\n\n##\
+  \ Affected Files\n\n| Category | Count | Files |\n|----------|-------|-------|\n\
+  | Task cards with DiMo content | 19 | `audit/tasks/closure-verification/` (4), `audit/tasks/coherence-extraction/`\
+  \ (4), `audit/tasks/spec-summary/` (4), `audit/tasks/resolve-models.md`, `audit/tasks/cross-validate.md`,\
+  \ `audit/tasks/spec-audit-*.md` (3), `audit/tasks/content-audit-evaluator.md`, `audit/tasks/behavioral-sc-evaluator.md`\
+  \ |\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type | Verification Method\
+  \ |\n|----|-----------|---------------|---------------------|\n| SC-1 | No task\
+  \ card contains DiMo role descriptions or chain flow documentation | `string` |\
+  \ grep for \"DiMo.*Role\" or \"DiMo.*chain\" in all `tasks/*.md` — must return 0\
+  \ matches |\n| SC-2 | No task card contains `(**orchestrator**)` or `(**sub-agent**)`\
+  \ or `(**clean-room**)` or `(**inline**)` markers | `string` | grep for all 4 patterns\
+  \ in all `tasks/*.md` — must return 0 matches |\n| SC-3 | No task card contains\
+  \ \"Never task()\" or \"orchestrator dispatches\" language | `string` | grep for\
+  \ both patterns in all `tasks/*.md` — must return 0 matches |\n| SC-4 | All 19 remediated\
+  \ task cards have entry criteria and exit criteria | `string` | Verify each remediated\
+  \ file has both sections |\n| SC-5 | All 19 remediated task cards are self-contained\
+  \ (inline-only steps) | `string` | Verify no dispatch markers remain |\n| SC-6 |\
+  \ audit SKILL.md Trigger Dispatch Table documents DiMo chain dispatch | `string`\
+  \ | Verify TDT has DiMo chain documentation |\n| SC-7 | Behavioral test: sub-agent\
+  \ receiving remediated task card executes inline | `behavioral` | `opencode run`\
+  \ with task card execution prompt |\n\n## Risk and Edge Cases\n\n| Risk | Likelihood\
+  \ | Impact | Mitigation |\n|------|------------|--------|------------|\n| Removing\
+  \ DiMo role descriptions breaks sub-agent role awareness | Medium | Medium | Ensure\
+  \ SKILL.md TDT documents the role chain |\n| Some task cards need restructuring\
+  \ to be self-contained | Medium | Medium | Each task card must be independently\
+  \ executable |\n\n## Documentation Sources\n\n| Source Category | What Was Consulted\
+  \ | Purpose |\n|----------------|-------------------|---------|\n| Full semantic\
+  \ audit | Read all 337 task cards across 60 skills | Identify dispatch-level content\
+  \ in task cards |\n| DiMo audit | 4-role chain (Investigator → Validator → Evaluator\
+  \ → Arbiter) | Validate findings and produce judgment |\n| Supplementary audit |\
+  \ Cross-reference TDTs against filesystem | Identify missing/orphaned task cards\
+  \ |\n\n> **Compliance Requirement:** All steps and sub-steps in this document MUST\
+  \ be followed in order.\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
 created_at: '2026-07-20T23:28:08+00:00'
-updated_at: '2026-07-21T00:20:11+00:00'
+updated_at: '2026-07-21T00:37:37+00:00'
 closed_at: '2026-07-21T00:08:43+00:00'
 close_reason: duplicate
 duplicate_of: 2020
