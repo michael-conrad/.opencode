@@ -1,0 +1,16 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+code_path_inventory:
+  phases:
+    - phase: Phase 1
+      files:
+        - path: .opencode/guidelines/000-critical-rules.md
+          reason: Add critical violation sections for trunk-tip enforcement and submodule pointer verification
+          changes: Add two new [critical-rules-XXX] entries with Tier 1 classification
+      new_files:
+        - path: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+          purpose: Behavioral enforcement test verifying agent dispatches pre-work before file modification
+        - path: .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+          purpose: Behavioral enforcement test verifying agent checks submodule pointer inclusion before commit/push
+        - path: .opencode/tests-v2/behaviors/sc-lobotomy-enforcement.sh
+          purpose: Behavioral enforcement test verifying agent does not weaken SC evidence types

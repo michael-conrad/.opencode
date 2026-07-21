@@ -1,0 +1,18 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+state_analysis:
+  phases:
+    - phase: Phase 1
+      state_transitions:
+        - from: unenforced
+          to: enforced
+          trigger: Add critical violation sections to 000-critical-rules.md
+          invariant: Existing pre-work.md, trunk-tip-verification.md, and pre-commit-pointer-check.md task files remain unmodified
+        - from: untested
+          to: tested_red
+          trigger: Create behavioral enforcement tests and run RED phase
+          invariant: Tests fail before guideline changes are applied
+        - from: tested_red
+          to: tested_green
+          trigger: Apply guideline changes and run GREEN phase
+          invariant: Tests pass after guideline changes are applied

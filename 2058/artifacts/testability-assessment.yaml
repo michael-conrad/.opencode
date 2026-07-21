@@ -1,0 +1,14 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+testability_assessment:
+  phases:
+    - phase: Phase 1
+      test_strategy: behavioral
+      key_test_scenarios:
+        - Agent dispatches pre-work before file modification (trunk-tip-enforcement.sh)
+        - Agent verifies submodule pointer inclusion before commit/push (submodule-pointer-enforcement.sh)
+        - Agent does not weaken SC evidence types (sc-lobotomy-enforcement.sh)
+      testability_concerns:
+        - Behavioral tests require real AI model inference, which may time out in constrained environments
+        - assert_semantic requires clean-room sub-agent with different model
+        - Test infrastructure (with-test-home) must be available

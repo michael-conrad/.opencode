@@ -1,0 +1,40 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+blast_radius:
+  phases:
+    - phase: Phase 1
+      affected_components:
+        - component: .opencode/guidelines/000-critical-rules.md
+          impact: direct
+          description: Add two new critical violation sections (trunk-tip enforcement, submodule pointer verification)
+          ripple_effects:
+            - Orchestrator must dispatch pre-work before file modification
+            - Pre-commit/pre-push gate must verify submodule pointer inclusion
+        - component: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+          impact: direct
+          description: New behavioral enforcement test file
+          ripple_effects:
+            - Behavioral test suite includes new test scenario
+        - component: .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+          impact: direct
+          description: New behavioral enforcement test file
+          ripple_effects:
+            - Behavioral test suite includes new test scenario
+        - component: .opencode/tests-v2/behaviors/sc-lobotomy-enforcement.sh
+          impact: direct
+          description: New anti-lobotomization behavioral enforcement test
+          ripple_effects:
+            - Behavioral test suite includes new test scenario
+        - component: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+          impact: indirect
+          description: Pre-work task is now enforced at orchestrator level; no file changes needed
+          ripple_effects: []
+        - component: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+          impact: indirect
+          description: Trunk-tip verification gate is now reached via mandatory dispatch; no file changes needed
+          ripple_effects: []
+        - component: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+          impact: indirect
+          description: Pre-commit pointer check is now enforced; no file changes needed
+          ripple_effects: []
+      risk_level: low

@@ -1,0 +1,14 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: Behavioral enforcement test infrastructure
+      affects_phases:
+        - Phase 1
+      description: All three behavioral tests use the same test harness (with-test-home, behavior_run, assert_semantic). Changes to test infrastructure affect all tests.
+      coordination_required: false
+    - concern: Critical violation section formatting
+      affects_phases:
+        - Phase 1
+      description: Both new critical violation sections follow the same [critical-rules-XXX] format and Tier 1 classification pattern in 000-critical-rules.md
+      coordination_required: false

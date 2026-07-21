@@ -1,0 +1,17 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+concern_map:
+  phases:
+    - phase: Phase 1
+      primary_concern: Enforce pre-work dispatch and submodule pointer verification at orchestrator level
+      boundaries:
+        - in_scope:
+            - Adding critical violation sections to 000-critical-rules.md
+            - Creating behavioral enforcement tests (trunk-tip, submodule-pointer, sc-lobotomy)
+            - RED/GREEN test cycle
+        - out_of_scope:
+            - Modifying existing pre-work.md, trunk-tip-verification.md, or pre-commit-pointer-check.md task files
+            - Adding git hooks
+            - Auto-committing submodule pointer updates
+            - Pre-work task redesign
+      separation_rationale: Single concern — enforcement of existing pre-work gates. No cross-phase dependencies.

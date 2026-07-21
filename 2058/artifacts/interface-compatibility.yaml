@@ -1,0 +1,39 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+interface_compatibility:
+  interfaces:
+    - name: git-workflow-branch/tasks/pre-work.md
+      status: unchanged
+      compatibility: backward_compatible
+      consumers:
+        - orchestrator (via skill dispatch)
+    - name: git-workflow-branch/tasks/trunk-tip-verification.md
+      status: unchanged
+      compatibility: backward_compatible
+      consumers:
+        - pre-work task
+    - name: git-workflow-branch/tasks/pre-commit-pointer-check.md
+      status: unchanged
+      compatibility: backward_compatible
+      consumers:
+        - git-workflow-commit task
+    - name: 000-critical-rules.md
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - orchestrator (enforcement via session-enforcement.ts)
+    - name: tests-v2/behaviors/trunk-tip-enforcement.sh
+      status: new
+      compatibility: internal_only
+      consumers:
+        - behavioral test suite
+    - name: tests-v2/behaviors/submodule-pointer-enforcement.sh
+      status: new
+      compatibility: internal_only
+      consumers:
+        - behavioral test suite
+    - name: tests-v2/behaviors/sc-lobotomy-enforcement.sh
+      status: new
+      compatibility: internal_only
+      consumers:
+        - behavioral test suite
