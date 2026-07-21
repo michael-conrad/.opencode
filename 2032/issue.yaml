@@ -7,29 +7,35 @@ body: "---\ntitle: \"SPEC-FIX: Task cards contain dispatch-level markers that on
   \ the orchestrator can execute\"\nstatus: draft\ncreated: 2026-07-20\nupdated: 2026-07-20\n\
   license: MIT\nprovenance: AI-generated\nissue: 2032\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
   ---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-20\n\n> **Compliance Requirement:**\
-  \ All steps and sub-steps in this document MUST be followed in order.\n\n## Problem\n\
-  \nTask cards (files in `tasks/` directories) are consumed by sub-agents. A sub-agent\
-  \ can ONLY execute steps inline — it cannot call `task()`, cannot dispatch other\
-  \ sub-agents, and cannot route to other skills. However, **19 task cards** across\
-  \ the skill deck contain dispatch-level markers (DiMo role descriptions, chain flow\
-  \ documentation) that belong in the SKILL.md, not in task cards.\n\nAdditionally,\
-  \ the DiMo 4-role chain dispatch pattern (Investigator → Validator → Evaluator →\
-  \ Arbiter) is described in task cards when it should be documented only in the SKILL.md\
-  \ Trigger Dispatch Table.\n\n### Scope\n\nThis spec is scoped to **fixing dispatch-level\
-  \ content in task cards** only. The following systemic problems discovered during\
-  \ audit are tracked as separate sub-issues:\n\n| Issue | Problem |\n|-------|---------|\n\
-  | #2038 | 28 task cards referenced in TDTs but missing from `tasks/` directories\
-  \ |\n| #2039 | 42 orphaned task card files not referenced by any TDT |\n| #2040\
-  \ | 6 skills with task directories but no TDT in SKILL.md |\n| #2041 | 4 naming\
-  \ inconsistency patterns across skill deck |\n\n### Root Cause\n\nTask cards were\
-  \ written with orchestrator-level routing content (DiMo role descriptions, chain\
-  \ flow documentation, `(**orchestrator**)` tags). This content belongs in the SKILL.md\
-  \ Pipeline section or Trigger Dispatch Table, not in task cards that sub-agents\
-  \ read.\n\n### Correct Architecture\n\n| Artifact | Consumer | Content | Rules |\n\
-  |----------|----------|---------|-------|\n| **SKILL.md** | Orchestrator | YAML\
-  \ description, enumerated workflow lists, Trigger Dispatch Table, Invocation | Workflow\
-  \ steps with `[sub-task]`/`[inline]`/`[clean-room]` markers. Orchestrator reads\
-  \ these to know the sequence. |\n| **Task card** (`tasks/<name>.md`) | Sub-agent\
+  \ All steps and sub-steps in this document MUST be followed in order. Failure to\
+  \ comply with any step — including but not limited to verification gates, test phases,\
+  \ audit checkpoints, and review steps — will result in the feature branch being\
+  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
+  \ work. There is no valid reason to skip, compress, reorder, or omit any step. If\
+  \ a step appears redundant or unnecessary, follow it anyway — the cost of following\
+  \ an extra step is negligible compared to the cost of rework from a skipped step.\n\
+  \n## Problem\n\nTask cards (files in `tasks/` directories) are consumed by sub-agents.\
+  \ A sub-agent can ONLY execute steps inline — it cannot call `task()`, cannot dispatch\
+  \ other sub-agents, and cannot route to other skills. However, **19 task cards**\
+  \ across the skill deck contain dispatch-level markers (DiMo role descriptions,\
+  \ chain flow documentation) that belong in the SKILL.md, not in task cards.\n\n\
+  Additionally, the DiMo 4-role chain dispatch pattern (Investigator → Validator →\
+  \ Evaluator → Arbiter) is described in task cards when it should be documented only\
+  \ in the SKILL.md Trigger Dispatch Table.\n\n## Scope\n\nThis spec is scoped to\
+  \ **fixing dispatch-level content in task cards** only. The following systemic problems\
+  \ discovered during audit are tracked as separate sub-issues:\n\n| Issue | Problem\
+  \ |\n|-------|---------|\n| #2039 | 28 task cards referenced in TDTs but missing\
+  \ from `tasks/` directories |\n| #2040 | 42 orphaned task card files not referenced\
+  \ by any TDT |\n| #2042 | 6 skills with task directories but no TDT in SKILL.md\
+  \ |\n| #2041 | 4 naming inconsistency patterns across skill deck |\n\n## Root Cause\n\
+  \nTask cards were written with orchestrator-level routing content (DiMo role descriptions,\
+  \ chain flow documentation, `(**orchestrator**)` tags). This content belongs in\
+  \ the SKILL.md Pipeline section or Trigger Dispatch Table, not in task cards that\
+  \ sub-agents read.\n\n## Correct Architecture\n\n| Artifact | Consumer | Content\
+  \ | Rules |\n|----------|----------|---------|-------|\n| **SKILL.md** | Orchestrator\
+  \ | YAML description, enumerated workflow lists, Trigger Dispatch Table, Invocation\
+  \ | Workflow steps with `[sub-task]`/`[inline]`/`[clean-room]` markers. Orchestrator\
+  \ reads these to know the sequence. |\n| **Task card** (`tasks/<name>.md`) | Sub-agent\
   \ | Self-contained procedure with entry criteria, inline-only steps, exit criteria\
   \ | NO dispatch markers. NO `task()` references. NO DiMo chain descriptions. Sub-agent\
   \ reads and executes inline. |\n\n## Audit Findings\n\n### Task Cards with Dispatch\
@@ -84,9 +90,15 @@ body: "---\ntitle: \"SPEC-FIX: Task cards contain dispatch-level markers that on
   \ → Arbiter) | Validate findings and produce judgment |\n| Supplementary audit |\
   \ Cross-reference TDTs against filesystem | Identify missing/orphaned task cards\
   \ |\n\n> **Compliance Requirement:** All steps and sub-steps in this document MUST\
-  \ be followed in order.\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
+  \ be followed in order. Failure to comply with any step — including but not limited\
+  \ to verification gates, test phases, audit checkpoints, and review steps — will\
+  \ result in the feature branch being rejected and discarded, requiring a full rework\
+  \ from scratch and loss of all prior work. There is no valid reason to skip, compress,\
+  \ reorder, or omit any step. If a step appears redundant or unnecessary, follow\
+  \ it anyway — the cost of following an extra step is negligible compared to the\
+  \ cost of rework from a skipped step.\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
 created_at: '2026-07-20T23:28:08+00:00'
-updated_at: '2026-07-21T00:37:37+00:00'
+updated_at: '2026-07-21T15:34:44+00:00'
 closed_at: '2026-07-21T00:08:43+00:00'
 close_reason: duplicate
 duplicate_of: 2020
