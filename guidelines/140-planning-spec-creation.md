@@ -54,7 +54,7 @@ When the user issues commands `specs` or `pending`:
    - If stale, REVISE the spec to reflect current reality before proceeding
    - Report the revision and HALT — wait for approval before proceeding
 3. **Present a multi-choice user query**:
-   - Use the `question` tool with a list of available specs
+   - Present available specs as a prose list with URLs. Use open-ended language.
    - Include spec title/name and current STATUS for each option
    - Add a "Type your own answer" option for creating a new spec
 4. **Response format**:

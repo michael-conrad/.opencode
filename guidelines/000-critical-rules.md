@@ -1031,8 +1031,8 @@ Load [approval-gate --task verify-authorization](skills/approval-gate/SKILL.md) 
 Verify byline presence before ANY API call posting AI-authored content.
 
 
-### [critical-rules-037] Structural Decision Solicitation Under for_pr Scope
-No `question` tool for structural decisions when `halt_at >= pr_created`.
+### [critical-rules-037] Question Tool Prohibition — Universal
+No `question` tool for structural decisions.
 
 
 ### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
