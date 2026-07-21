@@ -124,7 +124,7 @@ Scans all open repository issues, checks each for linked merged PRs, and closes 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
+Switches to trunk, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
 
 ### Step 4: Post-Cleanup Dev-Tip Verification
 
