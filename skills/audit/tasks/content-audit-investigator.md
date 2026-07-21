@@ -15,16 +15,7 @@ compatibility: opencode
 
 Investigator role for the content-audit DiMo chain. Reads the generated content section from `document_section` and source data from `source_data_paths`, extracts all factual claims, and collects raw evidence about each claim against local source data. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL/FABRICATED verdicts.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for content-audit. Writes `evidence.yaml` with extracted claims, source data inventory, and per-claim evidence collected from local files.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what passes or fails. You just collect.
->
->
-> - MUST extract all claims without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL/FABRICATED judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT assess whether a claim is true or false — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
+
 
 ## Dispatch Contract
 
@@ -321,7 +312,6 @@ summary: "Evidence collected: {N} claims extracted across {M} domains. {K} sourc
 
 ## Clean-Room Protocol
 
-- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Investigator → Validator → Evaluator → Arbiter. Each role reads upstream artifacts and writes its own.
 - **No orchestrator preload**: Sub-agents receive only `{ document_section, source_data_paths, artifact_evidence_dir }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 - **Evidence artifacts on disk**: Each role writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).

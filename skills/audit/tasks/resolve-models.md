@@ -46,6 +46,12 @@ findings:
     self_consistency_downgrade: false  # true if PASS was downgraded to FAIL by self-consistency gate
 ```
 
+## Exit Criteria
+
+- `judgment.yaml` written with `overall_verdict`, `next_step`, and per-criterion findings
+- Self-consistency gate applied to all PASS verdicts
+- Cross-reference summary included in judgment
+
 ## Cross-References
 
 - `tasks/cross-validate.md` — Arbiter role implementation

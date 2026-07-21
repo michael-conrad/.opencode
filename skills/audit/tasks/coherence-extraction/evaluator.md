@@ -4,6 +4,19 @@
 
 Evaluate coherence metrics against criteria. Reads `reasoning.yaml` (Validator), computes coherence metrics, runs Z3 solve check, evaluates prose vs evidence type mismatches, and writes `verdict.yaml`.
 
+## Entry Criteria
+
+- `evidence.yaml` exists at `artifact_evidence_dir`
+- `reasoning.yaml` exists at `artifact_evidence_dir`
+- `spec_local_dir` provided and readable
+
+## Exit Criteria
+
+- `verdict.yaml` written with per-criterion PASS/FAIL
+- Coherence metrics computed (coverage ratio, orphan count, alignment score)
+- Z3 solve check completed
+- Prose vs evidence type mismatch check completed
+
 ## Procedure
 
 ### Step 1: Read Reasoning

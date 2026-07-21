@@ -4,6 +4,17 @@
 
 Validate evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of each evidence item.
 
+## Entry Criteria
+
+- `evidence.yaml` exists at `artifact_evidence_dir`
+- `spec_local_dir` provided and readable
+
+## Exit Criteria
+
+- `reasoning.yaml` written with validated evidence items
+- Accuracy, completeness, and relevance assessments applied per item
+- Corrections applied if evidence mismatches source data
+
 ## Procedure
 
 ### Step 1: Read Evidence

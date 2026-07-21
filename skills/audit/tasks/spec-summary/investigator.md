@@ -4,6 +4,17 @@
 
 Generate initial PR/spec consistency analysis. Fetches the PR, loads the spec, and produces the initial evidence artifact.
 
+## Entry Criteria
+
+- `evidence.yaml` not present at `artifact_evidence_dir`
+- `spec_local_dir` provided and readable
+- `artifact_evidence_dir` writable
+
+## Exit Criteria
+
+- `evidence.yaml` written with raw evidence (spec requirements, PR content)
+- No judgments applied — raw evidence only
+
 ## Procedure
 
 ### Step 1: Pre-clean

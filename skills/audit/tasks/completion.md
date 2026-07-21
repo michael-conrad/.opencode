@@ -73,7 +73,7 @@ HALT
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "DiMo role chain dispatched" | Verify all 4 roles dispatched sequentially | Check `task()` call logs in work state file | MISSING-ELEMENT |
+
 | "YAML verdict artifacts on disk" | Verify artifact files exist | Read `artifact_path` from role result contracts | VERDICT-INTEGRITY |
 | "Verdict evaluated" | Verify PASS/FAIL determination | Read YAML artifact on disk | CONSENSUS-GAP |
 

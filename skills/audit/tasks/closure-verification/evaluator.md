@@ -4,6 +4,18 @@
 
 Evaluate closure evidence against criteria. Reads `reasoning.yaml` (Validator), evaluates each criterion, and writes `verdict.yaml`.
 
+## Entry Criteria
+
+- `evidence.yaml` exists at `artifact_evidence_dir`
+- `reasoning.yaml` exists at `artifact_evidence_dir`
+- `spec_local_dir` provided and readable
+
+## Exit Criteria
+
+- `verdict.yaml` written with per-criterion PASS/FAIL
+- Self-consistency gate applied — hedging language downgrades PASS to FAIL
+- `all_criteria_pass` field set
+
 ## Procedure
 
 ### Step 1: Read Reasoning

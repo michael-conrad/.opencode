@@ -4,6 +4,16 @@
 
 Provide resolution paths and recommendations based on the Evaluator's verdict. Reads `verdict.yaml` (Evaluator) and produces the final result contract.
 
+## Entry Criteria
+
+- `verdict.yaml` exists at `artifact_evidence_dir`
+
+## Exit Criteria
+
+- `judgment.yaml` written with final verdict and `next_step`
+- Resolution paths provided for each FAIL criterion
+- Frugal result contract returned
+
 ## Procedure
 
 ### Step 1: Read Verdict

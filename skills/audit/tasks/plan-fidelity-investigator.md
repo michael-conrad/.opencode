@@ -8,14 +8,7 @@
 
 Collect raw evidence about how faithfully the plan implements the spec. Reads the spec and plan files, extracts structural and content-level data, and writes `evidence.yaml` with raw evidence and initial findings. Does NOT evaluate or judge — that is the Evaluator's role.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for plan-fidelity audit. Writes `evidence.yaml` with extracted plan-spec alignment data.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You just collect.
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST write `evidence.yaml` as the only output artifact
+
 
 ## Dispatch Contract
 

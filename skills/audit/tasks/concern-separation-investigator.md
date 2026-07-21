@@ -8,15 +8,7 @@
 
 Collect raw evidence about concern boundaries and scope isolation from spec and plan files. Reads phase structure, extracts symbols, traces dependencies, and records findings without evaluation. Writes `evidence.yaml` as the sole output artifact.
 
-> **DiMo Role: Investigator.** This task generates baseline concern-separation evidence. Reads spec and plan files, collects raw data about concern boundaries, scope isolation, phase structure, and dependency chains. Writes `evidence.yaml` with extracted data and initial observations.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST write `evidence.yaml` as the only output artifact
+
 >
 
 ## Dispatch Contract

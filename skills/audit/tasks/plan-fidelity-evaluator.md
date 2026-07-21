@@ -15,14 +15,7 @@ compatibility: opencode
 
 Evaluate plan fidelity against spec using evidence collected and validated by upstream DiMo roles. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This is the Evaluator role in the DiMo 4-role chain — it produces judgments, not just evidence.
 
-> **DiMo Role: Evaluator.** This task evaluates plan fidelity against spec. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
->
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
->
-> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
-> - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
-> - MUST write `verdict.yaml` as the primary output artifact
+
 >
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 

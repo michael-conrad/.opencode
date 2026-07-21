@@ -15,16 +15,7 @@ compatibility: opencode
 
 Investigator role for the coherence-maintenance DiMo chain. Reads the baseline coherence state and the current codebase (guidelines and skills), then produces `evidence.yaml` with raw evidence about what exists in both states. This role collects evidence only — it does NOT evaluate, judge, classify drift, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for coherence-maintenance. Writes `evidence.yaml` with baseline data, current state data, and raw diff data.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT classify drift as controlled or uncontrolled
-> - MUST write `evidence.yaml` as the only output artifact
+
 
 ## Dispatch Contract
 

@@ -15,16 +15,7 @@ compatibility: opencode
 
 Investigator role for the drift-detection DiMo chain. Reads spec requirements from `spec_local_dir` and scans code implementation to collect raw evidence about documentation-code drift. Writes `evidence.yaml` with file existence data, function signature comparisons, untracked file inventory, and raw drift observations. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for drift-detection. Writes `evidence.yaml` with spec requirements, code implementation scan results, and raw comparison data.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what constitutes drift. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT classify drift severity — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
+
 
 ## Dispatch Contract
 

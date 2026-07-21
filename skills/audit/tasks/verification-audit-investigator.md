@@ -15,16 +15,7 @@ compatibility: opencode
 
 Collect raw evidence for verification-audit. Reads spec success criteria and behavioral evidence artifacts, maps SCs to evidence, and writes `evidence.yaml`. This is the Investigator role in the DiMo 4-role chain — it collects, it does NOT evaluate or judge.
 
-> **DiMo Role: Investigator.** This task collects raw evidence for verification-audit. Writes `evidence.yaml` with extracted SCs, evidence artifacts, and initial mappings.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what passes or fails. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT assess implementation completeness — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
+
 >
 
 ## Dispatch Contract

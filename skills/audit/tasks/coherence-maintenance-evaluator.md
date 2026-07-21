@@ -15,17 +15,7 @@ compatibility: opencode
 
 Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
 
-> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Investigator and `reasoning.yaml` from the upstream reasoning role, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
->
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
->
->
-> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
-> - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
-> - MUST NOT re-collect evidence that Investigator already collected
-> - MUST write `verdict.yaml` as the primary output artifact
-> - MUST apply the self-consistency gate: any hedging language in a PASS explanation downgrades to FAIL
+
 
 ## Dispatch Contract
 

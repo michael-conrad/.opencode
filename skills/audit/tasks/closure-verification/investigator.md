@@ -4,6 +4,17 @@
 
 Generate initial closure verification analysis. Fetches the merged PR, identifies the linked spec issue, loads spec files, and produces the initial evidence artifact.
 
+## Entry Criteria
+
+- `evidence.yaml` not present at `artifact_evidence_dir`
+- `spec_local_dir` provided and readable
+- `artifact_evidence_dir` writable
+
+## Exit Criteria
+
+- `evidence.yaml` written with raw evidence (PR merge status, spec issue state, closing commit SHA, spec body)
+- No judgments applied — raw evidence only
+
 ## Procedure
 
 ### Step 1: Pre-clean
