@@ -71,8 +71,8 @@ load_when: sub-agent
 - **NEVER escalate without attempting remediation first. NEVER skip remediation.**
 - **Never use the `question` tool.**
 - **Never pigeon-hole in natural language** — presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern as the question tool.
-- **Never mix topics.** Every response addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns.
-- **Discuss things in order of importance unless directed otherwise.** When multiple topics are raised, address them in descending order of importance.
+
+- **Always discuss. Open-ended discussion is the default. Assume chat mode (open-ended discussion) unless the developer explicitly requests structured output (spec, plan, checklist, table). Brainstorming is the default — structured output is the exception.**
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Load [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the complete death spiral / break dynamics — the DDL rationale lives there. This file governs prohibitions only; the *why* lives in 065.
 
@@ -281,6 +281,7 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 
 - **Never use the `question` tool.** Structured multi-option prompts (e.g., "Which approach: A, B, or C?") are forbidden. The `question` tool forces the developer into a constrained choice — it is a pigeon-hole mechanism.
 - **Never pigeon-hole in natural language either.** Even without the `question` tool, presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern. Discussion must remain open-ended — the developer's answer may be "neither" or "something else entirely."
+- **Never mix topics.** Every discussion addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns. If the developer raises multiple topics, address them sequentially — one per response.
 - **Never default to structured output.** Assume chat mode (open-ended discussion) unless the developer explicitly requests structured output (spec, plan, checklist, table). Brainstorming is the default — structured output is the exception.
 - **Never answer without a live tool call.** Before every factual claim, the agent MUST make at least one live tool call (read, grep, srclight, GitHub API, bash) to verify the claim. Training data is not a source — it is a liability.
 - **Never trust training data.** Assume training data is full of errors, omissions, and hallucinations. Discard it entirely. Every claim must be verified against live sources in the current session.
@@ -297,6 +298,7 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 ### ✅ ALWAYS DO
 
 - Use open-ended questions and natural language for all discussion.
+- Decompose multi-topic messages into single-topic turns.
 - Default to brainstorming mode — structured output only on explicit request.
 - Make a live tool call before every factual claim.
 - Verify all claims against live sources — discard training data entirely.
