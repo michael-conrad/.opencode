@@ -1,0 +1,35 @@
+> **Full spec and artifacts: [`.issues/2034/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2034)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.issues/2034/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+# SPEC: Fix post-merge cleanup workflow — submodule-first depth-first cleanup
+
+## Problem
+
+When a user says "pr merged", the agent dispatches `check-pr` (a scanning workflow) instead of `cleanup` (the action workflow). This is a **workflow boundary violation**: `check-pr` is an internal scanning workflow that should only report state — it should never contain cleanup actions.
+
+## Root Cause
+
+1. **Wrong trigger routing** — `"pr merged"` maps to `check-pr` instead of `cleanup` in both `git-workflow/SKILL.md` and `git-workflow-cleanup/SKILL.md`
+2. **Missing task file** — `cleanup.md` Step 3 routes to `cleanup/branch-cleanup` which does not exist
+3. **Workflow boundary violation** — `check-pr.md` Phases 4-5 contain cleanup actions that belong in `cleanup`
+
+## Affected Files
+
+- `.opencode/skills/git-workflow/SKILL.md` — trigger routing
+- `.opencode/skills/git-workflow-cleanup/SKILL.md` — trigger routing
+- `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md` — missing sub-task
+- `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md` — workflow boundary violation
+
+## Success Criteria
+
+7 SCs (6 string, 1 behavioral). See full spec for details.
+
+## Anti-Lobotomization
+
+Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. Load [Test Integrity Mandate](guidelines/080-code-standards.md).
+
+After this spec is approved, invoke `writing-plans` to create `.issues/2034/plan.md` before implementation begins.
+
+🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
