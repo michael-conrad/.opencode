@@ -8,25 +8,23 @@ body: "---\ntitle: '[SPEC] Fix implementation-pipeline — update TDT for per-st
   \ a full rework from scratch and loss of all prior work. There is no valid reason\
   \ to skip, compress, reorder, or omit any step.\n>\n> **Master spec reference:**\
   \ See `tmp/spec-per-step-dispatch.md` for the full interdependency analysis, dispatch\
-  \ vocabulary, and shared definitions.\n\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md`\
-  \ for the full interdependency analysis, dispatch vocabulary, and shared definitions.\n\
-  \n## Problem\n\nThe implementation-pipeline skill card already has a pre-flight\
-  \ gate (it was one of the first cards updated). However, its Trigger Dispatch Table\
-  \ still uses the old dispatch vocabulary (`sub-task`, `orchestrator`, `inline` without\
-  \ `orchestrator:` prefix) and has a global Invocation section with \"dispatch via\
-  \ task()\" language.\n\nThe TDT needs to be updated to use the canonical dispatch\
-  \ vocabulary and the enumerated workflow sections with per-step dispatch.\n\n##\
-  \ Scope\n\nThis spec covers only the implementation-pipeline skill card. It is the\
-  \ simplest fix spec — the card already has a pre-flight gate, so only the TDT and\
-  \ workflow sections need updating.\n\n**Out of scope:** Other skill cards (covered\
-  \ by F-1 through F-5, F-7). Behavioral enforcement tests (covered by issue #2054).\n\
-  \n## Key Changes\n\n1. Remove global `## Invocation` and `## DISPATCH_GATE` sections\n\
-  2. Update TDT `Dispatch` column to use canonical patterns: `task(...)`, `orchestrator:\
-  \ N sequential task() calls`, `orchestrator: halt`, `orchestrator: inline`\n3. Add\
-  \ enumerated workflow sections with per-step dispatch for each pipeline stage\n\
-  4. Remove \"dispatch via task()\" language from Overview and Persona sections\n\
-  5. Preserve the existing `## Pre-Flight Gate` section (already present)\n\n## Affected\
-  \ Files\n\n| File | Change |\n|------|--------|\n| `implementation-pipeline/SKILL.md`\
+  \ vocabulary, and shared definitions.\n\n\n## Problem\n\nThe implementation-pipeline\
+  \ skill card already has a pre-flight gate (it was one of the first cards updated).\
+  \ However, its Trigger Dispatch Table still uses the old dispatch vocabulary (`sub-task`,\
+  \ `orchestrator`, `inline` without `orchestrator:` prefix) and has a global Invocation\
+  \ section with \"dispatch via task()\" language.\n\nThe TDT needs to be updated\
+  \ to use the canonical dispatch vocabulary and the enumerated workflow sections\
+  \ with per-step dispatch.\n\n## Scope\n\nThis spec covers only the implementation-pipeline\
+  \ skill card. It is the simplest fix spec — the card already has a pre-flight gate,\
+  \ so only the TDT and workflow sections need updating.\n\n**Out of scope:** Other\
+  \ skill cards (covered by F-1 through F-5, F-7). Behavioral enforcement tests (covered\
+  \ by issue #2054).\n\n## Key Changes\n\n1. Remove global `## Invocation` and `##\
+  \ DISPATCH_GATE` sections\n2. Update TDT `Dispatch` column to use canonical patterns:\
+  \ `task(...)`, `orchestrator: N sequential task() calls`, `orchestrator: halt`,\
+  \ `orchestrator: inline`\n3. Add enumerated workflow sections with per-step dispatch\
+  \ for each pipeline stage\n4. Remove \"dispatch via task()\" language from Overview\
+  \ and Persona sections\n5. Preserve the existing `## Pre-Flight Gate` section (already\
+  \ present)\n\n## Affected Files\n\n| File | Change |\n|------|--------|\n| `implementation-pipeline/SKILL.md`\
   \ | Remove Invocation/DISPATCH_GATE, update TDT, add enumerated workflows |\n\n\
   ## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
   | SC-1 | `implementation-pipeline/SKILL.md` has no global Invocation or DISPATCH_GATE\
@@ -46,10 +44,10 @@ body: "---\ntitle: '[SPEC] Fix implementation-pipeline — update TDT for per-st
   \ #2056 | — | F-7: Standalone cards fix — parallel |\n| #2055 | BLOCKED_BY #2057,\
   \ #2049, #2048, #2050 | C-1: Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY\
   \ #2053, #2057, #2049, #2048, #2050, #2051, #2056, #2055 | Behavioral tests — blocked\
-  \ by all |\n\n"
+  \ by all |\n\n\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Fix implementation-pipeline — update TDT for per-step dispatch'
-updated_at: '2026-07-21T21:11:58+00:00'
+updated_at: '2026-07-21T21:15:32+00:00'
