@@ -8,21 +8,19 @@ body: "---\ntitle: '[SPEC] Fix approval-gate + approval-gate-scope — remove su
   \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
   \ work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
   >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
-  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> **Master\
-  \ spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency\
-  \ analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\nThe approval-gate\
-  \ skill card routes 16 task references through an indirection layer: the parent\
-  \ TDT dispatches to `approval-gate-scope --task <name>`, which loads `approval-gate-scope/SKILL.md`\
-  \ (a sub-skill stub with no dispatch information), which lists task filenames. The\
-  \ sub-agent then has to find the task file by name.\n\nThis sub-skill indirection\
-  \ is dead weight. The task files are referenced by path from the parent TDT and\
-  \ should be referenced directly. Additionally, both skill cards have the global\
-  \ Invocation/DISPATCH_GATE defect.\n\n## Scope\n\nThis spec covers the approval-gate\
-  \ and approval-gate-scope skill cards and their ~16 task files.\n\n**Out of scope:**\
-  \ Other skill cards (covered by F-1, F-3 through F-7). Behavioral enforcement tests\
-  \ (covered by issue #2054). Removal of the orphaned `approval-gate-scope/SKILL.md`\
-  \ file (covered by C-1, issue #2055).\n\n## Key Changes\n\n1. Add `## Pre-Flight\
-  \ Gate` section to `approval-gate/SKILL.md` and `approval-gate-scope/SKILL.md`\n\
+  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n\n##\
+  \ Problem\n\nThe approval-gate skill card routes 16 task references through an indirection\
+  \ layer: the parent TDT dispatches to `approval-gate-scope --task <name>`, which\
+  \ loads `approval-gate-scope/SKILL.md` (a sub-skill stub with no dispatch information),\
+  \ which lists task filenames. The sub-agent then has to find the task file by name.\n\
+  \nThis sub-skill indirection is dead weight. The task files are referenced by path\
+  \ from the parent TDT and should be referenced directly. Additionally, both skill\
+  \ cards have the global Invocation/DISPATCH_GATE defect.\n\n## Scope\n\nThis spec\
+  \ covers the approval-gate and approval-gate-scope skill cards and their ~16 task\
+  \ files.\n\n**Out of scope:** Other skill cards (covered by F-1, F-3 through F-7).\
+  \ Behavioral enforcement tests (covered by issue #2054). Removal of the orphaned\
+  \ `approval-gate-scope/SKILL.md` file (covered by C-1, issue #2055).\n\n## Key Changes\n\
+  \n1. Add `## Pre-Flight Gate` section to `approval-gate/SKILL.md` and `approval-gate-scope/SKILL.md`\n\
   2. Remove global `## Invocation` and `## DISPATCH_GATE` sections from both skill\
   \ cards\n3. Update `approval-gate/SKILL.md` TDT to reference task files by direct\
   \ path (e.g., `approval-gate-scope/tasks/verify-authorization.md`) instead of `--task`\
@@ -56,11 +54,11 @@ body: "---\ntitle: '[SPEC] Fix approval-gate + approval-gate-scope — remove su
   \ — | F-6: Implementation-pipeline fix — parallel |\n| #2056 | — | F-7: Standalone\
   \ cards fix — parallel |\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
   \ Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
-  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n\n"
+  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n\n\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Fix approval-gate + approval-gate-scope — remove sub-skill indirection,
   per-step dispatch'
-updated_at: '2026-07-21T21:12:05+00:00'
+updated_at: '2026-07-21T21:15:38+00:00'
