@@ -217,6 +217,10 @@ Every response addresses exactly one topic at a time. Multi-topic messages must 
 >>>>>>> 8a5e73cd (Phase 3: Single-topic discipline enforcement)
 
 
+### [critical-rules-XXX] CRITICAL VIOLATION — Order of Importance — topics must be addressed in descending order of importance
+When multiple topics are raised, address them in descending order of importance. The most important topic must be presented first. Violation is a Tier 1 critical rule. Read [§1](guidelines/020-go-prohibitions.md).
+
+
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.

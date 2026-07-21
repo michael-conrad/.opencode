@@ -72,6 +72,7 @@ load_when: sub-agent
 - **Never use the `question` tool.**
 - **Never pigeon-hole in natural language** — presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern as the question tool.
 - **Never mix topics.** Every response addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns.
+- **Discuss things in order of importance unless directed otherwise.** When multiple topics are raised, address them in descending order of importance.
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Load [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the complete death spiral / break dynamics — the DDL rationale lives there. This file governs prohibitions only; the *why* lives in 065.
 
