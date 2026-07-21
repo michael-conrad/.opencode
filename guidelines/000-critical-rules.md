@@ -208,8 +208,13 @@ The correct pattern:
 | **Skill card dispatched to sub-agent** | **critical-rules-XXX** | **Agent dispatches SKILL.md content (skill card) to sub-agent via task(); sub-agent receives orchestrator-level routing instructions it cannot execute** |
 
 
+<<<<<<< HEAD
 ### [critical-rules-XXX] CRITICAL VIOLATION — Starting work from non-trunk-tip state
 The parent repo MUST be on $DEFAULT_BRANCH at remote tracking tip, all submodules MUST be on $DEFAULT_BRANCH at remote tracking tip, there MUST be zero pending changes, and the submodule pointer MUST match the committed SHA before any work begins. Violation: HALT with blocker report. Discard all work and restart from clean trunk tip. This gate is enforced by `git-workflow-branch/tasks/trunk-tip-verification.md` and MUST be the first step of every pre-work task.
+=======
+### [critical-rules-XXX] CRITICAL VIOLATION — Single-Topic Discipline — multi-topic messages must be decomposed into single-topic turns
+Every response addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns. Violation is a Tier 1 critical rule. Read [§1](guidelines/020-go-prohibitions.md).
+>>>>>>> 8a5e73cd (Phase 3: Single-topic discipline enforcement)
 
 
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
