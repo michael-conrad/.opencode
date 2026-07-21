@@ -8,32 +8,28 @@ body: "---\ntitle: '[SPEC] Fix spec-creation family — remove 5 sub-skill stubs
   \ a full rework from scratch and loss of all prior work. There is no valid reason\
   \ to skip, compress, reorder, or omit any step.\n>\n> **Master spec reference:**\
   \ See `tmp/spec-per-step-dispatch.md` for the full interdependency analysis, dispatch\
-  \ vocabulary, and shared definitions.\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\
-  \n> **Compliance requirement:** This is a fix spec (F-4). It modifies the spec-creation\
-  \ family skill cards and their task files. The canonical templates are now materialized\
-  \ at `.opencode/skills/templates/SKILL.md` and `.opencode/skills/templates/task.md`.\n\
-  >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
-  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\
-  \nThe spec-creation skill card routes 3 task references through 5 sub-skill SKILL.md\
-  \ files (spec-creation-decomposition, spec-creation-requirements, spec-creation-validation,\
-  \ spec-creation-change-control, spec-creation-operating-protocol). Each sub-skill\
-  \ is a stub with no dispatch information — they list task filenames with no TDT,\
-  \ no workflows, no dispatch instructions.\n\nThis sub-skill indirection is dead\
-  \ weight. The task files are referenced by path from the parent TDT and should be\
-  \ referenced directly. Additionally, all 6 skill cards have the global Invocation/DISPATCH_GATE\
-  \ defect.\n\n## Scope\n\nThis spec covers the spec-creation family: spec-creation\
-  \ and its 5 sub-skill stubs, plus their ~18 task files.\n\n**Out of scope:** Other\
-  \ skill cards (covered by F-1 through F-3, F-5 through F-7). Behavioral enforcement\
-  \ tests (covered by issue #2054). Removal of the 5 orphaned sub-skill SKILL.md files\
-  \ (covered by C-1, issue #2055).\n\n## Key Changes\n\n1. Add `## Pre-Flight Gate`\
-  \ section to all 6 skill cards\n2. Remove global `## Invocation` and `## DISPATCH_GATE`\
-  \ sections from all 6 skill cards\n3. Update `spec-creation/SKILL.md` TDT to reference\
-  \ task files by direct path instead of `--task` qualifiers\n4. Add enumerated workflow\
-  \ sections with per-step dispatch for each spec-creation workflow\n5. Add Dispatch\
-  \ Contract, Output Contract, and Frugal Contract to all ~18 task files\n6. Remove\
-  \ \"dispatch via task()\" language from Overview and Persona sections\n\n## Affected\
-  \ Files\n\n| File | Change |\n|------|--------|\n| `spec-creation/SKILL.md` | Add\
-  \ Pre-Flight Gate, remove Invocation/DISPATCH_GATE, update TDT to direct paths,\
+  \ vocabulary, and shared definitions.\n\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md`\
+  \ for the full interdependency analysis, dispatch vocabulary, and shared definitions.\n\
+  \n## Problem\n\nThe spec-creation skill card routes 3 task references through 5\
+  \ sub-skill SKILL.md files (spec-creation-decomposition, spec-creation-requirements,\
+  \ spec-creation-validation, spec-creation-change-control, spec-creation-operating-protocol).\
+  \ Each sub-skill is a stub with no dispatch information — they list task filenames\
+  \ with no TDT, no workflows, no dispatch instructions.\n\nThis sub-skill indirection\
+  \ is dead weight. The task files are referenced by path from the parent TDT and\
+  \ should be referenced directly. Additionally, all 6 skill cards have the global\
+  \ Invocation/DISPATCH_GATE defect.\n\n## Scope\n\nThis spec covers the spec-creation\
+  \ family: spec-creation and its 5 sub-skill stubs, plus their ~18 task files.\n\n\
+  **Out of scope:** Other skill cards (covered by F-1 through F-3, F-5 through F-7).\
+  \ Behavioral enforcement tests (covered by issue #2054). Removal of the 5 orphaned\
+  \ sub-skill SKILL.md files (covered by C-1, issue #2055).\n\n## Key Changes\n\n\
+  1. Add `## Pre-Flight Gate` section to all 6 skill cards\n2. Remove global `## Invocation`\
+  \ and `## DISPATCH_GATE` sections from all 6 skill cards\n3. Update `spec-creation/SKILL.md`\
+  \ TDT to reference task files by direct path instead of `--task` qualifiers\n4.\
+  \ Add enumerated workflow sections with per-step dispatch for each spec-creation\
+  \ workflow\n5. Add Dispatch Contract, Output Contract, and Frugal Contract to all\
+  \ ~18 task files\n6. Remove \"dispatch via task()\" language from Overview and Persona\
+  \ sections\n\n## Affected Files\n\n| File | Change |\n|------|--------|\n| `spec-creation/SKILL.md`\
+  \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, update TDT to direct paths,\
   \ add workflows |\n| `spec-creation-decomposition/SKILL.md` | Add Pre-Flight Gate,\
   \ remove Invocation/DISPATCH_GATE, add workflows |\n| `spec-creation-requirements/SKILL.md`\
   \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `spec-creation-validation/SKILL.md`\
@@ -67,10 +63,10 @@ body: "---\ntitle: '[SPEC] Fix spec-creation family — remove 5 sub-skill stubs
   \ | — | F-6: Implementation-pipeline fix — parallel |\n| #2056 | — | F-7: Standalone\
   \ cards fix — parallel |\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
   \ Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
-  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n"
+  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Fix spec-creation family — remove 5 sub-skill stubs, per-step dispatch'
-updated_at: '2026-07-21T21:05:49+00:00'
+updated_at: '2026-07-21T21:11:49+00:00'
