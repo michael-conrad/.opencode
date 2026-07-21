@@ -4,7 +4,7 @@ labels:
 - SPEC-FIX
 body: "---\ntitle: \"SPEC-FIX: 4 naming inconsistency patterns across skill deck task\
   \ cards\"\nstatus: draft\ncreated: 2026-07-20\nlicense: MIT\nprovenance: AI-generated\n\
-  issue: TBD\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n---\n\n**STATUS:**\
+  issue: 2041\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n---\n\n**STATUS:**\
   \ DRAFT\n**CREATED:** 2026-07-20\n\n> **Compliance Requirement:** All steps and\
   \ sub-steps in this document MUST be followed in order.\n\n## Problem\n\n4 naming\
   \ inconsistency patterns exist across the skill deck, making it difficult for the\
@@ -33,7 +33,7 @@ body: "---\ntitle: \"SPEC-FIX: 4 naming inconsistency patterns across skill deck
   \ task names match actual file names | `string` | Cross-reference all TDT entries\
   \ against filesystem |\n| SC-3 | `writing-plans` has a `tasks/` directory or TDT\
   \ references sibling skills | `string` | Verify resolution of pattern 4 |\n\n---\n\
-  \n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
+  \n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n\n"
 created_at: '2026-07-21T00:37:00+00:00'
-updated_at: '2026-07-21T00:37:11+00:00'
+updated_at: '2026-07-21T00:40:37+00:00'
 github_url: 'true'

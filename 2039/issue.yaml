@@ -5,7 +5,7 @@ labels:
 - SPEC-FIX
 body: "---\ntitle: \"SPEC-FIX: 42 orphaned task card files not referenced by any Trigger\
   \ Dispatch Table\"\nstatus: draft\ncreated: 2026-07-20\nlicense: MIT\nprovenance:\
-  \ AI-generated\nissue: TBD\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
+  \ AI-generated\nissue: 2039\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
   ---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-20\n\n> **Compliance Requirement:**\
   \ All steps and sub-steps in this document MUST be followed in order.\n\n## Problem\n\
   \n42 task card files exist in `tasks/` directories but are not referenced by any\
@@ -32,7 +32,8 @@ body: "---\ntitle: \"SPEC-FIX: 42 orphaned task card files not referenced by any
   \ 42 orphaned task cards are either TDT-referenced or deleted | `string` | Cross-reference\
   \ all task files against all TDTs |\n| SC-2 | No unreferenced task card files remain\
   \ in any `tasks/` directory | `string` | grep for all task files not in any TDT\
-  \ |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
+  \ |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n\
+  \n"
 created_at: '2026-07-21T00:37:00+00:00'
-updated_at: '2026-07-21T00:37:11+00:00'
+updated_at: '2026-07-21T00:40:37+00:00'
 github_url: 'true'

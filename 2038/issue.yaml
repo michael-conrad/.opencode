@@ -5,7 +5,7 @@ labels:
 - SPEC-FIX
 body: "---\ntitle: \"SPEC-FIX: 28 task cards referenced in Trigger Dispatch Tables\
   \ are missing from tasks/ directories\"\nstatus: draft\ncreated: 2026-07-20\nlicense:\
-  \ MIT\nprovenance: AI-generated\nissue: TBD\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
+  \ MIT\nprovenance: AI-generated\nissue: 2038\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
   ---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-20\n\n> **Compliance Requirement:**\
   \ All steps and sub-steps in this document MUST be followed in order.\n\n## Problem\n\
   \n28 task cards are referenced in SKILL.md Trigger Dispatch Tables but do not exist\
@@ -33,7 +33,8 @@ body: "---\ntitle: \"SPEC-FIX: 28 task cards referenced in Trigger Dispatch Tabl
   \ file exists |\n| SC-2 | Each new task card has entry criteria, inline steps, exit\
   \ criteria | `string` | Sample audit of 5 new task cards |\n| SC-3 | No TDT references\
   \ a non-existent task card | `string` | Cross-reference all TDTs against filesystem\
-  \ |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
+  \ |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n\
+  \n"
 created_at: '2026-07-21T00:36:52+00:00'
-updated_at: '2026-07-21T00:37:11+00:00'
+updated_at: '2026-07-21T00:40:37+00:00'
 github_url: 'true'

@@ -5,7 +5,7 @@ labels:
 - SPEC-FIX
 body: "---\ntitle: \"SPEC-FIX: 6 skills have task directories but no Trigger Dispatch\
   \ Table in SKILL.md\"\nstatus: draft\ncreated: 2026-07-20\nlicense: MIT\nprovenance:\
-  \ AI-generated\nissue: TBD\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
+  \ AI-generated\nissue: 2040\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
   ---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-20\n\n> **Compliance Requirement:**\
   \ All steps and sub-steps in this document MUST be followed in order.\n\n## Problem\n\
   \n6 skills have `tasks/` directories with task card files but their SKILL.md files\
@@ -27,7 +27,8 @@ body: "---\ntitle: \"SPEC-FIX: 6 skills have task directories but no Trigger Dis
   | SC-1 | All 6 skills have a TDT in their SKILL.md | `string` | Verify each SKILL.md\
   \ has a `## Trigger Dispatch Table` section |\n| SC-2 | Each TDT references all\
   \ task card files in the skill's `tasks/` directory | `string` | Cross-reference\
-  \ TDT entries against filesystem |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
+  \ TDT entries against filesystem |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n\
+  \n"
 created_at: '2026-07-21T00:37:00+00:00'
-updated_at: '2026-07-21T00:37:11+00:00'
+updated_at: '2026-07-21T00:40:37+00:00'
 github_url: 'true'
