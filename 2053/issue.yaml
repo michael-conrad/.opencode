@@ -8,15 +8,12 @@ body: "---\ntitle: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch
   \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
   \ work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
   >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
-  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> STATUS:\
-  \ **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance requirement:** This is a fix\
-  \ spec (F-1). It modifies the audit skill card and all audit task files. The canonical\
-  \ templates are now materialized at `.opencode/skills/templates/SKILL.md` and `.opencode/skills/templates/task.md`.\n\
-  >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
-  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\
-  \nThe audit skill card (`audit/SKILL.md`) has the global Invocation/DISPATCH_GATE\
-  \ defect. Its DiMo (Discrete Multi-role) chain — Investigator → Validator → Evaluator\
-  \ → Arbiter — is the most complex dispatch pattern in the skill deck. The current\
+  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> **Master\
+  \ spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency\
+  \ analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\nThe audit\
+  \ skill card (`audit/SKILL.md`) has the global Invocation/DISPATCH_GATE defect.\
+  \ Its DiMo (Discrete Multi-role) chain — Investigator → Validator → Evaluator →\
+  \ Arbiter — is the most complex dispatch pattern in the skill deck. The current\
   \ single `sub-task (DiMo chain)` dispatch label causes the orchestrator to dispatch\
   \ the entire SKILL.md to one sub-agent, which cannot execute the multi-role chain.\n\
   \nAdditionally, the ~25 audit task files lack Dispatch Contract, Output Contract,\
@@ -72,11 +69,11 @@ body: "---\ntitle: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch
   \ fix — parallel |\n| #2056 | — | F-7: Standalone cards fix — parallel |\n| #2055\
   \ | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1: Cleanup — blocked by fix specs\
   \ |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048, #2050, #2051, #2056, #2055\
-  \ | Behavioral tests — blocked by all |\n"
+  \ | Behavioral tests — blocked by all |\n\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch, pre-flight gate,
   task file contracts'
-updated_at: '2026-07-21T21:05:49+00:00'
+updated_at: '2026-07-21T21:12:01+00:00'
