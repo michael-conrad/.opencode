@@ -3,3 +3,226 @@ number: 2020
 state: OPEN
 title: '[BUG] Systemic: multiple skill SKILL.md Invocation sections dispatch pipelines
   with [sub-task] steps to sub-agents that cannot call task()'
+body: "---\ntitle: \"[BUG] Systemic: dispatch boundary violations across skill deck\
+  \ — Invocation pipelines, task card task() calls, and orchestrator entry points\"\
+  \nstatus: draft\ncreated: 2026-07-20\nupdated: 2026-07-20\nlicense: MIT\nprovenance:\
+  \ AI-generated\nissue: 2020\nauthors:\n  - OpenCode (deepseek-v4-flash)\n  - OpenCode\
+  \ (ollama-cloud/deepseek-v4-flash)\n---\n\n> **Full spec and artifacts: [`.opencode/.issues/2020/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2020)**\
+  \ — this issue is a condensed exec summary; the authoritative spec lives in the\
+  \ `issues-data` branch.\n>\n> **Local artifacts:** `.opencode/.issues/2020/` — implementation\
+  \ plan, card catalogue, dependency contracts, research, designs, audit findings\n\
+  \n## Supersession\n\nThis spec **supersedes and subsumes** the following open issues:\n\
+  \n| Issue | Title | Subsumption Rationale |\n|-------|-------|----------------------|\n\
+  | **#2018** | `[BUG] spec-creation SKILL.md Invocation dispatches pipeline with\
+  \ [sub-task] steps` | **FULLY SUBSUMED** — specific instance of the systemic Invocation\
+  \ dispatch pattern. |\n| **#1372** | `[SPEC-FIX] writing-plans: Trigger Dispatch\
+  \ Table classifies orchestrator tasks as sub-task` | **FULLY SUBSUMED** — all 32\
+  \ SCs transferred. |\n| **#1992** | `[SPEC] Sub-agents MUST NOT dispatch sub-agents`\
+  \ | **FULLY SUBSUMED** — architectural invariant. |\n| **#1376** | `[SPEC-FIX] implementation-pipeline\
+  \ SKILL.md missing orchestrator entry point` | **FULLY SUBSUMED** — all 15 SCs transferred.\
+  \ |\n| **#1987** | `[SPEC] Fix audit skill DiMo chain` | **PARTIALLY SUBSUMED**\
+  \ — Pattern 2 (orchestrator dispatches SKILL.md to sub-agent) is the same category\
+  \ error. |\n| **#2032** | `[SPEC-FIX] SKILL.md Invocation sections dispatch pipelines\
+  \ with [sub-task] steps` | **FULLY SUBSUMED** — Z3/plan analysis and clean-room\
+  \ vs context-aware distinction incorporated into this revision. |\n\n**The following\
+  \ related issues are NOT subsumed and remain independent:**\n\n| Issue | Title |\
+  \ Rationale |\n|-------|-------|-----------|\n| **#1994** | `[SPEC-FIX] Plan writer\
+  \ produces structurally defective plans` | Downstream — plan output format is a\
+  \ separate concern. |\n| **#1784** | `[SPEC] Structural dispatch-gate enforcement\
+  \ + DISPATCH_GATE completeness` | SKILL.md content structure is a different dimension.\
+  \ |\n| **#1961** | `[SPEC] Rewrite SKILL.md Descriptions to Agent-Intent-Oriented\
+  \ Pattern` | Description frontmatter field pattern is a content-only change. |\n\
+  \n## Core Principle\n\n**A task card cannot dispatch other sub-agents. It is not\
+  \ physically possible.**\n\nThe skill card (SKILL.md) is the orchestrator's routing\
+  \ view. It contains the Pipeline section with dispatch markers (`[sub-task]`, `[inline]`)\
+  \ and the Invocation section mapping each `[sub-task]` to a task card. The orchestrator\
+  \ reads the Pipeline to know the sequence, then dispatches each step individually\
+  \ via `task()`.\n\nEach task card describes exactly one sub-agent's work. The sub-agent\
+  \ reads its task card, executes the inline steps, and returns a result contract.\
+  \ It cannot call `task()` — that is an orchestrator-level capability.\n\n| Artifact\
+  \ | File | Consumer | Content | Action |\n|----------|------|----------|---------|--------|\n\
+  | Skill Card | SKILL.md | Orchestrator | Pipeline (routing view with dispatch markers)\
+  \ + Invocation (dispatch table) | Orchestrator reads to know sequence, dispatches\
+  \ each step |\n| Task Card | tasks/<name>.md | Sub-agent | One sub-agent's procedure\
+  \ (entry criteria, inline steps, exit criteria) | Sub-agent reads and executes inline\
+  \ |\n| Invocation | SKILL.md §Invocation | Orchestrator | Dispatch table: one entry\
+  \ per `[sub-task]` with clean-room indicator | Orchestrator dispatches one at a\
+  \ time |\n\n### Z3 Verification\n\nThe `solve` tool confirmed the contradiction\
+  \ in the current design:\n\n```\npipeline_subtask_count=13, invocation_entry_count=1\n\
+  → task_card_describes_other_subagents=True\n→ subagent_can_call_task=True (must\
+  \ dispatch other sub-agents)\n→ subagent_can_call_task=False (sub-agents cannot\
+  \ call task())\nCONTRADICTION — UNSAT\n```\n\n### Planner Verification\n\nThe `plan`\
+  \ tool confirmed the correct design produces a valid plan (SOLVED_SATISFICING, 50\
+  \ actions, validated):\n\n```\nFor each [sub-task] step:\n  1. create_task_card(step)\
+  \       — each sub-task gets its own task card\n  2. dispatch_clean_room(step) \
+  \   — first-in-chain: only issue_number\n  3. pass_artifact(from, to)      — pass\
+  \ prior artifact path\n  4. dispatch_context_aware(to)    — subsequent: receives\
+  \ prior artifact path\n  5. complete_step(step)          — step finishes\n```\n\n\
+  ## Problem\n\nMultiple SKILL.md files have a structural defect: their `tasks/` directory\
+  \ contains a single monolithic task card (e.g., `create.md`) that describes the\
+  \ work of multiple sub-agents. A sub-agent receiving this task card cannot execute\
+  \ it because:\n\n1. The task card describes steps that require dispatching other\
+  \ sub-agents via `task()`\n2. A sub-agent **cannot** call `task()` — that is an\
+  \ orchestrator-level capability\n3. The task card is structurally a pipeline document,\
+  \ not a task card\n\nThis is a category error: pipeline content (routing metadata\
+  \ describing multiple sub-agents) stored in a task card that a single sub-agent\
+  \ reads.\n\n### Violation A (ACTIVE): Monolithic task cards describing multiple\
+  \ sub-agents\n\n| Skill | Monolithic Task Card | Steps Described |\n|-------|---------------------|-----------------|\n\
+  | `spec-creation-validation` | `tasks/create.md` | 19 `[sub-task]` steps |\n| `writing-plans-creation`\
+  \ | `tasks/create.md` | 13 `[sub-task]` steps |\n\n### Violation B (ACTIVE): Invocation\
+  \ dispatches pipeline to sub-agent\n\nBoth `spec-creation/SKILL.md` and `writing-plans/SKILL.md`\
+  \ have Invocation sections that dispatch the entire pipeline to a sub-agent via\
+  \ `task()`. The sub-agent receives a pipeline it cannot execute.\n\n### Related\
+  \ defects from subsumed issues (ACTIVE):\n\n| # | Defect | Source Issue | Location\
+  \ |\n|---|--------|-------------|----------|\n| D1 | `writing-plans/SKILL.md` TDT\
+  \ classifies `create`, `retroactive` as `sub-task` (should be `orchestrator`); `completion`\
+  \ not in TDT | #1372 | SKILL.md lines 37-39 |\n| D2 | `writing-plans/SKILL.md` Invocation\
+  \ dispatches `create` as `task()` call to sub-agent | #1372 | SKILL.md line 74 |\n\
+  | D3 | `audit-fidelity.md` and `audit-concern.md` contain \"with auditor sub-agent\
+  \ type context\" | #1372 | Both files line 5 |\n| D4 | `writing-plans/SKILL.md`\
+  \ uses `.issues/{N}/` without dual pattern explanation | #1372 | SKILL.md lines\
+  \ 141-159 |\n| D5 | `assemble-work.md` lacks entry proof marker, OVERFLOW handling,\
+  \ work state verification, completion checkpoint | #1376 | `tasks/assemble-work.md`\
+  \ |\n| D6 | `writing-plans/SKILL.md` Sub-Agent Routing claims \"All tasks run via\
+  \ `task()`\" and \"No inline work\" | #1372 | SKILL.md |\n| D7 | `completion.md`\
+  \ references wrong path (`completion-core/completion-core.md` instead of `completion-core/SKILL.md`)\
+  \ | #1372 | `writing-plans-creation/tasks/completion.md` |\n\n## Root Cause\n\n\
+  The skill card template was designed with the assumption that a sub-agent can execute\
+  \ a multi-step pipeline that includes sub-agent dispatches. This is a category error:\
+  \ dispatching orchestrator-level routing instructions (which include `task()` calls)\
+  \ to a sub-agent.\n\nThe monolithic `create.md` task cards were written as pipeline\
+  \ documents describing what multiple sub-agents do. A sub-agent reading one can\
+  \ only execute the steps belonging to its own concern. The remaining steps describe\
+  \ other sub-agents' work that the reading sub-agent cannot dispatch.\n\n## Fix\n\
+  \n### Phase 1: Decompose monolithic task cards into individual task cards\n\nFor\
+  \ each affected skill, replace the monolithic `create.md` with individual task cards\
+  \ — one per `[sub-task]` step in the Pipeline section.\n\n#### `writing-plans-creation/tasks/`\
+  \ — 13 task cards\n\n| Step | Clean-Room? | Task Card | Dispatch Context |\n|------|-------------|-----------|-----------------|\n\
+  | verify-spec-approved | ✅ | `tasks/verify-spec-approved.md` | `{issue_number}`\
+  \ |\n| research | ✅ | `tasks/research.md` | `{spec_issue_number, spec_body}` |\n\
+  | readiness | ❌ | `tasks/readiness.md` | `{issue_number, research_artifact_path}`\
+  \ |\n| artifact-validation | ❌ | `tasks/artifact-validation.md` | `{issue_number,\
+  \ readiness_artifact_path}` |\n| structure | ❌ | `tasks/structure.md` | `{issue_number,\
+  \ validation_artifact_path}` |\n| solve | ❌ | `tasks/solve.md` | `{issue_number,\
+  \ structure_artifact_path}` |\n| plan-creation-pipeline | ❌ | `tasks/plan-creation-pipeline.md`\
+  \ | `{issue_number, solve_artifact_path}` |\n| write | ❌ | `tasks/write.md` | `{issue_number,\
+  \ pipeline_artifact_path}` |\n| revisit | ❌ | `tasks/revisit.md` | `{issue_number,\
+  \ write_artifact_path}` |\n| validate | ❌ | `tasks/validate.md` | `{issue_number,\
+  \ revisit_artifact_path}` |\n| audit-fidelity | ❌ | `tasks/audit-fidelity.md` |\
+  \ `{issue_number, validate_artifact_path}` |\n| audit-concern | ❌ | `tasks/audit-concern.md`\
+  \ | `{issue_number, fidelity_artifact_path}` |\n| completion | ❌ | `tasks/completion.md`\
+  \ | `{issue_number, concern_artifact_path}` |\n\n#### `spec-creation-validation/tasks/`\
+  \ — 19 task cards\n\n| Step | Clean-Room? | Task Card | Dispatch Context |\n|------|-------------|-----------|-----------------|\n\
+  | create-remote-stub | ✅ | `tasks/create-remote-stub.md` | `{issue_number}` |\n\
+  | pre-spec-inspection | ✅ | `tasks/pre-spec-inspection.md` | `{issue_number}` |\n\
+  | research-card-consultation | ❌ | `tasks/research-card-consultation.md` | `{issue_number,\
+  \ inspection_artifact_path}` |\n| requirements | ❌ | `tasks/requirements.md` | `{issue_number,\
+  \ research_artifact_path}` |\n| concern-analysis | ❌ | `tasks/concern-analysis.md`\
+  \ | `{issue_number, requirements_artifact_path}` |\n| decompose | ❌ | `tasks/decompose.md`\
+  \ | `{issue_number, concern_artifact_path}` |\n| blast-radius | ❌ | `tasks/blast-radius.md`\
+  \ | `{issue_number, decompose_artifact_path}` |\n| cross-cutting | ❌ | `tasks/cross-cutting.md`\
+  \ | `{issue_number, blast_artifact_path}` |\n| traceability | ❌ | `tasks/traceability.md`\
+  \ | `{issue_number, cross_cutting_artifact_path}` |\n| code-path-analysis | ❌ |\
+  \ `tasks/code-path-analysis.md` | `{issue_number, traceability_artifact_path}` |\n\
+  | interface-compatibility | ❌ | `tasks/interface-compatibility.md` | `{issue_number,\
+  \ code_path_artifact_path}` |\n| state-analysis | ❌ | `tasks/state-analysis.md`\
+  \ | `{issue_number, interface_artifact_path}` |\n| pipeline-readiness-gate | ❌ |\
+  \ `tasks/pipeline-readiness-gate.md` | `{issue_number, state_artifact_path}` |\n\
+  | testability-assessment | ❌ | `tasks/testability-assessment.md` | `{issue_number,\
+  \ readiness_artifact_path}` |\n| risk | ❌ | `tasks/risk.md` | `{issue_number, testability_artifact_path}`\
+  \ |\n| interdependency-check | ❌ | `tasks/interdependency-check.md` | `{issue_number,\
+  \ risk_artifact_path}` |\n| create-local | ❌ | `tasks/create-local.md` | `{issue_number,\
+  \ interdependency_artifact_path}` |\n| revise-remote-body | ❌ | `tasks/revise-remote-body.md`\
+  \ | `{issue_number, create_artifact_path}` |\n| completion | ❌ | `tasks/completion.md`\
+  \ | `{issue_number, revise_artifact_path}` |\n\n### Phase 2: Each task card structure\n\
+  \n```markdown\n# Task: <name>\n\n## Purpose\nOne sentence — what this sub-agent\
+  \ does.\n\n## Entry Criteria\n- What must be true before this step\n- What the orchestrator\
+  \ passes (clean-room: only issue_number; context-aware: prior artifact paths)\n\n\
+  ## Procedure\n- [ ] 1. Inline steps only — no dispatch markers, no references to\
+  \ other sub-agents\n- [ ] 2. Reads input from disk (spec.md, prior artifacts)\n\
+  - [ ] 3. Writes output to disk (artifacts/<name>.yaml)\n\n## Exit Criteria\n- What\
+  \ the sub-agent produces\n- Result contract fields\n\n## Result Contract\n| Field\
+  \ | Value |\n|-------|-------|\n| status | DONE | BLOCKED |\n| finding_summary |\
+  \ \"...\" |\n| artifact_path | \".../artifacts/<name>.yaml\" |\n| blocker_reason\
+  \ | \"...\" |\n```\n\n### Phase 3: Update Invocation sections\n\nEach SKILL.md Invocation\
+  \ section gets one entry per task card with clean-room indicator:\n\n```\n| Task\
+  \ | Clean-Room? | Canonical Dispatch String |\n|------|-------------|--------------------------|\n\
+  | verify-spec-approved | ✅ | `task(..., prompt: \"execute verify-spec-approved from\
+  \ writing-plans-creation. Read \\`writing-plans-creation/tasks/verify-spec-approved.md\\\
+  ` first\")` |\n| research | ✅ | `task(..., prompt: \"execute research from writing-plans-creation.\
+  \ Read \\`writing-plans-creation/tasks/research.md\\` first\")` |\n| readiness |\
+  \ ❌ | `task(..., prompt: \"execute readiness from writing-plans-creation. Read \\\
+  `writing-plans-creation/tasks/readiness.md\\` first\")` |\n```\n\n### Phase 4: Pipeline\
+  \ section (unchanged)\n\nStays as the orchestrator's routing view with `[sub-task]`\
+  \ and `[inline]` markers. The orchestrator reads this to know the sequence and dispatches\
+  \ each step individually.\n\n### Phase 5: Delete monolithic `create.md` files\n\n\
+  Both `writing-plans-creation/tasks/create.md` and `spec-creation-validation/tasks/create.md`\
+  \ are deleted. They are pipeline documents, not task cards.\n\n### Phase 6: Fix\
+  \ related defects\n\n1. `writing-plans/SKILL.md` TDT: change `create`, `retroactive`\
+  \ from `sub-task` to `orchestrator`; add `completion` entry\n2. `audit-fidelity.md`\
+  \ and `audit-concern.md`: remove \"with auditor sub-agent type context\"\n3. `writing-plans/SKILL.md`\
+  \ Sub-Agent Routing: remove \"All tasks run via `task()`\" and \"No inline work\"\
+  \ claims\n4. `completion.md`: fix path `completion-core/completion-core.md` → `completion-core/SKILL.md`\n\
+  5. `assemble-work.md`: add entry proof marker, OVERFLOW handling, work state verification,\
+  \ completion checkpoint\n6. `000-critical-rules.md`: add critical violation entry\
+  \ for sub-agent task() dispatch\n\n### Phase 7: Behavioral enforcement tests\n\n\
+  Create behavioral tests that verify:\n1. After `skill(\"spec-creation\")`, orchestrator\
+  \ dispatches individual task cards, not the pipeline\n2. After `skill(\"writing-plans\"\
+  )`, orchestrator dispatches individual task cards, not the pipeline\n3. `writing-plans/SKILL.md`\
+  \ classifies `create` as `orchestrator`, not `sub-task`\n4. `audit-fidelity.md`\
+  \ and `audit-concern.md` do not contain \"with auditor sub-agent type context\"\n\
+  \n## Success Criteria\n\n| ID | Criterion | Evidence Type | Verification Method\
+  \ |\n|----|-----------|---------------|---------------------|\n| SC-1 | `writing-plans-creation/tasks/create.md`\
+  \ is deleted | `string` | `ls` confirms file does not exist |\n| SC-2 | `spec-creation-validation/tasks/create.md`\
+  \ is deleted | `string` | `ls` confirms file does not exist |\n| SC-3 | 13 individual\
+  \ task cards exist under `writing-plans-creation/tasks/` matching the decomposition\
+  \ table | `string` | `ls` confirms all 13 files exist |\n| SC-4 | 19 individual\
+  \ task cards exist under `spec-creation-validation/tasks/` matching the decomposition\
+  \ table | `string` | `ls` confirms all 19 files exist |\n| SC-5 | Each task card\
+  \ has `## Entry Criteria`, `## Procedure`, `## Exit Criteria`, `## Result Contract`\
+  \ sections | `string` | grep each task card for all 4 section headers |\n| SC-6\
+  \ | No task card contains dispatch markers (`[sub-task]`, `[inline]`, `(orchestrator)`,\
+  \ `(inline)`) | `string` | grep all task cards — 0 matches |\n| SC-7 | No task card\
+  \ references other sub-agents or describes their work | `string` | grep for \"dispatches\"\
+  , \"sub-agent\", \"sub-task\" in task cards — 0 matches |\n| SC-8 | `writing-plans/SKILL.md`\
+  \ Invocation section lists all 13 task cards with clean-room indicators | `string`\
+  \ | grep Invocation section — 13 entries with ✅/❌ |\n| SC-9 | `spec-creation/SKILL.md`\
+  \ Invocation section lists all 19 task cards with clean-room indicators | `string`\
+  \ | grep Invocation section — 19 entries with ✅/❌ |\n| SC-10 | Pipeline sections\
+  \ in both SKILL.md files are unchanged (still show `[sub-task]` and `[inline]` markers)\
+  \ | `string` | grep Pipeline section — matches original |\n| SC-11 | `writing-plans/SKILL.md`\
+  \ TDT classifies `create` as `orchestrator` | `string` | grep for `create.*orchestrator`\
+  \ — present |\n| SC-12 | `writing-plans/SKILL.md` TDT classifies `retroactive` as\
+  \ `orchestrator` | `string` | grep for `retroactive.*orchestrator` — present |\n\
+  | SC-13 | `writing-plans/SKILL.md` TDT has `completion` entry as `orchestrator`\
+  \ | `string` | grep for `completion.*orchestrator` — present |\n| SC-14 | `audit-fidelity.md`\
+  \ does not contain \"with auditor sub-agent type context\" | `string` | grep — 0\
+  \ matches |\n| SC-15 | `audit-concern.md` does not contain \"with auditor sub-agent\
+  \ type context\" | `string` | grep — 0 matches |\n| SC-16 | `writing-plans/SKILL.md`\
+  \ Sub-Agent Routing does not claim \"All tasks run via `task()`\" | `string` | grep\
+  \ — 0 matches |\n| SC-17 | `writing-plans/SKILL.md` Sub-Agent Routing does not claim\
+  \ \"No inline work\" | `string` | grep — 0 matches |\n| SC-18 | `completion.md`\
+  \ references `completion-core/SKILL.md` (not `completion-core/completion-core.md`)\
+  \ | `string` | grep for `completion-core/SKILL.md` — present |\n| SC-19 | `tasks/assemble-work.md`\
+  \ references entry proof marker | `string` | grep for \"entry proof\" or \"Step\
+  \ 1.5\" — present |\n| SC-20 | `tasks/assemble-work.md` references OVERFLOW handling\
+  \ | `string` | grep for \"OVERFLOW\" — present |\n| SC-21 | `tasks/assemble-work.md`\
+  \ references work state verification | `string` | grep for \"work state\" — present\
+  \ |\n| SC-22 | `tasks/assemble-work.md` references post-sub-agent completion checkpoint\
+  \ | `string` | grep for \"completion checkpoint\" or \"hash mismatch\" — present\
+  \ |\n| SC-23 | `000-critical-rules.md` has entry for sub-agent task() dispatch |\
+  \ `string` | grep for \"sub-agent.*task()\" or \"task().*sub-agent\" — present |\n\
+  | SC-24 | Behavioral test: orchestrator dispatches spec-creation individual task\
+  \ cards | `behavioral` | `opencode run` → stderr shows individual task card dispatches\
+  \ |\n| SC-25 | Behavioral test: orchestrator dispatches writing-plans individual\
+  \ task cards | `behavioral` | `opencode run` → stderr shows individual task card\
+  \ dispatches |\n| SC-26 | Behavioral test: writing-plans TDT classifies create as\
+  \ orchestrator | `behavioral` | `opencode run` → stderr shows orchestrator dispatch,\
+  \ not sub-task |\n\n## Dependencies\n\n| Issue | Relationship | Action |\n|-------|-------------|--------|\n\
+  | #1994 | Downstream — plan format depends on dispatch boundary being correct |\
+  \ Implement #2020 first |\n| #1784 | Independent — DISPATCH_GATE completeness is\
+  \ separate dimension | Can proceed in parallel |\n| #1961 | Independent — description\
+  \ pattern is separate concern | Can proceed in parallel |\n| #1987 | Partial overlap\
+  \ — Pattern 2 subsumed, rest independent | Coordinate on Pattern 2 fix |\n\n## Labels\n\
+  \n`[BUG]`, `skill`, `dispatch`, `sub-agent`\n"
+updated_at: '2026-07-21T00:06:29+00:00'
