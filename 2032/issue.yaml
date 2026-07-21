@@ -1,33 +1,82 @@
-title: 'SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task] steps to sub-agents that cannot call task()'
+title: 'SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task]
+  steps to sub-agents that cannot call task()'
 status: open
 labels:
 - SPEC-FIX
-body: '> **Full spec and artifacts: [`.issues/2032/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2032)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
->
-> **Local artifacts:** `.issues/2032/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
-
-# SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with [sub-task] steps to sub-agents that cannot call task()
-
-## Problem
-
-Multiple SKILL.md Invocation sections dispatch entire pipelines containing `[sub-task]` steps to sub-agents via `task()`. A sub-agent **cannot** call `task()` — that is an orchestrator-level capability. This is a category error: skill card content (routing metadata) dispatched to a sub-agent.
-
-## Root Cause
-
-The Invocation section in each SKILL.md defines a canonical dispatch string that sends the entire pipeline to a sub-agent. But the pipeline contains steps marked `[sub-task]` — steps that require the executor to call `task()` to dispatch further sub-agents. A sub-agent cannot do this.
-
-## Fix
-
-For each affected SKILL.md, restructure the Invocation section so the canonical dispatch string sends a **task card** (a single `.md` file with entry criteria, steps, exit criteria) — not the entire pipeline.
-
-## Affected Files
-
-- `.opencode/skills/spec-creation/SKILL.md`
-- `.opencode/skills/writing-plans/SKILL.md`
-- Any other SKILL.md whose Invocation dispatches a pipeline containing `[sub-task]` steps
-
-## Success Criteria
-
-5 SCs (4 string, 1 behavioral). See full spec for details.'
+body: "---\ntitle: \"SPEC-FIX: SKILL.md Invocation sections dispatch pipelines with\
+  \ [sub-task] steps to sub-agents that cannot call task()\"\nstatus: draft\ncreated:\
+  \ 2026-07-20\nupdated: 2026-07-20\nlicense: MIT\nprovenance: AI-generated\nissue:\
+  \ 2032\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n---\n\n**STATUS:**\
+  \ SUPERSEDED\n**CREATED:** 2026-07-20\n**SUPERSEDED:** 2026-07-20\n\n> **Compliance\
+  \ Requirement:** All steps and sub-steps in this document MUST be followed in order.\
+  \ Failure to comply with any step — including but not limited to verification gates,\
+  \ test phases, audit checkpoints, and review steps — will result in the feature\
+  \ branch being rejected and discarded, requiring a full rework from scratch and\
+  \ loss of all prior work. There is no valid reason to skip, compress, reorder, or\
+  \ omit any step. If a step appears redundant or unnecessary, follow it anyway —\
+  \ the cost of following an extra step is negligible compared to the cost of rework\
+  \ from a skipped step.\n\n## Supersession\n\n**This spec is SUPERSEDED by [#2020](https://github.com/michael-conrad/.opencode/issues/2020).**\n\
+  \nIssue #2020 (`[BUG] Systemic: dispatch boundary violations across skill deck`)\
+  \ was created earlier on 2026-07-20 and covers the same problem space with a more\
+  \ comprehensive scope. It supersedes #2018, #1372, #1992, #1376, and partially #1987.\
+  \ It has a 6-phase plan with 19 SCs, plan files, and research artifacts already\
+  \ in place.\n\n## Problem\n\nMultiple SKILL.md files have a structural defect: their\
+  \ `tasks/` directory contains a single monolithic task card (e.g., `create.md`)\
+  \ that describes the work of multiple sub-agents. A sub-agent receiving this task\
+  \ card cannot execute it because:\n\n1. The task card describes steps that require\
+  \ dispatching other sub-agents via `task()`\n2. A sub-agent **cannot** call `task()`\
+  \ — that is an orchestrator-level capability\n3. The task card is structurally a\
+  \ pipeline document, not a task card\n\nThis is a category error: pipeline content\
+  \ (routing metadata describing multiple sub-agents) stored in a task card that a\
+  \ single sub-agent reads.\n\n### Z3 Verification\n\nThe `solve` tool confirmed the\
+  \ contradiction:\n\n```\npipeline_subtask_count=13, invocation_entry_count=1\n→\
+  \ task_card_describes_other_subagents=True\n→ subagent_can_call_task=True (must\
+  \ dispatch other sub-agents)\n→ subagent_can_call_task=False (sub-agents cannot\
+  \ call task())\nCONTRADICTION — UNSAT\n```\n\n### Planner Verification\n\nThe `plan`\
+  \ tool confirmed the correct design produces a valid plan (SOLVED_SATISFICING, 50\
+  \ actions, validated):\n\n```\nFor each [sub-task] step:\n  1. create_task_card(step)\
+  \       — each sub-task gets its own task card\n  2. dispatch_clean_room(step) \
+  \   — first-in-chain: only issue_number\n  3. pass_artifact(from, to)      — pass\
+  \ prior artifact path\n  4. dispatch_context_aware(to)    — subsequent: receives\
+  \ prior artifact path\n  5. complete_step(step)          — step finishes\n```\n\n\
+  ## Root Cause\n\nThe task card (`tasks/create.md`) in each affected skill is a pipeline\
+  \ document that describes what multiple sub-agents do. It was written as a single\
+  \ monolithic procedure, but a sub-agent reading it can only execute the steps that\
+  \ belong to its own concern. The remaining steps describe other sub-agents' work\
+  \ that the reading sub-agent cannot dispatch.\n\nThe correct architecture:\n\n|\
+  \ Artifact | File | Consumer | Content | Action |\n|----------|------|----------|---------|--------|\n\
+  | Skill Card | SKILL.md | Orchestrator | Pipeline (routing view with dispatch markers)\
+  \ | Orchestrator reads to know sequence |\n| Task Card | tasks/<name>.md | Sub-agent\
+  \ | One sub-agent's procedure | Sub-agent reads and executes inline |\n| Invocation\
+  \ | SKILL.md §Invocation | Orchestrator | Dispatch table mapping steps to task cards\
+  \ | Orchestrator dispatches one at a time |\n\n**A task card cannot dispatch other\
+  \ sub-agents. It is not physically possible.** Each `[sub-task]` in the Pipeline\
+  \ section must have its own task card describing exactly one sub-agent's work.\n\
+  \n## Fix\n\nSee [#2020](https://github.com/michael-conrad/.opencode/issues/2020)\
+  \ for the complete fix. The fix involves:\n\n1. Decomposing monolithic task cards\
+  \ into individual task cards (one per `[sub-task]`)\n2. Each task card is a clean\
+  \ procedure with entry criteria, inline steps, exit criteria\n3. Invocation section\
+  \ gets one entry per task card with clean-room indicators\n4. Pipeline section stays\
+  \ as the orchestrator's routing view (unchanged)\n5. Delete monolithic `create.md`\
+  \ files\n\n### Clean-Room vs Context-Aware Dispatch\n\n| Position | Clean-Room?\
+  \ | Receives | Example |\n|----------|-------------|----------|---------|\n| **First\
+  \ in chain** | ✅ Clean-room | Only `{issue_number}` or `{spec_body}` | `verify-spec-approved`,\
+  \ `research`, `create-remote-stub`, `pre-spec-inspection` |\n| **Subsequent in chain**\
+  \ | ❌ Context-aware | Prior artifact paths + `{issue_number}` | Everything else\
+  \ |\n\n## Affected Files\n\nSee [#2020](https://github.com/michael-conrad/.opencode/issues/2020)\
+  \ for the complete affected files list. Primary files:\n\n- `writing-plans-creation/tasks/create.md`\
+  \ — monolithic, describes 13 sub-agents\n- `spec-creation-validation/tasks/create.md`\
+  \ — monolithic, describes 19 sub-agents\n- `writing-plans/SKILL.md` — Invocation\
+  \ section needs per-task-card entries\n- `spec-creation/SKILL.md` — Invocation section\
+  \ needs per-task-card entries\n\n## Success Criteria\n\nAll 19 SCs are defined in\
+  \ [#2020](https://github.com/michael-conrad/.opencode/issues/2020). This spec is\
+  \ superseded.\n\n## Documentation Sources\n\n| Source Category | What Was Consulted\
+  \ | Purpose |\n|----------------|-------------------|---------|\n| Direct source\
+  \ search | `grep -r \"\\[sub-task\\]\" .opencode/skills/*/SKILL.md` | Identify all\
+  \ SKILL.md files with sub-task steps |\n| Z3 solve | `.opencode/tools/solve check`\
+  \ on contract + state | Verify current design is UNSAT |\n| AI planning | `.opencode/tools/plan\
+  \ plan` + `plan validate` | Verify correct design produces valid plan |\n| Issue\
+  \ search | `local-issues list` + read #2020 | Identify superseding issue with comprehensive\
+  \ scope |\n\n---\n\n*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*\n"
 created_at: '2026-07-20T23:28:08+00:00'
-updated_at: '2026-07-20T23:28:08+00:00'
+updated_at: '2026-07-21T00:04:15+00:00'
