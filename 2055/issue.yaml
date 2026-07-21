@@ -49,31 +49,28 @@ body: "---\ntitle: '[SPEC] Remove 13 sub-skill SKILL.md files from available_ski
   \ |\n| SC-3 | Parent TDTs reference task files by direct path (verified by fix specs\
   \ F-2 through F-5 — C-1 only removes from available_skills) | `string` |\n| SC-4\
   \ | Task files under sub-skill directories remain in place and are accessible by\
-  \ direct path | `string` |\n\n## Implementation Order\n\n```\nPhase 1: T-1, T-2\
-  \ (templates) — prerequisite\nPhase 2: F-1 (audit) — proof of concept\nPhase 3:\
-  \ F-2, F-3, F-4, F-5 (fix specs) — prerequisite\nPhase 4: C-1 (this spec) — cleanup\
-  \ after fix specs complete\nPhase 5: Behavioral enforcement tests (issue #2054)\n\
-  ```\n\n## Dependencies\n\n- **BLOCKED_BY #2057 (F-2):** approval-gate fix must update\
-  \ parent TDT first\n- **BLOCKED_BY #2049 (F-3):** git-workflow fix must update parent\
-  \ TDT first\n- **BLOCKED_BY #2048 (F-4):** spec-creation fix must update parent\
-  \ TDT first\n- **BLOCKED_BY #2050 (F-5):** writing-plans fix must update parent\
-  \ TDT first\n\n## Interdependency\n\n| Issue | Classification | Description |\n\
-  |-------|---------------|-------------|\n| #2047 | BLOCKS | T-2: Task card template\
-  \ — prerequisite for all fix specs |\n| #2052 | BLOCKS | T-1: Skill card template\
-  \ — prerequisite for all fix specs |\n| #2053 | BLOCKED_BY #2047, #2052 | F-1: Audit\
-  \ fix — blocked by templates |\n| #2057 | BLOCKED_BY #2047, #2052 | F-2: Approval-gate\
-  \ fix — blocked by templates |\n| #2049 | BLOCKED_BY #2047, #2052 | F-3: Git-workflow\
-  \ fix — blocked by templates |\n| #2048 | BLOCKED_BY #2047, #2052 | F-4: Spec-creation\
-  \ fix — blocked by templates |\n| #2050 | BLOCKED_BY #2047, #2052 | F-5: Writing-plans\
-  \ fix — blocked by templates |\n| #2051 | BLOCKED_BY #2047, #2052 | F-6: Implementation-pipeline\
-  \ fix — blocked by templates |\n| #2056 | BLOCKED_BY #2047, #2052 | F-7: Standalone\
-  \ cards fix — blocked by templates |\n| #2055 | BLOCKED_BY #2057, #2049, #2048,\
-  \ #2050 | C-1: Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057,\
-  \ #2049, #2048, #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n"
+  \ direct path | `string` |\n\n## Implementation Order\n\n```\nPhase 1: F-1 (audit)\
+  \ — proof of concept\nPhase 2: F-2, F-3, F-4, F-5 (fix specs) — prerequisite\nPhase\
+  \ 3: C-1 (this spec) — cleanup after fix specs complete\nPhase 4: Behavioral enforcement\
+  \ tests (issue #2054)\n```\n\n## Dependencies\n\n- **BLOCKED_BY #2057 (F-2):** approval-gate\
+  \ fix must update parent TDT first\n- **BLOCKED_BY #2049 (F-3):** git-workflow fix\
+  \ must update parent TDT first\n- **BLOCKED_BY #2048 (F-4):** spec-creation fix\
+  \ must update parent TDT first\n- **BLOCKED_BY #2050 (F-5):** writing-plans fix\
+  \ must update parent TDT first\n- **Templates:** The canonical templates are materialized\
+  \ at `.opencode/skills/templates/SKILL.md` and `.opencode/skills/templates/task.md`\n\
+  \n## Interdependency\n\n| Issue | Classification | Description |\n|-------|---------------|-------------|\n\
+  | #2053 | — | F-1: Audit fix — proof of concept |\n| #2057 | — | F-2: Approval-gate\
+  \ fix — prerequisite |\n| #2049 | — | F-3: Git-workflow fix — prerequisite |\n|\
+  \ #2048 | — | F-4: Spec-creation fix — prerequisite |\n| #2050 | — | F-5: Writing-plans\
+  \ fix — prerequisite |\n| #2051 | — | F-6: Implementation-pipeline fix — parallel\
+  \ |\n| #2056 | — | F-7: Standalone cards fix — parallel |\n| #2055 | BLOCKED_BY\
+  \ #2057, #2049, #2048, #2050 | C-1: Cleanup — this spec |\n| #2054 | BLOCKED_BY\
+  \ #2053, #2057, #2049, #2048, #2050, #2051, #2056, #2055 | Behavioral tests — blocked\
+  \ by all |\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Remove 13 sub-skill SKILL.md files from available_skills — cleanup
   after per-step dispatch fix'
-updated_at: '2026-07-21T19:55:05+00:00'
+updated_at: '2026-07-21T21:05:49+00:00'
