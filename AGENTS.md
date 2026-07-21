@@ -195,6 +195,36 @@ if ! command -v gb &>/dev/null; then
 fi
 ```
 
+### `gb` Testing Mandate
+
+All `gb` behavioral tests MUST use the following procedure against the **latest release versions** of both `gb` and GitBucket:
+
+1. **Download the latest `gb` release** from `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/latest` for the test platform
+2. **Download the latest GitBucket WAR** from `https://github.com/gitbucket/gitbucket/releases/latest` and start a local server:
+   ```bash
+   java -jar gitbucket.war --port=18080 --gitbucket.home=<test-home>/gitbucket
+   ```
+3. **Create an isolated test home** with a `gb` config file pointing to the local GitBucket:
+   ```bash
+   TEST_HOME=$(mktemp -d)
+   mkdir -p "$TEST_HOME/.config/gb"
+   cat > "$TEST_HOME/.config/gb/config.toml" << 'TOML'
+   default_host = "http://localhost:18080"
+
+   [hosts."http://localhost:18080"]
+   user = "root"
+   token = "test-token-12345"
+   protocol = "http"
+   TOML
+   ```
+4. **Run `session-init`** with the test `gb` binary and test config:
+   ```bash
+   XDG_CONFIG_HOME="$TEST_HOME/.config" PATH="<gb-binary-dir>:$PATH" bash .opencode/tools/session-init 2>/dev/null | grep "gb:"
+   ```
+5. **Verify both unauthenticated and authenticated paths** by running with and without the test config
+
+This procedure tests against the latest release versions of both `gb` and GitBucket, ensuring `session-init` works correctly with current API behavior. The `gb auth status` command returns exit code 0 even when not logged in — output text parsing is the only reliable signal.
+
 ---
 
 
