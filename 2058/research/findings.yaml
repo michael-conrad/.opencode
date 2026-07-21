@@ -1,0 +1,44 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+evidence_artifacts:
+  - path: .opencode/.issues/2058/research/findings.yaml
+  - path: .opencode/.issues/2058/artifacts/blast-radius.yaml
+  - path: .opencode/.issues/2058/artifacts/concern-map.yaml
+  - path: .opencode/.issues/2058/artifacts/code-path-inventory.yaml
+findings:
+  - claim: "pre-work.md exists at git-workflow-branch/tasks/pre-work.md"
+    verified: true
+    source: "ls .opencode/skills/git-workflow-branch/tasks/pre-work.md"
+    evidence: "File exists, 605 lines, includes Step 2.1 rebase and Step 2 sync default branch"
+  - claim: "trunk-tip-verification.md exists at git-workflow-branch/tasks/trunk-tip-verification.md"
+    verified: false
+    source: "glob + grep for trunk-tip-verification"
+    evidence: "File does NOT exist. Trunk-tip verification is embedded in pre-work.md (Steps 2, 2.1). Spec has factual error about separate file."
+  - claim: "pre-commit-pointer-check.md exists at git-workflow-branch/tasks/pre-commit-pointer-check.md"
+    verified: true
+    source: "ls .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+    evidence: "File exists"
+  - claim: "git-workflow/SKILL.md exists"
+    verified: true
+    source: "ls .opencode/skills/git-workflow/SKILL.md"
+    evidence: "File exists"
+  - claim: "git-workflow-branch/SKILL.md exists"
+    verified: true
+    source: "ls .opencode/skills/git-workflow-branch/SKILL.md"
+    evidence: "File exists, 64 lines, Trigger Dispatch Table includes pre-work task"
+  - claim: "Behavioral test directory exists"
+    verified: true
+    source: "ls .opencode/tests-v2/behaviors/"
+    evidence: "Directory exists with 16 test files"
+  - claim: "No existing trunk-tip-enforcement.sh or submodule-pointer-enforcement.sh tests"
+    verified: true
+    source: "ls .opencode/tests-v2/behaviors/"
+    evidence: "Neither file exists — tests need to be created"
+  - claim: "sc-lobotomy-enforcement.sh does not exist"
+    verified: true
+    source: "ls .opencode/tests-v2/behaviors/"
+    evidence: "File does not exist — needs to be created"
+  - claim: "000-critical-rules.md exists"
+    verified: true
+    source: "ls .opencode/guidelines/000-critical-rules.md"
+    evidence: "File exists"

@@ -1,0 +1,6 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2058
+generated_at: 2026-07-21T12:00:00Z
+resolution_status: RESOLVED
+finding_summary: "All unverified claims from research phase have been resolved. Key finding: trunk-tip-verification.md does not exist as a separate file — trunk-tip verification is embedded in pre-work.md. Plan correctly references the embedded verification rather than a non-existent file."
+artifact_path: ".opencode/.issues/2058/artifacts/revisit.yaml"
+blocker_reason: null
