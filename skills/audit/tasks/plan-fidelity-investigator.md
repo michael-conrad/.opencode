@@ -106,7 +106,7 @@ Read the plan from `spec_local_dir/`:
 - [ ] 3. If no `plan.md` exists, the plan is embedded in the spec body — extract from there
 - [ ] 4. Extract the phase table — phase names, dispatch modes, descriptions
 - [ ] 5. Extract all steps across all phases — step numbers, descriptions, sub-bullets, SC references
-- [ ] 6. Extract dispatch indicators from step titles — `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`
+- [ ] 6. Extract dispatch indicators from step titles — inline, sub-agent, clean-room`
 - [ ] 7. Extract TDD checkpoints — RED/GREEN/REFACTOR structure, RED and GREEN separation
 - [ ] 8. Extract admonishments — compliance admonishment at top and bottom
 - [ ] 9. Extract the plan's scope — files referenced in plan steps
