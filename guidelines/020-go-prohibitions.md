@@ -70,6 +70,7 @@ load_when: sub-agent
 - **NEVER substitute structural evidence for behavioral/functional evidence when the test cannot run.** If the behavioral test is unexecutable, the SC is FAIL. No exceptions.
 - **NEVER escalate without attempting remediation first. NEVER skip remediation.**
 - **Never use the `question` tool.**
+- **Never pigeon-hole in natural language** — presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern as the question tool.
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Load [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the complete death spiral / break dynamics — the DDL rationale lives there. This file governs prohibitions only; the *why* lives in 065.
 

@@ -1035,6 +1035,10 @@ Verify byline presence before ANY API call posting AI-authored content.
 No `question` tool for structural decisions.
 
 
+### [critical-rules-038] Natural Language Pigeon-Holing Prohibition — Universal
+Never pigeon-hole in natural language — presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern as the question tool. Read [§1](guidelines/020-go-prohibitions.md).
+
+
 ### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
 
 Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. Load [git-workflow cleanup task](skills/git-workflow/SKILL.md) Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
