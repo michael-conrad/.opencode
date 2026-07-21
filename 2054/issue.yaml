@@ -1,51 +1,71 @@
-body: "---\ntitle: '[SPEC] Behavioral enforcement tests for per-step dispatch — orchestrator dispatches task files, not SKILL.md'\n\
-  status: draft\ncreated: 2026-07-21\nlicense: MIT\nprovenance: AI-generated\nissue: 2054\nauthors:\n  - OpenCode (deepseek-v4-flash)\n\
-  ---\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance Requirement:** All steps and sub-steps in this document\
-  \ MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases,\
-  \ audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full\
-  \ rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
-  \n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency analysis, dispatch vocabulary,\
-  \ and shared definitions.\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance requirement:** This spec defines\
-  \ behavioral enforcement tests for the per-step dispatch pattern. It MUST NOT be implemented until all fix specs (F-1 through\
-  \ F-7) are complete and applied.\n\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency\
-  \ analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\nThe per-step dispatch pattern introduces two critical\
-  \ behavioral changes that must be verified through behavioral enforcement tests:\n\n1. **SC-11 from master spec:** Orchestrator\
-  \ that encounters BLOCKED from pre-flight gate stops all further investigation\n2. **SC-12 from master spec:** Orchestrator\
-  \ that loads a skill card with per-step dispatch dispatches individual task files, not the entire SKILL.md\n\nContent-verification\
-  \ tests (grep for text patterns) can verify that the SKILL.md files have the correct structure, but they cannot verify that\
-  \ the orchestrator actually behaves differently. Behavioral tests are required to prove the agent follows the new pattern.\n\
-  \n## Scope\n\nThis spec covers the creation of behavioral enforcement tests in `.opencode/tests-v2/behaviors/`. It does\
-  \ NOT modify any skill cards or task files.\n\n**Out of scope:** The fix specs themselves (F-1 through F-7). Content-verification\
-  \ tests for structural SCs (those are covered by the fix specs).\n\n## Key Changes\n\n1. Create behavioral test `per-step-dispatch-preflight-block.sh`\
-  \ — sends a prompt that triggers a skill card with Pre-Flight Gate, verifies the orchestrator stops investigation when `task()`\
-  \ is unavailable\n2. Create behavioral test `per-step-dispatch-task-files.sh` — sends a prompt that triggers a skill card\
-  \ with per-step dispatch, verifies the orchestrator dispatches individual task files (not the entire SKILL.md)\n3. Both\
-  \ tests use `assert_semantic` for behavioral SCs and `assert_stderr_pattern_*` for secondary structural corroboration\n\n\
-  ## Affected Files\n\n| File | Change |\n|------|--------|\n| `.opencode/tests-v2/behaviors/per-step-dispatch-preflight-block.sh`\
-  \ | New behavioral test for SC-11 |\n| `.opencode/tests-v2/behaviors/per-step-dispatch-task-files.sh` | New behavioral test\
-  \ for SC-12 |\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n| SC-1 |\
-  \ `per-step-dispatch-preflight-block.sh` exists and runs via `bash .opencode/tests-v2/behaviors/per-step-dispatch-preflight-block.sh`\
-  \ | `behavioral` |\n| SC-2 | `per-step-dispatch-task-files.sh` exists and runs via `bash .opencode/tests-v2/behaviors/per-step-dispatch-task-files.sh`\
-  \ | `behavioral` |\n| SC-3 | Pre-flight block test verifies orchestrator stops investigation when `task()` is unavailable\
-  \ | `behavioral` |\n| SC-4 | Task file dispatch test verifies orchestrator dispatches individual task files, not entire\
-  \ SKILL.md | `behavioral` |\n| SC-5 | Both tests produce non-empty artifact directories (stdout.log, stderr.log, manifest.yaml)\
-  \ | `structural` |\n| SC-6 | Both tests use `assert_semantic` as primary assertion for behavioral SCs | `string` |\n\n\n\
-  ## Implementation Order\n\n```\nPhase 1: T-1, T-2 (templates) — prerequisite\nPhase 2: F-1 through F-7 (all fix specs) —\
-  \ prerequisite\nPhase 3: C-1 (cleanup) — prerequisite\nPhase 4: Behavioral enforcement tests (this spec) — final phase\n\
-  ```\n\n## Dependencies\n\n- **BLOCKED_BY all fix specs (F-1 through F-7):** #2053, #2057, #2049, #2048, #2050, #2051, #2056\n\
-  - **BLOCKED_BY #2055 (C-1):** Cleanup spec must complete first\n\n## Interdependency\n\n| Issue | Classification | Description\
-  \ |\n|-------|---------------|-------------|\n| #2047 | BLOCKS | T-2: Task card template — prerequisite for all fix specs\
-  \ |\n| #2052 | BLOCKS | T-1: Skill card template — prerequisite for all fix specs |\n| #2053 | BLOCKED_BY #2047, #2052 |\
-  \ F-1: Audit fix — blocked by templates |\n| #2057 | BLOCKED_BY #2047, #2052 | F-2: Approval-gate fix — blocked by templates\
-  \ |\n| #2049 | BLOCKED_BY #2047, #2052 | F-3: Git-workflow fix — blocked by templates |\n| #2048 | BLOCKED_BY #2047, #2052\
-  \ | F-4: Spec-creation fix — blocked by templates |\n| #2050 | BLOCKED_BY #2047, #2052 | F-5: Writing-plans fix — blocked\
-  \ by templates |\n| #2051 | BLOCKED_BY #2047, #2052 | F-6: Implementation-pipeline fix — blocked by templates |\n| #2056\
-  \ | BLOCKED_BY #2047, #2052 | F-7: Standalone cards fix — blocked by templates |\n| #2055 | BLOCKED_BY #2057, #2049, #2048,\
-  \ #2050 | C-1: Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048, #2050, #2051, #2056, #2055\
-  \ | Behavioral tests — blocked by all |"
+body: "---\ntitle: '[SPEC] Behavioral enforcement tests for per-step dispatch — orchestrator\
+  \ dispatches task files, not SKILL.md'\nstatus: draft\ncreated: 2026-07-21\nlicense:\
+  \ MIT\nprovenance: AI-generated\nissue: 2054\nauthors:\n  - OpenCode (deepseek-v4-flash)\n\
+  ---\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n>\n> **Compliance Requirement:**\
+  \ All steps and sub-steps in this document MUST be followed in order. Failure to\
+  \ comply with any step — including but not limited to verification gates, test phases,\
+  \ audit checkpoints, and review steps — will result in the feature branch being\
+  \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
+  \ work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
+  >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
+  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n>\n> **Compliance\
+  \ requirement:** This spec defines behavioral enforcement tests for the per-step\
+  \ dispatch pattern. It MUST NOT be implemented until all fix specs (F-1 through\
+  \ F-7) are complete and applied.\n>\n> **Canonical templates:** `.opencode/skills/templates/SKILL.md`\
+  \ and `.opencode/skills/templates/task.md`\n\n## Problem\n\nThe per-step dispatch\
+  \ pattern introduces two critical behavioral changes that must be verified through\
+  \ behavioral enforcement tests:\n\n1. **SC-11 from master spec:** Orchestrator that\
+  \ encounters BLOCKED from pre-flight gate stops all further investigation\n2. **SC-12\
+  \ from master spec:** Orchestrator that loads a skill card with per-step dispatch\
+  \ dispatches individual task files, not the entire SKILL.md\n\nContent-verification\
+  \ tests (grep for text patterns) can verify that the SKILL.md files have the correct\
+  \ structure, but they cannot verify that the orchestrator actually behaves differently.\
+  \ Behavioral tests are required to prove the agent follows the new pattern.\n\n\
+  ## Scope\n\nThis spec covers the creation of behavioral enforcement tests in `.opencode/tests-v2/behaviors/`.\
+  \ It does NOT modify any skill cards or task files.\n\n**Out of scope:** The fix\
+  \ specs themselves (F-1 through F-7). Content-verification tests for structural\
+  \ SCs (those are covered by the fix specs).\n\n## Key Changes\n\n1. Create behavioral\
+  \ test `per-step-dispatch-preflight-block.sh` — sends a prompt that triggers a skill\
+  \ card with Pre-Flight Gate, verifies the orchestrator stops investigation when\
+  \ `task()` is unavailable\n2. Create behavioral test `per-step-dispatch-task-files.sh`\
+  \ — sends a prompt that triggers a skill card with per-step dispatch, verifies the\
+  \ orchestrator dispatches individual task files (not the entire SKILL.md)\n3. Both\
+  \ tests use `assert_semantic` for behavioral SCs and `assert_stderr_pattern_*` for\
+  \ secondary structural corroboration\n\n## Affected Files\n\n| File | Change |\n\
+  |------|--------|\n| `.opencode/tests-v2/behaviors/per-step-dispatch-preflight-block.sh`\
+  \ | New behavioral test for SC-11 |\n| `.opencode/tests-v2/behaviors/per-step-dispatch-task-files.sh`\
+  \ | New behavioral test for SC-12 |\n\n## Success Criteria\n\n| ID | Criterion |\
+  \ Evidence Type |\n|----|-----------|---------------|\n| SC-1 | `per-step-dispatch-preflight-block.sh`\
+  \ exists and runs via `bash .opencode/tests-v2/behaviors/per-step-dispatch-preflight-block.sh`\
+  \ | `behavioral` |\n| SC-2 | `per-step-dispatch-task-files.sh` exists and runs via\
+  \ `bash .opencode/tests-v2/behaviors/per-step-dispatch-task-files.sh` | `behavioral`\
+  \ |\n| SC-3 | Pre-flight block test verifies orchestrator stops investigation when\
+  \ `task()` is unavailable | `behavioral` |\n| SC-4 | Task file dispatch test verifies\
+  \ orchestrator dispatches individual task files, not entire SKILL.md | `behavioral`\
+  \ |\n| SC-5 | Both tests produce non-empty artifact directories (stdout.log, stderr.log,\
+  \ manifest.yaml) | `structural` |\n| SC-6 | Both tests use `assert_semantic` as\
+  \ primary assertion for behavioral SCs | `string` |\n\n## Implementation Order\n\
+  \n```\nPhase 1: F-1 through F-7 (all fix specs) — prerequisite\nPhase 2: C-1 (cleanup)\
+  \ — prerequisite\nPhase 3: Behavioral enforcement tests (this spec) — final phase\n\
+  ```\n\n## Dependencies\n\n- **BLOCKED_BY all fix specs (F-1 through F-7):** #2053,\
+  \ #2057, #2049, #2048, #2050, #2051, #2056\n- **BLOCKED_BY #2055 (C-1):** Cleanup\
+  \ spec must complete first\n- **Templates:** The canonical templates are materialized\
+  \ at `.opencode/skills/templates/SKILL.md` and `.opencode/skills/templates/task.md`\n\
+  \n## Interdependency\n\n| Issue | Classification | Description |\n|-------|---------------|-------------|\n\
+  | #2053 | BLOCKED_BY — | F-1: Audit fix — prerequisite for behavioral tests |\n\
+  | #2057 | BLOCKED_BY — | F-2: Approval-gate fix — prerequisite for behavioral tests\
+  \ |\n| #2049 | BLOCKED_BY — | F-3: Git-workflow fix — prerequisite for behavioral\
+  \ tests |\n| #2048 | BLOCKED_BY — | F-4: Spec-creation fix — prerequisite for behavioral\
+  \ tests |\n| #2050 | BLOCKED_BY — | F-5: Writing-plans fix — prerequisite for behavioral\
+  \ tests |\n| #2051 | BLOCKED_BY — | F-6: Implementation-pipeline fix — prerequisite\
+  \ for behavioral tests |\n| #2056 | BLOCKED_BY — | F-7: Standalone cards fix — prerequisite\
+  \ for behavioral tests |\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
+  \ Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
+  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
-title: '[SPEC] Behavioral enforcement tests for per-step dispatch — orchestrator dispatches task files, not SKILL.md'
-updated_at: '2026-07-21T17:50:04+00:00'
+title: '[SPEC] Behavioral enforcement tests for per-step dispatch — orchestrator dispatches
+  task files, not SKILL.md'
+updated_at: '2026-07-21T21:07:53+00:00'
