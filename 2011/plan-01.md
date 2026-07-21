@@ -1,10 +1,11 @@
-# Phase 1: BEH-EV classification gate, clean-room evaluator, fix 8 evaluators, fix cross-validate
+# Phase 1: BEH-EV classification gate, clean-room evaluator, fix 9 evaluators, fix cross-validate
 
 **Issue:** #2011
 **Spec:** `.opencode/.issues/2011/spec.md`
 **Plan index:** `.opencode/.issues/2011/plan.md`
 **Status:** DRAFT
 **Created:** 2026-07-19
+**Revised:** 2026-07-21 — Removed sub-agent dispatch chain (sub-agents cannot call task()). Replaced with orchestrator-executed inline steps.
 
 ## Concern
 
@@ -12,8 +13,8 @@ Behavioral SC evidence pipeline: classification at spec-writing, clean-room eval
 
 ## Entry Criteria
 
-- [ ] Spec #2011 is approved (`approved-for-plan` label present)
-- [ ] Feature branch exists (current: `feature/1962-writing-plans-workflow-fix`)
+- [ ] Feature branch exists (current: `feature/2032-strip-dispatch-markers-from-task-cards`)
+- [ ] #2032 Phase 1 complete (18 task cards stripped of dispatch markers)
 - [ ] `local-issues sync` run before any file changes
 
 ## Implementation Items
@@ -30,7 +31,7 @@ Add mandatory "Evidence Type Classification Gate" step between SC definition and
 **SCs:** SC-2, SC-3
 **Files:** `.opencode/skills/audit/tasks/behavioral-sc-evaluator.md` (new), all 9 `*-evaluator.md` files
 
-Create `behavioral-sc-evaluator.md` — receives ONLY artifact directory path, reads stdout.log/stderr.log, renders binary PASS/FAIL. File-existence alone returns FAIL. Then add dispatch step to each of the 8 evaluator tasks.
+Create `behavioral-sc-evaluator.md` — receives ONLY artifact directory path, reads stdout.log/stderr.log, renders binary PASS/FAIL. File-existence alone returns FAIL. Then add dispatch step to each of the 9 evaluator tasks.
 
 ### Item C: EVIDENCE_TYPE_MISMATCH detection in cross-validate
 
@@ -39,221 +40,73 @@ Create `behavioral-sc-evaluator.md` — receives ONLY artifact directory path, r
 
 Add detection: if behavioral SC verdict cites only file paths (no content analysis), downgrade to FAIL.
 
-## Pipeline Steps
+## Implementation Steps (Orchestrator-Executed)
 
-### Step 1: assemble-work
+All steps are executed by the orchestrator directly. No sub-agent is asked to dispatch other sub-agents.
 
-**Dispatch:** `(**orchestrator**)`
-**Chain:** entry criteria
+### Item A — BEH-EV classification step
 
-- [ ] 1.1 `(**inline**)` Read plan from `.opencode/.issues/2011/plan-01.md`
-- [ ] 1.2 `(**inline**)` Verify every step has explicit dispatch indicator
-- [ ] 1.3 `(**inline**)` Create work state at `./tmp/2011/work.md` with 3 items (A-C)
-- [ ] 1.4 `(**inline**)` Set `pipeline_phase = pipeline-executor`
+- [ ] A1. Read `spec-creation-validation/tasks/create.md` to find the SC definition section
+- [ ] A2. Add "Evidence Type Classification Gate" step between SC definition and spec finalization
+- [ ] A3. Include presumptive runtime-behavioral file types: SKILL.md, tasks/*.md, guidelines/*.md, enforcement/*.md
+- [ ] A4. Verify: grep for "Evidence Type Classification Gate" in create.md
 
-### Step 2: sc-coherence-gate
+### Item B — Create behavioral-sc-evaluator.md
 
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 1
+- [ ] B1. Create `audit/tasks/behavioral-sc-evaluator.md` with:
+  - Entry criteria: artifact directory path provided
+  - Procedure: read stdout.log/stderr.log from artifact dir, evaluate each SC against agent output
+  - Binary PASS/FAIL per SC — file-existence alone returns FAIL
+  - Exit criteria: verdict.yaml written with per-SC results
+  - No orchestrator context, no expected outcomes, no cached results
 
-- [ ] 2.1 `(**sub-agent**)` Dispatch `audit --task coherence-extraction` for issue #2011
-- [ ] 2.2 `(**inline**)` On PASS: proceed. On FAIL: remediate and re-run.
+### Item B — Fix each evaluator to dispatch clean-room for behavioral SCs
 
-### Step 3: pre-red-baseline
+For each of the 9 evaluator files, add a step that dispatches `behavioral-sc-evaluator` for behavioral SCs. If clean-room returns FAIL, evaluator verdict is FAIL.
 
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 2
+- [ ] B2. `verification-audit-evaluator.md` — add clean-room dispatch step
+- [ ] B3. `spec-audit-evaluator.md` — add clean-room dispatch step
+- [ ] B4. `plan-fidelity-evaluator.md` — add clean-room dispatch step
+- [ ] B5. `concern-separation-evaluator.md` — add clean-room dispatch step
+- [ ] B6. `coherence-maintenance-evaluator.md` — add clean-room dispatch step
+- [ ] B7. `drift-detection-evaluator.md` — add clean-room dispatch step
+- [ ] B8. `test-quality-audit-evaluator.md` — add clean-room dispatch step
+- [ ] B9. `content-audit-evaluator.md` — add clean-room dispatch step
+- [ ] B10. `guideline-audit-evaluator.md` — add clean-room dispatch step
 
-- [ ] 3.1 `(**sub-agent**)` Dispatch `implementation-pipeline --task pre-red-baseline` for issue #2011
-- [ ] 3.2 `(**inline**)` Initialize solve state at `./tmp/2011/state/`
+### Item C — EVIDENCE_TYPE_MISMATCH detection in cross-validate
 
-### Step 4: RED phase — Item A (BEH-EV classification step)
+- [ ] C1. Read `cross-validate.md` to find evidence type evaluation section
+- [ ] C2. Add EVIDENCE_TYPE_MISMATCH detection: if behavioral SC verdict cites only file paths (no content analysis), downgrade to FAIL
+- [ ] C3. Verify: grep for EVIDENCE_TYPE_MISMATCH in cross-validate.md
 
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 3
+### Verification
 
-- [ ] 4.1 `(**sub-agent**)` Dispatch `test-driven-development --task red` — write behavioral test verifying spec-creation agent includes BEH-EV classification step when writing specs. Test MUST FAIL because create.md has no classification step yet.
-- [ ] 4.2 `(**inline**)` Z3 check: `solve check` — verify RED test fails
-- [ ] 4.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm RED test fails
-
-### Step 5: GREEN phase — Item A (BEH-EV classification step)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 4
-
-- [ ] 5.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — implement: add "Evidence Type Classification Gate" step to `spec-creation-validation/tasks/create.md` between SC definition and spec finalization. Include presumptive runtime-behavioral file types.
-- [ ] 5.2 `(**inline**)` Z3 check: `solve check` — verify GREEN test passes
-- [ ] 5.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm SC-1 passes
-- [ ] 5.4 `(**inline**)` Create checkpoint tag: `opencode-config/checkpoint/2011/phase-1-item-A-opencode-config`
-
-### Step 6: GREEN phase — Item B (clean-room evaluator task)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 5
-
-- [ ] 6.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — create `audit/tasks/behavioral-sc-evaluator.md`. Task receives ONLY artifact directory path. Reads stdout.log/stderr.log. Renders binary PASS/FAIL per SC. File-existence alone returns FAIL. No orchestrator context, no expected outcomes, no cached results.
-- [ ] 6.2 `(**inline**)` Z3 check: `solve check` — verify task file exists and has correct structure
-- [ ] 6.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm SC-3 passes
-- [ ] 6.4 `(**inline**)` Create checkpoint tag: `opencode-config/checkpoint/2011/phase-1-item-B1-opencode-config`
-
-### Step 7: GREEN phase — Item B (fix verification-audit evaluator)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 6
-
-- [ ] 7.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `verification-audit-evaluator.md`. For each behavioral SC, dispatch `behavioral-sc-evaluator` with artifact dir only. If clean-room returns FAIL, evaluator verdict is FAIL.
-- [ ] 7.2 `(**inline**)` Z3 check: `solve check` — verify change
-- [ ] 7.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm
-
-### Step 8: GREEN phase — Item B (fix spec-audit evaluator)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 7
-
-- [ ] 8.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `spec-audit-evaluator.md`
-- [ ] 8.2 `(**inline**)` Z3 check
-- [ ] 8.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 9: GREEN phase — Item B (fix plan-fidelity evaluator)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 8
-
-- [ ] 9.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `plan-fidelity-evaluator.md`
-- [ ] 9.2 `(**inline**)` Z3 check
-- [ ] 9.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 10: GREEN phase — Item B (fix concern-separation evaluator)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 9
-
-- [ ] 10.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `concern-separation-evaluator.md`
-- [ ] 10.2 `(**inline**)` Z3 check
-- [ ] 10.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 11: GREEN phase — Item B (fix coherence-maintenance evaluator)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 10
-
-- [ ] 11.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `coherence-maintenance-evaluator.md`
-- [ ] 11.2 `(**inline**)` Z3 check
-- [ ] 11.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 12: GREEN phase — Item B (fix drift-detection evaluator)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 11
-
-- [ ] 12.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `drift-detection-evaluator.md`
-- [ ] 12.2 `(**inline**)` Z3 check
-- [ ] 12.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 13: GREEN phase — Item B (fix test-quality-audit, content-audit, and guideline-audit evaluators)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 12
-
-- [ ] 13.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add clean-room sub-agent dispatch step to `test-quality-audit-evaluator.md`, `content-audit-evaluator.md`, and `guideline-audit-evaluator.md`
-- [ ] 13.2 `(**inline**)` Z3 check
-- [ ] 13.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 14: RED phase — Item C (cross-validate EVIDENCE_TYPE_MISMATCH)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 13
-
-- [ ] 14.1 `(**sub-agent**)` Dispatch `test-driven-development --task red` — write behavioral test verifying cross-validate FAILs when behavioral SC verdict cites only file paths. Test MUST FAIL because cross-validate has no EVIDENCE_TYPE_MISMATCH check yet.
-- [ ] 14.2 `(**inline**)` Z3 check
-- [ ] 14.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-
-### Step 15: GREEN phase — Item C (cross-validate EVIDENCE_TYPE_MISMATCH)
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 14
-
-- [ ] 15.1 `(**sub-agent**)` Dispatch `test-driven-development --task green` — add EVIDENCE_TYPE_MISMATCH detection to `cross-validate.md`. If behavioral SC verdict cites only file paths (no content analysis), downgrade to FAIL.
-- [ ] 15.2 `(**inline**)` Z3 check
-- [ ] 15.3 `(**sub-agent**)` Dispatch `verification-before-completion --task verify` — confirm SC-4 passes
-- [ ] 15.4 `(**inline**)` Create checkpoint tag: `opencode-config/checkpoint/2011/phase-1-item-C-opencode-config`
-
-### Step 16: green-vbc
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 15
-
-- [ ] 16.1 `(**sub-agent**)` Dispatch `verification-before-completion --task completion` for issue #2011
-- [ ] 16.2 `(**inline**)` Verify all 5 SCs have PASS verdicts
-
-### Step 17: sc-count-gate
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 16
-
-- [ ] 17.1 `(**sub-agent**)` Dispatch `implementation-pipeline --task sc-count-gate`
-- [ ] 17.2 `(**inline**)` On BLOCKED: remediate
-
-### Step 18: pre-pr-gate
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 17
-
-- [ ] 18.1 `(**sub-agent**)` Dispatch `verification-before-completion --task verify`
-- [ ] 18.2 `(**inline**)` On BLOCKED: remediate
-
-### Step 19: audit
-
-**Dispatch:** `(**orchestrator**)`
-**Chain:** step 18
-
-- [ ] 19.1 `(**sub-agent**)` Dispatch `audit --task verification-audit` for issue #2011
-- [ ] 19.2 `(**inline**)` On non-clean-pass: remediate, restart
-- [ ] 19.3 `(**sub-agent**)` On clean PASS: dispatch `audit --task cross-validate`
-
-### Step 20: regression-check
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 19
-
-- [ ] 20.1 `(**sub-agent**)` Dispatch `test-driven-development --task patterns`
-- [ ] 20.2 `(**inline**)` On FAIL: remediate
-
-### Step 21: review-prep + create-pr + exec-summary
-
-**Dispatch:** `(**sub-agent**)`
-**Chain:** step 20
-
-- [ ] 21.1 `(**sub-agent**)` Dispatch `git-workflow --task review-prep`
-- [ ] 21.2 `(**sub-agent**)` Dispatch `pr-creation-workflow --task create`
-- [ ] 21.3 `(**sub-agent**)` Dispatch `completion-core --task completion`
-- [ ] 21.4 `(**inline**)` Report final status with PR URL
+- [ ] V1. grep for prohibited patterns across all modified files — no dispatch markers remain
+- [ ] V2. Verify all 5 SCs from #2009 remain satisfied (grep #2009 spec for SC-1 through SC-5)
+- [ ] V3. Run `local-issues sync`
+- [ ] V4. Commit all changes to feature branch
 
 ## RED/GREEN Chains
 
 | Item | RED | GREEN |
 |------|-----|-------|
 | A | create.md has no BEH-EV classification step | create.md has "Evidence Type Classification Gate" step |
-| B | No behavioral-sc-evaluator.md; evaluators accept file-existence | behavioral-sc-evaluator.md created; all 8 evaluators dispatch clean-room |
+| B | No behavioral-sc-evaluator.md; evaluators accept file-existence | behavioral-sc-evaluator.md created; all 9 evaluators dispatch clean-room |
 | C | cross-validate has no EVIDENCE_TYPE_MISMATCH check | cross-validate FAILs on file-path-only behavioral verdicts |
 
 ## VbC Blocks
 
 | SC | Verification | Evidence |
 |----|-------------|----------|
-| SC-1 | `opencode run` → spec-creation agent includes BEH-EV classification step | stderr log |
-| SC-2 | `opencode run` → clean-room dispatch in stderr for each evaluator | stderr log |
-| SC-3 | `opencode run` → clean-room sub-agent returns binary verdict | stderr log |
-| SC-4 | `opencode run` → cross-validate FAILs on file-path-only verdict | stderr log |
-| SC-5 | `grep` #2009 spec → SC-1 through SC-5 all present | grep output |
+| SC-1 | grep for "Evidence Type Classification Gate" in create.md | grep output |
+| SC-2 | grep for "behavioral-sc-evaluator" in each evaluator file | grep output |
+| SC-3 | behavioral-sc-evaluator.md exists and has correct structure | file read |
+| SC-4 | grep for "EVIDENCE_TYPE_MISMATCH" in cross-validate.md | grep output |
+| SC-5 | grep #2009 spec for SC-1 through SC-5 | grep output |
 
 ## Phase Completion
 
-- [ ] All 5 SCs verified PASS
-- [ ] Audit clean PASS
-- [ ] Cross-validate consensus PASS
-- [ ] Regression tests PASS
-- [ ] Review prep complete
-- [ ] PR created
-- [ ] `local-issues sync` run
+- [ ] All 5 SCs verified
 - [ ] Changes committed to feature branch
+- [ ] `local-issues sync` run

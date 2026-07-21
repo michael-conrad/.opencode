@@ -2,7 +2,7 @@
 title: "SPEC-FIX: Task cards contain dispatch-level markers that only the orchestrator can execute"
 status: draft
 created: 2026-07-20
-updated: 2026-07-20
+updated: 2026-07-21
 license: MIT
 provenance: AI-generated
 issue: 2032
@@ -12,6 +12,7 @@ authors:
 
 **STATUS:** DRAFT
 **CREATED:** 2026-07-20
+**REVISED:** 2026-07-21 — Expanded scope to include sub-role entry/exit criteria gap discovered during audit. Added Phase 3 for behavioral test creation.
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -23,7 +24,7 @@ Additionally, the DiMo 4-role chain dispatch pattern (Investigator → Validator
 
 ## Scope
 
-This spec is scoped to **fixing dispatch-level content in task cards** only. The following systemic problems discovered during audit are tracked as separate sub-issues:
+This spec is scoped to **fixing dispatch-level content in task cards** and **ensuring all remediated task cards have entry/exit criteria**. The following systemic problems discovered during audit are tracked as separate sub-issues:
 
 | Issue | Problem |
 |-------|---------|
@@ -62,6 +63,16 @@ All 19 are **documentation-type** (DiMo role descriptions, chain flow descriptio
 | 18 | `audit/tasks/content-audit-evaluator.md` | DiMo Role: Evaluator |
 | 19 | `audit/tasks/behavioral-sc-evaluator.md` | DiMo Role reference |
 
+### Additional Defects Discovered During Audit
+
+The implementation audit revealed two additional defects not in the original scope:
+
+1. **12 sub-role task cards missing entry/exit criteria** — The 12 sub-role files under `closure-verification/`, `coherence-extraction/`, and `spec-summary/` (investigator, validator, evaluator, arbiter for each) had no `## Entry Criteria` or `## Exit Criteria` sections. These files were not in the original 19-file scope because the original spec only counted parent files and standalone files. However, they are task cards consumed by sub-agents and must have entry/exit criteria per the Correct Architecture table.
+
+2. **`resolve-models.md` missing exit criteria** — Had entry criteria but no exit criteria section.
+
+3. **No behavioral test exists for SC-7** — The spec requires a behavioral test verifying sub-agents execute remediated task cards inline. No test was created during implementation.
+
 ## Fix
 
 ### Phase 1: Strip dispatch markers from 19 task cards
@@ -72,7 +83,21 @@ For each affected task card:
 - Replace with self-contained inline steps
 - Add entry criteria and exit criteria where missing
 
-### Phase 2: Update SKILL.md Trigger Dispatch Tables
+### Phase 2: Add entry/exit criteria to 12 sub-role task cards
+
+The 12 sub-role files under `closure-verification/`, `coherence-extraction/`, and `spec-summary/` (investigator, validator, evaluator, arbiter for each) are missing `## Entry Criteria` and `## Exit Criteria` sections. Add them based on each role's function:
+- **Investigator**: Entry = evidence.yaml absent, spec_local_dir provided; Exit = evidence.yaml written
+- **Validator**: Entry = evidence.yaml exists; Exit = reasoning.yaml written
+- **Evaluator**: Entry = evidence.yaml + reasoning.yaml exist; Exit = verdict.yaml written
+- **Arbiter**: Entry = verdict.yaml exists; Exit = judgment.yaml written
+
+Also add `## Exit Criteria` to `resolve-models.md`.
+
+### Phase 3: Create behavioral test for SC-7
+
+Create a behavioral enforcement test in `.opencode/tests-v2/behaviors/` that verifies a sub-agent receiving a remediated task card executes inline (does not attempt to call task() or dispatch other sub-agents).
+
+### Phase 4: Update SKILL.md Trigger Dispatch Tables
 
 Ensure the SKILL.md for each affected skill documents the DiMo chain dispatch pattern in its Trigger Dispatch Table, not in task cards.
 
@@ -81,16 +106,19 @@ Ensure the SKILL.md for each affected skill documents the DiMo chain dispatch pa
 | Category | Count | Files |
 |----------|-------|-------|
 | Task cards with DiMo content | 19 | `audit/tasks/closure-verification/` (4), `audit/tasks/coherence-extraction/` (4), `audit/tasks/spec-summary/` (4), `audit/tasks/resolve-models.md`, `audit/tasks/cross-validate.md`, `audit/tasks/spec-audit-*.md` (3), `audit/tasks/content-audit-evaluator.md`, `audit/tasks/behavioral-sc-evaluator.md` |
+| Sub-role task cards missing entry/exit criteria | 12 | `audit/tasks/closure-verification/investigator.md`, `validator.md`, `evaluator.md`, `arbiter.md`; `coherence-extraction/` same 4; `spec-summary/` same 4 |
+| Standalone missing exit criteria | 1 | `audit/tasks/resolve-models.md` |
+| Behavioral test for SC-7 | 1 | `.opencode/tests-v2/behaviors/task-card-inline-execution.sh` |
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | No task card contains DiMo role descriptions or chain flow documentation | `string` | grep for "DiMo.*Role" or "DiMo.*chain" in all `tasks/*.md` — must return 0 matches |
+| SC-1 | No task card contains DiMo role description blockquotes (`> **DiMo Role:**`) or chain flow documentation (`## DiMo Chain Flow` or `**DiMo role chain**`) | `string` | grep for "> \\*\\*DiMo Role:" or "DiMo Chain Flow" or "\\*\\*DiMo role chain\\*\\*" in all `tasks/*.md` — must return 0 matches |
 | SC-2 | No task card contains `(**orchestrator**)` or `(**sub-agent**)` or `(**clean-room**)` or `(**inline**)` markers | `string` | grep for all 4 patterns in all `tasks/*.md` — must return 0 matches |
 | SC-3 | No task card contains "Never task()" or "orchestrator dispatches" language | `string` | grep for both patterns in all `tasks/*.md` — must return 0 matches |
-| SC-4 | All 19 remediated task cards have entry criteria and exit criteria | `string` | Verify each remediated file has both sections |
-| SC-5 | All 19 remediated task cards are self-contained (inline-only steps) | `string` | Verify no dispatch markers remain |
+| SC-4 | All 31 remediated task cards (19 original + 12 sub-role) have entry criteria and exit criteria | `string` | Verify each remediated file has both sections — grep for `## Entry Criteria` and `## Exit Criteria` in each |
+| SC-5 | All remediated task cards are self-contained (inline-only steps) | `string` | Verify no dispatch markers remain — grep for "> \\*\\*DiMo Role:" or "DiMo Chain Flow" or "\\*\\*DiMo role chain\\*\\*" or "(\*\*orchestrator\*\*)" or "(\*\*sub-agent\*\*)" or "(\*\*clean-room\*\*)" or "(\*\*inline\*\*)" or "Never task()" or "orchestrator dispatches" in all `tasks/*.md` — must return 0 matches |
 | SC-6 | audit SKILL.md Trigger Dispatch Table documents DiMo chain dispatch | `string` | Verify TDT has DiMo chain documentation |
 | SC-7 | Behavioral test: sub-agent receiving remediated task card executes inline | `behavioral` | `opencode run` with task card execution prompt |
 
