@@ -1,17 +1,9 @@
 links:
-- number: 291
-  type: sub-issue
-- number: 292
-  type: sub-issue
-- number: 293
-  type: sub-issue
-- number: 294
-  type: sub-issue
-- number: 2038
-  type: sub-issue
 - number: 2039
   type: sub-issue
 - number: 2040
+  type: sub-issue
+- number: 2042
   type: sub-issue
 - number: 2041
   type: sub-issue
