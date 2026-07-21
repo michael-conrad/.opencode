@@ -8,32 +8,31 @@ body: "---\ntitle: '[SPEC] Fix git-workflow family — remove sub-skill indirect
   \ rejected and discarded, requiring a full rework from scratch and loss of all prior\
   \ work. There is no valid reason to skip, compress, reorder, or omit any step.\n\
   >\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full\
-  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n> **Master\
-  \ spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency\
-  \ analysis, dispatch vocabulary, and shared definitions.\n\n## Problem\n\nThe git-workflow\
-  \ skill card routes 11 task references through 5 sub-skill SKILL.md files (git-workflow-branch,\
-  \ git-workflow-commit, git-workflow-pr, git-workflow-cleanup, git-workflow-conflict).\
-  \ Each sub-skill is a stub with no dispatch information — they list task filenames\
-  \ with no TDT, no workflows, no dispatch instructions.\n\nThis sub-skill indirection\
-  \ is dead weight. The task files are referenced by path from the parent TDT and\
-  \ should be referenced directly. Additionally, all 6 skill cards have the global\
-  \ Invocation/DISPATCH_GATE defect.\n\n## Scope\n\nThis spec covers the git-workflow\
-  \ family: git-workflow, git-workflow-branch, git-workflow-commit, git-workflow-pr,\
-  \ git-workflow-cleanup, and git-workflow-conflict skill cards and their ~11 task\
-  \ files.\n\n**Out of scope:** Other skill cards (covered by F-1, F-2, F-4 through\
-  \ F-7). Behavioral enforcement tests (covered by issue #2054). Removal of the 5\
-  \ orphaned sub-skill SKILL.md files (covered by C-1, issue #2055).\n\n## Key Changes\n\
-  \n1. Add `## Pre-Flight Gate` section to all 6 skill cards\n2. Remove global `##\
-  \ Invocation` and `## DISPATCH_GATE` sections from all 6 skill cards\n3. Update\
-  \ `git-workflow/SKILL.md` TDT to reference task files by direct path (e.g., `git-workflow-branch/tasks/pre-work.md`)\
-  \ instead of `--task` qualifiers\n4. Add enumerated workflow sections with per-step\
-  \ dispatch for each git-workflow workflow\n5. Add Dispatch Contract, Output Contract,\
-  \ and Frugal Contract to all ~11 task files\n6. Remove \"dispatch via task()\" language\
-  \ from Overview and Persona sections\n\n## Affected Files\n\n| File | Change |\n\
-  |------|--------|\n| `git-workflow/SKILL.md` | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE,\
-  \ update TDT to direct paths, add workflows |\n| `git-workflow-branch/SKILL.md`\
-  \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-commit/SKILL.md`\
-  \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-pr/SKILL.md`\
+  \ interdependency analysis, dispatch vocabulary, and shared definitions.\n\n\n##\
+  \ Problem\n\nThe git-workflow skill card routes 11 task references through 5 sub-skill\
+  \ SKILL.md files (git-workflow-branch, git-workflow-commit, git-workflow-pr, git-workflow-cleanup,\
+  \ git-workflow-conflict). Each sub-skill is a stub with no dispatch information\
+  \ — they list task filenames with no TDT, no workflows, no dispatch instructions.\n\
+  \nThis sub-skill indirection is dead weight. The task files are referenced by path\
+  \ from the parent TDT and should be referenced directly. Additionally, all 6 skill\
+  \ cards have the global Invocation/DISPATCH_GATE defect.\n\n## Scope\n\nThis spec\
+  \ covers the git-workflow family: git-workflow, git-workflow-branch, git-workflow-commit,\
+  \ git-workflow-pr, git-workflow-cleanup, and git-workflow-conflict skill cards and\
+  \ their ~11 task files.\n\n**Out of scope:** Other skill cards (covered by F-1,\
+  \ F-2, F-4 through F-7). Behavioral enforcement tests (covered by issue #2054).\
+  \ Removal of the 5 orphaned sub-skill SKILL.md files (covered by C-1, issue #2055).\n\
+  \n## Key Changes\n\n1. Add `## Pre-Flight Gate` section to all 6 skill cards\n2.\
+  \ Remove global `## Invocation` and `## DISPATCH_GATE` sections from all 6 skill\
+  \ cards\n3. Update `git-workflow/SKILL.md` TDT to reference task files by direct\
+  \ path (e.g., `git-workflow-branch/tasks/pre-work.md`) instead of `--task` qualifiers\n\
+  4. Add enumerated workflow sections with per-step dispatch for each git-workflow\
+  \ workflow\n5. Add Dispatch Contract, Output Contract, and Frugal Contract to all\
+  \ ~11 task files\n6. Remove \"dispatch via task()\" language from Overview and Persona\
+  \ sections\n\n## Affected Files\n\n| File | Change |\n|------|--------|\n| `git-workflow/SKILL.md`\
+  \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, update TDT to direct paths,\
+  \ add workflows |\n| `git-workflow-branch/SKILL.md` | Add Pre-Flight Gate, remove\
+  \ Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-commit/SKILL.md` |\
+  \ Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-pr/SKILL.md`\
   \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-cleanup/SKILL.md`\
   \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-conflict/SKILL.md`\
   \ | Add Pre-Flight Gate, remove Invocation/DISPATCH_GATE, add workflows |\n| `git-workflow-branch/tasks/*.md`\
@@ -62,10 +61,10 @@ body: "---\ntitle: '[SPEC] Fix git-workflow family — remove sub-skill indirect
   \ — | F-6: Implementation-pipeline fix — parallel |\n| #2056 | — | F-7: Standalone\
   \ cards fix — parallel |\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
   \ Cleanup — blocked by fix specs |\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
-  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n\n"
+  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n\n\n"
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
 status: open
 title: '[SPEC] Fix git-workflow family — remove sub-skill indirection, per-step dispatch'
-updated_at: '2026-07-21T21:11:52+00:00'
+updated_at: '2026-07-21T21:15:25+00:00'
