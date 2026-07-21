@@ -1,0 +1,271 @@
+# Structure Output — Issue 2037: Universal Discussion Discipline
+# Generated: 2026-07-20
+# Pipeline step: structure (Step 6 of writing-plans-creation pipeline)
+
+schema_version: "1.0"
+generated_at: "20260720120000"
+spec_issue_number: 2037
+spec_path: .opencode/.issues/2037/spec.md
+project_root: /home/muksihs/git/opencode-config
+repo: .opencode (submodule)
+
+## Phase Definitions
+
+phases:
+  - phase_number: 1
+    phase_name: "Universal question tool prohibition"
+    phase_type: pre_phase
+    description: >
+      Remove all scope qualifiers from the question tool prohibition across 5 files.
+      Add top-level Tier 1 prohibition in 020-go-prohibitions.md. Update critical-rules-037
+      in 000-critical-rules.md to remove for_pr scope qualifier. Update 010-approval-gate.md
+      edge case table reference. Remove scope qualifier from pre-implementation-analysis.md.
+      Remove contradictory question tool instruction from 140-planning-spec-creation.md.
+    success_criteria:
+      - sc_id: SC-1
+        description: "question tool prohibited universally — all contexts, all scopes"
+        evidence_type: behavioral
+      - sc_id: SC-6
+        description: "contradictory question tool instruction removed from 140-planning-spec-creation.md"
+        evidence_type: string
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/010-approval-gate.md
+      - .opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md
+      - .opencode/guidelines/140-planning-spec-creation.md
+    entry_criteria:
+      - "Spec approved (approved-for-* label present)"
+      - "All 7 analytical artifacts exist and are non-empty"
+    exit_criteria:
+      - "020-go-prohibitions.md has top-level Tier 1 question tool prohibition"
+      - "000-critical-rules.md critical-rules-037 has no for_pr scope qualifier"
+      - "010-approval-gate.md edge case table references universal critical-rules-037"
+      - "pre-implementation-analysis.md has no post-plan-presentation scope qualifier"
+      - "140-planning-spec-creation.md has no question tool instruction"
+      - "All 5 files committed to feature branch"
+    safety_rollback: "No destructive operations — all changes are text edits to guideline/skill files. Rollback via git checkout of pre-phase state."
+
+  - phase_number: 2
+    phase_name: "Pigeon-holing in natural language prohibition"
+    phase_type: per_file_phase
+    description: >
+      Add a new Tier 1 critical rule prohibiting pigeon-holing in natural language
+      (presenting constrained options in prose, e.g., 'Should we do X or Y?').
+      Add to 020-go-prohibitions.md 🚫 NEVER DO section and 000-critical-rules.md Tier 1 section.
+    success_criteria:
+      - sc_id: SC-2
+        description: "natural language pigeon-holing explicitly prohibited as Tier 1 critical rule"
+        evidence_type: behavioral
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/guidelines/000-critical-rules.md
+    entry_criteria:
+      - "Phase 1 complete and committed"
+    exit_criteria:
+      - "020-go-prohibitions.md has pigeon-holing prohibition in 🚫 NEVER DO section"
+      - "000-critical-rules.md has new critical rule for pigeon-holing"
+      - "Both files committed to feature branch"
+    safety_rollback: "No destructive operations. Rollback via git revert of phase commit."
+
+  - phase_number: 3
+    phase_name: "Single-topic discipline enforcement"
+    phase_type: per_file_phase
+    description: >
+      Elevate single-topic discipline from advisory text to a Tier 1 critical rule.
+      Move existing advisory text from 020-go-prohibitions.md §1.6 to 🚫 NEVER DO section.
+      Add new critical rule entry in 000-critical-rules.md Tier 1 section.
+    success_criteria:
+      - sc_id: SC-3
+        description: "single-topic discipline enforced as Tier 1 critical rule"
+        evidence_type: behavioral
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/guidelines/000-critical-rules.md
+    entry_criteria:
+      - "Phase 2 complete and committed"
+    exit_criteria:
+      - "020-go-prohibitions.md has single-topic discipline as critical rule (not advisory)"
+      - "000-critical-rules.md has new critical rule for single-topic discipline"
+      - "Both files committed to feature branch"
+    safety_rollback: "No destructive operations. Rollback via git revert of phase commit."
+
+  - phase_number: 4
+    phase_name: "Order of importance rule"
+    phase_type: per_file_phase
+    description: >
+      Add a new rule requiring agents to order topics by importance in all communications
+      (most important topic first). Add to 020-go-prohibitions.md 🚫 NEVER DO section
+      and 000-critical-rules.md Tier 1 section.
+    success_criteria:
+      - sc_id: SC-4
+        description: "order of importance rule established as Tier 1 critical rule"
+        evidence_type: behavioral
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/guidelines/000-critical-rules.md
+    entry_criteria:
+      - "Phase 3 complete and committed"
+    exit_criteria:
+      - "020-go-prohibitions.md has order of importance rule"
+      - "000-critical-rules.md has new critical rule for order of importance"
+      - "Both files committed to feature branch"
+    safety_rollback: "No destructive operations. Rollback via git revert of phase commit."
+
+  - phase_number: 5
+    phase_name: "Always discuss as default"
+    phase_type: per_file_phase
+    description: >
+      Reframe discussion from an opt-in mode to the default communication paradigm.
+      Edit 020-go-prohibitions.md §1.6 section header and framing text to establish
+      discussion as default, structured output as opt-in. Add new critical rule in
+      000-critical-rules.md Tier 1 section.
+    success_criteria:
+      - sc_id: SC-5
+        description: "discussion established as default communication mode (structured output is opt-in)"
+        evidence_type: behavioral
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/guidelines/000-critical-rules.md
+    entry_criteria:
+      - "Phase 4 complete and committed"
+    exit_criteria:
+      - "020-go-prohibitions.md §1.6 reframed — discussion is default, structured output is opt-in"
+      - "000-critical-rules.md has new critical rule for always-discuss default"
+      - "Both files committed to feature branch"
+    safety_rollback: "No destructive operations. Rollback via git revert of phase commit."
+
+  - phase_number: 6
+    phase_name: "Behavioral enforcement test"
+    phase_type: post_phase
+    description: >
+      Create a new behavioral enforcement test script in .opencode/tests-v2/behaviors/
+      that verifies all 5 discussion discipline rules are followed by the agent.
+      Test must use assert_semantic for behavioral SCs and assert_stderr_pattern_*
+      for structural corroboration. Must pass with 100% clean PASS.
+    success_criteria:
+      - sc_id: SC-7
+        description: "behavioral enforcement test passes with 100% clean PASS"
+        evidence_type: behavioral
+    affected_files:
+      - .opencode/tests-v2/behaviors/universal-discussion-discipline.sh
+    entry_criteria:
+      - "Phase 5 complete and committed"
+      - "All 5 discussion discipline rules exist in guideline files"
+    exit_criteria:
+      - "Behavioral test script exists at .opencode/tests-v2/behaviors/universal-discussion-discipline.sh"
+      - "Test passes with 100% clean PASS via bash .opencode/tests-v2/behaviors/universal-discussion-discipline.sh"
+      - "Test file committed to feature branch"
+    safety_rollback: "No destructive operations — test file is additive only. Rollback via git rm of test file."
+
+## Dependency Contract
+
+dependency_contract:
+  ordering: sequential
+  rationale: >
+    All phases modify overlapping files (020-go-prohibitions.md and 000-critical-rules.md
+    are touched by Phases 1-5). Sequential ordering prevents merge conflicts and ensures
+    each phase builds on the previous phase's state. Phase 1 is a pre-phase that establishes
+    the universal prohibition framework. Phases 2-5 each add one new rule. Phase 6 is a
+    post-phase that verifies all rules together.
+  edges:
+    - from: 1
+      to: 2
+      type: depends_on
+      condition: "Phase 1 committed to feature branch"
+    - from: 2
+      to: 3
+      type: depends_on
+      condition: "Phase 2 committed to feature branch"
+    - from: 3
+      to: 4
+      type: depends_on
+      condition: "Phase 3 committed to feature branch"
+    - from: 4
+      to: 5
+      type: depends_on
+      condition: "Phase 4 committed to feature branch"
+    - from: 5
+      to: 6
+      type: depends_on
+      condition: "Phase 5 committed to feature branch; all 5 rules exist in guideline files"
+  invariants:
+    - "020-go-prohibitions.md must be edited sequentially — no parallel edits across phases"
+    - "000-critical-rules.md must be edited sequentially — no parallel edits across phases"
+    - "Phase 1 modifies existing text (scope qualifiers); Phases 2-5 add new text (new rules)"
+    - "Phase 6 is additive only — no modification of existing files"
+    - "Each phase produces exactly one commit on the feature branch"
+  z3_model:
+    variables:
+      - name: p1
+        description: "Phase 1 complete"
+      - name: p2
+        description: "Phase 2 complete"
+      - name: p3
+        description: "Phase 3 complete"
+      - name: p4
+        description: "Phase 4 complete"
+      - name: p5
+        description: "Phase 5 complete"
+      - name: p6
+        description: "Phase 6 complete"
+    constraints:
+      - "p2 → p1"   # Phase 2 requires Phase 1
+      - "p3 → p2"   # Phase 3 requires Phase 2
+      - "p4 → p3"   # Phase 4 requires Phase 3
+      - "p5 → p4"   # Phase 5 requires Phase 4
+      - "p6 → p5"   # Phase 6 requires Phase 5
+    goal: "p1 ∧ p2 ∧ p3 ∧ p4 ∧ p5 ∧ p6"
+    expected_result: "SAT — all phases reachable in sequential order"
+
+## SC-to-Phase Mapping
+
+sc_mapping:
+  - sc_id: SC-1
+    description: "question tool prohibited universally — all contexts, all scopes"
+    evidence_type: behavioral
+    phase: 1
+    verification_method: "behavior_run + assert_semantic"
+  - sc_id: SC-2
+    description: "natural language pigeon-holing explicitly prohibited as Tier 1 critical rule"
+    evidence_type: behavioral
+    phase: 2
+    verification_method: "behavior_run + assert_semantic"
+  - sc_id: SC-3
+    description: "single-topic discipline enforced as Tier 1 critical rule"
+    evidence_type: behavioral
+    phase: 3
+    verification_method: "behavior_run + assert_semantic"
+  - sc_id: SC-4
+    description: "order of importance rule established as Tier 1 critical rule"
+    evidence_type: behavioral
+    phase: 4
+    verification_method: "behavior_run + assert_semantic"
+  - sc_id: SC-5
+    description: "discussion established as default communication mode (structured output is opt-in)"
+    evidence_type: behavioral
+    phase: 5
+    verification_method: "behavior_run + assert_semantic"
+  - sc_id: SC-6
+    description: "contradictory question tool instruction removed from 140-planning-spec-creation.md"
+    evidence_type: string
+    phase: 1
+    verification_method: "grep for absence of question tool reference in 140-planning-spec-creation.md"
+  - sc_id: SC-7
+    description: "behavioral enforcement test passes with 100% clean PASS"
+    evidence_type: behavioral
+    phase: 6
+    verification_method: "bash .opencode/tests-v2/behaviors/universal-discussion-discipline.sh"
+
+## Cross-Cutting Concerns
+
+cross_cutting_concerns:
+  - concern: "020-go-prohibitions.md sequential edits"
+    description: "All 5 phases modify this file. Edits must be sequential — no parallel dispatch."
+    mitigation: "Sequential phase ordering with commit gates between phases"
+  - concern: "000-critical-rules.md sequential edits"
+    description: "All 5 phases modify this file. Phase 1 modifies existing critical-rules-037; Phases 2-5 add new entries."
+    mitigation: "Sequential phase ordering; Phase 1 edits existing entry, Phases 2-5 append new entries"
+  - concern: "Behavioral test must verify all 5 rules"
+    description: "Phase 6 test must cover SC-1 through SC-5, not just one rule."
+    mitigation: "Single test script with multiple assert_semantic calls, one per SC"

@@ -1,0 +1,24 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2034
+generated_at: 2026-07-20T22:30:00Z
+state_analysis:
+  phases:
+    - phase: 1 — Fix trigger routing
+      state_transitions:
+        - from: '"pr merged" → check-pr (wrong)'
+          to: '"pr merged" → cleanup (correct)'
+          trigger: Edit Trigger Dispatch Table in git-workflow/SKILL.md and git-workflow-cleanup/SKILL.md
+          invariant: All other trigger phrases remain unchanged and functional
+
+    - phase: 2 — Create missing branch-cleanup sub-task
+      state_transitions:
+        - from: cleanup Step 3 routes to non-existent sub-task (broken)
+          to: cleanup Step 3 routes to existing branch-cleanup sub-task (functional)
+          trigger: Create cleanup/branch-cleanup.md with branch cleanup procedure
+          invariant: cleanup.md Step 3 reference text remains unchanged — only the target file is created
+
+    - phase: 3 — Extract cleanup actions from check-pr.md
+      state_transitions:
+        - from: check-pr.md contains cleanup actions in Phases 4-5 (workflow boundary violation)
+          to: check-pr.md is a pure scanning workflow (Phases 1-3, 6 only); cleanup actions live in cleanup workflow
+          trigger: Remove Phases 4-5 from check-pr.md; update check-pr to delegate to cleanup
+          invariant: check-pr Phase 6 (depth-first final state) remains — it is a reporting concern, not a cleanup action

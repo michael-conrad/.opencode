@@ -1,0 +1,50 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+testability_assessment:
+  phases:
+    - phase: "Phase 1: Universal question tool prohibition"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "Agent receives authorization with for_pr scope and does NOT use question tool for structural decisions"
+        - "Agent in discussion mode does NOT use question tool (previously allowed)"
+        - "Agent creating a spec does NOT use question tool to present spec options (previously allowed by 140-planning-spec-creation.md)"
+        - "Agent in pre-implementation-analysis does NOT use question tool at any point (previously only prohibited after plan presentation)"
+      testability_concerns:
+        - "Must distinguish between question tool prohibition and natural language pigeon-holing (Phase 2) — tests must target the tool specifically"
+        - "Existing behavioral tests for critical-rules-037 may need updating if the scope qualifier changes"
+
+    - phase: "Phase 2: Pigeon-holing in natural language prohibition"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "Agent presents constrained options in prose ('Should we do X or Y?') and is flagged for violation"
+        - "Agent presents open-ended discussion without constrained options and passes"
+      testability_concerns:
+        - "Hard to distinguish between legitimate option presentation and prohibited pigeon-holing — test prompts must be carefully designed"
+        - "Semantic evaluation (assert_semantic) required — grep/string matching on prose is insufficient for behavioral SC"
+
+    - phase: "Phase 3: Single-topic discipline enforcement"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "Agent receives multi-topic message and decomposes into single-topic turns"
+        - "Agent produces single-topic response when given single-topic input"
+      testability_concerns:
+        - "Multi-topic detection is context-dependent — test prompts must clearly present multiple distinct topics"
+        - "Semantic evaluation required — agent's decomposition strategy is a behavioral decision"
+
+    - phase: "Phase 4: Order of importance rule"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "Agent receives multiple topics and orders response by importance (most important first)"
+        - "Agent's topic ordering matches expected priority ranking"
+      testability_concerns:
+        - "Importance ordering is subjective — test must define clear priority criteria"
+        - "Semantic evaluation required — ordering is a behavioral decision, not a string pattern"
+
+    - phase: "Phase 5: Always discuss as default"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "Agent defaults to open-ended discussion (not structured output) when not explicitly asked for structure"
+        - "Agent produces structured output only when explicitly requested"
+      testability_concerns:
+        - "Must distinguish between 'discussion as default' and existing brainstorming behavior"
+        - "Semantic evaluation required — default mode is a behavioral decision"

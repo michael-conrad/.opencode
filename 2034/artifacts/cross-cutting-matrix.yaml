@@ -1,0 +1,18 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2034
+generated_at: 2026-07-20T22:30:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: Workflow boundary integrity
+      affects_phases: [1, 3]
+      description: Both trigger routing (phase 1) and content extraction (phase 3) enforce the principle that check-pr is a scanning workflow and cleanup is an action workflow. Phase 1 fixes the entry point, phase 3 fixes the content.
+      coordination_required: true
+
+    - concern: Sub-task file existence
+      affects_phases: [2, 3]
+      description: Phase 2 creates the missing branch-cleanup sub-task. Phase 3 depends on this sub-task existing before check-pr can delegate to it. Phase 2 must complete before phase 3 begins.
+      coordination_required: true
+
+    - concern: Trigger-to-workflow consistency
+      affects_phases: [1, 2, 3]
+      description: All three phases must produce a consistent state where "pr merged" → cleanup → branch-cleanup works end-to-end. Phase 1 fixes the trigger, phase 2 creates the sub-task, phase 3 populates it with the correct logic.
+      coordination_required: true

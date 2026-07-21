@@ -1,0 +1,183 @@
+# Structure Step Output — Issue #2034
+# Generated: 2026-07-20T23:25:00Z
+# Pipeline: writing-plans-creation → Step 6 (Structure)
+# Input: research evidence (15 findings), spec body, analytical artifacts
+
+spec:
+  issue_number: 2034
+  path: .opencode/.issues/2034
+  title: "Fix post-merge cleanup workflow — submodule-first depth-first cleanup"
+
+research_correction:
+  - finding: F-3
+    note: "Spec claims cleanup/branch-cleanup.md is missing. Research confirms the file EXISTS at 470 lines with complete branch cleanup logic. Phase 2 is reduced from 'create missing file' to 'verify existing file is correct and referenced properly'."
+
+phases:
+
+  - phase: 1
+    title: "Fix trigger routing in git-workflow/SKILL.md"
+    summary: "Move 'pr merged' from check-pr row to cleanup row in the Trigger Dispatch Table"
+    affected_files:
+      - .opencode/skills/git-workflow/SKILL.md
+    spec_scs:
+      - SC-1
+    evidence_type: string
+    operations:
+      - type: edit
+        file: .opencode/skills/git-workflow/SKILL.md
+        line: 35
+        description: "Remove 'pr merged' from check-pr trigger row"
+      - type: edit
+        file: .opencode/skills/git-workflow/SKILL.md
+        line: 34
+        description: "Add 'pr merged' to cleanup trigger row"
+    verification: "grep for 'pr merged' in cleanup row of Trigger Dispatch Table"
+    destructive: false
+    rollback: "git checkout .opencode/skills/git-workflow/SKILL.md"
+
+  - phase: 2
+    title: "Fix trigger routing in git-workflow-cleanup/SKILL.md"
+    summary: "Move 'pr merged' from check-pr row to cleanup row in the Trigger Dispatch Table"
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/SKILL.md
+    spec_scs:
+      - SC-2
+    evidence_type: string
+    operations:
+      - type: edit
+        file: .opencode/skills/git-workflow-cleanup/SKILL.md
+        line: 19
+        description: "Remove 'pr merged' from check-pr trigger row"
+      - type: edit
+        file: .opencode/skills/git-workflow-cleanup/SKILL.md
+        line: 18
+        description: "Add 'pr merged' to cleanup trigger row"
+    verification: "grep for 'pr merged' in cleanup row of Trigger Dispatch Table"
+    destructive: false
+    rollback: "git checkout .opencode/skills/git-workflow-cleanup/SKILL.md"
+
+  - phase: 3
+    title: "Verify existing branch-cleanup.md and update cleanup.md reference"
+    summary: "Research F-3 confirms cleanup/branch-cleanup.md already exists. Verify correctness and update cleanup.md Step 3 description if needed."
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+      - .opencode/skills/git-workflow-cleanup/tasks/branch-cleanup.md
+    spec_scs:
+      - SC-3
+    evidence_type: string
+    operations:
+      - type: verify
+        file: .opencode/skills/git-workflow-cleanup/tasks/branch-cleanup.md
+        description: "Confirm file exists and contains complete branch cleanup logic (Steps 0-6: closure-verification, trunk sync, submodule descent, worktree removal, content verification, checkpoint tag deletion, branch deletion)"
+      - type: edit
+        file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+        line: 118
+        description: "Update Step 3 description to match actual branch-cleanup.md content if misaligned"
+    verification: "Read branch-cleanup.md and confirm Step 3 route target exists"
+    destructive: false
+    rollback: "git checkout .opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
+
+  - phase: 4
+    title: "Extract Phases 4-5 from check-pr.md (workflow boundary violation)"
+    summary: "Remove Submodule Branch Cleanup (Phase 4) and Parent Branch Cleanup (Phase 5) from check-pr.md. These are cleanup actions that belong in the cleanup workflow, not in a scanning workflow."
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    spec_scs:
+      - SC-4
+      - SC-5
+    evidence_type: string
+    operations:
+      - type: remove
+        file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+        lines: [108, 123]
+        description: "Remove Phase 4 (Submodule Branch Cleanup) and Phase 5 (Parent Branch Cleanup) — lines 108-123"
+      - type: edit
+        file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+        description: "Update check-pr.md to delegate branch cleanup to cleanup workflow instead of performing it inline"
+    verification: "grep for 'Submodule Branch Cleanup' and 'Parent Branch Cleanup' in check-pr.md — both must be absent"
+    destructive: true
+    rollback: "git checkout .opencode/skills/git-workflow-cleanup/tasks/check-pr.md"
+    safety:
+      destructive_operations:
+        - "Removing Phases 4-5 from check-pr.md (file deletion of procedural content)"
+      rollback_plan: "git checkout .opencode/skills/git-workflow-cleanup/tasks/check-pr.md restores original"
+      data_loss_risk: low
+
+  - phase: 5
+    title: "Behavioral enforcement test for 'pr merged' → cleanup routing"
+    summary: "Write a behavioral enforcement test that verifies the agent dispatches cleanup (not check-pr) when the user says 'pr merged'"
+    affected_files:
+      - .opencode/tests-v2/behaviors/cleanup-routing.sh
+    spec_scs:
+      - SC-6
+    evidence_type: behavioral
+    operations:
+      - type: create
+        file: .opencode/tests-v2/behaviors/cleanup-routing.sh
+        description: "Create behavioral test: send 'pr merged' prompt, verify stderr shows cleanup dispatch (not check-pr dispatch)"
+    verification: "bash .opencode/tests-v2/behaviors/cleanup-routing.sh — must PASS"
+    destructive: false
+    rollback: "rm .opencode/tests-v2/behaviors/cleanup-routing.sh"
+
+dependency_contract:
+  version: 1
+  phases:
+    - phase: 1
+      depends_on: []
+      rationale: "Trigger routing in parent SKILL.md is independent of all other changes"
+    - phase: 2
+      depends_on: []
+      rationale: "Trigger routing in cleanup SKILL.md is independent of all other changes"
+    - phase: 3
+      depends_on: []
+      rationale: "Verification of existing branch-cleanup.md is independent of trigger routing changes"
+    - phase: 4
+      depends_on: [3]
+      rationale: "Extraction from check-pr.md requires branch-cleanup.md to be verified first (the extracted content routes to it)"
+    - phase: 5
+      depends_on: [1, 2, 3, 4]
+      rationale: "Behavioral test verifies the complete routing pipeline — all trigger and content changes must be in place first"
+  ordering:
+    - "Phases 1, 2, 3 are independent and MAY execute in parallel"
+    - "Phase 4 MUST execute after Phase 3"
+    - "Phase 5 MUST execute after Phases 1, 2, 3, 4"
+  parallel_groups:
+    - group: A
+      phases: [1, 2, 3]
+      constraint: "independent — any order"
+    - group: B
+      phases: [4]
+      constraint: "after group A"
+    - group: C
+      phases: [5]
+      constraint: "after group B"
+
+sc_traceability:
+  - sc_id: SC-1
+    criterion: "Fix trigger routing in git-workflow/SKILL.md — 'pr merged' maps to cleanup"
+    phase: 1
+    evidence_type: string
+  - sc_id: SC-2
+    criterion: "Fix trigger routing in git-workflow-cleanup/SKILL.md — 'pr merged' maps to cleanup"
+    phase: 2
+    evidence_type: string
+  - sc_id: SC-3
+    criterion: "Verify cleanup/branch-cleanup.md exists and cleanup.md Step 3 reference is correct"
+    phase: 3
+    evidence_type: string
+  - sc_id: SC-4
+    criterion: "Extract Phases 4-5 (cleanup actions) from check-pr.md"
+    phase: 4
+    evidence_type: string
+  - sc_id: SC-5
+    criterion: "Update check-pr.md to delegate branch cleanup to cleanup workflow"
+    phase: 4
+    evidence_type: string
+  - sc_id: SC-6
+    criterion: "Behavioral test: 'pr merged' dispatches cleanup, not check-pr"
+    phase: 5
+    evidence_type: behavioral
+  - sc_id: SC-7
+    criterion: "cleanup.md Step 3 description matches actual branch-cleanup.md content"
+    phase: 3
+    evidence_type: string

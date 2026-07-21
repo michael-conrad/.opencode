@@ -1,0 +1,45 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+cross_cutting_matrix:
+  concerns:
+    - concern: "020-go-prohibitions.md modification integrity"
+      affects_phases:
+        - "Phase 1: Universal question tool prohibition"
+        - "Phase 2: Pigeon-holing in natural language prohibition"
+        - "Phase 3: Single-topic discipline enforcement"
+        - "Phase 4: Order of importance rule"
+        - "Phase 5: Always discuss as default"
+      description: "All 5 phases modify 020-go-prohibitions.md. Each phase adds or modifies different sections, but concurrent edits risk merge conflicts and ordering issues. The file must be edited sequentially or with careful section targeting."
+      coordination_required: true
+
+    - concern: "000-critical-rules.md new entries ordering"
+      affects_phases:
+        - "Phase 1: Universal question tool prohibition"
+        - "Phase 2: Pigeon-holing in natural language prohibition"
+        - "Phase 3: Single-topic discipline enforcement"
+        - "Phase 4: Order of importance rule"
+        - "Phase 5: Always discuss as default"
+      description: "All 5 phases add new or modify existing entries in 000-critical-rules.md. New critical rules must be inserted in a consistent location (Tier 1 section) and maintain numbering order. Phase 1 modifies an existing entry (critical-rules-037), while Phases 2-5 add new entries."
+      coordination_required: true
+
+    - concern: "Behavioral enforcement test consistency"
+      affects_phases:
+        - "Phase 1: Universal question tool prohibition"
+        - "Phase 2: Pigeon-holing in natural language prohibition"
+        - "Phase 3: Single-topic discipline enforcement"
+        - "Phase 4: Order of importance rule"
+        - "Phase 5: Always discuss as default"
+      description: "Each phase requires a behavioral enforcement test in .opencode/tests-v2/behaviors/. Tests must be independent and individually runnable. Shared test infrastructure (helpers.sh, with-test-home) must not be broken by any single phase."
+      coordination_required: true
+
+    - concern: "Session-enforcement.ts enforcement block updates"
+      affects_phases:
+        - "Phase 1: Universal question tool prohibition"
+      description: "critical-rules-037 is referenced in session-enforcement.ts enforcement blocks. If the rule scope changes, the enforcement block may need updating. This is a cross-cutting concern because it touches TypeScript plugin code, not just guideline files."
+      coordination_required: false
+
+    - concern: "Pre-implementation-analysis task file consistency"
+      affects_phases:
+        - "Phase 1: Universal question tool prohibition"
+      description: "The pre-implementation-analysis.md task file and its sub-tasks (yield-to-assemble-work.md) both reference the question tool prohibition. Phase 1 changes must be consistent across all referencing files."
+      coordination_required: false

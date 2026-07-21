@@ -1,0 +1,34 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+state_analysis:
+  phases:
+    - phase: "Phase 1: Universal question tool prohibition"
+      state_transitions:
+        - from: "question tool prohibited in discussion mode only (020-go-prohibitions §1.6) + for_pr scope only (critical-rules-037)"
+          to: "question tool prohibited universally — all contexts, all scopes"
+          trigger: "Remove scope qualifiers from 020-go-prohibitions.md, 000-critical-rules.md, pre-implementation-analysis.md, 140-planning-spec-creation.md"
+          invariant: "Existing prohibition text remains intact — only scope qualifiers are removed. No new prohibitions are added."
+    - phase: "Phase 2: Pigeon-holing in natural language prohibition"
+      state_transitions:
+        - from: "Natural language pigeon-holing not explicitly prohibited (same anti-pattern as question tool but no rule exists)"
+          to: "Natural language pigeon-holing explicitly prohibited as Tier 1 critical rule"
+          trigger: "Add new prohibition to 020-go-prohibitions.md and new critical rule to 000-critical-rules.md"
+          invariant: "Existing question tool prohibition is unchanged. This is a new rule, not a modification."
+    - phase: "Phase 3: Single-topic discipline enforcement"
+      state_transitions:
+        - from: "Single-topic discipline exists as advisory text in 020-go-prohibitions.md (not a critical rule)"
+          to: "Single-topic discipline enforced as Tier 1 critical rule"
+          trigger: "Elevate existing advisory text to 🚫 NEVER DO section in 020-go-prohibitions.md, add critical rule to 000-critical-rules.md"
+          invariant: "Existing advisory text content is preserved — only its enforcement level changes."
+    - phase: "Phase 4: Order of importance rule"
+      state_transitions:
+        - from: "No rule exists for topic ordering by importance"
+          to: "Order of importance rule established as Tier 1 critical rule"
+          trigger: "Add new prohibition to 020-go-prohibitions.md and new critical rule to 000-critical-rules.md"
+          invariant: "No existing text is modified — this is a net-new addition."
+    - phase: "Phase 5: Always discuss as default"
+      state_transitions:
+        - from: "Discussion framed as a 'mode' (opt-in) in 020-go-prohibitions.md §1.6"
+          to: "Discussion established as the default communication paradigm (structured output is opt-in)"
+          trigger: "Reframe §1.6 section header and framing text in 020-go-prohibitions.md, add critical rule to 000-critical-rules.md"
+          invariant: "Existing discussion rules (no question tool, no pigeon-holing, single topic) remain intact — only the framing changes."

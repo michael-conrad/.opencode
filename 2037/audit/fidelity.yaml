@@ -1,0 +1,53 @@
+# Audit: Plan Fidelity Against Spec
+# Issue: .opencode#2037
+# Timestamp: 2026-07-20T12:00:00Z
+
+status: PASS
+finding_summary: Plan is fully faithful to spec. All 7 SCs covered across 6 phases, all 6 affected files addressed, no scope creep, no omitted requirements. Plan goal matches spec goal verbatim.
+artifact_path: .opencode/.issues/2037/audit/fidelity.yaml
+all_criteria_pass: true
+
+checks:
+  - check: "Plan goal matches spec goal"
+    result: PASS
+    detail: >
+      Spec goal: "Consolidate 5 scattered discussion discipline rules into a unified Tier 1 framework:
+      universal question tool prohibition, pigeon-holing ban, single-topic enforcement, order of importance,
+      and always-discuss default."
+      Plan goal: identical wording. Exact match.
+
+  - check: "All spec SCs covered by plan phases"
+    result: PASS
+    detail: >
+      SC-1 (question tool universal) → Phase 1. SC-2 (pigeon-holing prohibited) → Phase 2.
+      SC-3 (single-topic enforced) → Phase 3. SC-4 (order of importance) → Phase 4.
+      SC-5 (discussion as default) → Phase 5. SC-6 (remove contradictory instruction) → Phase 1.
+      SC-7 (behavioral test passes) → Phase 6. All 7 SCs covered.
+
+  - check: "No plan phases spec didn't ask for"
+    result: PASS
+    detail: >
+      Spec asks for 5 rule changes + behavioral test. Plan has 6 phases mapping 1:1:
+      Phase 1 (universal question tool), Phase 2 (pigeon-holing), Phase 3 (single-topic),
+      Phase 4 (order of importance), Phase 5 (always discuss), Phase 6 (behavioral test).
+      No extra phases. No scope creep.
+
+  - check: "Plan doesn't omit spec requirements"
+    result: PASS
+    detail: >
+      All 6 affected files addressed:
+      1. 020-go-prohibitions.md — Phases 1-5 add/edit prohibitions
+      2. 000-critical-rules.md — Phase 1 updates critical-rules-037, Phases 2-5 add 4 new rules
+      3. 010-approval-gate.md — Phase 1 step 7 updates edge case table
+      4. pre-implementation-analysis.md — Phase 1 step 8 removes scope qualifier
+      5. 140-planning-spec-creation.md — Phase 1 step 9 removes contradictory instruction
+      6. tests-v2/behaviors/ — Phase 6 creates enforcement test
+      All 5 spec problems addressed by corresponding SCs.
+
+  - check: "Plan structure completeness"
+    result: PASS
+    detail: >
+      Plan includes: SC-to-Step Traceability table, Safety/Rollback, Phase Table with
+      dependencies, Exit Criteria (C1-C8), Behavioral SC Exit Criteria with behavior_run +
+      behavioral-test-evaluation gates, Blast Radius, Concern Map. Step numbering is
+      globally sequential (1-45). Each phase has coherence gate, RED/GREEN/VbC cycle.

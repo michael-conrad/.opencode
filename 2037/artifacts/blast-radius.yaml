@@ -1,0 +1,86 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+blast_radius:
+  phases:
+    - phase: "Phase 1: Universal question tool prohibition"
+      affected_components:
+        - component: ".opencode/guidelines/020-go-prohibitions.md"
+          impact: direct
+          description: "Add top-level Tier 1 prohibition for question tool in §1.6 (discussion mode) — currently scoped to discussion mode only, needs universal scope"
+          ripple_effects:
+            - "All agents will be prohibited from using question tool in ALL contexts, not just discussion mode"
+            - "Pre-implementation-analysis task's 'no question tool' rule becomes redundant (already covered by universal prohibition)"
+        - component: ".opencode/guidelines/000-critical-rules.md"
+          impact: direct
+          description: "Update critical-rules-037 to remove for_pr scope qualifier — make question tool prohibition universal"
+          ripple_effects:
+            - "critical-rules-037 enforcement block in session-enforcement.ts may need update"
+        - component: ".opencode/guidelines/010-approval-gate.md"
+          impact: indirect
+          description: "Edge case table references critical-rules-037 — update reference to reflect universal scope"
+          ripple_effects: []
+        - component: ".opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md"
+          impact: direct
+          description: "Remove scope qualifier on question tool prohibition — currently says 'Never use question tool after presenting the execution plan'"
+          ripple_effects:
+            - "pre-impl/yield-to-assemble-work.md checkpoint references may need update"
+        - component: ".opencode/guidelines/140-planning-spec-creation.md"
+          impact: direct
+          description: "Remove contradictory instruction that says 'Use the question tool with a list of available specs'"
+          ripple_effects:
+            - "Spec-creation workflow loses question tool as a selection mechanism — must use alternative (chat-based selection)"
+      risk_level: medium
+
+    - phase: "Phase 2: Pigeon-holing in natural language prohibition"
+      affected_components:
+        - component: ".opencode/guidelines/020-go-prohibitions.md"
+          impact: direct
+          description: "Add Tier 1 critical rule prohibiting pigeon-holing in natural language (same anti-pattern as question tool)"
+          ripple_effects:
+            - "All agents must avoid presenting constrained options in prose ('Should we do X or Y?')"
+        - component: ".opencode/guidelines/000-critical-rules.md"
+          impact: direct
+          description: "Add new critical rule for natural language pigeon-holing prohibition"
+          ripple_effects:
+            - "Enforcement block in session-enforcement.ts may need new entry"
+      risk_level: low
+
+    - phase: "Phase 3: Single-topic discipline enforcement"
+      affected_components:
+        - component: ".opencode/guidelines/020-go-prohibitions.md"
+          impact: direct
+          description: "Elevate single-topic discipline from advisory text to Tier 1 critical rule"
+          ripple_effects:
+            - "Agents must decompose multi-topic messages into single-topic turns — currently advisory only"
+        - component: ".opencode/guidelines/000-critical-rules.md"
+          impact: direct
+          description: "Add new critical rule for single-topic discipline"
+          ripple_effects: []
+      risk_level: low
+
+    - phase: "Phase 4: Order of importance rule"
+      affected_components:
+        - component: ".opencode/guidelines/020-go-prohibitions.md"
+          impact: direct
+          description: "Add new rule for topic ordering — most important topic first"
+          ripple_effects:
+            - "Agents must prioritize topics by importance in all communications"
+        - component: ".opencode/guidelines/000-critical-rules.md"
+          impact: direct
+          description: "Add new critical rule for order of importance"
+          ripple_effects: []
+      risk_level: low
+
+    - phase: "Phase 5: Always discuss as default"
+      affected_components:
+        - component: ".opencode/guidelines/020-go-prohibitions.md"
+          impact: direct
+          description: "Reframe discussion from a 'mode' to the default — remove 'Discussion Mode' section framing, make open-ended discussion the baseline"
+          ripple_effects:
+            - "Structured output becomes opt-in (explicit request) rather than default"
+            - "Brainstorming skill's default mode may need alignment"
+        - component: ".opencode/guidelines/000-critical-rules.md"
+          impact: direct
+          description: "Add new critical rule establishing discussion as default communication mode"
+          ripple_effects: []
+      risk_level: medium

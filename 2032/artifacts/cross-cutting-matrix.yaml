@@ -1,0 +1,28 @@
+cross_cutting:
+  - concern: DiMo role descriptions
+    appears_in:
+      - closure-verification/ sub-roles (4)
+      - coherence-extraction/ sub-roles (4)
+      - spec-summary/ sub-roles (4)
+      - resolve-models.md
+      - spec-audit-evaluator.md
+      - spec-audit-investigator.md
+      - spec-audit-validator.md
+      - content-audit-evaluator.md
+      - behavioral-sc-evaluator.md
+    pattern: "DiMo.*Role|Role: (Investigator|Validator|Evaluator|Arbiter)"
+  - concern: Chain flow documentation
+    appears_in:
+      - closure-verification.md + sub-roles (4)
+      - coherence-extraction.md + sub-roles (4)
+      - spec-summary.md + sub-roles (4)
+    pattern: "Investigator.*Validator.*Evaluator.*Arbiter|chain"
+  - concern: Orchestrator dispatch markers
+    appears_in:
+      - cross-validate.md
+      - resolve-models.md
+    pattern: '\*\*orchestrator\*\*|\*\*sub-agent\*\*|\*\*clean-room\*\*|\*\*inline\*\*'
+  - concern: Missing entry/exit criteria
+    appears_in: all 19 files
+    pattern: "Entry Criteria|Exit Criteria"
+    expected: present after fix

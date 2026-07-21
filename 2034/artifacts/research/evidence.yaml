@@ -1,0 +1,200 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2034
+generated_at: 2026-07-20T22:35:00Z
+research_scope: "Step 2 — Research: affected files and codebase evidence for plan creation"
+
+findings:
+
+  - finding_id: F-1
+    title: "Wrong trigger routing — 'pr merged' maps to check-pr in git-workflow/SKILL.md"
+    severity: defect
+    file: .opencode/skills/git-workflow/SKILL.md
+    line: 35
+    evidence:
+      - "Trigger Dispatch Table line 35: '\"check pr\" / \"check prs\" / \"check merged prs\" / \"pr merged\"' → check-pr"
+      - "The 'pr merged' phrase is grouped with scanning phrases ('check pr', 'check prs') but should route to cleanup"
+    current_state: '"pr merged" dispatches check-pr task'
+    required_state: '"pr merged" dispatches cleanup task'
+    fix: "Move 'pr merged' from check-pr row to cleanup row in Trigger Dispatch Table"
+
+  - finding_id: F-2
+    title: "Wrong trigger routing — 'pr merged' maps to check-pr in git-workflow-cleanup/SKILL.md"
+    severity: defect
+    file: .opencode/skills/git-workflow-cleanup/SKILL.md
+    line: 19
+    evidence:
+      - "Trigger Dispatch Table line 19: '\"check pr\" / \"check prs\" / \"check merged prs\" / \"pr merged\"' → check-pr"
+      - "Same grouping issue as parent SKILL.md — 'pr merged' should route to cleanup"
+    current_state: '"pr merged" dispatches check-pr task'
+    required_state: '"pr merged" dispatches cleanup task'
+    fix: "Move 'pr merged' from check-pr row to cleanup row in Trigger Dispatch Table"
+
+  - finding_id: F-3
+    title: "Missing task file — cleanup.md Step 3 routes to cleanup/branch-cleanup which exists"
+    severity: corrected
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 116
+    evidence:
+      - "cleanup.md Step 3 (line 116): 'Route to: cleanup/branch-cleanup'"
+      - "The file cleanup/branch-cleanup.md EXISTS at 470 lines with full branch cleanup procedure"
+      - "The sub-task file was already created (possibly by a prior implementation attempt)"
+    current_state: "cleanup/branch-cleanup.md exists and contains complete branch cleanup logic"
+    required_state: "N/A — file already exists"
+    note: "The spec says this file is missing, but it was already created. The file is 470 lines and contains Steps 0-6 covering closure-verification, trunk sync, submodule descent, worktree removal, content verification, checkpoint tag deletion, and branch deletion."
+
+  - finding_id: F-4
+    title: "Workflow boundary violation — check-pr.md Phases 4-5 contain cleanup actions"
+    severity: defect
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    lines: [109, 116]
+    evidence:
+      - "Phase 4 (line 109): 'Submodule Branch Cleanup' — submodule branch cleanup, trunk restore, dirty pointer handling"
+      - "Phase 5 (line 116): 'Parent Branch Cleanup' — trunk switch, branch deletion, checkpoint tag deletion, prune"
+      - "These are cleanup actions that belong in the cleanup workflow, not in check-pr (a scanning workflow)"
+    current_state: "check-pr.md contains branch cleanup logic in Phases 4-5"
+    required_state: "check-pr.md is a pure scanning workflow (Phases 1-3, 6 only)"
+    fix: "Remove Phases 4-5 from check-pr.md; update check-pr to delegate branch cleanup to cleanup workflow"
+
+  - finding_id: F-5
+    title: "check-pr.md Phase 6 (Depth-First Final State) is a reporting concern — not a cleanup action"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 125
+    evidence:
+      - "Phase 6 (line 125): 'Depth-First Final State' — iterates repos, reports branch-aware parking state, verifies clean working tree"
+      - "This is a reporting/verification step, not a mutation step — it belongs in check-pr as the final state summary"
+    current_state: "Phase 6 is in check-pr.md and is appropriate there"
+    required_state: "Phase 6 stays in check-pr.md — no change needed"
+
+  - finding_id: F-6
+    title: "cleanup.md Step 3 references branch-cleanup sub-task — reference is correct"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 116
+    evidence:
+      - "Step 3 (line 116): 'Route to: cleanup/branch-cleanup'"
+      - "The sub-task file exists at cleanup/branch-cleanup.md"
+      - "The reference text is correct and does not need modification"
+    current_state: "cleanup.md correctly references cleanup/branch-cleanup"
+    required_state: "No change needed to cleanup.md for the reference"
+
+  - finding_id: F-7
+    title: "cleanup.md Step 3 description may need updating to match actual branch-cleanup.md content"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 118
+    evidence:
+      - "Step 3 description (line 118): 'Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.'"
+      - "The actual branch-cleanup.md covers: closure-verification audit, trunk sync, submodule descent, worktree removal, content verification, checkpoint tag deletion, branch deletion, and clean state verification"
+      - "The description is broadly accurate but may benefit from alignment"
+    current_state: "Step 3 description is approximately correct"
+    required_state: "Optional alignment — not a defect"
+
+  - finding_id: F-8
+    title: "check-pr.md Phase 3 (Close Linked Issues) is also a cleanup action"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 101
+    evidence:
+      - "Phase 3 (line 101): 'Close Linked Issues' — searches open issues, closes depth-first"
+      - "Issue closure is a mutation action, not a scanning action"
+      - "However, the spec only identifies Phases 4-5 as the boundary violation"
+    current_state: "Phase 3 is in check-pr.md — issue closure is a mutation"
+    required_state: "Per spec scope, only Phases 4-5 are in scope for extraction. Phase 3 is out of scope."
+
+  - finding_id: F-9
+    title: "cleanup.md Step 0 (Detect Submodules) builds routing context — correct and functional"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 35
+    evidence:
+      - "Step 0 (line 35): filesystem glob scan for submodules, resolves owner/repo, builds routing context dictionary"
+      - "This is a prerequisite step that feeds into all sub-tasks including branch-cleanup"
+    current_state: "Submodule detection and routing context is functional"
+    required_state: "No change needed"
+
+  - finding_id: F-10
+    title: "cleanup.md Step 2.9 (Behavioral Evidence Artifact Cleanup) — correct and functional"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 197
+    evidence:
+      - "Step 2.9 (line 197): removes behavioral evidence artifacts after merge confirmation"
+      - "This is the ONLY authorized cleanup point for behavioral evidence artifacts"
+    current_state: "Behavioral evidence cleanup is correctly placed in cleanup workflow"
+    required_state: "No change needed"
+
+  - finding_id: F-11
+    title: "cleanup.md Step 1.5 (Post-Merge Release Detection) — correct and functional"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 95
+    evidence:
+      - "Step 1.5 (line 95): detects release PRs via branch name or label, dispatches release-promoter"
+    current_state: "Release detection is correctly placed in cleanup workflow"
+    required_state: "No change needed"
+
+  - finding_id: F-12
+    title: "cleanup.md Step 4 (Post-Cleanup Dev-Tip Verification) — correct and functional"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 120
+    evidence:
+      - "Step 4 (line 120): verifies all repos are at dev tip after cleanup"
+      - "This is the final verification gate — nothing runs after it"
+    current_state: "Post-cleanup verification is correctly placed in cleanup workflow"
+    required_state: "No change needed"
+
+  - finding_id: F-13
+    title: "check-pr.md Phase 1 (Scan for Merged PRs) — correct scanning workflow"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 32
+    evidence:
+      - "Phase 1 (line 32): builds repo list, queries merged PRs via platform API, reports findings"
+      - "This is a pure scanning action — appropriate for check-pr"
+    current_state: "Phase 1 is correctly placed in check-pr"
+    required_state: "No change needed"
+
+  - finding_id: F-14
+    title: "check-pr.md Phase 2 (Verify Each Merge) — correct scanning workflow"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 39
+    evidence:
+      - "Phase 2 (line 39): full mergeability diagnosis with 6-field check"
+      - "This is a verification/scanning action — appropriate for check-pr"
+    current_state: "Phase 2 is correctly placed in check-pr"
+    required_state: "No change needed"
+
+  - finding_id: F-15
+    title: "check-pr.md Phase 3 (Close Linked Issues) — mutation action in scanning workflow"
+    severity: observation
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 101
+    evidence:
+      - "Phase 3 (line 101): closes linked issues depth-first"
+      - "Issue closure is a mutation action — technically a boundary violation"
+      - "However, the spec scope only targets Phases 4-5 for extraction"
+    current_state: "Phase 3 is in check-pr.md — out of spec scope for this fix"
+    required_state: "Out of scope — no change needed per spec"
+
+dependencies:
+  - finding_id: F-3
+    depends_on: []
+    note: "The missing file already exists — this changes the plan scope. Phase 2 may be reduced to verification-only."
+  - finding_id: F-4
+    depends_on: [F-3]
+    note: "Phase 3 (extraction) depends on the branch-cleanup sub-task existing. Since F-3 is already resolved, Phase 3 can proceed directly."
+  - finding_id: F-1
+    depends_on: []
+    note: "Trigger routing is independent of task file content changes."
+  - finding_id: F-2
+    depends_on: []
+    note: "Same as F-1 — independent change."
+
+summary:
+  total_findings: 15
+  defects: 3
+  corrected: 1
+  observations: 11
+  key_insight: "The spec states cleanup/branch-cleanup.md is missing, but the file already exists at 470 lines with complete branch cleanup logic. This changes the plan scope — Phase 2 may be reduced to verification that the file exists and is correct, rather than creating it from scratch. The remaining work is: (1) fix trigger routing in both SKILL.md files, (2) verify/update the existing branch-cleanup.md, and (3) extract Phases 4-5 from check-pr.md."

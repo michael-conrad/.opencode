@@ -1,0 +1,13 @@
+variables:
+  p1: {type: bool, nullable: false}
+  p2: {type: bool, nullable: false}
+  p3: {type: bool, nullable: false}
+  p4: {type: bool, nullable: false}
+  p5: {type: bool, nullable: false}
+  p6: {type: bool, nullable: false}
+invariants:
+  - "z3.Implies(p2 == True, p1 == True)"
+  - "z3.Implies(p3 == True, p2 == True)"
+  - "z3.Implies(p4 == True, p3 == True)"
+  - "z3.Implies(p5 == True, p4 == True)"
+  - "z3.Implies(p6 == True, p5 == True)"

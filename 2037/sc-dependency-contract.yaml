@@ -1,0 +1,11 @@
+variables:
+  a: {type: bool, nullable: false}
+  b: {type: bool, nullable: false}
+  c: {type: bool, nullable: false}
+  d: {type: bool, nullable: false}
+  e: {type: bool, nullable: false}
+  f: {type: bool, nullable: false}
+  g: {type: bool, nullable: false}
+invariants:
+  - "z3.Implies(f == True, a == True)"
+  - "z3.Implies(g == True, z3.And(a == True, b == True, c == True, d == True, e == True, f == True))"

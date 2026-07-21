@@ -1,0 +1,49 @@
+# Solve Step Output — Issue #2034
+# Generated: 2026-07-20T23:25:00Z
+# Pipeline: writing-plans-creation → Step 8 (Solve)
+# Input: structure-output.yaml (phase definitions + dependency contract)
+# Tool: .opencode/tools/solve check
+
+solve:
+  status: SAT
+  detail: "SAT (+ postconditions + invariants)"
+  solver: "Z3 via .opencode/tools/solve"
+
+dependency_contract:
+  version: 1
+  phases:
+    - phase: 1
+      depends_on: []
+      rationale: "Trigger routing in parent SKILL.md is independent of all other changes"
+    - phase: 2
+      depends_on: []
+      rationale: "Trigger routing in cleanup SKILL.md is independent of all other changes"
+    - phase: 3
+      depends_on: []
+      rationale: "Verification of existing branch-cleanup.md is independent of trigger routing changes"
+    - phase: 4
+      depends_on: [3]
+      rationale: "Extraction from check-pr.md requires branch-cleanup.md to be verified first (the extracted content routes to it)"
+    - phase: 5
+      depends_on: [1, 2, 3, 4]
+      rationale: "Behavioral test verifies the complete routing pipeline — all trigger and content changes must be in place first"
+
+validated_ordering:
+  - "Phases 1, 2, 3 are independent and MAY execute in parallel"
+  - "Phase 4 MUST execute after Phase 3"
+  - "Phase 5 MUST execute after Phases 1, 2, 3, 4"
+
+parallel_groups:
+  - group: A
+    phases: [1, 2, 3]
+    constraint: "independent — any order"
+  - group: B
+    phases: [4]
+    constraint: "after group A"
+  - group: C
+    phases: [5]
+    constraint: "after group B"
+
+acyclic: true
+no_diamond_conflicts: true
+all_phases_reachable: true

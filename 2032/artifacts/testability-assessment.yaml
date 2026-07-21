@@ -1,0 +1,12 @@
+testability_assessment:
+  sc_string_evidence:
+    - SC-1: grep for "DiMo.*Role" or "DiMo.*chain" in tasks/*.md — 0 matches expected
+    - SC-2: grep for (**orchestrator**), (**sub-agent**), (**clean-room**), (**inline**) — 0 matches expected
+    - SC-3: grep for "Never task()" or "orchestrator dispatches" — 0 matches expected
+    - SC-4: Verify each remediated file has Entry Criteria and Exit Criteria sections
+    - SC-5: Verify no dispatch markers remain in remediated files
+    - SC-6: Verify audit SKILL.md TDT has DiMo chain documentation
+  sc_behavioral_evidence:
+    - SC-7: opencode run with task card execution prompt — verify sub-agent executes inline
+  testable: true
+  verification_method: grep + file read for string SCs; opencode run for behavioral SC

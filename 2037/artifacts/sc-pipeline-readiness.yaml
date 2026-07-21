@@ -1,0 +1,43 @@
+schema_version: "1.0"
+generated_at: "20260721032333"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 7 SCs map to exactly one RED→GREEN→COMMIT cycle. SC-1 through SC-5 each assert one independently testable behavioral claim (question tool universal prohibition, pigeon-holing prohibition, single-topic enforcement, order of importance, always-discuss default). SC-6 asserts one string claim (contradictory instructions removed). SC-7 asserts one behavioral claim (enforcement test passes). No SC bundles multiple assertions."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/2037/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "z3.And(a == True, b == True, c == True, d == True, e == True, f == True, g == True)"
+        result: VALID
+    detail: "SC dependency DAG: SC-6 (contradictory instructions) depends on SC-1 (question tool universal). SC-7 (behavioral test) depends on all prior SCs. Z3 model confirms SAT — no cycles, all referenced SC-IDs defined."
+  - check_id: PR-3
+    result: PASS
+    detail: "All 7 SCs target exactly one file category and one verification domain. SC-1 through SC-5: guideline files, behavioral. SC-6: guideline files, string. SC-7: test files, behavioral. No SC spans multiple file categories or verification domains. Semantic single-concern check: each SC's problem domain is singular (e.g., SC-1 = 'question tool universal scope', not 'question tool + pigeon-holing'). Decomposition-depth valid: each SC maps to exactly one RED→GREEN→COMMIT cycle."
+  - check_id: PR-4
+    result: PASS
+    solve_contract_path: ".opencode/.issues/2037/dependency-ordering-verification/ordering.yaml"
+    prove_results:
+      - theorem: "z3.And(p1 == True, p2 == True, p3 == True, p4 == True, p5 == True, p6 == True)"
+        result: VALID
+    detail: "Phase dependency graph: Phase 1→2→3→4→5→6 (sequential). Z3 model confirms SAT — no cycles, all phase dependencies declared and valid."
+  - check_id: PR-5
+    result: PASS
+    detail: "6-phase spec follows three-tier structure. PR-5a (pre-phase): Phase 1 (universal question tool prohibition) is a global pre-phase — modifies existing text across 5 files, no per-file implementation. PR-5b (per-file phases): Phases 2-5 each target a specific concern (pigeon-holing, single-topic, order of importance, always-discuss). PR-5c (post-phase): Phase 6 (behavioral enforcement test) is a global post-phase — cross-cutting verification. PR-5d (no step duplication): Global pre/post steps not duplicated in per-file phases. PR-5e (phase count): 6 phases = 4 per-file phases + 2 (pre + post)."
+    sub_checks:
+      - check_id: PR-5a
+        result: PASS
+      - check_id: PR-5b
+        result: PASS
+      - check_id: PR-5c
+        result: PASS
+      - check_id: PR-5d
+        result: PASS
+      - check_id: PR-5e
+        result: PASS
+sc_summary:
+  total_scs: 7
+  atomic: 7
+  with_dependencies: 2
+  single_concern: 7

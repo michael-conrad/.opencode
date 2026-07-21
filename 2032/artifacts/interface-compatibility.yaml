@@ -1,0 +1,8 @@
+interface_compatibility:
+  summary: No interface changes. Task cards are documentation-only artifacts consumed by sub-agents. Removing dispatch markers does not change any API, contract, or data format.
+  unchanged:
+    - All skill entry points (Invocation section)
+    - All Trigger Dispatch Tables (except audit SKILL.md which gets TDT update)
+    - All output contracts
+    - All sub-agent entry criteria
+  compatible: true

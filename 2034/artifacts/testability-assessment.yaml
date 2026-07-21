@@ -1,0 +1,33 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2034
+generated_at: 2026-07-20T22:30:00Z
+testability_assessment:
+  phases:
+    - phase: 1 — Fix trigger routing
+      test_strategy: behavioral
+      key_test_scenarios:
+        - Agent says "pr merged" → verify cleanup task is dispatched (not check-pr) via stderr assertion
+        - Agent says "check pr" → verify check-pr task is still dispatched (no regression)
+        - Agent says "check prs" → verify check-pr task is still dispatched (no regression)
+      testability_concerns:
+        - Behavioral tests require opencode run with with-test-home wrapper
+        - Must verify stderr for skill dispatch strings, not stdout prose
+
+    - phase: 2 — Create missing branch-cleanup sub-task
+      test_strategy: behavioral
+      key_test_scenarios:
+        - Agent dispatches cleanup after "pr merged" → verify branch-cleanup sub-task is invoked
+        - Verify branch-cleanup sub-task file exists and is non-empty
+      testability_concerns:
+        - Structural test (file existence) is sufficient for file creation
+        - Behavioral test needed to verify the sub-task is actually dispatched during cleanup
+
+    - phase: 3 — Extract cleanup actions from check-pr.md
+      test_strategy: behavioral
+      key_test_scenarios:
+        - Agent dispatches check-pr after "check pr" → verify Phases 4-5 are NOT executed (no branch cleanup in check-pr)
+        - Agent dispatches cleanup after "pr merged" → verify branch cleanup IS executed
+        - Verify check-pr.md no longer contains branch cleanup logic (structural)
+      testability_concerns:
+        - Behavioral tests must distinguish between check-pr and cleanup dispatch
+        - Structural test (grep for removed content) is secondary — behavioral is primary
+        - Risk of false PASS if check-pr still contains cleanup logic but agent doesn't reach those phases

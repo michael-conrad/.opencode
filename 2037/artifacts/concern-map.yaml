@@ -1,0 +1,38 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+concern_map:
+  phases:
+    - phase: "Phase 1: Universal question tool prohibition"
+      primary_concern: "Remove all scope qualifiers from the question tool prohibition — make it a universal Tier 1 rule"
+      boundaries:
+        - "IN SCOPE: 020-go-prohibitions.md §1.6 (discussion mode scope), 000-critical-rules.md critical-rules-037 (for_pr scope), 010-approval-gate.md edge case table reference, pre-implementation-analysis.md scope qualifier, 140-planning-spec-creation.md contradictory instruction"
+        - "OUT OF SCOPE: session-enforcement.ts enforcement block changes (separate concern), behavioral test changes (separate phase)"
+      separation_rationale: "The question tool prohibition is currently scattered across 5 files with inconsistent scoping. This phase consolidates all references into a single universal rule. It is isolated from other phases because it only modifies existing text — no new rules are created."
+
+    - phase: "Phase 2: Pigeon-holing in natural language prohibition"
+      primary_concern: "Add a new critical rule prohibiting the same anti-pattern as question tool but expressed in natural language prose"
+      boundaries:
+        - "IN SCOPE: Adding new Tier 1 rule to 020-go-prohibitions.md, adding new critical rule to 000-critical-rules.md"
+        - "OUT OF SCOPE: Existing question tool prohibition text (already covered by Phase 1), behavioral tests"
+      separation_rationale: "This is a new rule, not a modification of existing text. It is independent of Phase 1 because it addresses a different expression of the same anti-pattern (prose vs. tool)."
+
+    - phase: "Phase 3: Single-topic discipline enforcement"
+      primary_concern: "Elevate single-topic discipline from advisory text to a Tier 1 critical rule"
+      boundaries:
+        - "IN SCOPE: 020-go-prohibitions.md advisory text → critical rule, 000-critical-rules.md new entry"
+        - "OUT OF SCOPE: Existing multi-topic decomposition logic in brainstorming skill, behavioral tests"
+      separation_rationale: "This is an elevation of existing text, not new content. It is independent of Phases 1-2 because it addresses a different concern (topic discipline vs. tool/prose prohibition)."
+
+    - phase: "Phase 4: Order of importance rule"
+      primary_concern: "Add a new rule requiring agents to order topics by importance in all communications"
+      boundaries:
+        - "IN SCOPE: New rule in 020-go-prohibitions.md, new critical rule in 000-critical-rules.md"
+        - "OUT OF SCOPE: Implementation of ordering logic in agent behavior (behavioral test concern), existing topic ordering in other files"
+      separation_rationale: "This is a completely new rule with no existing precedent in the codebase. It is independent of all other phases."
+
+    - phase: "Phase 5: Always discuss as default"
+      primary_concern: "Reframe discussion from an opt-in mode to the default communication paradigm"
+      boundaries:
+        - "IN SCOPE: 020-go-prohibitions.md §1.6 'Discussion Mode' section reframing, 000-critical-rules.md new critical rule"
+        - "OUT OF SCOPE: Brainstorming skill default mode alignment (separate concern), behavioral tests"
+      separation_rationale: "This is a framing change to existing text, not new content. It is independent of Phases 1-4 because it addresses communication paradigm rather than specific prohibitions."

@@ -1,0 +1,143 @@
+# Research Findings — Issue 2037: Universal Discussion Discipline
+# Generated: 2026-07-20
+
+research_scope:
+  spec_issue_number: 2037
+  spec_path: .opencode/.issues/2037/spec.md
+  project_root: /home/muksihs/git/opencode-config
+  repo: .opencode (submodule)
+
+affected_files:
+  - path: .opencode/guidelines/020-go-prohibitions.md
+    sections_affected:
+      - §1.6 Discussion Mode Mandates (lines 276-303)
+      - §1.5 Soliciting Authorization (lines 250-272, specifically line 264 and line 272)
+    current_state:
+      - question_tool_prohibition: "Scoped to §1.6 Discussion Mode Mandates only. Not a top-level Tier 1 prohibition."
+      - pigeon_hole_prohibition: "Exists in §1.6 as advisory text. Not a critical rule."
+      - single_topic_rule: "Exists in §1.6 as advisory text. Not a critical rule."
+      - always_discuss_default: "Discussion framed as a mode (§1.6), not the default behavior."
+      - order_of_importance: "Does NOT exist anywhere in this file."
+
+  - path: .opencode/guidelines/000-critical-rules.md
+    sections_affected:
+      - critical-rules-037 (line 1021-1022)
+    current_state:
+      - critical-rules-037: "Scoped to `for_pr` only: 'No `question` tool for structural decisions when `halt_at >= pr_created`.'"
+      - question_tool_prohibition: "Only applies when halt_at >= pr_created. Not universal."
+      - pigeon_hole_prohibition: "Does NOT exist as a critical rule."
+      - single_topic_rule: "Does NOT exist as a critical rule."
+      - order_of_importance: "Does NOT exist as a critical rule."
+      - always_discuss_default: "Does NOT exist as a critical rule."
+
+  - path: .opencode/guidelines/010-approval-gate.md
+    sections_affected:
+      - Key Edge Cases table (line 248)
+    current_state:
+      - references critical-rules-037: "for_pr scope → no halt for structural decisions | approval-gate-014, critical-rules-037"
+      - scope_qualifier: "References the scoped version of critical-rules-037. Needs update if rule becomes universal."
+
+  - path: .opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md
+    sections_affected:
+      - Red Flags (line 46)
+      - Cross-References (lines 52-53)
+    current_state:
+      - line 46: "Never use `question` tool after presenting the execution plan"
+      - scope_qualifier: "Scoped to post-plan-presentation. Not universal."
+      - cross_refs: "References GO Prohibitions §1 and critical-rules-037"
+
+  - path: .opencode/skills/approval-gate-scope/tasks/pre-impl/yield-to-assemble-work.md
+    sections_affected:
+      - Entry Criteria (line 11)
+      - Checkpoint (line 81)
+      - Exit Criteria (line 118)
+    current_state:
+      - line 11: "Agent has completed all analysis without invoking `question` tool"
+      - line 81: "verify NO `question` tool calls have been made at ANY point during the pre-implementation-analysis flow"
+      - line 118: "No `question` tool invocation after plan presentation"
+      - scope_qualifier: "Scoped to pre-implementation-analysis flow. Not universal."
+
+  - path: .opencode/guidelines/140-planning-spec-creation.md
+    sections_affected:
+      - §1 Listing Available Specs, step 3 (line 57)
+    current_state:
+      - line 57: "Use the `question` tool with a list of available specs"
+      - contradiction: "DIRECTLY CONTRADICTS the universal prohibition in 020-go-prohibitions.md §1.6 line 278: 'Never use the `question` tool.'"
+      - action_required: "Remove this instruction. Replace with non-question-tool alternative (e.g., present list in chat)."
+
+  - path: .opencode/tests-v2/behaviors/
+    current_state:
+      - existing_tests: "16 behavioral test scripts exist"
+      - discussion_discipline_test: "NONE — no behavioral test exists for question tool prohibition, pigeon-holing, single-topic, order of importance, or always-discuss rules"
+      - action_required: "Create new behavioral test script for universal discussion discipline"
+
+findings:
+  finding_1:
+    id: F-01
+    description: "question tool prohibition is scoped across 3 locations, not universal"
+    locations:
+      - "020-go-prohibitions.md §1.6 — universal but scoped to 'discussion mode'"
+      - "000-critical-rules.md critical-rules-037 — scoped to for_pr only"
+      - "pre-implementation-analysis.md — scoped to post-plan-presentation"
+      - "yield-to-assemble-work.md — scoped to pre-implementation-analysis flow"
+    severity: scope_inconsistency
+    action: "Make universal: move to top-level Tier 1 in 020-go-prohibitions.md, update critical-rules-037 to remove scope qualifier"
+
+  finding_2:
+    id: F-02
+    description: "Pigeon-holing in natural language is advisory only, not a critical rule"
+    location: "020-go-prohibitions.md §1.6 line 279"
+    severity: missing_enforcement
+    action: "Elevate to Tier 1 critical rule in 000-critical-rules.md"
+
+  finding_3:
+    id: F-03
+    description: "Single-topic discipline is advisory text only, not a critical rule"
+    location: "020-go-prohibitions.md §1.6 line 280"
+    severity: missing_enforcement
+    action: "Elevate to Tier 1 critical rule in 000-critical-rules.md"
+
+  finding_4:
+    id: F-04
+    description: "Order of importance rule does not exist anywhere"
+    location: "N/A"
+    severity: missing_rule
+    action: "Add new critical rule for topic ordering (most important first)"
+
+  finding_5:
+    id: F-05
+    description: "'Always discuss' is not the default — discussion is framed as a mode"
+    location: "020-go-prohibitions.md §1.6"
+    severity: framing_issue
+    action: "Make 'always discuss' the default behavior, not a mode. Move to top-level."
+
+  finding_6:
+    id: F-06
+    description: "Contradictory instruction in 140-planning-spec-creation.md line 57"
+    location: "140-planning-spec-creation.md line 57"
+    severity: contradiction
+    action: "Remove 'Use the `question` tool' instruction. Replace with chat-based listing."
+
+  finding_7:
+    id: F-07
+    description: "No behavioral enforcement test exists for discussion discipline rules"
+    location: "tests-v2/behaviors/"
+    severity: missing_test
+    action: "Create new behavioral test script for universal discussion discipline"
+
+scope_qualifier_inventory:
+  - file: "020-go-prohibitions.md §1.6"
+    qualifier: "Discussion mode only (section header scopes the rules)"
+    needs_removal: true
+  - file: "000-critical-rules.md critical-rules-037"
+    qualifier: "when `halt_at >= pr_created`"
+    needs_removal: true
+  - file: "pre-implementation-analysis.md line 46"
+    qualifier: "after presenting the execution plan"
+    needs_removal: true
+  - file: "yield-to-assemble-work.md line 11/81/118"
+    qualifier: "during pre-implementation-analysis flow"
+    needs_removal: true
+  - file: "010-approval-gate.md line 248"
+    qualifier: "for_pr scope"
+    needs_removal: true

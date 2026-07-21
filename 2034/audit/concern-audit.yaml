@@ -1,0 +1,50 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2034
+audit_type: concern-boundary
+generated_at: 2026-07-20T22:45:00Z
+status: PASS
+all_criteria_pass: true
+finding_summary: All 5 phases have clean concern boundaries. Each phase addresses exactly one concern with no mixing. Cross-cutting concerns (trigger routing consistency, workflow boundary integrity, end-to-end routing pipeline) are identified in the Concern Map Reference and architecture section. Phase 3 bundles SC-3 and SC-7 but both are sub-aspects of the same verification concern (branch-cleanup.md existence and description alignment) — acceptable coupling.
+artifact_path: .opencode/.issues/2034/audit/concern-audit.yaml
+criteria:
+  - id: C1
+    description: Each phase addresses exactly one concern
+    result: PASS
+    details:
+      - Phase 1: Single concern — parent SKILL.md trigger routing (SC-1)
+      - Phase 2: Single concern — cleanup SKILL.md trigger routing (SC-2)
+      - Phase 3: Single concern — verify branch-cleanup.md existence and reference correctness (SC-3, SC-7). Two SCs but same concern domain.
+      - Phase 4: Single concern — workflow boundary violation extraction from check-pr.md (SC-4, SC-5). Two SCs but same concern domain.
+      - Phase 5: Single concern — behavioral enforcement test (SC-6)
+  - id: C2
+    description: No concern mixing across phases
+    result: PASS
+    details:
+      - Phase 1 (parent SKILL.md trigger) vs Phase 2 (cleanup SKILL.md trigger): Different files, independent, no mixing
+      - Phase 3 (verification) vs Phase 4 (extraction): Different concerns — verify vs modify
+      - Phase 5 (test) is purely additive — no concern overlap with prior phases
+  - id: C3
+    description: Cross-cutting concerns identified
+    result: PASS
+    details:
+      - Trigger routing consistency: Identified in Concern Map Reference (Phases 1-2 share trigger routing pattern)
+      - Workflow boundary integrity: Identified in plan architecture section
+      - End-to-end routing pipeline: Identified in dependency chain (Phase 4 depends on Phase 3; Phase 5 depends on all prior)
+  - id: C4
+    description: Concern boundaries are clean
+    result: PASS
+    details:
+      - Phase 1 ↔ Phase 2: Different files, independent, clean separation
+      - Phase 2 ↔ Phase 3: Different concerns (trigger routing vs file verification), clean separation
+      - Phase 3 ↔ Phase 4: Different concerns (verify vs extract), dependency documented
+      - Phase 4 ↔ Phase 5: Different concerns (content extraction vs test creation), dependency documented
+  - id: C5
+    description: Concern Map Reference matches phase structure
+    result: PASS
+    details:
+      - 5 concerns mapped to 5 phases in Concern Map Reference table
+      - Each concern maps to exactly one phase
+      - No orphan concerns or phases without concern mapping
+findings:
+  - severity: note
+    category: artifact-staleness
+    description: sc-summary.yaml and verification-consistency-contract.yaml reference SCs from a different spec (question tool prohibition), not from this spec (cleanup workflow). These artifacts appear stale/misaligned but do not affect concern boundary integrity.

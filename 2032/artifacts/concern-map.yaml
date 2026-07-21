@@ -1,0 +1,36 @@
+concerns:
+  - id: C1
+    name: Strip DiMo role descriptions
+    description: Remove Investigator/Validator/Evaluator/Arbiter role descriptions from task cards
+    affected_files:
+      - closure-verification.md + sub-roles (4)
+      - coherence-extraction.md + sub-roles (4)
+      - spec-summary.md + sub-roles (4)
+      - resolve-models.md
+      - spec-audit-evaluator.md
+      - spec-audit-investigator.md
+      - spec-audit-validator.md
+      - content-audit-evaluator.md
+      - behavioral-sc-evaluator.md
+  - id: C2
+    name: Strip chain flow documentation
+    description: Remove Investigator->Validator->Evaluator->Arbiter chain descriptions
+    affected_files:
+      - closure-verification.md + sub-roles (4)
+      - coherence-extraction.md + sub-roles (4)
+      - spec-summary.md + sub-roles (4)
+  - id: C3
+    name: Strip orchestrator dispatch markers
+    description: Remove (**orchestrator**), (**sub-agent**), (**clean-room**), (**inline**) markers
+    affected_files:
+      - cross-validate.md
+      - resolve-models.md
+  - id: C4
+    name: Add entry/exit criteria
+    description: Ensure each remediated task card has entry criteria and exit criteria sections
+    affected_files: all 19
+  - id: C5
+    name: Update audit SKILL.md TDT
+    description: Ensure audit SKILL.md documents DiMo chain dispatch in Trigger Dispatch Table
+    affected_files:
+      - .opencode/skills/audit/SKILL.md

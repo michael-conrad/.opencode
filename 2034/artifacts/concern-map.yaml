@@ -1,0 +1,30 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2034
+generated_at: 2026-07-20T22:30:00Z
+concern_map:
+  phases:
+    - phase: "1 — Fix trigger routing"
+      primary_concern: "Correct workflow dispatch routing for \"pr merged\" events"
+      boundaries:
+        - "In scope: Trigger Dispatch Table entries in git-workflow/SKILL.md and git-workflow-cleanup/SKILL.md"
+        - "In scope: \"pr merged\" -> cleanup mapping (not check-pr)"
+        - "Out of scope: Any other trigger phrase routing"
+        - "Out of scope: Task file content changes"
+      separation_rationale: "Trigger routing is a pure configuration concern — changing dispatch table entries does not affect task file logic. Isolated from content changes in phases 2 and 3."
+
+    - phase: "2 — Create missing branch-cleanup sub-task"
+      primary_concern: "Complete the cleanup workflow by creating the missing sub-task file"
+      boundaries:
+        - "In scope: Creating cleanup/branch-cleanup sub-task file"
+        - "In scope: Branch cleanup logic (switch to trunk, sync, delete merged branches, prune)"
+        - "Out of scope: Modifying check-pr.md content (handled in phase 3)"
+        - "Out of scope: Trigger routing changes (handled in phase 1)"
+      separation_rationale: "Creating a new sub-task file is additive — it does not modify existing files. The branch cleanup logic is a self-contained concern that can be authored independently."
+
+    - phase: "3 — Extract cleanup actions from check-pr.md"
+      primary_concern: "Remove workflow boundary violations by extracting cleanup actions from check-pr"
+      boundaries:
+        - "In scope: Removing Phases 4-5 from check-pr.md"
+        - "In scope: Ensuring check-pr.md references cleanup for branch cleanup"
+        - "Out of scope: Creating new logic (handled in phase 2)"
+        - "Out of scope: Trigger routing (handled in phase 1)"
+      separation_rationale: "This is a subtractive concern — removing misplaced logic from one file. It depends on phase 2 (the target sub-task must exist before check-pr can delegate to it) but is otherwise isolated."

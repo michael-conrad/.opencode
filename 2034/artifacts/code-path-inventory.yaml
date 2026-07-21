@@ -1,0 +1,32 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2034
+generated_at: 2026-07-20T22:30:00Z
+code_path_inventory:
+  phases:
+    - phase: 1 — Fix trigger routing
+      files:
+        - path: .opencode/skills/git-workflow/SKILL.md
+          reason: Trigger Dispatch Table entry for "pr merged" maps to check-pr instead of cleanup
+          changes: Change "pr merged" trigger from check-pr to cleanup in the Trigger Dispatch Table
+        - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+          reason: Trigger Dispatch Table entry for "pr merged" maps to check-pr instead of cleanup
+          changes: Change "pr merged" trigger from check-pr to cleanup in the Trigger Dispatch Table
+      new_files: []
+
+    - phase: 2 — Create missing branch-cleanup sub-task
+      files:
+        - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+          reason: Step 3 routes to cleanup/branch-cleanup which does not exist
+          changes: No change to cleanup.md itself — the sub-task reference is correct, the file just needs to exist
+      new_files:
+        - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+          purpose: Sub-task for branch cleanup after PR merge — switch to trunk, sync, delete merged branches, prune remote references, verify clean state
+
+    - phase: 3 — Extract cleanup actions from check-pr.md
+      files:
+        - path: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+          reason: Phases 4 (Submodule Branch Cleanup) and 5 (Parent Branch Cleanup) contain cleanup actions that belong in cleanup workflow
+          changes: Remove Phases 4-5 from check-pr.md; update check-pr to delegate branch cleanup to the cleanup workflow
+        - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+          reason: Receives branch cleanup logic extracted from check-pr.md
+          changes: Update Step 3 to reference the newly created branch-cleanup sub-task with the full branch cleanup procedure
+      new_files: []

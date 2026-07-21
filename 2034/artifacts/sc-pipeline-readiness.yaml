@@ -1,0 +1,68 @@
+schema_version: "1.0"
+generated_at: "20260721032300"
+status: FAIL
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 7 SCs assert exactly one independently testable claim. No SC bundles multiple assertions or references multiple verification domains."
+    sc_atomicity:
+      SC-1: true
+      SC-2: true
+      SC-3: true
+      SC-4: true
+      SC-5: true
+      SC-6: true
+      SC-7: true
+  - check_id: PR-2
+    result: PASS
+    detail: "No depends_on fields declared in any SC. Dependency DAG is trivially valid — no cycles, no missing references."
+    solve_contract_path: null
+    prove_results: []
+  - check_id: PR-3
+    result: PASS
+    detail: "All 7 SCs target exactly one file category and one verification domain. SC-1 through SC-4, SC-6 target guidelines (string/behavioral). SC-5 targets test (behavioral). SC-7 is cross-cutting anti-lobotomization constraint (behavioral)."
+    sc_single_concern:
+      SC-1: true
+      SC-2: true
+      SC-3: true
+      SC-4: true
+      SC-5: true
+      SC-6: true
+      SC-7: true
+    sc_decomposition_depth_valid:
+      SC-1: true
+      SC-2: true
+      SC-3: true
+      SC-4: true
+      SC-5: true
+      SC-6: true
+      SC-7: true
+  - check_id: PR-4
+    result: PASS
+    detail: "No phase dependency declarations in sc-summary.yaml. Phase DAG is trivially acyclic."
+    solve_contract_path: null
+    prove_results: []
+  - check_id: PR-5
+    result: FAIL
+    detail: "Multi-phase spec (6 phases) fails three-tier structure validation. All phases are per-file edits — no global pre-phase or post-phase exists."
+    sub_checks:
+      - check_id: PR-5a
+        result: FAIL
+        detail: "First phase (phase-1, SC-1: go-prohibitions.md edit) is a per-file guideline change, not a global pre-phase (setup/pre-flight/coherence)."
+      - check_id: PR-5b
+        result: PASS
+        detail: "Phases 1-5 each target a specific file (go-prohibitions.md, critical-rules.md, approval-gate.md, pre-implementation-analysis.md, 140-planning-spec-creation.md). Phase 6 targets test creation."
+      - check_id: PR-5c
+        result: FAIL
+        detail: "Last phase (phase-6, SC-5: behavioral enforcement test) is test creation, not a global post-phase (audit/cross-validate/review)."
+      - check_id: PR-5d
+        result: PASS
+        detail: "No global pre/post steps exist to duplicate — no duplication detected."
+      - check_id: PR-5e
+        result: FAIL
+        detail: "6 phases ≠ (5 per-file phases) + 2 (pre + post). Phase count does not match three-tier structure."
+sc_summary:
+  total_scs: 7
+  atomic: 7
+  with_dependencies: 0
+  single_concern: 7

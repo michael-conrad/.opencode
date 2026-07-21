@@ -1,0 +1,81 @@
+code_paths:
+  - path: .opencode/skills/audit/tasks/closure-verification.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: chain_flow
+  - path: .opencode/skills/audit/tasks/closure-verification/investigator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/closure-verification/validator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/closure-verification/evaluator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/coherence-extraction.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: chain_flow
+  - path: .opencode/skills/audit/tasks/coherence-extraction/investigator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/coherence-extraction/validator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/coherence-extraction/evaluator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/spec-summary.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: chain_flow
+  - path: .opencode/skills/audit/tasks/spec-summary/investigator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/spec-summary/validator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/spec-summary/evaluator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/resolve-models.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/cross-validate.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: orchestrator_dispatch
+  - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/spec-audit-investigator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/spec-audit-validator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/content-audit-evaluator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/tasks/behavioral-sc-evaluator.md
+    type: task_card
+    consumer: sub_agent
+    dispatch_markers: dimo_role
+  - path: .opencode/skills/audit/SKILL.md
+    type: skill_card
+    consumer: orchestrator
+    needs_tdt_update: true

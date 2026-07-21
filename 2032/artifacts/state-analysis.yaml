@@ -1,0 +1,12 @@
+state_analysis:
+  initial_state:
+    - 19 task cards contain dispatch-level markers (DiMo roles, chain flow, orchestrator markers)
+    - audit SKILL.md TDT may not fully document DiMo chain dispatch
+  final_state:
+    - 19 task cards have dispatch markers removed, replaced with self-contained inline steps
+    - Each remediated card has entry criteria and exit criteria
+    - audit SKILL.md TDT documents DiMo chain dispatch
+  state_transitions:
+    - Phase 1: Strip markers from 19 cards → no intermediate state
+    - Phase 2: Update audit SKILL.md TDT → no intermediate state
+  rollback: git checkout -- on each modified file

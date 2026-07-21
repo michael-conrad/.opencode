@@ -1,0 +1,46 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+interface_compatibility:
+  interfaces:
+    - name: "020-go-prohibitions.md §1 🚫 NEVER DO section"
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - "All AI agents reading GO prohibitions"
+        - "session-enforcement.ts enforcement block"
+    - name: "020-go-prohibitions.md §1.6 Discussion Mode section"
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - "All AI agents in discussion mode"
+    - name: "000-critical-rules.md critical-rules-037"
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - "session-enforcement.ts buildTier1EnforcementBlock()"
+        - "010-approval-gate.md edge case table"
+    - name: "000-critical-rules.md Tier 1 section (new entries)"
+      status: new
+      compatibility: internal_only
+      consumers:
+        - "session-enforcement.ts enforcement block (if added)"
+    - name: "010-approval-gate.md Key Edge Cases table"
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - "Approval gate skill routing"
+    - name: "pre-implementation-analysis.md question tool prohibition line"
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - "pre-impl/yield-to-assemble-work.md checkpoint"
+    - name: "140-planning-spec-creation.md question tool instruction"
+      status: modified
+      compatibility: internal_only
+      consumers:
+        - "Spec creation workflow"
+    - name: "Behavioral enforcement test files (.opencode/tests-v2/behaviors/)"
+      status: new
+      compatibility: internal_only
+      consumers:
+        - "Test runner (test-enforcement.sh)"

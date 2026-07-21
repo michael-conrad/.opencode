@@ -1,0 +1,29 @@
+blast_radius:
+  affected_skills:
+    - audit
+  affected_directories:
+    - .opencode/skills/audit/tasks/
+  affected_files:
+    - .opencode/skills/audit/tasks/closure-verification.md
+    - .opencode/skills/audit/tasks/closure-verification/investigator.md
+    - .opencode/skills/audit/tasks/closure-verification/validator.md
+    - .opencode/skills/audit/tasks/closure-verification/evaluator.md
+    - .opencode/skills/audit/tasks/coherence-extraction.md
+    - .opencode/skills/audit/tasks/coherence-extraction/investigator.md
+    - .opencode/skills/audit/tasks/coherence-extraction/validator.md
+    - .opencode/skills/audit/tasks/coherence-extraction/evaluator.md
+    - .opencode/skills/audit/tasks/spec-summary.md
+    - .opencode/skills/audit/tasks/spec-summary/investigator.md
+    - .opencode/skills/audit/tasks/spec-summary/validator.md
+    - .opencode/skills/audit/tasks/spec-summary/evaluator.md
+    - .opencode/skills/audit/tasks/resolve-models.md
+    - .opencode/skills/audit/tasks/cross-validate.md
+    - .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    - .opencode/skills/audit/tasks/spec-audit-investigator.md
+    - .opencode/skills/audit/tasks/spec-audit-validator.md
+    - .opencode/skills/audit/tasks/content-audit-evaluator.md
+    - .opencode/skills/audit/tasks/behavioral-sc-evaluator.md
+  no_impact:
+    - No code changes outside audit skill
+    - No behavioral changes to agent execution
+    - No schema or contract changes

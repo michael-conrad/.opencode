@@ -1,0 +1,62 @@
+# Audit: Concern Boundaries — Issue #2037
+# Generated: 2026-07-20
+# Auditor: OpenCode (deepseek-v4-flash)
+
+status: PASS
+all_criteria_pass: true
+finding_summary: >
+  All 6 phases address exactly one concern each with clean boundaries.
+  Phase 1 is the broadest (5 files) but all changes serve the single concern
+  of universalizing the question tool prohibition. Phases 2-5 each add one
+  distinct rule to overlapping files (020-go-prohibitions.md and
+  000-critical-rules.md), with explicit cross-cutting concern documentation
+  and sequential dependency ordering to prevent conflicts. Phase 6 is purely
+  additive (new test file). Cross-cutting concerns are identified in both the
+  plan-level Concern Map Reference and per-phase Cross-Cutting SCs sections.
+
+criteria:
+  - id: single-concern-per-phase
+    description: Each phase addresses exactly one concern
+    result: PASS
+    evidence: >
+      Phase 1: Universal question tool prohibition (remove scope qualifiers).
+      Phase 2: Pigeon-holing prohibition (new rule).
+      Phase 3: Single-topic discipline elevation (advisory to Tier 1).
+      Phase 4: Order of importance rule (new rule).
+      Phase 5: Always-discuss default (reframe framing).
+      Phase 6: Behavioral enforcement test (new test file).
+      Each phase's metadata section declares exactly one concern.
+
+  - id: no-concern-mixing
+    description: No concern mixing across phases
+    result: PASS
+    evidence: >
+      Phases 2-5 share files (020-go-prohibitions.md, 000-critical-rules.md)
+      but each adds a distinct rule. The plan enforces strict sequential
+      ordering (Phase N depends on Phase N-1 commit) to prevent mixing.
+      Phase 1 is the only phase touching 010-approval-gate.md,
+      pre-implementation-analysis.md, and 140-planning-spec-creation.md.
+      Phase 6 is the only phase touching the test file.
+
+  - id: cross-cutting-identified
+    description: Cross-cutting concerns identified
+    result: PASS
+    evidence: >
+      Plan-level Concern Map Reference (plan.md:76-83) identifies 5
+      cross-cutting concerns: 020-go-prohibitions.md modification integrity
+      (Phases 1-5), 000-critical-rules.md new entries ordering (Phases 1-5),
+      behavioral enforcement test consistency (Phases 1-6),
+      session-enforcement.ts enforcement block updates (Phase 1),
+      pre-implementation-analysis task file consistency (Phase 1).
+      Each phase file also has a Cross-Cutting SCs section.
+
+  - id: clean-boundaries
+    description: Concern boundaries are clean
+    result: PASS
+    evidence: >
+      Each phase has a distinct concern with no overlap in intent.
+      Phase 1 is broad (5 files) but all changes serve the single concern
+      of universalizing the question tool prohibition — justified as the
+      foundational change. Concern transitions are explicitly documented
+      at the end of each phase file. Sequential dependency chain ensures
+      clean separation.

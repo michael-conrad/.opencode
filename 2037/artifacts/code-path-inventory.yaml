@@ -1,0 +1,62 @@
+spec: https://github.com/michael-conrad/.opencode/tree/issues-data/2037
+generated_at: 2026-07-20T12:00:00Z
+code_path_inventory:
+  phases:
+    - phase: "Phase 1: Universal question tool prohibition"
+      files:
+        - path: ".opencode/guidelines/020-go-prohibitions.md"
+          reason: "Add top-level Tier 1 prohibition for question tool — currently scoped to §1.6 discussion mode only"
+          changes: "Add new Tier 1 prohibition at top of file (before §1), remove scope qualifier from existing §1.6 text"
+        - path: ".opencode/guidelines/000-critical-rules.md"
+          reason: "Update critical-rules-037 to remove for_pr scope qualifier"
+          changes: "Edit critical-rules-037 entry — remove 'when halt_at >= pr_created' qualifier, make universal"
+        - path: ".opencode/guidelines/010-approval-gate.md"
+          reason: "Update edge case table reference to critical-rules-037"
+          changes: "Edit Key Edge Cases table row for 'for_pr scope → no halt for structural decisions' to reflect universal scope"
+        - path: ".opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md"
+          reason: "Remove scope qualifier on question tool prohibition"
+          changes: "Edit line 46 — remove 'after presenting the execution plan' qualifier"
+        - path: ".opencode/guidelines/140-planning-spec-creation.md"
+          reason: "Remove contradictory instruction that says 'Use the question tool with a list of available specs'"
+          changes: "Edit line 57 — remove or replace the question tool instruction"
+      new_files: []
+
+    - phase: "Phase 2: Pigeon-holing in natural language prohibition"
+      files:
+        - path: ".opencode/guidelines/020-go-prohibitions.md"
+          reason: "Add new Tier 1 prohibition for natural language pigeon-holing"
+          changes: "Add new bullet under §1 🚫 NEVER DO section"
+        - path: ".opencode/guidelines/000-critical-rules.md"
+          reason: "Add new critical rule for natural language pigeon-holing"
+          changes: "Add new critical-rules entry under Tier 1 section"
+      new_files: []
+
+    - phase: "Phase 3: Single-topic discipline enforcement"
+      files:
+        - path: ".opencode/guidelines/020-go-prohibitions.md"
+          reason: "Elevate single-topic discipline from advisory to Tier 1 critical rule"
+          changes: "Move existing advisory text to 🚫 NEVER DO section, add as critical rule"
+        - path: ".opencode/guidelines/000-critical-rules.md"
+          reason: "Add new critical rule for single-topic discipline"
+          changes: "Add new critical-rules entry under Tier 1 section"
+      new_files: []
+
+    - phase: "Phase 4: Order of importance rule"
+      files:
+        - path: ".opencode/guidelines/020-go-prohibitions.md"
+          reason: "Add new rule for topic ordering by importance"
+          changes: "Add new bullet under §1 🚫 NEVER DO section"
+        - path: ".opencode/guidelines/000-critical-rules.md"
+          reason: "Add new critical rule for order of importance"
+          changes: "Add new critical-rules entry under Tier 1 section"
+      new_files: []
+
+    - phase: "Phase 5: Always discuss as default"
+      files:
+        - path: ".opencode/guidelines/020-go-prohibitions.md"
+          reason: "Reframe discussion from mode to default — remove §1.6 'Discussion Mode' section framing"
+          changes: "Edit §1.6 section header and framing text to establish discussion as default, structured output as opt-in"
+        - path: ".opencode/guidelines/000-critical-rules.md"
+          reason: "Add new critical rule establishing discussion as default communication mode"
+          changes: "Add new critical-rules entry under Tier 1 section"
+      new_files: []

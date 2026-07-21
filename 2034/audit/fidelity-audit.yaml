@@ -1,0 +1,40 @@
+audit_type: fidelity
+spec: .opencode/.issues/2034/spec.md
+plan: .opencode/.issues/2034/plan.md
+audited_at: 2026-07-20T19:00:00Z
+auditor: OpenCode (deepseek-v4-flash)
+status: PASS
+finding_summary: Plan is fully faithful to spec. All 4 root causes addressed across 5 phases. 7 SCs (6 string, 1 behavioral) match spec's stated count. No extraneous phases. No omitted requirements.
+artifact_path: .opencode/.issues/2034/audit/fidelity-audit.yaml
+all_criteria_pass: true
+criteria:
+  - criterion: Plan goal matches spec goal
+    result: PASS
+    detail: >
+      Spec goal: "Fix post-merge cleanup workflow — submodule-first depth-first cleanup"
+      (trigger routing, missing task file, workflow boundary violation).
+      Plan goal: "Fix the post-merge cleanup workflow so that 'pr merged' dispatches
+      cleanup (not check-pr), extract cleanup actions from check-pr.md, and add a
+      behavioral enforcement test." Goals are aligned.
+  - criterion: All spec SCs covered by plan phases
+    result: PASS
+    detail: >
+      Spec declares 7 SCs (6 string, 1 behavioral). Plan covers 7 SCs (SC-1 through SC-7)
+      with matching evidence type distribution: SC-1 through SC-5 and SC-7 are string,
+      SC-6 is behavioral. Each SC maps to exactly one phase in the Phase Table.
+  - criterion: No plan phases that spec didn't ask for
+    result: PASS
+    detail: >
+      Phase 1 (git-workflow/SKILL.md trigger) → Spec root cause 1.
+      Phase 2 (git-workflow-cleanup/SKILL.md trigger) → Spec root cause 1.
+      Phase 3 (branch-cleanup.md verification + cleanup.md reference) → Spec root cause 2.
+      Phase 4 (extract Phases 4-5 from check-pr.md) → Spec root cause 3.
+      Phase 5 (behavioral test) → Spec requirement. No extraneous phases.
+  - criterion: Plan doesn't omit spec requirements
+    result: PASS
+    detail: >
+      All 4 affected files from spec are addressed: git-workflow/SKILL.md (Phase 1),
+      git-workflow-cleanup/SKILL.md (Phase 2), cleanup.md (Phase 3),
+      check-pr.md (Phase 4). Behavioral test requirement addressed (Phase 5).
+      Anti-lobotomization mandate from spec is carried into plan's Phase 5 VbC
+      (clean-room evaluation required, "artifact generated" is NOT valid PASS).
