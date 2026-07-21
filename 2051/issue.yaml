@@ -1,66 +1,45 @@
-title: '[SPEC] Fix implementation-pipeline — update TDT for per-step dispatch'
-status: open
+body: "---\ntitle: '[SPEC] Fix implementation-pipeline — update TDT for per-step dispatch'\nstatus: draft\ncreated: 2026-07-21\n\
+  license: MIT\nprovenance: AI-generated\nissue: 2051\nauthors:\n  - OpenCode (deepseek-v4-flash)\n---\n\n> STATUS: **DRAFT**\n\
+  > CREATED: 2026-07-21\n\n> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order.\
+  \ Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and\
+  \ review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and\
+  \ loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step.\n\n> **Master spec reference:**\
+  \ See `tmp/spec-per-step-dispatch.md` for the full interdependency analysis, dispatch vocabulary, and shared definitions.\n\
+  \n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\n> **Compliance requirement:** This is a fix spec (F-6). It modifies the\
+  \ implementation-pipeline skill card. All changes MUST conform to the canonical templates defined in T-1 (issue #2052) and\
+  \ T-2 (issue #2047).\n\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md` for the full interdependency analysis,\
+  \ dispatch vocabulary, and shared definitions.\n\n## Problem\n\nThe implementation-pipeline skill card already has a pre-flight\
+  \ gate (it was one of the first cards updated). However, its Trigger Dispatch Table still uses the old dispatch vocabulary\
+  \ (`sub-task`, `orchestrator`, `inline` without `orchestrator:` prefix) and has a global Invocation section with \"dispatch\
+  \ via task()\" language.\n\nThe TDT needs to be updated to use the canonical dispatch vocabulary and the enumerated workflow\
+  \ sections with per-step dispatch.\n\n## Scope\n\nThis spec covers only the implementation-pipeline skill card. It is the\
+  \ simplest fix spec — the card already has a pre-flight gate, so only the TDT and workflow sections need updating.\n\n**Out\
+  \ of scope:** Other skill cards (covered by F-1 through F-5, F-7). Behavioral enforcement tests (covered by issue #2054).\n\
+  \n## Key Changes\n\n1. Remove global `## Invocation` and `## DISPATCH_GATE` sections\n2. Update TDT `Dispatch` column to\
+  \ use canonical patterns: `task(...)`, `orchestrator: N sequential task() calls`, `orchestrator: halt`, `orchestrator: inline`\n\
+  3. Add enumerated workflow sections with per-step dispatch for each pipeline stage\n4. Remove \"dispatch via task()\" language\
+  \ from Overview and Persona sections\n5. Preserve the existing `## Pre-Flight Gate` section (already present)\n\n## Affected\
+  \ Files\n\n| File | Change |\n|------|--------|\n| `implementation-pipeline/SKILL.md` | Remove Invocation/DISPATCH_GATE,\
+  \ update TDT, add enumerated workflows |\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
+  | SC-1 | `implementation-pipeline/SKILL.md` has no global Invocation or DISPATCH_GATE section | `string` |\n| SC-2 | TDT\
+  \ Dispatch column uses only canonical patterns | `string` |\n| SC-3 | Enumerated workflow sections exist with per-step dispatch\
+  \ for all pipeline stages | `string` |\n| SC-4 | Pre-Flight Gate section is preserved (already present) | `string` |\n|\
+  \ SC-5 | No \"dispatch via task()\" language in lead-in sections | `string` |\n\n\n## Implementation Order\n\n```\nPhase\
+  \ 1: T-1, T-2 (templates) — prerequisite\nPhase 2: F-1 (audit) — proof of concept\nPhase 3: F-6 (this spec) — parallel with\
+  \ F-2, F-3, F-4, F-5, F-7\n```\n\n## Dependencies\n\n- **BLOCKED_BY #2047 (T-2):** Canonical task card structure template\
+  \ must be defined first\n- **BLOCKED_BY #2052 (T-1):** Canonical skill card structure template must be defined first\n\n\
+  ## Interdependency\n\n| Issue | Classification | Description |\n|-------|---------------|-------------|\n| #2047 | BLOCKS\
+  \ | T-2: Task card template — prerequisite for all fix specs |\n| #2052 | BLOCKS | T-1: Skill card template — prerequisite\
+  \ for all fix specs |\n| #2053 | BLOCKED_BY #2047, #2052 | F-1: Audit fix — blocked by templates |\n| #2057 | BLOCKED_BY\
+  \ #2047, #2052 | F-2: Approval-gate fix — blocked by templates |\n| #2049 | BLOCKED_BY #2047, #2052 | F-3: Git-workflow\
+  \ fix — blocked by templates |\n| #2048 | BLOCKED_BY #2047, #2052 | F-4: Spec-creation fix — blocked by templates |\n| #2050\
+  \ | BLOCKED_BY #2047, #2052 | F-5: Writing-plans fix — blocked by templates |\n| #2051 | BLOCKED_BY #2047, #2052 | F-6:\
+  \ Implementation-pipeline fix — blocked by templates |\n| #2056 | BLOCKED_BY #2047, #2052 | F-7: Standalone cards fix —\
+  \ blocked by templates |\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1: Cleanup — blocked by fix specs |\n| #2054\
+  \ | BLOCKED_BY #2053, #2057, #2049, #2048, #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |"
+created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
-body: "---\ntitle: '[SPEC] Fix implementation-pipeline — update TDT for per-step dispatch'\n\
-  status: draft\ncreated: 2026-07-21\nlicense: MIT\nprovenance: AI-generated\nissue:\
-  \ 2051\nauthors:\n  - OpenCode (deepseek-v4-flash)\n---\n\n> STATUS: **DRAFT**\n\
-  > CREATED: 2026-07-21\n\n> **Compliance Requirement:** All steps and sub-steps in\
-  \ this document MUST be followed in order. Failure to comply with any step — including\
-  \ but not limited to verification gates, test phases, audit checkpoints, and review\
-  \ steps — will result in the feature branch being rejected and discarded, requiring\
-  \ a full rework from scratch and loss of all prior work. There is no valid reason\
-  \ to skip, compress, reorder, or omit any step.\n\n> **Master spec reference:**\
-  \ See `tmp/spec-per-step-dispatch.md` for the full interdependency analysis, dispatch\
-  \ vocabulary, and shared definitions.\n\n> STATUS: **DRAFT**\n> CREATED: 2026-07-21\n\
-  \n> **Compliance requirement:** This is a fix spec (F-6). It modifies the implementation-pipeline\
-  \ skill card. All changes MUST conform to the canonical templates defined in T-1\
-  \ (issue #318) and T-2 (issue #316).\n\n> **Master spec reference:** See `tmp/spec-per-step-dispatch.md`\
-  \ for the full interdependency analysis, dispatch vocabulary, and shared definitions.\n\
-  \n## Problem\n\nThe implementation-pipeline skill card already has a pre-flight\
-  \ gate (it was one of the first cards updated). However, its Trigger Dispatch Table\
-  \ still uses the old dispatch vocabulary (`sub-task`, `orchestrator`, `inline` without\
-  \ `orchestrator:` prefix) and has a global Invocation section with \"dispatch via\
-  \ task()\" language.\n\nThe TDT needs to be updated to use the canonical dispatch\
-  \ vocabulary and the enumerated workflow sections with per-step dispatch.\n\n##\
-  \ Scope\n\nThis spec covers only the implementation-pipeline skill card. It is the\
-  \ simplest fix spec — the card already has a pre-flight gate, so only the TDT and\
-  \ workflow sections need updating.\n\n**Out of scope:** Other skill cards (covered\
-  \ by F-1 through F-5, F-7). Behavioral enforcement tests (covered by issue #326).\n\
-  \n## Key Changes\n\n1. Remove global `## Invocation` and `## DISPATCH_GATE` sections\n\
-  2. Update TDT `Dispatch` column to use canonical patterns: `task(...)`, `orchestrator:\
-  \ N sequential task() calls`, `orchestrator: halt`, `orchestrator: inline`\n3. Add\
-  \ enumerated workflow sections with per-step dispatch for each pipeline stage\n\
-  4. Remove \"dispatch via task()\" language from Overview and Persona sections\n\
-  5. Preserve the existing `## Pre-Flight Gate` section (already present)\n\n## Affected\
-  \ Files\n\n| File | Change |\n|------|--------|\n| `implementation-pipeline/SKILL.md`\
-  \ | Remove Invocation/DISPATCH_GATE, update TDT, add enumerated workflows |\n\n\
-  ## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
-  | SC-1 | `implementation-pipeline/SKILL.md` has no global Invocation or DISPATCH_GATE\
-  \ section | `string` |\n| SC-2 | TDT Dispatch column uses only canonical patterns\
-  \ | `string` |\n| SC-3 | Enumerated workflow sections exist with per-step dispatch\
-  \ for all pipeline stages | `string` |\n| SC-4 | Pre-Flight Gate section is preserved\
-  \ (already present) | `string` |\n| SC-5 | No \"dispatch via task()\" language in\
-  \ lead-in sections | `string` |\n\n## Dependencies\n\n- **BLOCKED by T-1 (issue\
-  \ #318):** Canonical skill card structure template must be defined first\n- **BLOCKED\
-  \ by T-2 (issue #316):** Canonical task card structure template must be defined\
-  \ first\n\n## Implementation Order\n\n```\nPhase 1: T-1, T-2 (templates) — prerequisite\n\
-  Phase 2: F-1 (audit) — proof of concept\nPhase 3: F-6 (this spec) — parallel with\
-  \ F-2, F-3, F-4, F-5, F-7\n```\n\n## Dependencies\\n\\n- **BLOCKED_BY #2047 (T-2):**\
-  \ Canonical task card structure template must be defined first\\n- **BLOCKED_BY\
-  \ #2052 (T-1):** Canonical skill card structure template must be defined first\n\
-  \n## Interdependency\\n\\n| Issue | Classification | Description |\\n|-------|---------------|-------------|\\\
-  n| #2047 | BLOCKS | T-2: Task card template — prerequisite for all fix specs |\\\
-  n| #2052 | BLOCKS | T-1: Skill card template — prerequisite for all fix specs |\\\
-  n| #2053 | BLOCKED_BY #2047, #2052 | F-1: Audit fix — blocked by templates |\\n|\
-  \ #2057 | BLOCKED_BY #2047, #2052 | F-2: Approval-gate fix — blocked by templates\
-  \ |\\n| #2049 | BLOCKED_BY #2047, #2052 | F-3: Git-workflow fix — blocked by templates\
-  \ |\\n| #2048 | BLOCKED_BY #2047, #2052 | F-4: Spec-creation fix — blocked by templates\
-  \ |\\n| #2050 | BLOCKED_BY #2047, #2052 | F-5: Writing-plans fix — blocked by templates\
-  \ |\\n| #2051 | BLOCKED_BY #2047, #2052 | F-6: Implementation-pipeline fix — blocked\
-  \ by templates |\\n| #2056 | BLOCKED_BY #2047, #2052 | F-7: Standalone cards fix\
-  \ — blocked by templates |\\n| #2055 | BLOCKED_BY #2057, #2049, #2048, #2050 | C-1:\
-  \ Cleanup — blocked by fix specs |\\n| #2054 | BLOCKED_BY #2053, #2057, #2049, #2048,\
-  \ #2050, #2051, #2056, #2055 | Behavioral tests — blocked by all |\n"
-created_at: '2026-07-21T17:42:18+00:00'
+status: open
+title: '[SPEC] Fix implementation-pipeline — update TDT for per-step dispatch'
 updated_at: '2026-07-21T17:49:55+00:00'
