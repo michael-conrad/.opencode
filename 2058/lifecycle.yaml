@@ -1,0 +1,6 @@
+events:
+  - event: spec_created
+    timestamp: 2026-07-21T12:00:00Z
+    issuer: OpenCode (deepseek-v4-flash)
+    description: 'Spec #2058 created — enforce trunk-tip verification and submodule pointer sync before pre-work'
+    severity: info

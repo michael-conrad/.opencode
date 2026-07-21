@@ -1,0 +1,34 @@
+sc_coverage:
+  total: 4
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/2058
+  evidence_types:
+    - behavioral
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: "Critical violation enforcing orchestrator MUST call pre-work before file modification"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-2
+      description: "Critical violation enforcing pre-commit/pre-push submodule pointer verification"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-3
+      description: "Behavioral enforcement tests exist and produce correct RED/GREEN behavior"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-4
+      description: "No SC may be weakened, deferred, or reclassified to evade implementation"
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      plan_phase: phase-1
