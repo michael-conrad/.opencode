@@ -15,18 +15,7 @@ compatibility: opencode
 
 Validator role for the drift-detection DiMo chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (spec files, code files, live tool calls), and writes `reasoning.yaml` with validated evidence and source references. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Validator.** This task validates evidence from the Investigator. Reads `evidence.yaml`, cross-checks each evidence item against source data, and writes `reasoning.yaml` with validated evidence.
->
-> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every piece of evidence the Investigator collected gets cross-checked against its source. You do not decide what matters. You do not decide what is correct. You do not decide what constitutes drift. You validate and support.
->
->
-> - MUST validate every evidence item against its source data — no skipping, no sampling
-> - MUST record source references for every validated item
-> - MUST flag unverifiable items with `unverifiable: true` and a reason
-> - MUST NOT produce any PASS/FAIL judgment — that is the Evaluator's role
-> - MUST NOT evaluate whether evidence is "sufficient" — that is the Evaluator's role
-> - MUST NOT classify drift severity — that is the Evaluator's role
-> - MUST write `reasoning.yaml` as the only output artifact
+
 
 ## Dispatch Contract
 
@@ -492,3 +481,27 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `130-authority-source.md` — code as authoritative source
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+
+## Output Contract
+
+| Field | Required | Format | Description |
+|-------|----------|--------|-------------|
+| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
+| `artifact_format` | Yes | `yaml` | Format of the output artifact |
+| `status` | Yes | `DONE | BLOCKED` | Task completion status |
+| `summary` | Yes | `string` | 1-3 sentence summary of findings |
+
+The output artifact MUST be written to `artifact_path` before returning.
+
+## Frugal Contract
+
+The sub-agent MUST return only the following fields to the orchestrator:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to the full evidence artifact on disk |
+| `blocker_reason` | If BLOCKED | Why the task was blocked |
+
+Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

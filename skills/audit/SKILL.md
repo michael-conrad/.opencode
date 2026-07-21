@@ -9,6 +9,20 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+## Pre-Flight Gate
+
+Before any dispatch, verify `task()` is available:
+
+```yaml
+pre_flight:
+  check: task() available
+  on_failure:
+    status: BLOCKED
+    reason: TASK_UNAVAILABLE
+    message: "task() is not available in this context. Cannot dispatch sub-agents for audit."
+    action: HALT all operations
+```
+
 ## Overview
 
 Audit via clean-room sub-agents. Each audit task is a self-contained procedure dispatched to a clean-room sub-agent via `task(subagent_type="general")`. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
@@ -47,30 +61,22 @@ Each row dispatches to the DiMo 4-role chain (Investigator → Validator → Eva
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "audit #NNN" / "run audit" | `verification-audit` | `sub-task` (DiMo chain) | {issue_number, artifact_evidence_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "spec audit #NNN" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` (DiMo chain) | {issue_number, plan_local_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "concern separation" / "scope audit" | `concern-separation` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "coherence" / "coherence extraction" | `coherence-extraction` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "guideline audit" | `guideline-audit` | `sub-task` (DiMo chain) | {guideline_paths, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "spec summary" / "PR summary" | `spec-summary` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` (DiMo chain) | {pr_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "cross-validate" / "consensus" | `cross-validate` | `sub-task` (DiMo chain) | {spec_local_dir, artifact_evidence_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "test quality audit" | `test-quality-audit` | `sub-task` (DiMo chain) | {issue_number, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "content audit" / "audit content claims" | `content-audit` | `sub-task` (DiMo chain) | {document_section, source_data_paths, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, remediation_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "blast-radius artifact missing" | HALT | — | — |
-| "concern-map artifact missing" | HALT | — | — |
-| "code-path-inventory artifact missing" | HALT | — | — |
-| "cross-cutting-matrix artifact missing" | HALT | — | — |
-| "interface-compatibility artifact missing" | HALT | — | — |
-| "state-analysis artifact missing" | HALT | — | — |
-| "testability-assessment artifact missing" | HALT | — | — |
-| "stale analytical artifacts" | HALT | — | — |
-| completion / workflow end | `completion` | `sub-task` (DiMo chain) | {workflow_state, role_chain: [investigator, validator, evaluator, arbiter]} |
+| "audit #NNN" / "run audit" | `verification-audit` | `orchestrator: 4 sequential task() calls` | {issue_number, artifact_evidence_dir} |
+| "spec audit #NNN" | `spec-audit` | `orchestrator: 4 sequential task() calls` | {issue_number, spec_local_dir} |
+| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `orchestrator: 4 sequential task() calls` | {issue_number, plan_local_dir} |
+| "concern separation" / "scope audit" | `concern-separation` | `orchestrator: 4 sequential task() calls` | {issue_number} |
+| "coherence" / "coherence extraction" | `coherence-extraction` | `orchestrator: 4 sequential task() calls` | {issue_number} |
+| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `orchestrator: 4 sequential task() calls` | {issue_number} |
+| "guideline audit" | `guideline-audit` | `orchestrator: 4 sequential task() calls` | {guideline_paths} |
+| "drift detection" / "doc-code drift" | `drift-detection` | `orchestrator: 4 sequential task() calls` | {issue_number} |
+| "spec summary" / "PR summary" | `spec-summary` | `orchestrator: 4 sequential task() calls` | {issue_number} |
+| "closure verification" / "post-merge audit" | `closure-verification` | `orchestrator: 4 sequential task() calls` | {pr_number} |
+| "cross-validate" / "consensus" | `cross-validate` | `orchestrator: 4 sequential task() calls` | {spec_local_dir, artifact_evidence_dir} |
+| "test quality audit" | `test-quality-audit` | `orchestrator: 4 sequential task() calls` | {issue_number} |
+| "content audit" / "audit content claims" | `content-audit` | `orchestrator: 4 sequential task() calls` | {document_section, source_data_paths} |
+| "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `orchestrator: 4 sequential task() calls` | {issue_number, spec_local_dir, analytical_artifact_dir} |
+| "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `orchestrator: 4 sequential task() calls` | {issue_number, spec_local_dir, remediation_artifact_dir} |
+| completion / workflow end | `completion` | `orchestrator: 4 sequential task() calls` | {workflow_state} |
 
 ## Tasks
 
@@ -91,43 +97,30 @@ Each row dispatches to the DiMo 4-role chain (Investigator → Validator → Eva
 | `content-audit` | Audit of factual claims in generated content — verification of quantitative claims, file references, and assertions against local source data |
 | `completion` | Complete audit workflow with output |
 
-## Invocation
+## Workflow
 
-`skill({name: "audit"})` — call the skill, then dispatch via `task()`.
+### 1. Pre-Flight Gate
 
-**DISPATCH GATE — Inline execution is FORBIDDEN.** Every audit task MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed. Professional orchestrators route to sub-agents. Amateurs inline.
+- **Dispatch type:** `orchestrator: inline`
+- **Dispatch string:** N/A — orchestrator verifies `task()` availability inline
+- **Input:** None
+- **Output:** BLOCKED with `TASK_UNAVAILABLE` or proceed
 
-### DiMo Chain Invocation
+### 2. Trigger Dispatch
 
-All audit tasks dispatch through the DiMo 4-role chain (see DiMo Role Chain Dispatch below). The canonical dispatch string for any audit task is:
+- **Dispatch type:** `orchestrator: read TDT, dispatch`
+- **Dispatch string:** `"audit --task <task-name>"`
+- **Input:** User utterance matched against Trigger Dispatch Table
+- **Output:** Sub-agent dispatched with task-specific context
 
-```
-task(..., prompt: "execute <task-name> DiMo chain: investigator → validator → evaluator → arbiter")
-```
+### 3. DiMo Chain Execution
 
-No task dispatches to a single monolithic task file. The orchestrator dispatches roles in order, passing artifact paths between them. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
+- **Dispatch type:** `orchestrator: 4 sequential task() calls`
+- **Dispatch string:** `"execute <task-name> DiMo chain: investigator → validator → evaluator → arbiter"` (repeat per role)
+- **Input:** Artifact paths from previous role; initial context from Trigger Dispatch Table
+- **Output:** `judgment.yaml` with final verdict and `next_step`
 
-**Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
-
-## Explicit Dispatch Protocol
-
-The following protocol governs how the orchestrator dispatches audit tasks. Violations produce contaminated audit results that must be discarded.
-
-### Orchestrator MUST NOT dispatch SKILL.md content to a sub-agent
-
-The SKILL.md file contains orchestrator-level routing metadata (Trigger Dispatch Table, Invocation section, DISPATCH_GATE protocol). Dispatching this content to a sub-agent is a category error — sub-agents cannot call `task()`, cannot follow Trigger Dispatch Tables, and cannot satisfy Orchestrator Entry Criteria. The orchestrator loads SKILL.md via `skill()`, reads routing metadata in its own context, and dispatches task cards (not the skill card) to sub-agents.
-
-### Orchestrator MUST dispatch each role as separate `task()` calls
-
-The DiMo chain has four distinct roles: Investigator, Validator, Evaluator, Arbiter. Each role MUST be dispatched as a separate `task(subagent_type="general")` call. The orchestrator MUST NOT combine roles into a single task() call, and MUST NOT dispatch a single monolithic task file that attempts to perform all four roles. Each role receives only the artifacts produced by the previous role — no orchestrator preload, no cached context.
-
-### Orchestrator MUST NOT preload execution context into task() prompts
-
-When dispatching a role via `task()`, the orchestrator MUST NOT include file paths, step sequences, expected outcomes, or orchestrator reasoning in the prompt. The canonical dispatch string from the Invocation section is the only content the prompt should contain. Preloaded context produces PRELOADED_CONTEXT_REJECTED from the sub-agent.
-
-## DiMo Role Chain Dispatch
-
-Each audit task follows a sequential role chain dispatched via `task(subagent_type="general")`. The orchestrator dispatches roles in order, passing artifact paths between them:
+Each role is a separate `task(subagent_type="general")` call. The orchestrator dispatches roles in order, passing artifact paths between them:
 
 1. **Investigator** — writes `evidence.yaml` with raw evidence and initial findings
 2. **Validator** — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
@@ -135,4 +128,11 @@ Each audit task follows a sequential role chain dispatched via `task(subagent_ty
 4. **Arbiter** — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`
 
 Artifact directory: `./tmp/{issue-N}/artifacts/{task-name}/`
+
+### 4. Completion
+
+- **Dispatch type:** `orchestrator: halt`
+- **Dispatch string:** N/A
+- **Input:** N/A
+- **Output:** Structured halt message with summary, outcome, blockers, URL, byline
 

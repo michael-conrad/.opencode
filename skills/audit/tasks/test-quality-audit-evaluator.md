@@ -15,17 +15,7 @@ compatibility: opencode
 
 Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each test quality criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
-> **DiMo Role: Evaluator.** This task evaluates test quality. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
->
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
->
->
-> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
-> - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
-> - MUST NOT collect new evidence — that is the Investigator's job
-> - MUST write `verdict.yaml` as the primary output artifact
-> - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
+
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from upstream roles are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against validated evidence.
 
@@ -37,6 +27,14 @@ Evaluator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` (Inv
 - `github.owner`, `github.repo`: Repository identity
 - `file_paths_changed`: List of file paths changed in the implementation
 - `vbc_artifact_path`: Path to VbC (Verification-before-Completion) artifact (optional)
+
+**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
+
+```yaml
+status: BLOCKED
+reason: EXPECTED_DETERMINATION_REJECTED
+message: "Expected determination detected. Dispatch without pre-judgment."
+```
 
 ## Entry Criteria
 
@@ -131,6 +129,15 @@ Read the spec files to establish the authoritative baseline for evaluation:
 - [ ] 3. Extract spec body and frontmatter metadata from each file
 - [ ] 4. Extract the Success Criteria table — this is the authoritative list of SCs to evaluate
 - [ ] 5. Record each SC: ID, criterion text, declared evidence type, verification method
+
+### Step 3.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 4: Evaluate Assertion Plausibility (TQ-1)
 
@@ -502,3 +509,27 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Load [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+
+## Output Contract
+
+| Field | Required | Format | Description |
+|-------|----------|--------|-------------|
+| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
+| `artifact_format` | Yes | `yaml` | Format of the output artifact |
+| `status` | Yes | `DONE | BLOCKED` | Task completion status |
+| `summary` | Yes | `string` | 1-3 sentence summary of findings |
+
+The output artifact MUST be written to `artifact_path` before returning.
+
+## Frugal Contract
+
+The sub-agent MUST return only the following fields to the orchestrator:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to the full evidence artifact on disk |
+| `blocker_reason` | If BLOCKED | Why the task was blocked |
+
+Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

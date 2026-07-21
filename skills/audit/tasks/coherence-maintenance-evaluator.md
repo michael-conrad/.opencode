@@ -15,23 +15,21 @@ compatibility: opencode
 
 Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
 
-> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Investigator and `reasoning.yaml` from the upstream reasoning role, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
->
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
->
->
-> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
-> - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
-> - MUST NOT re-collect evidence that Investigator already collected
-> - MUST write `verdict.yaml` as the primary output artifact
-> - MUST apply the self-consistency gate: any hedging language in a PASS explanation downgrades to FAIL
+
 
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files
 - `artifact_evidence_dir`: Directory for evidence artifacts (contains `evidence.yaml` from Investigator and `reasoning.yaml` from upstream reasoning role)
 - `github.owner`, `github.repo`: Repository identity
+
+**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
+
+```yaml
+status: BLOCKED
+reason: EXPECTED_DETERMINATION_REJECTED
+message: "Expected determination detected. Dispatch without pre-judgment."
+```
 
 ## Entry Criteria
 
@@ -99,6 +97,15 @@ Read and parse the Investigator's evidence and upstream reasoning role's validat
 - [ ] 7. Verify required top-level keys exist: `baseline_validation`, `guideline_validation`, `skill_validation`, `diff_validation`, `metrics_validation`, `migration_candidate_validation`, `state_analysis_validation`, `overall_validation`
 - [ ] 8. If any required key is missing, return BLOCKED with `MALFORMED_REASONING` and the missing key name
 - [ ] 9. Record artifact metadata: generator name, knowledge supporter name, issue number, timestamps
+
+### Step 2.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 3: Evaluate CM-1 — Baseline Rule Presence
 
@@ -480,3 +487,27 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+
+## Output Contract
+
+| Field | Required | Format | Description |
+|-------|----------|--------|-------------|
+| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
+| `artifact_format` | Yes | `yaml` | Format of the output artifact |
+| `status` | Yes | `DONE | BLOCKED` | Task completion status |
+| `summary` | Yes | `string` | 1-3 sentence summary of findings |
+
+The output artifact MUST be written to `artifact_path` before returning.
+
+## Frugal Contract
+
+The sub-agent MUST return only the following fields to the orchestrator:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to the full evidence artifact on disk |
+| `blocker_reason` | If BLOCKED | Why the task was blocked |
+
+Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

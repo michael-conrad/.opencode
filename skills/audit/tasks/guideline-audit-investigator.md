@@ -15,16 +15,7 @@ compatibility: opencode
 
 Investigator role for the guideline-audit DiMo chain. Reads guideline files from `guideline_paths` and produces `evidence.yaml` with raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for guideline-audit. Writes `evidence.yaml` with extracted guideline content, structural data, and initial observations.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what passes or fails. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT assess guideline quality — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
+
 
 ## Dispatch Contract
 
@@ -547,3 +538,27 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - Load [080-code-standards.md](guidelines/080-code-standards.md) — enforcement test mandate and evidence type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+
+## Output Contract
+
+| Field | Required | Format | Description |
+|-------|----------|--------|-------------|
+| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
+| `artifact_format` | Yes | `yaml` | Format of the output artifact |
+| `status` | Yes | `DONE | BLOCKED` | Task completion status |
+| `summary` | Yes | `string` | 1-3 sentence summary of findings |
+
+The output artifact MUST be written to `artifact_path` before returning.
+
+## Frugal Contract
+
+The sub-agent MUST return only the following fields to the orchestrator:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to the full evidence artifact on disk |
+| `blocker_reason` | If BLOCKED | Why the task was blocked |
+
+Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

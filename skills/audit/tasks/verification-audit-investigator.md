@@ -15,16 +15,7 @@ compatibility: opencode
 
 Collect raw evidence for verification-audit. Reads spec success criteria and behavioral evidence artifacts, maps SCs to evidence, and writes `evidence.yaml`. This is the Investigator role in the DiMo 4-role chain — it collects, it does NOT evaluate or judge.
 
-> **DiMo Role: Investigator.** This task collects raw evidence for verification-audit. Writes `evidence.yaml` with extracted SCs, evidence artifacts, and initial mappings.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what passes or fails. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT assess implementation completeness — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
+
 >
 
 ## Dispatch Contract
@@ -195,3 +186,37 @@ summary: "Evidence collected: {sc_count} SCs extracted, {behavioral_sc_count} be
 - Load [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+
+## Output Contract
+
+| Field | Required | Format | Description |
+|-------|----------|--------|-------------|
+| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
+| `artifact_format` | Yes | `yaml` | Format of the output artifact |
+| `status` | Yes | `DONE | BLOCKED` | Task completion status |
+| `summary` | Yes | `string` | 1-3 sentence summary of findings |
+
+The output artifact MUST be written to `artifact_path` before returning.
+
+## Frugal Contract
+
+The sub-agent MUST return only the following fields to the orchestrator:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to the full evidence artifact on disk |
+| `blocker_reason` | If BLOCKED | Why the task was blocked |
+
+Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.
+
+## Clean-Room Validation
+
+This task requires independence from orchestrator bias. The sub-agent MUST:
+
+1. **Reject preloaded context** — return `PRELOADED_CONTEXT_REJECTED` if the orchestrator includes inline reasoning, expected outcomes, file paths, or step sequences
+2. **Discover scope independently** — read source files, run analysis tools, and determine the scope without orchestrator hints
+3. **Produce evidence independently** — write full evidence artifacts to disk before returning
+4. **Render binary judgment** — PASS (100% clean, no caveats) or FAIL (any caveat, any concern, any non-100% clean pass)
+

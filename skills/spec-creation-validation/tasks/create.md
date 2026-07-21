@@ -451,6 +451,12 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 - [ ] 27. **Step 27: Evidence Type Classification Gate (MANDATORY)** — When authoring success criteria, the agent MUST classify each SC's evidence type by asking: "Does this change affect runtime behavior? If YES, evidence type MUST be behavioral."
 
+    **Presumptive runtime-behavioral file types:** Changes to the following file types ALWAYS affect runtime agent behavior and MUST be classified as `behavioral` evidence type:
+    - `SKILL.md` — Trigger Dispatch Tables, Invocation sections, routing metadata
+    - `tasks/*.md` — Task card procedures that sub-agents execute inline
+    - `guidelines/*.md` — Enforcement blocks, critical rules, zero-tolerance mandates
+    - `enforcement/*.md` — Behavioral enforcement test scenarios and assertions
+
     The declared evidence type in the SC table MUST reflect the classification question's answer:
 
     | Change Affects Runtime Behavior? | Required Evidence Type | Minimum Verification |
