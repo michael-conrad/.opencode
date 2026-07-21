@@ -100,6 +100,15 @@ Read and parse the Investigator's evidence and upstream reasoning role's validat
 - [ ] 8. If any required key is missing, return BLOCKED with `MALFORMED_REASONING` and the missing key name
 - [ ] 9. Record artifact metadata: generator name, knowledge supporter name, issue number, timestamps
 
+### Step 2.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
+
 ### Step 3: Evaluate CM-1 — Baseline Rule Presence
 
 Evaluate whether all baseline rules are present in the current state with no uncontrolled removals:

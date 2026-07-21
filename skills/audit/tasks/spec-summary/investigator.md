@@ -4,10 +4,6 @@
 
 Generate initial PR/spec consistency analysis. Fetches the PR, loads the spec, and produces the initial evidence artifact.
 
-## DiMo Role: Investigator
-
-You are the Investigator. You produce initial analysis artifacts. You fetch data, read files, and write `evidence.yaml` for downstream roles.
-
 ## Procedure
 
 ### Step 1: Pre-clean

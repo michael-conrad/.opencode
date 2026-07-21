@@ -107,6 +107,15 @@ Read the Investigator's evidence and the upstream reasoning role's validated rea
 - [ ] 5. If any expected top-level section is absent from either artifact, record as `section_missing` — do NOT BLOCK, but flag in the verdict
 - [ ] 6. Note the upstream reasoning role's `overall_validation_status` — this informs evaluation confidence
 
+### Step 2.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
+
 ### Step 3: Evaluate GA-1 — Rule Conditions Are Unambiguous
 
 Evaluate whether rule conditions are unambiguous and parseable using validated evidence:

@@ -49,6 +49,7 @@ Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Inv
 - All SCs evaluated against validated evidence from `reasoning.yaml`
 - Each SC receives a binary PASS or FAIL verdict
 - Evidence type compliance verified — each SC evaluated using minimum acceptable method per declared type
+- For behavioral SCs: clean-room sub-agent (`behavioral-sc-evaluator`) dispatched with artifact dir only; if clean-room returns FAIL, evaluator verdict is FAIL
 - Implementation completeness assessed — does the code satisfy the spec?
 - `verdict.yaml` written to `./tmp/{issue-N}/artifacts/verification-audit/verdict.yaml`
 - No hedging, no "PASS with concerns", no INCONCLUSIVE verdicts
@@ -136,6 +137,15 @@ For each SC, determine:
 - Whether evidence artifacts exist and are readable (from `artifact_metadata_validation`)
 - Whether evidence type compliance is satisfied (from `evidence_type_validation`)
 - Whether the SC exists in the spec and the criterion text matches (from `sc_validation`)
+
+### Step 4.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 5: Evaluate Each Criterion
 

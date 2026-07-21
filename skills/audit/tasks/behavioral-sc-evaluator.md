@@ -1,3 +1,10 @@
+---
+name: behavioral-sc-evaluator
+description: "Clean-room evaluator for behavioral SCs. Receives ONLY artifact directory path. Reads stdout.log/stderr.log from behavioral test output. Renders binary PASS/FAIL per SC. File-existence alone returns FAIL."
+license: MIT
+compatibility: opencode
+---
+
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
@@ -6,45 +13,75 @@
 
 ## Purpose
 
-Clean-room evaluation of behavioral SC evidence. Receives ONLY an artifact directory path. Reads raw test output (stdout.log, stderr.log) and renders binary PASS/FAIL per SC. No orchestrator context, no expected outcomes, no cached results.
+Clean-room evaluator for behavioral success criteria. Receives ONLY an artifact directory path containing behavioral test output (stdout.log, stderr.log, session.yaml, timeline.yaml). Reads the raw artifacts and renders a binary PASS/FAIL verdict per SC. File-existence alone is FAIL — the evaluator MUST read and judge the actual agent output.
 
 ## Entry Criteria
 
-- Artifact directory path provided (no other context)
-- Artifact directory contains at minimum `stdout.log` and `stderr.log`
-- SC criteria provided inline (the SC text to evaluate against)
-
-## Exit Criteria
-
-- Binary PASS/FAIL verdict per SC
-- Verdict based on actual agent behavior in stdout.log/stderr.log, NOT file existence
-- Result contract returned with `status: DONE` and `finding_summary`
+- `artifact_evidence_dir` provided — directory containing behavioral test output files
+- `spec_local_dir` provided — directory containing spec files with SC definitions
+- No orchestrator context, no expected outcomes, no cached results
 
 ## Procedure
 
-### Step 1: Read Artifacts
+### Step 1: Pre-Flight Validation
 
-- [ ] 1. Read `stdout.log` — full agent prose output
-- [ ] 2. Read `stderr.log` — tool dispatch trace
-- [ ] 3. Read `manifest.yaml` — scenario metadata
+- [ ] 1. Verify `artifact_evidence_dir` is present and non-empty
+- [ ] 2. If missing or empty, return BLOCKED with `MISSING_EVIDENCE_DIR`
+- [ ] 3. Verify `spec_local_dir` is present and non-empty
+- [ ] 4. If missing or empty, return BLOCKED with `MISSING_SPEC_DIR`
 
-### Step 2: Evaluate Each SC
+### Step 2: Load Spec SCs
 
-For each SC criterion provided:
+- [ ] 1. Read spec files from `spec_local_dir`
+- [ ] 2. Extract all SCs with their IDs, descriptions, and evidence types
+- [ ] 3. Filter to behavioral SCs only
 
-- [ ] 1. Read the agent's actual actions from stdout.log and stderr.log
-- [ ] 2. Determine: did the agent's behavior satisfy the SC criterion?
-- [ ] 3. File-existence alone is NEVER sufficient — the agent must have taken the correct action
-- [ ] 4. Render binary verdict: PASS (100% clean, no caveats) or FAIL (anything else)
+### Step 3: Read Behavioral Test Artifacts
 
-### Step 3: Return Result Contract
+- [ ] 1. Read `stdout.log` from `artifact_evidence_dir` — full agent output
+- [ ] 2. Read `stderr.log` from `artifact_evidence_dir` — tool dispatch trace
+- [ ] 3. Read `session.yaml` or `timeline.yaml` if present — structured session data
+- [ ] 4. If no behavioral test artifacts exist, return FAIL for all SCs with `NO_ARTIFACTS`
+
+### Step 4: Evaluate Each Behavioral SC
+
+For each behavioral SC:
+
+- [ ] 1. Read the SC criterion from the spec
+- [ ] 2. Evaluate the agent's actual output (stdout + stderr) against the criterion
+- [ ] 3. Does the agent's tool dispatch trace show the required behavior?
+- [ ] 4. Does the agent's output satisfy the criterion?
+- [ ] 5. Render PASS if the agent's behavior satisfies the criterion
+- [ ] 6. Render FAIL if the agent's behavior does NOT satisfy the criterion
+- [ ] 7. File-existence alone (artifacts exist but not read) → FAIL
+
+### Step 5: Write verdict.yaml
+
+Write `verdict.yaml` to `{artifact_evidence_dir}/verdict.yaml`:
 
 ```yaml
-status: DONE
-artifact_path: "<artifact directory path>"
-summary: "Evaluated {N} behavioral SCs: {M} PASS, {K} FAIL"
+evaluator: behavioral-sc-evaluator
+artifact_evidence_dir: "<path>"
+spec_local_dir: "<path>"
 per_sc:
-  - sc_id: "<SC-N>"
-    verdict: PASS|FAIL
-    justification: "<1-2 sentence explanation based on actual agent output>"
+  - sc_id: "SC-N"
+    result: PASS|FAIL
+    evidence: "<reference to specific artifact content>"
+    explanation: "<reasoning based on actual agent output>"
+summary:
+  total: <N>
+  pass: <N>
+  fail: <N>
+  all_pass: true|false
 ```
+
+## Exit Criteria
+
+- `verdict.yaml` written with per-SC binary PASS/FAIL verdicts
+- Each verdict backed by evidence from actual artifact content (not file-existence)
+- No orchestrator context, expected outcomes, or cached results used
+
+## Cross-References
+
+- Dispatched by: `*-evaluator.md` tasks for behavioral SC evaluation
+- Consumed by: `cross-validate.md` for EVIDENCE_TYPE_MISMATCH detection

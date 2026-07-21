@@ -132,6 +132,15 @@ Read the spec files to establish the authoritative baseline for evaluation:
 - [ ] 4. Extract the Success Criteria table — this is the authoritative list of SCs to evaluate
 - [ ] 5. Record each SC: ID, criterion text, declared evidence type, verification method
 
+### Step 3.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
+
 ### Step 4: Evaluate Assertion Plausibility (TQ-1)
 
 Evaluate whether test assertions reference specific expected values from the spec SCs:

@@ -8,16 +8,7 @@
 
 ## Purpose
 
-Verify merge evidence after PR merge. This task has been split into a DiMo 4-role chain. Each role is a separate file in this directory.
-
-## DiMo Chain Flow
-
-The orchestrator dispatches the 4 roles sequentially:
-
-1. **Investigator** (`investigator.md`) — Fetches PR, identifies spec issue, produces `evidence.yaml`
-2. **Validator** (`validator.md`) — Validates evidence against source data, produces `reasoning.yaml`
-3. **Evaluator** (`evaluator.md`) — Evaluates criteria against evidence, produces `verdict.yaml`
-4. **Arbiter** (`arbiter.md`) — Provides resolution paths, produces final result contract
+Verify merge evidence after PR merge.
 
 ## Dispatch Contract
 

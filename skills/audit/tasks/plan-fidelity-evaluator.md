@@ -101,6 +101,15 @@ remediation: "spec_local_dir is required for plan-fidelity-evaluator. The orches
 - [ ] 4. Identify items marked `unverifiable: true` — these cannot be used as evidence for PASS verdicts
 - [ ] 5. Identify items marked `validated: false` with discrepancies — these indicate evidence-source mismatch
 
+### Step 2.5: Clean-Room Dispatch for Behavioral SCs
+
+For each SC declared as `behavioral` evidence type:
+
+- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
+- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
+- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
+- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
+
 ### Step 3: Build Evaluation Criteria
 
 Evaluate each criterion against the validated evidence. Expected values reference authoritative skill cards, not hard-coded concrete values.

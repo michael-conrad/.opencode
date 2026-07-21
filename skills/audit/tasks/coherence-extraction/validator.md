@@ -4,10 +4,6 @@
 
 Validate coherence evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of extracted rules and behaviors.
 
-## DiMo Role: Validator
-
-You are the Validator. You validate evidence against source data. You read `evidence.yaml` (Investigator), validate each item, and write `reasoning.yaml`.
-
 ## Procedure
 
 ### Step 1: Read Evidence

@@ -2,16 +2,7 @@
 
 ## Purpose
 
-Generate baseline coherence state from guidelines and skills. This task has been split into a DiMo 4-role chain. Each role is a separate file in this directory.
-
-## DiMo Chain Flow
-
-The orchestrator dispatches the 4 roles sequentially:
-
-1. **Investigator** (`coherence-extraction/investigator.md`) — Scans guidelines and skills, produces `evidence.yaml`
-2. **Validator** (`coherence-extraction/validator.md`) — Validates evidence, produces `reasoning.yaml`
-3. **Evaluator** (`coherence-extraction/evaluator.md`) — Computes metrics, runs Z3 check, evaluates evidence type mismatches, produces `verdict.yaml`
-4. **Arbiter** (`coherence-extraction/arbiter.md`) — Provides recommendations, produces final result contract
+Generate baseline coherence state from guidelines and skills.
 
 ## Dispatch Contract
 

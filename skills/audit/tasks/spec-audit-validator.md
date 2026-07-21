@@ -1,6 +1,6 @@
 ---
 name: spec-audit-knowledge-supporter
-description: "Validator role for the spec-audit DiMo chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
+description: "Validator for spec-audit. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,9 @@ compatibility: opencode
 
 ## Purpose
 
-Validator role for the spec-audit DiMo chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data, and writes `reasoning.yaml` with validated evidence. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data, and writes `reasoning.yaml` with validated evidence. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Validator.** This task validates evidence from the Investigator. Reads `evidence.yaml`, cross-checks each evidence item against source data, and writes `reasoning.yaml` with validated evidence.
->
-> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every piece of evidence the Investigator collected gets cross-checked against its source. You do not decide what matters. You do not decide what is correct. You validate and support.
->
->
-> - MUST validate every evidence item against its source data — no skipping, no assuming
-> - MUST NOT produce any PASS/FAIL judgment — that is the Evaluator's job
-> - MUST NOT evaluate whether evidence is "correct" — validate accuracy, completeness, and relevance only
-> - MUST write `reasoning.yaml` as the only output artifact
-> - MUST flag evidence items that cannot be validated as `unvalidated` with reason
+
 
 ## Dispatch Contract
 
@@ -647,7 +638,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/spec-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/spec-audit.md` — Evaluator role (consumes this task's reasoning.yaml)
 - `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
+- `SKILL.md` — skill-level operating protocol and enforcement rules
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
 - Load [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
 

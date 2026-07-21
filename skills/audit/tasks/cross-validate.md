@@ -2,24 +2,13 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: cross-validate — Sole Arbiter (Arbiter)
+## Purpose
 
-**This file is the sole Arbiter (Arbiter) in the audit skill. No other file owns this role. No other file produces `judgment.yaml`. No other file performs cross-validation of upstream verdicts. This is the single authoritative Arbiter — there is no ambiguity.**
+Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. This file is the exclusive owner of cross-validation — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
+# Task: cross-validate
 
 ## Purpose
 
-Sole Arbiter (Arbiter) role. Reads `verdict.yaml` from ALL 9 audit chains (spec-audit, plan-fidelity, verification-audit, concern-separation, coherence-maintenance, guideline-audit, drift-detection, test-quality-audit, content-audit) and produces the final `judgment.yaml`. This file is the exclusive owner of the Arbiter role — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
-
-> **DiMo Role: Sole Arbiter (Arbiter).** This task — and only this task — produces the final judgment by cross-referencing all 9 chain verdicts. Reads all chain `verdict.yaml` files, writes `judgment.yaml`. No other file in the audit skill or any other skill performs this function.
->
-> You are the sole Arbiter (Arbiter). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
-> 
-> 
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST write `judgment.yaml` as the only output artifact
-> 
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 
@@ -248,7 +237,7 @@ Track disagreements explicitly in the result contract for transparency: a `PASS`
 
 #### FAIL Is Terminal — No Reclassification (MANDATORY)
 
-FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors via the DiMo role chain.
+FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors.
 
 The following rationalization patterns are enumerated as explicit violations:
 
@@ -441,13 +430,13 @@ The `mandatory_remediation` field:
 
 ## Red Flags
 
-- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate discovers artifacts via evidence dir
+- Never task auditors from within cross-validate — auditors are dispatched before this task, cross-validate discovers artifacts via evidence dir
 - Never leak orchestrator reasoning into verdict parsing — clean-room means evidence + criteria ONLY
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per audit-004
 - Never fabricate verdicts when auditor YAML artifact is unreadable or unparseable — missing data = FAIL per audit-005
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
-- Never resolve auditors inline — the DiMo role chain is dispatched by orchestrator before this task
+- Never resolve auditors inline — auditors are dispatched by orchestrator before this task
 - Never bypass dark pattern enforcement — Step 6 checks are MANDATORY per audit-013 through audit-018
 - Never attempt recovery from BLOCKED status — Non-Recovery Gates are terminal per audit-017
 - Never pass YAML verdict content inline through orchestrator context — verdict artifacts stay on disk; only artifact_path reaches orchestrator
@@ -456,7 +445,7 @@ The `mandatory_remediation` field:
 
 - `audit/SKILL.md` — skill-level operating protocol and enforcement rules
 - `audit/tasks/completion.md` — halt guarantee
-- `audit/SKILL.md` — DiMo role chain dispatch
+- `audit/SKILL.md` — skill-level operating protocol and enforcement rules
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
 - `000-critical-rules.md` — clean-room task() protocol, orchestrator purity
 - Spec #578, Plan #382

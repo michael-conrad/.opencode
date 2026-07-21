@@ -4,15 +4,6 @@
 
 Generate baseline coherence state from guidelines and skills. Captures current rule-behavior alignment for later drift detection.
 
-## DiMo Role: Investigator
-
-You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You just collect.
-
-- MUST extract all evidence without filtering by perceived relevance
-- MUST NOT produce any PASS/FAIL judgment
-- MUST NOT evaluate whether evidence is "correct" — record what exists
-- MUST write `evidence.yaml` as the only output artifact
-
 ## Procedure
 
 ### Step 1: Pre-clean
