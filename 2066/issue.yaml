@@ -1,177 +1,133 @@
-body: "---\ntitle: \"[SPEC] BEH-EV classification gate + evaluator clean-room dispatch\"\
-  \nstatus: draft\ncreated: 2026-07-22\nupdated: 2026-07-22\nlicense: MIT\nprovenance:\
-  \ AI-generated\nissue: 2065\nauthors:\n  - OpenCode (ollama-cloud/deepseek-v4-flash)\n\
-  supersedes:\n  - 2011\n---\n\n> **Full spec and artifacts: [`.opencode/.issues/2065/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2065)**\
-  \ — this issue is a condensed exec summary; the authoritative spec lives in the\
-  \ `issues-data` branch.\n>\n> **Local artifacts:** `.opencode/.issues/2065/` — implementation\
-  \ plan, card catalogue, dependency contracts, research, designs, audit findings\n\
-  \n**STATUS:** DRAFT\n**CREATED:** 2026-07-22\n\n## Supersession\n\nThis spec supersedes\
-  \ #2011. Issue #2011 had 5 SCs; SC-1 and SC-2 failed audit. This spec replaces the\
-  \ original design with corrected implementation targets.\n\n## Problem Statement\n\
-  \nIssue #2011 specified two fixes that were never correctly implemented:\n\n###\
-  \ Defect 1: BEH-EV classification gate was deleted with create.md\n\nThe BEH-EV\
-  \ classification gate was specified to go in `spec-creation-validation/tasks/create.md`.\
-  \ That file was deleted by #2020's decomposition of spec-creation-validation into\
-  \ 20 task cards. The gate was never migrated to any surviving task card. The classification\
-  \ question (\"does this change affect runtime behavior?\") is never asked during\
-  \ spec creation.\n\n**Root cause:** The classification gate was specified against\
-  \ a file that was deleted by a concurrent decomposition. No migration step was included\
-  \ in either spec.\n\n**Fix target:** `spec-creation-validation/tasks/decompose.md`\
-  \ step 3 — extend with mandatory BEH-EV classification sub-steps.\n\n### Defect\
-  \ 2: Evaluators evaluate behavioral SCs inline instead of dispatching clean-room\n\
-  \nAll 9 evaluator tasks (`audit/tasks/*-evaluator.md`) check whether behavioral\
-  \ evidence artifacts exist in the `artifact_evidence_dir`. If files exist, they\
-  \ report PASS — without reading the actual content of stdout.log or stderr.log to\
-  \ determine whether the agent's actions satisfied the SC. No evaluator dispatches\
-  \ a clean-room sub-agent.\n\nThe evaluator itself is not a clean-room sub-agent\
-  \ — it receives orchestrator context and cached results. A true clean-room evaluation\
-  \ requires a sub-agent that receives ONLY the artifact directory path, reads the\
-  \ artifacts cold, and renders PASS/FAIL independently.\n\n**Root cause:** The evaluator\
-  \ result contract has no `needs_clean_room` field. The orchestrator has no dispatch\
-  \ step for `behavioral-sc-evaluator`. The arbiter (`cross-validate.md`) receives\
-  \ only the evaluator verdict, not clean-room results.\n\n**Fix target:** Evaluator\
-  \ result contract carries `needs_clean_room` list → orchestrator dispatches `behavioral-sc-evaluator`\
-  \ → arbiter receives both evaluator verdict and clean-room results.\n\n## Goals\n\
-  \n- [ ] G1: `spec-creation-validation/tasks/decompose.md` step 3 has mandatory BEH-EV\
-  \ classification sub-steps with presumptive runtime-behavioral file types\n- [ ]\
-  \ G2: All 9 evaluator result contracts carry `needs_clean_room` list identifying\
-  \ behavioral SCs\n- [ ] G3: Orchestrator dispatches `behavioral-sc-evaluator` for\
-  \ each SC in `needs_clean_room`\n- [ ] G4: Arbiter (`cross-validate.md`) receives\
-  \ both evaluator verdict and clean-room results\n\n## Non-Goals\n\n- **Retroactively\
-  \ fixing existing behavioral SC verdicts** — Only newly verified SCs must comply\n\
-  - **Changing the behavioral test harness** — The harness produces artifacts correctly.\
-  \ Only the evaluation is broken.\n- **Cost model formalization** — Covered by #916\
-  \ (separate spec)\n- **Rewriting evaluator internals** — Only the behavioral SC\
-  \ evaluation path and result contract need fixing\n- **Creating behavioral-sc-evaluator.md**\
-  \ — Already created by #2064 Phase 4\n\n## Constraints and Scope\n\n### In Scope\n\
-  \n| Area | Files | Work Required |\n|------|-------|--------------|\n| Classification\
-  \ gate | `spec-creation-validation/tasks/decompose.md` | Extend step 3 with BEH-EV\
-  \ classification sub-steps |\n| Evaluator result contracts | All 9 `audit/tasks/*-evaluator.md`\
-  \ files | Add `needs_clean_room` field to result contract |\n| Orchestrator dispatch\
-  \ | `audit/tasks/behavioral-sc-evaluator.md` | Add orchestrator dispatch step (file\
-  \ exists from #2064) |\n| Arbiter | `audit/tasks/cross-validate.md` | Add clean-room\
-  \ result reception and comparison logic |\n\n### Out of Scope\n\n- Behavioral test\
-  \ harness — produces correct artifacts\n- Existing SC verdicts — grandfathered\n\
-  - Cost model formalization — #916\n- Creating behavioral-sc-evaluator.md — exists\
-  \ from #2064\n- Evaluator investigator/validator/arbiter roles — only evaluator\
-  \ role needs fixing\n\n## Design Decisions (Already Resolved)\n\n| DEC-ID | Decision\
-  \ | Rationale |\n|--------|----------|-----------|\n| DEC-1 | Classification gate\
-  \ in decompose.md step 3, not a new task card | Step 3 already assigns evidence\
-  \ types. Extending it avoids creating a new file. |\n| DEC-2 | Classification question\
-  \ is universal — applies to ALL SCs in ALL specs | The substrate question (\"does\
-  \ this change affect runtime behavior?\") is independent of file type. Every SC\
-  \ must be classified. |\n| DEC-3 | Presumptive file types: SKILL.md, tasks/*.md,\
-  \ guidelines/*.md, enforcement/*.md — these ALWAYS answer YES | These files control\
-  \ agent behavior at runtime. Any SC modifying them is automatically behavioral.\
-  \ |\n| DEC-4 | Evaluator result contract carries `needs_clean_room` list, not inline\
-  \ dispatch | The evaluator is not the orchestrator. It cannot call task(). It reports\
-  \ what needs clean-room evaluation; the orchestrator dispatches. |\n| DEC-5 | Arbiter\
-  \ receives both evaluator verdict and clean-room results | The arbiter compares\
-  \ both and reports consensus or conflict. This is the existing cross-validate pattern\
-  \ extended. |\n\n## Safety Considerations\n\n- **No destructive operations** — Only\
-  \ task file modifications\n- **No database/schema changes** — Pure enforcement additions\n\
-  - **Rollback:** `git revert` on affected task files\n- **Data loss risk:** None\n\
-  \n## Alternatives Considered & Why Discarded\n\n| Alternative | Discard Rationale\
-  \ |\n|-------------|-------------------|\n| New task card for classification gate\
-  \ | decompose.md step 3 already assigns evidence types. Extending is simpler and\
-  \ avoids file proliferation. |\n| Evaluator dispatches clean-room inline | Evaluator\
-  \ is not the orchestrator — it cannot call task(). Only the orchestrator can dispatch\
-  \ sub-agents. |\n| Fix in cross-validate only | Cross-validate is downstream. Evaluators\
-  \ should produce correct verdicts. |\n| Add guideline instead of task fix | Guidelines\
-  \ are advisory. Task file changes are enforceable. |\n| Keep #2011 as active spec\
-  \ | #2011 SC-1 targeted a deleted file. The design must be corrected. |\n\n## Evidence/Provenance\n\
-  \n| Claim | Evidence Source |\n|-------|-----------------|\n| create.md was deleted\
-  \ by #2020 decomposition | `ls spec-creation-validation/tasks/` — no create.md |\n\
-  | decompose.md step 3 assigns evidence types | `read decompose.md` — step 3: \"\
-  Assign evidence types to each SC\" |\n| No BEH-EV classification sub-steps in decompose.md\
-  \ | `read decompose.md` — no \"runtime behavior\" or \"BEH-EV\" text |\n| Evaluators\
-  \ check file existence for behavioral SCs | `read verification-audit-evaluator.md`\
-  \ — find behavioral SC evaluation logic |\n| No `needs_clean_room` in any evaluator\
-  \ result contract | `grep` for `needs_clean_room` in all evaluator files — zero\
-  \ matches |\n| behavioral-sc-evaluator.md exists from #2064 | `ls audit/tasks/behavioral-sc-evaluator.md`\
-  \ — file exists |\n| cross-validate.md has no clean-room result comparison | `read\
-  \ cross-validate.md` — find arbiter logic |\n\n## Success Criteria\n\n| ID | Criterion\
-  \ | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
-  | SC-1 | `decompose.md` step 3 has mandatory BEH-EV classification sub-steps: (a)\
-  \ ask \"does this change affect runtime behavior?\" for each SC, (b) presumptive\
-  \ YES for SKILL.md/tasks/*.md/guidelines/*.md/enforcement/*.md, (c) auto-uplift\
-  \ to behavioral on YES | behavioral | `opencode run` → verify spec-creation agent\
-  \ includes BEH-EV classification when decomposing SCs |\n| SC-2 | All 9 evaluator\
-  \ result contracts carry `needs_clean_room: [SC-IDs]` field listing behavioral SCs\
-  \ | behavioral | `opencode run` → verify evaluator result contract includes `needs_clean_room`\
-  \ for behavioral SCs |\n| SC-3 | Orchestrator dispatches `behavioral-sc-evaluator`\
-  \ for each SC in `needs_clean_room` list | behavioral | `opencode run` → verify\
-  \ clean-room sub-agent dispatch in stderr for behavioral SCs |\n| SC-4 | Arbiter\
-  \ (`cross-validate.md`) receives both evaluator verdict and clean-room results,\
-  \ reports consensus or conflict | behavioral | `opencode run` → verify cross-validate\
-  \ compares both verdicts and reports consensus/conflict |\n\n## Implementation Approach\n\
-  \n### Phase 1: BEH-EV classification gate in decompose.md\n\n1. Read current `spec-creation-validation/tasks/decompose.md`\n\
-  2. Extend step 3 with mandatory BEH-EV classification sub-steps:\n   - 3a. For each\
-  \ SC, ask: \"Does this change affect runtime behavior?\"\n   - 3b. Presumptive YES\
-  \ for file types: SKILL.md, tasks/*.md, guidelines/*.md, enforcement/*.md\n   -\
-  \ 3c. If YES: auto-uplift evidence type to `behavioral`\n   - 3d. Record classification\
-  \ in decomposition artifact\n3. Verify: behavioral test confirms classification\
-  \ step in stderr\n\n### Phase 2: Evaluator result contract + orchestrator dispatch\n\
-  \n1. For each of the 9 evaluator tasks: add `needs_clean_room: [SC-IDs]` to result\
-  \ contract\n2. Update `behavioral-sc-evaluator.md` (exists from #2064) with orchestrator\
-  \ dispatch entry point\n3. Update `cross-validate.md` to receive both evaluator\
-  \ verdict and clean-room results\n4. Verify: behavioral test confirms clean-room\
-  \ dispatch and arbiter comparison\n\n## Interdependency\n\n| Issue | Direction |\
-  \ Classification | Description |\n|-------|-----------|---------------|-------------|\n\
-  | [#2011](https://github.com/michael-conrad/.opencode/issues/2011) | upstream |\
-  \ SUPERSEDED_BY | This spec supersedes #2011 with corrected design |\n| [#2020](https://github.com/michael-conrad/.opencode/issues/2020)\
-  \ | downstream | DEPENDS_ON | Decomposed task cards — decompose.md exists in new\
-  \ structure |\n| [#2032](https://github.com/michael-conrad/.opencode/issues/2032)\
-  \ | downstream | DEPENDS_ON | Task card structure — behavioral-sc-evaluator.md created\
-  \ here |\n| [#2009](https://github.com/michael-conrad/.opencode/issues/2009) | downstream\
-  \ | DEPENDS_ON | Behavioral test infrastructure for SC verification |\n| [#2064](https://github.com/michael-conrad/.opencode/issues/2064)\
-  \ | downstream | DEPENDS_ON | Created behavioral-sc-evaluator.md — this spec uses\
-  \ it |\n| [#916](https://github.com/michael-conrad/.opencode/issues/916) | upstream\
-  \ | RELATED | Cost model formalization — separate concern |\n\n## Anti-Lobotomization\n\
-  \nTests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion\
-  \ to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION.\
-  \ SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified\
-  \ to a lower evidence type to evade implementation. Load [Test Integrity Mandate](guidelines/080-code-standards.md).\n\
-  \n## Documentation Sources\n\n| Source Category | What Was Consulted | Purpose |\n\
-  |----------------|-------------------|---------|\n| Direct source search | `read\
-  \ spec-creation-validation/tasks/decompose.md` | Verify current step 3 content |\n\
-  | Direct source search | `ls spec-creation-validation/tasks/` | Confirm create.md\
-  \ is absent |\n| Direct source search | `read audit/tasks/verification-audit-evaluator.md`\
-  \ | Verify current behavioral SC evaluation logic |\n| Direct source search | `ls\
-  \ audit/tasks/*-evaluator.md` | Count evaluator tasks |\n| Direct source search\
-  \ | `read audit/tasks/cross-validate.md` | Verify current arbiter logic |\n| Existing\
-  \ spec | #2011 spec body | Extract original design and audit findings |\n| Existing\
-  \ spec | #2064 spec body | Confirm behavioral-sc-evaluator.md was created |\n| Existing\
-  \ spec | #2020 spec body | Confirm decomposition scope |\n\n## Decision Ledger\n\
-  \n| DEC-ID | Decision | Rationale | Requirement Key | Affected SCs |\n|--------|----------|-----------|-----------------|--------------|\n\
-  | DEC-1 | Classification gate in decompose.md step 3 | Step 3 already assigns evidence\
-  \ types. Extending avoids new file. | MUST | SC-1 |\n| DEC-2 | Universal classification\
-  \ question | Substrate question applies to ALL SCs, not just agent-facing files\
-  \ | MUST | SC-1 |\n| DEC-3 | Presumptive file types for YES | SKILL.md/tasks/guidelines/enforcement\
-  \ always affect runtime behavior | MUST | SC-1 |\n| DEC-4 | needs_clean_room in\
-  \ result contract | Evaluator cannot call task() — only orchestrator can dispatch\
-  \ | MUST | SC-2, SC-3 |\n| DEC-5 | Arbiter receives both verdicts | Cross-validate\
-  \ already compares — extending to include clean-room results | MUST | SC-4 |\n\n\
-  ## Revision Policy\n\n| Artifact | Cascade Trigger | Action on Parent Revision |\n\
-  |----------|----------------|---------------------------|\n| Implementation plan\
-  \ | MUST | Revise to match revised spec |\n| Behavioral tests | SHOULD | Review\
-  \ for continued validity |\n| Risk traceability | MAY | Update if new risks introduced\
-  \ |\n\n## Spec Family Annotation\n\nfamily: beh-ev-classification-cleanroom-dispatch\n\
-  selectors:\n  - spec: \"#2065\"\n  - spec: glob(pattern: \".opencode/skills/spec-creation-validation/tasks/decompose.md\"\
-  )\n  - spec: glob(pattern: \".opencode/skills/audit/tasks/*-evaluator.md\")\n  -\
-  \ spec: glob(pattern: \".opencode/skills/audit/tasks/behavioral-sc-evaluator.md\"\
-  )\n  - spec: glob(pattern: \".opencode/skills/audit/tasks/cross-validate.md\")\n\
-  \n## Explicit Non-Goals\n\n- **Retroactively fixing existing behavioral SC verdicts**\
-  \ — Only newly verified SCs must comply\n- **Changing the behavioral test harness**\
-  \ — The harness produces artifacts correctly\n- **Cost model formalization** — Covered\
-  \ by #916 (separate spec)\n- **Rewriting evaluator internals** — Only the behavioral\
-  \ SC evaluation path and result contract need fixing\n- **Creating behavioral-sc-evaluator.md**\
-  \ — Already created by #2064 Phase 4\n\n## Regression Invariants\n\n- [ ] 1. Existing\
-  \ structural SC evaluation still works\n- [ ] 2. Existing string SC evaluation still\
-  \ works\n- [ ] 3. Existing semantic SC evaluation still works\n- [ ] 4. Existing\
-  \ evaluator result contracts remain backward-compatible (new field is additive)\n\
-  - [ ] 5. #2011's original intent (behavioral SC enforcement) is preserved\n\n\U0001F916\
-  \ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)\n"
-updated_at: '2026-07-22T16:05:32+00:00'
+body: '# Implementation Plan — [.opencode#2066](https://github.com/michael-conrad/.opencode/tree/issues-data/2066)
+  — BEH-EV classification gate + evaluator clean-room dispatch
+
+
+  **Goal:** Fix two defects from #2011: (1) add mandatory BEH-EV classification sub-steps
+  to `decompose.md` step 3, and (2) add `needs_clean_room` field to all 9 evaluator
+  result contracts, orchestrator dispatch for `behavioral-sc-evaluator`, and clean-room
+  result comparison in `cross-validate.md`.
+
+
+  **Architecture:** Pure task-file modifications — no new files, no behavioral test
+  harness changes, no database/schema changes. Each phase modifies a distinct set
+  of files with no overlap.
+
+
+  **Files:**
+
+  - `spec-creation-validation/tasks/decompose.md` — extend step 3 with BEH-EV sub-steps
+
+  - `audit/tasks/behavioral-sc-evaluator.md` — add orchestrator dispatch entry point
+  (file exists from #2064)
+
+  - `audit/tasks/cross-validate.md` — add clean-room result reception and comparison
+  logic
+
+  - 9 evaluator files under `audit/tasks/*-evaluator.md` — add `needs_clean_room`
+  to result contract
+
+
+  **Dispatch:** `writing-plans-creation` → `writing-plans-holistic` → `approval-gate`
+  → `implementation-pipeline`
+
+
+  > **Compliance:** This plan is a faithful implementation of the approved spec. Every
+  step traces to a spec SC. No step adds scope beyond the spec. No step modifies files
+  outside the spec''s in-scope list.
+
+  >
+
+  > **One step at a time:** Execute steps sequentially. Do not skip steps. Do not
+  reorder steps. Do not combine steps. Each step produces a verifiable change.
+
+  >
+
+  > **Step status:** Mark each step `[x]` when completed. Do not mark a step completed
+  until its verification passes.
+
+  >
+
+  > **Self-remediation:** If a step fails, diagnose the root cause, fix it, and re-run
+  the step. Do not skip the step. Do not proceed past a failed step.
+
+
+  ## Blast Radius
+
+
+  | File | Impact | Risk |
+
+  |------|--------|------|
+
+  | `spec-creation-validation/tasks/decompose.md` | Step 3 extended with BEH-EV sub-steps
+  | Low — additive change, no existing logic modified |
+
+  | `audit/tasks/*-evaluator.md` (9 files) | Result contract gains `needs_clean_room`
+  field | Low — additive field, no existing fields changed |
+
+  | `audit/tasks/behavioral-sc-evaluator.md` | Orchestrator dispatch entry point added
+  | Low — file exists from #2064, no existing logic modified |
+
+  | `audit/tasks/cross-validate.md` | Clean-room result reception and comparison |
+  Low — additive step, no existing logic modified |
+
+
+  ## Concern Map Reference
+
+
+  | Concern | Phase | SCs |
+
+  |---------|-------|-----|
+
+  | BEH-EV classification gate in decompose.md | Phase 1 | SC-1 |
+
+  | Evaluator result contract + orchestrator dispatch + arbiter comparison | Phase
+  2 | SC-2, SC-3, SC-4 |
+
+
+  ## Phase Table
+
+
+  | Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch |
+
+  |-------|------|---------|-----|-------------|-------|----------|
+
+  | 1 | BEH-EV classification gate | Add BEH-EV classification sub-steps to decompose.md
+  step 3 | SC-1 | None | 1-3 | `spec-creation-validation` |
+
+  | 2 | Evaluator result contract + dispatch + arbiter | Add `needs_clean_room` to
+  evaluator contracts, orchestrator dispatch, arbiter comparison | SC-2, SC-3, SC-4
+  | Phase 1 | 4-10 | `audit` |
+
+
+  ## Exit Criteria
+
+
+  - [ ] C1: `decompose.md` step 3 has mandatory BEH-EV classification sub-steps with
+  presumptive runtime-behavioral file types (SC-1)
+
+  - [ ] C2: All 9 evaluator result contracts carry `needs_clean_room: [SC-IDs]` field
+  (SC-2)
+
+  - [ ] C3: `behavioral-sc-evaluator.md` has orchestrator dispatch entry point (SC-3)
+
+  - [ ] C4: `cross-validate.md` receives both evaluator verdict and clean-room results
+  (SC-4)
+
+  - [ ] C5: All modified files pass markdown lint (`pymarkdownlnt`)
+
+  - [ ] C6: All modified files pass markdown format check (`mdformat --check`)
+
+
+  > **Compliance:** This plan is a faithful implementation of the approved spec. Every
+  step traces to a spec SC. No step adds scope beyond the spec. No step modifies files
+  outside the spec''s in-scope list.
+
+  >
+
+  > **Self-remediation:** If a step fails, diagnose the root cause, fix it, and re-run
+  the step. Do not skip the step. Do not proceed past a failed step.
+
+  '
+updated_at: '2026-07-22T16:07:58+00:00'
 labels:
 - approved-for-pr
