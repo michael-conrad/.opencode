@@ -667,6 +667,12 @@ bidirectional_findings:
     revision_option: "<guidance>"
 ```
 
+### Step 19.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 19.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 20: Return Frugal Result Contract
 
 ```yaml
@@ -676,6 +682,7 @@ summary: "<N> criteria evaluated. <X> PASS, <Y> FAIL."
 all_criteria_pass: true | false
 remediation_required: true | false
 holistic_status: "PASS|DRAFT"
+needs_clean_room: [SC-IDs]
 ```
 
 ## Completion Dependency Chain
@@ -702,6 +709,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 17. Apply Self-Consistency Gate → INVALID if skipped
 - [ ] 18. Generate Bidirectional Findings → INVALID if skipped
 - [ ] 19. Write verdict.yaml → INVALID if skipped
+- [ ] 19.5. Identify Behavioral SCs for Clean-Room Evaluation → INVALID if skipped
 - [ ] 20. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling

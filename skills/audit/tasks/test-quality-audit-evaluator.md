@@ -391,6 +391,12 @@ self_consistency_downgrades:
     hedging_phrase: "<matched phrase>"
 ```
 
+### Step 13.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 13.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 14: Return Frugal Result Contract
 
 ```yaml
@@ -399,6 +405,7 @@ artifact_path: "{artifact_evidence_dir}/verdict.yaml"
 summary: "<N> criteria evaluated. <X> PASS, <Y> FAIL."
 all_criteria_pass: true | false
 remediation_required: true | false
+needs_clean_room: [SC-IDs]
 ```
 
 ## Completion Dependency Chain
@@ -419,6 +426,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 11. Process Verdicts → INVALID if skipped
 - [ ] 12. Apply Self-Consistency Gate → INVALID if skipped
 - [ ] 13. Write verdict.yaml → INVALID if skipped
+- [ ] 13.5. Identify Behavioral SCs for Clean-Room Evaluation → INVALID if skipped
 - [ ] 14. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling

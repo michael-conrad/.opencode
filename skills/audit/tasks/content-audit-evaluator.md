@@ -485,6 +485,12 @@ self_consistency_downgrades:
 - [ ] 2. Write `verdict.yaml` with the complete verdict structure
 - [ ] 3. Verify the file was written and is non-empty
 
+### Step 14.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 14.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 15: Return Frugal Result Contract
 
 ```yaml
@@ -493,6 +499,7 @@ artifact_path: "{artifact_evidence_dir}/verdict.yaml"
 summary: "<N> claims evaluated. <X> PASS, <Y> FAIL, <Z> FABRICATED."
 all_claims_pass: true | false
 remediation_required: true | false
+needs_clean_room: [SC-IDs]
 ```
 
 ## Result Contract
@@ -503,6 +510,7 @@ artifact_path: "{artifact_evidence_dir}/verdict.yaml"
 summary: "<N> claims evaluated. <X> PASS, <Y> FAIL, <Z> FABRICATED."
 all_claims_pass: true | false
 remediation_required: true | false
+needs_clean_room: [SC-IDs]
 ```
 
 ## Clean-Room Protocol
@@ -531,6 +539,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 12. Process Verdicts → INVALID if skipped
 - [ ] 13. Apply Self-Consistency Gate → INVALID if skipped
 - [ ] 14. Write verdict.yaml → INVALID if skipped
+- [ ] 14.5. Identify Behavioral SCs for Clean-Room Evaluation → INVALID if skipped
 - [ ] 15. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling

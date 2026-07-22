@@ -425,6 +425,12 @@ remediation_required: <true|false>
 exec_summary: "Concern separation: <X>/<Y> criteria PASS. <N> phases need review."
 ```
 
+### Step 16.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 16.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 17: Return Frugal Result Contract
 
 ```yaml
@@ -433,6 +439,7 @@ artifact_path: "{project_root}/tmp/{issue-N}/artifacts/concern-separation/verdic
 summary: "Concern separation evaluated: {N} criteria, {X} PASS, {Y} FAIL. Verdict: {PASS|FAIL}."
 all_criteria_pass: <true|false>
 remediation_required: <true|false>
+needs_clean_room: [SC-IDs]
 ```
 
 ## Edge Cases
