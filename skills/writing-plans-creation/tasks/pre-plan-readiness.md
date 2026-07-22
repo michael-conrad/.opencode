@@ -37,3 +37,12 @@ Verify that the local spec file and feature branch exist before allowing plan cr
    - `testability-assessment.md`
    - If any missing: return `status: BLOCKED` with `reason: MISSING_SPEC_ARTIFACT` and list the missing artifacts
 5. Return `status: PASS` with `finding_summary: "All prerequisites met"`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/pre-plan-readiness.yaml" |
+| blocker_reason | "..." |

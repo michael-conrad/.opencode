@@ -20,27 +20,27 @@ Write the plan document in split format: `{N}/plan.md` (index) + `{N}/plan-{NN}-
 
 ## Procedure
 
-- [ ] 1. (**sub-agent**) Write plan index — Goal, Architecture, Phase table, admonishments
+- [ ] 1. Write plan index — Goal, Architecture, Phase table, admonishments
   - Command: write plan index to `{N}/plan.md`
   - SC: All
   - Expected: index with issue ref, goal, architecture, files list, phase table, exit criteria, all admonishments
 
-- [ ] 2. (**sub-agent**) Write each phase file — one `{N}/plan-{NN}-{slug}.md` per phase
+- [ ] 2. Write each phase file — one `{N}/plan-{NN}-{slug}.md` per phase
   - Command: write phase files per Plan Format Requirements
   - SC: All
   - Expected: each phase file has Concern, Files, SCs, Dependencies, Entry/Exit conditions, full step-by-step with globally sequential numbering
 
-- [ ] 3. (**sub-agent**) Validate dispatch markers — every dispatch marker skill name exists under `.opencode/skills/`
+- [ ] 3. Validate dispatch markers — every dispatch marker skill name exists under `.opencode/skills/`
   - Command: `ls .opencode/skills/<skill-name>/SKILL.md` for each dispatch marker
   - SC: SC-5
   - Expected: all referenced skills exist
 
-- [ ] 4. (**sub-agent**) Apply approval cascade — per authorization_scope
+- [ ] 4. Apply approval cascade — per authorization_scope
   - Command: apply approval cascade matrix from spec
   - SC: All
   - Expected: approval cascade applied correctly
 
-- [ ] 5. (**sub-agent**) Sync cross-reference — to spec issue body
+- [ ] 5. Sync cross-reference — to spec issue body
   - Command: update spec issue with plan reference
   - SC: All
   - Expected: spec issue body updated
@@ -188,3 +188,12 @@ Numbered checklist C1 through C{N} at the end of the plan, after the bottom admo
 
 - Related tasks: `create` (21-step pipeline)
 - Related skills: `issue-operations`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/plan-write.yaml" |
+| blocker_reason | "..." |

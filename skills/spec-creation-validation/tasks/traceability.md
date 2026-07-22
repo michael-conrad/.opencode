@@ -148,3 +148,12 @@ Action: [proceed|add-SC|document-exclusion]
 - Preceded by: `requirements`, optionally `decompose`
 - Feeds into: `write`
 - Note: Creation-time traceability is enforced here. `spec-auditor` verifies traceability as a second pass.
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/traceability.yaml" |
+| blocker_reason | "..." |

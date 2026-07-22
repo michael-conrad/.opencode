@@ -202,3 +202,12 @@ On FAIL for any check, the spec must be revised before this gate passes. The gat
 - Note: This is a gate, not an analysis phase. FAIL halts spec progression until the spec is revised.
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/pipeline-readiness.yaml" |
+| blocker_reason | "..." |

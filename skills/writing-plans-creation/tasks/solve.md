@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Run Z3 constraint solving and plan utility validation as direct CLI invocations. Sub-agents are leaf nodes — execute tools directly, never dispatch further sub-agents.
+Run Z3 constraint solving and plan utility validation as direct CLI invocations.
 
 ## Entry Criteria
 
@@ -29,3 +29,12 @@ Run Z3 constraint solving and plan utility validation as direct CLI invocations.
 
 - Related skills: `solve`, `plan`
 - Related tools: `./.opencode/tools/solve`, `./.opencode/tools/plan`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/solve.yaml" |
+| blocker_reason | "..." |

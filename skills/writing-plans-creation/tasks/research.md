@@ -55,3 +55,12 @@ Load the `verification-enforcement` skill and execute `--task verify` inline, co
 
 - Related skills: `verification-enforcement`
 - Related guidelines: `065-verification-honesty.md`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/research.yaml" |
+| blocker_reason | "..." |

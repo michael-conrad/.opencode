@@ -163,3 +163,12 @@ affected_files_count: K
 - Related skills: `audit` (orchestrator), `brainstorming` (recommended when gaps found)
 
 Co-authored with AI: <AgentName> (<ModelId>)
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/clean-room-plan.yaml" |
+| blocker_reason | "..." |

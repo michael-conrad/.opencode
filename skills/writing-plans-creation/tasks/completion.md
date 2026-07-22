@@ -16,7 +16,7 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 
 **MANDATORY GATE — MUST NOT be skipped.** Before finalizing the plan, dispatch a clean-room sub-agent to evaluate the plan against the 11 plan dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
 
-- [ ] 0. (**sub-agent**) Holistic self-check — `task(..., prompt: "execute holistic-self-check task from writing-plans")`
+- [ ] 0. Holistic self-check — Evaluate the plan against the 11 plan dimensions defined in `.opencode/reference/holistic-dimensions.yaml`
   - Context passed: `{ plan_context }`
   - Expected: PASS for all 11 plan dimensions
   - On FAIL: refuse to finalize — return the plan to the create task for revision with the failed dimensions listed
@@ -88,3 +88,12 @@ HALT
 - [ ] URL present IF relevant (after outcome, before byline)
 - [ ] AI byline present as **LAST** element
 - [ ] No stale todowrite items remain (all cleared or N/A)
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/completion.yaml" |
+| blocker_reason | "..." |

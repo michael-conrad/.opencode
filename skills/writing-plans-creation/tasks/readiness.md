@@ -27,3 +27,12 @@ Pipeline-readiness gate check and spec-to-plan handoff verification. Ensures the
 
 - Related tasks: `create` (21-step pipeline)
 - Related skills: `approval-gate`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/readiness.yaml" |
+| blocker_reason | "..." |

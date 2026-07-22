@@ -12,7 +12,6 @@ Load the `audit` skill and execute `--task concern-separation` inline. Verifies 
 ## Exit Criteria
 
 - Concern-separation audit completed
-- Auditor sub-agent type used (not `general`)
 - Result contract contains PASS/FAIL with artifact_path
 
 ## Procedure
@@ -26,4 +25,12 @@ Load the `audit` skill and execute `--task concern-separation` inline. Verifies 
 ## Context Required
 
 - Related skills: `audit`
-- Related tools: `resolve-models` for auditor sub-agent type selection
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/audit-concern.yaml" |
+| blocker_reason | "..." |
