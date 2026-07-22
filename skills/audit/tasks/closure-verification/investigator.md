@@ -4,6 +4,17 @@
 
 Generate initial closure verification analysis. Fetches the merged PR, identifies the linked spec issue, loads spec files, and produces the initial evidence artifact.
 
+## Entry Criteria
+
+- `evidence.yaml` does not exist in artifact directory
+- `spec_local_dir` is provided and points to a valid spec directory
+- PR number is provided and non-empty
+
+## Exit Criteria
+
+- `evidence.yaml` written to `./tmp/{issue-N}/artifacts/closure-verification/evidence.yaml`
+- Evidence contains PR merge status, spec issue number, closing commit SHA, and spec body content
+
 ## Role: Investigator
 
 You are the Investigator. You produce initial analysis artifacts. You fetch data, read files, and write `evidence.yaml` for downstream roles.

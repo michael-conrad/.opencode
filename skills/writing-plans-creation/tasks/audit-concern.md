@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Load the `audit` skill and execute `--task concern-separation` inline with auditor sub-agent type context. Verifies each phase addresses exactly one concern.
+Load the `audit` skill and execute `--task concern-separation` inline. Verifies each phase addresses exactly one concern.
 
 ## Entry Criteria
 
@@ -18,7 +18,7 @@ Load the `audit` skill and execute `--task concern-separation` inline with audit
 ## Procedure
 
 - [ ] 1. Load `audit` skill: `skill({name: "audit"})`
-- [ ] 2. Execute `--task concern-separation` inline with auditor sub-agent type context
+- [ ] 2. Execute `--task concern-separation` inline
 - [ ] 3. Collect audit artifact path
 - [ ] 4. If PASS: return PASS with artifact_path
 - [ ] 5. If FAIL: return BLOCKED with findings

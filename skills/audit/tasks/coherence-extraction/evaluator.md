@@ -4,6 +4,18 @@
 
 Evaluate coherence metrics against criteria. Reads `reasoning.yaml` (Validator), computes coherence metrics, runs Z3 solve check, evaluates prose vs evidence type mismatches, and writes `verdict.yaml`.
 
+## Entry Criteria
+
+- `evidence.yaml` exists at `./tmp/{issue-N}/artifacts/coherence-extraction/evidence.yaml`
+- `reasoning.yaml` exists at `./tmp/{issue-N}/artifacts/coherence-extraction/reasoning.yaml`
+
+## Exit Criteria
+
+- `verdict.yaml` written to `./tmp/{issue-N}/artifacts/coherence-extraction/verdict.yaml`
+- Coherence metrics computed (coverage ratio, orphan count, alignment score)
+- Z3 solve check completed
+- Prose vs evidence type mismatch evaluation completed
+
 ## Role: Evaluator
 
 You are the Evaluator. You compute coherence metrics and evaluate against criteria. You are decisive and binary.

@@ -23,27 +23,27 @@ This is a **dispatcher skill** that routes to 2 sub-skills. All original trigger
 
 | User says / Context | Task | Dispatches To | Dispatch | Context passed |
 |---------------------|------|---------------|----------|----------------|
-| "create plan" / "write plan" / "plan from spec" | `create` | `writing-plans-creation --task create` | `sub-task` | {issue_number, spec_local_dir} |
-| "update plan" / "revise plan" | `update` | `writing-plans-creation --task update` | `sub-task` | {issue_number, spec_local_dir} |
-| "retroactive plan" / "backfill plan" | `retroactive` | `writing-plans-creation --task retroactive` | `sub-task` | {issue_number} |
-| "validate plan" / "check plan" | `validate` | `writing-plans-creation --task validate` | `sub-task` | {issue_number} |
-| "holistic check" / "plan quality check" | `holistic-self-check` | `writing-plans-holistic --task holistic-self-check` | `sub-task` | {issue_number} |
-| "pre-plan readiness" / "readiness check" | `pre-plan-readiness` | `writing-plans-creation --task pre-plan-readiness` | `sub-task` | {issue_number} |
-| completion / workflow end | `completion` | `writing-plans-creation --task completion` | `sub-task` | {workflow_state} |
+| "create plan" / "write plan" / "plan from spec" | `create` | `writing-plans-creation --task create` | `orchestrator` | {issue_number, spec_local_dir} |
+| "update plan" / "revise plan" | `update` | `writing-plans-creation --task update` | `orchestrator` | {issue_number, spec_local_dir} |
+| "retroactive plan" / "backfill plan" | `retroactive` | `writing-plans-creation --task retroactive` | `orchestrator` | {issue_number} |
+| "validate plan" / "check plan" | `validate` | `writing-plans-creation --task validate` | `orchestrator` | {issue_number} |
+| "holistic check" / "plan quality check" | `holistic-self-check` | `writing-plans-holistic --task holistic-self-check` | `orchestrator` | {issue_number} |
+| "pre-plan readiness" / "readiness check" | `pre-plan-readiness` | `writing-plans-creation --task pre-plan-readiness` | `orchestrator` | {issue_number} |
+| completion / workflow end | `completion` | `writing-plans-creation --task completion` | `orchestrator` | {workflow_state} |
 
 ## Invocation
 
 `skill({name: "writing-plans"})` — call the skill, then dispatch to the sub-skill:
 
-| Task | Canonical Dispatch String |
-|------|--------------------------|
-| `create` | `task(..., prompt: "execute create from writing-plans-creation. Read \`writing-plans-creation/tasks/create.md\` first")` |
-| `update` | `task(..., prompt: "execute update from writing-plans-creation. Read \`writing-plans-creation/tasks/update.md\` first")` |
-| `retroactive` | `task(..., prompt: "execute retroactive from writing-plans-creation. Read \`writing-plans-creation/tasks/retroactive.md\` first")` |
-| `validate` | `task(..., prompt: "execute validate from writing-plans-creation. Read \`writing-plans-creation/tasks/validate.md\` first")` |
-| `holistic-self-check` | `task(..., prompt: "execute holistic-self-check from writing-plans-holistic. Read \`writing-plans-holistic/tasks/holistic-self-check.md\` first")` |
-| `pre-plan-readiness` | `task(..., prompt: "execute pre-plan-readiness from writing-plans-creation. Read \`writing-plans-creation/tasks/pre-plan-readiness.md\` first")` |
-| `completion` | `task(..., prompt: "execute completion from writing-plans-creation. Read \`writing-plans-creation/tasks/completion.md\` first")` |
+| Task | Dispatch | Canonical Dispatch String |
+|------|----------|--------------------------|
+| `create` | `orchestrator` | `task(..., prompt: "execute create from writing-plans-creation")` |
+| `update` | `orchestrator` | `task(..., prompt: "execute update from writing-plans-creation")` |
+| `retroactive` | `orchestrator` | `task(..., prompt: "execute retroactive from writing-plans-creation")` |
+| `validate` | `orchestrator` | `task(..., prompt: "execute validate from writing-plans-creation")` |
+| `holistic-self-check` | `orchestrator` | `task(..., prompt: "execute holistic-self-check from writing-plans-holistic")` |
+| `pre-plan-readiness` | `orchestrator` | `task(..., prompt: "execute pre-plan-readiness from writing-plans-creation")` |
+| `completion` | `orchestrator` | `task(..., prompt: "execute completion from writing-plans-creation")` |
 
 ## Cross-References
 

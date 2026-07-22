@@ -5,6 +5,18 @@
 # Task: resolve-models (Reference)
 
 
+## Entry Criteria
+
+- `evidence.yaml` exists at `./tmp/{issue-N}/artifacts/resolve-models/evidence.yaml`
+- `reasoning.yaml` exists at `./tmp/{issue-N}/artifacts/resolve-models/reasoning.yaml`
+- `verdict.yaml` exists at `./tmp/{issue-N}/artifacts/resolve-models/verdict.yaml`
+
+## Exit Criteria
+
+- `judgment.yaml` written to `./tmp/{issue-N}/artifacts/resolve-models/judgment.yaml`
+- Self-consistency gate applied to all PASS verdicts
+- Final result contract returned with `overall_verdict`, `next_step`, `total_criteria`, `findings`
+
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files (passed through for pipeline consistency)

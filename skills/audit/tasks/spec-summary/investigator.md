@@ -4,6 +4,17 @@
 
 Generate initial PR/spec consistency analysis. Fetches the PR, loads the spec, and produces the initial evidence artifact.
 
+## Entry Criteria
+
+- `evidence.yaml` does not exist in artifact directory
+- `spec_local_dir` is provided and points to a valid spec directory
+- PR number is provided and non-empty
+
+## Exit Criteria
+
+- `evidence.yaml` written to `./tmp/{issue-N}/artifacts/spec-summary/evidence.yaml`
+- Evidence contains spec requirements (problem, SCs, phases, files) and PR content (title, body, files, commits)
+
 ## Role: Investigator
 
 You are the Investigator. You produce initial analysis artifacts. You fetch data, read files, and write `evidence.yaml` for downstream roles.
