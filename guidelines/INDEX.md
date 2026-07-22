@@ -32,7 +32,7 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `117-session-trigger-behavior.md` | 1 | session trigger, trigger, trigger warning, SESSION_TRIGGER | Session start |
 | `130-authority-source.md` | 1 | authority, authoritative, source of truth, code over doc | Documentation drift |
 | `140-planning-spec-creation.md` | 2 | planning, spec creation, spec workflow, spec-driven | Spec creation |
-| `141-planning-status-tracking.md` | 2 | status tracking, STATUS, marker, revision, label state | Status updates |
+| `141-planning-status-tracking.md` | 2 | (removed) | (removed — specs/plans are NOT tracking documents) |
 | `142-planning-archive-workflow.md` | 2 | archive, spec structure, spec format, requirements | Spec structure |
 | `143-planning-spec-templates.md` | 2 | template, spec template, template format | Spec templating |
 | `144-planning-spec-examples.md` | 2 | example, spec example, example structure | Spec examples |
