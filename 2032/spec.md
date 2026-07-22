@@ -12,7 +12,11 @@ authors:
 
 **STATUS:** DRAFT
 **CREATED:** 2026-07-20
+<<<<<<< HEAD
 **REVISED:** 2026-07-22 — Implementation audit: SC-2/SC-5 exempted backtick-quoted documentation references. SC-4/SC-7 deferred to #2020 (issue closed as duplicate). Cards created with audit findings.
+=======
+**REVISED:** 2026-07-22 — Implementation audit: SC-2/SC-5 exempted backtick-quoted documentation references. SC-4/SC-7 transferred to #2020 (superseding issue). Cards created with audit findings.
+>>>>>>> 1eb57ca0 (auto: update #.opencode#2065)
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
