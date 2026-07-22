@@ -438,6 +438,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/content-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/content-audit.md` — Evaluator role (consumes reasoning.yaml produced by this task)
 - `tasks/cross-validate.md` — Arbiter role (reads all artifacts, writes judgment.yaml)
+- `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → Validator → Evaluator → Arbiter)
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol

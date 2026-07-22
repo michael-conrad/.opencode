@@ -285,6 +285,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/verification-audit-validator.md` — Validator role (produces reasoning.yaml consumed by this task)
 - `tasks/verification-audit-evaluator.md` — Evaluator role (produces verdict.yaml consumed by this task)
 - `tasks/cross-validate.md` — Cross-validate Arbiter role (separate chain, also produces judgment.yaml)
+- `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → Validator → Evaluator → Arbiter)
 - Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
 - Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate, hard failure discipline

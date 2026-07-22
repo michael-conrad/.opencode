@@ -517,6 +517,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/drift-detection-validator.md` — upstream reasoning role role (produces the `reasoning.yaml` consumed by this task)
 - `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's `verdict.yaml`)
+- `SKILL.md` — DiMo Role Chain Dispatch specification
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — spec-code alignment
 - Read [130-authority-source.md](guidelines/130-authority-source.md) — code as authoritative source
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable

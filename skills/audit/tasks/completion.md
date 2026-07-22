@@ -8,16 +8,6 @@
 
 Produce the final judgment on audit workflow completion. Reads all artifacts, writes `judgment.yaml`.
 
-## Entry Criteria
-
-- All 4 DiMo roles (Investigator, Validator, Evaluator, Arbiter) have completed their artifact writes
-- Artifact directory `./tmp/{issue-N}/artifacts/completion/` exists
-
-## Exit Criteria
-
-- `judgment.yaml` written to `./tmp/{issue-N}/artifacts/completion/judgment.yaml`
-- Executive summary produced in chat
-- Pipeline signal (CONTINUE/HALT) determined
 
 ## Dispatch Contract
 

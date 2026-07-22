@@ -485,6 +485,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `tasks/coherence-maintenance-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Investigator)
 - `tasks/cross-validate.md` — Sole Arbiter for general audit chain (analogous role, different domain)
+- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
