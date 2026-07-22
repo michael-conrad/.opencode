@@ -75,7 +75,7 @@ These root resolution methods are forbidden in ALL `.opencode/` scripts:
 
 ## Notebook Operations — MANDATORY MCP
 
-**ALL notebook operations MUST use `the-notebook-mcp` tools.** Load [060-tool-usage.md](060-tool-usage.md) and [the mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md) for the tool reference.
+**ALL notebook operations MUST use `the-notebook-mcp` tools.** Read [060-tool-usage.md](060-tool-usage.md) and [the mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md) for the tool reference.
 
 ### ✅ MANDATORY
 
@@ -116,7 +116,7 @@ To retire a notebook:
 
 **Reorder cells**: Sequence of `move_cell` operations from target layout backward.
 
-**If `the-notebook-mcp` is unavailable, REFUSE all notebook operations.** Load [§1](060-tool-usage.md) for the no-fallback policy and detailed workflows.
+**If `the-notebook-mcp` is unavailable, REFUSE all notebook operations.** Read [§1](060-tool-usage.md) for the no-fallback policy and detailed workflows.
 
 ## Command Restrictions
 

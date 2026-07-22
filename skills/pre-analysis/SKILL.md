@@ -9,7 +9,7 @@ compatibility: opencode
 
 ## Overview
 
-Universal pipeline gate that prevents orchestrators from preloading sub-agents with file paths, line numbers, or expected outcomes. Every sub-agent routing is gated by a pre-analysis sub-agent that independently determines scope. This skill enforces Load [§Preloading Sub-Agent Context](guidelines/000-critical-rules.md).
+Universal pipeline gate that prevents orchestrators from preloading sub-agents with file paths, line numbers, or expected outcomes. Every sub-agent routing is gated by a pre-analysis sub-agent that independently determines scope. This skill enforces Read [§Preloading Sub-Agent Context](guidelines/000-critical-rules.md).
 
 ## Mandatory Task Discipline
 

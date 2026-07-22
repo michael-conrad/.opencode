@@ -53,7 +53,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Operating Protocol
 
-Load [the full operating protocol](correspondence/tasks/operating-protocol.md)
+Read [the full operating protocol](correspondence/tasks/operating-protocol.md)
 
 ## Sub-Agent Routing
 

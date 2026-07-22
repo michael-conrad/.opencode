@@ -64,7 +64,7 @@ Can each requirement be traced to a spec section, test scenario, and implementat
 
 ## Adversarial Verification of Trace Targets (MANDATORY)
 
-**🚫 CRITICAL: Every trace target (referenced issue, spec, code symbol) MUST be verified to actually exist. Unverified trace references are MISSING-TRACEABILITY findings per Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
+**🚫 CRITICAL: Every trace target (referenced issue, spec, code symbol) MUST be verified to actually exist. Unverified trace references are MISSING-TRACEABILITY findings per `065-verification-honesty.md`.**
 
 ### Verification Procedure
 

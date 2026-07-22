@@ -38,7 +38,7 @@ Generate executive summary in chat:
 Issue URL: <html_url from issue-operations -> update-issue API response — NEVER construct from template> <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
-URL is ALWAYS last per Load [000-critical-rules.md](guidelines/000-critical-rules.md).
+URL is ALWAYS last per Read [000-critical-rules.md](guidelines/000-critical-rules.md).
 
 ## Byline Verification Checkpoint (MANDATORY)
 
@@ -56,7 +56,7 @@ This checkpoint catches direct API calls that bypassed the `issue-operations` sk
 
 **Failure:** If any AI-authored content is missing a byline → `STRUCTURE-VIOLATION`. Add missing byline via `issue-operations -> update-issue` (only if `len(new_body) >= 0.8 * len(original_body)` per body-preservation rule) or append a follow-up comment with the proper byline. <!-- Routes through issue-operations per SPEC #683 -->
 
-**Per Load [Critical Violation: Posting AI-Authored Content Without Byline Verification](guidelines/000-critical-rules.md).**
+**Per Read [Critical Violation: Posting AI-Authored Content Without Byline Verification](guidelines/000-critical-rules.md).**
 
 ## Live Verification: Completion Claims (MANDATORY)
 

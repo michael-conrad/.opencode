@@ -101,7 +101,7 @@ Action: [auto-fix|FAIL]
 
 ## Structured Output Format
 
-Requirements analysis MUST be written to a structured artifact at `{project_root}/{path}/.issues/{issue-N}/requirements.yaml` with the following schema:
+Requirements analysis MUST be written to a structured artifact at `.issues/{issue-N}/requirements.yaml` with the following schema:
 
 ```yaml
 requirements:

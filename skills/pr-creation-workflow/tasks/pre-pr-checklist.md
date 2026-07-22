@@ -43,14 +43,14 @@ git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
 git log origin/"$DEFAULT_BRANCH"..HEAD --oneline | wc -l
 ```
 
-**Commit count enforcement (MANDATORY — Load [Un-Squashed PR](guidelines/000-critical-rules.md)):**
+**Commit count enforcement (MANDATORY — Read [Un-Squashed PR](guidelines/000-critical-rules.md)):**
 
 | Branch Type | Commit Count | Action on Mismatch |
 | -- | -- | -- |
 | **Single-issue** (no work state file) | MUST be **1** | SQUASH NOW → `pr-creation/squash-push.md` Step 3 |
 | **Work branch** (work state file exists) | MUST equal work items | VERIFY NOW — confirm N commits = N work items |
 
-**If commit count mismatch → SQUASH NOW (single-issue) or VERIFY NOW (work branch).** This is a CRITICAL GUIDELINE VIOLATION per Load [Un-Squashed PR](guidelines/000-critical-rules.md) — creating a PR with incorrect commit count is forbidden.
+**If commit count mismatch → SQUASH NOW (single-issue) or VERIFY NOW (work branch).** This is a CRITICAL GUIDELINE VIOLATION per Read [Un-Squashed PR](guidelines/000-critical-rules.md) — creating a PR with incorrect commit count is forbidden.
 
 **Scope check:** If `halt_at < pr_created`, HALT — PR creation is not authorized by the current scope. The scope boundary is a hard wall.
 
@@ -127,7 +127,7 @@ Verify commit message includes BOTH trailers:
 
 **7. Pipeline Chain Completion (MANDATORY — Zero Tolerance)**
 
-Before creating a PR, verify that ALL post-implementation pipeline chain steps were completed. These steps are listed in Load [Dispatch Order](skills/approval-gate/SKILL.md) and are MANDATORY before PR creation.
+Before creating a PR, verify that ALL post-implementation pipeline chain steps were completed. These steps are listed in Read [Dispatch Order](skills/approval-gate/SKILL.md) and are MANDATORY before PR creation.
 
 | Step | Evidence to Verify | On Missing |
 | -- | -- | -- |
@@ -137,7 +137,7 @@ Before creating a PR, verify that ALL post-implementation pipeline chain steps w
 
 **If ANY pipeline chain step is missing evidence, the agent MUST call the missing step before proceeding with PR creation.** This is a belt-and-suspenders check: even if a step was skipped earlier, this gate catches the omission before the PR is created.
 
-Skipping this verification is a CRITICAL GUIDELINE VIOLATION per Load [Enforcement checkpoint rules](skills/approval-gate/SKILL.md).
+Skipping this verification is a CRITICAL GUIDELINE VIOLATION per Read [Enforcement checkpoint rules](skills/approval-gate/SKILL.md).
 
 **8. Cross-Model Validation Gate (MANDATORY — When Behavioral Tests Exist)**
 
@@ -150,7 +150,7 @@ When the spec includes behavioral enforcement tests (Phase 4), PR creation is BL
 
 **🚫 FORBIDDEN:** Creating a PR with behavioral tests validated against only one model. Cross-model validation is the enforcement gate for rule robustness.
 
-**AUTHORITY:** Load [Model-Aware Clean-Room task()](guidelines/000-critical-rules.md), Load [Cross-Model Verification Gate](skills/verification-before-completion/SKILL.md), Spec #262
+**AUTHORITY:** Read [Model-Aware Clean-Room task()](guidelines/000-critical-rules.md), Read [Cross-Model Verification Gate](skills/verification-before-completion/SKILL.md), Spec #262
 
 ## CRITICAL Violations
 

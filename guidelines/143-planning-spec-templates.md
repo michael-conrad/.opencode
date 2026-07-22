@@ -183,7 +183,7 @@ ______________________________________________________________________
 
 ### Standard Guideline Update (philosophy or process change)
 
-Load [144-planning-spec-examples.md](144-planning-spec-examples.md) for a standard guideline update example with problem statement, context, proposed change, decision rationale, and verification steps.
+Read [144-planning-spec-examples.md](144-planning-spec-examples.md) for a standard guideline update example with problem statement, context, proposed change, decision rationale, and verification steps.
 
 ______________________________________________________________________
 

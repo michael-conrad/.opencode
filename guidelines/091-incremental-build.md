@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Incremental Build Discipline
 
-**Load [§Monolithic Implementation](000-critical-rules.md). Also covered by [tests-v2/behaviors/tier1-mandate-enforcement.sh](tests-v2/behaviors/tier1-mandate-enforcement.sh) for the overarching incremental build discipline.** Load [§Monolithic Implementation](000-critical-rules.md) for the critical violation.
+**Read [§Monolithic Implementation](000-critical-rules.md). Also covered by [tests-v2/behaviors/tier1-mandate-enforcement.sh](tests-v2/behaviors/tier1-mandate-enforcement.sh) for the overarching incremental build discipline.** Read [§Monolithic Implementation](000-critical-rules.md) for the critical violation.
 
 ## Mandate
 
@@ -32,7 +32,7 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 
 **Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
 
-**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.** Load [§9 Prompt Construction Mandate](.opencode/tests-v2/AGENTS.md) for the centralized specification of valid vs invalid prompt types.
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.** Read [§9 Prompt Construction Mandate](.opencode/tests-v2/AGENTS.md) for the centralized specification of valid vs invalid prompt types.
 
 ## Anti-Patterns (Critical Violations)
 

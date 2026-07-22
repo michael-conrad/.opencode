@@ -15,7 +15,16 @@ compatibility: opencode
 
 Validator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (guideline files, skill files, baseline JSON), and writes `reasoning.yaml` with validated evidence. This role validates and supports the evidence — it does NOT evaluate, judge, classify drift, or produce PASS/FAIL verdicts.
 
-
+> **DiMo Role: Validator.** This task validates evidence for coherence-maintenance. Reads `evidence.yaml` from the Investigator, cross-checks each item against source data, and writes `reasoning.yaml` with validation results.
+>
+> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every evidence item the Investigator produced gets checked against its source. You do not decide what passes or fails. You do not classify drift. You do not produce verdicts. You validate and support.
+>
+>
+> - MUST validate every evidence item against its source data
+> - MUST NOT produce any PASS/FAIL judgment on coherence
+> - MUST NOT classify drift as controlled or uncontrolled
+> - MUST NOT evaluate whether evidence is "correct" — validate that it matches source
+> - MUST write `reasoning.yaml` as the only output artifact
 
 ## Dispatch Contract
 
@@ -31,7 +40,6 @@ Validator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` p
 - `.opencode/guidelines/` directory exists and is readable
 - `.opencode/skills/` directory exists and is readable
 - Baseline file exists at `{project_root}/tmp/{issue-N}/artifacts/baseline-*.json`
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -722,27 +730,3 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

@@ -48,7 +48,7 @@ The following project-specific code structure rules are enforced in this reposit
 - **Top-Level Documentation**: Every Python source file must include a brief top-level comment identifying the package's or class's purpose. Use a module docstring (preferred) or a leading `#` comment. Keep it to one or two concise sentences — enough for `.opencode/tools/py ls` to display alongside the filename.
 - **Docstring/Comment Determinism**: Pydoc/docstrings and code comments must use deterministic wording. Avoid ambiguous hedge/alternative phrasing such as `maybe`, `if ... or ...`, `and/or`, or `A + B or C` when describing required behavior, validation paths, or implementation intent.
 - **Labels Over Index Numbers**: When editing structured artifacts (notebooks, migration lists, cell arrays, ordered configs), add and use stable labels/names so that inserts, deletes, and moves which change index numbers do not cause edit failures. Reference items by label, not by positional index.
-- **Derivation Provenance**: Every element in agent output must trace to a specific consumer or first-principles derivation. Load [§critical-rules-XXX](000-critical-rules.md). "Because it's there in the other location" is not a valid justification.
+- **Derivation Provenance**: Every element in agent output must trace to a specific consumer or first-principles derivation. Read [§critical-rules-XXX](000-critical-rules.md). "Because it's there in the other location" is not a valid justification.
 
 ## Modern Python
 
@@ -429,7 +429,7 @@ Behavioral enforcement tests verify that the agent actually behaves differently 
 
 **Principle:** Behavioral tests answer "Does the agent actually behave differently?" Content-verification tests answer "Does the rule text exist in the file?" Both are needed, but behavioral is the PRIMARY enforcement gate.
 
-**Prompt construction:** Behavioral test prompts MUST be real-domain tasks that trigger natural agent behavior — never interview-style prose-recall prompts. Load [§9 Prompt Construction Mandate](.opencode/tests-v2/AGENTS.md) for the full specification.
+**Prompt construction:** Behavioral test prompts MUST be real-domain tasks that trigger natural agent behavior — never interview-style prose-recall prompts. Read [§9 Prompt Construction Mandate](.opencode/tests-v2/AGENTS.md) for the full specification.
 
 **Root case:** Bug #1217 demonstrated that the agent had all the correct guideline text about verification but still answered a general knowledge question with zero tool-call verification. Content-verification alone was insufficient — the agent behavior did not match the rule text.
 
@@ -504,7 +504,7 @@ Enforcement tests are the verification layer that proves agent guidelines are ac
 
 The `with-test-home` wrapper prevents SQLite session conflicts between the desktop app and CLI tests.
 
-**Load [the incremental implementation discipline](091-incremental-build.md) that governs HOW these changes are delivered.** **Load [the enforcement test template and usage guide](.opencode/tests-v2/README.md). Load [behavioral test infrastructure, helpers, and template](.opencode/tests-v2/behaviors/).**
+**Read [the incremental implementation discipline](091-incremental-build.md) that governs HOW these changes are delivered.** **Read [the enforcement test template and usage guide](.opencode/tests-v2/README.md). Read [behavioral test infrastructure, helpers, and template](.opencode/tests-v2/behaviors/).**
 
 ### Evidence Type Taxonomy (MANDATORY)
 
@@ -517,7 +517,7 @@ Every spec success criterion MUST declare an evidence type from the four-type ta
 | `string` | `grep`, pattern matching | Content pattern present or absent | `grep` | High: string PASS → behavioral FAIL in production → NIST 29x escalation | CI / static analysis |
 | `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` | Highest: structural PASS → defect ships → death spiral → compounding exponential cost | none / irrelevant |
 
-**Cost explanation:** Load [§Cost Model](065-verification-honesty.md) for death spiral / break dynamics. Evidence type cost is measured in defect-discovery-latency (DDL), not execution time. A structural check costs ~1s to run but may take weeks to discover the defect it misses — making it the most expensive type in total pipeline cost. A behavioral test costs minutes to execute but catches the defect at the earliest possible gate — making it the cheapest in total pipeline cost.
+**Cost explanation:** Read [§Cost Model](065-verification-honesty.md) for death spiral / break dynamics. Evidence type cost is measured in defect-discovery-latency (DDL), not execution time. A structural check costs ~1s to run but may take weeks to discover the defect it misses — making it the most expensive type in total pipeline cost. A behavioral test costs minutes to execute but catches the defect at the earliest possible gate — making it the cheapest in total pipeline cost.
 
 ### Evidence Type Enforcement Matrix
 
@@ -819,20 +819,3 @@ Session-init and env-loader are two independent pipelines with separate naming c
 `GIT_OWNER`, `GIT_REPO`, `GIT_PLATFORM`, `GITHUB_HTML_URL`, `GITBUCKET_HTML_URL`, `GITBUCKET_SSH_URL`, `GITBUCKET_HAS_CREDENTIALS`, `DEV_NAME`, `DEV_EMAIL`, `BRANCH_NAME`, `WORKTREE_PATH`, `WORKTREE_FATAL`
 
 These pipelines are independent. Changing session-init output names does NOT require changes to env-loader, and vice versa.
-
-## Prefer Built-ins Over Bespoke Code
-
-**Global mandate:** ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or existing add-ons over writing bespoke code (custom scripts, inline shell commands, ad-hoc Python, one-off utilities).
-
-**Preferred alternatives (non-exhaustive):**
-- opencode built-in tools: `read`, `write`, `edit`, `glob`, `grep`
-- MCP servers: `srclight` (code search), `editor` (file editing), `the-notebook-mcp` (notebooks), GitHub MCP (API operations)
-- `vibeguard` plugin for guardrail enforcement
-- Standard shell commands (`ls`, `git`, `uv`, `bash`)
-- Python standard library (`pathlib`, `shutil`, `json`, `csv`, `re`)
-- Published packages via `pip`, `npm`, `cargo`, `go install`
-- Existing `.opencode/tools/` scripts
-
-**Feasibility justification required:** Any spec or plan that proposes new bespoke code MUST include a justification explaining why none of the existing alternatives suffice. A one-sentence rationale is sufficient.
-
-**Scope:** Forward-looking — this mandate applies to new work only. Existing bespoke code is grandfathered and does not need to be replaced.

@@ -42,19 +42,6 @@ BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests-v2/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
 BEHAVIOR_HARNESS_VERSION="${BEHAVIOR_HARNESS_VERSION:-1}"
 
-# Use bare command name so with-test-home's env -i PATH resolution
-# finds $TEST_HOME/bin/opencode (the standalone binary copy).
-# NEVER resolve to an absolute path — that bypasses PATH isolation.
-if command -v opencode &>/dev/null; then
-    OPENCODE_CMD=("opencode")
-elif [ -x /usr/bin/opencode-cli ]; then
-    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
-    OPENCODE_CMD=(/usr/bin/opencode-cli)
-else
-    echo "FATAL: no opencode binary found" >&2
-    exit 1
-fi
-
 # Discover project root by walking up from helpers location
 BEHAVIOR_HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -71,6 +58,23 @@ __find_project_root() {
 }
 
 PARENT_REPO_DIR="$(__find_project_root "$BEHAVIOR_HELPERS_DIR")"
+
+# Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
+# The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
+# making it impossible to isolate test runs from production state.
+if [ -x "$PARENT_REPO_DIR/.tools/opencode/opencode" ]; then
+    export PATH="$PARENT_REPO_DIR/.tools/opencode:$PATH"
+fi
+
+if command -v opencode &>/dev/null; then
+    OPENCODE_CMD=("$(command -v opencode)")
+elif [ -x /usr/bin/opencode-cli ]; then
+    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
+    OPENCODE_CMD=(/usr/bin/opencode-cli)
+else
+    echo "FATAL: no opencode binary found" >&2
+    exit 1
+fi
 BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PARENT_REPO_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-2}"
@@ -190,19 +194,6 @@ behavior_run() {
     local log_dir="$BEHAVIOR_LOG_DIR/$scenario_name"
     mkdir -p "$log_dir"
 
-    local attempt=0
-    local output_file="$log_dir/stdout.log"
-    local err_file="$log_dir/stderr.log"
-
-    local did_create_workdir=0
-    if [ -z "$workdir" ]; then
-        workdir=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
-        git init -q "$workdir"
-        git -C "$workdir" config user.email "test@test.dev"
-        git -C "$workdir" config user.name "Test"
-        did_create_workdir=1
-    fi
-
     local submodule_remote_url=""
     if [ -f "$PARENT_REPO_DIR/.gitmodules" ]; then
         submodule_remote_url=$(git -C "$PARENT_REPO_DIR" config --get submodule..opencode.url 2>/dev/null || true)
@@ -212,64 +203,14 @@ behavior_run() {
     fi
     submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
-    if [ ! -d "$workdir/.opencode" ]; then
-        git clone -q "$submodule_remote_url" "$workdir/.opencode" 2>/dev/null || {
-            echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
-            exit 1
-        }
-    fi
-
     local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
     if [ -z "$submodule_commit" ]; then
         submodule_commit=$(git -C "$BEHAVIOR_HELPERS_DIR/../.." rev-parse HEAD 2>/dev/null || true)
     fi
-    if [ -n "$submodule_commit" ]; then
-        git -C "$workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
-            echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
-            exit 1
-        }
-    fi
 
-    if [ ! -f "$workdir/.gitmodules" ] || ! grep -q '.opencode' "$workdir/.gitmodules" 2>/dev/null; then
-        git -C "$workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || true
-    fi
-
-    git -C "$workdir" add -A 2>/dev/null || true
-    git -C "$workdir" commit -q --allow-empty -m "init" 2>/dev/null || true
-
-    if [ "${BEHAVIOR_SETUP_WORKTREE:-0}" = "1" ]; then
-        if git -C "$workdir" checkout -q --orphan issues 2>/dev/null; then
-            git -C "$workdir" rm -rf . 2>/dev/null || true
-            git -C "$workdir" commit -q --allow-empty -m "init issues branch" 2>/dev/null || true
-            git -C "$workdir" checkout -q - 2>/dev/null || true
-            echo "  [harness] issues orphan branch created for worktree tests"
-        else
-            mkdir -p "$workdir/.issues"
-            echo "  [harness] issues branch setup failed — created plain .issues/ fallback"
-        fi
-    else
-        mkdir -p "$workdir/.issues"
-    fi
-
-    if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
-        FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
-        if [ -f "$FIXTURE_SETUP" ]; then
-            source "$FIXTURE_SETUP"
-            setup_fixture_issues "$workdir"
-        fi
-    fi
-
-    STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
-    if [ -f "$STORY_SETUP" ]; then
-        source "$STORY_SETUP"
-        setup_story_fixtures "$workdir"
-    fi
-
-    CODE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-code-fixtures.sh"
-    if [ -f "$CODE_SETUP" ]; then
-        source "$CODE_SETUP"
-        setup_code_fixtures "$workdir"
-    fi
+    local attempt=0
+    local output_file="$log_dir/stdout.log"
+    local err_file="$log_dir/stderr.log"
 
     LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
     mkdir -p "$(dirname "$LOCK_FILE")"
@@ -279,42 +220,66 @@ behavior_run() {
         return 1
     }
 
-    if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
-        local bare_repo="$workdir/../origin.git"
-        git init --bare "$bare_repo" 2>/dev/null || true
-        git -C "$workdir" remote add origin "$bare_repo" 2>/dev/null || true
-        echo "  [harness] bare remote set up at $bare_repo"
-    fi
-
-    if [ "${BEHAVIOR_SETUP_STALE_WORKTREE:-0}" = "1" ]; then
-        (cd "$workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
-        rm -rf "$workdir/.issues"
-        echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
-    fi
-
-    local test_home=""
-    local setup_output
-    setup_output=$(BEHAVIOR_SUBMODULE_COMMIT="$submodule_commit" bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup)
-    test_home=$(echo "$setup_output" | grep '^TEST_HOME=' | cut -d= -f2-)
-    if [ -z "$test_home" ]; then
-        echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME" >&2
-        return 1
-    fi
-
-    # Copy fixture evidence from workdir into test project so the agent can find it.
-    local test_project
-    test_project=$(echo "$setup_output" | grep '^TEST_PROJECT=' | cut -d= -f2-)
-    if [ -n "$test_project" ] && [ -d "$workdir/tmp/behavioral-evidence-fixture" ]; then
-        mkdir -p "$test_project/tmp"
-        cp -r "$workdir/tmp/behavioral-evidence-fixture" "$test_project/tmp/behavioral-evidence-fixture" 2>/dev/null || true
-    fi
-
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
-        TEST_WORKDIR="$workdir" \
-        BEHAVIOR_SUBMODULE_COMMIT="$submodule_commit" \
+        # Create a fresh workdir per attempt — with-test-home moves it into the test home.
+        local attempt_workdir
+        attempt_workdir=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
+        git init -q "$attempt_workdir"
+        git -C "$attempt_workdir" config user.email "test@test.dev"
+        git -C "$attempt_workdir" config user.name "Test"
+
+        git clone -q "$submodule_remote_url" "$attempt_workdir/.opencode" 2>/dev/null || {
+            echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
+            exit 1
+        }
+
+        if [ -n "$submodule_commit" ]; then
+            git -C "$attempt_workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
+                echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
+                exit 1
+            }
+        fi
+
+        if [ ! -f "$attempt_workdir/.gitmodules" ] || ! grep -q '.opencode' "$attempt_workdir/.gitmodules" 2>/dev/null; then
+            git -C "$attempt_workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || true
+        fi
+
+        git -C "$attempt_workdir" add -A 2>/dev/null || true
+        git -C "$attempt_workdir" commit -q --allow-empty -m "init" 2>/dev/null || true
+
+        mkdir -p "$attempt_workdir/.issues"
+
+        if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
+            FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
+            if [ -f "$FIXTURE_SETUP" ]; then
+                source "$FIXTURE_SETUP"
+                setup_fixture_issues "$attempt_workdir"
+            fi
+        fi
+
+        STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
+        if [ -f "$STORY_SETUP" ]; then
+            source "$STORY_SETUP"
+            setup_story_fixtures "$attempt_workdir"
+        fi
+
+        if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
+            local bare_repo="$attempt_workdir/../origin.git"
+            git init --bare "$bare_repo" 2>/dev/null || true
+            git -C "$attempt_workdir" remote add origin "$bare_repo" 2>/dev/null || true
+            echo "  [harness] bare remote set up at $bare_repo"
+        fi
+
+        if [ "${BEHAVIOR_SETUP_STALE_WORKTREE:-0}" = "1" ]; then
+            (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
+            rm -rf "$attempt_workdir/.issues"
+            echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
+        fi
+
+        TEST_WORKDIR="$attempt_workdir" \
         bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
@@ -412,26 +377,14 @@ behavior_get_stderr() {
     cat "$BEHAVIOR_STDERR"
 }
 
-# Lazy-init: BEHAVIORAL_MODEL_POOL is populated on first call to behavior_run_pool.
-# NOT at source time — sourcing helpers.sh must NOT run opencode models against production DB.
-BEHAVIORAL_MODEL_POOL_INITIALIZED=0
-BEHAVIORAL_MODEL_POOL=()
-
-__init_model_pool() {
-    if [ "$BEHAVIORAL_MODEL_POOL_INITIALIZED" = "1" ]; then
-        return
-    fi
-    local pool
-    pool=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
-    mapfile -t BEHAVIORAL_MODEL_POOL <<< "$pool"
-    BEHAVIORAL_MODEL_POOL_INITIALIZED=1
-    if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
-        echo "WARNING: no cloud models found via 'opencode models' — BEHAVIORAL_MODEL_POOL empty" >&2
-    fi
-}
+HELPERS_OC_MODELS=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
+mapfile -t BEHAVIORAL_MODEL_POOL <<< "$HELPERS_OC_MODELS"
+unset HELPERS_OC_MODELS
+if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
+    echo "WARNING: no cloud models found via 'opencode models' — BEHAVIORAL_MODEL_POOL empty" >&2
+fi
 
 behavior_run_pool() {
-    __init_model_pool
     local scenario_name="$1"
     local message="$2"
 

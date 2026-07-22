@@ -43,21 +43,21 @@ collect-screening-results → reconcile-status → build-dependency-graph
 - Never present dependency analysis only in agent reasoning (MUST be in chat)
 - Never assume all issues are independent without analysis
 - Never execute must-precede issues out of order
-- Never use `question` tool
+- Never use `question` tool after presenting the execution plan
 - Never HALT between plan presentation and the implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table
 - Never escalate status inconsistencies to the developer (use `reconcile-issue-graph`)
 
 ## Cross-References
 
-- Load [Pushing Agent Intelligence Decisions to the User](guidelines/000-critical-rules.md) — structural decisions are agent intelligence concerns
-- Load [GO Prohibitions §1](guidelines/020-go-prohibitions.md) — no prompts for authorization; "approved to PR" covers the full pipeline
-- Load [screen-issue task](skills/approval-gate-scope/tasks/screen-issue.md) — exhaustive `requires_developer: true` conditions
-- Load [Task Order](skills/approval-gate/SKILL.md) — "MUST auto-dispatch" after analysis completes
+- Read [Pushing Agent Intelligence Decisions to the User](guidelines/000-critical-rules.md) — structural decisions are agent intelligence concerns
+- Read [GO Prohibitions §1](guidelines/020-go-prohibitions.md) — no prompts for authorization; "approved to PR" covers the full pipeline
+- Read [screen-issue task](skills/approval-gate-scope/tasks/screen-issue.md) — exhaustive `requires_developer: true` conditions
+- Read [Task Order](skills/approval-gate/SKILL.md) — "MUST auto-dispatch" after analysis completes
 
 ## Enforcement References
 
-- Evidence format + finding classification: Load [adversarial-verification](enforcement/adversarial-verification.md)
-- Scope parsing: Load [scope-parsing](enforcement/scope-parsing.md)
-- Auto-dispatch routing: Load [auto-dispatch-table](enforcement/auto-dispatch-table.md)
-- Closed-issue verification: Load [closed-issue-verification](enforcement/closed-issue-verification.md)
-- Sub-issue graph traversal: Load [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)
+- Evidence format + finding classification: Read [adversarial-verification](enforcement/adversarial-verification.md)
+- Scope parsing: Read [scope-parsing](enforcement/scope-parsing.md)
+- Auto-dispatch routing: Read [auto-dispatch-table](enforcement/auto-dispatch-table.md)
+- Closed-issue verification: Read [closed-issue-verification](enforcement/closed-issue-verification.md)
+- Sub-issue graph traversal: Read [sub-issue-graph-traversal](enforcement/sub-issue-graph-traversal.md)

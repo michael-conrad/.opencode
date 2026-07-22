@@ -43,7 +43,12 @@ For each change, document:
 
 ### Step 3.5: Mandatory Re-Audit (Audit-Triggered Revisions Only)
 
-**When the revision was triggered by spec-audit FAILs**, the change-control task MUST note that a re-audit is required. The SKILL.md pipeline handles spec-audit as an inline orchestrator step — this sub-agent does not call it.
+**When the revision was triggered by spec-audit FAILs**, the change-control task MUST dispatch a re-audit to confirm the fixes resolved the original findings:
+
+- [ ] 1. Dispatch `audit --task spec-audit` on the revised spec
+- [ ] 2. Confirm all prior audit FAILs are now PASS
+- [ ] 3. If re-audit produces new FAILs: HALT — the fixes did not resolve the original findings
+- [ ] 4. If re-audit produces different FAILs than the original: HALT — the fixes introduced new issues
 
 **When the revision was NOT triggered by spec-audit FAILs** (user feedback, scope adjustments, etc.), skip this step — re-audit is not required.
 
@@ -55,7 +60,7 @@ After revision, the spec needs fresh authorization:
 
 ## Adversarial Verification of STATUS Exemption (MANDATORY)
 
-**🚫 CRITICAL: Every STATUS marker claiming exemption from change control MUST be verified against actual revision history. Unverified exemption claims are CONFLICTING findings per Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
+**🚫 CRITICAL: Every STATUS marker claiming exemption from change control MUST be verified against actual revision history. Unverified exemption claims are CONFLICTING findings per `065-verification-honesty.md`.**
 
 ### Verification Procedure
 
@@ -91,7 +96,7 @@ Action: [auto-fix|FAIL]
 
 ## Code-Level Backward Compatibility Impact Analysis (MANDATORY)
 
-When a spec changes an API signature, config key, or data format, assess what existing consumers would break. This is the spec-level counterpart to the backward compatibility analysis in Load [risk.md](skills/spec-creation-validation/tasks/risk.md) — it operates at the code level rather than the architecture level.
+When a spec changes an API signature, config key, or data format, assess what existing consumers would break. This is the spec-level counterpart to the backward compatibility analysis in `risk.md` — it operates at the code level rather than the architecture level.
 
 ### Step 5: Identify Changed Code Contracts
 

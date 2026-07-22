@@ -15,7 +15,17 @@ compatibility: opencode
 
 Evaluator role for the drift-detection DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each drift detection criterion against the spec and code, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
-
+> **DiMo Role: Evaluator.** This task evaluates drift between spec and code. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
+>
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
+>
+>
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT collect new evidence — that is the Investigator's job
+> - MUST write `verdict.yaml` as the primary output artifact
+> - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from upstream roles are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against validated evidence.
 
@@ -27,14 +37,6 @@ Evaluator role for the drift-detection DiMo chain. Reads `evidence.yaml` (Invest
 - `github.owner`, `github.repo`: Repository identity
 - `target_files`: Optional — specific file paths that were scanned. If absent, extracted from spec.
 
-**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
-
-```yaml
-status: BLOCKED
-reason: EXPECTED_DETERMINATION_REJECTED
-message: "Expected determination detected. Dispatch without pre-judgment."
-```
-
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Investigator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
@@ -43,7 +45,6 @@ message: "Expected determination detected. Dispatch without pre-judgment."
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for verdict artifacts)
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -122,15 +123,6 @@ Read the spec files to establish the authoritative baseline for evaluation:
 - [ ] 5. Extract file requirements — every file path mentioned in the spec
 - [ ] 6. Extract function/class/symbol references — every function, class, or method name mentioned
 - [ ] 7. Extract edge case descriptions
-
-### Step 3.5: Clean-Room Dispatch for Behavioral SCs
-
-For each SC declared as `behavioral` evidence type:
-
-- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
-- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
-- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
-- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 4: Build Evaluation Criteria
 
@@ -325,45 +317,7 @@ dd_structural_fail:
       reason: "Structural evidence (file existence) does not verify behavioral correctness"
 ```
 
-### Step 11: Evaluate Behavioral SCs via Clean-Room Sub-Agent
-
-For each SC in the spec whose evidence type is `behavioral`, dispatch a clean-room sub-agent to evaluate the actual agent behavior from test artifacts. The evaluator MUST NOT rely on file-existence or structural checks for behavioral SCs.
-
-- [ ] 1. Read the spec's Success Criteria table from Step 3 to identify all SCs with evidence type `behavioral`
-- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path and the SC criterion text:
-
-```yaml
-task_context:
-  artifact_path: "<artifact_evidence_dir>"
-  sc_criteria:
-    - sc_id: "<SC-N>"
-      criterion: "<criterion text from spec>"
-```
-
-- [ ] 3. The clean-room sub-agent receives ONLY the artifact directory path and SC criteria — no orchestrator reasoning, no expected outcomes, no cached results
-- [ ] 4. Collect the result contract from each `behavioral-sc-evaluator` dispatch
-- [ ] 5. For each behavioral SC:
-  - If the clean-room sub-agent returns `verdict: PASS` → the evaluator verdict for that SC is PASS
-  - If the clean-room sub-agent returns `verdict: FAIL` → the evaluator verdict for that SC is FAIL
-  - If the clean-room sub-agent returns `status: BLOCKED` → the evaluator verdict for that SC is FAIL with `CLEAN_ROOM_BLOCKED` classification
-- [ ] 6. File-existence alone is NEVER sufficient evidence for behavioral SCs — if the only evidence available is structural (stdout.log/stderr.log do not exist or are empty), the verdict is FAIL
-- [ ] 7. Record behavioral SC evaluation results:
-
-```yaml
-behavioral_sc_evaluation:
-  total_behavioral_scs: <N>
-  pass: <N>
-  fail: <N>
-  per_sc:
-    - sc_id: "<SC-N>"
-      verdict: "PASS|FAIL"
-      clean_room_verdict: "PASS|FAIL"
-      justification: "<from clean-room sub-agent result>"
-```
-
-- [ ] 8. Aggregate: if ANY behavioral SC receives a FAIL verdict from the clean-room sub-agent, the overall drift detection verdict is FAIL
-
-### Step 12: Classify Drift Severity
+### Step 11: Classify Drift Severity
 
 For each FAIL criterion, classify drift severity:
 
@@ -376,12 +330,12 @@ For each FAIL criterion, classify drift severity:
 | MISSING_EDGE_CASE | MEDIUM | Edge case not implemented |
 | STRUCTURAL_EVIDENCE | HIGH | Behavioral SC evaluated with structural evidence only |
 
-- [ ] 1. For each FAIL finding across DD-1 through DD-5, DD-STRUCTURAL-FAIL, and behavioral SC evaluation, assign a severity
+- [ ] 1. For each FAIL finding across DD-1 through DD-5 and DD-STRUCTURAL-FAIL, assign a severity
 - [ ] 2. HIGH severity findings block implementation — must be resolved before proceeding
 - [ ] 3. MEDIUM severity findings require attention but may not block
 - [ ] 4. LOW severity findings are informational
 
-### Step 13: Generate Bidirectional Findings
+### Step 12: Generate Bidirectional Findings
 
 Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the findings table.
 
@@ -409,16 +363,16 @@ bidirectional_findings:
       - "<option 2>"
 ```
 
-### Step 14: Process Verdicts
+### Step 13: Process Verdicts
 
 Compile all per-criterion verdicts and apply consensus rules:
 
-- [ ] 1. Collect all verdicts from Steps 5-11 into a single `per_criterion` array
+- [ ] 1. Collect all verdicts from Steps 5-10 into a single `per_criterion` array
 - [ ] 2. Each entry must include: `criterion_id`, `result`, `evidence`, `explanation`, `remediation`, `drift_type`, `severity`
 - [ ] 3. Count total, pass, and fail verdicts
 - [ ] 4. Determine overall verdict: PASS if ALL criteria pass; FAIL if any criterion fails
 
-### Step 15: Apply Self-Consistency Gate
+### Step 14: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -446,7 +400,7 @@ for each entry in per_criterion:
         break
 ```
 
-### Step 16: Write verdict.yaml
+### Step 15: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -477,15 +431,6 @@ dd3_extra_implementation: {...}
 dd4_signature_match: {...}
 dd5_edge_cases: {...}
 dd_structural_fail: {...}
-behavioral_sc_evaluation:
-  total_behavioral_scs: <N>
-  pass: <N>
-  fail: <N>
-  per_sc:
-    - sc_id: "<SC-N>"
-      verdict: "PASS|FAIL"
-      clean_room_verdict: "PASS|FAIL"
-      justification: "<from clean-room sub-agent result>"
 drift_summary:
   spec_drift_count: <N>
   code_drift_count: <N>
@@ -508,7 +453,7 @@ bidirectional_findings:
 - [ ] 2. Write `verdict.yaml` with the complete verdict structure
 - [ ] 3. Verify the file was written and is non-empty
 
-### Step 17: Return Frugal Result Contract
+### Step 16: Return Frugal Result Contract
 
 Return only routing-significant data:
 
@@ -545,13 +490,12 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 8. Evaluate DD-4 — Function Signatures Match → INVALID if skipped
 - [ ] 9. Evaluate DD-5 — Edge Cases Covered → INVALID if skipped
 - [ ] 10. Evaluate DD-STRUCTURAL-FAIL → INVALID if skipped
-- [ ] 11. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
-- [ ] 12. Classify Drift Severity → INVALID if skipped
-- [ ] 13. Generate Bidirectional Findings → INVALID if skipped
-- [ ] 14. Process Verdicts → INVALID if skipped
-- [ ] 15. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 16. Write verdict.yaml → INVALID if skipped
-- [ ] 17. Return Frugal Result Contract → INVALID if skipped
+- [ ] 11. Classify Drift Severity → INVALID if skipped
+- [ ] 12. Generate Bidirectional Findings → INVALID if skipped
+- [ ] 13. Process Verdicts → INVALID if skipped
+- [ ] 14. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 15. Write verdict.yaml → INVALID if skipped
+- [ ] 16. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
@@ -576,32 +520,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's `verdict.yaml`)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
-- Load [000-critical-rules.md](guidelines/000-critical-rules.md) — spec-code alignment
-- Load [130-authority-source.md](guidelines/130-authority-source.md) — code as authoritative source
-- Load [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
+- Read [000-critical-rules.md](guidelines/000-critical-rules.md) — spec-code alignment
+- Read [130-authority-source.md](guidelines/130-authority-source.md) — code as authoritative source
+- Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

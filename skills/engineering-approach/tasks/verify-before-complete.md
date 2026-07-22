@@ -9,7 +9,7 @@ license: MIT
 
 ## Purpose
 
-Enforce the verify-before-declaring-complete discipline — Load [Operating Protocol §3](skills/engineering-approach/SKILL.md).
+Enforce the verify-before-declaring-complete discipline — Read [Operating Protocol §3](skills/engineering-approach/SKILL.md).
 
 ## Procedure
 
@@ -38,7 +38,7 @@ Identify and verify edge cases from the spec. Confirm each edge case is handled 
 For each success criterion in the approved spec:
 - [ ] Produce a tool-call artifact confirming the criterion is met
 - [ ] Flag any criterion that cannot be verified as FAIL
-- [ ] For changes affecting runtime behavior, uplift the SC evidence type to `behavioral` regardless of declaration — Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md)
+- [ ] For changes affecting runtime behavior, uplift the SC evidence type to `behavioral` regardless of declaration — Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md)
 
 ### Step 4: Report Findings
 

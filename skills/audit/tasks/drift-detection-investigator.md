@@ -15,7 +15,16 @@ compatibility: opencode
 
 Investigator role for the drift-detection DiMo chain. Reads spec requirements from `spec_local_dir` and scans code implementation to collect raw evidence about documentation-code drift. Writes `evidence.yaml` with file existence data, function signature comparisons, untracked file inventory, and raw drift observations. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-
+> **DiMo Role: Investigator.** This task generates raw evidence for drift-detection. Writes `evidence.yaml` with spec requirements, code implementation scan results, and raw comparison data.
+>
+> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what constitutes drift. You just collect.
+>
+>
+> - MUST extract all evidence without filtering by perceived relevance
+> - MUST NOT produce any PASS/FAIL judgment
+> - MUST NOT evaluate whether evidence is "correct" — record what exists
+> - MUST NOT classify drift severity — that is the Evaluator's job
+> - MUST write `evidence.yaml` as the only output artifact
 
 ## Dispatch Contract
 
@@ -32,7 +41,6 @@ Investigator role for the drift-detection DiMo chain. Reads spec requirements fr
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for evidence artifacts)
 - Optional: `target_files` list of specific file paths to scan
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -330,27 +338,3 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `130-authority-source.md` — code as authoritative source
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

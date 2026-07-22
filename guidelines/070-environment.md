@@ -11,7 +11,7 @@ load_when: sub-agent
 - Use `uv sync` for environment setup (creates venv and installs in editable mode). All Python execution via
   `uv run python`. Package ops: add dependencies by editing `pyproject.toml` then running `uv sync` — never `uv add`. `pip` prohibited. No `sys.path` hacks or manual
   path additions.
-- **Never use `python3` or `python` directly** — always `uv run python`. Never prefix commands with absolute paths or `cd /absolute/path &&`. Load [Python Interpreter](060-tool-usage.md) and [Path Rules](060-tool-usage.md) for the full zero-tolerance rules.
+- **Never use `python3` or `python` directly** — always `uv run python`. Never prefix commands with absolute paths or `cd /absolute/path &&`. Read [Python Interpreter](060-tool-usage.md) and [Path Rules](060-tool-usage.md) for the full zero-tolerance rules.
 - Reusable agent scripts live in `.opencode/tools/` (project root). Invoke with `./.opencode/tools/<script>`.
 - When `pyproject.toml` changes, purge `.venv` and run `uv sync` as a standalone command (never embedded in git hooks,
   commit scripts, or automated pipelines).

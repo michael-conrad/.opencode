@@ -8,7 +8,16 @@
 
 ## Purpose
 
-Verify merge evidence after PR merge.
+Verify merge evidence after PR merge. This task has been split into a DiMo 4-role chain. Each role is a separate file in this directory.
+
+## DiMo Chain Flow
+
+The orchestrator dispatches the 4 roles sequentially:
+
+1. **Investigator** (`investigator.md`) — Fetches PR, identifies spec issue, produces `evidence.yaml`
+2. **Validator** (`validator.md`) — Validates evidence against source data, produces `reasoning.yaml`
+3. **Evaluator** (`evaluator.md`) — Evaluates criteria against evidence, produces `verdict.yaml`
+4. **Arbiter** (`arbiter.md`) — Provides resolution paths, produces final result contract
 
 ## Dispatch Contract
 
@@ -19,7 +28,6 @@ Verify merge evidence after PR merge.
 
 - PR merged (status: `merged`)
 - `github.owner`, `github.repo` available
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -34,27 +42,3 @@ Verify merge evidence after PR merge.
 - **Validator:** `closure-verification/validator.md`
 - **Evaluator:** `closure-verification/evaluator.md`
 - **Arbiter:** `closure-verification/arbiter.md`
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

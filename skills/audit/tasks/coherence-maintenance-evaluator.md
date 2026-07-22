@@ -15,7 +15,17 @@ compatibility: opencode
 
 Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
 
-
+> **DiMo Role: Evaluator.** This task evaluates coherence maintenance criteria. Reads `evidence.yaml` from the Investigator and `reasoning.yaml` from the upstream reasoning role, then produces `verdict.yaml` with binary PASS/FAIL verdicts per criterion.
+>
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
+>
+>
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
+> - MUST NOT re-collect evidence that Investigator already collected
+> - MUST write `verdict.yaml` as the primary output artifact
+> - MUST apply the self-consistency gate: any hedging language in a PASS explanation downgrades to FAIL
 
 ## Dispatch Contract
 
@@ -23,21 +33,12 @@ Evaluator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` (
 - `artifact_evidence_dir`: Directory for evidence artifacts (contains `evidence.yaml` from Investigator and `reasoning.yaml` from upstream reasoning role)
 - `github.owner`, `github.repo`: Repository identity
 
-**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
-
-```yaml
-status: BLOCKED
-reason: EXPECTED_DETERMINATION_REJECTED
-message: "Expected determination detected. Dispatch without pre-judgment."
-```
-
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` (produced by Investigator)
 - `reasoning.yaml` exists at `{artifact_evidence_dir}/reasoning.yaml` (produced by upstream reasoning role)
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (readable directory containing upstream artifacts)
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -46,10 +47,8 @@ message: "Expected determination detected. Dispatch without pre-judgment."
 - Each verdict backed by evidence from `evidence.yaml` and validation from `reasoning.yaml`
 - Drift classified as controlled or uncontrolled per criterion
 - Migration candidates evaluated for completeness
-- Behavioral SCs evaluated via clean-room `behavioral-sc-evaluator` sub-agent — never from evaluator's own context
-- File-existence alone is NEVER sufficient evidence for behavioral SCs
 - Self-consistency gate applied — no hedging language in PASS explanations
-- Overall verdict computed: PASS if all criteria PASS and all behavioral SCs PASS, FAIL otherwise
+- Overall verdict computed: PASS if all criteria PASS, FAIL otherwise
 - No re-collection of evidence — judgments only
 
 ## Procedure
@@ -97,15 +96,6 @@ Read and parse the Investigator's evidence and upstream reasoning role's validat
 - [ ] 7. Verify required top-level keys exist: `baseline_validation`, `guideline_validation`, `skill_validation`, `diff_validation`, `metrics_validation`, `migration_candidate_validation`, `state_analysis_validation`, `overall_validation`
 - [ ] 8. If any required key is missing, return BLOCKED with `MALFORMED_REASONING` and the missing key name
 - [ ] 9. Record artifact metadata: generator name, knowledge supporter name, issue number, timestamps
-
-### Step 2.5: Clean-Room Dispatch for Behavioral SCs
-
-For each SC declared as `behavioral` evidence type:
-
-- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
-- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
-- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
-- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 3: Evaluate CM-1 — Baseline Rule Presence
 
@@ -307,37 +297,7 @@ state_analysis_evaluation:
 
 **Note:** State analysis absence is NOT a FAIL condition for the overall verdict. It reduces confidence but does not block PASS.
 
-### Step 9: Evaluate Behavioral SCs via Clean-Room Sub-Agent
-
-For each behavioral success criterion identified in the spec, dispatch a clean-room sub-agent to evaluate the behavioral evidence. The evaluator MUST NOT evaluate behavioral SCs from its own context — only the clean-room sub-agent may render a verdict.
-
-- [ ] 1. From `evidence.yaml` → `spec_scs`, identify all SCs with `evidence_type: behavioral`
-- [ ] 2. For each behavioral SC:
-  - [ ] 2a. Dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path (`{artifact_evidence_dir}`) and the SC criterion text — no orchestrator reasoning, no expected outcomes, no cached results
-  - [ ] 2b. Collect the result contract from the clean-room sub-agent
-  - [ ] 2c. If the sub-agent returns `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`, re-task with the same minimal context (max 2 retries)
-- [ ] 3. For each behavioral SC verdict from the clean-room sub-agent:
-  - [ ] 3a. If verdict is FAIL → the evaluator's verdict for that SC is FAIL
-  - [ ] 3b. If verdict is PASS → the evaluator's verdict for that SC is PASS
-  - [ ] 3c. File-existence alone is NEVER sufficient evidence for behavioral SCs — if the clean-room sub-agent reports PASS based on file existence, the evaluator MUST downgrade to FAIL
-- [ ] 4. Record behavioral SC verdicts:
-
-```yaml
-behavioral_sc_evaluation:
-  total_behavioral_scs: <N>
-  clean_room_passes: <N>
-  clean_room_fails: <N>
-  per_sc:
-    - sc_id: "<SC-N>"
-      clean_room_verdict: PASS | FAIL
-      evaluator_verdict: PASS | FAIL
-      justification: "<from clean-room sub-agent>"
-  file_existence_downgrades: <N>
-```
-
-- [ ] 5. If any behavioral SC has a FAIL verdict, the overall verdict MUST be FAIL regardless of CM-1 through CM-5 results
-
-### Step 10: Compute Overall Verdict
+### Step 9: Compute Overall Verdict
 
 Compute the overall coherence maintenance verdict from per-criterion results:
 
@@ -358,7 +318,7 @@ coherence_health:
   overall_score: <float 0.0-1.0>
 ```
 
-### Step 11: Apply Self-Consistency Gate
+### Step 10: Apply Self-Consistency Gate
 
 Before accepting the verdict, run a self-consistency check on every criterion entry:
 
@@ -457,11 +417,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 6. Evaluate CM-4 (Cross-Reference Consistency) → INVALID if skipped
 - [ ] 7. Evaluate CM-5 (Migration Candidate Identification) → INVALID if skipped
 - [ ] 8. Evaluate State Analysis Evidence → INVALID if skipped
-- [ ] 9. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
-- [ ] 10. Compute Overall Verdict → INVALID if skipped
-- [ ] 11. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 12. Write verdict.yaml → INVALID if skipped
-- [ ] 13. Return Frugal Result Contract → INVALID if skipped
+- [ ] 9. Compute Overall Verdict → INVALID if skipped
+- [ ] 10. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 11. Write verdict.yaml → INVALID if skipped
+- [ ] 12. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
@@ -487,27 +446,3 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

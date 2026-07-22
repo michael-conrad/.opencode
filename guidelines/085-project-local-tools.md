@@ -11,7 +11,7 @@ load_when: sub-agent
 
 ## Principle
 
-When a project requires build tools not available on the host system (e.g., `tsc`, `esbuild`, `sass`), the agent MAY install them **project-locally** — inside `.tools/<tool>/` (primary) or `.node/`, `.uv/`, `.jdk/` (acceptable alternatives). This is an exception to the global Node.js prohibition (Load [020-go-prohibitions.md §4](020-go-prohibitions.md)) when the tool is needed for a TypeScript or build step within a Python/Java project.
+When a project requires build tools not available on the host system (e.g., `tsc`, `esbuild`, `sass`), the agent MAY install them **project-locally** — inside `.tools/<tool>/` (primary) or `.node/`, `.uv/`, `.jdk/` (acceptable alternatives). This is an exception to the global Node.js prohibition (Read [020-go-prohibitions.md §4](020-go-prohibitions.md)) when the tool is needed for a TypeScript or build step within a Python/Java project.
 
 ## Rules
 
@@ -47,6 +47,6 @@ mkdir -p .tools && cd .tools && curl -fsSL https://nodejs.org/dist/v20.11.0/node
 
 ## Relationship to Other Guidelines
 
-- Load [§4](020-go-prohibitions.md) — Node.js Prohibition in Python/Java Projects (this guideline provides the exception path)
-- Load [§2](060-tool-usage.md) — Path Rules (project-local tools follow worktree path resolution)
-- Load [§4](060-tool-usage.md) — Command Restrictions (sed/printf/heredoc prohibitions apply)
+- Read [§4](020-go-prohibitions.md) — Node.js Prohibition in Python/Java Projects (this guideline provides the exception path)
+- Read [§2](060-tool-usage.md) — Path Rules (project-local tools follow worktree path resolution)
+- Read [§4](060-tool-usage.md) — Command Restrictions (sed/printf/heredoc prohibitions apply)

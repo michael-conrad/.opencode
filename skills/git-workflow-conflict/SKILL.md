@@ -47,6 +47,6 @@ Conflict resolution sub-skill of git-workflow. Handles rebase-pending conflict r
 
 ## Cross-References
 
-- Load [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
-- Load [conflict-resolution skill](skills/conflict-resolution/SKILL.md) for intent analysis and tier classification
-- Load [critical-rules-042](guidelines/000-critical-rules.md) for blind conflict resolution prohibition
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [conflict-resolution skill](skills/conflict-resolution/SKILL.md) for intent analysis and tier classification
+- Read [critical-rules-042](guidelines/000-critical-rules.md) for blind conflict resolution prohibition

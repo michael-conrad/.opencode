@@ -29,7 +29,7 @@ sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_
 if not sub_issues:
     # Auto-create sub-issues under the plan
     # Plan approval covers sub-issue creation — no separate auth needed
-    # Load [link-sub-issue task](skills/issue-operations/tasks/link-sub-issue.md) for creation procedure
+    # Read [link-sub-issue task](skills/issue-operations/tasks/link-sub-issue.md) for creation procedure
     pass
 
 # Verify sub-issue structure matches plan phases
@@ -49,9 +49,9 @@ for sub_issue in sub_issues:
 
 ### 5.2.1 Phase-Count Cross-Reference Check
 
-For multi-task plans, verify that the number of sub-issues matches the number of phases in the plan body. A mismatch indicates incomplete sub-issue linkage. Load [the phase-count cross-reference algorithm](enforcement/sub-issue-graph-traversal.md).
+For multi-task plans, verify that the number of sub-issues matches the number of phases in the plan body. A mismatch indicates incomplete sub-issue linkage. Read [the phase-count cross-reference algorithm](enforcement/sub-issue-graph-traversal.md).
 
-**Finding Classification:** Load [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) (auto-fix as remediation action only) and evidence artifact format.
+**Finding Classification:** Read [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) (auto-fix as remediation action only) and evidence artifact format.
 
 ### 5.3 Adversarial Verification of Sub-Issue State
 
@@ -70,13 +70,13 @@ For each sub-issue:
 
 ### 5.4 Closed-Issue Verification Before Skipping
 
-Before skipping a closed issue in any workflow gate, verify it was closed for the right reason. Load [the complete closed-issue verification procedure](enforcement/closed-issue-verification.md).
+Before skipping a closed issue in any workflow gate, verify it was closed for the right reason. Read [the complete closed-issue verification procedure](enforcement/closed-issue-verification.md).
 
-**Finding Classification for Closed-Issue Verification:** Load [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) and evidence artifact format.
+**Finding Classification for Closed-Issue Verification:** Read [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) and evidence artifact format.
 
 ### 5.5 Transitive Issue Graph Verification (MANDATORY on Authorization and Re-Approval)
 
-When any issue is authorized (approved, re-approved, or `Fixes`-closed), the agent MUST traverse the entire reachable issue graph to verify every node is in a consistent state. Load [the complete traversal algorithm](enforcement/sub-issue-graph-traversal.md) for edge types, depth limits, and finding classification.
+When any issue is authorized (approved, re-approved, or `Fixes`-closed), the agent MUST traverse the entire reachable issue graph to verify every node is in a consistent state. Read [the complete traversal algorithm](enforcement/sub-issue-graph-traversal.md) for edge types, depth limits, and finding classification.
 
 **When to Traverse:**
 
@@ -87,13 +87,13 @@ When any issue is authorized (approved, re-approved, or `Fixes`-closed), the age
 | Issue being verified as already-implemented | `verify-already-implemented` encounters a closed issue | 3 |
 | Issue encountered during triage | `triage` classifies a closed issue | 3 |
 
-After traversal completes, dispatch `reconcile-issue-graph` to act on findings. Load [the reconciliation procedure](tasks/reconcile-issue-graph.md).
+After traversal completes, dispatch `reconcile-issue-graph` to act on findings. Read [the reconciliation procedure](tasks/reconcile-issue-graph.md).
 
 **Every node in the reachable graph MUST produce an evidence artifact** — a `issue-operations -> read-issue (github_issue_read` tool call result. Graph traversal without per-node evidence is a verification honesty violation. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Finding Classification for Sub-Issue Verification
 
-Load [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) (auto-fix as remediation action only) and evidence artifact format.
+Read [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) (auto-fix as remediation action only) and evidence artifact format.
 
 ## Work State I/O
 

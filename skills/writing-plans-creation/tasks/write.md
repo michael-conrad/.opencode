@@ -115,7 +115,7 @@ Every plan document MUST use a three-tier structure:
 | 2 — Per-Phase | Phase sections | `## Phase N — <name>` | Phase metadata + per-file RED+green chains |
 | 3 — Per-Item | Item chains | `- [ ] N.M.` (sub-steps) | RED → GREEN → doublecheck → commit per item |
 
-**Tier 1 (Global):** Steps numbered sequentially across the entire plan. Includes global pre-steps (coherence gate, pre-red-baseline) and global post-steps (collect behavioral evidence artifacts, audit, cross-validate, regression check, review-prep, exec-summary).
+**Tier 1 (Global):** Steps numbered sequentially across the entire plan. Includes global pre-steps (coherence gate, pre-red-baseline) and global post-steps (collect behavioral evidence from `{project_root}/tmp/behavioral-evidence-*/` into `{project_root}/tmp/{issue-N}/artifacts/`, audit, cross-validate, regression check, review-prep, exec-summary).
 
 **Tier 2 (Per-Phase):** Each phase section contains phase metadata and per-file RED+green item chains. Phase steps continue the global sequence number.
 
@@ -130,35 +130,6 @@ Every step MUST use one of three dispatch indicators:
 | `(**inline**)` | Orchestrator executes directly (no sub-agent) | Orchestrator executes directly | `- [ ] 6. **Checkpoint commit (**inline**).**` |
 | `(**sub-agent**)` | Dispatch via `task()` with phase file + orchestrator-provided context | Phase file + orchestrator-provided context | `- [ ] 3. **RED (**sub-agent**).**` |
 | `(**clean-room**)` | Dispatch via `task()` with phase file only (routing metadata) | Phase file only (routing metadata) | `- [ ] 1. **Coherence gate (**clean-room**).**` |
-
-### Mandatory Pipeline Steps
-
-Every plan MUST include the full implementation pipeline. Plans missing any of these stages are structurally defective and MUST be rejected by plan-fidelity audit.
-
-**Pre-RED common steps (before any RED/GREEN cycle):**
-1. `assemble-work` — read plan, verify dispatch indicators, create work state
-2. `sc-coherence-gate` — dispatch audit coherence-extraction
-3. `pre-red-baseline` — dispatch pre-red-baseline, init solve state
-
-**RED/GREEN chained pipeline per item (repeat for each implementation item):**
-4. `red-phase` — write failing behavioral test
-5. `z3-check-red` — solve check verify RED test fails
-6. `red-doublecheck` — verification-before-completion verify RED
-7. `green-phase` — implement the change
-8. `z3-check-green` — solve check verify GREEN test passes
-9. `green-doublecheck` — verification-before-completion verify GREEN
-10. `checkpoint-tag-create` — create checkpoint tag
-11. `checkpoint-commit` — save checkpoint
-
-**Post-GREEN common steps (after all RED/GREEN cycles):**
-12. `green-vbc` — verification-before-completion for all SCs
-13. `sc-count-gate` — verify all SCs have verdicts
-14. `pre-pr-gate` — verify no FAIL verdicts
-15. `audit` — dispatch verification-audit + cross-validate
-16. `regression-check` — run regression tests
-17. `review-prep` — prepare for review
-18. `create-pr` — create pull request
-19. `exec-summary` — report final status
 
 ### Prohibited Patterns
 
@@ -215,5 +186,5 @@ Numbered checklist C1 through C{N} at the end of the plan, after the bottom admo
 
 ## Context Required
 
-- Load [create](tasks/create.md)
-- Load [issue-operations](skills/issue-operations/SKILL.md)
+- Related tasks: `create` (21-step pipeline)
+- Related skills: `issue-operations`

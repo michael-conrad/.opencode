@@ -25,5 +25,5 @@ Pipeline-readiness gate check and spec-to-plan handoff verification. Ensures the
 
 ## Context Required
 
-- Load [create](tasks/create.md)
-- Load [approval-gate](skills/approval-gate/SKILL.md)
+- Related tasks: `create` (21-step pipeline)
+- Related skills: `approval-gate`

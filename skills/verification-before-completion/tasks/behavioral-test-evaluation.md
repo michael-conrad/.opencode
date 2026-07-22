@@ -13,7 +13,7 @@ Evaluate behavioral test artifacts produced by `behavior_run` via clean-room sub
 
 1. **Read artifacts** — Read stdout.log, stderr.log, and session.yaml from `artifact_dir`
 2. **Evaluate each behavioral SC** — For each behavioral SC, evaluate whether the agent's behavior matches the SC criterion. The sub-agent performs this evaluation directly — no further sub-agent dispatch is needed.
-3. **Detect test type** — Read the test source file and apply the detection logic from Load [Test-Type Annotation Detection](skills/verification-before-completion/tasks/collect.md) (scan for infrastructure patterns, classify the test type, default to `(unit)` if no pattern matches)
+3. **Detect test type** — Read the test source file and apply the detection logic from Read [Test-Type Annotation Detection](skills/verification-before-completion/tasks/collect.md) (scan for infrastructure patterns, classify the test type, default to `(unit)` if no pattern matches)
 4. **Collect verdicts** — Collect PASS/FAIL verdicts per SC with evidence citations, including the detected test-type annotation
 5. **Produce evidence artifact** — Write evaluation results to `{artifact_dir}/evaluation-{timestamp}.yaml`
 
@@ -40,7 +40,7 @@ blocker_reason: "Reason if BLOCKED"
 | `mock` | Test uses mocked external dependencies |
 | `integration` | Test exercises multiple components together |
 
-The `test_type` field MUST be populated by inspecting the test infrastructure usage patterns (Load [Test-Type Annotation Detection](skills/verification-before-completion/tasks/collect.md)). The `test_function` field MUST contain the exact test function name (e.g., `test_verify_creates_vbc_table`).
+The `test_type` field MUST be populated by inspecting the test infrastructure usage patterns (Read [Test-Type Annotation Detection](skills/verification-before-completion/tasks/collect.md)). The `test_function` field MUST contain the exact test function name (e.g., `test_verify_creates_vbc_table`).
 
 ## Rules
 

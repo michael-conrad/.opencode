@@ -6,7 +6,7 @@ Verify that a closed issue was legitimately closed — checking that a merged PR
 
 ## Pre-Conditions
 
-- **Load guideline:** Load [verification-honesty guidelines](guidelines/065-verification-honesty.md) before proceeding — verification claims must be backed by actual tool calls, not memory
+- **Load guideline:** Read [verification-honesty guidelines](guidelines/065-verification-honesty.md) before proceeding — verification claims must be backed by actual tool calls, not memory
 
 ## Entry Criteria
 
@@ -172,9 +172,9 @@ if sub_issues:
 
 ### Step 7: Success Criteria Verification (MANDATORY — ZERO TOLERANCE)
 
-**🚫 CRITICAL: Step 7 is MANDATORY and BLOCKING. Skipping this step is a CRITICAL GUIDELINE VIOLATION.** A merged PR proves code was merged, NOT that success criteria are met. This step enforces the rule from Load [Assuming Closed Issues Are Verified](guidelines/000-critical-rules.md).
+**🚫 CRITICAL: Step 7 is MANDATORY and BLOCKING. Skipping this step is a CRITICAL GUIDELINE VIOLATION.** A merged PR proves code was merged, NOT that success criteria are met. This step enforces the rule from Read [Assuming Closed Issues Are Verified](guidelines/000-critical-rules.md).
 
-**Behavioral uplift for live-codebase SCs:** When verifying closed issues against the live codebase, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
+**Behavioral uplift for live-codebase SCs:** When verifying closed issues against the live codebase, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
 
 For legitimately closed issues (VERIFIED_CLOSED from Step 3), verify that EACH success criterion from the issue body is actually met in the live codebase:
 
@@ -225,7 +225,7 @@ else:
     DOWNGRADE result to: NOT_IMPLEMENTED_DESPITE_CLOSURE
 ```
 
-Evidence requirements and downgrade rules: Load [Success Criteria Verification and Downgrade Path](enforcement/closed-issue-verification.md)
+Evidence requirements and downgrade rules: Read [Success Criteria Verification and Downgrade Path](enforcement/closed-issue-verification.md)
 
 **Programmatic enforcement:** `skildeck verify-acceptance --spec-file <path>` MUST be used as the primary tool for acceptance criteria extraction and verification in this step. The command parses the issue body, extracts success criteria, and verifies each against the live codebase, producing PASS/FAIL/MANUAL-REVIEW tables with exit code 1 on any failure.
 
@@ -245,7 +245,7 @@ When no success criteria are found in the issue body, `skildeck verify-acceptanc
 
 ### Step 7.5: Memory/Training Data Rejection (MANDATORY — ZERO TOLERANCE)
 
-**🚫 CRITICAL: The verification agent MUST NOT assume implementation details from memory or training data.** Per Load [Memory/Training-Data-as-Evidence](guidelines/000-critical-rules.md):
+**🚫 CRITICAL: The verification agent MUST NOT assume implementation details from memory or training data.** Per Read [Memory/Training-Data-as-Evidence](guidelines/000-critical-rules.md):
 
 - Do NOT recall what "should" be in a file — read the actual file
 - Do NOT assume function signatures from memory — verify via `srclight_get_signature` or source read
@@ -401,7 +401,7 @@ This task now performs transitive graph traversal (Step 8). Callers should handl
 - `approval-gate/tasks/verify-already-implemented.md`: Pre-autoclose sub-issue verification
 - `approval-gate/tasks/screen-issue.md` Gate 2: SC verification gate for already-implemented classification
 - `git-workflow/tasks/cleanup.md`: Pre-closure sub-issue verification gate
-- Load [Assuming Closed Issues Are Verified](guidelines/010-approval-gate.md): Graph traversal prevents this violation
+- Read [Assuming Closed Issues Are Verified](guidelines/010-approval-gate.md): Graph traversal prevents this violation
 
 ## Enforcement References
 
