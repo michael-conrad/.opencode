@@ -5,7 +5,7 @@ created: 2026-07-22
 updated: 2026-07-22
 license: MIT
 provenance: AI-generated
-issue: 2065
+issue: 2066
 authors:
   - OpenCode (ollama-cloud/deepseek-v4-flash)
 supersedes:
