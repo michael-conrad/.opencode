@@ -1,6 +1,6 @@
 ---
 name: test-quality-audit-generator
-description: "Investigator role for the test-quality-audit DiMo chain. Collects raw evidence from test files, spec SCs, git history, and VbC artifacts. Writes evidence.yaml — does NOT evaluate or judge."
+description: "Investigator role for the test-quality-audit chain. Collects raw evidence from test files, spec SCs, git history, and VbC artifacts. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Investigator role for the test-quality-audit DiMo chain. Reads test files, spec success criteria, git history, and VbC artifacts to produce `evidence.yaml` with raw evidence about test coverage and quality. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Investigator role for the test-quality-audit chain. Reads test files, spec success criteria, git history, and VbC artifacts to produce `evidence.yaml` with raw evidence about test coverage and quality. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for test-quality-audit. Writes `evidence.yaml` with extracted test file data, SC-to-test mappings, git history evidence, and VbC artifact data.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what passes or fails. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT assess test quality — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
 
 ## Dispatch Contract
 

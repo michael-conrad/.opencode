@@ -4,7 +4,7 @@
 
 Validate evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of each evidence item.
 
-## DiMo Role: Validator
+## Role: Validator
 
 You are the Validator. You validate evidence against source data. You read `evidence.yaml` (Investigator), validate each item, and write `reasoning.yaml`.
 

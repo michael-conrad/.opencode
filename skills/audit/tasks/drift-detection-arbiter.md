@@ -1,6 +1,6 @@
 ---
 name: drift-detection-path-provider
-description: "Arbiter role for the drift-detection DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Arbiter role for the drift-detection chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,19 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Arbiter role for the drift-detection DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, not evaluates. It does NOT re-evaluate criteria, re-validate evidence, or second-guess upstream roles.
+Arbiter role for the drift-detection chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, not evaluates. It does NOT re-evaluate criteria, re-validate evidence, or second-guess upstream roles.
 
-> **DiMo Role: Arbiter.** This task produces the final judgment for drift-detection by cross-referencing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
->
-> You are the Arbiter. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
->
->
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST NOT re-classify drift as SPEC_DRIFT, CODE_DRIFT, or SYNC
-> - MUST write `judgment.yaml` as the only output artifact
-> - MUST produce a `next_step` field: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
 
 ## Dispatch Contract
 

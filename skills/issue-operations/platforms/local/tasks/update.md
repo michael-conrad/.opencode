@@ -90,7 +90,7 @@ After a body update, the agent MUST decide whether to push the updated content t
 
 ### Push Body Sub-Workflow
 
-When push is needed, the orchestrator dispatches:
+When push is needed, the dispatches:
 
 - [ ] 1. `extract-exec-summary` task — reads spec.md, writes/updates remote.md
 - [ ] 1. `push-body` task — pushes remote.md to remote API

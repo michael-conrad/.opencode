@@ -30,7 +30,7 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 - [ ] 6. Generate dependency-ordering solve contract — use state analysis artifact to add state transition dependencies
 - [ ] 7. Write phase-to-skill-mapping.yaml per #1311 format
 - [ ] 8. Return structure output with phase definitions
-- [ ] 9. (**inline**) Validate plan phase structure against interface compatibility analysis — verify that phase boundaries respect interface boundaries from the interface compatibility artifact. If any phase crosses an interface boundary that the artifact marks as incompatible, return BLOCKED with `INTERFACE_BOUNDARY_VIOLATION`.
+- [ ] 9.  Validate plan phase structure against interface compatibility analysis — verify that phase boundaries respect interface boundaries from the interface compatibility artifact. If any phase crosses an interface boundary that the artifact marks as incompatible, return BLOCKED with `INTERFACE_BOUNDARY_VIOLATION`.
 
 ## Context Required
 

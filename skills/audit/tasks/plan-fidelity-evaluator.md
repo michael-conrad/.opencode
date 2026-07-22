@@ -1,6 +1,6 @@
 ---
 name: plan-fidelity-evaluator
-description: "Evaluator role for the plan-fidelity DiMo chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion against validated evidence, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
+description: "Evaluator role for the plan-fidelity chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion against validated evidence, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluate plan fidelity against spec using evidence collected and validated by upstream DiMo roles. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This is the Evaluator role in the DiMo 4-role chain — it produces judgments, not just evidence.
+Evaluate plan fidelity against spec using evidence collected and validated by upstream roles. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This is the Evaluator role in the 4-role chain — it produces judgments, not just evidence.
 
-> **DiMo Role: Evaluator.** This task evaluates plan fidelity against spec. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
->
-> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
->
-> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
-> - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
-> - MUST write `verdict.yaml` as the primary output artifact
->
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
 ## Dispatch Contract
 
@@ -119,7 +109,7 @@ Evaluate each criterion against the validated evidence. Expected values referenc
 | PF-PRESCRIPTIVE-CODE | No prescriptive code in RED/GREEN conditions | RED/GREEN conditions contain NO line numbers, exact code, or file paths. RED describes "what fails". GREEN describes "what must be true". Prescriptive content → flag if present. |
 | PF-CHECKLIST-FORMAT | All steps use `- [ ] N.` format with sub-bullets | Every step is a numbered checkbox with at least one sub-bullet containing metadata, SC reference, or command |
 | PF-DISPATCH-MODE | Every step has valid dispatch mode indicator | Every step title contains a valid dispatch indicator per Read [Dispatch Indicators](skills/writing-plans/tasks/write.md) — exactly one of the three |
-| PF-DISPATCH-DEFECTS | Dispatch marking defects detected: (a) missing Dispatch declaration, (b) `inline` phase with only sub-agent steps, (c) `sub-agent-clean-room` phase with `(**inline**)` steps | Check plan phase table for `Dispatch` column (split plans) or `**Dispatch:**` field (non-split plans). If missing → FAIL. If `Dispatch: inline` and all steps are `(**sub-agent**)`/`(**clean-room**)` → FAIL. If `Dispatch: sub-agent-clean-room` and any step is `(**inline**)` → FAIL. |
+| PF-DISPATCH-DEFECTS | Dispatch marking defects detected: (a) missing Dispatch declaration, (b) `inline` phase with only sub-agent steps, (c) `sub-agent-clean-room` phase with `` steps | Check plan phase table for `Dispatch` column (split plans) or `**Dispatch:**` field (non-split plans). If missing → FAIL. If `Dispatch: inline` and all steps are `(**sub-agent**)`/`(**clean-room**)` → FAIL. If `Dispatch: sub-agent-clean-room` and any step is `` → FAIL. |
 | PF-SUBSTEP-EXPAND | No collapsed multi-operation steps | Every sub-operation from pipeline task files gets its own `- [ ] N.` entry. No step describes more than one atomic action |
 | PF-ADMONISHMENT | Compliance admonishment present at top and bottom | Full canonical text blockquote: "rework from scratch and loss of all prior work" — present at both prologue and epilogue |
 | PF-GLOBAL-NUMBERING | Steps numbered globally across all phases | No per-phase restart — step N+1 follows step N across phase boundaries |
@@ -361,7 +351,7 @@ remediation_required: true | false
 - `tasks/plan-fidelity-validator.md` — upstream reasoning role role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
 - `tasks/resolve-models.md` — Arbiter role (consumes this task's `verdict.yaml`)
-- `audit/SKILL.md` — DiMo chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
+- `audit/SKILL.md` — chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
 - Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md) (PF-STRUCTURAL-FAIL uplift), Read [critical-rules-034](guidelines/000-critical-rules.md) (inline work prohibition)
 - Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — dispatch routing table (PF-SEQUENCE-MATCHES source)

@@ -1,6 +1,6 @@
 ---
 name: guideline-audit-generator
-description: "Investigator role for the guideline-audit DiMo chain. Reads guideline files and collects raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. Writes evidence.yaml — does NOT evaluate or judge."
+description: "Investigator role for the guideline-audit chain. Reads guideline files and collects raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Investigator role for the guideline-audit DiMo chain. Reads guideline files from `guideline_paths` and produces `evidence.yaml` with raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Investigator role for the guideline-audit chain. Reads guideline files from `guideline_paths` and produces `evidence.yaml` with raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for guideline-audit. Writes `evidence.yaml` with extracted guideline content, structural data, and initial observations.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You do not decide what passes or fails. You just collect.
->
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST NOT assess guideline quality — that is the Evaluator's job
-> - MUST write `evidence.yaml` as the only output artifact
 
 ## Dispatch Contract
 

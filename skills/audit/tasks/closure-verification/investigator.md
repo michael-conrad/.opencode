@@ -4,7 +4,7 @@
 
 Generate initial closure verification analysis. Fetches the merged PR, identifies the linked spec issue, loads spec files, and produces the initial evidence artifact.
 
-## DiMo Role: Investigator
+## Role: Investigator
 
 You are the Investigator. You produce initial analysis artifacts. You fetch data, read files, and write `evidence.yaml` for downstream roles.
 

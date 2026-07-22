@@ -1,6 +1,6 @@
 ---
 name: content-audit-evaluator
-description: "Evaluator role for the content-audit DiMo chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each claim, and writes verdict.yaml with per-claim PASS/FAIL/FABRICATED verdicts. Produces judgments, not just evidence."
+description: "Evaluator role for the content-audit chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each claim, and writes verdict.yaml with per-claim PASS/FAIL/FABRICATED verdicts. Produces judgments, not just evidence."
 license: MIT
 compatibility: opencode
 ---
@@ -13,19 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Evaluator role for the content-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the content-audit chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
-> **DiMo Role: Evaluator.** This task evaluates factual claims in generated content. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each claim, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts.
->
-> You are the Evaluator. You are decisive and binary. Every claim gets a PASS, FAIL, or FABRICATED — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
->
->
-> - MUST produce a binary PASS, FAIL, or FABRICATED for every claim — no hedging, no "PASS with concerns", no INCONCLUSIVE
-> - MUST NOT defer to upstream roles — the verdict is yours alone
-> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
-> - MUST NOT collect new evidence — that is the Investigator's job
-> - MUST write `verdict.yaml` as the primary output artifact
-> - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
 
 > **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation, (4) all criteria evaluated against validated evidence.
 
@@ -518,7 +507,7 @@ remediation_required: true | false
 
 ## Clean-Room Protocol
 
-- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Investigator → upstream reasoning role → Evaluator → Arbiter. Each role reads upstream artifacts and writes its own.
+- **role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Investigator → upstream reasoning role → Evaluator → Arbiter. Each role reads upstream artifacts and writes its own.
 - **No orchestrator preload**: Sub-agents receive only `{ document_section, source_data_paths, artifact_evidence_dir }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 - **Evidence artifacts on disk**: Each role writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).

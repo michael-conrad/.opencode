@@ -6,8 +6,8 @@ Determine the next version from changelog categories using semver rules, then up
 
 ## Prerequisites
 
-- [ ] 1. (**inline**) Version locations from `discover` task result contract
-- [ ] 2. (**inline**) Changelog categories from `changelog-generator --task since-last-release`
+- [ ] 1.  Version locations from `discover` task result contract
+- [ ] 2.  Changelog categories from `changelog-generator --task since-last-release`
 
 ## Steps
 

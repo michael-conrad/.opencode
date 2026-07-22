@@ -35,7 +35,7 @@ Check the entire plan for any occurrence of:
 ### 2. Verify Every Step Has an Explicit Indicator
 
 Check every step in the plan for an explicit dispatch indicator:
-- `(**inline**)` — valid
+- `` — valid
 - `(**sub-agent**)` — valid
 - `(**clean-room**)` — valid
 

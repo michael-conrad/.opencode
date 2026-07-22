@@ -5,13 +5,13 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. The orchestrator dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps. The orchestrator handles all sub-agent dispatch from the SKILL.md Trigger Dispatch Table; this task file contains only the step procedures and artifact expectations.
+Create an implementation plan from an approved spec. The dispatches the 21-step pipeline to a sub-agent, which reads this task file and executes the steps. The orchestrator handles all sub-agent dispatch from the SKILL.md Trigger Dispatch Table; this task file contains only the step procedures and artifact expectations.
 
 ## Step 0: Holistic Spec Evaluation (Pre-Flight Gate)
 
-**MANDATORY GATE — MUST NOT be skipped.** Before any plan creation steps, the orchestrator dispatches a clean-room sub-agent to evaluate the spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
+**MANDATORY GATE — MUST NOT be skipped.** Before any plan creation steps, the dispatches a clean-room sub-agent to evaluate the spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
 
-- [ ] 0. (**orchestrator**) Holistic spec evaluation — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 0. (**orchestrator**) Holistic spec evaluation — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `none`
   - Context passed: `{ spec_issue_number, spec_body }`
   - Expected: PASS for all 11 dimensions
@@ -105,10 +105,10 @@ The plan MUST actually implement the spec it claims to implement. The plan's goa
 
 ## Prerequisites
 
-- [ ] 1. (**inline**) Approved spec (verified by approval-gate)
-- [ ] 2. (**inline**) Spec stored in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
-- [ ] 3. (**inline**) Spec has explicit approval (`approved` or `go`)
-- [ ] 4. (**inline**) (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
+- [ ] 1.  Approved spec (verified by approval-gate)
+- [ ] 2.  Spec stored in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
+- [ ] 3.  Spec has explicit approval (`approved` or `go`)
+- [ ] 4.  (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
 
 ## Pipeline Steps Reference
 
@@ -142,88 +142,88 @@ The following steps are dispatched by the orchestrator from the SKILL.md Trigger
 
 Each item is tagged with dispatch scope and chain dependency.
 
-- [ ] 1. (**inline**) Verify spec is approved (check `approved-for-*` label)
+- [ ] 1.  Verify spec is approved (check `approved-for-*` label)
   - Command: `github_issue_read(method=get_labels, issue_number={N})`
   - Chain: `none`
   - Expected: label `approved-for-*` present
 
-- [ ] 2. (**orchestrator**) Research — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 2. (**orchestrator**) Research — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_1`
   - Expected: evidence_artifacts in research output
 
-- [ ] 3. (**inline**) Z3 check — `solve check` verify research output contains evidence_artifacts per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:research`
+- [ ] 3.  Z3 check — `solve check` verify research output contains evidence_artifacts per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:research`
   - Chain: `step_2`
 
-- [ ] 4. (**orchestrator**) Readiness — orchestrator dispatches via SKILL.md Trigger Dispatch Table. The readiness gate MUST read `sc-pipeline-readiness.yaml` created by an independent sub-agent (pipeline-readiness-gate task), NOT by the orchestrator. If the file was created by the orchestrator (same session, no sub-agent dispatch), the gate MUST return BLOCKED.
+- [ ] 4. (**orchestrator**) Readiness — dispatches via SKILL.md Trigger Dispatch Table. The readiness gate MUST read `sc-pipeline-readiness.yaml` created by an independent sub-agent (pipeline-readiness-gate task), NOT by the orchestrator. If the file was created by the orchestrator (same session, no sub-agent dispatch), the gate MUST return BLOCKED.
   - Chain: `step_3`
   - Expected: status PASS in readiness output
 
-- [ ] 4a. (**orchestrator**) Artifact validation — orchestrator dispatches via SKILL.md Trigger Dispatch Table. Validates that all spec-creation analytical artifacts exist, are non-empty, and are well-formed YAML. This step MUST execute before structure step to ensure all required artifacts are available.
+- [ ] 4a. (**orchestrator**) Artifact validation — dispatches via SKILL.md Trigger Dispatch Table. Validates that all spec-creation analytical artifacts exist, are non-empty, and are well-formed YAML. This step MUST execute before structure step to ensure all required artifacts are available.
   - Chain: `step_4`
   - Expected: PASS in artifact-validation output; if BLOCKED, pipeline halts with `MISSING_SPEC_ARTIFACT`
 
-- [ ] 5. (**inline**) Z3 check — `solve check` verify readiness output has status PASS per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:readiness`
+- [ ] 5.  Z3 check — `solve check` verify readiness output has status PASS per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:readiness`
   - Chain: `step_4a`
 
-- [ ] 6. (**orchestrator**) Structure — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 6. (**orchestrator**) Structure — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_5`
   - Expected: phase definitions and dependency contract in structure output
 
-- [ ] 7. (**inline**) Z3 check — `solve check` verify structure output has phase definitions and dependency contract per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:structure`
+- [ ] 7.  Z3 check — `solve check` verify structure output has phase definitions and dependency contract per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:structure`
   - Chain: `step_6`
 
-- [ ] 8. (**orchestrator**) Solve — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 8. (**orchestrator**) Solve — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_7`
   - Expected: SAT and SOLVED status in solve output
 
-- [ ] 9. (**inline**) Z3 check — `solve check` verify solve output has SAT and SOLVED status per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:solve`
+- [ ] 9.  Z3 check — `solve check` verify solve output has SAT and SOLVED status per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:solve`
   - Chain: `step_8`
 
-- [ ] 10. (**orchestrator**) Write — orchestrator dispatches via SKILL.md Trigger Dispatch Table. **Post-dispatch file verification:** After the sub-agent returns DONE with a file path, run `ls` or `file-exists` to confirm the file exists on disk. If the file does not exist, re-task clean-room (do not accept the empty result).
+- [ ] 10. (**orchestrator**) Write — dispatches via SKILL.md Trigger Dispatch Table. **Post-dispatch file verification:** After the sub-agent returns DONE with a file path, run `ls` or `file-exists` to confirm the file exists on disk. If the file does not exist, re-task clean-room (do not accept the empty result).
   - Chain: `step_9`
   - Expected: plan file path in write output
   - **Behavioral SC requirement:** The write sub-agent MUST generate phase exit criteria for behavioral SCs that include both `behavior_run` artifact generation AND `behavioral-test-evaluation` clean-room dispatch steps. Each SC in the exit criteria MUST carry an `evidence_type` metadata annotation (e.g., `evidence_type: behavioral`). The VbC section for behavioral SCs MUST include a mandatory gate: after artifact generation, dispatch `behavioral-test-evaluation` before allowing PASS verdict.
 
-- [ ] 11. (**orchestrator**) Clean-room plan generation — **MANDATORY GATE — MUST NOT be skipped.** orchestrator dispatches via SKILL.md Trigger Dispatch Table with spec body only, no existing plan context. The orchestrator MUST NOT proceed past Step 10 without dispatching Step 11. If Step 11 is skipped, the pipeline MUST halt.
+- [ ] 11. (**orchestrator**) Clean-room plan generation — **MANDATORY GATE — MUST NOT be skipped.** dispatches via SKILL.md Trigger Dispatch Table with spec body only, no existing plan context. The orchestrator MUST NOT proceed past Step 10 without dispatching Step 11. If Step 11 is skipped, the pipeline MUST halt.
   - Chain: `step_10`
   - Expected: clean_room_plan in output
 
-- [ ] 12. (**inline**) Z3 check — `solve check` verify clean-room plan output contains clean_room_plan per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:write`
+- [ ] 12.  Z3 check — `solve check` verify clean-room plan output contains clean_room_plan per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:write`
   - Chain: `step_11`
 
-- [ ] 13. (**orchestrator**) Revisit — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 13. (**orchestrator**) Revisit — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_12`
   - Expected: resolution_status in revisit output
 
-- [ ] 14. (**inline**) Z3 check — `solve check` verify revisit output has resolution_status per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:revisit`
+- [ ] 14.  Z3 check — `solve check` verify revisit output has resolution_status per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:revisit`
   - Chain: `step_13`
 
-- [ ] 15. (**orchestrator**) Validate — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 15. (**orchestrator**) Validate — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_14`
   - Expected: PASS status in validate output
 
-- [ ] 16. (**inline**) Z3 check — `solve check` verify validate output has PASS status per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:validate`
+- [ ] 16.  Z3 check — `solve check` verify validate output has PASS status per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:validate`
   - Chain: `step_15`
 
-- [ ] 17. (**orchestrator**) Audit fidelity — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 17. (**orchestrator**) Audit fidelity — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_16`
   - Expected: PASS in audit-fidelity output
 
-- [ ] 18. (**inline**) Z3 check — `solve check` verify audit-fidelity output has PASS AND `all_criteria_pass == true` per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:audit-fidelity`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
+- [ ] 18.  Z3 check — `solve check` verify audit-fidelity output has PASS AND `all_criteria_pass == true` per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:audit-fidelity`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
   - Chain: `step_17`
 
-- [ ] 19. (**orchestrator**) Audit concern — orchestrator dispatches via SKILL.md Trigger Dispatch Table
+- [ ] 19. (**orchestrator**) Audit concern — dispatches via SKILL.md Trigger Dispatch Table
   - Chain: `step_18`
   - Expected: PASS in audit-concern output
 
-- [ ] 20. (**inline**) Z3 check — `solve check` verify audit-concern output has PASS AND `all_criteria_pass == true` per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:audit-concern`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
+- [ ] 20.  Z3 check — `solve check` verify audit-concern output has PASS AND `all_criteria_pass == true` per `.opencode/skills/writing-plans/contracts/create-output-template.yaml:audit-concern`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
   - Chain: `step_19`
 
 - [ ] 21. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")`
   - Chain: `step_20`
   - Expected: lifecycle event in completion output
 
-- [ ] 22. (**inline**) Z3 check — `solve check` verify completion output has lifecycle event
+- [ ] 22.  Z3 check — `solve check` verify completion output has lifecycle event
   - Chain: `step_21`
 
 ## Entry Criteria

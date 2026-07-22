@@ -1,6 +1,6 @@
 ---
 name: test-quality-audit-knowledge-supporter
-description: "Validator role for the test-quality-audit DiMo chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
+description: "Validator role for the test-quality-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
 ---
@@ -13,19 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Validator role for the test-quality-audit DiMo chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (spec files, test files, git history, VbC artifacts), and writes `reasoning.yaml` with validated evidence. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Validator role for the test-quality-audit chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (spec files, test files, git history, VbC artifacts), and writes `reasoning.yaml` with validated evidence. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Validator.** This task validates evidence collected by the Investigator for test-quality-audit. Reads `evidence.yaml`, cross-checks each evidence item against source data, and writes `reasoning.yaml` with validated evidence.
->
-> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every evidence item gets checked against its source. You do not decide what passes or fails. You do not evaluate whether the evidence is sufficient. You do not assess test quality. You just validate that the evidence is accurate and complete.
->
->
-> - MUST validate every evidence item against its source data
-> - MUST NOT produce any PASS/FAIL judgment — that is the Evaluator's job
-> - MUST NOT evaluate whether evidence is "sufficient" — that is the Evaluator's job
-> - MUST NOT assess test quality — that is the Evaluator's job
-> - MUST write `reasoning.yaml` as the only output artifact
->
 
 ## Dispatch Contract
 

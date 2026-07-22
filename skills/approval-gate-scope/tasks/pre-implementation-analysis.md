@@ -38,7 +38,7 @@ collect-screening-results → reconcile-status → build-dependency-graph
 ## Red Flags
 
 - Never skip dependency analysis when multiple issues are approved together
-- Never task() parallel subagents for conflict-risk issues without serialization
+- Never dispatch parallel subagents for conflict-risk issues without serialization
 - Never include meta/non-code, already-implemented, superseded, or moot issues in the implementation plan
 - Never present dependency analysis only in agent reasoning (MUST be in chat)
 - Never assume all issues are independent without analysis

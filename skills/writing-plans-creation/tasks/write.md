@@ -45,7 +45,7 @@ Write the plan document in split format: `{N}/plan.md` (index) + `{N}/plan-{NN}-
   - SC: All
   - Expected: spec issue body updated
 
-- [ ] 6. (**inline**) Return PASS with plan file path — load output contract from `contracts/write-output-template.yaml`, validate compliance fields, and return
+- [ ] 6.  Return PASS with plan file path — load output contract from `contracts/write-output-template.yaml`, validate compliance fields, and return
   - Command: validate against `contracts/write-output-template.yaml`
   - SC: SC-16, SC-18
   - Expected: all compliance fields populated, PASS returned
@@ -127,7 +127,7 @@ Every step MUST use one of three dispatch indicators:
 
 | Indicator | Meaning | Context | Example |
 |-----------|---------|---------|---------|
-| `(**inline**)` | Orchestrator executes directly (no sub-agent) | Orchestrator executes directly | `- [ ] 6. **Checkpoint commit (**inline**).**` |
+| `` | Orchestrator executes directly (no sub-agent) | Orchestrator executes directly | `- [ ] 6. **Checkpoint commit .**` |
 | `(**sub-agent**)` | Dispatch via `task()` with phase file + orchestrator-provided context | Phase file + orchestrator-provided context | `- [ ] 3. **RED (**sub-agent**).**` |
 | `(**clean-room**)` | Dispatch via `task()` with phase file only (routing metadata) | Phase file only (routing metadata) | `- [ ] 1. **Coherence gate (**clean-room**).**` |
 
@@ -139,7 +139,7 @@ Every step MUST use one of three dispatch indicators:
 - **No zero-indexed numbering** — phases start at 1, steps start at 1.
 - **No line number references** — use stable anchors (function names, section headers).
 - **No multi-dispatch steps** — every step dispatches exactly one sub-agent or executes inline. A step MUST NOT bundle multiple dispatches (e.g., "resolve-models → dispatch auditor_1 → remediate → dispatch auditor_2"). Each dispatch is a separate numbered step with its own dispatch indicator.
-- **No non-standard dispatch indicators** — only `(**sub-agent**)`, `(**clean-room**)`, and `(**inline**)` are valid. `(**orchestrator**)`, `(**orchestrator**)`, or any other indicator is prohibited.
+- **No non-standard dispatch indicators** — only `(**sub-agent**)`, `(**clean-room**)`, and `` are valid. `(**orchestrator**)`, `(**orchestrator**)`, or any other indicator is prohibited.
 - **No omitted mandatory gates** — All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are mandatory. No step may be omitted because the plan writer judges it "not needed." If a step appears unnecessary, include it anyway — skipping a step produces defective deliverables that must be discarded, requiring full rework.
 
 ### Validation Rules
@@ -157,7 +157,7 @@ Every step MUST use one of three dispatch indicators:
 11. Concern transition present between phases
 12. Exit criteria present and numbered C1-C{N}
 13. One-step-at-a-time protocol admonishment present verbatim after the compliance admonishment
-14. Dispatch indicators match step content — `(**inline**)` steps must not contain sub-agent dispatch language; `(**sub-agent**)` steps must dispatch a sub-agent via `task()`
+14. Dispatch indicators match step content — `` steps must not contain sub-agent dispatch language; `(**sub-agent**)` steps must dispatch a sub-agent via `task()`
 15. Step Status instruction present verbatim as section 5 between one-step-at-a-time protocol admonishment and phase sections
 
 ### RED+green Item Chain Specification

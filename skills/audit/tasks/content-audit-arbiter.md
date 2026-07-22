@@ -1,6 +1,6 @@
 ---
 name: content-audit-path-provider
-description: "Arbiter role for the content-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Arbiter role for the content-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Arbiter role for the content-audit DiMo chain. Reads all upstream artifacts (`evidence.yaml` from Investigator, `reasoning.yaml` from Validator, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
+Arbiter role for the content-audit chain. Reads all upstream artifacts (`evidence.yaml` from Investigator, `reasoning.yaml` from Validator, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
 
-> **DiMo Role: Arbiter.** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
->
-> You are the Arbiter. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
->
->
-> - MUST accept Evaluator's per-claim verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL/FABRICATED from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST write `judgment.yaml` as the only output artifact
-> - MUST synthesize the per-claim verdicts, source coverage evaluation, source data inventory evaluation, issue impact, and self-consistency downgrades into a single coherent judgment
 
 ## Dispatch Contract
 
@@ -413,7 +403,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/content-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/content-audit-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/content-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
-- `tasks/cross-validate.md` — Cross-validate Arbiter role (separate DiMo chain for cross-validation)
+- `tasks/cross-validate.md` — Cross-validate Arbiter role (separate chain for cross-validation)
 - `SKILL.md` — DiMo Role Chain Dispatch specification
 - Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable

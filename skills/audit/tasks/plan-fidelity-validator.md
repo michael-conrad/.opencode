@@ -1,6 +1,6 @@
 ---
 name: plan-fidelity-knowledge-supporter
-description: "Validator role for the plan-fidelity DiMo chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
+description: "Validator role for the plan-fidelity chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Validate evidence collected by the Investigator for plan-fidelity audit. Reads `evidence.yaml`, cross-checks each evidence item against source data (spec files, plan files, live tool calls), and writes `reasoning.yaml` with validated evidence and source references. This is the Validator role in the DiMo 4-role chain — it validates and supports, it does NOT evaluate or judge.
+Validate evidence collected by the Investigator for plan-fidelity audit. Reads `evidence.yaml`, cross-checks each evidence item against source data (spec files, plan files, live tool calls), and writes `reasoning.yaml` with validated evidence and source references. This is the Validator role in the 4-role chain — it validates and supports, it does NOT evaluate or judge.
 
-> **DiMo Role: Validator.** This task validates evidence for plan-fidelity audit. Reads `evidence.yaml` (Investigator output), validates each item against source data, and writes `reasoning.yaml` with validated evidence.
->
-> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every piece of evidence the Investigator collected gets checked against its source. You do not decide what passes or fails. You do not decide what matters. You do not produce verdicts. You validate and support.
->
-> - MUST validate every evidence item against its source data — no skipping, no sampling
-> - MUST record source references for every validated item
-> - MUST flag unverifiable items with `unverifiable: true` and a reason
-> - MUST NOT produce any PASS/FAIL judgment — that is the Evaluator's role
-> - MUST NOT evaluate whether evidence is "sufficient" — that is the Evaluator's role
-> - MUST write `reasoning.yaml` as the only output artifact
 
 ## Dispatch Contract
 
@@ -307,7 +297,7 @@ summary: "Evidence validated: {validated_count}/{total_items} items confirmed. {
 - `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Evaluator role (consumes this task's `reasoning.yaml`)
 - `tasks/resolve-models.md` — Arbiter role reference (consumes `reasoning.yaml`)
-- `audit/SKILL.md` — DiMo chain dispatch (Investigator → Validator → Evaluator → Arbiter)
+- `audit/SKILL.md` — chain dispatch (Investigator → Validator → Evaluator → Arbiter)
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

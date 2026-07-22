@@ -28,7 +28,7 @@ Invoke `audit --task closure-verification --pr <N>` with `audit_phase: post_merg
 
 #### Dispatch Procedure (Orchestrator)
 
-The orchestrator dispatches the audit pipeline:
+The dispatches the audit pipeline:
 
 1. **`skill({name: "audit"})`** — load the audit skill
 2. **Task `resolve-models`** — dispatch a clean-room sub-agent to resolve two cross-family auditor models via capability probe
@@ -195,7 +195,7 @@ If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
 #### Orchestrator Dispatching: Submodule Trunk Restore Sub-Agent
 
-For each submodule path, the orchestrator dispatches a clean-room sub-agent via `task(subagent_type="general")`. The sub-agent resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`, checks out `"$DEFAULT_BRANCH"`, and runs `git pull origin "$DEFAULT_BRANCH" --ff-only`. The main task does NOT perform these operations inline.
+For each submodule path, the dispatches a clean-room sub-agent via `task(subagent_type="general")`. The sub-agent resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`, checks out `"$DEFAULT_BRANCH"`, and runs `git pull origin "$DEFAULT_BRANCH" --ff-only`. The main task does NOT perform these operations inline.
 
 **must_receive / must_not_receive:**
 

@@ -1,6 +1,6 @@
 ---
 name: coherence-maintenance-knowledge-supporter
-description: "Validator role for the coherence-maintenance DiMo chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
+description: "Validator role for the coherence-maintenance chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Validator role for the coherence-maintenance DiMo chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (guideline files, skill files, baseline JSON), and writes `reasoning.yaml` with validated evidence. This role validates and supports the evidence — it does NOT evaluate, judge, classify drift, or produce PASS/FAIL verdicts.
+Validator role for the coherence-maintenance chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (guideline files, skill files, baseline JSON), and writes `reasoning.yaml` with validated evidence. This role validates and supports the evidence — it does NOT evaluate, judge, classify drift, or produce PASS/FAIL verdicts.
 
-> **DiMo Role: Validator.** This task validates evidence for coherence-maintenance. Reads `evidence.yaml` from the Investigator, cross-checks each item against source data, and writes `reasoning.yaml` with validation results.
->
-> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every evidence item the Investigator produced gets checked against its source. You do not decide what passes or fails. You do not classify drift. You do not produce verdicts. You validate and support.
->
->
-> - MUST validate every evidence item against its source data
-> - MUST NOT produce any PASS/FAIL judgment on coherence
-> - MUST NOT classify drift as controlled or uncontrolled
-> - MUST NOT evaluate whether evidence is "correct" — validate that it matches source
-> - MUST write `reasoning.yaml` as the only output artifact
 
 ## Dispatch Contract
 

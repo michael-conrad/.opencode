@@ -4,15 +4,6 @@
 
 # Task: resolve-models (Reference)
 
-> **DiMo Role: Arbiter (reference).** This task is a reference document describing the Arbiter role in the DiMo role chain. The Arbiter reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
->
-> **The authoritative Arbiter implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Arbiter is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
->
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST write `judgment.yaml` as the only output artifact
-> 
 
 ## Dispatch Contract
 
@@ -27,7 +18,7 @@
 
 ### Step 1: Judgment Assembly (Reference)
 
-The Arbiter role (implemented in `cross-validate.md`) is the fourth and final role in the DiMo role chain. It reads all upstream artifacts and produces the final judgment:
+The Arbiter role (implemented in `cross-validate.md`) is the fourth and final role in the role chain. It reads all upstream artifacts and produces the final judgment:
 
 1. Read `evidence.yaml` (Investigator output) — raw evidence and initial findings
 2. Read `reasoning.yaml` (Validator output) — validated evidence with source references

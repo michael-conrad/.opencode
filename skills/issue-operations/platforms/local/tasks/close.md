@@ -70,7 +70,7 @@ ______________________________________________________________________
 Close is local-only. If a remote issue exists (`github_issue` or `remote_url` in frontmatter), the remote API is NOT called during close. The remote closure is handled by a separate sync-pull-to-local workflow:
 
 - [ ] 1. On next `pull-body` from the remote, the remote issue's closed status propagates to the local issue
-- [ ] 1. Or: the orchestrator dispatches `push-body` after close to update the remote issue status
+- [ ] 1. Or: the dispatches `push-body` after close to update the remote issue status
 
 This decoupling prevents the local close operation from depending on remote API availability. Local operations are always available — remote sync is conditional.
 

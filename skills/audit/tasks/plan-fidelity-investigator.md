@@ -8,14 +8,6 @@
 
 Collect raw evidence about how faithfully the plan implements the spec. Reads the spec and plan files, extracts structural and content-level data, and writes `evidence.yaml` with raw evidence and initial findings. Does NOT evaluate or judge — that is the Evaluator's role.
 
-> **DiMo Role: Investigator.** This task generates raw evidence for plan-fidelity audit. Writes `evidence.yaml` with extracted plan-spec alignment data.
->
-> You are the Investigator. Your job is to collect evidence — nothing more, nothing less. You are meticulous, exhaustive, and completely non-judgmental. Every piece of evidence you find gets recorded. You do not decide what matters. You do not decide what is correct. You just collect.
->
-> - MUST extract all evidence without filtering by perceived relevance
-> - MUST NOT produce any PASS/FAIL judgment
-> - MUST NOT evaluate whether evidence is "correct" — record what exists
-> - MUST write `evidence.yaml` as the only output artifact
 
 ## Dispatch Contract
 
@@ -105,7 +97,7 @@ Read the plan from `spec_local_dir/`:
 - [ ] 3. If no `plan.md` exists, the plan is embedded in the spec body — extract from there
 - [ ] 4. Extract the phase table — phase names, dispatch modes, descriptions
 - [ ] 5. Extract all steps across all phases — step numbers, descriptions, sub-bullets, SC references
-- [ ] 6. Extract dispatch indicators from step titles — `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`
+- [ ] 6. Extract dispatch indicators from step titles — ``, `(**sub-agent**)`, `(**clean-room**)`
 - [ ] 7. Extract TDD checkpoints — RED/GREEN/REFACTOR structure, RED and GREEN separation
 - [ ] 8. Extract admonishments — compliance admonishment at top and bottom
 - [ ] 9. Extract the plan's scope — files referenced in plan steps
@@ -362,7 +354,7 @@ summary: "Evidence collected: {N} SCs, {M} plan steps, {K} phases. {X} structura
 
 - `tasks/plan-fidelity.md` — Evaluator role (consumes this Investigator's `evidence.yaml`)
 - `tasks/coherence-extraction.md` — Investigator role reference pattern
-- `audit/SKILL.md` — DiMo chain dispatch
+- `audit/SKILL.md` — chain dispatch
 - `writing-plans` skill — clean-room plan generation
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)
 

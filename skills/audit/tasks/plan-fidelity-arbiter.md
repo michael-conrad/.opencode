@@ -1,6 +1,6 @@
 ---
 name: plan-fidelity-path-provider
-description: "Arbiter role for the plan-fidelity DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Arbiter role for the plan-fidelity chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Arbiter role for the plan-fidelity DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the DiMo 4-role chain. It synthesizes, not evaluates.
+Arbiter role for the plan-fidelity chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the 4-role chain. It synthesizes, not evaluates.
 
-> **DiMo Role: Arbiter.** This task produces the final judgment for plan-fidelity audit by cross-referencing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
->
-> You are the Arbiter. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
->
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST write `judgment.yaml` as the only output artifact
->
-> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
 ## Dispatch Contract
 
@@ -264,7 +254,7 @@ remediation_required: true | false
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
 - `tasks/cross-validate.md` — Sole Arbiter for verification-audit (reference implementation)
 - `tasks/resolve-models.md` — Arbiter role reference documentation
-- `audit/SKILL.md` — DiMo chain dispatch (Investigator → Validator → Evaluator → Arbiter)
+- `audit/SKILL.md` — chain dispatch (Investigator → Validator → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
 - `guidelines/000-critical-rules.md` — critical-rules-020 (soft-passing prohibition), critical-rules-hard-fail, critical-rules-034 (inline work prohibition)
 - `guidelines/065-verification-honesty.md` — hard failure discipline, self-consistency gate

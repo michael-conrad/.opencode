@@ -1,6 +1,6 @@
 ---
 name: concern-separation-path-provider
-description: "Arbiter role for the concern-separation DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Arbiter role for the concern-separation chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,19 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Arbiter role for the concern-separation DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. Synthesizes upstream outputs into a single authoritative judgment. Does NOT re-evaluate, re-validate, or second-guess upstream roles.
+Arbiter role for the concern-separation chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. Synthesizes upstream outputs into a single authoritative judgment. Does NOT re-evaluate, re-validate, or second-guess upstream roles.
 
-> **DiMo Role: Arbiter.** This task produces the final judgment for the concern-separation audit by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
->
-> You are the Arbiter. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
->
->
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST write `judgment.yaml` as the only output artifact
-> - MUST synthesize all three upstream artifacts into a single coherent judgment
->
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from upstream roles are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 
@@ -84,7 +73,7 @@ Validate that all required inputs are present before proceeding:
 status: BLOCKED
 error: MISSING_REQUIRED_INPUT
 missing: "<field_name>"
-remediation: "<field_name> is required for concern-separation-path-provider. The orchestrator must ensure all upstream DiMo roles have completed."
+remediation: "<field_name> is required for concern-separation-path-provider. The orchestrator must ensure all upstream roles have completed."
 ```
 
 **This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately.
@@ -444,7 +433,7 @@ remediation_required: <true|false>
 - `tasks/concern-separation-validator.md` — Validator role (produces reasoning.yaml)
 - `tasks/concern-separation-evaluator.md` — Evaluator role (produces verdict.yaml)
 - `tasks/cross-validate.md` — General Arbiter (cross-validate for other audit tasks)
-- `audit/SKILL.md` — DiMo role chain dispatch
+- `audit/SKILL.md` — role chain dispatch
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 

@@ -6,8 +6,8 @@ Create an annotated git tag with v prefix on the merge commit and push it to the
 
 ## Prerequisites
 
-- [ ] 1. (**inline**) Release PR has merged — verify merge commit exists
-- [ ] 2. (**inline**) Next version determined (from version-manager --task bump)
+- [ ] 1.  Release PR has merged — verify merge commit exists
+- [ ] 2.  Next version determined (from version-manager --task bump)
 
 ## Steps
 

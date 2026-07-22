@@ -6,11 +6,11 @@
 
 ## Purpose
 
-Verify PR/spec consistency before merge. This task has been split into a DiMo 4-role chain. Each role is a separate file in this directory.
+Verify PR/spec consistency before merge. This task has been split into a 4-role chain. Each role is a separate file in this directory.
 
-## DiMo Chain Flow
+## Chain Flow
 
-The orchestrator dispatches the 4 roles sequentially:
+The dispatches the 4 roles sequentially:
 
 1. **Investigator** (`spec-summary/investigator.md`) — Fetches PR, loads spec, produces `evidence.yaml`
 2. **Validator** (`spec-summary/validator.md`) — Validates evidence, produces `reasoning.yaml`
