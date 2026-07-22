@@ -43,3 +43,17 @@ comments:
 
     PR #2038 should be closed as superseded.'
   timestamp: '2026-07-21T00:04:23+00:00'
+- type: internal
+  body: 'Remediation PR created: https://github.com/michael-conrad/.opencode/pull/2062
+
+
+    Strips 22 remaining dispatch markers (`(**orchestrator**)` and `(inline)`) from
+    5 task card files that were missed in the original fix (PR #2046).
+
+
+    SC-5 and SC-6 now complete. SC-7 (TDT updates) was N/A — the markers were in task
+    cards, not TDTs.
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+  timestamp: '2026-07-22T06:13:36+00:00'
