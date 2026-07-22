@@ -21,10 +21,6 @@ Create the local spec file at `.issues/{N}/spec.md` with full spec content.
 - Local spec file created at `.issues/{N}/spec.md`
 - Artifact path returned
 
-## Related Guidelines
-
-- `065-verification-honesty.md` §Cost Model — death spiral / break dynamics for evidence type cost rationale. Read [§Cost Model](065-verification-honesty.md) for why behavioral evidence is the cheapest (lowest DDL) and structural evidence is the most expensive (death spiral).
-
 ## Result Contract
 
 | Field | Value |
