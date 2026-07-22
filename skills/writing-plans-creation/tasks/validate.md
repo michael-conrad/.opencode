@@ -1,10 +1,14 @@
 # Task: validate
 
-## Purpose
+## Entry Criteria
 
-Check an existing plan for placeholders and completeness.
+- Plan index exists at `{N}/plan.md` (local `.issues/` artifact)
+- Phase files exist at `{N}/plan-{NN}-*.md` for multi-phase plans (local `.issues/` artifacts)
+- Spec issue exists with success criteria
 
-## Validation Checks
+## Procedure
+
+### Validation Checks
 
 - [ ] 01.  Placeholder detection — Zero TBD/TODO tolerance
   - Command: `grep(pattern="TBD|TODO|tbd|todo")` on plan body
@@ -91,7 +95,7 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-6
   - Expected: both protocol admonishments present
 
-- [ ] 18.  Dispatch indicator validation — Verify each step's dispatch indicator matches its content. `` steps must not contain sub-agent dispatch language; `(**sub-agent**)` steps must dispatch a sub-agent via `task()`
+- [ ] 18.  Dispatch indicator validation — Verify each step's dispatch indicator matches its content. `` steps must not contain dispatch language; steps that dispatch via `task()` must use the appropriate indicator
   - Command: parse plan body, extract dispatch indicators, verify semantic match against step content
   - SC: SC-5
   - Expected: all dispatch indicators match step content; FAIL on mismatch
@@ -134,50 +138,39 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-27
   - Expected: every SC's evidence type in the plan matches the testability assessment; no downgrade from behavioral to structural
 
-- [ ] 20.  Blast radius analysis — Spec identifies what files/symbols are affected and what depends on them
-  - Command: `grep(pattern="blast radius|affected files|dependents|impact analysis")` on spec body
-  - SC: SC-6
-  - Expected: at least one match indicating blast radius analysis
-
-- [ ] 21.  Separation of concerns — Each concern is isolated to its own phase/item
-  - Command: `grep(pattern="separation of concerns|concern isolation|concern boundary|each concern")` on spec body
-  - SC: SC-6
-  - Expected: at least one match indicating concern separation
-
-- [ ] 22.  Decomposition depth — Work is decomposed to the lowest testable level
-  - Command: `grep(pattern="decomposition|decompose|lowest testable|item.*level|unit.*level")` on spec body
-  - SC: SC-6
-  - Expected: at least one match indicating decomposition analysis
-
-- [ ] 23.  Cross-cutting concern identification — Concerns spanning multiple phases are explicitly identified
-  - Command: `grep(pattern="cross-cutting|cross cutting|spanning|shared concern|common concern")` on spec body
-  - SC: SC-6
-  - Expected: at least one match indicating cross-cutting concern identification
-
-- [ ] 24.  Full code path exercising — All affected code paths are enumerated
-  - Command: `grep(pattern="code path|code paths|all paths|affected paths|exercise.*path")` on spec body
-  - SC: SC-6
-  - Expected: at least one match indicating full code path enumeration
-  - SC: SC-2
-  - Expected: all behavioral SCs have model-execution-and-evaluation steps in their exit criteria; FAIL on structural-only exit criteria for behavioral SCs
-
-- [ ] 20.  Dispatch mode validation — Verify dispatch mode consistency rules:
+- [ ] 27.  Dispatch mode validation — Verify dispatch mode consistency rules:
   - Command: parse plan phase table (or `**Dispatch:**` field for non-split plans), extract dispatch mode for each phase, then check per-phase step markers
   - SC: SC-3
   - Expected: all three rules pass; FAIL on any violation
 
-  **Rule (a):** `inline` phases MUST NOT contain only sub-agent steps. If a phase has `Dispatch: inline` and every step uses `(**sub-agent**)` or `(**clean-room**)`, the orchestrator would read the file and dispatch every step — equivalent to `sub-agent-with-context` with extra overhead. FAIL.
+  **Rule (a):** `inline` phases MUST NOT contain only dispatched steps. If a phase has `Dispatch: inline` and every step uses a dispatch marker, the orchestrator would read the file and dispatch every step — equivalent to dispatched mode with extra overhead. FAIL.
 
-  **Rule (b):** `sub-agent-clean-room` phases MUST NOT contain `` steps. If a phase has `Dispatch: sub-agent-clean-room` and any step uses ``, the sub-agent would receive inline steps it cannot execute. FAIL.
+  **Rule (b):** `clean-room` phases MUST NOT contain `` steps. If a phase has `Dispatch: clean-room` and any step uses ``, the receiver would receive inline steps it cannot execute. FAIL.
 
   **Rule (c):** Plan auditor MUST catch dispatch marking defects. Missing Dispatch declaration, mode/marker inconsistency, or invalid mode values are defects. FAIL.
 
-- [ ] 21.  Evidence type metadata presence — Verify each SC in the plan's exit criteria section carries an `evidence_type` annotation
+- [ ] 28.  Evidence type metadata presence — Verify each SC in the plan's exit criteria section carries an `evidence_type` annotation
   - Command: `grep(pattern="evidence_type:")` on each phase file's exit criteria section
   - SC: SC-4
   - Expected: every SC in every phase file has an `evidence_type` annotation; FAIL on missing annotations
 
-## Result Contract Schema
+### No-Placeholders Rule
+
+Every step must contain actual content. These are **plan failures**:
+
+| Pattern | Why Prohibited |
+| -- | -- |
+| `TBD` | Incomplete plan |
+| `TODO` | Incomplete plan |
+
+## Exit Criteria
+
+- All 28 validation checks executed with PASS/FAIL per check
+- Each check produces a deterministic PASS/FAIL result
+- Plan is valid if all checks PASS; plan is defective if any check FAILs
+- Output contract loaded from `contracts/validate-output-template.yaml` and validated
+
+### Result Contract Schema
 
 Before returning, load the output contract from `contracts/validate-output-template.yaml` and validate the result against it. The contract defines the expected output structure:
 
@@ -188,76 +181,11 @@ artifact_path: string  # path to full evidence on disk
 summary: string  # 1-3 sentence summary
 ```
 
-Each z3-check step runs `solve check` against the previous step's output contract to validate state transitions.
+## Result Contract
 
-## No-Placeholders Rule
-
-Every step must contain actual content. These are **plan failures**:
-
-| Pattern | Why Prohibited |
-| -- | -- |
-| `TBD` | Incomplete plan |
-| `TODO` | Incomplete plan |
-| `[to be determined]` | Incomplete plan |
-| `[needs investigation]` | Investigation should be in spec |
-| `[placeholder]` | Incomplete plan |
-| `[requires research]` | Research should be in spec |
-| `implement later` | Plan not actionable |
-| `fill in details` | Details must be specified |
-| `Add appropriate error handling` | Must specify actual code |
-| `Add validation` / `Handle edge cases` | Must specify actual code |
-| `Write tests for the above` | Must include actual test code |
-| `Similar to Task N` | Must repeat the code — engineer may read tasks out of order |
-| Steps describing what to do without showing how | Code blocks required for code steps |
-| References to types/functions not defined in any task | All referenced symbols must be defined |
-
-## Specs vs Plans
-
-| Artifact | Placeholders Allowed? | Examples |
-| -- | -- | -- |
-| Spec (GitHub Issue) | YES, during iterative development | TBD, TODO, \[needs investigation\], \[placeholder\] |
-| Plan (for implementation) | NO — zero tolerance | None allowed before implementation begins |
-
-## Validation Logic
-
-```python
-INVALID_PATTERNS = [
-    "TBD", "TODO", "tbd", "todo",
-    "[to be determined]", "[needs investigation]",
-    "[placeholder]", "[requires research]",
-    "implement later", "fill in details",
-]
-
-def validate_plan(plan_content: str) -> bool:
-    for pattern in INVALID_PATTERNS:
-        if pattern in plan_content:
-            return False
-    return True
-```
-
-Does NOT enforce a specific section order. A plan without "Risks" is valid if risks are addressed elsewhere or are not relevant.
-
-## Live Verification: Validation Evidence (MANDATORY)
-
-**Each validation check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings — Read [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
-
-| Claim | Verification Action | Tool Call | Problem Class |
-| -- | -- | -- | -- |
-| "No placeholders present" | Search for placeholder patterns in plan body | \`grep(pattern="TBD | TODO |
-| "Spec reference exists in plan" | Search for `Spec: #N` pattern | `grep(pattern="Spec: #")` on plan body | MISSING-ELEMENT |
-| "Plan links to spec (not vice versa)" | Verify plan references spec issue | `grep(pattern="Spec: #N")` on plan body | STRUCTURE-VIOLATION | <!-- Plan phases are local `.issues/` artifacts, not GitHub sub-issues -->
-| "Plan index exists" | Verify plan index at `{N}/plan.md` | `ls {N}/plan.md 2>/dev/null` | MISSING-ELEMENT |
-| "Phase files exist" | Verify phase files at `{N}/plan-{NN}-*.md` | `ls {N}/plan-*.md 2>/dev/null` | MISSING-ELEMENT |
-| "Steps are actionable" | Verify each step has concrete action | Manual parse — flag abstract goals | VERIFICATION-GAP |
-
-**Evidence artifact:** Tool call results for automated checks; manual review log for actionable-step verification.
-
-### Finding Classification
-
-| Finding | Problem Class | Classification | Action |
-| -- | -- | -- | -- |
-| Placeholders found | VERIFICATION-GAP | FAIL | Remove placeholders or mark plan invalid |
-| Missing spec reference | MISSING-ELEMENT | auto-fix | Add spec reference to plan body |
-| Sub-issues under wrong parent | STRUCTURE-VIOLATION | auto-fix | Re-link under plan |
-| Missing `plan` label | MISSING-ELEMENT | auto-fix | Add label immediately |
-| Abstract goals found | VERIFICATION-GAP | FAIL | Flag for plan author to rewrite |
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/validate.yaml" |
+| blocker_reason | "..." |

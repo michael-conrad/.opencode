@@ -29,7 +29,7 @@ Update an existing implementation plan to reflect a non-substantive spec revisio
 
 ### Step 0: Holistic Spec Evaluation (Pre-Flight Gate)
 
-**MANDATORY GATE — MUST NOT be skipped.** Before any plan revision steps, dispatch a clean-room sub-agent to evaluate the revised spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
+**MANDATORY GATE — MUST NOT be skipped.** Before any plan revision steps, evaluate the revised spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`.
 
 - [ ] 0. Holistic spec evaluation — Evaluate the revised spec against the 11 holistic dimensions defined in `.opencode/reference/holistic-dimensions.yaml`
   - Chain: `none`

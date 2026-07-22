@@ -160,7 +160,7 @@ affected_files_count: K
 
 - Invoked by: `skill({name: "audit"})` → `task()` for `plan-fidelity`
 - Related tasks: `create` (standard plan creation), `validate` (plan validation)
-- Related skills: `audit` (orchestrator), `brainstorming` (recommended when gaps found)
+- Related skills: `audit`, `brainstorming` (recommended when gaps found)
 
 Co-authored with AI: <AgentName> (<ModelId>)
 

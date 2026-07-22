@@ -197,3 +197,25 @@ Numbered checklist C1 through C{N} at the end of the plan, after the bottom admo
 | finding_summary | "..." |
 | artifact_path | ".../artifacts/plan-write.yaml" |
 | blocker_reason | "..." |
+
+## Pipeline Steps
+
+Every plan references implementation pipeline stages by name. The following 15 stages from `implementation-pipeline/SKILL.md` Trigger Dispatch Table define the canonical gate sequence:
+
+| # | Stage | Description | Dispatch |
+|---|-------|-------------|----------|
+| 1 | `assemble-work` | Orchestrator reads plan, creates branches, dispatches sub-agents | `orchestrator` |
+| 2 | `sc-coherence-gate` | Verify spec/plan coherence before RED routing via `audit --task coherence-extraction` | `sub-task` |
+| 3 | `pre-red-baseline` | Establish baseline before RED phase via `implementation-pipeline --task pre-red-baseline` | `sub-task` |
+| 4 | `red-phase` | Write failing enforcement test via `test-driven-development --task red` | `sub-task` |
+| 5 | `z3-check-red` | Solve check RED phase via `solve --task check` | `inline` |
+| 6 | `red-doublecheck` | Verify RED phase via `verification-before-completion --task verify` | `sub-task` |
+| 7 | `green-phase` | Implement the change via `test-driven-development --task green` | `sub-task` |
+| 8 | `z3-check-green` | Solve check GREEN phase via `solve --task check` | `inline` |
+| 9 | `green-doublecheck` | Verify GREEN phase via `verification-before-completion --task verify` | `sub-task` |
+| 10 | `green-vbc` | Verification before completion via `verification-before-completion --task completion` | `sub-task` |
+| 11 | `sc-count-gate` | Verify all SCs have verdicts | `sub-task` |
+| 12 | `pre-pr-gate` | Verify all SCs PASS | `sub-task` |
+| 13 | `audit` | Adversarial audit | `orchestrator` |
+| 14 | `cross-validate` | Consensus check via `audit --task cross-validate` | `sub-task` |
+| 15 | `review-prep` | Prepare for PR review via `git-workflow --task review-prep` | `sub-task` |
