@@ -385,7 +385,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/test-quality-audit.md` — Main task file (orchestrator-level test-quality-audit)
 - `tasks/cross-validate.md` — Cross-validate Arbiter role (separate chain for cross-validation)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
 - Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
 - Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
 - Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)

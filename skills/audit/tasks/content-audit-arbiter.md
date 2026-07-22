@@ -404,7 +404,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/content-audit-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/content-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/cross-validate.md` — Cross-validate Arbiter role (separate chain for cross-validation)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
 - Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 

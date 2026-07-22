@@ -439,7 +439,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/coherence-maintenance-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Arbiter role (consumes this Evaluator's verdict.yaml)
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Investigator)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
