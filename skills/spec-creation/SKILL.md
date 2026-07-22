@@ -55,6 +55,14 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | `change-control` | `orchestrator` | `task(..., prompt: "execute change-control from spec-creation-change-control")` |
 | `operating-protocol` | `orchestrator` | `task(..., prompt: "execute operating-protocol from spec-creation-operating-protocol")` |
 | `completion` | `orchestrator` | `task(..., prompt: "execute completion from spec-creation-validation")` |
+| `revise` | `orchestrator` | `task(..., prompt: "execute revise from spec-creation-validation")` |
+| `validate` | `orchestrator` | `task(..., prompt: "execute validate from spec-creation-validation")` |
+| `pre-spec-inspection` | `orchestrator` | `task(..., prompt: "execute pre-spec-inspection from spec-creation-decomposition")` |
+| `blast-radius` | `orchestrator` | `task(..., prompt: "execute blast-radius from spec-creation-decomposition")` |
+| `code-path-inventory` | `orchestrator` | `task(..., prompt: "execute code-path-inventory from spec-creation-decomposition")` |
+| `cross-cutting-matrix` | `orchestrator` | `task(..., prompt: "execute cross-cutting-matrix from spec-creation-decomposition")` |
+| `interface-compatibility` | `orchestrator` | `task(..., prompt: "execute interface-compatibility from spec-creation-decomposition")` |
+| `state-analysis` | `orchestrator` | `task(..., prompt: "execute state-analysis from spec-creation-decomposition")` |
 
 ## Cross-References
 

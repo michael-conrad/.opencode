@@ -5,7 +5,14 @@
 
 Idempotent completion subtask for spec-creation. Ensures mandatory steps ran regardless of where the workflow halted.
 
-## State Check Phase
+## Entry Criteria
+
+- Spec issue has been created (or creation was attempted)
+- Workflow has reached a halt point (success, partial, or error)
+
+## Procedure
+
+### State Check Phase
 
 - [ ] 1. **Spec issue created:** Verify spec issue exists with [SPEC] prefix and `needs-approval` label
 - [ ] 2. **spec-auditor invoked:** Verify spec-auditor was invoked after spec creation
@@ -14,7 +21,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 - [ ] 3b. **Holistic self-check:** Verify holistic self-check was performed (11 dimensions from `.opencode/reference/holistic-dimensions.yaml`). If not performed, run it now before finalization.
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with spec URL
 
-## Skill-Specific Completion
+### Skill-Specific Completion
 
 - [ ] 1. **Spec issue** (if not already created):
    - Check evidence for spec issue creation with [SPEC] prefix
@@ -29,10 +36,9 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - If missing: perform self-review (placeholder scan, consistency check)
 
 - [ ] 3b. **Holistic self-check** (MANDATORY before finalization):
-   - Dispatch `task(..., prompt: "execute holistic-self-check task from spec-creation")` with `{ spec_context, issue_number }`
-   - Collect the result contract
-   - If `status: DONE` (all 11 dimensions PASS): proceed to finalization
-   - If `status: BLOCKED` with `reason: HOLISTIC_GATE_FAILED`: return spec to create task for revision with failed dimensions listed. Do NOT finalize.
+   - Evaluate the spec against the 11 holistic dimensions from `.opencode/reference/holistic-dimensions.yaml`
+   - If all 11 dimensions PASS: proceed to finalization
+   - If any dimension FAILs: return spec to create task for revision with failed dimensions listed. Do NOT finalize.
 
 - [ ] 4. **Chat executive summary** (if not already produced):
    - Verify exec summary was posted to chat with spec URL
@@ -44,31 +50,22 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - If missing: prepend the blockquote (per Step 6.8 of write.md) and update the issue body
 
 - [ ] 6. **Push artifacts to issues-data** (after spec issue exists):
-   - Dispatch `task(..., prompt: "execute push-artifacts task from issue-operations")` with issue number
-   - Collect `artifact_url` from the result contract
+   - Run the push-artifacts procedure with the issue number
+   - Collect `artifact_url` from the process
    - Embed `artifact_url` in the spec issue body by appending a blockquote:
      ```
      > **Artifacts:** [spec-artifacts](<artifact_url>)
      ```
-   - Use `issue-operations --task update-issue` to apply the body update
+   - Apply the body update via issue-operations
 
-## Shared Completion Delegation
+### Shared Completion Delegation
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
 - [ ] 1. Report executive summary in chat (always runs)
 - [ ] 2. Action URL (spec issue URL) as the URL (ALWAYS last)
 
-## Completion Guarantee
-
-**MANDATORY:** Regardless of workflow outcome (success, partial, error), produce a status message containing:
-- [ ] 1. What was completed
-- [ ] 2. What was attempted but not completed
-- [ ] 3. Why the halt occurred
-
-This is the completion guarantee: NO spec-creation workflow ends without a status message.
-
-## Report Phase
+### Report Phase
 
 Generate executive summary in chat:
 
@@ -84,7 +81,28 @@ Generate executive summary in chat:
 🤖 <AgentName> (<ModelId>) <status>
 ```
 
-## Pipeline Signal
+## Exit Criteria
+
+- All mandatory state checks completed
+- Spec issue exists with [SPEC] prefix and `needs-approval` label
+- Spec-auditor invoked
+- Self-review performed
+- Holistic self-check passed (or spec returned for revision)
+- Spec folder URL blockquote present in issue body
+- Artifacts pushed and URL embedded
+- Chat executive summary generated and posted with spec URL
+- Pipeline signal reported with correct next step
+
+### Completion Guarantee
+
+**MANDATORY:** Regardless of workflow outcome (success, partial, error), produce a status message containing:
+- [ ] 1. What was completed
+- [ ] 2. What was attempted but not completed
+- [ ] 3. Why the halt occurred
+
+This is the completion guarantee: NO spec-creation workflow ends without a status message.
+
+### Pipeline Signal
 
 ```
 CONTINUE: audit --task spec-audit
@@ -107,5 +125,5 @@ HALT
 |-------|-------|
 | status | DONE | BLOCKED |
 | finding_summary | "..." |
-| artifact_path | ".../artifacts/spec-completion.yaml" |
+| artifact_path | ".../artifacts/completion.yaml" |
 | blocker_reason | "..." |

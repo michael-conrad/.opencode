@@ -4,13 +4,11 @@
 
 Clean-room evaluation of behavioral test artifacts. Reads behavioral test execution output and renders binary PASS/FAIL verdicts per success criterion. This is a clean-room sub-agent — it receives ONLY the artifact directory path and evaluates the output cold, without any orchestrator context or preloaded expectations.
 
-## Orchestrator Dispatch Entry
+## Entry Context
 
-This task is dispatched by the orchestrator when an evaluator result contract contains
-a non-empty `needs_clean_room` list. The orchestrator dispatches this task once per
-SC in the list, passing only the artifact directory path.
+This task receives an artifact directory path and an SC ID. It evaluates behavioral test artifacts independently, without any preloaded expectations.
 
-**Dispatch context:** `{artifact_evidence_dir, sc_id}`
+**Context:** `{artifact_evidence_dir, sc_id}`
 
 ## Entry Criteria
 

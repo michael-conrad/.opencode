@@ -41,9 +41,15 @@ This is a **dispatcher skill** that routes to 2 sub-skills. All original trigger
 | `update` | `orchestrator` | `task(..., prompt: "execute update from writing-plans-creation")` |
 | `retroactive` | `orchestrator` | `task(..., prompt: "execute retroactive from writing-plans-creation")` |
 | `validate` | `orchestrator` | `task(..., prompt: "execute validate from writing-plans-creation")` |
-| `holistic-self-check` | `orchestrator` | `task(..., prompt: "execute holistic-self-check from writing-plans-holistic")` |
+| `solve` | `orchestrator` | `task(..., prompt: "execute solve from writing-plans-creation")` |
 | `pre-plan-readiness` | `orchestrator` | `task(..., prompt: "execute pre-plan-readiness from writing-plans-creation")` |
+| `clean-room` | `orchestrator` | `task(..., prompt: "execute clean-room from writing-plans-creation")` |
+| `write` | `orchestrator` | `task(..., prompt: "execute write from writing-plans-creation")` |
 | `completion` | `orchestrator` | `task(..., prompt: "execute completion from writing-plans-creation")` |
+| `operating-protocol` | `orchestrator` | `task(..., prompt: "execute operating-protocol from writing-plans-creation")` |
+| `holistic-self-check` | `orchestrator` | `task(..., prompt: "execute holistic-self-check from writing-plans-holistic")` |
+| `research` | `orchestrator` | `task(..., prompt: "execute research from writing-plans-creation")` |
+| `readiness` | `orchestrator` | `task(..., prompt: "execute readiness from writing-plans-creation")` |
 
 ## Cross-References
 

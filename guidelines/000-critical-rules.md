@@ -256,6 +256,23 @@ The pre-commit or pre-push gate MUST verify that if a submodule pointer is dirty
 | Pushing with dirty submodule pointer | Deploy fails, requires manual remediation to create a follow-up PR |
 
 
+### [critical-rules-XXX] CRITICAL VIOLATION — Direct `github_issue_write` for spec content bypassing spec-creation pipeline
+
+Using `github_issue_write` to create or update spec issue content (issue body, title, or description for a [SPEC] or [SPEC-FIX] issue) instead of dispatching through the `spec-creation` pipeline is a CRITICAL VIOLATION. All spec content MUST be created and revised through `skill({name: "spec-creation"})` → `task(..., prompt: "execute create from spec-creation-validation")` or the equivalent revision task. Direct `github_issue_write` calls for spec content bypass the spec-creation pipeline's quality gates (brainstorming, decomposition, analytical artifacts, holistic self-check, spec-auditor).
+
+**Exception:** Non-substantive metadata updates (labels, assignees, status markers) via `github_issue_write` are permitted. Spec body content (problem statement, success criteria, approach, affected files) MUST go through the spec-creation pipeline.
+
+**🚫 FORBIDDEN:**
+- `github_issue_write(method=create, title="[SPEC] ...", body="...")` — creating a spec issue directly
+- `github_issue_write(method=update, body="...")` — updating spec body content directly
+- Any direct mutation of spec issue body content outside the spec-creation pipeline
+
+**✅ REQUIRED:**
+- `skill({name: "spec-creation"})` → `task(..., prompt: "execute create from spec-creation-validation")` for new specs
+- `skill({name: "spec-creation"})` → `task(..., prompt: "execute revise from spec-creation-validation")` for spec revisions
+- `github_issue_write` for labels, assignees, comments, and status markers only
+
+
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
