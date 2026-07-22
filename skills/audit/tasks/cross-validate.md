@@ -183,6 +183,27 @@ If an auditor's YAML artifact has extra criterion ids not in `evaluation_criteri
 
 If an auditor's YAML artifact is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
+### Step 4: Load and Compare Clean-Room Evaluation Results
+
+- [ ] 4. Read `behavioral-sc-evaluation.yaml` from `{artifact_evidence_dir}/behavioral-sc-evaluation.yaml`
+  - If file exists: extract per-SC verdicts from the clean-room evaluation
+  - If file does not exist: all behavioral SCs default to FAIL with `MISSING_CLEAN_ROOM_EVIDENCE`
+
+- [ ] 4a. For each SC in the evaluator's `needs_clean_room` list, compare evaluator verdict vs. clean-room verdict:
+  - If evaluator verdict == clean-room verdict → report CONSENSUS (use that verdict)
+  - If evaluator verdict != clean-room verdict → report CONFLICT, use FAIL as the safe default
+  - If clean-room verdict is MISSING (file absent or SC not evaluated) → use evaluator verdict with `NO_CLEAN_ROOM` flag
+
+- [ ] 4b. Record clean-room comparison results in the cross-validate output:
+  ```yaml
+  clean_room_comparison:
+    sc_id: "SC-N"
+    evaluator_verdict: "PASS|FAIL"
+    clean_room_verdict: "PASS|FAIL|MISSING"
+    comparison: "CONSENSUS|CONFLICT|NO_CLEAN_ROOM"
+    final_verdict: "PASS|FAIL"
+  ```
+
 ### Step 5: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
 
 **Cross-validate verdicts are monotonic non-increasing in PASSness.** Verdicts must never increase in PASSness at the cross-validate stage. Cross-validate is a rejection filter, not a remediation gate.

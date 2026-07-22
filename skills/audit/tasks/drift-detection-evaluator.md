@@ -442,6 +442,12 @@ bidirectional_findings:
 - [ ] 2. Write `verdict.yaml` with the complete verdict structure
 - [ ] 3. Verify the file was written and is non-empty
 
+### Step 15.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 15.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 16: Return Frugal Result Contract
 
 Return only routing-significant data:
@@ -452,6 +458,7 @@ artifact_path: "{artifact_evidence_dir}/verdict.yaml"
 summary: "Drift detection: {spec_drift_count} spec drift, {code_drift_count} code drift, {sync_count} sync. Verdict: {overall}."
 all_criteria_pass: true | false
 remediation_required: true | false
+needs_clean_room: [SC-IDs]
 ```
 
 ## Result Contract
@@ -462,6 +469,7 @@ artifact_path: "{artifact_evidence_dir}/verdict.yaml"
 summary: "Drift detection: {spec_drift_count} spec drift, {code_drift_count} code drift, {sync_count} sync. Verdict: {overall}."
 all_criteria_pass: true | false
 remediation_required: true  # When status is FAIL: full mandatory re-audit required
+needs_clean_room: [SC-IDs]
 ```
 
 ## Completion Dependency Chain
@@ -484,6 +492,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 13. Process Verdicts → INVALID if skipped
 - [ ] 14. Apply Self-Consistency Gate → INVALID if skipped
 - [ ] 15. Write verdict.yaml → INVALID if skipped
+- [ ] 15.5. Identify Behavioral SCs for Clean-Room Evaluation → INVALID if skipped
 - [ ] 16. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling

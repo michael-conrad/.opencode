@@ -255,6 +255,12 @@ self_consistency_downgrades:
 
 - [ ] 5. Re-write `verdict.yaml` with the corrected verdicts
 
+### Step 9.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 9.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 10: Return Frugal Result Contract
 
 Return only routing-significant data:
@@ -265,6 +271,7 @@ artifact_path: "{project_root}/tmp/{issue-N}/artifacts/verification-audit/verdic
 summary: "{total_criteria} criteria evaluated. {pass} PASS, {fail} FAIL."
 all_criteria_pass: false | true
 remediation_required: false | true
+needs_clean_room: [SC-IDs]
 ```
 
 ## Result Contract
@@ -275,6 +282,7 @@ artifact_path: "{project_root}/tmp/{issue-N}/artifacts/verification-audit/verdic
 summary: "{total_criteria} criteria evaluated. {pass} PASS, {fail} FAIL."
 all_criteria_pass: false | true
 remediation_required: false | true
+needs_clean_room: [SC-IDs]
 ```
 
 ## Error Handling
@@ -309,6 +317,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 7. Generate Per-Criterion Findings → INVALID if skipped
 - [ ] 8. Write verdict.yaml → INVALID if skipped
 - [ ] 9. Self-Consistency Gate → INVALID if skipped
+- [ ] 9.5. Identify Behavioral SCs for Clean-Room Evaluation → INVALID if skipped
 - [ ] 10. Return Frugal Result Contract → INVALID if skipped
 
 ## Cross-References

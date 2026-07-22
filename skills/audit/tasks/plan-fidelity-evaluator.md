@@ -323,6 +323,12 @@ auto_fixes_applied: []
 exec_summary: "Plan fidelity: X/Y criteria PASS. N discrepancies found."
 ```
 
+### Step 13.5: Identify Behavioral SCs for Clean-Room Evaluation
+
+- [ ] 13.5. From the evaluated criteria, collect SC IDs whose evidence type is `behavioral` (either declared or uplifted)
+  - Add `needs_clean_room: [SC-IDs]` to the result contract
+  - If no behavioral SCs, set `needs_clean_room: []`
+
 ### Step 14: Return Frugal Result Contract
 
 ```yaml
@@ -331,6 +337,7 @@ artifact_path: "{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/verdict.yam
 summary: "N criteria evaluated. X PASS, Y FAIL. Z discrepancies found."
 all_criteria_pass: true | false
 remediation_required: true | false
+needs_clean_room: [SC-IDs]
 ```
 
 ## Error Handling
