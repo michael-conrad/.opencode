@@ -29,7 +29,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 **If submodules detected:**
 
-The orchestrator dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote trunk HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+The dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote trunk HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
 
 #### Task Context
 

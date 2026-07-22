@@ -8,11 +8,11 @@
 
 ## Purpose
 
-Verify merge evidence after PR merge. This task has been split into a DiMo 4-role chain. Each role is a separate file in this directory.
+Verify merge evidence after PR merge. This task has been split into a 4-role chain. Each role is a separate file in this directory.
 
-## DiMo Chain Flow
+## Chain Flow
 
-The orchestrator dispatches the 4 roles sequentially:
+The dispatches the 4 roles sequentially:
 
 1. **Investigator** (`investigator.md`) — Fetches PR, identifies spec issue, produces `evidence.yaml`
 2. **Validator** (`validator.md`) — Validates evidence against source data, produces `reasoning.yaml`

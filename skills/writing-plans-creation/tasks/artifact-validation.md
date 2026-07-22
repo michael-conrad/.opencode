@@ -29,47 +29,47 @@ Validate that all expected analytical artifacts from spec-creation exist, are no
 
 ## Procedure
 
-- [ ] 1. (**inline**) Validate blast radius artifact
+- [ ] 1.  Validate blast radius artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/blast-radius.yaml")`
   - Expected: file exists, non-empty, valid YAML with `affected_files` (list) and `impact_zones` (list) keys
   - If missing/empty/malformed: record FAIL for blast-radius
 
-- [ ] 2. (**inline**) Validate concern map artifact
+- [ ] 2.  Validate concern map artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/concern-map.yaml")`
   - Expected: file exists, non-empty, valid YAML with `concerns` (list) key
   - If missing/empty/malformed: record FAIL for concern-map
 
-- [ ] 3. (**inline**) Validate code path inventory artifact
+- [ ] 3.  Validate code path inventory artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/code-path-inventory.yaml")`
   - Expected: file exists, non-empty, valid YAML with `paths` (list) key
   - If missing/empty/malformed: record FAIL for code-path-inventory
 
-- [ ] 4. (**inline**) Validate cross-cutting matrix artifact
+- [ ] 4.  Validate cross-cutting matrix artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/cross-cutting-matrix.yaml")`
   - Expected: file exists, non-empty, valid YAML with `cross_cutting_scs` (list) key
   - If missing/empty/malformed: record FAIL for cross-cutting-matrix
 
-- [ ] 5. (**inline**) Validate interface compatibility artifact
+- [ ] 5.  Validate interface compatibility artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/interface-compatibility.yaml")`
   - Expected: file exists, non-empty, valid YAML with `interfaces` (list) key
   - If missing/empty/malformed: record FAIL for interface-compatibility
 
-- [ ] 6. (**inline**) Validate state analysis artifact
+- [ ] 6.  Validate state analysis artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/state-analysis.yaml")`
   - Expected: file exists, non-empty, valid YAML with `states` (list) and `transitions` (list) keys
   - If missing/empty/malformed: record FAIL for state-analysis
 
-- [ ] 7. (**inline**) Validate testability assessment artifact
+- [ ] 7.  Validate testability assessment artifact
   - Command: `read(filePath="{project_root}/{path}/.issues/{N}/testability-assessment.yaml")`
   - Expected: file exists, non-empty, valid YAML with `scs` (list) key where each entry has `evidence_type`
   - If missing/empty/malformed: record FAIL for testability-assessment
 
-- [ ] 8. (**inline**) Aggregate results
+- [ ] 8.  Aggregate results
   - Command: check all 7 artifact statuses
   - Expected: all PASS
   - If any FAIL: return BLOCKED with `MISSING_SPEC_ARTIFACT` and list of failed artifacts
 
-- [ ] 9. (**inline**) Return PASS with artifact_status
+- [ ] 9.  Return PASS with artifact_status
   - Command: produce result contract with `artifact_status` field containing per-artifact PASS/FAIL
   - Expected: all artifacts validated, PASS returned
 

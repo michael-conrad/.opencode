@@ -25,7 +25,7 @@ Body editing IS remote synchronization. Every body edit requires verification be
 
 ## Sub-Agent Dispatch Table
 
-The orchestrator dispatches four sub-agents in strict sequence. Each sub-agent is a discrete work unit with defined input/output contracts. The orchestrator NEVER performs inline work — it routes and collects result contracts only.
+The dispatches four sub-agents in strict sequence. Each sub-agent is a discrete work unit with defined input/output contracts. The orchestrator NEVER performs inline work — it routes and collects result contracts only.
 
 | Phase | Sub-Agent | Purpose | Must Receive | Must NOT Receive | Output Contract |
 |-------|-----------|---------|--------------|------------------|-----------------|

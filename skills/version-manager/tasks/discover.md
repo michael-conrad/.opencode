@@ -6,8 +6,8 @@ Scan the entire codebase for version strings using dynamic regex patterns. No ha
 
 ## Prerequisites
 
-- [ ] 1. (**inline**) Project root path available
-- [ ] 2. (**inline**) No prior version discovery results cached — always re-scan
+- [ ] 1.  Project root path available
+- [ ] 2.  No prior version discovery results cached — always re-scan
 
 ## Steps
 

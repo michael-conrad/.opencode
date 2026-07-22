@@ -27,7 +27,7 @@ For each modality in the requested list:
 
 ### Step 2: Run Per-Modality Research
 
-For each resolved modality, the orchestrator dispatches a research sub-agent:
+For each resolved modality, the dispatches a research sub-agent:
 
 - **Text modality**: Research query targeting text content and context
 - **Vision modality**: Research query targeting image content (what does the image show, what text is in the image, etc.)

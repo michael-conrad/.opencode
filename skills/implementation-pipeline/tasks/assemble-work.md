@@ -12,7 +12,7 @@ Orchestrator entry point for the implementation pipeline. Reads the approved pla
 ## Entry Criteria
 
 - [ ] 1. Plan is approved (check `approved-for-*` label on spec issue)
-- [ ] 2. Plan has per-item steps with dispatch indicators (`(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`)
+- [ ] 2. Plan has per-item steps with dispatch indicators (``, `(**sub-agent**)`, `(**clean-room**)`)
 - [ ] 3. `authorization_scope >= for_implementation`
 
 ## Procedure
@@ -20,7 +20,7 @@ Orchestrator entry point for the implementation pipeline. Reads the approved pla
 ### 1. Read and Validate Plan
 
 1. Read the plan from `{plan_path}`
-2. Verify every step has an explicit dispatch indicator — no step may be missing `(**inline**)`, `(**sub-agent**)`, or `(**clean-room**)`
+2. Verify every step has an explicit dispatch indicator — no step may be missing ``, `(**sub-agent**)`, or `(**clean-room**)`
 3. Verify NO step uses `per-phase` or `batched` indicators — BLOCK if found with `reason: BATCHED_DISPATCH_NOT_ALLOWED`
 4. Count total steps: `N = len(steps)`
 

@@ -8,17 +8,6 @@
 
 Validate every evidence item in the Investigator's `evidence.yaml` against live source data. Reads the Investigator's raw evidence, cross-checks each claim against spec files, plan files, and srclight symbol data, and writes `reasoning.yaml` with validated evidence. Does NOT evaluate or judge — validates and supports the evidence.
 
-> **DiMo Role: Validator.** This task validates concern-separation evidence. Reads `evidence.yaml` from the Investigator, validates each evidence item against source data, and writes `reasoning.yaml` with validated evidence.
->
-> You are the Validator. Your job is to validate evidence — nothing more, nothing less. You are thorough, skeptical, and completely non-judgmental. Every claim in the evidence gets cross-checked against live source data. You do not decide what is correct. You do not produce PASS/FAIL verdicts. You validate and support.
->
->
-> - MUST validate every evidence item against live source data — no item is trusted without cross-check
-> - MUST NOT produce any PASS/FAIL judgment — that is the Evaluator's job
-> - MUST NOT evaluate whether evidence is "good" or "bad" — only whether it is accurate
-> - MUST write `reasoning.yaml` as the only output artifact
-> - MUST flag evidence items that cannot be validated as `validation_status: UNVERIFIED`
->
 
 ## Dispatch Contract
 

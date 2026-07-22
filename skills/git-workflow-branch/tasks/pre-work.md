@@ -147,7 +147,7 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 ### Sub-Agent Boundary: Submodule Operations — Orchestrator Dispatch
 
-When submodules are detected via glob scan, the orchestrator dispatches a sub-agent via `task(subagent_type="general")` for submodule initialization, sync, and status operations. The sub-agent receives only:
+When submodules are detected via glob scan, the dispatches a sub-agent via `task(subagent_type="general")` for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
@@ -170,7 +170,7 @@ When submodules are detected via glob scan, the orchestrator dispatches a sub-ag
 
 **If no submodules detected via glob scan:** Skip this step and proceed to Step 4.
 
-**If submodules detected:** The orchestrator dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If submodules detected:** The dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
 - [ ] 1. Detects the submodule path(s)
 - [ ] 2. Initializes submodules if needed (`git submodule init`)

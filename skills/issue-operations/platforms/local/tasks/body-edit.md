@@ -8,7 +8,7 @@
 
 ## Overview
 
-Four-phase pipeline for editing the executive summary (`remote.md`) and syncing it to the remote API. Edits to the full spec (`spec.md`) use the `update` task instead. The pipeline runs locally — the orchestrator dispatches once and receives one result contract.
+Four-phase pipeline for editing the executive summary (`remote.md`) and syncing it to the remote API. Edits to the full spec (`spec.md`) use the `update` task instead. The pipeline runs locally — the dispatches once and receives one result contract.
 
 **Scope:** `remote.md` only. Never touches `spec.md`.
 

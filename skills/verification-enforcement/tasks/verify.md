@@ -16,7 +16,7 @@ Evidence artifacts have been collected for all claims, or unverifiable claims ha
 
 The orchestrator begins by identifying the content sections that the generating skill intends to produce. These sections correspond to the natural divisions of the output — for a spec, this might be objectives, constraints, success criteria, and affected files; for a runbook, this might be environment context, diagnosis, mitigation steps, and verification criteria. The orchestrator does not need to know the exact content yet — it needs to know the claims that will be made, broadly categorized.
 
-For each content section, the orchestrator dispatches an content audit via `audit --task content-audit`. This replaces the previous single-sub-agent approach with independent verification:
+For each content section, the dispatches an content audit via `audit --task content-audit`. This replaces the previous single-sub-agent approach with independent verification:
 
 1. The orchestrator calls `skill({name: "audit"})` then tasks `content-audit` with `{ document_section, source_data_paths }` — clean-room, no orchestrator preload, no GitHub routing fields
 2. The `content-audit` task dispatches two cross-family auditors (via `resolve-models`) who independently verify every numerical claim, file reference, and factual assertion against local source data

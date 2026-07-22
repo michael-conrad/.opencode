@@ -23,9 +23,9 @@ For each step in the plan (in sequential order):
 ### 1. Read Step Dispatch Indicator
 
 Read the step's dispatch indicator from the plan:
-- `(**inline**)` — orchestrator executes the step directly
-- `(**sub-agent**)` — orchestrator dispatches to a sub-agent with context via `task()`
-- `(**clean-room**)` — orchestrator dispatches to a sub-agent with routing metadata only via `task()`
+- `` — orchestrator executes the step directly
+- `(**sub-agent**)` — dispatches to a sub-agent with context via `task()`
+- `(**clean-room**)` — dispatches to a sub-agent with routing metadata only via `task()`
 
 **Every step MUST declare an explicit dispatch indicator.** There is no default. If a step lacks a dispatch indicator, the orchestrator MUST BLOCK with `reason: MISSING_DISPATCH_INDICATOR`.
 
@@ -33,7 +33,7 @@ Read the step's dispatch indicator from the plan:
 
 | Indicator | Action | Context Passed |
 |-----------|--------|----------------|
-| `(**inline**)` | Orchestrator executes the step directly | N/A — orchestrator context |
+| `` | Orchestrator executes the step directly | N/A — orchestrator context |
 | `(**sub-agent**)` | `task(subagent_type="general", prompt: "{step_description}")` with issue_number, plan_path, step_number, authorization_scope, halt_at | Full context |
 | `(**clean-room**)` | `task(subagent_type="general", prompt: "{step_description}")` with issue_number only | Routing metadata only |
 

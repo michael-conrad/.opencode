@@ -1,6 +1,6 @@
 ---
 name: guideline-audit-path-provider
-description: "Arbiter role for the guideline-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Arbiter role for the guideline-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,18 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Arbiter role for the guideline-audit DiMo chain. Reads all upstream artifacts (`evidence.yaml` from Investigator, `reasoning.yaml` from Validator, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
+Arbiter role for the guideline-audit chain. Reads all upstream artifacts (`evidence.yaml` from Investigator, `reasoning.yaml` from Validator, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
 
-> **DiMo Role: Arbiter.** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, `verdict.yaml`, writes `judgment.yaml`.
->
-> You are the Arbiter. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
->
->
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST write `judgment.yaml` as the only output artifact
-> - MUST synthesize the per-criterion verdicts, bidirectional findings, and evidence chain into a single coherent judgment
 
 ## Dispatch Contract
 

@@ -1,6 +1,6 @@
 ---
 name: verification-audit-path-provider
-description: "Arbiter role for the verification-audit DiMo chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
+description: "Arbiter role for the verification-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
 ---
@@ -13,17 +13,8 @@ compatibility: opencode
 
 ## Purpose
 
-Arbiter role for the verification-audit DiMo chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), and `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, it does NOT evaluate.
+Arbiter role for the verification-audit chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), and `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, it does NOT evaluate.
 
-> **DiMo Role: Arbiter.** This task produces the final judgment by synthesizing all upstream artifacts. Reads `evidence.yaml`, `reasoning.yaml`, and `verdict.yaml`, writes `judgment.yaml`.
->
-> You are the Arbiter. You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
->
-> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
-> - MUST NOT overrule a PASS/FAIL from the Evaluator
-> - MUST NOT produce new evidence or re-validate existing evidence
-> - MUST NOT re-open Validator validation decisions
-> - MUST write `judgment.yaml` as the only output artifact
 
 ## Dispatch Contract
 
@@ -114,7 +105,7 @@ remediation: "artifact_evidence_dir is required for verification-audit-path-prov
 
 ### Step 2: Load Upstream Artifacts
 
-Read all three upstream artifacts produced by the DiMo chain:
+Read all three upstream artifacts produced by the chain:
 
 - [ ] 1. Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/verification-audit/evidence.yaml` via `read` tool
 - [ ] 2. Parse the evidence structure: `spec`, `evidence_artifacts`, `sc_evidence_map`
@@ -293,7 +284,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/verification-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/verification-audit-validator.md` — Validator role (produces reasoning.yaml consumed by this task)
 - `tasks/verification-audit-evaluator.md` — Evaluator role (produces verdict.yaml consumed by this task)
-- `tasks/cross-validate.md` — Cross-validate Arbiter role (separate DiMo chain, also produces judgment.yaml)
+- `tasks/cross-validate.md` — Cross-validate Arbiter role (separate chain, also produces judgment.yaml)
 - `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → Validator → Evaluator → Arbiter)
 - Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
 - Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)

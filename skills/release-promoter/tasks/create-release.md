@@ -6,8 +6,8 @@ Create a GitHub Release from an existing tag with the changelog body as the rele
 
 ## Prerequisites
 
-- [ ] 1. (**inline**) Tag exists (from `release-promoter --task tag`)
-- [ ] 2. (**inline**) Changelog body available (from `changelog-generator --task since-last-release`)
+- [ ] 1.  Tag exists (from `release-promoter --task tag`)
+- [ ] 2.  Changelog body available (from `changelog-generator --task since-last-release`)
 
 ## Steps
 
