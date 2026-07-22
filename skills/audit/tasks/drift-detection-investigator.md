@@ -323,7 +323,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/drift-detection.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — spec-code alignment
 - `130-authority-source.md` — code as authoritative source
 

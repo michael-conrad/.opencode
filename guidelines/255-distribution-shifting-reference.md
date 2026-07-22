@@ -41,6 +41,8 @@ Test: If the pattern reads like a template to fill in mechanically ("replace X w
 | `dist-shift-007` | External-Signal Verification Shifting | .opencode#848 | Tier 1+ |
 | `dist-shift-008` | Corrupt-Success Contrast | .opencode#848 | Tier 1+ |
 
+**Canonical cost model:** Read [§Cost Model](065-verification-honesty.md) for death spiral / break dynamics — cost-frame formula lives in 250, DDL rationale with tiered table lives in 065.
+
 ### Anti-Patterns: What Distribution Shifting Is NOT
 
 Distribution shifting elevates output quality through structural patterns that shift the sampling distribution. It does NOT use these patterns:
