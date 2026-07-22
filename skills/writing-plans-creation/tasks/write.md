@@ -198,6 +198,10 @@ Numbered checklist C1 through C{N} at the end of the plan, after the bottom admo
 | artifact_path | ".../artifacts/plan-write.yaml" |
 | blocker_reason | "..." |
 
+## Related Guidelines
+
+- `065-verification-honesty.md` §Cost Model — death spiral / break dynamics for evidence type cost rationale. Read [§Cost Model](065-verification-honesty.md) for why behavioral evidence is the cheapest (lowest DDL) and structural evidence is the most expensive (death spiral).
+
 ## Pipeline Steps
 
 Every plan references implementation pipeline stages by name. The following 15 stages from `implementation-pipeline/SKILL.md` Trigger Dispatch Table define the canonical gate sequence:

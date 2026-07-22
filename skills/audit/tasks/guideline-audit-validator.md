@@ -849,7 +849,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/guideline-audit.md` — Evaluator role (consumes this task's reasoning.yaml)
 - `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - `065-verification-honesty.md` — live verification requirement
 - `080-code-standards.md` — enforcement test mandate and evidence type taxonomy
