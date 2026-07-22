@@ -176,3 +176,12 @@ For each component, enumerate threats using STRIDE:
 - Preceded by: `requirements`, optionally `decompose`
 - Feeds into: `write`
 - Note: Creation-time operational requirements are enforced here. `spec-auditor` verifies completeness as a second pass.
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/risk-assessment.yaml" |
+| blocker_reason | "..." |

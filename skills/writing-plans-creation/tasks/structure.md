@@ -36,3 +36,12 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 
 - Related tasks: `create` (21-step pipeline)
 - Related skills: `solve`, `plan`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/structure.yaml" |
+| blocker_reason | "..." |

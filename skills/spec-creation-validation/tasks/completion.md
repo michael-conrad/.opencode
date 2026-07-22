@@ -100,3 +100,12 @@ HALT
 - [ ] URL present IF relevant (after outcome, before byline)
 - [ ] AI byline present as **LAST** element
 - [ ] No stale todowrite items remain (all cleared or N/A)
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/spec-completion.yaml" |
+| blocker_reason | "..." |

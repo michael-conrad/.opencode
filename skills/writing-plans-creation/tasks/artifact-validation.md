@@ -78,3 +78,12 @@ Validate that all expected analytical artifacts from spec-creation exist, are no
 - Related tasks: `create` (21-step pipeline)
 - Related skills: `spec-creation`
 - Related guidelines: `060-tool-usage.md`
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/artifact-validation.yaml" |
+| blocker_reason | "..." |

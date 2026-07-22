@@ -15,3 +15,12 @@ Read [Operating Protocol — 22-Step Pipeline](skills/writing-plans/SKILL.md) fo
 ## Exit Criteria
 
 Read [Operating Protocol — 22-Step Pipeline](skills/writing-plans/SKILL.md) for exit criteria.
+
+## Result Contract
+
+| Field | Value |
+|-------|-------|
+| status | DONE | BLOCKED |
+| finding_summary | "..." |
+| artifact_path | ".../artifacts/operating-protocol.yaml" |
+| blocker_reason | "..." |
