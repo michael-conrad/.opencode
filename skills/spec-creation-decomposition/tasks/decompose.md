@@ -122,9 +122,9 @@ If any of these is false, decompose further.
 
 ### Reference to Incremental-Build Discipline
 
-This decomposition-depth mandate is the spec-level expression of the incremental-build discipline defined in Load [091-incremental-build.md](guidelines/091-incremental-build.md). The per-item TDD cycle (RED → GREEN → REFACTOR → COMMIT) requires items at this decomposition depth. A spec whose units are not at this depth produces implementation items that violate the monolithic implementation prohibition in Load [Monolithic Implementation](guidelines/000-critical-rules.md).
+This decomposition-depth mandate is the spec-level expression of the incremental-build discipline defined in Read [091-incremental-build.md](guidelines/091-incremental-build.md). The per-item TDD cycle (RED → GREEN → REFACTOR → COMMIT) requires items at this decomposition depth. A spec whose units are not at this depth produces implementation items that violate the monolithic implementation prohibition in Read [Monolithic Implementation](guidelines/000-critical-rules.md).
 
-**Cross-reference:** Load [Per-Item TDD Cycle](guidelines/091-incremental-build.md), Load [Monolithic Implementation](guidelines/000-critical-rules.md).
+**Cross-reference:** Read [Per-Item TDD Cycle](guidelines/091-incremental-build.md), Read [Monolithic Implementation](guidelines/000-critical-rules.md).
 
 ## Context Required
 

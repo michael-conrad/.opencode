@@ -2,7 +2,16 @@
 
 ## Purpose
 
-Generate baseline coherence state from guidelines and skills.
+Generate baseline coherence state from guidelines and skills. This task has been split into a DiMo 4-role chain. Each role is a separate file in this directory.
+
+## DiMo Chain Flow
+
+The orchestrator dispatches the 4 roles sequentially:
+
+1. **Investigator** (`coherence-extraction/investigator.md`) — Scans guidelines and skills, produces `evidence.yaml`
+2. **Validator** (`coherence-extraction/validator.md`) — Validates evidence, produces `reasoning.yaml`
+3. **Evaluator** (`coherence-extraction/evaluator.md`) — Computes metrics, runs Z3 check, evaluates evidence type mismatches, produces `verdict.yaml`
+4. **Arbiter** (`coherence-extraction/arbiter.md`) — Provides recommendations, produces final result contract
 
 ## Dispatch Contract
 
@@ -14,7 +23,6 @@ Generate baseline coherence state from guidelines and skills.
 - Baseline not yet generated OR refresh requested
 - `github.owner`, `github.repo` available
 - Write access to `{project_root}/tmp/{issue-N}/artifacts/`
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
@@ -31,27 +39,3 @@ Generate baseline coherence state from guidelines and skills.
 - **Validator:** `coherence-extraction/validator.md`
 - **Evaluator:** `coherence-extraction/evaluator.md`
 - **Arbiter:** `coherence-extraction/arbiter.md`
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

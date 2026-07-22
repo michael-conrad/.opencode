@@ -7,7 +7,7 @@
 
 ## Five Core Principles
 
-Load [Five Core Principles](skills/test-driven-development/SKILL.md) for enforcement rules.
+Read [Five Core Principles](skills/test-driven-development/SKILL.md) for enforcement rules.
 
 ## TDD Heading Format Requirement
 

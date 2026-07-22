@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Approval Gate
 
-**Enforced by `hooks/pre-commit` Gate 2b (authorization_scope + halt_at check).** Load [approval-gate skill](skills/approval-gate/SKILL.md) for complete procedural workflow.
+**Enforced by `hooks/pre-commit` Gate 2b (authorization_scope + halt_at check).** Read [approval-gate skill](skills/approval-gate/SKILL.md) for complete procedural workflow.
 
 ## Tier 0: Zero Tolerance Rules
 
@@ -19,7 +19,7 @@ load_when: sub-agent
 | 5 | Branch before any file modification | approval-gate-004 | `git-workflow` / `pre-commit` Gate 1 |
 | 6 | Human-only merge | approval-gate-005 | GitHub branch protection |
 | 7 | Silent halt — no prompts | — | `000-critical-rules.md` |
-| 8 | Search before halt (no spec found) | — | Load [Silent Halt](000-critical-rules.md) |
+| 8 | Search before halt (no spec found) | — | Read [Silent Halt](000-critical-rules.md) |
 | 9 | PR requires explicit instruction (except `for_pr` scope) | critical-rules-019 | `pr-creation-workflow` skill |
 | 10 | Close issues only after PR merge confirmed | critical-rules-013 | `git-workflow cleanup` |
 | 11 | Spec-to-Plan cascade (auto-approve faithful plan) | approval-gate-001a-cascade | `approval-gate` skill |
@@ -245,7 +245,7 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 | Confirmation ≠ authorization | critical-rules-027 |
 | Feedback ≠ authorization | critical-rules-027 |
 | Question/ complaint ≠ authorization | critical-rules-question-auth-001 |
-| Question tool prohibition (universal) | critical-rules-037 |
+| for_pr scope → no halt for structural decisions | approval-gate-014, critical-rules-037 |
 | Multi-task plan → authorization cascades to ALL sub-issues | critical-rules-018 |
 | No `approved-for-*` label → awaiting approval | approval-gate-003 |
 | Audit auto-fix (non-substantive GitHub Issue body only) → exempt | approval-gate-008 |

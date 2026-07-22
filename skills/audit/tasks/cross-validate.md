@@ -2,13 +2,24 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+# Task: cross-validate — Sole Arbiter (Arbiter)
+
+**This file is the sole Arbiter (Arbiter) in the audit skill. No other file owns this role. No other file produces `judgment.yaml`. No other file performs cross-validation of upstream verdicts. This is the single authoritative Arbiter — there is no ambiguity.**
+
 ## Purpose
 
-Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. This file is the exclusive owner of cross-validation — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
-# Task: cross-validate
+Sole Arbiter (Arbiter) role. Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. This file is the exclusive owner of the Arbiter role — no other task file in the audit skill or any other skill performs cross-validation or produces `judgment.yaml`.
 
-## Purpose
-
+> **DiMo Role: Sole Arbiter (Arbiter).** This task — and only this task — produces the final judgment by cross-referencing all upstream artifacts. Reads all artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`), writes `judgment.yaml`. No other file in the audit skill or any other skill performs this function.
+>
+> You are the sole Arbiter (Arbiter). You are a synthesizer, not an evaluator. Your job is to read what upstream roles produced and assemble the final picture. You do not second-guess their work. You do not re-open their decisions. You take their outputs and produce the final judgment.
+> 
+> 
+> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
+> - MUST NOT overrule a PASS/FAIL from the Evaluator
+> - MUST NOT produce new evidence or re-validate existing evidence
+> - MUST write `judgment.yaml` as the only output artifact
+> 
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 
@@ -17,37 +28,17 @@ Reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`)
 - `spec_local_dir`: Local directory containing spec files
 - `artifact_evidence_dir`: Directory for evidence artifacts
 
-**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
-
-```yaml
-status: BLOCKED
-reason: EXPECTED_DETERMINATION_REJECTED
-message: "Expected determination detected. Dispatch without pre-judgment."
-```
-
 ## Entry Criteria
 
 - `spec_local_dir`: Local directory containing Markdown spec files
 - `artifact_evidence_dir`: Path to directory containing upstream YAML verdict artifacts on disk
-- `verdict.yaml` from ALL 9 audit chains MUST be present in `artifact_evidence_dir`:
-  - `spec-audit/verdict.yaml`
-  - `plan-fidelity/verdict.yaml`
-  - `verification-audit/verdict.yaml`
-  - `concern-separation/verdict.yaml`
-  - `coherence-maintenance/verdict.yaml`
-  - `guideline-audit/verdict.yaml`
-  - `drift-detection/verdict.yaml`
-  - `test-quality-audit/verdict.yaml`
-  - `content-audit/verdict.yaml`
-- If any chain's `verdict.yaml` is missing, return BLOCKED with `MISSING_CHAIN_VERDICT` error identifying the missing chain
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Cross-Validate Checklist
 
 - [ ] 1. Load Spec + extract SCs from spec_local_dir
 - [ ] 2. Pre-Inspection Classification Gate — runtime-behavioral uplift check for each SC
-- [ ] 3. Load ALL 9 chain verdict.yaml files from artifact_evidence_dir (spec-audit, plan-fidelity, verification-audit, concern-separation, coherence-maintenance, guideline-audit, drift-detection, test-quality-audit, content-audit)
-- [ ] 4. Per-SC evaluation: cross-reference verdicts across ALL 9 chains — does each chain's verdict match the evidence?
+- [ ] 3. Load upstream verdict artifacts from artifact_evidence_dir
+- [ ] 4. Per-SC evaluation: does the verdict match the evidence?
 - [ ] 5. Evidence Type Matrix enforcement — downgrade PASS with EVIDENCE_TYPE_MISMATCH to FAIL
 - [ ] 6. Write judgment.yaml to disk
 - [ ] 7. Return frugal contract with verdict summary
@@ -104,7 +95,7 @@ When an SC is uplifted:
 
 **🚫 FORBIDDEN:** Accepting structural evidence for an uplifted SC. The uplift is automatic and non-negotiable.
 
-**Authority:** Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Load [Evidence Type Taxonomy](guidelines/080-code-standards.md)
+**Authority:** Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Read [Evidence Type Taxonomy](guidelines/080-code-standards.md)
 
 ## Exit Criteria
 
@@ -122,7 +113,6 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 |------|-----------|------------|--------|
 | MISSING_INPUT | `spec_local_dir` missing or empty, or no .md files readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
 | MISSING_EVIDENCE_DIR | `artifact_evidence_dir` missing, null, or empty | `MISSING_EVIDENCE_DIR` | Return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }` |
-| MISSING_CHAIN_VERDICT | One or more chain `verdict.yaml` files missing from `artifact_evidence_dir` | `MISSING_CHAIN_VERDICT` | Return `{ status: "BLOCKED", error: "MISSING_CHAIN_VERDICT", missing_chains: ["<chain-name>", ...] }` |
 | ARTIFACT_UNREADABLE | Upstream YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
 
 ## Procedure
@@ -165,24 +155,9 @@ Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-age
 - If `artifact_evidence_dir` is missing or null: return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }`.
 - If artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
 
-### Step 3: Read and Parse Upstream Verdicts from ALL 9 Chains
+### Step 3: Read and Parse Upstream Verdicts from Disk
 
-Load `verdict.yaml` from each of the 9 audit chains. The expected directory layout under `artifact_evidence_dir` is:
-
-```
-artifact_evidence_dir/
-  spec-audit/verdict.yaml
-  plan-fidelity/verdict.yaml
-  verification-audit/verdict.yaml
-  concern-separation/verdict.yaml
-  coherence-maintenance/verdict.yaml
-  guideline-audit/verdict.yaml
-  drift-detection/verdict.yaml
-  test-quality-audit/verdict.yaml
-  content-audit/verdict.yaml
-```
-
-For each chain's `verdict.yaml`, read the file from disk using the `read` tool. If any chain's `verdict.yaml` is missing, return BLOCKED with `MISSING_CHAIN_VERDICT` identifying the missing chain(s). Expected format per verdict file:
+For each YAML file discovered via glob/read in `artifact_evidence_dir`, read the verdict file from disk using the `read` tool. Expected format per verdict file:
 
 ```
 ---
@@ -218,34 +193,34 @@ If an auditor's YAML artifact has extra criterion ids not in `evaluation_criteri
 
 If an auditor's YAML artifact is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
-### Step 5: Cross-Reference Verdicts Across ALL 9 Chains — Monotonic Non-Increasing Invariant
+### Step 5: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
 
 **Cross-validate verdicts are monotonic non-increasing in PASSness.** Verdicts must never increase in PASSness at the cross-validate stage. Cross-validate is a rejection filter, not a remediation gate.
 
 | Direction | Allowed? | Mechanism |
 |---|---|---|
-| FAIL → FAIL | ✅ Stays | If all 9 chains return FAIL, or any chain returns FAIL, consensus = FAIL |
+| FAIL → FAIL | ✅ Stays | If both return FAIL, or one returns FAIL, consensus = FAIL |
 | PASS → FAIL | ✅ De-elevation | Caught by Step 5.7 self-check (narrative override, PASS+critique, hedging, weak evidence) |
 | FAIL → PASS | 🚫 FORBIDDEN | Only a fresh audit cycle with new clean-room auditors can produce a new verdict on a revised deliverable |
-| PASS → PASS | ✅ Stays | All 9 chains return clean PASS — confirmed by Step 5.7 self-check |
+| PASS → PASS | ✅ Stays | Both auditors return clean PASS — confirmed by Step 5.7 self-check |
 
-For each criterion in `evaluation_criteria`, cross-reference across ALL 9 chains:
+For each criterion in `evaluation_criteria`:
 
 | Rule | Result |
 |---|---|
-| ALL 9 chains return `PASS` | `consensus = PASS` |
-| ANY chain returns `FAIL` | `consensus = FAIL` |
+| Both auditors return `PASS` | `consensus = PASS` |
+| Either auditor returns `FAIL` | `consensus = FAIL` |
 | Non-PASS result (any non-binary verdict) | `consensus = BLOCKED` — auditors should never produce this |
-| Any chain's verdict is missing or unparseable | `consensus = FAIL` |
-| Chains disagree (some PASS, some FAIL) | `consensus = FAIL` |
+| Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
+| Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
 
 Non-PASS (only valid non-PASS verdict is FAIL) = BLOCKED pipeline. FAIL is terminal — no reclassification permitted. Any non-binary verdict (AUDIT_FAIL, FABRICATED, LIMITED-EVIDENCE, INCONCLUSIVE) means the auditor is operating outside spec — BLOCK pipeline and flag the auditor card for correction. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
-Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split across chains is different from all chains returning `FAIL`.
+Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
 #### FAIL Is Terminal — No Reclassification (MANDATORY)
 
-FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors.
+FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors via the DiMo role chain.
 
 The following rationalization patterns are enumerated as explicit violations:
 
@@ -291,7 +266,7 @@ The cross-validate result contract MUST use the following finding type classific
 | `EVIDENCE_TYPE_MISMATCH` | Wrong evidence type for SC tier — structural evidence for behavioral SC | FAIL |
 | `ANTI_EVASION` | Agent evading behavioral testing — claiming model unavailability, "too slow", or test-not-needed for runtime-behavioral changes | FAIL |
 
-**Authority:** Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Load [critical-rules-hard-fail](guidelines/000-critical-rules.md), Load [critical-rules-060](guidelines/000-critical-rules.md)
+**Authority:** Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md), Read [critical-rules-hard-fail](guidelines/000-critical-rules.md), Read [critical-rules-060](guidelines/000-critical-rules.md)
 
 ### Step 6: Compute Aggregate Consensus
 
@@ -388,21 +363,6 @@ Create `{project_root}/tmp/{issue-N}/artifacts/` if needed (write tool creates i
 
 Write final judgment to `./tmp/{issue-N}/artifacts/cross-validate/judgment.yaml`
 
-The `judgment.yaml` MUST declare which chain verdicts were consumed:
-
-```yaml
-chains_consumed:
-  - spec-audit
-  - plan-fidelity
-  - verification-audit
-  - concern-separation
-  - coherence-maintenance
-  - guideline-audit
-  - drift-detection
-  - test-quality-audit
-  - content-audit
-```
-
 ## Remediation
 
 
@@ -438,13 +398,13 @@ The `mandatory_remediation` field:
 
 ## Red Flags
 
-- Never task auditors from within cross-validate — auditors are dispatched before this task, cross-validate discovers artifacts via evidence dir
+- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate discovers artifacts via evidence dir
 - Never leak orchestrator reasoning into verdict parsing — clean-room means evidence + criteria ONLY
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per audit-004
 - Never fabricate verdicts when auditor YAML artifact is unreadable or unparseable — missing data = FAIL per audit-005
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
-- Never resolve auditors inline — auditors are dispatched by orchestrator before this task
+- Never resolve auditors inline — the DiMo role chain is dispatched by orchestrator before this task
 - Never bypass dark pattern enforcement — Step 6 checks are MANDATORY per audit-013 through audit-018
 - Never attempt recovery from BLOCKED status — Non-Recovery Gates are terminal per audit-017
 - Never pass YAML verdict content inline through orchestrator context — verdict artifacts stay on disk; only artifact_path reaches orchestrator
@@ -453,7 +413,7 @@ The `mandatory_remediation` field:
 
 - `audit/SKILL.md` — skill-level operating protocol and enforcement rules
 - `audit/tasks/completion.md` — halt guarantee
-- `audit/SKILL.md` — skill-level operating protocol and enforcement rules
+- `audit/SKILL.md` — DiMo role chain dispatch
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
 - `000-critical-rules.md` — clean-room task() protocol, orchestrator purity
 - Spec #578, Plan #382
@@ -465,37 +425,3 @@ The `mandatory_remediation` field:
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
 | `spec_local_dir`, `artifact_evidence_dir` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate discovers artifacts via evidence dir, does not dispatch auditors | NO |
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.
-
-## Clean-Room Validation
-
-This task requires independence from orchestrator bias. The sub-agent MUST:
-
-1. **Reject preloaded context** — return `PRELOADED_CONTEXT_REJECTED` if the orchestrator includes inline reasoning, expected outcomes, file paths, or step sequences
-2. **Discover scope independently** — read source files, run analysis tools, and determine the scope without orchestrator hints
-3. **Produce evidence independently** — write full evidence artifacts to disk before returning
-4. **Render binary judgment** — PASS (100% clean, no caveats) or FAIL (any caveat, any concern, any non-100% clean pass)
-

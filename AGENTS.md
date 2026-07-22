@@ -8,7 +8,7 @@ The AI agent must determine its identity from the system prompt on EVERY session
 2. **Report identity** in byline format: `🤖 <AgentName> (<ModelId>) <status-icon> <status>`
 3. **Examples**: `🤖 OpenCode (ollama-cloud/glm-5) ✅ completed`, `🤖 OpenCode (ollama-cloud/glm-5) 🔄 working`
 
-**Programmatic validation**: The `session-enforcement.ts` plugin injects expected identity values into the `IDENTITY_ECHO` directive and validates the agent's first response against them. On mismatch, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, halting all operations. Load [Inferring GitHub Owner](guidelines/000-critical-rules.md).
+**Programmatic validation**: The `session-enforcement.ts` plugin injects expected identity values into the `IDENTITY_ECHO` directive and validates the agent's first response against them. On mismatch, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, halting all operations. Read [Inferring GitHub Owner](guidelines/000-critical-rules.md).
 
 **WHY**: Different agents/loaders provide different context. System prompt tells you what you are.
 
@@ -117,54 +117,6 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 **Isolated test environment:** The `with-test-home` wrapper isolates opencode XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session. When a test session fails, see the Session Failure Diagnosis section in `tests-v2/AGENTS.md` for a diagnostic checklist covering model availability, artifact integrity, lock contention, and test home cleanup — the 6-check table and 5 common root causes cover the vast majority of harness failures.
 
-### `timeout` Command Prohibition
-
-The `timeout` command (GNU coreutils) is FORBIDDEN in all bash scripts. The bash tool's `timeout` parameter (in milliseconds) is the ONLY permitted kill signal. GNU timeout does NOT forward SIGTERM to its child processes — orphaned opencode processes hold the `flock` lock and hang all subsequent test runs.
-
-### `with-test-home` Mandate
-
-`opencode run` MUST NOT be called directly. ALL opencode test execution MUST go through:
-```bash
-bash .opencode/tests-v2/with-test-home opencode run '<message>'
-```
-
-### Standalone Binary Setup
-
-The snap binary at `/snap/bin/opencode` hardcodes `SNAP_USER_DATA=~/snap/opencode/` and cannot be redirected. The correct pattern is:
-1. Cache the standalone binary at `.tools/opencode/opencode`
-2. Copy it into the test home at `$TEST_HOME/bin/opencode` during test setup
-3. Prepend `$TEST_HOME/bin` to PATH so the harness resolves the standalone binary
-
-### Prohibited Bypass Patterns
-
-| Pattern | Why Forbidden |
-|---------|---------------|
-| Manual test home construction (`mktemp -d`, manual `opencode.jsonc`, manual `git init`, manual `.opencode` clone) | Bypasses isolation, leaks production state |
-| Direct `opencode run` without `with-test-home` | Causes SQLite session conflicts with desktop app |
-| Standalone binary download/copy outside `with-test-home` | Creates unmanaged test environments |
-| Manual `opencode.jsonc` seeding | Bypasses `seed_model_config()` model discovery and isolation verification |
-| Manual `git init` + `.opencode` clone | Bypasses test project creation with proper isolation |
-| "This is simple/quick/small" rationalization | NOT a valid justification — framework is MANDATORY for ALL test execution |
-
----
-
-## Prefer Built-ins Over Bespoke Code
-
-**Global mandate:** ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or existing add-ons over writing bespoke code (custom scripts, inline shell commands, ad-hoc Python, one-off utilities).
-
-**Preferred alternatives (non-exhaustive):**
-- opencode built-in tools: `read`, `write`, `edit`, `glob`, `grep`
-- MCP servers: `srclight` (code search), `editor` (file editing), `the-notebook-mcp` (notebooks), GitHub MCP (API operations)
-- `vibeguard` plugin for guardrail enforcement
-- Standard shell commands (`ls`, `git`, `uv`, `bash`)
-- Python standard library (`pathlib`, `shutil`, `json`, `csv`, `re`)
-- Published packages via `pip`, `npm`, `cargo`, `go install`
-- Existing `.opencode/tools/` scripts
-
-**Feasibility justification required:** Any spec or plan that proposes new bespoke code MUST include a justification explaining why none of the existing alternatives suffice. A one-sentence rationale is sufficient.
-
-**Scope:** Forward-looking — this mandate applies to new work only. Existing bespoke code is grandfathered and does not need to be replaced.
-
 ---
 
 ## `gb` CLI Tool — GitBucket Operations
@@ -194,36 +146,6 @@ if ! command -v gb &>/dev/null; then
   return 1
 fi
 ```
-
-### `gb` Testing Mandate
-
-All `gb` behavioral tests MUST use the following procedure against the **latest release versions** of both `gb` and GitBucket:
-
-1. **Download the latest `gb` release** from `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/latest` for the test platform
-2. **Download the latest GitBucket WAR** from `https://github.com/gitbucket/gitbucket/releases/latest` and start a local server:
-   ```bash
-   java -jar gitbucket.war --port=18080 --gitbucket.home=<test-home>/gitbucket
-   ```
-3. **Create an isolated test home** with a `gb` config file pointing to the local GitBucket:
-   ```bash
-   TEST_HOME=$(mktemp -d)
-   mkdir -p "$TEST_HOME/.config/gb"
-   cat > "$TEST_HOME/.config/gb/config.toml" << 'TOML'
-   default_host = "http://localhost:18080"
-
-   [hosts."http://localhost:18080"]
-   user = "root"
-   token = "test-token-12345"
-   protocol = "http"
-   TOML
-   ```
-4. **Run `session-init`** with the test `gb` binary and test config:
-   ```bash
-   XDG_CONFIG_HOME="$TEST_HOME/.config" PATH="<gb-binary-dir>:$PATH" bash .opencode/tools/session-init 2>/dev/null | grep "gb:"
-   ```
-5. **Verify both unauthenticated and authenticated paths** by running with and without the test config
-
-This procedure tests against the latest release versions of both `gb` and GitBucket, ensuring `session-init` works correctly with current API behavior. The `gb auth status` command returns exit code 0 even when not logged in — output text parsing is the only reliable signal.
 
 ---
 
@@ -278,7 +200,7 @@ The `local-issues` tool handles this resolution automatically via qualified name
 
 **🚫 CRITICAL: Agents MUST NOT read/write `.issues/` files directly through git operations.** Using `read()`, `write()`, `edit()`, `glob()`, or `grep()` on `.issues/` paths in the parent repo silently targets the wrong repository and corrupts git state. All `.issues/` operations MUST go through `.opencode/tools/local-issues` or explicit `git -C <tree>/.issues/` commands.
 
-**Load [the `.issues/` workspace guide](.issues/AGENTS.md) for the complete `.issues/` workspace guide.**
+**Read [the `.issues/` workspace guide](.issues/AGENTS.md) for the complete `.issues/` workspace guide.**
 
 ---
 
@@ -311,7 +233,7 @@ Credential status values: `verified` (token exists + API ping succeeds), `presen
 | **Direct-branch (default)** | `WORKTREE_REQUIRED` NOT set | Relative paths work directly; `worktree.path` NOT set |
 | **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | All paths prefixed with `worktree.path` |
 
-**Branch and submodule state model:** Load [git-workflow skill](skills/git-workflow/SKILL.md) → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
+**Branch and submodule state model:** Read [git-workflow skill](skills/git-workflow/SKILL.md) → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
 
 **Submodule discipline:**
 - Dev parking: `git checkout $DEFAULT_BRANCH && git pull && git submodule init && git submodule foreach "git checkout $DEFAULT_BRANCH && git pull"`
@@ -332,7 +254,7 @@ When the current branch starts with `pair-`, the agent operates in **dev-pair mo
 | `feature/789-xyz` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
 | `spec/789-abc` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
 
-Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. Load [git-workflow skill](skills/git-workflow/SKILL.md) for full task documentation.
+Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. Read [git-workflow skill](skills/git-workflow/SKILL.md) for full task documentation.
 
 ---
 
@@ -342,7 +264,7 @@ Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-clean
 - Create feature branch BEFORE any filesystem change
 - Wait for explicit authorization ("approved" or "go") before implementing
 - SILENTLY HALT after completing a task
-- Use appropriate tools per five-tier hierarchy (Load [mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md))
+- Use appropriate tools per five-tier hierarchy (Read [mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md))
 - Verify before completing. Verification IS completion.
 
 **✅ Multi-Task Spec Workflow (CRITICAL):**
@@ -369,9 +291,9 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 
 ---
 
-## Load-Link Cross-Reference Rule — MANDATORY
+## Read-Link Cross-Reference Rule — MANDATORY
 
-When agent-facing text (guidelines, skill cards, task cards, prompts) references content in another file, the agent MUST use the `Load [Text](path)` pattern. This is an instruction to call the `read` tool on that path — the agent reads the referenced content into its context before proceeding.
+When agent-facing text (guidelines, skill cards, task cards, prompts) references content in another file, the agent MUST use the `Read [Text](path)` pattern. This is an instruction to call the `read` tool on that path — the agent reads the referenced content into its context before proceeding.
 
 ### 🚫 FORBIDDEN
 
@@ -381,8 +303,8 @@ When agent-facing text (guidelines, skill cards, task cards, prompts) references
 
 ### ✅ REQUIRED
 
-- `Load [Text](path)` — The agent MUST call the `read` tool on the path and load the referenced content into context. Example: `Load [the DISPATCH_GATE protocol](.opencode/.guidelines/dispatch-gate-protocol.md)`
-- When the referenced content is too large to inline (e.g., full task file procedures), use `Load [Text](path)` to direct the agent to load it.
+- `Read [Text](path)` — The agent MUST call the `read` tool on the path and load the referenced content into context. Example: `Read [the DISPATCH_GATE protocol](.opencode/.guidelines/dispatch-gate-protocol.md)`
+- When the referenced content is too large to inline (e.g., full task file procedures), use `Read [Text](path)` to direct the agent to load it.
 - When a rule, distinction, or definition must be visible at multiple decision points, inline the full content at each location. Do not rely on the agent following a pointer to another file.
 
 ### Why This Matters
@@ -390,9 +312,9 @@ When agent-facing text (guidelines, skill cards, task cards, prompts) references
 | Pattern | Agent Behavior | Result |
 |---------|---------------|--------|
 | "See `file` §section" | Treated as citation, ignored | Agent never reads the referenced content |
-| `Load [Text](path)` | Treated as instruction to call `read` tool | Agent loads referenced content into context |
+| `Read [Text](path)` | Treated as instruction to call `read` tool | Agent loads referenced content into context |
 
-The `Load [Text](path)` pattern is the only cross-reference form that produces reliable agent behavior. All other forms are defective and must not be used.
+The `Read [Text](path)` pattern is the only cross-reference form that produces reliable agent behavior. All other forms are defective and must not be used.
 
 ---
 

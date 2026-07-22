@@ -48,7 +48,7 @@ if git status --porcelain -- .issues/ 2>/dev/null | grep -q '^'; then
 fi
 ```
 
-**No separate PR required.** `.issues/<N>/` commits ride along with the feature branch PR. No additional authorization needed — covered by feature branch authorization — Load [Auto-Commit Convention](guidelines/000-critical-rules.md).
+**No separate PR required.** `.issues/<N>/` commits ride along with the feature branch PR. No additional authorization needed — covered by feature branch authorization — Read [Auto-Commit Convention](guidelines/000-critical-rules.md).
 
 ### Steps 0-2: Push, Cleanup, Rebase, Verify
 
@@ -76,7 +76,7 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 **If single-issue branch has >1 commit:**
 
 - [ ] 1. DO NOT generate compare URL
-- [ ] 2. Squash — Load [Step 3](skills/git-workflow-pr/tasks/pr-creation/squash-push.md)
+- [ ] 2. Squash — Read [Step 3](skills/git-workflow-pr/tasks/pr-creation/squash-push.md)
 - [ ] 3. Re-push with `--force-with-lease`
 - [ ] 4. Re-verify commit count — then proceed to URL generation
 
@@ -86,7 +86,7 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 - [ ] 2. Verify all implementation items were committed
 - [ ] 3. Re-verify — then proceed to URL generation
 
-**AUTHORITY:** Load [Un-Squashed PR](guidelines/000-critical-rules.md), Load [Step 3](skills/git-workflow-pr/tasks/pr-creation/squash-push.md)
+**AUTHORITY:** Read [Un-Squashed PR](guidelines/000-critical-rules.md), Read [Step 3](skills/git-workflow-pr/tasks/pr-creation/squash-push.md)
 
 ### Steps 3-5: Generate URL, Report, HALT
 

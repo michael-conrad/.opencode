@@ -183,7 +183,7 @@ gb issue edit <issue-number> -R <github.owner>/<github.repo> --body "<remote_md_
    }
    ```
 
-**URL extraction (MANDATORY — Load [URL Sourcing](guidelines/000-critical-rules.md)):** The URL MUST be extracted from the API response `html_url` field. NEVER construct from template variables. If `html_url` is not in the response, set `url` to `null` and report the missing field.
+**URL extraction (MANDATORY — Read [URL Sourcing](guidelines/000-critical-rules.md)):** The URL MUST be extracted from the API response `html_url` field. NEVER construct from template variables. If `html_url` is not in the response, set `url` to `null` and report the missing field.
 
 **Error handling:** If sync push fails, return `{ sync_status: "failed", url: null }`. The orchestrator reports the failure — do not retry inline.
 
@@ -214,7 +214,7 @@ Before dispatching any sub-agent, verify ALL:
 
 ## Live Verification: Body-Edit Evidence (MANDATORY)
 
-**Each phase output MUST be verified via tool call by the next phase's sub-agent. Orchestrator assertions without phase result contracts are VERIFICATION-GAP findings — Load [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
+**Each phase output MUST be verified via tool call by the next phase's sub-agent. Orchestrator assertions without phase result contracts are VERIFICATION-GAP findings — Read [065-verification-honesty.md](guidelines/065-verification-honesty.md).**
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
@@ -245,7 +245,7 @@ Before dispatching any sub-agent, verify ALL:
 - Related tasks: `comment` (progress comments), `close` (closure may trigger body edit)
 - Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
-- Mirror protocol: Load [Mirror Protocol](skills/issue-operations/platforms/github-mcp/SKILL.md) (remote.md is the sync source)
+- Mirror protocol: Read [Mirror Protocol](skills/issue-operations/platforms/github-mcp/SKILL.md) (remote.md is the sync source)
 - critical-rules-022: NOT applicable to remote.md (canonical detail lives in spec.md; remote.md is intentionally shorter)
 
 ## Pipeline Signal

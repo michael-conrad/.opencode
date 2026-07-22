@@ -53,7 +53,7 @@ load_when: sub-agent
 
 ## Branching Workflow
 
-**ALL feature branch creation uses worktrees (mandatory, no exceptions).** Load [using-git-worktrees skill](skills/using-git-worktrees/SKILL.md).
+**ALL feature branch creation uses worktrees (mandatory, no exceptions).** Read [using-git-worktrees skill](skills/using-git-worktrees/SKILL.md).
 
 ### Resolve Trunk Dynamically
 

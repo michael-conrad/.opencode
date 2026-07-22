@@ -44,43 +44,6 @@ if pr.get("merged_at") is None:
 - EVIDENCE: `merged_by` = pr.get("merged_by") — Should be populated
 - EVIDENCE: `state` = pr.get("state") — "closed" for merged PRs
 
-**Git log merge commit verification:**
-
-```python
-# After confirming merged_at is not None, verify merge commit exists in trunk history
-merge_commit_sha = pr.get("merge_commit_sha")
-if merge_commit_sha:
-    git_log_check = `git log --oneline "$DEFAULT_BRANCH" | grep "$merge_commit_sha"`
-    if not git_log_check:
-        report = f"Merge commit {merge_commit_sha} not found in trunk history. Possible force-push or revert."
-        return report
-```
-
-**Branch reachability check:**
-
-```python
-# Verify feature branch commits are reachable from trunk
-branch_name = "<feature_branch_name>"
-reachable = `git branch --merged "$DEFAULT_BRANCH" | grep "$branch_name"`
-if not reachable:
-    report = f"Branch {branch_name} is not reachable from trunk. Skipping branch deletion."
-    return report
-```
-
-**PR-to-spec cross-reference:**
-
-```python
-# Cross-reference PR changed files against spec affected files
-pr_files = github_pull_request_read(method="get_files", owner=owner, repo=repo, pullNumber=N)
-spec_issue = github_issue_read(method="get", owner=owner, repo=repo, issue_number=<spec_issue>)
-# Extract affected files from spec body
-spec_files = extract_affected_files(spec_issue["body"])
-# Verify PR files intersect with spec files
-if not set(pr_files) & set(spec_files):
-    report = f"PR #{pullNumber} changed files do not intersect with spec affected files. Possible incorrect PR-to-issue mapping."
-    return report
-```
-
 **Structured output context (MANDATORY):** After verification, produce a structured output that the orchestration layer passes to `issue-closure`:
 
 ```yaml

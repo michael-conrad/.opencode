@@ -129,7 +129,7 @@ For the 7 analytical artifact component types (`blast_radius`, `concern_map`, `c
 - [ ] 3. If YAML parsing succeeds: report as PASS with file path
 - [ ] 4. If file is absent: report as `MISSING-STRUCTURE` with FAIL verdict
 
-**Behavioral uplift exclusion:** Structural verification is valid ONLY for changes that do not affect runtime behavior. If the change affects runtime behavior, structural verification is `EVIDENCE_TYPE_MISMATCH` — uplift to behavioral is mandatory. Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
+**Behavioral uplift exclusion:** Structural verification is valid ONLY for changes that do not affect runtime behavior. If the change affects runtime behavior, structural verification is `EVIDENCE_TYPE_MISMATCH` — uplift to behavioral is mandatory. Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md).
 
 ## Adversarial Verification
 

@@ -206,7 +206,7 @@ Then write the spec body to `.issues/{N}/spec.md` (preserving YAML frontmatter).
 - Local issue number (counter-based)
 - Local path: `.issues/{N}/spec.md`
 
-**Post-Creation URL Extraction (MANDATORY — per Load [URL Sourcing](guidelines/000-critical-rules.md)):**
+**Post-Creation URL Extraction (MANDATORY — per Read [URL Sourcing](guidelines/000-critical-rules.md)):**
 
 The Issue URL MUST be extracted from the API response `html_url` field — NEVER constructed from template variables:
 
@@ -290,7 +290,7 @@ The body must contain the following 6 sections in order:
 
 **Post-creation enforcement:** Run this check after Step 2 (issue created) and before Step 4 (report). If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to report until all 5 sections are verified present.
 
-**AI Agent Instructions enforcement:** Per #1902, AI Agent Instructions are now gate-level enforcement, not inline body sections. Load [Channel-Routing Table](guidelines/060-tool-usage.md) and Load [Audience Separation](guidelines/000-critical-rules.md) for the gate-level routing rules. The agent MUST NOT include an "AI Agent Instructions" section in the issue body — that content is internal agent guidance, not stakeholder-facing.
+**AI Agent Instructions enforcement:** Per #1902, AI Agent Instructions are now gate-level enforcement, not inline body sections. Read [Channel-Routing Table](guidelines/060-tool-usage.md) and Read [Audience Separation](guidelines/000-critical-rules.md) for the gate-level routing rules. The agent MUST NOT include an "AI Agent Instructions" section in the issue body — that content is internal agent guidance, not stakeholder-facing.
 
 ## Multi-Task Spec Handling
 
@@ -338,11 +338,11 @@ Before proceeding, verify ALL:
 - Related tasks: `pre-creation` (runs first), `post-creation` (runs next), `link-sub-issue` (sub-issue creation)
 - Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
-- Label state machine: Load [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) (add `needs-approval` on creation; GitHub `labels` parameter replaces all labels)
+- Label state machine: Read [planning-status-tracking §10](guidelines/141-planning-status-tracking.md) (add `needs-approval` on creation; GitHub `labels` parameter replaces all labels)
 
 ## Live Verification: Creation Evidence (MANDATORY)
 
-**Each creation precondition MUST be verified via tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per Load [verification-honesty guidelines](guidelines/065-verification-honesty.md).**
+**Each creation precondition MUST be verified via tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per Read [verification-honesty guidelines](guidelines/065-verification-honesty.md).**
 
 | Claim                            | Verification Action                  | Tool Call                                                                                          | Problem Class          |
 | -------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------- | ---------------------- |

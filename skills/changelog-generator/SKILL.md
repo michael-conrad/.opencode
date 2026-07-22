@@ -59,7 +59,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ date_range, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. Load [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ date_range, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

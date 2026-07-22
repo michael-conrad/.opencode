@@ -91,15 +91,6 @@ Before any cleanup operations, detect and build routing context for submodules u
 Verifies PR merge via GitHub API, runs SC-verification gate, phase-completion gate, and rebase pending PRs.
 
 
-### Step 1.1: PR-to-Spec Cross-Reference
-
-After merge verification, cross-reference PR changed files against the spec's affected files to confirm the PR actually addresses the spec's scope.
-
-- [ ] 1. Read PR changed files via `github_pull_request_read(method="get_files", ...)`
-- [ ] 2. Read spec issue body to extract affected files
-- [ ] 3. Verify intersection: PR files must overlap with spec affected files
-- [ ] 4. If no overlap: report VERIFICATION-GAP and HALT
-
 ### Step 1.5: Post-Merge Release Detection
 
 If the merged PR was a release PR (detected via branch name pattern `release/` or PR label), dispatch release-promoter tasks:
@@ -124,7 +115,7 @@ Scans all open repository issues, checks each for linked merged PRs, and closes 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to trunk, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
+Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
 
 ### Step 4: Post-Cleanup Dev-Tip Verification
 
@@ -221,36 +212,12 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### ✅ ALWAYS DO — IMMEDIATELY After Merge Confirmation
 
-- [ ] 1. **Detect worktree conflict:** Run `git worktree list` and check if `$DEFAULT_BRANCH` is already checked out in a worktree
-   ```bash
-   WORKTREE_CONFLICT=false
-   WORKTREE_PATH=""
-   while IFS= read -r line; do
-     if echo "$line" | grep -q "\[$DEFAULT_BRANCH\]"; then
-       WORKTREE_CONFLICT=true
-       WORKTREE_PATH=$(echo "$line" | awk '{print $1}')
-       break
-     fi
-   done < <(git worktree list 2>/dev/null || true)
-   ```
-- [ ] 2. **Remove conflicting worktree (if detected):** When `WORKTREE_CONFLICT=true`, remove the worktree before switching branches
-   ```bash
-   if [ "$WORKTREE_CONFLICT" = true ] && [ -n "$WORKTREE_PATH" ]; then
-     git worktree remove "$WORKTREE_PATH" 2>/dev/null || git worktree remove -f "$WORKTREE_PATH"
-   fi
-   ```
-- [ ] 3. **Switch to trunk and sync:** `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
-- [ ] 4. **Recreate the worktree (if removed):** When `WORKTREE_CONFLICT=true`, recreate the worktree so it is available for future sessions
-   ```bash
-   if [ "$WORKTREE_CONFLICT" = true ] && [ -n "$WORKTREE_PATH" ]; then
-     git worktree add "$WORKTREE_PATH" "$DEFAULT_BRANCH"
-   fi
-   ```
-- [ ] 5. Verify dev sync: `git log --oneline -5` must show the merge commit
-- [ ] 6. Delete local feature branch: `git branch -d <branch-name>`
-- [ ] 7. Delete remote branch: `git push origin --delete <branch-name>`
-- [ ] 8. Verify cleanup: `git branch -vv`
-- [ ] 9. Prune remote references: `git fetch --prune && git remote prune origin`
+- [ ] 1. Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
+- [ ] 2. Verify dev sync: `git log --oneline -5` must show the merge commit
+- [ ] 3. Delete local feature branch: `git branch -d <branch-name>`
+- [ ] 4. Delete remote branch: `git push origin --delete <branch-name>`
+- [ ] 5. Verify cleanup: `git branch -vv`
+- [ ] 6. Prune remote references: `git fetch --prune && git remote prune origin`
 
 ## Branch Status Categories
 
@@ -374,7 +341,6 @@ Each verification point requires a tool call for evidence. Assertions without to
 | Local dev synced | `git log --oneline -1 "$DEFAULT_BRANCH"` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
 | Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
 | All repos at dev tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
-| Merge commit verified | `git log --oneline "$DEFAULT_BRANCH" \| grep <merge_sha>` | Must return match | VERIFICATION-GAP → HALT |
 
 ## Sub-Task Files
 

@@ -1,6 +1,6 @@
 ---
 name: content-audit-evaluator
-description: "Evaluator for content-audit. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each claim, and writes verdict.yaml with per-claim PASS/FAIL/FABRICATED verdicts. Produces judgments, not just evidence."
+description: "Evaluator role for the content-audit DiMo chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each claim, and writes verdict.yaml with per-claim PASS/FAIL/FABRICATED verdicts. Produces judgments, not just evidence."
 license: MIT
 compatibility: opencode
 ---
@@ -13,9 +13,19 @@ compatibility: opencode
 
 ## Purpose
 
-Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the content-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
-
+> **DiMo Role: Evaluator.** This task evaluates factual claims in generated content. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each claim, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts.
+>
+> You are the Evaluator. You are decisive and binary. Every claim gets a PASS, FAIL, or FABRICATED — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
+>
+>
+> - MUST produce a binary PASS, FAIL, or FABRICATED for every claim — no hedging, no "PASS with concerns", no INCONCLUSIVE
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT collect new evidence — that is the Investigator's job
+> - MUST write `verdict.yaml` as the primary output artifact
+> - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
 
 > **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation, (4) all criteria evaluated against validated evidence.
 
@@ -24,14 +34,6 @@ Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning ro
 - `document_section`: The generated content section containing claims to verify
 - `source_data_paths`: Local file paths to source data that the claims reference
 - `artifact_evidence_dir`: Directory containing `evidence.yaml` and `reasoning.yaml` from upstream roles
-
-**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
-
-```yaml
-status: BLOCKED
-reason: EXPECTED_DETERMINATION_REJECTED
-message: "Expected determination detected. Dispatch without pre-judgment."
-```
 
 ## Entry Criteria
 
@@ -140,15 +142,6 @@ Read the generated content section to establish the authoritative baseline for e
 - [ ] 2. Verify each claim's `claim_text` appears in the document section — cross-reference against `document_section_validation.claim_text_validation` from `reasoning.yaml`
 - [ ] 3. Verify `document_section.length_chars` and `document_section.length_lines` match — cross-reference against `document_section_validation` from `reasoning.yaml`
 - [ ] 4. If the upstream reasoning role flagged `CLAIM_TEXT_NOT_IN_DOCUMENT` for any claim, note this in the evaluation
-
-### Step 3.5: Clean-Room Dispatch for Behavioral SCs
-
-For each SC declared as `behavioral` evidence type:
-
-- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
-- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
-- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
-- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 4: Evaluate Numerical Claims
 
@@ -415,45 +408,6 @@ issue_impact:
       reason: "<description>"
 ```
 
-
-### Step 13: Evaluate Behavioral SCs via Clean-Room Sub-Agent
-
-For each behavioral SC in the spec, dispatch a clean-room sub-agent to evaluate the test artifacts:
-
-- [ ] 1. Identify all behavioral SCs from the spec's success criteria table (evidence type `behavioral`)
-- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path:
-
-```yaml
-task(
-  prompt: "execute behavioral-sc-evaluator task from audit"
-  context: {
-    artifact_dir: "<path to behavioral test artifact directory>",
-    sc_id: "<SC-N>",
-    sc_criterion: "<exact SC text from spec>"
-  }
-)
-```
-
-- [ ] 3. The clean-room sub-agent receives ONLY the artifact directory path and SC criterion — NO orchestrator reasoning, expected outcomes, or cached results
-- [ ] 4. If the clean-room sub-agent returns `status: DONE` with `verdict: PASS` → the evaluator verdict for that SC is PASS
-- [ ] 5. If the clean-room sub-agent returns `status: DONE` with `verdict: FAIL` → the evaluator verdict for that SC is FAIL
-- [ ] 6. If the clean-room sub-agent returns `status: BLOCKED` or errors → the evaluator verdict for that SC is FAIL
-- [ ] 7. File-existence alone is NEVER sufficient evidence for behavioral SCs — the sub-agent must evaluate actual agent behavior from stdout.log and stderr.log
-- [ ] 8. Record behavioral SC verdicts:
-
-```yaml
-behavioral_sc_evaluation:
-  scs_evaluated: <N>
-  scs_pass: <N>
-  scs_fail: <N>
-  per_sc:
-    - sc_id: "<SC-N>"
-      verdict: "PASS | FAIL"
-      artifact_dir: "<path>"
-      justification: "<1-2 sentence summary from sub-agent result>"
-```
-
-- [ ] 9. If ANY behavioral SC returns FAIL, set `all_claims_pass: false` in the final verdict regardless of other domain verdicts
 ### Step 12: Process Verdicts
 
 Compile all per-claim verdicts and apply consensus rules:
@@ -464,7 +418,7 @@ Compile all per-claim verdicts and apply consensus rules:
 - [ ] 4. Count total, pass, fail, and fabricated verdicts
 - [ ] 5. Compute `all_claims_pass: true` only if every claim is PASS
 
-### Step 14: Apply Self-Consistency Gate
+### Step 13: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -484,7 +438,7 @@ self_consistency_downgrades:
     hedging_phrase: "<matched phrase>"
 ```
 
-### Step 15: Write verdict.yaml
+### Step 14: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -542,7 +496,7 @@ self_consistency_downgrades:
 - [ ] 2. Write `verdict.yaml` with the complete verdict structure
 - [ ] 3. Verify the file was written and is non-empty
 
-### Step 16: Return Frugal Result Contract
+### Step 15: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -564,6 +518,7 @@ remediation_required: true | false
 
 ## Clean-Room Protocol
 
+- **DiMo role chain**: Dispatched via sequential `task(subagent_type="general")` calls. Investigator → upstream reasoning role → Evaluator → Arbiter. Each role reads upstream artifacts and writes its own.
 - **No orchestrator preload**: Sub-agents receive only `{ document_section, source_data_paths, artifact_evidence_dir }`. No orchestrator reasoning, expected outcomes, pre-loaded evidence, or cached verification results.
 - **Sub-agent entry criteria**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 - **Evidence artifacts on disk**: Each role writes full evidence artifacts to disk. The result contract carries only routing-significant data (`status`, `finding_summary`, `artifact_path`, `blocker_reason`).
@@ -585,10 +540,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 10. Evaluate Source Data Inventory → INVALID if skipped
 - [ ] 11. Evaluate Issues from upstream reasoning role → INVALID if skipped
 - [ ] 12. Process Verdicts → INVALID if skipped
-- [ ] 13. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped
-- [ ] 14. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 15. Write verdict.yaml → INVALID if skipped
-- [ ] 16. Return Frugal Result Contract → INVALID if skipped
+- [ ] 13. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 14. Write verdict.yaml → INVALID if skipped
+- [ ] 15. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
@@ -615,34 +569,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/content-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/content-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
-- `SKILL.md` — skill-level operating protocol and enforcement rules
+- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol
 - `065-verification-honesty.md` — live-source verification mandate, hard failure discipline
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

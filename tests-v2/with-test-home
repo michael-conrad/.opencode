@@ -44,6 +44,13 @@ PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
 
 # Resolve opencode from PATH — NEVER use /snap/bin/opencode or snap run (leaks production state).
+# Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
+# The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
+# making it impossible to isolate test runs from production state.
+if [ -x "$PROJECT_DIR/.tools/opencode/opencode" ]; then
+    export PATH="$PROJECT_DIR/.tools/opencode:$PATH"
+fi
+
 if command -v opencode &>/dev/null; then
     OPENCODE_CMD=("$(command -v opencode)")
 elif [ -x /usr/bin/opencode-cli ]; then
@@ -122,29 +129,46 @@ do_setup() {
     local test_home="$TMP_DIR/test-home-$timestamp"
     mkdir -p "$test_home"
 
-    local test_project="$test_home/project"
-    mkdir -p "$test_project"
+    # If TEST_WORKDIR is set, use it as the project directory (behavior_run pre-setup).
+    # Otherwise create a fresh project directory.
+    local test_project
+    if [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR" ]; then
+        test_project="$TEST_WORKDIR"
+        # Move it into the test home so isolation checks pass.
+        mv "$test_project" "$test_home/project"
+        test_project="$test_home/project"
+    else
+        test_project="$test_home/project"
+        mkdir -p "$test_project"
+        git init -q "$test_project"
+        git -C "$test_project" config user.email "test@test.dev"
+        git -C "$test_project" config user.name "Test"
 
-    git init -q "$test_project"
-    git -C "$test_project" config user.email "test@test.dev"
-    git -C "$test_project" config user.name "Test"
+        local submodule_remote_url
+        if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+            submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+        fi
+        if [ -z "$submodule_remote_url" ]; then
+            submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+        fi
+        submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
-    local submodule_remote_url
-    if [ -f "$PROJECT_DIR/.gitmodules" ]; then
-        submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+        git clone -q "$submodule_remote_url" "$test_project/.opencode" 2>/dev/null || {
+            echo "HARNESS_FAILURE: git clone failed for .opencode from $submodule_remote_url" >&2
+            exit 1
+        }
+
+        # Checkout the same commit as the local .opencode submodule to pick up feature branch changes.
+        LOCAL_SUBMODULE_COMMIT=$(git -C "$PROJECT_DIR/.opencode" rev-parse HEAD 2>/dev/null || true)
+        if [ -n "$LOCAL_SUBMODULE_COMMIT" ]; then
+            git -C "$test_project/.opencode" checkout -q "$LOCAL_SUBMODULE_COMMIT" 2>/dev/null || {
+                echo "WARNING: could not checkout local submodule commit $LOCAL_SUBMODULE_COMMIT — using remote default branch" >&2
+            }
+        fi
+
+        git -C "$test_project" add -A 2>/dev/null || true
+        git -C "$test_project" commit -q --allow-empty -m "init" 2>/dev/null || true
     fi
-    if [ -z "$submodule_remote_url" ]; then
-        submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
-    fi
-    submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
-
-    git clone -q "$submodule_remote_url" "$test_project/.opencode" 2>/dev/null || {
-        echo "HARNESS_FAILURE: git clone failed for .opencode from $submodule_remote_url" >&2
-        exit 1
-    }
-
-    git -C "$test_project" add -A 2>/dev/null || true
-    git -C "$test_project" commit -q --allow-empty -m "init" 2>/dev/null || true
 
     export TEST_HOME="$test_home"
     export TEST_PROJECT="$test_project"
@@ -163,6 +187,9 @@ do_setup() {
         export SNAP_USER_COMMON="$test_home/snap/opencode"
         export USER="opencode-test-user"
         export GIT_CONFIG_NOSYSTEM=1
+        export UV_CACHE_DIR="$test_home/.cache/uv"
+        export UV_PYTHON_INSTALL_DIR="$test_home/.cache/uv/python"
+        export UV_TOOL_DIR="$test_home/.local/share/uv/tools"
 
         local smoke_output
         smoke_output=$("${OPENCODE_CMD[@]}" models 2>&1 || true)
@@ -213,7 +240,7 @@ do_setup() {
     while IFS= read -r -d '' f; do
         local rel="${f#$test_home/}"
         case "$rel" in
-            .config|.config/*|.local|.local/*|.cache|.cache/*|.runtime|.runtime/*|snap|snap/*|project|project/*|.git|.git/*)
+            .config|.config/opencode|.config/opencode/*|.config/gb|.config/gb/*|.local|.local/share|.local/share/opencode|.local/share/opencode/*|.local/share/uv|.local/share/uv/*|.local/share/fastmcp|.local/share/fastmcp/*|.local/state|.local/state/opencode|.local/state/opencode/*|.cache|.cache/opencode|.cache/opencode/*|.cache/uv|.cache/uv/*|.runtime|.runtime/*|snap|snap/opencode|snap/opencode/*|project|project/*|.git|.git/*)
                 ;;
             .gitignore|.gitattributes)
                 ;;
@@ -289,26 +316,39 @@ TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 TEST_HOME="$TMP_DIR/test-home-$TIMESTAMP"
 mkdir -p "$TEST_HOME"
 
-TEST_PROJECT="$TEST_HOME/project"
-mkdir -p "$TEST_PROJECT"
+# If TEST_WORKDIR is set, use it as the project directory (behavior_run pre-setup).
+if [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR" ]; then
+    mv "$TEST_WORKDIR" "$TEST_HOME/project"
+    TEST_PROJECT="$TEST_HOME/project"
+else
+    TEST_PROJECT="$TEST_HOME/project"
+    mkdir -p "$TEST_PROJECT"
+    git init -q "$TEST_PROJECT"
+    git -C "$TEST_PROJECT" config user.email "test@test.dev"
+    git -C "$TEST_PROJECT" config user.name "Test"
 
-git init -q "$TEST_PROJECT"
-git -C "$TEST_PROJECT" config user.email "test@test.dev"
-git -C "$TEST_PROJECT" config user.name "Test"
+    SUBMODULE_REMOTE_URL="https://github.com/michael-conrad/.opencode.git"
+    if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+        SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")
+    fi
+    SUBMODULE_REMOTE_URL=$(echo "$SUBMODULE_REMOTE_URL" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
-SUBMODULE_REMOTE_URL="https://github.com/michael-conrad/.opencode.git"
-if [ -f "$PROJECT_DIR/.gitmodules" ]; then
-    SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")
+    git clone -q "$SUBMODULE_REMOTE_URL" "$TEST_PROJECT/.opencode" 2>/dev/null || {
+        echo "HARNESS_FAILURE: git clone failed for .opencode from $SUBMODULE_REMOTE_URL" >&2
+        exit 1
+    }
+
+    # Checkout the same commit as the local .opencode submodule to pick up feature branch changes.
+    LOCAL_SUBMODULE_COMMIT=$(git -C "$PROJECT_DIR/.opencode" rev-parse HEAD 2>/dev/null || true)
+    if [ -n "$LOCAL_SUBMODULE_COMMIT" ]; then
+        git -C "$TEST_PROJECT/.opencode" checkout -q "$LOCAL_SUBMODULE_COMMIT" 2>/dev/null || {
+            echo "WARNING: could not checkout local submodule commit $LOCAL_SUBMODULE_COMMIT — using remote default branch" >&2
+        }
+    fi
+
+    git -C "$TEST_PROJECT" add -A 2>/dev/null || true
+    git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
 fi
-SUBMODULE_REMOTE_URL=$(echo "$SUBMODULE_REMOTE_URL" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
-
-git clone -q "$SUBMODULE_REMOTE_URL" "$TEST_PROJECT/.opencode" 2>/dev/null || {
-    echo "HARNESS_FAILURE: git clone failed for .opencode from $SUBMODULE_REMOTE_URL" >&2
-    exit 1
-}
-
-git -C "$TEST_PROJECT" add -A 2>/dev/null || true
-git -C "$TEST_PROJECT" commit -q --allow-empty -m "init" 2>/dev/null || true
 
 seed_model_config
 
@@ -327,6 +367,9 @@ RC=0
     export SNAP_USER_COMMON="$TEST_HOME/snap/opencode"
     export USER="opencode-test-user"
     export GIT_CONFIG_NOSYSTEM=1
+    export UV_CACHE_DIR="$TEST_HOME/.cache/uv"
+    export UV_PYTHON_INSTALL_DIR="$TEST_HOME/.cache/uv/python"
+    export UV_TOOL_DIR="$TEST_HOME/.local/share/uv/tools"
     "$@"
 ) 2>&1 || RC=$?
 

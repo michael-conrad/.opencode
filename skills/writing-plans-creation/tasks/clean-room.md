@@ -6,13 +6,13 @@ Generate a clean-room implementation plan from a problem statement only, using p
 
 ## Operating Protocol
 
-- [ ] 1. **Invoked by:** orchestrator dispatches `audit` skill → `plan-fidelity` task (not by users directly)
+- [ ] 1. **Invoked by:** `skill({name: "audit"})` → `task()` for `plan-fidelity` (not by users directly)
 - [ ] 2. **Bypasses:** Approval gate (clean-room plans don't need approval — they're comparison artifacts)
 - [ ] 3. **Does NOT reference:** Any existing plan, spec phases, or spec steps
 
 ## Entry Criteria
 
-- Problem statement is provided inline in the task context
+- Problem statement input file exists at `{project_root}/tmp/{issue-N}/artifacts/clean-room-N.md`
 - Problem statement contains: Objective, Problem Statement, Context, Constraints, Success Criteria
 - The writing-plans skill is available
 
@@ -38,7 +38,11 @@ Generate a clean-room implementation plan from a problem statement only, using p
 
 ### Step 1: Read Problem Statement
 
-**Read the problem statement from the task context.**
+**Read the clean-room input file:**
+
+```
+Read: {project_root}/tmp/{issue-N}/artifacts/clean-room-N.md
+```
 
 **Extract what's available:**
 
@@ -135,7 +139,7 @@ affected_files_count: K
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Problem statement provided in context" | Verify problem statement is non-empty | Check task context for problem statement | MISSING-ELEMENT |
+| "Problem statement exists at path" | Verify file exists and is non-empty | `ls {project_root}/tmp/{issue-N}/artifacts/clean-room-N.md` | MISSING-ELEMENT |
 | "Affected file X exists" | Verify file in codebase | `srclight_search_symbols(query="X")` or `glob(pattern="**/X")` | VERIFICATION-GAP |
 | "Function Y has signature Z" | Verify signature against live code | `srclight_get_signature(name="Y")` | VERIFICATION-GAP |
 | "Pattern follows existing code" | Verify the referenced pattern exists | `grep(pattern="pattern_text")` | CONFLICTING |
@@ -154,8 +158,8 @@ affected_files_count: K
 
 ## Cross-References
 
-- Invoked by: orchestrator dispatches `audit` skill → `plan-fidelity` task
-- Load [create](tasks/create.md) (standard plan creation), Load [validate](tasks/validate.md) (plan validation)
-- Load [audit](skills/audit/SKILL.md), Load [brainstorming](skills/brainstorming/SKILL.md) (recommended when gaps found)
+- Invoked by: `skill({name: "audit"})` → `task()` for `plan-fidelity`
+- Related tasks: `create` (standard plan creation), `validate` (plan validation)
+- Related skills: `audit` (orchestrator), `brainstorming` (recommended when gaps found)
 
 Co-authored with AI: <AgentName> (<ModelId>)

@@ -57,8 +57,8 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 
 ## Cross-References
 
-- Load [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
-- Load [approval-gate skill](skills/approval-gate/SKILL.md) for authorization scope requirements
-- Load [critical-rules-005](guidelines/000-critical-rules.md) for branch creation rules
-- Load [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
-- Load [§1](guidelines/020-go-prohibitions.md) for `for_analysis` branch restrictions
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [approval-gate skill](skills/approval-gate/SKILL.md) for authorization scope requirements
+- Read [critical-rules-005](guidelines/000-critical-rules.md) for branch creation rules
+- Read [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
+- Read [§1](guidelines/020-go-prohibitions.md) for `for_analysis` branch restrictions

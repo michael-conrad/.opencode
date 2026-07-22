@@ -35,7 +35,7 @@ Verification IS completion — the concept is fused. If verification FAILS, the 
 
 ## Common Completion Operations
 
-Load [the full completion operations](completion-core/tasks/completion.md) (push branch, generate URL, append lifecycle event, executive summary).
+Read [the full completion operations](completion-core/tasks/completion.md) (push branch, generate URL, append lifecycle event, executive summary).
 
 ## DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

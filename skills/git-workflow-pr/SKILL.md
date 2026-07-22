@@ -53,10 +53,10 @@ Pull request management sub-skill of git-workflow. Handles PR creation, review p
 
 ## Cross-References
 
-- Load [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
-- Load [pr-creation-workflow skill](skills/pr-creation-workflow/SKILL.md) for PR authorization and readiness verification
-- Load [critical-rules-016](guidelines/000-critical-rules.md) for PR body format requirements
-- Load [critical-rules-016](guidelines/000-critical-rules.md) for compare URL base branch rules
-- Load [critical-rules-019](guidelines/000-critical-rules.md) for PR creation authorization
-- Load [critical-rules-PR-ORG](guidelines/000-critical-rules.md) for stacked PR strategy
-- Load [critical-rules-040](guidelines/000-critical-rules.md) for single-commit PR discipline
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [pr-creation-workflow skill](skills/pr-creation-workflow/SKILL.md) for PR authorization and readiness verification
+- Read [critical-rules-016](guidelines/000-critical-rules.md) for PR body format requirements
+- Read [critical-rules-016](guidelines/000-critical-rules.md) for compare URL base branch rules
+- Read [critical-rules-019](guidelines/000-critical-rules.md) for PR creation authorization
+- Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md) for stacked PR strategy
+- Read [critical-rules-040](guidelines/000-critical-rules.md) for single-commit PR discipline

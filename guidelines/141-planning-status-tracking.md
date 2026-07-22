@@ -140,7 +140,7 @@ When updating status:
 2. **Edit STATUS field ONLY** (change `STATUS: in progress — {concern}, Step N` or `STATUS: 1.1` for backward compatibility)
 3. **Never rewrite the entire body** to change status
 
-Load [§critical-rules-023](000-critical-rules.md) and the [issue-operations skill → comment task](skills/issue-operations/SKILL.md) for complete rules.
+Read [§critical-rules-023](000-critical-rules.md) and the [issue-operations skill → comment task](skills/issue-operations/SKILL.md) for complete rules.
 
 ### Missing Status Header
 

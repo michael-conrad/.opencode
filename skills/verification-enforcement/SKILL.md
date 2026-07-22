@@ -60,7 +60,7 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Operating Protocol
 
-Load [the full operating protocol](verification-enforcement/tasks/operating-protocol.md)
+Read [the full operating protocol](verification-enforcement/tasks/operating-protocol.md)
 
 ## Sub-Agent Routing
 

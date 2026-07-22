@@ -1,6 +1,6 @@
 ---
 name: spec-audit-evaluator
-description: "Evaluator for spec-audit. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
+description: "Evaluator role for the spec-audit DiMo chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
 license: MIT
 compatibility: opencode
 ---
@@ -13,9 +13,19 @@ compatibility: opencode
 
 ## Purpose
 
-Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion against the spec, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Evaluator role for the spec-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion against the spec, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
 
-
+> **DiMo Role: Evaluator.** This task evaluates spec quality. Reads `evidence.yaml` + `reasoning.yaml` from upstream roles, evaluates each criterion, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts.
+>
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. The upstream reasoning role has already validated it. Make the call.
+>
+>
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns", no INCONCLUSIVE
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-validate evidence that upstream reasoning role already validated — trust the `reasoning.yaml` validation status
+> - MUST NOT collect new evidence — that is the Investigator's job
+> - MUST write `verdict.yaml` as the primary output artifact
+> - MUST apply the self-consistency gate: if a PASS verdict's explanation contains critique/hedging language, downgrade to FAIL
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from upstream roles are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against validated evidence.
 
@@ -34,14 +44,6 @@ Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning ro
 - `testability_assessment_path`: Path to testability assessment artifact (optional)
 - `failure_description`: Optional — prior implementation failure description (triggers enhanced determinism evaluation)
 
-**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
-
-```yaml
-status: BLOCKED
-reason: EXPECTED_DETERMINATION_REJECTED
-message: "Expected determination detected. Dispatch without pre-judgment."
-```
-
 ## Entry Criteria
 
 - `evidence.yaml` exists at `{artifact_evidence_dir}/evidence.yaml` — MUST be a file confirmed to exist before dispatch. The orchestrator MUST verify the Investigator completed successfully and wrote `evidence.yaml` before dispatching the Evaluator. Dispatching without a valid `evidence.yaml` is a CRITICAL VIOLATION.
@@ -50,14 +52,13 @@ message: "Expected determination detected. Dispatch without pre-judgment."
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - `artifact_evidence_dir` provided (writable directory for verdict artifacts)
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
 - `verdict.yaml` written to `{artifact_evidence_dir}/verdict.yaml`
 - Every criterion evaluated with binary PASS/FAIL — no INCONCLUSIVE, no "PASS with concerns"
 - Holistic dimensions evaluated (11 dimensions from `.opencode/reference/holistic-dimensions.yaml`)
-- Narrow criteria evaluated (SC-1 through SC-14 excluding SC-7, SC-DET, SC-STRUCTURAL-FAIL, SC-EVIDENCE-TYPE, SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, SC-PIPELINE-GATES, SC-CANONICAL-PLAN-FORM, SC-ADMONISHMENT, SC-REASONING, SC-CLAIM, SC-BLAST-RADIUS, SC-CONCERN-MAP, SC-CODE-PATH, SC-CROSS-CUTTING, SC-INTERFACE, SC-STATE, SC-TESTABILITY)
+- Narrow criteria evaluated (SC-1 through SC-14, SC-DET, SC-STRUCTURAL-FAIL, SC-EVIDENCE-TYPE, SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, SC-PIPELINE-GATES, SC-CANONICAL-PLAN-FORM, SC-ADMONISHMENT, SC-REASONING, SC-CLAIM, SC-BLAST-RADIUS, SC-CONCERN-MAP, SC-CODE-PATH, SC-CROSS-CUTTING, SC-INTERFACE, SC-STATE, SC-TESTABILITY)
 - SC-SEM criteria evaluated (if spec is a skill card audit)
 - Analytical artifact criteria evaluated (if artifact paths provided)
 - Self-consistency gate applied to all PASS verdicts
@@ -105,15 +106,6 @@ remediation: "spec_local_dir is required for spec-audit-evaluator. The orchestra
 ```
 
 - [ ] 7. Verify `artifact_evidence_dir` is writable — create it if it does not exist
-- [ ] 8. Verify plan-fidelity `verdict.yaml` exists at `./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml` — this is a cross-chain dependency. The spec-audit evaluator MUST NOT produce a verdict without the plan-fidelity audit having completed first. The orchestrator MUST ensure plan-fidelity completed before dispatching the spec-audit evaluator.
-- [ ] 9. If plan-fidelity `verdict.yaml` is missing, return BLOCKED:
-
-```yaml
-status: BLOCKED
-error: MISSING_PLAN_FIDELITY_VERDICT
-missing: "./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml"
-remediation: "Plan-fidelity verdict.yaml is required for spec-audit-evaluator. The orchestrator must ensure the plan-fidelity audit completed successfully before dispatching the Evaluator. The plan-fidelity audit produces verdict.yaml at ./tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml."
-```
 
 ### Step 2: Load Upstream Artifacts
 
@@ -136,15 +128,6 @@ Read the spec files to establish the authoritative baseline for evaluation:
 - [ ] 4. Extract the Success Criteria table — this is the authoritative list of SCs to evaluate
 - [ ] 5. Extract the STATUS marker if present
 - [ ] 6. Determine if this is a skill card audit (spec references a SKILL.md file or `spec_local_dir` contains a SKILL.md)
-
-### Step 3.5: Clean-Room Dispatch for Behavioral SCs
-
-For each SC declared as `behavioral` evidence type:
-
-- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
-- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
-- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
-- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
 
 ### Step 4: Holistic Semantic Evaluation Gate
 
@@ -243,7 +226,7 @@ holistic_evaluation:
 
 For each narrow criterion, evaluate using the validated evidence from `reasoning.yaml`. The evidence has already been collected (Investigator) and validated (upstream reasoning role). The Evaluator's job is to render judgment.
 
-#### Step 5a: Evaluate Structural Criteria (SC-1 through SC-14, excluding SC-7)
+#### Step 5a: Evaluate Structural Criteria (SC-1 through SC-14)
 
 | Criterion ID | Description | Evidence Source | Evaluation Rule |
 |--------------|-------------|-----------------|-----------------|
@@ -253,6 +236,7 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 | SC-4 | Steps actionable | `spec_structure_validation` | PASS if each step has a file path or task reference |
 | SC-5 | Dependencies identified | `reasoning_validation` | PASS if phase dependencies are documented |
 | SC-6 | Concerns separated | `spec_structure_validation.phases` | PASS if single concern per phase |
+| SC-7 | Fidelity maintained | `spec_structure_validation` | PASS if plan matches spec structure |
 | SC-8 | Operational clarity | `reasoning_validation.edge_cases` | PASS if edge cases and error recovery defined |
 | SC-9 | Determinism achieved | `determinism_validation` | PASS if repeatable execution path (see also SC-DET) |
 | SC-10 | Prose structure valid | `spec_structure_validation.prose_elements` | PASS if headers, lists, tables properly formatted |
@@ -261,7 +245,7 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 | SC-13 | Cost-frame prose + runtime execution in SCs | `prose_validation.cost_frame_language` | PASS if each SC carries cost-frame reformation language |
 | SC-14 | SC Enforcement Gate present and explicit | `spec_structure_validation` | PASS if spec contains all-or-nothing gate statement |
 
-- [ ] 1. For each SC-1 through SC-14 (excluding SC-7, which is now handled by plan-fidelity), read the corresponding evidence from `reasoning.yaml`
+- [ ] 1. For each SC-1 through SC-14, read the corresponding evidence from `reasoning.yaml`
 - [ ] 2. Apply the evaluation rule — render PASS or FAIL
 - [ ] 3. If the upstream reasoning role flagged the evidence as `corrected`, use the corrected values
 - [ ] 4. If the upstream reasoning role flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
@@ -614,48 +598,16 @@ When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM
 
 - [ ] 4. For each SC-SEM criterion, render PASS or FAIL with explanation and remediation guidance
 
-### Step 16: Evaluate Behavioral SCs via Clean-Room Sub-Agent
-
-For each SC whose declared evidence type is `behavioral`, the evaluator MUST NOT render a verdict from upstream artifacts alone. Behavioral SCs require clean-room evaluation of actual test execution output.
-
-- [ ] 1. Identify all SCs with `declared_evidence_type: behavioral` from `determinism_validation.evidence_type_declarations` in `reasoning.yaml`
-- [ ] 2. For each behavioral SC, dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path:
-
-```yaml
-prompt: "Evaluate behavioral SCs from artifact directory: {artifact_evidence_dir}"
-```
-
-The sub-agent receives:
-- The artifact directory path (containing `stdout.log`, `stderr.log`, `manifest.yaml`)
-- The SC criteria text inline
-- NO orchestrator reasoning, expected outcomes, or cached results
-
-- [ ] 3. Collect the result contract from each clean-room sub-agent dispatch
-- [ ] 4. If the clean-room sub-agent returns `verdict: FAIL` for any SC, the evaluator's verdict for that SC is FAIL — regardless of what upstream evidence suggests
-- [ ] 5. File-existence alone is NEVER sufficient evidence for behavioral SCs. If the artifact directory exists but the clean-room sub-agent judges the agent's actions did not satisfy the SC, the verdict is FAIL
-- [ ] 6. Record the behavioral SC verdicts in the per-criterion array with `evidence: "clean-room behavioral-sc-evaluator"`
-
-Record results:
-
-```yaml
-behavioral_sc_evaluation:
-  - sc_id: "<SC-N>"
-    declared_evidence_type: behavioral
-    clean_room_verdict: "PASS|FAIL"
-    evaluator_verdict: "PASS|FAIL"
-    evidence: "clean-room behavioral-sc-evaluator at {artifact_evidence_dir}"
-```
-
-### Step 17: Process Verdicts
+### Step 16: Process Verdicts
 
 Compile all per-criterion verdicts and apply consensus rules:
 
-- [ ] 1. Collect all verdicts from Steps 4-16 into a single `per_criterion` array
+- [ ] 1. Collect all verdicts from Steps 4-15 into a single `per_criterion` array
 - [ ] 2. Each entry must include: `criterion_id`, `declared_evidence_type`, `result`, `evidence`, `explanation`, `remediation`, `next_step`, `tool_calls_made`
 - [ ] 3. `next_step` is `"proceed"` when result is PASS, `"remediate"` when result is FAIL
 - [ ] 4. Count total, pass, and fail verdicts
 
-### Step 18: Apply Self-Consistency Gate
+### Step 17: Apply Self-Consistency Gate
 
 Apply a self-consistency check to every PASS verdict:
 
@@ -665,7 +617,7 @@ Apply a self-consistency check to every PASS verdict:
   - A PASS verdict must be strictly confirmatory with no critique or hedging
 - [ ] 2. Re-count pass/fail after self-consistency downgrades
 
-### Step 19: Generate Bidirectional Findings
+### Step 18: Generate Bidirectional Findings
 
 Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the findings table.
 
@@ -680,7 +632,7 @@ Generate findings ONLY for FAIL criteria. PASS criteria MUST NOT appear in the f
 - [ ] 2. Present revision options for developer decision
 - [ ] 3. Include specific remediation guidance for each FAIL
 
-### Step 20: Write verdict.yaml
+### Step 19: Write verdict.yaml
 
 Write the complete verdict to `{artifact_evidence_dir}/verdict.yaml`:
 
@@ -726,7 +678,7 @@ bidirectional_findings:
     revision_option: "<guidance>"
 ```
 
-### Step 21: Return Frugal Result Contract
+### Step 20: Return Frugal Result Contract
 
 ```yaml
 status: DONE | FAIL
@@ -757,12 +709,11 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 13. Evaluate Cross-Reference Completeness (A9) → INVALID if skipped
 - [ ] 14. Evaluate Analytical Artifact Criteria → INVALID if skipped
 - [ ] 15. Evaluate Semantic Auditor Criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
-- [ ] 16. Evaluate Behavioral SCs via Clean-Room Sub-Agent → INVALID if skipped (behavioral SCs without clean-room evaluation are EVIDENCE_TYPE_MISMATCH)
-- [ ] 17. Process Verdicts → INVALID if skipped
-- [ ] 18. Apply Self-Consistency Gate → INVALID if skipped
-- [ ] 19. Generate Bidirectional Findings → INVALID if skipped
-- [ ] 20. Write verdict.yaml → INVALID if skipped
-- [ ] 21. Return Frugal Result Contract → INVALID if skipped
+- [ ] 16. Process Verdicts → INVALID if skipped
+- [ ] 17. Apply Self-Consistency Gate → INVALID if skipped
+- [ ] 18. Generate Bidirectional Findings → INVALID if skipped
+- [ ] 19. Write verdict.yaml → INVALID if skipped
+- [ ] 20. Return Frugal Result Contract → INVALID if skipped
 
 ## Error Handling
 
@@ -785,35 +736,10 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/spec-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/spec-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
-- `tasks/behavioral-sc-evaluator.md` — Clean-room sub-agent for behavioral SC evaluation
-- `SKILL.md` — skill-level operating protocol and enforcement rules
+- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
-- Load [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
-- Load [critical-rules-BEH-EV](guidelines/000-critical-rules.md) — runtime-behavioral evidence classification gate
-- Load [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md) — runtime-behavioral evidence classification gate
+- Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

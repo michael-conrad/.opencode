@@ -80,7 +80,7 @@ GATE 3: Is current branch a feature branch (not main/$DEFAULT_BRANCH/master)?
 
 ### Step 2.5: Search for Existing Spec/Plan Candidates (MANDATORY before Q/A mode)
 
-**When ANY gate fails (no spec, no authorization, or wrong branch), the agent MUST search GitHub Issues for existing candidates before entering Q/A mode.** A silent halt without searching is a critical violation — Load [Silent Halt Without Prompt](guidelines/000-critical-rules.md).
+**When ANY gate fails (no spec, no authorization, or wrong branch), the agent MUST search GitHub Issues for existing candidates before entering Q/A mode.** A silent halt without searching is a critical violation — Read [Silent Halt Without Prompt](guidelines/000-critical-rules.md).
 
 **Search Procedure:**
 
@@ -313,7 +313,7 @@ What would you like me to do?
 
 ## Adversarial Verification: Spec-Less Detection
 
-Adversarial verification model (evidence format, classification tiers, tier actions): Load [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
+Adversarial verification model (evidence format, classification tiers, tier actions): Read [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
 
 ### Verify Issue Exists and Contains Actual Spec Content
 
@@ -363,7 +363,7 @@ git_status = git status
 
 ### Task-Specific Findings
 
-Load [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
+Read [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md) for the binary PASS/FAIL classification model (auto-fix as remediation action only) and evidence artifact format.
 
 ## Edge Cases
 
@@ -426,9 +426,9 @@ What would you like me to do?
 - Related guideline: `010-approval-gate.md`
 - Related task: `verify-authorization.md`
 - Related skill: `git-workflow` (pre-work task)
-- Label state machine: Load [§10](guidelines/141-planning-status-tracking.md) (label transitions for authorization gates)
+- Label state machine: Read [§10](guidelines/141-planning-status-tracking.md) (label transitions for authorization gates)
 
 ## Enforcement References
 
-- Evidence format + finding classification: Load [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
-- Scope parsing: Load [scope-parsing.md](skills/approval-gate-scope/tasks/enforcement/scope-parsing.md)
+- Evidence format + finding classification: Read [adversarial-verification.md](skills/approval-gate-scope/tasks/enforcement/adversarial-verification.md)
+- Scope parsing: Read [scope-parsing.md](skills/approval-gate-scope/tasks/enforcement/scope-parsing.md)

@@ -23,7 +23,7 @@ Evaluate a spec against the 11-dimension holistic semantic gate before finalizat
 
 - [ ] 1. **Load dimension definitions** — Read `.opencode/reference/holistic-dimensions.yaml` to load the canonical 11 spec dimensions with their questions and checks.
 
-- [ ] 2. **Read the spec** — Read the full spec body from the local `{project_root}/{path}/.issues/{N}/spec.md` file. Read all sections: preamble, problem statement, root cause analysis, alternatives considered, safety considerations, success criteria, traceability table, feasibility assessment, constraints, dependencies, and any other content.
+- [ ] 2. **Read the spec** — Read the full spec body from the local `.issues/{N}/spec.md` file. Read all sections: preamble, problem statement, root cause analysis, alternatives considered, safety considerations, success criteria, traceability table, feasibility assessment, constraints, dependencies, and any other content.
 
 - [ ] 3. **Evaluate each dimension** — For each of the 11 dimensions, produce a single PASS/FAIL verdict. The sub-agent reads the full spec and judges independently — no grep, no pattern matching, no checklist. Each dimension is a semantic question:
 
@@ -61,7 +61,7 @@ Evaluate a spec against the 11-dimension holistic semantic gate before finalizat
           name: "<dimension name>"
           finding: "<what failed>"
           resolution: "<what needs to be fixed>"
-      artifact_path: "{project_root}/{path}/.issues/{N}/artifacts/holistic-self-check.yaml"
+      artifact_path: "{project_root}/tmp/{issue-N}/holistic-self-check.yaml"
     ```
 
 - [ ] 5. **If all PASS** — Return `status: DONE` with the verdict artifact. Spec is ready for finalization.
@@ -79,6 +79,6 @@ Evaluate a spec against the 11-dimension holistic semantic gate before finalizat
 ```yaml
 status: DONE | BLOCKED
 finding_summary: "Holistic self-check: <N>/11 PASS, <M>/11 FAIL. Failed: <dimension names>"
-artifact_path: "{project_root}/{path}/.issues/{N}/artifacts/holistic-self-check.yaml"
+artifact_path: "{project_root}/tmp/{issue-N}/holistic-self-check.yaml"
 blocker_reason: "HOLISTIC_GATE_FAILED: <dimension names> failed. See artifact for details."  # if BLOCKED
 ```

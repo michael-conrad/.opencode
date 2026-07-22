@@ -4,15 +4,20 @@
 
 # Task: resolve-models (Reference)
 
+> **DiMo Role: Arbiter (reference).** This task is a reference document describing the Arbiter role in the DiMo role chain. The Arbiter reads all upstream artifacts (`evidence.yaml`, `reasoning.yaml`, `verdict.yaml`) and produces the final `judgment.yaml`. Model selection is embedded in the sequential dispatch — no separate `resolve-models` tool invocation is needed.
+>
+> **The authoritative Arbiter implementation is `tasks/cross-validate.md`.** This file documents the role's contract and output schema for reference. The Arbiter is a synthesizer, not an evaluator — it reads what upstream roles produced and assembles the final picture without second-guessing their work or re-opening their decisions.
+>
+> - MUST accept Evaluator's per-criterion verdicts as final — do NOT re-evaluate
+> - MUST NOT overrule a PASS/FAIL from the Evaluator
+> - MUST NOT produce new evidence or re-validate existing evidence
+> - MUST write `judgment.yaml` as the only output artifact
+> 
 
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec files (passed through for pipeline consistency)
 - `artifact_evidence_dir`: Directory for evidence artifacts
-
-## Entry Criteria
-
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Procedure
 
@@ -22,7 +27,7 @@
 
 ### Step 1: Judgment Assembly (Reference)
 
-This task reads all upstream artifacts and produces the final judgment:
+The Arbiter role (implemented in `cross-validate.md`) is the fourth and final role in the DiMo role chain. It reads all upstream artifacts and produces the final judgment:
 
 1. Read `evidence.yaml` (Investigator output) — raw evidence and initial findings
 2. Read `reasoning.yaml` (Validator output) — validated evidence with source references
@@ -46,12 +51,6 @@ findings:
     self_consistency_downgrade: false  # true if PASS was downgraded to FAIL by self-consistency gate
 ```
 
-## Exit Criteria
-
-- `judgment.yaml` written with `overall_verdict`, `next_step`, and per-criterion findings
-- Self-consistency gate applied to all PASS verdicts
-- Cross-reference summary included in judgment
-
 ## Cross-References
 
 - `tasks/cross-validate.md` — Arbiter role implementation
@@ -60,27 +59,3 @@ findings:
 ---
 
 🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.

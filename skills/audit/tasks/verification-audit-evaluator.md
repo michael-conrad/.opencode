@@ -15,7 +15,15 @@ compatibility: opencode
 
 Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each success criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. It evaluates.
 
-
+> **DiMo Role: Evaluator.** This task evaluates implementation against spec SCs. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion, and writes `verdict.yaml`.
+>
+> You are the Evaluator. You are decisive and binary. Every criterion gets a PASS or a FAIL — nothing in between. You do not hedge, you do not defer, you do not ask for a second opinion. The evidence is in front of you. Make the call.
+>
+> - MUST produce a binary PASS or FAIL for every criterion — no hedging, no "PASS with concerns"
+> - MUST NOT defer to upstream roles — the verdict is yours alone
+> - MUST NOT re-evaluate evidence that upstream reasoning role already validated
+> - MUST NOT collect new evidence — the Investigator already did that
+> - MUST write `verdict.yaml` as the primary output artifact
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against evidence.
 
@@ -26,14 +34,6 @@ Evaluator role for the verification-audit DiMo chain. Reads `evidence.yaml` (Inv
 - `spec_issue_number`: Issue number for artifact path construction
 - `github.owner`, `github.repo`: Repository identity
 
-**Expected-determination rejection:** If the orchestrator includes an expected PASS/FAIL determination or expected verdict in the dispatch context, return:
-
-```yaml
-status: BLOCKED
-reason: EXPECTED_DETERMINATION_REJECTED
-message: "Expected determination detected. Dispatch without pre-judgment."
-```
-
 ## Entry Criteria
 
 - `evidence.yaml` exists at `./tmp/{issue-N}/artifacts/verification-audit/evidence.yaml` — MUST be present and non-empty. If absent: return BLOCKED with MISSING_EVIDENCE_YAML.
@@ -42,14 +42,12 @@ message: "Expected determination detected. Dispatch without pre-judgment."
 - `artifact_evidence_dir` provided — MUST be present and non-empty
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
-- **PRELOADED_CONTEXT_REJECTED gate**: If the orchestrator preloads context (inline file paths, step definitions, expected outcomes, orchestrator-derived conclusions), the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Exit Criteria
 
 - All SCs evaluated against validated evidence from `reasoning.yaml`
 - Each SC receives a binary PASS or FAIL verdict
 - Evidence type compliance verified — each SC evaluated using minimum acceptable method per declared type
-- For behavioral SCs: clean-room sub-agent (`behavioral-sc-evaluator`) dispatched with artifact dir only; if clean-room returns FAIL, evaluator verdict is FAIL
 - Implementation completeness assessed — does the code satisfy the spec?
 - `verdict.yaml` written to `./tmp/{issue-N}/artifacts/verification-audit/verdict.yaml`
 - No hedging, no "PASS with concerns", no INCONCLUSIVE verdicts
@@ -138,15 +136,6 @@ For each SC, determine:
 - Whether evidence type compliance is satisfied (from `evidence_type_validation`)
 - Whether the SC exists in the spec and the criterion text matches (from `sc_validation`)
 
-### Step 4.5: Clean-Room Dispatch for Behavioral SCs
-
-For each SC declared as `behavioral` evidence type:
-
-- [ ] 1. Dispatch `behavioral-sc-evaluator` with `artifact_evidence_dir` only (no orchestrator context, no expected outcomes, no cached results)
-- [ ] 2. Read the clean-room verdict from `{artifact_evidence_dir}/verdict.yaml`
-- [ ] 3. If clean-room returns FAIL for any behavioral SC, the evaluator verdict for that SC is FAIL (regardless of other evidence)
-- [ ] 4. If clean-room artifacts are missing or empty, the evaluator verdict for that SC is FAIL with `NO_BEHAVIORAL_EVIDENCE`
-
 ### Step 5: Evaluate Each Criterion
 
 For each SC, produce a binary PASS or FAIL verdict. The evaluation follows a strict decision tree:
@@ -166,22 +155,19 @@ For each SC with valid evidence, evaluate whether the evidence demonstrates the 
 - **Structural SC**: Verify the file exists with expected content. Read the evidence artifact and confirm the file path, existence, and content match the SC criterion.
 - **String SC**: Verify the expected pattern is present. Read the evidence artifact and confirm the grep/pattern match result satisfies the SC criterion.
 - **Semantic SC**: Read the evidence artifact and apply analytical judgment. Does the implementation's intent and meaning satisfy the SC criterion? This requires reading the evidence content and reasoning about whether the implementation achieves the SC's intent.
-- **Behavioral SC**: Evaluation is delegated to a clean-room sub-agent via Step 5a. The evaluator does NOT evaluate behavioral SCs inline — it dispatches to `behavioral-sc-evaluator` and uses the returned verdict.
-
-### Step 5a: Clean-Room Dispatch for Behavioral SCs
-
-For each behavioral SC identified in Step 3, the evaluator MUST NOT evaluate the evidence inline. Instead, it dispatches a clean-room sub-agent:
-
-- [ ] 1. For each behavioral SC, collect the artifact directory path from `artifact_evidence_dir`
-- [ ] 2. Dispatch `behavioral-sc-evaluator` via `task()` with ONLY the artifact directory path and the SC criterion text — no orchestrator reasoning, no expected outcomes, no cached results
-- [ ] 3. Receive the result contract from the clean-room sub-agent
-- [ ] 4. If the clean-room sub-agent returns `verdict: FAIL` for any SC, the evaluator's verdict for that SC is FAIL (not PASS)
-- [ ] 5. File-existence alone is NOT sufficient evidence for behavioral SCs — the clean-room sub-agent must confirm the agent took the correct action
-- [ ] 6. If the clean-room sub-agent returns `status: BLOCKED` or produces no result, the evaluator verdict for that SC is FAIL with reason `CLEAN_ROOM_EVALUATION_FAILED`
-
-The clean-room sub-agent's verdict is authoritative for behavioral SCs. The evaluator does NOT override a PASS from the clean-room sub-agent, but MUST override a FAIL from the clean-room sub-agent into the evaluator's verdict.
+- **Behavioral SC**: Read the behavioral test output (session logs, stderr/stdout captures, YAML verdicts). Does the test execution output confirm the agent's behavior matches the SC criterion? Look for tool-call evidence, dispatch traces, and behavioral assertions in the test output.
 
 #### Verdict Rules
+
+| Condition | Verdict |
+|-----------|---------|
+| Evidence 100% confirms SC is satisfied, no caveats | PASS |
+| Evidence partially confirms, any uncertainty, any caveat | FAIL |
+| Evidence contradicts the SC criterion | FAIL |
+| Evidence is absent for this SC | FAIL |
+| Evidence type does not match declared type | FAIL |
+| upstream reasoning role flagged validation issues for this SC | FAIL |
+| Any hedging language in evidence explanation | FAIL |
 
 ### Step 6: Verify Evidence Type Compliance
 
@@ -338,44 +324,11 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/verification-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/verification-audit-validator.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
-- `tasks/cross-validate.md` — Arbiter role (consumes this task's verdict.yaml)
-- Load [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
-- Load [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
-- Load [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate, hard failure discipline
-- Load [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live-source verification mandate, stale evidence prohibition
+- `tasks/cross-validate.md` — Arbiter role (reads verdict.yaml produced by this task, writes judgment.yaml)
+- `audit/SKILL.md` — DiMo Role Chain Dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
+- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
+- Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate, hard failure discipline
+- Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live-source verification mandate, stale evidence prohibition
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
-
-## Output Contract
-
-| Field | Required | Format | Description |
-|-------|----------|--------|-------------|
-| `artifact_path` | Yes | `{project_root}/tmp/{issue-N}/artifacts/{chain}/...` | Path to the output artifact file |
-| `artifact_format` | Yes | `yaml` | Format of the output artifact |
-| `status` | Yes | `DONE | BLOCKED` | Task completion status |
-| `summary` | Yes | `string` | 1-3 sentence summary of findings |
-
-The output artifact MUST be written to `artifact_path` before returning.
-
-## Frugal Contract
-
-The sub-agent MUST return only the following fields to the orchestrator:
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` |
-| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
-| `artifact_path` | Yes | Path to the full evidence artifact on disk |
-| `blocker_reason` | If BLOCKED | Why the task was blocked |
-
-Full evidence artifacts go to disk at `artifact_path`. The orchestrator reads only this contract — it does NOT re-read the artifact.
-
-## Clean-Room Validation
-
-This task requires independence from orchestrator bias. The sub-agent MUST:
-
-1. **Reject preloaded context** — return `PRELOADED_CONTEXT_REJECTED` if the orchestrator includes inline reasoning, expected outcomes, file paths, or step sequences
-2. **Discover scope independently** — read source files, run analysis tools, and determine the scope without orchestrator hints
-3. **Produce evidence independently** — write full evidence artifacts to disk before returning
-4. **Render binary judgment** — PASS (100% clean, no caveats) or FAIL (any caveat, any concern, any non-100% clean pass)
-

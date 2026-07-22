@@ -78,12 +78,12 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 **Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
 - [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
-- [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule. Load [Trigger Dispatch Table](skills/implementation-pipeline/SKILL.md).
+- [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Trigger Dispatch Table.
 - [ ] 3. On clean PASS: collect the `artifact_path` and pass as `auditor_artifact_paths` context to `cross-validate`.
 
 ## Pre-Flight
 
-Load [pre-flight verification and authorization context requirements](implementation-pipeline/tasks/pre-flight.md)
+Read [pre-flight verification and authorization context requirements](implementation-pipeline/tasks/pre-flight.md)
 
 ## Step Labels (for #932 naming convention)
 
@@ -135,9 +135,9 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 
 **Orchestrator entry point:** The orchestrator reads the plan and dispatches each step per the Trigger Dispatch Table using step-level dispatch. The orchestrator reads each step's dispatch indicator: `(**inline**)` for direct execution, `(**sub-agent**)` or `(**clean-room**)` for individual `task()` dispatch. No phase-level batching. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Load [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
-**Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). Load [Invocation section](skills/implementation-pipeline/SKILL.md) for the complete sequence.
+**Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
 
 Exclusions: implementation context, agent memory, cached verification results.
 

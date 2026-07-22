@@ -20,7 +20,7 @@ load_when: sub-agent
 
 ## 1. Tool Priority Hierarchy
 
-> **Load [the mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md) for the complete five-tier hierarchy with tool selection tables.**
+> **Read [the mcp-tool-usage skill](skills/mcp-tool-usage/SKILL.md) for the complete five-tier hierarchy with tool selection tables.**
 
 ### Tier Summary
 
@@ -33,16 +33,6 @@ TIER 5 — LAST RESORT: Direct CLI (bash)
 
 ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance, no fallback)
 ```
-
-### Prefer Built-ins Over Bespoke Code
-
-**Global mandate:** ALL agent work MUST prefer opencode built-in tools, MCP servers, standard libraries, or existing add-ons over writing bespoke code (custom scripts, inline shell commands, ad-hoc Python, one-off utilities). Load [the full mandate in AGENTS.md](AGENTS.md) and [080-code-standards.md](guidelines/080-code-standards.md).
-
-The five-tier hierarchy above defines the preferred tool chain. Bespoke code (custom scripts, inline shell commands, ad-hoc Python) is implicitly demoted below Tier 3 — it should only be used when no existing tool in Tiers 1-3 suffices.
-
-**Feasibility justification required:** Any spec or plan that proposes new bespoke code MUST include a justification explaining why none of the existing alternatives suffice. A one-sentence rationale is sufficient.
-
-**Scope:** Forward-looking — this mandate applies to new work only. Existing bespoke code is grandfathered and does not need to be replaced.
 
 ### 🚫 PROHIBITED (Hard stop violation)
 
@@ -105,7 +95,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **All paths MUST be resolved against `project_root` (emitted by session-init as `git rev-parse --show-toplevel`), not against the current working directory.** When the agent's CWD is inside a git submodule (e.g., `.opencode/`), relative paths like `{project_root}/tmp/` resolve against the submodule root, not the project root. Using `project_root` eliminates this ambiguity.
 
-**CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. Load [§Creating .opencode/.opencode/ Nested Directories](000-critical-rules.md).
+**CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. Read [§Creating .opencode/.opencode/ Nested Directories](000-critical-rules.md).
 
 | Path Pattern | Correct Resolution | Wrong Resolution |
 | -- | -- | -- |
