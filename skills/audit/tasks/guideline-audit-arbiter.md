@@ -530,7 +530,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/spec-audit-arbiter.md` — Spec-audit Arbiter role (reference implementation)
 - `tasks/plan-fidelity-arbiter.md` — Plan-fidelity Arbiter role (reference implementation)
-- `SKILL.md` — DiMo Role Chain Dispatch specification
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
