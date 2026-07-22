@@ -4,6 +4,16 @@
 
 Provide resolution paths and recommendations based on the Evaluator's verdict. Reads `verdict.yaml` (Evaluator) and produces the final result contract.
 
+## Entry Criteria
+
+- `verdict.yaml` exists at `./tmp/{issue-N}/artifacts/closure-verification/verdict.yaml`
+- Evaluator verdict contains per-criterion PASS/FAIL results
+
+## Exit Criteria
+
+- Final YAML verdict artifact written to `{project_root}/tmp/{issue-N}/artifacts/`
+- Frugal result contract returned with `status`, `artifact_path`, `summary`, `all_criteria_pass`, `remediation_required`
+
 ## Role: Arbiter
 
 You are the Arbiter. You read the Evaluator's verdict and provide resolution paths. You produce the final result contract for the orchestrator.

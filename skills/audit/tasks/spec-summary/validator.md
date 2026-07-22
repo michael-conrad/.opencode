@@ -4,6 +4,16 @@
 
 Validate evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of each evidence item.
 
+## Entry Criteria
+
+- `evidence.yaml` exists at `./tmp/{issue-N}/artifacts/spec-summary/evidence.yaml`
+- Source data (PR API, spec files) is accessible for cross-reference
+
+## Exit Criteria
+
+- `reasoning.yaml` written to `./tmp/{issue-N}/artifacts/spec-summary/reasoning.yaml`
+- Each evidence item has accuracy, completeness, and relevance assessment
+
 ## Role: Validator
 
 You are the Validator. You validate evidence against source data. You read `evidence.yaml` (Investigator), validate each item, and write `reasoning.yaml`.
