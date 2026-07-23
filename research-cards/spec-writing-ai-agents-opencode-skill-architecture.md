@@ -363,46 +363,43 @@ But this is incomplete. The Invocation section should specify:
 
 Currently, items 3-5 are scattered across the Sub-Agent Routing section, the DISPATCH_GATE section, and the task card's Result Contract. There is no single place where the orchestrator can see the complete dispatch contract for a given task.
 
-### Finding 18: The Base Prompt Must Include the Discovery Directive
+### Finding 18: The Base Prompt Must Use Natural Language, Not Coded Dispatch Strings
 
-Because `task()` does NOT auto-load task cards, the base prompt MUST include a discovery directive telling the subagent which file to read. The survey found that only 6 out of 28 skills with Invocation sections include this directive. The remaining 22 skills force the subagent to search for the correct task file — wasting context and introducing routing ambiguity.
+Because `task()` does NOT auto-load task cards, the base prompt MUST tell the subagent which file to read. The survey found that only 6 out of 28 skills with Invocation sections include this directive. The remaining 22 skills force the subagent to search for the correct task file — wasting context and introducing routing ambiguity.
 
-The canonical format for the base prompt is:
+The old pattern used coded dispatch strings like `"execute create from spec-creation"` — this is cargo-culted from the sub-skill dispatcher pattern and reads like a command to run code. The subagent is not running code; it is reading instructions. Natural language is clearer.
 
-```
-"execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first"
-```
-
-This is NOT preloading — it is routing metadata. The subagent still reads the file independently. Without it, the subagent has no way to know which task card to execute.
-
-### Finding 19: The Invocation Table Should Be a Complete Dispatch Contract
-
-Current Invocation sections look like this (from issue-operations/SKILL.md):
+The correct format is:
 
 ```
-| Task | Sub-Skill | Canonical Dispatch String |
-|------|-----------|--------------------------|
-| `creation` | `issue-operations-core` | `task(..., prompt: "execute creation from issue-operations-core. Read \`issue-operations-core/tasks/creation.md\` first")` |
+"Read `spec-creation/tasks/create.md` and follow its instructions. Issue: {issue_number}."
 ```
 
-This is missing:
-- **subagent_type** — which agent type to use
-- **Context include/exclude** — what to pass alongside the prompt
-- **Result contract** — what the subagent returns
+This tells the subagent:
+1. **Which file to read** — the task card path
+2. **What to do** — follow the instructions in that file
+3. **What context to use** — inline parameters like issue number
 
-A complete dispatch contract should look like:
+This is NOT preloading — it is routing metadata. The subagent still reads the file independently and discovers the procedure. Without it, the subagent has no way to know which task card to execute.
 
-```
-| Task | subagent_type | Base Prompt | Context Include | Context Exclude | Result Contract |
-|------|---------------|-------------|-----------------|-----------------|-----------------|
-| `create` | `general` | `"execute create from spec-creation. Read \`spec-creation/tasks/create.md\` first"` | `{issue_number, project_root, github.owner, github.repo}` | orchestrator reasoning, cached results, expected outcomes | `{status, finding_summary, artifact_path, blocker_reason}` |
-```
+### Finding 19: The Dispatch Contract Table — Include Only What's Needed
 
-This gives the orchestrator everything it needs in one place — no need to cross-reference Sub-Agent Routing, DISPATCH_GATE, and task card files.
+The `task()` tool creates a child session with zero parent context. Everything is excluded by default. The only context the subagent receives is what you explicitly put in the `prompt` parameter. Therefore, a "Context Exclude" column is redundant noise — it's describing the default behavior of `task()`.
 
-### Finding 20: The `subagent_type` Parameter Is Not Optional
+The Dispatch Contract table needs only:
 
-The `task()` tool requires `subagent_type`. Currently, most Invocation sections omit this — they just show `task(..., prompt: "...")`. The orchestrator must know which subagent type to use. The survey found that the most common subagent_type is `"general"`, with `"explore"` used for read-only research tasks. The Invocation section should specify this explicitly.
+| Column | Purpose |
+|--------|---------|
+| **Task** | Which task card to dispatch |
+| **Base Prompt** | What to put in the `prompt` parameter (discovery directive + inline context) |
+| **Context** | What context to include in the prompt body. Everything else is automatically excluded. |
+| **Returns** | What the subagent returns |
+
+No "Context Exclude" column. No `subagent_type` column (default is `general`; annotate only when non-default). The table is lean: Task | Base Prompt | Context | Returns.
+
+### Finding 20: Only Specify `subagent_type` When It Deviates from Default
+
+The `task()` tool requires `subagent_type`. The default subagent is `general`. The Dispatch Contract table SHOULD only specify `subagent_type` when a task uses a non-default agent (e.g., `explore` for read-only research). Omitting the column when all tasks use the default keeps the table lean. If a single task needs a different agent, annotate that row individually.
 
 **Source:** [opencode source — skill.ts (tool)](https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/skill.ts), [opencode source — core/skill.ts](https://github.com/anomalyco/opencode/blob/dev/packages/core/src/skill.ts), [opencode source — task.ts](https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/task.ts)
 

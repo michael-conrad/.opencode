@@ -94,13 +94,14 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ table MUST include columns for: Task, subagent_type, Base Prompt, Context Include,\
   \ Context Exclude, Result Contract | string | grep for \"Context Include\" and \"\
   Context Exclude\" in the reference file |\n| SC-8 | The reference document specifies\
-  \ that the base prompt MUST include the discovery directive (\"Read `<skill>/tasks/<task>.md`\
-  \ first\") because task() does not auto-load task cards | string | grep for \"discovery\
-  \ directive\" and \"MUST include\" in the reference file |\n| SC-9 | The reference\
-  \ document documents that sub-skills are not an opencode concept and provides guidance\
-  \ on when to use a single skill with multiple task cards vs multiple independent\
-  \ skills | string | grep for \"sub-skill\" and \"not an opencode concept\" in the\
-  \ reference file |\n| SC-10 | A centralized reference document exists at reference/task-card-structure-standards.md\
+  \ that the base prompt MUST use natural language (not coded dispatch strings like\
+  \ \"execute X from Y\") and MUST include the discovery directive telling the subagent\
+  \ which file to read | string | grep for \"natural language\" and \"discovery directive\"\
+  \ in the reference file |\n| SC-9 | The reference document documents that sub-skills\
+  \ are not an opencode concept and provides guidance on when to use a single skill\
+  \ with multiple task cards vs multiple independent skills | string | grep for \"\
+  sub-skill\" and \"not an opencode concept\" in the reference file |\n| SC-10 | A\
+  \ centralized reference document exists at reference/task-card-structure-standards.md\
   \ covering the canonical task card structure (Purpose, Entry Criteria, Procedure,\
   \ Exit Criteria, Result Contract) | structural | File exists at expected path |\n\
   | SC-11 | The task card reference includes guidance on what task cards MUST NOT\
@@ -173,25 +174,27 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ the orchestrator needs to construct a single `task()` call, without cross-referencing\
   \ other sections:\n\n| Column | Required | Description |\n|--------|----------|-------------|\n\
   | **Task** | Yes | The task name (matches the task card filename without .md) |\n\
-  | **subagent_type** | Yes | Which subagent type to use (e.g., `general`, `explore`)\
-  \ — maps to the `subagent_type` parameter of `task()` |\n| **Base Prompt** | Yes\
-  \ | The canonical dispatch string for the `prompt` parameter. MUST include the discovery\
-  \ directive: `\"execute <task> from <skill>. Read \\`<skill>/tasks/<task>.md\\`\
-  \ first\"` |\n| **Context Include** | Yes | What additional context to pass alongside\
-  \ the prompt (e.g., `{issue_number, project_root, github.owner, github.repo}`).\
-  \ These are passed as additional instructions in the prompt body, not as separate\
-  \ parameters — `task()` has no context parameter. |\n| **Context Exclude** | Yes\
-  \ | What must NOT be included (orchestrator reasoning, cached results, expected\
-  \ outcomes, agent memory) |\n| **Result Contract** | Yes | What the subagent returns:\
-  \ `{status, finding_summary, artifact_path, blocker_reason}` |\n\nThe reference\
+  | **Base Prompt** | Yes | The natural language directive for the `prompt` parameter.\
+  \ MUST include the discovery directive telling the subagent which file to read and\
+  \ what context to use. Format: `\"Read \\`<skill>/tasks/<task>.md\\` and follow\
+  \ its instructions. Issue: {issue_number}.\"` |\n| **Context** | Yes | What context\
+  \ to include in the prompt body (e.g., `{issue_number, project_root, github.owner,\
+  \ github.repo}`). Everything else is automatically excluded — `task()` creates a\
+  \ child session with zero parent context. |\n| **Returns** | Yes | What the subagent\
+  \ returns: `{status, finding_summary, artifact_path, blocker_reason}` |\n\nThe reference\
   \ SHALL also document:\n- The `task()` tool accepts exactly 6 parameters: `description`,\
   \ `prompt`, `subagent_type`, `task_id`, `command`, `background` — there is NO skill\
-  \ or task card parameter\n- The base prompt MUST include the discovery directive\
-  \ because `task()` does not auto-load task cards\n- The `description` parameter\
-  \ is derived from the Task column (3-5 words)\n- The `subagent_type` parameter is\
-  \ NOT optional — it must be specified in the Invocation table\n- Context parameters\
-  \ are embedded in the prompt body as additional instructions, not as separate `task()`\
-  \ parameters\n- Example of a complete Invocation table row\n\n### REQ-6: Cross-References\n\
+  \ or task card parameter\n- The base prompt MUST use natural language (not coded\
+  \ dispatch strings like \"execute X from Y\") and MUST include the discovery directive\
+  \ because `task()` does not auto-load task cards\n- Format: `\"Read \\`<skill>/tasks/<task>.md\\\
+  ` and follow its instructions. Issue: {issue_number}.\"`\n- The `description` parameter\
+  \ is derived from the Task column (3-5 words)\n- The Dispatch Contract table has\
+  \ 4 columns: Task | Base Prompt | Context | Returns. No Context Exclude column —\
+  \ `task()` creates a child session with zero parent context, so everything is excluded\
+  \ by default. No `subagent_type` column — default is `general`; annotate only when\
+  \ non-default (e.g., `create (explore)`).\n- Context parameters are embedded in\
+  \ the prompt body as additional instructions, not as separate `task()` parameters\n\
+  - Example of a complete Dispatch Contract table row\n\n### REQ-6: Cross-References\n\
   Both reference documents SHALL be cross-referenced from:\n- AGENTS.md (Universal\
   \ Skill Dispatch Gate section)\n- skills/skill-creator/SKILL.md (skill lifecycle\
   \ manager)\n\n### REQ-7: Re-Align Existing Documentation\nThe following existing\
@@ -234,4 +237,4 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ | Phase 3 |\n| REQ-8 | SC-18 | Phase 4 |\n| REQ-9 | SC-19 | Phase 6 |\n| REQ-10\
   \ | SC-20, SC-21 | Phase 7 |\n| Audit | SC-14 | Phase 5 |\n\n\n"
 created_at: '2026-07-23T02:56:34+00:00'
-updated_at: '2026-07-23T03:31:37+00:00'
+updated_at: '2026-07-23T03:43:53+00:00'
