@@ -36,6 +36,9 @@ sources:
   - https://github.com/anomalyco/opencode/blob/dev/packages/core/src/skill.ts
   - https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/task.ts
   - https://deepwiki.com/vbgate/learn-opencode/6.4-tasktool-and-agent-orchestration
+  - https://arxiv.org/abs/2605.29420
+  - https://arxiv.org/abs/2406.01171
+  - https://arxiv.org/abs/2305.16917
 ---
 
 ## Summary
@@ -408,6 +411,59 @@ Each step is a clean-room `task()` dispatch. The orchestrator waits for each res
 The sub-bullets (Prompt, Context, Returns) are the dispatch contract for that step. The numbered step is the sequencing logic. Everything the orchestrator needs is in one place per workflow. Task cards that appear in multiple workflows get their own sub-bullets each time, which is correct because the context passed may differ per workflow.
 
 ### Finding 20: Only Specify `subagent_type` When It Deviates from Default
+
+### Finding 21: Persona Framing — A Tradeoff, Not a Free Improvement
+
+**Sources:** [Anthropic Prompting Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices), [arXiv 2605.29420 — When Does Persona Prompting Actually Help?](https://arxiv.org/abs/2605.29420), [arXiv 2406.01171 — Two Tales of Persona in LLMs](https://arxiv.org/abs/2406.01171), [ScienceDirect — Second-person pronoun effects](https://www.sciencedirect.com/science/article/pii/S0001691825014180), [arXiv 2305.16917 — LLMs Partially Primed in Pronoun Interpretation](https://arxiv.org/abs/2305.16917)
+
+#### Key Finding: Persona Framing Is a Tradeoff
+
+The 2026 study "When Does Persona Prompting Actually Help?" (arXiv:2605.29420) tested 1,140 questions across 38 expert roles and 6 domains. The critical finding:
+
+> "Role prompting systematically increases expertise depth while reducing clarity."
+
+This is a tradeoff, not a universal improvement. Aggregate scores show little difference, but metric-level analysis reveals:
+- **Role prompting helps** on advisory questions and in domains where structured expert framing is valuable (medicine, psychology)
+- **Baseline (no role) performs better** on conceptual/technical explanations where concise plain-language is more important (finance, legal, science, technology)
+
+#### Implications for Skill Cards and Task Cards
+
+Skill cards and task cards are **technical instructions**, not advisory interactions. The goal is clarity and precision, not expertise depth. This means:
+
+| Framing | Effect | Best For |
+|---------|--------|----------|
+| **Second person ("you")** | Increases directness, clarity | Task card procedure steps — direct commands |
+| **Third person declarative** | Neutral, factual | Skill card descriptions, entry/exit criteria |
+| **First person ("I")** | Creates identity ambiguity | Avoid — who is "I"? The skill author? The agent? |
+| **Role assignment ("you are an X")** | Increases expertise depth but reduces clarity | System prompt only, not skill/task cards |
+
+#### Anthropic's Official Guidance
+
+Anthropic recommends: "Give Claude a role" — a single sentence like "You are a helpful coding assistant specializing in Python." But this is for the **system prompt**, not for skill/task cards. The system prompt establishes the agent's identity. Skill/task cards are **loaded into that identity** — they should not redefine it.
+
+The guidance also says: "Be clear and direct. Think of Claude as a brilliant but new employee who lacks context on your norms and workflows." This supports **imperative second person** for task card procedure steps — direct commands, no hedging, no persona redefinition.
+
+#### Recommended Pattern
+
+| Artifact | Framing | Example |
+|----------|---------|---------|
+| **Skill card description** | Third person declarative | `"Create and validate specification documents..."` |
+| **Workflows "When" clause** | Third person | `"When the agent needs to produce a specification document..."` |
+| **Workflows step names** | Imperative noun phrase | `"Inspect codebase"` |
+| **Task card procedure steps** | Second person imperative | `"Read the spec file. Extract requirements. Decompose into SCs."` |
+| **Task card entry/exit criteria** | Third person declarative | `"The issue number must be provided."` |
+| **System prompt (AGENTS.md)** | Second person role | `"You are an AI agent for opencode-config."` |
+
+#### Why Not First Person
+
+First person ("I will create a spec") creates ambiguity about who "I" refers to. The skill card and task card are not the agent speaking — they are instructions loaded into the agent's context. The agent should be told what to do, not told to speak as itself. The pronoun interpretation paper (arXiv:2305.16917) found that LLMs are sensitive to syntactic patterns in local context — first person in an instruction document could prime the agent to respond as if it authored the document, not as if it received instructions.
+
+#### Current Codebase Alignment
+
+The codebase mostly follows this pattern already:
+- Task cards use imperative second person in procedure steps (correct)
+- Skill card descriptions use third person (correct)
+- The old Trigger Dispatch Table used first-person trigger phrases like `"create spec"` — these are user utterances, not agent intent. The new Workflows format fixes this by using third-person decision context instead.
 
 The `task()` tool requires `subagent_type`. The default subagent is `general`. The Dispatch Contract table SHOULD only specify `subagent_type` when a task uses a non-default agent (e.g., `explore` for read-only research). Omitting the column when all tasks use the default keeps the table lean. If a single task needs a different agent, annotate that row individually.
 
