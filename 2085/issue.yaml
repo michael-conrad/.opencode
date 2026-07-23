@@ -2,6 +2,289 @@ title: '[SPEC] Restructure writing-plans skill with atomic task cards and self-c
   plan output'
 status: open
 labels: []
-body: ''
+body: "# [SPEC] Restructure writing-plans skill with atomic task cards and self-contained\
+  \ plan output\n\n## Problem Statement\n\nThe current writing-plans skill has a `create.md`\
+  \ task card that does three things: explore the codebase, design the phase structure,\
+  \ and write the plan. This violates the single-concern principle for task cards.\
+  \ Additionally, the plan artifact format is underspecified — it lacks structured\
+  \ markdown conventions (checkbox lists with dash sub-bullets for context parameters)\
+  \ and does not enforce KISS/DRY/Unix principles in the output plans.\n\nThe research\
+  \ (obra/writing-plans, hermes-agent/plan, awesome-copilot/create-implementation-plan)\
+  \ shows that plans must be structured markdown with English instructions — not machine-parsed\
+  \ data structures. Plans use checkbox lists with dash sub-bullets for context parameters,\
+  \ and reference skill+task dispatch instructions for each step. The implementation\
+  \ pipeline handles TDD red/green chaining; the plan references the skills and tasks\
+  \ that implement each phase.\n\nThis spec restructures the writing-plans skill to\
+  \ use atomic task cards (one concern per card) and produce plans that are structured\
+  \ markdown with English instructions, skill+task dispatch references, and KISS/DRY/Unix-compliant\
+  \ formatting.\n\n## Implementation Workflow — MASTER (MANDATORY — NO EXCEPTIONS)\n\
+  \nThe `implementation-pipeline` skill's Trigger Dispatch Table is the single authoritative\
+  \ source for the implementation workflow. The plan writer MUST NOT hardcode workflow\
+  \ steps — it MUST read the current workflow from the `implementation-pipeline` skill\
+  \ at plan-creation time.\n\nEvery plan MUST follow the implementation-pipeline workflow\
+  \ exactly. The writer MUST produce plans that enumerate every step of that workflow\
+  \ for each task. No skipping steps. No combining steps. No grouping RED with RED\
+  \ or GREEN with GREEN.\n\nThe example in the Plan Artifact Format section below\
+  \ is purely for demonstration — it shows the structure but is NOT authoritative.\
+  \ The `implementation-pipeline` skill's Trigger Dispatch Table is the single source\
+  \ of truth for what steps a plan must contain.\n\n### Writer Mandate\n\nThe `create.md`\
+  \ task card MUST produce plans that follow the implementation-pipeline workflow\
+  \ exactly. Every task in every phase MUST enumerate every step from the implementation-pipeline's\
+  \ per-task cycle. The plan MUST NOT:\n- Skip any step\n- Combine RED with RED (each\
+  \ task gets its own RED)\n- Combine GREEN with GREEN (each task gets its own GREEN)\n\
+  - Group multiple tasks into a single RED/GREEN cycle\n- Omit any post-implementation\
+  \ step\n- Omit any pre-implementation step\n\nThe plan is the single source of truth\
+  \ for the orchestrator. If a step is missing from the plan, the orchestrator will\
+  \ not execute it. Every step must be in the plan.\n\n**The `create.md` task card\
+  \ MUST load the `implementation-pipeline` skill at runtime and read its Trigger\
+  \ Dispatch Table to discover the current workflow steps. It MUST NOT embed a hardcoded\
+  \ copy of the workflow.**\n\n### Step Placement Rules\n\nThe placement rules below\
+  \ are a semantic split — they describe where in the plan structure each workflow\
+  \ block belongs. They do NOT define what steps exist. The `implementation-pipeline`\
+  \ skill's Trigger Dispatch Table is the authoritative source for what steps exist.\
+  \ These rules only govern placement: per-plan (once at plan level), per-phase (once\
+  \ per phase), or per-task (once per task within a phase).\n\n- **Pre-implementation\
+  \ steps** — per-plan. These go at the start of the plan, before any phase begins.\
+  \ The spec and starting state are verified once; running them per phase is redundant.\n\
+  - **Per-task cycle steps** — per-task. Each task gets its own full cycle.\n- **Post-implementation\
+  \ steps** — per-plan. These go at the end of the last phase only. For a single-phase\
+  \ plan, they appear once after that phase's tasks. For a multi-phase plan, they\
+  \ appear once after all phases' tasks are complete. Do NOT repeat post-implementation\
+  \ steps after every phase.\n\n## Success Criteria\n\n| ID | Criterion | Evidence\
+  \ Type | Verification Method |\n|---|---|---|---|\n| SC-1 | SKILL.md with 3 self-contained\
+  \ workflows (Create, Revise, Retroactive) using routing tables | `structural` |\
+  \ Workflows section in SKILL.md has 3 workflow tables, each fully explicit |\n|\
+  \ SC-2 | 9 task cards: analyze, backfill, structure, create, self-review, solve,\
+  \ validate, revise, completion | `structural` | Files exist at `writing-plans/tasks/{analyze,backfill,structure,create,self-review,solve,validate,revise,completion}.md`\
+  \ |\n| SC-3 | analyze.md verifies spec exists, checks approval from frontmatter,\
+  \ validates artifacts | `behavioral` | Dispatch analyze with no spec → BLOCKED with\
+  \ SPEC_NOT_FOUND |\n| SC-4 | backfill.md generates missing analytical artifacts\
+  \ from spec body | `behavioral` | Dispatch backfill with missing artifacts → verify\
+  \ artifacts created |\n| SC-5 | structure.md decomposes SCs into phases, builds\
+  \ DAG, selects skill+task from pipeline TDT | `behavioral` | Dispatch structure\
+  \ → verify phase decomposition and DAG in output |\n| SC-6 | create.md writes plan\
+  \ with full implementation-pipeline workflow per task | `behavioral` | Dispatch\
+  \ create → verify plan contains every step from the Per-Task Cycle table for each\
+  \ task |\n| SC-7 | create.md enforces no-skip/no-combine rule — each task has its\
+  \ own RED, GREEN, COMMIT cycle | `behavioral` | Create plan with combined steps\
+  \ → self-review returns BLOCKED |\n| SC-8 | self-review.md scans plan for placeholder\
+  \ patterns, SC coverage gaps, type/name inconsistencies | `behavioral` | Create\
+  \ plan with placeholder → self-review returns BLOCKED |\n| SC-9 | self-review.md\
+  \ verifies every task follows every step from the Per-Task Cycle table | `behavioral`\
+  \ | Create plan with missing step → self-review returns BLOCKED |\n| SC-10 | Plan\
+  \ artifact uses structured markdown: checkbox lists with dash sub-bullets for context\
+  \ parameters | `structural` | Read plan → verify structured markdown format |\n\
+  | SC-11 | Plan artifact includes dispatch metadata in frontmatter for pipeline optimization\
+  \ | `structural` | Plan frontmatter contains `dispatch:` array with skill+task refs\
+  \ |\n| SC-12 | Plan artifact is English text — no machine-parseable cross-references,\
+  \ no identifier IDs, no JSON/YAML code blocks in body | `behavioral` | Read plan\
+  \ → verify no REQ-001/TASK-001 patterns, no JSON/YAML code blocks |\n| SC-13 | Plan\
+  \ artifact follows KISS/DRY/Unix: each task does one action, no repeated code blocks,\
+  \ simple format | `behavioral` | Read plan → verify each task is one action, no\
+  \ duplicated content |\n| SC-14 | 18 contract templates (9 input/output pairs) |\
+  \ `structural` | Files exist at `writing-plans/contracts/` with correct names |\n\
+  | SC-15 | reference/plan-artifact-format.md simplified — structural description\
+  \ only, no validation rules table | `structural` | File exists, no R1-R19 table,\
+  \ contains section/field/examples only |\n| SC-16 | Existing behavioral tests pass\
+  \ | `behavioral` | Run behavioral tests → verify PASS |\n\n## Plan Artifact Format\n\
+  \nSingle file `{issues_prefix}/{N}/plan.md`. Structured markdown with English instructions.\n\
+  \n### Frontmatter\n\n```yaml\n---\nplan_schema_version: \"1.0\"\nissue: N\ntitle:\
+  \ \"Short description\"\ndispatch:\n  - phase: 1\n    skill: test-driven-development\n\
+  \    task: red-green-cycle\n  - phase: 2\n    skill: test-driven-development\n \
+  \   task: red-green-cycle\n---\n```\n\n### Body\n\nStructured markdown with English\
+  \ instructions. Uses checkbox lists with dash sub-bullets for context parameters.\
+  \ No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001),\
+  \ no JSON/YAML code blocks in the body.\n\nEach phase has one or more tasks. Each\
+  \ task follows every step from the implementation-pipeline's per-task cycle. The\
+  \ plan MUST enumerate every step for every task.\n\n**The example below is purely\
+  \ for demonstration.** It shows the structural format (checkbox lists, sub-bullets,\
+  \ dispatch references) but is NOT authoritative for step content. The `implementation-pipeline`\
+  \ skill's Trigger Dispatch Table is the single source of truth for what steps a\
+  \ plan must contain. The writer MUST load that skill at runtime and read its TDT,\
+  \ not copy from this example.\n\n```markdown\n# Implementation Plan — #N — Description\n\
+  \n**Goal:** One sentence.\n**Architecture:** 2-3 sentences.\n**Tech Stack:** Key\
+  \ technologies.\n\n---\n\n## Phase 1: User Model\n\n**Concern:** Define the user\
+  \ data model.\n**Files:**\n- Create: `src/models/user.py`\n- Test: `tests/models/test_user.py`\n\
+  **SCs:** SC-1, SC-2\n**Depends On:** (none)\n\n### Pre-Implementation\n\n- [ ] 1.\
+  \ **Coherence gate.** Verify spec/plan coherence.\n  - Dispatch: `audit --task coherence-extraction`\n\
+  - [ ] 2. **Baseline check.** Verify clean starting state.\n  - Dispatch: `implementation-pipeline\
+  \ --task pre-red-baseline`\n\n### Task 1: User model with email and password_hash\n\
+  \n**Context:**\n- Model: User with email, password_hash, verify_password()\n- Library:\
+  \ passlib bcrypt for hashing\n- Test file: `tests/models/test_user.py`\n- Expected\
+  \ RED failure: ModuleNotFoundError (model doesn't exist yet)\n\n- [ ] 1. **RED.**\
+  \ Write failing test asserting User model exists with email and password_hash fields.\n\
+  \  - Test file: `tests/models/test_user.py`\n  - Expected failure: ModuleNotFoundError\n\
+  \  - Dispatch: `test-driven-development --task red`\n- [ ] 2. **Z3 check RED.**\
+  \ Validate RED state.\n  - Dispatch: `solve --task check` (inline)\n- [ ] 3. **RED\
+  \ doublecheck.** Verify RED test fails correctly.\n  - Dispatch: `verification-before-completion\
+  \ --task verify`\n- [ ] 4. **Z3 check RED doublecheck.** Validate RED doublecheck\
+  \ state.\n  - Dispatch: `solve --task check` (inline)\n- [ ] 5. **Post-RED enforcement.**\
+  \ Enforce RED gate.\n  - Dispatch: `implementation-pipeline --task post-red-enforcement`\n\
+  - [ ] 6. **Z3 check post-RED.** Validate post-RED state.\n  - Dispatch: `solve --task\
+  \ check` (inline)\n- [ ] 7. **GREEN.** Create User model with email and password_hash\
+  \ using passlib bcrypt.\n  - File: `src/models/user.py`\n  - Dispatch: `test-driven-development\
+  \ --task green`\n- [ ] 8. **Z3 check GREEN.** Validate GREEN state.\n  - Dispatch:\
+  \ `solve --task check` (inline)\n- [ ] 9. **Post-GREEN enforcement.** Enforce GREEN\
+  \ gate.\n  - Dispatch: `implementation-pipeline --task post-green-enforcement`\n\
+  - [ ] 10. **Z3 check post-GREEN.** Validate post-GREEN state.\n  - Dispatch: `solve\
+  \ --task check` (inline)\n- [ ] 11. **Checkpoint tag.** Create checkpoint tag.\n\
+  \  - Dispatch: `implementation-pipeline --task checkpoint-tag-create`\n- [ ] 12.\
+  \ **Checkpoint commit.** Commit with checkpoint.\n  - Files: `src/models/user.py`,\
+  \ `tests/models/test_user.py`\n  - Dispatch: `git-workflow --task commit-prep`\n\
+  \n### Task 2: User model with verify_password method\n\n**Context:**\n- Method:\
+  \ verify_password() on User model\n- Library: passlib bcrypt for hashing\n- Test\
+  \ file: `tests/models/test_user.py`\n- Expected RED failure: AttributeError (method\
+  \ doesn't exist yet)\n\n- [ ] 1. **RED.** Write failing test asserting User.verify_password()\
+  \ works.\n  - Test file: `tests/models/test_user.py`\n  - Expected failure: AttributeError\n\
+  \  - Dispatch: `test-driven-development --task red`\n- [ ] 2. **Z3 check RED.**\
+  \ Validate RED state.\n  - Dispatch: `solve --task check` (inline)\n- [ ] 3. **RED\
+  \ doublecheck.** Verify RED test fails correctly.\n  - Dispatch: `verification-before-completion\
+  \ --task verify`\n- [ ] 4. **Z3 check RED doublecheck.** Validate RED doublecheck\
+  \ state.\n  - Dispatch: `solve --task check` (inline)\n- [ ] 5. **Post-RED enforcement.**\
+  \ Enforce RED gate.\n  - Dispatch: `implementation-pipeline --task post-red-enforcement`\n\
+  - [ ] 6. **Z3 check post-RED.** Validate post-RED state.\n  - Dispatch: `solve --task\
+  \ check` (inline)\n- [ ] 7. **GREEN.** Implement verify_password() method on User\
+  \ model.\n  - File: `src/models/user.py`\n  - Dispatch: `test-driven-development\
+  \ --task green`\n- [ ] 8. **Z3 check GREEN.** Validate GREEN state.\n  - Dispatch:\
+  \ `solve --task check` (inline)\n- [ ] 9. **Post-GREEN enforcement.** Enforce GREEN\
+  \ gate.\n  - Dispatch: `implementation-pipeline --task post-green-enforcement`\n\
+  - [ ] 10. **Z3 check post-GREEN.** Validate post-GREEN state.\n  - Dispatch: `solve\
+  \ --task check` (inline)\n- [ ] 11. **Checkpoint tag.** Create checkpoint tag.\n\
+  \  - Dispatch: `implementation-pipeline --task checkpoint-tag-create`\n- [ ] 12.\
+  \ **Checkpoint commit.** Commit with checkpoint.\n  - Files: `src/models/user.py`,\
+  \ `tests/models/test_user.py`\n  - Dispatch: `git-workflow --task commit-prep`\n\
+  \n### Post-Implementation\n\n- [ ] 1. **Structural checks.** Run lint and typecheck.\n\
+  \  - Dispatch: `finishing-a-development-branch --task checklist`\n- [ ] 2. **GREEN\
+  \ doublecheck.** Verify all GREEN passes.\n  - Dispatch: `verification-before-completion\
+  \ --task verify`\n- [ ] 3. **VbC.** Verification before completion.\n  - Dispatch:\
+  \ `verification-before-completion --task completion`\n- [ ] 4. **SC count gate.**\
+  \ Verify all SCs have verdicts.\n  - Dispatch: `implementation-pipeline --task sc-count-gate`\n\
+  - [ ] 5. **Pre-PR gate.** Block on any FAIL.\n  - Dispatch: `verification-before-completion\
+  \ --task verify`\n- [ ] 6. **Audit.** Independent audit.\n  - Dispatch: `audit`\
+  \ skill\n- [ ] 7. **Cross-validate.** Consensus check.\n  - Dispatch: `audit --task\
+  \ cross-validate`\n- [ ] 8. **Regression check.** Run regression tests.\n  - Dispatch:\
+  \ `test-driven-development --task patterns`\n- [ ] 9. **Review prep.** Prepare for\
+  \ review.\n  - Dispatch: `git-workflow --task review-prep`\n- [ ] 10. **Create PR.**\
+  \ Create pull request.\n  - Dispatch: `pr-creation-workflow --task create`\n- [\
+  \ ] 11. **Exec summary.** Completion report.\n  - Dispatch: `completion-core --task\
+  \ completion`\n```\n\n### Key Properties\n\n1. **Structured markdown** — headings,\
+  \ sections, tables for organization. Content is English text.\n2. **Skill+Task references**\
+  \ — each step names the skill and task that handles it. The implementation pipeline\
+  \ dispatches these at runtime.\n3. **No machine-parseable data** — no REQ-001/TASK-001\
+  \ identifiers, no JSON/YAML code blocks, no cross-references to other tasks.\n4.\
+  \ **KISS/DRY/Unix** — each task does one action. No repeated code blocks. Simple\
+  \ format.\n5. **Checkbox lists with sub-bullets** — steps use checkbox lists (`-\
+  \ [ ]`). Context parameters use dash sub-bullets.\n6. **Dispatch metadata in frontmatter**\
+  \ — for pipeline optimization. The body is English text.\n7. **Full workflow enumeration**\
+  \ — every step of the implementation-pipeline workflow is enumerated. No skipping,\
+  \ no combining, no grouping.\n\n## SKILL.md\n\n```yaml\n---\nname: writing-plans\n\
+  description: \"Generate implementation plans from approved specs with phase decomposition,\
+  \ self-contained code, TDD cycles, and execution handoff. Plans are REQUIRED before\
+  \ implementation.\"\nlicense: MIT\ncompatibility: opencode\nprovenance: AI-generated\n\
+  ---\n```\n\n### Workflows\n\n#### Create a plan from an approved spec\n\n| Step\
+  \ | Action | Context | Returns | On Failure |\n|------|--------|---------|---------|------------|\n\
+  | analyze | `task(\"execute analyze from writing-plans\")` | `{issue_number, project_root,\
+  \ issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |\n| explore\
+  \ | `skill(\"explore\")` → `task(\"execute explore from explore\")` | `{issue_number,\
+  \ project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT\
+  \ |\n| structure | `task(\"execute structure from writing-plans\")` | `{issue_number,\
+  \ project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT\
+  \ |\n| solve | `skill(\"solve\")` → `task(\"execute solve from solve\")` | `{issue_number,\
+  \ project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Return\
+  \ to structure step |\n| create | `task(\"execute create from writing-plans\")`\
+  \ | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | HALT |\n| self-review | `task(\"execute self-review from writing-plans\")` |\
+  \ `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | Return to create step |\n| validate | `task(\"execute validate from writing-plans\"\
+  )` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | — |\n| If validate returns FAIL | `task(\"execute revise from writing-plans\"\
+  )` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | Max 3 iterations, then HALT |\n| (continue loop) solve | `skill(\"solve\")`\
+  \ → `task(\"execute solve from solve\")` | `{issue_number, project_root, issues_prefix}`\
+  \ | `{status, artifact_path, finding_summary}` | — |\n| (continue loop) validate\
+  \ | `task(\"execute validate from writing-plans\")` | `{issue_number, project_root,\
+  \ issues_prefix}` | `{status, artifact_path, finding_summary}` | Return to revise\
+  \ step |\n| If validate returns PASS | `task(\"execute completion from writing-plans\"\
+  )` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | — |\n\n#### Revise an existing plan\n\n| Step | Action | Context | Returns |\
+  \ On Failure |\n|------|--------|---------|---------|------------|\n| revise | `task(\"\
+  execute revise from writing-plans\")` | `{issue_number, project_root, issues_prefix}`\
+  \ | `{status, artifact_path, finding_summary}` | HALT |\n| solve | `skill(\"solve\"\
+  )` → `task(\"execute solve from solve\")` | `{issue_number, project_root, issues_prefix}`\
+  \ | `{status, artifact_path, finding_summary}` | Return to revise step |\n| validate\
+  \ | `task(\"execute validate from writing-plans\")` | `{issue_number, project_root,\
+  \ issues_prefix}` | `{status, artifact_path, finding_summary}` | — |\n| If validate\
+  \ returns FAIL | return to revise step | — | — | Max 3 iterations, then HALT |\n\
+  | If validate returns PASS | `task(\"execute completion from writing-plans\")` |\
+  \ `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | — |\n\n#### Retroactive plan (spec exists, no artifacts)\n\n| Step | Action\
+  \ | Context | Returns | On Failure |\n|------|--------|---------|---------|------------|\n\
+  | backfill | `task(\"execute backfill from writing-plans\")` | `{issue_number, project_root,\
+  \ issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |\n| explore\
+  \ | `skill(\"explore\")` → `task(\"execute explore from explore\")` | `{issue_number,\
+  \ project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT\
+  \ |\n| structure | `task(\"execute structure from writing-plans\")` | `{issue_number,\
+  \ project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT\
+  \ |\n| solve | `skill(\"solve\")` → `task(\"execute solve from solve\")` | `{issue_number,\
+  \ project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Return\
+  \ to structure step |\n| create | `task(\"execute create from writing-plans\")`\
+  \ | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | HALT |\n| self-review | `task(\"execute self-review from writing-plans\")` |\
+  \ `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | Return to create step |\n| validate | `task(\"execute validate from writing-plans\"\
+  )` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | — |\n| If validate returns FAIL | `task(\"execute revise from writing-plans\"\
+  )` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | Max 3 iterations, then HALT |\n| (continue loop) solve | `skill(\"solve\")`\
+  \ → `task(\"execute solve from solve\")` | `{issue_number, project_root, issues_prefix}`\
+  \ | `{status, artifact_path, finding_summary}` | — |\n| (continue loop) validate\
+  \ | `task(\"execute validate from writing-plans\")` | `{issue_number, project_root,\
+  \ issues_prefix}` | `{status, artifact_path, finding_summary}` | Return to revise\
+  \ step |\n| If validate returns PASS | `task(\"execute completion from writing-plans\"\
+  )` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}`\
+  \ | — |\n\n## Task Cards\n\n### analyze.md\n\n**Purpose:** Verify spec exists locally,\
+  \ check approval from frontmatter, validate analytical artifacts exist.\n\n**Entry\
+  \ gate:** `{issues_prefix}/{N}/spec.md` must exist → BLOCKED with SPEC_NOT_FOUND\n\
+  \n**Returns:** `{status, artifact_path, finding_summary}`\n\n### backfill.md\n\n\
+  **Purpose:** Generate missing analytical artifacts from spec body when spec-creation\
+  \ did not produce them.\n\n**Entry gate:** `{issues_prefix}/{N}/spec.md` must exist\
+  \ → BLOCKED with SPEC_NOT_FOUND\n\n**Returns:** `{status, artifact_path, finding_summary}`\n\
+  \n### structure.md\n\n**Purpose:** Decompose SCs into phases, build dependency DAG,\
+  \ select skill+task from implementation-pipeline TDT.\n\n**Entry gate:** Analysis\
+  \ summary exists at `{issues_prefix}/{N}/artifacts/analysis-summary.yaml`\n\n**Returns:**\
+  \ `{status, artifact_path, finding_summary}`\n\n### create.md\n\n**Purpose:** Write\
+  \ self-contained plan with full implementation-pipeline workflow per task. Plan\
+  \ is structured markdown with English instructions. Every task in every phase MUST\
+  \ enumerate every step from the implementation-pipeline's per-task cycle. No skipping.\
+  \ No combining. No grouping.\n\n**Authoritative source for steps:** The `implementation-pipeline`\
+  \ skill's Trigger Dispatch Table. The `create.md` task card MUST load `skill({name:\
+  \ \"implementation-pipeline\"})` at runtime and read its TDT to discover the current\
+  \ workflow steps. It MUST NOT embed a hardcoded copy of the workflow. The example\
+  \ in the Plan Artifact Format section is for structural demonstration only — the\
+  \ live TDT defines what steps a plan must contain.\n\n**Entry gate:** Structure\
+  \ artifact exists at `{issues_prefix}/{N}/artifacts/structure.yaml`\n\n**Returns:**\
+  \ `{status, artifact_path, finding_summary}`\n\n### self-review.md\n\n**Purpose:**\
+  \ Scan plan for placeholder patterns, SC coverage gaps, type/name inconsistencies,\
+  \ and verify every task follows every step from the implementation-pipeline's per-task\
+  \ cycle.\n\n**Returns:** `{status, artifact_path, finding_summary}`\n\n### solve.md,\
+  \ validate.md, revise.md, completion.md\n\nUnchanged from current implementation.\n\
+  \n## File Structure\n\n```\nwriting-plans/\n  SKILL.md\n  tasks/\n    analyze.md\n\
+  \    backfill.md\n    structure.md\n    create.md\n    self-review.md\n    solve.md\n\
+  \    validate.md\n    revise.md\n    completion.md\n  contracts/\n    (18 templates\
+  \ — 9 input/output pairs)\n  reference/\n    plan-artifact-format.md\n```\n\n##\
+  \ Phase Breakdown\n\n### Phase 1: explore skill (separate spec #2084)\n\n- Create\
+  \ `skills/explore/SKILL.md` and task card\n- **Exit criteria:** explore skill exists\
+  \ and can be dispatched independently\n\n### Phase 2: writing-plans restructure\n\
+  \n- Update `writing-plans/SKILL.md` with 3 self-contained workflows\n- Create `tasks/backfill.md`\n\
+  - Rewrite `tasks/analyze.md`, `tasks/structure.md`, `tasks/create.md`, `tasks/self-review.md`\n\
+  - Remove `tasks/retroactive.md`, old `tasks/explore.md`\n- Update contract templates\
+  \ (18 total)\n- Simplify `reference/plan-artifact-format.md`\n- **Exit criteria:**\
+  \ All 9 task cards exist, all 3 workflows produce valid plans\n\n### Phase 3: Behavioral\
+  \ tests\n\n- Update existing writing-plans behavioral test\n- Add explore skill\
+  \ behavioral test\n- **Exit criteria:** All tests pass\n\n## Cross-References\n\n\
+  - #2081 — Previous writing-plans flat architecture spec (superseded by this spec)\n\
+  - #2084 — New explore skill spec (companion spec)\n- Skills: `explore` (upstream),\
+  \ `solve` (Z3 constraint solving), `audit` (plan-fidelity), `implementation-pipeline`\
+  \ (downstream consumer)\n"
 created_at: '2026-07-23T23:33:15+00:00'
-updated_at: '2026-07-23T23:33:15+00:00'
+updated_at: '2026-07-23T23:33:32+00:00'
