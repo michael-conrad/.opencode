@@ -204,7 +204,7 @@ Numbered checklist C1 through C{N} at the end of the plan, after the bottom admo
 
 ## Pipeline Steps
 
-Every plan references implementation pipeline stages by name. The following 15 stages from `implementation-pipeline/SKILL.md` Trigger Dispatch Table define the canonical gate sequence:
+Every plan references implementation pipeline stages by name. The following 18 stages from `implementation-pipeline/SKILL.md` Trigger Dispatch Table define the canonical gate sequence:
 
 | # | Stage | Description | Dispatch |
 |---|-------|-------------|----------|
@@ -222,4 +222,7 @@ Every plan references implementation pipeline stages by name. The following 15 s
 | 12 | `pre-pr-gate` | Verify all SCs PASS | `sub-task` |
 | 13 | `audit` | Adversarial audit | `orchestrator` |
 | 14 | `cross-validate` | Consensus check via `audit --task cross-validate` | `sub-task` |
-| 15 | `review-prep` | Prepare for PR review via `git-workflow --task review-prep` | `sub-task` |
+| 15 | `regression-check` | Run regression tests via `test-driven-development --task patterns` | `sub-task` |
+| 16 | `review-prep` | Prepare for PR review via `git-workflow --task review-prep` | `sub-task` |
+| 17 | `create-pr` | Create pull request via `pr-creation-workflow --task create` | `sub-task` |
+| 18 | `exec-summary` | Completion summary via `completion-core --task completion` | `sub-task` |
