@@ -3,404 +3,193 @@ title: '[SPEC] Skill card and task card architecture documentation standards for
 status: open
 labels:
 - '[SPEC],needs-approval'
-body: '## Objective
-
-
-  Document the canonical skill card (SKILL.md) and task card (tasks/<name>.md) architecture
-  requirements and recommended structure in the .opencode/ module, AND re-align all
-  existing documentation to match research findings. This spec covers both what is
-  MISSING and what needs to be CORRECTED.
-
-
-  ## Background
-
-
-  Research across opencode official docs, the opencode-agent-skills plugin, and community
-  guides reveals that the current .opencode/ module has comprehensive documentation
-  for the orchestrator/sub-agent routing pattern and the DISPATCH_GATE protocol, but
-  has these defects:
-
-
-  ### Missing Documentation
-
-
-  1. **The `description` field as a semantic router** — the agent evaluates its OWN
-  intent against the description, not the user''s literal utterance. Current descriptions
-  use "Load via skill() when..." meta-instructions that dilute the semantic signal.
-  No centralized reference exists explaining this mechanism.
-
-
-  2. **The `skill()` tool is orchestrator-only** — sub-agents dispatched via task()
-  cannot call skill(). This is documented in critical-rules-XXX but not in any centralized
-  reference.
-
-
-  3. **The `task()` tool dispatches task cards, not skill cards** — the `task()` tool
-  creates a child session with fresh context and dispatches a sub-agent. The sub-agent
-  reads a task card (`tasks/<name>.md`) to discover its procedure. The complete pipeline
-  is: `skill()` → SKILL.md (orchestrator reads routing metadata) → `task()` → `tasks/<name>.md`
-  (sub-agent reads execution procedure). No centralized reference documents this pipeline
-  or the distinction between what `skill()` and `task()` each consume.
-
-
-  4. **Sub-skills are not an opencode concept** — the opencode skill system has exactly
-  one abstraction (SKILL.md with YAML frontmatter). The current codebase has 20+ sub-skill
-  directories that appear as independent entries in <available_skills>, creating routing
-  confusion.
-
-
-  5. **Progressive disclosure architecture** — Level 1 (metadata: name + description
-  only, ~100 tokens), Level 2 (instructions: full SKILL.md body, ~5,000 tokens), Level
-  3 (resources: scripts, references). This architecture is not documented anywhere
-  in .opencode/.
-
-
-  6. **The description field is a classifier boundary** — too vague causes false activations,
-  too specific causes missed opportunities. No guidance exists on writing descriptions
-  that match agent intent.
-
-
-  ### Existing Documentation That Needs Re-Alignment
-
-
-  7. **`reference/skill-card-schema.md`** — uses the deprecated "Load via skill()
-  when..." description pattern. Must be updated to agent-intent format.
-
-
-  8. **`skills/skill-creator/reference/skill-card-spec.md`** — references the deprecated
-  Farmage description format. Must be updated to agent-intent format.
-
-
-  9. **`skills/skill-creator/reference/routing-only-template.md`** — the canonical
-  template for new SKILL.md files. Its description format specification uses the deprecated
-  pattern. Must be updated to agent-intent format.
-
-
-  10. **`AGENTS.md` (Universal Skill Dispatch Gate section)** — the Pre-Response Gate
-  Procedure says "evaluate against ALL available skill descriptions" but does not
-  explain that the match is between the agent''s OWN intent and the description, not
-  the user''s literal utterance. Must be updated.
-
-
-  11. **All existing skill descriptions in `skills/`** — approximately 60 SKILL.md
-  files use the deprecated "Load via skill() when..." / "User phrases:" pattern. These
-  must be audited and a plan created for rewriting them.
-
-
-  ### Dual-Repo Problem
-
-
-  12. **The `.opencode/` submodule is invisible from `opencode-config/`** — when the
-  agent works in the `opencode-config` parent repo, it has access to `.opencode/`
-  as a submodule. But `opencode-config/AGENTS.md` and `opencode-config/.opencode/AGENTS.md`
-  do not cross-reference the new reference docs in `.opencode/reference/`. A companion
-  spec must be filed in `opencode-config` to update its AGENTS.md files so the agent
-  can discover and use the new documentation.
-
-
-  ## Not Included
-
-
-  - Replacing the spec-creation skill (separate spec #2077)
-
-  - Changing the DISPATCH_GATE protocol (already documented)
-
-  - Changing the orchestrator/sub-agent routing pattern (already documented)
-
-  - Rewriting individual skill descriptions (covered by audit report in this spec,
-  actual rewriting is downstream work)
-
-
-  ## Success Criteria
-
-
-  | ID | Criterion | Evidence Type | Verification Method |
-
-  |----|-----------|---------------|---------------------|
-
-  | SC-1 | A centralized reference document exists at reference/skill-card-description-standards.md
-  covering the description field as a semantic router for agent-intent matching |
-  structural | File exists at expected path |
-
-  | SC-2 | The reference document explains that the agent evaluates its OWN intent
-  against descriptions (not user utterances) and provides guidance on writing descriptions
-  that match agent task intent | string | grep for "agent intent" and "semantic router"
-  in the reference file |
-
-  | SC-3 | The reference document documents the progressive disclosure three-level
-  architecture (metadata, instructions, resources) | string | grep for "progressive
-  disclosure" and "Level 1" in the reference file |
-
-  | SC-4 | The reference document documents that skill() is orchestrator-only and
-  sub-agents cannot call it | string | grep for "orchestrator-only" in the reference
-  file |
-
-  | SC-5 | The reference document documents the complete skill() → task() → task card
-  pipeline: skill() loads SKILL.md (routing metadata for orchestrator), task() dispatches
-  a sub-agent to read tasks/<name>.md (execution procedure) | string | grep for "skill()"
-  and "task()" and "task card" in the reference file — must show the pipeline relationship
-  |
-
-  | SC-6 | The reference document documents that sub-skills are not an opencode concept
-  and provides guidance on when to use a single skill with multiple task cards vs
-  multiple independent skills | string | grep for "sub-skill" and "not an opencode
-  concept" in the reference file |
-
-  | SC-7 | A centralized reference document exists at reference/task-card-structure-standards.md
-  covering the canonical task card structure (Purpose, Entry Criteria, Procedure,
-  Exit Criteria, Result Contract) | structural | File exists at expected path |
-
-  | SC-8 | The task card reference includes guidance on what task cards MUST NOT contain
-  (no task() calls, no skill() calls, no orchestrator-level routing instructions)
-  | string | grep for "MUST NOT" and "task()" in the reference file |
-
-  | SC-9 | The task card reference includes guidance on result contract format (status,
-  finding_summary, artifact_path, blocker_reason) | string | grep for "result contract"
-  in the reference file |
-
-  | SC-10 | Both reference documents are cross-referenced from AGENTS.md and the skill-creator
-  skill card | string | grep for reference file paths in AGENTS.md and skills/skill-creator/SKILL.md
-  |
-
-  | SC-11 | All existing skill descriptions in skills/ are audited and a report is
-  generated listing which descriptions use the deprecated "Load via skill() when..."
-  pattern vs the agent-intent pattern | behavioral | Sub-agent reads all SKILL.md
-  files, classifies each description, produces audit report |
-
-  | SC-12 | reference/skill-card-schema.md is updated to use agent-intent description
-  format (not "Load via skill() when...") | string | grep for "Load via skill() when"
-  in skill-card-schema.md — must return empty |
-
-  | SC-13 | skills/skill-creator/reference/skill-card-spec.md is updated to use agent-intent
-  description format | string | grep for deprecated Farmage patterns in skill-card-spec.md
-  — must return empty |
-
-  | SC-14 | skills/skill-creator/reference/routing-only-template.md description format
-  specification is updated to agent-intent format | string | grep for "Load via skill()
-  when" in routing-only-template.md — must return empty |
-
-  | SC-15 | AGENTS.md Pre-Response Gate Procedure is updated to clarify that the match
-  is between the agent''s OWN intent and the description, not the user''s literal
-  utterance | string | grep for "agent''s OWN intent" in AGENTS.md |
-
-  | SC-16 | A companion spec is filed in the opencode-config repo (opencode-config#332)
-  to update opencode-config/AGENTS.md and opencode-config/.opencode/AGENTS.md to cross-reference
-  the new reference documents | structural | Companion issue exists at michael-conrad/opencode-config/issues/332
-  with [SPEC] label |
-
-  | SC-17 | opencode-config/AGENTS.md is updated to reference the new skill-card-description-standards.md
-  and task-card-structure-standards.md in .opencode/reference/ | string | grep for
-  reference file paths in opencode-config/AGENTS.md |
-
-  | SC-18 | opencode-config/.opencode/AGENTS.md is updated to reference the new reference
-  documents | string | grep for reference file paths in opencode-config/.opencode/AGENTS.md
-  |
-
-
-  ## Requirements
-
-
-  ### REQ-1: Description Field Standards
-
-  The reference SHALL document:
-
-  - The description field as a semantic router (agent evaluates own intent, not user
-  utterance)
-
-  - The progressive disclosure architecture (Level 1: metadata, Level 2: instructions,
-  Level 3: resources)
-
-  - Guidance on writing descriptions that match agent task intent (action verbs, domain
-  context, specificity)
-
-  - What to exclude from descriptions (meta-instructions, trigger phrase lists, "Load
-  via skill() when...")
-
-  - Examples of effective vs ineffective descriptions
-
-
-  ### REQ-2: Skill() and Task() Tool Pipeline
-
-  The reference SHALL document the complete two-tool pipeline:
-
-  - `skill()` loads SKILL.md (skill card) into the orchestrator''s context — the orchestrator
-  reads routing metadata (Trigger Dispatch Table, Invocation section)
-
-  - `task()` dispatches a sub-agent with fresh context to read a task card (`tasks/<name>.md`)
-  — the sub-agent reads execution procedure (entry criteria, steps, exit criteria)
-
-  - `skill()` is orchestrator-only — sub-agents dispatched via task() cannot call
-  skill()
-
-  - Sub-agents can only read task cards via file read tools — they cannot load skills
-
-  - Dispatching SKILL.md content to a sub-agent is a category error (critical-rules-XXX)
-
-  - The pipeline is: orchestrator → `skill({name: "..."})` → reads SKILL.md → `task(...,
-  prompt: "execute <task> from <skill>")` → sub-agent reads `tasks/<name>.md` → executes
-  procedure → returns result contract
-
-
-  ### REQ-3: Sub-Skill Clarification
-
-  The reference SHALL document:
-
-  - Sub-skills are not an opencode concept — the skill system has exactly one abstraction
-
-  - What appears to be sub-skills are independent skills that happen to be co-located
-
-  - Guidance on when to use a single skill with multiple task cards vs multiple independent
-  skills
-
-
-  ### REQ-4: Task Card Structure
-
-  The reference SHALL document:
-
-  - Canonical sections: Purpose, Entry Criteria, Procedure, Exit Criteria, Result
-  Contract
-
-  - What task cards MUST NOT contain (no task() calls, no skill() calls, no orchestrator
-  routing)
-
-  - Result contract format: status, finding_summary, artifact_path, blocker_reason
-
-  - Task file discovery directive pattern for sub-agents
-
-
-  ### REQ-5: Cross-References
-
-  Both reference documents SHALL be cross-referenced from:
-
-  - AGENTS.md (Universal Skill Dispatch Gate section)
-
-  - skills/skill-creator/SKILL.md (skill lifecycle manager)
-
-
-  ### REQ-6: Re-Align Existing Documentation
-
-  The following existing reference documents SHALL be updated to use agent-intent
-  description format:
-
-  - reference/skill-card-schema.md — replace "Load via skill() when..." with agent-intent
-  format
-
-  - skills/skill-creator/reference/skill-card-spec.md — replace deprecated Farmage
-  format with agent-intent format
-
-  - skills/skill-creator/reference/routing-only-template.md — replace description
-  format specification with agent-intent format
-
-
-  ### REQ-7: AGENTS.md Update
-
-  AGENTS.md Pre-Response Gate Procedure SHALL be updated to clarify that the match
-  is between the agent''s OWN intent and the description, not the user''s literal
-  utterance. The current text says "evaluate against ALL available skill descriptions"
-  but does not explain the semantic matching mechanism.
-
-
-  ### REQ-8: Companion Spec for opencode-config
-
-  A companion spec SHALL be filed in the opencode-config repo to update:
-
-  - opencode-config/AGENTS.md — add cross-references to the new reference documents
-  in .opencode/reference/
-
-  - opencode-config/.opencode/AGENTS.md — add cross-references to the new reference
-  documents
-
-
-  ### REQ-9: Dual-Repo Cross-Reference Update
-
-  After the companion spec is approved and implemented, both AGENTS.md files in opencode-config
-  SHALL reference the new reference documents so the agent working from the parent
-  repo can discover and use them.
-
-
-  ## Phases
-
-
-  ### Phase 1: Create description field standards reference
-
-  Create reference/skill-card-description-standards.md with all description field
-  guidance.
-
-
-  ### Phase 2: Create task card structure standards reference
-
-  Create reference/task-card-structure-standards.md with all task card guidance.
-
-
-  ### Phase 3: Re-align existing documentation
-
-  Update reference/skill-card-schema.md, skills/skill-creator/reference/skill-card-spec.md,
-  and skills/skill-creator/reference/routing-only-template.md to use agent-intent
-  description format.
-
-
-  ### Phase 4: Update AGENTS.md
-
-  Update AGENTS.md Pre-Response Gate Procedure to clarify agent-intent matching.
-
-
-  ### Phase 5: Audit existing descriptions
-
-  Audit all SKILL.md files in skills/ and classify each description as agent-intent
-  pattern or deprecated pattern. Produce audit report.
-
-
-  ### Phase 6: File companion spec for opencode-config
-
-  File companion spec in opencode-config repo (issue #332) to update its AGENTS.md
-  files.
-
-
-  ### Phase 7: Cross-reference integration
-
-  Add cross-references from AGENTS.md and skills/skill-creator/SKILL.md to both new
-  reference documents.
-
-
-  ## Dependencies
-
-
-  - Companion spec in opencode-config (issue #332) — must be filed before Phase 7
-  can be completed
-
-  - Spec #2077 (replace spec-creation skill) — the new description format from this
-  spec informs the new skill''s description
-
-
-  ## Traceability
-
-
-  | Requirement | SCs | Phase |
-
-  |-------------|-----|-------|
-
-  | REQ-1 | SC-1, SC-2, SC-3 | Phase 1 |
-
-  | REQ-2 | SC-4, SC-5 | Phase 1 |
-
-  | REQ-3 | SC-6 | Phase 1 |
-
-  | REQ-4 | SC-7, SC-8, SC-9 | Phase 2 |
-
-  | REQ-5 | SC-10 | Phase 7 |
-
-  | REQ-6 | SC-12, SC-13, SC-14 | Phase 3 |
-
-  | REQ-7 | SC-15 | Phase 4 |
-
-  | REQ-8 | SC-16 | Phase 6 |
-
-  | REQ-9 | SC-17, SC-18 | Phase 7 |
-
-  | Audit | SC-11 | Phase 5 |
-
-
-
-  '
+body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task card\
+  \ (tasks/<name>.md) architecture requirements and recommended structure in the .opencode/\
+  \ module, AND re-align all existing documentation to match research findings. This\
+  \ spec covers both what is MISSING and what needs to be CORRECTED.\n\n## Background\n\
+  \nResearch across opencode official docs, the opencode-agent-skills plugin, and\
+  \ community guides reveals that the current .opencode/ module has comprehensive\
+  \ documentation for the orchestrator/sub-agent routing pattern and the DISPATCH_GATE\
+  \ protocol, but has these defects:\n\n### Missing Documentation\n\n1. **The `description`\
+  \ field as a semantic router** — the agent evaluates its OWN intent against the\
+  \ description, not the user's literal utterance. Current descriptions use \"Load\
+  \ via skill() when...\" meta-instructions that dilute the semantic signal. No centralized\
+  \ reference exists explaining this mechanism.\n\n2. **The `skill()` tool is orchestrator-only**\
+  \ — sub-agents dispatched via task() cannot call skill(). This is documented in\
+  \ critical-rules-XXX but not in any centralized reference.\n\n3. **`skill()` auto-loads\
+  \ SKILL.md; `task()` does NOT auto-load task cards** — Source code analysis of opencode's\
+  \ `skill.ts` and `task.ts` reveals an asymmetry:\n   - `skill({name: \"...\"})`\
+  \ reads the SKILL.md file from disk and injects the full content into the **calling\
+  \ agent's context** as XML-wrapped tool output. The orchestrator receives the skill\
+  \ card automatically.\n   - `task(..., prompt: \"...\")` creates a child session\
+  \ with fresh context. The prompt is the ONLY context the subagent receives. The\
+  \ subagent must use its own file read tools to load `tasks/<name>.md`. The task\
+  \ tool does NOT auto-load task card files.\n   - The discovery directive in the\
+  \ prompt (\"Read `<skill>/tasks/<task>.md` first\") is REQUIRED because `task()`\
+  \ does not auto-load. It is routing metadata (which file to read), not preloading.\n\
+  \   - No centralized reference documents this asymmetry or the complete pipeline.\n\
+  \n4. **Sub-skills are not an opencode concept** — the opencode skill system has\
+  \ exactly one abstraction (SKILL.md with YAML frontmatter). The current codebase\
+  \ has 20+ sub-skill directories that appear as independent entries in <available_skills>,\
+  \ creating routing confusion.\n\n5. **Progressive disclosure architecture** — Level\
+  \ 1 (metadata: name + description only, ~100 tokens), Level 2 (instructions: full\
+  \ SKILL.md body, ~5,000 tokens), Level 3 (resources: scripts, references). This\
+  \ architecture is not documented anywhere in .opencode/.\n\n6. **The description\
+  \ field is a classifier boundary** — too vague causes false activations, too specific\
+  \ causes missed opportunities. No guidance exists on writing descriptions that match\
+  \ agent intent.\n\n### Existing Documentation That Needs Re-Alignment\n\n7. **`reference/skill-card-schema.md`**\
+  \ — uses the deprecated \"Load via skill() when...\" description pattern. Must be\
+  \ updated to agent-intent format.\n\n8. **`skills/skill-creator/reference/skill-card-spec.md`**\
+  \ — references the deprecated Farmage description format. Must be updated to agent-intent\
+  \ format.\n\n9. **`skills/skill-creator/reference/routing-only-template.md`** —\
+  \ the canonical template for new SKILL.md files. Its description format specification\
+  \ uses the deprecated pattern. Must be updated to agent-intent format.\n\n10. **`AGENTS.md`\
+  \ (Universal Skill Dispatch Gate section)** — the Pre-Response Gate Procedure says\
+  \ \"evaluate against ALL available skill descriptions\" but does not explain that\
+  \ the match is between the agent's OWN intent and the description, not the user's\
+  \ literal utterance. Must be updated.\n\n11. **All existing skill descriptions in\
+  \ `skills/`** — approximately 60 SKILL.md files use the deprecated \"Load via skill()\
+  \ when...\" / \"User phrases:\" pattern. These must be audited and a plan created\
+  \ for rewriting them.\n\n### Dual-Repo Problem\n\n12. **The `.opencode/` submodule\
+  \ is invisible from `opencode-config/`** — when the agent works in the `opencode-config`\
+  \ parent repo, it has access to `.opencode/` as a submodule. But `opencode-config/AGENTS.md`\
+  \ and `opencode-config/.opencode/AGENTS.md` do not cross-reference the new reference\
+  \ docs in `.opencode/reference/`. A companion spec must be filed in `opencode-config`\
+  \ to update its AGENTS.md files so the agent can discover and use the new documentation.\n\
+  \n## Not Included\n\n- Replacing the spec-creation skill (separate spec #2077)\n\
+  - Changing the DISPATCH_GATE protocol (already documented)\n- Changing the orchestrator/sub-agent\
+  \ routing pattern (already documented)\n- Rewriting individual skill descriptions\
+  \ (covered by audit report in this spec, actual rewriting is downstream work)\n\n\
+  ## Success Criteria\n\n| ID | Criterion | Evidence Type | Verification Method |\n\
+  |----|-----------|---------------|---------------------|\n| SC-1 | A centralized\
+  \ reference document exists at reference/skill-card-description-standards.md covering\
+  \ the description field as a semantic router for agent-intent matching | structural\
+  \ | File exists at expected path |\n| SC-2 | The reference document explains that\
+  \ the agent evaluates its OWN intent against descriptions (not user utterances)\
+  \ and provides guidance on writing descriptions that match agent task intent | string\
+  \ | grep for \"agent intent\" and \"semantic router\" in the reference file |\n\
+  | SC-3 | The reference document documents the progressive disclosure three-level\
+  \ architecture (metadata, instructions, resources) | string | grep for \"progressive\
+  \ disclosure\" and \"Level 1\" in the reference file |\n| SC-4 | The reference document\
+  \ documents that skill() is orchestrator-only and sub-agents cannot call it | string\
+  \ | grep for \"orchestrator-only\" in the reference file |\n| SC-5 | The reference\
+  \ document documents the complete skill() → task() → task card pipeline: skill()\
+  \ auto-loads SKILL.md into orchestrator context; task() creates a child session\
+  \ with prompt only — the subagent must read tasks/<name>.md via file tools (the\
+  \ discovery directive in the prompt tells the subagent which file to read) | string\
+  \ | grep for \"skill()\" and \"task()\" and \"auto-load\" in the reference file\
+  \ — must show the asymmetry between the two tools |\n| SC-6 | The reference document\
+  \ documents that sub-skills are not an opencode concept and provides guidance on\
+  \ when to use a single skill with multiple task cards vs multiple independent skills\
+  \ | string | grep for \"sub-skill\" and \"not an opencode concept\" in the reference\
+  \ file |\n| SC-7 | A centralized reference document exists at reference/task-card-structure-standards.md\
+  \ covering the canonical task card structure (Purpose, Entry Criteria, Procedure,\
+  \ Exit Criteria, Result Contract) | structural | File exists at expected path |\n\
+  | SC-8 | The task card reference includes guidance on what task cards MUST NOT contain\
+  \ (no task() calls, no skill() calls, no orchestrator-level routing instructions)\
+  \ | string | grep for \"MUST NOT\" and \"task()\" in the reference file |\n| SC-9\
+  \ | The task card reference includes guidance on result contract format (status,\
+  \ finding_summary, artifact_path, blocker_reason) | string | grep for \"result contract\"\
+  \ in the reference file |\n| SC-10 | Both reference documents are cross-referenced\
+  \ from AGENTS.md and the skill-creator skill card | string | grep for reference\
+  \ file paths in AGENTS.md and skills/skill-creator/SKILL.md |\n| SC-11 | All existing\
+  \ skill descriptions in skills/ are audited and a report is generated listing which\
+  \ descriptions use the deprecated \"Load via skill() when...\" pattern vs the agent-intent\
+  \ pattern | behavioral | Sub-agent reads all SKILL.md files, classifies each description,\
+  \ produces audit report |\n| SC-12 | reference/skill-card-schema.md is updated to\
+  \ use agent-intent description format (not \"Load via skill() when...\") | string\
+  \ | grep for \"Load via skill() when\" in skill-card-schema.md — must return empty\
+  \ |\n| SC-13 | skills/skill-creator/reference/skill-card-spec.md is updated to use\
+  \ agent-intent description format | string | grep for deprecated Farmage patterns\
+  \ in skill-card-spec.md — must return empty |\n| SC-14 | skills/skill-creator/reference/routing-only-template.md\
+  \ description format specification is updated to agent-intent format | string |\
+  \ grep for \"Load via skill() when\" in routing-only-template.md — must return empty\
+  \ |\n| SC-15 | AGENTS.md Pre-Response Gate Procedure is updated to clarify that\
+  \ the match is between the agent's OWN intent and the description, not the user's\
+  \ literal utterance | string | grep for \"agent's OWN intent\" in AGENTS.md |\n\
+  | SC-16 | A companion spec is filed in the opencode-config repo (opencode-config#332)\
+  \ to update opencode-config/AGENTS.md and opencode-config/.opencode/AGENTS.md to\
+  \ cross-reference the new reference documents | structural | Companion issue exists\
+  \ at michael-conrad/opencode-config/issues/332 with [SPEC] label |\n| SC-17 | opencode-config/AGENTS.md\
+  \ is updated to reference the new skill-card-description-standards.md and task-card-structure-standards.md\
+  \ in .opencode/reference/ | string | grep for reference file paths in opencode-config/AGENTS.md\
+  \ |\n| SC-18 | opencode-config/.opencode/AGENTS.md is updated to reference the new\
+  \ reference documents | string | grep for reference file paths in opencode-config/.opencode/AGENTS.md\
+  \ |\n\n## Requirements\n\n### REQ-1: Description Field Standards\nThe reference\
+  \ SHALL document:\n- The description field as a semantic router (agent evaluates\
+  \ own intent, not user utterance)\n- The progressive disclosure architecture (Level\
+  \ 1: metadata, Level 2: instructions, Level 3: resources)\n- Guidance on writing\
+  \ descriptions that match agent task intent (action verbs, domain context, specificity)\n\
+  - What to exclude from descriptions (meta-instructions, trigger phrase lists, \"\
+  Load via skill() when...\")\n- Examples of effective vs ineffective descriptions\n\
+  \n### REQ-2: Skill() and Task() Tool Pipeline\nThe reference SHALL document the\
+  \ complete two-tool pipeline, including the critical asymmetry:\n- `skill({name:\
+  \ \"...\"})` auto-loads SKILL.md into the calling agent's context — the tool reads\
+  \ the file from disk and injects the full content as XML-wrapped output. The orchestrator\
+  \ receives the skill card automatically.\n- `task(..., prompt: \"...\")` creates\
+  \ a child session with fresh context — the prompt is the ONLY context the subagent\
+  \ receives. The subagent MUST use its own file read tools to load `tasks/<name>.md`.\
+  \ The task tool does NOT auto-load task card files.\n- The discovery directive in\
+  \ the prompt (\"Read `<skill>/tasks/<task>.md` first\") is REQUIRED because task()\
+  \ does not auto-load. It is routing metadata (which file to read), not preloading.\n\
+  - `skill()` is orchestrator-only — sub-agents dispatched via task() cannot call\
+  \ skill() (sub-agents have `task: deny` hardcoded and no access to the skill tool)\n\
+  - Dispatching SKILL.md content to a sub-agent is a category error (critical-rules-XXX)\
+  \ — the sub-agent receives task() calls it cannot execute and orchestrator-level\
+  \ routing instructions it cannot act on\n- The complete pipeline: orchestrator →\
+  \ `skill({name: \"...\"})` → SKILL.md auto-loaded → orchestrator reads Trigger Dispatch\
+  \ Table → `task(..., prompt: \"execute <task> from <skill>. Read \\`<skill>/tasks/<task>.md\\\
+  ` first\")` → child session created → subagent reads `tasks/<name>.md` via file\
+  \ tools → executes procedure → returns result contract\n\n### REQ-3: Sub-Skill Clarification\n\
+  The reference SHALL document:\n- Sub-skills are not an opencode concept — the skill\
+  \ system has exactly one abstraction\n- What appears to be sub-skills are independent\
+  \ skills that happen to be co-located\n- Guidance on when to use a single skill\
+  \ with multiple task cards vs multiple independent skills\n\n### REQ-4: Task Card\
+  \ Structure\nThe reference SHALL document:\n- Canonical sections: Purpose, Entry\
+  \ Criteria, Procedure, Exit Criteria, Result Contract\n- What task cards MUST NOT\
+  \ contain (no task() calls, no skill() calls, no orchestrator routing)\n- Result\
+  \ contract format: status, finding_summary, artifact_path, blocker_reason\n- Task\
+  \ file discovery directive pattern for sub-agents\n\n### REQ-5: Cross-References\n\
+  Both reference documents SHALL be cross-referenced from:\n- AGENTS.md (Universal\
+  \ Skill Dispatch Gate section)\n- skills/skill-creator/SKILL.md (skill lifecycle\
+  \ manager)\n\n### REQ-6: Re-Align Existing Documentation\nThe following existing\
+  \ reference documents SHALL be updated to use agent-intent description format:\n\
+  - reference/skill-card-schema.md — replace \"Load via skill() when...\" with agent-intent\
+  \ format\n- skills/skill-creator/reference/skill-card-spec.md — replace deprecated\
+  \ Farmage format with agent-intent format\n- skills/skill-creator/reference/routing-only-template.md\
+  \ — replace description format specification with agent-intent format\n\n### REQ-7:\
+  \ AGENTS.md Update\nAGENTS.md Pre-Response Gate Procedure SHALL be updated to clarify\
+  \ that the match is between the agent's OWN intent and the description, not the\
+  \ user's literal utterance. The current text says \"evaluate against ALL available\
+  \ skill descriptions\" but does not explain the semantic matching mechanism.\n\n\
+  ### REQ-8: Companion Spec for opencode-config\nA companion spec SHALL be filed in\
+  \ the opencode-config repo to update:\n- opencode-config/AGENTS.md — add cross-references\
+  \ to the new reference documents in .opencode/reference/\n- opencode-config/.opencode/AGENTS.md\
+  \ — add cross-references to the new reference documents\n\n### REQ-9: Dual-Repo\
+  \ Cross-Reference Update\nAfter the companion spec is approved and implemented,\
+  \ both AGENTS.md files in opencode-config SHALL reference the new reference documents\
+  \ so the agent working from the parent repo can discover and use them.\n\n## Phases\n\
+  \n### Phase 1: Create description field standards reference\nCreate reference/skill-card-description-standards.md\
+  \ with all description field guidance.\n\n### Phase 2: Create task card structure\
+  \ standards reference\nCreate reference/task-card-structure-standards.md with all\
+  \ task card guidance.\n\n### Phase 3: Re-align existing documentation\nUpdate reference/skill-card-schema.md,\
+  \ skills/skill-creator/reference/skill-card-spec.md, and skills/skill-creator/reference/routing-only-template.md\
+  \ to use agent-intent description format.\n\n### Phase 4: Update AGENTS.md\nUpdate\
+  \ AGENTS.md Pre-Response Gate Procedure to clarify agent-intent matching.\n\n###\
+  \ Phase 5: Audit existing descriptions\nAudit all SKILL.md files in skills/ and\
+  \ classify each description as agent-intent pattern or deprecated pattern. Produce\
+  \ audit report.\n\n### Phase 6: File companion spec for opencode-config\nFile companion\
+  \ spec in opencode-config repo (issue #332) to update its AGENTS.md files.\n\n###\
+  \ Phase 7: Cross-reference integration\nAdd cross-references from AGENTS.md and\
+  \ skills/skill-creator/SKILL.md to both new reference documents.\n\n## Dependencies\n\
+  \n- Companion spec in opencode-config (issue #332) — must be filed before Phase\
+  \ 7 can be completed\n- Spec #2077 (replace spec-creation skill) — the new description\
+  \ format from this spec informs the new skill's description\n\n## Traceability\n\
+  \n| Requirement | SCs | Phase |\n|-------------|-----|-------|\n| REQ-1 | SC-1,\
+  \ SC-2, SC-3 | Phase 1 |\n| REQ-2 | SC-4, SC-5 | Phase 1 |\n| REQ-3 | SC-6 | Phase\
+  \ 1 |\n| REQ-4 | SC-7, SC-8, SC-9 | Phase 2 |\n| REQ-5 | SC-10 | Phase 7 |\n| REQ-6\
+  \ | SC-12, SC-13, SC-14 | Phase 3 |\n| REQ-7 | SC-15 | Phase 4 |\n| REQ-8 | SC-16\
+  \ | Phase 6 |\n| REQ-9 | SC-17, SC-18 | Phase 7 |\n| Audit | SC-11 | Phase 5 |\n\
+  \n\n"
 created_at: '2026-07-23T02:56:34+00:00'
-updated_at: '2026-07-23T03:06:08+00:00'
+updated_at: '2026-07-23T03:19:22+00:00'
