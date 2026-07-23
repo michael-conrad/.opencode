@@ -2,6 +2,252 @@ title: '[SPEC] Replace spec-creation skill with flat architecture (no sub-skills
 status: open
 labels:
 - '[SPEC],needs-approval'
-body: ''
+body: '## Objective
+
+
+  Replace the current spec-creation skill (dispatcher with 5 sub-skills, 32 task files
+  across 6 directories) with a single flat skill card that dispatches directly to
+  task cards. No sub-skill indirection. The replacement must preserve all existing
+  capabilities (pre-spec inspection, requirements extraction, decomposition, analytical
+  artifacts, spec writing, holistic self-check, remote issue filing, local spec storage)
+  while eliminating the sub-skill architecture that causes routing confusion and skill-card-to-sub-agent
+  dispatch errors.
+
+
+  ## Background
+
+
+  The current spec-creation skill has these defects:
+
+
+  1. **Sub-skills are not an opencode concept.** The 5 sub-skill directories (spec-creation-validation,
+  spec-creation-decomposition, spec-creation-requirements, spec-creation-change-control,
+  spec-creation-operating-protocol) each have their own SKILL.md and appear as independent
+  entries in <available_skills>. The orchestrator must call skill() 5+ times to sequence
+  a single spec creation.
+
+
+  2. **Skill card dispatched to sub-agent (critical-rules-XXX).** The Invocation section
+  dispatches to sub-skill names (e.g., "execute create from spec-creation-validation").
+  The orchestrator sees a skill name and dispatches the skill card to a sub-agent,
+  which receives task() calls it cannot execute.
+
+
+  3. **32 task files across 6 directories.** The orchestrator must sequence: requirements
+  → decompose → analytical-artifacts → ... → create → holistic-self-check → ... →
+  completion. This sequencing logic belongs in a single task file, not in the orchestrator''s
+  routing table.
+
+
+  4. **The description field uses deprecated "Load via skill() when..." pattern.**
+  Per research (see research card), the description should describe the agent''s task
+  intent, not tell the agent when to load.
+
+
+  ## Not Included
+
+
+  - Changing the spec format itself (BDD/RFC 2119 patterns are a separate concern)
+
+  - Changing the holistic self-check dimensions (already documented)
+
+  - Changing the evidence type taxonomy (already documented)
+
+  - Changing the DISPATCH_GATE protocol (already documented)
+
+  - Rewriting other skill descriptions (separate spec #2076)
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | The skills/spec-creation/ directory contains exactly one SKILL.md and a
+  tasks/ directory with 4-5 task files | structural | ls skills/spec-creation/ shows
+  SKILL.md + tasks/ only |
+
+  | SC-2 | The SKILL.md Trigger Dispatch Table dispatches directly to task cards (e.g.,
+  "execute create from spec-creation"), not to sub-skill names | string | grep for
+  "from spec-creation" in SKILL.md — no "from spec-creation-validation" or other sub-skill
+  names |
+
+  | SC-3 | The SKILL.md description uses agent-intent format (describes what the agent
+  needs to do) not "Load via skill() when..." pattern | string | grep description
+  in SKILL.md — no "Load via skill() when" or "User phrases:" |
+
+  | SC-4 | The create task file contains the full spec creation pipeline: pre-spec
+  inspection → requirements → decomposition → analytical artifacts → spec writing
+  → holistic check → remote issue → local spec | string | grep for all pipeline steps
+  in tasks/create.md |
+
+  | SC-5 | The create task file does NOT contain any task() or skill() calls | string
+  | grep for "task(" and "skill(" in tasks/create.md — both return empty |
+
+  | SC-6 | The create task file writes the spec to the correct .issues/{N}/ or <sub-repo>/.issues/{N}/
+  path | behavioral | Sub-agent executes create task, verifies spec file at correct
+  path |
+
+  | SC-7 | The revise task file handles spec revision with change control tracking
+  | structural | File exists at tasks/revise.md |
+
+  | SC-8 | The validate task file handles standalone spec validation | structural
+  | File exists at tasks/validate.md |
+
+  | SC-9 | The holistic-check task file handles the 11-dimension holistic self-check
+  | structural | File exists at tasks/holistic-check.md |
+
+  | SC-10 | The 5 sub-skill directories (spec-creation-validation, spec-creation-decomposition,
+  spec-creation-requirements, spec-creation-change-control, spec-creation-operating-protocol)
+  are removed | structural | ls skills/ | grep spec-creation shows only spec-creation
+  |
+
+  | SC-11 | The 32 task files from the sub-skill directories are consolidated into
+  4-5 task files in skills/spec-creation/tasks/ | structural | ls skills/spec-creation/tasks/
+  shows 4-5 files |
+
+  | SC-12 | The brainstorming skill''s completion task returns a result contract that
+  signals "handoff to spec-creation" so the orchestrator knows to call skill({name:
+  "spec-creation"}) | string | grep for "spec-creation" in skills/brainstorming/tasks/completion.md
+  |
+
+
+  ## Requirements
+
+
+  ### REQ-1: Single Flat Skill
+
+  The spec-creation skill SHALL be a single directory with one SKILL.md and a tasks/
+  subdirectory. No sub-skill directories. The SKILL.md SHALL dispatch directly to
+  task cards via the Invocation section.
+
+
+  ### REQ-2: Agent-Intent Description
+
+  The SKILL.md description SHALL use agent-intent format: describe what the agent
+  needs to accomplish (e.g., "Create and validate specification documents with success
+  criteria, evidence types, traceability, and analytical artifacts from requirements
+  and problem statements."). It SHALL NOT use "Load via skill() when..." or "User
+  phrases:" patterns.
+
+
+  ### REQ-3: Create Pipeline Task
+
+  The create task file SHALL contain the full spec creation pipeline as a single sub-agent
+  dispatch:
+
+  1. Pre-spec inspection (codebase search for affected files)
+
+  2. Requirements extraction from problem statement
+
+  3. Problem decomposition into success criteria with evidence types
+
+  4. Analytical artifact generation (blast radius, code paths, cross-cutting, etc.)
+
+  5. Spec writing (assemble all sections: objective, background, SCs, requirements,
+  phases, etc.)
+
+  6. Holistic self-check (11 dimensions)
+
+  7. Create remote issue stub (when remote API available) to get issue number
+
+  8. Write full spec to remote issue body
+
+  9. Write local spec to .issues/{N}/spec.md (or <sub-repo>/.issues/{N}/spec.md)
+
+  10. Return result contract with issue number and artifact paths
+
+
+  ### REQ-4: No task()/skill() in Task Files
+
+  Task files SHALL contain only procedure steps (numbered lists, entry/exit criteria,
+  result contracts). They SHALL NOT contain task() calls, skill() calls, or orchestrator-level
+  routing instructions.
+
+
+  ### REQ-5: Correct .issues/ Path
+
+  The create task SHALL write the local spec to the correct path:
+
+  - Root repo issues: .issues/{N}/spec.md
+
+  - Submodule issues: {project_root}/{path}/.issues/{N}/spec.md (where path comes
+  from session-init Repo Information)
+
+
+  ### REQ-6: Brainstorming Handoff
+
+  The brainstorming skill''s completion task SHALL return a result contract that includes
+  a handoff signal to spec-creation, so the orchestrator knows to call skill({name:
+  "spec-creation"}) and dispatch the create task.
+
+
+  ### REQ-7: Remove Sub-Skill Directories
+
+  After the new skill is verified working, the 5 sub-skill directories SHALL be removed.
+  Their task files SHALL be consolidated into the new skills/spec-creation/tasks/
+  directory.
+
+
+  ## Phases
+
+
+  ### Phase 1: Create new spec-creation skill
+
+  Write the new SKILL.md and task files (create.md, revise.md, validate.md, holistic-check.md)
+  in skills/spec-creation/. Do NOT remove old files yet.
+
+
+  ### Phase 2: Update brainstorming handoff
+
+  Update skills/brainstorming/tasks/completion.md to return a handoff signal to spec-creation.
+
+
+  ### Phase 3: Remove old sub-skill directories
+
+  After verifying the new skill works, remove the 5 sub-skill directories and their
+  32 task files.
+
+
+  ### Phase 4: Verify end-to-end
+
+  Run a behavioral test that creates a spec through the new pipeline and verifies
+  the output at the correct .issues/{N}/ path.
+
+
+  ## Dependencies
+
+
+  - Spec #2076 (skill card/task card documentation standards) — the description field
+  standards from #2076 inform the new description format
+
+  - The DISPATCH_GATE protocol (already documented in every SKILL.md)
+
+
+  ## Traceability
+
+
+  | Requirement | SCs | Phase |
+
+  |-------------|-----|-------|
+
+  | REQ-1 | SC-1, SC-2, SC-10, SC-11 | Phase 1, Phase 3 |
+
+  | REQ-2 | SC-3 | Phase 1 |
+
+  | REQ-3 | SC-4, SC-5, SC-6 | Phase 1 |
+
+  | REQ-4 | SC-5 | Phase 1 |
+
+  | REQ-5 | SC-6 | Phase 1 |
+
+  | REQ-6 | SC-12 | Phase 2 |
+
+  | REQ-7 | SC-10, SC-11 | Phase 3 |
+
+
+  '
 created_at: '2026-07-23T02:56:59+00:00'
-updated_at: '2026-07-23T02:56:59+00:00'
+updated_at: '2026-07-23T02:57:06+00:00'
