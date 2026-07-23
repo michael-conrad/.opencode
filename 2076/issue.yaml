@@ -58,25 +58,45 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ literal utterance. Must be updated.\n\n11. **All existing skill descriptions in\
   \ `skills/`** — approximately 60 SKILL.md files use the deprecated \"Load via skill()\
   \ when...\" / \"User phrases:\" pattern. These must be audited and a plan created\
-  \ for rewriting them.\n\n### Dual-Repo Problem\n\n12. **The `.opencode/` submodule\
-  \ is invisible from `opencode-config/`** — when the agent works in the `opencode-config`\
-  \ parent repo, it has access to `.opencode/` as a submodule. But `opencode-config/AGENTS.md`\
-  \ and `opencode-config/.opencode/AGENTS.md` do not cross-reference the new reference\
-  \ docs in `.opencode/reference/`. A companion spec must be filed in `opencode-config`\
-  \ to update its AGENTS.md files so the agent can discover and use the new documentation.\n\
-  \n## Not Included\n\n- Replacing the spec-creation skill (separate spec #2077)\n\
-  - Changing the DISPATCH_GATE protocol (already documented)\n- Changing the orchestrator/sub-agent\
-  \ routing pattern (already documented)\n- Rewriting individual skill descriptions\
-  \ (covered by audit report in this spec, actual rewriting is downstream work)\n\n\
-  ## Success Criteria\n\n| ID | Criterion | Evidence Type | Verification Method |\n\
-  |----|-----------|---------------|---------------------|\n| SC-1 | A centralized\
-  \ reference document exists at reference/skill-card-description-standards.md covering\
-  \ the description field as a semantic router for agent-intent matching | structural\
-  \ | File exists at expected path |\n| SC-2 | The reference document explains that\
-  \ the agent evaluates its OWN intent against descriptions (not user utterances)\
-  \ and provides guidance on writing descriptions that match agent task intent | string\
-  \ | grep for \"agent intent\" and \"semantic router\" in the reference file |\n\
-  | SC-3 | The reference document documents the progressive disclosure three-level\
+  \ for rewriting them.\n\n### Tooling That Needs Re-Alignment\n\n12. **`skills/skill-creator/scripts/validate_skill_cards.py`**\
+  \ — the mechanical validation script. Validates REQ-6 (DISPATCH_GATE 6 subsections),\
+  \ SC-LINT-005 (no procedure content in SKILL.md), SC-LINT-006 (dispatch table sub-item\
+  \ types), and description format (SC-LINT-001 requires \"Dispatch when\" or \"Load\
+  \ via skill() when\"). All of these reference the old Trigger Dispatch Table + Invocation\
+  \ + DISPATCH_GATE structure. Must be updated to validate the new Workflows section\
+  \ format with sub-bullet dispatch contracts.\n\n13. **`skills/skill-creator/tasks/validate.md`**\
+  \ — the agent-driven semantic validation task. Phase 6 validates SKILL-STRUCT-1\
+  \ through SKILL-STRUCT-6 (Trigger Dispatch Table presence, DISPATCH_GATE completeness,\
+  \ Sub-Agent Routing section, Invocation section, no inline procedure, Tasks section\
+  \ listing). Must be updated to validate Workflows section structure instead.\n\n\
+  14. **`skills/audit/tasks/spec-audit-evaluator.md`** — the spec audit evaluator.\
+  \ Step 5i validates SC-ADMONISHMENT (5/4/3-item discipline admonishment). Step 15\
+  \ evaluates SC-SEM-001 through SC-SEM-006 (dispatch condition alignment, dispatch\
+  \ table sub-item types). These reference the old Trigger Dispatch Table structure.\
+  \ Must be updated to validate Workflows section format.\n\n15. **`tests-v2/behaviors/dispatch-boundary-writing-plans.sh`**\
+  \ — behavioral test that validates Trigger Dispatch Table routing classification\
+  \ (SC-28). References the old TDT structure. Must be updated or replaced to validate\
+  \ Workflows section routing.\n\n16. **`tests-v2/behaviors/skill-description-pattern.sh`**\
+  \ — behavioral test that validates description agent-intent pattern (SC-3 from #1961).\
+  \ May need updating if the description format requirements changed.\n\n### Dual-Repo\
+  \ Problem\n\n12. **The `.opencode/` submodule is invisible from `opencode-config/`**\
+  \ — when the agent works in the `opencode-config` parent repo, it has access to\
+  \ `.opencode/` as a submodule. But `opencode-config/AGENTS.md` and `opencode-config/.opencode/AGENTS.md`\
+  \ do not cross-reference the new reference docs in `.opencode/reference/`. A companion\
+  \ spec must be filed in `opencode-config` to update its AGENTS.md files so the agent\
+  \ can discover and use the new documentation.\n\n## Not Included\n\n- Replacing\
+  \ the spec-creation skill (separate spec #2077)\n- Changing the DISPATCH_GATE protocol\
+  \ (already documented)\n- Changing the orchestrator/sub-agent routing pattern (already\
+  \ documented)\n- Rewriting individual skill descriptions (covered by audit report\
+  \ in this spec, actual rewriting is downstream work)\n\n## Success Criteria\n\n\
+  | ID | Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | A centralized reference document exists at reference/skill-card-description-standards.md\
+  \ covering the description field as a semantic router for agent-intent matching\
+  \ | structural | File exists at expected path |\n| SC-2 | The reference document\
+  \ explains that the agent evaluates its OWN intent against descriptions (not user\
+  \ utterances) and provides guidance on writing descriptions that match agent task\
+  \ intent | string | grep for \"agent intent\" and \"semantic router\" in the reference\
+  \ file |\n| SC-3 | The reference document documents the progressive disclosure three-level\
   \ architecture (metadata, instructions, resources) | string | grep for \"progressive\
   \ disclosure\" and \"Level 1\" in the reference file |\n| SC-4 | The reference document\
   \ documents that skill() is orchestrator-only and sub-agents cannot call it | string\
@@ -134,41 +154,57 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ in .opencode/reference/ | string | grep for reference file paths in opencode-config/AGENTS.md\
   \ |\n| SC-21 | opencode-config/.opencode/AGENTS.md is updated to reference the new\
   \ reference documents | string | grep for reference file paths in opencode-config/.opencode/AGENTS.md\
-  \ |\n\n## Requirements\n\n### REQ-1: Description Field Standards\nThe reference\
-  \ SHALL document:\n- The description field as a semantic router (agent evaluates\
-  \ own intent, not user utterance)\n- The progressive disclosure architecture (Level\
-  \ 1: metadata, Level 2: instructions, Level 3: resources)\n- Guidance on writing\
-  \ descriptions that match agent task intent (action verbs, domain context, specificity)\n\
-  - What to exclude from descriptions (meta-instructions, trigger phrase lists, \"\
-  Load via skill() when...\")\n- Examples of effective vs ineffective descriptions\n\
-  \n### REQ-2: Skill() and Task() Tool Pipeline\nThe reference SHALL document the\
-  \ complete two-tool pipeline, including the critical asymmetry:\n- `skill({name:\
-  \ \"...\"})` auto-loads SKILL.md into the calling agent's context — the tool reads\
-  \ the file from disk and injects the full content as XML-wrapped output. The orchestrator\
-  \ receives the skill card automatically.\n- `task(..., prompt: \"...\")` creates\
-  \ a child session with fresh context — the prompt is the ONLY context the subagent\
-  \ receives. The subagent MUST use its own file read tools to load `tasks/<name>.md`.\
-  \ The task tool does NOT auto-load task card files.\n- The discovery directive in\
-  \ the prompt (\"Read `<skill>/tasks/<task>.md` first\") is REQUIRED because task()\
-  \ does not auto-load. It is routing metadata (which file to read), not preloading.\n\
-  - `skill()` is orchestrator-only — sub-agents dispatched via task() cannot call\
-  \ skill() (sub-agents have `task: deny` hardcoded and no access to the skill tool)\n\
-  - Dispatching SKILL.md content to a sub-agent is a category error (critical-rules-XXX)\
-  \ — the sub-agent receives task() calls it cannot execute and orchestrator-level\
-  \ routing instructions it cannot act on\n- The complete pipeline: orchestrator →\
-  \ `skill({name: \"...\"})` → SKILL.md auto-loaded → orchestrator reads Trigger Dispatch\
-  \ Table → `task(..., prompt: \"execute <task> from <skill>. Read \\`<skill>/tasks/<task>.md\\\
-  ` first\")` → child session created → subagent reads `tasks/<name>.md` via file\
-  \ tools → executes procedure → returns result contract\n\n### REQ-3: Sub-Skill Clarification\n\
-  The reference SHALL document:\n- Sub-skills are not an opencode concept — the skill\
-  \ system has exactly one abstraction\n- What appears to be sub-skills are independent\
-  \ skills that happen to be co-located\n- Guidance on when to use a single skill\
-  \ with multiple task cards vs multiple independent skills\n\n### REQ-4: Task Card\
-  \ Structure\nThe reference SHALL document:\n- Canonical sections: Purpose, Entry\
-  \ Criteria, Procedure, Exit Criteria, Result Contract\n- What task cards MUST NOT\
-  \ contain (no task() calls, no skill() calls, no orchestrator routing)\n- Result\
-  \ contract format: status, finding_summary, artifact_path, blocker_reason\n- Task\
-  \ file discovery directive pattern for sub-agents\n\n### REQ-5: Workflow Structure\
+  \ |\n| SC-22 | validate_skill_cards.py is updated to validate Workflows section\
+  \ format (sub-bullet dispatch contracts) instead of Trigger Dispatch Table + Invocation\
+  \ + DISPATCH_GATE | behavioral | Run validate_skill_cards.py against a test SKILL.md\
+  \ with Workflows format — passes without false failures |\n| SC-23 | skills/skill-creator/tasks/validate.md\
+  \ Phase 6 is updated to validate Workflows section structure instead of SKILL-STRUCT-1\
+  \ through SKILL-STRUCT-6 | string | grep for \"Workflows\" in validate.md — no references\
+  \ to \"Trigger Dispatch Table\" or \"DISPATCH_GATE\" in structural checks |\n| SC-24\
+  \ | skills/audit/tasks/spec-audit-evaluator.md SC-SEM criteria are updated to validate\
+  \ Workflows section format instead of Trigger Dispatch Table | string | grep for\
+  \ \"Workflows\" in spec-audit-evaluator.md — SC-SEM criteria reference Workflows,\
+  \ not Trigger Dispatch Table |\n| SC-25 | tests-v2/behaviors/dispatch-boundary-writing-plans.sh\
+  \ is updated or replaced to validate Workflows section routing instead of Trigger\
+  \ Dispatch Table routing | behavioral | Behavioral test passes with Workflows-format\
+  \ SKILL.md |\n| SC-26 | tests-v2/behaviors/skill-description-pattern.sh is updated\
+  \ to validate agent-intent description format (no \"Load via skill() when\" or \"\
+  User phrases:\") | behavioral | Behavioral test passes with agent-intent format\
+  \ descriptions |\n\n## Requirements\n\n### REQ-1: Description Field Standards\n\
+  The reference SHALL document:\n- The description field as a semantic router (agent\
+  \ evaluates own intent, not user utterance)\n- The progressive disclosure architecture\
+  \ (Level 1: metadata, Level 2: instructions, Level 3: resources)\n- Guidance on\
+  \ writing descriptions that match agent task intent (action verbs, domain context,\
+  \ specificity)\n- What to exclude from descriptions (meta-instructions, trigger\
+  \ phrase lists, \"Load via skill() when...\")\n- Examples of effective vs ineffective\
+  \ descriptions\n\n### REQ-2: Skill() and Task() Tool Pipeline\nThe reference SHALL\
+  \ document the complete two-tool pipeline, including the critical asymmetry:\n-\
+  \ `skill({name: \"...\"})` auto-loads SKILL.md into the calling agent's context\
+  \ — the tool reads the file from disk and injects the full content as XML-wrapped\
+  \ output. The orchestrator receives the skill card automatically.\n- `task(...,\
+  \ prompt: \"...\")` creates a child session with fresh context — the prompt is the\
+  \ ONLY context the subagent receives. The subagent MUST use its own file read tools\
+  \ to load `tasks/<name>.md`. The task tool does NOT auto-load task card files.\n\
+  - The discovery directive in the prompt (\"Read `<skill>/tasks/<task>.md` first\"\
+  ) is REQUIRED because task() does not auto-load. It is routing metadata (which file\
+  \ to read), not preloading.\n- `skill()` is orchestrator-only — sub-agents dispatched\
+  \ via task() cannot call skill() (sub-agents have `task: deny` hardcoded and no\
+  \ access to the skill tool)\n- Dispatching SKILL.md content to a sub-agent is a\
+  \ category error (critical-rules-XXX) — the sub-agent receives task() calls it cannot\
+  \ execute and orchestrator-level routing instructions it cannot act on\n- The complete\
+  \ pipeline: orchestrator → `skill({name: \"...\"})` → SKILL.md auto-loaded → orchestrator\
+  \ reads Trigger Dispatch Table → `task(..., prompt: \"execute <task> from <skill>.\
+  \ Read \\`<skill>/tasks/<task>.md\\` first\")` → child session created → subagent\
+  \ reads `tasks/<name>.md` via file tools → executes procedure → returns result contract\n\
+  \n### REQ-3: Sub-Skill Clarification\nThe reference SHALL document:\n- Sub-skills\
+  \ are not an opencode concept — the skill system has exactly one abstraction\n-\
+  \ What appears to be sub-skills are independent skills that happen to be co-located\n\
+  - Guidance on when to use a single skill with multiple task cards vs multiple independent\
+  \ skills\n\n### REQ-4: Task Card Structure\nThe reference SHALL document:\n- Canonical\
+  \ sections: Purpose, Entry Criteria, Procedure, Exit Criteria, Result Contract\n\
+  - What task cards MUST NOT contain (no task() calls, no skill() calls, no orchestrator\
+  \ routing)\n- Result contract format: status, finding_summary, artifact_path, blocker_reason\n\
+  - Task file discovery directive pattern for sub-agents\n\n### REQ-5: Workflow Structure\
   \ with Sub-Bullet Dispatch Contracts\nThe reference SHALL document that skill cards\
   \ use a **Workflows** section where each workflow is a numbered list of clean-room\
   \ `task()` dispatch steps. Each step has sub-bullets for the dispatch parameters:\n\
@@ -209,11 +245,19 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   ### REQ-9: Companion Spec for opencode-config\nA companion spec SHALL be filed in\
   \ the opencode-config repo to update:\n- opencode-config/AGENTS.md — add cross-references\
   \ to the new reference documents in .opencode/reference/\n- opencode-config/.opencode/AGENTS.md\
-  \ — add cross-references to the new reference documents\n\n### REQ-10: Dual-Repo\
-  \ Cross-Reference Update\nAfter the companion spec is approved and implemented,\
-  \ both AGENTS.md files in opencode-config SHALL reference the new reference documents\
-  \ so the agent working from the parent repo can discover and use them.\n\n## Phases\n\
-  \n### Phase 1: Create description field standards reference\nCreate reference/skill-card-description-standards.md\
+  \ — add cross-references to the new reference documents\n\n### REQ-11: Tooling Updates\n\
+  The following tools SHALL be updated to validate the new Workflows section format\
+  \ instead of the old Trigger Dispatch Table + Invocation + DISPATCH_GATE structure:\n\
+  \n- **validate_skill_cards.py** — update SC-LINT-001 (description format), SC-LINT-005\
+  \ (no procedure content), SC-LINT-006 (dispatch sub-item types), and REQ-6 (DISPATCH_GATE\
+  \ subsections) to reference Workflows section with sub-bullet dispatch contracts\n\
+  - **skills/skill-creator/tasks/validate.md Phase 6** — replace SKILL-STRUCT-1 through\
+  \ SKILL-STRUCT-6 validation with Workflows section structure validation\n- **skills/audit/tasks/spec-audit-evaluator.md**\
+  \ — update SC-SEM-001 through SC-SEM-006 to validate Workflows section format instead\
+  \ of Trigger Dispatch Table\n- **tests-v2/behaviors/dispatch-boundary-writing-plans.sh**\
+  \ — update or replace to validate Workflows section routing\n- **tests-v2/behaviors/skill-description-pattern.sh**\
+  \ — update to validate agent-intent description format\n\n## Phases\n\n### Phase\
+  \ 1: Create description field standards reference\nCreate reference/skill-card-description-standards.md\
   \ with all description field guidance.\n\n### Phase 2: Create task card structure\
   \ standards reference\nCreate reference/task-card-structure-standards.md with all\
   \ task card guidance.\n\n### Phase 3: Re-align existing documentation\nUpdate reference/skill-card-schema.md,\
@@ -225,7 +269,10 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ audit report.\n\n### Phase 6: File companion spec for opencode-config\nFile companion\
   \ spec in opencode-config repo (issue #332) to update its AGENTS.md files.\n\n###\
   \ Phase 7: Cross-reference integration\nAdd cross-references from AGENTS.md and\
-  \ skills/skill-creator/SKILL.md to both new reference documents.\n\n## Dependencies\n\
+  \ skills/skill-creator/SKILL.md to both new reference documents.\n\n### Phase 8:\
+  \ Update tooling\nUpdate validate_skill_cards.py, validate.md Phase 6, spec-audit-evaluator.md\
+  \ SC-SEM criteria, and behavioral tests to validate Workflows section format instead\
+  \ of old Trigger Dispatch Table + Invocation + DISPATCH_GATE structure.\n\n## Dependencies\n\
   \n- Companion spec in opencode-config (issue #332) — must be filed before Phase\
   \ 7 can be completed\n- Spec #2077 (replace spec-creation skill) — the new description\
   \ format from this spec informs the new skill's description\n\n## Traceability\n\
@@ -234,6 +281,7 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ SC-8, SC-9 | Phase 1 |\n| REQ-4 | SC-10, SC-11, SC-12 | Phase 2 |\n| REQ-5 | SC-6,\
   \ SC-7, SC-8 | Phase 1 |\n| REQ-6 | SC-13 | Phase 7 |\n| REQ-7 | SC-15, SC-16, SC-17\
   \ | Phase 3 |\n| REQ-8 | SC-18 | Phase 4 |\n| REQ-9 | SC-19 | Phase 6 |\n| REQ-10\
-  \ | SC-20, SC-21 | Phase 7 |\n| Audit | SC-14 | Phase 5 |\n\n\n"
+  \ | SC-20, SC-21 | Phase 7 |\n| REQ-11 | SC-22, SC-23, SC-24, SC-25, SC-26 | Phase\
+  \ 8 |\n| Audit | SC-14 | Phase 5 |\n\n\n"
 created_at: '2026-07-23T02:56:34+00:00'
-updated_at: '2026-07-23T03:52:06+00:00'
+updated_at: '2026-07-23T03:56:17+00:00'
