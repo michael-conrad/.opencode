@@ -204,8 +204,11 @@ behavior_run() {
     submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
     local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
+    # Default to trunk tip (remote default branch). Only pin to a specific commit
+    # when BEHAVIOR_SUBMODULE_COMMIT is explicitly set. Using local HEAD is wrong —
+    # it may be a feature branch or uncommitted state not yet pushed to remote.
     if [ -z "$submodule_commit" ]; then
-        submodule_commit=$(git -C "$BEHAVIOR_HELPERS_DIR/../.." rev-parse HEAD 2>/dev/null || true)
+        submodule_commit=""  # let clone use remote default branch
     fi
 
     local attempt=0
