@@ -8,26 +8,14 @@ Co-authored with AI: OpenCode (deepseek-v4-flash)
 
 ## Purpose
 
-This template defines the canonical structure for a routing-only SKILL.md file. A routing-only SKILL.md contains **no procedure text** — no step definitions, no entry/exit criteria, no code snippets, no "Operating Protocol" sections. The orchestrator receives only routing metadata (dispatch table, canonical strings, cross-references). Procedure content lives exclusively in `tasks/*.md` files that only sub-agents read.
+This template defines the canonical structure for a routing-only SKILL.md file. A routing-only SKILL.md contains **no procedure text** — no step definitions, no entry/exit criteria, no code snippets, no "Operating Protocol" sections. The orchestrator receives only routing metadata (workflows with dispatch contracts, cross-references). Procedure content lives exclusively in `tasks/*.md` files that only sub-agents read.
 
 ## Template
 
 ```markdown
 ---
 name: skill-name
-description: "<Agent-intent statement describing what the skill does>. Load via skill() when <agent-decision conditions>. <Enforcement statement>. User phrases: <comma-separated list>. — distinct from <exclusion clauses>."
-
-**Description format (agent-intent pattern):**
-- `<Agent-intent statement>` — what the skill does (the agent's role when it loads this skill)
-- `Load via skill() when` — primary agent-facing load conditions (when the agent should call skill())
-- Enforcement statement — e.g., "Spec creation is REQUIRED before implementation."
-- `User phrases:` — comma-separated list of natural language phrases a user might say
-- `— distinct from` — exclusion clauses for skills that could false-match
-- Max 1024 characters (opencode limit)
-- **Rejected elements:** `Use when`, `Also use when`, `Trigger phrases:` — deprecated Farmage format, MUST NOT appear
-- **Rejected elements:** `Dispatch when`, `Also dispatch when` — deprecated dispatch pattern, replaced by "Load via skill() when"
-license: MIT
-provenance: AI-generated
+description: "<Agent task description. Describes what the agent needs to DO, not what the user SAYS. Max 1024 characters. No meta-instructions like 'Load via skill() when' or 'User phrases:' — these dilute the semantic vector.>"
 ---
 
 # Skill: skill-name
@@ -47,110 +35,52 @@ provenance: AI-generated
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`,
      `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## Trigger Dispatch Table
+## Workflows
 
-- [ ] **"trigger phrase"** → `task-name` (dispatch-type)
-  - Context: `{field1, field2}`
-  - Task file: `skill-name/tasks/task-name.md`
-- [ ] **"another trigger"** → `other-task` (dispatch-type)
-  - Context: `{field3}`
-  - Task file: `skill-name/tasks/other-task.md`
-  - [ ] Sub-step that must be performed (e.g., verify pre-condition)
-  - [ ] Another required sub-step (e.g., validate output)
+### Workflow name
+When the agent needs to [describe the decision context — what state the agent is in when it should pick this workflow].
 
-**Sub-item semantics:**
-- **Sub-bullets** (`-`): Parameter metadata — context fields, task file paths, dispatch type. Informational, not actionable.
-- **Sub-checkboxes** (`- [ ]`): Discrete sub-steps that must be performed (as task or inline op). Actionable.
+1. **Step name** — description of what this step accomplishes
+   - Prompt: `"Read \`skill-name/tasks/task-name.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, project_root, ...}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-## Invocation
+2. **Next step name** — description
+   - Prompt: `"Read \`skill-name/tasks/next-task.md\` and follow its instructions. Issue: {issue_number}. Prior: {step1_artifact_path}."`
+   - Context: `{issue_number, project_root, step1_artifact_path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-`skill({name: "skill-name"})` — call the skill, then call via task():
+### Another workflow
+When the agent needs to [different decision context].
 
-- [ ] **`task-name`** → `task(..., prompt: "execute task-name task from skill-name")`
-- [ ] **`other-task`** → `task(..., prompt: "execute other-task task from skill-name")`
-
-**CLI equivalent (for human TUI use):** `` `skill({name: "skill-name"})` ``
-
-## Sub-Agent Routing
-
-[Routing rules: what context fields to pass, what to exclude, any special dispatch instructions.]
-
-- Standard context: `{worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase}`
-- Exclusions: orchestrator reasoning, expected outcomes, inline file paths, agent memory, cached verification results
-- Auditor tasks use subagent_type from `resolve-models` result contract — NOT `general`
-- `pre-analysis` receives only `{issue_number, task_description, github.owner, github.repo}`
-
-## DISPATCH_GATE — Orchestrator task() Prompt Protocol
-
-> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
-> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
-
-The orchestrator MUST NOT preload execution context into `task()` prompts.
-Every sub-agent MUST independently discover scope and produce its own result contract.
-
-#### Forbidden in task() Prompts
-
-| Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
-| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
-| Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
-| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
-| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
-| Missing task file discovery directive | "execute verify-authorization from approval-gate" without task file path | "execute verify-authorization from approval-gate. Read `approval-gate/tasks/verify-authorization.md` first" |
-
-#### Required: Sub-agent Task File Discovery Directive
-
-Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
-
-```
-execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
-```
-
-This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
-
-This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
-
-#### Dispatch Context Contract
-
-Every `task()` call MUST include only:
-
-- `worktree.path`
-- `github.owner`
-- `github.repo`
-- `authorization_scope`
-- `halt_at`
-- `pipeline_phase`
-
-Plus skill-specific fields per the `## Sub-Agent Routing` section above.
-
-Exclusions (MUST NOT be in prompt):
-- `orchestrator_reasoning`
-- `expected_outcomes`
-- `inline_file_paths`
-- `agent_memory`
-- `cached_verification_results`
-
-#### Sub-Agent Entry Criteria
-
-A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-- Inline file paths to task files
-- Inline step or procedure definitions
-- Expected outcome structures or schema constraints
-- Pre-loaded evidence or orchestrator-derived conclusions
-
-Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
-
-#### Orchestrator Entry Criteria
-
-After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-- Use the exact `task(..., prompt: "...")` string from the table
-- NOT write a custom prompt with preloaded context
+1. **Step name** — description
+   - Prompt: `"Read \`skill-name/tasks/task-name.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 ## Cross-References
 
-Skills: [related skills]. Guidelines: [related guidelines].
-
+Related skills and reference documents.
 ```
+
+## Sub-Bullet Semantics
+
+Each numbered step in a workflow is a clean-room `task()` dispatch. The sub-bullets define the dispatch contract:
+
+| Sub-bullet | Purpose |
+|------------|---------|
+| **Prompt** | The `prompt` parameter for `task()`. MUST include the discovery directive telling the subagent which task card to read. Format: `"Read \`<skill>/tasks/<task>.md\` and follow its instructions. Issue: {issue_number}."` |
+| **Context** | What context to embed in the prompt body. Everything else is automatically excluded — `task()` creates a child session with zero parent context. |
+| **Returns** | What the subagent returns in its result contract. |
+
+### Rules
+
+- The `description` parameter for `task()` is derived from the step name (3-5 words)
+- The `subagent_type` defaults to `general`. Annotate in the step name when non-default: `1. **Inspect codebase (explore)**`
+- No Context Exclude sub-bullet — `task()` excludes everything by default
+- The orchestrator waits for each result contract before dispatching the next step
+- If any step returns BLOCKED, the workflow halts and reports the blocker
+- Task cards that appear in multiple workflows get their own sub-bullets each time — context may differ per workflow
 
 ## Placement Rules
 
@@ -159,11 +89,8 @@ Skills: [related skills]. Guidelines: [related guidelines].
 | YAML frontmatter | Top of file | Yes |
 | Overview | After frontmatter | Yes |
 | Mandatory Task Discipline | After Overview | Yes |
-| Trigger Dispatch Table | After Mandatory Task Discipline | Yes |
-| Invocation | After Trigger Dispatch Table | Yes |
-| Sub-Agent Routing | After Invocation | Yes |
-| DISPATCH_GATE | After Sub-Agent Routing | Yes |
-| Cross-References | After DISPATCH_GATE | Yes |
+| Workflows | After Mandatory Task Discipline | Yes |
+| Cross-References | After Workflows | Yes |
 
 
 ## Prohibited Content

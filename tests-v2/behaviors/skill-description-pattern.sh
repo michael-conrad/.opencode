@@ -3,8 +3,9 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# Verifies the agent dispatches skills correctly with the new "Load via skill() when"
-# description pattern. Sends a real-domain task that should trigger skill dispatch.
+# Verifies the agent dispatches skills correctly with the agent-intent
+# description pattern (describes what skill does, not when to load).
+# Sends a real-domain task that should trigger skill dispatch.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

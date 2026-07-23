@@ -27,7 +27,7 @@ Producing chat output without first evaluating and dispatching applicable skills
 Before producing ANY output, the agent MUST follow this procedure. Agents who
 skip it are not "fast" — they produce lower-quality work by definition.
 
-1. **Evaluate your current context and task intent against ALL available skill descriptions. (The match is between what you need to do next and what the skill does — not the literal user utterance.)**
+1. **Evaluate your current context and task intent against ALL available skill descriptions. (The match is between the agent's OWN intent and the description — not the user's literal utterance.)**
    The `<available_skills>` list is the map. Agents who skip this step are
    navigating blind — and blind navigation produces defects.
 
@@ -69,6 +69,14 @@ This gate is Tier 1. No authorization, scope, or developer instruction can waive
 Agents who treat "continue" as a skip command are not being helpful — they are bypassing the quality system designed to catch their mistakes. Every gate you skip is a defect you accepted. Every "continue" means proceed, not shortcut.
 
 ---
+
+## Reference Documents
+
+| Document | Purpose |
+|----------|---------|
+| `reference/skill-card-description-standards.md` | Description field as semantic router, persona framing, skill()/task() pipeline, Workflows section format |
+| `reference/task-card-structure-standards.md` | Canonical task card structure, result contract format, task card vs SKILL.md division |
+| `reference/skill-card-schema.md` | SKILL.md frontmatter binary constraints (name, description, license) |
 
 ## Guidelines Structure
 

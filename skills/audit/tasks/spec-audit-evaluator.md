@@ -578,12 +578,12 @@ When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM
 
 | Criterion ID | Description | Evaluation Rule |
 |--------------|-------------|-----------------|
-| SC-SEM-001 | Unambiguous dispatch condition | PASS if description clearly states when to invoke; FAIL if vague or ambiguous |
-| SC-SEM-002 | Mandatory invocation signal | PASS if description uses mandatory language (MUST, REQUIRED, always); FAIL if reads as optional |
-| SC-SEM-003 | Dispatch table alignment | PASS if description covers same use cases as Trigger Dispatch Table; FAIL if mismatch |
-| SC-SEM-004 | Full coverage of dispatch conditions | PASS if every table trigger is reflected in description; FAIL if any trigger omitted |
+| SC-SEM-001 | Agent-intent description format | PASS if description uses agent-intent format (describes what skill does, not when to load); FAIL if contains "Load via skill() when", "User phrases:", "Dispatch when", or other meta-instructions |
+| SC-SEM-002 | Mandatory enforcement signal | PASS if description uses mandatory language (MUST, REQUIRED, always); FAIL if reads as optional |
+| SC-SEM-003 | Workflows alignment | PASS if description covers same use cases as Workflows section; FAIL if mismatch between description and workflows |
+| SC-SEM-004 | Full coverage of workflows | PASS if every workflow in Workflows section is reflected in description; FAIL if any workflow omitted |
 | SC-SEM-005 | No optional/discretionary language | PASS if no optional language found; FAIL if "you can", "you may", "optionally", etc. |
-| SC-SEM-006 | Dispatch table sub-item type correctness | PASS if sub-bullets for metadata, sub-checkboxes for actions; FAIL if type mismatch |
+| SC-SEM-006 | Workflows sub-bullet contract correctness | PASS if each workflow step has Prompt, Context, and Returns sub-bullets; FAIL if missing any sub-bullet |
 
 - [ ] 4. For each SC-SEM criterion, render PASS or FAIL with explanation and remediation guidance
 

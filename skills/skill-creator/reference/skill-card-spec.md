@@ -10,7 +10,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ### SKILL.md Version (5 items)
 
-Insert after Overview, before Trigger Dispatch Table:
+Insert after Overview, before Workflows:
 
 ```markdown
 ## Mandatory Task Discipline
@@ -56,7 +56,7 @@ Insert after Purpose, before Operating Protocol:
 
 | Card Type | Placement |
 |-----------|-----------|
-| SKILL.md | After Overview, before Trigger Dispatch Table |
+| SKILL.md | After Overview, before Workflows |
 | Task card (non-inline) | After Purpose, before Operating Protocol |
 | Task card (inline) | After Purpose, before Operating Protocol |
 
@@ -78,13 +78,15 @@ All new skills MUST use the routing-only template. The SKILL.md variant of the M
 
 ### Description Format
 
-The `description` field in YAML frontmatter uses the **agent-intent pattern**:
+The `description` field in YAML frontmatter uses the **agent-intent format** — it describes what the agent needs to DO, not what the user SAYS. The description is a semantic router: the agent evaluates its OWN intent against the description.
 
 ```
-<Agent-intent statement describing what the skill does>. Load via skill() when <agent-decision conditions>. <Enforcement statement>. User phrases: <comma-separated list>.
+<Agent task description>. <Context/qualification>.
 ```
 
-See `routing-only-template.md` for the canonical template and validation rules.
+**Rejected elements:** `Load via skill() when`, `User phrases:`, `Dispatch when`, `Also dispatch when`, `Trigger phrases:` — these describe user utterances or meta-instructions, not agent intent. They dilute the semantic vector and MUST NOT appear.
+
+See `routing-only-template.md` for the canonical template and validation rules. See `reference/skill-card-description-standards.md` for the complete description field reference.
 
 ### Required Sections
 
@@ -92,25 +94,21 @@ The routing-only SKILL.md template defines the following required sections in or
 
 | Section | Purpose |
 |---------|---------|
-| YAML frontmatter | Skill metadata (name, description, license, provenance) |
+| YAML frontmatter | Skill metadata (name, description) |
 | Overview | 1-2 sentence skill description |
 | Mandatory Task Discipline | Dispatch discipline checklist (5 items) |
-| Trigger Dispatch Table | Trigger-to-task routing with context and task file references |
-| Invocation | Canonical `skill()` and `task()` call strings |
-| Sub-Agent Routing | Context fields to pass and exclude per dispatch |
-| **DISPATCH_GATE** | Orchestrator `task()` prompt protocol — forbidden patterns, discovery directive, dispatch context contract, sub-agent entry criteria, orchestrator entry criteria |
-| Cross-References | Related skills and guidelines |
+| Workflows | Numbered dispatch steps with sub-bullet contracts (replaces old Trigger Dispatch Table + Invocation + DISPATCH_GATE) |
+| Cross-References | Related skills and reference documents |
 
+### Workflows Section Structure
 
-### DISPATCH_GATE Section Structure
+The Workflows section is **required** in every routing-only SKILL.md. It contains one or more workflows, each with:
 
-The DISPATCH_GATE section is **required** in every routing-only SKILL.md. It contains 6 subsections:
+1. **Workflow heading** — `### <workflow name>` (imperative noun phrase)
+2. **When clause** — third person declarative describing when the orchestrator should use this workflow
+3. **Numbered steps** — each step is a clean-room `task()` dispatch with sub-bullets:
+   - **Prompt** — the `prompt` parameter for `task()`. MUST include the discovery directive.
+   - **Context** — what context to embed in the prompt body. Everything else is excluded by default.
+   - **Returns** — what the subagent returns in its result contract.
 
-1. **Context cost frame** — blockquote noting these are operational bookkeeping, not complexity measures
-2. **Forbidden in task() Prompts** — table of violation patterns (preloaded file paths, step sequences, expected outcomes, orchestrator reasoning, missing discovery directive)
-3. **Required: Sub-agent Task File Discovery Directive** — the `execute <task> from <skill>. Read \`<skill>/tasks/<task>.md\` first` format
-4. **Dispatch Context Contract** — list of fields to include and exclude in every `task()` call
-5. **Sub-Agent Entry Criteria** — `PRELOADED_CONTEXT_REJECTED` protocol for sub-agents
-6. **Orchestrator Entry Criteria** — mandate to use exact canonical dispatch strings
-
-All 6 subsections MUST be present. The DISPATCH_GATE section is placed after Sub-Agent Routing and before Cross-References.
+See `reference/skill-card-description-standards.md` §7 for the complete Workflows section specification.

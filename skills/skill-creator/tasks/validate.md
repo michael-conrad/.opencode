@@ -88,40 +88,29 @@ Missing edge cases in enforcement rules leave the agent without guidance when un
 
 ## Phase 6: Routing-Only SKILL.md Structure Validation
 
-This phase validates that every SKILL.md follows the routing-only pattern with DISPATCH_GATE. Skills that contain procedure content (step-by-step instructions, inline code, or task body content) in the SKILL.md itself — instead of delegating to task files — are flagged for restructuring.
+This phase validates that every SKILL.md follows the routing-only pattern with a Workflows section. Skills that contain procedure content (step-by-step instructions, inline code, or task body content) in the SKILL.md itself — instead of delegating to task files — are flagged for restructuring.
 
 ### Required Sections
 
 Every SKILL.md MUST contain:
 
-1. **Trigger Dispatch Table** — a table mapping user phrases/context to task names, with columns: `User says / Context`, `Task`, `Dispatch`, `Context passed`
-2. **DISPATCH_GATE section** — documenting the orchestrator `task()` prompt protocol, including:
-   - Forbidden patterns in task() prompts (preloaded file paths, step sequences, expected outcomes, orchestrator reasoning)
-   - Dispatch context contract (what fields MUST be included)
-   - Sub-Agent Entry Criteria (return `PRELOADED_CONTEXT_REJECTED` on preloaded prompts)
-   - Orchestrator Entry Criteria (use exact canonical dispatch string from Trigger Dispatch Table)
-3. **Sub-Agent Routing section** — documenting what context each sub-agent receives and exclusions
-4. **Invocation section** — with canonical dispatch strings for each task
-5. **Tasks section** — listing task file names (no procedure content inline)
+1. **Workflows section** — numbered dispatch steps with sub-bullet contracts (Prompt, Context, Returns), replacing the old Trigger Dispatch Table + Invocation + DISPATCH_GATE structure
+2. **No inline procedure content** — step-by-step instructions, inline code, and task body content belong in task files, not in SKILL.md
 
 ### Validation Checks
 
 | Check | Rule ID | Description |
 |-------|---------|-------------|
-| Trigger Dispatch Table present | SKILL-STRUCT-1 | SKILL.md has a Trigger Dispatch Table with all required columns |
-| DISPATCH_GATE present | SKILL-STRUCT-2 | SKILL.md has a DISPATCH_GATE section with forbidden patterns, dispatch context, sub-agent entry criteria, and orchestrator entry criteria |
-| Sub-Agent Routing present | SKILL-STRUCT-3 | SKILL.md has a Sub-Agent Routing section documenting context and exclusions |
-| Invocation section present | SKILL-STRUCT-4 | SKILL.md has an Invocation section with canonical dispatch strings |
-| No inline procedure content | SKILL-STRUCT-5 | SKILL.md does NOT contain step-by-step instructions, inline code, or task body content — those belong in task files |
-| Tasks section lists task files | SKILL-STRUCT-6 | SKILL.md has a Tasks section listing task file names (not inline content) |
+| Workflows section present | SKILL-STRUCT-1 | SKILL.md has a Workflows section with numbered dispatch steps |
+| Workflows has sub-bullet contracts | SKILL-STRUCT-2 | Workflows steps have sub-bullets for Prompt, Context, and Returns |
+| No inline procedure content | SKILL-STRUCT-3 | SKILL.md does NOT contain step-by-step instructions, inline code, or task body content — those belong in task files |
+| No old TDT/DISPATCH_GATE | SKILL-STRUCT-4 | SKILL.md does NOT contain old Trigger Dispatch Table, DISPATCH_GATE, Sub-Agent Routing, or Invocation sections |
 
 ### Auto-Fixable Findings
 
 Missing sections are auto-fixable when the skill's task files exist and the structure can be derived:
-- Missing Trigger Dispatch Table: derive from task files and Invocation section
-- Missing DISPATCH_GATE: insert standard DISPATCH_GATE section with the canonical protocol
-- Missing Sub-Agent Routing: derive from task file context requirements
-- Missing Invocation section: derive from task file names
+- Missing Workflows section: derive from task files and skill purpose
+- Old TDT/DISPATCH_GATE sections: replace with Workflows section
 - Inline procedure content: flag for developer review — the agent MUST NOT move procedure content to task files autonomously, as the decomposition requires developer judgment about task boundaries
 
 ## Phase 7: Presenting Findings
