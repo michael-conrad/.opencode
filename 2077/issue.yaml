@@ -57,6 +57,9 @@ body: '## Objective
 
   - Rewriting other skill descriptions (separate spec #2076)
 
+  - The `reference/` directory under `skills/spec-creation/` (currently contains `sc-table-columns.md`)
+  — preserved as-is; not part of the flat architecture change
+
 
   ## Success Criteria
 
@@ -66,13 +69,13 @@ body: '## Objective
   |----|-----------|---------------|---------------------|
 
   | SC-1 | The skills/spec-creation/ directory contains exactly one SKILL.md and a
-  tasks/ directory with 4-5 task files | structural | ls skills/spec-creation/ shows
-  SKILL.md + tasks/ only |
+  tasks/ directory with exactly 4 task files | structural | ls skills/spec-creation/
+  shows SKILL.md + tasks/ only |
 
-  | SC-2 | The SKILL.md Trigger Dispatch Table dispatches directly to task cards (e.g.,
-  "execute create from spec-creation"), not to sub-skill names | string | grep for
-  "from spec-creation" in SKILL.md — no "from spec-creation-validation" or other sub-skill
-  names |
+  | SC-2 | The SKILL.md Workflows section dispatches directly to task cards (e.g.,
+  "Read \`skills/spec-creation/tasks/create.md\` and follow its instructions"), not
+  to sub-skill names | string | grep for "from spec-creation" in SKILL.md — no "from
+  spec-creation-validation" or other sub-skill names |
 
   | SC-3 | The SKILL.md description uses agent-intent format (describes what the agent
   needs to do) not "Load via skill() when..." pattern | string | grep description
@@ -80,8 +83,8 @@ body: '## Objective
 
   | SC-4 | The create task file contains the full spec creation pipeline: pre-spec
   inspection → requirements → decomposition → analytical artifacts → spec writing
-  → holistic check → remote issue → local spec | string | grep for all pipeline steps
-  in tasks/create.md |
+  → holistic check → remote issue stub → remote issue body → local spec → result contract
+  | string | grep for all pipeline steps in tasks/create.md |
 
   | SC-5 | The create task file does NOT contain any task() or skill() calls | string
   | grep for "task(" and "skill(" in tasks/create.md — both return empty |
@@ -105,8 +108,8 @@ body: '## Objective
   |
 
   | SC-11 | The 32 task files from the sub-skill directories are consolidated into
-  4-5 task files in skills/spec-creation/tasks/ | structural | ls skills/spec-creation/tasks/
-  shows 4-5 files |
+  exactly 4 task files in skills/spec-creation/tasks/ | structural | ls skills/spec-creation/tasks/
+  shows 4 files |
 
   | SC-12 | The brainstorming skill''s completion task returns a result contract that
   signals "handoff to spec-creation" so the orchestrator knows to call skill({name:
@@ -119,12 +122,14 @@ body: '## Objective
 
   ### REQ-1: Single Flat Skill
 
+
   The spec-creation skill SHALL be a single directory with one SKILL.md and a tasks/
   subdirectory. No sub-skill directories. The SKILL.md SHALL dispatch directly to
-  task cards via the Invocation section.
+  task cards via the Workflows section (per #2076 standards).
 
 
   ### REQ-2: Agent-Intent Description
+
 
   The SKILL.md description SHALL use agent-intent format: describe what the agent
   needs to accomplish (e.g., "Create and validate specification documents with success
@@ -135,8 +140,10 @@ body: '## Objective
 
   ### REQ-3: Create Pipeline Task
 
+
   The create task file SHALL contain the full spec creation pipeline as a single sub-agent
   dispatch:
+
 
   1. Pre-spec inspection (codebase search for affected files)
 
@@ -162,6 +169,7 @@ body: '## Objective
 
   ### REQ-4: No task()/skill() in Task Files
 
+
   Task files SHALL contain only procedure steps (numbered lists, entry/exit criteria,
   result contracts). They SHALL NOT contain task() calls, skill() calls, or orchestrator-level
   routing instructions.
@@ -169,7 +177,9 @@ body: '## Objective
 
   ### REQ-5: Correct .issues/ Path
 
+
   The create task SHALL write the local spec to the correct path:
+
 
   - Root repo issues: .issues/{N}/spec.md
 
@@ -179,12 +189,14 @@ body: '## Objective
 
   ### REQ-6: Brainstorming Handoff
 
+
   The brainstorming skill''s completion task SHALL return a result contract that includes
   a handoff signal to spec-creation, so the orchestrator knows to call skill({name:
   "spec-creation"}) and dispatch the create task.
 
 
   ### REQ-7: Remove Sub-Skill Directories
+
 
   After the new skill is verified working, the 5 sub-skill directories SHALL be removed.
   Their task files SHALL be consolidated into the new skills/spec-creation/tasks/
@@ -196,22 +208,28 @@ body: '## Objective
 
   ### Phase 1: Create new spec-creation skill
 
+
   Write the new SKILL.md and task files (create.md, revise.md, validate.md, holistic-check.md)
-  in skills/spec-creation/. Do NOT remove old files yet.
+  in skills/spec-creation/. Do NOT remove old files yet. The SKILL.md SHALL use the
+  Workflows section format per #2076 standards (sub-bullet dispatch contracts with
+  Prompt, Context, and Returns fields).
 
 
   ### Phase 2: Update brainstorming handoff
+
 
   Update skills/brainstorming/tasks/completion.md to return a handoff signal to spec-creation.
 
 
   ### Phase 3: Remove old sub-skill directories
 
+
   After verifying the new skill works, remove the 5 sub-skill directories and their
   32 task files.
 
 
   ### Phase 4: Verify end-to-end
+
 
   Run a behavioral test that creates a spec through the new pipeline and verifies
   the output at the correct .issues/{N}/ path.
@@ -221,7 +239,7 @@ body: '## Objective
 
 
   - Spec #2076 (skill card/task card documentation standards) — the description field
-  standards from #2076 inform the new description format
+  standards and Workflows section format from #2076 inform the new SKILL.md structure
 
   - The DISPATCH_GATE protocol (already documented in every SKILL.md)
 
@@ -233,7 +251,7 @@ body: '## Objective
 
   |-------------|-----|-------|
 
-  | REQ-1 | SC-1, SC-2, SC-10, SC-11 | Phase 1, Phase 3 |
+  | REQ-1 | SC-1, SC-2, SC-7, SC-8, SC-9, SC-10, SC-11 | Phase 1, Phase 3 |
 
   | REQ-2 | SC-3 | Phase 1 |
 
@@ -247,7 +265,6 @@ body: '## Objective
 
   | REQ-7 | SC-10, SC-11 | Phase 3 |
 
-
   '
 created_at: '2026-07-23T02:56:59+00:00'
-updated_at: '2026-07-23T02:57:06+00:00'
+updated_at: '2026-07-23T05:35:11+00:00'
