@@ -37,7 +37,15 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ architecture is not documented anywhere in .opencode/.\n\n6. **The description\
   \ field is a classifier boundary** — too vague causes false activations, too specific\
   \ causes missed opportunities. No guidance exists on writing descriptions that match\
-  \ agent intent.\n\n### Existing Documentation That Needs Re-Alignment\n\n7. **`reference/skill-card-schema.md`**\
+  \ agent intent.\n\n7. **The Invocation section is an incomplete dispatch contract**\
+  \ — the `task()` tool requires `subagent_type`, `description`, and `prompt` parameters.\
+  \ Current Invocation sections only specify the `prompt` string. The `subagent_type`\
+  \ is missing. Context include/exclude is scattered across Sub-Agent Routing and\
+  \ DISPATCH_GATE sections. The result contract is in the task card file. The orchestrator\
+  \ must cross-reference 3+ locations to construct a single `task()` call. A survey\
+  \ of 43 SKILL.md files found that 22 of 28 with Invocation sections omit the discovery\
+  \ directive, forcing subagents to search for the correct task file.\n\n### Existing\
+  \ Documentation That Needs Re-Alignment\n\n7. **`reference/skill-card-schema.md`**\
   \ — uses the deprecated \"Load via skill() when...\" description pattern. Must be\
   \ updated to agent-intent format.\n\n8. **`skills/skill-creator/reference/skill-card-spec.md`**\
   \ — references the deprecated Farmage description format. Must be updated to agent-intent\
@@ -79,41 +87,51 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ discovery directive in the prompt tells the subagent which file to read) | string\
   \ | grep for \"skill()\" and \"task()\" and \"auto-load\" in the reference file\
   \ — must show the asymmetry between the two tools |\n| SC-6 | The reference document\
-  \ documents that sub-skills are not an opencode concept and provides guidance on\
-  \ when to use a single skill with multiple task cards vs multiple independent skills\
-  \ | string | grep for \"sub-skill\" and \"not an opencode concept\" in the reference\
-  \ file |\n| SC-7 | A centralized reference document exists at reference/task-card-structure-standards.md\
+  \ documents the complete Invocation section dispatch contract format: base prompt,\
+  \ subagent_type, context include/exclude, and expected result contract — all in\
+  \ one place | string | grep for \"dispatch contract\" and \"subagent_type\" in the\
+  \ reference file |\n| SC-7 | The reference document specifies that the Invocation\
+  \ table MUST include columns for: Task, subagent_type, Base Prompt, Context Include,\
+  \ Context Exclude, Result Contract | string | grep for \"Context Include\" and \"\
+  Context Exclude\" in the reference file |\n| SC-8 | The reference document specifies\
+  \ that the base prompt MUST include the discovery directive (\"Read `<skill>/tasks/<task>.md`\
+  \ first\") because task() does not auto-load task cards | string | grep for \"discovery\
+  \ directive\" and \"MUST include\" in the reference file |\n| SC-9 | The reference\
+  \ document documents that sub-skills are not an opencode concept and provides guidance\
+  \ on when to use a single skill with multiple task cards vs multiple independent\
+  \ skills | string | grep for \"sub-skill\" and \"not an opencode concept\" in the\
+  \ reference file |\n| SC-10 | A centralized reference document exists at reference/task-card-structure-standards.md\
   \ covering the canonical task card structure (Purpose, Entry Criteria, Procedure,\
   \ Exit Criteria, Result Contract) | structural | File exists at expected path |\n\
-  | SC-8 | The task card reference includes guidance on what task cards MUST NOT contain\
-  \ (no task() calls, no skill() calls, no orchestrator-level routing instructions)\
-  \ | string | grep for \"MUST NOT\" and \"task()\" in the reference file |\n| SC-9\
+  | SC-11 | The task card reference includes guidance on what task cards MUST NOT\
+  \ contain (no task() calls, no skill() calls, no orchestrator-level routing instructions)\
+  \ | string | grep for \"MUST NOT\" and \"task()\" in the reference file |\n| SC-12\
   \ | The task card reference includes guidance on result contract format (status,\
   \ finding_summary, artifact_path, blocker_reason) | string | grep for \"result contract\"\
-  \ in the reference file |\n| SC-10 | Both reference documents are cross-referenced\
+  \ in the reference file |\n| SC-13 | Both reference documents are cross-referenced\
   \ from AGENTS.md and the skill-creator skill card | string | grep for reference\
-  \ file paths in AGENTS.md and skills/skill-creator/SKILL.md |\n| SC-11 | All existing\
+  \ file paths in AGENTS.md and skills/skill-creator/SKILL.md |\n| SC-14 | All existing\
   \ skill descriptions in skills/ are audited and a report is generated listing which\
   \ descriptions use the deprecated \"Load via skill() when...\" pattern vs the agent-intent\
   \ pattern | behavioral | Sub-agent reads all SKILL.md files, classifies each description,\
-  \ produces audit report |\n| SC-12 | reference/skill-card-schema.md is updated to\
+  \ produces audit report |\n| SC-15 | reference/skill-card-schema.md is updated to\
   \ use agent-intent description format (not \"Load via skill() when...\") | string\
   \ | grep for \"Load via skill() when\" in skill-card-schema.md — must return empty\
-  \ |\n| SC-13 | skills/skill-creator/reference/skill-card-spec.md is updated to use\
+  \ |\n| SC-16 | skills/skill-creator/reference/skill-card-spec.md is updated to use\
   \ agent-intent description format | string | grep for deprecated Farmage patterns\
-  \ in skill-card-spec.md — must return empty |\n| SC-14 | skills/skill-creator/reference/routing-only-template.md\
+  \ in skill-card-spec.md — must return empty |\n| SC-17 | skills/skill-creator/reference/routing-only-template.md\
   \ description format specification is updated to agent-intent format | string |\
   \ grep for \"Load via skill() when\" in routing-only-template.md — must return empty\
-  \ |\n| SC-15 | AGENTS.md Pre-Response Gate Procedure is updated to clarify that\
+  \ |\n| SC-18 | AGENTS.md Pre-Response Gate Procedure is updated to clarify that\
   \ the match is between the agent's OWN intent and the description, not the user's\
   \ literal utterance | string | grep for \"agent's OWN intent\" in AGENTS.md |\n\
-  | SC-16 | A companion spec is filed in the opencode-config repo (opencode-config#332)\
+  | SC-19 | A companion spec is filed in the opencode-config repo (opencode-config#332)\
   \ to update opencode-config/AGENTS.md and opencode-config/.opencode/AGENTS.md to\
   \ cross-reference the new reference documents | structural | Companion issue exists\
-  \ at michael-conrad/opencode-config/issues/332 with [SPEC] label |\n| SC-17 | opencode-config/AGENTS.md\
+  \ at michael-conrad/opencode-config/issues/332 with [SPEC] label |\n| SC-20 | opencode-config/AGENTS.md\
   \ is updated to reference the new skill-card-description-standards.md and task-card-structure-standards.md\
   \ in .opencode/reference/ | string | grep for reference file paths in opencode-config/AGENTS.md\
-  \ |\n| SC-18 | opencode-config/.opencode/AGENTS.md is updated to reference the new\
+  \ |\n| SC-21 | opencode-config/.opencode/AGENTS.md is updated to reference the new\
   \ reference documents | string | grep for reference file paths in opencode-config/.opencode/AGENTS.md\
   \ |\n\n## Requirements\n\n### REQ-1: Description Field Standards\nThe reference\
   \ SHALL document:\n- The description field as a semantic router (agent evaluates\
@@ -149,23 +167,47 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ Criteria, Procedure, Exit Criteria, Result Contract\n- What task cards MUST NOT\
   \ contain (no task() calls, no skill() calls, no orchestrator routing)\n- Result\
   \ contract format: status, finding_summary, artifact_path, blocker_reason\n- Task\
-  \ file discovery directive pattern for sub-agents\n\n### REQ-5: Cross-References\n\
+  \ file discovery directive pattern for sub-agents\n\n### REQ-5: Invocation Section\
+  \ Dispatch Contract Format\nThe reference SHALL document the complete Invocation\
+  \ section format as a dispatch contract. The Invocation table MUST include all columns\
+  \ the orchestrator needs to construct a single `task()` call, without cross-referencing\
+  \ other sections:\n\n| Column | Required | Description |\n|--------|----------|-------------|\n\
+  | **Task** | Yes | The task name (matches the task card filename without .md) |\n\
+  | **subagent_type** | Yes | Which subagent type to use (e.g., `general`, `explore`)\
+  \ — maps to the `subagent_type` parameter of `task()` |\n| **Base Prompt** | Yes\
+  \ | The canonical dispatch string for the `prompt` parameter. MUST include the discovery\
+  \ directive: `\"execute <task> from <skill>. Read \\`<skill>/tasks/<task>.md\\`\
+  \ first\"` |\n| **Context Include** | Yes | What additional context to pass alongside\
+  \ the prompt (e.g., `{issue_number, project_root, github.owner, github.repo}`).\
+  \ These are passed as additional instructions in the prompt body, not as separate\
+  \ parameters — `task()` has no context parameter. |\n| **Context Exclude** | Yes\
+  \ | What must NOT be included (orchestrator reasoning, cached results, expected\
+  \ outcomes, agent memory) |\n| **Result Contract** | Yes | What the subagent returns:\
+  \ `{status, finding_summary, artifact_path, blocker_reason}` |\n\nThe reference\
+  \ SHALL also document:\n- The `task()` tool accepts exactly 6 parameters: `description`,\
+  \ `prompt`, `subagent_type`, `task_id`, `command`, `background` — there is NO skill\
+  \ or task card parameter\n- The base prompt MUST include the discovery directive\
+  \ because `task()` does not auto-load task cards\n- The `description` parameter\
+  \ is derived from the Task column (3-5 words)\n- The `subagent_type` parameter is\
+  \ NOT optional — it must be specified in the Invocation table\n- Context parameters\
+  \ are embedded in the prompt body as additional instructions, not as separate `task()`\
+  \ parameters\n- Example of a complete Invocation table row\n\n### REQ-6: Cross-References\n\
   Both reference documents SHALL be cross-referenced from:\n- AGENTS.md (Universal\
   \ Skill Dispatch Gate section)\n- skills/skill-creator/SKILL.md (skill lifecycle\
-  \ manager)\n\n### REQ-6: Re-Align Existing Documentation\nThe following existing\
+  \ manager)\n\n### REQ-7: Re-Align Existing Documentation\nThe following existing\
   \ reference documents SHALL be updated to use agent-intent description format:\n\
   - reference/skill-card-schema.md — replace \"Load via skill() when...\" with agent-intent\
   \ format\n- skills/skill-creator/reference/skill-card-spec.md — replace deprecated\
   \ Farmage format with agent-intent format\n- skills/skill-creator/reference/routing-only-template.md\
-  \ — replace description format specification with agent-intent format\n\n### REQ-7:\
+  \ — replace description format specification with agent-intent format\n\n### REQ-8:\
   \ AGENTS.md Update\nAGENTS.md Pre-Response Gate Procedure SHALL be updated to clarify\
   \ that the match is between the agent's OWN intent and the description, not the\
   \ user's literal utterance. The current text says \"evaluate against ALL available\
   \ skill descriptions\" but does not explain the semantic matching mechanism.\n\n\
-  ### REQ-8: Companion Spec for opencode-config\nA companion spec SHALL be filed in\
+  ### REQ-9: Companion Spec for opencode-config\nA companion spec SHALL be filed in\
   \ the opencode-config repo to update:\n- opencode-config/AGENTS.md — add cross-references\
   \ to the new reference documents in .opencode/reference/\n- opencode-config/.opencode/AGENTS.md\
-  \ — add cross-references to the new reference documents\n\n### REQ-9: Dual-Repo\
+  \ — add cross-references to the new reference documents\n\n### REQ-10: Dual-Repo\
   \ Cross-Reference Update\nAfter the companion spec is approved and implemented,\
   \ both AGENTS.md files in opencode-config SHALL reference the new reference documents\
   \ so the agent working from the parent repo can discover and use them.\n\n## Phases\n\
@@ -186,10 +228,10 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ 7 can be completed\n- Spec #2077 (replace spec-creation skill) — the new description\
   \ format from this spec informs the new skill's description\n\n## Traceability\n\
   \n| Requirement | SCs | Phase |\n|-------------|-----|-------|\n| REQ-1 | SC-1,\
-  \ SC-2, SC-3 | Phase 1 |\n| REQ-2 | SC-4, SC-5 | Phase 1 |\n| REQ-3 | SC-6 | Phase\
-  \ 1 |\n| REQ-4 | SC-7, SC-8, SC-9 | Phase 2 |\n| REQ-5 | SC-10 | Phase 7 |\n| REQ-6\
-  \ | SC-12, SC-13, SC-14 | Phase 3 |\n| REQ-7 | SC-15 | Phase 4 |\n| REQ-8 | SC-16\
-  \ | Phase 6 |\n| REQ-9 | SC-17, SC-18 | Phase 7 |\n| Audit | SC-11 | Phase 5 |\n\
-  \n\n"
+  \ SC-2, SC-3 | Phase 1 |\n| REQ-2 | SC-4, SC-5 | Phase 1 |\n| REQ-3 | SC-6, SC-7,\
+  \ SC-8, SC-9 | Phase 1 |\n| REQ-4 | SC-10, SC-11, SC-12 | Phase 2 |\n| REQ-5 | SC-6,\
+  \ SC-7, SC-8 | Phase 1 |\n| REQ-6 | SC-13 | Phase 7 |\n| REQ-7 | SC-15, SC-16, SC-17\
+  \ | Phase 3 |\n| REQ-8 | SC-18 | Phase 4 |\n| REQ-9 | SC-19 | Phase 6 |\n| REQ-10\
+  \ | SC-20, SC-21 | Phase 7 |\n| Audit | SC-14 | Phase 5 |\n\n\n"
 created_at: '2026-07-23T02:56:34+00:00'
-updated_at: '2026-07-23T03:19:22+00:00'
+updated_at: '2026-07-23T03:31:37+00:00'

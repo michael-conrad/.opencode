@@ -326,7 +326,83 @@ The description must be self-contained — it's the ONLY thing the agent sees be
 | Don't include meta-instructions about loading | The agent decides when to load — don't tell it to | No "Load via skill() when..." — this is noise in the semantic vector |
 | One clear intent per description | Multiple intents dilute the semantic signal | One skill = one core intent |
 
-### Finding 16: `skill()` Auto-Loads SKILL.md — `task()` Does NOT Auto-Load Task Cards
+### Finding 16: `task()` Parameters — No Skill/Task Card Concept
+
+**Source:** [opencode source — task.ts](https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/task.ts)
+
+The `task()` tool accepts exactly these parameters:
+
+| Parameter | Required | Type | Description |
+|-----------|----------|------|-------------|
+| `description` | Yes | string | Short 3-5 word task description, used as child session title |
+| `prompt` | Yes | string | Complete task description — the ONLY context the subagent receives |
+| `subagent_type` | Yes | string | Name of the subagent to invoke (must be mode: "subagent" or mode: "all") |
+| `task_id` | No | string | Resume an existing child session (continues with previous messages and tool outputs) |
+| `command` | No | string | The command that triggered this task (for debugging) |
+| `background` | No | boolean | Run asynchronously (requires `OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true`) |
+
+**Critical observation:** There is NO `skill`, `skill_name`, `task_card`, or `task_file` parameter. The `task()` tool has zero awareness of skills or task cards. It creates a child session and passes only the `prompt` string as context. The subagent must discover and load the task card file entirely through its own tools.
+
+### Finding 17: The Invocation Section Must Specify the Full Dispatch Contract
+
+**Source:** Survey of 43 SKILL.md files in the codebase
+
+The Invocation section in a SKILL.md serves as the **dispatch contract** — it tells the orchestrator exactly what to pass to `task()`. Currently, the codebase has 6 distinct patterns, with the most complete being:
+
+```
+task(..., prompt: "execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first")
+```
+
+But this is incomplete. The Invocation section should specify:
+
+1. **The base prompt** (canonical dispatch string) — what the orchestrator puts in the `prompt` parameter
+2. **The subagent_type** — which agent type to use (general, explore, etc.)
+3. **Context parameters to include** — what additional data the subagent needs (issue_number, worktree.path, etc.)
+4. **Context parameters to exclude** — what must NOT be passed (orchestrator reasoning, cached results, etc.)
+5. **Expected result contract** — what the subagent returns (status, finding_summary, artifact_path, blocker_reason)
+
+Currently, items 3-5 are scattered across the Sub-Agent Routing section, the DISPATCH_GATE section, and the task card's Result Contract. There is no single place where the orchestrator can see the complete dispatch contract for a given task.
+
+### Finding 18: The Base Prompt Must Include the Discovery Directive
+
+Because `task()` does NOT auto-load task cards, the base prompt MUST include a discovery directive telling the subagent which file to read. The survey found that only 6 out of 28 skills with Invocation sections include this directive. The remaining 22 skills force the subagent to search for the correct task file — wasting context and introducing routing ambiguity.
+
+The canonical format for the base prompt is:
+
+```
+"execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first"
+```
+
+This is NOT preloading — it is routing metadata. The subagent still reads the file independently. Without it, the subagent has no way to know which task card to execute.
+
+### Finding 19: The Invocation Table Should Be a Complete Dispatch Contract
+
+Current Invocation sections look like this (from issue-operations/SKILL.md):
+
+```
+| Task | Sub-Skill | Canonical Dispatch String |
+|------|-----------|--------------------------|
+| `creation` | `issue-operations-core` | `task(..., prompt: "execute creation from issue-operations-core. Read \`issue-operations-core/tasks/creation.md\` first")` |
+```
+
+This is missing:
+- **subagent_type** — which agent type to use
+- **Context include/exclude** — what to pass alongside the prompt
+- **Result contract** — what the subagent returns
+
+A complete dispatch contract should look like:
+
+```
+| Task | subagent_type | Base Prompt | Context Include | Context Exclude | Result Contract |
+|------|---------------|-------------|-----------------|-----------------|-----------------|
+| `create` | `general` | `"execute create from spec-creation. Read \`spec-creation/tasks/create.md\` first"` | `{issue_number, project_root, github.owner, github.repo}` | orchestrator reasoning, cached results, expected outcomes | `{status, finding_summary, artifact_path, blocker_reason}` |
+```
+
+This gives the orchestrator everything it needs in one place — no need to cross-reference Sub-Agent Routing, DISPATCH_GATE, and task card files.
+
+### Finding 20: The `subagent_type` Parameter Is Not Optional
+
+The `task()` tool requires `subagent_type`. Currently, most Invocation sections omit this — they just show `task(..., prompt: "...")`. The orchestrator must know which subagent type to use. The survey found that the most common subagent_type is `"general"`, with `"explore"` used for read-only research tasks. The Invocation section should specify this explicitly.
 
 **Source:** [opencode source — skill.ts (tool)](https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/skill.ts), [opencode source — core/skill.ts](https://github.com/anomalyco/opencode/blob/dev/packages/core/src/skill.ts), [opencode source — task.ts](https://github.com/anomalyco/opencode/blob/dev/packages/opencode/src/tool/task.ts)
 
