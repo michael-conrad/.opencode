@@ -1,0 +1,172 @@
+body: '# [SPEC-FIX] Remediate .opencode#2076 implementation audit FAILs
+
+
+  ## Objective
+
+
+  Remediate the 5 FAILs from the `.opencode#2076` implementation audit. Each FAIL
+  represents a spec defect, evidence type mismatch, or missing behavioral test that
+  must be resolved to close out the 2076 implementation.
+
+
+  ## Background
+
+
+  The `.opencode#2076` implementation introduced Workflows section format to skill
+  card SKILL.md files. The post-implementation audit returned 5 FAILs:
+
+
+  1. **SC-7 FAIL (Spec defect)**: Spec SC-7 requires "Context Include" and "Context
+  Exclude" columns in the Invocation table, but REQ-5 says "No Context Exclude sub-bullet
+  — task() excludes everything by default" and uses a single "Context" field in Workflows
+  sub-bullets. The implementation correctly followed REQ-5. The spec needs revision
+  to resolve the contradiction.
+
+
+  2. **SC-14 FAIL (EVIDENCE_TYPE_MISMATCH)**: SC-14 declared `behavioral` but only
+  structural evidence was collected (a pre-existing audit report from issue #1899,
+  not generated as Phase 5 of 2076). No behavioral test was executed. Remediation:
+  downgrade SC-14''s evidence type to `structural`.
+
+
+  3. **SC-22 FAIL (EVIDENCE_TYPE_MISMATCH)**: SC-22 declared `behavioral` but only
+  file inspection evidence was collected. Need to execute the behavioral test: run
+  `validate_skill_cards.py` against a test SKILL.md with Workflows format and verify
+  it passes.
+
+
+  4. **SC-25 FAIL (Test not updated)**: The behavioral test `dispatch-boundary-writing-plans.sh`
+  was NOT modified in the 2076 commit. It still validates old TDT routing (SC-27/SC-28),
+  not Workflows section routing. Need to update the test.
+
+
+  5. **SC-26 FAIL (EVIDENCE_TYPE_MISMATCH)**: SC-26 declared `behavioral` but only
+  file inspection evidence was collected. Need to execute the behavioral test: run
+  `skill-description-pattern.sh` and verify it passes.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | Spec `.opencode#2076` SC-7 is revised to remove the "Context Include"/"Context
+  Exclude" column requirement, matching REQ-5''s single "Context" field approach |
+  `string` | grep for "Context Include" absence and "Context" field presence in the
+  revised spec |
+
+  | SC-2 | SC-14 evidence type is downgraded from `behavioral` to `structural` in
+  the spec | `structural` | File exists with SC-14 evidence type set to `structural`
+  |
+
+  | SC-3 | `validate_skill_cards.py` passes against a test SKILL.md with Workflows
+  format | `behavioral` | Run `validate_skill_cards.py` against a test SKILL.md containing
+  Workflows section and verify exit code 0 |
+
+  | SC-4 | `dispatch-boundary-writing-plans.sh` is updated to validate Workflows section
+  routing instead of old TDT routing | `string` | grep for "Workflows" in the test
+  file |
+
+  | SC-5 | `skill-description-pattern.sh` passes with exit code 0 | `behavioral` |
+  Run `skill-description-pattern.sh` and verify exit code 0 |
+
+
+  ## Phases
+
+
+  ### Phase 1: Revise spec SC-7 to resolve contradiction with REQ-5
+
+
+  **Affected file:** `.opencode/.issues/2076/spec.md`
+
+
+  Update SC-7 in the 2076 spec to remove the "Context Include"/"Context Exclude" column
+  requirement. Replace with a single "Context" field matching REQ-5''s specification.
+  The implementation already correctly follows REQ-5 — this is a spec-only revision.
+
+
+  **Verification:** grep the revised spec for absence of "Context Include" and presence
+  of single "Context" field.
+
+
+  ### Phase 2: Downgrade SC-14 evidence type to structural
+
+
+  **Affected file:** `.opencode/.issues/2076/spec.md`
+
+
+  Change SC-14''s evidence type from `behavioral` to `structural`. The pre-existing
+  audit report from issue #1899 is sufficient structural evidence for this SC. No
+  behavioral test is needed.
+
+
+  **Verification:** Confirm SC-14 evidence type is set to `structural` in the spec.
+
+
+  ### Phase 3: Execute behavioral test for SC-22
+
+
+  **Affected file:** None (test execution only)
+
+
+  Run `validate_skill_cards.py` against a test SKILL.md that contains a Workflows
+  section. Verify the script exits with code 0, confirming the Workflows format passes
+  validation.
+
+
+  **Verification:** `validate_skill_cards.py` exit code 0 against test SKILL.md with
+  Workflows format.
+
+
+  ### Phase 4: Update dispatch-boundary-writing-plans.sh
+
+
+  **Affected file:** `.opencode/tests-v2/behaviors/dispatch-boundary-writing-plans.sh`
+
+
+  Update the behavioral test to validate Workflows section routing instead of the
+  old TDT routing (SC-27/SC-28). The test should send a prompt that triggers the Workflows
+  section and verify the correct skill dispatch occurs.
+
+
+  **Verification:** grep for "Workflows" in the updated test file.
+
+
+  ### Phase 5: Execute behavioral test for SC-26
+
+
+  **Affected file:** None (test execution only)
+
+
+  Run `skill-description-pattern.sh` and verify it exits with code 0, confirming the
+  skill description pattern enforcement works correctly.
+
+
+  **Verification:** `skill-description-pattern.sh` exit code 0.
+
+
+  ## Traceability
+
+
+  | Phase | SC | Audit Finding | Action |
+
+  |-------|----|---------------|--------|
+
+  | 1 | SC-1 | SC-7 spec defect (contradiction with REQ-5) | Revise spec SC-7 |
+
+  | 2 | SC-2 | SC-14 EVIDENCE_TYPE_MISMATCH | Downgrade evidence type to structural
+  |
+
+  | 3 | SC-3 | SC-22 EVIDENCE_TYPE_MISMATCH | Execute validate_skill_cards.py behavioral
+  test |
+
+  | 4 | SC-4 | SC-25 test not updated | Update dispatch-boundary-writing-plans.sh
+  |
+
+  | 5 | SC-5 | SC-26 EVIDENCE_TYPE_MISMATCH | Execute skill-description-pattern.sh
+  behavioral test |
+
+  '
+updated_at: '2026-07-23T04:49:38+00:00'
