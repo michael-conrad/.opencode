@@ -168,40 +168,39 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ Criteria, Procedure, Exit Criteria, Result Contract\n- What task cards MUST NOT\
   \ contain (no task() calls, no skill() calls, no orchestrator routing)\n- Result\
   \ contract format: status, finding_summary, artifact_path, blocker_reason\n- Task\
-  \ file discovery directive pattern for sub-agents\n\n### REQ-5: Invocation Section\
-  \ Dispatch Contract Format\nThe reference SHALL document the complete Invocation\
-  \ section format as a dispatch contract. The Invocation table MUST include all columns\
-  \ the orchestrator needs to construct a single `task()` call, without cross-referencing\
-  \ other sections:\n\n| Column | Required | Description |\n|--------|----------|-------------|\n\
-  | **Task** | Yes | The task name (matches the task card filename without .md) |\n\
-  | **Base Prompt** | Yes | The natural language directive for the `prompt` parameter.\
-  \ MUST include the discovery directive telling the subagent which file to read and\
-  \ what context to use. Format: `\"Read \\`<skill>/tasks/<task>.md\\` and follow\
-  \ its instructions. Issue: {issue_number}.\"` |\n| **Context** | Yes | What context\
-  \ to include in the prompt body (e.g., `{issue_number, project_root, github.owner,\
-  \ github.repo}`). Everything else is automatically excluded — `task()` creates a\
-  \ child session with zero parent context. |\n| **Returns** | Yes | What the subagent\
-  \ returns: `{status, finding_summary, artifact_path, blocker_reason}` |\n\nThe reference\
-  \ SHALL also document:\n- The `task()` tool accepts exactly 6 parameters: `description`,\
-  \ `prompt`, `subagent_type`, `task_id`, `command`, `background` — there is NO skill\
-  \ or task card parameter\n- The base prompt MUST use natural language (not coded\
-  \ dispatch strings like \"execute X from Y\") and MUST include the discovery directive\
-  \ because `task()` does not auto-load task cards\n- Format: `\"Read \\`<skill>/tasks/<task>.md\\\
-  ` and follow its instructions. Issue: {issue_number}.\"`\n- The `description` parameter\
-  \ is derived from the Task column (3-5 words)\n- The Dispatch Contract table has\
-  \ 4 columns: Task | Base Prompt | Context | Returns. No Context Exclude column —\
-  \ `task()` creates a child session with zero parent context, so everything is excluded\
-  \ by default. No `subagent_type` column — default is `general`; annotate only when\
-  \ non-default (e.g., `create (explore)`).\n- Context parameters are embedded in\
-  \ the prompt body as additional instructions, not as separate `task()` parameters\n\
-  - Example of a complete Dispatch Contract table row\n\n### REQ-6: Cross-References\n\
-  Both reference documents SHALL be cross-referenced from:\n- AGENTS.md (Universal\
-  \ Skill Dispatch Gate section)\n- skills/skill-creator/SKILL.md (skill lifecycle\
-  \ manager)\n\n### REQ-7: Re-Align Existing Documentation\nThe following existing\
-  \ reference documents SHALL be updated to use agent-intent description format:\n\
-  - reference/skill-card-schema.md — replace \"Load via skill() when...\" with agent-intent\
-  \ format\n- skills/skill-creator/reference/skill-card-spec.md — replace deprecated\
-  \ Farmage format with agent-intent format\n- skills/skill-creator/reference/routing-only-template.md\
+  \ file discovery directive pattern for sub-agents\n\n### REQ-5: Workflow Structure\
+  \ with Sub-Bullet Dispatch Contracts\nThe reference SHALL document that skill cards\
+  \ use a **Workflows** section where each workflow is a numbered list of clean-room\
+  \ `task()` dispatch steps. Each step has sub-bullets for the dispatch parameters:\n\
+  \n```\n1. **Step name** — description of what this step accomplishes\n   - Prompt:\
+  \ `\"Read \\`<skill>/tasks/<task>.md\\` and follow its instructions. Issue: {issue_number}.\"\
+  `\n   - Context: `{issue_number, project_root, ...}`\n   - Returns: `{status, finding_summary,\
+  \ artifact_path, blocker_reason}`\n```\n\nThe reference SHALL document:\n- The `task()`\
+  \ tool accepts exactly 6 parameters: `description`, `prompt`, `subagent_type`, `task_id`,\
+  \ `command`, `background` — there is NO skill or task card parameter\n- The base\
+  \ prompt MUST use natural language (not coded dispatch strings like \"execute X\
+  \ from Y\") and MUST include the discovery directive because `task()` does not auto-load\
+  \ task cards\n- Format: `\"Read \\`<skill>/tasks/<task>.md\\` and follow its instructions.\
+  \ Issue: {issue_number}.\"`\n- The `description` parameter is derived from the step\
+  \ name (3-5 words)\n- The sub-bullets (Prompt, Context, Returns) are the dispatch\
+  \ contract for that step. The numbered step is the sequencing logic. Everything\
+  \ the orchestrator needs is in one place per workflow.\n- No separate Dispatch Contract\
+  \ table — the dispatch parameters are colocated with each step\n- No Context Exclude\
+  \ sub-bullet — `task()` creates a child session with zero parent context, so everything\
+  \ is excluded by default\n- No `subagent_type` sub-bullet — default is `general`;\
+  \ annotate in the step name when non-default (e.g., `1. **Inspect codebase (explore)**`)\n\
+  - Context parameters are embedded in the prompt body as additional instructions,\
+  \ not as separate `task()` parameters\n- The orchestrator waits for each result\
+  \ contract before dispatching the next step. If any step returns BLOCKED, the workflow\
+  \ halts and reports the blocker.\n- Task cards that appear in multiple workflows\
+  \ get their own sub-bullets each time — context may differ per workflow\n- Example\
+  \ of a complete workflow with multiple steps\n\n### REQ-6: Cross-References\nBoth\
+  \ reference documents SHALL be cross-referenced from:\n- AGENTS.md (Universal Skill\
+  \ Dispatch Gate section)\n- skills/skill-creator/SKILL.md (skill lifecycle manager)\n\
+  \n### REQ-7: Re-Align Existing Documentation\nThe following existing reference documents\
+  \ SHALL be updated to use agent-intent description format:\n- reference/skill-card-schema.md\
+  \ — replace \"Load via skill() when...\" with agent-intent format\n- skills/skill-creator/reference/skill-card-spec.md\
+  \ — replace deprecated Farmage format with agent-intent format\n- skills/skill-creator/reference/routing-only-template.md\
   \ — replace description format specification with agent-intent format\n\n### REQ-8:\
   \ AGENTS.md Update\nAGENTS.md Pre-Response Gate Procedure SHALL be updated to clarify\
   \ that the match is between the agent's OWN intent and the description, not the\
@@ -237,4 +236,4 @@ body: "## Objective\n\nDocument the canonical skill card (SKILL.md) and task car
   \ | Phase 3 |\n| REQ-8 | SC-18 | Phase 4 |\n| REQ-9 | SC-19 | Phase 6 |\n| REQ-10\
   \ | SC-20, SC-21 | Phase 7 |\n| Audit | SC-14 | Phase 5 |\n\n\n"
 created_at: '2026-07-23T02:56:34+00:00'
-updated_at: '2026-07-23T03:43:53+00:00'
+updated_at: '2026-07-23T03:52:06+00:00'

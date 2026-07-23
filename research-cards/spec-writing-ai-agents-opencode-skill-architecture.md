@@ -382,20 +382,30 @@ This tells the subagent:
 
 This is NOT preloading — it is routing metadata. The subagent still reads the file independently and discovers the procedure. Without it, the subagent has no way to know which task card to execute.
 
-### Finding 19: The Dispatch Contract Table — Include Only What's Needed
+### Finding 19: Workflows with Sub-Bullet Dispatch Contracts
 
-The `task()` tool creates a child session with zero parent context. Everything is excluded by default. The only context the subagent receives is what you explicitly put in the `prompt` parameter. Therefore, a "Context Exclude" column is redundant noise — it's describing the default behavior of `task()`.
+The Dispatch Contract table and Workflows section should be merged. Each workflow is a numbered list of steps. Each step has sub-bullets for the dispatch parameters (Prompt, Context, Returns). This keeps the dispatch contract colocated with the sequencing step — no cross-referencing, no separate table to maintain.
 
-The Dispatch Contract table needs only:
+```markdown
+## Workflows
 
-| Column | Purpose |
-|--------|---------|
-| **Task** | Which task card to dispatch |
-| **Base Prompt** | What to put in the `prompt` parameter (discovery directive + inline context) |
-| **Context** | What context to include in the prompt body. Everything else is automatically excluded. |
-| **Returns** | What the subagent returns |
+### Create a spec
+When the agent needs to produce a specification document from a problem statement or requirements discussion.
 
-No "Context Exclude" column. No `subagent_type` column (default is `general`; annotate only when non-default). The table is lean: Task | Base Prompt | Context | Returns.
+1. **Inspect codebase** — search for affected files and existing patterns
+   - Prompt: `"Read \`spec-creation/tasks/inspect.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+2. **Decompose problem** — extract requirements, decompose into SCs
+   - Prompt: `"Read \`spec-creation/tasks/decompose.md\` and follow its instructions. Issue: {issue_number}. Findings: {inspect_artifact_path}."`
+   - Context: `{issue_number, project_root, inspect_artifact_path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, sc_table}`
+```
+
+Each step is a clean-room `task()` dispatch. The orchestrator waits for each result contract before dispatching the next step. If any step returns BLOCKED, the workflow halts and reports the blocker.
+
+The sub-bullets (Prompt, Context, Returns) are the dispatch contract for that step. The numbered step is the sequencing logic. Everything the orchestrator needs is in one place per workflow. Task cards that appear in multiple workflows get their own sub-bullets each time, which is correct because the context passed may differ per workflow.
 
 ### Finding 20: Only Specify `subagent_type` When It Deviates from Default
 
