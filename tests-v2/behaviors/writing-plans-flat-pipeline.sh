@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="writing-plans-flat-pipeline"
-SCENARIO_PROMPT="Load the writing-plans skill and describe what it does"
+SCENARIO_PROMPT="Create an implementation plan for issue #2081 using the writing-plans skill"
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
