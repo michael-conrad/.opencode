@@ -112,7 +112,7 @@ body: '## Objective
   | SC-8 | No task file contains task() or skill() calls | string | grep for "task("
   and "skill(" in all 4 task files — all return empty |
 
-  | SC-9 | The create task file writes the spec to the correct .issues/{N}/ or \<sub-repo\>/.issues/{N}/
+  | SC-9 | The create task file writes the spec to the correct .issues/{N}/ or <sub-repo>/.issues/{N}/
   path | behavioral | Sub-agent executes create task, verifies spec file at correct
   path |
 
@@ -205,7 +205,7 @@ body: '## Objective
 
   4. Write full spec to remote issue body
 
-  5. Write local spec to .issues/{N}/spec.md (or \<sub-repo\>/.issues/{N}/spec.md)
+  5. Write local spec to .issues/{N}/spec.md (or <sub-repo>/.issues/{N}/spec.md)
 
 
   The create sub-agent SHALL receive only {issue_number, analysis_artifact_path}.
@@ -289,26 +289,31 @@ body: '## Objective
   ## Phases
 
 
-  ### Phase 1: Create new spec-creation skill
+  ### Phase 1: Create new spec-creation skill (REQ-1, REQ-2, REQ-3, REQ-4, REQ-5,
+  REQ-8)
 
 
   Write the new SKILL.md and task files (analyze.md, create.md, validate.md, revise.md)
   in skills/spec-creation/. Do NOT remove old files yet. The SKILL.md SHALL use the
   Workflows section format per #2076 standards (sub-bullet dispatch contracts with
-  Prompt, Context, and Returns fields).
+  Prompt, Context, and Returns fields). The task files SHALL follow the three-category
+  clean-room decomposition: analyze.md (ANALYSIS), create.md (PRODUCTION), validate.md
+  (VERIFICATION), revise.md (PRODUCTION). The SKILL.md Workflows section SHALL sequence
+  the pipeline as analyze → create → validate → (revise → validate)* → done.
 
 
-  ### Phase 2: Update brainstorming handoff
+  ### Phase 2: Update brainstorming handoff (REQ-6)
 
 
   Update skills/brainstorming/tasks/completion.md to return a handoff signal to spec-creation.
 
 
-  ### Phase 3: Remove old sub-skill directories
+  ### Phase 3: Remove old sub-skill directories (REQ-1, REQ-7)
 
 
   After verifying the new skill works, remove the 5 sub-skill directories and their
-  32 task files.
+  32 task files. The skills/spec-creation/ directory SHALL contain exactly one SKILL.md
+  and a tasks/ directory with exactly 4 task files.
 
 
   ### Phase 4: Verify end-to-end
@@ -355,4 +360,4 @@ body: '## Objective
 
   '
 created_at: '2026-07-23T02:56:59+00:00'
-updated_at: '2026-07-23T13:28:11+00:00'
+updated_at: '2026-07-23T14:21:17+00:00'
