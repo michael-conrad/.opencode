@@ -1,0 +1,39 @@
+schema_version: "1.0"
+issue_number: 2081
+phases:
+  - id: 1
+    name: flat-skills-contracts
+    depends_on: []
+    scs: [SC-1, SC-2, SC-3, SC-17]
+    skill: writing-plans
+    task: create
+  - id: 2
+    name: analyze-retroactive-create-solve
+    depends_on: [1]
+    scs: [SC-5, SC-7, SC-8, SC-9]
+    skill: writing-plans
+    task: create
+  - id: 3
+    name: validate-revise-completion
+    depends_on: [2]
+    scs: [SC-6, SC-10, SC-11]
+    skill: writing-plans
+    task: create
+  - id: 4
+    name: external-caller-migration
+    depends_on: [3]
+    scs: [SC-14]
+    skill: writing-plans
+    task: revise
+  - id: 5
+    name: remove-old-sub-skills
+    depends_on: [4]
+    scs: [SC-15]
+    skill: writing-plans
+    task: revise
+  - id: 6
+    name: behavioral-tests
+    depends_on: [5]
+    scs: [SC-4, SC-16]
+    skill: test-driven-development
+    task: red-green-cycle
