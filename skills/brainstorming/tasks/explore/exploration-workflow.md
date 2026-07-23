@@ -177,7 +177,7 @@ handoff:
 
 ## Top-Down Analysis Output
 
-When exploration is complete, output MUST include top-down decomposition for `writing-plans --task create`:
+When exploration is complete, output MUST include top-down decomposition for `task("execute create from writing-plans")`:
 
 | Scope | Starting Point |
 | -- | -- |

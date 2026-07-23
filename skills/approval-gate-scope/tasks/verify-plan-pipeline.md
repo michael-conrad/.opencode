@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Verify that the writing-plans 22-step pipeline was followed before accepting a plan. This gate prevents acceptance of plans created by dispatching a single sub-agent with a custom prompt instead of following the full pipeline.
+Verify that the writing-plans pipeline was followed before accepting a plan. This gate prevents acceptance of plans created by dispatching a single sub-agent with a custom prompt instead of following the full pipeline.
 
 ## Entry Criteria
 

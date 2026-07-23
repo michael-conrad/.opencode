@@ -59,7 +59,7 @@ elif not plan_files:
 
 ### Exception: Pipeline-Initiated Non-Substantive Revisions
 
-Per `approval-gate-015`, pipeline-initiated non-substantive spec revisions do NOT trigger cascade revocation. When a pipeline gate (e.g., SC-coherence gate) detects a non-substantive spec defect and the orchestrator revises the spec to fix it, the linked plan approval is preserved. The plan is auto-updated via `writing-plans --task update` and the pipeline continues without requiring re-authorization.
+Per `approval-gate-015`, pipeline-initiated non-substantive spec revisions do NOT trigger cascade revocation. When a pipeline gate (e.g., SC-coherence gate) detects a non-substantive spec defect and the orchestrator revises the spec to fix it, the linked plan approval is preserved. The plan is auto-updated via `task("execute revise from writing-plans")` and the pipeline continues without requiring re-authorization.
 
 **Non-substantive** means: changes to evidence types, verification methods, artifact paths, or SC wording that do NOT alter the implementation intent, scope, or success criteria semantics. Substantive changes still trigger standard revocation per Step 6.
 
@@ -70,7 +70,7 @@ Per `approval-gate-015`, pipeline-initiated non-substantive spec revisions do NO
 | Edge Case | Handling |
 | -- | -- |
 | Multiple plans for same spec | Cascade approves the most recent plan by creation date; older plans are superseded |
-| Plan created after spec approval | Handled by `writing-plans --task create` post-creation step |
+| Plan created after spec approval | Handled by `task("execute create from writing-plans")` post-creation step |
 | Spec revised after cascade | Existing revocation rules apply — see Step 6 "Spec Revision Revocation Detection" |
 | No plan exists | Cascade does NOT apply; current flow (spec approval → writing-plans) is correct |
 | Plan already approved (no `needs-approval` label) | No action needed — plan is already approved |

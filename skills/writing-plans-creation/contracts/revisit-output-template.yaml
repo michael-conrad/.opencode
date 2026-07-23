@@ -1,3 +1,0 @@
-status: string  # PASS | DONE_WITH_CONCERNS | BLOCKED
-resolution_status: string  # resolved | partial | escalated
-blocker_reason: string

@@ -1,3 +1,0 @@
-spec_issue_number: int
-spec_body: string
-evidence_artifacts: list[str]

@@ -6,7 +6,7 @@ When a spec is approved, the auto-route chain determines which downstream action
 
 | Context | Dispatch Target |
 |---------|----------------|
-| Spec approved, no plan exists | `writing-plans --task create` |
+| Spec approved, no plan exists | `task("execute create from writing-plans")` |
 | Spec approved, faithful plan exists | Auto-approve plan (cascade) |
 | Plan approved, no sub-issues | `issue-operations --task link-sub-issue` |
 | Plan approved, sub-issues linked | `implementation-pipeline` per the SKILL.md Trigger Dispatch Table |

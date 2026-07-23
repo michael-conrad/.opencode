@@ -67,7 +67,7 @@ When content is classified as "Revising/correcting spec" or "Revising/correcting
 | Content Type | Route To |
 |---|---|
 | Revising/correcting spec | `spec-creation --task change-control` |
-| Revising/correcting plan | `writing-plans --task update` |
+| Revising/correcting plan | `task("execute revise from writing-plans")` |
 
 The comment task's only job is posting comments — not revising bodies, not updating specs, not modifying plans.
 

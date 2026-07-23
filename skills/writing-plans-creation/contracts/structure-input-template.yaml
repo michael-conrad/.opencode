@@ -1,4 +1,0 @@
-spec_issue_number: int
-readiness_status: string
-sc_summary: dict
-phase_dependencies: list[dict]

@@ -11,7 +11,7 @@ Idempotent completion subtask for brainstorming. Ensures mandatory steps ran reg
 
 - [ ] 1. **Terminal-state routing** (if not already performed):
    - Check evidence for spec-creation or writing-plans call
-    - If missing: call appropriate skill as remediation (spec-creation for Path A, writing-plans for Path B), or document FAILURE for Path C
+    - If missing: call appropriate skill as remediation (spec-creation for Path A, `skill({name: "writing-plans"})` → `task("execute create from writing-plans")` for Path B), or document FAILURE for Path C
 
 - [ ] 2. **Chat output** (if not already produced):
    - Verify exec summary was posted to chat

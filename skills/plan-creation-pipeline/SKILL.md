@@ -44,7 +44,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | Step Label | Dispatches To | Artifact Produced |
 |------------|---------------|-------------------|
 | `spec-to-plan-handoff` | `approval-gate --task verify-authorization` | handoff artifact at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-handoff-{STATUS}-{timestamp}.yaml` |
-| `plan-create` | `writing-plans --task create` | plan index at `{N}/plan.md` + phase files at `{N}/plan-{NN}-*.md` |
+| `plan-create` | `task("execute create from writing-plans")` | plan index at `{N}/plan.md` + phase files at `{N}/plan-{NN}-*.md` |
 | `solve-model` | `solve model` | dependency-ordering constraints contract at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-solve-model-{STATUS}-{timestamp}.yaml` |
 | `solve-check` | `solve check` | SAT verification at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-solve-check-{STATUS}-{timestamp}.yaml` |
 | `plan-plan` | `plan plan` | phase solvability validation at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-plan-plan-{STATUS}-{timestamp}.yaml` |

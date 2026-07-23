@@ -1,4 +1,0 @@
-status: string  # PASS | BLOCKED
-solve_status: string  # SAT | UNSAT
-plan_status: string  # SOLVED | UNSOLVABLE
-blocker_reason: string

@@ -34,7 +34,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 | Approval Context | How to Detect | Auto-Dispatch Target |
 | -- | -- | -- |
-| **Spec approval** | Issue title contains `[SPEC` or has `spec` label | `writing-plans --task create` (or `brainstorming --task explore` if gap-fill) |
+| **Spec approval** | Issue title contains `[SPEC` or has `spec` label | `task("execute create from writing-plans")` (or `brainstorming --task explore` if gap-fill) |
 | **Plan approval** | Local plan file exists at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` | `executing-plans --task start` |
 | **Already implemented** | Step 5d.4 (`verify-already-implemented`) returns positive | No dispatch — auto-close instead (execution path: Step 0 of auto-route procedure) |
 | **Reconciled during verification** | reconcile-issue-graph returned auto-closed or reopened tickets | Include reconciled tickets in chat output; proceed with dispatch |
@@ -73,7 +73,7 @@ When `authorization_scope == "for_analysis"`:
    - Plan detection is via local file existence at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` (NOT via GitHub Issue labels or title prefixes)
 2. Determine scope from Step 2.0 result (`authorization_scope`, `halt_at`)
 3. Execute gap-fill from Step 5c if scope >= `for_plan`
-5. **If spec approval:** Invoke `writing-plans --task create` with context:
+5. **If spec approval:** Invoke `task("execute create from writing-plans")` with context:
    - `spec_issue=#N` (the approved spec issue number)
    - `authorization_scope=<scope>`, `halt_at=<stage>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
@@ -99,7 +99,7 @@ Numeric format: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`
 
 ## Auto-Route Edge Cases
 
-- **Spec already has a plan:** `writing-plans --task create` handles this (skips or updates per its existing logic)
+- **Spec already has a plan:** `task("execute create from writing-plans")` handles this (skips or updates per its existing logic)
 - **Multi-task plan with missing sub-issues:** Step 5 sub-issue verification gate fails → HALT, no dispatch
 - **Authorization set dispatch:** Each plan in the work set gets its own dispatch cycle after work state is established
 - **Scope requires gap-fill but artifact exists:** Skip gap-fill for that artifact (check before creating)
