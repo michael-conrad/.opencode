@@ -1,3 +1,0 @@
-status: string  # PASS | BLOCKED
-lifecycle_event_path: string
-blocker_reason: string

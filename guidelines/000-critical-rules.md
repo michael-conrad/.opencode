@@ -920,7 +920,7 @@ When a sub-agent returns a defective deliverable (spec, plan, or other artifact)
 
 #### ✅ REQUIRED
 
-- Revise the existing deliverable via the appropriate pipeline (spec-creation --task revise, writing-plans --task update)
+- Revise the existing deliverable via the appropriate pipeline (spec-creation --task revise, writing-plans --task revise)
 - If revision is structurally impossible, document the rationale in an issue comment before creating a replacement
 
 #### Why This Matters
@@ -932,7 +932,7 @@ When a sub-agent returns a defective deliverable (spec, plan, or other artifact)
 
 
 ### [critical-rules-072] No-Inline-Fix — orchestrator MUST NOT inline-fix defective sub-agent output
-When a sub-agent returns a defective deliverable, the orchestrator MUST NOT attempt to fix the defective artifact directly via `github_issue_write`, file edit, or any other direct mutation. The orchestrator MUST dispatch a revision task to the appropriate pipeline (spec-creation --task revise for specs, writing-plans --task update for plans).
+When a sub-agent returns a defective deliverable, the orchestrator MUST NOT attempt to fix the defective artifact directly via `github_issue_write`, file edit, or any other direct mutation. The orchestrator MUST dispatch a revision task to the appropriate pipeline (spec-creation --task revise for specs, writing-plans --task revise for plans).
 
 #### 🚫 FORBIDDEN
 

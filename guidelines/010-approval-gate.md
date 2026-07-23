@@ -155,7 +155,7 @@ Authorization sets persist across scope transitions. If a developer approves `fo
 
 #### Pipeline-Initiated Non-Substantive Revision Exception
 
-Pipeline-initiated non-substantive spec revisions are exempt from the revocation rule. When a pipeline gate (e.g., SC-coherence gate) detects a spec defect and the orchestrator revises the spec to fix it, the linked plan approval is NOT revoked — the plan is auto-updated via `writing-plans --task update` and the pipeline continues without requiring re-authorization.
+Pipeline-initiated non-substantive spec revisions are exempt from the revocation rule. When a pipeline gate (e.g., SC-coherence gate) detects a spec defect and the orchestrator revises the spec to fix it, the linked plan approval is NOT revoked — the plan is auto-updated via `task("execute revise from writing-plans")` and the pipeline continues without requiring re-authorization.
 
 **Non-substantive** means: changes to evidence types, verification methods, artifact paths, or SC wording that do NOT alter the implementation intent, scope, or success criteria semantics. Substantive changes (new SCs, removed SCs, changed scope, changed implementation approach) still require re-authorization per `approval-gate-006`.
 

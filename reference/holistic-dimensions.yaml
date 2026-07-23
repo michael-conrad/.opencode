@@ -104,7 +104,7 @@ cross_reference:
       section: "Step 0 pre-flight gate"
       dimensions: "spec 1-11"
       last_verified: null
-    - file: ".opencode/skills/writing-plans/tasks/update.md"
+    - file: ".opencode/skills/writing-plans/tasks/revise.md"
       section: "Step 0 pre-flight gate"
       dimensions: "spec 1-11"
       last_verified: null
