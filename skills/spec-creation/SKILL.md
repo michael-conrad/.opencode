@@ -1,69 +1,69 @@
 ---
 name: spec-creation
-description: "Specification authoring dispatcher that routes to sub-skills. Load via skill() when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also load when decomposing a problem into success criteria, extracting requirements, or documenting change control. Also load when running holistic self-checks on specs before completion, or verifying spec quality against the 11-dimension holistic gate. Spec creation is REQUIRED before implementation. User phrases: create spec, write specification, draft requirements, author spec, holistic check"
+description: "Create and validate specification documents with success criteria, evidence types, traceability, and analytical artifacts from requirements and problem statements. The orchestrator sequences a 3-category clean-room pipeline: analyze (pre-spec inspection, requirements extraction, decomposition, analytical artifacts) → create (assemble spec, write remote issue, write local spec) → validate (holistic self-check, structural validation) → (revise → validate)* → done. Each step is a clean-room sub-agent dispatch — the orchestrator does not perform inline work."
 license: MIT
 compatibility: opencode
 provenance: AI-generated
 ---
 
-# Skill: spec-creation (Dispatcher)
+# Skill: spec-creation
 
 ## Overview
 
-This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger phrases are preserved for backward compatibility.
+Create and validate specification documents. The orchestrator sequences a 3-category clean-room pipeline through 4 task cards. No sub-skills. Each sub-agent receives only its scoped context — no preloaded reasoning, no orchestrator conclusions.
 
-## Sub-Skills
+## Pipeline Sequence
 
-| Sub-Skill | Purpose | Task Count |
-|-----------|---------|------------|
-| `spec-creation-requirements` | Requirements extraction and documentation | 1 task file |
-| `spec-creation-decomposition` | Analytical artifact generation (blast radius, code paths, etc.) | 9 task files + 3 contracts |
-| `spec-creation-validation` | Spec creation, validation, holistic checks, risk, traceability | 6 task files |
-| `spec-creation-change-control` | Change control documentation | 1 task file |
-| `spec-creation-operating-protocol` | Operating protocol documentation | 1 task file |
+The orchestrator dispatches each step as a clean-room `task()` call. The orchestrator does NOT perform inline work.
 
-## Trigger Dispatch Table
+```
+analyze → create → validate → (revise → validate)* → done
+```
 
-| User says / Context | Task | Dispatches To | Dispatch | Context passed |
-|---------------------|------|---------------|----------|----------------|
-| "create spec" / "write spec" / "draft spec" | `create` | `spec-creation-validation --task create` | `orchestrator` | {issue_number} |
-| "requirements" / "extract requirements" | `requirements` | `spec-creation-requirements --task requirements` | `orchestrator` | {issue_number} |
-| "decompose" / "analytical artifacts" | `decompose` | `spec-creation-decomposition --task decompose` | `orchestrator` | {issue_number} |
-| "blast radius" / "code path analysis" | `analytical-artifacts` | `spec-creation-decomposition --task analytical-artifacts` | `orchestrator` | {issue_number} |
-| "holistic check" / "self-check" / "pre-completion check" | `holistic-self-check` | `spec-creation-validation --task holistic-self-check` | `orchestrator` | {issue_number} |
-| "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `spec-creation-validation --task pipeline-readiness-gate` | `orchestrator` | {issue_number} |
-| "risk assessment" / "risk" | `risk` | `spec-creation-validation --task risk` | `orchestrator` | {issue_number} |
-| "traceability" / "verify traceability" | `traceability` | `spec-creation-validation --task traceability` | `orchestrator` | {issue_number} |
-| "change control" / "revision history" | `change-control` | `spec-creation-change-control --task change-control` | `orchestrator` | {issue_number} |
-| "operating protocol" / "update protocol" | `operating-protocol` | `spec-creation-operating-protocol --task operating-protocol` | `orchestrator` | {issue_number} |
-| completion / workflow end | `completion` | `spec-creation-validation --task completion` | `orchestrator` | {workflow_state} |
+## Workflows
 
-## Invocation
+### Create a new spec
 
-`skill({name: "spec-creation"})` — call the skill, then dispatch to the sub-skill:
+1. **analyze** — Dispatch `task(..., prompt: "execute analyze from spec-creation. Read \`skills/spec-creation/tasks/analyze.md\` first")`
+   - **Context passed:** `{issue_number, project_root}`
+   - **Returns:** `{status, analysis_artifact_path, finding_summary}`
 
-| Task | Dispatch | Canonical Dispatch String |
-|------|----------|--------------------------|
-| `create` | `orchestrator` | `task(..., prompt: "execute create from spec-creation-validation")` |
-| `requirements` | `orchestrator` | `task(..., prompt: "execute requirements from spec-creation-requirements")` |
-| `decompose` | `orchestrator` | `task(..., prompt: "execute decompose from spec-creation-decomposition")` |
-| `analytical-artifacts` | `orchestrator` | `task(..., prompt: "execute analytical-artifacts from spec-creation-decomposition")` |
-| `holistic-self-check` | `orchestrator` | `task(..., prompt: "execute holistic-self-check from spec-creation-validation")` |
-| `pipeline-readiness-gate` | `orchestrator` | `task(..., prompt: "execute pipeline-readiness-gate from spec-creation-validation")` |
-| `risk` | `orchestrator` | `task(..., prompt: "execute risk from spec-creation-validation")` |
-| `traceability` | `orchestrator` | `task(..., prompt: "execute traceability from spec-creation-validation")` |
-| `change-control` | `orchestrator` | `task(..., prompt: "execute change-control from spec-creation-change-control")` |
-| `operating-protocol` | `orchestrator` | `task(..., prompt: "execute operating-protocol from spec-creation-operating-protocol")` |
-| `completion` | `orchestrator` | `task(..., prompt: "execute completion from spec-creation-validation")` |
-| `revise` | `orchestrator` | `task(..., prompt: "execute revise from spec-creation-validation")` |
-| `validate` | `orchestrator` | `task(..., prompt: "execute validate from spec-creation-validation")` |
-| `pre-spec-inspection` | `orchestrator` | `task(..., prompt: "execute pre-spec-inspection from spec-creation-decomposition")` |
-| `blast-radius` | `orchestrator` | `task(..., prompt: "execute blast-radius from spec-creation-decomposition")` |
-| `code-path-inventory` | `orchestrator` | `task(..., prompt: "execute code-path-inventory from spec-creation-decomposition")` |
-| `cross-cutting-matrix` | `orchestrator` | `task(..., prompt: "execute cross-cutting-matrix from spec-creation-decomposition")` |
-| `interface-compatibility` | `orchestrator` | `task(..., prompt: "execute interface-compatibility from spec-creation-decomposition")` |
-| `state-analysis` | `orchestrator` | `task(..., prompt: "execute state-analysis from spec-creation-decomposition")` |
+2. **create** — Dispatch `task(..., prompt: "execute create from spec-creation. Read \`skills/spec-creation/tasks/create.md\` first")`
+   - **Context passed:** `{issue_number, analysis_artifact_path}`
+   - **Returns:** `{status, spec_path, issue_url, finding_summary}`
+
+3. **validate** — Dispatch `task(..., prompt: "execute validate from spec-creation. Read \`skills/spec-creation/tasks/validate.md\` first")`
+   - **Context passed:** `{issue_number, spec_path}`
+   - **Returns:** `{status, verdicts: [{check_name, result}], finding_summary}`
+
+4. **If validate returns FAIL:** Dispatch `task(..., prompt: "execute revise from spec-creation. Read \`skills/spec-creation/tasks/revise.md\` first")`
+   - **Context passed:** `{issue_number, spec_path, validation_findings}`
+   - **Returns:** `{status, spec_path, finding_summary}`
+   - Then return to step 3 (validate)
+
+5. **If validate returns PASS:** Spec is ready for approval. Report spec_path and issue_url.
+
+### Revise an existing spec
+
+1. **revise** — Dispatch `task(..., prompt: "execute revise from spec-creation. Read \`skills/spec-creation/tasks/revise.md\` first")`
+   - **Context passed:** `{issue_number, spec_path, revision_reason}`
+   - **Returns:** `{status, spec_path, finding_summary}`
+
+2. **validate** — Dispatch `task(..., prompt: "execute validate from spec-creation. Read \`skills/spec-creation/tasks/validate.md\` first")`
+   - **Context passed:** `{issue_number, spec_path}`
+   - **Returns:** `{status, verdicts, finding_summary}`
+
+3. If validate returns FAIL, return to step 1. If PASS, spec is ready.
+
+## Task Files
+
+| File | Category | Purpose |
+|------|----------|---------|
+| `tasks/analyze.md` | ANALYSIS | Pre-spec inspection, requirements extraction, decomposition, analytical artifacts |
+| `tasks/create.md` | PRODUCTION | Assemble spec, create remote issue, write local spec |
+| `tasks/validate.md` | VERIFICATION | Holistic self-check (11 dimensions), structural validation |
+| `tasks/revise.md` | PRODUCTION | Spec revision with change control tracking |
 
 ## Cross-References
 
-Sub-skills: `spec-creation-requirements`, `spec-creation-decomposition`, `spec-creation-validation`, `spec-creation-change-control`, `spec-creation-operating-protocol`. Skills: `brainstorming`, `writing-plans`, `audit`, `approval-gate`.
+Skills: `brainstorming` (upstream handoff), `writing-plans` (downstream consumer), `audit` (spec-audit), `approval-gate`. Guidelines: `000-critical-rules.md` (clean-room discipline), `080-code-standards.md` (evidence type taxonomy).
