@@ -23,8 +23,8 @@ body: '## Objective
   1. **Sub-skills are not an opencode concept.** The 5 sub-skill directories (spec-creation-validation,
   spec-creation-decomposition, spec-creation-requirements, spec-creation-change-control,
   spec-creation-operating-protocol) each have their own SKILL.md and appear as independent
-  entries in <available_skills>. The orchestrator must call skill() 5+ times to sequence
-  a single spec creation.
+  entries in `<available_skills>`. The orchestrator must call skill() 5+ times to
+  sequence a single spec creation.
 
 
   2. **Skill card dispatched to sub-agent (critical-rules-XXX).** The Invocation section
@@ -35,13 +35,20 @@ body: '## Objective
 
   3. **32 task files across 6 directories.** The orchestrator must sequence: requirements
   → decompose → analytical-artifacts → ... → create → holistic-self-check → ... →
-  completion. This sequencing logic belongs in a single task file, not in the orchestrator''s
-  routing table.
+  completion. This sequencing logic belongs in the orchestrator''s Workflows section,
+  not scattered across sub-skill routing tables.
 
 
   4. **The description field uses deprecated "Load via skill() when..." pattern.**
   Per research (see research card), the description should describe the agent''s task
   intent, not tell the agent when to load.
+
+
+  5. **Clean-room discipline violation in create pipeline.** The current design merges
+  ANALYSIS (inspect, requirements, decompose, artifacts), PRODUCTION (spec writing),
+  and INFRASTRUCTURE (remote issue ops, file writes) into a single sub-agent. Per
+  critical-rules-034, sub-agents must not combine multiple categories of work in a
+  single task(). The producer of a deliverable must not also verify it.
 
 
   ## Not Included
@@ -73,7 +80,7 @@ body: '## Objective
   shows SKILL.md + tasks/ only |
 
   | SC-2 | The SKILL.md Workflows section dispatches directly to task cards (e.g.,
-  "Read \`skills/spec-creation/tasks/create.md\` and follow its instructions"), not
+  "Read \`skills/spec-creation/tasks/analyze.md\` and follow its instructions"), not
   to sub-skill names | string | grep for "from spec-creation" in SKILL.md — no "from
   spec-creation-validation" or other sub-skill names |
 
@@ -81,26 +88,33 @@ body: '## Objective
   needs to do) not "Load via skill() when..." pattern | string | grep description
   in SKILL.md — no "Load via skill() when" or "User phrases:" |
 
-  | SC-4 | The create task file contains the full spec creation pipeline: pre-spec
-  inspection → requirements → decomposition → analytical artifacts → spec writing
-  → holistic check → remote issue stub → remote issue body → local spec → result contract
-  | string | grep for all pipeline steps in tasks/create.md |
+  | SC-4 | The analyze task file contains the analysis pipeline: pre-spec inspection
+  → requirements extraction → decomposition → analytical artifacts. It does NOT contain
+  spec writing, remote issue ops, or holistic check | string | grep for all pipeline
+  steps in tasks/analyze.md; grep confirms no "write spec", "remote issue", "holistic"
+  in analyze.md |
 
-  | SC-5 | The create task file does NOT contain any task() or skill() calls | string
-  | grep for "task(" and "skill(" in tasks/create.md — both return empty |
+  | SC-5 | The create task file contains the production pipeline: read analysis artifacts
+  → assemble spec → create remote issue stub → write remote body → write local spec.
+  It does NOT contain analysis steps or verification steps | string | grep for all
+  pipeline steps in tasks/create.md; grep confirms no "inspect", "decompose", "holistic"
+  in create.md |
 
-  | SC-6 | The create task file writes the spec to the correct .issues/{N}/ or <sub-repo>/.issues/{N}/
-  path | behavioral | Sub-agent executes create task, verifies spec file at correct
-  path |
+  | SC-6 | The validate task file contains the verification pipeline: holistic self-check
+  (11 dimensions) + structural validation (SC completeness, evidence types, traceability).
+  It does NOT contain production or analysis steps | string | grep for holistic dimensions
+  and structural checks in tasks/validate.md; grep confirms no "write spec", "inspect"
+  in validate.md |
 
   | SC-7 | The revise task file handles spec revision with change control tracking
   | structural | File exists at tasks/revise.md |
 
-  | SC-8 | The validate task file handles standalone spec validation | structural
-  | File exists at tasks/validate.md |
+  | SC-8 | No task file contains task() or skill() calls | string | grep for "task("
+  and "skill(" in all 4 task files — all return empty |
 
-  | SC-9 | The holistic-check task file handles the 11-dimension holistic self-check
-  | structural | File exists at tasks/holistic-check.md |
+  | SC-9 | The create task file writes the spec to the correct .issues/{N}/ or \<sub-repo\>/.issues/{N}/
+  path | behavioral | Sub-agent executes create task, verifies spec file at correct
+  path |
 
   | SC-10 | The 5 sub-skill directories (spec-creation-validation, spec-creation-decomposition,
   spec-creation-requirements, spec-creation-change-control, spec-creation-operating-protocol)
@@ -115,6 +129,23 @@ body: '## Objective
   signals "handoff to spec-creation" so the orchestrator knows to call skill({name:
   "spec-creation"}) | string | grep for "spec-creation" in skills/brainstorming/tasks/completion.md
   |
+
+  | SC-13 | The analyze sub-agent receives only {issue_number, project_root} — no
+  preloaded analysis, no orchestrator reasoning | behavioral | Sub-agent executes
+  analyze task, verifies no preloaded context in prompt |
+
+  | SC-14 | The create sub-agent receives only {issue_number, analysis_artifact_path}
+  — no preloaded spec content, no orchestrator reasoning | behavioral | Sub-agent
+  executes create task, verifies no preloaded context in prompt |
+
+  | SC-15 | The validate sub-agent receives only {issue_number, spec_path} — no producer
+  context, no orchestrator reasoning | behavioral | Sub-agent executes validate task,
+  verifies no preloaded context in prompt |
+
+  | SC-16 | The orchestrator Workflows section sequences the pipeline: analyze → create
+  → validate → (revise → validate)* → done. The orchestrator does not perform inline
+  work | string | grep Workflows section in SKILL.md — confirms 3-step sequence with
+  revision loop |
 
 
   ## Requirements
@@ -138,11 +169,14 @@ body: '## Objective
   phrases:" patterns.
 
 
-  ### REQ-3: Create Pipeline Task
+  ### REQ-3: Clean-Room Decomposition — Three Categories
 
 
-  The create task file SHALL contain the full spec creation pipeline as a single sub-agent
-  dispatch:
+  The spec creation pipeline SHALL be decomposed into three clean-room categories,
+  each dispatched as a separate orchestrator step:
+
+
+  **Category 1 — ANALYSIS (task: analyze.md)**
 
 
   1. Pre-spec inspection (codebase search for affected files)
@@ -153,18 +187,46 @@ body: '## Objective
 
   4. Analytical artifact generation (blast radius, code paths, cross-cutting, etc.)
 
-  5. Spec writing (assemble all sections: objective, background, SCs, requirements,
-  phases, etc.)
 
-  6. Holistic self-check (11 dimensions)
+  The analyze sub-agent SHALL receive only {issue_number, project_root}. It SHALL
+  NOT receive preloaded analysis, orchestrator reasoning, or expected outcomes. All
+  artifacts SHALL be written to disk at `./tmp/{issue-N}/artifacts/`.
 
-  7. Create remote issue stub (when remote API available) to get issue number
 
-  8. Write full spec to remote issue body
+  **Category 2 — PRODUCTION (task: create.md)**
 
-  9. Write local spec to .issues/{N}/spec.md (or <sub-repo>/.issues/{N}/spec.md)
 
-  10. Return result contract with issue number and artifact paths
+  1. Read analysis artifacts from disk
+
+  2. Assemble spec document (all sections: objective, background, SCs, requirements,
+  phases, traceability)
+
+  3. Create remote issue stub (when remote API available) to get issue number
+
+  4. Write full spec to remote issue body
+
+  5. Write local spec to .issues/{N}/spec.md (or \<sub-repo\>/.issues/{N}/spec.md)
+
+
+  The create sub-agent SHALL receive only {issue_number, analysis_artifact_path}.
+  It SHALL NOT receive preloaded spec content, orchestrator reasoning, or expected
+  outcomes.
+
+
+  **Category 3 — VERIFICATION (task: validate.md)**
+
+
+  1. Read spec from spec_path
+
+  2. Run 11-dimension holistic self-check
+
+  3. Run structural validation (SC completeness, evidence types, traceability)
+
+  4. Produce PASS/FAIL verdict per check
+
+
+  The validate sub-agent SHALL receive only {issue_number, spec_path}. It SHALL NOT
+  receive producer context, orchestrator reasoning, or expected outcomes.
 
 
   ### REQ-4: No task()/skill() in Task Files
@@ -192,7 +254,7 @@ body: '## Objective
 
   The brainstorming skill''s completion task SHALL return a result contract that includes
   a handoff signal to spec-creation, so the orchestrator knows to call skill({name:
-  "spec-creation"}) and dispatch the create task.
+  "spec-creation"}) and dispatch the analyze task.
 
 
   ### REQ-7: Remove Sub-Skill Directories
@@ -203,13 +265,34 @@ body: '## Objective
   directory.
 
 
+  ### REQ-8: Orchestrator-Sequenced Pipeline
+
+
+  The SKILL.md Workflows section SHALL sequence the pipeline as:
+
+
+  1. analyze → returns analysis_artifact_path
+
+  2. create → returns spec_path
+
+  3. validate → returns verdict
+
+  4. If validate returns FAIL: revise → return to step 3
+
+  5. If validate returns PASS: spec is ready for approval
+
+
+  The orchestrator SHALL NOT perform inline work. Each step SHALL be a clean-room
+  task() dispatch.
+
+
   ## Phases
 
 
   ### Phase 1: Create new spec-creation skill
 
 
-  Write the new SKILL.md and task files (create.md, revise.md, validate.md, holistic-check.md)
+  Write the new SKILL.md and task files (analyze.md, create.md, validate.md, revise.md)
   in skills/spec-creation/. Do NOT remove old files yet. The SKILL.md SHALL use the
   Workflows section format per #2076 standards (sub-bullet dispatch contracts with
   Prompt, Context, and Returns fields).
@@ -232,7 +315,8 @@ body: '## Objective
 
 
   Run a behavioral test that creates a spec through the new pipeline and verifies
-  the output at the correct .issues/{N}/ path.
+  the output at the correct .issues/{N}/ path. The test SHALL verify clean-room separation:
+  each sub-agent receives only its scoped context.
 
 
   ## Dependencies
@@ -243,6 +327,8 @@ body: '## Objective
 
   - The DISPATCH_GATE protocol (already documented in every SKILL.md)
 
+  - critical-rules-034 (clean-room discipline) — governs the three-category decomposition
+
 
   ## Traceability
 
@@ -251,20 +337,22 @@ body: '## Objective
 
   |-------------|-----|-------|
 
-  | REQ-1 | SC-1, SC-2, SC-7, SC-8, SC-9, SC-10, SC-11 | Phase 1, Phase 3 |
+  | REQ-1 | SC-1, SC-2, SC-10, SC-11 | Phase 1, Phase 3 |
 
   | REQ-2 | SC-3 | Phase 1 |
 
-  | REQ-3 | SC-4, SC-5, SC-6 | Phase 1 |
+  | REQ-3 | SC-4, SC-5, SC-6, SC-13, SC-14, SC-15 | Phase 1 |
 
-  | REQ-4 | SC-5 | Phase 1 |
+  | REQ-4 | SC-8 | Phase 1 |
 
-  | REQ-5 | SC-6 | Phase 1 |
+  | REQ-5 | SC-9 | Phase 1 |
 
   | REQ-6 | SC-12 | Phase 2 |
 
   | REQ-7 | SC-10, SC-11 | Phase 3 |
 
+  | REQ-8 | SC-16 | Phase 1 |
+
   '
 created_at: '2026-07-23T02:56:59+00:00'
-updated_at: '2026-07-23T05:35:11+00:00'
+updated_at: '2026-07-23T13:28:11+00:00'
