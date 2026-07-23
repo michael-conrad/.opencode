@@ -235,7 +235,7 @@ Create behavioral tests that verify:
 | SC-7 | No task card references other sub-agents or describes their work | `string` | grep for "dispatches", "sub-agent", "sub-task" in task cards — 0 matches |
 | SC-8 | `writing-plans/SKILL.md` Invocation section lists all 13 task cards with clean-room indicators | `string` | grep Invocation section — 13 entries with ✅/❌ |
 | SC-9 | `spec-creation/SKILL.md` Invocation section lists all 19 task cards with clean-room indicators | `string` | grep Invocation section — 19 entries with ✅/❌ |
-| SC-10 | Pipeline sections in both SKILL.md files are unchanged (still show `[sub-task]` and `[inline]` markers) | `string` | grep Pipeline section — matches original |
+| SC-10 | Pipeline sections in both SKILL.md files are removed (no `[sub-task]` or `[inline]` markers remain in Pipeline sections) | `string` | grep for `[sub-task]` and `[inline]` in Pipeline sections — 0 matches |
 | SC-11 | `writing-plans/SKILL.md` TDT classifies `create` as `orchestrator` | `string` | grep for `create.*orchestrator` — present |
 | SC-12 | `writing-plans/SKILL.md` TDT classifies `retroactive` as `orchestrator` | `string` | grep for `retroactive.*orchestrator` — present |
 | SC-13 | `writing-plans/SKILL.md` TDT has `completion` entry as `orchestrator` | `string` | grep for `completion.*orchestrator` — present |
