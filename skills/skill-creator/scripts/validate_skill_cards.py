@@ -12,12 +12,12 @@
 """
 Skill card validation only (sensor mode). Corrections are agent-driven.
 
-Validates SKILL.md files per spec #1124:
+Validates SKILL.md files per spec #2076:
   REQ-1: Frontmatter validation (name, description, license, compatibility)
   REQ-2: Placeholder enforcement (no hardcoded identity values)
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
   REQ-4: Mandatory Task Discipline admonishment presence (5-item checklist)
-  REQ-6: DISPATCH_GATE section completeness (6 canonical subsections)
+  REQ-6: Workflows section presence and structure (replaces old DISPATCH_GATE)
 
 Usage:
     uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py           # validate
@@ -140,41 +140,30 @@ def validate_req1(
         )
     else:
         desc = fields["description"]
-        if "Use when" in desc or "Also use when" in desc:
-            violations.append(
-                Violation(
-                    "REQ-1",
-                    name,
-                    "description",
-                    "Description contains 'Use when' or 'Also use when' (deprecated Farmage format — must use 'Dispatch when' / 'Also dispatch when')",
-                    desc[:60],
-                    file_path=file_path,
+        # Agent-intent format: description describes what the skill does, not when to load it.
+        # Reject deprecated meta-instruction patterns.
+        deprecated_patterns = [
+            ("Load via skill() when", "Deprecated meta-instruction — describes when to load, not what skill does"),
+            ("User phrases:", "Deprecated trigger phrase list — describes user utterance, not agent intent"),
+            ("Dispatch when", "Deprecated trigger condition — describes when to dispatch, not what skill does"),
+            ("Also dispatch when", "Deprecated trigger condition — describes when to dispatch, not what skill does"),
+            ("Use when", "Deprecated Farmage format"),
+            ("Also use when", "Deprecated Farmage format"),
+            ("Trigger phrases:", "Deprecated Farmage format"),
+            ("Triggers on:", "Deprecated trigger condition"),
+        ]
+        for pattern, reason in deprecated_patterns:
+            if pattern in desc:
+                violations.append(
+                    Violation(
+                        "REQ-1",
+                        name,
+                        "description",
+                        f"Description contains '{pattern}' ({reason})",
+                        desc[:60],
+                        file_path=file_path,
+                    )
                 )
-            )
-        if "Trigger phrases:" in desc:
-            violations.append(
-                Violation(
-                    "REQ-1",
-                    name,
-                    "description",
-                    "Description contains 'Trigger phrases:' (deprecated Farmage format — rejected)",
-                    desc[:60],
-                    file_path=file_path,
-                )
-            )
-        # Agent-intent dispatch pattern: description must contain "Dispatch when" or "Load via skill() when"
-        # to describe the agent-side trigger condition, not user utterance patterns.
-        if "Dispatch when" not in desc and "Load via skill() when" not in desc:
-            violations.append(
-                Violation(
-                    "REQ-1",
-                    name,
-                    "description",
-                    "Description missing 'Dispatch when' or 'Load via skill() when' (required in agent-intent pattern)",
-                    desc[:60],
-                    file_path=file_path,
-                )
-            )
         if "<" in desc or ">" in desc:
             violations.append(
                 Violation(
@@ -207,35 +196,28 @@ def validate_req1(
 def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     desc = fields.get("description", "")
-    if "Dispatch when" not in desc and "Load via skill() when" not in desc:
-        violations.append(
-            Violation(
-                "SC-LINT", name, "SC-LINT-001",
-                "Description missing 'Dispatch when' or 'Load via skill() when' (required in agent-intent pattern)",
-                desc[:60], file_path=file_path,
-                severity="ERROR", pass_fail="FAIL",
+    # Agent-intent format: description describes what the skill does, not when to load it.
+    # Reject deprecated meta-instruction patterns.
+    deprecated_patterns = [
+        ("Load via skill() when", "Deprecated meta-instruction"),
+        ("User phrases:", "Deprecated trigger phrase list"),
+        ("Dispatch when", "Deprecated trigger condition"),
+        ("Also dispatch when", "Deprecated trigger condition"),
+        ("Use when", "Deprecated Farmage format"),
+        ("Also use when", "Deprecated Farmage format"),
+        ("Trigger phrases:", "Deprecated Farmage format"),
+        ("Triggers on:", "Deprecated trigger condition"),
+    ]
+    for pattern, reason in deprecated_patterns:
+        if pattern in desc:
+            violations.append(
+                Violation(
+                    "SC-LINT", name, "SC-LINT-001",
+                    f"Description contains '{pattern}' ({reason})",
+                    desc[:60], file_path=file_path,
+                    severity="ERROR", pass_fail="FAIL",
+                )
             )
-        )
-    if "Use when" in desc or "Also use when" in desc:
-        violations.append(
-            Violation(
-                "SC-LINT", name, "SC-LINT-001",
-                "Description contains 'Use when' or 'Also use when' (deprecated Farmage format)",
-                desc[:60], file_path=file_path,
-                severity="ERROR", pass_fail="FAIL",
-            )
-        )
-    if "Trigger phrases:" in desc:
-        violations.append(
-            Violation(
-                "SC-LINT", name, "SC-LINT-001",
-                "Description contains 'Trigger phrases:' (deprecated Farmage format)",
-                desc[:60], file_path=file_path,
-                severity="ERROR", pass_fail="FAIL",
-            )
-        )
-    # Agent-intent dispatch pattern: description must contain "Dispatch when" or "Load via skill() when"
-    # to describe the agent-side trigger condition, not user utterance patterns.
     return violations
 
 MANDATORY_KEYWORDS = re.compile(
@@ -429,20 +411,15 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
     return violations
 
 ADMONISHMENT_HEADING_RE = re.compile(r"^##\s+Mandatory\s+Task\s+Discipline", re.MULTILINE)
-DISPATCH_GATE_HEADING_RE = re.compile(
-    r"^#{2,3}\s+DISPATCH_GATE", re.MULTILINE
+WORKFLOWS_HEADING_RE = re.compile(
+    r"^##\s+Workflows", re.MULTILINE
 )
-DISPATCH_OPT_OUT_RE = re.compile(
-    r"#\s*no-dispatch-gate\b", re.IGNORECASE
+WORKFLOW_STEP_RE = re.compile(
+    r"^\d+\.\s+\*\*", re.MULTILINE
 )
-DISPATCH_GATE_SUBSECTIONS = [
-    r"Context cost frame",
-    r"Forbidden in task\(\) Prompts",
-    r"Required:\s*Sub-agent Task File Discovery Directive",
-    r"Dispatch Context Contract",
-    r"Sub-Agent Entry Criteria",
-    r"Orchestrator Entry Criteria",
-]
+WORKFLOW_SUB_BULLET_RE = re.compile(
+    r"^\s+-\s+(Prompt|Context|Returns):", re.MULTILINE
+)
 
 def validate_req5(name: str, body: str, file_path: str) -> list[Violation]:
     violations: list[Violation] = []
@@ -460,30 +437,38 @@ def validate_req5(name: str, body: str, file_path: str) -> list[Violation]:
 
 def validate_req6(name: str, body: str, file_path: str) -> list[Violation]:
     violations: list[Violation] = []
-    if DISPATCH_OPT_OUT_RE.search(body):
-        return violations
-    if not DISPATCH_GATE_HEADING_RE.search(body):
+    if not WORKFLOWS_HEADING_RE.search(body):
         violations.append(
             Violation(
                 "REQ-6",
                 name,
-                "dispatch-gate",
-                "Missing 'DISPATCH_GATE' section",
+                "workflows",
+                "Missing 'Workflows' section",
                 file_path=file_path,
             )
         )
         return violations
-    for subsection in DISPATCH_GATE_SUBSECTIONS:
-        if not re.search(subsection, body, re.MULTILINE | re.IGNORECASE):
-            violations.append(
-                Violation(
-                    "REQ-6",
-                    name,
-                    "dispatch-gate-subsection",
-                    f"Missing DISPATCH_GATE subsection: '{subsection}'",
-                    file_path=file_path,
-                )
+    # Check that Workflows section has at least one numbered step with sub-bullets
+    if not WORKFLOW_STEP_RE.search(body):
+        violations.append(
+            Violation(
+                "REQ-6",
+                name,
+                "workflows-steps",
+                "Workflows section missing numbered dispatch steps",
+                file_path=file_path,
             )
+        )
+    if not WORKFLOW_SUB_BULLET_RE.search(body):
+        violations.append(
+            Violation(
+                "REQ-6",
+                name,
+                "workflows-sub-bullets",
+                "Workflows section missing sub-bullet dispatch contracts (Prompt, Context, Returns)",
+                file_path=file_path,
+            )
+        )
     return violations
 
 def validate_card(card_path: Path, root: Path) -> list[Violation]:

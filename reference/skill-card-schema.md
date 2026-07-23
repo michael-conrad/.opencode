@@ -49,42 +49,50 @@ String-to-string map (`map[string,string]`). No binary validation beyond YAML pa
 
 ---
 
-## Description Pattern (Observed Across All 40 Cards)
+## Description Pattern (Agent-Intent Format)
 
-Every SKILL.md in this repository uses the same description structure. This is a project convention, not a binary constraint, but it is universally followed:
+The `description` field is a **semantic router** — the agent evaluates its OWN intent against the description, not the user's literal utterance. The description must describe what the agent needs to DO, not what the user SAYS.
 
 ```
-"<Noun phrase> that <verb phrase>. Dispatch when <trigger conditions>. Also dispatch when <additional conditions>. <Context/qualification>. User phrases: <comma-separated trigger phrases>."
+"<Agent task description>. <Context/qualification>."
 ```
 
 ### Structural Elements
 
 | Element | Example | Required? |
 |---------|---------|-----------|
-| **Noun phrase identity** | "Authorization gatekeeper that verifies scope..." | Yes |
-| **"Dispatch when" clause** | "Dispatch when creating a branch, committing, pushing..." | Yes |
-| **"Also dispatch when" clauses** | "Also dispatch when verifying authorization state..." | Optional |
-| **Context/qualification** | "All conditions are MANDATORY — no implementation without authorization." | Optional |
-| **"User phrases:" clause** | "User phrases: create branch, commit, push, create PR..." | Yes |
+| **Agent task description** | "Create and validate specification documents with success criteria, evidence types, traceability, and analytical artifacts from requirements and problem statements." | Yes |
+| **Context/qualification** | "Spec creation is REQUIRED before implementation." | Optional |
+
+### What to Exclude
+
+| Element | Why Excluded |
+|---------|-------------|
+| "Load via skill() when..." | Meta-instruction — dilutes the semantic vector. The agent decides when to load. |
+| "User phrases: ..." | Describes user utterance, not agent intent. Semantic matching is agent-intent-based. |
+| "Dispatch when..." | Same as above — describes trigger conditions, not agent task. |
+| "Also dispatch when..." | Same as above. |
 
 ### Examples
 
-**Valid (from `approval-gate/SKILL.md`):**
+**Agent-intent format (correct):**
 
 ```yaml
-description: "Authorization gatekeeper that verifies scope, cascade, and halt boundaries. Dispatch when checking or enforcing authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, or bug discovery protocol. Also dispatch when verifying authorization state, applying approved-for-* labels, or handling re-implementation after spec revision. All conditions are MANDATORY — no implementation without authorization. User phrases: check authorization, verify scope, enforce cascade, apply label, approve, go, authorized, revision revokes approval, bug discovery protocol."
+description: "Create and validate specification documents with success criteria, evidence types, traceability, and analytical artifacts from requirements and problem statements."
 ```
 
-**Valid (from `git-workflow/SKILL.md`):**
-
 ```yaml
-description: "Git branch, commit, push, and PR workflow manager with cleanup and provenance tracking. Dispatch when creating a branch, committing, pushing, or creating a PR. Also dispatch when handling rebase/merge conflicts (invoke conflict-resolution), checking PR state and cleanup, or running provenance tracking. Branch-and-PR discipline is REQUIRED — always follow the workflow. User phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs, pr merged, provenance, sync submodules, release PR."
+description: "Verify authorization scope, apply approval labels, handle spec revision revocation, and execute bug discovery protocol. Authorization verification is REQUIRED before any implementation."
 ```
 
-**Valid (from `spec-creation/SKILL.md`):**
+```yaml
+description: "Create and manage git branches, commit changes, push to remote, create pull requests, handle rebase and merge conflicts, and clean up after PR merges."
+```
+
+**Deprecated format (do not use):**
 
 ```yaml
-description: "Specification authoring skill that decomposes problems into success criteria and documents requirements. Dispatch when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also dispatch when decomposing a problem into success criteria, extracting requirements, or documenting change control. Also use when running holistic self-checks on specs before completion, or verifying spec quality against the 11-dimension holistic gate. Invoke for: holistic check, self-check, pre-completion check, spec quality verification. Spec creation is REQUIRED before implementation. User phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, define success criteria, extract requirements, holistic check, spec quality verification."
+description: "Authorization gatekeeper that verifies scope, cascade, and halt boundaries. Dispatch when checking or enforcing authorization scope. User phrases: check authorization, verify scope."
 ```
 
 ---
@@ -93,9 +101,9 @@ description: "Specification authoring skill that decomposes problems into succes
 
 These conventions are followed by all cards in this repository but are **not enforced by the binary**. They are project-level quality standards.
 
-### `DISPATCH_GATE` Section
+### Workflows Section (Replaces Trigger Dispatch Table + Invocation)
 
-Every SKILL.md body includes a `DISPATCH_GATE` section documenting the sub-agent dispatch protocol, orchestrator entry criteria, and preloaded-context rejection rules.
+Every SKILL.md body uses a **Workflows** section instead of separate Trigger Dispatch Table and Invocation sections. Each workflow is a numbered list of clean-room `task()` dispatch steps. Each step has sub-bullets for the dispatch parameters (Prompt, Context, Returns). This keeps the dispatch contract colocated with the sequencing step.
 
 ### `license: MIT` + `compatibility: opencode`
 
@@ -173,7 +181,7 @@ name: my-skill
 ```yaml
 ---
 name: my-skill
-description: "Noun phrase that verb phrase. Dispatch when trigger. User phrases: trigger."
+description: "Create and validate specification documents with success criteria, evidence types, traceability, and analytical artifacts from requirements and problem statements."
 ---
 ```
 
@@ -182,7 +190,7 @@ description: "Noun phrase that verb phrase. Dispatch when trigger. User phrases:
 ```yaml
 ---
 name: my-skill
-description: "Noun phrase that verb phrase. Dispatch when trigger. Also dispatch when additional. Context. User phrases: trigger1, trigger2, trigger3."
+description: "Create and validate specification documents with success criteria, evidence types, traceability, and analytical artifacts from requirements and problem statements."
 license: MIT
 compatibility: opencode
 ---

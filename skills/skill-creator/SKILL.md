@@ -134,5 +134,10 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 Skills: `verification-enforcement`, `coherence-auditor`. Guidelines: `080-code-standards.md`, `000-critical-rules.md`.
 
+Reference documents:
+- `reference/skill-card-description-standards.md` — Description field as semantic router, persona framing, skill()/task() pipeline, Workflows section format
+- `reference/task-card-structure-standards.md` — Canonical task card structure, result contract format, task card vs SKILL.md division
+- `reference/skill-card-schema.md` — SKILL.md frontmatter binary constraints (name, description, license)
+
 
 ```
