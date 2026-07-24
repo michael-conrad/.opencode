@@ -1,0 +1,4 @@
+number: 1305
+title: "Bug: Incorrect Scope Classification Blocks Technical Investigation Capability Under for_analysis"
+state: OPEN
+labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "spec", "color": "ededed", "description": ""}, {"name": "investigation", "color": "ededed", "description": ""}, {"name": "governance", "color": "ededed", "description": ""}]'

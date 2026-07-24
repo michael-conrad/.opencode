@@ -1,0 +1,4 @@
+number: 1189
+title: "[SPEC-FIX] Restore cross-reference invalidation in screen-issue-gate2 — hard block not soft flag"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}, {"name": "approval-gate", "color": "ededed", "description": ""}]'

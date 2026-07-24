@@ -1,4 +1,5 @@
 number: 76
-title: [SPEC] Cross-repo cleanup — submodule issue closure, branch cleanup, dev-tip verification
+title: "[SPEC] Cross-repo cleanup — submodule issue closure, branch cleanup, dev-tip verification"
 state: CLOSED
-labels: [{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "spec", "color": "ededed", "description": ""}, {"name": "approved-for-pr", "color": "ededed", "description": ""}, {"name": "tier-2", "color": "ededed", "description": ""}]
+labels: >
+  [{"name": "{\"name\": \"bug\""}, {"name": "\"color\": \"d73a4a\""}, {"name": "\"description\": \"Something isn't working\"}"}, {"name": "{\"name\": \"spec\""}, {"name": "\"color\": \"ededed\""}, {"name": "\"description\": \"\"}"}, {"name": "{\"name\": \"approved-for-pr\""}, {"name": "\"color\": \"ededed\""}, {"name": "\"description\": \"\"}"}, {"name": "{\"name\": \"tier-2\""}, {"name": "\"color\": \"ededed\""}, {"name": "\"description\": \"\"}]\"\""}]

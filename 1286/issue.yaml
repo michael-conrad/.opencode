@@ -1,0 +1,4 @@
+number: 1286
+title: "[SPEC-FIX] plan and solve tool breakage lacks escalation protocol — no hard halt, no developer notification, no auth revocation"
+state: OPEN
+labels: '[{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}]'

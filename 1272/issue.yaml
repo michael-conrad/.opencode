@@ -1,0 +1,4 @@
+number: 1272
+title: "[SPEC] Fix local-issues _discover_all_repos(): replace dot-skip with /*/.git pattern matching"
+state: OPEN
+labels: '[{"name": "spec", "color": "ededed", "description": ""}]'

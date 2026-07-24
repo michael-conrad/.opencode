@@ -1,0 +1,4 @@
+number: 2044
+title: "SPEC-FIX: behavior_run harness produces empty output — model dispatch timeout"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'

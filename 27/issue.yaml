@@ -1,4 +1,4 @@
 number: 27
-title: [SPEC-FIX] Git hook root detection — walk-up hangs when hooks execute outside .opencode/
+title: "[SPEC-FIX] Git hook root detection — walk-up hangs when hooks execute outside .opencode/"
 state: CLOSED
-labels: [{"name": "SPEC-FIX", "color": "ededed", "description": ""}]
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}]""'

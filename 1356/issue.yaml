@@ -1,5 +1,4 @@
-labels: []
 number: 1356
+title: "'Pre-push hook Gate 1: false positive on release promotion branches prevents"
 state: CLOSED
-title: 'Pre-push hook Gate 1: false positive on release promotion branches prevents
-  force-push to open PRs'
+labels: '[]'

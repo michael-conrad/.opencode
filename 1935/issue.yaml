@@ -3,5 +3,5 @@ labels:
 - '[SPEC-FIX]'
 number: 1935
 state: CLOSED
-title: "[SPEC-FIX] Remove old test framework (.opencode/tests/) \u2014 tests-v2 is\
+title: "[SPEC-FIX] Remove old test framework (.opencode/tests/) \u2014 tests-v2 is\"
   \ now the default"

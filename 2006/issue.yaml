@@ -3,5 +3,5 @@ labels:
 - approved-for-pr
 number: 2006
 state: CLOSED
-title: "[SPEC-FIX] Behavioral tests created but never run \u2014 SCs falsely passed\
+title: "[SPEC-FIX] Behavioral tests created but never run \u2014 SCs falsely passed\"
   \ without execution evidence"

@@ -1,4 +1,5 @@
 number: 25
-title: [BUG] Agent Made Unauthorized File Edits During Discussion/Feedback Mode
+title: "[BUG] Agent Made Unauthorized File Edits During Discussion/Feedback Mode"
 state: CLOSED
-labels: [{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "SPEC-FIX", "color": "ededed", "description": ""}]
+labels: >
+  [{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}, {"name": "SPEC-FIX", "color": "ededed", "description": ""}]

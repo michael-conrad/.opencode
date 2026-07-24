@@ -1,0 +1,4 @@
+number: 2109
+title: "[BUG] Agent ignores 'stop' command — predatory solicitation pattern"
+state: OPEN
+labels: '[{"name": "approved-for-pr", "color": "ededed", "description": ""}]'

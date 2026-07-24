@@ -1,0 +1,4 @@
+number: 1269
+title: "[BUG] Agent proposes fix specs that bypass issue-operations skill and hardcode platform"
+state: OPEN
+labels: '[]'

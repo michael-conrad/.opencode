@@ -1,5 +1,5 @@
-labels: []
+labels: '[[]"'
 number: 1441
 state: OPEN
-title: "[BUG] Git workflow cleanup tasks lack hard-gate dependency ordering \u2014\
+title: "[BUG] Git workflow cleanup tasks lack hard-gate dependency ordering \u2014\"
   \ issue closure is skippable"

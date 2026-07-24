@@ -1,5 +1,4 @@
-labels: []
 number: 1458
+title: "[SPEC-FIX] Artifact URL construction uses worktree path instead of branch"
 state: OPEN
-title: '[SPEC-FIX] Artifact URL construction uses worktree path instead of branch
-  root path'
+labels: '[]'

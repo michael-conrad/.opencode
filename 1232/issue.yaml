@@ -1,0 +1,4 @@
+number: 1232
+title: "[SPEC-FIX] plan tool: init expression negation discarded — all fluents set True at init"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'

@@ -1,0 +1,4 @@
+number: 1251
+title: "[SPEC-FIX] Adversarial-audit: 2-retry PRELOADED_CONTEXT_REJECTED exhaustion must HALT, not fall back to general sub-agent"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'

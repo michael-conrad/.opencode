@@ -2,5 +2,5 @@ labels:
 - bug
 number: 1571
 state: OPEN
-title: "[BUG] 20+ content-verification checks report MISSING \u2014 guideline and\
+title: "[BUG] 20+ content-verification checks report MISSING \u2014 guideline and\"
   \ task file patterns out of sync"

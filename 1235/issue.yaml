@@ -1,0 +1,4 @@
+number: 1235
+title: "[SPEC-FIX] "pr merged" trigger should carry implicit authorization for post-merge cleanup"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}, {"name": "git-workflow", "color": "ededed", "description": ""}, {"name": "authorization", "color": "ededed", "description": ""}]'

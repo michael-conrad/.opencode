@@ -1,0 +1,14 @@
+--- michael-conrad @ 2026-07-20T13:54:00Z ---
+## Root Cause Analysis
+
+**Root cause:** The SUBMODULE-DRIFT check in `pre-red-baseline` (Step 2, items 8-9) and `pre-flight` (Step 3) uses a binary comparison — submodule HEAD vs default branch tip. Any mismatch triggers BLOCK, including intentional feature branch checkouts in stacked PR workflows.
+
+**Impact:** Blocks all stacked PR workflows where the `.opencode` submodule is on a feature branch. This is a workflow blocker for any multi-issue feature branch work.
+
+**Fix:** Replace the binary check with a three-way classification:
+- Detached HEAD → BLOCK
+- Unknown/untracked branch → BLOCK
+- Feature branch (named branch) → PASS
+
+**Fix spec created:** #2019
+

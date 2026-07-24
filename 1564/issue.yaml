@@ -1,5 +1,4 @@
-labels: []
 number: 1564
+title: "[SKILL-FIX] writing-plans: add missing dispatch table entries for all 10 sub-agent"
 state: OPEN
-title: '[SKILL-FIX] writing-plans: add missing dispatch table entries for all 10 sub-agent
-  tasks'
+labels: '[]'

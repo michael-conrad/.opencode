@@ -1,0 +1,4 @@
+number: 2029
+title: "[BUG] pipeline-readiness-gate.md in wrong task directory — spec-creation pipeline references spec-creation-decomposition/tasks/ but file is in spec-creation-validation/tasks/"
+state: OPEN
+labels: '[]'

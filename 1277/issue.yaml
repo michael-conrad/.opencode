@@ -1,0 +1,4 @@
+number: 1277
+title: "[SPEC-FIX] Verification Command Integrity — Prohibit error-suppression patterns in verification commands"
+state: OPEN
+labels: '[{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}, {"name": "enforcement", "color": "ededed", "description": ""}, {"name": "verification", "color": "ededed", "description": ""}]'

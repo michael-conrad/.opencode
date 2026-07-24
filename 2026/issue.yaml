@@ -1,0 +1,4 @@
+number: 2026
+title: "[SPEC-FIX] Missing task cards in spec-creation pipeline: research-card-consultation and interdependency-check"
+state: OPEN
+labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}]'

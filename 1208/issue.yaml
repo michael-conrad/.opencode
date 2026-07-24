@@ -1,0 +1,4 @@
+number: 1208
+title: "[SPEC] Skillcard routing overhaul — dispatch tables, YAML cleanup, checklist-ification, submodule-sync task, linter enforcement"
+state: OPEN
+labels: '[{"name": "spec", "color": "ededed", "description": ""}]'

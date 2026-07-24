@@ -1,5 +1,5 @@
-labels: []
+labels: '[[]"'
 number: 1685
 state: CLOSED
-title: "[SPEC-FIX] \"attempted\" \u2192 \"performed\" in executing-plans completion\
+title: "[SPEC-FIX] \"attempted\" \u2192 \"performed\" in executing-plans completion\"
   \ gate wording"

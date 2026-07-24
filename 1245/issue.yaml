@@ -1,0 +1,4 @@
+number: 1245
+title: "[SPEC-FIX] pipeline-executor duplicated step table — mandate SKILL.md as single source, fix Z3 contract drift"
+state: OPEN
+labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'

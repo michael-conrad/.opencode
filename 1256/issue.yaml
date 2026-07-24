@@ -1,0 +1,4 @@
+number: 1256
+title: "[SPEC-FIX] Auditor Prompt Integrity Scan scope too broad — flags system-level context as dispatch contamination"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'

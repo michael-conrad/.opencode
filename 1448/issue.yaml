@@ -3,5 +3,5 @@ labels:
 - spec-fix
 number: 1448
 state: OPEN
-title: "[SPEC-FIX] Orchestrator bypasses cross-validate FAIL \u2014 hard gate treated\
+title: "[SPEC-FIX] Orchestrator bypasses cross-validate FAIL \u2014 hard gate treated\"
   \ as advisory note"

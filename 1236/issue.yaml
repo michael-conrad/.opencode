@@ -1,0 +1,4 @@
+number: 1236
+title: "[SPEC-FIX] Pipeline Dependency: Plan Creation Must Precede Pre-Work (Branch Creation)"
+state: OPEN
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}, {"name": "pipeline", "color": "ededed", "description": ""}]'

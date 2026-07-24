@@ -1,5 +1,4 @@
-labels: []
 number: 1684
+title: '[CLEANUP] Remove vestigial "unified pipeline path" / "single-task exemption"'
 state: CLOSED
-title: '[CLEANUP] Remove vestigial "unified pipeline path" / "single-task exemption"
-  / "work-of-1" references'
+labels: []

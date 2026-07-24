@@ -1,0 +1,12 @@
+--- michael-conrad @ 2026-06-19T16:28:38Z ---
+This bug description is misidentified. The root cause is not about worktree detection confusion between root and submodule repos — it's that `_discover_all_repos()` at `local-issues:265` includes the root repo's `.issues/` git worktree as a "child repo" because it finds a `.git` file there with no filter to distinguish worktrees (`.git` content contains `worktrees/`) from submodules (`.git` content contains `modules/`).
+
+The downstream effect: `_sync_repo()` probes `(issues_dir / ".git").is_file()` where `issues_dir = repo_path / ISSUES_DIR` = `.issues/.issues/` — a nested path that doesn't exist → reports `no_worktree`.
+
+The `_ensure_worktree()` guard at line 669 prevents actual nested directory creation under normal conditions, but the sync path still probes the wrong path.
+
+Corrected fix spec at #1300.
+
+🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+

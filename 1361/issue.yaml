@@ -1,5 +1,4 @@
-labels: []
 number: 1361
+title: "[SPEC] Auto-file bug reports for configuration defects surfaced as warnings"
 state: OPEN
-title: '[SPEC] Auto-file bug reports for configuration defects surfaced as warnings
-  during test/build'
+labels: '[]'

@@ -2,5 +2,5 @@ labels:
 - bug
 number: 1570
 state: OPEN
-title: "[BUG] 3 skill-invocation scenarios fail \u2014 model does not dispatch expected\
+title: "[BUG] 3 skill-invocation scenarios fail \u2014 model does not dispatch expected\"
   \ skills"

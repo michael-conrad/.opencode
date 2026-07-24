@@ -1,0 +1,4 @@
+number: 1296
+title: "[BUG] local-issues sync creates nested .issues/.issues/ directory in submodule repos"
+state: OPEN
+labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}]'

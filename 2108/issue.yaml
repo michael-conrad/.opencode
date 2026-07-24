@@ -1,0 +1,4 @@
+number: 2108
+title: "[BUG] Fabricated 'requires VPN' language keeps getting added back to specs"
+state: OPEN
+labels: '[{"name": "approved-for-pr", "color": "ededed", "description": ""}]'

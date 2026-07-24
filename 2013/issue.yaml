@@ -1,0 +1,4 @@
+number: 2013
+title: "[BUG] pre-red-baseline SUBMODULE-DRIFT check too strict for stacked PR workflows"
+state: OPEN
+labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn't working"}]'

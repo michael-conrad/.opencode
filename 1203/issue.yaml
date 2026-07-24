@@ -1,0 +1,4 @@
+number: 1203
+title: "[SPEC] remove bypass env vars from pre-push and pre-commit hooks, mandate feature branch + PR in error messages"
+state: OPEN
+labels: '[]'
