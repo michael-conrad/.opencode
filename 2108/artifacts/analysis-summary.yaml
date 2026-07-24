@@ -1,0 +1,14 @@
+spec_path: .opencode/.issues/2108/spec.md
+approval_status: APPROVED
+sc_count: 0
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - No affected files section found in spec
+blocker_reason: NO_SUCCESS_CRITERIA - spec has no success criteria table

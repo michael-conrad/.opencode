@@ -1,0 +1,53 @@
+spec_path: .opencode/.issues/2104/spec.md
+approval_status: approved
+approval_scope: for_pr
+sc_count: 0
+sc_table_found: false
+sc_finding: "No formal SC table with SC-IDs found. Spec uses 8 goal bullet points under ## Goals but no numbered success criteria with evidence types. This is a structural gap — the spec defines what to achieve but not in SC-table format required by writing-plans pipeline."
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+artifact_finding: "All 7 analytical artifacts are missing. The artifacts directory was created but empty. Artifacts must be generated before plan creation per spec-creation pipeline."
+scope_boundary_findings:
+  - file: spec-creation-decomposition/tasks/decompose.md
+    status: MISSING
+    note: "Spec references this path but actual skill tree uses skills/spec-creation/tasks/. No decompose.md exists in either location."
+  - file: writing-plans-creation/tasks/structure.md
+    status: PATH_MISMATCH
+    note: "Spec path writing-plans-creation/tasks/structure.md does not exist. Actual file at skills/writing-plans/tasks/structure.md."
+  - file: writing-plans-creation/tasks/write.md
+    status: MISSING
+    note: "Spec references this path. No write.md exists in skills/writing-plans/tasks/."
+  - file: implementation-pipeline/tasks/pipeline-executor.md
+    status: EXISTS
+    actual_path: skills/implementation-pipeline/tasks/pipeline-executor.md
+  - file: implementation-pipeline/tasks/tdd-chaining-gate.md
+    status: EXISTS
+    actual_path: skills/implementation-pipeline/tasks/tdd-chaining-gate.md
+  - file: spec-creation-validation/tasks/create.md
+    status: PATH_MISMATCH
+    note: "Spec path spec-creation-validation/tasks/create.md does not exist. Actual file at skills/spec-creation/tasks/create.md."
+  - file: .opencode/AGENTS.md
+    status: EXISTS
+    actual_path: .opencode/AGENTS.md
+  - file: guidelines/091-incremental-build.md
+    status: EXISTS
+    actual_path: guidelines/091-incremental-build.md
+  - file: test-driven-development/tasks/red.md
+    status: EXISTS
+    actual_path: skills/test-driven-development/tasks/red.md
+  - file: test-driven-development/tasks/green.md
+    status: EXISTS
+    actual_path: skills/test-driven-development/tasks/green.md
+  - file: .opencode/tests-v2/behaviors/per-sc-decomposition.sh
+    status: MISSING
+    note: "Behavioral test file does not exist yet (to be created in Phase 5)."
+  - file: .opencode/tests-v2/behaviors/tdd-chaining-multi-sc-block.sh
+    status: MISSING
+    note: "Behavioral test file does not exist yet (to be created in Phase 5)."
+summary: "Spec exists and is approved (for_pr). No formal SC table found — spec uses goal bullets instead of numbered SCs with evidence types. All 7 analytical artifacts are missing. 4 of 10 affected files have path mismatches between spec references and actual filesystem locations. 2 behavioral test files are not yet created (Phase 5). Plan creation requires SC table extraction and artifact generation before proceeding."

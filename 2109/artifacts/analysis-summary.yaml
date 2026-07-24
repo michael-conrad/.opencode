@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2109/spec.md
+approval_status: approved (for_pr)
+sc_count: 0
+sc_found: false
+blocker: NO_SUCCESS_CRITERIA
+blocker_detail: Spec has no formal success criteria table. "Proposed Fixes" is a numbered list (1-4), not an SC table with ID/Criterion/Evidence Type/Verification Method columns.
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings: []

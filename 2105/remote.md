@@ -1,8 +1,8 @@
 ---
-number: 2105
-title: "[SPEC-FIX] Agent MUST NOT merge PRs — human-only merge enforcement gap"
-state: OPEN
-approved: for_pr
+remote_issue: 2105
+remote_url: "https://github.com/michael-conrad/.opencode/issues/2105"
+last_sync: "2026-07-24T22:52:36Z"
+source: github
 ---
 
 > **Migrated from michael-conrad/opencode-config#308** — this issue concerns `.opencode/` submodule content and was refiled to the correct repository.
@@ -97,4 +97,3 @@ The `.opencode` submodule contains the skill files. The `opencode-config` parent
 ### DEP-1: No external dependencies
 
 This spec is self-contained.
-

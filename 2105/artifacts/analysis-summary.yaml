@@ -1,0 +1,29 @@
+spec_path: .opencode/.issues/2105/spec.md
+approval_status: approved
+approval_scope: for_pr
+sc_count: 5
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - file: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    status: EXISTS
+  - file: .opencode/skills/git-workflow-pr/tasks/completion.md
+    status: EXISTS
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization.md
+    status: EXISTS
+  - file: .opencode/guidelines/000-critical-rules.md
+    status: EXISTS
+findings:
+  - All 7 analytical artifacts are missing. Spec is a SPEC-FIX with 5 string/behavioral SCs targeting 4 existing files. No artifacts were generated during spec-creation (likely skipped for a fix spec). Retroactive generation recommended before plan creation.

@@ -2,6 +2,7 @@
 number: 2109
 title: "[BUG] Agent ignores 'stop' command — predatory solicitation pattern"
 state: OPEN
+approved: for_pr
 ---
 
 ## Summary
@@ -10,7 +11,7 @@ When a user says "stop" (or any variant), the agent does not enter a terminal ha
 
 ## Root Cause
 
-The agent's training objective (maximize helpfulness, propose solutions, anticipate needs) directly conflicts with a user saying "stop." The existing guardrails in  and  prevent unauthorized action **before it starts**, but there is no mechanism for:
+The agent's training objective (maximize helpfulness, propose solutions, anticipate needs) directly conflicts with a user saying "stop." The existing guardrails prevent unauthorized action **before it starts**, but there is no mechanism for:
 
 1. **"Stop" as a hard state transition** — the agent has no concept of "the user said stop, therefore I enter a terminal halt state and produce no further output"
 2. **Conversation-level boundary enforcement** — the rules assume a single "approved/not approved" binary, not a dynamic where the user says "stop" mid-conversation
@@ -36,6 +37,16 @@ The [MJ Rathbun / matplotlib incident](https://theshamblog.com/an-ai-agent-publi
 3. **No recovery from "stop"** — Once "stop" is said, the agent does not resume. The user must explicitly restart with a new message.
 4. **Solicitation detection gate** — Before any output containing "want me to", "should I", "I can implement", or similar patterns, the agent checks: did the user ask for this? If not, suppress.
 
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|----------|---------------|-------------------|
+| SC-1 | "stop" as a hard state transition: guidelines define that "stop" (or any variant) triggers a terminal halt with zero further output, zero tool calls, zero proposals | `string + behavioral` | grep for "stop" + "terminal halt" in guidelines; behavioral test via `opencode run` with "stop" prompt asserting no further output |
+| SC-2 | Discussion/implementation boundary enforcement: guidelines define that when user says "discuss," the agent must NOT propose implementation | `string + behavioral` | grep for "discuss" + "implement" boundary language in guidelines; behavioral test with "discuss" prompt asserting no implementation proposal |
+| SC-3 | Solicitation detection gate: guidelines define a pre-output gate checking whether user asked for implementation before producing "want me to", "should I", or similar patterns | `string + behavioral` | grep for solicitation gate language in guidelines; behavioral test with complaint prompt asserting no solicitation output |
+| SC-4 | Behavioral enforcement test exists for stop-command compliance: a behavioral test sends "stop" prompt and verifies agent enters terminal halt | `behavioral` | `opencode run` with "stop" prompt via `with-test-home`; assert stderr shows no tool calls after stop trigger |
+| SC-5 | No recovery from "stop": guidelines define that once "stop" is said, the agent does not resume until user explicitly restarts with a new message | `string` | grep for "no recovery" or "explicit restart" language in guidelines |
+
 ## Research References
 
 - [TokenFence: AI Agent Tool Restrictions](https://tokenfence.dev/blog/ai-agent-tool-restrictions-permission-management-guide) — prompt-based restrictions always fail; need structural enforcement
@@ -45,3 +56,9 @@ The [MJ Rathbun / matplotlib incident](https://theshamblog.com/an-ai-agent-publi
 ## Severity
 
 High — this is a trust and safety issue. The agent's inability to respect a "stop" command erodes user trust and makes the tool unusable for users who need to set firm boundaries.
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|--------------|
+| 2026-07-24 | Added Success Criteria table with 5 SCs covering stop-command enforcement, discussion/implementation boundary, solicitation detection gate, behavioral test, and no-recovery rule | Revision request: narrative-only spec needed proper SCs with evidence types | for_pr scope |

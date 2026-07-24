@@ -1,8 +1,8 @@
 ---
-number: 2104
-title: "[SPEC] Per-SC RED/GREEN Decomposition"
-state: OPEN
-approved: for_pr
+remote_issue: 2104
+remote_url: "https://github.com/michael-conrad/.opencode/issues/2104"
+last_sync: "2026-07-24T22:52:43Z"
+source: github
 ---
 
 > **Migrated from michael-conrad/opencode-config#303** — this issue concerns `.opencode/` submodule content and was refiled to the correct repository.
@@ -118,4 +118,3 @@ The root cause is a **three-layer granularity mismatch** where each layer decomp
 
 1. Create behavioral test that verifies the plan writer produces per-SC items.
 2. Create behavioral test that verifies the TDD chaining gate BLOCKs on multi-SC items.
-
