@@ -32,9 +32,10 @@ Decompose success criteria into implementation phases, build a dependency DAG be
 4. Build a dependency DAG between phases:
    - Identify which phases depend on the output of other phases
    - Record the dependency edges in the structure artifact
-5. For each phase, select the skill+task from the implementation-pipeline Trigger Dispatch Table that will implement it:
+5. For each phase, map SCs to items by reading `sc-summary.yaml` and creating one item per SC:
    - Load `skill({name: "implementation-pipeline"})` and read its Trigger Dispatch Table
-   - Map each phase to the appropriate skill+task entry
+   - Map each SC to an individual item with its own RED/GREEN/verify/commit cycle
+   - Each item references exactly one SC-ID
 6. Write the structure artifact to `{issues_prefix}/{N}/artifacts/structure.yaml`:
    - Phase list with SC assignments
    - Dependency DAG edges

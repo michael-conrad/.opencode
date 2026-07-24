@@ -37,17 +37,18 @@ Read the step's dispatch indicator from the plan:
 | `(**sub-agent**)` | `task(subagent_type="general", prompt: "{step_description}")` with issue_number, plan_path, step_number, authorization_scope, halt_at | Full context |
 | `(**clean-room**)` | `task(subagent_type="general", prompt: "{step_description}")` with issue_number only | Routing metadata only |
 
-### 3. Per-Item Checkpoint
+### 3. Per-SC Checkpoint
 
 After each step completes with status DONE:
-1. Create checkpoint tag: `git tag {parent}/checkpoint/{issue}/item-{step_number}` (exact format per git-workflow convention)
-2. Update work state: set `work.md` entry for this step to `status: completed`
+1. Create checkpoint tag with SC-ID: `git tag {parent}/checkpoint/{issue}/sc-{SC-ID}` (SC-ID from the step's spec reference)
+2. Verify the checkpoint tag references the correct SC-ID by reading the spec's sc-summary.yaml
+3. Update work state: set `work.md` entry for this step to `status: completed`
 
-### 4. Per-Item Verification
+### 4. Per-SC Verification
 
 Before proceeding to the next step:
-1. If the step was executed inline: the orchestrator verifies the step's SCs directly
-2. If the step was dispatched via `task()`: verify the sub-agent's result contract has `status: DONE`
+1. If the step was executed inline: the orchestrator verifies the step's SC directly
+2. If the step was dispatched via `task()`: verify the sub-agent's result contract has `status: DONE` and references the correct SC-ID
 3. On FAIL: remediate per the pipeline's remediation routing, then re-attempt the step
 
 ### 5. Advance to Next Step
@@ -60,15 +61,16 @@ Before proceeding to the next step:
 
 When all steps have been processed:
 - [ ] 1. Verify all steps have `status: completed` in work state
-- [ ] 2. Verify checkpoint tags exist for all items
-- [ ] 3. Append lifecycle event: `{event: pipeline_complete, step_count: N, status: PASS}`
-- [ ] 4. Return result contract with `status: DONE` and `artifact_path`
+- [ ] 2. Verify checkpoint tags exist for all SCs (one tag per SC-ID)
+- [ ] 3. Verify each SC-ID has a corresponding checkpoint tag
+- [ ] 4. Append lifecycle event: `{event: pipeline_complete, step_count: N, sc_count: M, status: PASS}`
+- [ ] 5. Return result contract with `status: DONE` and `artifact_path`
 
 ## Verification
 
 - [ ] gor step indicator is present and valid for every step
 - [ ] gor batch indicator never present — BLOCK on `per-phase` or `batched`
-- [ ] All checkpoint tags follow per-item pattern
+- [ ] All checkpoint tags follow per-SC pattern with SC-ID
 - [ ] Work state has one entry per step
 
 ## Cross-References

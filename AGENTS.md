@@ -70,6 +70,14 @@ Agents who treat "continue" as a skip command are not being helpful — they are
 
 ---
 
+## Per-SC Decomposition
+
+Every SC in a spec maps to exactly one RED/GREEN/verify/commit cycle. The plan writer produces per-SC items, not per-file or per-concern items. The pipeline executor checkpoints per SC, not per step. The TDD chaining gate BLOCKs any item covering multiple SCs.
+
+Read [091-incremental-build.md](guidelines/091-incremental-build.md) for the per-item TDD cycle mandate. Read [`.issues/research-cards/per-sc-decomposition-industry-standards.md`](.issues/research-cards/per-sc-decomposition-industry-standards.md) for industry standards research.
+
+---
+
 ## Reference Documents
 
 | Document | Purpose |

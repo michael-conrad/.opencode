@@ -158,6 +158,13 @@ Breaks agent config loading. Read [§2](guidelines/060-tool-usage.md).
 ### [critical-rules-052] CRITICAL VIOLATION — `git rm` and file deletion require spec + authorization
 `git rm` and file deletion require spec + authorization — CRITICAL VIOLATION to perform without both.
 
+
+### [critical-rules-merge] CRITICAL VIOLATION — Human-Only Merge — agents MUST NOT merge PRs
+Only the developer can merge PRs. The `github_merge_pull_request` tool is FORBIDDEN for agent use. Enforced at three gates:
+- **PR creation gate** (`.opencode/skills/git-workflow-pr/tasks/pr-creation.md`): HALT after PR creation — do not merge
+- **Completion gate** (`.opencode/skills/git-workflow-pr/tasks/completion.md`): Check that merge was not called during session
+- **Authorization gate** (`.opencode/skills/approval-gate-scope/tasks/verify-authorization.md`): Block merge requests with HALT
+
 Deleting a tracked file from the repository is a destructive operation equivalent to any code change. It requires:
 1. A spec (SPEC-FIX or SPEC) describing what is being deleted and why
 2. Explicit authorization ("approved" or "go")

@@ -30,6 +30,8 @@ These are FALSE — they describe the absence of a feature, not the event of a t
 
 ## Required RED Structure
 
+The RED phase targets exactly one SC from the spec. Reference the SC-ID in the test file path or test name.
+
 | Field | Description |
 |-------|-------------|
 | Test file path | Permanent test storage path |

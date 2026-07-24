@@ -17,6 +17,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] 2. **Squash to single commit:** ALL implementation commits combined into ONE clean commit
 - [ ] 3. **Target `$DEFAULT_BRANCH` branch:** Feature PRs merge to `$DEFAULT_BRANCH` (not `main`)
 - [ ] 4. **HALT after PR creation:** No prompting for next steps
+- [ ] 5. **Human-only merge:** After PR creation, HALT — do not merge. Only the developer can merge. The `github_merge_pull_request` tool is FORBIDDEN for agent use.
 
 ## Entry Criteria
 
