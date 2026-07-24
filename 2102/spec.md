@@ -2,53 +2,47 @@
 
 ## Problem
 
-The `session-enforcement.ts` plugin leaks diagnostic output to the terminal display. The `session-init` tool uses `print()` to stdout, which is supposed to be captured by the plugin via `execSync` and injected into the system prompt. However, this output is appearing on the terminal, destroying the display with "Developer:", "Email:", "Git branch:", "project_root:", and "## Repo Information" sections.
+The `session-enforcement.ts` plugin has been rewritten from scratch (now 83 lines, zero `console.log`/`console.error`/`process.stdout`). The rewrite eliminated the original 968-line mixed-concern plugin. The current plugin uses only two hooks: `system.transform` (inject session-init output via execSync) and `messages.transform` (strip synthetic mode-switch messages). It does NOT install git hooks, run a git config watchdog, load skill frontmatter, or build a skill index.
 
-This is a regression — the code did not do this before. The plugin has accumulated 968 lines of mixed concerns (hook installation, git config watchdog, secret redaction, skill indexing, frontmatter validation, sub-agent detection, trigger injection, mode-switch stripping) with no clear separation of concerns. The `session-init` tool's stdout-based output mechanism is fundamentally wrong — it should write to a file, not print to stdout.
+However, three features from the original spec were never implemented:
+
+1. **Trigger warnings injection** (SC-4) — the plugin does not inject trigger warnings into the first user message
+2. **Sub-agent session detection** (SC-6) — the plugin does not detect sub-agent sessions via the `event` hook
+3. **session-init output mechanism** (SC-7) — `session-init` (634 lines) still uses `print()` to stdout, relying on the plugin's execSync capture. It should write to a temp file instead.
+
+Additionally, SC-5 (secret redaction) was delegated to the opencode-vibeguard plugin and will not be implemented here.
 
 ## Solution
 
-Replace `session-enforcement.ts` with a fresh plugin written from scratch. The new plugin must:
+Implement the three remaining features:
 
-1. **Emit zero output to stdout/stderr** — no `console.log`, `console.error`, `console.warn`, or any other terminal output
-2. **Read session-init output from a file** — `session-init` writes to `{project_root}/tmp/session-context.yaml` instead of printing to stdout
-3. **Use only the `experimental.chat.system.transform` hook** — inject session context, guidelines index, and skill index into the system prompt
-4. **Use only the `experimental.chat.messages.transform` hook** — inject trigger warnings (first-turn only), redact secrets (per-turn)
-5. **Use the `event` hook** — detect sub-agent sessions via `session.created`
-6. **Do NOT install git hooks** — hook installation is a separate concern, not a plugin responsibility
-7. **Do NOT run git config mutation watchdog** — this is a per-turn concern that produces noise, not actionable enforcement
-8. **Do NOT load/validate skill frontmatter** — this is a build-time concern, not a runtime plugin concern
-9. **Do NOT build skill index** — the skill index is already provided by the opencode runtime via `<available_skills>`
+1. **session-init writes to a temp file** — Replace `print()` calls in `session-init` with YAML file writes to `{project_root}/tmp/session-context.yaml`. The plugin reads this file in the `system.transform` hook instead of capturing stdout via execSync.
+2. **Trigger warnings injection** — Add trigger detection to the `messages.transform` hook. On the first user message of a primary session, inject trigger warnings (pair mode resume, nested opencode fatal) into the message content.
+3. **Sub-agent session detection** — Add an `event` hook that detects sub-agent sessions via `session.created`. When a sub-agent session is detected, skip first-turn trigger injections.
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | Plugin produces zero output to stdout/stderr during normal operation | `behavioral` | Run `opencode run "hello"` with the plugin loaded; verify no "Developer:", "Email:", "Git branch:", "project_root:", or "## Repo Information" lines appear in terminal output |
-| SC-2 | Session context (repo info, project_root, dev name/email) is injected into the system prompt | `behavioral` | Verify system prompt contains `## Repo Information`, `project_root:`, `Developer:`, `Email:` sections |
-| SC-3 | Guidelines index is injected into the system prompt | `string` | Verify system prompt contains `### Guidelines Index (Progressive Disclosure)` |
 | SC-4 | Trigger warnings are injected into the first user message of primary sessions only | `behavioral` | Verify first user message of primary session contains `### Session Triggers`; verify sub-agent sessions do NOT contain it |
-| SC-5 | Secrets are redacted from all assistant messages | `behavioral` | Send a message containing a secret pattern; verify the assistant response has it redacted |
 | SC-6 | Sub-agent sessions are detected and first-turn injections are skipped | `behavioral` | Verify sub-agent sessions do not receive first-turn trigger injections |
 | SC-7 | `session-init` writes to a temp file, not stdout | `string` | Verify `session-init` has no `print()` calls for context output; verify it writes to `{project_root}/tmp/session-context.yaml` |
-| SC-8 | Plugin does NOT install git hooks | `string` | Verify no hook installation code exists in the plugin |
-| SC-9 | Plugin does NOT run git config mutation watchdog | `string` | Verify no git config comparison code exists in the plugin |
-| SC-10 | Plugin does NOT load/validate skill frontmatter | `string` | Verify no `loadSkillDescriptions` or `extractFrontmatter` code exists in the plugin |
-| SC-11 | Plugin does NOT build skill index | `string` | Verify no `buildSkillIndex` or `extractTriggerPatterns` code exists in the plugin |
 
 ## Affected Files
 
-- `.opencode/plugins/session-enforcement.ts` — replace entirely
+- `.opencode/plugins/session-enforcement.ts` — add trigger injection and sub-agent detection
 - `.opencode/tools/session-init` — change output mechanism from `print()` to file write
 
 ## Non-Goals
 
+- Do NOT implement secret redaction (SC-5) — delegated to opencode-vibeguard plugin
 - Do NOT modify `env-loader.ts` — that plugin is a separate concern
 - Do NOT modify any skill files, guideline files, or test files
 - Do NOT modify hook scripts in `.opencode/hooks/`
+- Do NOT re-add git hook installation, git config watchdog, skill frontmatter loading, or skill index building to the plugin
 
 ## Implementation Notes
 
-The new plugin should be a single file under 300 lines. The `session-init` tool should write its output to `{project_root}/tmp/session-context.yaml` (or similar), and the plugin should read that file in the `system.transform` hook. If the file doesn't exist (first run), the plugin should run `session-init` once to generate it.
+The `session-init` tool's `print()` calls should be replaced with YAML file writes to `{project_root}/tmp/session-context.yaml`. The plugin reads the YAML file in the `system.transform` hook. If the file doesn't exist (first run), the plugin should run `session-init` once to generate it. This eliminates all terminal output from the session-init pipeline.
 
-The `session-init` tool's `print()` calls should be replaced with YAML file writes. The plugin reads the YAML file and injects it into the system prompt. This eliminates all terminal output from the session-init pipeline.
+Trigger injection should detect pair mode resume and nested opencode fatal states. Sub-agent detection uses the `event` hook with `session.created` to identify sub-agent sessions and skip first-turn injections.
