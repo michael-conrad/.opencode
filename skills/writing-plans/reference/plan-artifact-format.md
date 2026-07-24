@@ -157,56 +157,9 @@ Steps are numbered sequentially across ALL phase files. Phase 2's first step con
 
 ---
 
-## 5. Validation Rules
+## 5. Full Example
 
-### 5.1 Structural Rules
-
-| # | Rule | Enforcement |
-|---|------|-------------|
-| R1 | Title matches issue number and description | `writing-plans --task validate` |
-| R2 | Goal, Architecture, Files present and non-empty | `writing-plans --task validate` |
-| R3 | At least one phase section | `writing-plans --task validate` |
-| R4 | Each phase has Concern, Files, SCs, Dependencies | `writing-plans --task validate` |
-| R5 | Each phase has checkbox steps (`- [ ] N.`) | `writing-plans --task validate` |
-| R6 | Each step has a dispatch indicator | `writing-plans --task validate` |
-| R7 | Exit criteria present and numbered C1-C{N} | `writing-plans --task validate` |
-| R8 | Phase completion block present after last step | `writing-plans --task validate` |
-| R9 | Concern transition present between phases | `writing-plans --task validate` |
-
-### 5.2 Semantic Rules
-
-| # | Rule | Enforcement |
-|---|------|-------------|
-| R10 | Every Skill+Task reference exists in `implementation-pipeline/SKILL.md` Trigger Dispatch Table | `writing-plans --task validate` (dispatch marker check) |
-| R11 | Every SC maps to at least one phase | `audit --task plan-fidelity` |
-| R12 | Dependencies form a valid DAG (no circular dependencies) | `solve --task check` (Z3 verification) |
-| R13 | Each phase addresses exactly one concern | `audit --task plan-fidelity` |
-| R14 | Context blocks contain input parameters only (no procedural steps) | `audit --task plan-fidelity` |
-| R15 | No TBD/TODO — all file paths, function names, and commands must be exact | `writing-plans --task validate` |
-| R16 | No zero-indexed numbering — phases start at 1, steps start at 1 | `writing-plans --task validate` |
-| R17 | No line number references — use stable anchors (function names, section headers) | `writing-plans --task validate` |
-| R18 | No multi-dispatch steps — every step dispatches exactly one sub-agent or executes inline | `writing-plans --task validate` |
-| R19 | No omitted mandatory gates — all implementation-pipeline gate steps are mandatory | `audit --task plan-fidelity` |
-
-### 5.3 Dispatch Marker Validation
-
-Every `Skill`+`Task` pair in the phase table MUST be verified against the filesystem:
-
-```bash
-# Verify skill exists
-ls .opencode/skills/<skill-name>/SKILL.md
-
-# Verify task exists in the skill's dispatch table
-grep "<task-name>" .opencode/skills/<skill-name>/SKILL.md
-```
-
-If either check fails, the plan is INVALID and MUST be rejected.
-
----
-
-## 6. Full Example
-
-### 6.1 Plan Index (`plan.md`)
+### 5.1 Plan Index (`plan.md`)
 
 ```yaml
 ---
@@ -332,7 +285,7 @@ test_cases:
 
 ---
 
-### 6.2 Phase 1 File (`plan-01-pydantic-model.md`)
+### 5.2 Phase 1 File (`plan-01-pydantic-model.md`)
 
 # Phase 1 — Pydantic Model
 
@@ -368,7 +321,7 @@ test_cases:
 
 ---
 
-### 6.3 Phase 2 File (`plan-02-middleware-integration.md`)
+### 5.3 Phase 2 File (`plan-02-middleware-integration.md`)
 
 # Phase 2 — Middleware Integration
 
@@ -398,17 +351,17 @@ test_cases:
 
 #### Phase 2 VbC
 
-- [ ] 10. **VbC (**clean-room**).** Verify route returns 422 for invalid payload with correct error structure. **→ SC-3**
+- [ ] 10. **VbC (**clean-room**).** Verify route returns 422 for invalid payload, 200 for valid. **→ SC-3**
 
-**Concern transition:** Leaving middleware integration → entering test coverage. Phase 3 depends on Phase 1's model and Phase 2's route integration.
+**Concern transition:** Leaving middleware integration → entering test coverage expansion. Phase 3 depends on Phase 2's validation logic.
 
 ---
 
-### 6.4 Phase 3 File (`plan-03-test-coverage.md`)
+### 5.4 Phase 3 File (`plan-03-test-coverage.md`)
 
 # Phase 3 — Test Coverage
 
-**Concern:** Cover all validation paths with behavioral tests.
+**Concern:** Expand test coverage for validation edge cases.
 
 **Files:**
 - `test/test_register.py`
@@ -418,82 +371,20 @@ test_cases:
 **Dependencies:** Phase 1, Phase 2
 
 **Entry Conditions:**
-- Phase 1 complete: `RegistrationInput` model exists
 - Phase 2 complete: route handler validates input
+- Phase 2 VbC passed
 
 **Exit Conditions:**
 - All 4 test cases pass
-- Regression tests pass
+- Coverage includes invalid email, short password, out-of-range age, and valid payload
 
 ---
 
-- [ ] 11. **RED (**sub-agent**).** Write failing tests for all 4 test cases. **→ SC-4**
-- [ ] 12. **GREEN (**sub-agent**).** Implement test cases, wire up to route handler. **→ SC-4**
+- [ ] 11. **RED (**sub-agent**).** Write failing test for missing email field. **→ SC-4**
+- [ ] 12. **GREEN (**sub-agent**).** Add test cases for all 4 scenarios. **→ SC-4**
 - [ ] 13. **GREEN doublecheck (**clean-room**).** Verify all 4 test cases pass. **→ SC-4**
 - [ ] 14. **Checkpoint commit (**inline**).** Commit test coverage.
-- [ ] 15. **Regression check (**sub-agent**).** Run full test suite, verify no regressions. **→ SC-4**
 
 #### Phase 3 VbC
 
-- [ ] 16. **VbC (**clean-room**).** Verify all 4 test cases pass, regression suite clean. **→ SC-4**
-
----
-
-## 7. DAG Validation
-
-Dependencies MUST form a valid directed acyclic graph. The Z3 solver (`solve --task check`) validates this property.
-
-### Valid DAG Example
-
-```
-Phase 1 — PREREQ: none
-Phase 2 — PREREQ: Phase 1
-Phase 3 — PREREQ: Phase 1, Phase 2
-```
-
-### Invalid DAG Examples
-
-```
-# Circular dependency
-Phase 1 — PREREQ: Phase 3
-Phase 2 — PREREQ: Phase 1
-Phase 3 — PREREQ: Phase 2
-
-# Missing dependency
-Phase 2 — PREREQ: Phase 1  (but Phase 1 does not exist)
-```
-
----
-
-## 8. SC Coverage Matrix
-
-Every SC from the spec MUST map to at least one phase. The SC coverage matrix is a validation artifact:
-
-```yaml
-# sc-coverage.yaml
-coverage:
-  SC-1: [Phase 1]
-  SC-2: [Phase 1]
-  SC-3: [Phase 2]
-  SC-4: [Phase 3]
-uncovered: []
-```
-
-An SC that maps to zero phases is a defect — the plan is incomplete.
-
----
-
-## 9. Cross-References
-
-| Document | Purpose |
-|----------|---------|
-| `writing-plans/tasks/create.md` | Plan file writing procedure |
-| `writing-plans/tasks/create.md` | Phase structure definition |
-| `writing-plans/tasks/validate.md` | Plan validation procedure |
-| `implementation-pipeline/SKILL.md` | Trigger Dispatch Table (canonical skill+task references) |
-| `audit/tasks/plan-fidelity.md` | Plan fidelity audit |
-| `solve/tasks/check.md` | Z3 dependency DAG validation |
-
----
-
-🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+- [ ] 15. **VbC (**clean-room**).** Verify all 4 test cases pass, coverage meets SC-4. **→ SC-4**
