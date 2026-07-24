@@ -66,15 +66,7 @@ if [ -x "$PARENT_REPO_DIR/.tools/opencode/opencode" ]; then
     export PATH="$PARENT_REPO_DIR/.tools/opencode:$PATH"
 fi
 
-if command -v opencode &>/dev/null; then
-    OPENCODE_CMD=("$(command -v opencode)")
-elif [ -x /usr/bin/opencode-cli ]; then
-    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
-    OPENCODE_CMD=(/usr/bin/opencode-cli)
-else
-    echo "FATAL: no opencode binary found" >&2
-    exit 1
-fi
+OPENCODE_CMD=("opencode")
 BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PARENT_REPO_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-2}"
@@ -380,14 +372,20 @@ behavior_get_stderr() {
     cat "$BEHAVIOR_STDERR"
 }
 
-HELPERS_OC_MODELS=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
-mapfile -t BEHAVIORAL_MODEL_POOL <<< "$HELPERS_OC_MODELS"
-unset HELPERS_OC_MODELS
-if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
-    echo "WARNING: no cloud models found via 'opencode models' — BEHAVIORAL_MODEL_POOL empty" >&2
-fi
+__init_model_pool() {
+    if [ ${#BEHAVIORAL_MODEL_POOL[@]} -gt 0 ]; then
+        return
+    fi
+    local models
+    models=$("${OPENCODE_CMD[@]}" models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
+    mapfile -t BEHAVIORAL_MODEL_POOL <<< "$models"
+    if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
+        echo "WARNING: no cloud models found via 'opencode models' — BEHAVIORAL_MODEL_POOL empty" >&2
+    fi
+}
 
 behavior_run_pool() {
+    __init_model_pool
     local scenario_name="$1"
     local message="$2"
 
