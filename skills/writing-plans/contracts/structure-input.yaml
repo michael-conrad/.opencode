@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+schema_version: "1.0"
+issue_number: {{issue_number}}
+project_root: {{project_root}}
+issues_prefix: {{issues_prefix}}

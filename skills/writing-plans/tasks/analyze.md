@@ -1,8 +1,12 @@
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
 # Task: analyze
 
 ## Purpose
 
-Verifies that a local spec exists, validates its analytical artifacts, checks scope boundaries, and confirms spec approval from frontmatter before plan creation proceeds.
+Verify spec exists locally, check approval from frontmatter, validate analytical artifacts exist.
 
 ## Task Discipline
 
@@ -13,9 +17,12 @@ Verifies that a local spec exists, validates its analytical artifacts, checks sc
 
 ## Entry Criteria
 
+- `{issues_prefix}/{N}/spec.md` must exist
+  - If missing: return BLOCKED with `SPEC_NOT_FOUND` and the resolved path
+- The spec frontmatter `approved` field must be present and truthy
+  - If not approved: return BLOCKED with `SPEC_NOT_APPROVED`
 - The issue number `{N}` must be provided
 - The project root and issues prefix must be set
-- The spec file must exist at `{issues_prefix}/{N}/spec.md`
 
 ## Procedure
 

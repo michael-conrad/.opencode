@@ -1,8 +1,8 @@
-# Task: retroactive
+# Task: backfill
 
 ## Purpose
 
-Backfills missing analytical artifacts from the spec body and codebase inspection when a plan is being created for an existing spec that lacks artifacts, then produces an analysis summary.
+Generates missing analytical artifacts from the spec body when spec-creation did not produce them, enabling retroactive plan creation for pre-existing specs.
 
 ## Task Discipline
 
@@ -20,12 +20,12 @@ Backfills missing analytical artifacts from the spec body and codebase inspectio
 ## Procedure
 
 1. Verify the spec file exists at `{issues_prefix}/{N}/spec.md`.
-   - If missing: return BLOCKED with `SPEC_NOT_FOUND`.
+   - If missing: return BLOCKED with `SPEC_NOT_FOUND` and the resolved path.
 2. Read the spec body and extract success criteria, affected files, and scope information.
 3. Check for existing analytical artifacts at `{issues_prefix}/{N}/artifacts/`.
-   - If all 7 artifacts exist: use them as-is, skip to step 6.
+   - If all 7 artifacts exist: return DONE with no backfill needed.
    - If any artifact is missing: proceed to backfill.
-4. For each missing artifact, backfill from the spec body and codebase inspection:
+4. For each missing artifact, backfill from the spec body:
    - `blast-radius.yaml`: Extract affected files from spec, verify each exists in codebase.
    - `concern-map.yaml`: Decompose SCs into concern groups, map each to a phase boundary.
    - `code-path-inventory.yaml`: List code paths implied by each SC.

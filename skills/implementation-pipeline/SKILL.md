@@ -66,6 +66,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "green-vbc" / "verification before completion" | `green-vbc` | `verification-before-completion --task completion` | `sub-task` | {issue_number} |
 | "sc-count-gate" / "SC count gate" | `sc-count-gate` | Reads `sc-summary.yaml` total SC count, counts verified SCs from VbC evidence, BLOCKs if `verified_count < total_count` (any SC has no verdict) | `sub-task` | {issue_number} |
 | "pre-pr-gate" / "pre-PR gate" | `pre-pr-gate` | `verification-before-completion --task verify` — reads all SC verdicts, BLOCKs if any FAIL | `sub-task` | {issue_number} |
+| "rationalization-check" / "check for rationalization" | `rationalization-check` | `verification-before-completion --task verify` — dispatches clean-room sub-agent to evaluate whether proposed action is a rationalization. Sub-agent receives ONLY proposed action + rule text. Returns BLOCKED with REMEDIATION_MANDATORY if rationalization detected. | `sub-task` | {issue_number, proposed_action, rule_text} |
 | "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `audit --task cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
@@ -87,7 +88,7 @@ Read [pre-flight verification and authorization context requirements](implementa
 
 ## Step Labels (for #932 naming convention)
 
-`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `sc-count-gate`, `pre-pr-gate`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
+`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `sc-count-gate`, `pre-pr-gate`, `rationalization-check`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
 
 ## Invocation
 
