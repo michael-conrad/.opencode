@@ -24,6 +24,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 """
 
 import argparse
+import configparser
 import os
 import re
 import shutil
@@ -201,41 +202,30 @@ def _issues_branch_exists(repo_path: Path | None = None) -> bool:
 
 
 def _discover_all_repos() -> list[Path]:
-    """Discover parent repo + immediate child repos via filesystem glob.
+    """Discover parent repo + child repos via .gitmodules parsing.
 
-    Scans three patterns from project root:
-    - `.git/` -- parent repo
-    - `*/.git/` -- submodule/git-repo directories
-    - `*/.git` -- submodule gitlink files (non-bare check)
-
-    No recursion. No .gitmodules parsing.
+    Root repo is always first. Child repos come exclusively from
+    .gitmodules entries. No filesystem glob, no worktree detection.
     """
     root = Path(os.getcwd()).resolve()
-    repos: list[Path] = []
+    repos: list[Path] = [root]
 
-    # 1. Parent repo
-    repos.append(root)
+    gitmodules = root / ".gitmodules"
+    if not gitmodules.exists():
+        return repos
 
-    # 2. Child repos via glob
-    for entry in sorted(root.iterdir()):
-        if not entry.is_dir():
+    config = configparser.ConfigParser()
+    config.read(str(gitmodules))
+    for section in config.sections():
+        if not section.startswith("submodule "):
             continue
-        git_ref = entry / ".git"
-        if git_ref.exists():
-            if git_ref.is_file():
-                content = git_ref.read_text(encoding="utf-8")
-                if "worktrees" in content:
-                    continue
-            resolved = entry.resolve()
-            if resolved not in repos:
-                result = subprocess.run(
-                    ["git", "-C", str(resolved), "rev-parse", "--is-bare-repository"],
-                    capture_output=True, text=True, timeout=15,
-                )
-                if result.returncode == 0 and result.stdout.strip() == "false":
-                    repos.append(resolved)
+        path_val = config.get(section, "path", fallback="")
+        if not path_val:
+            continue
+        child = (root / path_val).resolve()
+        if child.is_dir() and child not in repos:
+            repos.append(child)
 
-    repos.sort(key=lambda p: str(p))
     return repos
 
 

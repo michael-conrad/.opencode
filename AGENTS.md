@@ -117,6 +117,8 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | TypeScript check | `PATH=.tools/node/bin:$PATH npx tsc --noEmit` | TypeScript |
 | TypeScript check (alt) | `PATH=.node/bin:$PATH npx tsc --noEmit` | TypeScript |
 | Isolated opencode run | `bash .opencode/tests-v2/with-test-home opencode run '<message>'` | opencode |
+| Run tool unit tests | `uv run pytest .opencode/tests/` | Python (.opencode/tools/) |
+| Run tool unit tests (coverage) | `uv run pytest .opencode/tests/ --cov=.opencode/tools/session_init/ --cov-report=term-missing` | Python (.opencode/tools/) |
 | Clean test artifacts | `bash .opencode/tests-v2/with-test-home --clean` | opencode |
 
 **Never** use bare `python`, `python3`, or `pip`. Always prefix with `uv run` for project commands.

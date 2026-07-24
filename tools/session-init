@@ -51,8 +51,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+_parent_dir = Path(__file__).resolve().parent
+if str(_parent_dir) not in sys.path:
+    sys.path.insert(0, str(_parent_dir))
+
+from session_init.auth import check_cli_auth_status  # type: ignore[import-untyped]
+
 GIT_TIMEOUT = 10
-NETWORK_TIMEOUT = 5
 
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
@@ -77,7 +82,7 @@ def run_git_command(args: list[str]) -> str | None:
         if result.returncode == 0:
             return result.stdout.strip()
     except subprocess.TimeoutExpired:
-        print(f"git {' '.join(args)} timed out after {GIT_TIMEOUT}s", file=sys.stderr)
+        pass
     except (subprocess.SubprocessError, OSError):
         pass
     return None
@@ -131,26 +136,6 @@ def parse_repo_url(url: str) -> tuple[str, str, str] | tuple[None, None, None]:
     return None, None, None
 
 
-def _read_gitbucket_url_from_env() -> str | None:
-    """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
-    try:
-        _env_path = PROJECT_ROOT / ".env"
-        if _env_path.exists():
-            html_url = None
-            legacy_url = None
-            with open(_env_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith("GITBUCKET_HTML_URL="):
-                        html_url = line.split("=", 1)[1].strip()
-                    elif line.startswith("GITBUCKET_URL="):
-                        legacy_url = line.split("=", 1)[1].strip()
-            return html_url or legacy_url
-    except OSError:
-        pass
-    return None
-
-
 def get_remote_url() -> str | None:
     """Get origin remote URL or None if not configured."""
     return run_git_command(["remote", "get-url", "origin"])
@@ -169,104 +154,9 @@ def check_srclight() -> str:
         if file_size > 0:
             return "indexed"
         else:
-            print(
-                "Srclight index is empty. Run: uvx srclight index --embed qwen3-embedding",
-                file=sys.stderr,
-            )
             return "empty"
     else:
-        print(
-            "Srclight index not found. Run: uvx srclight index --embed qwen3-embedding",
-            file=sys.stderr,
-        )
         return "not_indexed"
-
-
-def check_cli_auth_status() -> list[str]:
-    """Check gh and gb CLI auth status. Returns list of status lines.
-
-    For each CLI:
-    - Check if binary exists via shutil.which()
-    - If installed, run auth status with short timeout (5s) and non-interactive flags
-    - Parse output for logged-in status — extract minimal one-liner
-    - Redact any sensitive values (tokens, emails)
-    - If not installed, skip silently — no output for that CLI
-
-    Returns an empty list if no CLIs are installed.
-    """
-    status_lines: list[str] = []
-
-    # Check gh
-    gh_path = shutil.which("gh")
-    if gh_path:
-        try:
-            result = subprocess.run(
-                ["gh", "auth", "status", "--no-interactive"],
-                capture_output=True,
-                text=True,
-                check=False,
-                stdin=subprocess.DEVNULL,
-                timeout=NETWORK_TIMEOUT,
-            )
-            if result.returncode == 0:
-                # Parse: "github.com\n  ✓ Logged in to github.com as user (token)..."
-                # Extract account name and host
-                line = (result.stdout or result.stderr or "").strip()
-                # Redact tokens/emails — keep only host and account
-                match = re.search(
-                    r"Logged in to (\S+) as (\S+)",
-                    line,
-                )
-                if match:
-                    host = match.group(1)
-                    account = match.group(2)
-                    status_lines.append(
-                        f"gh: ✓ Logged in to {host} account {account}"
-                    )
-                else:
-                    status_lines.append("gh: ✓ Logged in")
-            else:
-                status_lines.append("gh: not_logged_in")
-        except subprocess.TimeoutExpired:
-            status_lines.append("gh: timeout")
-        except (subprocess.SubprocessError, OSError):
-            status_lines.append("gh: error")
-
-    # Check gb
-    gb_path = shutil.which("gb")
-    if gb_path:
-        try:
-            result = subprocess.run(
-                ["gb", "auth", "status"],
-                capture_output=True,
-                text=True,
-                check=False,
-                stdin=subprocess.DEVNULL,
-                timeout=NETWORK_TIMEOUT,
-            )
-            if result.returncode == 0:
-                line = (result.stdout or result.stderr or "").strip()
-                # Redact tokens/emails — keep only host and account
-                match = re.search(
-                    r"Logged in to (\S+) as (\S+)",
-                    line,
-                )
-                if match:
-                    host = match.group(1)
-                    account = match.group(2)
-                    status_lines.append(
-                        f"gb: ✓ Logged in to {host} account {account}"
-                    )
-                else:
-                    status_lines.append("gb: ✓ Logged in")
-            else:
-                status_lines.append("gb: not_logged_in")
-        except subprocess.TimeoutExpired:
-            status_lines.append("gb: timeout")
-        except (subprocess.SubprocessError, OSError):
-            status_lines.append("gb: error")
-
-    return status_lines
 
 
 def collect_repo_info() -> list[dict[str, str]]:
@@ -421,10 +311,6 @@ def install_hooks() -> None:
     if not source_hooks:
         return
 
-    installed_count = 0
-    skipped_count = 0
-    failed_count = 0
-
     git_dir = _resolve_git_dir()
     if git_dir:
         parent_hooks_dir = os.path.join(git_dir, "hooks")
@@ -436,29 +322,14 @@ def install_hooks() -> None:
             src = os.path.join(source_dir, hook_name)
             dst = os.path.join(parent_hooks_dir, hook_name)
             if _hooks_match(src, dst):
-                skipped_count += 1
                 continue
-            if _copy_hook(src, dst):
-                installed_count += 1
-            else:
-                print(
-                    f"Failed to install hook {hook_name} into parent repo",
-                    file=sys.stderr,
-                )
-                failed_count += 1
+            _copy_hook(src, dst)
     else:
         os.makedirs(parent_hooks_dir, exist_ok=True)
         for hook_name in source_hooks:
             src = os.path.join(source_dir, hook_name)
             dst = os.path.join(parent_hooks_dir, hook_name)
-            if _copy_hook(src, dst):
-                installed_count += 1
-            else:
-                print(
-                    f"Failed to install hook {hook_name} into parent repo",
-                    file=sys.stderr,
-                )
-                failed_count += 1
+            _copy_hook(src, dst)
 
     linked_repos = collect_repo_info()
     for repo_entry in linked_repos:
@@ -485,28 +356,11 @@ def install_hooks() -> None:
             src = os.path.join(source_dir, hook_name)
             dst = os.path.join(hooks_target, hook_name)
             if _hooks_match(src, dst):
-                skipped_count += 1
                 continue
-            if _copy_hook(src, dst):
-                installed_count += 1
-            else:
-                print(
-                    f"Failed to install hook {hook_name} into {dir_name}",
-                    file=sys.stderr,
-                )
-                failed_count += 1
-
-    if installed_count > 0:
-        print(f"Installed {installed_count} hook(s)", file=sys.stderr)
-    if failed_count > 0:
-        print(f"Failed to install {failed_count} hook(s)", file=sys.stderr)
+            _copy_hook(src, dst)
 
     if get_hooks_path():
         run_git_command(["config", "--unset", "core.hooksPath"])
-        print(
-            "Removed legacy core.hooksPath config (hooks now in .git/hooks/)",
-            file=sys.stderr,
-        )
 
 
 def _extract_version_from_pyproject() -> str:
@@ -712,10 +566,7 @@ def main() -> int:
     srclight_status = check_srclight()
     guard_problems = run_guard_checks()
     if is_submodule_context():
-        print(
-            "Submodule context detected — skipping worktree bootstrap and hook installation",
-            file=sys.stderr,
-        )
+        pass
     else:
         install_hooks()
 
