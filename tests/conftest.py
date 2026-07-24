@@ -1,4 +1,5 @@
 """Shared fixtures for .opencode/tools/ unit tests."""
+
 from unittest.mock import patch
 
 import pytest

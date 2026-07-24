@@ -1,10 +1,13 @@
 """Unit tests for session_init.auth."""
+
 import os
 import tempfile
 from unittest.mock import MagicMock, patch
 
-import pytest
-from session_init.auth import check_cli_auth_status, check_cli_auth_status as ccas, _read_gitbucket_url_from_env
+from session_init.auth import (
+    _read_gitbucket_url_from_env,
+    check_cli_auth_status,
+)
 
 
 class TestCheckCliAuthStatus:
@@ -17,7 +20,9 @@ class TestCheckCliAuthStatus:
         result.stderr = stderr
         return result
 
-    def test_gh_auth_command_no_no_interactive(self, mock_subprocess_run, mock_shutil_which):
+    def test_gh_auth_command_no_no_interactive(
+        self, mock_subprocess_run, mock_shutil_which
+    ):
         mock_shutil_which.side_effect = lambda x: f"/usr/bin/{x}"
         mock_subprocess_run.return_value = self._make_result(
             returncode=1, stdout="", stderr="not logged in"
@@ -39,9 +44,9 @@ class TestCheckCliAuthStatus:
             stdout="github.com\n  ✓ Logged in to github.com as octocat (token)...\n"
         )
         status = check_cli_auth_status()
-        assert any("gh: ✓ Logged in to github.com account octocat" in line for line in status), (
-            f"Expected gh logged-in line in {status}"
-        )
+        assert any(
+            "gh: ✓ Logged in to github.com account octocat" in line for line in status
+        ), f"Expected gh logged-in line in {status}"
 
     def test_gh_auth_not_logged_in(self, mock_subprocess_run, mock_shutil_which):
         mock_shutil_which.side_effect = lambda x: f"/usr/bin/{x}" if x == "gh" else None
@@ -57,7 +62,9 @@ class TestCheckCliAuthStatus:
         import subprocess
 
         mock_shutil_which.side_effect = lambda x: f"/usr/bin/{x}" if x == "gh" else None
-        mock_subprocess_run.side_effect = subprocess.TimeoutExpired(cmd="gh auth status", timeout=5)
+        mock_subprocess_run.side_effect = subprocess.TimeoutExpired(
+            cmd="gh auth status", timeout=5
+        )
         status = check_cli_auth_status()
         assert any("gh: timeout" in line for line in status), (
             f"Expected gh timeout in {status}"
@@ -76,9 +83,10 @@ class TestCheckCliAuthStatus:
             stdout="Logged in to gitbucket.example.com as devuser\n"
         )
         status = check_cli_auth_status()
-        assert any("gb: ✓ Logged in to gitbucket.example.com account devuser" in line for line in status), (
-            f"Expected gb logged-in line in {status}"
-        )
+        assert any(
+            "gb: ✓ Logged in to gitbucket.example.com account devuser" in line
+            for line in status
+        ), f"Expected gb logged-in line in {status}"
 
     def test_gb_auth_not_logged_in(self, mock_subprocess_run, mock_shutil_which):
         mock_shutil_which.side_effect = lambda x: f"/usr/bin/{x}" if x == "gb" else None
@@ -94,13 +102,17 @@ class TestCheckCliAuthStatus:
         import subprocess
 
         mock_shutil_which.side_effect = lambda x: f"/usr/bin/{x}" if x == "gb" else None
-        mock_subprocess_run.side_effect = subprocess.TimeoutExpired(cmd="gb auth status", timeout=5)
+        mock_subprocess_run.side_effect = subprocess.TimeoutExpired(
+            cmd="gb auth status", timeout=5
+        )
         status = check_cli_auth_status()
         assert any("gb: timeout" in line for line in status), (
             f"Expected gb timeout in {status}"
         )
 
-    def test_gh_auth_fallback_logged_in_no_regex_match(self, mock_subprocess_run, mock_shutil_which):
+    def test_gh_auth_fallback_logged_in_no_regex_match(
+        self, mock_subprocess_run, mock_shutil_which
+    ):
         mock_shutil_which.side_effect = lambda x: f"/usr/bin/{x}" if x == "gh" else None
         mock_subprocess_run.return_value = self._make_result(
             stdout="unexpected format - logged in somehow\n"

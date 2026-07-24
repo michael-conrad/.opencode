@@ -1,4 +1,5 @@
 """CLI auth status checker for gh and gb."""
+
 import os
 import re
 import shutil
@@ -62,9 +63,7 @@ def check_cli_auth_status() -> list[str]:
                 if match:
                     host = match.group(1)
                     account = match.group(2)
-                    status_lines.append(
-                        f"gh: ✓ Logged in to {host} account {account}"
-                    )
+                    status_lines.append(f"gh: ✓ Logged in to {host} account {account}")
                 else:
                     status_lines.append("gh: ✓ Logged in")
             else:
@@ -95,9 +94,7 @@ def check_cli_auth_status() -> list[str]:
                 if match:
                     host = match.group(1)
                     account = match.group(2)
-                    status_lines.append(
-                        f"gb: ✓ Logged in to {host} account {account}"
-                    )
+                    status_lines.append(f"gb: ✓ Logged in to {host} account {account}")
                 else:
                     status_lines.append("gb: ✓ Logged in")
             else:
