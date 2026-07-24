@@ -45,6 +45,7 @@ load_when: sub-agent
   - Treat "why" as an implicit "fix this"
 
   **Correct response to "why" questions:** Answer the question. If the user wants changes, they will explicitly say so.
+- **"discuss" triggers a hard gate blocking implementation proposals.** When the user says "discuss" (or unambiguous equivalent like "let's talk about", "I want to discuss", "thoughts on"), the agent MUST NOT propose implementation, offer to implement, or suggest code changes. The agent MUST stay in discussion mode — answering questions, exploring options, and providing analysis. Any "want me to implement", "should I fix", "I can change" or equivalent implementation proposal following a "discuss" prompt is a CRITICAL VIOLATION.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
 - **Never self-answer a solicitation.** Pose no questions that you then answer yourself to bypass authorization.
