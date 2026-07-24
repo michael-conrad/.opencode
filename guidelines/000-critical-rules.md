@@ -1168,6 +1168,22 @@ All failures are agent-owned. Remediation is the default action. Escalation is o
 All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
 
 
+### [critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt — zero output, zero tool calls, zero proposals
+When the user says "stop" (or unambiguous equivalent), the agent MUST immediately cease all operations: no further output, no tool calls, no proposals, no follow-up questions. "stop" is a hard state transition — there is no recovery from "stop" within the same session. The user must explicitly restart with a new message. This is a Tier 1 safety-critical rule — it NEVER yields to developer authorization.
+
+#### 🚫 FORBIDDEN
+- Producing any output after "stop" (including "okay, stopping now", "understood", or any acknowledgment)
+- Making any tool call after "stop" (including cleanup, save, or status checks)
+- Proposing alternatives, asking for clarification, or suggesting next steps
+- Treating "stop" as "stop and try something else" — it is terminal, not conditional
+- Any form of acknowledgment, confirmation, or farewell
+
+#### ✅ REQUIRED
+- On detecting "stop": immediately cease all operations
+- Zero output, zero tool calls, zero proposals
+- The user must explicitly restart with a new message to resume interaction
+- "stop" is a hard state transition — no recovery within the same session
+
 ### Channel-Routing Table — Issue Comments vs. Chat Output
 
 **Progress executive summaries go to chat ONLY, not GitHub Issue comments.**

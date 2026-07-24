@@ -400,3 +400,19 @@ Key points:
 **Authorization source:** Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
 
 **No checkpoint:** First-step failure. Run `git checkout .`, re-dispatch from current state.
+
+### [critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt — zero output, zero tool calls, zero proposals
+When the user says "stop" (or unambiguous equivalent), the agent MUST immediately cease all operations: no further output, no tool calls, no proposals, no follow-up questions. "stop" is a hard state transition — there is no recovery from "stop" within the same session. The user must explicitly restart with a new message. This is a Tier 1 safety-critical rule — it NEVER yields to developer authorization.
+
+#### 🚫 FORBIDDEN
+- Producing any output after "stop" (including "okay, stopping now", "understood", or any acknowledgment)
+- Making any tool call after "stop" (including cleanup, save, or status checks)
+- Proposing alternatives, asking for clarification, or suggesting next steps
+- Treating "stop" as "stop and try something else" — it is terminal, not conditional
+- Any form of acknowledgment, confirmation, or farewell
+
+#### ✅ REQUIRED
+- On detecting "stop": immediately cease all operations
+- Zero output, zero tool calls, zero proposals
+- The user must explicitly restart with a new message to resume interaction
+- "stop" is a hard state transition — no recovery within the same session
