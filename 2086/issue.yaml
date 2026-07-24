@@ -1,0 +1,10 @@
+number: 2086
+title: '[SPEC-FIX] Audit skill DiMo chain dispatch — orchestrator must dispatch each role as separate task()'
+state: open
+labels:
+  - name: SPEC-FIX
+    color: "ededed"
+    description: "Spec fix"
+  - name: needs-approval
+    color: "ededed"
+    description: ""
