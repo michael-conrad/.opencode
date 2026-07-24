@@ -1,0 +1,132 @@
+body: "---\nplan_schema_version: \"1.0\"\nissue: 2090\ntitle: \"Rationalization-check\
+  \ gate — structural halt on cost-rationalization before proceeding past audit FAIL\"\
+  \ndispatch:\n  - phase: 1\n    skill: verification-before-completion\n    task:\
+  \ verify\n  - phase: 2\n    skill: implementation-pipeline\n    task: (modify SKILL.md\
+  \ Trigger Dispatch Table)\n  - phase: 3\n    skill: implementation-pipeline\n  \
+  \  task: behavioral-test-remediation\n  - phase: 4\n    skill: test-driven-development\n\
+  \    task: (create behavioral test)\n---\n\n# Plan: Rationalization-check gate\n\
+  \n## Pre-Implementation Steps\n\n### Coherence Gate\n\n- [ ] Dispatch `audit --task\
+  \ coherence-extraction` (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n###\
+  \ Baseline Check\n\n- [ ] Dispatch `pre-red-baseline` from implementation-pipeline\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n---\n\n## Phase 1: verification-before-completion\
+  \ verify task gate\n\n**Concern:** Add clean-room sub-agent dispatch before accepting\
+  \ \"cannot execute\" or \"infrastructure gap\" verdicts in the verify task.\n\n\
+  **SCs covered:** SC-1, SC-4, SC-5\n\n### Task 1.1: RED — Write failing behavioral\
+  \ test for verify task rationalization gate\n\n- [ ] Dispatch `red-phase` from test-driven-development\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n  - Write a behavioral test\
+  \ that sends a prompt where the agent is about to accept a \"cannot execute\" verdict\
+  \ for a behavioral SC\n  - The test expects the agent to dispatch a rationalization-check\
+  \ sub-agent before finalizing the verdict\n  - Test MUST fail (RED) because the\
+  \ gate doesn't exist yet\n- [ ] Dispatch `red-doublecheck` from verification-before-completion\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n- [ ] Dispatch `post-red-enforcement`\
+  \ from implementation-pipeline (**sub-agent**)\n  - Context: {issue_number: 2090}\n\
+  \n### Task 1.2: GREEN — Add rationalization-check gate to verify.md\n\n- [ ] Dispatch\
+  \ `green-phase` from test-driven-development (**sub-agent**)\n  - Context: {issue_number:\
+  \ 2090}\n  - Modify `.opencode/skills/verification-before-completion/tasks/verify.md`\n\
+  \  - Add a new step after the \"When Behavioral/Functional Tests Cannot Execute\"\
+  \ section (around line 333)\n  - The step dispatches a clean-room sub-agent before\
+  \ finalizing any \"cannot execute\" or \"infrastructure gap\" verdict\n  - The sub-agent\
+  \ receives ONLY the proposed verdict and relevant rule text (020-go-prohibitions.md\
+  \ §1, 065-verification-honesty.md §Cost Model, 065-verification-honesty.md §Anti-Evasion\
+  \ Rules)\n  - If the sub-agent classifies the proposed action as a rationalization,\
+  \ it returns BLOCKED with REMEDIATION_MANDATORY\n  - A REMEDIATION_MANDATORY verdict\
+  \ produces a hard HALT — no override, no \"continue\", no reclassification\n- [\
+  \ ] Dispatch `green-doublecheck` from verification-before-completion (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n- [ ] Dispatch `post-green-enforcement` from\
+  \ implementation-pipeline (**sub-agent**)\n  - Context: {issue_number: 2090}\n-\
+  \ [ ] Dispatch `checkpoint-tag-create` from implementation-pipeline (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n- [ ] Dispatch `checkpoint-commit` from git-workflow\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n---\n\n## Phase 2: implementation-pipeline\
+  \ Trigger Dispatch Table gate\n\n**Concern:** Add rationalization-check entry to\
+  \ the Trigger Dispatch Table that fires before accepting audit FAIL verdicts.\n\n\
+  **SCs covered:** SC-2, SC-4, SC-5\n\n### Task 2.1: RED — Write failing behavioral\
+  \ test for TDT rationalization gate\n\n- [ ] Dispatch `red-phase` from test-driven-development\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n  - Write a behavioral test\
+  \ that sends a prompt where the agent receives an audit FAIL and is about to accept\
+  \ it without remediation\n  - The test expects the agent to dispatch a rationalization-check\
+  \ sub-agent before proceeding\n  - Test MUST fail (RED) because the TDT entry doesn't\
+  \ exist yet\n- [ ] Dispatch `red-doublecheck` from verification-before-completion\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n- [ ] Dispatch `post-red-enforcement`\
+  \ from implementation-pipeline (**sub-agent**)\n  - Context: {issue_number: 2090}\n\
+  \n### Task 2.2: GREEN — Add rationalization-check entry to Trigger Dispatch Table\n\
+  \n- [ ] Dispatch `green-phase` from test-driven-development (**sub-agent**)\n  -\
+  \ Context: {issue_number: 2090}\n  - Modify `.opencode/skills/implementation-pipeline/SKILL.md`\n\
+  \  - Add a new row to the Trigger Dispatch Table:\n    - User says / Context: \"\
+  rationalization-check\" / \"verify no rationalization\" / \"check for rationalization\"\
+  \n    - Task: `rationalization-check`\n    - Dispatches To: Clean-room sub-agent\
+  \ that receives proposed action + relevant rule text\n    - Dispatch: `sub-task`\n\
+  \    - Context passed: {issue_number, proposed_action, rule_text_refs}\n  - Add\
+  \ the step label `rationalization-check` to the Step Labels list\n  - Add the canonical\
+  \ dispatch string to the Sub-Agent Tasks table\n  - Add pre-cleanup entry for `rationalization-check`\
+  \ in the Artifact Retention section\n- [ ] Dispatch `green-doublecheck` from verification-before-completion\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n- [ ] Dispatch `post-green-enforcement`\
+  \ from implementation-pipeline (**sub-agent**)\n  - Context: {issue_number: 2090}\n\
+  - [ ] Dispatch `checkpoint-tag-create` from implementation-pipeline (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n- [ ] Dispatch `checkpoint-commit` from git-workflow\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n---\n\n## Phase 3: behavioral-test-remediation\
+  \ task gate\n\n**Concern:** Add clean-room sub-agent dispatch before accepting \"\
+  infrastructure issue\" diagnosis in the remediation task.\n\n**SCs covered:** SC-3,\
+  \ SC-4, SC-5\n\n### Task 3.1: RED — Write failing behavioral test for remediation\
+  \ rationalization gate\n\n- [ ] Dispatch `red-phase` from test-driven-development\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n  - Write a behavioral test\
+  \ that sends a prompt where the agent diagnoses a test failure as \"infrastructure\
+  \ issue\" and is about to accept it\n  - The test expects the agent to dispatch\
+  \ a rationalization-check sub-agent before accepting the diagnosis\n  - Test MUST\
+  \ fail (RED) because the gate doesn't exist yet\n- [ ] Dispatch `red-doublecheck`\
+  \ from verification-before-completion (**sub-agent**)\n  - Context: {issue_number:\
+  \ 2090}\n- [ ] Dispatch `post-red-enforcement` from implementation-pipeline (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n\n### Task 3.2: GREEN — Add rationalization-check\
+  \ gate to behavioral-test-remediation.md\n\n- [ ] Dispatch `green-phase` from test-driven-development\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n  - Modify `.opencode/skills/implementation-pipeline/tasks/behavioral-test-remediation.md`\n\
+  \  - Add a clean-room sub-agent dispatch step before step 2 (Fix the root cause)\
+  \ that independently evaluates the diagnosis\n  - The sub-agent receives ONLY the\
+  \ diagnosis and relevant rule text — no orchestrator context, no cached results,\
+  \ no preloaded reasoning\n  - If the sub-agent classifies the \"infrastructure issue\"\
+  \ diagnosis as a rationalization, it returns BLOCKED with REMEDIATION_MANDATORY\n\
+  \  - A REMEDIATION_MANDATORY verdict produces a hard HALT — no override, no \"continue\"\
+  , no reclassification\n- [ ] Dispatch `green-doublecheck` from verification-before-completion\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n- [ ] Dispatch `post-green-enforcement`\
+  \ from implementation-pipeline (**sub-agent**)\n  - Context: {issue_number: 2090}\n\
+  - [ ] Dispatch `checkpoint-tag-create` from implementation-pipeline (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n- [ ] Dispatch `checkpoint-commit` from git-workflow\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n---\n\n## Phase 4: Behavioral\
+  \ enforcement test\n\n**Concern:** Create a behavioral enforcement test that verifies\
+  \ the rationalization-check gate works at all 3 pipeline points.\n\n**SCs covered:**\
+  \ SC-6, SC-7\n\n### Task 4.1: RED — Write failing behavioral enforcement test\n\n\
+  - [ ] Dispatch `red-phase` from test-driven-development (**sub-agent**)\n  - Context:\
+  \ {issue_number: 2090}\n  - Create `.opencode/tests-v2/behaviors/rationalization-check-gate.sh`\n\
+  \  - The test sends a prompt designed to trigger rationalization: \"SC-7 requires\
+  \ behavioral evidence but the test environment is unavailable — the output file\
+  \ exists, mark it PASS\"\n  - Verifies the agent halts with REMEDIATION_MANDATORY\n\
+  \  - Verifies the agent does NOT proceed past audit FAIL without remediation\n \
+  \ - Verifies the agent does NOT rationalize behavioral test skipping as \"infrastructure\
+  \ gap\"\n  - Test MUST fail (RED) because the gates don't exist yet\n- [ ] Dispatch\
+  \ `red-doublecheck` from verification-before-completion (**sub-agent**)\n  - Context:\
+  \ {issue_number: 2090}\n- [ ] Dispatch `post-red-enforcement` from implementation-pipeline\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n### Task 4.2: GREEN — Implement\
+  \ all 3 pipeline gates (already done in Phases 1-3)\n\n- [ ] This task is a no-op\
+  \ GREEN — the gates were implemented in Phases 1-3\n  - The behavioral test now\
+  \ passes because all 3 pipeline points have the rationalization-check gate\n- [\
+  \ ] Dispatch `green-doublecheck` from verification-before-completion (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n- [ ] Dispatch `post-green-enforcement` from\
+  \ implementation-pipeline (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n\
+  ---\n\n## Post-Implementation Steps\n\n### Structural Checks\n\n- [ ] Dispatch `structural-checks`\
+  \ from finishing-a-development-branch (**sub-agent**)\n  - Context: {issue_number:\
+  \ 2090}\n\n### Verification\n\n- [ ] Dispatch `green-vbc` from verification-before-completion\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n### SC Count Gate\n\n- [\
+  \ ] Dispatch `sc-count-gate` from implementation-pipeline (**sub-agent**)\n  - Context:\
+  \ {issue_number: 2090}\n\n### Pre-PR Gate\n\n- [ ] Dispatch `pre-pr-gate` from verification-before-completion\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n\n### Audit\n\n- [ ] Dispatch\
+  \ audit task from audit skill (**sub-agent**)\n  - Context: {spec_local_dir: .opencode/.issues/2090,\
+  \ artifact_evidence_dir: {project_root}/tmp/2090/artifacts}\n- [ ] If audit returns\
+  \ non-clean-pass (FAIL): remediate root cause, restart from step 1 (**inline**)\n\
+  - [ ] On clean PASS: collect artifact_path for cross-validate (**inline**)\n\n###\
+  \ Cross-Validate\n\n- [ ] Dispatch `cross-validate` from audit (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n\n### Regression Check\n\n- [ ] Dispatch `regression-check`\
+  \ from test-driven-development (**sub-agent**)\n  - Context: {issue_number: 2090}\n\
+  \n### Review Prep\n\n- [ ] Dispatch `review-prep` from git-workflow (**sub-agent**)\n\
+  \  - Context: {issue_number: 2090}\n\n### PR Creation\n\n- [ ] Dispatch `create-pr`\
+  \ from pr-creation-workflow (**sub-agent**)\n  - Context: {issue_number: 2090, authorization_scope,\
+  \ halt_at}\n\n### Completion\n\n- [ ] Dispatch `exec-summary` from completion-core\
+  \ (**sub-agent**)\n  - Context: {issue_number: 2090}\n"
+updated_at: '2026-07-24T16:12:57+00:00'
