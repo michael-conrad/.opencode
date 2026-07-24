@@ -25,8 +25,6 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin";
 import { execSync } from "child_process";
 
-const CACHE_TTL_MS = 5 * 60 * 1000;
-
 function runSessionInit(projectDir: string): string | null {
   try {
     const scriptPath = `${projectDir}/.opencode/tools/session-init`;
