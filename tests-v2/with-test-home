@@ -43,7 +43,6 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
 
-# Resolve opencode from PATH — NEVER use /snap/bin/opencode or snap run (leaks production state).
 # Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
 # The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
 # making it impossible to isolate test runs from production state.
@@ -51,15 +50,8 @@ if [ -x "$PROJECT_DIR/.tools/opencode/opencode" ]; then
     export PATH="$PROJECT_DIR/.tools/opencode:$PATH"
 fi
 
-if command -v opencode &>/dev/null; then
-    OPENCODE_CMD=("$(command -v opencode)")
-elif [ -x /usr/bin/opencode-cli ]; then
-    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
-    OPENCODE_CMD=(/usr/bin/opencode-cli)
-else
-    echo "FATAL: no opencode binary found" >&2
-    exit 1
-fi
+# OPENCODE_CMD is bare "opencode" — env -i PATH resolution finds $TEST_HOME/bin/opencode
+OPENCODE_CMD=("opencode")
 
 usage() {
     echo "Usage: bash .opencode/tests-v2/with-test-home [--setup|--keep|--clean|--clean-all] [command...]" >&2
@@ -352,26 +344,49 @@ fi
 
 seed_model_config
 
-# Isolate XDG state AND snap data to test home.
+# Copy standalone binary to $TEST_HOME/bin so env -i PATH resolution finds it.
+STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
+if [ -x "$STANDALONE_BINARY" ]; then
+    mkdir -p "$TEST_HOME/bin"
+    cp "$STANDALONE_BINARY" "$TEST_HOME/bin/opencode"
+else
+    echo "FATAL: standalone binary not found at $STANDALONE_BINARY" >&2
+    exit 1
+fi
+
+# Print [test-env] diagnostics before running the command.
+echo "[test-env] HOME=$TEST_HOME"
+echo "[test-env] PATH=$TEST_HOME/bin:$PATH"
+echo "[test-env] USER=opencode-test-user"
+echo "[test-env] XDG_DATA_HOME=$TEST_HOME/.local/share"
+echo "[test-env] XDG_CONFIG_HOME=$TEST_HOME/.config"
+echo "[test-env] XDG_STATE_HOME=$TEST_HOME/.local/state"
+echo "[test-env] XDG_CACHE_HOME=$TEST_HOME/.cache"
+echo "[test-env] SNAP_USER_DATA=$TEST_HOME/snap/opencode"
+echo "[test-env] opencode=$TEST_HOME/bin/opencode"
+
+# Isolate XDG state AND snap data to test home using env -i with explicit allowlist.
 # FORBIDDEN: /snap/bin/opencode and snap run hardcode SNAP_USER_DATA=~/snap/opencode/
 # Override SNAP_USER_DATA to redirect the SQLite DB to the test home instead of production.
 RC=0
-(
-    cd "$TEST_PROJECT"
-    export XDG_CONFIG_HOME="$TEST_HOME/.config"
-    export XDG_CACHE_HOME="$TEST_HOME/.cache"
-    export XDG_RUNTIME_DIR="$TEST_HOME/.runtime"
-    export XDG_DATA_HOME="$TEST_HOME/.local/share"
-    export XDG_STATE_HOME="$TEST_HOME/.local/state"
-    export SNAP_USER_DATA="$TEST_HOME/snap/opencode"
-    export SNAP_USER_COMMON="$TEST_HOME/snap/opencode"
-    export USER="opencode-test-user"
-    export GIT_CONFIG_NOSYSTEM=1
-    export UV_CACHE_DIR="$TEST_HOME/.cache/uv"
-    export UV_PYTHON_INSTALL_DIR="$TEST_HOME/.cache/uv/python"
-    export UV_TOOL_DIR="$TEST_HOME/.local/share/uv/tools"
-    "$@"
-) 2>&1 || RC=$?
+env -i -C "$TEST_PROJECT" \
+    HOME="$TEST_HOME" \
+    PATH="$TEST_HOME/bin:$PATH" \
+    XDG_CONFIG_HOME="$TEST_HOME/.config" \
+    XDG_CACHE_HOME="$TEST_HOME/.cache" \
+    XDG_RUNTIME_DIR="$TEST_HOME/.runtime" \
+    XDG_DATA_HOME="$TEST_HOME/.local/share" \
+    XDG_STATE_HOME="$TEST_HOME/.local/state" \
+    SNAP_USER_DATA="$TEST_HOME/snap/opencode" \
+    SNAP_USER_COMMON="$TEST_HOME/snap/opencode" \
+    USER="opencode-test-user" \
+    GIT_CONFIG_NOSYSTEM=1 \
+    SHELL="$SHELL" \
+    LOGNAME="$LOGNAME" \
+    LANG="$LANG" \
+    TERM="$TERM" \
+    GB_TOKEN="${GB_TOKEN:-}" \
+    "$@" 2>&1 || RC=$?
 
 if [ "${KEEP_TEST_HOME:-0}" != "1" ]; then
     rm -rf "$TEST_HOME"
