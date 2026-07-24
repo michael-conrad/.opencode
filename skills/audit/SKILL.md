@@ -43,7 +43,7 @@ When any audit produces a FAIL verdict, the following remediation procedure MUST
 
 ## Trigger Dispatch Table
 
-Each row dispatches to the DiMo 4-role chain (Investigator → Validator → Evaluator → Arbiter). No row dispatches to a single monolithic task file.
+Each row dispatches 4 sequential `task()` calls — one per DiMo role (Investigator → Validator → Evaluator → Arbiter). No row dispatches to a single monolithic task file or a single monolithic `task()` call.
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
@@ -99,19 +99,26 @@ Each row dispatches to the DiMo 4-role chain (Investigator → Validator → Eva
 
 ### DiMo Chain Invocation
 
-All audit tasks dispatch through the DiMo 4-role chain (see DiMo Role Chain Dispatch below). The canonical dispatch string for any audit task is:
+All audit tasks dispatch through the DiMo 4-role chain (see DiMo Role Chain Dispatch below). The orchestrator dispatches each role as a separate `task()` call in sequence, passing artifact paths between them:
 
 ```
-task(..., prompt: "execute <task-name> DiMo chain: investigator → validator → evaluator → arbiter")
+# Role 1: Investigator
+task(..., prompt: "execute <task-name> DiMo investigator from audit. Read audit/tasks/<task-name>.md first")
+# Role 2: Validator — reads evidence.yaml from investigator
+task(..., prompt: "execute <task-name> DiMo validator from audit. Read audit/tasks/<task-name>.md first")
+# Role 3: Evaluator — reads evidence.yaml + reasoning.yaml
+task(..., prompt: "execute <task-name> DiMo evaluator from audit. Read audit/tasks/<task-name>.md first")
+# Role 4: Arbiter — reads all artifacts, writes judgment.yaml
+task(..., prompt: "execute <task-name> DiMo arbiter from audit. Read audit/tasks/<task-name>.md first")
 ```
 
-No task dispatches to a single monolithic task file. The orchestrator dispatches roles in order, passing artifact paths between them. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
+No task dispatches to a single monolithic task file. The orchestrator dispatches 4 sequential `task()` calls per row, one per role. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Auditors independently discover SCs and evidence from these two directories. The orchestrator does NOT read task files.
 
 **Default dispatch routing:** Bare "audit #NNN" or "run audit" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
 
 ## DiMo Role Chain Dispatch
 
-Each audit task follows a sequential role chain dispatched via `task(subagent_type="general")`. The orchestrator dispatches roles in order, passing artifact paths between them:
+Each audit task follows a sequential role chain dispatched as 4 separate `task(subagent_type="general")` calls. The orchestrator dispatches each role as its own `task()` call in order, passing artifact paths between them:
 
 1. **Investigator** — writes `evidence.yaml` with raw evidence and initial findings
 2. **Validator** — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
