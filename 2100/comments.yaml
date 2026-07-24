@@ -1,1 +1,7 @@
-comments: []
+comments:
+- type: internal
+  body: Spec claims are stale — the conflict it describes (two conflicting description
+    format mandates) no longer exists. Validation enforces only the Agent-Intent format.
+    No separate farmage field validation exists. The proposed resolution was already
+    implemented. Closing as resolved/superseded.
+  timestamp: '2026-07-24T22:53:49+00:00'
