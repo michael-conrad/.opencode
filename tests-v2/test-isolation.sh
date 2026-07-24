@@ -93,10 +93,12 @@ grep_assert_present \
 
 # SC-5: helpers.sh does NOT run opencode models at source time
 # Source-time execution hits production DB because helpers.sh is sourced outside with-test-home.
+# The literal "opencode models" only appears in an echo string inside __init_model_pool().
+# The actual call uses ${OPENCODE_CMD[@]} — check that no bare command exists at file scope.
 grep_assert_absent \
     "SC-5: helpers.sh no opencode models at source time" \
     "$HELPERS" \
-    '^[^#]*opencode models'
+    '^opencode models'
 
 # SC-6: with-test-home and helpers.sh use bare "opencode" not absolute path
 # Absolute path bypasses env -i PATH resolution, making $TEST_HOME/bin/opencode dead code.
