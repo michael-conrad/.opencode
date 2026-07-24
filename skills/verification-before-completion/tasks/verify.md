@@ -330,9 +330,34 @@ Reading a test implementation file and confirming it exists is structural eviden
 - ✅ REQUIRED: Classify each SC as structural or behavioral in the evidence table
 - ✅ REQUIRED: Use behavioral evidence (test execution output) only for behavioral SCs
 
+### Rationalization-Check Gate (MANDATORY — Before Any "Cannot Execute" Verdict)
+
+**Before accepting any "cannot execute", "infrastructure gap", "model unavailable", or equivalent verdict, the agent MUST dispatch a clean-room rationalization-check sub-agent.**
+
+The rationalization-check sub-agent receives ONLY:
+- The proposed verdict ("cannot execute", "infrastructure gap", etc.)
+- The relevant rule text (020-go-prohibitions.md §1 cost-blind verification, 065-verification-honesty.md §Cost Model, 065-verification-honesty.md §Anti-Evasion Rules, 000-critical-rules.md §hard-fail)
+
+The sub-agent does NOT receive:
+- Orchestrator context or reasoning
+- Cached results or preloaded evidence
+- Any information about what the orchestrator "meant" or what constraints it was under
+
+- [ ] 1. **Dispatch rationalization-check sub-agent.** Call `task(subagent_type="general")` with the proposed verdict and rule text. The sub-agent independently evaluates whether the proposed action is a rationalization.
+- [ ] 2. **If sub-agent returns BLOCKED with REMEDIATION_MANDATORY:** The proposed verdict is a rationalization. HALT immediately. Do NOT proceed. Do NOT override. Do NOT reclassify. Do NOT accept "continue" as waiver.
+- [ ] 3. **If sub-agent returns DONE (verdict is genuine):** Proceed to the "When Behavioral/Functional Tests Cannot Execute" section below.
+
+**🚫 FORBIDDEN:**
+- Accepting "cannot execute" as a terminal verdict without dispatching the rationalization-check sub-agent
+- Overriding, reclassifying, or "continuing" past a REMEDIATION_MANDATORY verdict
+- Treating the rationalization-check as optional or skippable
+- Preloading the sub-agent with orchestrator reasoning or expected outcomes
+
+**Authority:** Read [020-go-prohibitions.md §1](guidelines/020-go-prohibitions.md), [065-verification-honesty.md §Cost Model](guidelines/065-verification-honesty.md), [065-verification-honesty.md §Anti-Evasion Rules](guidelines/065-verification-honesty.md), [000-critical-rules.md §hard-fail](guidelines/000-critical-rules.md)
+
 ### When Behavioral/Functional Tests Cannot Execute
 
-If a behavioral/functional test cannot run (model unavailable, timeout, infrastructure error, `opencode` not installed):
+If a behavioral/functional test cannot run (model unavailable, timeout, infrastructure error, `opencode` not installed) **AND** the rationalization-check gate above returned DONE:
 
 | Outcome | Classification | Correct Report |
 |---------|---------------|-----------------|
