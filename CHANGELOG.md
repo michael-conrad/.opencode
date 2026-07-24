@@ -95,6 +95,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- **Test isolation infrastructure** (#2106) - Rewrote `with-test-home` with `env -i` isolation, standalone binary copy, and bare `opencode` path. Added lazy-init model pool to `helpers.sh`. Rewrote `SC-2.sh` to use `behavior_run()`. Replaced snap run with `with-test-home` wrapper in `test-verb-variant.sh`. Added `test-isolation.sh` with SC-5 grep pattern tightening.
+
 - **Local-issues repo resolution for submodule context** (#1177) - Fixed `local-issues` tool repo resolution when operating inside a submodule (`.opencode/`). Added qualifier enforcement to ensure issue operations route to the correct repository owner/repo instead of defaulting to the parent repo.
 
 ### Changed
