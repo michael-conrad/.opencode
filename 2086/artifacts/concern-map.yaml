@@ -1,0 +1,21 @@
+concerns:
+  - id: C1
+    name: DiMo Chain Invocation section
+    description: Lines 100-108 — the canonical dispatch pattern string must specify orchestrator dispatches each role as a separate task() call
+    scs:
+      - SC-1
+    phase: 1
+  - id: C2
+    name: Trigger Dispatch Table header
+    description: Line 46 — the table header comment must clarify 4 sequential task() calls per row
+    scs:
+      - SC-2
+    phase: 1
+  - id: C3
+    name: Residual monolithic language
+    description: Scan entire file for any remaining language suggesting single monolithic task dispatch
+    scs:
+      - SC-3
+    phase: 1
+phase_boundaries:
+  phase_1: Text edits to SKILL.md only — all three SCs addressed in a single phase

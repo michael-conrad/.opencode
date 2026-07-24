@@ -1,0 +1,11 @@
+spec_path: .opencode/.issues/2086/spec.md
+sc_count: 3
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_summary: Single-file text edits to .opencode/skills/audit/SKILL.md. All 3 SCs address the DiMo chain dispatch pattern — changing from monolithic single-task dispatch to 4 sequential task() calls per role. No code changes, no new files, no structural changes. Tightly coupled single-phase fix.

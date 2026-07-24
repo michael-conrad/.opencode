@@ -1,0 +1,96 @@
+# Plan-Fidelity Audit — #2085
+# Auditor: OpenCode (deepseek-v4-flash)
+# Date: 2026-07-23
+
+status: PASS
+finding_summary: "Plan covers all 16 SCs across 2 phases matching the spec's Phase Breakdown (spec Phase 1 is separate #2084, correctly excluded). Work instructions are actionable with valid dispatch references. Format follows structured markdown with checkbox lists, frontmatter dispatch metadata, and no machine-parseable body content. Pre/post-implementation steps are correctly per-plan. Minor note: analysis-summary.yaml marks structure.md and self-review.md as 'create' while spec and plan say 'rewrite' — this is an analysis-summary inconsistency, not a plan defect."
+
+artifact_path: ".opencode/.issues/2085/audit/plan-fidelity.yaml"
+blocker_reason: null
+
+# Detailed findings
+
+sc_coverage:
+  covered:
+    - SC-1: Phase 1, Task 1 — Update SKILL.md with 3 self-contained workflows
+    - SC-2: Phase 1, Tasks 1-6 — 9 task cards created/rewritten
+    - SC-3: Phase 1, Task 3 — Rewrite analyze.md with spec verification purpose
+    - SC-4: Phase 1, Task 2 — Create backfill.md for missing artifact generation
+    - SC-5: Phase 1, Task 4 — Rewrite structure.md with phase decomposition, DAG, TDT
+    - SC-6: Phase 1, Task 5 — Rewrite create.md to produce plans with full per-task cycle
+    - SC-7: Phase 1, Task 5 — create.md enforces no-skip/no-combine (in context)
+    - SC-8: Phase 1, Task 6 — Rewrite self-review.md with placeholder/coverage/consistency checks
+    - SC-9: Phase 1, Task 6 — self-review.md verifies per-task-cycle step coverage
+    - SC-10: Phase 1, Task 5 — Plan format: structured markdown, checkbox lists
+    - SC-11: Phase 1, Task 5 — Plan frontmatter with dispatch metadata
+    - SC-12: Phase 1, Task 5 — Plan is English text, no machine-parseable body
+    - SC-13: Phase 1, Task 5 — Plan follows KISS/DRY/Unix
+    - SC-14: Phase 1, Task 7 — 18 contract templates created
+    - SC-15: Phase 1, Task 7 — reference/plan-artifact-format.md simplified
+    - SC-16: Phase 2, Tasks 1-2 — Behavioral tests updated and created
+  missing: []
+
+phase_structure:
+  spec_phases:
+    - number: 1
+      name: "explore skill (separate spec #2084)"
+      status: "Correctly excluded — separate spec, not part of this plan"
+    - number: 2
+      name: "writing-plans restructure"
+      plan_phase: 1
+      match: true
+    - number: 3
+      name: "Behavioral tests"
+      plan_phase: 2
+      match: true
+
+work_instructions:
+  actionable: true
+  has_dispatch_references: true
+  specific_enough: true
+  notes: "Each task has Context section (purpose, entry gates, returns) and Work section with checkbox items. Dispatch references use skill --task format."
+
+format_compliance:
+  structured_markdown: true
+  checkbox_lists: true
+  dash_sub_bullets: true
+  dispatch_references: true
+  english_instructions: true
+  no_machine_parseable_body: true
+  frontmatter_dispatch_metadata: true
+  notes: "Plan body has no JSON/YAML code blocks, no REQ-001/TASK-001 identifiers. Frontmatter has dispatch array with phase/skill/task entries."
+
+implementation_workflow:
+  references_implementation_pipeline: true
+  no_hardcoded_workflow_steps: true
+  notes: "Plan does not hardcode per-task-cycle steps (RED/GREEN/Z3/COMMIT) because the tasks are content-creation operations dispatched to skill-creator, not TDD cycles. The spec's implementation-workflow mandate applies to the writing-plans skill's output, not to this implementation plan."
+
+step_placement:
+  pre_implementation: "per-plan — Coherence gate, Baseline check"
+  post_implementation: "per-plan — Structural checks through Exec summary"
+  correct: true
+
+dispatch_references:
+  all_items_have_dispatch: true
+  valid_references:
+    - "audit --task coherence-extraction"
+    - "implementation-pipeline --task pre-red-baseline"
+    - "skill-creator --task update"
+    - "skill-creator --task create"
+    - "test-driven-development --task red-green-cycle"
+    - "finishing-a-development-branch --task checklist"
+    - "verification-before-completion --task verify"
+    - "verification-before-completion --task completion"
+    - "implementation-pipeline --task sc-count-gate"
+    - "audit skill"
+    - "audit --task cross-validate"
+    - "test-driven-development --task patterns"
+    - "git-workflow --task review-prep"
+    - "pr-creation-workflow --task create"
+    - "completion-core --task completion"
+
+consistency_with_analysis_summary:
+  phases_match: true
+  scs_match: true
+  affected_files_match: true
+  notes: "Minor: analysis-summary marks structure.md and self-review.md as 'create' while spec and plan say 'rewrite'. This is an analysis-summary inconsistency, not a plan defect. The plan is consistent with the spec (authoritative source)."

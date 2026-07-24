@@ -1,0 +1,6 @@
+affected_files:
+  - .opencode/skills/audit/SKILL.md
+verification:
+  - path: .opencode/skills/audit/SKILL.md
+    exists: true
+scope: single file — text-only changes to SKILL.md DiMo Chain Invocation section and Trigger Dispatch Table header. No code changes, no new files, no structural changes.

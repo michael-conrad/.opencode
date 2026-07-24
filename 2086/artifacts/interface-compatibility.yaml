@@ -1,0 +1,7 @@
+interfaces:
+  - component: audit SKILL.md
+    interfaces:
+      - orchestrator reads Trigger Dispatch Table to determine dispatch strategy
+      - orchestrator reads DiMo Chain Invocation section to construct task() prompt
+      - sub-agents receive single-role dispatch with artifact path passing
+    compatibility: No interface changes — the contract between orchestrator and sub-agents (receiving a single role's context via task()) remains the same. The change is how the orchestrator constructs the dispatch sequence (4 separate task() calls instead of 1). No sub-agent needs modification.

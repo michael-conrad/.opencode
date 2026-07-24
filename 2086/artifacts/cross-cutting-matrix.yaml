@@ -1,0 +1,6 @@
+cross_cutting:
+  - scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    concern: All three SCs share a single concern — the DiMo dispatch pattern. SC-1 and SC-2 are the explicit text changes (Invocation section and header). SC-3 is the cleanup scan that ensures no contradictory language remains. They are tightly coupled and must be addressed together in one pass.

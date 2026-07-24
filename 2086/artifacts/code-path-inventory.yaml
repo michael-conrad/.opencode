@@ -1,0 +1,16 @@
+code_paths:
+  - sc: SC-1
+    path: .opencode/skills/audit/SKILL.md
+    location: DiMo Chain Invocation section (lines 100-108)
+    current_text: "task(..., prompt: \"execute <task-name> DiMo chain: investigator → validator → evaluator → arbiter\")"
+    required_change: Specify orchestrator dispatches each role as separate task() call, not a single monolithic prompt
+  - sc: SC-2
+    path: .opencode/skills/audit/SKILL.md
+    location: Trigger Dispatch Table header (line 46)
+    current_text: 'Each row dispatches to the DiMo 4-role chain (Investigator → Validator → Evaluator → Arbiter). No row dispatches to a single monolithic task file.'
+    required_change: Clarify 4 sequential task() calls per row
+  - sc: SC-3
+    path: .opencode/skills/audit/SKILL.md
+    location: Entire file
+    current_text: Lines 100-108 suggest monolithic dispatch ("DiMo chain: investigator → validator → evaluator → arbiter" as a single prompt string)
+    required_change: Scan and replace any language suggesting a single task() call dispatches the entire chain

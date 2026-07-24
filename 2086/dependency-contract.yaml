@@ -1,0 +1,16 @@
+phases:
+  - id: P1
+    name: DiMo dispatch pattern fix
+    concern: C1/C2/C3
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    dispatch_mode: inline
+    skill_task: customize-opencode (SKILL.md edit)
+edges: []
+state_transitions:
+  - phase: P1
+    entry: SKILL.md has monolithic dispatch language in DiMo Chain Invocation section
+    transition: Edit DiMo Chain Invocation section → edit Trigger Dispatch Table header → scan and remove residual monolithic language
+    exit: SKILL.md specifies orchestrator dispatches each role as separate task() call

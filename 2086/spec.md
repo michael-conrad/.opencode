@@ -1,3 +1,10 @@
+---
+name: "[SPEC-FIX] Audit skill DiMo chain dispatch"
+approved: true
+license: MIT
+provenance: AI-generated
+---
+
 ## Problem
 
 The audit skill's DiMo chain dispatch pattern tells the orchestrator to dispatch the entire 4-role chain (Investigator → Validator → Evaluator → Arbiter) as a single task() call. Sub-agents cannot call task() — they would have to inline the work, violating clean-room separation.

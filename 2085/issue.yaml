@@ -77,10 +77,10 @@ body: "# [SPEC] Restructure writing-plans skill with atomic task cards and self-
   | SC-11 | Plan artifact includes dispatch metadata in frontmatter for pipeline optimization\
   \ | `structural` | Plan frontmatter contains `dispatch:` array with skill+task refs\
   \ |\n| SC-12 | Plan artifact is English text — no machine-parseable cross-references,\
-  \ no identifier IDs, no JSON/YAML code blocks in body | `behavioral` | Read plan\
+  \ no identifier IDs, no JSON/YAML code blocks in body | `string` | Read plan\
   \ → verify no REQ-001/TASK-001 patterns, no JSON/YAML code blocks |\n| SC-13 | Plan\
   \ artifact follows KISS/DRY/Unix: each task does one action, no repeated code blocks,\
-  \ simple format | `behavioral` | Read plan → verify each task is one action, no\
+  \ simple format | `semantic` | Read plan → verify each task is one action, no\
   \ duplicated content |\n| SC-14 | 18 contract templates (9 input/output pairs) |\
   \ `structural` | Files exist at `writing-plans/contracts/` with correct names |\n\
   | SC-15 | reference/plan-artifact-format.md simplified — structural description\

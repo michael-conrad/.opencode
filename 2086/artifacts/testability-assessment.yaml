@@ -1,0 +1,13 @@
+assessments:
+  - sc: SC-1
+    evidence_type: string
+    method: grep for canonical dispatch string in DiMo Chain Invocation section
+    verification: grep the Invocation section for language specifying separate task() calls per role
+  - sc: SC-2
+    evidence_type: string
+    method: grep Trigger Dispatch Table header for 4-sequential-task language
+    verification: grep line containing "Each row dispatches to the DiMo 4-role chain"
+  - sc: SC-3
+    evidence_type: string
+    method: grep entire file for any residual monolithic dispatch language
+    verification: grep for patterns suggesting single task() call dispatches entire chain (e.g., single prompt string with all 4 roles)

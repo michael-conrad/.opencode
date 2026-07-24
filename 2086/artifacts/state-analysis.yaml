@@ -1,0 +1,5 @@
+state_transitions:
+  - phase: 1 (text edits)
+    entry: SKILL.md has monolithic dispatch language in DiMo Chain Invocation section
+    transition: Edit DiMo Chain Invocation section → edit Trigger Dispatch Table header → scan and remove residual monolithic language
+    exit: SKILL.md specifies orchestrator dispatches each role as separate task() call
