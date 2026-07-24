@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Audit DiMo chain dispatch** (#2086) - Orchestrator now dispatches each DiMo role (Investigator, Validator, Evaluator, Arbiter) as a separate `task()` call instead of a single monolithic dispatch. Updated Trigger Dispatch Table and Invocation section in `audit/SKILL.md`.
+
 - **Identity source simplification** (#86, Phase 1) - Remove `submodule` identity source from `session_context_identity.py` and `session-init`. Parent repos with no remote now get `github.platform: local` instead of borrowing submodule's remote.
 
 ### Added
