@@ -1,0 +1,37 @@
+testability:
+  - sc: SC-1
+    evidence_type: string
+    method: grep for env -i in execution path
+  - sc: SC-2
+    evidence_type: string
+    method: grep for HOME=.*TEST_HOME in execution block
+  - sc: SC-3
+    evidence_type: string
+    method: grep for cp.*STANDALONE in with-test-home
+  - sc: SC-4
+    evidence_type: string
+    method: grep for PATH=.*TEST_HOME/bin in with-test-home
+  - sc: SC-5
+    evidence_type: string
+    method: grep for opencode models outside function body in helpers.sh
+  - sc: SC-6
+    evidence_type: string
+    method: grep for OPENCODE_CMD=.*opencode" (bare, no path)
+  - sc: SC-7
+    evidence_type: string
+    method: grep for behavior_run in SC-2.sh
+  - sc: SC-8
+    evidence_type: string
+    method: grep for snap run returns 0 matches
+  - sc: SC-9
+    evidence_type: string
+    method: grep for with-test-home in test-verb-variant.sh
+  - sc: SC-10
+    evidence_type: behavioral
+    method: Run with-test-home opencode db path; assert output contains TEST_HOME
+  - sc: SC-11
+    evidence_type: behavioral
+    method: sqlite3 production DB before/after; assert session count unchanged
+  - sc: SC-12
+    evidence_type: string
+    method: grep for [test-env] in with-test-home

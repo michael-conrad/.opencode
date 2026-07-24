@@ -1,0 +1,8 @@
+title: '[SPEC-FIX] session-init: fix --no-interactive regression + mandatory unit
+  tests for .opencode/ tools'
+status: open
+labels:
+- spec-fix
+body: ''
+created_at: '2026-07-24T20:36:54+00:00'
+updated_at: '2026-07-24T20:36:54+00:00'

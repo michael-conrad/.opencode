@@ -1,0 +1,34 @@
+state_transitions:
+  - sc: SC-1
+    from: with-test-home uses subshell (no env -i)
+    to: with-test-home uses env -i with explicit allowlist
+  - sc: SC-2
+    from: HOME not set in execution block
+    to: HOME="$TEST_HOME" set in execution block
+  - sc: SC-3
+    from: standalone binary not copied to $TEST_HOME/bin
+    to: standalone binary copied to $TEST_HOME/bin/opencode
+  - sc: SC-4
+    from: $TEST_HOME/bin not in PATH
+    to: $TEST_HOME/bin prepended to PATH
+  - sc: SC-5
+    from: opencode models runs at source time in helpers.sh
+    to: opencode models runs lazily on first behavior_run_pool()
+  - sc: SC-6
+    from: OPENCODE_CMD is absolute path
+    to: OPENCODE_CMD is bare "opencode"
+  - sc: SC-7
+    from: SC-2.sh uses direct opencode run
+    to: SC-2.sh uses behavior_run()
+  - sc: SC-8, SC-9
+    from: test-verb-variant.sh uses snap run opencode
+    to: test-verb-variant.sh uses with-test-home wrapper
+  - sc: SC-10
+    from: opencode db path returns production path
+    to: opencode db path returns test home path
+  - sc: SC-11
+    from: production DB session count changes after test run
+    to: production DB session count unchanged after test run
+  - sc: SC-12
+    from: no diagnostic output
+    to: [test-env] lines printed before command

@@ -1,0 +1,9 @@
+cross_cutting:
+  - scs: [SC-6]
+    concern: opencode binary resolution
+    files: [.opencode/tests-v2/with-test-home, .opencode/tests-v2/behaviors/helpers.sh]
+    note: Both files must use bare "opencode" for PATH resolution to work
+  - scs: [SC-10, SC-11]
+    concern: behavioral verification
+    files: [.opencode/tests-v2/with-test-home]
+    note: Both behavioral SCs depend on with-test-home changes being in place

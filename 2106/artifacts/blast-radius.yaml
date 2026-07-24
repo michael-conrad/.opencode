@@ -1,0 +1,9 @@
+affected_files:
+  - .opencode/tests-v2/with-test-home
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-2.sh
+  - .opencode/tests-v2/behaviors/test-verb-variant.sh
+scope: Test framework DB isolation — all changes are within the tests-v2 directory
+verification:
+  - All 4 files exist in codebase: confirmed via spec provenance
+  - No files outside tests-v2 are affected

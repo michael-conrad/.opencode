@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2106/spec.md
+approval_status: approved (SPEC-FIX issue with full spec body)
+sc_count: 12
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_findings:
+  - All 4 affected files exist in codebase
+  - No files outside tests-v2 are affected
+  - All changes are independent — no cross-file dependencies

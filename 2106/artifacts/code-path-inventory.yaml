@@ -1,0 +1,19 @@
+code_paths:
+  - file: .opencode/tests-v2/with-test-home
+    paths:
+      - execution block (lines 319-331): replace subshell with env -i -C
+      - standalone binary copy: add cp .tools/opencode/opencode to $TEST_HOME/bin
+      - HOME setting: add HOME="$TEST_HOME" to execution block
+      - PATH prepend: add $TEST_HOME/bin to PATH
+      - diagnostic output: add [test-env] lines before command
+      - OPENCODE_CMD: change from absolute path to bare "opencode"
+  - file: .opencode/tests-v2/behaviors/helpers.sh
+    paths:
+      - line 397: move opencode models from source-time to lazy-init function
+      - OPENCODE_CMD: change from absolute path to bare "opencode"
+  - file: .opencode/tests-v2/behaviors/secret-redaction/SC-2.sh
+    paths:
+      - replace direct opencode run with behavior_run() from helpers.sh
+  - file: .opencode/tests-v2/behaviors/test-verb-variant.sh
+    paths:
+      - replace snap run opencode with with-test-home wrapper

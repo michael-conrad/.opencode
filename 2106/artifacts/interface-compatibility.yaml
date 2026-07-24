@@ -1,0 +1,10 @@
+interfaces:
+  - component: with-test-home
+    provides: [env -i isolation, standalone binary copy, test home setup]
+    consumes: [opencode binary at .tools/opencode/opencode]
+    consumers: [helpers.sh (via behavior_run), SC-2.sh, test-verb-variant.sh]
+    compatibility: All consumers use with-test-home wrapper — no interface changes needed
+  - component: helpers.sh
+    provides: [behavior_run, behavior_run_pool, assertion helpers]
+    consumes: [with-test-home (via behavior_run), opencode models (lazy-init)]
+    compatibility: SC-2.sh rewritten to use behavior_run() — compatible

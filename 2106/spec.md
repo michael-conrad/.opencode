@@ -4,6 +4,23 @@
 
 This spec fixes three independent isolation failures in the opencode test framework that cause all test runs to write to the production SQLite database instead of an isolated test home. The fix ensures `with-test-home` actually uses `env -i`, moves the `opencode models` call in `helpers.sh` from source-time to lazy-init, and rewrites two bypass scripts to use the isolation wrapper. Cost is measured in defect-discovery-latency: each isolation failure that ships undetected creates a death spiral of contaminated test data, false CI results, and manual DB cleanup that costs 1000× more than the bounded minutes of running the fix.
 
+## Requirements
+
+| ID | Requirement |
+|----|-------------|
+| R-1 | `with-test-home` execution block uses `env -i` with explicit allowlist |
+| R-2 | `with-test-home` sets `HOME` to test home in execution block |
+| R-3 | `with-test-home` copies `.tools/opencode/opencode` to `$TEST_HOME/bin/opencode` |
+| R-4 | `with-test-home` prepends `$TEST_HOME/bin` to PATH |
+| R-5 | `helpers.sh` does NOT run `opencode models` at source time |
+| R-6 | `with-test-home` and `helpers.sh` use bare `"opencode"` not absolute path |
+| R-7 | `secret-redaction/SC-2.sh` uses `behavior_run()` from helpers.sh |
+| R-8 | `test-verb-variant.sh` does NOT use `snap run` |
+| R-9 | `test-verb-variant.sh` uses `with-test-home` wrapper |
+| R-10 | `opencode db path` under `with-test-home` contains `$TEST_HOME`, not `~/.local/share` |
+| R-11 | Production DB session count is unchanged after a `with-test-home` test run |
+| R-12 | `with-test-home` prints diagnostic `[test-env]` lines before running command |
+
 ## Problem
 
 The test framework is supposed to isolate opencode's SQLite database into a temporary test home. It does not. Three independent isolation failures cause all test runs to write to the production DB at `~/.local/share/opencode/opencode.db` (9.4 GB, 14,668 sessions, 8 test-contaminated projects).
@@ -147,6 +164,20 @@ All three isolation bugs were introduced during the initial test framework v2 mi
 | All XDG vars point to test home | ✅ |
 | `USER` is `opencode-test-user` | ✅ |
 
+## Phases
+
+### Phase 1: Implement all fixes
+
+All changes are independent and can be done in parallel. This single phase covers all 12 requirements.
+
+| Step | Action | Requirements |
+|------|--------|-------------|
+| 1.1 | Fix `with-test-home` execution block to use `env -i` with explicit allowlist, set `HOME`, copy standalone binary, prepend `$TEST_HOME/bin` to PATH, and print `[test-env]` diagnostics | R-1, R-2, R-3, R-4, R-6, R-12 |
+| 1.2 | Fix `helpers.sh` to move `opencode models` from source-time to lazy-init and use bare `"opencode"` | R-5, R-6 |
+| 1.3 | Rewrite `secret-redaction/SC-2.sh` to use `behavior_run()` | R-7 |
+| 1.4 | Rewrite `test-verb-variant.sh` to use `with-test-home` wrapper instead of `snap run` | R-8, R-9 |
+| 1.5 | Verify behavioral SCs (SC-10, SC-11) pass | R-10, R-11 |
+
 ## SC Enforcement Gate
 
 All SCs below must PASS before implementation is considered complete. Any FAIL blocks the pipeline — no partial delivery, no caveats, no "PASS with concerns." Cost is measured in defect-discovery-latency: a structural PASS that misses a behavioral defect creates a death spiral of contaminated test data, false CI results, and manual DB cleanup costing 1000× more than the bounded minutes of running the correct verification.
@@ -168,6 +199,27 @@ All SCs below must PASS before implementation is considered complete. Any FAIL b
 | SC-11 | Production DB session count is unchanged after a `with-test-home` test run | `behavioral` | Run `sqlite3 ~/.local/share/opencode/opencode.db 'SELECT COUNT(*) FROM sessions'` before and after a `with-test-home` test run. Assert counts are equal. Precondition: production DB exists at `~/.local/share/opencode/opencode.db`. Cost: minutes of test execution vs. death spiral of contaminated session data. |
 | SC-12 | `with-test-home` prints diagnostic `[test-env]` lines before running command | `string` | grep for `[test-env]` in with-test-home. Cost: seconds vs. silent isolation failures. |
 
+## Traceability
+
+| SC ID | Requirement | Evidence Type | Verification Method | Phase |
+|-------|-------------|---------------|---------------------|-------|
+| SC-1 | R-1 | `string` | grep for `env -i` in execution path | 1 |
+| SC-2 | R-2 | `string` | grep for `HOME=.*TEST_HOME` in execution block | 1 |
+| SC-3 | R-3 | `string` | grep for `cp.*STANDALONE` in with-test-home | 1 |
+| SC-4 | R-4 | `string` | grep for `PATH=.*TEST_HOME/bin` in with-test-home | 1 |
+| SC-5 | R-5 | `string` | grep for `opencode models` outside function body in helpers.sh | 1 |
+| SC-6 | R-6 | `string` | grep for `OPENCODE_CMD=.*opencode"` (bare, no path) | 1 |
+| SC-7 | R-7 | `string` | grep for `behavior_run` in SC-2.sh | 1 |
+| SC-8 | R-8 | `string` | grep for `snap run` returns 0 matches | 1 |
+| SC-9 | R-9 | `string` | grep for `with-test-home` in test-verb-variant.sh | 1 |
+| SC-10 | R-10 | `behavioral` | Run `bash .opencode/tests-v2/with-test-home opencode db path`. Assert output contains `TEST_HOME` and does NOT contain `.local/share/opencode/opencode.db`. | 1 |
+| SC-11 | R-11 | `behavioral` | Run `sqlite3 ~/.local/share/opencode/opencode.db 'SELECT COUNT(*) FROM sessions'` before and after a `with-test-home` test run. Assert counts are equal. | 1 |
+| SC-12 | R-12 | `string` | grep for `[test-env]` in with-test-home | 1 |
+
+## Dependencies
+
+All changes in this spec are independent — no change depends on another. The four affected files (`with-test-home`, `helpers.sh`, `SC-2.sh`, `test-verb-variant.sh`) can be modified in any order. The two behavioral SCs (SC-10, SC-11) require the `with-test-home` changes to be in place first, but since all changes are in Phase 1, this is a natural ordering within the phase rather than a cross-phase dependency.
+
 ## Affected Files
 
 - `.opencode/tests-v2/with-test-home`
@@ -188,4 +240,8 @@ All SCs below must PASS before implementation is considered complete. Any FAIL b
 | 2026-07-24 | Rewrote SC-10 and SC-11 with executable verification commands and preconditions | Spec audit SC-9/SC-DET FAIL — implicit_behavior patterns | Spec audit remediation |
 | 2026-07-24 | Added cost-frame language to all SCs | Spec audit SC-13 FAIL — no cost-frame language | Spec audit remediation |
 | 2026-07-24 | Added SC Enforcement Gate statement | Spec audit SC-14 FAIL — missing enforcement gate | Spec audit remediation |
+| 2026-07-24 | Added Requirements section (R-1 through R-12 mapping SCs to requirements) | Validation FAIL: completeness — missing Requirements section | Spec-creation revision pipeline |
+| 2026-07-24 | Added Phases section (Phase 1: Implement all fixes) | Validation FAIL: phase_coverage — missing Phases section | Spec-creation revision pipeline |
+| 2026-07-24 | Added Traceability table mapping each SC to requirement, evidence type, verification method, and phase | Validation FAIL: traceability — missing Traceability table | Spec-creation revision pipeline |
+| 2026-07-24 | Added Dependencies section noting all changes are independent | Validation FAIL: completeness — missing Dependencies section | Spec-creation revision pipeline |
 
