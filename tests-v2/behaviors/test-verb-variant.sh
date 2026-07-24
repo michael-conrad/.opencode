@@ -104,7 +104,7 @@ export XDG_STATE_HOME="$TEST_HOME/.local/state"
 
 PROMPT="Dispatch a sub-agent to read and follow instructions in tmp/verb-test/task.md"
 
-script -q -c "snap run opencode run '$PROMPT' --model $MODEL --log-level INFO --print-logs" "$STDOUT_FILE" 2> "$STDERR_FILE" || true
+bash "$SCRIPT_DIR/../with-test-home" opencode run "$PROMPT" --model "$MODEL" --log-level INFO --print-logs > "$STDOUT_FILE" 2> "$STDERR_FILE" || true
 
 # Quick diagnostics to stderr
 echo "=== $VERB / $MODEL / $CONTEXT ===" >&2
