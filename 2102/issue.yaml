@@ -1,7 +1,9 @@
 title: '[SPEC] session-init output mechanism, trigger injection, sub-agent detection'
-status: open
+status: closed
 labels:
 - ''
 body: ''
 created_at: '2026-07-24T17:31:24+00:00'
-updated_at: '2026-07-24T22:53:21+00:00'
+updated_at: '2026-07-24T22:54:43+00:00'
+closed_at: '2026-07-24T22:54:43+00:00'
+close_reason: completed
