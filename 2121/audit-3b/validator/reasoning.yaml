@@ -1,0 +1,527 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2121
+generated_at: "2026-07-25T05:25:00Z"
+evidence_source: ".opencode/.issues/2121/audit-3b/investigator/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2121"
+spec_issue_number: 2121
+audit_run_id: 3b
+
+overall_validation_status: "partial"
+
+summary: "Investigator evidence largely validated against the latest spec.md. Critical corrections required: (1) spec file size mismatch — evidence claimed 43095 bytes / 43095 chars; actual 39585 bytes. (2) SC-2 criterion text stale in evidence — actual spec has different Phase mapping wording. (3) SC-3 criterion text stale in evidence — actual spec changed '5-10 words' to '1-10 words' and added phrase-source explanation. (4) Move-table phrase word-count distribution in evidence is wrong — actual spec has all 123 phrases within 1-10 words, not '75 of 123 above 10 words'. (5) R3B-NEW-1 phrase-length defect is REFUTED — actual spec conforms to the updated 1-10 word constraint. (6) R3B-NEW-2 placeholders defect is REFUTED — 0 placeholders in actual spec. (7) R3B-NEW-3 unclosed-backtick defect is REFUTED — all phrases have closed backticks. (8) Prose-elements counts (ordered_lists: 6, unordered_lists: 1) do not match actual (5 ordered items in 1 block, 9 unordered list blocks). R3-NEW-1, R3-NEW-2, and R3-NEW-3 are all VERIFIED CORRECT against the actual spec."
+
+# ============================================================================
+# SECTION: spec_files_validation
+# ============================================================================
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: false
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: "size_bytes"
+        evidence_value: 43095
+        actual_value: 39585
+      - field: "body_length_chars"
+        evidence_value: 43095
+        actual_value: 39585
+    notes: "Body length lines (253) matches. size_bytes / body_length_chars both 43095 in evidence but 39585 in actual filesystem. Difference of 3510 bytes. The line count and structure match exactly, so this appears to be a stale snapshot from an earlier version of the file."
+
+# ============================================================================
+# SECTION: spec_structure_validation
+# ============================================================================
+spec_structure_validation:
+  headings:
+    validation_status: "validated"
+    evidence_count: 11
+    actual_count: 11
+    mismatches: []
+    notes: "All 11 H2/H3 headings (Problem, Success Criteria, Rules to Move, Universal Rules to Keep, Implementation Phases, 6 Phase sub-headings, Files Affected, Risks, Alternatives Considered, Dependencies, Policy References) match the evidence at the exact line numbers reported."
+  success_criteria:
+    validation_status: "corrected"
+    evidence_row_count: 10
+    actual_row_count: 10
+    mismatches:
+      - sc_id: "SC-2"
+        field: "criterion_text"
+        evidence_value: "All `Read [` cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 of the implementation plan covers this SC by moving those stubs into the target guidelines (where the rules already live) and removing them from 000-critical-rules.md."
+        actual_value: "All `Read [` cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+      - sc_id: "SC-3"
+        field: "criterion_text"
+        evidence_value: "Every rule listed in the \"Rules to Move\" table below is present in its target skill/task card with equivalent content. The \"Key phrase\" column in the move table shows a distinctive full sentence (5-10 words) that MUST appear in the target file. Phase 1 covers this SC."
+        actual_value: "Every rule listed in the \"Rules to Move\" table below is present in its target skill/task card with equivalent content. The \"Key phrase\" column shows a distinctive phrase (1-10 words) that MUST appear in the target file. Phrases come from either the rule's body (first descriptive sentence) or, for cross-reference-only rules, the rule title. Phase 1 covers this SC."
+      - sc_id: "SC-3"
+        field: "word_count_constraint"
+        evidence_value: "(5-10 words)"
+        actual_value: "(1-10 words)"
+    notes: "Both SC-2 and SC-3 have substantive text changes from the evidence snapshot. SC-2's phase mapping was tightened to the cleaner 'Phase 1 covers this SC indirectly. Phase 2 covers it directly.' (line 18). SC-3's phrase length constraint was relaxed from 5-10 words to 1-10 words and explanatory clause was added about phrase source (line 19). These changes are the SPEC REVISION that the investigator's downstream R3B-NEW-1 analysis was based on — but the investigator's evidence.yaml captured the OLD criterion text, not the new one. The investigator's R3B-NEW-1 (phrase length violates SC-3) finding was generated against the old '5-10 words' constraint, but the actual spec has already relaxed the constraint to '1-10 words' and the actual phrase distribution (1-10 words for all 123 phrases) now conforms to the new constraint."
+  phases:
+    validation_status: "validated"
+    evidence_count: 6
+    actual_count: 6
+    mismatches: []
+  files_affected:
+    validation_status: "validated"
+    evidence_paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - "30 target files (listed in the Rules to Move table above)"
+    actual_paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - "30 target files (listed in the Rules to Move table above)"
+    mismatches: []
+    notes: "Actual spec line 227-228: '.opencode/guidelines/000-critical-rules.md — 123 rules removed; 18 universal rules preserved / 30 target files (listed in the \"Rules to Move\" table above) — receive moved rules'."
+  preamble:
+    validation_status: "validated"
+    evidence_fields_present: []
+    actual_fields_present: []
+    mismatches: []
+    notes: "Confirmed: no '## Intent and Executive Summary' or alternative preamble section. spec.md starts directly with '## Problem'."
+  documentation_sources:
+    validation_status: "validated"
+    evidence_sources: []
+    actual_sources: []
+    mismatches: []
+    notes: "No '## Documentation Sources' section present. Only '## Policy References' exists at line 249, which contains reference links to internal guidelines (091-incremental-build.md, 080-code-standards.md, 130-authority-source.md) — these are not external documentation sources."
+  status_marker:
+    validation_status: "validated"
+    evidence_value: "absent"
+    actual_value: "absent"
+    notes: "No STATUS field found anywhere in the spec."
+  prose_elements:
+    validation_status: "corrected"
+    mismatches:
+      - element: "ordered_lists"
+        evidence_count: 6
+        actual_count: 1
+        notes: "Spec has 1 ordered list block (5 items, lines 5-9, the Problem statement's category enumeration). Evidence claimed 6 — possibly miscounting Phase bullets or SC table rows."
+      - element: "unordered_lists"
+        evidence_count: 1
+        actual_count: 9
+        notes: "Spec has 9 distinct unordered list blocks (Phase 1 bullets, Phase 2 bullets, Phase 3, Phase 4 bullets, Phase 5 bullets, Phase 6 bullets, Files Affected entries, Risks entries, line 247 Dependencies note). Evidence claimed 1 — significant undercount."
+
+# ============================================================================
+# SECTION: determinism_validation
+# ============================================================================
+determinism_validation:
+  sc_wording:
+    validation_status: "corrected"
+    mismatches:
+      - sc_id: "SC-2"
+        evidence_text: "All `Read [` cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 of the implementation plan covers this SC by moving those stubs into the target guidelines (where the rules already live) and removing them from 000-critical-rules.md."
+        actual_text: "All `Read [` cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+      - sc_id: "SC-3"
+        evidence_text: "Every rule listed in the \"Rules to Move\" table below is present in its target skill/task card with equivalent content. The \"Key phrase\" column in the move table shows a distinctive full sentence (5-10 words) that MUST appear in the target file. Phase 1 covers this SC."
+        actual_text: "Every rule listed in the \"Rules to Move\" table below is present in its target skill/task card with equivalent content. The \"Key phrase\" column shows a distinctive phrase (1-10 words) that MUST appear in the target file. Phrases come from either the rule's body (first descriptive sentence) or, for cross-reference-only rules, the rule title. Phase 1 covers this SC."
+    notes: "Word counts reported in evidence (SC-2: 44, SC-3: 47) are based on the stale text. Current actual: SC-2 has fewer words due to shorter phase mapping; SC-3 has more words due to added phrase-source explanation. Both word counts are within acceptable range and not material to PASS/FAIL."
+  fail_patterns:
+    validation_status: "corrected"
+    evidence_count: 2
+    actual_count: 0
+    mismatches:
+      - sc_id: "SC-3"
+        pattern: "missing_expected_values"
+        evidence_matched_text: "Key phrase column shows a distinctive full sentence (5-10 words) — 75 of 123 phrases exceed 10 words (range: 11-41 words); 12 of 123 phrases are placeholder '[no phrase found]' with no actual phrase content"
+        reason: "Stale finding. The criterion was changed from '5-10 words' to '1-10 words' (spec line 19). All 123 phrases in the actual spec fall within 1-10 words. There are 0 phrases with '[no phrase found]' placeholder. 0 phrases exceed 10 words. The fail-pattern was computed against an older snapshot."
+      - sc_id: "SC-3"
+        pattern: "implicit_behavior"
+        evidence_matched_text: "1 of 123 phrases has unclosed backtick that may break grep -F fixed-string matching: 'The `issue-operations` dispatcher resolves platform selection automatically based on `github.'"
+        reason: "Stale finding. The phrase at Move-table row 26 (formerly called line 58) now reads: 'The `issue-operations` dispatcher resolves platform selection automatically based on `github.platform`.' — backticks are properly closed and phrase ends with a period. Verified: all 123 phrases have even (matched) backtick counts."
+  ambiguity_markers:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+    notes: "The 'MUST appear in the target file' marker in SC-3 is verified at line 19 of the spec."
+  evidence_type_declarations:
+    validation_status: "validated"
+    mismatches: []
+    notes: "All 10 SCs have their declared evidence types in the spec table matching the evidence (SC-3=behavioral, SC-8=behavioral, others=string)."
+  verification_methods:
+    validation_status: "corrected"
+    mismatches:
+      - sc_id: "SC-2"
+        field: "method_text"
+        evidence_value: "grep -cE \"Read \\[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)\" .opencode/guidelines/000-critical-rules.md returns 0"
+        actual_value: "grep -cE \"Read \\[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)\" .opencode/guidelines/000-critical-rules.md returns 0"
+        notes: "Method itself unchanged, but the criterion text it verifies is now shorter (Phase 1 indirect, Phase 2 direct)."
+    notes: "All 10 SCs have verification_method columns populated with executable commands."
+  failure_description:
+    validation_status: "unvalidated"
+    evidence_provided: null
+    actual_provided: null
+    notes: "Investigator did not provide a failure_description_provided field. Spec itself does not contain a failure_description field; the SC-3 verification method is a positive existence check, not a failure description."
+
+# ============================================================================
+# SECTION: documentation_source_validation
+# ============================================================================
+documentation_source_validation:
+  urls:
+    validation_status: "validated"
+    mismatches: []
+    notes: "Only the dispatch-contract issue URL was captured; no other external URLs cited in spec."
+  api_references:
+    validation_status: "validated"
+    mismatches: []
+  env_variables:
+    validation_status: "validated"
+    mismatches: []
+  library_patterns:
+    validation_status: "validated"
+    mismatches: []
+
+# ============================================================================
+# SECTION: prose_validation
+# ============================================================================
+prose_validation:
+  escape_hatches:
+    validation_status: "validated"
+    evidence_count: 4
+    actual_count: 4
+    mismatches: []
+    notes: "Confirmed: 'may be deferred', 'as appropriate', 'TODO/TBD', and 'consider ' are not present in the spec body."
+  tracking_language:
+    validation_status: "validated"
+    evidence_count: 2
+    actual_count: 2
+    mismatches: []
+    notes: "Two 'implemented'/'completed' instances exist at lines 82 and 144, both inside quoted rule body text within the Move table (i.e., the quoted text from the original 000-critical-rules.md rule). These are not SC-tracking language."
+  prescriptive_code:
+    validation_status: "validated"
+    mismatches: []
+    notes: "All 4 prescriptive_code instances from evidence are present in the spec (file path, grep commands, line-9-10 reference). Note: the line_number reference in Problem section line 5 is documentary (it references the original 000 file's line numbers, not the spec itself)."
+  cost_frame_language:
+    validation_status: "validated"
+    mismatches: []
+    notes: "No SC uses cost-frame language. Confirmed across all 10 SCs."
+
+# ============================================================================
+# SECTION: reasoning_validation
+# ============================================================================
+reasoning_validation:
+  root_causes:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+    notes: "The 5-category root cause is present in Problem section lines 3-9."
+  fix_approaches:
+    validation_status: "corrected"
+    evidence_count: 6
+    actual_count: 6
+    mismatches:
+      - evidence_text: "Phase 1: Embed moved rules into target files (covers SC-3 and indirectly SC-2)"
+        actual_text: "Phase 1: Embed moved rules into target files ... This phase covers SC-3 and indirectly reduces the count of `Read [` cross-refs in 000 once moved rules no longer reference the preloaded guidelines from 000"
+        notes: "Phase 1 text at line 196 was simplified and the SC-2 reference uses different wording. Functionally equivalent."
+      - evidence_text: "Phase 2: Remove intro cross-references and stubs (covers SC-1 and SC-2)"
+        actual_text: "Phase 2: Remove intro cross-references and stubs ... Delete the two intro cross-references to AGENTS.md and the guidelines directory (covers SC-1) / For each `Read [` cross-ref pointing to a preloaded guideline that remains in a moved rule's body, replace the cross-ref with the rule's own text or remove the cross-ref entirely (covers SC-2)"
+        notes: "Phase 2 now explicitly maps SC-1 and SC-2 to distinct bullets. SC-2 mapping is now explicit (was implicit in evidence)."
+    notes: "All 6 fix approaches (Phase 1-6) are present in the Implementation Phases section."
+  sc_to_root_cause:
+    validation_status: "validated"
+    mismatches: []
+  alternatives_considered:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    mismatches: []
+  edge_cases:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    evidence_count: 3
+    actual_count: 3
+    mismatches: []
+  potential_contradictions:
+    validation_status: "corrected"
+    evidence_count: 6
+    actual_count: 0
+    mismatches:
+      - evidence_statement_a: "SC-3 criterion: 'full sentence (5-10 words) that MUST appear in the target file'"
+        evidence_statement_b: "75 of 123 phrases (61%) have word count > 10 (range 11-41 words); 12 of 123 phrases are '[no phrase found]' placeholders"
+        reason: "Stale finding based on old '5-10 words' criterion and old phrase set. Actual spec has 1-10 words constraint and all 123 phrases fall within 1-10 words. 0 placeholders. 0 phrases > 10 words. Contradiction no longer exists in round 3b spec."
+      - evidence_statement_a: "SC-3 verification: 'grep -F \"<key phrase>\" <target file>'"
+        evidence_statement_b: "1 of 123 phrases has unclosed backtick ('The `issue-operations` dispatcher resolves platform selection automatically based on `github.') — literal backticks in phrase complicate shell quoting and grep -F interpretation"
+        reason: "Stale finding. The phrase at Move-table row 26 now has '`github.platform`' (closed backtick + period). All 123 phrases have matched backticks. While 15-16 phrases still contain literal backticks, the shell-quoting concern is addressable in implementation (e.g., via heredoc or `grep -F` with single-quote escaping). It is not an unresolvable contradiction."
+      - evidence_statement_a: "Phase 1 work: 'read source rule, append to target, verify key phrase in target'"
+        evidence_statement_b: "Phase 1 also 'indirectly covers SC-2' by reducing Read [ count in 000 once rules are moved; Phase 2 explicitly covers SC-2 by stub replacement"
+        reason: "Stale finding. SC-2 mapping is now fully explicit in both SC-2 criterion (line 18: 'Phase 1 covers this SC indirectly. Phase 2 covers it directly.') and Phase 1 bullet (line 196) and Phase 2 bullet (line 200). No longer indirect-only or 'resolved by stub replacement' — resolved by the actual phase text."
+
+# ============================================================================
+# SECTION: analytical_artifact_validation
+# ============================================================================
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+  concern_map:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+  code_path_inventory:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+  cross_cutting_matrix:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+  interface_compatibility:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+  state_analysis:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+  testability_assessment:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_exists: false
+
+# ============================================================================
+# SECTION: holistic_dimension_validation
+# ============================================================================
+holistic_dimension_validation:
+  implementability:
+    validation_status: "corrected"
+    mismatches:
+      - field: "ambiguous_sc_notes"
+        evidence_value: "SC-3 has 12 [no phrase found] placeholders that cannot be grep-matched, plus 75 phrases with >10 word count that violate the 5-10 range, plus 1 phrase with unclosed backtick. The behavioral verification method cannot execute for these 88 of 123 rows (71%)."
+        actual_value: "SC-3 has 0 placeholders, 0 phrases > 10 words (constraint relaxed to 1-10 words), 0 phrases with unclosed backticks. The behavioral verification method can execute for all 123 rows (100%)."
+    notes: "Stale finding. Actual spec has no SC-3 implementation barrier."
+  internal_consistency:
+    validation_status: "corrected"
+    mismatches:
+      - field: "preamble_body_alignment_notes"
+        evidence_value: "Files Affected 123 + 18 = 141 now matches Move (123) + Keep (18) totals. SC-2 phase mapping is now explicit in both SC-2 criterion (Phase 1) and Phase 1/2 bullets (Phase 1 indirect + Phase 2 direct). However, SC-3 criterion says 5-10 word phrases while actual phrase column has 75 phrases >10 words."
+        actual_value: "Files Affected 123 + 18 = 141 matches Move (123) + Keep (18) totals. SC-2 phase mapping is now explicit in both SC-2 criterion (line 18) and Phase 1/2 bullets. SC-3 criterion says 1-10 word phrases and all 123 phrases fall within 1-10 words. No contradiction."
+    notes: "All 3 cross_section_references in the spec match (Files Affected ↔ line 158 Move count ↔ line 160 Keep count)."
+  completeness:
+    validation_status: "corrected"
+    mismatches:
+      - field: "undefined_terms"
+        evidence_value: "12 [no phrase found] placeholders in Move table — no distinctive phrase to grep for"
+        actual_value: "0 [no phrase found] placeholders. All 123 phrases are non-empty and non-placeholder."
+      - field: "implicit_dependencies"
+        evidence_value: "SC-3 verification assumes the implementor will accept non-matching grep results for '[no phrase found]' rows (placeholder can't be matched) — no explicit handling specified"
+        actual_value: "No placeholders exist, so no special-casing needed. SC-3 verification method (grep -F) can run uniformly across all 123 rows."
+  scope_discipline:
+    validation_status: "validated"
+    mismatches: []
+  testability:
+    validation_status: "corrected"
+    mismatches:
+      - field: "subjective_judgment_scs"
+        evidence_value: "SC-3 (12 '[no phrase found]' rows cannot be tested by grep -F; 75 rows with phrases >10 words exceed spec's own 5-10 word range)"
+        actual_value: "SC-3 is fully testable: 123/123 rows have non-placeholder phrases within 1-10 words. SC-8 tokenization has known edge cases but is testable."
+  provenance:
+    validation_status: "corrected"
+    mismatches:
+      - field: "unsupported_assertions"
+        evidence_value: "SC-3 criterion '5-10 words' claim is contradicted by 75 phrases that exceed 10 words in the same table the criterion references / Move table column header on line 30 says 'full 5-10 word distinctive sentence from the rule body' but the rows contain 5-41 word phrases with 12 placeholders"
+        actual_value: "No contradiction. SC-3 criterion (line 19) says '1-10 words' and all 123 phrases fall within 1-10 words. Move table intro (line 30) says '1-10 words' and all 123 phrases fall within 1-10 words."
+    notes: "Spec line 30: 'Each entry below is a unique source rule paired with exactly one target file. The \"Key phrase\" column provides a distinctive phrase (1-10 words) that MUST appear in the target file after the move (verified by SC-3 using `grep -F`). Phrases come from the rule's first descriptive body sentence, or — for the 7 rules whose body contains only cross-references — from the rule title. All 123 entries have a non-empty, non-placeholder phrase.'"
+  feasibility:
+    validation_status: "validated"
+    mismatches: []
+  safety:
+    validation_status: "validated"
+    mismatches: []
+  traceability:
+    validation_status: "validated"
+    mismatches: []
+    notes: "All 10 SCs mapped to phases with no orphans. SC-2 mapping is now double-anchored (criterion + Phase 1 + Phase 2). SC-3 mapping anchored (criterion + Phase 1). 6 phases total, all anchored."
+  correctness:
+    validation_status: "validated"
+    mismatches: []
+
+# ============================================================================
+# SECTION: remediation_verification_validation (Round 3b regression analysis)
+# ============================================================================
+remediation_verification_validation:
+  R3_NEW_1_MOVE_TABLE_ROW_COUNT:
+    validation_status: "validated"
+    notes: "Move table: 123 rows. Keep table: 18 rows. Total: 141 = 123 + 18. Files Affected line 227 matches (123 removed + 18 kept). Line 158 matches. Line 160 matches. R3-NEW-1 (111 vs 123 mismatch) is VERIFIED CORRECT in actual spec."
+  R3_NEW_2_TRUNCATION_MARKERS:
+    validation_status: "validated"
+    notes: "0 phrases end with '...' (verified by grep on the actual Move-table). All 123 phrases contain complete first sentence from rule body (or, for 7 cross-reference-only rules, from the rule title). R3-NEW-2 (28 '...' truncation) is VERIFIED CORRECT in actual spec."
+  R3_NEW_3_SC2_PHASE_MAPPING:
+    validation_status: "validated"
+    notes: "SC-2 criterion (line 18): 'Phase 1 covers this SC indirectly. Phase 2 covers it directly.' Phase 1 bullet (line 196): 'This phase covers SC-3 and indirectly reduces the count of `Read [` cross-refs in 000 once moved rules no longer reference the preloaded guidelines from 000'. Phase 2 bullet (line 200): 'For each `Read [` cross-ref pointing to a preloaded guideline that remains in a moved rule's body, replace the cross-ref with the rule's own text or remove the cross-ref entirely (covers SC-2)'. R3-NEW-3 (indirect SC-2 phase mapping) is VERIFIED CORRECT in actual spec — SC-2 is now double-anchored (criterion + Phase 1 + Phase 2)."
+
+# ============================================================================
+# SECTION: round3b_introduced_defects_validation (Investigator-claimed regressions)
+# ============================================================================
+round3b_introduced_defects_validation:
+  R3B_NEW_1_PHRASE_LENGTH_VIOLATES_SC3_CRITERION:
+    validation_status: "refuted"
+    notes: "Investigator claimed: SC-3 criterion says 5-10 words, but 75 of 123 phrases exceed 10 words (range 11-41). Evidence.yaml captured the OLD criterion text '5-10 words'. ACTUAL spec line 19: 'distinctive phrase (1-10 words)'. The constraint was relaxed from 5-10 to 1-10 words in round 3b. ACTUAL phrase distribution: 0 phrases > 10 words, max word count is 10 words. All 123 phrases are within 1-10 words. The 5-10 word range reported in evidence is stale; the 75 phrases with >10 words reported in evidence is stale; both reflect a snapshot that has been superseded. R3B-NEW-1 is REFUTED by the actual spec."
+    word_count_actual_distribution:
+      below_5_words: 2  # row 98 (4 words), row 103 (3 words)
+      within_1_to_10_words: 123  # all 123 phrases
+      above_10_words: 0
+      max_word_count: 10
+  R3B_NEW_2_MISSING_PHRASE_PLACEHOLDERS:
+    validation_status: "refuted"
+    notes: "Investigator claimed: 12 of 123 Move table key phrases are the literal string '[no phrase found]'. ACTUAL spec: 0 occurrences of '[no phrase found]' in the Move table (verified by grep). Spec line 30 explicitly states: 'All 123 entries have a non-empty, non-placeholder phrase.' R3B-NEW-2 is REFUTED by the actual spec."
+  R3B_NEW_3_UNCLOSED_BACKTICK_IN_PHRASE:
+    validation_status: "refuted"
+    notes: "Investigator claimed: 1 of 123 phrases at line 58 has unclosed backtick: 'The `issue-operations` dispatcher resolves platform selection automatically based on `github.'. ACTUAL spec: The phrase at Move-table row 26 reads: 'The `issue-operations` dispatcher resolves platform selection automatically based on `github.platform`.' — backticks are properly closed and phrase ends with a period. Verified: all 123 phrases have even (matched) backtick counts (16 phrases contain backticks, all with matched pairs). R3B-NEW-3 is REFUTED by the actual spec."
+
+# ============================================================================
+# SECTION: current_state_observations_validation
+# ============================================================================
+current_state_observations_validation:
+  sc3:
+    move_table_rows:
+      evidence_value: 123
+      actual_value: 123
+      status: validated
+    keep_table_rows:
+      evidence_value: 18
+      actual_value: 18
+      status: validated
+    total_rule_table_rows:
+      evidence_value: 141
+      actual_value: 141
+      status: validated
+    unique_target_files:
+      evidence_value: 30
+      actual_value: 30
+      status: validated
+    phrases_total:
+      evidence_value: 123
+      actual_value: 123
+      status: validated
+    phrases_missing:
+      evidence_value: 12
+      actual_value: 0
+      status: corrected
+    phrases_with_word_count_below_5:
+      evidence_value: 0
+      actual_value: 2
+      status: corrected
+      notes: "Actual: 2 phrases below 5 words (row 98: 'Uncommitted/Unpushed Changes After Implementation' = 4 words; row 103: 'Sub-issue Closure Timing' = 3 words). These are the cross-reference-only rules whose key phrases come from the rule title (line 30: 'for the 7 rules whose body contains only cross-references — from the rule title')."
+    phrases_with_word_count_in_range_5_to_10:
+      evidence_value: 36
+      actual_value: 121
+      status: corrected
+      notes: "Actual: 121 phrases in 5-10 word range. Evidence was based on stale 5-10 word constraint."
+    phrases_with_word_count_above_10:
+      evidence_value: 75
+      actual_value: 0
+      status: corrected
+    phrases_max_word_count:
+      evidence_value: 41
+      actual_value: 10
+      status: corrected
+    phrases_containing_backticks:
+      evidence_value: 15
+      actual_value: 16
+      status: corrected
+    phrases_with_unclosed_backticks:
+      evidence_value: 1
+      actual_value: 0
+      status: corrected
+    truncation_markers_present:
+      evidence_value: 0
+      actual_value: 0
+      status: validated
+  sc10:
+    claimed_count:
+      evidence_value: 18
+      actual_value: 18
+      status: validated
+    total_in_file:
+      evidence_value: 141
+      actual_value: 141
+      status: validated
+
+# ============================================================================
+# SECTION: round3b_progress_summary_validation
+# ============================================================================
+round3b_progress_summary_validation:
+  round1_fail_count:
+    evidence_value: 13
+    actual_value: "unvalidated — out of scope (historical)"
+    status: unvalidated
+  round2_fail_count:
+    evidence_value: 7
+    actual_value: "unvalidated — out of scope (historical)"
+    status: unvalidated
+  round3_fail_count:
+    evidence_value: 5
+    actual_value: "unvalidated — out of scope (historical)"
+    status: unvalidated
+  round3b_remediations_verified:
+    evidence_value: 2
+    actual_value: 3
+    status: corrected
+    notes: "Investigator's R3-NEW-1, R3-NEW-2, R3-NEW-3 are all 3 VERIFIED CORRECT against the actual spec, not 2."
+  round3b_remediations_partial:
+    evidence_value: 1
+    actual_value: 0
+    status: corrected
+    notes: "Investigator marked R3-NEW-2 as 'VERIFIED_CORRECT_BUT_NEW_DEFECT_INTRODUCED'. The 'new defect' (R3B-NEW-1) was an artifact of capturing stale criterion text. All 3 R3-NEW defects are fully remediated with no residual defect."
+  round3b_new_defects_introduced:
+    evidence_value: 3
+    actual_value: 0
+    status: corrected
+    notes: "R3B-NEW-1, R3B-NEW-2, R3B-NEW-3 are REFUTED by the actual spec. No new defects were introduced in round 3b. The 3 'new defects' reported in evidence.yaml were all artifacts of the investigator comparing a 1-10 word phrase distribution against a stale 5-10 word constraint (which was relaxed in round 3b but captured in the evidence snapshot as the old constraint)."
+  net_finding:
+    evidence_value: "Round 3b successfully resolved R3-NEW-1 (BLOCKING row count) and R3-NEW-3 (ADVISORY phase mapping) but the R3-NEW-2 remediation introduced 3 new defects: (1) 75/123 phrases now exceed SC-3's 5-10 word constraint, (2) 12/123 phrases remain as '[no phrase found]' placeholders, (3) 1/123 phrase has an unclosed backtick. Net effect: 87 of 123 Move table rows (71%) cannot pass SC-3 verification as currently specified."
+    actual_value: "All 3 round-3 BLOCKING/ADVISORY defects (R3-NEW-1, R3-NEW-2, R3-NEW-3) are fully resolved in the actual spec. The 3 'round-3b-introduced defects' reported by the investigator (R3B-NEW-1, R3B-NEW-2, R3B-NEW-3) are all artifacts of stale-criterion capture in the evidence.yaml. The actual spec has 0 placeholders, 0 phrases > 10 words, 0 unclosed backticks, 0 new defects. Net effect: SC-3 verification is now fully testable for all 123 rows."
+
+# ============================================================================
+# SECTION: unvalidated_items
+# ============================================================================
+unvalidated_items:
+  - section: "remediation_verification.R3_NEW_1"
+    item: "Move table row count consistency"
+    reason: "Validated by direct grep; counts match."
+  - section: "round3b_progress_summary"
+    item: "Historical round 1/2/3 fail counts"
+    reason: "Out of scope for round 3b validation; not verifiable from current spec state."
+
+# ============================================================================
+# SECTION: corrections_summary
+# ============================================================================
+corrections_summary:
+  total_corrections: 16
+  sections_affected:
+    - "spec_files_validation (size_bytes, body_length_chars)"
+    - "spec_structure_validation (SC-2/SC-3 criterion text; prose_elements counts)"
+    - "determinism_validation (SC-2/SC-3 wording; fail_patterns stale findings)"
+    - "reasoning_validation (fix_approaches text; potential_contradictions stale findings)"
+    - "holistic_dimension_validation (implementability, internal_consistency, completeness, testability, provenance)"
+    - "round3b_introduced_defects_validation (R3B-NEW-1, R3B-NEW-2, R3B-NEW-3 all refuted)"
+    - "current_state_observations_validation (sc3 phrase distribution)"
+    - "round3b_progress_summary_validation (defect counts and net finding)"
+
+# ============================================================================
+# SECTION: overall_assessment
+# ============================================================================
+overall_assessment:
+  round3_defects_fixes:
+    R3_NEW_1_MOVE_TABLE_ROW_COUNT: "VERIFIED CORRECT — Move table now has 123 rows, consistent with Files Affected and line 158 claim."
+    R3_NEW_2_TRUNCATION_MARKERS: "VERIFIED CORRECT — 0 '...' truncation markers in Move table; all 123 phrases are complete first sentences (or rule titles for 7 cross-reference-only rules)."
+    R3_NEW_3_SC2_PHASE_MAPPING: "VERIFIED CORRECT — SC-2 mapping is now double-anchored: SC-2 criterion (line 18) and Phase 1 (line 196) + Phase 2 (line 200)."
+  round3b_regressions:
+    R3B_NEW_1_PHRASE_LENGTH: "REFUTED — actual spec criterion was relaxed from 5-10 words to 1-10 words. All 123 phrases are within 1-10 words. 0 phrases > 10 words."
+    R3B_NEW_2_PLACEHOLDERS: "REFUTED — 0 '[no phrase found]' placeholders in actual spec. Line 30 explicitly states all 123 phrases are non-empty and non-placeholder."
+    R3B_NEW_3_UNCLOSED_BACKTICK: "REFUTED — all 16 phrases containing backticks have matched pairs and proper termination. The previously-flagged phrase now has '`github.platform`' (closed backtick + period)."
+  new_defects_introduced: 0
+  net_progress: "Round 3b (actual) has all 3 R3-NEW defects remediated and 0 new defects. The Investigator's evidence.yaml captured a stale snapshot of the SC-3 criterion and the 123-phrase distribution, which caused 3 false-positive R3B-NEW defects. With the actual spec data, the audit verdict for round 3b should be: 3 R3-NEW defects FIXED, 0 new defects, 0 regressed items."
+
+# ============================================================================
+# SECTION: return_frugal_result_contract
+# ============================================================================
+status: DONE
+artifact_path: ".opencode/.issues/2121/audit-3b/validator/reasoning.yaml"
+summary: "Evidence validated against actual spec.md. 16 corrections applied across 8 sections. All 3 R3-NEW defects (R3-NEW-1 BLOCKING row count, R3-NEW-2 BLOCKING truncation, R3-NEW-3 ADVISORY SC-2 phase mapping) are VERIFIED CORRECT in the actual spec. All 3 R3B-NEW defects flagged by the investigator are REFUTED — they were artifacts of the investigator capturing the stale 5-10 word SC-3 criterion in evidence.yaml (actual spec has 1-10 words), and computing phrase distribution against that stale constraint (actual phrase distribution: 0 > 10 words, 0 placeholders, 0 unclosed backticks, all 123 phrases within 1-10 words). The actual spec.md is fully self-consistent for SC-3 verification: all 123 phrases are non-empty, within word count, and have valid syntax. No judgments applied — only validated evidence."
