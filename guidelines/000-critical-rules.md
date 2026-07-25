@@ -32,11 +32,11 @@ The reclassification organizes every symbolic rule into three tiers based on con
 
 Rules that prevent **irreversible harm**: data loss, security breach, production data corruption, secret exfiltration, unrecoverable repository damage. These NEVER yield to developer authorization.
 ### [critical-rules-006] CRITICAL VIOLATION — Question-as-Authorization — treating rhetorical/complaint questions as implementation authorization
-Read [§1](guidelines/020-go-prohibitions.md). ONLY "approved"/"go" authorize action.
+ONLY "approved"/"go" authorize action.
 
 
 ### [critical-rules-006] CRITICAL VIOLATION — Routing-bypass rationalization as self-authorization variant
-The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses dispatch has committed a routing-bypass self-authorization violation. Read [§1](guidelines/020-go-prohibitions.md).
+The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses dispatch has committed a routing-bypass self-authorization violation.
 
 
 ### [critical-rules-026] CRITICAL VIOLATION — Deleting Branches/Stashes Improperly
@@ -145,11 +145,11 @@ See Bug #1215. `len(new_body) >= 0.8 * len(original_body)` safeguard.
 
 
 ### [critical-rules-006] CRITICAL VIOLATION — for_pr Gap-Fill Halt — asking developer for structural decisions scope model resolves
-Auto-spec → auto-plan → auto-approve → auto-PR. Read [010-approval-gate.md](guidelines/010-approval-gate.md).
+Auto-spec → auto-plan → auto-approve → auto-PR.
 
 
 ### [critical-rules-045] CRITICAL VIOLATION — Creating .opencode/.opencode/ Nested Directories
-Breaks agent config loading. Read [§2](guidelines/060-tool-usage.md).
+Breaks agent config loading. Creating `.opencode/.opencode/` directories is FORBIDDEN. Any `mkdir`, `write`, or path-creating operation whose resolved path contains `.opencode/.opencode/` is a CRITICAL VIOLATION.
 
 
 ### [critical-rules-052] CRITICAL VIOLATION — `git rm` and file deletion require spec + authorization
@@ -508,7 +508,7 @@ Adding a guideline or skill change without a BEHAVIORAL enforcement test means y
 
 
 ### [critical-rules-010] Implementation Without Spec — expanding the definition
-Modifying behavior, config, or enforcement without an approved spec is what amateurs do when they want their changes to break the build and waste everyone's review time. Professional engineers produce a spec first — then implement against it. Read [010-approval-gate.md](guidelines/010-approval-gate.md).
+Modifying behavior, config, or enforcement without an approved spec is what amateurs do when they want their changes to break the build and waste everyone's review time. Professional engineers produce a spec first — then implement against it.
 
 
 ### [critical-rules-016] Missing Progress Reports
@@ -574,7 +574,7 @@ Finding a bug during implementation does NOT mean you have permission to fix it.
 
 
 ### [critical-rules-009] Authorization-Free Actions — no deliberation required
-Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Professional engineers execute pre-authorized actions without hesitation — amateurs stop and ask for permission on every trivial step. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope. Read [010-approval-gate.md](guidelines/010-approval-gate.md).
+Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Professional engineers execute pre-authorized actions without hesitation — amateurs stop and ask for permission on every trivial step. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope.
 
 
 ### [critical-rules-011] Symptom-Only Fix-Specs — patches without root cause analysis
@@ -590,7 +590,7 @@ Only formal `github_sub_issue_write` links trigger cascade. Professional enginee
 
 
 ### [critical-rules-027] Feedback ≠ Authorization — treating technical input as implementation permission
-User engagement is collaboration, not permission. Amateurs treat feedback as an implementation ticket. Professionals wait for explicit authorization. Read [§1](guidelines/020-go-prohibitions.md).
+User engagement is collaboration, not permission. Amateurs treat feedback as an implementation ticket. Professionals wait for explicit authorization.
 
 
 ### [critical-rules-042] Skipping PR for Documentation/Guideline Changes
@@ -836,13 +836,13 @@ A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup 
 - **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic PASS/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `audit` task files
 - **HALT without remediation attempt** — a FAIL that halts the pipeline without any remediation attempt is abandoning the root cause instead of fixing it. Professional engineers always attempt remediation before escalation. See `763-remediation-first`
 
-Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) → "Hard Failure Discipline".
+Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work.
 
 ### [critical-rules-test-integrity] Test Integrity Mandate — No Lobotomizing Tests
 
 Removing or weakening a behavioral (semantic, functional) test assertion to work around a timeout, failure, or infrastructure issue is the most expensive defect you can introduce. A lobotomized test passes by removing the signal it was designed to produce — producing a false PASS that masks a real defect.
 
-**Read [080-code-standards.md §Test Integrity Mandate](guidelines/080-code-standards.md). Key provisions:**
+**Key provisions:**
 
 - **Rule 1**: Removing or weakening behavioral assertions is a CRITICAL VIOLATION — equivalent to soft-passing a verification mismatch
 - **Rule 2**: Timeout is always diagnosable — never assume model unavailability without tool-call evidence
@@ -884,7 +884,7 @@ The uplift is automatic. Declaring an SC as `structural` or `string` does not ex
 - When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
 - Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
 
-Authority sources: Read [080-code-standards.md §Evidence Type Taxonomy](guidelines/080-code-standards.md), Read [080-code-standards.md §Test Integrity Mandate](guidelines/080-code-standards.md), Read [020-go-prohibitions.md §1 ALWAYS DO — Cost-blind verification](guidelines/020-go-prohibitions.md). Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
+Authority sources: Evidence Type Taxonomy (080-code-standards.md), Test Integrity Mandate (080-code-standards.md), Cost-blind verification (020-go-prohibitions.md §1), Cost Model death-spiral rationale (065-verification-honesty.md).
 
 
 ### [critical-rules-linters-advisory] All linters are advisory only — no auto-modify
@@ -899,12 +899,12 @@ All linters (current and future) MUST run in read-only/report-only mode. No lint
 | Any future linter | Auto-modify mode | Read-only/report-only mode |
 
 ### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
-The orchestrator holds routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Task file contents, analysis artifacts, and verification results go to sub-agents or disk. Read [§1.1](guidelines/020-go-prohibitions.md).
+The orchestrator holds routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Task file contents, analysis artifacts, and verification results go to sub-agents or disk.
 
 > **Note:** These are operational bookkeeping guidelines for context management. They describe how the orchestrator routes work to sub-agents — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
 
 ### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
-Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. Read [§1.1](guidelines/020-go-prohibitions.md).
+Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk.
 
 ### [critical-rules-dispatch-gate-canonical] Canonical Dispatch String Violation — orchestrator uses custom prompt after reading canonical dispatch string
 
@@ -1043,11 +1043,11 @@ Read [finishing-a-development-branch --task checklist](skills/finishing-a-develo
 
 
 ### [critical-rules-023] Missing AI Co-Authored Attribution
-Format: `Co-authored with AI: <AgentName> (<ModelId>)`. Read [080-code-standards.md](guidelines/080-code-standards.md).
+Format: `Co-authored with AI: <AgentName> (<ModelId>)`.
 
 
 ### [critical-rules-023] Hardcoded Identity Values in Skills and Guidelines
-Use `<AgentName>`, `<ModelId>`, `<github.owner>` placeholders. Read [080-code-standards.md](guidelines/080-code-standards.md).
+Use `<AgentName>`, `<ModelId>`, `<github.owner>` placeholders.
 
 
 ### [critical-rules-018] Sub-issue Structure Bypass — multi-task plans
@@ -1136,9 +1136,9 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 
 #### Authority Sources
 
-- Read [080-code-standards.md §Terminology Note](guidelines/080-code-standards.md) — functional test and behavioral test are synonymous
-- Read [080-code-standards.md §Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md) — behavioral evidence is PRIMARY
-- Read [020-go-prohibitions.md §1 ALWAYS DO — Cost-blind verification](guidelines/020-go-prohibitions.md): substitution is forbidden
+- Functional test and behavioral test are synonymous (080-code-standards.md)
+- Behavioral evidence is PRIMARY (080-code-standards.md)
+- Cost-blind verification: substitution is forbidden (020-go-prohibitions.md §1)
 - Read [skills/verification-before-completion/tasks/verify.md §"When Behavioral/Functional Tests Cannot Execute"](skills/verification-before-completion/tasks/verify.md) — FAIL is the only valid outcome when the test cannot run
 
 #### Forbidden Substitutions
@@ -1185,7 +1185,7 @@ All failures are agent-owned. Remediation is the default action. Escalation is o
 
 
 ### [critical-rules-066] Terminology Standardization — all context references must use standardized vocabulary
-All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
+All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. CHANGELOG entries and historical references are exempt.
 
 
 ### Channel-Routing Table — Issue Comments vs. Chat Output
