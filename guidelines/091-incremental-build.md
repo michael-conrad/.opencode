@@ -47,3 +47,8 @@ An item is a single success criterion (SC) from the spec. Each SC gets its own R
 > **Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count, byte-dispatch formulas) are NOT valid proxies for implementation complexity.**
 
 **Symbolic rules below** — the prose above this line replaces the previous ~200 lines of advisory text.
+
+### [critical-rules-042] Monolithic Implementation — skipping item decomposition
+Professional engineers decompose work into testable items and build one per TDD cycle (RED → GREEN → REFACTOR → COMMIT). Amateurs batch everything into single monolithic changes — then wonder why review catches half of it wrong.
+
+

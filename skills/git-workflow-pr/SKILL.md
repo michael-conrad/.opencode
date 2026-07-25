@@ -60,3 +60,29 @@ Pull request management sub-skill of git-workflow. Handles PR creation, review p
 - Read [critical-rules-019](guidelines/000-critical-rules.md) for PR creation authorization
 - Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md) for stacked PR strategy
 - Read [critical-rules-040](guidelines/000-critical-rules.md) for single-commit PR discipline
+
+### [critical-rules-042] Skipping PR for Documentation/Guideline Changes
+Exception: zero files modified, or already-implemented (verified by `verify-already-implemented`). Amateurs skip PRs for documentation changes. Professionals maintain review discipline for every change.
+
+
+### [critical-rules-038] Implementing Before PR Merge Boundary
+Implementing a dependent phase before its PR boundary has merged means you are building on a foundation that does not exist yet. Professional engineers respect PR merge boundaries. Amateurs stack work on unreviewed code.
+
+
+### [critical-rules-040] Un-Squashed PR — creating single-issue PR with multiple commits
+Single-issue: exactly 1 commit. Work branch: N commits = N items.
+
+
+### [critical-rules-PR-ORG] Stacked PR Is the Only Valid Organization
+
+Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch with one commit per issue. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
+
+An authorization scope that halts before PR creation declares `pr_strategy: none`. An authorization scope that creates PRs declares `pr_strategy: stacked`. There is no third option.
+
+Bright-line companion:
+
+PR organization IS branch organization. Stacked PR IS the only valid organization.
+Every authorization scope declares exactly one strategy: stacked or none.
+Creating N branches for N issues IS a critical violation — Period.
+
+

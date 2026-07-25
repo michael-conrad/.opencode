@@ -126,3 +126,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 Skills: `git-workflow`, `verification-before-completion`. Guidelines: `000-critical-rules.md`.
 
 
+
+### [critical-rules-024] Uncommitted/Unpushed Changes After Implementation
+Read [finishing-a-development-branch --task checklist](skills/finishing-a-development-branch/SKILL.md).
+
+

@@ -127,3 +127,39 @@ Each audit task follows a sequential role chain dispatched as 4 separate `task(s
 
 Artifact directory: `./tmp/{issue-N}/artifacts/{task-name}/`
 
+
+### [critical-rules-XXX] Posting Spec-Audit Findings as Issue Comments
+
+**⚠️ Posting spec-audit findings as GitHub comments is FORBIDDEN.**
+
+Audit findings from spec-auditor are internal agent guidance — equivalent to linter output. They must be posted to chat only.
+
+- 🚫 FORBIDDEN: Posting audit findings (spec audits, plan fidelity checks, cross-validate results) as GitHub Issue comments
+- 🚫 FORBIDDEN: Treating audit output as stakeholder-facing content
+- ✅ REQUIRED: Audit findings go to chat only. Spec revisions (not audit results) go to issue comments when substantive.
+
+
+### [critical-rules-016] Auditor Skills Enforcement
+Professional engineers subject every deliverable to independent audit — amateurs ship unverified work. Read [audit skill](skills/audit/SKILL.md). Binary PASS/FAIL classification (auto-fix as remediation action only).
+
+
+### [critical-rules-046] Mechanical-Only Audit Without Semantic and Conflict Exploration
+Running an audit that only checks mechanical patterns means you are looking for typos when the building is on fire. Professional auditors probe semantic completeness and inter-rule conflicts. Amateurs count violations without understanding them.
+
+
+### [critical-rules-accountability-ownership] Accountability/Remediation Ownership Model
+
+ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 8 principles govern agent accountability:
+
+1. **Audit fail is a fail** — no exceptions, no reclassification, no soft-passing
+2. **Bad prompt is on the agent** — the agent owns prompt quality; a poorly specified prompt is the agent's defect to remediate
+3. **Defective spec/plan is on the agent** — the agent produces correct artifacts or remediates them; defective upstream artifacts are not an excuse for downstream failures
+4. **Bad/incomplete implementation is on the agent** — the agent owns implementation quality; incomplete or incorrect output must be remediated, not flagged for someone else
+5. **Missing text artifacts is a fail** — the agent produces complete deliverables; absent preamble, missing documentation, or incomplete issue bodies are agent-owned defects
+6. **Skipped functional/behavioral testing is a fail** — no exceptions, no excuses; the agent runs and passes behavioral tests before claiming completion
+7. **Remediate autonomously, never escalate** — escalation is only for dire circumstances (infrastructure failure, model crash, credentials missing); skipping remediation is not a valid choice
+8. **No "pre-existing failure" rationalization** — test infrastructure is part of the ship condition. An agent MUST NOT use "pre-existing failure", "already broken before my change", "baseline failure", or any equivalent rationalization to justify proceeding past a test failure, verification mismatch, or pipeline gate FAIL. The agent owns the pipeline state at entry; any failure present at entry must be remediated before proceeding.
+
+All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
+
+

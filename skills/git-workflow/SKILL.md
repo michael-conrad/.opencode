@@ -86,3 +86,12 @@ Plus skill-specific fields per the Trigger Dispatch Table above.
 ## Cross-References
 
 Sub-skills: `git-workflow-branch`, `git-workflow-commit`, `git-workflow-pr`, `git-workflow-cleanup`, `git-workflow-conflict`. Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+
+### [critical-rules-016] Wrong Chat Output at Halt Points
+A halt without structured output leaves the developer guessing what happened, what was produced, and what to do next. Professional engineers always produce: Summary → Outcome → Blockers (if applicable) → URL (if applicable) → Byline. Amateurs vanish without telling anyone what they did. Read [git-workflow skill](skills/git-workflow/SKILL.md).
+
+
+### [critical-rules-016] Missing Progress Reports
+Halting without structured output means leaving the developer guessing what happened — and that is amateur-hour behavior. Professional engineers always produce: Summary → URL → Byline. Issue comments are for substantive information only.
+
+

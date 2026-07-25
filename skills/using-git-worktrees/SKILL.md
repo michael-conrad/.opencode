@@ -121,3 +121,61 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 
+
+### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED
+Using stash+checkout means contaminating your workspace state. Professional engineers isolate work in worktrees — amateurs juggle stashes and risk losing uncommitted context.
+
+#### 🚫 FORBIDDEN
+
+- Using stash+checkout instead of worktrees when `WORKTREE_REQUIRED` is set
+
+#### ✅ REQUIRED
+
+- Always use `git worktree add` when `WORKTREE_REQUIRED` is set
+- Isolate each feature branch in its own worktree to prevent workspace contamination
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Using stash+checkout when WORKTREE_REQUIRED set | Contaminates workspace state; risk of losing uncommitted context via stash juggling |
+
+
+### [critical-rules-007] Relative File Paths in Worktree Context — using relative paths when worktree.path is set
+Relative paths in worktree mode silently target the wrong repo. Every edit you make goes to the main repo instead of the worktree — your changes land in the wrong place. Professional agents prefix ALL paths with `worktree.path`.
+
+#### 🚫 FORBIDDEN
+
+- Using relative paths when `worktree.path` is set
+
+#### ✅ REQUIRED
+
+- Always prefix file operation paths with `worktree.path` when operating in a worktree
+- Use `workdir` parameter in bash tool calls to target the worktree
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Using relative paths when worktree.path set | Edits silently target the main repo instead of the worktree |
+
+
+### [critical-rules-030] Sub-Agents Ignoring Worktree Context — sub-agents modifying main repo instead of worktree
+Sub-agents that modify the main repo instead of the worktree are contaminating the wrong workspace. Every file they write goes to the wrong directory. Professional orchestrators always pass `worktree.path` in task context.
+
+#### 🚫 FORBIDDEN
+
+- Sub-agents modifying the main repo when operating in a worktree
+
+#### ✅ REQUIRED
+
+- Always pass `worktree.path` in task context to sub-agents
+- Sub-agents must prefix all file paths with the received `worktree.path`
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Sub-agents modifying main repo instead of worktree | Every file they write goes to the wrong directory |
+
+

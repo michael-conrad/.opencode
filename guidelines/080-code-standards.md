@@ -819,3 +819,123 @@ Session-init and env-loader are two independent pipelines with separate naming c
 `GIT_OWNER`, `GIT_REPO`, `GIT_PLATFORM`, `GITHUB_HTML_URL`, `GITBUCKET_HTML_URL`, `GITBUCKET_SSH_URL`, `GITBUCKET_HAS_CREDENTIALS`, `DEV_NAME`, `DEV_EMAIL`, `BRANCH_NAME`, `WORKTREE_PATH`, `WORKTREE_FATAL`
 
 These pipelines are independent. Changing session-init output names does NOT require changes to env-loader, and vice versa.
+
+### [critical-rules-009] Enforcement Test Updates — guideline/skill changes without BEHAVIORAL enforcement tests
+Adding a guideline or skill change without a BEHAVIORAL enforcement test means you are documenting, not enforcing — and documentation without enforcement is decoration. Every guideline and skill change that lacks a behavioral enforcement test is a suggestion, not a rule. Suggestions get ignored by the agents that need them most. Professional engineers ship behavioral tests with every rule change.
+
+
+### [critical-rules-042] Model-Aware Clean-Room task() for Behavioral Testing
+Running behavioral tests through grep and static analysis instead of `opencode run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
+
+
+### [critical-rules-test-integrity] Test Integrity Mandate — No Lobotomizing Tests
+
+Removing or weakening a behavioral (semantic, functional) test assertion to work around a timeout, failure, or infrastructure issue is the most expensive defect you can introduce. A lobotomized test passes by removing the signal it was designed to produce — producing a false PASS that masks a real defect.
+
+**Read [080-code-standards.md §Test Integrity Mandate](guidelines/080-code-standards.md). Key provisions:**
+
+- **Rule 1**: Removing or weakening behavioral assertions is a CRITICAL VIOLATION — equivalent to soft-passing a verification mismatch
+- **Rule 2**: Timeout is always diagnosable — never assume model unavailability without tool-call evidence
+- **Rule 3**: Research sub-agents for test infrastructure problems — mandatory after 2+ remediation failures
+- **Rule 4**: FAIL is a hard gate — never proceed past FAIL. Only valid outcomes: PASS, FAIL (remediate and re-run), or INCONCLUSIVE after exhaustive remediation (escalate only)
+
+
+### [critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH
+
+The question "does this change affect runtime behavior?" is substrate-determined — the change either alters runtime behavior or it does not. Intent, author assertion, and hope are irrelevant. When the answer is YES, submitting structural or string evidence is EVIDENCE_TYPE_MISMATCH, not a soft downgrade. The verdict is FAIL. No advisory, no "PASS with structural caveat," no INCONCLUSIVE. The classification gate enforces what the evidence type taxonomy already requires: behavioral changes demand behavioral evidence.
+
+Runtime behavior includes: agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results, and any observable system output. A change that modifies WHAT a system DOES at runtime — as opposed to what it CONTAINS statically — is a runtime-behavioral change.
+
+The uplift is automatic. Declaring an SC as `structural` or `string` does not exempt it from behavioral evidence requirements when the underlying change affects runtime behavior. Evidence type is determined by what the change DOES, not by what the author declares. A `string` SC that tests a runtime-behavioral change is automatically uplifted to `behavioral` — the declared type is overridden by the substrate classification.
+
+🚫 FORBIDDEN:
+- Submitting structural or string evidence for a runtime-behavioral change and reporting PASS
+- Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior
+- Classifying the evidence type question as intent-determined ("what did the author mean?") instead of substrate-determined ("does this change affect runtime behavior?")
+- Producing an advisory or INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected
+
+✅ REQUIRED:
+- Classify the change question as substrate-determined: "Does this change affect runtime behavior? YES/NO"
+- When YES: automatically uplift declared evidence type to `behavioral` regardless of author declaration
+- When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
+- Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
+
+Authority sources: Read [080-code-standards.md §Evidence Type Taxonomy](guidelines/080-code-standards.md), Read [080-code-standards.md §Test Integrity Mandate](guidelines/080-code-standards.md), Read [020-go-prohibitions.md §1 ALWAYS DO — Cost-blind verification](guidelines/020-go-prohibitions.md). Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
+
+
+### [critical-rules-XXX] Derivation Provenance — every element must have a consumer or first-principles justification
+
+Adding a parameter, field, method, class, configuration key, contract entry, routing scope variable, or code block whose sole justification is "it exists in another location" is a process-integrity failure. Every element must trace to:
+
+1. A specific consumer (task file, function call, code path) that reads or branches on it, OR
+2. A first-principles derivation from the problem statement, spec SC, or requirements
+
+"Because it's there in the other file/service/spec/plan" is NOT a valid justification.
+
+#### Applies to ALL agent output
+
+| Artifact Type | Examples of Cargo Cult | Correct Pattern |
+|---------------|----------------------|-----------------|
+| Code (Java, Python, etc.) | Copying method params, imports, class structure from another file | Derive from consumer callsites or API contract |
+| Specs | Adding contract fields without identifying consuming task file | Each field must name at least one consumer |
+| Plans | Applying three-tier phase structure without evaluating fit | Derive phase structure from spec SCs |
+| Contracts | Propagating fields through dispatch pipelines with no reader | Field without consumer = dead weight |
+| Routing tables | Adding scope variables no sub-agent branches on | Each scope variable must be read by ≥1 task file |
+| Config files | Copying keys from another environment without verifying consumer | Each key must be read by at least one code path |
+
+#### Remediation
+
+When a derivation-provenance violation is detected (by the agent during self-review, or by an auditor):
+- Remove the unjustified element
+- If the element is needed, identify the consumer or first-principles derivation
+- Do NOT add a placeholder consumer to satisfy the rule — the consumer must be real
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Adding contract field without consumer | Dead weight in every dispatch — context overhead with zero behavioral effect |
+| Copying method params from reference class | Wrong parameter set for the new domain — produces incorrect API |
+| Propagating routing scope variable no task reads | Every sub-agent receives unused context — routing complexity with no benefit |
+| Applying template structure without evaluation | Every artifact looks the same regardless of problem shape — misses domain-specific concerns |
+
+Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
+### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
+
+### [critical-rules-023] Missing AI Co-Authored Attribution
+Format: `Co-authored with AI: <AgentName> (<ModelId>)`. Read [080-code-standards.md](guidelines/080-code-standards.md).
+
+
+### [critical-rules-023] Hardcoded Identity Values in Skills and Guidelines
+Use `<AgentName>`, `<ModelId>`, `<github.owner>` placeholders. Read [080-code-standards.md](guidelines/080-code-standards.md).
+
+
+### [critical-rules-023] Posting AI-Authored Content Without Byline Verification
+Verify byline presence before ANY API call posting AI-authored content.
+
+
+### [critical-rules-060] Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute
+
+"Functional test" and "behavioral test" are synonymous — both verify actual agent behavior by executing code and observing output. When a behavioral/functional test CANNOT be executed (model unavailable, timeout, infrastructure failure, `opencode` not installed), the ONLY valid outcome is FAIL. The agent MUST NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks for behavioral/functional test execution.
+
+#### Authority Sources
+
+- Read [080-code-standards.md §Terminology Note](guidelines/080-code-standards.md) — functional test and behavioral test are synonymous
+- Read [080-code-standards.md §Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md) — behavioral evidence is PRIMARY
+- Read [020-go-prohibitions.md §1 ALWAYS DO — Cost-blind verification](guidelines/020-go-prohibitions.md): substitution is forbidden
+- Read [skills/verification-before-completion/tasks/verify.md §"When Behavioral/Functional Tests Cannot Execute"](skills/verification-before-completion/tasks/verify.md) — FAIL is the only valid outcome when the test cannot run
+
+#### Forbidden Substitutions
+- Grep/string matching/pattern scanning as behavioral evidence
+- Metadata checks (file existence, label state, PR merge status) as behavioral evidence
+- File-existence checks as behavioral evidence
+- "Spot-checking" as behavioral test substitute
+- Any structural check reported as PASS for a behavioral SC
+
+#### Required Actions
+1. When a behavioral/functional test cannot execute: report FAIL with explanation
+2. Attempt remediation (alternative model selection, infrastructure check)
+3. Exhaustive remediation before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
+4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
+
+

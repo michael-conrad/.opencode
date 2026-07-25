@@ -129,3 +129,7 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 - Related skills: `pr-creation-workflow` (PR timing)
 - Related tasks: `review-prep/push-and-cleanup`, `review-prep/report-url`, `pr-creation`
+### [critical-rules-016] Skipping review-prep After Implementation
+Review prep is the last gate before your work enters the codebase permanently. Skipping it means the first review your code receives is from a colleague, not from yourself. Professional engineers always run review-prep before submitting — amateurs let reviewers discover their mistakes. Read [git-workflow --task review-prep](skills/git-workflow/SKILL.md). Compare URL required.
+
+

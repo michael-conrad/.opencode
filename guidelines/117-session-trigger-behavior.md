@@ -59,3 +59,8 @@ Triggers that cannot drive meaningful action in the current context should be pr
 - `000-critical-rules.md` — Tier 1 mandate for trigger echo prohibition
 - `session_context_triggers.py` — Trigger detection and data generation (purged per spec #426)
 - `session-enforcement.ts` — Plugin that injects trigger content into first user message (per-turn guard removed per spec #426)
+
+### [critical-rules-009] Session Trigger Echo — parroting triggers in agent output
+Parroting trigger data into agent output instead of processing it internally is what amateurs do when they want their responses to read like raw log files. Professional agents process triggers internally — never echo verbatim. Read [117-session-trigger-behavior.md](guidelines/117-session-trigger-behavior.md).
+
+

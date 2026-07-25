@@ -91,3 +91,8 @@ history are secondary and potentially transient or outdated.
 8. **Plan Audit Requires Code Deep Dive**: When auditing or updating any plan, strictly follow the mandatory code deep
    dive and verification requirements defined in `docs/specs/how-to-write-good-spec-ai-agents.md`. Ground every plan
    audit finding in the actual filesystem and source code, not in remembered or stored state.
+
+### [critical-rules-010] Implementing Stale or Superseded Specs
+Professional engineers check for superseding open issues before implementing — stale specs produce wasted work. Amateurs implement whatever spec they find first — then wonder why their output is obsolete before the PR is opened.
+
+

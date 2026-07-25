@@ -331,3 +331,20 @@ Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verificatio
 
 
 ```
+
+### [critical-rules-025] Main Agent Implements Directly
+Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. Read [implementation-pipeline skill](skills/implementation-pipeline/SKILL.md) Trigger Dispatch Table. Orchestrator tasks sub-agents via task() only.
+
+
+### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
+Pipeline chain: pre-work → implementation-pipeline (Trigger Dispatch Table) → verification-before-completion → finishing-checklist → review-prep. Skipping any step means accepting undiscovered defects into every deliverable downstream. Each step MANDATORY.
+
+
+### [critical-rules-016] Skill Bypass = Critical Violation
+Every step in pipeline chain is enforceable, not advisory. Professional engineers follow the chain — amateurs take shortcuts and produce broken deliverables.
+
+
+### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
+Pipeline stage transitions require re-encountering an enforcement block restating procedural discipline identity. Professional engineers re-prime at every boundary. Amateurs let context degrade between gates.
+
+

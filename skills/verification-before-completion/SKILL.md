@@ -162,3 +162,16 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 Skills: `finishing-a-development-branch`, `audit --task drift-detection`. Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`.
 
 
+
+### [critical-rules-016] Skipping Post-Implementation Verification Skills
+Post-implementation verification skills exist to catch the defects you cannot see in your own work. Skipping them means accepting undiscovered failures into the codebase. Professional engineers always call `verification-before-completion` and `finishing-a-development-branch` after implementation — amateurs skip verification and call it done.
+
+
+### [critical-rules-047] VbC Fabricated PASS — reporting file existence as verified behavioral evidence
+Reporting that a file exists as evidence that behavior is correct is what amateurs do when they want their verification to pass without doing the work. Professional engineers verify behavioral outcomes, not structural presence. File existence proves nothing about correctness.
+
+
+### [critical-rules-039] Process Gaps Are Bugs — completed issues not auto-closed
+Read [verify-already-implemented skill](skills/verification-before-completion/SKILL.md) → Auto-Close Procedure.
+
+

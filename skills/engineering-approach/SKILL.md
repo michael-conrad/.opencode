@@ -125,3 +125,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 Guidelines: `000-critical-rules.md`, `010-approval-gate.md`.
 
 
+
+### [critical-rules-042] Engineering Mindset Required
+Understand → Design → Verify → Communicate. Amateurs jump from understanding to implementation. Professional engineers verify before building. Read [engineering-approach skill](skills/engineering-approach/SKILL.md).
+
+

@@ -57,3 +57,51 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 - Read [critical-rules-049](guidelines/000-critical-rules.md) for submodule-only PR prohibition during cleanup
 - Read [critical-rules-070](guidelines/000-critical-rules.md) for issue closure outside cleanup workflow
 - Read [§3](guidelines/060-tool-usage.md) for behavioral evidence artifact preservation rules
+
+### [critical-rules-016] Skipping Post-Merge Cleanup
+Leaving merged branches and open issues after a merge creates a maintenance tax on every future session. Cleanup is not overhead — it is the completion ritual that keeps the repo navigable. Professional engineers clean up after every merge — amateurs leave a trail of orphaned branches and stale issues for someone else to find. Read [git-workflow --task cleanup](skills/git-workflow/SKILL.md). Deletes merged branches, closes issues, syncs trunk.
+
+
+### [critical-rules-042] Content Verification Before Branch Deletion
+Deleting a branch without verifying its content against the target branch means you are destroying code whose status you have not confirmed. Professional engineers diff first. Amateurs delete blind and lose work.
+
+
+### [critical-rules-013] Sub-issue Closure Timing
+Read [git-workflow --task cleanup](skills/git-workflow/SKILL.md).
+
+
+### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
+"check prs" = cleanup trigger.
+
+
+### [critical-rules-013] Closing Issues Before PR Merge
+Read [git-workflow --task cleanup](skills/git-workflow/SKILL.md) for post-merge closure.
+
+
+### [critical-rules-013] Parent/Child Issue Closure
+Close children first, then parent. Read [git-workflow --task cleanup](skills/git-workflow/SKILL.md).
+
+
+### [critical-rules-039] Parent Issue Left Open After All Children Closed
+See verify-already-implemented Step 6, cleanup Step 2.8.
+
+
+### [critical-rules-070] Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls
+The agent MUST NOT call `github_issue_write(method=update, state=closed)` or equivalent on any GitHub Issue outside the `git-workflow --task cleanup` workflow. The cleanup workflow is the sole authorized closure path, and it enforces PR merge verification, body-preservation safeguards, and parent/child ordering before closure. Issues created by the agent in a session MUST survive at least one session boundary before closure. Read [git-workflow --task cleanup](skills/git-workflow/SKILL.md) for the authorized closure path. Read [issue-operations/tasks/close.md](skills/issue-operations/SKILL.md) for the structured close workflow (only callable from within cleanup).
+
+
+### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
+
+Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. Read [git-workflow cleanup task](skills/git-workflow/SKILL.md) Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
+
+**Scope clarification:** This prohibition applies to PR creation only. It does NOT exempt the agent from dispatching `git-workflow --task cleanup` on "pr merged" triggers. The cleanup sub-agent independently determines which cleanup actions apply — including whether to leave the submodule pointer dirty. Using this prohibition as a rationalization to skip the entire cleanup workflow is a routing-bypass self-authorization violation (critical-rules-006).
+
+
+### [critical-rules-039] Parent Issue Left Open After All Children Closed
+See verify-already-implemented Step 6, cleanup Step 2.8.
+
+
+### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
+"check prs" = cleanup trigger.
+
+

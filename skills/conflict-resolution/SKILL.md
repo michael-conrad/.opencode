@@ -124,3 +124,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 
+
+### [critical-rules-042] Blind Conflict Resolution
+Resolving conflicts blindly produces broken merges. Professional engineers classify conflicts by intent before resolving — amateurs merge first and find the corruption later. Three tiers: Trivial → auto, Textual → note, Intent → HALT. Read [conflict-resolution skill](skills/conflict-resolution/SKILL.md).
+
+
