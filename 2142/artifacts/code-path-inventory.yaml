@@ -1,0 +1,25 @@
+code_paths:
+  - path: .opencode/skills/solve/SKILL.md
+    scs:
+      - SC-1
+    change: "Update description field to lead with `.opencode/tools/solve`"
+  - path: .opencode/skills/plan/SKILL.md
+    scs:
+      - SC-2
+    change: "Update description field to lead with `.opencode/tools/plan`"
+  - path: .opencode/skills/plan-creation-pipeline/SKILL.md
+    scs:
+      - SC-3
+    change: "Update description field to reference `.opencode/tools/solve` instead of bare Z3"
+  - path: .opencode/skills/issue-operations-core/SKILL.md
+    scs:
+      - SC-4
+    change: "Update description field to reference `.opencode/tools/gitbucket-api` instead of bare GitBucket API"
+  - path: (diff check)
+    scs:
+      - SC-5
+    change: "Verify no other files modified"
+  - path: .opencode/tests-v2/behaviors/
+    scs:
+      - SC-6
+    change: "Write behavioral enforcement test for tool-lookup pattern"

@@ -1,0 +1,14 @@
+state_transitions:
+  - from: "description references abstract tool name"
+    to: "description references project-local tool path"
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+    trigger: "edit SKILL.md description field"
+  - from: "no behavioral test for tool-lookup"
+    to: "behavioral test exists and passes"
+    scs:
+      - SC-6
+    trigger: "write behavioral enforcement test"

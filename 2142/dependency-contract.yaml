@@ -1,0 +1,24 @@
+phases:
+  - id: phase-1
+    name: Update skill descriptions
+    depends_on: []
+    items:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+  - id: phase-2
+    name: Verify no unintended changes
+    depends_on:
+      - phase-1
+    items:
+      - SC-5
+  - id: phase-3
+    name: Write behavioral enforcement test
+    depends_on:
+      - phase-1
+    items:
+      - SC-6
+constraints:
+  - "phase-2 and phase-3 may run in parallel after phase-1 completes"
+  - "phase-1 has no dependencies"

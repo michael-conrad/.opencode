@@ -1,0 +1,31 @@
+concerns:
+  - id: tool-path-descriptions
+    name: Tool path description updates
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+    phases:
+      - phase: 1
+        name: Update descriptions
+        items:
+          - 1
+  - id: regression-prevention
+    name: No unintended changes
+    scs:
+      - SC-5
+    phases:
+      - phase: 2
+        name: Verify diff
+        items:
+          - 2
+  - id: behavioral-enforcement
+    name: Behavioral test for tool-lookup
+    scs:
+      - SC-6
+    phases:
+      - phase: 3
+        name: Write behavioral test
+        items:
+          - 3

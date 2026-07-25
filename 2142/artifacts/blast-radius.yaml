@@ -1,0 +1,9 @@
+affected_files:
+  - .opencode/skills/solve/SKILL.md
+  - .opencode/skills/plan/SKILL.md
+  - .opencode/skills/plan-creation-pipeline/SKILL.md
+  - .opencode/skills/issue-operations-core/SKILL.md
+all_exist: true
+scope: description field only in YAML frontmatter of 4 SKILL.md files
+no_downstream_impact: true
+rationale: "Consumer skills reference skill names (solve, plan), not tool paths. Description field is Level 1 classifier only."

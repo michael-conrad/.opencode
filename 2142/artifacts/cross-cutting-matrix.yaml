@@ -1,0 +1,16 @@
+cross_cutting:
+  - scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+    concern: tool-path-descriptions
+    rationale: "All four are description field updates — same pattern, different files"
+  - scs:
+      - SC-5
+    concern: regression-prevention
+    rationale: "Verification gate, independent of description changes"
+  - scs:
+      - SC-6
+    concern: behavioral-enforcement
+    rationale: "Test infrastructure, independent of description changes"

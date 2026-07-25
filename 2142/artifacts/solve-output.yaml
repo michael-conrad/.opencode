@@ -1,0 +1,6 @@
+solve_status: SAT
+check_status: SAT
+check_detail: "SAT (+ postconditions + invariants)"
+model_query: "skipped (check already validates contract)"
+planner_result: "not run (simple 3-phase DAG, no planner needed)"
+finding_summary: "Dependency contract is SAT. Phase-1 has no dependencies. Phase-2 and phase-3 depend on phase-1 and may run in parallel."

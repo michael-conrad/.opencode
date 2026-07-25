@@ -1,0 +1,52 @@
+overall_status: PASS
+categories:
+  - id: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - name: plan has frontmatter with dispatch array
+        status: PASS
+      - name: each phase has procedure section with steps
+        status: PASS
+      - name: exit criteria section exists
+        status: PASS
+  - id: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - name: all skill+task references valid in TDT
+        status: PASS
+  - id: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - name: all 6 SCs covered in plan
+        status: PASS
+  - id: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - name: each phase addresses exactly one concern
+        status: PASS
+      - name: no two phases address same concern
+        status: PASS
+  - id: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - name: no cycles in dependency DAG
+        status: PASS
+      - name: all phases reachable from start
+        status: PASS
+      - name: no orphan phases
+        status: PASS
+  - id: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - name: no TBD/TODO placeholders
+        status: PASS
+      - name: all steps use checkbox format
+        status: PASS
+      - name: dispatch mode consistency
+        status: PASS

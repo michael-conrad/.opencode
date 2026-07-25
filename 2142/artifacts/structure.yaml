@@ -1,0 +1,56 @@
+phases:
+  - phase: 1
+    name: Update skill descriptions
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+    items:
+      - item: 1
+        sc: SC-1
+        description: "Update solve/SKILL.md description to lead with `.opencode/tools/solve`"
+      - item: 2
+        sc: SC-2
+        description: "Update plan/SKILL.md description to lead with `.opencode/tools/plan`"
+      - item: 3
+        sc: SC-3
+        description: "Update plan-creation-pipeline/SKILL.md description to reference `.opencode/tools/solve`"
+      - item: 4
+        sc: SC-4
+        description: "Update issue-operations-core/SKILL.md description to reference `.opencode/tools/gitbucket-api`"
+    skill: test-driven-development
+    task: green-phase
+    dispatch: sub-agent
+  - phase: 2
+    name: Verify no unintended changes
+    scs:
+      - SC-5
+    items:
+      - item: 5
+        sc: SC-5
+        description: "Verify diff shows only 4 files modified"
+    skill: verification-before-completion
+    task: verify
+    dispatch: sub-agent
+  - phase: 3
+    name: Write behavioral enforcement test
+    scs:
+      - SC-6
+    items:
+      - item: 6
+        sc: SC-6
+        description: "Write behavioral enforcement test for tool-lookup pattern"
+    skill: test-driven-development
+    task: red-phase
+    dispatch: sub-agent
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      reason: "Verify diff after descriptions are updated"
+    - from: phase-1
+      to: phase-3
+      reason: "Behavioral test can be written in parallel with phase 2"
+  parallel_groups:
+    - [phase-2, phase-3]

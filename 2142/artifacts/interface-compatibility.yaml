@@ -1,0 +1,17 @@
+interfaces:
+  - module: .opencode/skills/solve/SKILL.md
+    change: description field only
+    compatible: true
+    rationale: "No interface change — description is metadata, not API"
+  - module: .opencode/skills/plan/SKILL.md
+    change: description field only
+    compatible: true
+    rationale: "No interface change — description is metadata, not API"
+  - module: .opencode/skills/plan-creation-pipeline/SKILL.md
+    change: description field only
+    compatible: true
+    rationale: "No interface change — description is metadata, not API"
+  - module: .opencode/skills/issue-operations-core/SKILL.md
+    change: description field only
+    compatible: true
+    rationale: "No interface change — description is metadata, not API"

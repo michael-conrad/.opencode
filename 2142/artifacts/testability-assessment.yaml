@@ -1,0 +1,25 @@
+testability:
+  - sc: SC-1
+    evidence_type: string
+    method: "grep on description field for `.opencode/tools/solve`"
+    testable: true
+  - sc: SC-2
+    evidence_type: string
+    method: "grep on description field for `.opencode/tools/plan`"
+    testable: true
+  - sc: SC-3
+    evidence_type: string
+    method: "grep on description field for `.opencode/tools/solve`"
+    testable: true
+  - sc: SC-4
+    evidence_type: string
+    method: "grep on description field for `.opencode/tools/gitbucket-api`"
+    testable: true
+  - sc: SC-5
+    evidence_type: structural
+    method: "diff shows only 4 files modified"
+    testable: true
+  - sc: SC-6
+    evidence_type: behavioral
+    method: "opencode run with stderr assertions"
+    testable: true

@@ -116,6 +116,7 @@ All success criteria MUST pass before this implementation is considered complete
 | SC-10 | The `apply-label` task in the fast-path and full-path workflows is moved to AFTER `record-authorization` and `verify-recording` (it was previously step 3, now step 4) | `behavioral` | Run `opencode run` with a prompt that triggers either workflow → assert stderr shows apply-label dispatched after verify-recording. Reference: `approval-gate-scope/SKILL.md` Workflows section — apply-label step position in both workflows |
 | SC-11 | The `verify-authorization` gap-fill-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → gap-fill-cascade → auto-dispatch | `behavioral` | Run `opencode run` with a prompt that triggers the gap-fill-path → assert stderr shows record-authorization at position 2 and verify-recording at position 3. Reference: `approval-gate-scope/SKILL.md` Workflows section — gap-fill-path workflow step sequence |
 | SC-12 | All three workflows (fast-path, gap-fill-path, full-path) in `approval-gate-scope/SKILL.md` have the `record-authorization` step inserted at position 2, immediately after `scope-auto-resolve` | `behavioral` | Run `opencode run` with prompts that trigger each workflow → assert stderr shows record-authorization is step 2 in all three. Reference: `approval-gate-scope/SKILL.md` Workflows section — step numbering in all three workflows |
+| SC-13 | The behavioral test harness MUST produce a `session.yaml` artifact containing the SQLite DB export from the test home. If the SQLite DB is missing from the test home, the harness MUST write `source_db: MISSING` (not `null`, not a fallback path). The evaluation pipeline MUST treat `source_db: MISSING` as a hard FAIL — no hunting for the DB elsewhere, no substitution with stderr/stdout grep, no synthesis, no fabrication. The only recovery mechanism is to verify the test does not violate clean-room separation (dedicated test home directory with the test project inside it) | `behavioral` | Run a behavioral test → verify `session.yaml` exists with `source_db:` pointing to a real path under `tmp/test-home-*/`. If `source_db: MISSING`, the test is FAIL — diagnose the test home setup, not the agent behavior |
 
 ## Requirements
 
@@ -131,6 +132,12 @@ All success criteria MUST pass before this implementation is considered complete
 10. The `verify-explicit-authorization.md` task SHALL be removed and replaced by `verify-recording.md`.
 11. The `apply-label` task SHALL be moved to AFTER `record-authorization` and `verify-recording` in all three workflows.
 12. The `record-authorization` step SHALL be step 2 in all three workflows (fast-path, gap-fill-path, full-path), immediately after `scope-auto-resolve`.
+13. The behavioral test harness `__export_sqlite_to_yaml` SHALL write `source_db: MISSING` (not `null`, not a fallback path) when the SQLite DB is not found in the test home.
+14. The behavioral test harness SHALL NOT fall back to production XDG paths, environment variables, or any other location when the test home SQLite DB is missing.
+15. The evaluation pipeline SHALL treat `source_db: MISSING` as a hard FAIL — no substitution, no synthesis, no fabrication.
+13. The behavioral test harness `__export_sqlite_to_yaml` SHALL write `source_db: MISSING` (not `null`, not a fallback path) when the SQLite DB is not found in the test home.
+14. The behavioral test harness SHALL NOT fall back to production XDG paths, environment variables, or any other location when the test home SQLite DB is missing.
+15. The evaluation pipeline SHALL treat `source_db: MISSING` as a hard FAIL — no substitution, no synthesis, no fabrication.
 
 ## Pipeline Gates
 
@@ -140,6 +147,7 @@ All success criteria MUST pass before this implementation is considered complete
 - [ ] 4. SC-9 (behavioral) — sub-agent: implement `verify-recording` task procedure
 - [ ] 5. SC-6, SC-7, SC-10, SC-11, SC-12 (behavioral) — sub-agent: reorder three workflows in SKILL.md
 - [ ] 6. Behavioral enforcement tests — sub-agent: write RED-phase tests for all behavioral SCs
+- [ ] 6a. SC-13 (behavioral) — sub-agent: implement `source_db: MISSING` in harness, remove production fallback paths
 - [ ] 7. Completeness gate — sub-agent: verify all SCs covered
 - [ ] 8. Audit — sub-agent: adversarial audit of all deliverables
 - [ ] 9. Finishing checklist — sub-agent: branch readiness, pre-PR checks
@@ -151,6 +159,7 @@ All success criteria MUST pass before this implementation is considered complete
 2. **SC-2, SC-3, SC-4, SC-5** — Implement the `record-authorization` task procedure (write spec.md, comments.yaml, issue.yaml, commit)
 3. **SC-9** — Implement the `verify-recording` task procedure (read back and confirm)
 4. **SC-6, SC-7, SC-10, SC-11, SC-12** — Reorder the three workflows in `approval-gate-scope/SKILL.md`
+5. **SC-13** — Implement `source_db: MISSING` in harness `__export_sqlite_to_yaml`, remove all production fallback paths
 
 ## Dependencies
 
@@ -176,6 +185,7 @@ All success criteria MUST pass before this implementation is considered complete
 | REQ-10 | SC-8 | 1 |
 | REQ-11 | SC-6, SC-7, SC-10, SC-11, SC-12 | 4 |
 | REQ-12 | SC-6, SC-7, SC-11, SC-12 | 4 |
+| REQ-13, REQ-14, REQ-15 | SC-13 | 5 |
 
 ## Change Control
 
