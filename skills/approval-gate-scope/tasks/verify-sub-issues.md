@@ -16,7 +16,7 @@ Verify sub-issue structure and phase tracking gate for multi-task plans before i
 ## Exit Criteria
 
 - Sub-issues verified present under plan
-- Phase tracking state in `{project_root}/tmp/{N}/work.md` matches requested subtask
+- Phase tracking state in orchestrator-passed context matches requested subtask
 - Auto-create performed if needed
 
 ## Procedure
@@ -43,29 +43,27 @@ sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_
 
 **For multi-task plans with sub-issues:**
 
-Phase tracking state is read from `{project_root}/tmp/{N}/work.md`. The work state file is populated during pre-work and updated by each pipeline step.
+Phase tracking state is passed via orchestrator context, not read from a work state file. The orchestrator provides `current_phase`, `current_concern`, and `current_step` values.
 
 - [ ] 1. Extract subtask from authorization:
     - "approved: 1.2" → subtask 1.2 (numeric format)
     - "approved: X.Y" → subtask X.Y (numeric format)
     - "approved: {concern}" → find phase matching concern name (prose format)
-    - "approved" (no number) → read `{project_root}/tmp/{N}/work.md` for current phase
+    - "approved" (no number) → use `context.current_phase` from orchestrator
 
-- [ ] 2. Read phase tracking state:
-    ```bash
-    # Read current phase from work state file
-    cat "{project_root}/tmp/{plan_issue}/work.md"
-    # Expected format:
-    # current_phase: <phase_number>
-    # current_concern: <concern_name>
-    # current_step: <step_label>
-    # If file missing → default to first concern, first step
+- [ ] 2. Read phase tracking state from orchestrator context:
+    ```python
+    # Phase tracking state is passed via orchestrator context
+    current_phase = context.get("current_phase", 1)
+    current_concern = context.get("current_concern", "first concern")
+    current_step = context.get("current_step", "first step")
+    # If context values missing → default to first concern, first step
     ```
 
 - [ ] 3. Determine which subtask to implement:
     - If authorized for concern name or X.Y → use that subtask (explicit override)
-    - If "approved" (no number) AND work.md has current phase → use that value
-    - If "approved" (no number) AND work.md missing → use first concern, first step
+    - If "approved" (no number) AND context has current_phase → use that value
+    - If "approved" (no number) AND context missing phase values → use first concern, first step
     - POST COMMENT explaining which subtask is being implemented
 
 - [ ] 4. Verify subtask exists:
@@ -77,7 +75,7 @@ Phase tracking state is read from `{project_root}/tmp/{N}/work.md`. The work sta
 Proceeding to implement subtask for {concern} (or X.Y).
 
 Authorization: "approved" (no phase specified)
-Phase tracking: {concern}, Step {N} (or "work.md not found, defaulting to first concern")
+Phase tracking: {concern}, Step {N} (or "context missing phase values, defaulting to first concern")
 Sub-issue: #NNN
 
 Starting implementation now.
@@ -132,12 +130,12 @@ Auto-creating sub-issues for an approved multi-task plan does NOT require separa
 
 | Scenario | Action |
 |----------|--------|
-| work.md phase matches authorized subtask (prose or numeric) | ✅ PROCEED - report which subtask and concern |
+| Context phase matches authorized subtask (prose or numeric) | ✅ PROCEED - report which subtask and concern |
 | Phase mismatch | ⛔ HALT - report mismatch clearly |
-| work.md says "completed" | ⛔ HALT - all phases complete |
-| work.md not found + "approved" | ✅ PROCEED - default to first concern's first step, report decision |
-| work.md not found + "approved: X.Y" | ✅ PROCEED - use specified X.Y, report decision |
-| work.md not found + "approved: {concern}" | ✅ PROCEED - find phase matching concern name, report decision |
+| Context says "completed" | ⛔ HALT - all phases complete |
+| Context missing phase values + "approved" | ✅ PROCEED - default to first concern's first step, report decision |
+| Context missing phase values + "approved: X.Y" | ✅ PROCEED - use specified X.Y, report decision |
+| Context missing phase values + "approved: {concern}" | ✅ PROCEED - find phase matching concern name, report decision |
 | Single-phase plan (no tracking needed) | ✅ PROCEED - no gate needed |
 | Subtask not in sub-issues list | ⛔ HALT - report available subtasks |
 
@@ -146,14 +144,14 @@ Auto-creating sub-issues for an approved multi-task plan does NOT require separa
 **Every phase tracking gate check MUST report status to user:**
 
 - [ ] 1. Which subtask is being implemented
-- [ ] 2. Why that subtask was selected (work.md value or default)
+- [ ] 2. Why that subtask was selected (context value or default)
 - [ ] 3. Link to the sub-issue
 
 **Example report:**
 ```markdown
 **Phase Tracking Gate Verification:**
 - Authorization: "approved" (no phase specified)
-- work.md: Not found → Defaulting to first concern's first step
+- Context: Missing phase values → Defaulting to first concern's first step
 - Sub-issue: #473
 - Proceeding with implementation
 ```
@@ -173,12 +171,12 @@ Auto-creating sub-issues for an approved multi-task plan does NOT require separa
 
 | Issue | Resolution |
 |-------|------------|
-| Phase mismatch | POST report: "Phase mismatch: authorized for {concern}/{X.Y} but work.md shows {actual}. Please update tracking state or authorize correct subtask." |
-| work.md not found | Default to first concern's first step, POST report: "work.md not found. Defaulting to first concern. Add tracking state to work.md for phase tracking." |
+| Phase mismatch | POST report: "Phase mismatch: authorized for {concern}/{X.Y} but context shows {actual}. Please update tracking state or authorize correct subtask." |
+| Context missing phase values | Default to first concern's first step, POST report: "Context missing phase values. Defaulting to first concern. Orchestrator should provide phase tracking values." |
 | Sub-issue not linked | Auto-create and link, POST report: "Created N sub-issues for phase tracking." |
 | Single-phase plan with tracking state | Ignore tracking, proceed, POST report: "Single-phase plan, ignoring phase tracking." |
 | Subtask not in list | HALT, POST report: "Subtask {X.Y}/{concern} not found. Available subtasks: [list]. Please authorize a valid subtask." |
-| Plan issue missing work.md | Default to first concern's first step, proceed, report to chat |
+| Plan issue missing context phase values | Default to first concern's first step, proceed, report to chat |
 
 ## Adversarial Verification: Sub-Issue State
 
@@ -207,17 +205,17 @@ For each sub-issue returned:
 ```
 For each sub-issue:
   labels = issue-operations -> read-labels (github_issue_read(method=get_labels, issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
-  work_state = $(cat {project_root}/tmp/{plan_issue}/work.md 2>/dev/null || echo "not found")
+  current_phase = context.get("current_phase", "not found")
 
   - If has "needs-approval" label but parent plan has explicit authorization → STRUCTURE-VIOLATION
     (auto-fix: authorization cascades from plan, label should be removed)
-  - If work.md phase tracking is mismatched to actual sub-issue progress → STRUCTURE-VIOLATION
-    (auto-fix: update work.md per ground-truth progress)
-  - If work.md says completed but sub-issue is open → CONFLICTING
+  - If current_phase tracking is mismatched to actual sub-issue progress → STRUCTURE-VIOLATION
+    (auto-fix: update phase tracking per ground-truth progress)
+  - If current_phase says completed but sub-issue is open → CONFLICTING
     (FAIL: may indicate tracking mismatch)
 ```
 
-**Evidence artifact:** Label list and work.md state for each sub-issue.
+**Evidence artifact:** Label list and phase tracking state for each sub-issue.
 
 ### Verify Sub-Issue Link Integrity
 

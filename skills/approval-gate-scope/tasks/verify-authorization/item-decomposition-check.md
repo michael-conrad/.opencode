@@ -56,9 +56,15 @@ Single-task plans (0 or 1 phases) are exempt from the item decomposition check. 
 
 See `091-incremental-build.md` for the complete discipline rules, scope classification, and per-item TDD cycle. See `091-incremental-build.md` → "Enforcement Mechanism" section for RED phase verification requirements. See `080-code-standards.md` → "Behavioral Enforcement Tests (PRIMARY)" for the behavioral RED/GREEN gate mandate.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## scope-auto-resolve`
-- **Writes to:** `## item-decomposition-check`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/item-decomposition-check.yaml`.
 
-After completing this task, write results to the work state file under section `## item-decomposition-check` using the YAML format defined in `enforcement/work-state-schema.md`.
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/scope-auto-resolve.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<item decomposition and behavioral test coverage findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/item-decomposition-check.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

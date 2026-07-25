@@ -160,7 +160,7 @@ Breaks agent config loading. Creating `.opencode/.opencode/` directories is FORB
 Only the developer can merge PRs. The `github_merge_pull_request` tool is FORBIDDEN for agent use. Enforced at three gates:
 - **PR creation gate** (`.opencode/skills/git-workflow-pr/tasks/pr-creation.md`): HALT after PR creation — do not merge
 - **Completion gate** (`.opencode/skills/git-workflow-pr/tasks/completion.md`): Check that merge was not called during session
-- **Authorization gate** (`.opencode/skills/approval-gate-scope/tasks/verify-authorization.md`): Block merge requests with HALT
+- **Authorization gate** (`.opencode/skills/approval-gate-scope/SKILL.md`): Block merge requests with HALT
 
 Deleting a tracked file from the repository is a destructive operation equivalent to any code change. It requires:
 1. A spec (SPEC-FIX or SPEC) describing what is being deleted and why

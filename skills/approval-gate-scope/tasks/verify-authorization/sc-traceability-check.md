@@ -73,9 +73,15 @@ Existing SCs that were implemented before this mandate took effect are flagged b
 
 See `080-code-standards.md` "SC-to-Test Traceability" and "RED-Phase Ordering" sections for the mandate. See `080-code-standards.md` "Behavioral Enforcement Tests (PRIMARY)" for the behavioral test requirement. See `091-incremental-build.md` for the per-item TDD cycle extended to SCs. See `spec-creation/tasks/create.md` Step 0.5 and `issue-review/tasks/analyze-and-spec.md` Step 4.1 for the content-creation RED gates that ensure enforcement test assertions exist before spec approval.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## scope-auto-resolve`
-- **Writes to:** `## sc-traceability-check`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/sc-traceability-check.yaml`.
 
-After completing this task, write results to the work state file under section `## sc-traceability-check` using the YAML format defined in `enforcement/work-state-schema.md`.
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/scope-auto-resolve.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<SC-to-test traceability and RED-phase ordering findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/sc-traceability-check.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

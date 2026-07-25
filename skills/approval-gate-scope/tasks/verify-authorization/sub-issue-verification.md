@@ -95,9 +95,15 @@ After traversal completes, dispatch `reconcile-issue-graph` to act on findings. 
 
 Read [the binary PASS/FAIL classification model](enforcement/adversarial-verification.md) (auto-fix as remediation action only) and evidence artifact format.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## scope-auto-resolve`, `## item-decomposition-check`
-- **Writes to:** `## sub-issue-verification`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/sub-issue-verification.yaml`.
 
-After completing this task, write results to the work state file under section `## sub-issue-verification` using the YAML format defined in `enforcement/work-state-schema.md`.
+Before proceeding, read the prior steps' result contracts from `{project_root}/tmp/{issue-N}/verify-authorization/scope-auto-resolve.yaml` and `{project_root}/tmp/{issue-N}/verify-authorization/item-decomposition-check.yaml`. If any prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<sub-issue structure verification findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/sub-issue-verification.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

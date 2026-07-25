@@ -137,9 +137,15 @@ Before routing to the implementation-pipeline per the SKILL.md Trigger Dispatch 
 2. **If context bloat detected:** Do NOT proceed to dispatch. The orchestrator must task a clean sub-agent from the current pipeline phase — do NOT attempt recovery via state cleanup.
 3. **Evidence artifact:** Before dispatch, the halt message must include: "Orchestrator context discipline verified: routing-only data held, no task file content cached, no prior sub-agent reasoning retained."
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## gap-fill-cascade`, `## scope-auto-resolve`
-- **Writes to:** `## auto-dispatch`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/auto-dispatch.yaml`.
 
-After completing this task, write results to the work state file under section `## auto-dispatch` using the YAML format defined in `enforcement/work-state-schema.md`.
+Before proceeding, read the prior steps' result contracts from `{project_root}/tmp/{issue-N}/verify-authorization/gap-fill-cascade.yaml` and `{project_root}/tmp/{issue-N}/verify-authorization/scope-auto-resolve.yaml`. If any prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<auto-dispatch routing decision>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/auto-dispatch.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

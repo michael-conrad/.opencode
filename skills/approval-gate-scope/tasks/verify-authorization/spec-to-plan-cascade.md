@@ -77,9 +77,15 @@ Per `approval-gate-015`, pipeline-initiated non-substantive spec revisions do NO
 
 **Evidence artifact:** `glob .issues/*/plan.md {project_root}/{path}/.issues/*/plan.md` + grep for `Spec: #N` showing plan files referencing the spec. Plans are local artifacts — no GitHub Issue mutation needed.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## sub-issue-verification`
-- **Writes to:** `## spec-to-plan-cascade`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/spec-to-plan-cascade.yaml`.
 
-After completing this task, write results to the work state file under section `## spec-to-plan-cascade` using the YAML format defined in `enforcement/work-state-schema.md`.
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/sub-issue-verification.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<spec-to-plan cascade approval findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/spec-to-plan-cascade.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

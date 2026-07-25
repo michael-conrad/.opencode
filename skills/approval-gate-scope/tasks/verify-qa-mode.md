@@ -424,7 +424,7 @@ What would you like me to do?
 
 - Related guideline: `.opencode/AGENTS.md` "Q/A Mode" section
 - Related guideline: `010-approval-gate.md`
-- Related task: `verify-authorization.md`
+- Related task: `SKILL.md` — see Workflows section
 - Related skill: `git-workflow` (pre-work task)
 - Label state machine: Read [§10](guidelines/141-planning-status-tracking.md) (label transitions for authorization gates)
 

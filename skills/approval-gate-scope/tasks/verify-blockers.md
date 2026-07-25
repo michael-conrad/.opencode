@@ -12,23 +12,23 @@ Check for blocking issues or dependencies that prevent implementation.
 
 ## Exit Criteria
 
-- Authorization confirmed in work state file (`{project_root}/tmp/{N}/work.md`)
+- Authorization confirmed in orchestrator-passed context
 - No blocking issues superseding spec
 - No unresolved dependencies
 
 ## Procedure
 
-### Step 1: Check Authorization via Work State File
+### Step 1: Check Authorization via Orchestrator Context
 
 ```python
-work_state = read_work_state(f"{project_root}/tmp/{N}/work.md")  # reads from ## verify-authorization section
-auth_info = work_state.get("authorization", {})
+# Authorization is passed via orchestrator context, not read from work state file
+auth_info = context.get("authorization", {})
 
 if auth_info.get("authorized") == True:
-    # Authorization confirmed via work state — proceed
+    # Authorization confirmed via orchestrator context — proceed
     pass
 else:
-    HALT(f"Authorization not confirmed in work state for #{N}")
+    HALT(f"Authorization not confirmed in orchestrator context for #{N}")
 ```
 
 ### Step 2: Check for Superseding Issues
@@ -52,7 +52,7 @@ For each dependency listed in spec:
 
 | Blocker | Action |
 |---------|--------|
-| No authorization in work state | HALT and report |
+| No authorization in orchestrator context | HALT and report |
 | Superseding issue | HALT and report |
 | Conflicting spec | HALT and identify conflict |
 | Missing dependency | HALT and ask about alternatives |
@@ -106,11 +106,10 @@ For each dependency listed in spec:
 
 **Evidence artifact:** Tool call results confirming dependency existence and availability.
 
-### Verify Authorization State Against Work State File
+### Verify Authorization State Against Context
 
 ```
-work_state = read_work_state(f"{project_root}/tmp/{N}/work.md")
-auth_info = work_state.get("authorization", {})
+auth_info = context.get("authorization", {})
 
 has_auth = auth_info.get("authorized") == True
 has_scope = auth_info.get("authorization_scope") is not None
@@ -121,9 +120,9 @@ has_scope = auth_info.get("authorization_scope") is not None
 - no auth AND no scope → Correct state, proceed to HALT
 ```
 
-**Evidence artifact:** Work state file content showing `authorization.authorized` and `authorization.authorization_scope` values.
+**Evidence artifact:** Authorization context showing `authorization.authorized` and `authorization.authorization_scope` values.
 
-Labels are advisory visibility markers only — they do NOT gate execution. If the `needs-approval` label is present but work state confirms authorization, the label is stale and should be cleaned up asynchronously.
+Labels are advisory visibility markers only — they do NOT gate execution. If the `needs-approval` label is present but authorization context confirms authorization, the label is stale and should be cleaned up asynchronously.
 
 ### Task-Specific Findings
 
@@ -132,7 +131,7 @@ Read [adversarial-verification](enforcement/adversarial-verification.md) for the
 ## Context Required
 
 - Related tasks: `verify-authorization`, `verify-open-questions`
-- Authorization state: `{project_root}/tmp/{N}/work.md` is the canonical source. Labels are advisory visibility markers only — they do NOT gate execution.
+- Authorization state: orchestrator-passed context is the canonical source. Labels are advisory visibility markers only — they do NOT gate execution.
 
 ## Enforcement References
 

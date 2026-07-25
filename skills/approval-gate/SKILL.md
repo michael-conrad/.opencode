@@ -22,7 +22,7 @@ This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skil
 
 | User says / Context | Task | Dispatches To | Dispatch | Context passed |
 |---------------------|------|---------------|----------|----------------|
-| "verify authorization" / "check approval" | `verify-authorization` | `approval-gate-scope --task verify-authorization` | `sub-task` | {issue_number, authorization_scope} |
+| "verify authorization" / "check approval" | `verify-authorization` | `approval-gate-scope --task verify-authorization` | `sub-task` | {issue_number, authorization_scope} — see Workflows section |
 | "screen issue" / "triage" | `screen-issue` | `approval-gate-scope --task screen-issue` | `sub-task` | {issue_number} |
 | "pre-implementation analysis" | `pre-implementation-analysis` | `approval-gate-scope --task pre-implementation-analysis` | `sub-task` | {issue_numbers} |
 | "verify blockers" | `verify-blockers` | `approval-gate-scope --task verify-blockers` | `sub-task` | {issue_number} |
@@ -46,7 +46,7 @@ This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skil
 
 | Task | Canonical Dispatch String |
 |------|--------------------------|
-| `verify-authorization` | `task(..., prompt: "execute verify-authorization from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
+| `verify-authorization` | `task(..., prompt: "execute verify-authorization from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
 | `screen-issue` | `task(..., prompt: "execute screen-issue from approval-gate-scope. Read \`approval-gate-scope/tasks/screen-issue.md\` first")` |
 | `pre-implementation-analysis` | `task(..., prompt: "execute pre-implementation-analysis from approval-gate-scope. Read \`approval-gate-scope/tasks/pre-implementation-analysis.md\` first")` |
 | `verify-blockers` | `task(..., prompt: "execute verify-blockers from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-blockers.md\` first")` |
@@ -57,9 +57,9 @@ This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skil
 | `verify-already-implemented` | `task(..., prompt: "execute verify-already-implemented from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-already-implemented.md\` first")` |
 | `approval-cascade` | `task(..., prompt: "execute approval-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/gap-fill-cascade.md\` first")` |
 | `check-halt-boundary` | `task(..., prompt: "execute check-halt-boundary from approval-gate-scope. Read \`approval-gate-scope/tasks/authorization-context.md\` first")` |
-| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
-| `revision-revocation` | `task(..., prompt: "execute revision-revocation from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
-| `bug-discovery-protocol` | `task(..., prompt: "execute bug-discovery-protocol from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization.md\` first")` |
+| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate-scope. Read \`approval-gate-scope/tasks/apply-label.md\` first")` |
+| `revision-revocation` | `task(..., prompt: "execute revision-revocation from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
+| `bug-discovery-protocol` | `task(..., prompt: "execute bug-discovery-protocol from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
 | `verify-plan-pipeline` | `task(..., prompt: "execute verify-plan-pipeline from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-plan-pipeline.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from approval-gate-scope. Read \`approval-gate-scope/tasks/completion.md\` first")` |
 
