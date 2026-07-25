@@ -227,14 +227,6 @@ The orchestrator MUST call `skill({name: "git-workflow"})` -> `task("execute pre
 - Verify each submodule is on `$DEFAULT_BRANCH`, zero pending changes, at remote tracking tip
 - Verify submodule pointer matches committed SHA (no `+` prefix in `git submodule status`)
 
-#### Why This Matters
-
-| Violation Pattern | Consequence |
-|-------------------|-------------|
-| Starting work from stale base | PR diff includes changes already in origin but not in local base — confusing PR diff |
-| Dirty submodule state | Submodule pointer not committed — build failure on deploy |
-| Skipping trunk-tip verification | Failed deploys, wasted CI cycles, manual remediation to clean stale branches |
-
 
 ### [critical-rules-XXX] CRITICAL VIOLATION — Pre-commit/pre-push submodule pointer verification — MUST verify submodule pointer updates are included in commits
 
@@ -251,13 +243,6 @@ The pre-commit or pre-push gate MUST verify that if a submodule pointer is dirty
 - Before every commit, dispatch `skill({name: "git-workflow"})` -> `task("execute pre-commit-pointer-check from git-workflow-branch")`
 - Verify that if `git submodule status` shows a `+` prefix (dirty pointer), the pointer update is staged alongside non-submodule changes
 - If the submodule pointer is dirty AND the submodule has changes that are part of the PR scope, the pointer update MUST be included in the commit
-
-#### Why This Matters
-
-| Violation Pattern | Consequence |
-|-------------------|-------------|
-| Committing without submodule pointer update | Build system resolves old pointer — build failure on deploy |
-| Pushing with dirty submodule pointer | Deploy fails, requires manual remediation to create a follow-up PR |
 
 
 ### [critical-rules-XXX] CRITICAL VIOLATION — Direct `github_issue_write` for spec content bypassing spec-creation pipeline
