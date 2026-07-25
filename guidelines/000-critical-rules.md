@@ -6,9 +6,6 @@ load_when: sub-agent
 
 # CRITICAL RULES — Three-Tier Model
 
-**Read [the authoritative list of critical rules](AGENTS.md).**
-**Read [detailed rules](.opencode/guidelines/).**
-
 This file provides critical rules organized into three tiers. Tier 1 mandates are prescriptively enforced by `session-enforcement.ts` `buildTier1EnforcementBlock()`.
 
 ## Mandate Tiering
