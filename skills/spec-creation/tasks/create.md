@@ -43,7 +43,7 @@ Construct the spec with all required sections:
 3. **Not Included** — Explicitly excluded scope
 4. **Success Criteria** — Table with ID, Criterion, Evidence Type, Verification Method columns
 5. **Requirements** — Numbered requirements with SHALL language
-6. **Phases** — Implementation phases with REQ references
+6. **Items** — Per-SC item enumeration. Each SC maps to exactly one item (plan_item number). Items are numbered sequentially starting from 1.
 7. **Dependencies** — Prerequisite specs, skills, guidelines
 8. **Traceability** — Table mapping Requirements → SCs → Phases
 
