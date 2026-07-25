@@ -1,6 +1,6 @@
 labels:
 - approved-for-implementation
-updated_at: '2026-07-25T20:27:24+00:00'
+updated_at: '2026-07-25T20:35:21+00:00'
 body: "---\nissue: .opencode#2141\ntitle: \"[SPEC] Fix: Authorization Workflow — Record\
   \ Session Authorization Before Verifying\"\nstatus: approved\napproved: 2026-07-25\n\
   created: 2026-07-25\nlicense: MIT\nprovenance: AI-generated\nphase: 1\nphase_name:\
@@ -125,19 +125,22 @@ body: "---\nissue: .opencode#2141\ntitle: \"[SPEC] Fix: Authorization Workflow �
   \ that writes session authorization into persistent issue state | `structural` |\
   \ File exists at `approval-gate-scope/tasks/record-authorization.md` |\n| SC-2 |\
   \ The `record-authorization` task updates `spec.md` frontmatter to add `status:\
-  \ approved` when the resolved scope is `for_implementation` or higher | `behavioral`\
-  \ | Dispatch the task with a mock session authorization → verify `spec.md` frontmatter\
-  \ contains `status: approved` |\n| SC-3 | The `record-authorization` task appends\
-  \ an authorization record to `comments.yaml` with the authorization text, scope,\
-  \ timestamp, and human attribution | `behavioral` | Dispatch the task → verify `comments.yaml`\
-  \ contains a new entry with `author: \"human\"`, `scope: \"for_implementation\"\
-  `, and a timestamp |\n| SC-4 | The `record-authorization` task updates `issue.yaml`\
-  \ to add the `approved-for-{scope}` label | `behavioral` | Dispatch the task → verify\
-  \ `issue.yaml` labels array contains `approved-for-implementation` (or matching\
-  \ scope) |\n| SC-5 | The `record-authorization` task commits the `.issues/` worktree\
-  \ changes after writing | `behavioral` | Dispatch the task → verify `git -C .issues/\
-  \ status` shows clean working tree |\n| SC-6 | The `verify-authorization` fast-path\
-  \ workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify\
+  \ approved` when the resolved scope is `for_implementation` or higher (scope hierarchy:\
+  \ `for_analysis` < `for_spec` < `for_plan` < `for_implementation` < `for_pr`). Scopes\
+  \ below `for_implementation` (`for_analysis`, `for_spec`, `for_plan`) MUST NOT set\
+  \ `status: approved` | `behavioral` | Dispatch the task with `for_implementation`\
+  \ scope → verify `spec.md` frontmatter contains `status: approved`. Dispatch with\
+  \ `for_plan` scope → verify `status: approved` is NOT set |\n| SC-3 | The `record-authorization`\
+  \ task appends an authorization record to `comments.yaml` with the authorization\
+  \ text, scope, timestamp, and human attribution | `behavioral` | Dispatch the task\
+  \ → verify `comments.yaml` contains a new entry with `author: \"human\"`, `scope:\
+  \ \"for_implementation\"`, and a timestamp |\n| SC-4 | The `record-authorization`\
+  \ task updates `issue.yaml` to add the `approved-for-{scope}` label | `behavioral`\
+  \ | Dispatch the task → verify `issue.yaml` labels array contains `approved-for-implementation`\
+  \ (or matching scope) |\n| SC-5 | The `record-authorization` task commits the `.issues/`\
+  \ worktree changes after writing | `behavioral` | Dispatch the task → verify `git\
+  \ -C .issues/ status` shows clean working tree |\n| SC-6 | The `verify-authorization`\
+  \ fast-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify\
   \ pattern: scope-auto-resolve → record-authorization → verify-recording → apply-label\
   \ → auto-dispatch | `behavioral` | Run `opencode run` with a prompt that triggers\
   \ the fast-path → assert stderr shows the new step order (record-authorization before\
@@ -185,9 +188,14 @@ body: "---\nissue: .opencode#2141\ntitle: \"[SPEC] Fix: Authorization Workflow �
   \ the test project inside it) | `behavioral` | Run a behavioral test → verify `session.yaml`\
   \ exists with `source_db:` pointing to a real path under `tmp/test-home-*/`. If\
   \ `source_db: MISSING`, the test is FAIL — diagnose the test home setup, not the\
-  \ agent behavior |\n\n## Requirements\n\n1. The `record-authorization` task SHALL\
-  \ write session authorization into persistent issue state.\n2. The `record-authorization`\
-  \ task SHALL update `spec.md` frontmatter to add `status: approved` when the resolved\
+  \ agent behavior. **Cost frame:** This SC prevents a death spiral where missing\
+  \ DB evidence is silently replaced with stderr/stdout grep (string evidence) — the\
+  \ defect ships, behavioral verification is impossible, and every subsequent test\
+  \ run produces false PASS. Behavioral FAIL at gate 1 (missing DB → hard FAIL) is\
+  \ the break: the test environment is diagnosed immediately, not after N rework cycles\
+  \ |\n\n## Requirements\n\n1. The `record-authorization` task SHALL write session\
+  \ authorization into persistent issue state.\n2. The `record-authorization` task\
+  \ SHALL update `spec.md` frontmatter to add `status: approved` when the resolved\
   \ scope is `for_implementation` or higher.\n3. The `record-authorization` task SHALL\
   \ append an authorization record to `comments.yaml` with the authorization text,\
   \ scope, timestamp, and human attribution.\n4. The `record-authorization` task SHALL\
