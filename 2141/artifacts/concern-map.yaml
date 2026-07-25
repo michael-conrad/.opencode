@@ -1,0 +1,51 @@
+# Concern Map — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+phase_1:
+  name: "Create record-authorization and verify-recording task files; remove verify-explicit-authorization"
+  concern: "Task file scaffolding — create new task files, remove old task file"
+  boundary: "File creation/deletion only. No procedure logic, no workflow reordering."
+  separation:
+    - Does NOT implement record-authorization procedure (phase 2)
+    - Does NOT implement verify-recording procedure (phase 3)
+    - Does NOT reorder workflows (phase 4)
+  files_touched:
+    - CREATE: tasks/record-authorization.md
+    - CREATE: tasks/verify-authorization/verify-recording.md
+    - DELETE: tasks/verify-authorization/verify-explicit-authorization.md
+
+phase_2:
+  name: "Implement record-authorization task procedure"
+  concern: "Write session authorization into persistent issue state (spec.md, comments.yaml, issue.yaml) and commit worktree"
+  boundary: "Writing only. Does NOT verify what was written — that is phase 3's concern."
+  separation:
+    - Does NOT read back or verify recorded state (phase 3)
+    - Does NOT reorder workflows (phase 4)
+    - Does NOT create or delete task files (phase 1)
+  files_touched:
+    - MODIFY: tasks/record-authorization.md (add procedure body)
+    - MODIFY: .issues/{N}/spec.md (frontmatter)
+    - MODIFY: .issues/{N}/comments.yaml (append record)
+    - MODIFY: .issues/{N}/issue.yaml (add label)
+
+phase_3:
+  name: "Implement verify-recording task procedure"
+  concern: "Read back recorded state from spec.md, comments.yaml, issue.yaml and confirm all three match what was written"
+  boundary: "Reading and verification only. Does NOT write any state."
+  separation:
+    - Does NOT write authorization state (phase 2)
+    - Does NOT create or delete task files (phase 1)
+    - Does NOT reorder workflows (phase 4)
+  files_touched:
+    - MODIFY: tasks/verify-authorization/verify-recording.md (add procedure body)
+
+phase_4:
+  name: "Reorder workflows in approval-gate-scope/SKILL.md"
+  concern: "Reorder all 3 workflows (fast-path, gap-fill-path, full-path) to place record-authorization at step 2 and verify-recording at step 3, with apply-label at step 4"
+  boundary: "SKILL.md Workflows section only. Does NOT modify task file content."
+  separation:
+    - Does NOT modify any task file content (phases 1-3)
+    - Does NOT change Trigger Dispatch Table
+    - Does NOT change enforcement modules
+  files_touched:
+    - MODIFY: SKILL.md (Workflows section only)

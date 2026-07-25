@@ -1,0 +1,613 @@
+generator: spec-audit-investigator
+issue_number: 2141
+generated_at: "2026-07-25T12:30:00Z"
+spec_local_dir: ".opencode/.issues/2141/"
+audit_cycle: 2
+role: investigator
+role_chain: [investigator, validator, evaluator, arbiter]
+
+spec_files:
+  - path: spec.md
+    size_bytes: 19958
+    modified_at: "2026-07-25"
+    has_frontmatter: true
+    frontmatter_keys:
+      - issue
+      - title
+      - status
+      - created
+      - license
+      - provenance
+      - phase
+      - phase_name
+      - authors
+    body_length_lines: 179
+    body_length_chars: 19958
+
+spec_structure:
+  headings:
+    - level: 2
+      text: "Intent and Executive Summary"
+      line: 18
+    - level: 3
+      text: "Problem Statement"
+      line: 20
+    - level: 3
+      text: "Root Cause / Motivation"
+      line: 24
+    - level: 3
+      text: "Approach Chosen"
+      line: 37
+    - level: 3
+      text: "Alternatives Considered & Why Discarded"
+      line: 41
+    - level: 3
+      text: "Key Design Decisions"
+      line: 48
+    - level: 2
+      text: "Not Included"
+      line: 55
+    - level: 2
+      text: "Edge Cases"
+      line: 66
+    - level: 3
+      text: ".issues/ Worktree Not Initialized"
+      line: 68
+    - level: 3
+      text: "Malformed spec.md Frontmatter"
+      line: 72
+    - level: 3
+      text: "Missing comments.yaml"
+      line: 76
+    - level: 3
+      text: "Commit Failure"
+      line: 80
+    - level: 3
+      text: "Concurrent Authorization Attempts"
+      line: 84
+    - level: 2
+      text: "Cost Frame"
+      line: 88
+    - level: 2
+      text: "SC Enforcement Gate"
+      line: 98
+    - level: 2
+      text: "Success Criteria"
+      line: 102
+    - level: 2
+      text: "Requirements"
+      line: 119
+    - level: 2
+      text: "Pipeline Gates"
+      line: 134
+    - level: 2
+      text: "Items"
+      line: 147
+    - level: 2
+      text: "Dependencies"
+      line: 154
+    - level: 2
+      text: "Traceability"
+      line: 162
+    - level: 2
+      text: "Change Control"
+      line: 179
+  success_criteria:
+    present: true
+    table_columns:
+      - ID
+      - Criterion
+      - Evidence Type
+      - Verification Method
+    rows:
+      - id: SC-1
+        criterion: "A new `record-authorization` task exists at `approval-gate-scope/tasks/record-authorization.md` that writes session authorization into persistent issue state"
+        evidence_type: structural
+        verification_method: "File exists at `approval-gate-scope/tasks/record-authorization.md`"
+      - id: SC-2
+        criterion: "The `record-authorization` task updates `spec.md` frontmatter to add `status: approved` when the resolved scope is `for_implementation` or higher"
+        evidence_type: behavioral
+        verification_method: "Dispatch the task with a mock session authorization → verify `spec.md` frontmatter contains `status: approved`"
+      - id: SC-3
+        criterion: "The `record-authorization` task appends an authorization record to `comments.yaml` with the authorization text, scope, timestamp, and human attribution"
+        evidence_type: behavioral
+        verification_method: "Dispatch the task → verify `comments.yaml` contains a new entry with `author: \"human\"`, `scope: \"for_implementation\"`, and a timestamp"
+      - id: SC-4
+        criterion: "The `record-authorization` task updates `issue.yaml` to add the `approved-for-{scope}` label"
+        evidence_type: behavioral
+        verification_method: "Dispatch the task → verify `issue.yaml` labels array contains `approved-for-implementation` (or matching scope)"
+      - id: SC-5
+        criterion: "The `record-authorization` task commits the `.issues/` worktree changes after writing"
+        evidence_type: behavioral
+        verification_method: "Dispatch the task → verify `git -C .issues/ status` shows clean working tree"
+      - id: SC-6
+        criterion: "The `verify-authorization` fast-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → apply-label → auto-dispatch"
+        evidence_type: behavioral
+        verification_method: "Run `opencode run` with a prompt that triggers the fast-path → assert stderr shows the new step order (record-authorization before verify-recording, apply-label after verify-recording). Reference: `approval-gate-scope/SKILL.md` Workflows section — fast-path workflow step sequence"
+      - id: SC-7
+        criterion: "The `verify-authorization` full-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → apply-label → item-decomposition → SC-traceability → sub-issues → spec-to-plan-cascade → gap-fill-cascade → verify-codebase → verify-blockers → verify-closed-issue → verify-already-implemented → auto-dispatch"
+        evidence_type: behavioral
+        verification_method: "Run `opencode run` with a prompt that triggers the full-path → assert stderr shows record-authorization at position 2 and verify-recording at position 3. Reference: `approval-gate-scope/SKILL.md` Workflows section — full-path workflow step sequence"
+      - id: SC-8
+        criterion: "The `verify-explicit-authorization.md` task is replaced by a `verify-recording.md` task that reads back the recorded state and confirms it matches what was written"
+        evidence_type: structural
+        verification_method: "File `verify-explicit-authorization.md` no longer exists; file `verify-recording.md` exists at `approval-gate-scope/tasks/verify-authorization/verify-recording.md`"
+      - id: SC-9
+        criterion: "The `verify-recording` task checks that `spec.md` frontmatter has `status: approved`, `comments.yaml` has the authorization record, and `issue.yaml` has the label — and returns BLOCKED if any are missing"
+        evidence_type: behavioral
+        verification_method: "Dispatch the task after a successful record → verify PASS. Corrupt one of the three files → verify BLOCKED with specific reason"
+      - id: SC-10
+        criterion: "The `apply-label` task in the fast-path and full-path workflows is moved to AFTER `record-authorization` and `verify-recording` (it was previously step 3, now step 4)"
+        evidence_type: behavioral
+        verification_method: "Run `opencode run` with a prompt that triggers either workflow → assert stderr shows apply-label dispatched after verify-recording. Reference: `approval-gate-scope/SKILL.md` Workflows section — apply-label step position in both workflows"
+      - id: SC-11
+        criterion: "The `verify-authorization` gap-fill-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → gap-fill-cascade → auto-dispatch"
+        evidence_type: behavioral
+        verification_method: "Run `opencode run` with a prompt that triggers the gap-fill-path → assert stderr shows record-authorization at position 2 and verify-recording at position 3. Reference: `approval-gate-scope/SKILL.md` Workflows section — gap-fill-path workflow step sequence"
+      - id: SC-12
+        criterion: "All three workflows (fast-path, gap-fill-path, full-path) in `approval-gate-scope/SKILL.md` have the `record-authorization` step inserted at position 2, immediately after `scope-auto-resolve`"
+        evidence_type: behavioral
+        verification_method: "Run `opencode run` with prompts that trigger each workflow → assert stderr shows record-authorization is step 2 in all three. Reference: `approval-gate-scope/SKILL.md` Workflows section — step numbering in all three workflows"
+  phases:
+    present: true
+    count: 4
+    items:
+      - heading: "SC-1, SC-8 — Create record-authorization.md task file; remove verify-explicit-authorization.md; create verify-recording.md task file"
+        sub_items_count: 0
+      - heading: "SC-2, SC-3, SC-4, SC-5 — Implement the record-authorization task procedure (write spec.md, comments.yaml, issue.yaml, commit)"
+        sub_items_count: 0
+      - heading: "SC-9 — Implement the verify-recording task procedure (read back and confirm)"
+        sub_items_count: 0
+      - heading: "SC-6, SC-7, SC-10, SC-11, SC-12 — Reorder the three workflows in approval-gate-scope/SKILL.md"
+        sub_items_count: 0
+  files_affected:
+    present: true
+    paths:
+      - ".opencode/skills/approval-gate-scope/tasks/record-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md"
+      - ".opencode/skills/approval-gate-scope/SKILL.md"
+      - ".issues/{N}/spec.md"
+      - ".issues/{N}/comments.yaml"
+      - ".issues/{N}/issue.yaml"
+  preamble:
+    present: true
+    fields_present:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    fields_missing: []
+  documentation_sources:
+    present: true
+    sources:
+      - ".issues/research-cards/authorization-session-vs-workflow-state.md (local research card)"
+      - "https://www.mindstudio.ai/blog/workflow-state-vs-session-state-ai-agents"
+      - "https://safeguard.sh/resources/blog/ai-agent-tool-confused-deputy-problem-2026"
+      - "https://www.stackai.com/insights/human-in-the-loop-ai-agents-how-to-design-approval-workflows-for-safe-and-scalable-automation"
+      - "https://workos.com/blog/ai-agent-access-control-best-practices"
+      - "https://tianpan.co/blog/2026-04-20-rbac-ai-agents-authorization"
+  status_marker: "draft"
+  prose_elements:
+    tables: 2
+    code_blocks: 0
+    ordered_lists: 2
+    unordered_lists: 0
+
+determinism_evidence:
+  sc_wording:
+    - id: SC-1
+      text: "A new `record-authorization` task exists at `approval-gate-scope/tasks/record-authorization.md` that writes session authorization into persistent issue state"
+      word_count: 18
+    - id: SC-2
+      text: "The `record-authorization` task updates `spec.md` frontmatter to add `status: approved` when the resolved scope is `for_implementation` or higher"
+      word_count: 22
+    - id: SC-3
+      text: "The `record-authorization` task appends an authorization record to `comments.yaml` with the authorization text, scope, timestamp, and human attribution"
+      word_count: 20
+    - id: SC-4
+      text: "The `record-authorization` task updates `issue.yaml` to add the `approved-for-{scope}` label"
+      word_count: 13
+    - id: SC-5
+      text: "The `record-authorization` task commits the `.issues/` worktree changes after writing"
+      word_count: 12
+    - id: SC-6
+      text: "The `verify-authorization` fast-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → apply-label → auto-dispatch"
+      word_count: 26
+    - id: SC-7
+      text: "The `verify-authorization` full-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → apply-label → item-decomposition → SC-traceability → sub-issues → spec-to-plan-cascade → gap-fill-cascade → verify-codebase → verify-blockers → verify-closed-issue → verify-already-implemented → auto-dispatch"
+      word_count: 44
+    - id: SC-8
+      text: "The `verify-explicit-authorization.md` task is replaced by a `verify-recording.md` task that reads back the recorded state and confirms it matches what was written"
+      word_count: 22
+    - id: SC-9
+      text: "The `verify-recording` task checks that `spec.md` frontmatter has `status: approved`, `comments.yaml` has the authorization record, and `issue.yaml` has the label — and returns BLOCKED if any are missing"
+      word_count: 30
+    - id: SC-10
+      text: "The `apply-label` task in the fast-path and full-path workflows is moved to AFTER `record-authorization` and `verify-recording` (it was previously step 3, now step 4)"
+      word_count: 24
+    - id: SC-11
+      text: "The `verify-authorization` gap-fill-path workflow in `approval-gate-scope/SKILL.md` is reordered to the record-then-verify pattern: scope-auto-resolve → record-authorization → verify-recording → gap-fill-cascade → auto-dispatch"
+      word_count: 24
+    - id: SC-12
+      text: "All three workflows (fast-path, gap-fill-path, full-path) in `approval-gate-scope/SKILL.md` have the `record-authorization` step inserted at position 2, immediately after `scope-auto-resolve`"
+      word_count: 26
+  fail_patterns: []
+  ambiguity_markers: []
+  evidence_type_declarations:
+    - sc_id: SC-1
+      declared_type: structural
+    - sc_id: SC-2
+      declared_type: behavioral
+    - sc_id: SC-3
+      declared_type: behavioral
+    - sc_id: SC-4
+      declared_type: behavioral
+    - sc_id: SC-5
+      declared_type: behavioral
+    - sc_id: SC-6
+      declared_type: behavioral
+    - sc_id: SC-7
+      declared_type: behavioral
+    - sc_id: SC-8
+      declared_type: structural
+    - sc_id: SC-9
+      declared_type: behavioral
+    - sc_id: SC-10
+      declared_type: behavioral
+    - sc_id: SC-11
+      declared_type: behavioral
+    - sc_id: SC-12
+      declared_type: behavioral
+  verification_methods:
+    - sc_id: SC-1
+      has_verification_method: true
+      method_text: "File exists at `approval-gate-scope/tasks/record-authorization.md`"
+    - sc_id: SC-2
+      has_verification_method: true
+      method_text: "Dispatch the task with a mock session authorization → verify `spec.md` frontmatter contains `status: approved`"
+    - sc_id: SC-3
+      has_verification_method: true
+      method_text: "Dispatch the task → verify `comments.yaml` contains a new entry with `author: \"human\"`, `scope: \"for_implementation\"`, and a timestamp"
+    - sc_id: SC-4
+      has_verification_method: true
+      method_text: "Dispatch the task → verify `issue.yaml` labels array contains `approved-for-implementation` (or matching scope)"
+    - sc_id: SC-5
+      has_verification_method: true
+      method_text: "Dispatch the task → verify `git -C .issues/ status` shows clean working tree"
+    - sc_id: SC-6
+      has_verification_method: true
+      method_text: "Run `opencode run` with a prompt that triggers the fast-path → assert stderr shows the new step order. Reference: `approval-gate-scope/SKILL.md` Workflows section"
+    - sc_id: SC-7
+      has_verification_method: true
+      method_text: "Run `opencode run` with a prompt that triggers the full-path → assert stderr shows record-authorization at position 2 and verify-recording at position 3. Reference: `approval-gate-scope/SKILL.md` Workflows section"
+    - sc_id: SC-8
+      has_verification_method: true
+      method_text: "File `verify-explicit-authorization.md` no longer exists; file `verify-recording.md` exists at `approval-gate-scope/tasks/verify-authorization/verify-recording.md`"
+    - sc_id: SC-9
+      has_verification_method: true
+      method_text: "Dispatch the task after a successful record → verify PASS. Corrupt one of the three files → verify BLOCKED with specific reason"
+    - sc_id: SC-10
+      has_verification_method: true
+      method_text: "Run `opencode run` with a prompt that triggers either workflow → assert stderr shows apply-label dispatched after verify-recording. Reference: `approval-gate-scope/SKILL.md` Workflows section"
+    - sc_id: SC-11
+      has_verification_method: true
+      method_text: "Run `opencode run` with a prompt that triggers the gap-fill-path → assert stderr shows record-authorization at position 2 and verify-recording at position 3. Reference: `approval-gate-scope/SKILL.md` Workflows section"
+    - sc_id: SC-12
+      has_verification_method: true
+      method_text: "Run `opencode run` with prompts that trigger each workflow → assert stderr shows record-authorization is step 2 in all three. Reference: `approval-gate-scope/SKILL.md` Workflows section"
+  failure_description_provided: false
+  failure_description_text: absent
+
+documentation_source_evidence:
+  urls:
+    - source: "https://www.mindstudio.ai/blog/workflow-state-vs-session-state-ai-agents"
+      accessible: true
+      http_status: 200
+      page_title: "What Is Workflow State vs Session State in AI Agents? Why They're Not the Same Thing | MindStudio"
+      referenced_content_found: true
+      fetch_method: webfetch
+    - source: "https://safeguard.sh/resources/blog/ai-agent-tool-confused-deputy-problem-2026"
+      accessible: true
+      http_status: 200
+      page_title: "AI Agent Confused Deputy Problem 2026"
+      referenced_content_found: true
+      fetch_method: webfetch
+    - source: "https://www.stackai.com/insights/human-in-the-loop-ai-agents-how-to-design-approval-workflows-for-safe-and-scalable-automation"
+      accessible: true
+      http_status: 200
+      page_title: "Human-in-the-Loop AI Agents: How to Design Approval Workflows for Safe and Scalable Automation - StackAI"
+      referenced_content_found: true
+      fetch_method: webfetch
+    - source: "https://workos.com/blog/ai-agent-access-control-best-practices"
+      accessible: true
+      http_status: 200
+      page_title: "Best practices for AI agent access control — WorkOS"
+      referenced_content_found: true
+      fetch_method: webfetch
+    - source: "https://tianpan.co/blog/2026-04-20-rbac-ai-agents-authorization"
+      accessible: true
+      http_status: 200
+      page_title: "RBAC Is Not Enough for AI Agents: A Practical Authorization Model"
+      referenced_content_found: true
+      fetch_method: webfetch
+  api_references:
+    - source: "approval-gate-scope (skill)"
+      found: true
+      actual_signature: "SKILL.md at .opencode/skills/approval-gate-scope/SKILL.md — 272 lines, 3 workflows, Trigger Dispatch Table with 25+ entries"
+      lookup_method: srclight_get_signature
+    - source: "verify-explicit-authorization.md"
+      found: true
+      actual_signature: "File exists at .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md"
+      lookup_method: glob
+    - source: "apply-label.md"
+      found: true
+      actual_signature: "File exists at .opencode/skills/approval-gate-scope/tasks/apply-label.md"
+      lookup_method: glob
+  env_variables: []
+  library_patterns: []
+
+prose_evidence:
+  escape_hatches: []
+  tracking_language:
+    - phrase: "status: draft"
+      location: "frontmatter (line 4)"
+      marker_type: draft
+  prescriptive_code:
+    - content: "approval-gate-scope/tasks/record-authorization.md"
+      location: "SC-1 (line 106)"
+      type: import_string
+    - content: "approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md"
+      location: "SC-8 (line 113)"
+      type: import_string
+    - content: "approval-gate-scope/tasks/verify-authorization/verify-recording.md"
+      location: "SC-8 (line 113)"
+      type: import_string
+    - content: "approval-gate-scope/SKILL.md"
+      location: "SC-6, SC-7, SC-10, SC-11, SC-12 (lines 111-117)"
+      type: import_string
+  cost_frame_language:
+    - sc_id: SC-1
+      has_cost_frame: false
+    - sc_id: SC-2
+      has_cost_frame: false
+    - sc_id: SC-3
+      has_cost_frame: false
+    - sc_id: SC-4
+      has_cost_frame: false
+    - sc_id: SC-5
+      has_cost_frame: false
+    - sc_id: SC-6
+      has_cost_frame: true
+    - sc_id: SC-7
+      has_cost_frame: true
+    - sc_id: SC-8
+      has_cost_frame: false
+    - sc_id: SC-9
+      has_cost_frame: false
+    - sc_id: SC-10
+      has_cost_frame: true
+    - sc_id: SC-11
+      has_cost_frame: true
+    - sc_id: SC-12
+      has_cost_frame: true
+
+reasoning_evidence:
+  root_causes:
+    - text: "Circular dependency: the verify-authorization workflow checks for recorded authorization (in comments.yaml, spec.md frontmatter, issue.yaml labels) that hasn't been written yet because the authorization was just given in chat session, not yet persisted to issue state"
+      location: "Root Cause / Motivation (lines 24-32)"
+  fix_approaches:
+    - text: "Reorder the verify-authorization workflow to a record-then-verify pattern: (1) scope-auto-resolve, (2) record-authorization, (3) verify-recording, (4) apply-label, (5) auto-dispatch. A new record-authorization task writes session authorization into persistent issue state before any verification step reads it."
+      location: "Approach Chosen (lines 37-38)"
+  sc_to_root_cause:
+    - sc_id: SC-1
+      references_root_cause: true
+      root_cause_text: "No record-authorization task exists — authorization is never persisted before verification"
+    - sc_id: SC-2
+      references_root_cause: true
+      root_cause_text: "spec.md frontmatter never gets status: approved because no task writes it"
+    - sc_id: SC-3
+      references_root_cause: true
+      root_cause_text: "comments.yaml never gets authorization record because no task appends it"
+    - sc_id: SC-4
+      references_root_cause: true
+      root_cause_text: "issue.yaml never gets approved-for-{scope} label because no task writes it"
+    - sc_id: SC-5
+      references_root_cause: true
+      root_cause_text: ".issues/ worktree changes never committed because no task commits them"
+    - sc_id: SC-6
+      references_root_cause: true
+      root_cause_text: "Fast-path workflow has verify-explicit-authorization at step 2 before any recording step"
+    - sc_id: SC-7
+      references_root_cause: true
+      root_cause_text: "Full-path workflow has verify-explicit-authorization at step 2 before any recording step"
+    - sc_id: SC-8
+      references_root_cause: true
+      root_cause_text: "verify-explicit-authorization checks for recorded state that doesn't exist yet"
+    - sc_id: SC-9
+      references_root_cause: true
+      root_cause_text: "verify-recording replaces verify-explicit-authorization to check recorded state after recording"
+    - sc_id: SC-10
+      references_root_cause: true
+      root_cause_text: "apply-label runs at step 3 before authorization is recorded — label check fails"
+    - sc_id: SC-11
+      references_root_cause: true
+      root_cause_text: "Gap-fill-path workflow has verify-explicit-authorization at step 2 before any recording step"
+    - sc_id: SC-12
+      references_root_cause: true
+      root_cause_text: "record-authorization must be step 2 in all workflows to break the circular dependency"
+  alternatives_considered:
+    present: true
+    items:
+      - alternative: "Modify verify-explicit-authorization instead of replacing it"
+        reason_discarded: "Adding write-then-read logic to the same task violates SRP — it would both record and verify, making the task responsible for two distinct concerns. A clean replacement (verify-recording) with a single responsibility (read-back confirmation) is simpler to implement, test, and audit."
+      - alternative: "Use a different persistence mechanism (e.g., in-memory cache, environment variable)"
+        reason_discarded: "In-memory state is lost on session restart, which breaks the authorization continuity guarantee. Environment variables are process-scoped and invisible to sub-agents. The .issues/ worktree is the canonical persistent state store for issue metadata."
+      - alternative: "Skip recording and check chat directly"
+        reason_discarded: "The chat transcript is ephemeral — it is not persisted in a structured, queryable format. Sub-agents cannot read the orchestrator's chat context. Recording to .issues/ makes authorization visible to all pipeline stages."
+  edge_cases:
+    present: true
+    items:
+      - ".issues/ Worktree Not Initialized — task returns BLOCKED with ISSUES_WORKTREE_NOT_INITIALIZED"
+      - "Malformed spec.md Frontmatter — task returns BLOCKED with MALFORMED_FRONTMATTER"
+      - "Missing comments.yaml — task creates the file with initial authorization record"
+      - "Commit Failure — task returns BLOCKED with COMMIT_FAILED including git error output"
+      - "Concurrent Authorization Attempts — task re-reads state, verifies compatibility, skips or overwrites, retries commit"
+  potential_contradictions: []
+
+analytical_artifact_evidence:
+  blast_radius:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/blast-radius.yaml"
+    exists: true
+    size_bytes: 2018
+    modified_at: "2026-07-25"
+  concern_map:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/concern-map.yaml"
+    exists: true
+    size_bytes: 1480
+    modified_at: "2026-07-25"
+  code_path_inventory:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/code-path-inventory.yaml"
+    exists: true
+    size_bytes: 2530
+    modified_at: "2026-07-25"
+  cross_cutting_matrix:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/cross-cutting-matrix.yaml"
+    exists: true
+    size_bytes: 1750
+    modified_at: "2026-07-25"
+  interface_compatibility:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/interface-compatibility.yaml"
+    exists: true
+    size_bytes: 1980
+    modified_at: "2026-07-25"
+  state_analysis:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/state-analysis.yaml"
+    exists: true
+    size_bytes: 2250
+    modified_at: "2026-07-25"
+  testability_assessment:
+    provided: true
+    path: ".opencode/.issues/2141/artifacts/testability-assessment.yaml"
+    exists: true
+    size_bytes: 2800
+    modified_at: "2026-07-25"
+
+holistic_dimension_evidence:
+  implementability:
+    single_approach_defined: true
+    sc_count: 12
+    ambiguous_sc_count: 0
+  internal_consistency:
+    cross_section_references: 3
+    preamble_body_alignment_notes: "Preamble present with all 5 fields. Problem Statement, Root Cause, Approach, Alternatives, and Key Design Decisions form a coherent chain. Not Included section provides explicit scope boundaries. Requirements map to SCs via Traceability table. Items section groups SCs into 4 implementation phases. Edge Cases section documents 5 failure modes. Cost Frame section references DDL death spiral / break dynamics. SC Enforcement Gate section mandates all-or-nothing pass."
+  completeness:
+    undefined_terms: []
+    tbd_todo_markers: 0
+    implicit_dependencies:
+      - "Depends on the .issues/ worktree being initialized and functional (git -C .issues/ commit)"
+      - "Depends on spec.md, comments.yaml, issue.yaml file formats existing in the .issues/ directory"
+      - "Depends on scope-auto-resolve task producing a result contract with authorization_scope field"
+  scope_discipline:
+    stated_boundaries: "Not Included section (lines 55-64) explicitly lists 7 items that are NOT in scope: gap-fill-cascade, spec-to-plan-cascade, scope-auto-resolve, apply-label, verify-explicit-authorization, workflow ordering in SKILL.md, gap-fill-cascade task files, auto-dispatch task"
+    potential_scope_creep_elements: []
+  testability:
+    scs_with_verification_method: 12
+    scs_without_verification_method: 0
+    subjective_judgment_scs: []
+  provenance:
+    tool_call_evidence_cited: true
+    unsupported_assertions: []
+  feasibility:
+    referenced_files:
+      - ".opencode/skills/approval-gate-scope/tasks/record-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md"
+      - ".opencode/skills/approval-gate-scope/SKILL.md"
+      - ".issues/{N}/spec.md"
+      - ".issues/{N}/comments.yaml"
+      - ".issues/{N}/issue.yaml"
+    referenced_functions: []
+    referenced_libraries: []
+  safety:
+    destructive_operations: []
+    data_loss_scenarios: []
+    security_relevant_changes: []
+  traceability:
+    sc_to_phase_mapping:
+      SC-1: "phase_1"
+      SC-8: "phase_1"
+      SC-2: "phase_2"
+      SC-3: "phase_2"
+      SC-4: "phase_2"
+      SC-5: "phase_2"
+      SC-9: "phase_3"
+      SC-6: "phase_4"
+      SC-7: "phase_4"
+      SC-10: "phase_4"
+      SC-11: "phase_4"
+      SC-12: "phase_4"
+    orphan_scs: []
+    orphan_phases: []
+  correctness:
+    problem_statement: "The approval-gate-scope authorization workflow has a circular dependency: it checks for recorded authorization in persistent issue state (.issues/{N}/comments.yaml, spec.md frontmatter, issue.yaml labels) before it has written the session authorization (given in chat) to that same state."
+    root_cause: "Structural design defect: Step 0.5 (scope-auto-resolve) correctly parses session authorization from chat, but Step 1 (verify-explicit-authorization) reads issue comments for a pre-existing record — finding nothing because the authorization was just given in chat. Step 3 (apply-label) would apply the label, but it runs AFTER verification, and verification already failed because the label wasn't there."
+    fix_approach: "Reorder the verify-authorization workflow to a record-then-verify pattern: (1) scope-auto-resolve, (2) record-authorization, (3) verify-recording, (4) apply-label, (5) auto-dispatch. A new record-authorization task writes session authorization into persistent issue state before any verification step reads it."
+
+remediation_verification:
+  audit_cycle: 2
+  previous_fail_count: 9
+  previous_fail_findings:
+    - id: "SC-1"
+      description: "No formal preamble section (## Intent and Executive Summary) exists"
+      remediation: "Add ## Intent and Executive Summary with all 5 required fields"
+      remediated: true
+      evidence: "Preamble present at line 18 with all 5 fields: Problem Statement (line 20), Root Cause / Motivation (line 24), Approach Chosen (line 37), Alternatives Considered & Why Discarded (line 41), Key Design Decisions (line 48)"
+    - id: "SC-8"
+      description: "No edge cases or error recovery scenarios documented"
+      remediation: "Add Edge Cases section documenting: worktree not initialized, malformed frontmatter, missing comments.yaml, commit failure, concurrent authorization attempts"
+      remediated: true
+      evidence: "Edge Cases section present at line 66 with 5 failure modes: .issues/ Worktree Not Initialized (line 68), Malformed spec.md Frontmatter (line 72), Missing comments.yaml (line 76), Commit Failure (line 80), Concurrent Authorization Attempts (line 84)"
+    - id: "SC-12"
+      description: "No ## Intent and Executive Summary preamble section exists"
+      remediation: "Add ## Intent and Executive Summary with all 5 required fields"
+      remediated: true
+      evidence: "Same as SC-1 — preamble present with all 5 fields"
+    - id: "SC-13"
+      description: "No SC carries cost-frame reformation language"
+      remediation: "Add cost-frame language to each SC referencing DDL and death spiral / break dynamics"
+      remediated: true
+      evidence: "Cost Frame section present at line 88 with DDL death spiral / break dynamics. 5 behavioral SCs (SC-6, SC-7, SC-10, SC-11, SC-12) have cost_frame: true. Cost Frame section explicitly states: 'SCs that describe runtime-behavioral changes are classified as behavioral evidence type and verified via opencode run with stderr assertions.'"
+    - id: "SC-14"
+      description: "No all-or-nothing SC enforcement gate statement exists"
+      remediation: "Add 'All success criteria MUST pass before this implementation is considered complete' gate statement"
+      remediated: true
+      evidence: "SC Enforcement Gate section present at line 98: 'All success criteria MUST pass before this implementation is considered complete. Partial implementation is not accepted. Every SC has a declared evidence type and verification method — the verification MUST use at minimum the evidence type specified. Using evidence below the minimum type is a CRITICAL VIOLATION.'"
+    - id: "SC-STRUCTURAL-FAIL"
+      description: "5 SCs declared as 'string' evidence type describe runtime-behavioral changes (workflow reordering)"
+      remediation: "Reclassify SC-6, SC-7, SC-10, SC-11, SC-12 from 'string' to 'behavioral'. Add behavioral verification methods"
+      remediated: true
+      evidence: "SC-6, SC-7, SC-10, SC-11, SC-12 all reclassified to 'behavioral' evidence type. Verification methods updated to use 'opencode run' with stderr assertions and file area references to SKILL.md Workflows section"
+    - id: "SC-EVIDENCE-TYPE"
+      description: "5 SCs have EVIDENCE_TYPE_MISMATCH: declared as 'string' but describe runtime-behavioral changes"
+      remediation: "Change evidence type declarations for SC-6, SC-7, SC-10, SC-11, SC-12 to 'behavioral'"
+      remediated: true
+      evidence: "Same as SC-STRUCTURAL-FAIL — all 5 SCs now declared as 'behavioral'"
+    - id: "SC-PRESCRIPTIVE-CODE"
+      description: "SC-6, SC-7, SC-11 contain exact step sequences that prescribe implementation details unnecessarily"
+      remediation: "Replace exact step sequences with file area references describing reordering intent rather than exact order"
+      remediated: true
+      evidence: "SC-6, SC-7, SC-11 now use file area references to SKILL.md Workflows section instead of exact step sequences. Verification methods reference 'approval-gate-scope/SKILL.md Workflows section' as the authoritative source for step order"
+    - id: "SC-PIPELINE-GATES"
+      description: "Pipeline gates not defined using canonical checklist format"
+      remediation: "Add pipeline gate definitions with numbered - [ ] N. format and dispatch mode indicators"
+      remediated: true
+      evidence: "Pipeline Gates section present at line 134 with 10 numbered checklist items in canonical - [ ] N. format, each with dispatch mode indicators (sub-agent)"
+  all_remediated: true

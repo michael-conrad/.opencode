@@ -1,0 +1,91 @@
+# Testability Assessment — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+phase_1:
+  name: "Create record-authorization and verify-recording task files; remove verify-explicit-authorization"
+  test_strategy: "structural"
+  test_types:
+    - type: structural
+      description: "Verify file existence after phase execution"
+      assertions:
+        - "record-authorization.md exists at tasks/record-authorization.md"
+        - "verify-recording.md exists at tasks/verify-authorization/verify-recording.md"
+        - "verify-explicit-authorization.md no longer exists at tasks/verify-authorization/verify-explicit-authorization.md"
+    - type: string
+      description: "Verify task file structure matches convention"
+      assertions:
+        - "record-authorization.md has Purpose, Entry Criteria, Exit Criteria, Procedure, Result Contract sections"
+        - "verify-recording.md has Purpose, Entry Criteria, Exit Criteria, Procedure, Result Contract sections"
+  behavioral_test_required: false
+  rationale: "File creation/deletion is structural — no runtime behavior to verify"
+
+phase_2:
+  name: "Implement record-authorization task procedure"
+  test_strategy: "behavioral"
+  test_types:
+    - type: behavioral
+      description: "Dispatch record-authorization task with mock session authorization and verify .issues/ files are updated"
+      sc_coverage: [SC-2, SC-3, SC-4, SC-5]
+      assertions:
+        - "SC-2: spec.md frontmatter contains status: approved after dispatch"
+        - "SC-3: comments.yaml contains new entry with author, scope, timestamp after dispatch"
+        - "SC-4: issue.yaml labels array contains approved-for-{scope} after dispatch"
+        - "SC-5: git -C .issues/ status shows clean working tree after dispatch"
+    - type: integration
+      description: "Test with different authorization scopes (for_implementation, for_pr, for_analysis)"
+      sc_coverage: [SC-2]
+      assertions:
+        - "for_implementation: status: approved is written"
+        - "for_pr: status: approved is written"
+        - "for_analysis: status: approved is NOT written (scope below threshold)"
+    - type: integration
+      description: "Test partial write failure — verify no commit occurs"
+      assertions:
+        - "If spec.md write fails, comments.yaml and issue.yaml are NOT written"
+        - "If comments.yaml write fails, issue.yaml is NOT written"
+        - "No commit occurs on any write failure"
+  behavioral_test_required: true
+  rationale: "Writing to .issues/ files and committing worktree is runtime behavior — must verify actual file mutations"
+
+phase_3:
+  name: "Implement verify-recording task procedure"
+  test_strategy: "behavioral"
+  test_types:
+    - type: behavioral
+      description: "Dispatch verify-recording after successful record-authorization — verify PASS"
+      sc_coverage: [SC-9]
+      assertions:
+        - "Returns PASS when all 3 files have correct state"
+    - type: behavioral
+      description: "Corrupt each of the 3 files independently — verify BLOCKED with specific reason"
+      sc_coverage: [SC-9]
+      assertions:
+        - "Remove status: approved from spec.md → BLOCKED with reason identifying spec.md"
+        - "Remove authorization record from comments.yaml → BLOCKED with reason identifying comments.yaml"
+        - "Remove approved-for-{scope} from issue.yaml → BLOCKED with reason identifying issue.yaml"
+    - type: integration
+      description: "Test with empty .issues/ directory (no files exist)"
+      assertions:
+        - "Returns BLOCKED with reason identifying all 3 missing checks"
+  behavioral_test_required: true
+  rationale: "Read-back verification is runtime behavior — must verify actual PASS/BLOCKED outcomes"
+
+phase_4:
+  name: "Reorder workflows in approval-gate-scope/SKILL.md"
+  test_strategy: "string"
+  test_types:
+    - type: string
+      description: "grep SKILL.md for workflow step order in all 3 workflows"
+      sc_coverage: [SC-6, SC-7, SC-10, SC-11, SC-12]
+      assertions:
+        - "SC-6: Fast-path has record-authorization at step 2, verify-recording at step 3, apply-label at step 4"
+        - "SC-7: Full-path has record-authorization at step 2, verify-recording at step 3, apply-label at step 4"
+        - "SC-10: apply-label appears after verify-recording in both fast-path and full-path"
+        - "SC-11: Gap-fill-path has record-authorization at step 2, verify-recording at step 3"
+        - "SC-12: record-authorization is step 2 in all 3 workflows"
+    - type: behavioral
+      description: "Load approval-gate-scope skill and verify the Workflows section reflects new ordering"
+      assertions:
+        - "Agent dispatches record-authorization before verify-recording when following the workflow"
+  behavioral_test_required: false (for string SCs)
+  rationale: "Step ordering in SKILL.md is a text pattern — grep is sufficient for SC-6/7/10/11/12. Behavioral test is optional corroboration."

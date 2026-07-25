@@ -1,0 +1,80 @@
+# Code Path Inventory — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+phase_1:
+  name: "Create record-authorization and verify-recording task files; remove verify-explicit-authorization"
+  code_paths:
+    - action: CREATE
+      path: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
+      template: apply-label.md (similar structure: purpose, entry criteria, exit criteria, procedure, result contract)
+    - action: CREATE
+      path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md
+      template: verify-explicit-authorization.md (similar structure, different procedure)
+    - action: DELETE
+      path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md
+  no_other_files_touched: true
+
+phase_2:
+  name: "Implement record-authorization task procedure"
+  code_paths:
+    - action: MODIFY
+      path: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
+      sections:
+        - Procedure step: Update spec.md frontmatter (add status: approved)
+        - Procedure step: Append to comments.yaml (authorization text, scope, timestamp, human attribution)
+        - Procedure step: Update issue.yaml labels (add approved-for-{scope})
+        - Procedure step: git commit .issues/ worktree changes
+    - action: READ
+      path: .issues/{N}/spec.md (read existing frontmatter)
+    - action: WRITE
+      path: .issues/{N}/spec.md (update frontmatter)
+    - action: READ
+      path: .issues/{N}/comments.yaml (read existing entries)
+    - action: WRITE
+      path: .issues/{N}/comments.yaml (append new entry)
+    - action: READ
+      path: .issues/{N}/issue.yaml (read existing labels)
+    - action: WRITE
+      path: .issues/{N}/issue.yaml (add label)
+    - action: BASH
+      command: git -C .issues/ add -A && git -C .issues/ commit -m "..."
+  no_other_files_touched: true
+
+phase_3:
+  name: "Implement verify-recording task procedure"
+  code_paths:
+    - action: MODIFY
+      path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md
+      sections:
+        - Procedure step: Read spec.md frontmatter — check status: approved
+        - Procedure step: Read comments.yaml — check authorization record exists
+        - Procedure step: Read issue.yaml — check approved-for-{scope} label exists
+        - Procedure step: Return PASS if all 3 checks pass, BLOCKED with specific reason if any fail
+    - action: READ
+      path: .issues/{N}/spec.md (check frontmatter)
+    - action: READ
+      path: .issues/{N}/comments.yaml (check authorization record)
+    - action: READ
+      path: .issues/{N}/issue.yaml (check label)
+  no_other_files_touched: true
+
+phase_4:
+  name: "Reorder workflows in approval-gate-scope/SKILL.md"
+  code_paths:
+    - action: MODIFY
+      path: .opencode/skills/approval-gate-scope/SKILL.md
+      sections:
+        - "### Verify authorization (fast-path)" — reorder steps
+        - "### Verify authorization (gap-fill-path)" — reorder steps
+        - "### Verify authorization (full-path)" — reorder steps
+  changes_per_workflow:
+    fast-path:
+      old_order: [scope-auto-resolve, verify-explicit-authorization, apply-label, auto-dispatch]
+      new_order: [scope-auto-resolve, record-authorization, verify-recording, apply-label, auto-dispatch]
+    gap-fill-path:
+      old_order: [scope-auto-resolve, verify-explicit-authorization, gap-fill-cascade, auto-dispatch]
+      new_order: [scope-auto-resolve, record-authorization, verify-recording, gap-fill-cascade, auto-dispatch]
+    full-path:
+      old_order: [scope-auto-resolve, verify-explicit-authorization, apply-label, item-decomposition, sc-traceability, sub-issues, spec-to-plan-cascade, gap-fill-cascade, verify-codebase, verify-blockers, verify-closed-issue, verify-already-implemented, auto-dispatch]
+      new_order: [scope-auto-resolve, record-authorization, verify-recording, apply-label, item-decomposition, sc-traceability, sub-issues, spec-to-plan-cascade, gap-fill-cascade, verify-codebase, verify-blockers, verify-closed-issue, verify-already-implemented, auto-dispatch]
+  no_other_files_touched: true

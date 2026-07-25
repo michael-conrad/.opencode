@@ -1,0 +1,75 @@
+# State Analysis — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+state_machine:
+  initial_state: "Authorization given in chat (session state only)"
+  terminal_state: "Authorization recorded in persistent issue state and verified"
+
+phase_1:
+  name: "Create record-authorization and verify-recording task files; remove verify-explicit-authorization"
+  state_transitions:
+    - from: "No record-authorization.md exists"
+      to: "record-authorization.md exists (empty procedure body)"
+      trigger: "File creation"
+    - from: "No verify-recording.md exists"
+      to: "verify-recording.md exists (empty procedure body)"
+      trigger: "File creation"
+    - from: "verify-explicit-authorization.md exists"
+      to: "verify-explicit-authorization.md deleted"
+      trigger: "File deletion"
+  invariants:
+    - "SKILL.md still references verify-explicit-authorization (will be fixed in phase 4)"
+    - "No task file content has been implemented yet"
+
+phase_2:
+  name: "Implement record-authorization task procedure"
+  state_transitions:
+    - from: "spec.md frontmatter has no status field"
+      to: "spec.md frontmatter has status: approved"
+      trigger: "record-authorization task writes frontmatter"
+      condition: "scope >= for_implementation"
+    - from: "comments.yaml has no authorization record for this session"
+      to: "comments.yaml has authorization record with author, scope, timestamp"
+      trigger: "record-authorization task appends entry"
+    - from: "issue.yaml labels do not include approved-for-{scope}"
+      to: "issue.yaml labels include approved-for-{scope}"
+      trigger: "record-authorization task updates labels"
+    - from: ".issues/ worktree has uncommitted changes"
+      to: ".issues/ worktree is clean (committed)"
+      trigger: "git -C .issues/ commit"
+  invariants:
+    - "All 3 files are written before commit"
+    - "If any write fails, no commit occurs (atomicity)"
+    - "verify-recording has not yet read back the state"
+
+phase_3:
+  name: "Implement verify-recording task procedure"
+  state_transitions:
+    - from: "Recorded state exists but unverified"
+      to: "Recorded state verified PASS (all 3 checks pass)"
+      trigger: "verify-recording task reads all 3 files and confirms"
+      condition: "spec.md has status: approved AND comments.yaml has authorization record AND issue.yaml has approved-for-{scope} label"
+    - from: "Recorded state exists but unverified"
+      to: "Recorded state verified BLOCKED (1+ checks fail)"
+      trigger: "verify-recording task reads all 3 files and finds mismatch"
+      condition: "Any of the 3 checks fails"
+  invariants:
+    - "Does NOT modify any files — read-only"
+    - "Returns specific reason identifying which check(s) failed"
+
+phase_4:
+  name: "Reorder workflows in approval-gate-scope/SKILL.md"
+  state_transitions:
+    - from: "Fast-path: [scope-auto-resolve, verify-explicit-authorization, apply-label, auto-dispatch]"
+      to: "Fast-path: [scope-auto-resolve, record-authorization, verify-recording, apply-label, auto-dispatch]"
+      trigger: "SKILL.md Workflows section edit"
+    - from: "Gap-fill-path: [scope-auto-resolve, verify-explicit-authorization, gap-fill-cascade, auto-dispatch]"
+      to: "Gap-fill-path: [scope-auto-resolve, record-authorization, verify-recording, gap-fill-cascade, auto-dispatch]"
+      trigger: "SKILL.md Workflows section edit"
+    - from: "Full-path: [scope-auto-resolve, verify-explicit-authorization, apply-label, item-decomposition, sc-traceability, sub-issues, spec-to-plan-cascade, gap-fill-cascade, verify-codebase, verify-blockers, verify-closed-issue, verify-already-implemented, auto-dispatch]"
+      to: "Full-path: [scope-auto-resolve, record-authorization, verify-recording, apply-label, item-decomposition, sc-traceability, sub-issues, spec-to-plan-cascade, gap-fill-cascade, verify-codebase, verify-blockers, verify-closed-issue, verify-already-implemented, auto-dispatch]"
+      trigger: "SKILL.md Workflows section edit"
+  invariants:
+    - "Trigger Dispatch Table unchanged"
+    - "Enforcement modules unchanged"
+    - "Task file content unchanged"

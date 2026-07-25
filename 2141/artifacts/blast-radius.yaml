@@ -1,0 +1,70 @@
+# Blast Radius Analysis — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+phase_1:
+  name: "Create record-authorization and verify-recording task files; remove verify-explicit-authorization"
+  items: [SC-1, SC-8]
+  affected_files:
+    - path: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
+      change: CREATE
+      ripple: None — new file, no consumers yet
+    - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md
+      change: DELETE
+      ripple: All three workflows in SKILL.md reference this task — must be replaced with verify-recording reference
+    - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md
+      change: CREATE
+      ripple: None — new file, referenced by SKILL.md workflows after reorder
+  ripple_effects:
+    - SKILL.md Workflows section references verify-explicit-authorization in 3 workflows — all must be updated
+    - No other task files reference verify-explicit-authorization by name
+    - No external skills or tools depend on this task file
+
+phase_2:
+  name: "Implement record-authorization task procedure"
+  items: [SC-2, SC-3, SC-4, SC-5]
+  affected_files:
+    - path: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
+      change: MODIFY (add procedure body)
+      ripple: None — single task file, no external consumers
+    - path: .issues/{N}/spec.md
+      change: MODIFY (frontmatter status: approved)
+      ripple: Downstream consumers reading spec.md frontmatter for authorization state
+    - path: .issues/{N}/comments.yaml
+      change: MODIFY (append authorization record)
+      ripple: Downstream consumers reading comments.yaml for authorization history
+    - path: .issues/{N}/issue.yaml
+      change: MODIFY (add approved-for-{scope} label)
+      ripple: Downstream consumers reading issue.yaml labels
+    - path: .issues/ (worktree)
+      change: COMMIT (git commit after writes)
+      ripple: issues-data branch gets new commit
+  ripple_effects:
+    - verify-recording task (phase 3) reads the same three files — must match format
+    - Any future task that reads spec.md frontmatter for authorization state benefits from consistent format
+    - No external skills depend on these .issues/ file formats
+
+phase_3:
+  name: "Implement verify-recording task procedure"
+  items: [SC-9]
+  affected_files:
+    - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md
+      change: MODIFY (add procedure body)
+      ripple: None — single task file, referenced by SKILL.md workflows
+  ripple_effects:
+    - Replaces verify-explicit-authorization as the verification gate in all 3 workflows
+    - Must read back the same 3 files that record-authorization writes (spec.md, comments.yaml, issue.yaml)
+    - BLOCKED return triggers pipeline halt — affects downstream auto-dispatch routing
+
+phase_4:
+  name: "Reorder workflows in approval-gate-scope/SKILL.md"
+  items: [SC-6, SC-7, SC-10, SC-11, SC-12]
+  affected_files:
+    - path: .opencode/skills/approval-gate-scope/SKILL.md
+      change: MODIFY (workflow step reordering in 3 workflows)
+      ripple: All agents that load this skill and follow the Workflows section
+  ripple_effects:
+    - Fast-path: step 2 changes from verify-explicit-authorization to record-authorization; step 3 changes from apply-label to verify-recording; apply-label moves to step 4
+    - Gap-fill-path: step 2 changes from verify-explicit-authorization to record-authorization; step 3 changes from gap-fill-cascade to verify-recording; gap-fill-cascade moves to step 4
+    - Full-path: step 2 changes from verify-explicit-authorization to record-authorization; step 3 changes from apply-label to verify-recording; apply-label moves to step 4; all subsequent steps shift by 1
+    - No external skills reference individual workflow step positions
+    - The Trigger Dispatch Table is unaffected (no new dispatch entries needed)

@@ -1,0 +1,39 @@
+# Cross-Cutting Matrix — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+concerns:
+  - id: CC-1
+    name: "File format consistency"
+    description: "The record-authorization task writes spec.md frontmatter, comments.yaml, and issue.yaml in a specific format. The verify-recording task reads back the same files. Both must agree on the format."
+    affected_phases: [2, 3]
+    resolution: "Define the YAML schema for spec.md frontmatter (status: approved), comments.yaml entries (author, scope, timestamp), and issue.yaml labels (approved-for-{scope}) in the record-authorization task. verify-recording reads using the same schema."
+
+  - id: CC-2
+    name: "Workflow step ordering consistency"
+    description: "All 3 workflows (fast-path, gap-fill-path, full-path) must have record-authorization at step 2 and verify-recording at step 3. The step numbering must be consistent across all 3 workflows."
+    affected_phases: [4]
+    resolution: "Apply the same reorder pattern to all 3 workflows. record-authorization is always step 2, verify-recording is always step 3, apply-label is always step 4 (or after verify-recording)."
+
+  - id: CC-3
+    name: "Task file naming convention"
+    description: "record-authorization.md lives at tasks/ level. verify-recording.md lives at tasks/verify-authorization/ level (replacing verify-explicit-authorization.md). The naming convention must be consistent with existing task file organization."
+    affected_phases: [1]
+    resolution: "record-authorization.md at tasks/ (new top-level task). verify-recording.md at tasks/verify-authorization/ (replacing the deleted file in the same directory)."
+
+  - id: CC-4
+    name: "Git worktree commit discipline"
+    description: "The record-authorization task commits .issues/ worktree changes. This is a new git operation in the authorization workflow. Must not conflict with existing git operations in other tasks."
+    affected_phases: [2]
+    resolution: "Use git -C .issues/ add -A && git -C .issues/ commit -m '...' pattern. No interaction with parent repo git state. The commit is scoped to the issues-data branch worktree only."
+
+  - id: CC-5
+    name: "Error handling — partial write recovery"
+    description: "If record-authorization writes 2 of 3 files and fails on the 3rd, the state is inconsistent. verify-recording would see partial state and return BLOCKED."
+    affected_phases: [2, 3]
+    resolution: "record-authorization should write all 3 files before committing. If any write fails, the task returns BLOCKED without committing. verify-recording checks all 3 files independently and returns BLOCKED with specific reason identifying which file(s) are missing."
+
+  - id: CC-6
+    name: "Authorization scope propagation"
+    description: "The resolved authorization_scope from scope-auto-resolve must be passed to record-authorization (to determine which scope to record) and to apply-label (to determine which label to apply)."
+    affected_phases: [2, 4]
+    resolution: "scope-auto-resolve result contract includes authorization_scope. record-authorization reads it from context. apply-label reads it from context. Both use the same scope value."

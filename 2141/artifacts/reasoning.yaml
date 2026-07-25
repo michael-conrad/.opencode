@@ -1,0 +1,382 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2141
+generated_at: "2026-07-25T14:30:00Z"
+evidence_source: ".opencode/.issues/2141/artifacts/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2141/"
+overall_validation_status: corrected
+
+spec_files_validation:
+  - path: spec.md
+    validation_status: corrected
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: body_length_chars
+        evidence_value: 19958
+        actual_value: 19958
+        note: "body_length_chars (19958) equals total file size. Body starts at line 13 (after frontmatter), so body chars should be less than total. Minor inconsistency — investigator used total file size for body chars. Value is technically correct as total file size but semantically mismatched as 'body' chars."
+
+spec_structure_validation:
+  headings:
+    validation_status: validated
+    evidence_count: 22
+    actual_count: 22
+    mismatches: []
+  success_criteria:
+    validation_status: validated
+    evidence_row_count: 12
+    actual_row_count: 12
+    mismatches: []
+  phases:
+    validation_status: validated
+    evidence_count: 4
+    actual_count: 4
+    mismatches: []
+  files_affected:
+    validation_status: validated
+    evidence_paths:
+      - ".opencode/skills/approval-gate-scope/tasks/record-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md"
+      - ".opencode/skills/approval-gate-scope/SKILL.md"
+      - ".issues/{N}/spec.md"
+      - ".issues/{N}/comments.yaml"
+      - ".issues/{N}/issue.yaml"
+    actual_paths:
+      - ".opencode/skills/approval-gate-scope/tasks/record-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md"
+      - ".opencode/skills/approval-gate-scope/SKILL.md"
+      - ".issues/{N}/spec.md"
+      - ".issues/{N}/comments.yaml"
+      - ".issues/{N}/issue.yaml"
+    mismatches: []
+  preamble:
+    validation_status: validated
+    evidence_fields_present:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    actual_fields_present:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    mismatches: []
+  documentation_sources:
+    validation_status: validated
+    evidence_sources:
+      - ".issues/research-cards/authorization-session-vs-workflow-state.md (local research card)"
+      - "https://www.mindstudio.ai/blog/workflow-state-vs-session-state-ai-agents"
+      - "https://safeguard.sh/resources/blog/ai-agent-tool-confused-deputy-problem-2026"
+      - "https://www.stackai.com/insights/human-in-the-loop-ai-agents-how-to-design-approval-workflows-for-safe-and-scalable-automation"
+      - "https://workos.com/blog/ai-agent-access-control-best-practices"
+      - "https://tianpan.co/blog/2026-04-20-rbac-ai-agents-authorization"
+    actual_sources:
+      - ".issues/research-cards/authorization-session-vs-workflow-state.md (local research card)"
+      - "https://www.mindstudio.ai/blog/workflow-state-vs-session-state-ai-agents"
+      - "https://safeguard.sh/resources/blog/ai-agent-tool-confused-deputy-problem-2026"
+      - "https://www.stackai.com/insights/human-in-the-loop-ai-agents-how-to-design-approval-workflows-for-safe-and-scalable-automation"
+      - "https://workos.com/blog/ai-agent-access-control-best-practices"
+      - "https://tianpan.co/blog/2026-04-20-rbac-ai-agents-authorization"
+    mismatches: []
+  status_marker:
+    validation_status: validated
+    evidence_value: draft
+    actual_value: draft
+  prose_elements:
+    validation_status: validated
+    mismatches: []
+
+determinism_validation:
+  sc_wording:
+    validation_status: validated
+    mismatches: []
+  fail_patterns:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    missed_patterns: []
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    missed_markers: []
+    false_markers: []
+  evidence_type_declarations:
+    validation_status: validated
+    mismatches: []
+  verification_methods:
+    validation_status: validated
+    mismatches: []
+  failure_description:
+    validation_status: validated
+    evidence_provided: false
+    actual_provided: false
+
+documentation_source_validation:
+  urls:
+    validation_status: validated
+    mismatches: []
+  api_references:
+    validation_status: validated
+    mismatches: []
+  env_variables:
+    validation_status: validated
+    mismatches: []
+  library_patterns:
+    validation_status: validated
+    mismatches: []
+
+prose_validation:
+  escape_hatches:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    missed_hatches: []
+    false_hatches: []
+  tracking_language:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    missed_instances: []
+    false_instances: []
+  prescriptive_code:
+    validation_status: validated
+    evidence_count: 4
+    actual_count: 4
+    missed_instances: []
+    false_instances: []
+  cost_frame_language:
+    validation_status: validated
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  fix_approaches:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  sc_to_root_cause:
+    validation_status: validated
+    mismatches: []
+  alternatives_considered:
+    validation_status: validated
+    evidence_present: true
+    actual_present: true
+    mismatches: []
+  edge_cases:
+    validation_status: validated
+    evidence_present: true
+    actual_present: true
+    evidence_count: 5
+    actual_count: 5
+    missed_cases: []
+  potential_contradictions:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    false_contradictions: []
+    missed_contradictions: []
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 2018
+        actual_value: 4020
+  concern_map:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 1480
+        actual_value: 2538
+  code_path_inventory:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 2530
+        actual_value: 4204
+  cross_cutting_matrix:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 1750
+        actual_value: 3206
+  interface_compatibility:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 1980
+        actual_value: 3163
+  state_analysis:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 2250
+        actual_value: 4165
+  testability_assessment:
+    validation_status: corrected
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: size_bytes
+        evidence_value: 2800
+        actual_value: 4982
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: validated
+    mismatches: []
+  internal_consistency:
+    validation_status: validated
+    mismatches: []
+  completeness:
+    validation_status: validated
+    mismatches: []
+    missed_undefined_terms: []
+    missed_implicit_dependencies: []
+  scope_discipline:
+    validation_status: validated
+    mismatches: []
+  testability:
+    validation_status: validated
+    mismatches: []
+  provenance:
+    validation_status: validated
+    mismatches: []
+  feasibility:
+    validation_status: validated
+    mismatches: []
+    missed_referenced_files: []
+    missed_referenced_functions: []
+  safety:
+    validation_status: validated
+    mismatches: []
+  traceability:
+    validation_status: validated
+    mismatches: []
+  correctness:
+    validation_status: validated
+    mismatches: []
+
+remediation_verification:
+  audit_cycle: 2
+  previous_fail_count: 9
+  all_remediated: true
+  finding_validations:
+    - id: "SC-1"
+      description: "No formal preamble section (## Intent and Executive Summary) exists"
+      remediated: true
+      validation: "Preamble present at line 18 with all 5 required fields — Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions. Verified by reading spec.md lines 18-53."
+    - id: "SC-8"
+      description: "No edge cases or error recovery scenarios documented"
+      remediated: true
+      validation: "Edge Cases section present at line 66 with 5 failure modes: .issues/ Worktree Not Initialized (line 68), Malformed spec.md Frontmatter (line 72), Missing comments.yaml (line 76), Commit Failure (line 80), Concurrent Authorization Attempts (line 84). Verified by reading spec.md lines 66-86."
+    - id: "SC-12"
+      description: "No ## Intent and Executive Summary preamble section exists"
+      remediated: true
+      validation: "Same as SC-1 — preamble present with all 5 fields. Verified."
+    - id: "SC-13"
+      description: "No SC carries cost-frame reformation language"
+      remediated: true
+      validation: "Cost Frame section present at line 88 with DDL death spiral / break dynamics. 5 behavioral SCs (SC-6, SC-7, SC-10, SC-11, SC-12) have cost_frame: true. Verified by reading spec.md lines 88-96."
+    - id: "SC-14"
+      description: "No all-or-nothing SC enforcement gate statement exists"
+      remediated: true
+      validation: "SC Enforcement Gate section present at line 98: 'All success criteria MUST pass before this implementation is considered complete. Partial implementation is not accepted.' Verified by reading spec.md lines 98-100."
+    - id: "SC-STRUCTURAL-FAIL"
+      description: "5 SCs declared as 'string' evidence type describe runtime-behavioral changes (workflow reordering)"
+      remediated: true
+      validation: "SC-6, SC-7, SC-10, SC-11, SC-12 all reclassified to 'behavioral' evidence type. Verification methods updated to use 'opencode run' with stderr assertions. Verified by reading spec.md SC table lines 111-117."
+    - id: "SC-EVIDENCE-TYPE"
+      description: "5 SCs have EVIDENCE_TYPE_MISMATCH: declared as 'string' but describe runtime-behavioral changes"
+      remediated: true
+      validation: "Same as SC-STRUCTURAL-FAIL — all 5 SCs now declared as 'behavioral'. Verified."
+    - id: "SC-PRESCRIPTIVE-CODE"
+      description: "SC-6, SC-7, SC-11 contain exact step sequences that prescribe implementation details unnecessarily"
+      remediated: true
+      validation: "SC-6, SC-7, SC-11 now use file area references to SKILL.md Workflows section instead of exact step sequences. Verification methods reference 'approval-gate-scope/SKILL.md Workflows section' as authoritative source. Verified by reading spec.md lines 111-117."
+    - id: "SC-PIPELINE-GATES"
+      description: "Pipeline gates not defined using canonical checklist format"
+      remediated: true
+      validation: "Pipeline Gates section present at line 134 with 10 numbered checklist items in canonical - [ ] N. format, each with dispatch mode indicators (sub-agent). Verified by reading spec.md lines 134-145."
+
+unvalidated_items:
+  - section: spec_files_validation
+    item: body_length_chars
+    reason: "Minor semantic mismatch — investigator used total file size (19958) for body_length_chars. Body starts at line 13 (after frontmatter), so body chars should be less than total. Value is technically correct as total file size but semantically mismatched. Not a substantive defect."
+
+corrections_summary:
+  total_corrections: 8
+  sections_affected:
+    - "spec_files_validation"
+    - "analytical_artifact_validation"
+  correction_details:
+    - section: spec_files_validation
+      item: spec.md body_length_chars
+      evidence_value: 19958
+      actual_value: 19958
+      note: "Minor semantic mismatch — body_length_chars equals total file size. Body starts at line 13 (after frontmatter). Value is correct as total file size but semantically mismatched as 'body' chars."
+    - section: analytical_artifact_validation
+      item: blast-radius.yaml size_bytes
+      evidence_value: 2018
+      actual_value: 4020
+    - section: analytical_artifact_validation
+      item: concern-map.yaml size_bytes
+      evidence_value: 1480
+      actual_value: 2538
+    - section: analytical_artifact_validation
+      item: code-path-inventory.yaml size_bytes
+      evidence_value: 2530
+      actual_value: 4204
+    - section: analytical_artifact_validation
+      item: cross-cutting-matrix.yaml size_bytes
+      evidence_value: 1750
+      actual_value: 3206
+    - section: analytical_artifact_validation
+      item: interface-compatibility.yaml size_bytes
+      evidence_value: 1980
+      actual_value: 3163
+    - section: analytical_artifact_validation
+      item: state-analysis.yaml size_bytes
+      evidence_value: 2250
+      actual_value: 4165
+    - section: analytical_artifact_validation
+      item: testability-assessment.yaml size_bytes
+      evidence_value: 2800
+      actual_value: 4982

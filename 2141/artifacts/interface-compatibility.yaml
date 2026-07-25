@@ -1,0 +1,60 @@
+# Interface Compatibility — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+interfaces:
+  - name: "verify-explicit-authorization.md task file"
+    status: REMOVED
+    compatibility: "Internal only — no external consumers. Replaced by verify-recording.md."
+    consumers: [SKILL.md Workflows section (3 references)]
+    migration: "All 3 workflow references updated to point to verify-recording.md in phase 4."
+
+  - name: "record-authorization.md task file"
+    status: NEW
+    compatibility: "Internal only — new task file. No backward compatibility concern."
+    consumers: [SKILL.md Workflows section (3 references, added in phase 4)]
+    interface:
+      entry_criteria: [scope resolved, issue_number known, authorization_scope known]
+      exit_criteria: [spec.md frontmatter updated, comments.yaml appended, issue.yaml updated, .issues/ worktree committed]
+      result_contract:
+        status: DONE | BLOCKED
+        finding_summary: string
+        artifact_path: string
+        blocker_reason: string (if BLOCKED)
+
+  - name: "verify-recording.md task file"
+    status: NEW
+    compatibility: "Internal only — new task file. Replaces verify-explicit-authorization.md."
+    consumers: [SKILL.md Workflows section (3 references, added in phase 4)]
+    interface:
+      entry_criteria: [record-authorization completed, issue_number known]
+      exit_criteria: [spec.md frontmatter verified, comments.yaml verified, issue.yaml verified, PASS or BLOCKED returned]
+      result_contract:
+        status: DONE | BLOCKED
+        finding_summary: string
+        artifact_path: string
+        blocker_reason: string (if BLOCKED — identifies which file check failed)
+
+  - name: "spec.md frontmatter (status field)"
+    status: MODIFIED
+    compatibility: "Backward compatible — adding status: approved field. Existing frontmatter fields unchanged."
+    consumers: [verify-recording.md (reads status field)]
+    change: "Add status: approved when scope >= for_implementation"
+
+  - name: "comments.yaml (authorization record entry)"
+    status: MODIFIED
+    compatibility: "Backward compatible — appending new entry. Existing entries unchanged."
+    consumers: [verify-recording.md (reads authorization record)]
+    change: "Append entry with fields: author, scope, timestamp, authorization_text"
+
+  - name: "issue.yaml (labels field)"
+    status: MODIFIED
+    compatibility: "Backward compatible — adding label to array. Existing labels unchanged."
+    consumers: [verify-recording.md (reads labels array)]
+    change: "Add approved-for-{scope} to labels array"
+
+  - name: "SKILL.md Workflows section (step ordering)"
+    status: MODIFIED
+    compatibility: "Breaking change for agents that hardcode step positions. Internal only — no external API consumers."
+    consumers: [Orchestrator agents reading the Workflows section]
+    change: "All 3 workflows reordered. record-authorization at step 2, verify-recording at step 3, apply-label at step 4."
+    migration: "Agents must re-read the Workflows section after this change. No code migration needed — the SKILL.md is the authoritative source."
