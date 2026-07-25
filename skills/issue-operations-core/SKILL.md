@@ -1,6 +1,6 @@
 ---
 name: issue-operations-core
-description: "Core issue CRUD operations that routes to GitHub MCP or GitBucket API based on github.platform. Load via skill() when creating, reading, updating, closing, or listing issues. Also load when editing issue bodies, verifying merge status, checking single-task plans, pushing spec artifacts, or running pre/post-creation validation. Issue tracking is REQUIRED. User phrases: create issue, read issue, update issue, close issue, list issues, edit body"
+description: "Core issue CRUD operations that routes to GitHub MCP or `.opencode/tools/gitbucket-api` based on github.platform. Load via skill() when creating, reading, updating, closing, or listing issues. Also load when editing issue bodies, verifying merge status, checking single-task plans, pushing spec artifacts, or running pre/post-creation validation. Issue tracking is REQUIRED. User phrases: create issue, read issue, update issue, close issue, list issues, edit body"
 license: MIT
 provenance: AI-generated
 ---
