@@ -1,0 +1,43 @@
+# Solve check output for .opencode#2141
+# Validated dependency structure against contract
+check_timestamp: "2026-07-25T00:00:00+00:00"
+contract_path: .opencode/.issues/2141/artifacts/dependency-contract.yaml
+state_path: .opencode/.issues/2141/artifacts/state.yaml
+result: SAT
+preconditions_result: SAT
+postconditions_invariants_result: SAT
+model:
+  phase_1_completed: false
+  phase_2_completed: false
+  phase_3_completed: false
+  phase_4_completed: false
+  phase_5_completed: false
+dependency_edges:
+  - from: phase-5
+    to: phase-1
+    constraint: "z3.Implies(phase_1_completed, phase_5_completed)"
+  - from: phase-5
+    to: phase-2
+    constraint: "z3.Implies(phase_2_completed, phase_5_completed)"
+  - from: phase-5
+    to: phase-3
+    constraint: "z3.Implies(phase_3_completed, phase_5_completed)"
+  - from: phase-5
+    to: phase-4
+    constraint: "z3.Implies(phase_4_completed, phase_5_completed)"
+  - from: phase-1
+    to: phase-2
+    constraint: "z3.Implies(phase_2_completed, phase_1_completed)"
+  - from: phase-2
+    to: phase-3
+    constraint: "z3.Implies(phase_3_completed, phase_2_completed)"
+  - from: phase-3
+    to: phase-4
+    constraint: "z3.Implies(phase_4_completed, phase_3_completed)"
+execution_order:
+  - phase-5 (RED tests)
+  - phase-1 (Record-Authorization)
+  - phase-2 (Verify-Recording)
+  - phase-3 (Workflow Reordering)
+  - phase-4 (Behavioral Test Harness)
+valid: true

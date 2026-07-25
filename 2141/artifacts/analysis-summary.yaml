@@ -1,7 +1,7 @@
 spec_path: .opencode/.issues/2141/spec.md
 approval_status: approved
 approved_date: 2026-07-25
-sc_count: 12
+sc_count: 13
 artifact_presence:
   blast-radius.yaml: present
   concern-map.yaml: present
@@ -13,13 +13,33 @@ artifact_presence:
 scope_boundary_findings:
   - file: .opencode/skills/approval-gate-scope/SKILL.md
     status: exists
-  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md
-    status: exists
-  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/
-    status: exists
   - file: .opencode/skills/approval-gate-scope/tasks/apply-label.md
     status: exists
-  - file: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
-    status: missing (to be created)
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md
+    status: exists (SC-1 already implemented)
   - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md
-    status: missing (to be created)
+    status: exists (SC-8 already implemented)
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md
+    status: removed (SC-8 already implemented)
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/scope-auto-resolve.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/auto-dispatch.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/gap-fill-cascade.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/item-decomposition-check.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/sc-traceability-check.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/spec-to-plan-cascade.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-already-implemented.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-blockers.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-closed-issue-main.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-codebase.md
+    status: exists
