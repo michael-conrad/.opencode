@@ -67,6 +67,10 @@ Generates changelog (or skips with `[skip changelog]`), squashes commits, rebase
 
 Collects sub-issues from parent spec, creates PR with executive summary body, extracts URL from API response, reports in chat and HALTs.
 
+### Step 8: HALT — Do Not Merge
+
+**HALT — do not merge. Only the developer can merge. The `github_merge_pull_request` tool is FORBIDDEN for agent use.**
+
 ## Sub-Task Files
 
 | Sub-Task | Purpose | Words |
