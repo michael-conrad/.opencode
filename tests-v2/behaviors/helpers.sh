@@ -114,7 +114,7 @@ __export_sqlite_to_yaml() {
     # NO FALLBACK to production XDG paths. The test framework MUST only use the
     # test home SQLite DB discovered via TEST_HOME= from stderr. Falling back to
     # production paths would leak production state into test evaluation.
-    # If the DB is not found, source_db: null is the correct result.
+    # If the DB is not found, source_db: MISSING is the correct result — hard FAIL.
 
     if [ "$db_found" -eq 0 ]; then
         echo "source_db: MISSING" > "$output_file"
@@ -163,7 +163,7 @@ except Exception as e:
             'harness_version': ${BEHAVIOR_HARNESS_VERSION},
             'export_error': str(e)
         }, f, indent=2)
-" 2>/dev/null || echo "source_db: ${db_path}" > "$output_file"
+" 2>/dev/null || echo "source_db: MISSING" > "$output_file"
 }
 
 behavior_run() {
