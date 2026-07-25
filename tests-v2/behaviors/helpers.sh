@@ -117,7 +117,7 @@ __export_sqlite_to_yaml() {
     # If the DB is not found, source_db: null is the correct result.
 
     if [ "$db_found" -eq 0 ]; then
-        echo "source_db: null" > "$output_file"
+        echo "source_db: MISSING" > "$output_file"
         return
     fi
 

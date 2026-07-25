@@ -122,7 +122,7 @@ Every `behavior_run` invocation produces an artifact directory at:
 
 The `__export_sqlite_to_yaml` function in `helpers.sh` discovers the test home SQLite DB by parsing `TEST_HOME=<path>` from stderr (emitted by `with-test-home`), then exports all tables to JSON/YAML. The `session-to-timeline` tool further processes this into a condensed timeline of tool calls for evaluation.
 
-If `session.yaml` contains `source_db: null`, the DB was not found — check that `with-test-home` emitted `TEST_HOME=<path>` to stderr and that the path points to a valid opencode SQLite DB.
+If `session.yaml` contains `source_db: MISSING`, the SQLite DB was not found in the test home. This is a **hard FAIL** — the test environment is broken. Do NOT hunt for the DB elsewhere, do NOT substitute with stderr/stdout grep, do NOT synthesize or fabricate data. The only recovery mechanism is to verify the test does not violate clean-room separation mandates: the test must use a dedicated test home directory with the test project inside it, and `with-test-home` must emit `TEST_HOME=<path>` to stderr.
 
 ## 3. Writing a New Behavioral Test
 
