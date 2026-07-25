@@ -1,0 +1,8 @@
+title: '[SPEC] Fix: Skill card descriptions reference abstract tool names instead
+  of project-local paths'
+status: open
+labels:
+- SPEC
+body: ''
+created_at: '2026-07-25T18:54:22+00:00'
+updated_at: '2026-07-25T18:54:22+00:00'
