@@ -281,3 +281,21 @@ When the user says "stop" (or unambiguous equivalent), the agent MUST immediatel
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
+
+### Channel-Routing Table — Issue Comments vs. Chat Output
+
+**Progress executive summaries go to chat ONLY, not GitHub Issue comments.**
+
+| Action | Channel |
+|--------|---------|
+| Progress executive summaries | Chat only |
+| Review-prep / verification status | Chat only |
+| Substantive spec revision | Chat + Issue comment |
+| PR created | Chat only |
+| Issue blocked | Issue comment |
+| Bug discovered during implementation | Issue comment |
+| User question response | Issue comment |
+| Issue closure | Issue comment |
+| Agent completes implementation task | Chat only |
+| Spec-audit findings | Internal only |
+
