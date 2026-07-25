@@ -1,0 +1,25 @@
+spec_path: .opencode/.issues/2141/spec.md
+approval_status: approved
+approved_date: 2026-07-25
+sc_count: 12
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+  - file: .opencode/skills/approval-gate-scope/SKILL.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/apply-label.md
+    status: exists
+  - file: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
+    status: missing (to be created)
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md
+    status: missing (to be created)

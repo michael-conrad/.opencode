@@ -1,7 +1,8 @@
 ---
 issue: .opencode#2141
 title: "[SPEC] Fix: Authorization Workflow — Record Session Authorization Before Verifying"
-status: draft
+status: approved
+approved: 2026-07-25
 created: 2026-07-25
 license: MIT
 provenance: AI-generated

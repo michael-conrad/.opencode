@@ -1,0 +1,152 @@
+# Structure Artifact — Issue .opencode#2141
+# Authorization Workflow Fix: Record Session Authorization Before Verifying
+
+## Phase Decomposition
+
+phase_1:
+  name: "Create record-authorization and verify-recording task files; remove verify-explicit-authorization"
+  scs: [SC-1, SC-8]
+  items:
+    - id: item-1a
+      sc: SC-1
+      description: "Create record-authorization.md task file at tasks/record-authorization.md with skeleton structure (Purpose, Entry Criteria, Exit Criteria, Procedure, Result Contract)"
+      evidence_type: structural
+    - id: item-1b
+      sc: SC-8
+      description: "Create verify-recording.md task file at tasks/verify-authorization/verify-recording.md with skeleton structure; delete tasks/verify-authorization/verify-explicit-authorization.md"
+      evidence_type: structural
+  skill_task: "green-phase from test-driven-development"
+  dispatch: "task(..., prompt: 'execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first')"
+
+phase_2:
+  name: "Implement record-authorization task procedure"
+  scs: [SC-2, SC-3, SC-4, SC-5]
+  items:
+    - id: item-2a
+      sc: SC-2
+      description: "record-authorization updates spec.md frontmatter to add status: approved when scope >= for_implementation"
+      evidence_type: behavioral
+    - id: item-2b
+      sc: SC-3
+      description: "record-authorization appends authorization record to comments.yaml with author, scope, timestamp"
+      evidence_type: behavioral
+    - id: item-2c
+      sc: SC-4
+      description: "record-authorization updates issue.yaml to add approved-for-{scope} label"
+      evidence_type: behavioral
+    - id: item-2d
+      sc: SC-5
+      description: "record-authorization commits .issues/ worktree changes after writing all 3 files"
+      evidence_type: behavioral
+  skill_task: "green-phase from test-driven-development"
+  dispatch: "task(..., prompt: 'execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first')"
+
+phase_3:
+  name: "Implement verify-recording task procedure"
+  scs: [SC-9]
+  items:
+    - id: item-3a
+      sc: SC-9
+      description: "verify-recording reads spec.md frontmatter (status: approved), comments.yaml (authorization record), issue.yaml (label) and returns PASS if all 3 match, BLOCKED with specific reason if any fail"
+      evidence_type: behavioral
+  skill_task: "green-phase from test-driven-development"
+  dispatch: "task(..., prompt: 'execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first')"
+
+phase_4:
+  name: "Reorder workflows in approval-gate-scope/SKILL.md"
+  scs: [SC-6, SC-7, SC-10, SC-11, SC-12]
+  items:
+    - id: item-4a
+      sc: SC-6
+      description: "Fast-path workflow reordered: scope-auto-resolve → record-authorization → verify-recording → apply-label → auto-dispatch"
+      evidence_type: behavioral
+    - id: item-4b
+      sc: SC-7
+      description: "Full-path workflow reordered: scope-auto-resolve → record-authorization → verify-recording → apply-label → item-decomposition → sc-traceability → sub-issues → spec-to-plan-cascade → gap-fill-cascade → verify-codebase → verify-blockers → verify-closed-issue → verify-already-implemented → auto-dispatch"
+      evidence_type: behavioral
+    - id: item-4c
+      sc: SC-10
+      description: "apply-label moved to step 4 (after verify-recording) in both fast-path and full-path workflows"
+      evidence_type: behavioral
+    - id: item-4d
+      sc: SC-11
+      description: "Gap-fill-path workflow reordered: scope-auto-resolve → record-authorization → verify-recording → gap-fill-cascade → auto-dispatch"
+      evidence_type: behavioral
+    - id: item-4e
+      sc: SC-12
+      description: "record-authorization is step 2 in all 3 workflows (fast-path, gap-fill-path, full-path)"
+      evidence_type: behavioral
+  skill_task: "green-phase from test-driven-development"
+  dispatch: "task(..., prompt: 'execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first')"
+
+## Dependency DAG
+
+dependencies:
+  - from: phase_1
+    to: phase_2
+    reason: "record-authorization.md file must exist before its procedure body can be implemented"
+  - from: phase_1
+    to: phase_3
+    reason: "verify-recording.md file must exist before its procedure body can be implemented"
+  - from: phase_2
+    to: phase_3
+    reason: "verify-recording reads the same 3 files record-authorization writes — format must be consistent; verify-recording cannot be tested until record-authorization produces valid output"
+  - from: phase_1
+    to: phase_4
+    reason: "Task files must exist before SKILL.md workflows can reference them"
+  - from: phase_2
+    to: phase_4
+    reason: "record-authorization procedure must be implemented before workflow step references it"
+  - from: phase_3
+    to: phase_4
+    reason: "verify-recording procedure must be implemented before workflow step references it"
+
+## Skill+Task Selection Per Phase
+
+phase_1:
+  skill: test-driven-development
+  task: green
+  dispatch_string: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+  pipeline_steps:
+    - red-phase (write structural test: file existence assertions)
+    - green-phase (create/delete task files)
+    - green-doublecheck (verify file existence)
+    - green-vbc (verification before completion)
+    - sc-count-gate (verify SC count)
+    - checkpoint-commit (save checkpoint)
+
+phase_2:
+  skill: test-driven-development
+  task: green
+  dispatch_string: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+  pipeline_steps:
+    - red-phase (write behavioral test: dispatch record-authorization, verify .issues/ files)
+    - green-phase (implement record-authorization procedure body)
+    - green-doublecheck (verify behavioral assertions)
+    - green-vbc (verification before completion)
+    - sc-count-gate (verify SC count)
+    - checkpoint-commit (save checkpoint)
+
+phase_3:
+  skill: test-driven-development
+  task: green
+  dispatch_string: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+  pipeline_steps:
+    - red-phase (write behavioral test: dispatch verify-recording, verify PASS/BLOCKED)
+    - green-phase (implement verify-recording procedure body)
+    - green-doublecheck (verify behavioral assertions)
+    - green-vbc (verification before completion)
+    - sc-count-gate (verify SC count)
+    - checkpoint-commit (save checkpoint)
+
+phase_4:
+  skill: test-driven-development
+  task: green
+  dispatch_string: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+  pipeline_steps:
+    - red-phase (write behavioral test: dispatch agent, verify stderr shows new step order)
+    - green-phase (reorder 3 workflows in SKILL.md)
+    - green-doublecheck (verify behavioral assertions)
+    - green-vbc (verification before completion)
+    - sc-count-gate (verify SC count)
+    - checkpoint-commit (save checkpoint)
