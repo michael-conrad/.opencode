@@ -1,0 +1,452 @@
+generator: spec-audit-generator
+issue_number: 2121
+generated_at: "2026-07-25T00:39:42Z"
+spec_local_dir: ".opencode/.issues/2121"
+spec_issue_number: 2121
+github:
+  owner: michael-conrad
+  repo: .opencode
+remote_url: "https://github.com/michael-conrad/.opencode/issues/2121"
+
+spec_files:
+  - path: "spec.md"
+    size_bytes: 4800
+    modified_at: "2026-07-25T00:39:42"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 69
+    body_length_chars: 4800
+
+spec_structure:
+  headings:
+    - level: 2
+      text: "Problem"
+      line: 1
+    - level: 2
+      text: "Proposed Solution"
+      line: 11
+    - level: 2
+      text: "Success Criteria"
+      line: 19
+    - level: 2
+      text: "Implementation Plan"
+      line: 34
+    - level: 3
+      text: "Phase 1: Remove intro cross-refs and preloaded-guideline stubs"
+      line: 36
+    - level: 3
+      text: "Phase 2: Move skill-card-specific rules to skill/task cards"
+      line: 40
+    - level: 3
+      text: "Phase 3: Remove dark prose and Why This Matters tables"
+      line: 45
+    - level: 3
+      text: "Phase 4: Remove redundant FORBIDDEN/REQUIRED subsections"
+      line: 49
+    - level: 3
+      text: "Phase 5: Verify preserved elements"
+      line: 52
+    - level: 2
+      text: "Files Affected"
+      line: 57
+    - level: 2
+      text: "Risks"
+      line: 62
+    - level: 2
+      text: "Dependencies"
+      line: 66
+  success_criteria:
+    present: true
+    table_columns: ["ID", "Criterion", "Evidence Type", "Verification Method"]
+    rows:
+      - id: "SC-1"
+        criterion: "Remove two intro cross-references (lines 9-10)"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Read [the authoritative list' and 'Read [detailed rules'"
+      - id: "SC-2"
+        criterion: "Remove all stubs pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130)"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'guidelines/0' cross-refs in rule bodies"
+      - id: "SC-3"
+        criterion: "Remove or inline skill-card-specific rules into respective skill/task cards"
+        evidence_type: "string"
+        verification_method: "Verify moved rules exist in target skill/task card files"
+      - id: "SC-4"
+        criterion: "Remove per-entry dark prose framing (\"Professional engineers... amateurs...\")"
+        evidence_type: "string"
+        verification_method: "grep count < 3 occurrences (allow file-level framing)"
+      - id: "SC-5"
+        criterion: "Remove \"Why This Matters\" tables"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Why This Matters'"
+      - id: "SC-6"
+        criterion: "Keep tier classification table, interaction rule table, channel-routing table"
+        evidence_type: "string"
+        verification_method: "grep for presence of all 3 tables"
+      - id: "SC-7"
+        criterion: "Keep ~15-20 self-contained universal/orchestrator-level rules"
+        evidence_type: "string"
+        verification_method: "grep for presence of key rule headers (Human-Only Merge, stop, DISPATCH_GATE, etc.)"
+      - id: "SC-8"
+        criterion: "Final file size between 200-400 lines"
+        evidence_type: "structural"
+        verification_method: "wc -l < 400"
+      - id: "SC-9"
+        criterion: "Remove FORBIDDEN/REQUIRED subsections that only restate the rule header"
+        evidence_type: "string"
+        verification_method: "Verify no redundant subsections remain"
+      - id: "SC-10"
+        criterion: "All moved rules exist in their target skill/task cards with equivalent content"
+        evidence_type: "behavioral"
+        verification_method: "Verify each moved rule's content is present in the target card"
+  phases:
+    present: true
+    count: 5
+    items:
+      - heading: "Phase 1: Remove intro cross-refs and preloaded-guideline stubs"
+        sub_items_count: 2
+      - heading: "Phase 2: Move skill-card-specific rules to skill/task cards"
+        sub_items_count: 3
+      - heading: "Phase 3: Remove dark prose and Why This Matters tables"
+        sub_items_count: 2
+      - heading: "Phase 4: Remove redundant FORBIDDEN/REQUIRED subsections"
+        sub_items_count: 1
+      - heading: "Phase 5: Verify preserved elements"
+        sub_items_count: 3
+  files_affected:
+    present: true
+    paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/skills/*/SKILL.md"
+      - ".opencode/skills/*/tasks/*.md"
+  preamble:
+    present: false
+    fields_present: []
+    fields_missing:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+  documentation_sources:
+    present: false
+    sources: []
+  status_marker: "absent"
+  prose_elements:
+    tables: 1
+    code_blocks: 0
+    ordered_lists: 0
+    unordered_lists: 12
+
+determinism_evidence:
+  sc_wording:
+    - id: "SC-1"
+      text: "Remove two intro cross-references (lines 9-10)"
+      word_count: 8
+    - id: "SC-2"
+      text: "Remove all stubs pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130)"
+      word_count: 10
+    - id: "SC-3"
+      text: "Remove or inline skill-card-specific rules into respective skill/task cards"
+      word_count: 9
+    - id: "SC-4"
+      text: "Remove per-entry dark prose framing (\"Professional engineers... amateurs...\")"
+      word_count: 8
+    - id: "SC-5"
+      text: "Remove \"Why This Matters\" tables"
+      word_count: 5
+    - id: "SC-6"
+      text: "Keep tier classification table, interaction rule table, channel-routing table"
+      word_count: 8
+    - id: "SC-7"
+      text: "Keep ~15-20 self-contained universal/orchestrator-level rules"
+      word_count: 6
+    - id: "SC-8"
+      text: "Final file size between 200-400 lines"
+      word_count: 7
+    - id: "SC-9"
+      text: "Remove FORBIDDEN/REQUIRED subsections that only restate the rule header"
+      word_count: 9
+    - id: "SC-10"
+      text: "All moved rules exist in their target skill/task cards with equivalent content"
+      word_count: 12
+  fail_patterns:
+    - sc_id: "SC-7"
+      pattern: "open_ended_quality"
+      matched_text: "Keep ~15-20 self-contained universal/orchestrator-level rules"
+    - sc_id: "SC-3"
+      pattern: "either_or_ambiguity"
+      matched_text: "Remove or inline skill-card-specific rules into respective skill/task cards"
+    - sc_id: "SC-8"
+      pattern: "comparative_without_baseline"
+      matched_text: "Final file size between 200-400 lines"
+    - sc_id: "SC-10"
+      pattern: "missing_expected_values"
+      matched_text: "All moved rules exist in their target skill/task cards with equivalent content"
+  ambiguity_markers:
+    - sc_id: "SC-3"
+      marker: "or"
+      matched_text: "Remove or inline skill-card-specific rules"
+    - sc_id: "SC-7"
+      marker: "consider"
+      matched_text: "grep for presence of key rule headers (Human-Only Merge, stop, DISPATCH_GATE, etc.)"
+  evidence_type_declarations:
+    - sc_id: "SC-1"
+      declared_type: "string"
+    - sc_id: "SC-2"
+      declared_type: "string"
+    - sc_id: "SC-3"
+      declared_type: "string"
+    - sc_id: "SC-4"
+      declared_type: "string"
+    - sc_id: "SC-5"
+      declared_type: "string"
+    - sc_id: "SC-6"
+      declared_type: "string"
+    - sc_id: "SC-7"
+      declared_type: "string"
+    - sc_id: "SC-8"
+      declared_type: "structural"
+    - sc_id: "SC-9"
+      declared_type: "string"
+    - sc_id: "SC-10"
+      declared_type: "behavioral"
+  verification_methods:
+    - sc_id: "SC-1"
+      has_verification_method: true
+      method_text: "grep for absence of 'Read [the authoritative list' and 'Read [detailed rules'"
+    - sc_id: "SC-2"
+      has_verification_method: true
+      method_text: "grep for absence of 'guidelines/0' cross-refs in rule bodies"
+    - sc_id: "SC-3"
+      has_verification_method: true
+      method_text: "Verify moved rules exist in target skill/task card files"
+    - sc_id: "SC-4"
+      has_verification_method: true
+      method_text: "grep count < 3 occurrences (allow file-level framing)"
+    - sc_id: "SC-5"
+      has_verification_method: true
+      method_text: "grep for absence of 'Why This Matters'"
+    - sc_id: "SC-6"
+      has_verification_method: true
+      method_text: "grep for presence of all 3 tables"
+    - sc_id: "SC-7"
+      has_verification_method: true
+      method_text: "grep for presence of key rule headers (Human-Only Merge, stop, DISPATCH_GATE, etc.)"
+    - sc_id: "SC-8"
+      has_verification_method: true
+      method_text: "wc -l < 400"
+    - sc_id: "SC-9"
+      has_verification_method: true
+      method_text: "Verify no redundant subsections remain"
+    - sc_id: "SC-10"
+      has_verification_method: true
+      method_text: "Verify each moved rule's content is present in the target card"
+  failure_description_provided: false
+  failure_description_text: ""
+
+documentation_source_evidence:
+  urls: []
+  api_references: []
+  env_variables: []
+  library_patterns: []
+
+prose_evidence:
+  escape_hatches:
+    - phrase: "~15-20 self-contained universal/orchestrator-level rules"
+      location: "Proposed Solution section"
+      category: "discretion"
+    - phrase: "Various .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md"
+      location: "Files Affected section"
+      category: "deferral"
+  tracking_language: []
+  prescriptive_code:
+    - content: "Read [the authoritative list of critical rules](AGENTS.md)"
+      location: "SC-1 verification method"
+      type: "line_number"
+    - content: "(lines 9-10)"
+      location: "SC-1 criterion and Phase 1"
+      type: "line_number"
+  cost_frame_language:
+    - sc_id: "SC-1"
+      has_cost_frame: false
+    - sc_id: "SC-2"
+      has_cost_frame: false
+    - sc_id: "SC-3"
+      has_cost_frame: false
+    - sc_id: "SC-4"
+      has_cost_frame: false
+    - sc_id: "SC-5"
+      has_cost_frame: false
+    - sc_id: "SC-6"
+      has_cost_frame: false
+    - sc_id: "SC-7"
+      has_cost_frame: false
+    - sc_id: "SC-8"
+      has_cost_frame: false
+    - sc_id: "SC-9"
+      has_cost_frame: false
+    - sc_id: "SC-10"
+      has_cost_frame: false
+
+reasoning_evidence:
+  root_causes:
+    - text: "000-critical-rules.md is 1211 lines / 88KB — the largest file in the preloaded instructions array. The vast majority of its content is: stubs pointing to other preloaded guidelines; skill-card-specific and task-card-specific rules; per-entry dark prose framing; \"Why This Matters\" tables; and two intro cross-references pointing to AGENTS.md and the guidelines directory."
+      location: "Problem section"
+  fix_approaches:
+    - text: "Compact the file to ~200-300 lines / ~15-20KB by removing the above categories and keeping only: Frontmatter + tier classification table, Interaction Rule table, ~15-20 self-contained universal/orchestrator-level rules."
+      location: "Proposed Solution section"
+  sc_to_root_cause:
+    - sc_id: "SC-1"
+      references_root_cause: true
+      root_cause_text: "Two intro cross-references pointing to AGENTS.md and the guidelines directory — already in context."
+    - sc_id: "SC-2"
+      references_root_cause: true
+      root_cause_text: "Stubs pointing to other preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) — all loaded in the same opencode.jsonc instructions array."
+    - sc_id: "SC-3"
+      references_root_cause: true
+      root_cause_text: "Skill-card-specific and task-card-specific rules — only relevant when a specific skill is dispatched, not at session start."
+    - sc_id: "SC-4"
+      references_root_cause: true
+      root_cause_text: "Per-entry dark prose framing (\"Professional engineers... amateurs...\") — 74 occurrences, adds bulk without rule content."
+    - sc_id: "SC-5"
+      references_root_cause: true
+      root_cause_text: "\"Why This Matters\" tables — 10 tables that restate the FORBIDDEN/REQUIRED sections."
+    - sc_id: "SC-6"
+      references_root_cause: false
+      root_cause_text: ""
+    - sc_id: "SC-7"
+      references_root_cause: false
+      root_cause_text: ""
+    - sc_id: "SC-8"
+      references_root_cause: false
+      root_cause_text: ""
+    - sc_id: "SC-9"
+      references_root_cause: false
+      root_cause_text: ""
+    - sc_id: "SC-10"
+      references_root_cause: false
+      root_cause_text: ""
+  alternatives_considered:
+    present: false
+    items: []
+  edge_cases:
+    present: true
+    items:
+      - "Lost rules: If a rule is removed from 000 but not embedded in the target skill card, it disappears."
+      - "Over-compaction: Removing too much context could leave agents without critical safety rules."
+  potential_contradictions:
+    - statement_a: "Compact the file to ~200-300 lines / ~15-20KB"
+      statement_b: "Final file size between 200-400 lines (SC-8)"
+      location_a: "Proposed Solution section"
+      location_b: "SC-8"
+
+analytical_artifact_evidence:
+  blast_radius:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+  concern_map:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+  code_path_inventory:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+  cross_cutting_matrix:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+  interface_compatibility:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+  state_analysis:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+  testability_assessment:
+    provided: false
+    path: ""
+    exists: false
+    size_bytes: 0
+    modified_at: ""
+
+holistic_dimension_evidence:
+  implementability:
+    single_approach_defined: true
+    sc_count: 10
+    ambiguous_sc_count: 3
+  internal_consistency:
+    cross_section_references: 0
+    preamble_body_alignment_notes: "No preamble section present (Intent and Executive Summary with 5 fields). Problem section is present but uses informal 'Problem' heading rather than standardized 'Problem Statement'. Proposed Solution section substitutes for 'Approach Chosen'. No 'Alternatives Considered' or 'Key Design Decisions' sections present."
+  completeness:
+    undefined_terms:
+      - "~15-20 self-contained universal/orchestrator-level rules (which specific rules?)"
+      - "redundant subsections (what constitutes redundancy?)"
+    tbd_todo_markers: 0
+    implicit_dependencies:
+      - "Identification of which ~20+ rules are skill-card-specific (no explicit mapping table)"
+      - "Mapping of each moved rule to its target skill/task card file"
+  scope_discipline:
+    stated_boundaries: "None. This is a self-contained refactoring of existing content. (Dependencies section)"
+    potential_scope_creep_elements:
+      - "Various .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md — receive moved rules (broad scope with no file enumeration)"
+  testability:
+    scs_with_verification_method: 10
+    scs_without_verification_method: 0
+    subjective_judgment_scs:
+      - "SC-3"
+      - "SC-7"
+      - "SC-9"
+  provenance:
+    tool_call_evidence_cited: false
+    unsupported_assertions:
+      - "000-critical-rules.md is 1211 lines / 88KB"
+      - "74 occurrences" (of dark prose framing)
+      - "10 tables" (Why This Matters)
+      - "~20+ rules that are only relevant when a specific skill is dispatched"
+  feasibility:
+    referenced_files:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/skills/*/SKILL.md"
+      - ".opencode/skills/*/tasks/*.md"
+    referenced_functions: []
+    referenced_libraries: []
+  safety:
+    destructive_operations:
+      - "Removal of rules from 000-critical-rules.md"
+    data_loss_scenarios:
+      - "Lost rules if removed but not embedded in target skill card (explicitly noted in Risks)"
+    security_relevant_changes: []
+  traceability:
+    sc_to_phase_mapping:
+      "SC-1": "Phase 1"
+      "SC-2": "Phase 1"
+      "SC-3": "Phase 2"
+      "SC-4": "Phase 3"
+      "SC-5": "Phase 3"
+      "SC-6": "Phase 5"
+      "SC-7": "Phase 5"
+      "SC-8": "Phase 5"
+      "SC-9": "Phase 4"
+      "SC-10": "Phase 2"
+    orphan_scs: []
+    orphan_phases: []
+  correctness:
+    problem_statement: "000-critical-rules.md is 1211 lines / 88KB — the largest file in the preloaded instructions array. The vast majority of its content is: stubs pointing to other preloaded guidelines; skill-card-specific and task-card-specific rules; per-entry dark prose framing; Why This Matters tables; and two intro cross-references."
+    root_cause: "File contains content categories that duplicate already-preloaded guidelines or only matter at skill-dispatch time, not at session start."
+    fix_approach: "Compact the file to ~200-300 lines / ~15-20KB by removing the duplicative content categories and keeping only frontmatter, tier classification table, interaction rule table, and ~15-20 self-contained universal/orchestrator-level rules."

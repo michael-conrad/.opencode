@@ -1,0 +1,525 @@
+evaluator: spec-audit-evaluator
+issue_number: 2121
+generated_at: "2026-07-25T00:42:00Z"
+evidence_source: ".opencode/.issues/2121/audit/investigator/evidence.yaml"
+reasoning_source: ".opencode/.issues/2121/audit/validator/reasoning.yaml"
+spec_local_dir: ".opencode/.issues/2121"
+
+holistic_evaluation:
+  status: "DRAFT"
+  dimensions:
+    - id: 1
+      name: "Implementability"
+      result: "FAIL"
+      finding: "3-4 SCs are ambiguous: SC-3 'Remove or inline' (either/or), SC-7 '~15-20 self-contained universal/orchestrator-level rules' (open-ended range), SC-9 'redundant subsections' (undefined criteria for redundancy), and SC-8 borderline (between 200-400 lines with no fixed target). Two reasonable auditors could produce different PASS/FAIL verdicts on these SCs."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.implementability (ambiguous_sc_count: 3 → 3-4)"
+    - id: 2
+      name: "Internal Consistency"
+      result: "FAIL"
+      finding: "Direct contradiction: Proposed Solution states target '~200-300 lines / ~15-20KB' but SC-8 specifies 'Final file size between 200-400 lines'. The upper bound (400) exceeds the proposed target (300) by 100 lines. At least one cross-section reference exists (SC-7 verification method references rule names from Proposed Solution line 17)."
+      evidence_source: "reasoning.yaml → reasoning_validation.potential_contradictions + holistic_dimension_validation.internal_consistency (cross_section_references: 0 → 1)"
+    - id: 3
+      name: "Completeness"
+      result: "FAIL"
+      finding: "Two undefined terms: '~15-20 self-contained universal/orchestrator-level rules (which specific rules?)' and 'redundant subsections (what constitutes redundancy?)'. Two implicit dependencies: no explicit rule→card mapping table for moved rules, and no explicit enumeration of which ~20+ rules are skill-card-specific."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.completeness (undefined_terms + implicit_dependencies)"
+    - id: 4
+      name: "Scope Discipline"
+      result: "PASS"
+      finding: "Stated boundaries are clear: self-contained refactoring of 000-critical-rules.md and target skill/task cards. Dependencies section explicitly states 'None. This is a self-contained refactoring of existing content.' Files Affected lists the two scope surfaces."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.scope_discipline"
+    - id: 5
+      name: "Testability"
+      result: "PASS"
+      finding: "All 10 SCs have a verification method declared in the spec. Three SCs (SC-3, SC-7, SC-9) require subjective judgment but each has a stated verification method. The evidence types are declared for every SC."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.testability (scs_with_verification_method: 10, subjective_judgment_scs verified)"
+    - id: 6
+      name: "Escape Hatches"
+      result: "FAIL"
+      finding: "Four escape hatch instances confirmed: (1) 'Various .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md' (deferral), (2) '~15-20 self-contained universal/orchestrator-level rules' (discretion), (3) 'etc.' in SC-7 verification method (open-ended enumeration), (4) '...' in Proposed Solution line 17 (open-ended enumeration of rule list)."
+      evidence_source: "reasoning.yaml → prose_validation.escape_hatches (corrected: 2 confirmed + 2 additional findings)"
+    - id: 7
+      name: "Provenance"
+      result: "FAIL"
+      finding: "Four unsupported factual assertions: '1211 lines / 88KB', '74 occurrences' (of dark prose framing), '10 tables' (Why This Matters), '~20+ rules'. These are cited in Problem and root cause but lack tool-call evidence (no `wc -l` or grep count shown in spec). tool_call_evidence_cited=false."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.provenance (unsupported_assertions: 4)"
+    - id: 8
+      name: "Feasibility"
+      result: "PASS"
+      finding: "All referenced files verified present: .opencode/guidelines/000-critical-rules.md, .opencode/skills/*/SKILL.md, .opencode/skills/*/tasks/*.md. No external library/function references. Refactoring of prose rules is feasible with available tools."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.feasibility (corrected: glob patterns verified)"
+    - id: 9
+      name: "Safety"
+      result: "PASS"
+      finding: "Destructive operation (rule removal) is acknowledged in Risks section with two mitigations: SC-10 (behavioral verification that moved rules exist in target cards) addresses 'Lost rules'; SC-6 and SC-7 (preservation criteria) address 'Over-compaction'. No security-relevant changes. No production data changes."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.safety (destructive_operations + data_loss_scenarios)"
+    - id: 10
+      name: "Traceability"
+      result: "PASS"
+      finding: "All 10 SCs map to a phase: SC-1/SC-2→Phase 1, SC-3/SC-10→Phase 2, SC-4/SC-5→Phase 3, SC-9→Phase 4, SC-6/SC-7/SC-8→Phase 5. Root cause has 5 SCs traced to it (SC-1, SC-2, SC-3, SC-4, SC-5). 5 SCs (SC-6..SC-10) are preservation/verification criteria, not root cause removals. No orphan SCs or orphan phases."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.traceability (sc_to_phase_mapping verified)"
+    - id: 11
+      name: "Correctness"
+      result: "PASS"
+      finding: "Problem statement, root cause, and fix approach are coherent: 000-critical-rules.md contains duplicative content (stubs, skill-specific rules, dark prose, Why This Matters tables, intro cross-refs) and the fix is to remove those categories while keeping universal rules. The 3 problem-section fields match the 5 SC removal categories (SC-1..SC-5) and 5 preservation/verification criteria (SC-6..SC-10)."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.correctness (problem_statement/root_cause/fix_approach verified)"
+
+summary:
+  total_criteria: 25
+  pass: 12
+  fail: 13
+  all_criteria_pass: false
+  remediation_required: true
+  holistic_status: "DRAFT"
+
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[0]; reasoning.yaml → determinism_validation.evidence_type_declarations + prescriptive_code (lines 9-10 reference)"
+    explanation: "Two defects: (1) SC-1 criterion text 'lines 9-10' is a prescriptive line-number reference that will become invalid after compaction (verification target is the post-compaction file, not lines 9-10 of the original). (2) SC-1 verification method contains a prescriptive markdown link pattern 'Read [the authoritative list' which is a content pattern, not a structural absence check. The SC-7 ambiguity propagation also applies: the verification method reads 'grep for absence of ...' which is testable, but the criterion references pre-compaction line numbers, creating a verification timing issue. However, on a pure testability-of-string-evidence basis, the grep pattern itself is executable — the issue is the prescriptive line numbers, which violate SC-PRESCRIPTIVE-CODE."
+    remediation: "Remove 'lines 9-10' from the SC-1 criterion text. Replace with a content-based criterion: 'Remove two intro cross-references pointing to AGENTS.md and the guidelines directory.' This eliminates the post-compaction line-number invalidity."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[1]; reasoning.yaml → determinism_validation.verification_methods (validated)"
+    explanation: "SC-2 has a clear criterion (remove stubs to 11 specific preloaded guidelines) and a clear verification method (grep for absence of 'guidelines/0' cross-refs). The 11 guideline numbers are enumerated. The string evidence type is appropriate for absence-of-content verification. Implementation can deterministically execute the grep."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[2] + determinism_evidence.fail_patterns (either_or_ambiguity); reasoning.yaml → determinism_validation.fail_patterns (confirmed) + holistic_dimension_validation.testability (subjective_judgment_scs)"
+    explanation: "Two defects: (1) 'Remove or inline' is an explicit either/or ambiguity — two reasonable implementors will pick different actions (remove entirely vs inline). The spec does not specify which rules go where, only that some action is taken. (2) The verification method 'Verify moved rules exist in target skill/task card files' requires the implementor to determine which rules are skill-card-specific — no enumeration provided. Cannot produce a deterministic PASS/FAIL."
+    remediation: "Replace 'Remove or inline' with a single action: 'Move skill-card-specific rules to target skill/task cards (no inlining)'. Add an explicit enumeration: list the ~20 rule names from Proposed Solution line 17 that are being moved, with their target card paths. Or add an explicit mapping table appendix."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[3]; reasoning.yaml → determinism_validation.verification_methods (validated)"
+    explanation: "SC-4 has a clear criterion (remove 'Professional engineers... amateurs...' framing) and a quantitative threshold in the verification method ('grep count < 3 occurrences'). The threshold of 3 allows file-level framing per the spec's intent. Two reasonable auditors applying the same grep will agree on the count and the verdict."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[4]; reasoning.yaml → determinism_validation.verification_methods (validated)"
+    explanation: "SC-5 has a clear criterion (remove 'Why This Matters' tables) and a direct grep verification method. The phrase 'Why This Matters' is specific enough for a grep to execute deterministically."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-6"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[5]; reasoning.yaml → determinism_validation.verification_methods (validated)"
+    explanation: "SC-6 has a clear criterion (keep 3 named tables: tier classification, interaction rule, channel-routing) and a presence-verification method (grep for all 3). The three tables are explicitly named. Testable."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-7"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[6] + determinism_evidence.fail_patterns (open_ended_quality); reasoning.yaml → determinism_validation.fail_patterns (confirmed) + prose_validation.escape_hatches ('etc.' open-ended enumeration)"
+    explanation: "Multiple defects: (1) '~15-20' is an open-ended range with a 5-rule tolerance window — two reasonable auditors could disagree on whether 14 or 21 rules is a PASS. (2) The verification method 'Human-Only Merge, stop, DISPATCH_GATE, etc.' uses 'etc.' which is an open-ended enumeration — the implementor must guess which other rule names count. (3) The rule list in Proposed Solution line 17 contains '...' (also open-ended). No deterministic PASS/FAIL boundary."
+    remediation: "Replace '~15-20' with a fixed count (e.g., 'exactly 25' per the Proposed Solution line 17 enumeration). Remove 'etc.' from the verification method and enumerate all required rule headers explicitly. Remove '...' from Proposed Solution line 17 and provide the complete list."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-8"
+    declared_evidence_type: "structural"
+    result: "FAIL"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[7] + determinism_evidence.fail_patterns (comparative_without_baseline); reasoning.yaml → reasoning_validation.potential_contradictions (200-300 vs 200-400 contradiction)"
+    explanation: "Three defects: (1) 'between 200-400 lines' has no fixed target — the 200-line lower bound is not in the Proposed Solution (which says '~200-300 lines'). (2) The verification method 'wc -l < 400' only checks the upper bound, not the 200-line lower bound. (3) Direct contradiction with Proposed Solution: '~200-300 lines' vs SC-8 '200-400 lines'. The upper bound (400) exceeds the proposed target (300) by 100 lines. Cannot produce a deterministic PASS/FAIL because the implementor does not know which target to optimize."
+    remediation: "Resolve the contradiction by either (a) changing Proposed Solution to '~200-400 lines / ~15-20KB' to match SC-8, or (b) tightening SC-8 to 'between 200-300 lines' and updating the verification method to 'wc -l between 200 and 300'. Add a lower bound check to the verification method."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-9"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[8] + holistic_dimension_validation.completeness (undefined_terms: 'redundant subsections — what constitutes redundancy?'); reasoning.yaml → holistic_dimension_validation.testability (subjective_judgment_scs includes SC-9)"
+    explanation: "The term 'redundant subsections' is undefined — what makes a subsection redundant? The Phase 4 description says 'Where the rule header is self-explanatory, remove the subsection', but 'self-explanatory' is also subjective. The verification method 'Verify no redundant subsections remain' has no quantitative threshold and no presence/absence pattern to grep for. Cannot produce a deterministic PASS/FAIL without an agreed definition."
+    remediation: "Define 'redundant' explicitly: e.g., 'subsections that contain only text restating the rule header, with no additional constraint, rationale, or exception'. Provide a concrete checkable criterion (e.g., 'the subsection body contains zero tokens not present in the rule header')."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-10"
+    declared_evidence_type: "behavioral"
+    result: "FAIL"
+    evidence: "evidence.yaml → spec_structure.success_criteria.rows[9] + determinism_evidence.fail_patterns (missing_expected_values); reasoning.yaml → determinism_validation.fail_patterns (confirmed)"
+    explanation: "SC-10 declares behavioral evidence type but the criterion 'All moved rules exist in their target skill/task cards with equivalent content' has no enumeration of which rules are 'moved'. The term 'equivalent content' is undefined — what level of fidelity counts as equivalent? The verification method 'Verify each moved rule's content is present in the target card' provides no checkable threshold for 'equivalent'. A behavioral test cannot be written without an enumeration of moved rules and a definition of 'equivalent'."
+    remediation: "Add an explicit enumeration of moved rules in the spec body (or as an appendix table). Define 'equivalent content' as 'the moved rule's full prose (excluding prose-only framing) is present verbatim in the target card' or similar checkable threshold."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-DET"
+    declared_evidence_type: "N/A"
+    result: "FAIL"
+    evidence: "reasoning.yaml → determinism_validation.fail_patterns (4 confirmed) + ambiguity_markers (corrected: +1 missed 'etc.' marker)"
+    explanation: "Determinism gate FAILs: 4 SCs have confirmed fail patterns (SC-3 either/or, SC-7 open-ended, SC-8 comparative without baseline, SC-10 missing expected values) and 1 additional ambiguity marker was missed by the Investigator ('etc.' in SC-7). An additional escape hatch was found by the Validator ('...' in Proposed Solution line 17). Two reasonable auditors cannot independently produce the same PASS/FAIL for SC-3, SC-7, SC-8, SC-9, SC-10."
+    remediation: "See individual SC remediation guidance for SC-3, SC-7, SC-8, SC-9, SC-10. All 5 SCs require content updates to remove ambiguity."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-STRUCTURAL-FAIL"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "evidence.yaml → determinism_evidence.evidence_type_declarations; reasoning.yaml → determinism_validation.evidence_type_declarations (validated)"
+    explanation: "No evidence type mismatch. All 9 non-behavioral SCs (SC-1..SC-9) declare 'string' or 'structural' types appropriate for their content-removal/file-size criteria. SC-10 declares 'behavioral' which is correct for content-equivalence verification. No SC requires uplift to behavioral despite affecting content — the spec is prose refactoring, not runtime-behavioral change."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-EVIDENCE-TYPE"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.evidence_type_declarations (validated)"
+    explanation: "Evidence types match SC content. SC-1..SC-7, SC-9 use string (grep absence/presence). SC-8 uses structural (wc -l). SC-10 uses behavioral (content equivalence). No type downgrades or mismatches detected."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-TRACKING-LANG"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "evidence.yaml → prose_evidence.tracking_language (empty); reasoning.yaml → prose_validation.tracking_language (validated, 0 instances)"
+    explanation: "Spec contains no tracking/status language. No 'implemented', 'pending', 'completed', 'viable', or 'confirmed' markers. Spec is a [SPEC] definition document, not an implementation report. Only forward-looking 'MUST be' language expected."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    declared_evidence_type: "N/A"
+    result: "FAIL"
+    evidence: "evidence.yaml → prose_evidence.prescriptive_code (2 instances); reasoning.yaml → prose_validation.prescriptive_code (corrected: 2 confirmed instances)"
+    explanation: "Two prescriptive code references: (1) SC-1 criterion '(lines 9-10)' — line number reference to pre-compaction file. (2) SC-1 verification method 'Read [the authoritative list of critical rules](AGENTS.md)' — markdown link pattern. The Validator classifies (1) as line_number and (2) as import_string, both of which are prescriptive code per the standard. Spec should use file area references only."
+    remediation: "Remove '(lines 9-10)' from SC-1 criterion and replace with content-based description. Remove or replace the markdown link pattern in SC-1 verification method with a content-only grep pattern."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-PIPELINE-GATES"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "evidence.yaml → spec_structure.phases; reasoning.yaml → spec_structure_validation.phases (validated, 5 phases with 1-3 sub-items each)"
+    explanation: "Spec defines 5 phases (Phase 1..Phase 5) with sub-items. Each phase is numbered with sub-bullets. No shared cross-reference or dispatch tables. Canonical phase structure."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-CANONICAL-PLAN-FORM"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "evidence.yaml → spec_structure.phases; reasoning.yaml → spec_structure_validation.phases (validated)"
+    explanation: "Phase sub-items are formatted as bulleted lists under numbered `### Phase N:` headings. No dispatch tables or shared cross-references in the Implementation Plan section."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-ADMONISHMENT"
+    declared_evidence_type: "N/A"
+    result: "N/A"
+    evidence: "spec_local_dir contains only spec.md; no SKILL.md or task card audit scope"
+    explanation: "Not a skill card or task card audit. Spec.md does not reference any SKILL.md file. Admonishment criterion is N/A for this audit."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-REASONING"
+    declared_evidence_type: "N/A"
+    result: "FAIL"
+    evidence: "reasoning.yaml → reasoning_validation.potential_contradictions (1 confirmed + 1 additional)"
+    explanation: "Two causal-chain/scope contradictions: (1) Proposed Solution '~200-300 lines' vs SC-8 '200-400 lines' — soft contradiction in target scope. (2) Proposed Solution '~15-20 self-contained universal/orchestrator-level rules' (with '...' in the list) vs SC-7 'Keep ~15-20 self-contained universal/orchestrator-level rules' — the rule list is open-ended. Causal chain is intact (root cause → fix approach → 5 removal SCs) but the fix approach is internally inconsistent on the size target."
+    remediation: "Resolve the 200-300 vs 200-400 contradiction (see SC-8 remediation). Replace the '...' open-ended enumeration in Proposed Solution line 17 with the complete list (or remove the parenthetical entirely)."
+    next_step: "remediate"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-BLAST-RADIUS"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "evidence.yaml → analytical_artifact_evidence.blast_radius (not provided); reasoning.yaml → analytical_artifact_validation.blast_radius (not provided, spec is a [SPEC] refactoring)"
+    explanation: "Blast radius artifact not provided. The spec's Files Affected section is sufficient: lists .opencode/guidelines/000-critical-rules.md and the glob patterns .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md. The Validator confirmed the glob patterns match the actual file structure. Spec is a [SPEC] (definition/refactoring) without artifact files in the issue directory."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-CONCERN-MAP"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "reasoning.yaml → analytical_artifact_validation.concern_map (not provided, [SPEC] scope)"
+    explanation: "Concern map artifact not provided. The 5 phases map cleanly to 5 concern areas (Phase 1: intro/stubs; Phase 2: skill-specific moves; Phase 3: dark prose/Why This Matters; Phase 4: FORBIDDEN/REQUIRED; Phase 5: verification). Each phase has a single concern."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-CODE-PATH"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "reasoning.yaml → analytical_artifact_validation.code_path_inventory (not provided, prose refactoring scope)"
+    explanation: "Code path inventory artifact not provided. Spec does not affect runtime code paths — it is a prose refactoring of guideline/skill/task card markdown files. Code path inventory not applicable to this scope."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-CROSS-CUTTING"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "reasoning.yaml → analytical_artifact_validation.cross_cutting_matrix (not provided, [SPEC] scope)"
+    explanation: "Cross-cutting matrix artifact not provided. Cross-cutting concerns (cross-references between guidelines and skill/task cards) are addressed inline via SC-10 (moved rules exist in target cards). No separate artifact needed for prose refactoring."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-INTERFACE"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "reasoning.yaml → analytical_artifact_validation.interface_compatibility (not provided, prose refactoring scope)"
+    explanation: "Interface compatibility artifact not provided. Spec does not modify any interfaces (function signatures, API contracts, library exports). Prose-only refactoring."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-STATE"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "reasoning.yaml → analytical_artifact_validation.state_analysis (not provided, prose refactoring scope)"
+    explanation: "State analysis artifact not provided. Spec does not modify any state machine, persistent state, or runtime state. Prose-only refactoring with no state changes."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+  - criterion_id: "SC-TESTABILITY"
+    declared_evidence_type: "N/A"
+    result: "PASS"
+    evidence: "evidence.yaml → holistic_dimension_validation.testability; reasoning.yaml → holistic_dimension_validation.testability (corrected, subjective_judgment_scs verified)"
+    explanation: "Testability assessment artifact not provided. Testability is evaluated inline: all 10 SCs have verification methods declared, 3 SCs require subjective judgment (SC-3, SC-7, SC-9). The presence of verification methods satisfies the testability dimension at the SC level."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+reasoning_soundness:
+  causal_chain:
+    status: "PASS"
+    findings: []
+  sc_traceability:
+    status: "PASS"
+    findings: []
+  contradictions:
+    status: "FAIL"
+    findings:
+      - "Proposed Solution '~200-300 lines' vs SC-8 '200-400 lines' — soft contradiction in size target (100-line upper-bound discrepancy)"
+      - "Proposed Solution rule list ends with '...' indicating open-ended enumeration, while SC-7 verification method 'etc.' provides a separate open-ended enumeration — both indicate incomplete rule specification"
+
+claim_accuracy:
+  fabricated_claims:
+    - claim: "000-critical-rules.md is 1211 lines / 88KB"
+      status: "FABRICATED"
+      explanation: "Specific numeric claim with no tool-call evidence in the spec. Would need `wc -l .opencode/guidelines/000-critical-rules.md` and `wc -c` verification before implementation."
+    - claim: "74 occurrences (of dark prose framing)"
+      status: "FABRICATED"
+      explanation: "Specific count claim with no tool-call evidence. Would need `grep -c 'Professional engineers' .opencode/guidelines/000-critical-rules.md` verification."
+    - claim: "10 tables (Why This Matters)"
+      status: "FABRICATED"
+      explanation: "Specific count claim with no tool-call evidence. Would need `grep -c 'Why This Matters' .opencode/guidelines/000-critical-rules.md` verification."
+    - claim: "~20+ rules that are only relevant when a specific skill is dispatched"
+      status: "FABRICATED"
+      explanation: "Approximate count claim with no tool-call evidence. Would need explicit enumeration of skill-specific rules in 000-critical-rules.md."
+  negation_verifications: []
+  interface_verifications: []
+
+blast_radius:
+  impact_completeness:
+    status: "PASS"
+    findings: []
+  non_code_impact:
+    status: "PASS"
+    findings: []
+
+research_adequacy:
+  evidence_provenance:
+    status: "FAIL"
+    findings:
+      - "4 unsupported factual assertions (1211 lines, 74 occurrences, 10 tables, ~20+ rules) — see claim_accuracy.fabricated_claims"
+  investigation_breadth:
+    status: "FAIL"
+    findings:
+      - "No alternatives considered section. The 'compact to ~200-300 lines' approach is presented as the only option. Alternatives (e.g., leave the file as-is, archive to a separate file, split into multiple files) are not discussed."
+  edge_case_discovery:
+    status: "PASS"
+    findings: []
+  recency_check:
+    status: "FAIL"
+    findings:
+      - "No recent commit history review cited. The 1211-line/88KB size claim is not anchored to a commit SHA or date. If 000-critical-rules.md has been modified since the claim was made, the count may be stale."
+
+gap_analysis:
+  missing_coverage:
+    status: "FAIL"
+    findings:
+      - "SC-3/SC-7/SC-9/SC-10 have no boundary condition testing — open-ended ranges and undefined terms cannot produce deterministic PASS/FAIL"
+      - "No test for the case where 000-critical-rules.md already has fewer than 200 lines at implementation time (SC-8 lower bound)"
+      - "No test for the case where skill/task card target files do not exist yet (SC-10 dependency on target file existence)"
+  implicit_conditions:
+    status: "FAIL"
+    findings:
+      - "Implicit precondition: all referenced skill/task card target files exist and are writable. Not stated in spec."
+      - "Implicit precondition: the '~20+ rules that are only relevant when a specific skill is dispatched' set is identifiable. Not enumerated in spec."
+      - "Implicit precondition: skill/task cards can absorb the moved rules without exceeding their own size budgets. Not stated in spec."
+
+scope_creep:
+  traceability_enforcement:
+    status: "PASS"
+    findings: []
+  proportionality:
+    status: "PASS"
+    findings: []
+
+scope_narrowness:
+  root_cause_depth:
+    status: "PASS"
+    findings: []
+  systemic_implication:
+    status: "FAIL"
+    findings:
+      - "Systemic implication: similar verbosity may exist in other preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130). The spec does not address whether these files have the same problem. A root-cause-only fix would be a meta-spec for guideline compaction across the preloaded instructions array."
+  minimum_viable_scope:
+    status: "PASS"
+    findings: []
+
+cross_reference_completeness:
+  citation_completeness:
+    status: "PASS"
+    findings: []
+  reference_sufficiency:
+    status: "PASS"
+    findings: []
+
+analytical_artifact_evaluation:
+  blast_radius:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+  concern_map:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+  code_path_inventory:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+  cross_cutting_matrix:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+  interface_compatibility:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+  state_analysis:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+  testability_assessment:
+    artifact_path: ""
+    status: "N/A"
+    findings: []
+
+bidirectional_findings:
+  - criterion_id: "SC-1"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "Criterion text references pre-compaction line numbers '(lines 9-10)' which become invalid after the compaction is complete. Verification timing issue: the SC is testing a property of the pre-state file using the post-state verification target."
+    revision_option: "Remove 'lines 9-10' from the criterion. Replace with content-based description: 'Remove two intro cross-references pointing to AGENTS.md and the guidelines directory.'"
+  - criterion_id: "SC-3"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "'Remove or inline' is an explicit either/or ambiguity. The implementor must choose between two distinct actions without guidance. The verification method depends on which action is taken."
+    revision_option: "Replace with single action: 'Move skill-card-specific rules to target skill/task cards (no inlining).' Add an explicit enumeration table mapping each moved rule to its target card path."
+  - criterion_id: "SC-7"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "'~15-20' is an open-ended range with 5-rule tolerance window. Verification method 'etc.' is an open-ended enumeration. Proposed Solution rule list ends with '...' indicating incompleteness. Three separate ambiguity sources for the same SC."
+    revision_option: "Replace '~15-20' with a fixed count. Remove 'etc.' from verification method. Provide the complete list of required rule headers in both the criterion and the verification method."
+  - criterion_id: "SC-8"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "Direct contradiction between Proposed Solution '~200-300 lines' and SC-8 '200-400 lines'. The 100-line upper-bound discrepancy is a soft contradiction in target scope. Verification method 'wc -l < 400' only checks the upper bound."
+    revision_option: "Either tighten SC-8 to 'between 200-300 lines' (matching Proposed Solution) or loosen Proposed Solution to '~200-400 lines' (matching SC-8). Add a lower-bound check to the verification method."
+  - criterion_id: "SC-9"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "Term 'redundant subsections' is undefined. What makes a subsection redundant? Phase 4 says 'where the rule header is self-explanatory' but 'self-explanatory' is also subjective. No quantitative threshold or checkable pattern."
+    revision_option: "Define 'redundant' explicitly: e.g., 'subsections whose body contains no content not present in the rule header.' Provide a checkable criterion (presence/absence pattern, word-count threshold, or content-overlap test)."
+  - criterion_id: "SC-10"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "Behavioral SC requires 'equivalent content' with no enumeration of moved rules and no definition of 'equivalent'. Cannot write a behavioral test without both an enumeration and an equivalence definition."
+    revision_option: "Add an explicit enumeration of moved rules (table or appendix). Define 'equivalent content' as a checkable threshold (e.g., 'the moved rule's full prose minus pure framing is present verbatim in the target card')."
+  - criterion_id: "SC-DET"
+    finding_type: "SPEC_INCOMPLETE"
+    description: "Determinism gate FAILs across 5 SCs (SC-3, SC-7, SC-8, SC-9, SC-10). Two reasonable auditors cannot independently produce the same PASS/FAIL for any of these SCs in their current form."
+    revision_option: "See individual SC remediation guidance. All 5 SCs require content updates to remove ambiguity and enable deterministic verification."
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    finding_type: "SPEC_OVERSPECIFIED"
+    description: "Two prescriptive code references found: '(lines 9-10)' line number and 'Read [the authoritative list](AGENTS.md)' markdown link. Spec should use file area references only."
+    revision_option: "Remove '(lines 9-10)' from SC-1 criterion. Remove or replace the markdown link pattern in SC-1 verification method with a content-only grep pattern."
+  - criterion_id: "SC-REASONING"
+    finding_type: "SPEC_AMBIGUOUS"
+    description: "Two internal contradictions: (1) Proposed Solution '~200-300 lines' vs SC-8 '200-400 lines' size target discrepancy. (2) Proposed Solution rule list ends with '...' while SC-7 verification uses 'etc.' — both indicate incomplete rule enumeration."
+    revision_option: "Resolve the 200-300 vs 200-400 contradiction (see SC-8). Provide the complete list of rules in Proposed Solution line 17 (remove the '...' open-ended marker)."
+  - criterion_id: "research_adequacy.evidence_provenance"
+    finding_type: "SPEC_INCOMPLETE"
+    description: "4 unsupported factual assertions in Problem and root cause: '1211 lines / 88KB', '74 occurrences' (dark prose), '10 tables' (Why This Matters), '~20+ rules' (skill-card-specific). All four lack tool-call evidence."
+    revision_option: "Add tool-call evidence (e.g., `wc -l`, `grep -c`, `ls -la`) to a Research/Evidence section in the spec. Or run the commands during spec-creation and cite the output verbatim."
+  - criterion_id: "research_adequacy.investigation_breadth"
+    finding_type: "SPEC_INCOMPLETE"
+    description: "No alternatives considered. The 'compact to ~200-300 lines' approach is presented as the only option. Alternative approaches (archive, split, leave-as-is) are not discussed."
+    revision_option: "Add an 'Alternatives Considered' section to the spec. For each alternative, list why it was discarded. Standard alternatives for this kind of refactoring: (1) leave file as-is, (2) split into multiple smaller files, (3) move to a separate reference document loaded on-demand, (4) keep but de-prioritize via metadata."
+  - criterion_id: "research_adequacy.recency_check"
+    finding_type: "SPEC_OUTDATED"
+    description: "No commit history review cited. The 1211-line/88KB size claim is not anchored to a commit SHA or date. If 000-critical-rules.md has been modified since the claim was made, the count may be stale."
+    revision_option: "Add a commit SHA and date for the version of 000-critical-rules.md the claims refer to. Re-run `wc -l` and `wc -c` against the current file before implementation to verify the claim is still accurate."
+  - criterion_id: "gap_analysis.missing_coverage"
+    finding_type: "SPEC_INCOMPLETE"
+    description: "5 SCs (SC-3, SC-7, SC-8, SC-9, SC-10) have no boundary condition testing. No test for the case where 000-critical-rules.md is already shorter than 200 lines (SC-8 lower bound). No test for the case where skill/task card target files do not exist yet (SC-10 dependency)."
+    revision_option: "Add boundary condition SCs or expand existing SC verification methods to cover: (1) SC-8 lower-bound failure case, (2) SC-10 target file existence precondition, (3) SC-7 'exactly N' rather than '~N' rules."
+  - criterion_id: "gap_analysis.implicit_conditions"
+    finding_type: "SPEC_INCOMPLETE"
+    description: "3 implicit preconditions not stated: (1) all referenced skill/task card target files exist and are writable, (2) the '~20+ rules that are only relevant when a specific skill is dispatched' set is identifiable and enumerated, (3) skill/task cards can absorb the moved rules without exceeding their own size budgets."
+    revision_option: "Add a 'Preconditions' or 'Assumptions' section to the spec listing all implicit preconditions explicitly. Verify each precondition during spec-creation by running the relevant tool calls."
+  - criterion_id: "scope_narrowness.systemic_implication"
+    finding_type: "SPEC_INCOMPLETE"
+    description: "Systemic implication: similar verbosity may exist in other preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130). The spec addresses only 000-critical-rules.md; if the same problem exists in the other 11 preloaded files, a true root-cause fix would address the preloaded instructions array as a whole."
+    revision_option: "Either (1) add explicit 'out of scope' note acknowledging that the other 11 guidelines may have the same problem, or (2) create a follow-up spec for guideline compaction across the preloaded instructions array."
+
+needs_clean_room: []

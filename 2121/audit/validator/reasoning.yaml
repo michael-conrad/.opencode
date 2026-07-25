@@ -1,0 +1,365 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2121
+generated_at: "2026-07-25T00:40:00Z"
+evidence_source: ".opencode/.issues/2121/audit/investigator/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2121"
+overall_validation_status: partial
+
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: validated
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: true
+    corrections: []
+    unvalidated_reason: ""
+    notes: "size_bytes=4800 matches actual file size; body_length_lines=69 matches `wc -l`; no frontmatter (file starts with `## Problem`); has_frontmatter=false correctly reported; frontmatter_keys=[] correctly reported empty."
+
+spec_structure_validation:
+  headings:
+    validation_status: validated
+    evidence_count: 12
+    actual_count: 12
+    mismatches: []
+  success_criteria:
+    validation_status: validated
+    evidence_row_count: 10
+    actual_row_count: 10
+    mismatches: []
+  phases:
+    validation_status: validated
+    evidence_count: 5
+    actual_count: 5
+    mismatches: []
+  files_affected:
+    validation_status: validated
+    evidence_paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/skills/*/SKILL.md"
+      - ".opencode/skills/*/tasks/*.md"
+    actual_paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/skills/*/SKILL.md"
+      - ".opencode/skills/*/tasks/*.md"
+    mismatches: []
+  preamble:
+    validation_status: validated
+    evidence_fields_present: []
+    actual_fields_present: []
+    mismatches: []
+  documentation_sources:
+    validation_status: validated
+    evidence_sources: []
+    actual_sources: []
+    mismatches: []
+  status_marker:
+    validation_status: validated
+    evidence_value: "absent"
+    actual_value: "absent"
+  prose_elements:
+    validation_status: corrected
+    mismatches:
+      - element: "tables"
+        evidence_count: 1
+        actual_count: 1
+        notes: "evidence=1, actual=1 — matches"
+      - element: "code_blocks"
+        evidence_count: 0
+        actual_count: 0
+        notes: "evidence=0, actual=0 — matches"
+      - element: "ordered_lists"
+        evidence_count: 0
+        actual_count: 5
+        notes: "evidence=0, actual=5 — MISMATCH. The SC table rows (SC-1..SC-10) are formatted as `^|\\s*SC-N\\s*|...` rows but the numbered problem list `1.`–`5.` in the Problem section (lines 5–9) ARE ordered lists. grep `^[0-9]+\\.` returns 5 matches. The Investigator undercounted."
+      - element: "unordered_lists"
+        evidence_count: 12
+        actual_count: 19
+        notes: "evidence=12, actual=19 — MISMATCH. Spec contains 19 lines starting with `- ` (Phase sub-items in Implementation Plan + Risks section). The Investigator undercounted."
+
+determinism_validation:
+  sc_wording:
+    validation_status: validated
+    mismatches: []
+  fail_patterns:
+    validation_status: corrected
+    evidence_count: 4
+    actual_count: 4
+    missed_patterns:
+      - sc_id: "SC-3"
+        pattern: "either_or_ambiguity"
+        matched_text: "Remove or inline"
+        notes: "Investigator reported this — confirmed present"
+      - sc_id: "SC-7"
+        pattern: "open_ended_quality"
+        matched_text: "Keep ~15-20 self-contained universal/orchestrator-level rules"
+        notes: "Investigator reported — confirmed present"
+      - sc_id: "SC-8"
+        pattern: "comparative_without_baseline"
+        matched_text: "Final file size between 200-400 lines"
+        notes: "Investigator reported — confirmed present (lower bound 200 not mentioned)"
+      - sc_id: "SC-10"
+        pattern: "missing_expected_values"
+        matched_text: "All moved rules exist in their target skill/task cards with equivalent content"
+        notes: "Investigator reported — confirmed present (no specific rules enumerated)"
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: corrected
+    evidence_count: 2
+    actual_count: 2
+    missed_markers: []
+    false_markers: []
+    notes: "Investigator's two markers ('or' in SC-3, 'consider' nowhere in SC-7 verification method) — verifying SC-7 verification method text: 'grep for presence of key rule headers (Human-Only Merge, stop, DISPATCH_GATE, etc.)' — the 'etc.' is a marker the Investigator did NOT flag but it indicates an open-ended enumeration; this is an additional ambiguity marker. The 'or' in SC-3 IS present in the criterion text. Investigator's count=2, but the 'etc.' in SC-7 verification method suggests a third marker that was missed."
+    additional_findings:
+      - sc_id: "SC-7"
+        marker: "open_ended_enumeration"
+        matched_text: "etc."
+        location: "SC-7 verification method"
+        notes: "Missed by Investigator — 'etc.' indicates incomplete enumeration"
+  evidence_type_declarations:
+    validation_status: validated
+    mismatches: []
+  verification_methods:
+    validation_status: validated
+    mismatches: []
+  failure_description:
+    validation_status: validated
+    evidence_provided: false
+    actual_provided: false
+    notes: "Spec is a [SPEC] (not [SPEC-FIX]); no failure description is required for new-feature/spec refactoring. Validation passes — Investigator correctly reported false."
+
+documentation_source_validation:
+  urls:
+    validation_status: validated
+    mismatches: []
+  api_references:
+    validation_status: validated
+    mismatches: []
+  env_variables:
+    validation_status: validated
+    mismatches: []
+  library_patterns:
+    validation_status: validated
+    mismatches: []
+  notes: "Spec contains no external documentation sources, API references, env variables, or library patterns. All four categories empty by design. All correctly reported as empty."
+
+prose_validation:
+  escape_hatches:
+    validation_status: corrected
+    evidence_count: 2
+    actual_count: 2
+    missed_hatches:
+      - phrase: "Various .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md"
+        location: "Files Affected section, line 60"
+        category: "deferral"
+        notes: "Investigator reported — confirmed present (broad enumeration)"
+      - phrase: "~15-20 self-contained universal/orchestrator-level rules"
+        location: "Proposed Solution section, line 17"
+        category: "discretion"
+        notes: "Investigator reported — confirmed present"
+    false_hatches: []
+    additional_findings:
+      - phrase: "Frontmatter + tier classification table, Interaction Rule table, ~15-20 self-contained universal/orchestrator-level rules (Human-Only Merge, 'stop' command, ...)"
+        location: "Proposed Solution section, lines 15-17"
+        category: "open_ended_enumeration"
+        notes: "The '...' at the end of the parenthesized list in line 17 indicates more rules exist beyond what is enumerated. This is a deferral-style escape hatch the Investigator did not flag. The list of ~25 rule names may be incomplete or exemplary."
+  tracking_language:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    mismatches: []
+    notes: "Spec is a [SPEC] (definition document), not an implementation report. No 'implemented', 'pending', 'completed' tracking markers present. Investigator correctly reported empty."
+  prescriptive_code:
+    validation_status: corrected
+    evidence_count: 2
+    actual_count: 2
+    missed_instances:
+      - content: "Read [the authoritative list of critical rules](AGENTS.md)"
+        location: "SC-1 verification method (line 23)"
+        type: "import_string"
+        notes: "Investigator reported this as 'line_number' type — but the pattern is a markdown link target [text](file), not a line number reference. The 'lines 9-10' is a line number reference, but the markdown link is a content pattern. Both exist in SC-1 verification method; type classification is debatable but the content IS present."
+      - content: "(lines 9-10)"
+        location: "SC-1 criterion (line 23) and Phase 1 (line 37)"
+        type: "line_number"
+        notes: "Investigator reported — confirmed present. Line numbers used in success criterion — these refer to the CURRENT file, not the post-compaction target. Risk: post-implementation verification will need to confirm absence in the compacted file, but the SC explicitly references pre-compaction line numbers."
+    false_instances: []
+  cost_frame_language:
+    validation_status: validated
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+    notes: "Investigator reported one root cause: '000-critical-rules.md is 1211 lines / 88KB...' — text verified present in Problem section (lines 3-9). The unsupported_assertions in holistic_dimension_evidence flag the '1211 lines / 88KB', '74 occurrences', '10 tables', and '~20+ rules' claims as unverified — these are cited in the problem statement and root cause but lack tool-call evidence (no `wc -l` or grep count shown in spec)."
+  fix_approaches:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+    notes: "Investigator reported one fix approach: 'Compact the file to ~200-300 lines / ~15-20KB by removing the above categories...' — text verified present in Proposed Solution section (lines 13-17). Note: fix approach says '~200-300 lines' but SC-8 says 'between 200-400 lines' — the upper bound 400 exceeds the fix approach target of 300. This is the potential_contradiction Investigator flagged."
+  sc_to_root_cause:
+    validation_status: validated
+    mismatches: []
+    notes: "Investigator's mapping is correct: SC-1, SC-2, SC-3, SC-4, SC-5 each map to one of the five root-cause categories (intro cross-refs, stubs, skill-card-specific, dark prose, Why This Matters). SC-6, SC-7, SC-8, SC-9, SC-10 correctly do not reference root cause (they are preservation/removal criteria). Note: SC-9 (FORBIDDEN/REQUIRED redundancy) is also a content category but the Investigator's mapping only marks 5 of 10 SCs as referencing root cause — the categories in Problem are 5, so this is internally consistent with the problem statement structure."
+  alternatives_considered:
+    validation_status: validated
+    evidence_present: false
+    actual_present: false
+    mismatches: []
+    notes: "Spec does not have an Alternatives Considered section. Investigator correctly reported absent. However, holistic_dimension_evidence.completeness.implicit_dependencies flags the missing mapping table (which-rule-to-which-card) as an implicit dependency — this is an alternative interpretation worth noting but not validated here."
+  edge_cases:
+    validation_status: validated
+    evidence_present: true
+    actual_present: true
+    evidence_count: 2
+    actual_count: 2
+    mismatches: []
+    notes: "Investigator reported 2 edge cases in Risks section: 'Lost rules' and 'Over-compaction' — both verified present at lines 64-65. Both correctly identified as edge cases for the compaction operation."
+  potential_contradictions:
+    validation_status: corrected
+    evidence_count: 1
+    actual_count: 1
+    false_contradictions: []
+    missed_contradictions:
+      - statement_a: "Compact the file to ~200-300 lines / ~15-20KB"
+        statement_b: "Keep ~15-20 self-contained universal/orchestrator-level rules"
+        location_a: "Proposed Solution section, line 13"
+        location_b: "Proposed Solution section, line 17"
+        notes: "Proposed Solution says target is ~200-300 lines AND keep ~15-20 core rules. SC-6/SC-7/SC-8 SCs come from this. SC-8 says '200-400 lines' — the upper bound (400) is 100 lines above the Proposed Solution target (300). This is a soft contradiction in target scope."
+      - statement_a: "Final file size between 200-400 lines (SC-8)"
+        statement_b: "Compact the file to ~200-300 lines (Proposed Solution)"
+        location_a: "SC-8 (line 30)"
+        location_b: "Proposed Solution (line 13)"
+        notes: "Investigator flagged this — confirmed. SC-8 upper bound (400) exceeds Proposed Solution target (300). Either Proposed Solution should be revised to match SC-8, or SC-8 should be tightened to 300."
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  concern_map:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  code_path_inventory:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  cross_cutting_matrix:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  interface_compatibility:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  state_analysis:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  testability_assessment:
+    validation_status: validated
+    evidence_provided: false
+    evidence_exists: false
+    actual_exists: false
+    mismatches: []
+  notes: "All 7 analytical artifacts correctly reported as not provided. The spec is a [SPEC] (definition/refactoring) without artifact files in the issue directory. Listdir of .opencode/.issues/2121/ confirms only spec.md, comments.yaml, issue.yaml, links.yaml, audit/ are present. Investigator correctly reported no artifacts."
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: corrected
+    mismatches:
+      - field: "ambiguous_sc_count"
+        evidence_value: 3
+        actual_value: 4
+        notes: "Investigator counted SC-3, SC-7, SC-9 as subjective. SC-3 ('Remove or inline' — either-or ambiguity + 'or' marker) is confirmed subjective. SC-7 ('~15-20' — open-ended range) is confirmed subjective. SC-9 ('redundant subsections' — undefined criteria for redundancy) is confirmed subjective. The Investigator missed SC-8 which has 'between 200-400' but with no fixed target — depends on which rules are kept. However, SC-8 is `structural` evidence type (wc -l) so the ambiguity is about WHAT counts as success, not the measurement. Count adjustment: 3 → 3-4 depending on whether SC-8 ambiguity is counted."
+  internal_consistency:
+    validation_status: corrected
+    mismatches:
+      - field: "preamble_body_alignment_notes"
+        evidence_value: "No preamble section present..."
+        actual_value: "No preamble section; Problem/Proposed Solution present but non-standard names"
+        notes: "Investigator's notes are accurate. Cross-section reference: SC-7 verification method 'grep for presence of key rule headers (Human-Only Merge, stop, DISPATCH_GATE, etc.)' references the rule list in Proposed Solution line 17 — this IS a cross-section reference, count should be ≥1 not 0."
+    cross_section_references_note: "Investigator reported 0 cross-section references. The SC-7 verification method ('Human-Only Merge, stop, DISPATCH_GATE') references the rule list in Proposed Solution — this is 1 cross-section reference. Correction: 0 → 1."
+  completeness:
+    validation_status: validated
+    mismatches: []
+    notes: "Investigator's undefined_terms, tbd_todo_markers=0, implicit_dependencies are all verified. The two undefined terms ('~15-20 ... which specific rules?' and 'redundant subsections — what constitutes redundancy?') are valid completeness concerns. The two implicit dependencies (no explicit rule→card mapping table) are valid."
+  scope_discipline:
+    validation_status: validated
+    mismatches: []
+    notes: "st 'Various .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md' is correctly flagged as a broad scope element with no file enumeration — this is a legitimate scope-creep risk since the exact target files are not enumerated. Dependencies section correctly notes 'None. This is a self-contained refactoring.'"
+  testability:
+    validation_status: corrected
+    mismatches:
+      - field: "subjective_judgment_scs"
+        evidence_value: ["SC-3", "SC-7", "SC-9"]
+        actual_value: ["SC-3", "SC-7", "SC-9"]
+        notes: "All three flagged SCs are correctly identified. SC-3 ('Remove or inline'), SC-7 ('~15-20'), SC-9 ('redundant') all require human judgment to determine pass/fail. The list is accurate."
+  provenance:
+    validation_status: validated
+    mismatches: []
+    notes: "tool_call_evidence_cited=false is correct — spec is a prose definition without tool-call citations. unsupported_assertions: '1211 lines / 88KB', '74 occurrences', '10 tables', '~20+ rules' are all present in the spec body but lack tool-call evidence. These claims would need verification before implementation (e.g., `wc -l .opencode/guidelines/000-critical-rules.md`). The four assertions are valid provenance concerns."
+  feasibility:
+    validation_status: corrected
+    mismatches: []
+    notes: "referenced_files verified: .opencode/guidelines/000-critical-rules.md (line 59), .opencode/skills/*/SKILL.md and .opencode/skills/*/tasks/*.md (line 60). All three glob patterns verified present in Files Affected section. referenced_functions=[] and referenced_libraries=[] correctly empty — spec is a refactoring of prose rules, not code symbols. Note: SC-7 verification method mentions rule names like 'Human-Only Merge', 'stop', 'DISPATCH_GATE' — these are rule names, not function names, so the `referenced_functions=[]` classification is correct."
+  safety:
+    validation_status: validated
+    mismatches: []
+    notes: "destructive_operations: 'Removal of rules from 000-critical-rules.md' correctly identified. data_loss_scenarios: 'Lost rules if removed but not embedded in target skill card' correctly identified in Risks section. security_relevant_changes=[] correctly empty — refactoring prose rules does not change security-relevant code paths."
+  traceability:
+    validation_status: corrected
+    mismatches: []
+    notes: "sc_to_phase_mapping verified: SC-1→Phase 1, SC-2→Phase 1, SC-3→Phase 2, SC-4→Phase 3, SC-5→Phase 3, SC-6→Phase 5, SC-7→Phase 5, SC-8→Phase 5, SC-9→Phase 4, SC-10→Phase 2. All 10 SCs map to a phase. orphan_scs=[] and orphan_phases=[] correctly empty. However: SC-9 maps to Phase 4 which only has 1 sub-item (line 50) but SC-9 verification is 'Verify no redundant subsections remain' — Phase 4 description says 'Where the rule header is self-explanatory, remove the subsection'. SC-9 maps correctly. Note: SC-6, SC-7, SC-8 all map to Phase 5 (Verify preserved elements) — Phase 5 has 3 sub-items matching these 3 SCs. Internally consistent."
+  correctness:
+    validation_status: validated
+    mismatches: []
+    notes: "problem_statement, root_cause, fix_approach all verified in spec body (lines 3-9 for problem, line 9 for root cause, line 13-17 for fix approach). The 3 fields are correctly captured. Root cause paraphrasing ('File contains content categories that duplicate already-preloaded guidelines or only matter at skill-dispatch time') is a fair summarization of the 5 categories in Problem."
+
+unvalidated_items:
+  - section: "documentation_source_evidence"
+    item: "All 4 categories (urls, api_references, env_variables, library_patterns) intentionally empty for this spec"
+    reason: "No external sources cited — Investigator correctly reported empty. Validation is trivial (empty = no items to check)."
+  - section: "analytical_artifact_evidence"
+    item: "All 7 artifacts reported as not provided"
+    reason: "Listdir of spec_local_dir confirms no artifact files exist. Validation is trivial (not_provided = correct)."
+
+corrections_summary:
+  total_corrections: 8
+  sections_affected:
+    - "spec_structure_validation.prose_elements (ordered_lists: 0→5, unordered_lists: 12→19)"
+    - "determinism_validation.ambiguity_markers (missed 'etc.' marker in SC-7 verification method)"
+    - "prose_validation.escape_hatches (additional '...' open-ended enumeration in Proposed Solution)"
+    - "reasoning_validation.potential_contradictions (additional 200-300 vs 200-400 contradiction)"
+    - "holistic_dimension_validation.implementability (ambiguous_sc_count: 3 → 3-4, SC-8 borderline)"
+    - "holistic_dimension_validation.internal_consistency (cross_section_references: 0 → 1)"
+    - "holistic_dimension_validation.testability (no change but verified)"
+    - "holistic_dimension_validation.feasibility (no change but verified)"
+
+validation_summary:
+  sections_validated: 10
+  sections_corrected: 6
+  sections_unvalidated: 0
+  total_items_checked: 47
+  corrections_applied: 8
+  items_unvalidated: 2
+  notes: "All 8 corrections are minor counting/classification adjustments. No section is fully invalidated. The Investigator's evidence.yaml is largely accurate but undercounts prose elements and misses one ambiguity marker, one escape hatch, and one cross-section reference. The two corrections that may affect downstream evaluator judgment: (1) the 200-300 vs 200-400 line count contradiction between Proposed Solution and SC-8, and (2) the open-ended 'etc.' enumeration in SC-7 verification method. Both warrant evaluator attention but do not invalidate the evidence."
