@@ -1,0 +1,73 @@
+title: '[SPEC] Phase 5: Add plan-level decomposition criteria to writing-plans validate'
+status: open
+labels:
+- spec
+body: '## Problem
+
+
+  writing-plans'' validate task does not check plan-level decomposition quality. Plans
+  with file collisions, cyclic dependencies, or undeclared dependencies pass through
+  to implementation, where defects surface as integration failures.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `writing-plans/tasks/validate.md` includes inline decomposition criteria
+  checklist for 3 plan-level criteria: acyclic DAG, file collision freedom, explicit
+  dependency declaration | string | grep for each criterion in validate.md |
+
+  | SC-2 | Each criterion uses imperative binary decision tree format with explicit
+  PASS/FAIL branches (not prose guidance) | string | grep for PASS/FAIL branching
+  |
+
+  | SC-3 | Acyclic DAG check verifies the dependency graph has no cycles | string
+  | grep for acyclic DAG check |
+
+  | SC-4 | File collision freedom check verifies no file appears in multiple parallel
+  phases | string | grep for file collision check |
+
+  | SC-5 | Explicit dependency declaration check verifies every inter-phase dependency
+  is declared in the plan | string | grep for dependency declaration check |
+
+  | SC-6 | Inline copy includes cross-reference comment: ''See audit/reference/decomposition-criteria.md
+  for master definition'' | string | grep for cross-reference |
+
+  | SC-7 | Behavioral test: plan with file collision submitted to validate returns
+  FAIL with correct reason | behavioral | opencode run with assertion |
+
+  | SC-8 | Behavioral test: plan with cyclic dependency submitted to validate returns
+  FAIL with correct reason | behavioral | opencode run with assertion |
+
+  | SC-9 | Behavioral test: plan with clean DAG and no collisions submitted to validate
+  returns PASS for decomposition criteria | behavioral | opencode run with assertion
+  |
+
+
+  ## Approach
+
+
+  Edit `writing-plans/tasks/validate.md` to add a new ''Plan-Level Decomposition Criteria''
+  section. The section reads the file collision and dependency graph artifacts produced
+  by the structure task and evaluates each criterion against them.
+
+
+  ## Affected Files
+
+
+  - `writing-plans/tasks/validate.md` (edit)
+
+
+  ## Dependencies
+
+
+  Depends on Phase 4 PR being merged (structure task must produce artifacts that validate
+  checks).
+
+  '
+created_at: '2026-07-25T03:06:40+00:00'
+updated_at: '2026-07-25T03:07:24+00:00'

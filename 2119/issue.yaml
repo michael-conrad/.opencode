@@ -1,0 +1,76 @@
+title: '[SPEC] Phase 6: Add plan-level decomposition criteria to audit plan-fidelity
+  evaluator'
+status: open
+labels:
+- spec
+body: '## Problem
+
+
+  The audit skill''s plan-fidelity evaluator does not independently verify plan-level
+  decomposition quality. Plans with file collisions, cyclic dependencies, or undeclared
+  dependencies pass audit and advance to implementation.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `audit/tasks/plan-fidelity-evaluator.md` includes inline decomposition
+  criteria checklist for 3 plan-level criteria: acyclic DAG, file collision freedom,
+  explicit dependency declaration | string | grep for each criterion in plan-fidelity-evaluator.md
+  |
+
+  | SC-2 | Each criterion uses imperative binary decision tree format with explicit
+  PASS/FAIL branches (not prose guidance) | string | grep for PASS/FAIL branching
+  |
+
+  | SC-3 | Acyclic DAG check verifies the dependency graph has no cycles | string
+  | grep for acyclic DAG check |
+
+  | SC-4 | File collision freedom check verifies no file appears in multiple parallel
+  phases | string | grep for file collision check |
+
+  | SC-5 | Explicit dependency declaration check verifies every inter-phase dependency
+  is declared in the plan | string | grep for dependency declaration check |
+
+  | SC-6 | Inline copy includes cross-reference comment: ''See audit/reference/decomposition-criteria.md
+  for master definition'' | string | grep for cross-reference |
+
+  | SC-7 | Behavioral test: plan with file collision submitted to plan-fidelity returns
+  FAIL with correct reason | behavioral | opencode run with assertion |
+
+  | SC-8 | Behavioral test: plan with cyclic dependency submitted to plan-fidelity
+  returns FAIL with correct reason | behavioral | opencode run with assertion |
+
+  | SC-9 | Behavioral test: plan with clean DAG and no collisions submitted to plan-fidelity
+  returns PASS for decomposition criteria | behavioral | opencode run with assertion
+  |
+
+
+  ## Approach
+
+
+  Edit `audit/tasks/plan-fidelity-evaluator.md` to add a new ''Plan-Level Decomposition
+  Criteria'' section. Same criteria as Phase 5, independently applied. The evaluator
+  reads the plan independently and produces its own verdicts — adversarial separation
+  from writing-plans validate.
+
+
+  ## Affected Files
+
+
+  - `audit/tasks/plan-fidelity-evaluator.md` (edit)
+
+
+  ## Dependencies
+
+
+  Depends on Phase 5 PR being merged (plan-level criteria must be defined in writing-plans
+  validate first).
+
+  '
+created_at: '2026-07-25T03:06:40+00:00'
+updated_at: '2026-07-25T03:07:24+00:00'

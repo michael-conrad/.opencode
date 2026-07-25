@@ -48,8 +48,9 @@ Implement the three remaining features:
 | ID | Criterion | Evidence Type | Verification Method | Cost of Failure (DDL) |
 |----|-----------|---------------|---------------------|-----------------------|
 | SC-4 | Trigger warnings are injected into the first user message of primary sessions only | `behavioral` | Verify first user message of primary session contains `### Session Triggers`; verify sub-agent sessions do NOT contain it. **Boundary:** verify empty trigger set (no pair mode, no nested opencode fatal) produces no injection | Days — missing triggers cause agents to miss session context, producing incorrect behavior that surfaces in production |
-| SC-6 | Sub-agent sessions are detected and first-turn injections are skipped | `behavioral` | Verify sub-agent sessions do not receive first-turn trigger injections. **Boundary:** verify behavior when `event` hook is unavailable (graceful degradation — no crash, no injection) | Weeks — sub-agents receiving primary-session triggers produce contaminated output; defect discovered at review time |
-| SC-7 | `session-init` writes to a temp file, not stdout | `string` | Verify `session-init` has no `print()` calls for context output; verify it writes to `{project_root}/tmp/session-context.yaml`. **Boundary:** verify behavior when temp file write fails (graceful fallback to stdout) | Months — stdout pollution from session-init breaks downstream consumers; defect discovered during integration |
+| SC-6 | Sub-agent sessions are detected and first-turn injections are skipped | `behavioral` | Verify sub-agent sessions do not receive first-turn trigger injections. **Boundary:** verify behavior when `event` hook is unavailable (all sessions treated as primary; triggers injected for all sessions) | Weeks — sub-agents receiving primary-session triggers produce contaminated output; defect discovered at review time |
+| SC-7 | `session-init` writes to a temp file, not stdout | `string` | Verify `session-init` has no `print()` calls for context output; verify it writes to `{project_root}/tmp/session-context.yaml`. **Boundary:** verify behavior when temp file write fails (fallback to stdout via execSync capture) | Months — stdout pollution from session-init breaks downstream consumers; defect discovered during integration |
+| SC-8 | `.opencode/node_modules/` is not referenced as a project-managed or agent-managed dependency in any spec artifact, plan, or implementation code | `string` | Verify no spec text, plan step, or code path treats `.opencode/node_modules/` as a project dependency, committed artifact, or agent-managed resource. **Boundary:** verify that any reference to `.opencode/node_modules/` content (e.g., type verification in Documentation Sources) includes a disclaimer that the directory is managed by OpenCode Desktop, not by the project or agent | Days — treating `.opencode/node_modules/` as a project dependency would cause build failures on CI and other environments where OpenCode Desktop is not installed |
 
 ### SC Enforcement Gate
 
@@ -64,10 +65,11 @@ SC-6 (sub-agent detection) MUST be implemented before SC-4 (trigger injection). 
 | Edge Case | Expected Behavior | SC Coverage |
 |-----------|------------------|-------------|
 | Temp file write fails (disk full, permission denied) | `session-init` falls back to stdout; plugin continues to work via execSync capture | SC-7 |
-| `session.created` event hook is not available | Sub-agent detection degrades gracefully — all sessions treated as primary; triggers injected for all sessions (conservative behavior) | SC-6 |
+| `session.created` event hook is not available | Sub-agent detection falls back — all sessions treated as primary; triggers injected for all sessions (conservative behavior) | SC-6 |
 | Both primary and sub-agent sessions created simultaneously | Each session independently evaluates its type; no cross-session interference | SC-4, SC-6 |
 | First run — temp file doesn't exist | Plugin runs `session-init` once to generate the temp file; subsequent reads use the file | SC-7 |
 | Empty trigger set (no pair mode, no nested opencode fatal) | No trigger warnings injected; first user message passes through unmodified | SC-4 |
+| `.opencode/node_modules/` is absent (CI, other environments) | Implementation compiles and runs without `.opencode/node_modules/` — plugin types are design-time only, not runtime dependencies | SC-8 |
 
 ## Alternatives Considered
 
@@ -85,6 +87,7 @@ Triggers are per-session (injected into the first user message of each session),
 - **Plugin source file:** `.opencode/plugins/session-enforcement.ts` — current state verified by reading the file (83 lines, 2 hooks, zero console output)
 - **Session-init tool:** `.opencode/tools/session-init` — 634 lines, currently uses `print()` for context output
 - **No recent commits** touching the plugin file were found (`git log --oneline .opencode/plugins/session-enforcement.ts`), confirming the state described is current
+- **Event hook API** verified against `@opencode-ai/plugin` v1.14.33 (`index.d.ts`: `event?: (input: { event: Event }) => Promise<void>`) and `@opencode-ai/sdk` (`types.gen.d.ts`: `EventSessionCreated` with `type: "session.created"`) — the event hook and `session.created` event type are confirmed available. **Note:** `.opencode/node_modules/` is managed by OpenCode Desktop, not by the project or the agent. It is gitignored, not committed, and not available in CI or other environments. Type references to this directory are for design-time verification only — the implementation must not depend on `.opencode/node_modules/` being present at runtime.
 
 ## Affected Files
 

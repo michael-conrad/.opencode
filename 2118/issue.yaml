@@ -1,0 +1,79 @@
+title: '[SPEC] Phase 1: Master decomposition criteria reference file'
+status: open
+labels:
+- spec
+body: '## Problem
+
+
+  The decomposition audit chain needs a single source of truth for decomposition criteria
+  definitions. Currently no file defines what atomicity, single deliverable, binary
+  verifiability, and PR-gate viability mean with PASS/FAIL definitions and examples.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | Create `audit/reference/decomposition-criteria.md` defining all 7 criteria
+  (4 spec-level + 3 plan-level) with PASS/FAIL definitions and examples | structural
+  | File exists at expected path |
+
+  | SC-2 | Each criterion has explicit PASS/FAIL branching (binary decision tree format,
+  not prose) | string | grep for PASS/FAIL branching in file |
+
+  | SC-3 | Spec-level criteria: atomicity, single deliverable, binary verifiability,
+  PR-gate viability | string | grep for each criterion heading |
+
+  | SC-4 | Plan-level criteria: acyclic DAG, file collision freedom, explicit dependency
+  declaration | string | grep for each criterion heading |
+
+  | SC-5 | Atomicity criterion includes trigger-word check (and, or, comma-separated
+  lists) | string | grep for trigger word sub-check |
+
+  | SC-6 | Binary verifiability criterion includes disjunctive pattern check (either/or,
+  alternatively, one of) and vague term check (should, could, ideally, as appropriate)
+  | string | grep for disjunctive and vague term sub-checks |
+
+  | SC-7 | PR-gate viability criterion references meta RED/GREEN principle (each spec
+  is a RED, each PR merge is a GREEN) | string | grep for RED/GREEN reference |
+
+  | SC-8 | File includes maintainer note: ''Inline copies maintained in spec-creation/tasks/validate.md,
+  audit/tasks/spec-audit-evaluator.md, and writing-plans/tasks/validate.md. Update
+  all three when this file changes.'' | string | grep for maintainer note |
+
+  | SC-9 | Behavioral test: sub-agent reads master reference and correctly identifies
+  PASS/FAIL for a sample SC | behavioral | opencode run with assertion |
+
+
+  ## Approach
+
+
+  Create a single markdown file at `audit/reference/decomposition-criteria.md` with
+  all 7 criteria in imperative checklist format. Each criterion has:
+
+  - A heading with the criterion name
+
+  - A binary decision tree with explicit PASS/FAIL branches
+
+  - Trigger-word sub-checks where applicable
+
+  - Examples of PASS and FAIL cases
+
+
+  ## Affected Files
+
+
+  - `audit/reference/decomposition-criteria.md` (new)
+
+
+  ## Dependencies
+
+
+  None. This is Phase 1 of a 6-phase chain.
+
+  '
+created_at: '2026-07-25T03:06:40+00:00'
+updated_at: '2026-07-25T03:07:24+00:00'

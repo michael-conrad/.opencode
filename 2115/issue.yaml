@@ -1,0 +1,76 @@
+title: '[SPEC] Phase 4: Add file collision and dependency graph production to writing-plans
+  structure'
+status: open
+labels:
+- spec
+body: '## Problem
+
+
+  writing-plans'' structure task decomposes SCs into phases but does not produce file
+  collision or dependency graph artifacts. Without these artifacts, the validate task
+  cannot check plan-level decomposition criteria (acyclic DAG, file collision freedom,
+  explicit dependency declaration).
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `writing-plans/tasks/structure.md` includes step to detect file collisions
+  across parallel phases | string | grep for file collision detection in structure.md
+  |
+
+  | SC-2 | `writing-plans/tasks/structure.md` includes step to construct and validate
+  a dependency DAG across phases | string | grep for dependency DAG construction in
+  structure.md |
+
+  | SC-3 | `writing-plans/tasks/structure.md` includes step to verify all inter-phase
+  dependencies are explicitly declared | string | grep for explicit dependency declaration
+  in structure.md |
+
+  | SC-4 | Structure task produces a file collision artifact (list of files per phase,
+  collision report) | structural | Artifact exists at expected path |
+
+  | SC-5 | Structure task produces a dependency graph artifact (DAG with edges, wave
+  computation) | structural | Artifact exists at expected path |
+
+  | SC-6 | Behavioral test: plan with parallel phases modifying same file produces
+  file collision FAIL | behavioral | opencode run with assertion |
+
+  | SC-7 | Behavioral test: plan with cyclic dependency between phases produces DAG
+  FAIL | behavioral | opencode run with assertion |
+
+
+  ## Approach
+
+
+  Edit `writing-plans/tasks/structure.md` to add three new procedural steps after
+  phase decomposition:
+
+  1. File collision detection — for each phase, list files to be modified; flag any
+  file appearing in multiple parallel phases
+
+  2. Dependency DAG construction — build directed acyclic graph from phase dependencies;
+  validate acyclicity
+
+  3. Explicit dependency declaration — verify every inter-phase dependency is declared
+  in the plan
+
+
+  ## Affected Files
+
+
+  - `writing-plans/tasks/structure.md` (edit)
+
+
+  ## Dependencies
+
+
+  Depends on Phase 1 PR being merged. Must land before Phase 5.
+
+  '
+created_at: '2026-07-25T03:06:40+00:00'
+updated_at: '2026-07-25T03:07:24+00:00'
