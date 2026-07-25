@@ -1,0 +1,23 @@
+spec: 2105
+testability:
+  - sc: SC-1
+    evidence_type: string
+    verification: grep for "merge" in pr-creation.md returns prohibition text
+    difficulty: EASY
+  - sc: SC-2
+    evidence_type: string
+    verification: grep for "merge" in completion.md returns prohibition text
+    difficulty: EASY
+  - sc: SC-3
+    evidence_type: string
+    verification: grep for "merge" in verify-authorization.md returns prohibition text
+    difficulty: EASY
+  - sc: SC-4
+    evidence_type: behavioral
+    verification: behavior_run with merge prompt → assert_stderr_pattern_absent "github_merge_pull_request"
+    difficulty: MEDIUM
+    notes: Requires opencode run with with-test-home wrapper. Model must be available.
+  - sc: SC-5
+    evidence_type: string
+    verification: grep for "merge" in 000-critical-rules.md returns cross-reference to skill files
+    difficulty: EASY

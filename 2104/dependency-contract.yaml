@@ -1,0 +1,45 @@
+contract_version: "1.0"
+issue: 2104
+variables:
+  phase_1_done:
+    type: bool
+  phase_2_done:
+    type: bool
+  phase_3_done:
+    type: bool
+  phase_4_done:
+    type: bool
+  phase_5_done:
+    type: bool
+preconditions:
+  - "z3.Not(phase_1_done)"
+  - "z3.Not(phase_2_done)"
+  - "z3.Not(phase_3_done)"
+  - "z3.Not(phase_4_done)"
+  - "z3.Not(phase_5_done)"
+invariants:
+  - "z3.Implies(phase_2_done, phase_1_done)"
+  - "z3.Implies(phase_3_done, z3.And(phase_1_done, phase_2_done))"
+  - "z3.Implies(phase_4_done, phase_3_done)"
+  - "z3.Implies(phase_5_done, phase_4_done)"
+phases:
+  - number: 1
+    name: "Spec Writer Changes"
+    depends_on: []
+  - number: 2
+    name: "Documentation Standards"
+    depends_on:
+      - 1
+  - number: 3
+    name: "Plan Writer Changes"
+    depends_on:
+      - 1
+      - 2
+  - number: 4
+    name: "Pipeline Changes"
+    depends_on:
+      - 3
+  - number: 5
+    name: "Behavioral Tests"
+    depends_on:
+      - 4

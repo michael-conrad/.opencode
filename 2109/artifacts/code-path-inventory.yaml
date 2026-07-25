@@ -1,0 +1,30 @@
+code_paths:
+  - sc: SC-1
+    description: "stop" as hard state transition in guidelines
+    paths:
+      - .opencode/guidelines/000-critical-rules.md (new Tier 1 section: terminal halt on stop)
+      - .opencode/guidelines/020-go-prohibitions.md (new prohibition: stop = terminal halt)
+  - sc: SC-5
+    description: No recovery from "stop" — explicit restart required
+    paths:
+      - .opencode/guidelines/000-critical-rules.md (no-recovery clause)
+      - .opencode/guidelines/020-go-prohibitions.md (no-recovery clause)
+  - sc: SC-2
+    description: Discussion/implementation boundary enforcement
+    paths:
+      - .opencode/guidelines/020-go-prohibitions.md (new section: discuss = no implementation)
+  - sc: SC-3
+    description: Solicitation detection gate
+    paths:
+      - .opencode/guidelines/020-go-prohibitions.md (new gate: pre-output solicitation check)
+  - sc: SC-4
+    description: Behavioral enforcement test for stop-command compliance
+    paths:
+      - .opencode/tests-v2/behaviors/stop-command.sh (new test file)
+      - .opencode/tests-v2/behaviors/discuss-boundary.sh (new test file)
+      - .opencode/tests-v2/behaviors/solicitation-gate.sh (new test file)
+      - .opencode/tests-v2/behaviors/helpers.sh (update if new helpers needed)
+      - .opencode/tests-v2/AGENTS.md (update test index if needed)
+verification:
+  code-path-inventory.yaml: BACKFILLED
+  source: spec.md lines 60-67 (Phases), lines 69-77 (Success Criteria)

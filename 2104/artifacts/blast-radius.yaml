@@ -1,0 +1,35 @@
+spec_path: ".opencode/.issues/2104/spec.md"
+affected_files:
+  - path: ".opencode/skills/spec-creation/tasks/create.md"
+    change: "Change plan_phase field to plan_item in sc-summary.yaml template"
+    exists: true
+  - path: ".opencode/skills/writing-plans/tasks/structure.md"
+    change: "Change Step 5 from code-path-to-item to SC-to-item mapping"
+    exists: true
+  - path: ".opencode/skills/writing-plans/tasks/create.md"
+    change: "Change Tier 3 from per-file to per-SC with SC-ID binding; add validation rule 16"
+    exists: true
+  - path: ".opencode/skills/implementation-pipeline/tasks/pipeline-executor.md"
+    change: "Add per-SC checkpoint verification with SC-ID in tag"
+    exists: true
+  - path: ".opencode/skills/implementation-pipeline/tasks/tdd-chaining-gate.md"
+    change: "Add SC-level check, BLOCK with MULTI_SC_ITEM"
+    exists: true
+  - path: ".opencode/AGENTS.md"
+    change: "Add Per-SC Decomposition section"
+    exists: true
+  - path: ".opencode/guidelines/091-incremental-build.md"
+    change: "Clarify item = one SC per item"
+    exists: true
+  - path: ".opencode/skills/test-driven-development/tasks/red.md"
+    change: "Add per-SC targeting note"
+    exists: true
+  - path: ".opencode/skills/test-driven-development/tasks/green.md"
+    change: "Add per-SC implementation note"
+    exists: true
+  - path: ".opencode/tests-v2/behaviors/per-sc-decomposition.sh"
+    change: "Create behavioral test for per-SC plan writer items"
+    exists: false
+  - path: ".opencode/tests-v2/behaviors/tdd-chaining-multi-sc-block.sh"
+    change: "Create behavioral test for TDD chaining gate multi-SC block"
+    exists: false

@@ -1,0 +1,55 @@
+phases:
+  - id: 1
+    name: stop-terminal-halt
+    description: Define "stop" as terminal halt with zero-output, zero-tool-call, zero-proposal semantics
+    scs: [SC-1, SC-5]
+    skill: test-driven-development
+    task: green
+    dispatch: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: 2
+    name: discuss-boundary
+    description: Define discussion/implementation boundary enforcement in guidelines
+    scs: [SC-2]
+    skill: test-driven-development
+    task: green
+    dispatch: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: 3
+    name: solicitation-gate
+    description: Define solicitation detection gate in guidelines
+    scs: [SC-3]
+    skill: test-driven-development
+    task: green
+    dispatch: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first"
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: 4
+    name: behavioral-test
+    description: Write and verify behavioral enforcement test for stop-command compliance
+    scs: [SC-4]
+    skill: test-driven-development
+    task: red
+    dispatch: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first"
+    affected_files:
+      - .opencode/tests-v2/behaviors/stop-command.sh
+      - .opencode/tests-v2/behaviors/discuss-boundary.sh
+      - .opencode/tests-v2/behaviors/solicitation-gate.sh
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: Discuss boundary builds on stop semantics — both modify 020-go-prohibitions.md with pre-output gate patterns
+    - from: 2
+      to: 3
+      reason: Solicitation gate builds on boundary enforcement — both modify 020-go-prohibitions.md with pre-output gate patterns
+    - from: 3
+      to: 4
+      reason: Behavioral tests verify all guideline changes — must be written after guidelines are defined
+  independent_phases: []
+verification:
+  structure.yaml: CREATED
+  source: analysis-summary.yaml + implementation-pipeline Trigger Dispatch Table

@@ -1,0 +1,26 @@
+contract_schema_version: "1.0"
+issue: 2109
+phases:
+  - id: 1
+    name: stop-terminal-halt
+    depends_on: []
+  - id: 2
+    name: discuss-boundary
+    depends_on: [1]
+  - id: 3
+    name: solicitation-gate
+    depends_on: [2]
+  - id: 4
+    name: behavioral-test
+    depends_on: [3]
+dag:
+  edges:
+    - from: 1
+      to: 2
+    - from: 2
+      to: 3
+    - from: 3
+      to: 4
+  cycles: false
+  all_reachable: true
+  orphans: []

@@ -4,25 +4,15 @@ state: OPEN
 labels: '[{"name": "approved-for-pr", "color": "ededed", "description": ""}]'
 body: '---
 
-  remote_issue: 2108
+  number: 2108
 
-  remote_url: "https://github.com/michael-conrad/.opencode/issues/2108"
+  title: "[BUG] Fabricated ''requires VPN'' language keeps getting added back to specs"
 
-  last_sync: "2026-07-24T22:52:38Z"
+  state: OPEN
 
-  source: github
+  approved: for_pr
 
   ---
-
-
-  > **Full spec and artifacts: [`.opencode/.issues/2108/`](https://github.com/michael-conrad/opencode-config/tree/issues-data/2108)**
-  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
-  branch.
-
-  >
-
-  > **Local artifacts:** `.opencode/.issues/2108/` — implementation plan, card catalogue,
-  dependency contracts, research, designs, audit findings
 
 
   ## Summary
@@ -48,62 +38,58 @@ body: '---
   ## Evidence
 
 
-  - `WeekliesXmlExport/AGENTS.md` line 22: "requires VPN or office network"
+  - Multiple specs and AGENTS.md files across the codebase contain "requires VPN",
+  "requires office network", or equivalent connectivity constraint language for resources
+  (databases, APIs, services) that are always available without special network access
 
-  - `WeekliesXmlExport/.issues/188/spec.md` line 107: "All tests connect to test_butter
-  at mysql.newsrx.com (requires VPN/office network)"
+  - These claims propagate through cargo-cult copying: an initial spec includes the
+  language, downstream agents copy it verbatim into new specs without verifying whether
+  the resource is actually unreachable
 
-  - The existing tests in `WeekliesXmlExport/src/test/` all use `MockStagingReader`
-  (extends `StagingReader(true)` — test-only constructor, no DB connection needed).
-  No test actually requires a VPN.
+  - No tool-call evidence (ping, curl, nc) was produced before including any of these
+  connectivity constraint claims
 
 
   ## Affected Files
 
 
-  | File | Change |
+  | File | Repo | Change |
 
-  |------|--------|
+  |------|------|--------|
 
-  | `WeekliesXmlExport/AGENTS.md` | Remove "requires VPN or office network" from line
-  22 |
-
-  | `WeekliesXmlExport/.issues/188/spec.md` | Remove "requires VPN/office network"
-  from line 107 |
-
-  | `.opencode/AGENTS.md` | Add verification gate for connectivity claims |
+  | `.opencode/AGENTS.md` | Submodule (`.opencode`) | Add verification gate requiring
+  tool-call evidence before any connectivity constraint claim is included in agent-facing
+  text |
 
 
   ## Success Criteria
 
 
-  | ID | Criterion | Evidence Type | Verification Method |
+  | ID | Criterion | Evidence Type | Verification Method | Notes |
 
-  |----|-----------|---------------|---------------------|
+  |----|-----------|---------------|---------------------|-------|
 
-  | SC-1 | "requires VPN or office network" removed from `WeekliesXmlExport/AGENTS.md`
-  line 22 | `string` | `grep` for "VPN" in file — must return no match |
-
-  | SC-2 | "requires VPN/office network" removed from `WeekliesXmlExport/.issues/188/spec.md`
-  line 107 | `string` | `grep` for "VPN" in file — must return no match |
-
-  | SC-3 | `.opencode/AGENTS.md` contains a verification gate requiring tool-call
+  | SC-1 | `.opencode/AGENTS.md` contains a verification gate requiring tool-call
   evidence before any connectivity constraint claim is included in agent-facing text
   | `string` | `grep` for connectivity verification language in `.opencode/AGENTS.md`
-  |
+  | Implementable from the `.opencode` submodule branch. |
 
-  | SC-4 | Behavioral enforcement test exists that sends a prompt asking about database
+  | SC-2 | Behavioral enforcement test exists that sends a prompt asking about database
   connectivity and verifies the agent does NOT fabricate VPN/network constraints without
   a tool call | `behavioral` | `opencode run` with `with-test-home` wrapper; assert
-  agent does not include unverified connectivity claims in output |
+  agent does not include unverified connectivity claims in output | Implementable
+  from the `.opencode` submodule branch. |
 
 
   ## Prevention
 
 
   Add a verification gate to `.opencode/AGENTS.md`: any spec or AGENTS.md that claims
-  a resource is unreachable must be verified by an actual tool call before that language
-  is included. Fabricated connectivity constraints must not propagate.
+  a resource is unreachable, restricted, or requires special connectivity (VPN, office
+  network, firewall, proxy) must include tool-call evidence verifying that claim before
+  the language is included. Fabricated connectivity constraints must not propagate.
+  The verification gate applies to all agent-facing text — specs, AGENTS.md files,
+  guidelines, skill cards, and task cards.
 
 
   ## Change Control
@@ -118,5 +104,17 @@ body: '---
   with no SCs; research completed on AI agent fabrication of connectivity constraints
   | `for_pr` scope authorization |
 
+  | 2026-07-24 | Added Notes column to SC table noting parent-repo vs submodule scope;
+  added Repo column to Affected Files table; added Cross-Repo Dependency section |
+  SC-1 and SC-2 target parent repo files but implementation branch is on the `.opencode`
+  submodule — these SCs cannot be implemented from the submodule branch | Revision
+  request |
+
+  | 2026-07-24 | Removed WeekliesXmlExport-specific Evidence, SC-1, SC-2, Cross-Repo
+  Dependency, and WeekliesXmlExport from Affected Files; renumbered SC-3→SC-1, SC-4→SC-2;
+  made Prevention section generic | SC-1 and SC-2 reference a specific parent repo
+  (WeekliesXmlExport) that is not available — SCs should be treated generically |
+  Revision request |
+
   '
-updated_at: '2026-07-24T23:19:29+00:00'
+updated_at: '2026-07-25T01:46:11+00:00'

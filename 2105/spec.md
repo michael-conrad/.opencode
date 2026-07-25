@@ -78,9 +78,19 @@ Three gaps:
 
 This spec does NOT remove `github_merge_pull_request` from the MCP tool surface. The tool remains available. Enforcement is through skill task gates and behavioral testing, not tool removal.
 
-### CONS-2: Both repos must be updated
+### CONS-2: All changes are in the `.opencode` submodule — no parent-repo changes needed
 
-The `.opencode` submodule contains the skill files. The `opencode-config` parent repo contains the behavioral test. Both must be updated.
+All 5 SCs are implementable from the `.opencode` submodule branch:
+
+| SC | File(s) | Repo |
+|----|---------|------|
+| SC-1 | `skills/git-workflow-pr/tasks/pr-creation.md` | `.opencode` submodule |
+| SC-2 | `skills/git-workflow-pr/tasks/completion.md` | `.opencode` submodule |
+| SC-3 | `skills/approval-gate-scope/tasks/verify-authorization.md` | `.opencode` submodule |
+| SC-4 | `tests-v2/behaviors/` (behavioral test) | `.opencode` submodule |
+| SC-5 | `guidelines/000-critical-rules.md` | `.opencode` submodule |
+
+No parent-repo (`opencode-config`) changes are needed for this issue.
 
 ## Risks
 
@@ -97,4 +107,10 @@ The `.opencode` submodule contains the skill files. The `opencode-config` parent
 ### DEP-1: No external dependencies
 
 This spec is self-contained.
+
+## Change Control
+
+| Date | Change | Reason | Author |
+|------|--------|--------|--------|
+| 2026-07-24 | Clarified CONS-2: all 5 SCs are in `.opencode` submodule; no parent-repo changes needed. Added per-SC repo mapping table. | CONS-2 was ambiguous about which SCs are in which repo. All SCs (skill task files, behavioral test, critical rules cross-reference) are in the `.opencode` submodule. | Agent (spec-creation revise) |
 

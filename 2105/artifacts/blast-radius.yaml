@@ -1,0 +1,18 @@
+spec: 2105
+affected_files:
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    status: EXISTS
+    scs: [SC-1]
+  - path: .opencode/skills/git-workflow-pr/tasks/completion.md
+    status: EXISTS
+    scs: [SC-2]
+  - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization.md
+    status: EXISTS
+    scs: [SC-3]
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: EXISTS
+    scs: [SC-5]
+behavioral_test:
+  path: .opencode/tests-v2/behaviors/
+  status: DIRECTORY_EXISTS
+  scs: [SC-4]

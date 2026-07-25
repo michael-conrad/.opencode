@@ -1,0 +1,84 @@
+phases:
+  - number: 1
+    name: "Spec Writer Changes"
+    scs:
+      - "SC-1"
+      - "SC-2"
+    concern: "spec-writer"
+    skill: "implementation-pipeline"
+    task: "assemble-work"
+    dispatch: "orchestrator"
+    context:
+      - "spec-creation/tasks/create.md: replace three-tier per-file phase structure with per-SC item list in Step 5"
+      - "spec-creation/tasks/create.md: change plan_phase to plan_item in sc-summary.yaml template Step 1.1"
+  - number: 2
+    name: "Documentation Standards"
+    scs:
+      - "SC-3"
+      - "SC-4"
+      - "SC-5"
+      - "SC-6"
+    concern: "documentation-standards"
+    skill: "implementation-pipeline"
+    task: "assemble-work"
+    dispatch: "orchestrator"
+    context:
+      - "AGENTS.md: add Per-SC Decomposition section"
+      - "091-incremental-build.md: clarify item = one SC per item"
+      - "test-driven-development/tasks/red.md: add per-SC targeting note"
+      - "test-driven-development/tasks/green.md: add per-SC implementation note"
+  - number: 3
+    name: "Plan Writer Changes"
+    scs:
+      - "SC-7"
+      - "SC-8"
+      - "SC-9"
+    concern: "plan-writer"
+    skill: "implementation-pipeline"
+    task: "assemble-work"
+    dispatch: "orchestrator"
+    context:
+      - "writing-plans/tasks/structure.md: change Step 5 from code-path-to-item to SC-to-item"
+      - "writing-plans/tasks/create.md: change Tier 3 to per-SC with SC-ID binding"
+      - "writing-plans/tasks/create.md: add validation rule 16"
+  - number: 4
+    name: "Pipeline Changes"
+    scs:
+      - "SC-10"
+      - "SC-11"
+    concern: "pipeline"
+    skill: "implementation-pipeline"
+    task: "assemble-work"
+    dispatch: "orchestrator"
+    context:
+      - "implementation-pipeline/tasks/pipeline-executor.md: add per-SC checkpoint verification"
+      - "implementation-pipeline/tasks/tdd-chaining-gate.md: add SC-level check, BLOCK with MULTI_SC_ITEM"
+  - number: 5
+    name: "Behavioral Tests"
+    scs:
+      - "SC-12"
+      - "SC-13"
+    concern: "behavioral-tests"
+    skill: "implementation-pipeline"
+    task: "assemble-work"
+    dispatch: "orchestrator"
+    context:
+      - "tests-v2/behaviors/per-sc-decomposition.sh: create behavioral test"
+      - "tests-v2/behaviors/tdd-chaining-multi-sc-block.sh: create behavioral test"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Documentation standards reference the per-SC decomposition concept established in Phase 1"
+    - from: 1
+      to: 3
+      reason: "Plan writer reads sc-summary.yaml output from spec-creation (Phase 1 changes)"
+    - from: 2
+      to: 3
+      reason: "Plan writer references the per-SC item definition documented in Phase 2"
+    - from: 3
+      to: 4
+      reason: "Pipeline executor reads plan.md with per-SC items produced by Phase 3"
+    - from: 4
+      to: 5
+      reason: "Behavioral tests verify the pipeline behavior changed in Phase 4"

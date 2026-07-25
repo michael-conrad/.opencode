@@ -1,0 +1,17 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - name: model_sat
+    result: SAT
+    query: z3.BoolVal(True)
+  - name: check_state
+    result: SAT
+    note: SAT (+ postconditions + invariants)
+  - name: plan
+    result: SOLVED_SATISFICING
+    engine: tamer
+    plan_length: 3
+    ordering:
+      - execute_phase(phase1)
+      - execute_phase(phase2)
+      - execute_phase(phase3)

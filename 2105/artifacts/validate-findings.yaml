@@ -1,0 +1,58 @@
+spec: 2105
+overall_status: PASS
+categories:
+  - id: C1
+    name: Structural validation
+    status: PASS
+    checks:
+      - name: phase_table_exists
+        status: PASS
+      - name: procedure_sections_exist
+        status: PASS
+      - name: exit_criteria_section_exists
+        status: PASS
+  - id: C2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - name: all_skill_task_refs_valid
+        status: PASS
+      - name: invalid_refs
+        status: PASS
+        count: 0
+  - id: C3
+    name: SC coverage
+    status: PASS
+    checks:
+      - name: all_scs_covered
+        status: PASS
+        covered: [SC-1, SC-2, SC-3, SC-4, SC-5]
+        uncovered: []
+  - id: C4
+    name: Concern separation
+    status: PASS
+    checks:
+      - name: one_concern_per_phase
+        status: PASS
+      - name: no_shared_concerns
+        status: PASS
+  - id: C5
+    name: DAG validation
+    status: PASS
+    checks:
+      - name: no_cycles
+        status: PASS
+      - name: all_phases_reachable
+        status: PASS
+      - name: no_orphan_phases
+        status: PASS
+  - id: C6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - name: no_placeholders
+        status: PASS
+      - name: checkbox_format
+        status: PASS
+      - name: dispatch_mode_consistency
+        status: PASS

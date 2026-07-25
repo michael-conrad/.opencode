@@ -1,15 +1,20 @@
 spec_path: .opencode/.issues/2109/spec.md
 approval_status: approved (for_pr)
-sc_count: 0
-sc_found: false
-blocker: NO_SUCCESS_CRITERIA
-blocker_detail: Spec has no formal success criteria table. "Proposed Fixes" is a numbered list (1-4), not an SC table with ID/Criterion/Evidence Type/Verification Method columns.
+sc_count: 5
+sc_found: true
+sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
 artifact_presence:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
-scope_boundary_findings: []
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - All 5 SCs map to 4 phases as defined in spec Phases table
+  - SC-1 and SC-5 share Phase 1 (stop-terminal-halt concern)
+  - SC-2 maps to Phase 2 (discuss-boundary concern)
+  - SC-3 maps to Phase 3 (solicitation-gate concern)
+  - SC-4 maps to Phase 4 (behavioral-test concern)
+  - Affected files: .opencode/guidelines/000-critical-rules.md, .opencode/guidelines/020-go-prohibitions.md, .opencode/tests-v2/behaviors/

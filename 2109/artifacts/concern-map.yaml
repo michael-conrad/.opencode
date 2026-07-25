@@ -1,0 +1,33 @@
+concerns:
+  - id: stop-terminal-halt
+    description: Define "stop" as terminal halt with zero-output, zero-tool-call, zero-proposal semantics
+    scs: [SC-1, SC-5]
+    phase: 1
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: discuss-boundary
+    description: Define discussion/implementation boundary enforcement in guidelines
+    scs: [SC-2]
+    phase: 2
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: solicitation-gate
+    description: Define solicitation detection gate in guidelines
+    scs: [SC-3]
+    phase: 3
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: behavioral-test
+    description: Write and verify behavioral enforcement test for stop-command compliance
+    scs: [SC-4]
+    phase: 4
+    affected_files:
+      - .opencode/tests-v2/behaviors/stop-command.sh
+      - .opencode/tests-v2/behaviors/helpers.sh
+      - .opencode/tests-v2/behaviors/discuss-boundary.sh
+      - .opencode/tests-v2/behaviors/solicitation-gate.sh
+      - .opencode/tests-v2/AGENTS.md
+verification:
+  concern-map.yaml: BACKFILLED
+  source: spec.md lines 60-67 (Phases table)

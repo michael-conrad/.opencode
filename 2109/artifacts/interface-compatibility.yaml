@@ -1,0 +1,20 @@
+interfaces:
+  - module: .opencode/guidelines/000-critical-rules.md
+    type: Tier 1 critical rules
+    compatibility:
+      - New "stop" terminal halt section must follow existing Tier 1 format (CRITICAL VIOLATION header, HALT instruction)
+      - Must not conflict with existing critical-rules-006 (question-as-authorization) or critical-rules-027 (confirmation ≠ authorization)
+  - module: .opencode/guidelines/020-go-prohibitions.md
+    type: GO prohibitions
+    compatibility:
+      - New "stop" section must integrate with existing §1 (What GO Is Not)
+      - New "discuss" boundary must integrate with existing solicitation prohibitions
+      - New solicitation detection gate must integrate with existing "NEVER prompt or solicitation" rules
+  - module: .opencode/tests-v2/behaviors/
+    type: Behavioral test infrastructure
+    compatibility:
+      - New test files must follow existing behavioral test patterns (helpers.sh, assert_semantic, with-test-home)
+      - Must use existing assertion helpers (assert_tool_calls_made, assert_forbidden_pattern_absent, etc.)
+verification:
+  interface-compatibility.yaml: BACKFILLED
+  source: spec.md lines 89-95 (Dependencies)

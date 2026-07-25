@@ -1,0 +1,17 @@
+affected_files:
+  - path: WeekliesXmlExport/AGENTS.md
+    change: Remove "requires VPN or office network" from line 22
+    scs: [SC-1]
+    exists: true
+  - path: WeekliesXmlExport/.issues/188/spec.md
+    change: Remove "requires VPN/office network" from line 107
+    scs: [SC-2]
+    exists: true
+  - path: .opencode/AGENTS.md
+    change: Add verification gate for connectivity claims requiring tool-call evidence
+    scs: [SC-3]
+    exists: true
+  - path: .opencode/tests-v2/behaviors/connectivity-verification.sh
+    change: New behavioral enforcement test for SC-4
+    scs: [SC-4]
+    exists: false

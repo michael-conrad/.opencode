@@ -1,0 +1,16 @@
+concerns:
+  - id: C1
+    name: Remove fabricated VPN language from WeekliesXmlExport
+    scs: [SC-1, SC-2]
+    phase: 1
+    description: Strip the "requires VPN" boilerplate from two files in the WeekliesXmlExport directory
+  - id: C2
+    name: Add connectivity verification gate to .opencode/AGENTS.md
+    scs: [SC-3]
+    phase: 2
+    description: Add a verification gate requiring tool-call evidence before any connectivity constraint claim is included in agent-facing text
+  - id: C3
+    name: Behavioral enforcement test for connectivity verification
+    scs: [SC-4]
+    phase: 3
+    description: Create a behavioral enforcement test that verifies agents do not fabricate VPN/network constraints without a tool call

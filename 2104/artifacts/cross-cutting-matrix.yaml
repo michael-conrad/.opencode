@@ -1,0 +1,22 @@
+cross_cutting:
+  - scs:
+      - "SC-1"
+      - "SC-7"
+      - "SC-8"
+    concern: "Decomposition granularity change from per-file to per-SC"
+    description: "SC-1 (spec-creation decompose.md), SC-7 (writing-plans structure.md), and SC-8 (writing-plans create.md) all change the decomposition granularity from per-file/per-concern to per-SC. These must be consistent in their definition of what a per-SC item looks like."
+  - scs:
+      - "SC-3"
+      - "SC-4"
+    concern: "Documentation of per-SC standard"
+    description: "SC-3 (AGENTS.md) and SC-4 (091-incremental-build.md) both document the per-SC decomposition standard. They must reference each other and use consistent terminology."
+  - scs:
+      - "SC-10"
+      - "SC-11"
+    concern: "Pipeline SC-level enforcement"
+    description: "SC-10 (pipeline-executor.md) adds per-SC checkpoint verification, and SC-11 (tdd-chaining-gate.md) adds SC-level BLOCK. These are complementary enforcement mechanisms in the same pipeline."
+  - scs:
+      - "SC-12"
+      - "SC-13"
+    concern: "Behavioral test coverage"
+    description: "Both behavioral tests verify the per-SC decomposition behavior. SC-12 tests the plan writer output, SC-13 tests the pipeline gate enforcement."

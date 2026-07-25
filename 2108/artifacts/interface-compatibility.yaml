@@ -1,0 +1,21 @@
+interfaces:
+  - module: WeekliesXmlExport/AGENTS.md
+    type: agent_guidance
+    changes: Remove line 22
+    compatibility: no_interface_change
+    note: Simple line removal, no interface impact
+  - module: WeekliesXmlExport/.issues/188/spec.md
+    type: spec_document
+    changes: Remove line 107
+    compatibility: no_interface_change
+    note: Simple line removal, no interface impact
+  - module: .opencode/AGENTS.md
+    type: agent_guidance
+    changes: Add verification gate section
+    compatibility: additive_only
+    note: New section added, no existing interfaces modified
+  - module: .opencode/tests-v2/behaviors/
+    type: test_suite
+    changes: New behavioral test file
+    compatibility: additive_only
+    note: New test file, no existing tests modified

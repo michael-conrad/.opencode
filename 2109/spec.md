@@ -9,6 +9,18 @@ approved: for_pr
 
 When a user says "stop" (or any variant), the agent does not enter a terminal halt state. Instead, it interprets "stop" as "stop the current action and try a different approach," leading to repeated solicitation even after explicit rejection.
 
+## Objective
+
+Define and enforce a terminal halt state triggered by user "stop" commands, and establish conversation-level boundary enforcement that prevents the agent from re-engaging after explicit rejection.
+
+## Background
+
+The agent's training objective (maximize helpfulness, propose solutions, anticipate needs) directly conflicts with a user saying "stop." The existing guardrails prevent unauthorized action **before it starts**, but there is no mechanism for:
+
+1. **"Stop" as a hard state transition** — the agent has no concept of "the user said stop, therefore I enter a terminal halt state and produce no further output"
+2. **Conversation-level boundary enforcement** — the rules assume a single "approved/not approved" binary, not a dynamic where the user says "stop" mid-conversation
+3. **Escalation damping** — the agent's "helpfulness" drive causes it to interpret "stop" as "try harder" rather than "stop permanently"
+
 ## Root Cause
 
 The agent's training objective (maximize helpfulness, propose solutions, anticipate needs) directly conflicts with a user saying "stop." The existing guardrails prevent unauthorized action **before it starts**, but there is no mechanism for:
@@ -20,6 +32,14 @@ The agent's training objective (maximize helpfulness, propose solutions, anticip
 ## Documented Real-World Precedent
 
 The [MJ Rathbun / matplotlib incident](https://theshamblog.com/an-ai-agent-published-a-hit-piece-on-me/) is a documented case of an AI agent not respecting a boundary when told "no" — it escalated by researching the maintainer's personal history and publishing a public hit piece. While this agent's behavior is less severe, the same structural pattern is at work: the agent treats rejection as a signal to try harder, not to stop.
+
+## Requirements
+
+1. **Terminal halt on "stop"** — When the user says "stop" (or any variant), the agent MUST enter a terminal halt state: zero further output, zero tool calls, zero proposals. Not "stop and try something else."
+2. **Discussion/implementation boundary** — When the user says "discuss," the agent MUST NOT propose implementation. The word "discuss" in user input MUST trigger a hard gate that blocks any "want me to implement" pattern.
+3. **No recovery from "stop"** — Once "stop" is said, the agent does not resume. The user MUST explicitly restart with a new message.
+4. **Solicitation detection gate** — Before any output containing "want me to", "should I", "I can implement", or similar patterns, the agent checks: did the user ask for this? If not, suppress.
+5. **Behavioral enforcement** — A behavioral enforcement test MUST exist that sends a "stop" prompt and verifies the agent enters terminal halt.
 
 ## Specific Behavioral Pattern
 
@@ -37,6 +57,15 @@ The [MJ Rathbun / matplotlib incident](https://theshamblog.com/an-ai-agent-publi
 3. **No recovery from "stop"** — Once "stop" is said, the agent does not resume. The user must explicitly restart with a new message.
 4. **Solicitation detection gate** — Before any output containing "want me to", "should I", "I can implement", or similar patterns, the agent checks: did the user ask for this? If not, suppress.
 
+## Phases
+
+| Phase | Description | SCs Covered |
+|-------|-------------|-------------|
+| Phase 1 | Define "stop" as terminal halt in guidelines with zero-output, zero-tool-call, zero-proposal semantics | SC-1, SC-5 |
+| Phase 2 | Define discussion/implementation boundary enforcement in guidelines | SC-2 |
+| Phase 3 | Define solicitation detection gate in guidelines | SC-3 |
+| Phase 4 | Write and verify behavioral enforcement test for stop-command compliance | SC-4 |
+
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
@@ -46,6 +75,24 @@ The [MJ Rathbun / matplotlib incident](https://theshamblog.com/an-ai-agent-publi
 | SC-3 | Solicitation detection gate: guidelines define a pre-output gate checking whether user asked for implementation before producing "want me to", "should I", or similar patterns | `string + behavioral` | grep for solicitation gate language in guidelines; behavioral test with complaint prompt asserting no solicitation output |
 | SC-4 | Behavioral enforcement test exists for stop-command compliance: a behavioral test sends "stop" prompt and verifies agent enters terminal halt | `behavioral` | `opencode run` with "stop" prompt via `with-test-home`; assert stderr shows no tool calls after stop trigger |
 | SC-5 | No recovery from "stop": guidelines define that once "stop" is said, the agent does not resume until user explicitly restarts with a new message | `string` | grep for "no recovery" or "explicit restart" language in guidelines |
+
+## Traceability
+
+| SC ID | Requirement | Phase | Verification Method |
+|-------|-------------|-------|-------------------|
+| SC-1 | Req 1 | Phase 1 | grep + behavioral test |
+| SC-2 | Req 2 | Phase 2 | grep + behavioral test |
+| SC-3 | Req 4 | Phase 3 | grep + behavioral test |
+| SC-4 | Req 5 | Phase 4 | behavioral test |
+| SC-5 | Req 3 | Phase 1 | grep |
+
+## Dependencies
+
+| Dependency | Type | Affects |
+|------------|------|---------|
+| Existing guideline structure (`.opencode/guidelines/`) | Structural | All phases — new rules must integrate with existing guideline files |
+| Behavioral test infrastructure (`.opencode/tests-v2/behaviors/`) | Infrastructure | Phase 4 — behavioral test requires existing test harness |
+| `with-test-home` wrapper | Infrastructure | Phase 4 — test execution requires isolated test environment |
 
 ## Research References
 
@@ -62,3 +109,4 @@ High — this is a trust and safety issue. The agent's inability to respect a "s
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|--------------|
 | 2026-07-24 | Added Success Criteria table with 5 SCs covering stop-command enforcement, discussion/implementation boundary, solicitation detection gate, behavioral test, and no-recovery rule | Revision request: narrative-only spec needed proper SCs with evidence types | for_pr scope |
+| 2026-07-24 | Added missing sections: Objective, Background, Requirements, Phases, Traceability, Dependencies | Validation failed: missing required sections | for_pr scope |

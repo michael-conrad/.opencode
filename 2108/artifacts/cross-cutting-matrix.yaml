@@ -1,0 +1,13 @@
+cross_cutting:
+  - concern_ids: [C1, C2]
+    shared_scs: []
+    relationship: independent
+    note: C1 (remove VPN language) and C2 (add verification gate) are independent — C1 is cleanup, C2 is prevention
+  - concern_ids: [C2, C3]
+    shared_scs: []
+    relationship: dependent
+    note: C3 (behavioral test) depends on C2 (verification gate) — the test verifies the gate works
+  - concern_ids: [C1, C3]
+    shared_scs: []
+    relationship: independent
+    note: C1 cleanup and C3 behavioral test are independent

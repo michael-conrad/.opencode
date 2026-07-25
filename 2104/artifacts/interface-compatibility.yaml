@@ -1,0 +1,31 @@
+interfaces:
+  - from: "spec-creation/tasks/create.md"
+    to: "writing-plans/tasks/structure.md"
+    contract: "sc-summary.yaml plan_phase -> plan_item field rename"
+    compatible: true
+    notes: "Structure.md reads sc-summary.yaml. Field rename from plan_phase to plan_item requires coordinated update."
+  - from: "writing-plans/tasks/structure.md"
+    to: "writing-plans/tasks/create.md"
+    contract: "structure.yaml phase list with SC assignments -> plan body"
+    compatible: true
+    notes: "Structure artifact feeds into create.md. Per-SC items in structure.yaml must match SC-ID binding in create.md."
+  - from: "writing-plans/tasks/create.md"
+    to: "implementation-pipeline/tasks/pipeline-executor.md"
+    contract: "plan.md with per-SC items -> per-SC checkpoint execution"
+    compatible: true
+    notes: "Pipeline executor reads plan.md. Per-SC items in plan must match checkpoint SC-IDs."
+  - from: "implementation-pipeline/tasks/pipeline-executor.md"
+    to: "implementation-pipeline/tasks/tdd-chaining-gate.md"
+    contract: "Item SC-ID count -> BLOCK/MULTI_SC_ITEM"
+    compatible: true
+    notes: "TDD chaining gate validates item SC count. Pipeline executor must produce items with exactly one SC-ID."
+  - from: "guidelines/091-incremental-build.md"
+    to: "test-driven-development/tasks/red.md"
+    contract: "Item = one SC definition -> per-SC targeting"
+    compatible: true
+    notes: "Red.md references the item definition from 091-incremental-build.md."
+  - from: "guidelines/091-incremental-build.md"
+    to: "test-driven-development/tasks/green.md"
+    contract: "Item = one SC definition -> per-SC implementation"
+    compatible: true
+    notes: "Green.md references the item definition from 091-incremental-build.md."

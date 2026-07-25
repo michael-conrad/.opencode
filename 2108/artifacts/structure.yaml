@@ -1,0 +1,34 @@
+phases:
+  - id: 1
+    name: Remove fabricated VPN language from WeekliesXmlExport
+    scs: [SC-1, SC-2]
+    concern: C1
+    description: Strip "requires VPN" boilerplate from WeekliesXmlExport/AGENTS.md and WeekliesXmlExport/.issues/188/spec.md
+    skill_task: green-phase
+    dispatch: test-driven-development --task green
+    dispatch_indicator: "(**sub-agent**)"
+    depends_on: []
+  - id: 2
+    name: Add connectivity verification gate to .opencode/AGENTS.md
+    scs: [SC-3]
+    concern: C2
+    description: Add a verification gate requiring tool-call evidence before any connectivity constraint claim is included in agent-facing text
+    skill_task: green-phase
+    dispatch: test-driven-development --task green
+    dispatch_indicator: "(**sub-agent**)"
+    depends_on: []
+  - id: 3
+    name: Behavioral enforcement test for connectivity verification
+    scs: [SC-4]
+    concern: C3
+    description: Create a behavioral enforcement test that verifies agents do not fabricate VPN/network constraints without a tool call
+    skill_task: red-phase
+    dispatch: test-driven-development --task red
+    dispatch_indicator: "(**sub-agent**)"
+    depends_on: [2]
+dependency_dag:
+  edges:
+    - from: 2
+      to: 3
+      type: hard_dependency
+      reason: Behavioral test (Phase 3) verifies the gate added in Phase 2 — the test must reference the gate content

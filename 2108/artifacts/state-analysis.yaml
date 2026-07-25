@@ -1,0 +1,16 @@
+state_transitions:
+  - phase: 1
+    concern: C1
+    from_state: WeekliesXmlExport files contain fabricated VPN language
+    to_state: WeekliesXmlExport files have VPN language removed
+    verification: grep for "VPN" in each file returns no match
+  - phase: 2
+    concern: C2
+    from_state: .opencode/AGENTS.md has no connectivity verification gate
+    to_state: .opencode/AGENTS.md has a verification gate requiring tool-call evidence
+    verification: grep for connectivity verification language in .opencode/AGENTS.md
+  - phase: 3
+    concern: C3
+    from_state: No behavioral test for connectivity fabrication exists
+    to_state: Behavioral enforcement test exists and passes
+    verification: bash .opencode/tests-v2/behaviors/connectivity-verification.sh returns 0

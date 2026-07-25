@@ -1,0 +1,66 @@
+code_paths:
+  - sc: "SC-1"
+    phase: 1
+    files:
+      - ".opencode/skills/spec-creation/tasks/create.md"
+    description: "Replace three-tier per-file phase structure with per-SC item enumeration in Step 5"
+  - sc: "SC-2"
+    phase: 1
+    files:
+      - ".opencode/skills/spec-creation/tasks/create.md"
+    description: "Change plan_phase field to plan_item in sc-summary.yaml template Step 1.1"
+  - sc: "SC-3"
+    phase: 2
+    files:
+      - ".opencode/AGENTS.md"
+    description: "Add Per-SC Decomposition section documenting per-SC RED/GREEN/verify/commit standard"
+  - sc: "SC-4"
+    phase: 2
+    files:
+      - ".opencode/guidelines/091-incremental-build.md"
+    description: "Clarify item means one SC per item in Per-Item TDD Cycle table"
+  - sc: "SC-5"
+    phase: 2
+    files:
+      - ".opencode/skills/test-driven-development/tasks/red.md"
+    description: "Add per-SC targeting note in Required RED Structure section"
+  - sc: "SC-6"
+    phase: 2
+    files:
+      - ".opencode/skills/test-driven-development/tasks/green.md"
+    description: "Add per-SC implementation note in Exit Criteria section"
+  - sc: "SC-7"
+    phase: 3
+    files:
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+    description: "Change Step 5 mapping directive from code-path-to-item to SC-to-item"
+  - sc: "SC-8"
+    phase: 3
+    files:
+      - ".opencode/skills/writing-plans/tasks/create.md"
+    description: "Change Tier 3 from per-item (file level) to per-SC with explicit SC-ID binding"
+  - sc: "SC-9"
+    phase: 3
+    files:
+      - ".opencode/skills/writing-plans/tasks/create.md"
+    description: "Add validation rule 16: each item references exactly one SC-ID"
+  - sc: "SC-10"
+    phase: 4
+    files:
+      - ".opencode/skills/implementation-pipeline/tasks/pipeline-executor.md"
+    description: "Add per-SC checkpoint verification after each RED/GREEN cycle with SC-ID in tag"
+  - sc: "SC-11"
+    phase: 4
+    files:
+      - ".opencode/skills/implementation-pipeline/tasks/tdd-chaining-gate.md"
+    description: "Add SC-level check verifying each item covers exactly one SC; BLOCK with MULTI_SC_ITEM"
+  - sc: "SC-12"
+    phase: 5
+    files:
+      - ".opencode/tests-v2/behaviors/per-sc-decomposition.sh"
+    description: "Create behavioral test verifying plan writer produces per-SC items"
+  - sc: "SC-13"
+    phase: 5
+    files:
+      - ".opencode/tests-v2/behaviors/tdd-chaining-multi-sc-block.sh"
+    description: "Create behavioral test verifying TDD chaining gate BLOCKs on multi-SC items"

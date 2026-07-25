@@ -1,0 +1,39 @@
+state_transitions:
+  - phase: 1
+    from_state: "spec-creation produces per-file phases"
+    to_state: "spec-creation produces per-SC items"
+    trigger: "decompose.md Step 5 replacement + create.md plan_phase -> plan_item"
+    scs:
+      - "SC-1"
+      - "SC-2"
+  - phase: 2
+    from_state: "documentation references per-file items"
+    to_state: "documentation references per-SC items"
+    trigger: "AGENTS.md section addition + 091-incremental-build.md clarification + red.md/green.md notes"
+    scs:
+      - "SC-3"
+      - "SC-4"
+      - "SC-5"
+      - "SC-6"
+  - phase: 3
+    from_state: "plan writer produces per-file items"
+    to_state: "plan writer produces per-SC items with SC-ID binding"
+    trigger: "structure.md Step 5 change + create.md Tier 3 change + validation rule 16"
+    scs:
+      - "SC-7"
+      - "SC-8"
+      - "SC-9"
+  - phase: 4
+    from_state: "pipeline checkpoints per step, no SC-level enforcement"
+    to_state: "pipeline checkpoints per SC, TDD gate BLOCKs multi-SC items"
+    trigger: "pipeline-executor.md per-SC checkpoint + tdd-chaining-gate.md SC-level check"
+    scs:
+      - "SC-10"
+      - "SC-11"
+  - phase: 5
+    from_state: "no behavioral tests for per-SC decomposition"
+    to_state: "behavioral tests verify per-SC plan writer output and TDD gate enforcement"
+    trigger: "per-sc-decomposition.sh + tdd-chaining-multi-sc-block.sh test creation"
+    scs:
+      - "SC-12"
+      - "SC-13"

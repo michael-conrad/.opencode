@@ -1,0 +1,27 @@
+spec: 2105
+concerns:
+  - id: C1
+    name: PR-creation merge gate
+    scs: [SC-1]
+    phase: 1
+    description: Add post-creation HALT step to pr-creation.md prohibiting merge
+  - id: C2
+    name: Completion merge gate
+    scs: [SC-2]
+    phase: 2
+    description: Add no-merge gate to completion.md checking for merge API calls
+  - id: C3
+    name: Authorization pre-merge check
+    scs: [SC-3]
+    phase: 3
+    description: Add pre-merge block to verify-authorization.md
+  - id: C4
+    name: Behavioral test
+    scs: [SC-4]
+    phase: 4
+    description: Write behavioral test that verifies agent declines to merge
+  - id: C5
+    name: Critical rules cross-reference
+    scs: [SC-5]
+    phase: 5
+    description: Add cross-reference in 000-critical-rules.md to skill enforcement

@@ -1,0 +1,39 @@
+concerns:
+  - id: spec-writer
+    name: "Spec Writer Changes"
+    scs:
+      - "SC-1: decompose.md replaces three-tier per-file phase structure with per-SC item list"
+      - "SC-2: create.md changes plan_phase to plan_item in sc-summary.yaml"
+    phases:
+      - 1
+  - id: documentation-standards
+    name: "Documentation Standards"
+    scs:
+      - "SC-3: AGENTS.md documents per-SC decomposition standard"
+      - "SC-4: 091-incremental-build.md clarifies item = one SC per item"
+      - "SC-5: red.md adds per-SC targeting note"
+      - "SC-6: green.md adds per-SC implementation note"
+    phases:
+      - 2
+  - id: plan-writer
+    name: "Plan Writer Changes"
+    scs:
+      - "SC-7: structure.md Step 5 changes from code-path-to-item to SC-to-item mapping"
+      - "SC-8: create.md Tier 3 changes to per-SC with SC-ID binding"
+      - "SC-9: create.md adds validation rule 16: each item references exactly one SC-ID"
+    phases:
+      - 3
+  - id: pipeline
+    name: "Pipeline Changes"
+    scs:
+      - "SC-10: pipeline-executor.md adds per-SC checkpoint verification with SC-ID in tag"
+      - "SC-11: tdd-chaining-gate.md adds SC-level check, BLOCKs with MULTI_SC_ITEM"
+    phases:
+      - 4
+  - id: behavioral-tests
+    name: "Behavioral Tests"
+    scs:
+      - "SC-12: per-sc-decomposition.sh behavioral test verifies plan writer produces per-SC items"
+      - "SC-13: tdd-chaining-multi-sc-block.sh behavioral test verifies TDD chaining gate BLOCKs on multi-SC items"
+    phases:
+      - 5

@@ -1,0 +1,57 @@
+domain: per-sc-decomposition
+types:
+  - name: phase
+objects:
+  - name: phase-1
+    type: phase
+  - name: phase-2
+    type: phase
+  - name: phase-3
+    type: phase
+  - name: phase-4
+    type: phase
+  - name: phase-5
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: implement-phase-1
+    params: []
+    preconditions: []
+    effects:
+      - done(phase-1)
+  - name: implement-phase-2
+    params: []
+    preconditions:
+      - done(phase-1)
+    effects:
+      - done(phase-2)
+  - name: implement-phase-3
+    params: []
+    preconditions:
+      - done(phase-1)
+      - done(phase-2)
+    effects:
+      - done(phase-3)
+  - name: implement-phase-4
+    params: []
+    preconditions:
+      - done(phase-3)
+    effects:
+      - done(phase-4)
+  - name: implement-phase-5
+    params: []
+    preconditions:
+      - done(phase-4)
+    effects:
+      - done(phase-5)
+init: []
+goals:
+  - done(phase-1)
+  - done(phase-2)
+  - done(phase-3)
+  - done(phase-4)
+  - done(phase-5)

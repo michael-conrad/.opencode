@@ -1,0 +1,18 @@
+spec: 2105
+interfaces:
+  - module: git-workflow-pr/tasks/pr-creation.md
+    interfaces_with:
+      - git-workflow-pr/tasks/completion.md
+      - approval-gate-scope/tasks/verify-authorization.md
+    compatibility: COMPATIBLE
+    notes: All three task files are independent — no shared state or data flow. Each adds a HALT/block step that does not affect the other files' interfaces.
+  - module: approval-gate-scope/tasks/verify-authorization.md
+    interfaces_with:
+      - git-workflow-pr/tasks/pr-creation.md
+      - git-workflow-pr/tasks/completion.md
+    compatibility: COMPATIBLE
+    notes: verify-authorization is called before PR operations. Adding a merge check there is additive — does not change its output contract.
+  - module: 000-critical-rules.md
+    interfaces_with: []
+    compatibility: COMPATIBLE
+    notes: Guideline file — no interface dependencies with skill task files.

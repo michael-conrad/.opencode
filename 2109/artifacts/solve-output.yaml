@@ -1,0 +1,10 @@
+status: SAT
+solver: manual
+verification:
+  dag_acyclic: true
+  all_phases_reachable: true
+  no_orphans: true
+  dependency_chain: "1 → 2 → 3 → 4"
+  cycles: []
+  unreachable_phases: []
+  orphan_phases: []

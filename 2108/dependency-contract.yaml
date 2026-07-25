@@ -1,0 +1,10 @@
+phases:
+  - id: 1
+    name: Remove fabricated VPN language from WeekliesXmlExport
+    depends_on: []
+  - id: 2
+    name: Add connectivity verification gate to .opencode/AGENTS.md
+    depends_on: []
+  - id: 3
+    name: Behavioral enforcement test for connectivity verification
+    depends_on: [2]

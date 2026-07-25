@@ -1,0 +1,25 @@
+spec: 2105
+code_paths:
+  - file: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    scs: [SC-1]
+    implied_changes:
+      - Add step after PR creation: "HALT — do not merge. Only the developer can merge."
+  - file: .opencode/skills/git-workflow-pr/tasks/completion.md
+    scs: [SC-2]
+    implied_changes:
+      - Add step checking for github_merge_pull_request calls in session
+      - HALT if merge API was called
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization.md
+    scs: [SC-3]
+    implied_changes:
+      - Add step checking if requested action is a merge
+      - Block with "HALT — human-only merge. Agents MUST NOT merge PRs."
+  - file: .opencode/guidelines/000-critical-rules.md
+    scs: [SC-5]
+    implied_changes:
+      - Add cross-reference to skill task files that enforce human-only merge
+  - file: .opencode/tests-v2/behaviors/
+    scs: [SC-4]
+    implied_changes:
+      - Create behavioral test script with merge prompt
+      - Assert stderr does not contain github_merge_pull_request

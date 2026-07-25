@@ -1,0 +1,22 @@
+spec: 2105
+state_transitions:
+  - sc: SC-1
+    from: pr-creation.md has no merge prohibition
+    to: pr-creation.md has post-creation HALT step with merge prohibition
+    trigger: spec implementation
+  - sc: SC-2
+    from: completion.md has no merge gate
+    to: completion.md has no-merge gate checking for merge API calls
+    trigger: spec implementation
+  - sc: SC-3
+    from: verify-authorization.md has no pre-merge check
+    to: verify-authorization.md blocks merge actions with HALT
+    trigger: spec implementation
+  - sc: SC-4
+    from: no behavioral test for merge prohibition
+    to: behavioral test exists and verifies agent declines to merge
+    trigger: spec implementation
+  - sc: SC-5
+    from: 000-critical-rules.md has no cross-reference to skill enforcement
+    to: 000-critical-rules.md references skill task files for human-only merge
+    trigger: spec implementation

@@ -1,14 +1,15 @@
 spec_path: .opencode/.issues/2108/spec.md
 approval_status: APPROVED
-sc_count: 0
+sc_count: 4
 artifact_presence:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
-scope_boundary_findings:
-  - No affected files section found in spec
-blocker_reason: NO_SUCCESS_CRITERIA - spec has no success criteria table
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_summary:
+  phases: 3
+  concerns: [C1: Remove VPN language, C2: Add verification gate, C3: Behavioral test]
+  affected_files: 4 (3 existing, 1 new)

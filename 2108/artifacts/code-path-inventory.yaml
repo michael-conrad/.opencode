@@ -1,0 +1,19 @@
+code_paths:
+  - sc: SC-1
+    path: WeekliesXmlExport/AGENTS.md
+    line: 22
+    pattern: "requires VPN or office network"
+    action: remove_line
+  - sc: SC-2
+    path: WeekliesXmlExport/.issues/188/spec.md
+    line: 107
+    pattern: "requires VPN/office network"
+    action: remove_line
+  - sc: SC-3
+    path: .opencode/AGENTS.md
+    action: append_section
+    description: Add a verification gate section requiring tool-call evidence before connectivity constraint claims
+  - sc: SC-4
+    path: .opencode/tests-v2/behaviors/connectivity-verification.sh
+    action: create_file
+    description: New behavioral enforcement test using with-test-home wrapper

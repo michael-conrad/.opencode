@@ -1,0 +1,47 @@
+domain: vpn-language-removal
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: phase3
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+  - name: depends_on
+    params:
+      - name: p
+        type: phase
+      - name: q
+        type: phase
+actions:
+  - name: execute_phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - not completed(p)
+    effects:
+      - completed(p)
+  - name: execute_phase_with_dependency
+    params:
+      - name: p
+        type: phase
+      - name: q
+        type: phase
+    preconditions:
+      - not completed(p)
+      - completed(q)
+    effects:
+      - completed(p)
+init:
+  - depends_on(phase3, phase2)
+goals:
+  - completed(phase1)
+  - completed(phase2)
+  - completed(phase3)

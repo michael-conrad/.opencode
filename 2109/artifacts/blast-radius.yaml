@@ -1,0 +1,13 @@
+affected_files:
+  - .opencode/guidelines/000-critical-rules.md
+  - .opencode/guidelines/020-go-prohibitions.md
+  - .opencode/tests-v2/behaviors/stop-command.sh
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/behaviors/discuss-boundary.sh
+  - .opencode/tests-v2/behaviors/solicitation-gate.sh
+  - .opencode/tests-v2/AGENTS.md
+  - .opencode/AGENTS.md
+  - .opencode/guidelines/INDEX.md
+verification:
+  blast-radius.yaml: BACKFILLED
+  source: spec.md lines 60-67 (Phases table), lines 69-77 (Success Criteria)

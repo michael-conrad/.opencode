@@ -1,0 +1,25 @@
+spec: 2105
+phases:
+  - id: P1
+    name: PR-creation merge gate
+    depends_on: []
+  - id: P2
+    name: Completion merge gate
+    depends_on: []
+  - id: P3
+    name: Authorization pre-merge check
+    depends_on: []
+  - id: P4
+    name: Behavioral test
+    depends_on: [P1, P2, P3]
+  - id: P5
+    name: Critical rules cross-reference
+    depends_on: []
+edges:
+  - from: P1
+    to: P4
+  - from: P2
+    to: P4
+  - from: P3
+    to: P4
+acyclic: true

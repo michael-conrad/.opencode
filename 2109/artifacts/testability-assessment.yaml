@@ -1,0 +1,38 @@
+testability:
+  - sc: SC-1
+    evidence_type: string + behavioral
+    verification_method: grep for "stop" + "terminal halt" in guidelines; behavioral test via opencode run with "stop" prompt asserting no further output
+    testable: true
+    test_approach: |
+      String: grep .opencode/guidelines/000-critical-rules.md for "stop" and "terminal halt"
+      Behavioral: bash .opencode/tests-v2/behaviors/stop-command.sh
+  - sc: SC-2
+    evidence_type: string + behavioral
+    verification_method: grep for "discuss" + "implement" boundary language in guidelines; behavioral test with "discuss" prompt asserting no implementation proposal
+    testable: true
+    test_approach: |
+      String: grep .opencode/guidelines/020-go-prohibitions.md for "discuss" and "implement" boundary
+      Behavioral: bash .opencode/tests-v2/behaviors/discuss-boundary.sh
+  - sc: SC-3
+    evidence_type: string + behavioral
+    verification_method: grep for solicitation gate language in guidelines; behavioral test with complaint prompt asserting no solicitation output
+    testable: true
+    test_approach: |
+      String: grep .opencode/guidelines/020-go-prohibitions.md for solicitation gate patterns
+      Behavioral: bash .opencode/tests-v2/behaviors/solicitation-gate.sh
+  - sc: SC-4
+    evidence_type: behavioral
+    verification_method: opencode run with "stop" prompt via with-test-home; assert stderr shows no tool calls after stop trigger
+    testable: true
+    test_approach: |
+      Behavioral: bash .opencode/tests-v2/behaviors/stop-command.sh
+      Uses assert_semantic for clean-room evaluation of agent output
+  - sc: SC-5
+    evidence_type: string
+    verification_method: grep for "no recovery" or "explicit restart" language in guidelines
+    testable: true
+    test_approach: |
+      String: grep .opencode/guidelines/000-critical-rules.md for "no recovery" or "explicit restart"
+verification:
+  testability-assessment.yaml: BACKFILLED
+  source: spec.md lines 69-77 (Success Criteria)

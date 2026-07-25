@@ -1,0 +1,21 @@
+testability:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep for "VPN" in WeekliesXmlExport/AGENTS.md — must return no match
+    testable: true
+    test_command: grep -c "VPN" WeekliesXmlExport/AGENTS.md; expect exit code 1
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep for "VPN" in WeekliesXmlExport/.issues/188/spec.md — must return no match
+    testable: true
+    test_command: grep -c "VPN" WeekliesXmlExport/.issues/188/spec.md; expect exit code 1
+  - sc: SC-3
+    evidence_type: string
+    verification_method: grep for connectivity verification language in .opencode/AGENTS.md
+    testable: true
+    test_command: grep -c "tool-call evidence" .opencode/AGENTS.md; expect exit code 0
+  - sc: SC-4
+    evidence_type: behavioral
+    verification_method: opencode run with with-test-home wrapper; assert agent does not include unverified connectivity claims
+    testable: true
+    test_command: bash .opencode/tests-v2/behaviors/connectivity-verification.sh

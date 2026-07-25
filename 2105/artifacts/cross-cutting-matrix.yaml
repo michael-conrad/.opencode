@@ -1,0 +1,14 @@
+spec: 2105
+cross_cutting:
+  - concern_ids: [C1, C2, C3]
+    shared_theme: merge-prohibition enforcement in skill task files
+    scs: [SC-1, SC-2, SC-3]
+    notes: All three skill task changes enforce the same rule (human-only merge) at different workflow stages. They share the same prohibition language and should use consistent wording.
+  - concern_ids: [C4]
+    shared_theme: behavioral verification
+    scs: [SC-4]
+    notes: Standalone — behavioral test is independent of skill task changes but verifies their effectiveness.
+  - concern_ids: [C5]
+    shared_theme: documentation cross-reference
+    scs: [SC-5]
+    notes: Standalone — cross-reference update in guidelines file.

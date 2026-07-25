@@ -1,0 +1,17 @@
+verdict: PASS
+findings: []
+placeholder_findings: []
+sc_coverage_findings: []
+type_name_findings: []
+per_task_cycle_findings: []
+sc_coverage:
+  total_scs: 13
+  covered_scs: 13
+  uncovered_scs: []
+  evidence_type_mismatches: []
+per_task_cycle:
+  total_tasks: 13
+  tasks_with_complete_cycle: 13
+  tasks_with_missing_steps: []
+  tasks_with_combined_steps: []
+  tasks_with_out_of_order_steps: []

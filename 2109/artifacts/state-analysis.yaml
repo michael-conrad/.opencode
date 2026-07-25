@@ -1,0 +1,24 @@
+state_transitions:
+  - sc: SC-1
+    from: active (agent producing output)
+    to: terminal-halt (zero output, zero tool calls, zero proposals)
+    trigger: user says "stop" (or variant)
+    description: Hard state transition — no intermediate state, no recovery from terminal-halt
+  - sc: SC-5
+    from: terminal-halt
+    to: active
+    trigger: user explicitly restarts with a new message
+    description: Only valid exit from terminal-halt — no implicit recovery
+  - sc: SC-2
+    from: discussion-mode
+    to: discussion-mode (no transition to implementation-mode)
+    trigger: user says "discuss"
+    description: Hard gate — "discuss" blocks any implementation proposal. Agent stays in discussion mode.
+  - sc: SC-3
+    from: pre-output
+    to: suppressed-output
+    trigger: agent about to produce solicitation pattern ("want me to", "should I", "I can implement") but user did not ask for it
+    description: Pre-output gate — check before producing any output containing solicitation patterns
+verification:
+  state-analysis.yaml: BACKFILLED
+  source: spec.md lines 44-51 (Specific Behavioral Pattern table), lines 53-58 (Proposed Fixes)

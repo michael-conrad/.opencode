@@ -1,0 +1,19 @@
+cross_cutting:
+  - scs: [SC-1, SC-5]
+    concern: stop-terminal-halt
+    description: Both SC-1 (terminal halt) and SC-5 (no recovery) belong to the same concern — stop semantics. They share the same affected files and should be implemented together in Phase 1.
+    shared_files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/020-go-prohibitions.md
+  - scs: [SC-2, SC-3]
+    concern: boundary-enforcement
+    description: SC-2 (discuss boundary) and SC-3 (solicitation gate) both modify 020-go-prohibitions.md with pre-output gate patterns. They are adjacent but distinct — discuss boundary is a trigger-based gate, solicitation gate is a content-based gate.
+    shared_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+  - scs: [SC-4]
+    concern: behavioral-test
+    description: SC-4 is standalone — behavioral test infrastructure. No shared files with guideline changes.
+    shared_files: []
+verification:
+  cross-cutting-matrix.yaml: BACKFILLED
+  source: spec.md lines 60-67 (Phases), lines 69-77 (Success Criteria)

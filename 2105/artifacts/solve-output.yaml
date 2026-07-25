@@ -1,0 +1,14 @@
+status: SAT
+solver: manual
+dag:
+  nodes: [P1, P2, P3, P4, P5]
+  edges:
+    - from: P1
+      to: P4
+    - from: P2
+      to: P4
+    - from: P3
+      to: P4
+  acyclic: true
+  reachable_from_start: [P1, P2, P3, P4, P5]
+  orphan_phases: []
