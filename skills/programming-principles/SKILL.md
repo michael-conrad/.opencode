@@ -120,3 +120,12 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 
 ```
+
+### [critical-rules-042] Single Concern Principle — every artifact addresses exactly one concern
+Professional engineers ship one concern per artifact — commits, PRs, issues, specs, plans, comments, sub-agents each do exactly one thing. Amateurs mix concerns into monolithic blobs — then wonder why every change breaks something unrelated.
+
+
+### [critical-rules-042] Scope Creep — never do things outside the spec
+Professional engineers implement exactly what the spec defines — nothing more, nothing less. Amateurs add features the spec never asked for — then wonder why reviewers flag every third line as scope creep.
+
+

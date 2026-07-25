@@ -62,3 +62,12 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 ## Cross-References
 
 Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills). Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+
+### [critical-rules-018] Sub-issue Structure Bypass — multi-task plans
+Phases require sub-issue linkage. Read [issue-operations skill](skills/issue-operations/SKILL.md) → `link-sub-issue` task.
+
+
+### [critical-rules-018] Sub-issue Linkage Verification — phase count mismatch
+Read [approval-gate --task verify-authorization](skills/approval-gate/SKILL.md) Step 5.
+
+

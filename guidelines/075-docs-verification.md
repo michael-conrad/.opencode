@@ -158,3 +158,26 @@ This verification is MANDATORY before and during implementation. Read [engineeri
 - `000-critical-rules.md` — Zero tolerance enforcement
 - `080-code-standards.md` — Code quality standards
 - `130-authority-source.md` — Code as authoritative source
+
+### [critical-rules-008] Implementing Without Verifying Against Live Documentation
+Implementing from memory means implementing from training data — always stale, always partially wrong. Professional engineers verify API signatures, env vars, and function parameters against live documentation before writing a single line of code.
+
+#### 🚫 FORBIDDEN
+
+- Implementing code based on memory or training data without live verification
+- Claiming API parameter names, method signatures, or config field names from assumption
+
+#### ✅ REQUIRED
+
+- Verify API signatures against official docs or source before calling
+- Check environment variable names against `.env.example` or config documentation
+- Verify function signatures via `srclight_get_signature` or source code inspection
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Implementing from memory | Uses stale training data, produces incorrect API calls |
+| Claiming signatures without verification | Defects discovered at runtime instead of design time |
+
+

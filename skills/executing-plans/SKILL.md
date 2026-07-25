@@ -122,3 +122,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 Skills: `implementation-pipeline`, `approval-gate`, `git-workflow`.
 
 
+
+### [critical-rules-025] Implementation-First Gate — halting before producing deliverables
+Halting with zero deliverables means you have produced nothing but chat — and chat is not implementation. Professional engineers produce at least one file modification or artifact before any halt-point output. Amateurs talk about what they will do; professionals show what they have done.
+
+

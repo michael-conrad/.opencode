@@ -139,3 +139,12 @@ This guideline complements (does not replace):
 - `000-critical-rules.md` — Zero tolerance violations including "Ignoring Issue Comments"
 - `075-docs-verification.md` — Mandatory live documentation verification
 - `130-authority-source.md` — Code as authoritative source
+
+### [critical-rules-012] Acting on Resources Without Reading All Comments
+Acting on a resource after reading only the body means you are working with partial context. Every unread comment is a defect vector — authorization may live in a comment, not the body. Professional engineers read ALL comments before any action — see `067-context-completeness.md`. Amateurs act on partial context and call assumptions facts.
+
+
+### [critical-rules-012] Ignoring Issue Comments
+Acting on an issue without reading all its comments is the signature move of engineers who produce work that needs to be redone. Every unread comment is a defect waiting to surface. Professional engineers read every comment before touching a single line of code. Read [issue-operations skill](skills/issue-operations/SKILL.md) → `comment` task.
+
+

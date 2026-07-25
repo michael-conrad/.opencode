@@ -67,3 +67,26 @@ analyze → create → validate → (revise → validate)* → done
 ## Cross-References
 
 Skills: `brainstorming` (upstream handoff), `writing-plans` (downstream consumer), `audit` (spec-audit), `approval-gate`. Guidelines: `000-critical-rules.md` (clean-room discipline), `080-code-standards.md` (evidence type taxonomy).
+
+### [critical-rules-042] Skipping Spec/Plan Coherence Gate (Pre-RED)
+Dispatching RED sub-agents without a coherence gate means your implementation plan has never been checked against the codebase. Professional engineers verify coherence before writing a single line of code. Amateurs find out at review time.
+
+
+### [critical-rules-042] Skipping Execution-Time Coherence Detection (RED + GREEN)
+A RED sub-agent that detects a spec/codebase contradiction but proceeds anyway is producing code that cannot work. Professional sub-agents return BLOCKED. Amateurs return broken code that CI will discover later.
+
+
+### [critical-rules-sc-lobotomy] CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, skipping, or blocking success criteria
+
+Removing or weakening a success criterion from a spec to evade implementation is a CRITICAL VIOLATION. An agent MUST NOT:
+- Remove an SC from a spec's SC table to make it "closable"
+- Weaken an SC's evidence type (e.g., `behavioral` to `string`) to make it easier to verify
+- Replace an SC with a weaker version (changing what success means)
+- Mark an SC as "blocked" or "deferred" in the spec body to evade implementation
+- Skip an SC entirely — claiming it is "not applicable", "out of scope for this change", "too complex for this change", "will be handled separately", or any equivalent rationalization
+- Add a `depends-on` or cross-reference solely to push SC verification out of the current spec
+- Claim an SC is "not achievable" and modify the spec rather than implementing it
+
+Required behavior: If an SC is structurally valid and the agent cannot implement it, report BLOCKED with root cause and HALT. The agent must NOT modify the spec, remove the SC, add a new change to "fix" the SC by changing what it tests, or create a dependent spec to offload the SC. The remediation-first protocol applies: attempt to implement before concluding impossibility.
+
+

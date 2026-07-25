@@ -225,3 +225,31 @@ The `github.identity_source` value (emitted by session-init) determines the agen
 - Local git operations (branch, commit, stash) work normally
 - `git push` is FORBIDDEN — there is no remote to push to
 - `git remote add` is FORBIDDEN — the absence of remotes is intentional |
+
+### [critical-rules-016] Leaving stale todowrite state after task completion
+A stale todowrite state means the next agent picks up your abandoned context. Professional engineers complete the full todowrite lifecycle before every halt — amateurs leave their workspace dirty for others to clean.
+
+
+### [critical-rules-030] Skipping Clean-Room task() for Sub-Agents
+Skipping clean-room task() means contaminating sub-agent context with orchestrator bias — every downstream result inherits that contamination. Amateurs shortcut isolation. Professionals dispatch clean.
+
+
+### [critical-rules-031] Skipping Pre-Flight Checks for Sub-Agents
+Dispatching a sub-agent without pre-flight checks means sending a worker into an unprepared workspace. Amateurs assume readiness. Professionals verify it.
+
+
+### [critical-rules-032] Skipping Post-Flight Checks for Sub-Agents
+Accepting sub-agent results without post-flight checks means trusting instead of verifying. Amateurs accept output at face value. Professionals inspect the deliverable.
+
+
+### [critical-rules-linters-advisory] All linters are advisory only — no auto-modify
+
+All linters (current and future) MUST run in read-only/report-only mode. No linter may auto-modify files. A linter that modifies files is not advisory — it is destructive.
+
+| Linter | Forbidden | Required |
+|--------|-----------|----------|
+| `ruff check` | `ruff check --fix` (auto-fixes) | `ruff check` (report only) |
+| `ruff format` | `ruff format` (auto-formats) | `ruff format --check` (report what would change) |
+| `mdformat` | `mdformat` (without `--check`) | `mdformat --check` (report what would change) |
+| Any future linter | Auto-modify mode | Read-only/report-only mode |
+

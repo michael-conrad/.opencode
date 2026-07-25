@@ -125,3 +125,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 Skills: `verification-enforcement`. Guidelines: `000-critical-rules.md` (audience separation).
 
 
+
+### [critical-rules-009] Audience Separation — leaking internal artifacts to stakeholders
+Leaking internal audit findings and raw status into stakeholder communications damages trust. Drafting tools and delivery channels are separate concerns — professional communicators maintain audience separation. Read [correspondence skill](skills/correspondence/SKILL.md) → "Audience Separation Principle".
+
+

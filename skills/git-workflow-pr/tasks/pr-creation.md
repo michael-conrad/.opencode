@@ -100,3 +100,11 @@ After implementation and BEFORE PR creation:
 
 - Related skills: `review-prep`, `conflict-resolution`
 - Related tasks: `pr-creation/enforcement-gate`, `pr-creation/squash-push`, `pr-creation/create-pr`
+### [critical-rules-016] Wrong PR Body Format
+A PR body without Summary/Outcome/Fixes structure buries the intent of your changes under implementation details. Reviewers need context, not code dumps. Professional engineers write PR bodies that tell the story — amateurs dump diffs and expect reviewers to reverse-engineer the intent. Read [git-workflow skill](skills/git-workflow/SKILL.md) → `pr-creation` → PR Body Requirements.
+
+
+### [critical-rules-016] Wrong Compare URL Base Branch
+Using the wrong base branch in a compare URL sends reviewers to the wrong diff — your changes look different against the wrong baseline. Professional engineers verify the base branch before every compare URL — amateurs send reviewers to the wrong diff and waste everyone's time. PR compare URL base: `$DEFAULT_BRANCH` (the trunk).
+
+

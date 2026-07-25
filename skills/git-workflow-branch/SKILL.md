@@ -62,3 +62,38 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 - Read [critical-rules-005](guidelines/000-critical-rules.md) for branch creation rules
 - Read [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
 - Read [§1](guidelines/020-go-prohibitions.md) for `for_analysis` branch restrictions
+
+### [critical-rules-042] Treating Branch Stacking as Optional
+Skipping branch stacking means merging chaos into your commit history. Professional engineers stack branches as prerequisite — amateurs treat stacking as optional and produce unreviewable history.
+
+
+### [critical-rules-051] Skipping mandatory submodule tagging at pre-work
+Skipping submodule tagging means the starting SHA becomes unreachable after squash merge and branch deletion — the work still exists but nobody can find it. Professional engineers tag every submodule at pre-work. Amateurs lose history that their future selves need.
+
+
+### [critical-rules-005] Direct-Branch Default — feature branch without worktree is the norm
+Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTREE_REQUIRED` set. Read [git-workflow --task pre-work](skills/git-workflow/SKILL.md).
+
+
+### [critical-rules-005] Skipping Git Pre-Check — working without feature branch
+Must verify git state and create feature branch before any file modification. Creating `feature/*` or `spec/*` branches additionally requires `for_implementation` or above authorization scope.
+
+#### 🚫 FORBIDDEN
+
+- Working without a feature branch
+- Creating `feature/*` or `spec/*` branches without `for_implementation` or above authorization scope
+
+#### ✅ REQUIRED
+
+- Verify git state before any file modification
+- Create feature branch before starting work
+- Ensure `for_implementation` or above scope before creating `feature/*` or `spec/*` branches
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Working without feature branch | Changes land directly on trunk branches, breaking branch discipline |
+| Creating branches without authorization | Feature/spec branches created without proper scope approval |
+
+

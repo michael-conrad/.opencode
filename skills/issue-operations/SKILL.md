@@ -193,3 +193,24 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `audit --task concern-separation`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
 
+
+### [critical-rules-036] Inferring GitHub Owner from File Paths/Usernames
+Guessing `github.owner` from file paths or usernames instead of reading session init means routing every GitHub API call to the wrong repository. Professional engineers use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call — guessing is not engineering, it is gambling with your API routing.
+
+
+### [critical-rules-036] Wrong API Routing for Submodule/Sub-folder Repos
+Routing API calls for submodule repos to the parent repository means every issue operation silently targets the wrong project — and every submodule change gets lost in the wrong repo. Professional engineers resolve the correct remote via `git remote -v` before making any API call. A dry cross-reference to §9 does not route itself.
+
+
+### [critical-rules-platform-routing-bypass] CRITICAL VIOLATION — Platform Routing Bypass — direct `github_*`/`gitbucket-api` issue calls outside `issue-operations/platforms/`
+All `github_*` and `gitbucket-api` issue calls MUST route through the `issue-operations` dispatcher. Making direct platform API calls outside `issue-operations/platforms/` bypasses the routing layer and creates unmaintainable, platform-locked code. Professional engineers route all calls through the dispatcher — amateurs call platform APIs directly and create vendor lock-in.
+
+
+### [critical-rules-platform-api-deliberation] Platform API Deliberation Prohibited
+The `issue-operations` dispatcher resolves platform selection automatically based on `github.platform`. Agents MUST NOT deliberate about which platform API to use — the dispatcher handles this. Asking "should I use GitHub or GitBucket?" or choosing a platform API manually is a routing anti-pattern. Professional engineers trust the dispatcher — amateurs second-guess platform routing.
+
+
+### [critical-rules-011] Bug Reports Without Fix Spec
+Reporting a bug without a fix spec means you are asking the developer to guess what happened. Professional engineers always create a fix spec with every bug report — amateurs file half-baked tickets and expect someone else to figure them out.
+
+

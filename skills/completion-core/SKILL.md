@@ -163,3 +163,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+### [critical-rules-016] Skipping Completion Guarantee on Workflow Halt
+Call `--task completion` on current skill before halting. Amateurs abandon workflows mid-stream. Professionals close out every skill before halting.
+
+
