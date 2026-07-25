@@ -1,7 +1,8 @@
 number: 2104
 title: '[SPEC] Per-SC RED/GREEN Decomposition'
 state: OPEN
-labels: '[{"name": "spec", "color": "ededed", "description": ""}, {"name": "needs-approval", "color": "ededed", "description": ""}]'
+labels:
+- spec,needs-approval,approved-for-pr
 body: ''
 created_at: '2026-07-24T17:31:24+00:00'
-updated_at: '2026-07-24T22:52:43+00:00'
+updated_at: '2026-07-25T02:11:20+00:00'

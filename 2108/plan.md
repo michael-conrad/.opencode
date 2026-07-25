@@ -1,20 +1,16 @@
 ---
 plan_schema_version: "1.0"
 issue: 2108
-title: "Remove fabricated VPN language and add connectivity verification gate"
+title: "Add connectivity verification gate and behavioral enforcement test"
 dispatch:
   - phase: 1
     skill: test-driven-development
     task: green
-    scs: [SC-1, SC-2]
+    scs: [SC-1]
   - phase: 2
     skill: test-driven-development
-    task: green
-    scs: [SC-3]
-  - phase: 3
-    skill: test-driven-development
     task: red
-    scs: [SC-4]
+    scs: [SC-2]
 ---
 
 ## Pre-Implementation
@@ -22,64 +18,47 @@ dispatch:
 - [ ] **Coherence gate** — dispatch `audit --task coherence-extraction` to verify spec/plan coherence before any file modification. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Baseline check** — dispatch `implementation-pipeline --task pre-red-baseline` to capture pre-change state. Context: `{issue_number: 2108}`. (**sub-agent**)
 
-## Phase 1: Remove fabricated VPN language from WeekliesXmlExport
+## Phase 1: Add connectivity verification gate to .opencode/AGENTS.md
 
-**SCs:** SC-1, SC-2 | **Concern:** C1 | **Dispatch:** `test-driven-development --task green`
-
-- [ ] **Green phase** — dispatch `test-driven-development --task green` to implement the changes. Sub-agent reads `test-driven-development/tasks/green.md`, then:
-  - Removes "requires VPN or office network" from `WeekliesXmlExport/AGENTS.md` line 22
-  - Removes "requires VPN/office network" from `WeekliesXmlExport/.issues/188/spec.md` line 107
-  - Context: `{issue_number: 2108, scs: [SC-1, SC-2]}`. (**sub-agent**)
-- [ ] **Z3 check GREEN** — dispatch `solve --task check` to verify state transition. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
-- [ ] **Post-GREEN enforcement** — dispatch `implementation-pipeline --task post-green-enforcement` to verify GREEN output. Context: `{issue_number: 2108}`. (**sub-agent**)
-- [ ] **Z3 check post-GREEN** — dispatch `solve --task check` to verify post-GREEN state. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
-- [ ] **Checkpoint tag create** — dispatch `implementation-pipeline --task checkpoint-tag-create` to create a checkpoint tag. Context: `{issue_number: 2108}`. (**sub-agent**)
-- [ ] **Checkpoint commit** — dispatch `git-workflow --task commit-prep` to commit changes with checkpoint. Context: `{issue_number: 2108}`. (**sub-agent**)
-- [ ] **Structural checks** — dispatch `finishing-a-development-branch --task checklist` for lint/typecheck. Context: `{issue_number: 2108}`. (**sub-agent**)
-- [ ] **GREEN doublecheck** — dispatch `verification-before-completion --task verify` to verify SC-1 and SC-2. Context: `{issue_number: 2108, scs: [SC-1, SC-2]}`. (**sub-agent**)
-- [ ] **GREEN VbC** — dispatch `verification-before-completion --task completion` for SC-1 and SC-2. Context: `{issue_number: 2108}`. (**sub-agent**)
-
-## Phase 2: Add connectivity verification gate to .opencode/AGENTS.md
-
-**SCs:** SC-3 | **Concern:** C2 | **Dispatch:** `test-driven-development --task green`
+**SCs:** SC-1 | **Concern:** C1 | **Dispatch:** `test-driven-development --task green`
 
 - [ ] **Green phase** — dispatch `test-driven-development --task green` to implement the change. Sub-agent reads `test-driven-development/tasks/green.md`, then:
   - Adds a verification gate section to `.opencode/AGENTS.md` requiring tool-call evidence before any connectivity constraint claim is included in agent-facing text
-  - Context: `{issue_number: 2108, scs: [SC-3]}`. (**sub-agent**)
+  - Context: `{issue_number: 2108, scs: [SC-1]}`. (**sub-agent**)
 - [ ] **Z3 check GREEN** — dispatch `solve --task check` to verify state transition. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
 - [ ] **Post-GREEN enforcement** — dispatch `implementation-pipeline --task post-green-enforcement` to verify GREEN output. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Z3 check post-GREEN** — dispatch `solve --task check` to verify post-GREEN state. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
 - [ ] **Checkpoint tag create** — dispatch `implementation-pipeline --task checkpoint-tag-create` to create a checkpoint tag. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Checkpoint commit** — dispatch `git-workflow --task commit-prep` to commit changes with checkpoint. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Structural checks** — dispatch `finishing-a-development-branch --task checklist` for lint/typecheck. Context: `{issue_number: 2108}`. (**sub-agent**)
-- [ ] **GREEN doublecheck** — dispatch `verification-before-completion --task verify` to verify SC-3. Context: `{issue_number: 2108, scs: [SC-3]}`. (**sub-agent**)
-- [ ] **GREEN VbC** — dispatch `verification-before-completion --task completion` for SC-3. Context: `{issue_number: 2108}`. (**sub-agent**)
+- [ ] **GREEN doublecheck** — dispatch `verification-before-completion --task verify` to verify SC-1. Context: `{issue_number: 2108, scs: [SC-1]}`. (**sub-agent**)
+- [ ] **GREEN VbC** — dispatch `verification-before-completion --task completion` for SC-1. Context: `{issue_number: 2108}`. (**sub-agent**)
 
-## Phase 3: Behavioral enforcement test for connectivity verification
+## Phase 2: Behavioral enforcement test for connectivity verification
 
-**SCs:** SC-4 | **Concern:** C3 | **Dispatch:** `test-driven-development --task red` | **Depends on:** Phase 2
+**SCs:** SC-2 | **Concern:** C2 | **Dispatch:** `test-driven-development --task red` | **Depends on:** Phase 1
 
-- [ ] **SC coherence gate** — dispatch `audit --task coherence-extraction` to verify Phase 3 coherence against Phase 2 output. Context: `{issue_number: 2108}`. (**sub-agent**)
+- [ ] **SC coherence gate** — dispatch `audit --task coherence-extraction` to verify Phase 2 coherence against Phase 1 output. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Pre-RED baseline** — dispatch `implementation-pipeline --task pre-red-baseline` to capture pre-change state. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **RED phase** — dispatch `test-driven-development --task red` to write the failing behavioral test. Sub-agent reads `test-driven-development/tasks/red.md`, then:
   - Creates `.opencode/tests-v2/behaviors/connectivity-verification.sh` with a behavioral enforcement test
   - Test sends a prompt asking about database connectivity and verifies the agent does NOT fabricate VPN/network constraints without a tool call
   - Uses `with-test-home` wrapper for `opencode run`
-  - Context: `{issue_number: 2108, scs: [SC-4]}`. (**sub-agent**)
+  - Context: `{issue_number: 2108, scs: [SC-2]}`. (**sub-agent**)
 - [ ] **Z3 check RED** — dispatch `solve --task check` to verify RED state. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
-- [ ] **RED doublecheck** — dispatch `verification-before-completion --task verify` to verify RED test fails as expected. Context: `{issue_number: 2108, scs: [SC-4]}`. (**sub-agent**)
+- [ ] **RED doublecheck** — dispatch `verification-before-completion --task verify` to verify RED test fails as expected. Context: `{issue_number: 2108, scs: [SC-2]}`. (**sub-agent**)
 - [ ] **Z3 check RED doublecheck** — dispatch `solve --task check` to verify RED doublecheck state. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
 - [ ] **Post-RED enforcement** — dispatch `implementation-pipeline --task post-red-enforcement` to verify RED output. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Z3 check post-RED** — dispatch `solve --task check` to verify post-RED state. Context: `{issue_number: 2108, contract_path: <auto>}`. (**inline**)
 - [ ] **Checkpoint tag create** — dispatch `implementation-pipeline --task checkpoint-tag-create` to create a checkpoint tag. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Checkpoint commit** — dispatch `git-workflow --task commit-prep` to commit the RED test. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Structural checks** — dispatch `finishing-a-development-branch --task checklist` for lint/typecheck. Context: `{issue_number: 2108}`. (**sub-agent**)
-- [ ] **GREEN doublecheck** — dispatch `verification-before-completion --task verify` to verify SC-4. Context: `{issue_number: 2108, scs: [SC-4]}`. (**sub-agent**)
-- [ ] **GREEN VbC** — dispatch `verification-before-completion --task completion` for SC-4. Context: `{issue_number: 2108}`. (**sub-agent**)
+- [ ] **GREEN doublecheck** — dispatch `verification-before-completion --task verify` to verify SC-2. Context: `{issue_number: 2108, scs: [SC-2]}`. (**sub-agent**)
+- [ ] **GREEN VbC** — dispatch `verification-before-completion --task completion` for SC-2. Context: `{issue_number: 2108}`. (**sub-agent**)
 
 ## Post-Implementation
 
-- [ ] **SC count gate** — dispatch `implementation-pipeline --task sc-count-gate` to verify all 4 SCs have verdicts. Context: `{issue_number: 2108}`. (**sub-agent**)
+- [ ] **SC count gate** — dispatch `implementation-pipeline --task sc-count-gate` to verify all 2 SCs have verdicts. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Pre-PR gate** — dispatch `verification-before-completion --task verify` to check all SC verdicts are PASS. Context: `{issue_number: 2108}`. (**sub-agent**)
 - [ ] **Audit** — dispatch audit task from `audit` skill with `{spec_local_dir: .opencode/.issues/2108, artifact_evidence_dir: .opencode/.issues/2108/artifacts}`. (**sub-agent**)
 - [ ] **Cross-validate** — dispatch `audit --task cross-validate` for consensus check. Context: `{issue_number: 2108}`. (**sub-agent**)
@@ -93,3 +72,4 @@ dispatch:
 | Event | Timestamp | Issuer | Description |
 |-------|-----------|--------|-------------|
 | plan_created | 2026-07-24 | OpenCode (deepseek-v4-flash) | Plan created for issue 2108 — 3 phases, 4 SCs, sub-agent dispatch mode |
+| plan_revised | 2026-07-24 | OpenCode (deepseek-v4-flash) | Removed Phase 1 (WeekliesXmlExport SC-1/SC-2 — removed from spec); renumbered Phase 2→Phase 1 (SC-3→SC-1), Phase 3→Phase 2 (SC-4→SC-2); updated dispatch, title, and SC count gate to 2 SCs |

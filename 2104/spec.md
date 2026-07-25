@@ -33,7 +33,7 @@ The root cause is a **three-layer granularity mismatch** where each layer decomp
 
 | Layer | File | Current Decomposition Level | Problem |
 |-------|------|----------------------------|---------|
-| Spec writer | `spec-creation-decomposition/tasks/decompose.md` Step 5 | Per-file/per-concern phases (three-tier structure) | Groups multiple SCs into a single phase |
+| Spec writer | `spec-creation/tasks/create.md` Step 5 | Per-file/per-concern phases (three-tier structure) | Groups multiple SCs into a single phase |
 | Plan writer | `writing-plans-creation/tasks/structure.md` Step 5 | Code-path-to-item mapping | Maps code paths to items, not SCs to items |
 | Plan writer | `writing-plans-creation/tasks/write.md` Tier 3 | Per-file items | Items at file/concern level, not SC level |
 | Pipeline executor | `implementation-pipeline/tasks/pipeline-executor.md` Step 3 | Per-step checkpoint | Checkpoints per step, not per SC |
@@ -51,6 +51,19 @@ The root cause is a **three-layer granularity mismatch** where each layer decomp
 - `guidelines/091-incremental-build.md` clarifies "item" means "one SC per item"
 - `test-driven-development/tasks/red.md` and `tasks/green.md` reference per-SC targeting
 
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | Every SC in a spec maps to exactly one RED/GREEN/verify/commit cycle | `behavioral` | Behavioral enforcement test: dispatch a spec with 3 SCs, verify the pipeline creates 3 items, each with its own RED/GREEN/verify/commit cycle |
+| SC-2 | The plan writer produces per-SC items, not per-file or per-concern items | `behavioral` | Behavioral enforcement test: dispatch plan creation for a spec with per-SC items, verify plan items map 1:1 to SC-IDs |
+| SC-3 | The pipeline executor checkpoints per SC, not per step | `behavioral` | Behavioral enforcement test: run pipeline with per-SC items, verify checkpoint tags include SC-ID |
+| SC-4 | The TDD chaining gate BLOCKs any item covering multiple SCs | `behavioral` | Behavioral enforcement test: submit an item referencing 2+ SC-IDs, verify gate returns BLOCKED with `MULTI_SC_ITEM` |
+| SC-5 | The sc-summary.yaml binds SCs to individual items, not phases | `string` | grep sc-summary.yaml for `plan_item` field (not `plan_phase`) |
+| SC-6 | `.opencode/AGENTS.md` documents the per-SC decomposition as the standard workflow | `string` | grep AGENTS.md for "Per-SC Decomposition" section |
+| SC-7 | `guidelines/091-incremental-build.md` clarifies "item" means "one SC per item" | `string` | grep 091-incremental-build.md for "one SC per item" |
+| SC-8 | `test-driven-development/tasks/red.md` and `tasks/green.md` reference per-SC targeting | `string` | grep red.md and green.md for "exactly one SC" |
+
 ## Non-Goals
 
 - Changing the spec-creation SC table format or evidence type taxonomy
@@ -63,7 +76,7 @@ The root cause is a **three-layer granularity mismatch** where each layer decomp
 
 | File | Change |
 |------|--------|
-| `spec-creation-decomposition/tasks/decompose.md` | Replace three-tier per-file phase structure with per-SC item list |
+| `spec-creation/tasks/create.md` | Replace three-tier per-file phase structure with per-SC item list |
 | `writing-plans-creation/tasks/structure.md` | Change Step 5 from code-path-to-item to SC-to-item mapping |
 | `writing-plans-creation/tasks/write.md` | Change Tier 3 from per-file to per-SC with SC-ID binding |
 | `implementation-pipeline/tasks/pipeline-executor.md` | Add per-SC checkpoint verification with SC-ID in tag |
@@ -78,11 +91,11 @@ The root cause is a **three-layer granularity mismatch** where each layer decomp
 
 ### Phase 1 — Spec Writer Changes
 
-**Files:** `spec-creation-decomposition/tasks/decompose.md`, `spec-creation-validation/tasks/create.md`
+**Files:** `spec-creation/tasks/create.md`, `spec-creation-validation/tasks/create.md`
 
-1. In `decompose.md`, replace Step 5 (three-tier per-file phase structure) with a per-SC item enumeration step. Remove "one phase per file or concern" language. Add: "For each SC in the spec's success criteria table, create one implementation item with its own RED/GREEN/verify/commit cycle. Items are numbered sequentially. Each item references exactly one SC-ID."
+1. In `spec-creation/tasks/create.md`, replace Step 5 (three-tier per-file phase structure) with a per-SC item enumeration step. Remove "one phase per file or concern" language. Add: "For each SC in the spec's success criteria table, create one implementation item with its own RED/GREEN/verify/commit cycle. Items are numbered sequentially. Each item references exactly one SC-ID."
 
-2. In `create.md` Step 1.1, change `plan_phase` field to `plan_item` in the sc-summary.yaml template. Each SC gets an item number instead of a phase group.
+2. In `spec-creation-validation/tasks/create.md` Step 1.1, change `plan_phase` field to `plan_item` in the sc-summary.yaml template. Each SC gets an item number instead of a phase group.
 
 ### Phase 2 — Documentation Standards
 
@@ -118,4 +131,11 @@ The root cause is a **three-layer granularity mismatch** where each layer decomp
 
 1. Create behavioral test that verifies the plan writer produces per-SC items.
 2. Create behavioral test that verifies the TDD chaining gate BLOCKs on multi-SC items.
+
+## Change Control
+
+| Date | Change | Reason | Author |
+|------|--------|--------|--------|
+| 2026-07-24 | Added formal SC table (SC-1 through SC-8) with evidence types and verification methods | Spec audit finding (1): Goals section implied SCs but lacked formal SC table | AI agent (spec-creation revise) |
+| 2026-07-24 | Fixed file path: `spec-creation-decomposition/tasks/decompose.md` → `spec-creation/tasks/create.md` in Root Cause Analysis table, Affected Files table, and Phase 1 description | Spec audit finding (2): referenced path does not exist; decompose step is part of create.md | AI agent (spec-creation revise) |
 
