@@ -9,6 +9,13 @@ Check for explicit authorization and record in work state file before proceeding
 - User says "approved", "go", or similar authorization
 - Spec exists as GitHub Issue
 
+## Merge Gate (Pre-Check)
+
+Before any authorization verification, check whether the requested action is a merge:
+
+- [ ] 1. If the requested action is a merge (user says "merge", "merge PR", "merge #N", or similar): HALT immediately with "HALT — human-only merge. Agents MUST NOT merge PRs. Only the developer can merge via the GitHub UI."
+- [ ] 2. If the requested action is NOT a merge: proceed with normal authorization verification
+
 ## Exit Criteria
 
 - Authorization verified as explicit and for correct issue — recorded in work state file (`{project_root}/tmp/{N}/work.md`)

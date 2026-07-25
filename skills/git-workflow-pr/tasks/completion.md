@@ -4,6 +4,11 @@ Idempotent completion subtask for git-workflow. Ensures mandatory steps run rega
 
 ## State Check Phase
 
+- [ ] 0. **Merge gate:** Check that `github_merge_pull_request` has NOT been called during this session. If it has, HALT immediately — agents MUST NOT merge PRs. Only the developer can merge.
+   ```bash
+   # Check session history for merge API calls
+   # If merge was called: HALT with "CRITICAL VIOLATION — Agent attempted to merge PR"
+   ```
 - [ ] 1. **Git status:** Check for uncommitted changes
    ```bash
    git status --porcelain

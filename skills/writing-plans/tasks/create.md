@@ -49,7 +49,9 @@ The per-task cycle steps are discovered at runtime by loading the `implementatio
      - Step name and description
      - Dispatch indicator: `(**inline**)`, `(**sub-agent**)`, or `(**clean-room**)`
      - Context parameters as dash sub-bullets
+     - SC-ID binding: each task references exactly one SC-ID from the spec
    - Every task MUST enumerate every step from the per-task cycle. No skipping. No combining. No grouping.
+   - Each item references exactly one SC-ID. No item may cover multiple SCs.
 
 6. **Write pre-implementation steps** at the start of the plan (before any phase):
    - Coherence gate step
@@ -81,6 +83,7 @@ The per-task cycle steps are discovered at runtime by loading the `implementatio
 - The plan uses structured markdown: checkbox lists with dash sub-bullets
 - No machine-parseable cross-references, no identifier IDs, no JSON/YAML code blocks in the body
 - The artifact path has been set in the result contract
+- **Validation rule 16:** Each item references exactly one SC-ID. No item may cover multiple SCs.
 
 ## Result Contract
 

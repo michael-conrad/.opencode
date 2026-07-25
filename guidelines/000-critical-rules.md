@@ -158,6 +158,13 @@ Breaks agent config loading. Read [§2](guidelines/060-tool-usage.md).
 ### [critical-rules-052] CRITICAL VIOLATION — `git rm` and file deletion require spec + authorization
 `git rm` and file deletion require spec + authorization — CRITICAL VIOLATION to perform without both.
 
+
+### [critical-rules-merge] CRITICAL VIOLATION — Human-Only Merge — agents MUST NOT merge PRs
+Only the developer can merge PRs. The `github_merge_pull_request` tool is FORBIDDEN for agent use. Enforced at three gates:
+- **PR creation gate** (`.opencode/skills/git-workflow-pr/tasks/pr-creation.md`): HALT after PR creation — do not merge
+- **Completion gate** (`.opencode/skills/git-workflow-pr/tasks/completion.md`): Check that merge was not called during session
+- **Authorization gate** (`.opencode/skills/approval-gate-scope/tasks/verify-authorization.md`): Block merge requests with HALT
+
 Deleting a tracked file from the repository is a destructive operation equivalent to any code change. It requires:
 1. A spec (SPEC-FIX or SPEC) describing what is being deleted and why
 2. Explicit authorization ("approved" or "go")
@@ -1167,6 +1174,22 @@ All failures are agent-owned. Remediation is the default action. Escalation is o
 ### [critical-rules-066] Terminology Standardization — all context references must use standardized vocabulary
 All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
 
+
+### [critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt — zero output, zero tool calls, zero proposals
+When the user says "stop" (or unambiguous equivalent), the agent MUST immediately cease all operations: no further output, no tool calls, no proposals, no follow-up questions. "stop" is a hard state transition — there is no recovery from "stop" within the same session. The user must explicitly restart with a new message. This is a Tier 1 safety-critical rule — it NEVER yields to developer authorization.
+
+#### 🚫 FORBIDDEN
+- Producing any output after "stop" (including "okay, stopping now", "understood", or any acknowledgment)
+- Making any tool call after "stop" (including cleanup, save, or status checks)
+- Proposing alternatives, asking for clarification, or suggesting next steps
+- Treating "stop" as "stop and try something else" — it is terminal, not conditional
+- Any form of acknowledgment, confirmation, or farewell
+
+#### ✅ REQUIRED
+- On detecting "stop": immediately cease all operations
+- Zero output, zero tool calls, zero proposals
+- The user must explicitly restart with a new message to resume interaction
+- "stop" is a hard state transition — no recovery within the same session
 
 ### Channel-Routing Table — Issue Comments vs. Chat Output
 

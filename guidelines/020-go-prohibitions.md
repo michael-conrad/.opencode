@@ -45,12 +45,14 @@ load_when: sub-agent
   - Treat "why" as an implicit "fix this"
 
   **Correct response to "why" questions:** Answer the question. If the user wants changes, they will explicitly say so.
+- **"discuss" triggers a hard gate blocking implementation proposals.** When the user says "discuss" (or unambiguous equivalent like "let's talk about", "I want to discuss", "thoughts on"), the agent MUST NOT propose implementation, offer to implement, or suggest code changes. The agent MUST stay in discussion mode — answering questions, exploring options, and providing analysis. Any "want me to implement", "should I fix", "I can change" or equivalent implementation proposal following a "discuss" prompt is a CRITICAL VIOLATION.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
 - **Never self-answer a solicitation.** Pose no questions that you then answer yourself to bypass authorization.
 - **NEVER suggest parallel execution as a valid default approach.** Stacking is prerequisite; parallel is opportunistic. Agents must not present parallelism as an equally valid option.
 - **No silent halt without search+prompt.** When no spec/plan exists for an implementation request, the agent MUST NOT simply halt. It must search GitHub Issues for existing candidates, present them with URLs, and offer create-or-select before halting. A silent halt with no search and no candidate presentation is a critical violation — Read [000-critical-rules.md §Silent Halt Without Prompt](guidelines/000-critical-rules.md).
 <!-- Issue #25: Authorization Solicitation Regression — Success Criteria: Update guidelines/020-go-prohibitions.md with additional prohibited output patterns -->
+- **Solicitation detection gate — pre-output check for "want me to" patterns.** Before producing any output containing "want me to", "should I", "I can implement", "I can change", "shall I", or similar implementation-offer patterns, the agent MUST check: did the user explicitly ask for this? If the user did not ask for implementation, the agent MUST suppress the output. This gate fires before every response — it is not optional.
 - **No instructional language in blocker reports.** When the workflow is blocked, the report must state the blocker factually — it must never embed instructions, suggestions, or forward-looking guidance that could be read as an authorization prompt. Examples of prohibited patterns:
   - "To resolve this, please approve the spec first."
   - "You can say 'approved' to continue."
@@ -400,3 +402,19 @@ Key points:
 **Authorization source:** Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
 
 **No checkpoint:** First-step failure. Run `git checkout .`, re-dispatch from current state.
+
+### [critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt — zero output, zero tool calls, zero proposals
+When the user says "stop" (or unambiguous equivalent), the agent MUST immediately cease all operations: no further output, no tool calls, no proposals, no follow-up questions. "stop" is a hard state transition — there is no recovery from "stop" within the same session. The user must explicitly restart with a new message. This is a Tier 1 safety-critical rule — it NEVER yields to developer authorization.
+
+#### 🚫 FORBIDDEN
+- Producing any output after "stop" (including "okay, stopping now", "understood", or any acknowledgment)
+- Making any tool call after "stop" (including cleanup, save, or status checks)
+- Proposing alternatives, asking for clarification, or suggesting next steps
+- Treating "stop" as "stop and try something else" — it is terminal, not conditional
+- Any form of acknowledgment, confirmation, or farewell
+
+#### ✅ REQUIRED
+- On detecting "stop": immediately cease all operations
+- Zero output, zero tool calls, zero proposals
+- The user must explicitly restart with a new message to resume interaction
+- "stop" is a hard state transition — no recovery within the same session

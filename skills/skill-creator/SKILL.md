@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "Skill lifecycle manager for creating, updating, validating, and auditing skill cards and managing duplicate content blocks. Load via skill() when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Also load when enforcing the farmage description pattern on all skill cards, or auditing skill card structure for compliance. Validation is REQUIRED. User phrases: create skill, update skill, validate skill card, audit skill, manage fragments"
+description: "Skill lifecycle manager for creating, updating, validating, and auditing skill cards and managing duplicate content blocks. Load via skill() when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Also load when auditing skill card structure for compliance. Validation is REQUIRED. User phrases: create skill, update skill, validate skill card, audit skill, manage fragments"
 license: MIT
 compatibility: opencode
 ---
@@ -37,7 +37,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "validate" / "validate skill" / "check skill" | `validate` | `sub-task` | {skill_folders} |
 | "fragment" / "fragment management" / "sync fragment" | `fragment-management` | `sub-task` | {fragment_name, destination_paths} |
 | "skill card audit" / "review skills" / "audit skill cards" | `validate` | `sub-task` | {skill_folders, audit_mode: "full"} |
-| "description pattern" / "farmage pattern" / "enforce description pattern" | `validate` | `sub-task` | {skill_folders, audit_mode: "farmage"} |
+| "description pattern" / "enforce description pattern" | `validate` | `sub-task` | {skill_folders, audit_mode: "description"} |
 
 ## Tasks
 

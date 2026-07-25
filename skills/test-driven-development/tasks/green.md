@@ -10,6 +10,8 @@
 
 ## Exit Criteria
 
+The GREEN phase implements exactly one SC. Verify the SC's evidence type before declaring PASS.
+
 Implementation written, test PASSES.
 
 ## Verification Command

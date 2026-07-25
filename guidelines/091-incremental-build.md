@@ -23,6 +23,8 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 
 ## Per-Item TDD Cycle
 
+An item is a single success criterion (SC) from the spec. Each SC gets its own RED/GREEN/REFACTOR/COMMIT cycle.
+
 | Phase | Action |
 |-------|--------|
 | RED | Enforcement test that FAILS (change doesn't exist yet) |

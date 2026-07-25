@@ -45,7 +45,7 @@ Verify every requirement against the actual codebase using srclight, file reads,
 
 ### Step 4: Problem decomposition
 
-Decompose the problem into discrete units with defined interfaces, inputs, outputs, invariants, and failure modes. Decompose until each unit is a single independently verifiable claim. For multi-phase specs, define three-tier phase structure (global pre-phase, per-file RED/GREEN phases, global post-phase).
+Decompose the problem into discrete units with defined interfaces, inputs, outputs, invariants, and failure modes. Decompose until each unit is a single independently verifiable claim. For each SC in the spec's success criteria table, create one implementation item with its own RED/GREEN/verify/commit cycle. Items are numbered sequentially. Each item references exactly one SC-ID.
 
 Write to `{project_root}/tmp/{issue_number}/contracts/decompose-output.yaml`.
 

@@ -70,6 +70,14 @@ Agents who treat "continue" as a skip command are not being helpful — they are
 
 ---
 
+## Per-SC Decomposition
+
+Every SC in a spec maps to exactly one RED/GREEN/verify/commit cycle. The plan writer produces per-SC items, not per-file or per-concern items. The pipeline executor checkpoints per SC, not per step. The TDD chaining gate BLOCKs any item covering multiple SCs.
+
+Read [091-incremental-build.md](guidelines/091-incremental-build.md) for the per-item TDD cycle mandate. Read [`.issues/research-cards/per-sc-decomposition-industry-standards.md`](.issues/research-cards/per-sc-decomposition-industry-standards.md) for industry standards research.
+
+---
+
 ## Reference Documents
 
 | Document | Purpose |
@@ -363,3 +371,26 @@ This repo uses [editor](https://github.com/michael-conrad/viewport-editor) as it
 **Specs and plans are NOT tracking documents.** A spec defines what is required — implemented or not. A plan defines how to implement it — implemented or not. Any STATUS field, completion marker, pending indicator, or progress tracker in a spec or plan is a defect.
 
 Implementation status is tracked through the pipeline state (work state files, lifecycle manifests, PR status) — never through STATUS fields in the spec or plan body.
+
+---
+
+## Connectivity Verification Gate — Tool-Call Evidence Required
+
+**Any agent-facing text (specs, AGENTS.md, guidelines, skill cards, task cards) that claims a resource, service, database, or network endpoint is unreachable, restricted, or requires special connectivity (VPN, office network, firewall, proxy) MUST include tool-call evidence verifying that claim before the language is included.**
+
+### 🚫 FORBIDDEN
+
+- Including "requires VPN", "requires office network", "not reachable from outside", or any equivalent connectivity constraint claim in agent-facing text without a live tool-call verification
+- Copying connectivity constraint language from one spec to another without re-verifying
+- Parroting connectivity claims from training data, memory, or prior session context
+
+### ✅ REQUIRED
+
+- Before including any connectivity constraint claim, run a tool call that verifies the claim (e.g., `ping`, `curl`, `nc -vz`, `python -c "import socket; socket.create_connection(...)"`)
+- Include the verification command and its output as evidence in the spec or document
+- If the resource is reachable, do NOT include connectivity constraint language
+- If the resource is genuinely unreachable, include the verification evidence alongside the constraint claim
+
+### Why This Matters
+
+Fabricated connectivity constraints propagate through the codebase as cargo-cult boilerplate. An initial spec that includes "requires VPN" without verification gets copied verbatim into downstream specs, creating a false constraint that wastes developer time and blocks legitimate work. Every connectivity claim must be verified at the point of inclusion — not assumed from prior text.

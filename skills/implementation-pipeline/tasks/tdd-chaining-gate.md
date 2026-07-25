@@ -29,7 +29,8 @@ Gate that validates batched RED/GREEN phases (multiple items in a single TDD cyc
 - [ ] 3. For each item, verify it has its own GREEN phase entry in the pipeline state
 - [ ] 4. For each item, verify it has its own verification step (green-doublecheck or equivalent)
 - [ ] 5. If any item shares a RED/GREEN/verify step with another item: return BLOCKED with list of conflated items
-- [ ] 6. If all items have independent cycles: write PASS artifact, return DONE
+- [ ] 6. **SC-level check:** For each item, verify it references exactly one SC-ID. If any item covers multiple SCs, return BLOCKED with `MULTI_SC_ITEM` and list the conflated SCs.
+- [ ] 7. If all items have independent cycles and single-SC coverage: write PASS artifact, return DONE
 
 ## Artifact Format
 
@@ -44,9 +45,11 @@ summary:
   fail: <N>
 per_item:
   - item_id: "<item-label>"
+    sc_id: "<SC-ID>"
     has_independent_red: true | false
     has_independent_green: true | false
     has_independent_verify: true | false
+    single_sc_coverage: true | false
     result: PASS | FAIL
 ```
 

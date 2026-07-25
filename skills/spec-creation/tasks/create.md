@@ -47,6 +47,21 @@ Construct the spec with all required sections:
 7. **Dependencies** — Prerequisite specs, skills, guidelines
 8. **Traceability** — Table mapping Requirements → SCs → Phases
 
+### Step 2.1: Write sc-summary.yaml
+
+Write the SC summary to `{project_root}/{path}/.issues/{issue_number}/sc-summary.yaml`:
+
+```yaml
+sc_count: <total SC count>
+scs:
+  - id: "<SC-ID>"
+    description: "<SC description>"
+    evidence_type: "<behavioral|semantic|string|structural>"
+    plan_item: <item number>
+```
+
+Each SC gets a `plan_item` number instead of a phase group. Items are numbered sequentially starting from 1.
+
 ### Step 3: Create remote issue stub
 
 When a remote API is available (github.platform is not `local`):
