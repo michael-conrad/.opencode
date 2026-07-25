@@ -1,0 +1,316 @@
+path_provider: spec-audit-path-provider
+issue_number: 2121
+generated_at: "2026-07-25T05:45:00Z"
+evidence_source: ".opencode/.issues/2121/audit-3b/investigator/evidence.yaml"
+reasoning_source: ".opencode/.issues/2121/audit-3b/validator/reasoning.yaml"
+verdict_source: ".opencode/.issues/2121/audit-3b/evaluator/verdict.yaml"
+spec_local_dir: ".opencode/.issues/2121"
+audit_run_id: 3b
+
+upstream_metadata:
+  generator: spec-audit-generator
+  knowledge_supporter: spec-audit-knowledge-supporter
+  evaluator: spec-audit-evaluator
+  knowledge_supporter_validation_status: "corrected"
+  evaluator_validation_status: "direct-verification"
+
+preflight_validation:
+  evidence_yaml_present: true
+  evidence_yaml_size_bytes: 38692
+  reasoning_yaml_present: true
+  reasoning_yaml_size_bytes: 36805
+  verdict_yaml_present: true
+  verdict_yaml_size_bytes: 20836
+  spec_local_dir_present: true
+  spec_md_present: true
+  spec_md_size_bytes_current: 30611
+  artifact_evidence_dir_writable: true
+  status: OK
+
+spec_state_observation:
+  note: "The spec.md on disk (30611 bytes, modified 2026-07-25T01:22:29) was edited between the Validator read (2026-07-25T01:21:42) and the Evaluator read (2026-07-25T01:24:06). This is the third revision of SC-3 in the spec-audit history: (1) Round 3: '5-10 word phrase' (rejected by user as 'fake measurement'); (2) Validator's snapshot: '1-10 word phrase' (intermediate revision); (3) Current spec: 'full header text [critical-rules-NNN] <full title>' as verification token with per-rule change reports (final post-feedback redesign). The Evaluator directly verified the final post-feedback spec state."
+  spec_md_lines: 253
+  sc_count: 10
+  move_table_rows: 123
+  keep_table_rows: 18
+  total_rule_table_rows: 141
+  placeholders_present: 0
+  truncation_markers: 0
+  unclosed_backticks: 0
+  sc3_uses_full_header_text: true
+  sc3_uses_word_count_constraint: false
+  sc3_uses_key_phrase_substring: false
+  per_rule_change_report_specified: true
+  alternatives_rejects_key_phrase_substring: true
+
+holistic_synthesis:
+  status: "PASS"
+  evaluator_verdict: "All 11 holistic dimensions PASS. SC-3 redesign eliminates the 'fake measurement' concern by using the rule's full unique header text as the verification token, cross-validated against per-rule change reports with tool-call evidence."
+  knowledge_supporter_alignment: "partial"
+  alignment_notes: "Validator captured an INTERMEDIATE spec state where SC-3 used '1-10 word phrase' (the second iteration). The current spec on disk has a FURTHER redesign where SC-3 uses the rule's full unique header text. The Evaluator directly verified the final spec state against the live spec.md and refuted the Validator's stale-criterion capture. Synthesis carries forward the Evaluator's final-verified verdicts, which reflect the actual spec on disk."
+  dimensions:
+    - id: 1
+      name: "Implementability"
+      result: "PASS"
+      finding: "All 10 SCs have executable verification methods. SC-3 redesigned to use `grep -qF <full header> <target file>` cross-validated against per-rule change reports — fully executable, no ambiguous word counts."
+      evidence_source: "evaluator direct read of spec.md lines 19, 191-196; validator reasoning.yaml → holistic_dimension_validation.implementability (corrected to actual spec state)"
+    - id: 2
+      name: "Internal Consistency"
+      result: "PASS"
+      finding: "No internal contradictions. Move table (123 rows) + Keep table (18 rows) = 141 = Files Affected claim. SC-2 and SC-3 phase mappings are explicit. SC-3 criterion, Phase 1 bullets, and Move table intro all consistently reference 'full header text' as the verification token."
+      evidence_source: "evaluator direct read; validator reasoning.yaml → holistic_dimension_validation.internal_consistency"
+    - id: 3
+      name: "Completeness"
+      result: "PASS"
+      finding: "All 10 SCs have verification methods. Move table has 123 source/target pairs. Per-rule change report schema is specified (line 195). Edge cases addressed in Risks section. No undefined terms or placeholder content."
+      evidence_source: "evaluator direct read; validator reasoning.yaml → holistic_dimension_validation.completeness"
+    - id: 4
+      name: "Scope Discipline"
+      result: "PASS"
+      finding: "Spec is self-contained refactoring of 000-critical-rules.md and 30 target files. Stated boundaries match fix scope. No out-of-scope elements detected."
+      evidence_source: "validator reasoning.yaml → holistic_dimension_validation.scope_discipline (validated)"
+    - id: 5
+      name: "Testability"
+      result: "PASS"
+      finding: "All 10 SCs are testable. SC-3 redesign eliminates the 'fake measurement' concern: `grep -qF` against a full unique header text is deterministic and cannot match coincidentally. SC-8 tokenization has known edge cases but is testable per the stopword specification."
+      evidence_source: "evaluator direct read; validator reasoning.yaml → holistic_dimension_validation.testability"
+    - id: 6
+      name: "Escape Hatches"
+      result: "PASS"
+      finding: "No 'may be deferred', 'as appropriate', 'TODO/TBD', or 'consider X' language detected. Only forward-looking 'MUST' language in SC criteria."
+      evidence_source: "validator reasoning.yaml → prose_validation.escape_hatches (validated)"
+    - id: 7
+      name: "Provenance"
+      result: "PASS"
+      finding: "All 5 Problem claims include tool-call evidence (grep commands and returned counts). Files Affected totals match Move+Keep counts. SC-3 verification method is grounded in `grep -qF` against a real source header verified to exist in 000-critical-rules.md."
+      evidence_source: "evaluator direct verification of one source header in 000-critical-rules.md; validator reasoning.yaml → holistic_dimension_validation.provenance"
+    - id: 8
+      name: "Feasibility"
+      result: "PASS"
+      finding: "Referenced files all exist. SC-3 is feasible: 123 source headers can be grep-verified, per-rule change reports are producible. No external dependencies or impossible constraints."
+      evidence_source: "evaluator direct verification; validator reasoning.yaml → holistic_dimension_validation.feasibility"
+    - id: 9
+      name: "Safety"
+      result: "PASS"
+      finding: "Destructive operations (123 rule blocks deleted, 10 Why This Matters tables deleted, 2 cross-refs deleted, dedup) are scoped and reversible via git. SC-3 per-rule change reports provide recovery mechanism."
+      evidence_source: "validator reasoning.yaml → holistic_dimension_validation.safety"
+    - id: 10
+      name: "Traceability"
+      result: "PASS"
+      finding: "All 10 SCs map to phases. SC-2 is double-anchored (criterion + Phase 1 + Phase 2). SC-3 is anchored (criterion + Phase 1). 6 phases total, no orphans. Root causes → fix approaches → SCs → phases chain is complete."
+      evidence_source: "validator reasoning.yaml → holistic_dimension_validation.traceability"
+    - id: 11
+      name: "Correctness"
+      result: "PASS"
+      finding: "The spec correctly solves the stated problem: removing duplicative content from a session-start preloaded file. The SC-3 redesign directly addresses the user feedback 'sc-3 seems arbitrary, a fake measurement' by using the full unique header text as the verification token, eliminating word-count gaming and coincidental substring matches. The Alternatives section explicitly names the rejected 'key phrase substring' approach as a 'fake measurement'."
+      evidence_source: "evaluator direct read of spec.md line 243; validator reasoning.yaml → holistic_dimension_validation.correctness"
+
+narrow_criteria_synthesis:
+  total_criteria: 14
+  pass: 14
+  fail: 0
+  not_evaluated: 0
+  all_criteria_pass: true
+  remediation_required: false
+  per_criterion:
+    - criterion_id: "SC-1"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-1 has a clear criterion, evidence type, and verification method. `grep -cE` is a binary executable check. No contradictions."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-2"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-2 criterion, phase mapping, and verification method are all explicit and consistent. Phase 1 covers indirectly, Phase 2 covers directly."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "corrected"
+    - criterion_id: "SC-3"
+      declared_evidence_type: "behavioral"
+      result: "PASS"
+      explanation: "SC-3 was fully redesigned in response to user feedback 'fake measurement'. The new criterion uses the rule's full unique header text `[critical-rules-NNN] <full title>` as the verification token — a fixed-string match via `grep -qF`. No word-count constraint, no substring gaming, no coincidental matches. Cross-validation against per-rule change reports with tool-call evidence (source line range, target line range, body byte count) provides behavioral verification. The 'Key phrase' column is removed from the move table; the Source column contains the full unique header. The full header IS the unique identifier — verified by evaluator that one sample header exists verbatim in 000-critical-rules.md. The redesign is complete, deterministic, and addresses the user's feedback directly."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "corrected"
+    - criterion_id: "SC-4"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-4 has clear criterion, evidence type, and verification method. The `grep -cE` check is binary."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-5"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-5 has clear criterion, evidence type, and verification method."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-6"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-6 has three sub-greps covering Mandate Tiering (##), Interaction Rule (###), and Channel-Routing Table (###). All three are mandatory structural preservation checks."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-7"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-7 has 18 universal rules enumerated in the Keep table; each has a full header text. Verification is `grep -qF` per header."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-8"
+      declared_evidence_type: "behavioral"
+      result: "PASS"
+      explanation: "SC-8 has explicit tokenization rules, stopword list, and 80% coverage threshold. The behavioral method is executable and deterministic, though tokenization edge cases (case, punctuation, stemming) are not fully specified — but the criterion provides enough detail to produce a PASS/FAIL judgment."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-9"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-9 has a clear duplicate-detection verification method using sort | uniq -d."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-10"
+      declared_evidence_type: "string"
+      result: "PASS"
+      explanation: "SC-10 has a clear count verification. 141 - 123 = 18, consistent with Keep table."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-DET"
+      declared_evidence_type: "n/a"
+      result: "PASS"
+      explanation: "All 10 SCs have deterministic verification methods. SC-3 has no fail patterns: no missing expected values, no implicit behavior, no open-ended quality. The full-header verification is a fixed-string binary check."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-STRUCTURAL-FAIL"
+      declared_evidence_type: "n/a"
+      result: "PASS"
+      explanation: "All testable behavior SCs (SC-3, SC-8) declare `behavioral` evidence type. Implementation must produce per-rule change reports with tool-call evidence. The implementation-pipeline RED/GREEN cycle is mandated by Phase 1."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-EVIDENCE-TYPE"
+      declared_evidence_type: "n/a"
+      result: "PASS"
+      explanation: "Evidence type declarations match SC content: SC-3 and SC-8 are behavioral (test execution + change reports); SC-1, SC-2, SC-4, SC-5, SC-6, SC-7, SC-9, SC-10 are string (grep-based)."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+    - criterion_id: "SC-TRACKING-LANG"
+      declared_evidence_type: "n/a"
+      result: "PASS"
+      explanation: "No 'implemented'/'completed' tracking language in SC criteria. The two 'implemented'/'completed' instances at lines 82 and 144 are inside quoted rule body text from the Move table (not SC-tracking language)."
+      remediation: ""
+      next_step: "proceed"
+      knowledge_supporter_validation: "validated"
+
+analytical_synthesis:
+  reasoning_soundness:
+    status: "PASS"
+    causal_chain: "PASS — root causes → fix approaches → SCs → phases chain is complete and traceable."
+    sc_traceability: "PASS — all 10 SCs map to phases with no orphans."
+    contradictions: "PASS — no internal contradictions; SC-2 and SC-3 phase mappings are explicit."
+  claim_accuracy:
+    status: "PASS"
+    fabricated_claims: "PASS — all 5 Problem claims include tool-call evidence (grep + counts); 123 rules/30 targets/18 universal claims all verified."
+    negation_verifications: "PASS — 0 '...' truncation markers, 0 placeholders, 0 unclosed backticks (verified by evaluator against live spec)."
+    interface_verifications: "PASS — sample source header `[critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED` verified verbatim in 000-critical-rules.md by evaluator grep -F."
+  blast_radius:
+    status: "PASS"
+    impact_completeness: "PASS — destructive operations (123 rule blocks, 10 Why This Matters tables, 2 cross-refs, dedup) fully enumerated; all scoped and reversible via git."
+    non_code_impact: "PASS — no non-code impact identified."
+  research_adequacy:
+    status: "PASS"
+    evidence_provenance: "PASS — file paths, line numbers, and counts all backed by tool-call evidence."
+    investigation_breadth: "PASS — 30 target files, 141 source rule headers, 6 phases all enumerated."
+    edge_case_discovery: "PASS — 3 edge cases (lost rules, over-removal, duplicate preservation) enumerated in Risks section with mitigations."
+    recency_check: "PASS — spec reflects current state of 000-critical-rules.md."
+  gap_analysis:
+    status: "PASS"
+    missing_coverage: "PASS — no missing coverage; all 10 SCs are fully specified."
+    implicit_conditions: "PASS — no implicit conditions; per-rule change report schema explicitly specified (line 195)."
+  scope_creep:
+    status: "PASS"
+    traceability_enforcement: "PASS — 5 root causes in Problem map to 5 fix categories with 10 SCs and 6 phases."
+    proportionality: "PASS — refactoring is proportional to stated problem (5 categories of duplicative content in a 1211-line preloaded file)."
+  scope_narrowness:
+    status: "PASS"
+    root_cause_depth: "PASS — root cause identified at appropriate depth (5 categories of content inappropriate for session-start preload)."
+    systemic_implication: "PASS — systemic implication addressed (universals stay preloaded, skill-specifics move to skills)."
+    minimum_viable_scope: "PASS — 18 universal rules preserved, 123 skill-specifics moved, no more no less."
+  cross_reference_completeness:
+    status: "PASS"
+    citation_completeness: "PASS — 3 policy references (091-incremental-build, 080-code-standards, 130-authority-source) cited at spec line 249-253."
+    reference_sufficient: "PASS"
+  analytical_artifact_evaluation:
+    status: "N/A"
+    artifacts: "All 7 analytical artifacts (blast_radius, concern_map, code_path_inventory, cross_cutting_matrix, interface_compatibility, state_analysis, testability_assessment) are N/A — not required for this scope (refactoring task with no architectural decisions)."
+  bidirectional_findings:
+    status: "PASS"
+    findings: "No FAIL/DISAGREE findings."
+
+evidence_chain_integrity:
+  status: "intact"
+  generator_to_knowledge_supporter:
+    validated_sections:
+      - "spec_files_validation (file_exists, body_length_lines, frontmatter)"
+      - "spec_structure_validation (headings, phases, files_affected, preamble, documentation_sources, status_marker)"
+      - "determinism_validation (ambiguity_markers, evidence_type_declarations)"
+      - "prose_validation (escape_hatches, tracking_language, prescriptive_code, cost_frame_language)"
+      - "reasoning_validation (root_causes, sc_to_root_cause, alternatives_considered, edge_cases)"
+      - "analytical_artifact_validation (all 7 artifacts — both absent in evidence and actual)"
+      - "holistic_dimension_validation (scope_discipline, feasibility, safety, traceability, correctness)"
+    unvalidated_sections:
+      - "spec_files_validation (size_bytes, body_length_chars — stale snapshot; corrected to actual 39585 by validator, evaluator confirms 30611 for current spec state — all directionally consistent)"
+      - "spec_structure_validation (success_criteria SC-2/SC-3 text, prose_elements counts — corrected by validator)"
+      - "determinism_validation (SC-2/SC-3 wording, fail_patterns — corrected by validator)"
+      - "reasoning_validation (fix_approaches text, potential_contradictions — corrected by validator)"
+      - "holistic_dimension_validation (implementability, internal_consistency, completeness, testability, provenance — corrected by validator; evaluator confirms against current spec state)"
+    section_missing: []
+  knowledge_supporter_to_evaluator:
+    referenced_sections:
+      - "spec_structure_validation.success_criteria (per_criterion entries SC-1 through SC-10)"
+      - "determinism_validation (all 3 evaluator check categories)"
+      - "holistic_dimension_validation (all 11 dimensions)"
+      - "remediation_verification_validation (R3-NEW-1, R3-NEW-2, R3-NEW-3)"
+      - "round3b_introduced_defects_validation (R3B-NEW-1, R3B-NEW-2, R3B-NEW-3)"
+      - "current_state_observations_validation (sc3 distribution, sc10 counts)"
+      - "prose_validation (escape_hatches, tracking_language)"
+    unreferenced_sections: []
+  evaluator_evidence_sources:
+    verdicts_with_evidence: 14
+    verdicts_without_evidence: 0
+    missing_evidence_verdicts: []
+  chain_notes: "The evidence chain exhibits a STALE-SNAPSHOT pattern between Investigator (05:15:21Z) and the spec on disk (final edit 01:22:29 local / 05:22:29Z). The Investigator captured a pre-redesign SC-3 ('5-10 word phrase'). The Validator captured an intermediate state ('1-10 word phrase'). The Evaluator captured the final post-feedback state ('full header text'). The Evaluator's direct reads of the live spec on disk supersede the Validator's intermediate snapshot, and the Evaluator's corrections are directionally correct (each revision makes the spec MORE spec-conformant, not less). The Evaluator explicitly verified the final SC-3 design by grep -F against 000-critical-rules.md to confirm the sample source header exists verbatim. The chain is intact: every Evaluator verdict is grounded in either Validator reasoning or direct spec read."
+
+final_judgment:
+  status: "PASS"
+  next_step: "proceed"
+  summary: "All 14 criteria PASS (10 SCs + 4 quality gates). All 11 holistic dimensions PASS. The SC-3 redesign directly addresses the user feedback 'sc-3 seems arbitrary, a fake measurement' by replacing word-counted key phrases with the rule's full unique header text as the verification token — a fixed-string match via `grep -qF` that eliminates coincidental matches, with cross-validation against per-rule change reports providing behavioral evidence. All 3 R3-NEW defects (row count, truncation, SC-2 phase mapping) are VERIFIED CORRECT in the final spec. The 3 R3B-NEW defects flagged by the Investigator are REFUTED — they were artifacts of the Investigator capturing the pre-redesign '5-10 word' SC-3 criterion. The spec is READY to advance to writing-plans."
+  pass_count: 14
+  fail_count: 0
+  not_evaluated_count: 0
+  evidence_chain_status: "intact"
+  user_feedback_addressed: true
+  user_feedback: "sc-3 seems arbitrary, a fake measurement"
+  user_feedback_evidence:
+    - "SC-3 criterion (line 19) uses full unique header text `[critical-rules-NNN] <full title>` as verification token, not a word-counted substring"
+    - "Move table restructured: 'Source rule (full header)' + 'Target file' — Key phrase column removed"
+    - "SC-3 verification: `grep -qF <full header> <target file>` — fixed-string match, not substring"
+    - "Cross-validation against per-rule change reports with tool-call evidence (line 195)"
+    - "Alternatives Considered (line 243) explicitly rejects 'key phrase substring' match as a 'fake measurement' — the user's exact feedback is named in the spec's own self-documentation"
+    - "Sample header verified by evaluator: `### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED` exists verbatim in .opencode/guidelines/000-critical-rules.md"
+
+status: DONE
+artifact_path: ".opencode/.issues/2121/audit-3b/arbiter/judgment.yaml"
+summary: "14 criteria synthesized. 14 PASS, 0 FAIL, 0 NOT_EVALUATED. Holistic: PASS. Evidence chain: intact."
+all_criteria_pass: true
+remediation_required: false
