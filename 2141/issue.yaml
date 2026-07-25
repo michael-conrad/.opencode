@@ -1,6 +1,6 @@
 labels:
 - approved-for-implementation
-updated_at: '2026-07-25T20:25:58+00:00'
+updated_at: '2026-07-25T20:27:24+00:00'
 body: "---\nissue: .opencode#2141\ntitle: \"[SPEC] Fix: Authorization Workflow — Record\
   \ Session Authorization Before Verifying\"\nstatus: approved\napproved: 2026-07-25\n\
   created: 2026-07-25\nlicense: MIT\nprovenance: AI-generated\nphase: 1\nphase_name:\
@@ -208,31 +208,25 @@ body: "---\nissue: .opencode#2141\ntitle: \"[SPEC] Fix: Authorization Workflow �
   \ the test home.\n14. The behavioral test harness SHALL NOT fall back to production\
   \ XDG paths, environment variables, or any other location when the test home SQLite\
   \ DB is missing.\n15. The evaluation pipeline SHALL treat `source_db: MISSING` as\
-  \ a hard FAIL — no substitution, no synthesis, no fabrication.\n13. The behavioral\
-  \ test harness `__export_sqlite_to_yaml` SHALL write `source_db: MISSING` (not `null`,\
-  \ not a fallback path) when the SQLite DB is not found in the test home.\n14. The\
-  \ behavioral test harness SHALL NOT fall back to production XDG paths, environment\
-  \ variables, or any other location when the test home SQLite DB is missing.\n15.\
-  \ The evaluation pipeline SHALL treat `source_db: MISSING` as a hard FAIL — no substitution,\
-  \ no synthesis, no fabrication.\n\n## Pipeline Gates\n\n- [ ] 1. Pre-work (git-workflow-branch)\
-  \ — sub-agent: create feature branch, verify trunk tip\n- [ ] 2. SC-1, SC-8 (structural)\
-  \ — sub-agent: create `record-authorization.md`, remove `verify-explicit-authorization.md`,\
-  \ create `verify-recording.md`\n- [ ] 3. SC-2, SC-3, SC-4, SC-5 (behavioral) — sub-agent:\
-  \ implement `record-authorization` task procedure\n- [ ] 4. SC-9 (behavioral) —\
-  \ sub-agent: implement `verify-recording` task procedure\n- [ ] 5. SC-6, SC-7, SC-10,\
-  \ SC-11, SC-12 (behavioral) — sub-agent: reorder three workflows in SKILL.md\n-\
-  \ [ ] 6. Behavioral enforcement tests — sub-agent: write RED-phase tests for all\
-  \ behavioral SCs\n- [ ] 6a. SC-13 (behavioral) — sub-agent: implement `source_db:\
-  \ MISSING` in harness, remove production fallback paths\n- [ ] 7. Completeness gate\
-  \ — sub-agent: verify all SCs covered\n- [ ] 8. Audit — sub-agent: adversarial audit\
-  \ of all deliverables\n- [ ] 9. Finishing checklist — sub-agent: branch readiness,\
-  \ pre-PR checks\n- [ ] 10. PR creation — sub-agent: create PR with evidence artifacts\n\
-  \n## Items\n\n1. **SC-1, SC-8** — Create `record-authorization.md` task file; remove\
-  \ `verify-explicit-authorization.md`; create `verify-recording.md` task file\n2.\
-  \ **SC-2, SC-3, SC-4, SC-5** — Implement the `record-authorization` task procedure\
-  \ (write spec.md, comments.yaml, issue.yaml, commit)\n3. **SC-9** — Implement the\
-  \ `verify-recording` task procedure (read back and confirm)\n4. **SC-6, SC-7, SC-10,\
-  \ SC-11, SC-12** — Reorder the three workflows in `approval-gate-scope/SKILL.md`\n\
+  \ a hard FAIL — no substitution, no synthesis, no fabrication.\n\n## Pipeline Gates\n\
+  \n- [ ] 1. Pre-work (git-workflow-branch) — sub-agent: create feature branch, verify\
+  \ trunk tip\n- [ ] 2. SC-1, SC-8 (structural) — sub-agent: create `record-authorization.md`,\
+  \ remove `verify-explicit-authorization.md`, create `verify-recording.md`\n- [ ]\
+  \ 3. SC-2, SC-3, SC-4, SC-5 (behavioral) — sub-agent: implement `record-authorization`\
+  \ task procedure\n- [ ] 4. SC-9 (behavioral) — sub-agent: implement `verify-recording`\
+  \ task procedure\n- [ ] 5. SC-6, SC-7, SC-10, SC-11, SC-12 (behavioral) — sub-agent:\
+  \ reorder three workflows in SKILL.md\n- [ ] 6. Behavioral enforcement tests — sub-agent:\
+  \ write RED-phase tests for all behavioral SCs\n- [ ] 6a. SC-13 (behavioral) — sub-agent:\
+  \ implement `source_db: MISSING` in harness, remove production fallback paths\n\
+  - [ ] 7. Completeness gate — sub-agent: verify all SCs covered\n- [ ] 8. Audit —\
+  \ sub-agent: adversarial audit of all deliverables\n- [ ] 9. Finishing checklist\
+  \ — sub-agent: branch readiness, pre-PR checks\n- [ ] 10. PR creation — sub-agent:\
+  \ create PR with evidence artifacts\n\n## Items\n\n1. **SC-1, SC-8** — Create `record-authorization.md`\
+  \ task file; remove `verify-explicit-authorization.md`; create `verify-recording.md`\
+  \ task file\n2. **SC-2, SC-3, SC-4, SC-5** — Implement the `record-authorization`\
+  \ task procedure (write spec.md, comments.yaml, issue.yaml, commit)\n3. **SC-9**\
+  \ — Implement the `verify-recording` task procedure (read back and confirm)\n4.\
+  \ **SC-6, SC-7, SC-10, SC-11, SC-12** — Reorder the three workflows in `approval-gate-scope/SKILL.md`\n\
   5. **SC-13** — Implement `source_db: MISSING` in harness `__export_sqlite_to_yaml`,\
   \ remove all production fallback paths\n\n## Dependencies\n\n- **Prerequisite:**\
   \ Research card at `.issues/research-cards/authorization-session-vs-workflow-state.md`\n\

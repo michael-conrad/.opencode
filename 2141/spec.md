@@ -135,9 +135,6 @@ All success criteria MUST pass before this implementation is considered complete
 13. The behavioral test harness `__export_sqlite_to_yaml` SHALL write `source_db: MISSING` (not `null`, not a fallback path) when the SQLite DB is not found in the test home.
 14. The behavioral test harness SHALL NOT fall back to production XDG paths, environment variables, or any other location when the test home SQLite DB is missing.
 15. The evaluation pipeline SHALL treat `source_db: MISSING` as a hard FAIL — no substitution, no synthesis, no fabrication.
-13. The behavioral test harness `__export_sqlite_to_yaml` SHALL write `source_db: MISSING` (not `null`, not a fallback path) when the SQLite DB is not found in the test home.
-14. The behavioral test harness SHALL NOT fall back to production XDG paths, environment variables, or any other location when the test home SQLite DB is missing.
-15. The evaluation pipeline SHALL treat `source_db: MISSING` as a hard FAIL — no substitution, no synthesis, no fabrication.
 
 ## Pipeline Gates
 
