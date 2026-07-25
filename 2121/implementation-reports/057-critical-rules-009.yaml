@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Verification Deduplication"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "660-663"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 264
+status: appended

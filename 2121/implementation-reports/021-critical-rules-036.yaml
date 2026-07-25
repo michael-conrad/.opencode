@@ -1,0 +1,7 @@
+rule_id: critical-rules-036
+full_header: "[critical-rules-036] Inferring GitHub Owner from File Paths/Usernames"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "489-492"
+target_file: .opencode/skills/issue-operations/SKILL.md
+body_byte_count: 397
+status: appended

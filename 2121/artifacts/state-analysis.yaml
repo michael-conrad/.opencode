@@ -1,0 +1,27 @@
+state_transitions:
+  - phase: Phase 1
+    entry_state: "000-critical-rules.md contains 141 rules (123 skill-specific + 18 universal)"
+    exit_state: "30 target files each contain their assigned rules appended; 000-critical-rules.md still contains all 141 rules"
+    scs: [SC-3]
+    artifacts:
+      - 123 per-rule change reports at .opencode/.issues/2121/implementation-reports/<rule-id>.yaml
+  - phase: Phase 2
+    entry_state: "000-critical-rules.md contains intro cross-references and stubs to preloaded guidelines"
+    exit_state: "Intro cross-references and stubs removed from 000-critical-rules.md"
+    scs: [SC-1, SC-2]
+  - phase: Phase 3
+    entry_state: "000-critical-rules.md contains 141 rules (123 skill-specific + 18 universal)"
+    exit_state: "000-critical-rules.md contains exactly 18 universal rules; 123 skill-specific rules removed"
+    scs: [SC-9, SC-10]
+  - phase: Phase 4
+    entry_state: "000-critical-rules.md contains 57 per-entry dark prose instances and 10 Why This Matters tables"
+    exit_state: "Per-entry dark prose < 3 instances; Why This Matters tables removed"
+    scs: [SC-4, SC-5]
+  - phase: Phase 5
+    entry_state: "000-critical-rules.md may contain redundant FORBIDDEN/REQUIRED subsections that restate rule titles"
+    exit_state: "No title-restating paragraphs remain per SC-8 token-superset definition"
+    scs: [SC-8]
+  - phase: Phase 6
+    entry_state: "All phases 1-5 complete"
+    exit_state: "All 10 SCs verified PASS"
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]

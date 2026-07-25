@@ -1,0 +1,7 @@
+rule_id: critical-rules-046
+full_header: "[critical-rules-046] Mechanical-Only Audit Without Semantic and Conflict Exploration"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "774-777"
+target_file: .opencode/skills/audit/SKILL.md
+body_byte_count: 337
+status: appended

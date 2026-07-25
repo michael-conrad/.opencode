@@ -1,0 +1,7 @@
+rule_id: critical-rules-005
+full_header: "[critical-rules-005] Direct-Branch Default — feature branch without worktree is the norm"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1018-1021"
+target_file: .opencode/skills/git-workflow-branch/SKILL.md
+body_byte_count: 261
+status: appended

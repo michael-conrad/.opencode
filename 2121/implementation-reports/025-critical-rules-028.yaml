@@ -1,0 +1,7 @@
+rule_id: critical-rules-028
+full_header: "[critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "505-508"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 444
+status: appended

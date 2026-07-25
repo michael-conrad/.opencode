@@ -1,0 +1,7 @@
+rule_id: critical-rules-023
+full_header: "[critical-rules-023] Missing AI Co-Authored Attribution"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1048-1051"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 182
+status: appended

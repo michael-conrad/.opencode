@@ -1,0 +1,7 @@
+rule_id: critical-rules-033
+full_header: "[critical-rules-033] Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "688-691"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 219
+status: appended

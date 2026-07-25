@@ -1,0 +1,7 @@
+rule_id: critical-rules-013
+full_header: "[critical-rules-013] Closing Issues Before PR Merge"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1084-1087"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 147
+status: appended

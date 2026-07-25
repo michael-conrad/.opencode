@@ -1,0 +1,7 @@
+rule_id: critical-rules-025
+full_header: "[critical-rules-025] Main Agent Implements Directly"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "555-558"
+target_file: .opencode/skills/implementation-pipeline/SKILL.md
+body_byte_count: 320
+status: appended

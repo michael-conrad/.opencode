@@ -1,0 +1,7 @@
+rule_id: critical-rules-sc-lobotomy
+full_header: "[critical-rules-sc-lobotomy] CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, skipping, or blocking success criteria"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "856-869"
+target_file: .opencode/skills/spec-creation/SKILL.md
+body_byte_count: 1322
+status: appended

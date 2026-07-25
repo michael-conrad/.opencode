@@ -1,0 +1,7 @@
+rule_id: critical-rules-048
+full_header: "[critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "782-794"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 894
+status: appended

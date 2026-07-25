@@ -1,0 +1,7 @@
+rule_id: critical-rules-010
+full_header: "[critical-rules-010] Implementing Stale or Superseded Specs"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "551-554"
+target_file: .opencode/guidelines/130-authority-source.md
+body_byte_count: 299
+status: appended

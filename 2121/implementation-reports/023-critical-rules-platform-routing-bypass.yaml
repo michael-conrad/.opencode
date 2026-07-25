@@ -1,0 +1,7 @@
+rule_id: critical-rules-platform-routing-bypass
+full_header: "[critical-rules-platform-routing-bypass] CRITICAL VIOLATION — Platform Routing Bypass — direct `github_*`/`gitbucket-api` issue calls outside `issue-operations/platforms/`"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "497-500"
+target_file: .opencode/skills/issue-operations/SKILL.md
+body_byte_count: 561
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-pipeline-reprime
+full_header: "[critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "807-810"
+target_file: .opencode/skills/implementation-pipeline/SKILL.md
+body_byte_count: 315
+status: appended

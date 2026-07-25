@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Audience Separation — leaking internal artifacts to stakeholders"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "405-408"
+target_file: .opencode/skills/correspondence/SKILL.md
+body_byte_count: 405
+status: appended

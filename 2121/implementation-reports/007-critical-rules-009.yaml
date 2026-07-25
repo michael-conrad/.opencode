@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Memory/Training-Data-as-Evidence — memory and training data are always stale"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "393-396"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 382
+status: appended

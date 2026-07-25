@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Skipping Interdependency Analysis for Batch Approvals"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "644-647"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 329
+status: appended

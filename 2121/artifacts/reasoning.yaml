@@ -1,0 +1,311 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2121
+generated_at: "2026-07-25T11:05:00Z"
+evidence_source: ".opencode/.issues/2121/artifacts/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2121/"
+overall_validation_status: "corrected"
+
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: false
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: "size_bytes"
+        evidence_value: 12479
+        actual_value: 30605
+      - field: "body_length_chars"
+        evidence_value: 12479
+        actual_value: 30605
+  - path: "plan.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: false
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: "size_bytes"
+        evidence_value: 26000
+        actual_value: 45285
+      - field: "body_length_chars"
+        evidence_value: 26000
+        actual_value: 45285
+
+spec_structure_validation:
+  headings:
+    validation_status: "validated"
+    evidence_count: 16
+    actual_count: 16
+    mismatches: []
+  success_criteria:
+    validation_status: "validated"
+    evidence_row_count: 10
+    actual_row_count: 10
+    mismatches: []
+  phases:
+    validation_status: "validated"
+    evidence_count: 6
+    actual_count: 6
+    mismatches: []
+  files_affected:
+    validation_status: "validated"
+    evidence_paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - "30 target files (listed in the Rules to Move table)"
+    actual_paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - "30 target files (listed in the Rules to Move table)"
+    mismatches: []
+  preamble:
+    validation_status: "validated"
+    evidence_fields_present: []
+    actual_fields_present: []
+    mismatches: []
+  documentation_sources:
+    validation_status: "validated"
+    evidence_sources: []
+    actual_sources: []
+    mismatches: []
+  status_marker:
+    validation_status: "validated"
+    evidence_value: "absent"
+    actual_value: "absent"
+  prose_elements:
+    validation_status: "corrected"
+    mismatches:
+      - element: "tables"
+        evidence_count: 5
+        actual_count: 4
+    ordered_lists:
+      validation_status: "validated"
+      evidence_count: 1
+      actual_count: 1
+    unordered_lists:
+      validation_status: "validated"
+      evidence_count: 0
+      actual_count: 0
+    code_blocks:
+      validation_status: "validated"
+      evidence_count: 0
+      actual_count: 0
+
+determinism_validation:
+  sc_wording:
+    validation_status: "corrected"
+    mismatches:
+      - sc_id: "SC-2"
+        evidence_text: "All Read[ cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+        actual_text: "All `Read[` cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+      - sc_id: "SC-3"
+        evidence_text: "For each rule in the Rules to Move table: the rule's full header text [critical-rules-NNN] <full title> (as listed in the Source column) appears verbatim in the target file, AND the implementation-pipeline per-rule change report confirms the rule was appended with its complete body."
+        actual_text: "For each rule in the \"Rules to Move\" table: the rule's full header text `[critical-rules-NNN] <full title>` (as listed in the Source column) appears verbatim in the target file, AND the implementation-pipeline per-rule change report confirms the rule was appended with its complete body. The \"verbatim\" check is a fixed-string match, not a substring match — the full header is the unique identifier."
+      - sc_id: "SC-4"
+        evidence_text: "Per-entry dark prose framing (Professional engineers... amateurs...) appears fewer than 3 times in the file (file-level framing allowed, per-entry framing removed)"
+        actual_text: "Per-entry dark prose framing (\"Professional engineers... amateurs...\") appears fewer than 3 times in the file (file-level framing allowed, per-entry framing removed)"
+      - sc_id: "SC-5"
+        evidence_text: "Why This Matters tables are absent from the file (both headers and bodies)"
+        actual_text: "\"Why This Matters\" tables are absent from the file (both headers and bodies)"
+      - sc_id: "SC-6"
+        evidence_text: "The Mandate Tiering table, Interaction Rule table, and Channel-Routing Table all remain in the file."
+        actual_text: "The Mandate Tiering table, Interaction Rule table, and Channel-Routing Table all remain in the file. Mandate Tiering is a level-2 heading (`^##`); Interaction Rule and Channel-Routing Table are level-3 headings (`^###`)"
+      - sc_id: "SC-7"
+        evidence_text: "Every rule listed in the Universal Rules to Keep enumeration below is present in the file with its full ### [critical-rules-NNN] <description> header intact"
+        actual_text: "Every rule listed in the \"Universal Rules to Keep\" enumeration below is present in the file with its full `### [critical-rules-NNN] <description>` header intact"
+      - sc_id: "SC-8"
+        evidence_text: "No rule body contains a paragraph that adds no new non-stopword tokens beyond the rule's title tokens AND covers >=80% of the title's non-stopword tokens."
+        actual_text: "No rule body contains a paragraph that adds no new non-stopword tokens beyond the rule's title tokens AND covers ≥80% of the title's non-stopword tokens. A \"title-restating\" paragraph is identified by token-superset analysis. Stopword list: `the, a, an, is, are, was, were, be, been, being, of, in, on, to, for, with, by, at, from, and, or, but, not, no`."
+      - sc_id: "SC-9"
+        evidence_text: "No remaining ### [critical-rules-NNN] rule is duplicated (same full header text appears more than once)"
+        actual_text: "No remaining `### [critical-rules-NNN]` rule is duplicated (same full header text appears more than once)"
+      - sc_id: "SC-10"
+        evidence_text: "The total count of ### [critical-rules-NNN] rule headers in the file equals 18"
+        actual_text: "The total count of `### [critical-rules-NNN]` rule headers in the file equals 18"
+  fail_patterns:
+    validation_status: "validated"
+    evidence_count: 2
+    actual_count: 2
+    missed_patterns: []
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    missed_markers: []
+    false_markers: []
+  evidence_type_declarations:
+    validation_status: "validated"
+    mismatches: []
+  verification_methods:
+    validation_status: "validated"
+    mismatches: []
+  failure_description:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_provided: false
+
+documentation_source_validation:
+  urls:
+    validation_status: "validated"
+    mismatches: []
+  api_references:
+    validation_status: "validated"
+    mismatches: []
+  env_variables:
+    validation_status: "validated"
+    mismatches: []
+  library_patterns:
+    validation_status: "validated"
+    mismatches: []
+
+prose_validation:
+  escape_hatches:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    missed_hatches: []
+    false_hatches: []
+  tracking_language:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_instances: []
+    false_instances: []
+  prescriptive_code:
+    validation_status: "validated"
+    evidence_count: 9
+    actual_count: 9
+    missed_instances: []
+    false_instances: []
+  cost_frame_language:
+    validation_status: "validated"
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  fix_approaches:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  sc_to_root_cause:
+    validation_status: "validated"
+    mismatches: []
+  alternatives_considered:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    mismatches: []
+  edge_cases:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    evidence_count: 3
+    actual_count: 3
+    missed_cases: []
+  potential_contradictions:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    false_contradictions: []
+    missed_contradictions: []
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  concern_map:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  code_path_inventory:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  cross_cutting_matrix:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  interface_compatibility:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  state_analysis:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  testability_assessment:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: "validated"
+    mismatches: []
+  internal_consistency:
+    validation_status: "validated"
+    mismatches: []
+  completeness:
+    validation_status: "validated"
+    mismatches: []
+    missed_undefined_terms: []
+    missed_implicit_dependencies: []
+  scope_discipline:
+    validation_status: "validated"
+    mismatches: []
+  testability:
+    validation_status: "validated"
+    mismatches: []
+  provenance:
+    validation_status: "validated"
+    mismatches: []
+  feasibility:
+    validation_status: "validated"
+    mismatches: []
+    missed_referenced_files: []
+    missed_referenced_functions: []
+  safety:
+    validation_status: "validated"
+    mismatches: []
+  traceability:
+    validation_status: "validated"
+    mismatches: []
+  correctness:
+    validation_status: "validated"
+    mismatches: []
+
+unvalidated_items: []
+
+corrections_summary:
+  total_corrections: 4
+  sections_affected:
+    - "spec_files_validation"
+    - "spec_structure_validation"
+    - "determinism_validation"

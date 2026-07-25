@@ -1,0 +1,7 @@
+rule_id: critical-rules-XXX
+full_header: "[critical-rules-XXX] Posting Spec-Audit Findings as Issue Comments"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "409-419"
+target_file: .opencode/skills/audit/SKILL.md
+body_byte_count: 594
+status: appended

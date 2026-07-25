@@ -1,0 +1,7 @@
+rule_id: critical-rules-051
+full_header: "[critical-rules-051] Skipping mandatory submodule tagging at pre-work"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "819-822"
+target_file: .opencode/skills/git-workflow-branch/SKILL.md
+body_byte_count: 344
+status: appended

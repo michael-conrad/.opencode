@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Treating Branch Stacking as Optional"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "648-651"
+target_file: .opencode/skills/git-workflow-branch/SKILL.md
+body_byte_count: 263
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Wrong Chat Output at Halt Points"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "440-443"
+target_file: .opencode/skills/git-workflow/SKILL.md
+body_byte_count: 413
+status: appended

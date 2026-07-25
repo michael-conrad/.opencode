@@ -1,0 +1,7 @@
+rule_id: critical-rules-platform-api-deliberation
+full_header: "[critical-rules-platform-api-deliberation] Platform API Deliberation Prohibited"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "501-504"
+target_file: .opencode/skills/issue-operations/SKILL.md
+body_byte_count: 476
+status: appended

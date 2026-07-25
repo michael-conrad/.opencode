@@ -1,0 +1,7 @@
+rule_id: critical-rules-010
+full_header: "[critical-rules-010] Spec Without Investigation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "541-544"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 276
+status: appended

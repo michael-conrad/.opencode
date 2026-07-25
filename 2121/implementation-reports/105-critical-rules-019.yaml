@@ -1,0 +1,7 @@
+rule_id: critical-rules-019
+full_header: "[critical-rules-019] Creating PRs Without Explicit Instruction"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1076-1079"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 119
+status: appended

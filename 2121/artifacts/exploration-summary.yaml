@@ -1,0 +1,62 @@
+status: DONE
+artifact_path: .opencode/.issues/2121/artifacts/exploration-summary.yaml
+finding_summary: >
+  Source file (000-critical-rules.md) is 1211 lines with 141 rule headers, 2 intro cross-refs,
+  18 preloaded-guideline stubs, 57 dark-prose instances, 10 Why-This-Matters tables.
+  All 18 universal rules confirmed present. 2 duplicate headers exist (critical-rules-039, 041).
+  All 30 target files exist. 4 target files already contain critical-rules cross-references
+  (git-workflow-cleanup:6, git-workflow-branch:2, git-workflow-pr:5, 020-go-prohibitions:1)
+  but these are Read-refs, not rule bodies. No prior implementation artifacts exist.
+  Prior audit-3b artifacts present (arbiter, evaluator, investigator, validator subdirs).
+
+key_observations:
+  - source_file: .opencode/guidelines/000-critical-rules.md
+    lines: 1211
+    rule_headers_total: 141
+    universal_rules_to_keep: 18
+    rules_to_move: 123
+    intro_cross_refs: 2
+    preloaded_guideline_stubs: 18
+    dark_prose_instances: 57
+    why_this_matters_tables: 10
+    mandate_tiering_section: present
+    interaction_rule_section: present
+    channel_routing_table: present
+    duplicate_headers:
+      - critical-rules-039 (Parent Issue Left Open After All Children Closed)
+      - critical-rules-041 (Listing Merged PRs Without Calling Cleanup)
+    all_18_universal_rules_confirmed: true
+
+  - target_files:
+      total: 30
+      all_exist: true
+      files_with_existing_critical_rules_refs:
+        - .opencode/skills/git-workflow-cleanup/SKILL.md (6 Read-refs)
+        - .opencode/skills/git-workflow-branch/SKILL.md (2 Read-refs)
+        - .opencode/skills/git-workflow-pr/SKILL.md (5 Read-refs)
+        - .opencode/guidelines/020-go-prohibitions.md (1 rule body: critical-rules-stop)
+      files_with_rule_bodies: []
+      note: "Existing refs are Read-links to 000-critical-rules.md, not migrated rule bodies. No target file has received moved rule bodies yet."
+
+  - prior_artifacts:
+      audit_3b_present: true
+      audit_subdirs:
+        - arbiter
+        - evaluator
+        - investigator
+        - validator
+      implementation_reports: absent
+      no_prior_implementation_artifacts: true
+
+  - pre_implementation_baseline:
+      sc1_intro_cross_refs: 2 (need 0)
+      sc2_preloaded_stubs: 18 (need 0)
+      sc3_moved_rules_in_targets: 0 of 123 (need 123)
+      sc4_dark_prose: 57 (need < 3)
+      sc5_why_this_matters: 10 (need 0)
+      sc6_mandate_tiering: present (need present)
+      sc6_interaction_rule: present (need present)
+      sc6_channel_routing: present (need present)
+      sc7_universal_rules: 18 of 18 confirmed (need 18)
+      sc9_duplicates: 2 (need 0)
+      sc10_rule_count: 141 (need 18)

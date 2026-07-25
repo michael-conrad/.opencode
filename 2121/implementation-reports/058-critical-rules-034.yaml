@@ -1,0 +1,7 @@
+rule_id: critical-rules-034
+full_header: "[critical-rules-034] Inline Screening of Authorization Sets"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "664-667"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 289
+status: appended

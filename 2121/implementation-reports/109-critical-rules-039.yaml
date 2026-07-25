@@ -1,0 +1,7 @@
+rule_id: critical-rules-039
+full_header: "[critical-rules-039] Parent Issue Left Open After All Children Closed"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1124-1127"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 133
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-027
+full_header: "[critical-rules-027] Feedback ≠ Authorization — treating technical input as implementation permission"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "595-598"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 309
+status: appended

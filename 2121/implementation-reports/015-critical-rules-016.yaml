@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Skipping review-prep After Implementation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "432-435"
+target_file: .opencode/skills/git-workflow-pr/tasks/review-prep.md
+body_byte_count: 450
+status: appended

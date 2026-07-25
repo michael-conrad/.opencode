@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Silent Agent Termination — producing no output before stopping"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "615-643"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 1806
+status: appended

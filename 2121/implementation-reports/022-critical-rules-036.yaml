@@ -1,0 +1,7 @@
+rule_id: critical-rules-036
+full_header: "[critical-rules-036] Wrong API Routing for Submodule/Sub-folder Repos"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "493-496"
+target_file: .opencode/skills/issue-operations/SKILL.md
+body_byte_count: 412
+status: appended

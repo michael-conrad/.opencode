@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Skipping Post-Merge Cleanup"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "436-439"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 507
+status: appended

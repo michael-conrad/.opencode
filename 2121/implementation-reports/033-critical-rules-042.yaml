@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Scope Creep — never do things outside the spec"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "537-540"
+target_file: .opencode/skills/programming-principles/SKILL.md
+body_byte_count: 286
+status: appended

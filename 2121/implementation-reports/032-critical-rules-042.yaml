@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Monolithic Implementation — skipping item decomposition"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "533-536"
+target_file: .opencode/guidelines/091-incremental-build.md
+body_byte_count: 322
+status: appended

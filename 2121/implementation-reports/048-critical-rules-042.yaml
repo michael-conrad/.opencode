@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Skipping PR for Documentation/Guideline Changes"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "599-602"
+target_file: .opencode/skills/git-workflow-pr/SKILL.md
+body_byte_count: 278
+status: appended

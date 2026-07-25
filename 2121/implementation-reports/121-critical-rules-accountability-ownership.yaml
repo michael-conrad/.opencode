@@ -1,0 +1,7 @@
+rule_id: critical-rules-accountability-ownership
+full_header: "[critical-rules-accountability-ownership] Accountability/Remediation Ownership Model"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1174-1189"
+target_file: .opencode/skills/audit/SKILL.md
+body_byte_count: 1993
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Content Verification Before Branch Deletion"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "799-802"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 284
+status: appended

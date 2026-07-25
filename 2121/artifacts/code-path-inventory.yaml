@@ -1,0 +1,44 @@
+code_paths:
+  - sc: SC-1
+    paths:
+      - grep -cE "Read \[the authoritative list\|Read \[detailed rules" .opencode/guidelines/000-critical-rules.md
+    description: Verify intro cross-references removed
+  - sc: SC-2
+    paths:
+      - grep -cE "Read \[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)" .opencode/guidelines/000-critical-rules.md
+    description: Verify stubs to preloaded guidelines removed
+  - sc: SC-3
+    paths:
+      - grep -qF "<full header text>" <target file> for each of 123 rules
+      - .opencode/.issues/2121/implementation-reports/<rule-id>.yaml per-rule change reports
+    description: Verify each moved rule appears verbatim in target file
+  - sc: SC-4
+    paths:
+      - grep -cE "Professional engineers\|amateurs" .opencode/guidelines/000-critical-rules.md
+    description: Verify per-entry dark prose reduced to <3 occurrences
+  - sc: SC-5
+    paths:
+      - grep -cE "Why This Matters" .opencode/guidelines/000-critical-rules.md
+    description: Verify Why This Matters tables removed
+  - sc: SC-6
+    paths:
+      - grep -qE "^## Mandate Tiering" .opencode/guidelines/000-critical-rules.md
+      - grep -qE "^### Interaction Rule" .opencode/guidelines/000-critical-rules.md
+      - grep -qE "^### Channel-Routing Table" .opencode/guidelines/000-critical-rules.md
+    description: Verify Mandate Tiering, Interaction Rule, Channel-Routing Table preserved
+  - sc: SC-7
+    paths:
+      - grep -qF "<full header text>" .opencode/guidelines/000-critical-rules.md for each of 18 universal rules
+    description: Verify all 18 universal rules preserved with full headers
+  - sc: SC-8
+    paths:
+      - Token-superset analysis: extract title tokens, diff against each paragraph's token set
+    description: Verify no title-restating paragraphs remain
+  - sc: SC-9
+    paths:
+      - grep -E "^### \[critical-rules-" .opencode/guidelines/000-critical-rules.md | sort | uniq -d
+    description: Verify no duplicate rule headers
+  - sc: SC-10
+    paths:
+      - grep -cE "^### \[critical-rules-" .opencode/guidelines/000-critical-rules.md
+    description: Verify exactly 18 rule headers remain

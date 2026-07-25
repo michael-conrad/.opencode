@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Bypassing Mandatory Skill Calls During Implementation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "559-562"
+target_file: .opencode/skills/implementation-pipeline/SKILL.md
+body_byte_count: 346
+status: appended

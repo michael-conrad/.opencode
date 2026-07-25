@@ -1,0 +1,7 @@
+rule_id: critical-rules-018
+full_header: "[critical-rules-018] Sub-issue Structure Bypass — multi-task plans"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1056-1059"
+target_file: .opencode/skills/issue-operations-sub-issues/SKILL.md
+body_byte_count: 200
+status: appended

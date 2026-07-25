@@ -1,0 +1,7 @@
+rule_id: critical-rules-010
+full_header: "[critical-rules-010] Implementation Without Spec — expanding the definition"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "513-516"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 391
+status: appended

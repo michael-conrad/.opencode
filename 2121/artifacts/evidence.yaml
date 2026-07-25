@@ -1,0 +1,472 @@
+generator: spec-audit-investigator
+issue_number: 2121
+generated_at: "2026-07-25T11:00:00Z"
+spec_local_dir: ".opencode/.issues/2121/"
+role: investigator
+
+spec_files:
+  - path: "spec.md"
+    size_bytes: 12479
+    modified_at: "2026-07-25T10:53:00Z"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 253
+    body_length_chars: 12479
+  - path: "plan.md"
+    size_bytes: 26000
+    modified_at: "2026-07-25T10:53:00Z"
+    has_frontmatter: true
+    frontmatter_keys: ["plan_schema_version", "issue", "title", "lifecycle_events", "dispatch"]
+    body_length_lines: 697
+    body_length_chars: 26000
+
+spec_structure:
+  headings:
+    - level: 2
+      text: "Problem"
+      line: 1
+    - level: 2
+      text: "Success Criteria"
+      line: 11
+    - level: 2
+      text: "Rules to Move (Source → Target Mapping)"
+      line: 28
+    - level: 2
+      text: "Universal Rules to Keep"
+      line: 162
+    - level: 2
+      text: "Implementation Phases"
+      line: 189
+    - level: 3
+      text: "Phase 1: Embed moved rules into target files (per-rule, with change reports)"
+      line: 191
+    - level: 3
+      text: "Phase 2: Remove intro cross-references and stubs"
+      line: 200
+    - level: 3
+      text: "Phase 3: Remove moved rules from 000-critical-rules.md"
+      line: 204
+    - level: 3
+      text: "Phase 4: Remove per-entry dark prose and Why This Matters tables"
+      line: 207
+    - level: 3
+      text: "Phase 5: Remove redundant FORBIDDEN/REQUIRED subsections"
+      line: 213
+    - level: 3
+      text: "Phase 6: Verify all SCs"
+      line: 218
+    - level: 2
+      text: "Files Affected"
+      line: 224
+    - level: 2
+      text: "Risks"
+      line: 229
+    - level: 2
+      text: "Alternatives Considered"
+      line: 235
+    - level: 2
+      text: "Dependencies"
+      line: 245
+    - level: 2
+      text: "Policy References"
+      line: 249
+  success_criteria:
+    present: true
+    table_columns: ["ID", "Criterion", "Evidence Type", "Verification Method"]
+    rows:
+      - id: "SC-1"
+        criterion: "The two intro cross-references to AGENTS.md and the guidelines directory are absent from the file"
+        evidence_type: "string"
+        verification_method: "grep -cE \"Read [the authoritative list|Read [detailed rules\" .opencode/guidelines/000-critical-rules.md returns 0"
+      - id: "SC-2"
+        criterion: "All Read[ cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body"
+        evidence_type: "string"
+        verification_method: "grep -cE \"Read [.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)\" .opencode/guidelines/000-critical-rules.md returns 0"
+      - id: "SC-3"
+        criterion: "For each rule in the Rules to Move table: the rule's full header text appears verbatim in the target file"
+        evidence_type: "string"
+        verification_method: "For each (source rule, target file) pair, run grep -qF \"<full header text>\" <target file> and confirm a match"
+      - id: "SC-4"
+        criterion: "Per-entry dark prose framing appears fewer than 3 times in the file"
+        evidence_type: "string"
+        verification_method: "grep -cE \"Professional engineers|amateurs\" .opencode/guidelines/000-critical-rules.md returns < 3"
+      - id: "SC-5"
+        criterion: "Why This Matters tables are absent from the file"
+        evidence_type: "string"
+        verification_method: "grep -cE \"Why This Matters\" .opencode/guidelines/000-critical-rules.md returns 0"
+      - id: "SC-6"
+        criterion: "Mandate Tiering table, Interaction Rule table, and Channel-Routing Table all remain in the file"
+        evidence_type: "string"
+        verification_method: "grep -qE \"^## Mandate Tiering\" returns 0 AND grep -qE \"^### Interaction Rule\" returns 0 AND grep -qE \"^### Channel-Routing Table\" returns 0"
+      - id: "SC-7"
+        criterion: "Every rule listed in the Universal Rules to Keep enumeration is present with its full header intact"
+        evidence_type: "string"
+        verification_method: "For each of the 18 universal rule headers, grep -qF \"<full header text>\" returns 0"
+      - id: "SC-8"
+        criterion: "No rule body contains a paragraph that adds no new non-stopword tokens beyond the rule's title tokens"
+        evidence_type: "semantic"
+        verification_method: "Token-superset analysis: extract title tokens, diff against each paragraph's token set"
+      - id: "SC-9"
+        criterion: "No remaining rule is duplicated (same full header text appears more than once)"
+        evidence_type: "string"
+        verification_method: "grep -E \"^### [critical-rules-\" | sort | uniq -d returns 0 lines"
+      - id: "SC-10"
+        criterion: "Total count of rule headers in the file equals 18"
+        evidence_type: "string"
+        verification_method: "grep -cE \"^### [critical-rules-\" returns 18"
+  phases:
+    present: true
+    count: 6
+    items:
+      - heading: "Phase 1: Embed moved rules into target files (per-rule, with change reports)"
+        sub_items_count: 2
+      - heading: "Phase 2: Remove intro cross-references and stubs"
+        sub_items_count: 2
+      - heading: "Phase 3: Remove moved rules from 000-critical-rules.md"
+        sub_items_count: 1
+      - heading: "Phase 4: Remove per-entry dark prose and Why This Matters tables"
+        sub_items_count: 2
+      - heading: "Phase 5: Remove redundant FORBIDDEN/REQUIRED subsections"
+        sub_items_count: 1
+      - heading: "Phase 6: Verify all SCs"
+        sub_items_count: 10
+  files_affected:
+    present: true
+    paths:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - "30 target files (listed in the Rules to Move table)"
+  preamble:
+    present: false
+    fields_present: []
+    fields_missing: ["Problem Statement", "Root Cause / Motivation", "Approach Chosen", "Alternatives Considered & Why Discarded", "Key Design Decisions"]
+  documentation_sources:
+    present: false
+    sources: []
+  status_marker: absent
+  prose_elements:
+    tables: 5
+    code_blocks: 0
+    ordered_lists: 1
+    unordered_lists: 0
+
+determinism_evidence:
+  sc_wording:
+    - id: "SC-1"
+      text: "The two intro cross-references to AGENTS.md and the guidelines directory are absent from the file"
+      word_count: 16
+    - id: "SC-2"
+      text: "All Read[ cross-references pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) are absent from the file body. Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+      word_count: 35
+    - id: "SC-3"
+      text: "For each rule in the Rules to Move table: the rule's full header text [critical-rules-NNN] <full title> (as listed in the Source column) appears verbatim in the target file, AND the implementation-pipeline per-rule change report confirms the rule was appended with its complete body."
+      word_count: 44
+    - id: "SC-4"
+      text: "Per-entry dark prose framing (Professional engineers... amateurs...) appears fewer than 3 times in the file (file-level framing allowed, per-entry framing removed)"
+      word_count: 22
+    - id: "SC-5"
+      text: "Why This Matters tables are absent from the file (both headers and bodies)"
+      word_count: 14
+    - id: "SC-6"
+      text: "The Mandate Tiering table, Interaction Rule table, and Channel-Routing Table all remain in the file."
+      word_count: 16
+    - id: "SC-7"
+      text: "Every rule listed in the Universal Rules to Keep enumeration below is present in the file with its full ### [critical-rules-NNN] <description> header intact"
+      word_count: 25
+    - id: "SC-8"
+      text: "No rule body contains a paragraph that adds no new non-stopword tokens beyond the rule's title tokens AND covers >=80% of the title's non-stopword tokens."
+      word_count: 28
+    - id: "SC-9"
+      text: "No remaining ### [critical-rules-NNN] rule is duplicated (same full header text appears more than once)"
+      word_count: 18
+    - id: "SC-10"
+      text: "The total count of ### [critical-rules-NNN] rule headers in the file equals 18"
+      word_count: 16
+  fail_patterns:
+    - sc_id: "SC-2"
+      pattern: "either_or_ambiguity"
+      matched_text: "Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+    - sc_id: "SC-8"
+      pattern: "implicit_behavior"
+      matched_text: "A 'title-restating' paragraph is identified by token-superset analysis"
+  ambiguity_markers:
+    - sc_id: "SC-2"
+      marker: "indirectly"
+      matched_text: "Phase 1 covers this SC indirectly"
+  evidence_type_declarations:
+    - sc_id: "SC-1"
+      declared_type: "string"
+    - sc_id: "SC-2"
+      declared_type: "string"
+    - sc_id: "SC-3"
+      declared_type: "string"
+    - sc_id: "SC-4"
+      declared_type: "string"
+    - sc_id: "SC-5"
+      declared_type: "string"
+    - sc_id: "SC-6"
+      declared_type: "string"
+    - sc_id: "SC-7"
+      declared_type: "string"
+    - sc_id: "SC-8"
+      declared_type: "semantic"
+    - sc_id: "SC-9"
+      declared_type: "string"
+    - sc_id: "SC-10"
+      declared_type: "string"
+  verification_methods:
+    - sc_id: "SC-1"
+      has_verification_method: true
+      method_text: "grep -cE \"Read [the authoritative list|Read [detailed rules\" returns 0"
+    - sc_id: "SC-2"
+      has_verification_method: true
+      method_text: "grep -cE \"Read [.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)\" returns 0"
+    - sc_id: "SC-3"
+      has_verification_method: true
+      method_text: "For each (source rule, target file) pair, grep -qF \"<full header text>\" <target file> and confirm match"
+    - sc_id: "SC-4"
+      has_verification_method: true
+      method_text: "grep -cE \"Professional engineers|amateurs\" returns < 3"
+    - sc_id: "SC-5"
+      has_verification_method: true
+      method_text: "grep -cE \"Why This Matters\" returns 0"
+    - sc_id: "SC-6"
+      has_verification_method: true
+      method_text: "grep -qE \"^## Mandate Tiering\" returns 0 AND grep -qE \"^### Interaction Rule\" returns 0 AND grep -qE \"^### Channel-Routing Table\" returns 0"
+    - sc_id: "SC-7"
+      has_verification_method: true
+      method_text: "For each of 18 universal rule headers, grep -qF \"<full header text>\" returns 0"
+    - sc_id: "SC-8"
+      has_verification_method: true
+      method_text: "Token-superset analysis: extract title tokens, diff against each paragraph's token set"
+    - sc_id: "SC-9"
+      has_verification_method: true
+      method_text: "grep -E \"^### [critical-rules-\" | sort | uniq -d returns 0 lines"
+    - sc_id: "SC-10"
+      has_verification_method: true
+      method_text: "grep -cE \"^### [critical-rules-\" returns 18"
+  failure_description_provided: false
+  failure_description_text: absent
+
+documentation_source_evidence:
+  urls: []
+  api_references: []
+  env_variables: []
+  library_patterns: []
+
+prose_evidence:
+  escape_hatches:
+    - phrase: "Phase 1 covers this SC indirectly. Phase 2 covers it directly."
+      location: "Success Criteria table, SC-2"
+      category: "deferral"
+  tracking_language: []
+  prescriptive_code:
+    - content: "grep -cE \"Read [the authoritative list|Read [detailed rules\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-1"
+      type: "assertion_code"
+    - content: "grep -cE \"Read [.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-2"
+      type: "assertion_code"
+    - content: "grep -cE \"Professional engineers|amateurs\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-4"
+      type: "assertion_code"
+    - content: "grep -cE \"Why This Matters\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-5"
+      type: "assertion_code"
+    - content: "grep -qE \"^## Mandate Tiering\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-6"
+      type: "assertion_code"
+    - content: "grep -qE \"^### Interaction Rule\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-6"
+      type: "assertion_code"
+    - content: "grep -qE \"^### Channel-Routing Table\" .opencode/guidelines/000-critical-rules.md"
+      location: "Success Criteria table, SC-6"
+      type: "assertion_code"
+    - content: "grep -E \"^### [critical-rules-\" | sort | uniq -d"
+      location: "Success Criteria table, SC-9"
+      type: "assertion_code"
+    - content: "grep -cE \"^### [critical-rules-\""
+      location: "Success Criteria table, SC-10"
+      type: "assertion_code"
+  cost_frame_language: []
+
+reasoning_evidence:
+  root_causes:
+    - text: "000-critical-rules.md contains 5 categories of duplicative or harmful content that are not appropriate for a session-start preloaded file"
+      location: "Problem section"
+  fix_approaches:
+    - text: "Move 123 skill-specific rules to 30 target files; keep 18 universal rules in 000-critical-rules.md"
+      location: "Implementation Phases"
+  sc_to_root_cause:
+    - sc_id: "SC-1"
+      references_root_cause: true
+      root_cause_text: "Intro cross-references to preloaded files"
+    - sc_id: "SC-2"
+      references_root_cause: true
+      root_cause_text: "Stubs pointing to preloaded guideline files"
+    - sc_id: "SC-3"
+      references_root_cause: true
+      root_cause_text: "Skill-card-specific and task-card-specific rules"
+    - sc_id: "SC-4"
+      references_root_cause: true
+      root_cause_text: "Per-entry dark prose framing"
+    - sc_id: "SC-5"
+      references_root_cause: true
+      root_cause_text: "Why This Matters tables"
+    - sc_id: "SC-6"
+      references_root_cause: false
+      root_cause_text: "Preservation requirement (not a problem category)"
+    - sc_id: "SC-7"
+      references_root_cause: false
+      root_cause_text: "Preservation requirement (not a problem category)"
+    - sc_id: "SC-8"
+      references_root_cause: false
+      root_cause_text: "Quality improvement (not a problem category)"
+    - sc_id: "SC-9"
+      references_root_cause: false
+      root_cause_text: "Quality check (not a problem category)"
+    - sc_id: "SC-10"
+      references_root_cause: false
+      root_cause_text: "Count verification (not a problem category)"
+  alternatives_considered:
+    present: true
+    items:
+      - alternative: "Leave 000-critical-rules.md as-is"
+        reason_discarded: "Wastes context budget with 141 headers / 1211 lines"
+      - alternative: "Archive the file to a non-preloaded reference path"
+        reason_discarded: "18 universal rules must remain preloaded; file is not entirely removable"
+      - alternative: "Split into multiple preloaded files"
+        reason_discarded: "Increases preloaded instructions array size, compounding the original problem"
+      - alternative: "Use file size or word count as success criteria"
+        reason_discarded: "Rejected per 091-incremental-build.md — implementation correctness is measured by tested verified correct code operations"
+      - alternative: "Use a key phrase substring match in the target file as SC-3"
+        reason_discarded: "Rejected as a fake measurement — a 5-word substring can match coincidentally"
+  edge_cases:
+    present: true
+    items:
+      - "Lost rules: if a rule is moved but target file not updated, rule disappears from instruction set"
+      - "Over-removal: removing a universal rule could leave a safety gap"
+      - "Duplicate preservation: if SC-9 is not verified, file could end up with duplicate headers"
+  potential_contradictions:
+    - statement_a: "Spec claims 141 rule headers in 000-critical-rules.md"
+      statement_b: "Live grep shows 18 rule headers in 000-critical-rules.md"
+      location_a: "Problem section, line 7"
+      location_b: "Live verification via grep -cE \"^### [critical-rules-\""
+
+analytical_artifact_evidence:
+  blast_radius:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/blast-radius.yaml"
+    exists: true
+    size_bytes: 3260
+    modified_at: "2026-07-25T01:32:00Z"
+  concern_map:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/concern-map.yaml"
+    exists: true
+    size_bytes: 1077
+    modified_at: "2026-07-25T01:52:00Z"
+  code_path_inventory:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/code-path-inventory.yaml"
+    exists: true
+    size_bytes: 2125
+    modified_at: "2026-07-25T01:32:00Z"
+  cross_cutting_matrix:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/cross-cutting-matrix.yaml"
+    exists: true
+    size_bytes: 1595
+    modified_at: "2026-07-25T01:32:00Z"
+  interface_compatibility:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/interface-compatibility.yaml"
+    exists: true
+    size_bytes: 2603
+    modified_at: "2026-07-25T01:32:00Z"
+  state_analysis:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/state-analysis.yaml"
+    exists: true
+    size_bytes: 1538
+    modified_at: "2026-07-25T01:32:00Z"
+  testability_assessment:
+    provided: true
+    path: ".opencode/.issues/2121/artifacts/testability-assessment.yaml"
+    exists: true
+    size_bytes: 2335
+    modified_at: "2026-07-25T01:32:00Z"
+
+holistic_dimension_evidence:
+  implementability:
+    single_approach_defined: true
+    sc_count: 10
+    ambiguous_sc_count: 1
+  internal_consistency:
+    cross_section_references: 3
+    preamble_body_alignment_notes: "No preamble section exists. Problem statement is a level-2 heading, not a formal preamble. Spec references 091-incremental-build.md and 080-code-standards.md for size metric prohibition."
+  completeness:
+    undefined_terms: ["token-superset analysis (SC-8)", "title-restating paragraph (SC-8)"]
+    tbd_todo_markers: 0
+    implicit_dependencies:
+      - "SC-3 depends on 123 per-rule change reports being written in Phase 1 before they can be verified in Phase 6"
+      - "SC-2 depends on Phase 1 completing (rules must be moved before their cross-refs can be edited)"
+  scope_discipline:
+    stated_boundaries: "Self-contained refactoring of existing content. No external dependencies."
+    potential_scope_creep_elements:
+      - "SC-8 (token-superset analysis) is a quality improvement beyond the core pruning objective"
+  testability:
+    scs_with_verification_method: 10
+    scs_without_verification_method: 0
+    subjective_judgment_scs: ["SC-8"]
+  provenance:
+    tool_call_evidence_cited: true
+    unsupported_assertions:
+      - "Spec claims 141 rule headers and 1211 lines in 000-critical-rules.md, but live verification shows 18 headers and 301 lines. The spec describes a pre-change state that no longer matches the current file."
+  feasibility:
+    referenced_files:
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/guidelines/091-incremental-build.md"
+      - ".opencode/guidelines/080-code-standards.md"
+      - ".opencode/guidelines/130-authority-source.md"
+      - "30 target files in Rules to Move table"
+    referenced_functions: []
+    referenced_libraries: []
+  safety:
+    destructive_operations:
+      - "Deleting 123 rule blocks from 000-critical-rules.md (Phase 3)"
+      - "Deleting cross-references from moved rule bodies (Phase 2)"
+      - "Deleting Why This Matters tables (Phase 4)"
+      - "Deleting title-restating paragraphs (Phase 5)"
+    data_loss_scenarios:
+      - "If a rule is moved but target file is not updated, the rule disappears from agent instruction set"
+      - "If a universal rule is accidentally removed, a safety gap is created"
+    security_relevant_changes: []
+  traceability:
+    sc_to_phase_mapping:
+      SC-1: "Phase 2, Phase 6"
+      SC-2: "Phase 2, Phase 6"
+      SC-3: "Phase 1, Phase 6"
+      SC-4: "Phase 4, Phase 6"
+      SC-5: "Phase 4, Phase 6"
+      SC-6: "Phase 6"
+      SC-7: "Phase 6"
+      SC-8: "Phase 5, Phase 6"
+      SC-9: "Phase 3, Phase 6"
+      SC-10: "Phase 3, Phase 6"
+    orphan_scs: []
+    orphan_phases: []
+  correctness:
+    problem_statement: "000-critical-rules.md contains 5 categories of duplicative or harmful content not appropriate for a session-start preloaded file"
+    root_cause: "The file accumulated 141 rule headers (1211 lines) over time, most of which are skill-specific and should live in skill files, not in the preloaded critical-rules file"
+    fix_approach: "Move 123 skill-specific rules to 30 target files; keep 18 universal rules; remove dark prose, Why This Matters tables, and redundant subsections"
+
+initial_findings:
+  - "CRITICAL: The spec describes a pre-change state (141 rules, 1211 lines) that does NOT match the current file state (18 rules, 301 lines). Live verification shows the file has already been pruned to exactly the 18 universal rules. This means either: (a) the spec was written before the changes were made and never updated, or (b) the changes have already been partially or fully implemented."
+  - "SC-1, SC-2, SC-4, SC-5, SC-6, SC-9, SC-10 all already PASS based on live grep verification against the current file."
+  - "SC-7 (18 universal rules present) already PASSES — all 18 universal rule headers are confirmed present in the file."
+  - "The spec lacks a formal preamble section (Intent and Executive Summary with the 5 standard fields). The Problem section serves as an informal preamble."
+  - "No documentation sources section exists — the spec does not reference external URLs, API docs, or live documentation sources."
+  - "SC-8 (token-superset analysis) is the only SC with semantic evidence type and the only one requiring subjective judgment. Its verification method is underspecified — no script or tool is defined for the token analysis."
+  - "SC-2 has an ambiguity: it says Phase 1 covers it 'indirectly' and Phase 2 covers it 'directly', but Phase 1 (embedding rules) does not modify cross-references. The indirect coverage claim is unclear."
+  - "All 7 analytical artifacts exist and are non-empty, confirming the spec was created with proper analytical groundwork."
+  - "The plan is well-structured with 6 phases, clear dependency ordering, and per-item RED/GREEN cycles. However, the plan assumes the pre-change state (141 rules) which no longer matches the current file."

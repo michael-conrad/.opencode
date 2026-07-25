@@ -1,0 +1,7 @@
+rule_id: critical-rules-018
+full_header: "[critical-rules-018] Stopping After Single Phase in Multi-Task Plan"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1060-1063"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 178
+status: appended

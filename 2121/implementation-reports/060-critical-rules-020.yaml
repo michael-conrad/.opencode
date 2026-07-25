@@ -1,0 +1,7 @@
+rule_id: critical-rules-020
+full_header: "[critical-rules-020] Soft-Passing Verification Mismatches"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "672-675"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 225
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Skipping Spec/Plan Coherence Gate (Pre-RED)"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "762-765"
+target_file: .opencode/skills/spec-creation/SKILL.md
+body_byte_count: 311
+status: appended

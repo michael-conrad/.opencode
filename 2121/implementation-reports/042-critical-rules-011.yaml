@@ -1,0 +1,7 @@
+rule_id: critical-rules-011
+full_header: "[critical-rules-011] Bug Discovery Does NOT Authorize Bug Fixing"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "575-578"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 291
+status: appended

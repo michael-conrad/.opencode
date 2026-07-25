@@ -1,0 +1,51 @@
+testability_assessment:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep -cE "Read \[the authoritative list\|Read \[detailed rules" .opencode/guidelines/000-critical-rules.md returns 0
+    testable: true
+    notes: Simple grep-based check
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep -cE "Read \[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)" .opencode/guidelines/000-critical-rules.md returns 0
+    testable: true
+    notes: Simple grep-based check
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: For each (source rule, target file) pair, grep -qF "<full header text>" <target file> and confirm match; cross-validate against per-rule change reports
+    testable: true
+    notes: 123 individual grep checks + cross-validation against implementation reports
+  - sc: SC-4
+    evidence_type: string
+    verification_method: grep -cE "Professional engineers\|amateurs" .opencode/guidelines/000-critical-rules.md returns < 3
+    testable: true
+    notes: Simple grep-based check
+  - sc: SC-5
+    evidence_type: string
+    verification_method: grep -cE "Why This Matters" .opencode/guidelines/000-critical-rules.md returns 0
+    testable: true
+    notes: Simple grep-based check
+  - sc: SC-6
+    evidence_type: string
+    verification_method: grep -qE "^## Mandate Tiering" returns 0 AND grep -qE "^### Interaction Rule" returns 0 AND grep -qE "^### Channel-Routing Table" returns 0
+    testable: true
+    notes: Three grep-based checks
+  - sc: SC-7
+    evidence_type: string
+    verification_method: For each of 18 universal rule headers, grep -qF "<full header text>" .opencode/guidelines/000-critical-rules.md returns 0
+    testable: true
+    notes: 18 individual grep checks
+  - sc: SC-8
+    evidence_type: behavioral
+    verification_method: Token-superset analysis — extract title tokens, diff against each paragraph's token set
+    testable: true
+    notes: Requires script-based token analysis; not a simple grep
+  - sc: SC-9
+    evidence_type: string
+    verification_method: grep -E "^### \[critical-rules-" | sort | uniq -d returns 0 lines
+    testable: true
+    notes: Simple grep + uniq check
+  - sc: SC-10
+    evidence_type: string
+    verification_method: grep -cE "^### \[critical-rules-" returns 18
+    testable: true
+    notes: Simple grep count check

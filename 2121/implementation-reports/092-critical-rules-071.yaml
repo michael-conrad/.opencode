@@ -1,0 +1,7 @@
+rule_id: critical-rules-071
+full_header: "[critical-rules-071] Revision-Not-Replacement — defective sub-agent deliverables MUST be revised, not replaced"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "936-956"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 1262
+status: appended

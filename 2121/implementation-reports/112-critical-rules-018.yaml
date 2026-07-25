@@ -1,0 +1,7 @@
+rule_id: critical-rules-018
+full_header: "[critical-rules-018] Sub-issue Linkage Verification — phase count mismatch"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1105-1108"
+target_file: .opencode/skills/issue-operations-sub-issues/SKILL.md
+body_byte_count: 171
+status: appended

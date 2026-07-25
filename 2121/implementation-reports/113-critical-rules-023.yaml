@@ -1,0 +1,7 @@
+rule_id: critical-rules-023
+full_header: "[critical-rules-023] Posting AI-Authored Content Without Byline Verification"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1109-1112"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 155
+status: appended

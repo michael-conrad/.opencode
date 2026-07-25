@@ -1,0 +1,7 @@
+rule_id: critical-rules-030
+full_header: "[critical-rules-030] Skipping Clean-Room task() for Sub-Agents"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "676-679"
+target_file: .opencode/guidelines/060-tool-usage.md
+body_byte_count: 273
+status: appended

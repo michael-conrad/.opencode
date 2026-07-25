@@ -1,0 +1,7 @@
+rule_id: critical-rules-044
+full_header: "[critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "811-814"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 459
+status: appended

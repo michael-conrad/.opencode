@@ -1,0 +1,7 @@
+rule_id: critical-rules-linters-advisory
+full_header: "[critical-rules-linters-advisory] All linters are advisory only — no auto-modify"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "893-903"
+target_file: .opencode/guidelines/060-tool-usage.md
+body_byte_count: 678
+status: appended

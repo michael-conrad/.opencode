@@ -1,0 +1,7 @@
+rule_id: critical-rules-007
+full_header: "[critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "302-320"
+target_file: .opencode/skills/using-git-worktrees/SKILL.md
+body_byte_count: 790
+status: appended

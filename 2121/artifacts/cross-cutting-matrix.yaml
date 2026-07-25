@@ -1,0 +1,51 @@
+cross_cutting_scs:
+  - sc: SC-3
+    concerns:
+      - rule-migration
+      - verification
+    reason: SC-3 spans both the migration action (Phase 1) and the verification of migration correctness (Phase 6)
+  - sc: SC-6
+    concerns:
+      - structural-integrity
+      - verification
+    reason: SC-6 verifies preservation of structural elements, verified in Phase 6
+  - sc: SC-7
+    concerns:
+      - structural-integrity
+      - verification
+    reason: SC-7 verifies universal rules preserved, verified in Phase 6
+  - sc: SC-9
+    concerns:
+      - structural-integrity
+      - verification
+    reason: SC-9 verifies no duplicates after Phase 3 removals, verified in Phase 6
+  - sc: SC-10
+    concerns:
+      - structural-integrity
+      - verification
+    reason: SC-10 verifies correct count after Phase 3 removals, verified in Phase 6
+  - sc: SC-1
+    concerns:
+      - cross-reference-cleanup
+      - verification
+    reason: SC-1 is both a cleanup action (Phase 2) and verified in Phase 6
+  - sc: SC-2
+    concerns:
+      - cross-reference-cleanup
+      - verification
+    reason: SC-2 is both a cleanup action (Phase 2) and verified in Phase 6
+  - sc: SC-4
+    concerns:
+      - content-cleanup
+      - verification
+    reason: SC-4 is both a cleanup action (Phase 4) and verified in Phase 6
+  - sc: SC-5
+    concerns:
+      - content-cleanup
+      - verification
+    reason: SC-5 is both a cleanup action (Phase 4) and verified in Phase 6
+  - sc: SC-8
+    concerns:
+      - content-cleanup
+      - verification
+    reason: SC-8 is both a cleanup action (Phase 5) and verified in Phase 6

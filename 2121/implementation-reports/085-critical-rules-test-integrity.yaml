@@ -1,0 +1,7 @@
+rule_id: critical-rules-test-integrity
+full_header: "[critical-rules-test-integrity] Test Integrity Mandate — No Lobotomizing Tests"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "844-855"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 1045
+status: appended

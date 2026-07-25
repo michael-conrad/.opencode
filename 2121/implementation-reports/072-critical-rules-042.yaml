@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Gate Non-Waiver Principle — "continue" does not waive mandatory gates"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "770-773"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 312
+status: appended

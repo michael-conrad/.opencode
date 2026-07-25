@@ -1,0 +1,7 @@
+rule_id: critical-rules-049
+full_header: "[critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1117-1123"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 796
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-070
+full_header: "[critical-rules-070] Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1101-1104"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 801
+status: appended

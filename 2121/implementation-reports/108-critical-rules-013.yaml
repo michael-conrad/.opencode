@@ -1,0 +1,7 @@
+rule_id: critical-rules-013
+full_header: "[critical-rules-013] Parent/Child Issue Closure"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1088-1091"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 155
+status: appended

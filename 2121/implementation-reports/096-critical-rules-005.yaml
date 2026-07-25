@@ -1,0 +1,7 @@
+rule_id: critical-rules-005
+full_header: "[critical-rules-005] Skipping Git Pre-Check — working without feature branch"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1022-1043"
+target_file: .opencode/skills/git-workflow-branch/SKILL.md
+body_byte_count: 951
+status: appended

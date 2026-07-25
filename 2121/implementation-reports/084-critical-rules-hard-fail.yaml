@@ -1,0 +1,7 @@
+rule_id: critical-rules-hard-fail
+full_header: "[critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "827-843"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 2174
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-013
+full_header: "[critical-rules-013] Assuming Closed Issues Are Verified"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1068-1071"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 209
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Conflating Issue References with Authorization Cascade"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "587-590"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 303
+status: appended

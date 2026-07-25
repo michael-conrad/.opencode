@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Fabricating URLs"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "452-488"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 2946
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-039
+full_header: "[critical-rules-039] Process Gaps Are Bugs — completed issues not auto-closed"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1097-1100"
+target_file: .opencode/skills/verification-before-completion/SKILL.md
+body_byte_count: 200
+status: appended

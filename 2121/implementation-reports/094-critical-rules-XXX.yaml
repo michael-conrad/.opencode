@@ -1,0 +1,7 @@
+rule_id: critical-rules-XXX
+full_header: "[critical-rules-XXX] Derivation Provenance — every element must have a consumer or first-principles justification"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "979-1017"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 2691
+status: appended

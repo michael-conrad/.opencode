@@ -1,0 +1,7 @@
+rule_id: critical-rules-PR-ORG
+full_header: "[critical-rules-PR-ORG] Stacked PR Is the Only Valid Organization"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1161-1173"
+target_file: .opencode/skills/git-workflow-pr/SKILL.md
+body_byte_count: 825
+status: appended

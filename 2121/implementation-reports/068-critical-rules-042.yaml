@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Discard on Sub-Agent Failure"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "754-757"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 234
+status: appended

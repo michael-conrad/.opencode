@@ -1,0 +1,7 @@
+rule_id: critical-rules-015
+full_header: "[critical-rules-015] Plan ≠ Execution — treating documentation as evidence of completion"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "401-404"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 373
+status: appended

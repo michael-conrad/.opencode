@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Auditor Skills Enforcement"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "567-570"
+target_file: .opencode/skills/audit/SKILL.md
+body_byte_count: 273
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-dispatch-gate-canonical
+full_header: "[critical-rules-dispatch-gate-canonical] Canonical Dispatch String Violation — orchestrator uses custom prompt after reading canonical dispatch string"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "912-935"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 1905
+status: appended

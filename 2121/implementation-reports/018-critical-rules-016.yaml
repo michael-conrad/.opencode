@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Wrong PR Body Format"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "444-447"
+target_file: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+body_byte_count: 438
+status: appended

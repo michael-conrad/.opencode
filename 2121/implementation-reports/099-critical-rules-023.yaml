@@ -1,0 +1,7 @@
+rule_id: critical-rules-023
+full_header: "[critical-rules-023] Hardcoded Identity Values in Skills and Guidelines"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1052-1055"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 205
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-037
+full_header: "[critical-rules-037] Structural Decision Solicitation Under for_pr Scope"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1113-1116"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 153
+status: appended

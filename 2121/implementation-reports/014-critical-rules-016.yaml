@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Skipping Post-Implementation Verification Skills"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "428-431"
+target_file: .opencode/skills/verification-before-completion/SKILL.md
+body_byte_count: 422
+status: appended

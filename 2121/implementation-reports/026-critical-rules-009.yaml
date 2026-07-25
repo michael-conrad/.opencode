@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Enforcement Test Updates — guideline/skill changes without BEHAVIORAL enforcement tests"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "509-512"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 519
+status: appended

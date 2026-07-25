@@ -1,0 +1,7 @@
+rule_id: critical-rules-030
+full_header: "[critical-rules-030] Sub-Agents Ignoring Worktree Context — sub-agents modifying main repo instead of worktree"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "340-358"
+target_file: .opencode/skills/using-git-worktrees/SKILL.md
+body_byte_count: 787
+status: appended

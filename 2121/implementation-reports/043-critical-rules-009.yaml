@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Authorization-Free Actions — no deliberation required"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "579-582"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 508
+status: appended

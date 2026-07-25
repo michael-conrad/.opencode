@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Session Trigger Echo — parroting triggers in agent output"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "424-427"
+target_file: .opencode/guidelines/117-session-trigger-behavior.md
+body_byte_count: 400
+status: appended

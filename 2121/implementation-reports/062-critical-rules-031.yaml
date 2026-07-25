@@ -1,0 +1,7 @@
+rule_id: critical-rules-031
+full_header: "[critical-rules-031] Skipping Pre-Flight Checks for Sub-Agents"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "680-683"
+target_file: .opencode/guidelines/060-tool-usage.md
+body_byte_count: 224
+status: appended

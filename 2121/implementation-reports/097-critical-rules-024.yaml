@@ -1,0 +1,7 @@
+rule_id: critical-rules-024
+full_header: "[critical-rules-024] Uncommitted/Unpushed Changes After Implementation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1044-1047"
+target_file: .opencode/skills/finishing-a-development-branch/SKILL.md
+body_byte_count: 181
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Model-Aware Clean-Room task() for Behavioral Testing"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "803-806"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 366
+status: appended

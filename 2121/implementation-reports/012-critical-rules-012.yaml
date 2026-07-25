@@ -1,0 +1,7 @@
+rule_id: critical-rules-012
+full_header: "[critical-rules-012] Acting on Resources Without Reading All Comments"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "420-423"
+target_file: .opencode/guidelines/067-context-completeness.md
+body_byte_count: 422
+status: appended

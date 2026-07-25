@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Session-Verified State Trust — re-reading without state-change trigger"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "656-659"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 297
+status: appended

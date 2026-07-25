@@ -1,0 +1,7 @@
+rule_id: critical-rules-016
+full_header: "[critical-rules-016] Skill Bypass = Critical Violation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "563-566"
+target_file: .opencode/skills/implementation-pipeline/SKILL.md
+body_byte_count: 221
+status: appended

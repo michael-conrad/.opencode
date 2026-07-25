@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Single Concern Principle — every artifact addresses exactly one concern"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "529-532"
+target_file: .opencode/skills/programming-principles/SKILL.md
+body_byte_count: 347
+status: appended

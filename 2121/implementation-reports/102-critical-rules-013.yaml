@@ -1,0 +1,7 @@
+rule_id: critical-rules-013
+full_header: "[critical-rules-013] Sub-issue Closure Timing"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1064-1067"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 118
+status: appended

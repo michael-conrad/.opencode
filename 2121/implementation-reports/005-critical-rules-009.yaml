@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Verification Dishonesty — reporting memory as verified"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "385-388"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 339
+status: appended

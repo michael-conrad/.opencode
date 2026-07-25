@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Blind Conflict Resolution"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "603-606"
+target_file: .opencode/skills/conflict-resolution/SKILL.md
+body_byte_count: 367
+status: appended

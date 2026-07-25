@@ -1,0 +1,7 @@
+rule_id: critical-rules-043
+full_header: "[critical-rules-043] Universal Re-Task Mandate — no inline fallback on sub-agent failure"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "815-818"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 370
+status: appended

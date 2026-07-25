@@ -1,0 +1,39 @@
+variables:
+  current_phase:
+    type: string
+    domain: ["embed_moved_rules", "remove_intro_cross_refs", "remove_moved_rules", "strip_dark_prose", "remove_redundant_paragraphs", "verify_all_scs", "done"]
+  embed_moved_rules_completed:
+    type: bool
+    nullable: false
+  remove_intro_cross_refs_completed:
+    type: bool
+    nullable: false
+  remove_moved_rules_completed:
+    type: bool
+    nullable: false
+  strip_dark_prose_completed:
+    type: bool
+    nullable: false
+  remove_redundant_paragraphs_completed:
+    type: bool
+    nullable: false
+  verify_all_scs_completed:
+    type: bool
+    nullable: false
+preconditions:
+  - "z3.BoolVal(True)"
+invariants:
+  - "z3.Implies(z3.BoolVal(remove_intro_cross_refs_completed), z3.BoolVal(embed_moved_rules_completed))"
+  - "z3.Implies(z3.BoolVal(remove_moved_rules_completed), z3.BoolVal(remove_intro_cross_refs_completed))"
+  - "z3.Implies(z3.BoolVal(strip_dark_prose_completed), z3.BoolVal(remove_moved_rules_completed))"
+  - "z3.Implies(z3.BoolVal(remove_redundant_paragraphs_completed), z3.BoolVal(strip_dark_prose_completed))"
+  - "z3.Implies(z3.BoolVal(verify_all_scs_completed), z3.BoolVal(remove_redundant_paragraphs_completed))"
+  - "z3.Implies(current_phase == z3.StringVal('remove_intro_cross_refs'), z3.BoolVal(embed_moved_rules_completed))"
+  - "z3.Implies(current_phase == z3.StringVal('remove_moved_rules'), z3.BoolVal(remove_intro_cross_refs_completed))"
+  - "z3.Implies(current_phase == z3.StringVal('strip_dark_prose'), z3.BoolVal(remove_moved_rules_completed))"
+  - "z3.Implies(current_phase == z3.StringVal('remove_redundant_paragraphs'), z3.BoolVal(strip_dark_prose_completed))"
+  - "z3.Implies(current_phase == z3.StringVal('verify_all_scs'), z3.BoolVal(remove_redundant_paragraphs_completed))"
+postconditions:
+  - "z3.BoolVal(verify_all_scs_completed)"
+theorem:
+  - "z3.Implies(z3.BoolVal(verify_all_scs_completed), z3.And(z3.BoolVal(embed_moved_rules_completed), z3.BoolVal(remove_intro_cross_refs_completed), z3.BoolVal(remove_moved_rules_completed), z3.BoolVal(strip_dark_prose_completed), z3.BoolVal(remove_redundant_paragraphs_completed)))"

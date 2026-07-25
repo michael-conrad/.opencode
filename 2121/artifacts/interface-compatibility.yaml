@@ -1,0 +1,45 @@
+interface_boundaries:
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/010-approval-gate.md
+    compatibility: compatible
+    notes: Rules moved from 000 to 010 are already referenced by 010's trigger patterns. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/020-go-prohibitions.md
+    compatibility: compatible
+    notes: Rules moved to 020 are already referenced by 020's trigger patterns. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/060-tool-usage.md
+    compatibility: compatible
+    notes: Rules moved to 060 are already referenced by 060's trigger patterns. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/065-verification-honesty.md
+    compatibility: compatible
+    notes: Rules moved to 065 are already referenced by 065's trigger patterns. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/067-context-completeness.md
+    compatibility: compatible
+    notes: Rules moved to 067 are already referenced by 067's trigger patterns. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/075-docs-verification.md
+    compatibility: compatible
+    notes: Single rule moved to 075. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/080-code-standards.md
+    compatibility: compatible
+    notes: Rules moved to 080 are already referenced by 080's trigger patterns. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/091-incremental-build.md
+    compatibility: compatible
+    notes: Single rule moved to 091. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/117-session-trigger-behavior.md
+    compatibility: compatible
+    notes: Single rule moved to 117. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: .opencode/guidelines/130-authority-source.md
+    compatibility: compatible
+    notes: Single rule moved to 130. No structural conflict.
+  - source: .opencode/guidelines/000-critical-rules.md
+    target: skill files (20 skills)
+    compatibility: compatible
+    notes: Rules moved to skill SKILL.md and task files are contextually appropriate — skill-specific rules belong in skill files. No structural conflict.

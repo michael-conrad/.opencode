@@ -1,0 +1,7 @@
+rule_id: critical-rules-038
+full_header: "[critical-rules-038] Implementing Before PR Merge Boundary"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "795-798"
+target_file: .opencode/skills/git-workflow-pr/SKILL.md
+body_byte_count: 286
+status: appended

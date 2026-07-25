@@ -1,0 +1,7 @@
+rule_id: critical-rules-008
+full_header: "[critical-rules-008] Implementing Without Verifying Against Live Documentation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "359-380"
+target_file: .opencode/guidelines/075-docs-verification.md
+body_byte_count: 1064
+status: appended

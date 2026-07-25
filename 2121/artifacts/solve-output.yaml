@@ -1,0 +1,12 @@
+status: SAT
+finding_summary: "Dependency contract validated — 6-phase linear DAG is satisfiable. All preconditions, invariants, and postconditions hold."
+contract_path: .opencode/.issues/2121/dependency-contract.yaml
+state_path: .opencode/.issues/2121/artifacts/solve-state.yaml
+model:
+  current_phase: embed_rules
+  embed_rules_completed: false
+  remove_intro_cross_refs_completed: false
+  remove_moved_rules_completed: false
+  strip_dark_prose_completed: false
+  remove_title_restating_paragraphs_completed: false
+  verify_all_scs_completed: false

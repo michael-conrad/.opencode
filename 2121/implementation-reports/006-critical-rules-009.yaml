@@ -1,0 +1,7 @@
+rule_id: critical-rules-009
+full_header: "[critical-rules-009] Metadata-as-Evidence — workflow metadata is not evidence of implementation"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "389-392"
+target_file: .opencode/guidelines/065-verification-honesty.md
+body_byte_count: 368
+status: appended

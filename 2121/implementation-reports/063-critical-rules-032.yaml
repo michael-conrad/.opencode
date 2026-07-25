@@ -1,0 +1,7 @@
+rule_id: critical-rules-032
+full_header: "[critical-rules-032] Skipping Post-Flight Checks for Sub-Agents"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "684-687"
+target_file: .opencode/guidelines/060-tool-usage.md
+body_byte_count: 239
+status: appended

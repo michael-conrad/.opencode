@@ -1,0 +1,7 @@
+rule_id: critical-rules-007
+full_header: "[critical-rules-007] Relative File Paths in Worktree Context — using relative paths when worktree.path is set"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "321-339"
+target_file: .opencode/skills/using-git-worktrees/SKILL.md
+body_byte_count: 803
+status: appended

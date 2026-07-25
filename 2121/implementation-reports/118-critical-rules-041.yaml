@@ -1,0 +1,7 @@
+rule_id: critical-rules-041
+full_header: "[critical-rules-041] Listing Merged PRs Without Calling Cleanup"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1132-1135"
+target_file: .opencode/skills/git-workflow-cleanup/SKILL.md
+body_byte_count: 101
+status: appended

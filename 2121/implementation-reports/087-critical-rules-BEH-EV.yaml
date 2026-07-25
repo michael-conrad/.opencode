@@ -1,0 +1,7 @@
+rule_id: critical-rules-BEH-EV
+full_header: "[critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "870-892"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 2946
+status: appended

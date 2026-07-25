@@ -1,0 +1,7 @@
+rule_id: critical-rules-042
+full_header: "[critical-rules-042] Engineering Mindset Required"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "607-610"
+target_file: .opencode/skills/engineering-approach/SKILL.md
+body_byte_count: 278
+status: appended

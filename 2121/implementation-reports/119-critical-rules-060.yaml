@@ -1,0 +1,7 @@
+rule_id: critical-rules-060
+full_header: "[critical-rules-060] Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1136-1160"
+target_file: .opencode/guidelines/080-code-standards.md
+body_byte_count: 2121
+status: appended

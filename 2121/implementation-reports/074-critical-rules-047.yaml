@@ -1,0 +1,7 @@
+rule_id: critical-rules-047
+full_header: "[critical-rules-047] VbC Fabricated PASS — reporting file existence as verified behavioral evidence"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "778-781"
+target_file: .opencode/skills/verification-before-completion/SKILL.md
+body_byte_count: 385
+status: appended

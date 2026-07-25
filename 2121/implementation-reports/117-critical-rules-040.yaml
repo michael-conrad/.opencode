@@ -1,0 +1,7 @@
+rule_id: critical-rules-040
+full_header: "[critical-rules-040] Un-Squashed PR — creating single-issue PR with multiple commits"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "1128-1131"
+target_file: .opencode/skills/git-workflow-pr/SKILL.md
+body_byte_count: 159
+status: appended

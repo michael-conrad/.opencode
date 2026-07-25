@@ -1,0 +1,293 @@
+spec_path: .opencode/.issues/2121/spec.md
+analysis_summary_path: .opencode/.issues/2121/artifacts/analysis-summary.yaml
+created_at: "2026-07-25"
+
+phases:
+  - id: phase-1
+    name: Embed moved rules into target files
+    description: For each (source rule, target file) entry in the Rules to Move table, append the rule's full header and body to the target file. Write per-rule change reports.
+    sc_ids:
+      - SC-3
+    items:
+      - id: item-1.1
+        sc_id: SC-3
+        description: Append each moved rule's full header and body to its target file
+        red_green_cycle:
+          red: Write grep-based test that confirms rule header is NOT yet in target file
+          green: Append rule header + body to target file
+          verify: grep -qF "<full header text>" <target file> returns 0
+          commit: Commit per-rule change report + target file update
+      - id: item-1.2
+        sc_id: SC-3
+        description: Write per-rule change reports to .opencode/.issues/2121/implementation-reports/<rule-id>.yaml
+        red_green_cycle:
+          red: Verify change report file does not exist
+          green: Write change report with source line range, target line range, full header text, body byte count, tool-call evidence
+          verify: Change report file exists and contains all required fields
+          commit: Commit change report
+    skill_task: green-phase (test-driven-development --task green)
+    depends_on: []
+
+  - id: phase-2
+    name: Remove intro cross-references and stubs
+    description: Delete the two intro cross-references to AGENTS.md and the guidelines directory. Replace or remove Read[ cross-refs pointing to preloaded guidelines in moved rule bodies.
+    sc_ids:
+      - SC-1
+      - SC-2
+    items:
+      - id: item-2.1
+        sc_id: SC-1
+        description: Delete the two intro cross-references to AGENTS.md and the guidelines directory (lines 9-10)
+        red_green_cycle:
+          red: grep -cE "Read \[the authoritative list|Read \[detailed rules" returns 2
+          green: Delete the two intro cross-reference lines
+          verify: grep -cE "Read \[the authoritative list|Read \[detailed rules" returns 0
+          commit: Commit the deletion
+      - id: item-2.2
+        sc_id: SC-2
+        description: For each Read[ cross-ref pointing to preloaded guidelines (010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130) in moved rule bodies, replace with rule's own text or remove
+        red_green_cycle:
+          red: grep -cE "Read \[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)" returns 18
+          green: Replace or remove each matching cross-ref in moved rule bodies
+          verify: grep -cE "Read \[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)" returns 0
+          commit: Commit the cross-ref replacements
+    skill_task: green-phase (test-driven-development --task green)
+    depends_on:
+      - phase-1
+
+  - id: phase-3
+    name: Remove moved rules from 000-critical-rules.md
+    description: For each moved rule, delete the ### [critical-rules-NNN] block from the source file. After all removals, verify exactly 18 headers remain with no duplicates.
+    sc_ids:
+      - SC-9
+      - SC-10
+    items:
+      - id: item-3.1
+        sc_id: SC-9
+        description: Verify no duplicate ### [critical-rules- headers remain
+        red_green_cycle:
+          red: grep -E "^### \[critical-rules-" | sort | uniq -d returns > 0 lines
+          green: Remove duplicate headers if any exist
+          verify: grep -E "^### \[critical-rules-" | sort | uniq -d returns 0 lines
+          commit: Commit deduplication
+      - id: item-3.2
+        sc_id: SC-10
+        description: Verify exactly 18 ### [critical-rules- headers remain
+        red_green_cycle:
+          red: grep -cE "^### \[critical-rules-" returns > 18
+          green: Delete each moved rule's ### [critical-rules-NNN] block from source file
+          verify: grep -cE "^### \[critical-rules-" returns 18
+          commit: Commit the removals
+    skill_task: green-phase (test-driven-development --task green)
+    depends_on:
+      - phase-1
+
+  - id: phase-4
+    name: Remove per-entry dark prose and Why This Matters tables
+    description: Replace per-entry "Professional engineers... amateurs..." framing with direct rule statements. Delete all Why This Matters tables.
+    sc_ids:
+      - SC-4
+      - SC-5
+    items:
+      - id: item-4.1
+        sc_id: SC-4
+        description: Replace per-entry dark prose framing with direct rule statements; keep file-level framing
+        red_green_cycle:
+          red: grep -cE "Professional engineers|amateurs" returns >= 3
+          green: Replace per-entry dark prose with direct rule statements
+          verify: grep -cE "Professional engineers|amateurs" returns < 3
+          commit: Commit dark prose replacements
+      - id: item-4.2
+        sc_id: SC-5
+        description: Delete all Why This Matters tables (headers and bodies)
+        red_green_cycle:
+          red: grep -cE "Why This Matters" returns > 0
+          green: Delete all Why This Matters table headers and bodies
+          verify: grep -cE "Why This Matters" returns 0
+          commit: Commit table deletions
+    skill_task: green-phase (test-driven-development --task green)
+    depends_on:
+      - phase-3
+
+  - id: phase-5
+    name: Remove redundant FORBIDDEN/REQUIRED subsections
+    description: For each remaining universal rule, check whether FORBIDDEN/REQUIRED subsections add content beyond the rule header. Delete title-restating paragraphs per SC-8 token-superset definition.
+    sc_ids:
+      - SC-8
+    items:
+      - id: item-5.1
+        sc_id: SC-8
+        description: For each remaining ### [critical-rules-NNN] rule, tokenize title, diff each paragraph's token set against title's set, delete paragraphs that are title-restatements
+        red_green_cycle:
+          red: Run token-superset analysis, identify restating paragraphs
+          green: Delete identified title-restating paragraphs
+          verify: Re-run token-superset analysis, confirm no title-restating paragraphs remain
+          commit: Commit paragraph deletions
+    skill_task: green-phase (test-driven-development --task green)
+    depends_on:
+      - phase-4
+
+  - id: phase-6
+    name: Verify all SCs
+    description: Run each SC's verification method and confirm PASS for all 10 SCs
+    sc_ids:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+    items:
+      - id: item-6.1
+        sc_id: SC-1
+        description: grep intro cross-refs — expect 0
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -cE "Read \[the authoritative list|Read \[detailed rules"
+          verify: Returns 0
+          commit: N/A
+      - id: item-6.2
+        sc_id: SC-2
+        description: grep preloaded guideline cross-refs — expect 0
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -cE "Read \[.*guidelines/0(10|20|60|65|67|75|80|90|91|117|130)"
+          verify: Returns 0
+          commit: N/A
+      - id: item-6.3
+        sc_id: SC-3
+        description: Verify 123 per-rule change reports exist with full-header grep confirmation
+        red_green_cycle:
+          red: N/A (verification only)
+          green: For each (source rule, target file), grep -qF "<full header text>" <target file>
+          verify: All 123 grep calls return 0
+          commit: N/A
+      - id: item-6.4
+        sc_id: SC-4
+        description: grep dark prose count — expect < 3
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -cE "Professional engineers|amateurs"
+          verify: Returns < 3
+          commit: N/A
+      - id: item-6.5
+        sc_id: SC-5
+        description: grep Why This Matters — expect 0
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -cE "Why This Matters"
+          verify: Returns 0
+          commit: N/A
+      - id: item-6.6
+        sc_id: SC-6
+        description: Verify Mandate Tiering, Interaction Rule, Channel-Routing Table headings remain
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -qE "^## Mandate Tiering", "^### Interaction Rule", "^### Channel-Routing Table"
+          verify: All three return 0
+          commit: N/A
+      - id: item-6.7
+        sc_id: SC-7
+        description: Verify all 18 universal rule headers are present
+        red_green_cycle:
+          red: N/A (verification only)
+          green: For each of 18 universal rule headers, grep -qF "<full header text>"
+          verify: All 18 return 0
+          commit: N/A
+      - id: item-6.8
+        sc_id: SC-8
+        description: Re-run token-superset analysis — confirm no title-restating paragraphs
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run token-superset diff for each remaining rule body
+          verify: No title-restating paragraphs found
+          commit: N/A
+      - id: item-6.9
+        sc_id: SC-9
+        description: Verify no duplicate headers
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -E "^### \[critical-rules-" | sort | uniq -d
+          verify: Returns 0 lines
+          commit: N/A
+      - id: item-6.10
+        sc_id: SC-10
+        description: Verify exactly 18 rule headers
+        red_green_cycle:
+          red: N/A (verification only)
+          green: Run grep -cE "^### \[critical-rules-"
+          verify: Returns 18
+          commit: N/A
+    skill_task: green-vbc (verification-before-completion --task completion)
+    depends_on:
+      - phase-1
+      - phase-2
+      - phase-3
+      - phase-4
+      - phase-5
+
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      reason: Cross-refs in moved rule bodies must be embedded before they can be edited
+    - from: phase-1
+      to: phase-3
+      reason: Rules must be embedded in target files before they can be removed from source
+    - from: phase-3
+      to: phase-4
+      reason: Dark prose and Why This Matters tables operate on remaining rules after moved rules are removed
+    - from: phase-4
+      to: phase-5
+      reason: FORBIDDEN/REQUIRED subsection cleanup operates on remaining rules after dark prose removal
+    - from: phase-1
+      to: phase-6
+      reason: Phase 6 verifies SC-3 (embedding)
+    - from: phase-2
+      to: phase-6
+      reason: Phase 6 verifies SC-1, SC-2 (cross-ref removal)
+    - from: phase-3
+      to: phase-6
+      reason: Phase 6 verifies SC-9, SC-10 (header count)
+    - from: phase-4
+      to: phase-6
+      reason: Phase 6 verifies SC-4, SC-5 (dark prose, tables)
+    - from: phase-5
+      to: phase-6
+      reason: Phase 6 verifies SC-8 (title-restating paragraphs)
+
+skill_task_selection:
+  phase-1:
+    skill: test-driven-development
+    task: green
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+    context: { issue_number: 2121, sc_ids: [SC-3] }
+  phase-2:
+    skill: test-driven-development
+    task: green
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+    context: { issue_number: 2121, sc_ids: [SC-1, SC-2] }
+  phase-3:
+    skill: test-driven-development
+    task: green
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+    context: { issue_number: 2121, sc_ids: [SC-9, SC-10] }
+  phase-4:
+    skill: test-driven-development
+    task: green
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+    context: { issue_number: 2121, sc_ids: [SC-4, SC-5] }
+  phase-5:
+    skill: test-driven-development
+    task: green
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+    context: { issue_number: 2121, sc_ids: [SC-8] }
+  phase-6:
+    skill: verification-before-completion
+    task: completion
+    dispatch_string: 'task(..., prompt: "execute completion from verification-before-completion. Read `verification-before-completion/tasks/completion.md` first")'
+    context: { issue_number: 2121, sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10] }

@@ -1,0 +1,7 @@
+rule_id: critical-rules-025
+full_header: "[critical-rules-025] Implementation-First Gate — halting before producing deliverables"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "525-528"
+target_file: .opencode/skills/executing-plans/SKILL.md
+body_byte_count: 386
+status: appended

@@ -1,0 +1,7 @@
+rule_id: critical-rules-035
+full_header: "[critical-rules-035] DISPATCH_GATE Checkpoint skipped"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "729-746"
+target_file: .opencode/guidelines/020-go-prohibitions.md
+body_byte_count: 1286
+status: appended

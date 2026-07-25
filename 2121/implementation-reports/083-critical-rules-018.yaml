@@ -1,0 +1,7 @@
+rule_id: critical-rules-018
+full_header: "[critical-rules-018] Pipeline-Scoped Authorization with Hard HALT at Scope Boundary"
+source_file: .opencode/guidelines/000-critical-rules.md
+source_line_range: "823-826"
+target_file: .opencode/guidelines/010-approval-gate.md
+body_byte_count: 179
+status: appended
