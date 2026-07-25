@@ -16,9 +16,17 @@ Thin wrapper dispatching `tasks/verify-blockers.md` for blocking dependency chec
 
 ## Procedure
 
-Dispatch `tasks/verify-blockers.md` with the current issue context. Reads from work state `## verify-codebase`, writes to `## verify-blockers`.
+Dispatch `tasks/verify-blockers.md` with the current issue context. Reads from `{project_root}/tmp/{issue-N}/verify-authorization/verify-codebase.yaml`, writes to `{project_root}/tmp/{issue-N}/verify-authorization/verify-blockers.yaml`.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## verify-codebase`
-- **Writes to:** `## verify-blockers`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/verify-blockers.yaml`.
+
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/verify-codebase.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<blocking dependency findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/verify-blockers.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

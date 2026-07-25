@@ -17,9 +17,17 @@ Thin wrapper dispatching `tasks/verify-already-implemented.md` for terminal gate
 
 ## Procedure
 
-Dispatch `tasks/verify-already-implemented.md` with the current issue context. Reads from work state `## verify-closed-issue-main`, writes to `## verify-already-implemented`.
+Dispatch `tasks/verify-already-implemented.md` with the current issue context. Reads from `{project_root}/tmp/{issue-N}/verify-authorization/verify-closed-issue-main.yaml`, writes to `{project_root}/tmp/{issue-N}/verify-authorization/verify-already-implemented.yaml`.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## verify-closed-issue-main`
-- **Writes to:** `## verify-already-implemented`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/verify-already-implemented.yaml`.
+
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/verify-closed-issue-main.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<already-implemented verification findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/verify-already-implemented.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

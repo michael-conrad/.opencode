@@ -26,7 +26,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "verify authorization" / "check approval" | `verify-authorization` | `sub-task` | {issue_number, authorization_scope} |
 | "screen issue" / "triage" | `screen-issue` | `sub-task` | {issue_number} |
 | "pre-implementation analysis" | `pre-implementation-analysis` | `sub-task` | {issue_numbers} |
 | "verify blockers" | `verify-blockers` | `sub-task` | {issue_number} |
@@ -60,6 +59,127 @@ Authorization scope gatekeeper. Verifies scope, cascade, and halt boundaries by 
 
 All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, github.owner, github.repo }` with zero file paths. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in the implementation-pipeline SKILL.md Trigger Dispatch Table.
 
+For the `verify-authorization` workflow, the orchestrator reads the [## Workflows](#workflows) section and dispatches each step as an individual `task()` call. Each sub-step writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/{step-name}.yaml` and reads the prior step's result contract to check for failure. The orchestrator selects the appropriate path (fast-path, gap-fill-path, or full-path) based on the authorization context and issue state.
+
+## Workflows
+
+### Verify authorization (fast-path)
+
+When the agent needs to verify authorization with minimal checks — no gap-fill, no sub-issue verification required.
+
+1. **Resolve scope** — Parse authorization text and resolve scope/halt_at/gap_fill_actions
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/scope-auto-resolve.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+2. **Verify explicit authorization** — Check for "approved"/"go" + author identity + currency
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+3. **Apply label** — Write authorization-scope label
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/apply-label.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+4. **Auto-dispatch** — Scope-aware auto-route to next skill
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/auto-dispatch.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Verify authorization (gap-fill-path)
+
+When the agent needs to verify authorization and fill in missing artifacts (spec, plan, or implementation) before proceeding.
+
+1. **Resolve scope** — Parse authorization text and resolve scope/halt_at/gap_fill_actions
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/scope-auto-resolve.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+2. **Verify explicit authorization** — Check for "approved"/"go" + author identity + currency
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+3. **Check gap-fill cascade** — Gap-fill precedence and cascade execution
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/gap-fill-cascade.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+4. **Auto-dispatch** — Scope-aware auto-route to next skill
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/auto-dispatch.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Verify authorization (full-path)
+
+When the agent needs to verify authorization with all gates — item decomposition, SC traceability, sub-issues, codebase staleness, blockers, and prior closure checks.
+
+1. **Resolve scope** — Parse authorization text and resolve scope/halt_at/gap_fill_actions
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/scope-auto-resolve.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+2. **Verify explicit authorization** — Check for "approved"/"go" + author identity + currency
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-explicit-authorization.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+3. **Apply label** — Write authorization-scope label
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/apply-label.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+4. **Check item decomposition** — Verify item enumeration, dependency ordering, TDD steps
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/item-decomposition-check.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+5. **Check SC traceability** — Verify SC-to-test traceability, RED-phase ordering
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/sc-traceability-check.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+6. **Verify sub-issues** — Sub-issue phase count, verification, closed-issue check
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+7. **Check spec-to-plan cascade** — Spec-to-plan approval cascade
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/spec-to-plan-cascade.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+8. **Check gap-fill cascade** — Gap-fill precedence and cascade execution
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/gap-fill-cascade.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+9. **Verify codebase** — Staleness detection, superseding issue check
+   - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-codebase.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+10. **Verify blockers** — Blocking dependency check
+    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-blockers.md\` and follow its instructions. Issue: {issue_number}."`
+    - Context: `{issue_number, issues_prefix, project_root}`
+    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+11. **Verify closed issue (main)** — Main issue prior-closure verification
+    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-closed-issue-main.md\` and follow its instructions. Issue: {issue_number}."`
+    - Context: `{issue_number, issues_prefix, project_root}`
+    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+12. **Verify already implemented** — Terminal gate: auto-close or proceed
+    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-already-implemented.md\` and follow its instructions. Issue: {issue_number}."`
+    - Context: `{issue_number, issues_prefix, project_root}`
+    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+13. **Auto-dispatch** — Scope-aware auto-route to next skill
+    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/auto-dispatch.md\` and follow its instructions. Issue: {issue_number}."`
+    - Context: `{issue_number, issues_prefix, project_root}`
+    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
 ### Authorization Context Template
 
 Read [the authorization context template and routing rules](skills/approval-gate-scope/tasks/authorization-context.md).
@@ -77,7 +197,6 @@ Read [the pre-approval gate column validation rules](skills/approval-gate-scope/
 | `enforcement/adversarial-verification.md` | Evidence artifact format and finding classification for verification checkpoints |
 | `enforcement/closed-issue-verification.md` | Closed state verification procedure and state reason classification |
 | `enforcement/sub-issue-graph-traversal.md` | Sub-issue graph traversal algorithm with depth limits and edge types |
-| `enforcement/work-state-schema.md` | Work state file schema for chain-of-responsibility orchestration |
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

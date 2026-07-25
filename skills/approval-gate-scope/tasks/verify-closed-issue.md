@@ -397,7 +397,7 @@ This task now performs transitive graph traversal (Step 8). Callers should handl
 - `000-critical-rules.md`: Assuming closed issues are verified without checking success criteria — critical violation
 - `000-critical-rules.md`: Closed issues skip SC verification at agent's peril — mandatory verification
 - `065-verification-honesty.md`: Verification claims must be backed by tool call evidence
-- `approval-gate/tasks/verify-authorization.md` Step 5.4: Closed-issue verification gate
+- `approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md` Step 5.4: Closed-issue verification gate
 - `approval-gate/tasks/verify-already-implemented.md`: Pre-autoclose sub-issue verification
 - `approval-gate/tasks/screen-issue.md` Gate 2: SC verification gate for already-implemented classification
 - `git-workflow/tasks/cleanup.md`: Pre-closure sub-issue verification gate

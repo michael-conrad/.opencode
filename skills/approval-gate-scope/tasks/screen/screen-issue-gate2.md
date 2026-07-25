@@ -321,7 +321,7 @@ if is_bug_report and not has_fix_spec:
         )
 ```
 
-**The `gap_fill_actions` field MUST be passed in the task context** when `authorization_scope >= for_implementation`. See `verify-authorization.md` Step 2.0 for the `GAP_FILL` mapping.
+**The `gap_fill_actions` field MUST be passed in the task context** when `authorization_scope >= for_implementation`. See `scope-auto-resolve.md` Step 2.0 for the `GAP_FILL` mapping.
 
 ## Enforcement References
 

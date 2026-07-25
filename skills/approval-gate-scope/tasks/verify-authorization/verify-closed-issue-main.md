@@ -26,7 +26,15 @@ Check the main approved issue for prior closure via merged PR. This is NOT a wra
 3. If open → check for merged PRs referencing the issue (issue may be open but work already done)
 4. After verification, dispatch `reconcile-issue-graph` to act on findings for the main issue's cross-reference graph
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## verify-blockers`
-- **Writes to:** `## verify-closed-issue-main`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/verify-closed-issue-main.yaml`.
+
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/verify-blockers.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<main issue closure verification findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/verify-closed-issue-main.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```

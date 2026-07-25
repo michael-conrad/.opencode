@@ -1,10 +1,10 @@
 # Task: reconcile-issue-graph
 
-Act on findings from the issue graph traversal performed by Read [§5.5](skills/approval-gate-scope/tasks/verify-authorization.md). This task takes the traversal findings and resolves them — auto-closing verified-complete tickets, reopening verified-incomplete tickets, and flagging uncertain tickets for developer action.
+Act on findings from the issue graph traversal performed by Read [§5.5](skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md). This task takes the traversal findings and resolves them — auto-closing verified-complete tickets, reopening verified-incomplete tickets, and flagging uncertain tickets for developer action.
 
 ## Pre-Conditions
 
-- Graph traversal complete via Read [§5.5](skills/approval-gate-scope/tasks/verify-authorization.md)
+- Graph traversal complete via Read [§5.5](skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md)
 - Findings list available from traversal output
 - `<github.owner>` and `<github.repo>` from session context
 

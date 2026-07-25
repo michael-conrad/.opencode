@@ -15,9 +15,17 @@ Thin wrapper dispatching `tasks/verify-codebase.md` for staleness detection and 
 
 ## Procedure
 
-Dispatch `tasks/verify-codebase.md` with the current issue context. Reads from work state `## sub-issue-verification`, writes to `## verify-codebase`.
+Dispatch `tasks/verify-codebase.md` with the current issue context. Reads from `{project_root}/tmp/{issue-N}/verify-authorization/sub-issue-verification.yaml`, writes to `{project_root}/tmp/{issue-N}/verify-authorization/verify-codebase.yaml`.
 
-## Work State I/O
+## Result Contract
 
-- **Reads from:** `## sub-issue-verification`
-- **Writes to:** `## verify-codebase`
+This sub-task writes its result contract to `{project_root}/tmp/{issue-N}/verify-authorization/verify-codebase.yaml`.
+
+Before proceeding, read the prior step's result contract from `{project_root}/tmp/{issue-N}/verify-authorization/sub-issue-verification.yaml`. If the prior step's `status` is not `DONE`, return BLOCKED with `reason: PRIOR_STEP_FAILED`.
+
+```yaml
+status: DONE|BLOCKED
+finding_summary: "<codebase staleness and superseding issue findings>"
+artifact_path: "{project_root}/tmp/{issue-N}/verify-authorization/verify-codebase.yaml"
+blocker_reason: "<reason if BLOCKED>"
+```
