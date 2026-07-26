@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Fetch sub-issues for a parent issue and build the autoclose list for the PR body.
+Fetch sub-issues for a parent issue and build the issue-reference list for the PR body.
 
 ## Procedure
 
@@ -29,9 +29,9 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
    sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
    ```
 
-- [ ] 2. **Build autoclose list:** parent + all sub-issues
+- [ ] 2. **Build issue-reference list:** parent + all sub-issues
    ```python
-   autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
+   issue_reference_list = [<parent>] + [sub["number"] for sub in sub_issues]
    ```
 
 - [ ] 3. **Include ALL issues in PR body using closing-keywords task:**
