@@ -37,6 +37,7 @@ Performs structural validation of the plan against 6 check categories: skill+tas
    **Category 3 — SC coverage:**
    - Verify every SC from the spec appears in at least one phase's exit criteria.
    - If any SC is uncovered: record as a finding with FAIL.
+   - **Triplet split detection:** Verify that no SC has its RED/GREEN/COMMIT steps split across phases. For each SC, check that all three steps (RED, GREEN, COMMIT) are in the same phase. If any SC has steps split across phases, record as a finding with FAIL and reason `TRIPLET_SPLIT: SC-N has RED in phase X and GREEN in phase Y` (or the applicable phase split).
 
    **Category 4 — Concern separation:**
    - Verify each phase addresses exactly one concern from the concern-map artifact.
