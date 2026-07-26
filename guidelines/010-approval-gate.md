@@ -145,15 +145,6 @@ Pipeline-initiated non-substantive spec revisions are exempt from the revocation
 
 
 
-### Bug Report Response
-
-When a bug is reported via GitHub Issue or developer message:
-
-1. The bug IS a spec — create a spec issue from the bug report
-2. The agent does NOT propose implementing any fix — creating the spec is sufficient
-3. Do NOT ask "do you want me to fix this" — the spec IS the response
-4. The bug spec goes through standard spec→plan→implementation pipeline
-
 
 ### Bug Discovery Protocol (CRITICAL)
 
