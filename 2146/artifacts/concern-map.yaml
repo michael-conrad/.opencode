@@ -1,0 +1,31 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+concerns:
+  - id: C1
+    name: Timestamp Content
+    description: The timestamp must include date, day of week, time, and local timezone abbreviation
+    scs:
+      - SC-1
+      - SC-3
+      - SC-5
+    phase: 1
+  - id: C2
+    name: Timestamp Position
+    description: The timestamp must appear after Git branch line and before ## CLI Auth Status
+    scs:
+      - SC-2
+    phase: 1
+  - id: C3
+    name: Runtime Generation
+    description: The timestamp must be generated at runtime using Python's datetime module
+    scs:
+      - SC-4
+    phase: 1
+phase_boundaries:
+  - phase: 1
+    name: Session Timestamp
+    concerns:
+      - C1
+      - C2
+      - C3
+    description: Add a single print line to session-init's main() that emits current local datetime

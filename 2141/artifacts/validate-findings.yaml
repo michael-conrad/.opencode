@@ -1,78 +1,105 @@
 # Validation Findings — Issue .opencode#2141
-# Plan: Authorization Workflow Fix — Record Session Authorization Before Verifying
-# Generated: 2026-07-25
-validator: OpenCode (deepseek-v4-flash)
+# Generated: 2026-07-25T22:00:00Z
+# Validator: OpenCode (deepseek-v4-flash)
+# Plan: .opencode/.issues/2141/plan.md
+# Spec: .opencode/.issues/2141/spec.md
+# Solve output: SAT
 
-overall_status: PASS_WITH_FINDINGS
+overall_status: PASS
 
 categories:
-  category_1_structural:
-    status: PASS_WITH_FINDINGS
-    checks:
-      - check: "plan.md has a phase table with all required columns"
-        result: PASS
-        detail: "Plan uses section-based phase structure (Concern, SCs covered, Dependencies) instead of a formal markdown table. Information is functionally equivalent and complete."
-      - check: "Each phase has a procedure section with numbered steps"
-        result: PASS
-        detail: "All 5 phases (Phase-5 through Phase-4) have items with numbered checkbox steps."
-      - check: "Exit criteria section exists with SC-to-phase mapping"
-        result: PASS
-        detail: "No separate exit criteria section, but each phase has an 'SCs covered' line providing the SC-to-phase mapping. Pre-completed items section documents SC-1 and SC-8 separately."
-
-  category_2_skill_task_validity:
+  - id: 1
+    name: Structural validation
     status: PASS
     checks:
-      - check: "Every skill+task reference matches a valid entry in the implementation-pipeline TDT"
-        result: PASS
-        detail: "All references validated: test-driven-development (red/green), solve (check), verification-before-completion (verify/completion), implementation-pipeline (post-red-enforcement/post-green-enforcement/checkpoint-tag-create/sc-count-gate/behavioral-test-remediation/pre-red-baseline), git-workflow (commit-prep/review-prep), finishing-a-development-branch (checklist), pr-creation-workflow (create), completion-core (completion), audit (coherence-extraction/cross-validate), test-driven-development (patterns). All match valid TDT entries."
+      - name: phase_table_exists
+        description: "Plan has phase sections with all required metadata (concern, SCs covered, dependencies)"
+        status: PASS
+        detail: "6 phases (1a, 1b, 2, 3, 4, 5) each have Concern, SCs covered, and Dependencies metadata"
+      - name: numbered_steps
+        description: "Each phase has numbered items with checkbox steps"
+        status: PASS
+        detail: "All 17 items have numbered checkbox steps with dispatch indicators"
+      - name: sc_to_phase_mapping
+        description: "SC-to-phase mapping exists per phase header"
+        status: PASS
+        detail: "Each phase header lists SCs covered; Phase 5 covers all 13 SCs"
 
-  category_3_sc_coverage:
+  - id: 2
+    name: Skill+task validity
     status: PASS
     checks:
-      - check: "Every SC from the spec appears in at least one phase's exit criteria"
-        result: PASS
-        detail: "SC-1, SC-8 documented as pre-completed (excluded from phases). SC-2,3,4,5 in Phase-5 (RED) and Phase-1 (GREEN). SC-9 in Phase-5 (RED) and Phase-2 (GREEN). SC-6,7,10,11,12 in Phase-5 (RED) and Phase-3 (GREEN). SC-13 in Phase-5 (RED) and Phase-4 (GREEN). All 13 SCs covered."
+      - name: dispatch_frontmatter
+        description: "All dispatch frontmatter entries match implementation-pipeline TDT"
+        status: PASS
+        detail: "7 dispatch entries verified: assemble-work, red, green, checklist, verification-audit, review-prep, create"
+      - name: plan_step_references
+        description: "All plan step skill+task references match implementation-pipeline TDT"
+        status: PASS
+        detail: "All 17 items' step references verified against TDT (assemble-work, checkpoint-tag-create, commit-prep, red, green, solve check, verify, post-red-enforcement, post-green-enforcement, checklist, completion, sc-count-gate, audit, cross-validate, patterns, behavioral-test-remediation, review-prep, create, completion-core)"
+      - name: pre_implementation_references
+        description: "Pre-implementation step references match TDT"
+        status: PASS
+        detail: "coherence-extraction and pre-red-baseline both valid in TDT"
 
-  category_4_concern_separation:
-    status: PASS_WITH_FINDINGS
-    checks:
-      - check: "Each phase addresses exactly one concern from the concern-map artifact"
-        result: PASS
-        detail: "Phase-1 (Record-Authorization) matches concern-map phase_2. Phase-2 (Verify-Recording) matches concern-map phase_3. Phase-3 (Workflow Reordering) matches concern-map phase_4. Phase-4 (Behavioral Test Harness) is a separate concern (source_db: MISSING)."
-      - check: "No two phases address the same concern"
-        result: PASS
-        detail: "All 5 phases have distinct concerns: RED tests, Record-Authorization, Verify-Recording, Workflow Reordering, Behavioral Test Harness."
-    findings:
-      - finding: "Phase-5 (RED tests) is not represented in the concern-map artifact. The concern map only covers phases 1-4. Phase-5 is a distinct concern (behavioral enforcement test writing) that should be added to the concern map."
-        severity: minor
-
-  category_5_dag_validation:
+  - id: 3
+    name: SC coverage
     status: PASS
     checks:
-      - check: "Dependency contract DAG has no cycles"
-        result: PASS
-        detail: "DAG edges: phase-5→phase-1, phase-5→phase-2, phase-5→phase-3, phase-5→phase-4, phase-1→phase-2, phase-2→phase-3, phase-3→phase-4. No cycles detected. Solve output confirms SAT."
-      - check: "All phases are reachable from the start node"
-        result: PASS
-        detail: "Phase-5 is the start node. All other phases (1-4) are reachable via dependency edges. Solve output confirms execution order: phase-5 → phase-1 → phase-2 → phase-3 → phase-4."
-      - check: "No orphan phases (no incoming or outgoing edges)"
-        result: PASS
-        detail: "All 5 phases have both incoming and outgoing edges (or are the start/end node). No orphans."
+      - name: all_scs_covered
+        description: "Every SC from spec appears in at least one phase"
+        status: PASS
+        detail: "All 13 SCs (SC-1 through SC-13) covered across phases 1a-5"
+      - name: triplet_split_detection
+        description: "No SC has RED/GREEN/COMMIT steps split across phases"
+        status: PASS
+        detail: "All 13 SCs have co-located RED/GREEN/COMMIT within same phase. Structural SCs (SC-1, SC-8) have no RED/GREEN split."
 
-  category_6_holistic_quality:
+  - id: 4
+    name: Concern separation
     status: PASS
     checks:
-      - check: "No TBD/TODO placeholders in the plan body"
-        result: PASS
-        detail: "No TBD or TODO placeholders found in the plan body."
-      - check: "All steps use checkbox format"
-        result: PASS
-        detail: "All 50+ steps use `- [ ]` checkbox format consistently."
-      - check: "Dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
-        result: PASS
-        detail: "All sub-agent steps marked `(**sub-agent**)`, all z3-check steps marked `(**inline**)`. No dispatch mode violations."
+      - name: one_concern_per_phase
+        description: "Each phase addresses exactly one concern"
+        status: PASS
+        detail: "Phase 1a: scaffolding, Phase 1b: scope gating, Phase 2: record-authorization impl, Phase 3: workflow reordering, Phase 4: source_db:MISSING, Phase 5: completion gates"
+      - name: no_duplicate_concerns
+        description: "No two phases address the same concern"
+        status: PASS
+        detail: "All 6 phases have distinct concerns"
 
-findings_summary:
-  - "Category 1: Plan uses section-based phase structure instead of formal table — functionally equivalent, PASS"
-  - "Category 4: Phase-5 (RED tests) missing from concern-map artifact — minor finding, does not block"
-  - "All other categories: clean PASS"
+  - id: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - name: no_cycles
+        description: "Dependency contract DAG has no cycles"
+        status: PASS
+        detail: "All edges go from earlier phases to later phases; solve output confirms SAT"
+      - name: all_phases_reachable
+        description: "All phases reachable from start node"
+        status: PASS
+        detail: "phase-1a is root; all other phases have transitive dependency path to phase-1a"
+      - name: no_orphan_phases
+        description: "No orphan phases (no incoming or outgoing edges)"
+        status: PASS
+        detail: "All 6 phases have at least one incoming or outgoing edge"
+
+  - id: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - name: no_tbd_todo
+        description: "No TBD/TODO placeholders in plan body"
+        status: PASS
+        detail: "No TBD or TODO found in plan body"
+      - name: checkbox_format
+        description: "All steps use checkbox format"
+        status: PASS
+        detail: "All steps use - [ ] checkbox format"
+      - name: dispatch_mode_consistency
+        description: "Dispatch mode indicators match step type"
+        status: PASS
+        detail: "All sub-agent steps marked (**sub-agent**), all inline steps marked (**inline**), no inconsistencies"
+
+findings: []

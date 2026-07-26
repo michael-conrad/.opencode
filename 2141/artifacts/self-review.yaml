@@ -1,32 +1,41 @@
----
-review_type: self-review
-issue: 2141
-timestamp: 2026-07-25T12:00:00Z
-reviewer: OpenCode (deepseek-v4-flash)
-verdict: BLOCKED
----
+self_review:
+  issue: 2141
+  plan_path: .opencode/.issues/2141/plan.md
+  spec_path: .opencode/.issues/2141/spec.md
+  timestamp: 2026-07-25T22:00:00Z
+  overall_verdict: BLOCKED
 
-# Self-Review Artifact
+placeholder_findings:
+  - type: UNRESOLVED_TEMPLATE_VARIABLE
+    severity: error
+    description: "`{contract_path: ...}` appears in every z3-check step across all items (Items 3-13). The `...` is an unresolved placeholder that should be resolved to an actual contract path or removed."
+    occurrences: 60
+    example_locations:
+      - "Line 79: `{contract_path: ...}` in Item 3 (SC-2)"
+      - "Line 81: `{contract_path: ...}` in Item 3 (SC-2)"
+      - "Line 83: `{contract_path: ...}` in Item 3 (SC-2)"
+      - "Line 85: `{contract_path: ...}` in Item 3 (SC-2)"
+      - "Line 87: `{contract_path: ...}` in Item 3 (SC-2)"
+      - "(repeats in Items 4-13)"
 
-## Placeholder Findings
+sc_coverage_findings:
+  - status: PASS
+    total_scs: 13
+    covered_scs: 13
+    uncovered_scs: []
+    evidence_type_mismatches: []
+    details: "All 13 SCs (SC-1 through SC-13) are covered across phases. No evidence type mismatches — behavioral SCs are in phases with behavioral RED/GREEN cycles, structural SCs are in structural phases."
 
-None found. No TODO, FIXME, XXX, {{...}}, <...>, [...], lorem ipsum, empty checkboxes, or vague descriptions detected.
+triplet_split_findings:
+  - status: PASS
+    details: "No SC has RED/GREEN/COMMIT steps split across phases. Each SC's full cycle is contained within a single phase."
 
-## SC Coverage Findings
+type_name_consistency_findings:
+  - status: PASS
+    details: "Skill names, task names, file paths, and dispatch indicators are consistent throughout. No casing or spelling inconsistencies detected."
 
-| Finding ID | Type | SC | Description |
-|------------|------|----|-------------|
-| SC-COV-1 | SC_NOT_COVERED | SC-1 | SC-1 (structural: create `record-authorization.md` task file) is not referenced in any phase or task in the plan |
-| SC-COV-2 | SC_NOT_COVERED | SC-8 | SC-8 (structural: remove `verify-explicit-authorization.md`, create `verify-recording.md`) is not referenced in any phase or task in the plan |
-
-## Type/Name Consistency Findings
-
-None found. All skill names, task names, dispatch indicators, and file path references are consistent.
-
-## Per-Task Cycle Findings
-
-None found. All RED items (Phase-5) follow the 6-step TDT cycle: red-phase → z3-check-red → red-doublecheck → z3-check-red-doublecheck → post-red-enforcement → z3-check-post-red. All GREEN items (Phase-1, Phase-2, Phase-3, Phase-4) follow the 6-step TDT cycle: green-phase → z3-check-green → post-green-enforcement → z3-check-post-green → checkpoint-tag-create → checkpoint-commit. Pre-implementation and post-implementation steps match the TDT entries.
-
-## Overall Verdict
-
-BLOCKED — 2 SC_NOT_COVERED findings. SC-1 and SC-8 (structural task file creation/deletion) are missing from the plan entirely. The plan covers behavioral SCs (Phase-5 RED tests, Phase-1/2/3/4 GREEN implementations) but has no phase or item for creating the `record-authorization.md` task file, removing `verify-explicit-authorization.md`, or creating `verify-recording.md`.
+per_task_cycle_findings:
+  - status: PASS
+    details: "All 11 RED/GREEN items (Items 3-13) follow the complete 12-step per-task cycle from the implementation-pipeline TDT: red-phase → z3-check-red → red-doublecheck → z3-check-red-doublecheck → post-red-enforcement → z3-check-post-red → green-phase → z3-check-green → post-green-enforcement → z3-check-post-green → checkpoint-tag-create → checkpoint-commit. Step ordering matches TDT. No combined or missing steps."
+  - structural_items:
+      - "Items 1-2 use a 3-step structural cycle (assemble-work → checkpoint-tag-create → checkpoint-commit), which is appropriate for structural SCs (SC-1, SC-8)."

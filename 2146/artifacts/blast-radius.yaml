@@ -1,0 +1,14 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+affected_files:
+  - path: tools/session-init
+    status: EXISTS
+    lines_affected: 556-633 (main function)
+    change_type: ADDITION
+    description: Add a single print line emitting a human-readable datetime stamp
+verification:
+  - file: tools/session-init
+    exists: true
+    line_count: 634
+    language: Python
+    entry_point: main() at line 556

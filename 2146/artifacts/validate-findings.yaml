@@ -1,0 +1,68 @@
+tool: writing-plans
+task: validate
+issue: 2146
+timestamp: 2026-07-25T00:00:00Z
+overall_status: PASS
+categories:
+  - category: 1 — Structural validation
+    result: PASS
+    checks:
+      - check: Phase table with required columns
+        result: PASS
+        detail: YAML frontmatter dispatch section has phase, name, skill, task. Exit Criteria table has SC ID, Criterion, Evidence Type, Phase, Item.
+      - check: Numbered procedure steps per phase
+        result: PASS
+        detail: Phase 1 has 5 items (Item 1-5) each with numbered checkbox steps.
+      - check: Exit criteria section with SC-to-phase mapping
+        result: PASS
+        detail: Exit Criteria table at lines 148-158 maps all 5 SCs to Phase 1 sub-phases and items.
+  - category: 2 — Skill+task validity
+    result: PASS
+    checks:
+      - check: All skill+task references valid in implementation-pipeline TDT
+        result: PASS
+        detail: Verified 18 skill+task references (test-driven-development/red, solve/check, verification-before-completion/verify, implementation-pipeline/post-red-enforcement, test-driven-development/green, implementation-pipeline/checkpoint-tag-create, git-workflow/commit-prep, finishing-a-development-branch/checklist, verification-before-completion/completion, implementation-pipeline/sc-count-gate, audit/*, audit/cross-validate, test-driven-development/patterns, git-workflow/review-prep, pr-creation-workflow/create, completion-core/completion, audit/coherence-extraction, implementation-pipeline/pre-red-baseline). All match TDT entries.
+  - category: 3 — SC coverage
+    result: PASS
+    checks:
+      - check: All spec SCs appear in exit criteria
+        result: PASS
+        detail: SC-1, SC-2, SC-3, SC-4, SC-5 all present in Exit Criteria table.
+      - check: Triplet split detection
+        result: PASS
+        detail: All 5 SCs have RED, GREEN, and COMMIT steps co-located in Phase 1. No triplet split detected.
+  - category: 4 — Concern separation
+    result: PASS
+    checks:
+      - check: Each phase addresses exactly one concern from concern-map
+        result: PASS
+        detail: Single phase (Phase 1) addresses 3 concerns (C1, C2, C3) via sub-phases 1a, 1b, 1c. No cross-phase concern overlap since only one phase exists.
+      - check: No two phases address the same concern
+        result: PASS
+        detail: Single phase — no duplicate concern assignment across phases.
+  - category: 5 — DAG validation
+    result: PASS
+    checks:
+      - check: Dependency contract DAG has no cycles
+        result: PASS
+        detail: No dependency-contract.yaml exists. Solve output confirms 0 nodes, 0 edges, acyclic.
+      - check: All phases reachable from start node
+        result: PASS
+        detail: Single phase — trivially reachable.
+      - check: No orphan phases
+        result: PASS
+        detail: Single phase with no incoming/outgoing edges — not an orphan.
+  - category: 6 — Holistic quality
+    result: PASS
+    checks:
+      - check: No TBD/TODO placeholders
+        result: PASS
+        detail: No TBD or TODO found in plan body.
+      - check: All steps use checkbox format
+        result: PASS
+        detail: All 164 steps use `- [ ]` checkbox format.
+      - check: Dispatch mode consistency
+        result: PASS
+        detail: z3-check-* steps marked (**inline**) match TDT inline designation. All other steps marked (**sub-agent**) or (**orchestrator**) match TDT sub-task/orchestrator designation. No inconsistency.
+finding_summary: "All 6 categories PASS. Structural validation clean (phase table, numbered steps, exit criteria). All 18 skill+task references valid against implementation-pipeline TDT. All 5 SCs covered in exit criteria with no triplet splits. Single-phase concern separation clean. DAG acyclic (0 edges). Holistic quality clean (no TBD/TODO, all checkboxes, dispatch mode consistent)."
+artifact_path: .opencode/.issues/2146/artifacts/validate-findings.yaml

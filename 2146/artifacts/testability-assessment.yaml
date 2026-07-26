@@ -1,0 +1,37 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+testability:
+  - sc: SC-1
+    evidence_type: behavioral
+    verification_method: Run session-init, verify output contains human-readable datetime with date, day of week, time, and timezone
+    testable: true
+    test_approach: Capture stdout from `uv run tools/session-init`, assert output matches regex for datetime pattern
+    automation: bash script or pytest subprocess run
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep for the line position relative to Git branch and CLI Auth Status
+    testable: true
+    test_approach: Capture stdout, verify timestamp line appears after "Git branch:" and before "## CLI Auth Status"
+    automation: grep or line-number comparison
+  - sc: SC-3
+    evidence_type: string
+    verification_method: grep for the exact format pattern
+    testable: true
+    test_approach: Verify timestamp line does NOT contain ":" key:value separator pattern; is natural prose
+    automation: grep for absence of key:value pattern on the timestamp line
+  - sc: SC-4
+    evidence_type: structural
+    verification_method: Inspect source code for datetime.now() or equivalent call
+    testable: true
+    test_approach: grep source for datetime.now(), datetime.today(), or equivalent
+    automation: grep on tools/session-init
+  - sc: SC-5
+    evidence_type: string
+    verification_method: grep for timezone abbreviation (not UTC offset) in the output
+    testable: true
+    test_approach: Capture stdout, verify timestamp contains 3-5 letter tz abbreviation (e.g. EDT, IST, CET) not "+00:00" offset
+    automation: grep for tz abbreviation pattern on timestamp line
+overall_assessment:
+  all_testable: true
+  primary_automation: bash script running `uv run tools/session-init` and asserting stdout patterns
+  complexity: LOW — single print line addition, no new dependencies

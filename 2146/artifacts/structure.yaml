@@ -1,0 +1,74 @@
+phase_count: 1
+phases:
+  - phase: 1
+    name: Session Timestamp
+    concern: Add datetime print line to session-init
+    sc_ids:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+    items:
+      - item: 1
+        sc_id: SC-1
+        description: session-init emits human-readable datetime with date, day of week, time, timezone
+        evidence_type: behavioral
+        red_task: red-phase
+        green_task: green-phase
+        verify_task: green-doublecheck
+      - item: 2
+        sc_id: SC-2
+        description: Timestamp after Git branch line, before CLI Auth Status
+        evidence_type: string
+        red_task: red-phase
+        green_task: green-phase
+        verify_task: green-doublecheck
+      - item: 3
+        sc_id: SC-3
+        description: Format is natural English prose, not structured key:value
+        evidence_type: string
+        red_task: red-phase
+        green_task: green-phase
+        verify_task: green-doublecheck
+      - item: 4
+        sc_id: SC-4
+        description: Uses datetime.now() at runtime (not hardcoded)
+        evidence_type: structural
+        red_task: red-phase
+        green_task: green-phase
+        verify_task: green-doublecheck
+      - item: 5
+        sc_id: SC-5
+        description: Timezone is local abbreviation (e.g. EDT, IST, CET)
+        evidence_type: string
+        red_task: red-phase
+        green_task: green-phase
+        verify_task: green-doublecheck
+dependency_dag:
+  edges: []
+  note: Single phase — no inter-phase dependencies
+triplet_integrity:
+  status: PASS
+  finding: All 5 SCs have RED, GREEN, and COMMIT steps in Phase 1 — triplet co-location holds
+cross_phase_dependency:
+  status: PASS
+  finding: Single phase only — no cross-phase dependencies
+skill_task_mapping:
+  - pipeline_step: red-phase
+    skill: test-driven-development
+    task: red
+    dispatch_string: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+  - pipeline_step: green-phase
+    skill: test-driven-development
+    task: green
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+  - pipeline_step: green-doublecheck
+    skill: verification-before-completion
+    task: verify
+    dispatch_string: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+  - pipeline_step: checkpoint-commit
+    skill: git-workflow
+    task: commit-prep
+    dispatch_string: 'task(..., prompt: "execute commit-prep from git-workflow. Read `git-workflow/tasks/commit-prep.md` first")'
+artifact_path: .opencode/.issues/2146/artifacts/structure.yaml

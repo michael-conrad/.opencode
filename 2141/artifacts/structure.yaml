@@ -1,254 +1,114 @@
-# Structure artifact for .opencode#2141
-# Generated: 2026-07-25
-# Phase decomposition, dependency DAG, and skill+task selection
+---
+name: structure
+issue: .opencode#2141
+created: 2026-07-25
+provenance: AI-generated
+triplet_integrity_rule: "Each SC's RED, GREEN, and COMMIT steps MUST be in the same phase. No SC may have its test in one phase and its implementation in another."
+cross_phase_dependency_rule: "A RED test in one phase MUST NOT depend on uncommitted SC output from another phase. Cross-phase RED dependencies are structural defects — they create implicit ordering constraints that bypass the dependency DAG."
+---
 
-spec_path: .opencode/.issues/2141/spec.md
-issue_number: 2141
-issues_prefix: .opencode/.issues/
+# Structure Artifact — Issue .opencode#2141
 
-# SCs already implemented (structural, excluded from phases):
-#   SC-1: record-authorization.md exists
-#   SC-8: verify-explicit-authorization.md removed, verify-recording.md exists
+## Phase Decomposition
 
-phases:
-  - id: phase-1
-    name: Record-Authorization Task Implementation
-    description: Implement the record-authorization task procedure — write spec.md frontmatter, comments.yaml, issue.yaml, and commit worktree
-    scs:
-      - SC-2
-      - SC-3
-      - SC-4
-      - SC-5
-    items:
-      - id: item-2
-        sc_id: SC-2
-        description: record-authorization updates spec.md frontmatter with status: approved for for_implementation+ scopes
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-3
-        sc_id: SC-3
-        description: record-authorization appends authorization record to comments.yaml
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-4
-        sc_id: SC-4
-        description: record-authorization updates issue.yaml with approved-for-{scope} label
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-5
-        sc_id: SC-5
-        description: record-authorization commits .issues/ worktree changes after writing
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-    dependencies: []
+### Phase 1: Structural Files + SC-2 RED/GREEN
 
-  - id: phase-2
-    name: Verify-Recording Task Implementation
-    description: Implement the verify-recording task procedure — read back spec.md, comments.yaml, issue.yaml and confirm all three match
-    scs:
-      - SC-9
-    items:
-      - id: item-9
-        sc_id: SC-9
-        description: verify-recording checks spec.md frontmatter, comments.yaml, issue.yaml — BLOCKED if any missing
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-    dependencies:
-      - phase-1
+| Item | SCs | Description | Evidence Type | Skill+Task |
+|------|-----|-------------|---------------|------------|
+| 1 | SC-1 | Create `record-authorization.md` task file at `approval-gate-scope/tasks/record-authorization.md` | `structural` | `implementation-pipeline --task assemble-work` |
+| 2 | SC-8 | Remove `verify-explicit-authorization.md`; create `verify-recording.md` at `approval-gate-scope/tasks/verify-authorization/verify-recording.md` | `structural` | `implementation-pipeline --task assemble-work` |
+| 3 | SC-2 | RED: Write behavioral test for `record-authorization` spec.md frontmatter update (for_implementation sets status:approved, for_plan does not). GREEN: Implement the spec.md frontmatter update logic in `record-authorization.md` | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
 
-  - id: phase-3
-    name: Workflow Reordering in SKILL.md
-    description: Reorder all three workflows (fast-path, full-path, gap-fill-path) in approval-gate-scope/SKILL.md to record-then-verify pattern
-    scs:
-      - SC-6
-      - SC-7
-      - SC-10
-      - SC-11
-      - SC-12
-    items:
-      - id: item-6
-        sc_id: SC-6
-        description: Fast-path workflow reordered to scope-auto-resolve → record-authorization → verify-recording → apply-label → auto-dispatch
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-7
-        sc_id: SC-7
-        description: Full-path workflow reordered to record-then-verify pattern with all 14 steps
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-10
-        sc_id: SC-10
-        description: apply-label moved to step 4 (after record-authorization and verify-recording) in all workflows
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-11
-        sc_id: SC-11
-        description: Gap-fill-path workflow reordered to record-then-verify pattern
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-      - id: item-12
-        sc_id: SC-12
-        description: record-authorization is step 2 in all three workflows (immediately after scope-auto-resolve)
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-    dependencies:
-      - phase-1
-      - phase-2
+### Phase 2: SC-3, SC-4, SC-5, SC-9 RED/GREEN
 
-  - id: phase-4
-    name: Behavioral Test Harness — source_db: MISSING
-    description: Implement source_db: MISSING in __export_sqlite_to_yaml, remove all production fallback paths
-    scs:
-      - SC-13
-    items:
-      - id: item-13
-        sc_id: SC-13
-        description: __export_sqlite_to_yaml writes source_db: MISSING when SQLite DB not found; no fallback paths
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: green
-        dispatch: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
-    dependencies: []
+| Item | SCs | Description | Evidence Type | Skill+Task |
+|------|-----|-------------|---------------|------------|
+| 4 | SC-3 | RED/GREEN: `record-authorization` appends to `comments.yaml` with author, scope, timestamp | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 5 | SC-4 | RED/GREEN: `record-authorization` updates `issue.yaml` labels with `approved-for-{scope}` | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 6 | SC-5 | RED/GREEN: `record-authorization` commits `.issues/` worktree changes | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 7 | SC-9 | RED/GREEN: `verify-recording` checks spec.md, comments.yaml, issue.yaml — PASS on all present, BLOCKED on any missing | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
 
-  - id: phase-5
-    name: Behavioral Enforcement Tests (RED Phase)
-    description: Write RED-phase behavioral enforcement tests for all behavioral SCs before implementation
-    scs:
-      - SC-2
-      - SC-3
-      - SC-4
-      - SC-5
-      - SC-6
-      - SC-7
-      - SC-9
-      - SC-10
-      - SC-11
-      - SC-12
-      - SC-13
-    items:
-      - id: item-red-2
-        sc_id: SC-2
-        description: RED test — verify record-authorization sets/does-not-set status: approved per scope
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-3
-        sc_id: SC-3
-        description: RED test — verify comments.yaml gets authorization record
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-4
-        sc_id: SC-4
-        description: RED test — verify issue.yaml gets approved-for-{scope} label
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-5
-        sc_id: SC-5
-        description: RED test — verify .issues/ worktree is committed after recording
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-6
-        sc_id: SC-6
-        description: RED test — verify fast-path shows record-authorization before verify-recording
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-7
-        sc_id: SC-7
-        description: RED test — verify full-path shows record-authorization at position 2
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-9
-        sc_id: SC-9
-        description: RED test — verify verify-recording BLOCKs on missing/corrupted state
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-10
-        sc_id: SC-10
-        description: RED test — verify apply-label runs after verify-recording
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-11
-        sc_id: SC-11
-        description: RED test — verify gap-fill-path shows record-authorization at position 2
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-12
-        sc_id: SC-12
-        description: RED test — verify record-authorization is step 2 in all three workflows
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-      - id: item-red-13
-        sc_id: SC-13
-        description: RED test — verify source_db: MISSING when SQLite DB absent
-        evidence_type: behavioral
-        skill: test-driven-development
-        task: red
-        dispatch: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
-    dependencies: []
+### Phase 3: SC-6, SC-7, SC-10, SC-11, SC-12 RED/GREEN
 
-dependency_dag:
-  edges:
-    - from: phase-1
-      to: phase-2
-      reason: verify-recording task reads state written by record-authorization
-    - from: phase-1
-      to: phase-3
-      reason: Workflow reordering references record-authorization task — must exist first
-    - from: phase-2
-      to: phase-3
-      reason: Workflow reordering references verify-recording task — must exist first
-    - from: phase-5
-      to: phase-1
-      reason: RED tests must exist before GREEN implementation (TDD cycle)
-    - from: phase-5
-      to: phase-2
-      reason: RED tests must exist before GREEN implementation (TDD cycle)
-    - from: phase-5
-      to: phase-3
-      reason: RED tests must exist before GREEN implementation (TDD cycle)
-    - from: phase-5
-      to: phase-4
-      reason: RED tests must exist before GREEN implementation (TDD cycle)
+| Item | SCs | Description | Evidence Type | Skill+Task |
+|------|-----|-------------|---------------|------------|
+| 8 | SC-6 | RED/GREEN: Reorder fast-path workflow in `approval-gate-scope/SKILL.md` to record-then-verify | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 9 | SC-7 | RED/GREEN: Reorder full-path workflow in `approval-gate-scope/SKILL.md` to record-then-verify | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 10 | SC-10 | RED/GREEN: Move `apply-label` to step 4 (after verify-recording) in both fast-path and full-path | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 11 | SC-11 | RED/GREEN: Reorder gap-fill-path workflow in `approval-gate-scope/SKILL.md` to record-then-verify | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+| 12 | SC-12 | RED/GREEN: Ensure `record-authorization` is step 2 in all three workflows | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
 
-# Execution order: phase-5 (RED tests first) → phase-1 → phase-2 → phase-3 → phase-4
-# Phase-4 (SC-13) is independent of phases 1-3 and can run in parallel
-# But RED tests (phase-5) must precede all GREEN phases
+### Phase 4: SC-13 RED/GREEN
+
+| Item | SCs | Description | Evidence Type | Skill+Task |
+|------|-----|-------------|---------------|------------|
+| 13 | SC-13 | RED/GREEN: Implement `source_db: MISSING` in harness `__export_sqlite_to_yaml`, remove production fallback paths | `behavioral` | `test-driven-development --task red` → `test-driven-development --task green` |
+
+### Phase 5: Completion Gates
+
+| Item | SCs | Description | Skill+Task |
+|------|-----|-------------|------------|
+| 14 | All | Completeness gate — verify all 13 SCs covered | `completeness-gate --task check` |
+| 15 | All | Audit — adversarial verification of all deliverables | `audit --task verification-audit` |
+| 16 | All | Finishing checklist — branch readiness, pre-PR checks | `finishing-a-development-branch --task checklist` |
+| 17 | All | PR creation | `pr-creation-workflow --task create` |
+
+## Dependency DAG
+
+```yaml
+edges:
+  - from: Phase 1
+    to: Phase 2
+    reason: "Phase 2 RED tests need record-authorization.md and verify-recording.md task files to exist"
+  - from: Phase 1
+    to: Phase 3
+    reason: "Phase 3 RED tests need record-authorization.md task file to exist (workflow references it)"
+  - from: Phase 2
+    to: Phase 3
+    reason: "Phase 3 GREEN (workflow reorder) references record-authorization and verify-recording tasks — implementations must exist"
+  - from: Phase 1
+    to: Phase 4
+    reason: "Phase 4 RED tests need task files to exist for harness integration"
+  - from: Phase 2
+    to: Phase 4
+    reason: "Phase 4 GREEN (harness) may need task implementations for integration testing"
+  - from: Phase 3
+    to: Phase 5
+    reason: "Phase 5 completeness gate must verify all SCs including workflow reorder SCs"
+  - from: Phase 4
+    to: Phase 5
+    reason: "Phase 5 completeness gate must verify SC-13"
+```
+
+## Triplet Integrity Verification
+
+| SC | Phase | RED | GREEN | COMMIT | Co-located? |
+|----|-------|-----|-------|--------|-------------|
+| SC-1 | 1 | N/A (structural) | N/A (structural) | Phase 1 | ✅ |
+| SC-8 | 1 | N/A (structural) | N/A (structural) | Phase 1 | ✅ |
+| SC-2 | 1 | Phase 1 | Phase 1 | Phase 1 | ✅ |
+| SC-3 | 2 | Phase 2 | Phase 2 | Phase 2 | ✅ |
+| SC-4 | 2 | Phase 2 | Phase 2 | Phase 2 | ✅ |
+| SC-5 | 2 | Phase 2 | Phase 2 | Phase 2 | ✅ |
+| SC-9 | 2 | Phase 2 | Phase 2 | Phase 2 | ✅ |
+| SC-6 | 3 | Phase 3 | Phase 3 | Phase 3 | ✅ |
+| SC-7 | 3 | Phase 3 | Phase 3 | Phase 3 | ✅ |
+| SC-10 | 3 | Phase 3 | Phase 3 | Phase 3 | ✅ |
+| SC-11 | 3 | Phase 3 | Phase 3 | Phase 3 | ✅ |
+| SC-12 | 3 | Phase 3 | Phase 3 | Phase 3 | ✅ |
+| SC-13 | 4 | Phase 4 | Phase 4 | Phase 4 | ✅ |
+
+## Cross-Phase Dependency Verification
+
+| Phase | RED Test | Depends On | Phase of Dependency | Violation? |
+|-------|----------|------------|---------------------|------------|
+| 2 | SC-3 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 2) | ✅ No |
+| 2 | SC-4 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 2) | ✅ No |
+| 2 | SC-5 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 2) | ✅ No |
+| 2 | SC-9 RED | verify-recording.md exists (SC-8) | Phase 1 (< Phase 2) | ✅ No |
+| 3 | SC-6 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 3) | ✅ No |
+| 3 | SC-7 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 3) | ✅ No |
+| 3 | SC-10 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 3) | ✅ No |
+| 3 | SC-11 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 3) | ✅ No |
+| 3 | SC-12 RED | record-authorization.md exists (SC-1) | Phase 1 (< Phase 3) | ✅ No |
+| 4 | SC-13 RED | Harness file exists (pre-existing) | N/A (pre-existing) | ✅ No |

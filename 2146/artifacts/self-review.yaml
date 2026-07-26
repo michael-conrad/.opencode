@@ -1,0 +1,70 @@
+---
+review_type: self-review
+issue: 2146
+timestamp: 2026-07-25
+reviewer: OpenCode (deepseek-v4-flash)
+verdict: BLOCKED
+---
+
+## Placeholder Findings
+
+| # | Line(s) | Placeholder | Type | Detail |
+|---|---------|-------------|------|--------|
+| 1 | 24, 26, 28, 30, 32 | `<path>` in `contract_path: <path>` | Unresolved template variable | z3-check-red, z3-check-red-doublecheck, z3-check-post-red, z3-check-green, z3-check-post-green for Item 1 |
+| 2 | 41 | `<path>` in `auditor_artifact_paths: <path>` | Unresolved template variable | cross-validate step for Item 1 |
+| 3 | 47, 49, 51, 53, 55 | `<path>` in `contract_path: <path>` | Unresolved template variable | z3-check steps for Item 2 |
+| 4 | 40 | `<path>` in `artifact_evidence_dir: <path>` | Unresolved template variable | audit step for Item 1 |
+| 5 | Items 3-5 (z3-check steps) | `<path>` in `contract_path: <path>` | Unresolved template variable | All z3-check steps in Items 3, 4, 5 use unresolved `<path>` |
+| 6 | Items 3-5 (audit steps) | `<path>` in `artifact_evidence_dir: <path>` | Unresolved template variable | All audit steps in Items 3, 4, 5 use unresolved `<path>` |
+| 7 | Items 3-5 (cross-validate steps) | `<path>` in `auditor_artifact_paths: <path>` | Unresolved template variable | All cross-validate steps in Items 3, 4, 5 use unresolved `<path>` |
+
+**Total placeholder occurrences: 11** (5 items × 2 z3-check steps each = 10 contract_path placeholders, plus 1 auditor_artifact_paths in Item 1 cross-validate; audit artifact_evidence_dir and cross-validate auditor_artifact_paths in Items 2-5 also unresolved)
+
+## SC Coverage Findings
+
+| SC ID | Evidence Type | Covered In | Phase | Evidence Type Match | Status |
+|-------|--------------|------------|-------|-------------------|--------|
+| SC-1 | behavioral | Item 1, Phase 1 | Session Timestamp | ✅ behavioral test (run session-init, assert output) | COVERED |
+| SC-2 | string | Item 2, Phase 1 | Session Timestamp | ✅ string-matching test (grep) | COVERED |
+| SC-3 | string | Item 3, Phase 1 | Session Timestamp | ✅ string-matching test (grep) | COVERED |
+| SC-4 | structural | Item 4, Phase 1 | Session Timestamp | ✅ structural test (inspect source) | COVERED |
+| SC-5 | string | Item 5, Phase 1 | Session Timestamp | ✅ string-matching test (grep) | COVERED |
+
+**SC coverage: 5/5 — ALL COVERED. No evidence type mismatches.**
+
+## Triplet Split Findings
+
+| SC ID | RED Phase | GREEN Phase | COMMIT Phase | Status |
+|-------|-----------|-------------|--------------|--------|
+| SC-1 | Phase 1, Item 1 | Phase 1, Item 1 | Phase 1, Item 1 | ✅ INTACT |
+| SC-2 | Phase 1, Item 2 | Phase 1, Item 2 | Phase 1, Item 2 | ✅ INTACT |
+| SC-3 | Phase 1, Item 3 | Phase 1, Item 3 | Phase 1, Item 3 | ✅ INTACT |
+| SC-4 | Phase 1, Item 4 | Phase 1, Item 4 | Phase 1, Item 4 | ✅ INTACT |
+| SC-5 | Phase 1, Item 5 | Phase 1, Item 5 | Phase 1, Item 5 | ✅ INTACT |
+
+**Triplet splits: 0 — ALL INTACT.**
+
+## Type/Name Consistency Findings
+
+| Check | Status | Detail |
+|-------|--------|--------|
+| Skill name consistency | ✅ PASS | All skill names consistent: test-driven-development, verification-before-completion, implementation-pipeline, git-workflow, finishing-a-development-branch, audit, completion-core, pr-creation-workflow |
+| Task name consistency | ✅ PASS | All task names consistent: red, green, verify, completion, checklist, commit-prep, review-prep, create, patterns, cross-validate, sc-count-gate, pre-pr-gate, checkpoint-tag-create, post-red-enforcement, post-green-enforcement |
+| File path consistency | ✅ PASS | All affected_file references point to `tools/session-init` |
+| Dispatch indicator consistency | ✅ PASS | All steps match TDT dispatch mode: (**sub-agent**), (**inline**), (**orchestrator**) correctly assigned |
+
+## Per-Task Cycle Findings
+
+| Item | SC | Steps Present | Steps Missing | Steps Combined | Out of Order | Status |
+|------|----|---------------|---------------|----------------|--------------|--------|
+| Item 1 | SC-1 | 20/20 | 0 | 0 | 0 | ✅ COMPLETE |
+| Item 2 | SC-2 | 20/20 | 0 | 0 | 0 | ✅ COMPLETE |
+| Item 3 | SC-3 | 20/20 | 0 | 0 | 0 | ✅ COMPLETE |
+| Item 4 | SC-4 | 20/20 | 0 | 0 | 0 | ✅ COMPLETE |
+| Item 5 | SC-5 | 20/20 | 0 | 0 | 0 | ✅ COMPLETE |
+
+**Per-task cycle: 5/5 items complete — all 20 TDT steps present, in order, no combinations, no omissions.**
+
+## Overall Verdict: BLOCKED
+
+**Finding summary:** 11 unresolved `<path>` placeholder occurrences across all 5 items (contract_path in z3-check steps, artifact_evidence_dir in audit steps, auditor_artifact_paths in cross-validate steps). SC coverage is 5/5 complete with correct evidence type matching. No triplet splits. Type/name consistency is clean. All 5 items have complete 20-step per-task cycles matching the TDT. The plan is structurally sound but has unresolved template variables that must be resolved before execution.

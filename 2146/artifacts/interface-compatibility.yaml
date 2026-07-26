@@ -1,0 +1,19 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+interfaces:
+  - module: tools/session-init
+    type: CLI script (PEP 723 inline script)
+    entry_point: main() -> int
+    stdout_contract: |
+      Prints key:value lines and ##-sectioned YAML blocks to stdout.
+      New line: "Session started: <human-readable datetime with tz abbreviation>"
+      Must appear after "Git branch:" line and before "## CLI Auth Status" section.
+    stderr_contract: No change (diagnostic output only, silent on success)
+    exit_code_contract: No change (0 = success)
+    consumers:
+      - AI agent system prompt (session-init output is consumed as LLM context)
+      - session-enforcement.ts (reads session-init output for identity values)
+    compatibility_notes:
+      - Adding a new print line to stdout is backward-compatible — existing consumers that parse specific sections (## CLI Auth Status, ## Repo Information) are unaffected
+      - The timestamp line is free-form prose, not key:value — consumers parsing key:value format will skip it naturally
+      - No existing consumer depends on the exact line count or position of ## CLI Auth Status

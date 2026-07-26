@@ -1,0 +1,34 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+code_paths:
+  - sc: SC-1
+    description: session-init emits human-readable datetime with date, day of week, time, timezone
+    file: tools/session-init
+    function: main()
+    line_anchor: after Git branch print (line 579), before ## CLI Auth Status (line 600)
+    required_imports:
+      - from datetime import datetime
+      - from datetime import timezone (or import zoneinfo / time module for tz abbreviation)
+    required_call: datetime.now().strftime() or equivalent
+  - sc: SC-2
+    description: Timestamp positioned after Git branch line and before ## CLI Auth Status
+    file: tools/session-init
+    function: main()
+    line_anchor: between line 579 (Git branch print) and line 600 (## CLI Auth Status)
+    placement: insert after existing branch/worktree/hooks/code-index/guard lines, before ## CLI Auth Status
+  - sc: SC-3
+    description: Format is natural English prose, not structured key:value
+    file: tools/session-init
+    function: main()
+    format: print(f"Session started: {formatted_timestamp}")
+  - sc: SC-4
+    description: Timestamp generated at runtime using Python's datetime module
+    file: tools/session-init
+    function: main()
+    required_import: from datetime import datetime
+    required_call: datetime.now()
+  - sc: SC-5
+    description: Timezone is local timezone abbreviation (e.g. EDT, IST, CET)
+    file: tools/session-init
+    function: main()
+    approach: Use time.tzname or datetime.now().astimezone().tzname() to get local tz abbreviation

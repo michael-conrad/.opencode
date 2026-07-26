@@ -1,0 +1,21 @@
+contract_schema_version: "1.0"
+issue: 2141
+phases:
+  - id: phase-1a
+    depends_on: []
+    scs: [SC-1, SC-8]
+  - id: phase-1b
+    depends_on: [phase-1a]
+    scs: [SC-2]
+  - id: phase-2
+    depends_on: [phase-1a, phase-1b]
+    scs: [SC-3, SC-4, SC-5, SC-9]
+  - id: phase-3
+    depends_on: [phase-1a, phase-1b, phase-2]
+    scs: [SC-6, SC-7, SC-10, SC-11, SC-12]
+  - id: phase-4
+    depends_on: [phase-1a, phase-1b]
+    scs: [SC-13]
+  - id: phase-5
+    depends_on: [phase-1a, phase-1b, phase-2, phase-3, phase-4]
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13]

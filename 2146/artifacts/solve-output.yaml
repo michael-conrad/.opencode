@@ -1,0 +1,27 @@
+tool: solve
+action: check
+z3_available: false
+fallback_used: true
+contract_path: null
+state_path: .opencode/.issues/2146/artifacts/structure.yaml
+overall_result: PASS
+checks:
+  acyclic_graph:
+    result: PASS
+    detail: 'ACYCLIC: 0 nodes, 0 edges, no cycles found'
+  dependency_chain:
+    result: PASS
+    detail: 'CHAIN VALID: 1 phase, no inter-phase dependencies to verify'
+  dependency_ordering:
+    result: PASS
+    detail: 'ORDERING VALID: 0 constraints satisfied (no dependency constraints)'
+  contract_variable_analysis:
+    result: SKIPPED
+    detail: 'N/A: No contract.yaml file for this issue'
+limitations:
+- 'Z3 not available: cannot perform SAT solving, unsat core extraction, theorem proving,
+  or branching constraint analysis'
+- Fallback covers structural checks only (acyclic graph, chain verification, ordering
+  verification)
+finding_summary: 'Fallback validation PASS: 1 phase(s), 0 dependency edge(s), acyclic
+  graph confirmed, no ordering violations'

@@ -1,0 +1,10 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+cross_cutting_scs: []
+analysis:
+  - All 5 SCs are scoped to a single file (tools/session-init) and a single function (main())
+  - SC-1, SC-3, and SC-5 share the same concern (timestamp content/format) and are tightly coupled
+  - SC-2 is a placement concern independent of content
+  - SC-4 is a structural concern (runtime generation) independent of format
+  - No SC spans multiple concerns in a way that creates cross-cutting dependencies
+  - All SCs can be satisfied by a single print() call in main()

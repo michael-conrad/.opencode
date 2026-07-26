@@ -1,0 +1,27 @@
+spec: .opencode#2146
+title: "[SPEC] Add session timestamp to session-init output"
+state_transitions:
+  - sc: SC-4
+    description: Timestamp generated at runtime
+    initial_state: No timestamp in output
+    final_state: Timestamp printed to stdout
+    trigger: main() execution
+    persistence: None (ephemeral — generated fresh on each invocation)
+    side_effects: None
+  - sc: SC-1
+    description: Timestamp contains all required components
+    initial_state: No datetime output
+    final_state: datetime.now() called, strftime-formatted string printed
+    trigger: main() execution reaches new print line
+    persistence: None
+    side_effects: None
+  - sc: SC-2
+    description: Timestamp positioned correctly
+    initial_state: stdout stream at "Git branch:" line
+    final_state: stdout stream at "## CLI Auth Status" line
+    trigger: Sequential print statements in main()
+    persistence: None
+    side_effects: None
+no_persistent_state: true
+no_database_changes: true
+no_file_system_changes: true
