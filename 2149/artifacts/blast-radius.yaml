@@ -1,0 +1,63 @@
+# Blast radius analysis for issue #2149
+# PR body writer uses invalid GitHub closing keyword syntax
+
+spec_path: .opencode/.issues/2149/spec.md
+affected_files:
+  - path: .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
+    role: primary
+    change_type: rename + fix
+    description: Builds "autoclose list" with Fixes #N patterns; rename to "issue-reference list" and fix cross-repo syntax
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    role: primary
+    change_type: fix
+    description: PR body template with Fixes #N/Implements #N; needs cross-repo awareness
+  - path: .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+    role: primary
+    change_type: fix
+    description: Pair-mode PR body with Implements #<issue>; needs cross-repo awareness
+  - path: .opencode/skills/requesting-code-review/tasks/prepare.md
+    role: primary
+    change_type: fix
+    description: PR description template with Fixes #N; needs cross-repo awareness
+  - path: .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+    role: secondary
+    change_type: fix
+    description: References Fixes #N patterns; update to match new format
+  - path: .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+    role: secondary
+    change_type: fix
+    description: Closing keyword discipline documentation; update to document cross-repo format
+  - path: .opencode/skills/reference/skill-card-change-types.md
+    role: primary
+    change_type: fix
+    description: Uses .opencode#N invalid reference format; replace with valid owner/repo#N syntax
+  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md
+    role: secondary
+    change_type: fix
+    description: Parses closing keywords from PR bodies; may need to handle owner/repo#N format
+  - path: .opencode/skills/audit/tasks/spec-summary/evaluator.md
+    role: secondary
+    change_type: fix
+    description: Verifies closing keywords in PR bodies; update to accept owner/repo#N format
+  - path: .opencode/skills/audit/tasks/spec-summary/arbiter.md
+    role: secondary
+    change_type: fix
+    description: Flags missing closing keywords; update to accept owner/repo#N format
+  - path: .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+    role: primary
+    change_type: fix
+    description: Uses Fixes #<submodule-issue-number> in submodule PR body; needs cross-repo format
+
+scope_summary:
+  total_affected: 11
+  primary_files: 5
+  secondary_files: 6
+  skills_affected:
+    - pr-creation-workflow
+    - git-workflow-pr
+    - requesting-code-review
+    - git-workflow-cleanup
+    - audit
+    - git-workflow-branch
+  reference_files_affected:
+    - skill-card-change-types

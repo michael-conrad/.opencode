@@ -1,0 +1,57 @@
+# Code path inventory for issue #2149
+# Lists code paths implied by each success criterion
+
+code_paths:
+  SC-1:
+    - description: PR body generation in create-pr.md constructs closing keyword lines
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+      pattern: "Fixes #N" or "Implements #N" in PR body template
+    - description: Pair-mode PR body generation
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+      pattern: "Implements #<issue>" in PR body
+    - description: Review request PR description template
+      files:
+        - .opencode/skills/requesting-code-review/tasks/prepare.md
+      pattern: "Fixes #N" in PR description
+    - description: Pre-PR checklist references
+      files:
+        - .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+      pattern: "Fixes #N" in checklist items
+    - description: Report URL documentation
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+      pattern: Closing keyword discipline documentation
+
+  SC-2:
+    - description: Cross-repo detection logic needed in PR body generation
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+        - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+        - .opencode/skills/requesting-code-review/tasks/prepare.md
+        - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+      pattern: Conditional logic to detect when issue repo != PR repo, then use owner/repo#N format
+
+  SC-3:
+    - description: All PR body generation files use consistent closing keyword patterns
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+        - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+        - .opencode/skills/requesting-code-review/tasks/prepare.md
+        - .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+        - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+        - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+      pattern: grep for closing keyword patterns across all task files
+
+  SC-4:
+    - description: Fix invalid .opencode#N reference in skill-card-change-types.md
+      files:
+        - .opencode/skills/reference/skill-card-change-types.md
+      pattern: ".opencode#N" replaced with valid "owner/repo#N" syntax
+
+  SC-5:
+    - description: Rename "autoclose list" to "issue-reference list" in sub-issue-collection.md
+      files:
+        - .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
+      pattern: "autoclose" renamed to "issue-reference" in concept and prose

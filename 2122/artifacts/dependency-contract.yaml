@@ -1,0 +1,41 @@
+# Dependency contract for issue #2122 — 5-phase linear chain
+# Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5
+# Each phase depends on the previous phase completing first.
+
+variables:
+  phase_1_completed:
+    type: bool
+    nullable: false
+  phase_2_completed:
+    type: bool
+    nullable: false
+  phase_3_completed:
+    type: bool
+    nullable: false
+  phase_4_completed:
+    type: bool
+    nullable: false
+  phase_5_completed:
+    type: bool
+    nullable: false
+  current_phase:
+    type: string
+    domain: ["0", "1", "2", "3", "4", "5"]
+    nullable: false
+
+preconditions:
+  - "z3.Or(current_phase == z3.StringVal('0'), current_phase == z3.StringVal('1'))"
+
+invariants:
+  - "z3.Implies(phase_2_completed, phase_1_completed)"
+  - "z3.Implies(phase_3_completed, phase_2_completed)"
+  - "z3.Implies(phase_4_completed, phase_3_completed)"
+  - "z3.Implies(phase_5_completed, phase_4_completed)"
+  - "z3.Not(z3.And(phase_1_completed, current_phase == z3.StringVal('0')))"
+
+postconditions:
+  - "phase_5_completed"
+  - "current_phase == z3.StringVal('5')"
+
+theorem:
+  - "z3.Implies(phase_5_completed, z3.And(phase_1_completed, phase_2_completed, phase_3_completed, phase_4_completed))"

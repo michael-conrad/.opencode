@@ -1,0 +1,8 @@
+timestamp: '2026-07-26T13:13:19.647595+00:00'
+variables:
+  current_phase: '0'
+  phase_1_completed: false
+  phase_2_completed: false
+  phase_3_completed: false
+  phase_4_completed: false
+  phase_5_completed: false

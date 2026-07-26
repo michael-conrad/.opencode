@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2122/spec.md
+approval_status: approved
+sc_count: 10
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+artifacts_missing_total: 7
+scope_boundary_findings:
+  - file: .opencode/guidelines/010-approval-gate.md
+    status: EXISTS
+  - file: .opencode/skills/approval-gate/SKILL.md
+    status: EXISTS
+  - file: .opencode/skills/audit/SKILL.md
+    status: EXISTS
+  - file: .opencode/skills/issue-operations/SKILL.md
+    status: EXISTS
+scope_all_files_exist: true

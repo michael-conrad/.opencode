@@ -1,7 +1,8 @@
 ---
 remote_issue: 2122
 remote_url: https://github.com/michael-conrad/.opencode/issues/2122
-labels: [spec]
+labels: [spec, approved-for-pr]
+approved: true
 ---
 
 ## Intent and Executive Summary

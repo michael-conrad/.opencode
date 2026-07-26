@@ -1,0 +1,68 @@
+# Concern map for issue #2149
+# Decomposes SCs into concern groups mapped to phase boundaries
+
+concerns:
+  - id: closing-keyword-utility
+    name: Centralized closing-keyword formatter
+    description: Create or refactor a centralized utility that generates valid GitHub closing keyword references for both same-repo and cross-repo cases
+    scs:
+      - SC-1
+      - SC-3
+    phase: 1
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+      - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+      - .opencode/skills/requesting-code-review/tasks/prepare.md
+      - .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+      - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+
+  - id: cross-repo-handling
+    name: Cross-repo closing keyword support
+    description: Ensure all PR body generation files use owner/repo#N format when the issue repo differs from the PR repo
+    scs:
+      - SC-2
+    phase: 2
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+      - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+      - .opencode/skills/requesting-code-review/tasks/prepare.md
+      - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+
+  - id: reference-fix
+    name: Fix invalid reference syntax in skill-card-change-types.md
+    description: Replace .opencode#N with valid owner/repo#N reference syntax
+    scs:
+      - SC-4
+    phase: 3
+    files:
+      - .opencode/skills/reference/skill-card-change-types.md
+
+  - id: terminology-rename
+    name: Rename autoclose list to issue-reference list
+    description: Rename the "autoclose list" concept in sub-issue-collection.md since GitHub autoclose is inert for trunk merges
+    scs:
+      - SC-5
+    phase: 3
+    files:
+      - .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
+
+  - id: downstream-consumers
+    name: Update downstream consumers
+    description: Update cleanup and audit tasks that parse/verify closing keywords to handle owner/repo#N format
+    scs:
+      - SC-1
+      - SC-3
+    phase: 4
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md
+      - .opencode/skills/audit/tasks/spec-summary/evaluator.md
+      - .opencode/skills/audit/tasks/spec-summary/arbiter.md
+
+  - id: behavioral-tests
+    name: Add behavioral enforcement tests
+    description: Add behavioral enforcement tests for cross-repo closing keyword generation
+    scs:
+      - SC-1
+      - SC-2
+    phase: 5
+    files: []

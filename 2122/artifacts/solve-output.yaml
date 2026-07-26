@@ -1,0 +1,51 @@
+# solve-output.yaml for issue #2122 — 5-phase chain dependency validation
+# Generated via Z3 (.opencode/tools/solve check) + fallback acyclic DAG verification
+
+status: SAT
+finding_summary: >
+  5-phase linear dependency chain (1→2→3→4→5) validated as SAT and acyclic. Z3 check confirms
+  preconditions are satisfiable for initial state. Fallback acyclic DAG check confirms 5 nodes,
+  4 edges, no cycles. Chain and ordering verification: all 4 dependency edges present, linear
+  ordering valid (position(1) < position(2) < ... < position(5)). Contract correctly captures
+  sequential dependency semantics with implication invariants (phase_N → phase_N-1).
+
+method: hybrid  # Z3 check for preconditions, fallback DAG verification for structure
+contract_path: .opencode/.issues/2122/artifacts/dependency-contract.yaml
+state_path: .opencode/.issues/2122/artifacts/state.yaml
+
+# Z3 check results (initial state: all false, current_phase=0)
+z3_check:
+  preconditions: SAT
+  preconditions_model:
+    current_phase: '"0"'
+    phase_1_completed: "False"
+    phase_2_completed: "False"
+    phase_3_completed: "False"
+    phase_4_completed: "False"
+    phase_5_completed: "False"
+  postconditions_plus_invariants: UNSAT
+  unsat_note: >
+    UNSAT is expected for initial state — postconditions require all 5 phases complete
+    (phase_5_completed=true, current_phase=5). Invariants correctly enforce the chain:
+    phase_2→1, phase_3→2, phase_4→3, phase_5→4.
+
+# Fallback acyclic DAG and chain verification
+fallback:
+  method: DFS with visited/in_stack tracking
+  acyclic: true
+  node_count: 5
+  edge_count: 4
+  edges: ["1→2", "2→3", "3→4", "4→5"]
+  chain_valid: true
+  chain_items: [1, 2, 3, 4, 5]
+  ordering_valid: true
+  ordering_constraints_satisfied: 4
+
+# Contract theorem (completion implies all prior phases done)
+theorem_proof:
+  theorem: "Implies(phase_5_completed, And(phase_1..4_completed))"
+  validity: VALID_BY_STRUCTURE
+  note: >
+    Theorem is structurally valid per the invariant chain.
+    phase_5→phase_4→phase_3→phase_2→phase_1 is implied
+    by transitive closure of the 4 invariants.

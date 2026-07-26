@@ -1,0 +1,33 @@
+# State analysis for issue #2149
+# Identifies state transitions required by each SC
+
+state_transitions:
+  SC-1:
+    - from: "Fixes #N" (bare number, same-repo only)
+      to: "Fixes #N" (same-repo) or "Fixes owner/repo#N" (cross-repo)
+      trigger: PR body generation in create-pr.md, pair-pr-creation.md, prepare.md
+      verification: grep for valid patterns + opencode run with PR creation prompt
+
+  SC-2:
+    - from: No cross-repo detection logic
+      to: Conditional logic that detects when issue repo != PR repo and uses owner/repo#N format
+      trigger: PR body generation when issue repo differs from PR repo
+      verification: opencode run with cross-repo PR creation prompt
+
+  SC-3:
+    - from: Inconsistent closing keyword patterns across files
+      to: Consistent patterns (centralized formatter or consistently correct inline patterns)
+      trigger: grep audit of all PR body generation files
+      verification: grep all task files for closing keyword patterns
+
+  SC-4:
+    - from: ".opencode#N" invalid reference format
+      to: "owner/repo#N" valid GitHub reference syntax
+      trigger: Edit skill-card-change-types.md
+      verification: grep for .opencode#N pattern
+
+  SC-5:
+    - from: "autoclose list" concept in sub-issue-collection.md
+      to: "issue-reference list" concept
+      trigger: Rename in sub-issue-collection.md
+      verification: sub-agent read of task file

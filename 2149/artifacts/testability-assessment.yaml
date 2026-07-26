@@ -1,0 +1,34 @@
+# Testability assessment for issue #2149
+# Assigns evidence types to each SC and assesses testability
+
+assessments:
+  SC-1:
+    evidence_type: string + behavioral
+    testability: high
+    string_method: grep for valid closing keyword patterns (Fixes|Closes|Resolves|Implements) across all PR body files
+    behavioral_method: opencode run with PR creation prompt; verify stderr contains valid closing keyword dispatch
+    notes: String check is straightforward grep; behavioral test requires opencode run with real PR creation scenario
+
+  SC-2:
+    evidence_type: behavioral
+    testability: medium
+    behavioral_method: opencode run with cross-repo PR creation prompt; verify stderr contains owner/repo#N format
+    notes: Requires setting up a cross-repo scenario; may need test fixture with two repos
+
+  SC-3:
+    evidence_type: string
+    testability: high
+    string_method: grep all task files for closing keyword patterns; verify consistent format
+    notes: Simple grep across all affected files; no behavioral test needed
+
+  SC-4:
+    evidence_type: string
+    testability: high
+    string_method: grep for .opencode#N pattern; verify zero matches after fix
+    notes: Simple grep; verify absence of invalid pattern
+
+  SC-5:
+    evidence_type: semantic
+    testability: high
+    semantic_method: sub-agent read of sub-issue-collection.md; verify "autoclose" concept renamed to "issue-reference"
+    notes: Sub-agent reads task file and judges whether rename is complete and consistent

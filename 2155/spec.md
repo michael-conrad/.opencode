@@ -1,0 +1,82 @@
+> **Full spec and artifacts:** [`.opencode/.issues/2155/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2155) — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/2155/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+# [SPEC] Fix analytical-artifacts gate — remediation-first before halt
+
+## Problem
+
+The audit SKILL.md (§Mandatory Task Discipline item 5) requires all 7 analytical artifacts before spec-audit can proceed. When artifacts are missing, the Trigger Dispatch Table has 7 hardcoded HALT rows — one per artifact type. This creates three defects:
+
+1. **Self-defeating gate**: The quality check that would detect missing artifacts cannot run, because it requires those same artifacts as a precondition.
+2. **Remediation-first violation**: `065-verification-honesty.md` mandates remediation before halt. The audit gate halts immediately without attempting retroactive artifact generation.
+3. **Orchestrator inline work**: The 7 HALT rows in the TDT are orchestrator-level file-existence checks — the orchestrator checks for files instead of dispatching to a sub-agent.
+
+`writing-plans/tasks/backfill.md` already provides retroactive artifact generation (mode: retroactive), so the remediation path exists but the audit gate does not use it.
+
+Additionally, `guidelines/010-approval-gate.md` references `spec-creation/tasks/analytical-artifacts.md` which does not exist — the analytical-artifacts task lives within `tasks/create.md` Step 12.5.
+
+## Background
+
+The analytical artifacts gate was added to the audit SKILL.md to ensure spec-audit has all the context it needs. However, the implementation created a chicken-and-egg problem: you need the artifacts to run the audit that would tell you the artifacts are missing. The `writing-plans/tasks/backfill.md` task was later added to solve exactly this problem via retroactive generation, but the audit gate was never updated to use it.
+
+## Not Included
+
+- Changes to the individual spec-audit sub-tasks (investigator, evaluator, validator, arbiter) — only the TDT routing and contract schema are in scope
+- Behavioral changes to the backfill task itself — only dispatch documentation
+- Changes to `065-verification-honesty.md` — only the audit SKILL.md needs to conform to it
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | 7 hardcoded HALT rows removed from audit SKILL.md TDT | string | grep for absence of 'HALT' adjacent to missing-artifact triggers in TDT |
+| SC-2 | Single catch-all analytical-artifacts-missing row added to TDT | string | grep for 'analytical artifacts missing' or 'generate_first' in TDT |
+| SC-3 | REMEDIATION_REQUIRED status documented in sub-agent contract schema | string | grep for 'REMEDIATION_REQUIRED' in audit SKILL.md |
+| SC-4 | §Mandatory Task Discipline item 5 updated to reflect remediation-first | string | grep for 'remediation_action' in audit SKILL.md |
+| SC-5 | 010-approval-gate.md reference fixed (no broken path to analytical-artifacts.md) | string | grep for 'analytical-artifacts.md' in 010-approval-gate.md returns empty |
+| SC-6 | Orchestrator does not perform inline file-existence checks for artifacts | behavioral | Behavioral test: prompt spec audit on spec without artifacts; assert stderr shows sub-agent dispatch, not HALT |
+| SC-7 | writing-plans/tasks/backfill.md supports standalone dispatch with mode:retroactive | structural | Read backfill.md; confirm dispatch contract accepts mode parameter |
+| SC-8 | Existing spec audits (with artifacts) proceed normally | behavioral | Behavioral test: verify spec audit of a spec WITH artifacts proceeds normally |
+
+## Requirements
+
+1. The audit SKILL.md SHALL replace the 7 individual HALT rows for missing analytical artifacts with a single catch-all that routes to retroactive generation.
+2. The audit SKILL.md SHALL define `REMEDIATION_REQUIRED` as a valid status in its sub-agent contract schema.
+3. The sub-agent contract SHALL include `remediation_action` and `remediation_context` fields alongside `REMEDIATION_REQUIRED`.
+4. §Mandatory Task Discipline item 5 SHALL distinguish missing-at-orchestration (route to retroactive) from missing-at-sub-agent (REMEDIATION_REQUIRED) from stale (HALT).
+5. `guidelines/010-approval-gate.md` SHALL fix the reference from `spec-creation/tasks/analytical-artifacts.md` to `writing-plans/tasks/backfill.md`.
+6. A behavioral enforcement test SHALL verify that a spec audit with missing artifacts does NOT halt and DOES dispatch retroactive generation.
+
+## Items
+
+1. Replace 7 HALT rows in TDT with single catch-all (SC-1, SC-2)
+2. Add REMEDIATION_REQUIRED to contract schema (SC-3)
+3. Update Mandatory Task Discipline item 5 (SC-4)
+4. Fix 010-approval-gate.md reference (SC-5)
+5. Add behavioral test for missing-artifact routing (SC-6)
+6. Verify backfill.md standalone dispatch support (SC-7)
+7. Add behavioral test for existing-artifact flow (SC-8)
+
+## Dependencies
+
+- `writing-plans/tasks/backfill.md` must be confirmed to support standalone dispatch (SC-7)
+
+## Traceability
+
+| Requirement | SC(s) | Phase |
+|-------------|-------|-------|
+| R1 — Replace HALT rows | SC-1, SC-2 | 1 |
+| R2 — REMEDIATION_REQUIRED status | SC-3 | 2 |
+| R3 — Contract schema fields | SC-3 | 2 |
+| R4 — Update Mandatory Task Discipline (artifact generation) | SC-4, SC-7 | 3 |
+| R5 — Fix approval-gate reference | SC-5 | 4 |
+| R6 — Behavioral test | SC-6, SC-8 | 5 |
+
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-26 | Added SC-7 to Traceability table (R4 row) | Validation FAIL: SC-7 missing from Traceability table — no requirement maps to it and no phase covers it | Pipeline validation gate |
+Co-authored with AI: OpenCode (opencode/deepseek-v4-free)

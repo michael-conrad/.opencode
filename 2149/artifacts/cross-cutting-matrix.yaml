@@ -1,0 +1,36 @@
+# Cross-cutting matrix for issue #2149
+# Identifies SCs that span multiple concerns
+
+cross_cutting_scs:
+  - sc: SC-1
+    spans_concerns:
+      - closing-keyword-utility
+      - downstream-consumers
+      - behavioral-tests
+    description: Valid closing keywords must be used in all PR body files AND verified by downstream consumers AND tested behaviorally
+    risk: medium
+    mitigation: Centralize the closing keyword logic so all consumers use the same format
+
+  - sc: SC-2
+    spans_concerns:
+      - cross-repo-handling
+      - behavioral-tests
+    description: Cross-repo format must be applied in all PR body generation files AND tested behaviorally
+    risk: high
+    mitigation: Ensure cross-repo detection logic is consistent across all PR body generation files
+
+  - sc: SC-3
+    spans_concerns:
+      - closing-keyword-utility
+      - downstream-consumers
+    description: Consistent patterns must be verified across all PR body files AND downstream parsers
+    risk: low
+    mitigation: grep-based verification covers all files; centralized formatter ensures consistency
+
+independent_scs:
+  - sc: SC-4
+    concern: reference-fix
+    description: Standalone fix to skill-card-change-types.md; no cross-cutting dependencies
+  - sc: SC-5
+    concern: terminology-rename
+    description: Standalone rename in sub-issue-collection.md; no cross-cutting dependencies

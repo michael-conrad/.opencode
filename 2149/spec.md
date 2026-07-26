@@ -1,0 +1,58 @@
+---
+title: '[SPEC-FIX] PR body writer uses invalid GitHub closing keyword syntax'
+status: approved
+approved: true
+labels:
+  - SPEC-FIX
+  - approved-for-pr
+created: 2026-07-26T03:13:06+00:00
+updated: 2026-07-26T03:13:41+00:00
+---
+
+## Problem
+
+The PR body generation code in the .opencode submodule produces closing keyword references using patterns like `Fixes #N` and `Implements #N` that are valid for same-repo references, but the code does not handle cross-repo references correctly. When a PR is created in a different repository than the issue it references (e.g., a PR in `michael-conrad/opencode-config` referencing an issue in `michael-conrad/.opencode`), the generated `Fixes #N` syntax will NOT auto-close the cross-repo issue.
+
+GitHub only recognizes these closing keyword formats:
+- Same-repo: `Fixes #N`, `Closes #N`, `Resolves #N` (and variants)
+- Cross-repo: `Fixes owner/repo#N`, `Closes owner/repo#N`, `Resolves owner/repo#N`
+
+The pattern `.opencode#N` (used in `skill-card-change-types.md` as a reference format) is NOT recognized by GitHub and will NOT auto-close issues.
+
+## Root Cause Analysis
+
+The PR body generation is spread across multiple task files, each independently constructing closing keyword lines. There is no centralized closing-keyword formatter that handles the cross-repo case. The files use bare `Fixes #N` syntax which works for same-repo PRs but silently fails for cross-repo references.
+
+Additionally, the `skill-card-change-types.md` reference file uses `.opencode#N` as an example reference format, which is not valid GitHub closing keyword syntax and may confuse agents into generating invalid closing references.
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | PR body uses only valid GitHub closing keywords (`Fixes`/`Closes`/`Resolves`/`Implements`) | `string + behavioral` | grep for valid patterns + opencode run with PR creation prompt |
+| SC-2 | Cross-repo references use `owner/repo#N` format when the issue repo differs from the PR repo | `behavioral` | opencode run with cross-repo PR creation prompt |
+| SC-3 | All PR body generation files use a centralized closing-keyword formatter (or consistently correct inline patterns) | `string` | grep all task files for closing keyword patterns |
+| SC-4 | `skill-card-change-types.md` references use valid GitHub reference syntax (not `.opencode#N`) | `string` | grep for `.opencode#N` pattern |
+| SC-5 | The `sub-issue-collection.md` task's "autoclose list" concept is renamed to "issue-reference list" since GitHub autoclose is inert for trunk merges | `semantic` | sub-agent read of task file |
+
+## Approach
+
+1. Audit all PR body generation files for closing keyword patterns
+2. Create a centralized closing-keyword utility or consistent inline pattern that handles both same-repo and cross-repo cases
+3. Fix `skill-card-change-types.md` to use valid reference syntax
+4. Rename "autoclose list" to "issue-reference list" in `sub-issue-collection.md`
+5. Add behavioral enforcement tests for cross-repo closing keyword generation
+
+## Affected Files
+
+- `.opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md` — builds "autoclose list" with `Fixes #N` patterns
+- `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` — PR body template with `Fixes #N`/`Implements #N`
+- `.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md` — pair-mode PR body with `Implements #<issue>`
+- `.opencode/skills/requesting-code-review/tasks/prepare.md` — PR description template with `Fixes #N`
+- `.opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md` — references `Fixes #N` patterns
+- `.opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md` — closing keyword discipline documentation
+- `.opencode/skills/reference/skill-card-change-types.md` — uses `.opencode#N` invalid reference format
+- `.opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md` — parses closing keywords from PR bodies
+- `.opencode/skills/audit/tasks/spec-summary/evaluator.md` — verifies closing keywords in PR bodies
+- `.opencode/skills/audit/tasks/spec-summary/arbiter.md` — flags missing closing keywords
+- `.opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md` — uses `Fixes #<submodule-issue-number>` in submodule PR body
