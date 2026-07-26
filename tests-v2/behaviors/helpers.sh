@@ -94,14 +94,15 @@ __artifact_dir() {
 }
 
 __export_sqlite_to_yaml() {
-    local output_file="$1"
-    local stderr_file="${2:-}"
+    local yaml_output_file="$1"
+    local stdout_file="${2:-}"
+    local stderr_file="${3:-}"
     local db_found=0
     local db_path=""
 
-    if [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
+    if [ -n "$stdout_file" ] && [ -f "$stdout_file" ]; then
         local test_home
-        test_home=$(grep '^TEST_HOME=' "$stderr_file" | head -1 | sed 's/^TEST_HOME=//')
+        test_home=$(grep '^TEST_HOME=' "$stdout_file" | head -1 | sed 's/^TEST_HOME=//')
         if [ -n "$test_home" ]; then
             local candidate="$test_home/.local/share/opencode/opencode.db"
             if [ -f "$candidate" ]; then
@@ -111,13 +112,8 @@ __export_sqlite_to_yaml() {
         fi
     fi
 
-    # NO FALLBACK to production XDG paths. The test framework MUST only use the
-    # test home SQLite DB discovered via TEST_HOME= from stderr. Falling back to
-    # production paths would leak production state into test evaluation.
-    # If the DB is not found, source_db: MISSING is the correct result — hard FAIL.
-
     if [ "$db_found" -eq 0 ]; then
-        echo "source_db: MISSING" > "$output_file"
+        echo "source_db: MISSING" > "$yaml_output_file"
         return
     fi
 
@@ -125,7 +121,7 @@ __export_sqlite_to_yaml() {
 import json, os, sqlite3, sys
 
 db_path = '$db_path'
-output_file = '$output_file'
+output_file = '$yaml_output_file'
 
 try:
     conn = sqlite3.connect(db_path)
@@ -163,7 +159,7 @@ except Exception as e:
             'harness_version': ${BEHAVIOR_HARNESS_VERSION},
             'export_error': str(e)
         }, f, indent=2)
-" 2>/dev/null || echo "source_db: MISSING" > "$output_file"
+" 2>/dev/null || echo "source_db: MISSING" > "$yaml_output_file"
 }
 
 behavior_run() {
@@ -342,7 +338,7 @@ exit_code: ${exit_code}
 harness_version: ${BEHAVIOR_HARNESS_VERSION}
 MANIFESTEOF
 
-    __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$err_file"
+    __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$output_file" "$err_file"
 
     local timeline_tool="$PARENT_REPO_DIR/.opencode/tools/session-to-timeline"
     if [ -f "$timeline_tool" ] && [ -f "$artifact_dir/session.yaml" ]; then

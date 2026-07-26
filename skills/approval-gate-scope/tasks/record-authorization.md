@@ -38,15 +38,20 @@ Read the three files that will be modified:
 2. Read `.issues/{N}/comments.yaml` — if missing, treat as empty (no prior comments)
 3. Read `.issues/{N}/issue.yaml` — parse labels and metadata
 
-### 3. Handle Malformed Frontmatter
+### 3. Handle Missing spec.md
+
+If `spec.md` does not exist at `.issues/{N}/spec.md`, return BLOCKED with `reason: SPEC_MD_NOT_FOUND`. A spec must exist before authorization can be recorded against it.
+
+### 4. Handle Malformed Frontmatter
 
 If `spec.md` frontmatter is malformed (missing YAML delimiters, invalid YAML, missing `status` field), return BLOCKED with `reason: MALFORMED_FRONTMATTER`. Do NOT attempt to fix or recover the frontmatter.
 
-### 4. Update `spec.md` Frontmatter
+### 5. Update `spec.md` Frontmatter
 
-If the resolved scope is `for_implementation` or higher (scope hierarchy: `for_analysis` < `for_spec` < `for_plan` < `for_implementation` < `for_pr`):
+If the resolved scope is `for_implementation` or higher (scope hierarchy: `for_analysis` < `for_spec` < `for_plan` < `for_implementation` < `for_pr` < `for_release_pr`):
 
-- Set `status: approved` in the YAML frontmatter
+- If `status` is already `approved`: skip the update — authorization is already recorded. Report success without modifying the file.
+- Otherwise: set `status: approved` in the YAML frontmatter
 - Preserve all other frontmatter fields unchanged
 
 If the resolved scope is below `for_implementation` (`for_analysis`, `for_spec`, `for_plan`):
@@ -54,9 +59,27 @@ If the resolved scope is below `for_implementation` (`for_analysis`, `for_spec`,
 - Do NOT set `status: approved`
 - Leave frontmatter unchanged
 
-### 5. Append to `comments.yaml`
+### 6. Append to `comments.yaml`
 
-Append a new authorization record to `comments.yaml`:
+Append a new authorization record to `comments.yaml`. The file is a YAML list of comment/authorization entries.
+
+#### 6a. Read Existing `comments.yaml`
+
+Read `.issues/{N}/comments.yaml`:
+
+```bash
+cat .issues/{N}/comments.yaml
+```
+
+If the file does not exist, skip to step 6c (create with initial entry).
+
+#### 6b. Validate Existing YAML
+
+Parse the existing `comments.yaml` content as YAML. It MUST be a valid YAML list (`- type: ...` entries). If the file exists but contains invalid YAML (parse error, not a list, empty file), return BLOCKED with `reason: MALFORMED_COMMENTS_YAML`. Do NOT attempt to fix or recover the malformed content.
+
+#### 6c. Append or Create
+
+Construct the new authorization record:
 
 ```yaml
 - type: authorization
@@ -66,31 +89,61 @@ Append a new authorization record to `comments.yaml`:
   timestamp: "{utc_timestamp}"
 ```
 
-If `comments.yaml` does not exist, create it with the initial authorization record as the sole entry.
+- **If `comments.yaml` exists and is valid:** Append the new record to the existing list. Write the complete list back to the file.
+- **If `comments.yaml` does not exist:** Create the file with the new record as the sole entry in the list.
+- **If `comments.yaml` exists but is empty (zero bytes):** Treat as missing — create the file with the new record as the sole entry.
 
-### 6. Update `issue.yaml` Labels
+### 7. Update `issue.yaml` Labels
 
-Update `.issues/{N}/issue.yaml` to add the `approved-for-{scope}` label to the labels array:
+Update `.issues/{N}/issue.yaml` to add the `approved-for-{scope}` label to the labels array. Preserve all existing labels. Do NOT remove prior scope labels — that is the `apply-label` task's responsibility.
+
+#### 7a. Read Current `issue.yaml`
+
+Read `.issues/{N}/issue.yaml`:
+
+```bash
+cat .issues/{N}/issue.yaml
+```
+
+If the file does not exist, skip to step 7c (create with initial entry).
+
+#### 7b. Validate and Parse
+
+Parse the existing `issue.yaml` content as YAML. It MUST be a valid YAML mapping with an optional `labels` key. If the file exists but contains invalid YAML (parse error, not a mapping), return BLOCKED with `reason: MALFORMED_ISSUE_YAML`. Do NOT attempt to fix or recover the malformed content.
+
+If the file exists and is valid, extract the current `labels` array (if present). If `labels` is missing, treat it as an empty list.
+
+#### 7c. Merge Label
+
+Construct the new label value: `"approved-for-{scope}"` (where `{scope}` is the resolved scope string, e.g., `for_implementation` → `"approved-for-implementation"`).
+
+- **If `issue.yaml` exists and is valid:** Check if the label already exists in the `labels` array (case-sensitive string comparison). If it exists, skip the update — the label is already present. If it does not exist, append the new label to the existing `labels` array.
+- **If `issue.yaml` does not exist:** Create the file with the new label as the sole entry in the `labels` array.
+- **If `issue.yaml` exists but is empty (zero bytes):** Treat as missing — create the file with the new label as the sole entry.
+
+#### 7d. Write Updated `issue.yaml`
+
+Write the updated YAML back to `.issues/{N}/issue.yaml`. Preserve all existing fields (`title`, `status`, `body`, `created_at`, `updated_at`, etc.) — only modify the `labels` array and update the `updated_at` timestamp to the current UTC timestamp.
 
 ```yaml
 labels:
   - "approved-for-{scope}"
+  # ... existing labels preserved
+updated_at: "{utc_timestamp}"
 ```
 
-Preserve all existing labels. Do NOT remove prior scope labels — that is the `apply-label` task's responsibility.
-
-### 7. Commit Worktree
+### 8. Commit Worktree
 
 Commit all three changes in the `.issues/` worktree:
 
 ```bash
-git -C .issues add {N}/spec.md {N}/comments.yaml {N}/issue.yaml
-git -C .issues commit -m "Record authorization: {scope} for issue #{N}"
+git -C .issues add -A
+git -C .issues commit -m "authorization: {scope} for issue #{N}"
 ```
 
 If the commit fails (merge conflict, hook rejection, dirty index), return BLOCKED with `reason: COMMIT_FAILED` and include the git error output. The authorization data has been written to disk but is not yet committed — do NOT report success without a successful commit.
 
-### 8. Handle Concurrent Authorization
+### 9. Handle Concurrent Authorization
 
 If the commit fails due to a concurrent modification (the worktree state changed between write and commit):
 
@@ -100,7 +153,7 @@ If the commit fails due to a concurrent modification (the worktree state changed
 4. If higher scope: overwrite with the new scope and retry the commit
 5. If conflicting scope: return BLOCKED with `reason: CONCURRENT_AUTHORIZATION_CONFLICT`
 
-### 9. Verify Commit Success
+### 10. Verify Commit Success
 
 After a successful commit, verify the worktree is clean:
 
@@ -124,8 +177,17 @@ blocker_reason: "<reason if BLOCKED>"
 | Condition | Action |
 |-----------|--------|
 | `.issues/` worktree not initialized | BLOCKED with `ISSUES_WORKTREE_NOT_INITIALIZED` |
+| Missing `spec.md` | BLOCKED with `SPEC_MD_NOT_FOUND` |
 | Malformed `spec.md` frontmatter | BLOCKED with `MALFORMED_FRONTMATTER` |
 | Missing `comments.yaml` | Create file with initial authorization record |
+| Malformed `comments.yaml` (invalid YAML, not a list, empty) | BLOCKED with `MALFORMED_COMMENTS_YAML` |
+| Missing `issue.yaml` | Create file with initial label entry |
+| Malformed `issue.yaml` (invalid YAML, not a mapping) | BLOCKED with `MALFORMED_ISSUE_YAML` |
+| Empty `issue.yaml` (zero bytes) | Treat as missing — create with initial label entry |
+| Label already present in `issue.yaml` | Skip update, report success |
+| Empty `comments.yaml` (zero bytes) | Treat as missing — create with initial entry |
+| Already approved (`status: approved` already set) | Skip update, report success |
+| Scope below `for_implementation` | Do NOT set `status: approved`, leave frontmatter unchanged |
 | Commit failure | BLOCKED with `COMMIT_FAILED` + git error output |
 | Concurrent authorization (same scope) | Skip, report success |
 | Concurrent authorization (higher scope) | Overwrite and retry commit |
