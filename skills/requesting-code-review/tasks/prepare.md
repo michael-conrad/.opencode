@@ -34,7 +34,7 @@ PR description must include:
 
 ## Related Issues
 
-Fixes #N, #M, #P
+Fixes #N, Fixes owner/repo#M, Fixes #P
 ```
 
 ### Step 2: Verify PR Readiness
@@ -83,7 +83,7 @@ uv run pyright src/
 
 ## Related Issues
 
-Fixes #[issue-number]
+Fixes #[issue-number]  <!-- Use owner/repo#N when issue is in a different repo than the PR. Format per skill({name: "pr-creation-workflow"}) → task("execute closing-keywords from pr-creation-workflow") -->
 
 ---
 Co-authored with AI: <AgentName> (<ModelId>)

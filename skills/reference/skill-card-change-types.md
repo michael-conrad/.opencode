@@ -19,7 +19,7 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Remediation Guidance** | Replace Persona prose with third-person dispatch framing. Include "intelligent agents, not dumb terminals" admonishment. Do NOT modify DISPATCH_GATE sections. |
 | **Validation** | `grep` for absence of first-person identity terms ("Architect", "Author" as role labels). `grep` for presence of third-person dispatch framing. |
 | **Workflow Validation** | Generate Z3 solve contract for the skill's workflow. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 1 |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 1 |
 
 ### Type 2: Checklist Reform
 
@@ -32,7 +32,7 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Remediation Guidance** | Replace all bullet items and prose paragraphs in Operating Protocol with `- [ ] N.` items. Each item is one action. No prose between items. Preserve all existing requirements. |
 | **Validation** | `grep -c "^- \[ \]"` on the SKILL.md Operating Protocol section. Verify count matches expected step count. |
 | **Workflow Validation** | Generate Z3 solve contract for the reformatted checklist. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 2 |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 2 |
 
 ### Type 3: Task File Reformat
 
@@ -45,7 +45,7 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Remediation Guidance** | Convert all `### Step N:` headers and prose paragraphs into sequential `- [ ] N.` checklist items. Each step is one action. No prose paragraphs between steps. Preserve all Entry/Exit Criteria. |
 | **Validation** | `grep -c "^### Step"` returns 0. `grep -c "^- \[ \]"` > 0. |
 | **Workflow Validation** | Generate Z3 solve contract for the task's procedure. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 4 |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 4 |
 
 ### Type 4: Contract Template Addition
 
@@ -58,7 +58,7 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Remediation Guidance** | Create template YAML files at `.opencode/skills/<skill>/contracts/<task>-input-template.yaml` and `.opencode/skills/<skill>/contracts/<task>-output-template.yaml`. Use `{{placeholder}}` values. Reference templates in SKILL.md Operating Protocol steps. |
 | **Validation** | `test -f` for each template file. `grep -q "{{"` for placeholder presence. Verify all templates are referenced in SKILL.md. |
 | **Workflow Validation** | Generate Z3 solve contract for the dispatch chain. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 3 |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 3 |
 
 ### Type 5: Dispatch Annotation
 
@@ -68,10 +68,10 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Description** | Adding dispatch type (`[inline]` or `[sub-task: <task-name>]`), contract YAML paths, template references, and chain annotations to Operating Protocol checklist steps. |
 | **Trigger** | Orchestrator does not know whether a step is inline or sub-agent dispatch, what task name to invoke, or how to chain output contracts to subsequent inputs. |
 | **Blast Radius** | **Skill-level** — affects the orchestrator's routing decisions for every step in the workflow. |
-| **Remediation Guidance** | Annotate each checklist step with: dispatch type, task name, input/output paths, template reference, and chain annotation. Follow the format from `.opencode#1278` Phase 2. |
+| **Remediation Guidance** | Annotate each checklist step with: dispatch type, task name, input/output paths, template reference, and chain annotation. Follow the format from `michael-conrad/.opencode#1278` Phase 2. |
 | **Validation** | `grep -c "^- \[ \] \[sub-task:"` >= expected sub-task count. `grep -c "chain:"` >= expected step count. |
 | **Workflow Validation** | Generate Z3 solve contract for the annotated dispatch chain. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 2 |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 2 |
 
 ### Type 6: Tool Invocation Addition
 
@@ -84,7 +84,7 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Remediation Guidance** | Add inline steps to the Operating Protocol checklist: `[inline] Invoke solve model`, `[inline] Invoke solve check`, `[inline] Invoke plan plan`. Include chain annotations. |
 | **Validation** | `grep -c "solve"` on SKILL.md Operating Protocol >= 2. `grep -c "plan"` on SKILL.md Operating Protocol >= 1. |
 | **Workflow Validation** | Generate Z3 solve contract for the updated workflow. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 2 |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 2 |
 
 ### Type 7: Schema Sharing
 
@@ -97,7 +97,7 @@ This taxonomy defines 10 semantic change types for skill card and task card modi
 | **Remediation Guidance** | When step N output shape matches step N+1 input shape, use one template file. When shapes differ, create separate files. Document the sharing rationale in the template file comment. |
 | **Validation** | Verify shared template files are referenced by both the output step and the input step in SKILL.md. Verify separate template files are NOT cross-referenced. |
 | **Workflow Validation** | Generate Z3 solve contract for the shared-schema chain. Run `solve check` — MUST return SAT. Run `plan plan` — MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. |
-| **Example Spec** | `.opencode#1278` Phase 3 (shared schema rule) |
+| **Example Spec** | `michael-conrad/.opencode#1278` Phase 3 (shared schema rule) |
 
 ### Type 8: DISPATCH_GATE Modification
 

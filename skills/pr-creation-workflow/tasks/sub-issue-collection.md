@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Fetch sub-issues for a parent issue and build the autoclose list for the PR body.
+Fetch sub-issues for a parent issue and build the issue-reference list for the PR body.
 
 ## Procedure
 
@@ -29,19 +29,22 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
    sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
    ```
 
-- [ ] 2. **Build autoclose list:** parent + all sub-issues
+- [ ] 2. **Build issue-reference list:** parent + all sub-issues
    ```python
-   autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
+   issue_reference_list = [<parent>] + [sub["number"] for sub in sub_issues]
    ```
 
-- [ ] 3. **Include ALL issues in PR body:**
+- [ ] 3. **Include ALL issues in PR body using closing-keywords task:**
+   Use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format closing keyword lines. Determine repo ownership for each issue:
+   - Issues in the same repo as the PR → `Fixes #N`
+   - Issues in a different repo (e.g., submodule issues) → `Fixes owner/repo#N`
    ```markdown
    ## Summary
    <description of what changed>
 
    Fixes #<parent>
    Fixes #<child1>
-   Fixes #<child2>
+   Fixes owner/repo#<child2>
    ```
 
 ### Work PR
@@ -51,7 +54,7 @@ For work PRs (assembled from multiple issues via the implementation-pipeline per
 - [ ] 1. **Read work state file** (`{project_root}/tmp/{issue-N}/work.md`) to get list of all issues in the work
 - [ ] 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
-   - `Fixes #N` annotations for all issues at the bottom
+   - `Fixes #N` annotations for all issues at the bottom (use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format)
 
 ```markdown
 **Summary:**
@@ -67,7 +70,7 @@ For work PRs (assembled from multiple issues via the implementation-pipeline per
 #621 — Collapse executing-plans into divide-and-conquer
 
 Fixes #660
-Fixes #662
+Fixes owner/repo#662
 Fixes #621
 ```
 
@@ -112,7 +115,7 @@ Unified five approved issues into a single work implementation, eliminating fork
 #621 — Collapse executing-plans into divide-and-conquer
 
 Fixes #660
-Fixes #662
+Fixes owner/repo#662
 Fixes #621
 ```
 

@@ -26,6 +26,8 @@ Parse the PR body for all issue reference patterns. **Each issue is classified b
 | `Spec:\s*#(\d+)` | `Spec: #959` | Plan→Spec upward | `spec_ref` |
 | `Plan:\s*#(\d+)` | `Plan: #960` | Spec→Plan downward | `plan_ref` |
 | `Fixes\s*#(\d+)` | `Fixes #968` | Cross-reference | `fixes` → unconditional close (subject to spec checks) |
+| `Closes\s*#(\d+)` | `Closes #969` | Cross-reference | `closes` → unconditional close (subject to spec checks) |
+| `Resolves\s*#(\d+)` | `Resolves #970` | Cross-reference | `resolves` → unconditional close (subject to spec checks) |
 | `Implements\s*#(\d+)` | `Implements #866` | Partial implementation | `implements` → completeness check required before close |
 | `Related\s*#(\d+)` | `Related #100` | Weak reference (evaluate only) | `related` → never auto-close |
 
@@ -34,6 +36,8 @@ patterns = {
     "spec_ref": r"Spec:\s*#(\d+)",
     "plan_ref": r"Plan:\s*#(\d+)",
     "fixes": r"Fixes\s*#(\d+)",
+    "closes": r"Closes\s*#(\d+)",
+    "resolves": r"Resolves\s*#(\d+)",
     "implements": r"Implements\s*#(\d+)",
     "related": r"Related\s*#(\d+)",
 }
@@ -50,6 +54,8 @@ for pattern_name, pattern in patterns.items():
 | Keyword | Closure Behavior |
 |---|---|
 | `fixes` | Proceed to phase/completeness check → close if ALL checks pass |
+| `closes` | Proceed to phase/completeness check → close if ALL checks pass |
+| `resolves` | Proceed to phase/completeness check → close if ALL checks pass |
 | `implements` | Proceed to phase/completeness check → do NOT close if ANY phases/SCs remain incomplete |
 | `related` | Evaluate only — never auto-close |
 | `spec_ref` | Follow spec closure path (Step 4) |

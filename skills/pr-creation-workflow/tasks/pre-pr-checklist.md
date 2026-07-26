@@ -124,6 +124,7 @@ Verify commit message includes BOTH trailers:
 
 - Single-task: Include `Fixes #<parent>` in PR body
 - Multi-task: Include `Fixes #<parent>` AND `Fixes #<child>` for EACH sub-issue
+- Format closing keywords per `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")`
 
 **7. Pipeline Chain Completion (MANDATORY — Zero Tolerance)**
 

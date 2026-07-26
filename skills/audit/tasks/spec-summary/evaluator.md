@@ -39,7 +39,7 @@ Read `reasoning.yaml` from `./tmp/{issue-N}/artifacts/spec-summary/reasoning.yam
 | SS-3 | PR files match spec requirements | All specified files present |
 | SS-4 | PR scope matches spec scope | No extra/missing changes |
 | SS-5 | Spec issue linked from PR | Issue reference in body |
-| SS-6 | Closing keywords present | "Closes #<issue>" in commit/PR |
+| SS-6 | Closing keywords present | "Fixes/Closes/Resolves/Implements #<issue>" in commit/PR |
 
 ### Step 3: Evaluate Each Criterion
 
@@ -47,7 +47,7 @@ Compare PR content to spec requirements. Produce PASS or FAIL per criterion.
 
 ### Step 4: Verify Closing Keywords
 
-Check for `Closes`, `Fixes`, `Resolves`, `Implements` in PR body and commits.
+Check for `Fixes`, `Closes`, `Resolves`, `Implements` in PR body and commits. Verify cross-repo references use `owner/repo#N` format (not bare `#N`).
 
 ### Step 5: Check Spec Issue Status
 

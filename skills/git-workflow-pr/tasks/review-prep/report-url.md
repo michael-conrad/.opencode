@@ -102,8 +102,12 @@ After PR merge confirmation, run `git-workflow --task cleanup` to close issues, 
 | Keyword | Auto-Closes Issue? | Use When |
 | -- | -- | -- |
 | `Fixes #N` | YES — auto-closes on merge | Single-issue specs with NO sub-issues |
+| `Closes #N` | YES — auto-closes on merge | Feature completion, issue closure |
+| `Resolves #N` | YES — auto-closes on merge | Complex issues, multi-faceted changes |
 | `Implements #N` | NO — informational only | Multi-task plans, specs with sub-issues |
 | `Related #N` | NO — weak reference | Tangentially related issues |
+
+**Cross-repo references:** Use `Fixes <owner>/<repo>#N` format when the issue is in a different repo than the PR. Format per `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")`.
 
 **When in doubt:** Use `Implements`. It never auto-closes; cleanup task handles closure properly.
 
