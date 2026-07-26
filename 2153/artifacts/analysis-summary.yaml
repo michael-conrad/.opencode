@@ -1,0 +1,25 @@
+spec_path: .opencode/.issues/2153
+approval_status: approved (for_pr, halt_at: pr_created)
+sc_count: 6
+sc_list:
+  - SC-1: Remove global sub-agent directive from 020-go-prohibitions.md §1.2 (string)
+  - SC-2: Remove sub-agent-facing references from 000-critical-rules.md (string) [currently absent — NO-OP]
+  - SC-3: Keep orchestrator-facing canonical dispatch rule intact (string)
+  - SC-4: Audit ~39 SKILL.md DISPATCH_GATE sections — remove cargo-cult PRELOADED_CONTEXT_REJECTED (behavioral)
+  - SC-5: Remaining PRELOADED_CONTEXT_REJECTED directives have task-card-level entry criteria (string)
+  - SC-6: dispatch-gate-rejection.sh behavioral test updated (behavioral)
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - 020-go-prohibitions.md §1.2 (lines 237-242): Remove global PRELOADED_CONTEXT_REJECTED sub-agent directive
+  - 000-critical-rules.md: No sub-agent-facing PRELOADED_CONTEXT_REJECTED references found — no change needed (NO-OP for SC-2)
+  - ~39 SKILL.md files with PRELOADED_CONTEXT_REJECTED in DISPATCH_GATE sections: Audit each
+  - Audit task files (content-audit-*, 4 files): Also contain PRELOADED_CONTEXT_REJECTED — must audit
+  - Behavioral test: dispatch-gate-rejection.sh does not exist yet — must create
+affected_files_count: 48 (1 guideline, ~39 SKILL.md, 4 audit task files, ~4 platform SKILL.md, 1 behavioral test)

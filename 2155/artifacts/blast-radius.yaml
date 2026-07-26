@@ -1,0 +1,78 @@
+# Blast Radius — Issue 2155: Fix analytical-artifacts gate
+spec: .opencode/.issues/2155/spec.md
+generated: 2026-07-26
+
+affected_files:
+  # Primary target — TDT replacement and contract schema
+  - path: .opencode/skills/audit/SKILL.md
+    changes:
+      - Remove 7 HALT rows (lines 65-71) from Trigger Dispatch Table
+      - Add single catch-all "analytical artifacts missing" row
+      - Add REMEDIATION_REQUIRED status to contract schema
+      - Add remediation_action and remediation_context fields
+      - Update §Mandatory Task Discipline item 5 (line 32)
+    risk: high
+    exists: true
+
+  # Broken reference fix
+  - path: .opencode/guidelines/010-approval-gate.md
+    changes:
+      - Fix reference from spec-creation/tasks/analytical-artifacts.md to writing-plans/tasks/backfill.md
+    risk: low
+    exists: true
+
+  # Downstream consumers of analytical artifact validation logic
+  - path: .opencode/skills/audit/tasks/spec-audit-investigator.md
+    changes: None (out of scope per spec §Not Included — individual sub-tasks unchanged)
+    risk: none
+    exists: true
+
+  - path: .opencode/skills/audit/tasks/spec-audit-validator.md
+    changes: None
+    risk: none
+    exists: true
+
+  - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    changes: None
+    risk: none
+    exists: true
+
+  - path: .opencode/skills/audit/tasks/spec-audit-arbiter.md
+    changes: None
+    risk: none
+    exists: true
+
+  # Behavioral test files
+  - path: .opencode/tests-v2/behaviors/
+    changes:
+      - New behavioral test for missing-artifact routing (SC-6)
+      - New behavioral test for existing-artifact flow (SC-8)
+    risk: low
+    note: Test files only, no production code changes
+
+  # Verification-before-completion references analytical artifacts
+  - path: .opencode/skills/verification-before-completion/SKILL.md
+    changes: None (out of scope)
+    risk: none
+
+  # writing-plans references backfill
+  - path: .opencode/skills/writing-plans/tasks/backfill.md
+    changes: None (SC-7 verifies standalone dispatch support)
+    risk: low
+
+unchanged_downstreams:
+  - .opencode/skills/writing-plans/SKILL.md
+  - .opencode/skills/brainstorming/SKILL.md
+  - .opencode/skills/brainstorming/tasks/explore/exploration-workflow.md
+  - .opencode/skills/spec-creation/SKILL.md
+  - .opencode/skills/spec-creation/tasks/analyze.md
+  - .opencode/skills/spec-creation/tasks/create.md
+  - .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+  - .opencode/skills/verification-before-completion/tasks/collect.md
+  - .opencode/skills/verification-before-completion/tasks/structural-verify.md
+
+risk_summary:
+  - High: audit SKILL.md TDT — removing 7 HALT rows changes routing behavior
+  - Low: 010-approval-gate.md reference fix — string-only change
+  - Low: New behavioral tests — test-only files, no production impact
+  - None: All other files are read-only references, no changes

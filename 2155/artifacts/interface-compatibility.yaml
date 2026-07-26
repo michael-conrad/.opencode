@@ -1,0 +1,61 @@
+# Interface Compatibility — Issue 2155: Fix analytical-artifacts gate
+spec: .opencode/.issues/2155/spec.md
+generated: 2026-07-26
+
+interfaces:
+  - interface: audit SKILL.md → Trigger Dispatch Table
+    direction: orchestrator reads TDT → dispatches sub-agent
+    change: Remove 7 HALT rows, add catch-all row
+    consumers:
+      - orchestrator (reads TDT to determine dispatch)
+      - spec-audit sub-agents (receive dispatch from TDT)
+      - writing-plans/backfill.md (dispatched for retroactive generation)
+    compatibility: BREAKING — orchestrators that depended on HALT behavior will now get dispatch; all known orchestrators route through skill() which re-reads TDT each time, so compatibility is maintained via live-read
+    mitigation: TDT is read fresh on every skill() call; no cached TDT state
+
+  - interface: audit SKILL.md → Sub-agent contract schema
+    direction: orchestrator reads sub-agent result contract → routes next step
+    change: Add REMEDIATION_REQUIRED status, remediation_action, remediation_context fields
+    consumers:
+      - orchestrator (reads result contract status to determine next action)
+      - sub-agents (return result contract with new fields)
+    compatibility: BACKWARD-COMPATIBLE — existing DONE/BLOCKED statuses unchanged; new status is additive
+    mitigation: None needed — additive change
+
+  - interface: audit SKILL.md → Mandatory Task Discipline item 5
+    direction: orchestrator reads discipline → enforces artifact validation
+    change: Distinguish missing-at-orchestration, missing-at-sub-agent, stale
+    consumers:
+      - orchestrator (reads item 5 to enforce discipline)
+      - TDT routing (conditionally dispatches based on artifact state)
+    compatibility: BACKWARD-COMPATIBLE — adds granularity to existing validation logic
+    mitigation: None needed — additive change
+
+  - interface: 010-approval-gate.md → reference text
+    direction: Agent reads reference → follows link
+    change: spec-creation/tasks/analytical-artifacts.md → writing-plans/tasks/backfill.md
+    consumers:
+      - agents reading the guideline (navigating to referenced task)
+    compatibility: BACKWARD-COMPATIBLE — fixes a broken link; no behavioral change
+    mitigation: None needed — dead link replacement
+
+  - interface: Behavioral tests → opencode run
+    direction: Test script invokes opencode run → verifies agent behavior
+    change: New behavioral tests added
+    consumers:
+      - CI pipeline (runs tests on PR)
+      - Developers (run tests locally)
+    compatibility: BACKWARD-COMPATIBLE — new tests don't change existing test behavior
+    mitigation: None needed — additive
+
+summary:
+  breaking_changes:
+    - TDT HALT removal (orchestrators that hardcode HALT behavior will need re-read)
+  backward_compatible:
+    - Contract schema additions
+    - Discipline item 5 update
+    - Reference fix in 010-approval-gate.md
+    - Behavioral tests
+  mitigation:
+    - TDT is live-read on every skill() call — no caching risk
+    - All other changes are additive or fix broken references

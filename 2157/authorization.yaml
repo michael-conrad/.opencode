@@ -1,0 +1,11 @@
+authorization:
+  session: 2026-07-26T19:22:00-04:00
+  scope: for_pr
+  halt_at: pr_created
+  pipeline_phase: authorization
+  granted_by: developer (Michael Conrad)
+  issues: [2153, 2155, 2156, 2157]
+status: authorized
+duplicate_of: 2156
+flag: DUPLICATE — same bug, broken formatting as #2156
+recorded_at: 2026-07-26T19:22:00-04:00

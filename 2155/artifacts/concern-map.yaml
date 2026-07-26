@@ -1,0 +1,88 @@
+# Concern Map — Issue 2155: Fix analytical-artifacts gate
+spec: .opencode/.issues/2155/spec.md
+generated: 2026-07-26
+
+concerns:
+  - id: CONCERN_TDT
+    name: Trigger Dispatch Table routing
+    description: Replace 7 individual HALT rows with single catch-all that routes to retroactive generation
+    scs:
+      - SC-1 (7 HALT rows removed)
+      - SC-2 (single catch-all added)
+    phases:
+      - 1
+    affected_files:
+      - .opencode/skills/audit/SKILL.md
+
+  - id: CONCERN_CONTRACT
+    name: Sub-agent contract schema
+    description: Add REMEDIATION_REQUIRED status, remediation_action, and remediation_context fields
+    scs:
+      - SC-3 (REMEDIATION_REQUIRED status)
+    phases:
+      - 2
+    affected_files:
+      - .opencode/skills/audit/SKILL.md
+
+  - id: CONCERN_DISCIPLINE
+    name: Mandatory Task Discipline update
+    description: Update item 5 to distinguish missing-at-orchestration, missing-at-sub-agent, and stale
+    scs:
+      - SC-4 (item 5 updated)
+    phases:
+      - 3
+    affected_files:
+      - .opencode/skills/audit/SKILL.md
+
+  - id: CONCERN_REFERENCE
+    name: Broken reference fix
+    description: Fix 010-approval-gate.md reference from spec-creation/tasks/analytical-artifacts.md to writing-plans/tasks/backfill.md
+    scs:
+      - SC-5 (broken reference fixed)
+    phases:
+      - 4
+    affected_files:
+      - .opencode/guidelines/010-approval-gate.md
+
+  - id: CONCERN_BEHAVIORAL_TEST
+    name: Behavioral enforcement tests
+    description: New behavioral tests for missing-artifact routing and existing-artifact flow
+    scs:
+      - SC-6 (missing-artifact routing)
+      - SC-8 (existing-artifact flow)
+    phases:
+      - 5
+    affected_files:
+      - .opencode/tests-v2/behaviors/
+
+  - id: CONCERN_BACKFILL
+    name: Backfill standalone dispatch
+    description: Verify backfill.md supports standalone dispatch with mode:retroactive
+    scs:
+      - SC-7 (standalone dispatch)
+    phases:
+      - 3
+    affected_files:
+      - .opencode/skills/writing-plans/tasks/backfill.md
+
+phase_boundaries:
+  phase_1:
+    concerns: [CONCERN_TDT]
+    scs: [SC-1, SC-2]
+    description: TDT routing changes
+  phase_2:
+    concerns: [CONCERN_CONTRACT]
+    scs: [SC-3]
+    description: Contract schema additions
+  phase_3:
+    concerns: [CONCERN_DISCIPLINE, CONCERN_BACKFILL]
+    scs: [SC-4, SC-7]
+    description: Discipline update + backfill verification
+  phase_4:
+    concerns: [CONCERN_REFERENCE]
+    scs: [SC-5]
+    description: Reference fix
+  phase_5:
+    concerns: [CONCERN_BEHAVIORAL_TEST]
+    scs: [SC-6, SC-8]
+    description: Behavioral tests

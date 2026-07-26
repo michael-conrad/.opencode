@@ -1,0 +1,13 @@
+phases:
+  - phase: 1
+    name: "Add Status field update sub-step to record-authorization"
+    dependencies: []
+    depends_on: []
+    notes: "Single phase, no dependencies. The change is additive and does not depend on any other phase output."
+dag:
+  nodes:
+    - phase: 1
+  edges: []
+  entry_points:
+    - phase: 1
+  is_acyclic: true

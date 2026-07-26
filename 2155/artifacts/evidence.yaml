@@ -1,0 +1,434 @@
+generator: spec-audit-generator
+issue_number: 2155
+generated_at: "2026-07-26T18:26:00Z"
+spec_local_dir: ".opencode/.issues/2155/"
+
+spec_files:
+  - path: "spec.md"
+    size_bytes: 11797
+    modified_at: "2026-07-26T18:25:00Z"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 111
+    body_length_chars: 11797
+
+spec_structure:
+  headings:
+    - level: 2
+      text: "Intent and Executive Summary"
+      line: 7
+    - level: 2
+      text: "Problem"
+      line: 15
+    - level: 2
+      text: "Background"
+      line: 29
+    - level: 2
+      text: "Documentation Sources"
+      line: 33
+    - level: 2
+      text: "Not Included"
+      line: 44
+    - level: 2
+      text: "Success Criteria"
+      line: 50
+    - level: 3
+      text: "Enforcement Gate"
+      line: 63
+    - level: 2
+      text: "Requirements"
+      line: 67
+    - level: 2
+      text: "Items"
+      line: 76
+    - level: 2
+      text: "Dependencies"
+      line: 86
+    - level: 2
+      text: "Traceability"
+      line: 91
+    - level: 2
+      text: "Change Control"
+      line: 103
+  success_criteria:
+    present: true
+    table_columns:
+      - "ID"
+      - "Criterion"
+      - "Evidence Type"
+      - "Verification Method"
+    rows:
+      - id: "SC-1"
+        criterion: "7 hardcoded HALT rows removed from audit SKILL.md TDT. Failure to implement: the self-defeating gate persists — spec-audit cannot execute for any spec without pre-generated artifacts"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'HALT' adjacent to missing-artifact triggers in TDT"
+      - id: "SC-2"
+        criterion: "Single catch-all analytical-artifacts-missing row added to TDT. Failure to implement: every missing-artifact scenario still results in HALT instead of remediation"
+        evidence_type: "string"
+        verification_method: "grep for 'analytical artifacts missing' or 'generate_first' in TDT"
+      - id: "SC-3"
+        criterion: "REMEDIATION_REQUIRED status documented in sub-agent contract schema. **Root Cause:** without a REMEDIATION_REQUIRED status, sub-agents have no way to signal \"I found a problem and here's how to fix it\" — they can only BLOCKED/halt. Failure to implement: sub-agents have no way to signal 'problem found, here's how to fix' — they must BLOCKED/halt"
+        evidence_type: "string"
+        verification_method: "grep for 'REMEDIATION_REQUIRED' in audit SKILL.md"
+      - id: "SC-4"
+        criterion: "§Mandatory Task Discipline item 5 SHALL distinguish three artifact-missing scenarios: (a) missing at orchestration level → route to retroactive generation, (b) missing discovered by sub-agent → return REMEDIATION_REQUIRED, (c) stale artifacts → HALT. Failure to implement: the skill documentation continues to mandate halt before remediation, violating 065"
+        evidence_type: "string"
+        verification_method: "grep for 'remediation_action' in audit SKILL.md"
+      - id: "SC-5"
+        criterion: "010-approval-gate.md reference fixed (no broken path to analytical-artifacts.md). **Root Cause:** 010-approval-gate.md references analytical-artifacts.md which was moved into analyze.md — it's a stale reference from an earlier spec-creation pipeline layout. Note: this is enabling cleanup discovered during investigation, not causally required by the 3 core defects. Failure to implement: downstream agents hit a dead file reference, causing confusion and wasted investigation"
+        evidence_type: "string"
+        verification_method: "grep for 'analytical-artifacts.md' in 010-approval-gate.md returns empty"
+      - id: "SC-6"
+        criterion: "Orchestrator does not perform inline file-existence checks for artifacts. Failure to implement: orchestrator continues to violate context-lean principle, performing inline file-existence checks"
+        evidence_type: "behavioral"
+        verification_method: "Behavioral test: prompt spec audit on spec without artifacts; assert stderr shows sub-agent dispatch, not HALT"
+      - id: "SC-7"
+        criterion: "backfill.md SHALL accept a `mode: retroactive` parameter and generate artifacts when dispatched standalone with {issue_number, project_root} context. **Root Cause:** backfill.md exists but the audit gate never dispatches it — the TDT halts before reaching any dispatch logic. Failure to implement: the remediation path is documented but unreachable — the gate halts before any dispatch"
+        evidence_type: "structural"
+        verification_method: "Read backfill.md; confirm dispatch contract accepts mode parameter"
+      - id: "SC-8"
+        criterion: "A spec audit of a spec WITH artifacts SHALL complete the full DiMo chain (Investigator → Validator → Evaluator → Arbiter) and produce a PASS/FAIL verdict. The audit SHALL NOT be aborted or redirected due to artifact presence. Failure to implement: no regression protection — a future change could reintroduce the same self-defeating gate pattern"
+        evidence_type: "behavioral"
+        verification_method: "Behavioral test: verify spec audit of a spec WITH artifacts proceeds normally"
+  phases:
+    present: true
+    count: 5
+    items:
+      - heading: "Phase 1 — Replace HALT rows (SC-1, SC-2)"
+        sub_items_count: 0
+      - heading: "Phase 2 — REMEDIATION_REQUIRED status (SC-3)"
+        sub_items_count: 0
+      - heading: "Phase 3 — Update Mandatory Task Discipline (SC-4, SC-7)"
+        sub_items_count: 0
+      - heading: "Phase 4 — Fix approval-gate reference (SC-5)"
+        sub_items_count: 0
+      - heading: "Phase 5 — Behavioral tests (SC-6, SC-8)"
+        sub_items_count: 0
+  files_affected:
+    present: true
+    paths:
+      - ".opencode/skills/audit/SKILL.md"
+      - ".opencode/skills/spec-creation/tasks/analyze.md"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md"
+      - ".opencode/skills/spec-creation/tasks/create.md"
+      - ".opencode/guidelines/065-verification-honesty.md"
+  preamble:
+    present: true
+    fields_present:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    fields_missing: []
+  documentation_sources:
+    present: true
+    sources:
+      - ".opencode/skills/audit/SKILL.md — 7 HALT rows at lines 65-71"
+      - ".opencode/skills/spec-creation/tasks/analyze.md — Step 5 (lines 52-64)"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md — Line ~216 references analytical-artifacts.md"
+      - ".opencode/skills/spec-creation/tasks/create.md — No Step 12.5"
+      - ".opencode/guidelines/065-verification-honesty.md — remediation-first protocol"
+  status_marker: absent
+  prose_elements:
+    tables: 4
+    code_blocks: 0
+    ordered_lists: 1
+    unordered_lists: 4
+
+determinism_evidence:
+  sc_wording:
+    - id: "SC-1"
+      text: "7 hardcoded HALT rows removed from audit SKILL.md TDT. Failure to implement: the self-defeating gate persists — spec-audit cannot execute for any spec without pre-generated artifacts"
+      word_count: 28
+    - id: "SC-2"
+      text: "Single catch-all analytical-artifacts-missing row added to TDT. Failure to implement: every missing-artifact scenario still results in HALT instead of remediation"
+      word_count: 21
+    - id: "SC-3"
+      text: "REMEDIATION_REQUIRED status documented in sub-agent contract schema. Failure to implement: sub-agents have no way to signal 'problem found, here's how to fix' — they must BLOCKED/halt"
+      word_count: 23
+    - id: "SC-4"
+      text: "§Mandatory Task Discipline item 5 SHALL distinguish three artifact-missing scenarios: (a) missing at orchestration level → route to retroactive generation, (b) missing discovered by sub-agent → return REMEDIATION_REQUIRED, (c) stale artifacts → HALT. Failure to implement: the skill documentation continues to mandate halt before remediation, violating 065"
+      word_count: 42
+    - id: "SC-5"
+      text: "010-approval-gate.md reference fixed (no broken path to analytical-artifacts.md). Failure to implement: downstream agents hit a dead file reference, causing confusion and wasted investigation"
+      word_count: 22
+    - id: "SC-6"
+      text: "Orchestrator does not perform inline file-existence checks for artifacts. Failure to implement: orchestrator continues to violate context-lean principle, performing inline file-existence checks"
+      word_count: 20
+    - id: "SC-7"
+      text: "backfill.md SHALL accept a `mode: retroactive` parameter and generate artifacts when dispatched standalone with {issue_number, project_root} context. Failure to implement: the remediation path is documented but unreachable — the gate halts before any dispatch"
+      word_count: 32
+    - id: "SC-8"
+      text: "A spec audit of a spec WITH artifacts SHALL complete the full DiMo chain (Investigator → Validator → Evaluator → Arbiter) and produce a PASS/FAIL verdict. The audit SHALL NOT be aborted or redirected due to artifact presence. Failure to implement: no regression protection — a future change could reintroduce the same self-defeating gate pattern"
+      word_count: 43
+  fail_patterns:
+    - sc_id: "SC-4"
+      pattern: "implicit_behavior"
+      matched_text: "violating 065"  # references a guideline as "wrong" without specifying how
+    - sc_id: "SC-7"
+      pattern: "missing_expected_values"
+      matched_text: "`mode: retroactive` parameter"  # backfill.md does not document a mode parameter
+  ambiguity_markers:
+    - sc_id: "SC-6"
+      marker: "should"  # implied in "Orchestrator does not perform" — affirmative statement, no hedging
+  evidence_type_declarations:
+    - sc_id: "SC-1"
+      declared_type: "string"
+    - sc_id: "SC-2"
+      declared_type: "string"
+    - sc_id: "SC-3"
+      declared_type: "string"
+    - sc_id: "SC-4"
+      declared_type: "string"
+    - sc_id: "SC-5"
+      declared_type: "string"
+    - sc_id: "SC-6"
+      declared_type: "behavioral"
+    - sc_id: "SC-7"
+      declared_type: "structural"
+    - sc_id: "SC-8"
+      declared_type: "behavioral"
+  verification_methods:
+    - sc_id: "SC-1"
+      has_verification_method: true
+      method_text: "grep for absence of 'HALT' adjacent to missing-artifact triggers in TDT"
+    - sc_id: "SC-2"
+      has_verification_method: true
+      method_text: "grep for 'analytical artifacts missing' or 'generate_first' in TDT"
+    - sc_id: "SC-3"
+      has_verification_method: true
+      method_text: "grep for 'REMEDIATION_REQUIRED' in audit SKILL.md"
+    - sc_id: "SC-4"
+      has_verification_method: true
+      method_text: "grep for 'remediation_action' in audit SKILL.md"
+    - sc_id: "SC-5"
+      has_verification_method: true
+      method_text: "grep for 'analytical-artifacts.md' in 010-approval-gate.md returns empty"
+    - sc_id: "SC-6"
+      has_verification_method: true
+      method_text: "Behavioral test: prompt spec audit on spec without artifacts; assert stderr shows sub-agent dispatch, not HALT"
+    - sc_id: "SC-7"
+      has_verification_method: true
+      method_text: "Read backfill.md; confirm dispatch contract accepts mode parameter"
+    - sc_id: "SC-8"
+      has_verification_method: true
+      method_text: "Behavioral test: verify spec audit of a spec WITH artifacts proceeds normally"
+  failure_description_provided: false
+  failure_description_text: absent
+
+documentation_source_evidence:
+  urls: []
+  api_references: []
+  env_variables: []
+  library_patterns:
+    - source: "audit SKILL.md — 7 HALT rows at lines 65-71"
+      verified_against: ".opencode/skills/audit/SKILL.md"
+      pattern_exists: true
+    - source: "analyze.md — Step 5 (lines 52-64)"
+      verified_against: ".opencode/skills/spec-creation/tasks/analyze.md"
+      pattern_exists: true
+    - source: "backfill.md — exists with retroactive generation mode"
+      verified_against: ".opencode/skills/writing-plans/tasks/backfill.md"
+      pattern_exists: true
+    - source: "010-approval-gate.md — Line ~216 references analytical-artifacts.md"
+      verified_against: ".opencode/guidelines/010-approval-gate.md"
+      pattern_exists: true
+    - source: "create.md — No Step 12.5"
+      verified_against: ".opencode/skills/spec-creation/tasks/create.md"
+      pattern_exists: true
+    - source: "065-verification-honesty.md — remediation-first protocol"
+      verified_against: ".opencode/guidelines/065-verification-honesty.md"
+      pattern_exists: true
+
+prose_evidence:
+  escape_hatches: []
+  tracking_language: []
+  prescriptive_code:
+    - content: "`.opencode/skills/audit/SKILL.md` — file path with line range reference"
+      location: "Documentation Sources table"
+      type: "line_number"
+    - content: "`.opencode/skills/spec-creation/tasks/analyze.md` — file path with line range reference"
+      location: "Documentation Sources table"
+      type: "line_number"
+    - content: "`.opencode/guidelines/010-approval-gate.md` — file path with approximate line reference"
+      location: "Documentation Sources table"
+      type: "line_number"
+  cost_frame_language:
+    - sc_id: "SC-1"
+      has_cost_frame: true
+    - sc_id: "SC-2"
+      has_cost_frame: true
+    - sc_id: "SC-3"
+      has_cost_frame: true
+    - sc_id: "SC-4"
+      has_cost_frame: true
+    - sc_id: "SC-5"
+      has_cost_frame: true
+    - sc_id: "SC-6"
+      has_cost_frame: true
+    - sc_id: "SC-7"
+      has_cost_frame: true
+    - sc_id: "SC-8"
+      has_cost_frame: true
+
+reasoning_evidence:
+  root_causes:
+    - text: "The TDT has 7 hardcoded HALT rows that check for file existence at the orchestrator level, violating both remediation-first (065) and orchestrator-context-lean (000) principles."
+      location: "Intent and Executive Summary — Root Cause"
+    - text: "Without a REMEDIATION_REQUIRED status, sub-agents have no way to signal 'I found a problem and here's how to fix it' — they can only BLOCKED/halt"
+      location: "SC-3 criterion text"
+    - text: "010-approval-gate.md references analytical-artifacts.md which was moved into analyze.md — it's a stale reference from an earlier spec-creation pipeline layout"
+      location: "SC-5 criterion text"
+    - text: "backfill.md exists but the audit gate never dispatches it — the TDT halts before reaching any dispatch logic"
+      location: "SC-7 criterion text"
+  fix_approaches:
+    - text: "Retroactive artifact generation via the existing writing-plans/tasks/backfill.md task, triggered by a TDT catch-all row. The orchestrator routes — it does not check files inline."
+      location: "Intent and Executive Summary — Approach Chosen"
+  sc_to_root_cause:
+    - sc_id: "SC-1"
+      references_root_cause: true
+      root_cause_text: "7 hardcoded HALT rows in TDT"
+    - sc_id: "SC-2"
+      references_root_cause: true
+      root_cause_text: "7 hardcoded HALT rows in TDT"
+    - sc_id: "SC-3"
+      references_root_cause: true
+      root_cause_text: "No REMEDIATION_REQUIRED status in sub-agent contract schema"
+    - sc_id: "SC-4"
+      references_root_cause: true
+      root_cause_text: "Missing scenario distinction in Mandatory Task Discipline item 5"
+    - sc_id: "SC-5"
+      references_root_cause: true
+      root_cause_text: "Stale reference in 010-approval-gate.md to nonexistent analytical-artifacts.md"
+    - sc_id: "SC-6"
+      references_root_cause: true
+      root_cause_text: "Orchestrator performs inline file-existence checks (TDT HALT rows)"
+    - sc_id: "SC-7"
+      references_root_cause: true
+      root_cause_text: "backfill.md never dispatched — TDT halts before dispatch logic"
+    - sc_id: "SC-8"
+      references_root_cause: false
+      root_cause_text: ""
+  alternatives_considered:
+    present: true
+    items:
+      - alternative: "Remove gate entirely"
+        reason_discarded: "artifacts are valuable audit input"
+      - alternative: "Make artifacts optional at spec level"
+        reason_discarded: "would require SKILL.md changes in two skills"
+      - alternative: "Lazy generation at audit time"
+        reason_discarded: "adds latency to every audit"
+      - alternative: "Retroactive generation via existing backfill task"
+        reason_discarded: "chosen — leverages existing infrastructure, minimal TDT change"
+  edge_cases:
+    present: true
+    items:
+      - "Missing at orchestration level vs. missing discovered by sub-agent vs. stale artifacts (SC-4 distinction)"
+      - "010-approval-gate.md reference fix is auxiliary cleanup, not core defect (scope note)"
+  potential_contradictions:
+    - statement_a: "Artifacts must exist before spec-audit can proceed (Mandatory Task Discipline item 5)"
+      statement_b: "Retroactive generation via backfill.md can generate artifacts from spec alone (backfill.md)"
+      location_a: "audit SKILL.md §Mandatory Task Discipline item 5"
+      location_b: "writing-plans/tasks/backfill.md"
+
+analytical_artifact_evidence:
+  blast_radius:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/blast-radius.yaml"
+    exists: true
+    size_bytes: 2907
+    modified_at: "2026-07-26T13:07:00Z"
+  concern_map:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/concern-map.yaml"
+    exists: true
+    size_bytes: 2580
+    modified_at: "2026-07-26T13:07:00Z"
+  code_path_inventory:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/code-path-inventory.yaml"
+    exists: true
+    size_bytes: 3159
+    modified_at: "2026-07-26T13:07:00Z"
+  cross_cutting_matrix:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/cross-cutting-matrix.yaml"
+    exists: true
+    size_bytes: 2363
+    modified_at: "2026-07-26T13:07:00Z"
+  interface_compatibility:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/interface-compatibility.yaml"
+    exists: true
+    size_bytes: 3082
+    modified_at: "2026-07-26T13:07:00Z"
+  state_analysis:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/state-analysis.yaml"
+    exists: true
+    size_bytes: 3484
+    modified_at: "2026-07-26T13:07:00Z"
+  testability_assessment:
+    provided: true
+    path: ".opencode/.issues/2155/artifacts/testability-assessment.yaml"
+    exists: true
+    size_bytes: 3116
+    modified_at: "2026-07-26T13:07:00Z"
+
+holistic_dimension_evidence:
+  implementability:
+    single_approach_defined: true
+    sc_count: 8
+    ambiguous_sc_count: 1
+  internal_consistency:
+    cross_section_references: 3
+    preamble_body_alignment_notes: "Preamble correctly states approach (retroactive backfill via catch-all TDT row). Success Criteria, Requirements, Items, and Traceability tables all align to the same 4 core SC + 4 auxiliary SC decomposition."
+  completeness:
+    undefined_terms: []
+    tbd_todo_markers: 0
+    implicit_dependencies:
+      - "Behavioral test harness (with-test-home wrapper) listed as dependency for SC-6, SC-8"
+      - "backfill.md must confirm standalone dispatch support (SC-7)"
+  scope_discipline:
+    stated_boundaries: "Not Included section defines 3 exclusions: no changes to spec-audit sub-tasks, no behavioral changes to backfill task itself, no changes to 065-verification-honesty.md. Scope note on Approach 4 (010 reference fix) identifies it as auxiliary cleanup, not core defect."
+    potential_scope_creep_elements: []
+  testability:
+    scs_with_verification_method: 8
+    scs_without_verification_method: 0
+    subjective_judgment_scs: []
+  provenance:
+    tool_call_evidence_cited: true
+    unsupported_assertions: []
+  feasibility:
+    referenced_files:
+      - ".opencode/skills/audit/SKILL.md"
+      - ".opencode/skills/spec-creation/tasks/analyze.md"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md"
+      - ".opencode/skills/spec-creation/tasks/create.md"
+      - ".opencode/guidelines/065-verification-honesty.md"
+    referenced_functions: []
+    referenced_libraries: []
+  safety:
+    destructive_operations: []
+    data_loss_scenarios: []
+    security_relevant_changes: []
+  traceability:
+    sc_to_phase_mapping:
+      SC-1: "Phase 1"
+      SC-2: "Phase 1"
+      SC-3: "Phase 2"
+      SC-4: "Phase 3"
+      SC-5: "Phase 4"
+      SC-6: "Phase 5"
+      SC-7: "Phase 3"
+      SC-8: "Phase 5"
+    orphan_scs: []
+    orphan_phases: []
+  correctness:
+    problem_statement: "The audit SKILL.md's analytical-artifact gate blocks spec-audit when artifacts are missing, without attempting remediation (retroactive artifact generation). This creates a self-defeating circular dependency."
+    root_cause: "The TDT has 7 hardcoded HALT rows that check for file existence at the orchestrator level, violating both remediation-first (065) and orchestrator-context-lean (000) principles."
+    fix_approach: "Retroactive artifact generation via the existing writing-plans/tasks/backfill.md task, triggered by a TDT catch-all row. The orchestrator routes — it does not check files inline."

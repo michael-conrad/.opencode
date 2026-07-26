@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2155/spec.md
+approval_status: approved (for_pr scope)
+sc_count: 8
+artifact_presence:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+scope_boundary_findings:
+  - file: .opencode/skills/audit/SKILL.md
+    status: exists
+  - file: .opencode/skills/writing-plans/tasks/backfill.md
+    status: exists
+  - file: .opencode/guidelines/010-approval-gate.md
+    status: exists
+finding_summary: "Spec approved for_pr. 8 SCs (4 string, 1 structural, 3 behavioral — including SC-7 structural moved from string). Affects audit SKILL.md TDT, contract schema, Mandatory Task Discipline item 5, 010-approval-gate.md reference, backfill.md, and 2 new behavioral tests. All 7 analytical artifacts missing — backfill needed for plan creation."

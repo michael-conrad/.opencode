@@ -1,0 +1,98 @@
+issue: 2155
+phases:
+  - phase: 1
+    concern: "TDT remediation routing — remove HALT rows, add catch-all"
+    items:
+      - item: 1
+        sc_id: SC-1
+        sc_evidence: string
+        description: Remove 7 hardcoded HALT rows for missing analytical artifacts from audit SKILL.md TDT
+        files:
+          - .opencode/skills/audit/SKILL.md
+        skill_task: test-driven-development --task red/green
+      - item: 2
+        sc_id: SC-2
+        sc_evidence: string
+        description: Add single catch-all analytical-artifacts-missing row to audit SKILL.md TDT
+        files:
+          - .opencode/skills/audit/SKILL.md
+        skill_task: test-driven-development --task red/green
+  - phase: 2
+    concern: "REMEDIATION_REQUIRED contract schema"
+    items:
+      - item: 3
+        sc_id: SC-3
+        sc_evidence: string
+        description: Document REMEDIATION_REQUIRED status and remediation_action/remediation_context fields in audit SKILL.md sub-agent contract schema
+        files:
+          - .opencode/skills/audit/SKILL.md
+        skill_task: test-driven-development --task red/green
+  - phase: 3
+    concern: "Mandatory Task Discipline and backfill dispatch"
+    items:
+      - item: 4
+        sc_id: SC-4
+        sc_evidence: string
+        description: Update Mandatory Task Discipline item 5 to distinguish 3 artifact-missing scenarios
+        files:
+          - .opencode/skills/audit/SKILL.md
+        skill_task: test-driven-development --task red/green
+      - item: 5
+        sc_id: SC-7
+        sc_evidence: structural
+        description: Verify backfill.md accepts mode:retroactive parameter and standalone dispatch with {issue_number, project_root} context
+        files:
+          - .opencode/skills/writing-plans/tasks/backfill.md
+        skill_task: structural verification (inline)
+  - phase: 4
+    concern: "Stale reference cleanup"
+    items:
+      - item: 6
+        sc_id: SC-5
+        sc_evidence: string
+        description: Fix 010-approval-gate.md stale reference from analytical-artifacts.md to writing-plans/tasks/backfill.md
+        files:
+          - .opencode/guidelines/010-approval-gate.md
+        skill_task: test-driven-development --task red/green
+  - phase: 5
+    concern: "Behavioral enforcement tests"
+    items:
+      - item: 7
+        sc_id: SC-6
+        sc_evidence: behavioral
+        description: Behavioral test verifying spec audit with missing artifacts routes to retroactive generation (does not HALT)
+        files:
+          - .opencode/tests-v2/behaviors/analytical-artifacts-missing.sh
+        skill_task: test-driven-development --task red/green
+      - item: 8
+        sc_id: SC-8
+        sc_evidence: behavioral
+        description: Behavioral test verifying spec audit WITH artifacts proceeds through full DiMo chain
+        files:
+          - .opencode/tests-v2/behaviors/analytical-artifacts-present.sh
+        skill_task: test-driven-development --task red/green
+dag_edges:
+  - from: 1
+    to: 2
+    reason: SC-2 catch-all row must be added after SC-1 HALT rows are removed (clean TDT state)
+  - from: 1
+    to: 3
+    reason: REMEDIATION_REQUIRED contract documented after TDT stops halting (otherwise unreachable status)
+  - from: 2
+    to: 3
+    reason: Contract schema becomes reachable after catch-all routes to remediation
+  - from: 1
+    to: 4
+    reason: Mandatory Task Discipline updated after TDT changes are in place
+  - from: 4
+    to: 7
+    reason: Behavioral test for SC-6 requires TDT changes + discipline item to be in place
+  - from: 2
+    to: 7
+    reason: Behavioral test requires catch-all row to exist
+  - from: 2
+    to: 8
+    reason: Behavioral test for SC-8 requires catch-all row (to verify it does NOT match when artifacts exist)
+  - from: 1
+    to: 8
+    reason: Behavioral test needs clean TDT (no HALT rows to block)

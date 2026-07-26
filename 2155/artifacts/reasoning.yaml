@@ -1,0 +1,294 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2155
+generated_at: "2026-07-26T18:28:00Z"
+evidence_source: ".opencode/.issues/2155/artifacts/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2155/"
+overall_validation_status: corrected
+
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: validated
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: true
+    corrections: []
+    actual_size_bytes: 11797
+    actual_body_length_lines: 111
+    actual_body_length_chars: 11797
+    actual_has_frontmatter: false
+    actual_frontmatter_keys: []
+
+spec_structure_validation:
+  headings:
+    validation_status: validated
+    evidence_count: 12
+    actual_count: 12
+    mismatches: []
+  success_criteria:
+    validation_status: validated
+    evidence_row_count: 8
+    actual_row_count: 8
+    mismatches: []
+  phases:
+    validation_status: validated
+    evidence_count: 5
+    actual_count: 5
+    mismatches: []
+  files_affected:
+    validation_status: validated
+    evidence_paths:
+      - ".opencode/skills/audit/SKILL.md"
+      - ".opencode/skills/spec-creation/tasks/analyze.md"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md"
+      - ".opencode/skills/spec-creation/tasks/create.md"
+      - ".opencode/guidelines/065-verification-honesty.md"
+    actual_paths:
+      - ".opencode/skills/audit/SKILL.md"
+      - ".opencode/skills/spec-creation/tasks/analyze.md"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md"
+      - ".opencode/skills/spec-creation/tasks/create.md"
+      - ".opencode/guidelines/065-verification-honesty.md"
+    mismatches: []
+  preamble:
+    validation_status: validated
+    evidence_fields_present:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    actual_fields_present:
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    mismatches: []
+  documentation_sources:
+    validation_status: validated
+    evidence_sources:
+      - ".opencode/skills/audit/SKILL.md — 7 HALT rows at lines 65-71"
+      - ".opencode/skills/spec-creation/tasks/analyze.md — Step 5 (lines 52-64)"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md — Line ~216 references analytical-artifacts.md"
+      - ".opencode/skills/spec-creation/tasks/create.md — No Step 12.5"
+      - ".opencode/guidelines/065-verification-honesty.md — remediation-first protocol"
+    actual_sources:
+      - ".opencode/skills/audit/SKILL.md — 7 HALT rows at lines 65-71"
+      - ".opencode/skills/spec-creation/tasks/analyze.md — Step 5 (lines 52-64)"
+      - ".opencode/skills/writing-plans/tasks/backfill.md"
+      - ".opencode/guidelines/010-approval-gate.md — Line ~216 references analytical-artifacts.md"
+      - ".opencode/skills/spec-creation/tasks/create.md — No Step 12.5"
+      - ".opencode/guidelines/065-verification-honesty.md — remediation-first protocol"
+    mismatches: []
+  status_marker:
+    validation_status: validated
+    evidence_value: absent
+    actual_value: absent
+  prose_elements:
+    validation_status: corrected
+    mismatches:
+      - element: ordered_lists
+        evidence_count: 1
+        actual_count: 3
+        note: "3 ordered list groups: Problem (1.-3., lines 19-21), Requirements (1.-6., lines 69-74), Items (1.-7., lines 78-84)"
+      - element: unordered_lists
+        evidence_count: 4
+        actual_count: 3
+        note: "3 unordered list groups: Executive Summary (lines 9-13, 5 items), Not Included (lines 46-48, 3 items), Dependencies (lines 88-89, 2 items)"
+
+determinism_validation:
+  sc_wording:
+    validation_status: validated
+    mismatches: []
+  fail_patterns:
+    validation_status: validated
+    evidence_count: 2
+    actual_count: 2
+    missed_patterns: []
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    missed_markers: []
+    false_markers: []
+  evidence_type_declarations:
+    validation_status: validated
+    mismatches: []
+  verification_methods:
+    validation_status: validated
+    mismatches: []
+  failure_description:
+    validation_status: validated
+    evidence_provided: false
+    actual_provided: false
+
+documentation_source_validation:
+  library_patterns:
+    validation_status: validated
+    mismatches: []
+
+prose_validation:
+  escape_hatches:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    missed_hatches: []
+    false_hatches: []
+  tracking_language:
+    validation_status: validated
+    evidence_count: 0
+    actual_count: 0
+    missed_instances: []
+    false_instances: []
+  prescriptive_code:
+    validation_status: validated
+    evidence_count: 3
+    actual_count: 3
+    missed_instances: []
+    false_instances: []
+  cost_frame_language:
+    validation_status: validated
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: validated
+    evidence_count: 4
+    actual_count: 4
+    mismatches: []
+  fix_approaches:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  sc_to_root_cause:
+    validation_status: validated
+    mismatches: []
+  alternatives_considered:
+    validation_status: validated
+    evidence_present: true
+    actual_present: true
+    mismatches: []
+  edge_cases:
+    validation_status: validated
+    evidence_present: true
+    actual_present: true
+    evidence_count: 2
+    actual_count: 2
+    missed_cases: []
+  potential_contradictions:
+    validation_status: validated
+    evidence_count: 1
+    actual_count: 1
+    false_contradictions: []
+    missed_contradictions: []
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 2907
+    mismatches: []
+  concern_map:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 2580
+    mismatches: []
+  code_path_inventory:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 3159
+    mismatches: []
+  cross_cutting_matrix:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 2363
+    mismatches: []
+  interface_compatibility:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 3082
+    mismatches: []
+  state_analysis:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 3484
+    mismatches: []
+  testability_assessment:
+    validation_status: validated
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    actual_size_bytes: 3116
+    mismatches: []
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: validated
+    mismatches: []
+  internal_consistency:
+    validation_status: validated
+    mismatches: []
+  completeness:
+    validation_status: validated
+    mismatches: []
+    missed_undefined_terms: []
+    missed_implicit_dependencies: []
+  scope_discipline:
+    validation_status: validated
+    mismatches: []
+  testability:
+    validation_status: validated
+    mismatches: []
+  provenance:
+    validation_status: validated
+    mismatches: []
+  feasibility:
+    validation_status: validated
+    mismatches: []
+    missed_referenced_files: []
+    missed_referenced_functions: []
+  safety:
+    validation_status: validated
+    mismatches: []
+  traceability:
+    validation_status: validated
+    mismatches: []
+  correctness:
+    validation_status: validated
+    mismatches: []
+
+unvalidated_items: []
+corrections_summary:
+  total_corrections: 2
+  sections_affected:
+    - "spec_structure_validation.prose_elements"
+  corrections:
+    - element: "ordered_lists"
+      evidence_value: 1
+      actual_value: 3
+      detail: "Spec has 3 ordered list groups: Problem (lines 19-21, 3 items), Requirements (lines 69-74, 6 items), Items (lines 78-84, 7 items)"
+    - element: "unordered_lists"
+      evidence_value: 4
+      actual_value: 3
+      detail: "Spec has 3 unordered list groups: Executive Summary (lines 9-13, 5 items), Not Included (lines 46-48, 3 items), Dependencies (lines 88-89, 2 items)"

@@ -1,0 +1,20 @@
+spec_path: .opencode/.issues/2159/spec.md
+approval_status: approved_by_context  # authorization_scope: for_pr provided by user
+sc_count: 3
+sc_ids:
+  - SC-1: "Sub-step added to Step 2 that updates ### Status to Approved"
+  - SC-2: "Status update only occurs for for_spec or higher"
+  - SC-3: "Status update uses github_issue_write"
+artifact_presence:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+scope_boundary_findings:
+  - Affected file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md
+  - Affected file: .opencode/skills/approval-gate-scope/SKILL.md (workflows section)
+  - Both files exist and are confirmed
+finding_summary: "Spec approved via authorization_scope=for_pr. 3 SCs defined. No analytical artifacts present (retroactive spec-fix, simple scope). Affected files confirmed: record-authorization.md and SKILL.md workflows section."

@@ -1,0 +1,74 @@
+# Testability Assessment — Issue 2155: Fix analytical-artifacts gate
+spec: .opencode/.issues/2155/spec.md
+generated: 2026-07-26
+
+assessment:
+  - sc: SC-1
+    evidence_type: string
+    testability: HIGH
+    method: grep for absence of HALT adjacent to missing-artifact triggers in TDT
+    difficulty: trivial
+    automation: full
+    notes: Simple grep; no ambiguity. Assert that 'HALT' does not appear in lines 65-71 replacements.
+
+  - sc: SC-2
+    evidence_type: string
+    testability: HIGH
+    method: grep for 'analytical artifacts missing' or 'generate_first' in TDT
+    difficulty: trivial
+    automation: full
+    notes: Simple grep for new catch-all row text. Assert the row exists in TDT section.
+
+  - sc: SC-3
+    evidence_type: string
+    testability: HIGH
+    method: grep for 'REMEDIATION_REQUIRED' in audit SKILL.md
+    difficulty: trivial
+    automation: full
+    notes: Simple grep for the new status value.
+
+  - sc: SC-4
+    evidence_type: string
+    testability: HIGH
+    method: grep for 'remediation_action' in audit SKILL.md
+    difficulty: trivial
+    automation: full
+    notes: Simple grep for the new contract field. Also verify 'missing-at-orchestration', 'missing-at-sub-agent', 'stale' appear in item 5.
+
+  - sc: SC-5
+    evidence_type: string
+    testability: HIGH
+    method: grep for 'analytical-artifacts.md' in 010-approval-gate.md returns empty; grep for 'backfill.md' returns non-empty
+    difficulty: trivial
+    automation: full
+    notes: Assert broken reference removed, correct reference present.
+
+  - sc: SC-6
+    evidence_type: behavioral
+    testability: MEDIUM
+    method: opencode run with behavioral test → assert stderr shows sub-agent dispatch, not HALT
+    difficulty: medium
+    automation: full (with-test-home harness)
+    notes: Requires behavioral test harness (with-test-home), opencode binary, and AI model. Test sends prompt about spec audit on spec without artifacts, asserts dispatch not HALT. Follow behavioral test template in .opencode/tests-v2/behaviors/.
+
+  - sc: SC-7
+    evidence_type: structural
+    testability: HIGH
+    method: Read backfill.md; confirm dispatch contract accepts mode parameter
+    difficulty: trivial
+    automation: full
+    notes: Structural read of backfill.md. Assert 'mode' or 'retroactive' appears in entry criteria, procedure, or contract schema.
+
+  - sc: SC-8
+    evidence_type: behavioral
+    testability: MEDIUM
+    method: opencode run with behavioral test → verify spec audit of a spec WITH artifacts proceeds normally
+    difficulty: medium
+    automation: full (with-test-home harness)
+    notes: Requires behavioral test harness. Test sets up spec WITH analytical artifacts, sends audit prompt, asserts normal dispatch flow. Complements SC-6.
+
+summary:
+  string_scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+  behavioral_scs: [SC-6, SC-8]
+  structural_scs: [SC-7]
+  note: 5 of 8 SCs are string-verifiable (grep). 2 require behavioral testing via opencode run. 1 is structural read. Most of the spec is testable with simple grep; the behavioral tests require test harness infrastructure but follow established patterns.

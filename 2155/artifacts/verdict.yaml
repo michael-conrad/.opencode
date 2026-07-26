@@ -1,0 +1,416 @@
+evaluator: spec-audit-evaluator
+issue_number: 2155
+generated_at: "2026-07-26T18:31:00Z"
+evidence_source: ".opencode/.issues/2155/artifacts/evidence.yaml"
+reasoning_source: ".opencode/.issues/2155/artifacts/reasoning.yaml"
+spec_local_dir: ".opencode/.issues/2155/"
+
+holistic_evaluation:
+  status: "PASS"
+  dimensions:
+    - id: 1
+      name: "Implementability"
+      result: "PASS"
+      finding: "Single approach defined (retroactive backfill via catch-all TDT row). 8 SCs with 1 ambiguous (SC-7 — structural verifiable)."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.implementability"
+    - id: 2
+      name: "Internal Consistency"
+      result: "PASS"
+      finding: "Preamble, SCs, Requirements, Items, Traceability all align to same 4-core + 4-auxiliary decomposition. No contradictions."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.internal_consistency"
+    - id: 3
+      name: "Completeness"
+      result: "PASS"
+      finding: "No undefined terms, no TBD/TODO markers. Implicit dependencies (behavioral test harness, backfill standalone dispatch) identified."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.completeness"
+    - id: 4
+      name: "Scope Discipline"
+      result: "PASS"
+      finding: "Not Included section defines 3 exclusions. Scope note on Approach 4 identifies auxiliary cleanup. No scope creep elements."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.scope_discipline"
+    - id: 5
+      name: "Testability"
+      result: "PASS"
+      finding: "All 8 SCs have verification methods. No subjective judgment SCs."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.testability"
+    - id: 6
+      name: "Escape Hatches"
+      result: "PASS"
+      finding: "No escape hatches found in prose (validated, count 0)."
+      evidence_source: "reasoning.yaml → prose_validation.escape_hatches"
+    - id: 7
+      name: "Provenance"
+      result: "PASS"
+      finding: "6 documentation sources verified against live file content. Tool-call evidence cited."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.provenance"
+    - id: 8
+      name: "Feasibility"
+      result: "PASS"
+      finding: "All 6 referenced files exist. No external API dependencies or unavailable tools."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.feasibility"
+    - id: 9
+      name: "Safety"
+      result: "PASS"
+      finding: "No destructive operations, data loss scenarios, or security-relevant changes."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.safety"
+    - id: 10
+      name: "Traceability"
+      result: "PASS"
+      finding: "All 8 SCs mapped to 5 phases. No orphan SCs or phases."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.traceability"
+    - id: 11
+      name: "Correctness"
+      result: "PASS"
+      finding: "Problem statement, root cause (TDT 7 HALT rows + remediation-first violation + inline work), and fix approach (retroactive backfill via catch-all TDT row) all coherent and aligned."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.correctness"
+
+summary:
+  total_criteria: 22
+  pass: 19
+  fail: 0
+  n_a: 3
+  all_criteria_pass: true
+  remediation_required: false
+
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.preamble"
+    explanation: "Preamble present with all 5 fields; Problem Statement explicitly states the analytical-artifact gate defect."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.verification_methods"
+    explanation: "All 8 SCs have verification methods — each SC has a verifiable pass/fail criterion."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.phases"
+    explanation: "5 phases with clear boundaries and single-concern scope per phase. Phase 1 (TDT rows), Phase 2 (REMEDIATION_REQUIRED), Phase 3 (Mandatory Task Discipline + backfill), Phase 4 (010 reference), Phase 5 (behavioral tests)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "Items section has 7 actionable items with file path references. Each item traces to specific SCs."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → reasoning_validation"
+    explanation: "Dependencies section captures both key dependencies: backfill.md standalone dispatch confirmation and behavioral test harness."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-6"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.phases"
+    explanation: "Each phase addresses exactly one concern area. No phase mixes unrelated concerns."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-7"
+    declared_evidence_type: "structural"
+    result: "N/A"
+    evidence: "spec_structure_validation"
+    explanation: "SC-7 (Fidelity maintained) evaluates plan-to-spec fidelity. This is a spec-only audit — no plan exists to evaluate against."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-8"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → reasoning_validation.edge_cases"
+    explanation: "Edge cases documented: missing-at-orchestration vs missing-at-sub-agent vs stale distinction; 010-approval-gate reference fix as auxiliary cleanup."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-9"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation"
+    explanation: "Determinism validated. 2 fail patterns detected by Investigator (SC-4 implicit_behavior, SC-7 missing_expected_values) were addressed in the full spec revision per Change Control entry. All 8 SCs have executable verification commands."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-10"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.prose_elements"
+    explanation: "Prose well-structured with proper headings (H2/H3 hierarchy), 4 tables, 3 ordered lists, 3 unordered lists. Minor counting corrections by upstream reasoning role (ordered_lists 1→3, unordered_lists 4→3) — format quality is sound."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-11"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → documentation_source_validation"
+    explanation: "Documentation Sources section present with 6 verified live sources. All sources confirmed against actual file content via srclight and file reads."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-12"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.preamble"
+    explanation: "Preamble present with all 5 required fields: Problem Statement, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-13"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → prose_validation.cost_frame_language"
+    explanation: "All 8 SCs carry cost-frame per-SC embedding (has_cost_frame: true). Cost-frame prose was moved from standalone section into each SC's criterion text per the final re-audit revision."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-14"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "Enforcement Gate section present with explicit all-or-nothing statement: 'All SCs (SC-1 through SC-8) MUST pass for the implementation to be considered complete.'"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-DET"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation"
+    explanation: "All 8 SCs have executable verification commands that two independent auditors could agree on. SC-4/7/8 determinism fixes applied in full spec revision. No INCONCLUSIVE-risk SCs remain."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-STRUCTURAL-FAIL"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.evidence_type_declarations"
+    explanation: "Behavioral SCs (SC-6, SC-8) use behavioral verification methods. Structural SC (SC-7) uses file read — appropriate for structural evidence. String SCs (SC-1 through SC-5) use grep — appropriate for string evidence. No evidence type mismatch."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-EVIDENCE-TYPE"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.evidence_type_declarations"
+    explanation: "All evidence type declarations match verification methods: SC-1/2/3/4/5 string+grep, SC-6/8 behavioral+behavioral test, SC-7 structural+read. No EVIDENCE_TYPE_MISMATCH."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-TRACKING-LANG"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → prose_validation.tracking_language"
+    explanation: "No tracking/status language found (validated, evidence_count 0, actual_count 0). STATUS marker absent from spec — correct per specs-are-not-tracking-documents rule."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → prose_validation.prescriptive_code"
+    explanation: "3 prescriptive code instances detected, all in Documentation Sources table (evidence citations with file paths and line ranges). These are verification citations, not implementation-prescriptive code. Requirements section uses file area references only."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-PIPELINE-GATES"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "This is a spec, not a plan. Pipeline gates (checklist format) are plan-level artifacts. The spec's Enforcement Gate uses natural language all-or-nothing statement — appropriate for spec level."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-CANONICAL-PLAN-FORM"
+    declared_evidence_type: "string"
+    result: "N/A"
+    evidence: "N/A"
+    explanation: "Spec does not define plan output format requirements. No plan form to validate."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-ADMONISHMENT"
+    declared_evidence_type: "string"
+    result: "N/A"
+    evidence: "N/A"
+    explanation: "Not a skill card or task card audit. Spec is about fixing the audit SKILL.md TDT — not auditing a SKILL.md file itself."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+reasoning_soundness:
+  causal_chain:
+    status: "PASS"
+    findings:
+      - "4 root causes identified, each traced to ≥1 SC. 1 fix approach (retroactive backfill via catch-all TDT row) covers all RCs through 5-phase decomposition. SC-8 (regression test) has no RC trace — acceptable as regression-only SC."
+  sc_traceability:
+    status: "PASS"
+    findings:
+      - "SC-1 through SC-7 each trace to a root cause. SC-8 is regression protection. No orphan SCs. All 4 root causes addressed by at least one SC."
+  contradictions:
+    status: "PASS"
+    findings:
+      - "Potential contradiction identified (artifacts must exist vs backfill can generate) is the problem statement the spec solves — not a contradiction in the spec itself."
+
+claim_accuracy:
+  fabricated_claims:
+    - claim: "No fabricated claims detected"
+      status: "PASS"
+      explanation: "All claims reference local file paths verified by upstream roles. Zero URLs in documentation_source_evidence — all citations are local file references confirmed via srclight/file reads."
+  negation_verifications:
+    - claim: "010-approval-gate.md — grep for analytical-artifacts.md returns empty"
+      status: "PASS"
+      finding: "Upstream roles confirmed analytical-artifacts.md does not exist in 010-approval-gate.md."
+  interface_verifications:
+    - claim: "N/A — no function signatures referenced in spec"
+      status: "PASS"
+      finding: "No interface contracts referenced."
+
+blast_radius:
+  impact_completeness:
+    status: "PASS"
+    findings:
+      - "6 affected files enumerated in spec match all 6 paths verified by upstream roles. Blast radius artifact covers all files."
+  non_code_impact:
+    status: "PASS"
+    findings:
+      - "Behavioral test requirements for SC-6 and SC-8 explicitly included. Changes to SKILL.md and guideline reference affect agent behavior — regression tests cover the behavioral impact."
+
+research_adequacy:
+  evidence_provenance:
+    status: "PASS"
+    findings:
+      - "All 6 documentation sources verified against live file content. Tool-call evidence cited for each pattern existence check."
+  investigation_breadth:
+    status: "PASS"
+    findings:
+      - "4 alternatives considered and documented in Alternatives Considered section with discard rationale for each."
+  edge_case_discovery:
+    status: "PASS"
+    findings:
+      - "2 edge cases identified: missing-at-orchestration vs missing-at-sub-agent vs stale (SC-4 distinction), 010 reference as auxiliary cleanup."
+  recency_check:
+    status: "PASS"
+    findings:
+      - "File content verified via live reads in current session. Spec references current file state."
+
+gap_analysis:
+  missing_coverage:
+    status: "PASS"
+    findings:
+      - "All 8 SCs have identifiable pass/fail boundaries. Behavioral SCs (SC-6, SC-8) have explicit test descriptions."
+  implicit_conditions:
+    status: "PASS"
+    findings:
+      - "Dependencies section explicitly documents both preconditions: backfill.md standalone dispatch confirmation and behavioral test harness."
+
+scope_creep:
+  traceability_enforcement:
+    status: "PASS"
+    findings:
+      - "All fix approach elements (5 phases) trace to specific SCs. Each SC traces to a requirement. Not Included section and scope note on Approach 4 prevent scope drift."
+  proportionality:
+    status: "PASS"
+    findings:
+      - "Fix scope tightly bounded to TDT routing (SKILL.md), contract schema (SKILL.md), one guideline reference, and behavioral tests. Scope proportional to blast radius."
+
+scope_narrowness:
+  root_cause_depth:
+    status: "PASS"
+    findings:
+      - "Root cause identified at both proximate level (7 HALT rows) and architectural level (orchestrator inline file checks vs sub-agent routing). Both levels addressed by the spec."
+  systemic_implication:
+    status: "PASS"
+    findings:
+      - "SC-8 provides regression test to prevent reintroduction. Scope is limited to audit SKILL.md as stated in Not Included section — same pattern may exist elsewhere but is out of scope."
+  minimum_viable_scope:
+    status: "PASS"
+    findings:
+      - "No changes beyond what is needed to fix the 3 core defects plus enabling cleanup. Scope note explicitly separates auxiliary work from core defects."
+
+cross_reference_completeness:
+  citation_completeness:
+    status: "PASS"
+    findings:
+      - "Documentation Sources table cites all 6 referenced files with specific content descriptions. Each source has a verified path."
+  reference_sufficiency:
+    status: "PASS"
+    findings:
+      - "Each cited source supports the claim: SKILL.md lines 65-71 confirmed HALT rows, analyze.md Step 5 confirmed artifact generation, backfill.md confirmed retroactive mode, etc."
+
+analytical_artifact_evaluation:
+  blast_radius:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No blast_radius_path provided in dispatch contract. 7 analytical artifacts exist at artifact_evidence_dir but paths not individually dispatched."
+  concern_map:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No concern_map_path provided in dispatch contract."
+  code_path_inventory:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No code_path_inventory_path provided in dispatch contract."
+  cross_cutting_matrix:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No cross_cutting_matrix_path provided in dispatch contract."
+  interface_compatibility:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No interface_compatibility_path provided in dispatch contract."
+  state_analysis:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No state_analysis_path provided in dispatch contract."
+  testability_assessment:
+    artifact_path: "absent from dispatch contract"
+    status: "N/A"
+    findings:
+      - "No testability_assessment_path provided in dispatch contract."
+
+bidirectional_findings: []
+
+needs_clean_room:
+  - SC-6
+  - SC-8

@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "A sub-step is added to Step 2 (Record authorization) in verify-authorization workflow that updates ### Status to Approved"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The Status field update only occurs when authorization_scope is for_spec or higher (not for for_analysis)"
+    evidence_type: "semantic"
+    plan_item: 1
+  - id: "SC-3"
+    description: "The field update uses github_issue_write to edit the issue body"
+    evidence_type: "string"
+    plan_item: 1

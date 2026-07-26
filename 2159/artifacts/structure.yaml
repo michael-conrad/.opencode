@@ -1,0 +1,28 @@
+phases:
+  - phase: 1
+    name: "Add Status field update sub-step to record-authorization"
+    concern: "Fix verify-authorization to update issue body Status field"
+    sc_ids:
+      - SC-1
+      - SC-2
+      - SC-3
+    items:
+      - item: 1
+        sc_ids:
+          - SC-1
+          - SC-2
+          - SC-3
+        skill: approval-gate-scope
+        task: record-authorization
+        description: "Add sub-step to Step 2 (Record authorization) that updates ### Status to Approved when scope is for_spec or higher, using github_issue_write"
+dependency_dag:
+  edges: []
+  notes: "Single phase, no dependencies"
+skill_task_selection:
+  - phase: 1
+    skill: approval-gate-scope
+    task: record-authorization
+    dispatch: clean-room
+    files_to_modify:
+      - .opencode/skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md
+      - .opencode/skills/approval-gate-scope/SKILL.md

@@ -1,0 +1,74 @@
+# State Analysis — Issue 2155: Fix analytical-artifacts gate
+spec: .opencode/.issues/2155/spec.md
+generated: 2026-07-26
+
+state_transitions:
+  - sc: SC-1
+    name: Remove HALT rows
+    from_state: TDT has 7 individual HALT rows for missing artifacts → audit halts on any missing artifact
+    to_state: No HALT rows for individual artifact types → audit does not halt for missing artifacts
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore lines 65-71 in audit SKILL.md
+
+  - sc: SC-2
+    name: Add catch-all row
+    from_state: No catch-all dispatch for missing artifacts → orchestrator has no routing path
+    to_state: Single catch-all row dispatches to retroactive generation → orchestrator routes to backfill
+    trigger: Spec implementation (Phase 1)
+    rollback: Remove the catch-all row from TDT
+
+  - sc: SC-3
+    name: Add REMEDIATION_REQUIRED status
+    from_state: Contract schema has DONE/BLOCKED only → no remediation signal in contract
+    to_state: Contract schema includes REMEDIATION_REQUIRED with remediation_action and remediation_context
+    trigger: Spec implementation (Phase 2)
+    rollback: Remove REMEDIATION_REQUIRED from contract documentation
+
+  - sc: SC-4
+    name: Update discipline item 5
+    from_state: Item 5 treats all missing artifacts as BLOCK/HALT → no granularity
+    to_state: Item 5 distinguishes missing-at-orchestration, missing-at-sub-agent, and stale
+    trigger: Spec implementation (Phase 3)
+    rollback: Restore original item 5 text
+
+  - sc: SC-5
+    name: Fix broken reference
+    from_state: 010-approval-gate.md points to non-existent spec-creation/tasks/analytical-artifacts.md
+    to_state: Points to existing writing-plans/tasks/backfill.md
+    trigger: Spec implementation (Phase 4)
+    rollback: Restore original reference text
+
+  - sc: SC-6
+    name: Add behavioral test for missing-artifact routing
+    from_state: No test verifies missing-artifact routing → regression risk
+    to_state: Behavioral test verifies dispatch instead of HALT → regression protected
+    trigger: Spec implementation (Phase 5)
+    rollback: Delete the test file
+
+  - sc: SC-7
+    name: Verify backfill standalone dispatch
+    from_state: SC-7 verification not yet performed → backfill dispatch contract unconfirmed
+    to_state: backfill.md confirmed to support standalone dispatch with mode:retroactive
+    trigger: Phase 3 (verification step)
+    rollback: N/A — verification only, no file changes
+
+  - sc: SC-8
+    name: Add behavioral test for existing-artifact flow
+    from_state: No test verifies existing-artifact flow → regression risk
+    to_state: Behavioral test verifies normal audit proceeds for specs with artifacts
+    trigger: Spec implementation (Phase 5)
+    rollback: Delete the test file
+
+pipeline_state:
+  - gate: audit dispatch
+    before: Missing artifacts → HALT (7 individual rows)
+    after: Missing artifacts → dispatch to backfill → sub-agent chain
+  - gate: plan creation
+    before: Some specs lack analytical artifacts → blocked at plan creation gate
+    after: Missing artifacts can be backfilled → plan creation proceeds with backfilled artifacts
+  - gate: verification-before-completion
+    before: VbC checks analytical artifacts for specs that have them
+    after: Same — VbC unchanged by this spec
+  - gate: behavioral test suite
+    before: No tests for artifact-missing routing
+    after: 2 new behavioral tests (missing-artifact and existing-artifact flows)

@@ -1,0 +1,71 @@
+# Code Path Inventory — Issue 2155: Fix analytical-artifacts gate
+spec: .opencode/.issues/2155/spec.md
+generated: 2026-07-26
+
+code_paths:
+  - sc: SC-1
+    description: 7 HALT rows removed from audit SKILL.md TDT
+    file: .opencode/skills/audit/SKILL.md
+    lines: 65-71
+    evidence_type: string
+    verification: grep for absence of 'HALT' adjacent to missing-artifact triggers
+    code_path: TDT → dispatch routing → sub-agent chain (no longer halts on missing artifacts)
+
+  - sc: SC-2
+    description: Single catch-all row added to TDT
+    file: .opencode/skills/audit/SKILL.md
+    evidence_type: string
+    verification: grep for 'analytical artifacts missing' or 'generate_first' in TDT
+    code_path: TDT → new row → dispatch to backfill → sub-agent chain
+
+  - sc: SC-3
+    description: REMEDIATION_REQUIRED status in contract schema
+    file: .opencode/skills/audit/SKILL.md
+    evidence_type: string
+    verification: grep for 'REMEDIATION_REQUIRED' in audit SKILL.md
+    code_path: Sub-agent contract → REMEDIATION_REQUIRED status → orchestrator remediation routing
+
+  - sc: SC-4
+    description: Mandatory Task Discipline item 5 updated
+    file: .opencode/skills/audit/SKILL.md
+    lines: 32
+    evidence_type: string
+    verification: grep for 'remediation_action' in audit SKILL.md
+    code_path: Mandatory Task Discipline → item 5 → artifact validation gate
+
+  - sc: SC-5
+    description: Broken reference fixed in 010-approval-gate.md
+    file: .opencode/guidelines/010-approval-gate.md
+    lines: 216
+    evidence_type: string
+    verification: grep for 'analytical-artifacts.md' returns empty
+    code_path: 010-approval-gate.md → reference → writing-plans/tasks/backfill.md (fixed path)
+
+  - sc: SC-6
+    description: Behavioral test for missing-artifact routing
+    location: .opencode/tests-v2/behaviors/
+    evidence_type: behavioral
+    verification: opencode run → assert stderr shows sub-agent dispatch, not HALT
+    code_path: Behavioral test → opencode run → agent audit dispatch → sub-agent dispatch
+
+  - sc: SC-7
+    description: Backfill.md supports standalone dispatch with mode:retroactive
+    file: .opencode/skills/writing-plans/tasks/backfill.md
+    evidence_type: structural
+    verification: Read backfill.md; confirm dispatch contract accepts mode parameter
+    code_path: TDT → backfill dispatch → backfill task procedure
+
+  - sc: SC-8
+    description: Behavioral test for existing-artifact flow
+    location: .opencode/tests-v2/behaviors/
+    evidence_type: behavioral
+    verification: opencode run → verify spec audit of a spec WITH artifacts proceeds normally
+    code_path: Behavioral test → opencode run → agent audit dispatch → normal audit flow
+
+cross_references:
+  - artifact_path: .opencode/skills/writing-plans/tasks/backfill.md
+    relationship: backfill.md provides the remediation path that the new TDT catch-all dispatches to
+  - artifact_path: .opencode/guidelines/010-approval-gate.md
+    relationship: Contains the broken reference that SC-5 fixes
+  - artifact_path: .opencode/tests-v2/behaviors/
+    relationship: Behavioral test directory for SC-6 and SC-8
