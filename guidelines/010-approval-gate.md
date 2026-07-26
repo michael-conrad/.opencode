@@ -146,13 +146,6 @@ Pipeline-initiated non-substantive spec revisions are exempt from the revocation
 
 
 
-### Bug Discovery Protocol (CRITICAL)
-
-**Discovering a bug during implementation does NOT authorize the agent to fix it.** The agent MUST:
-
-1. Report the bug as a spec issue (see Bug Report Response above)
-2. HALT the current implementation
-3. Wait for developer decision — continue with current scope or switch to bug fix
 
 ### Action Authorization Classification
 

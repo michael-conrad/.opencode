@@ -123,6 +123,14 @@ When `approval-gate-006` fires (spec revision revokes plan approval):
 - **No label = no approval:** Absence of `approved-for-*` label means the issue has NOT been authorized for that scope
 - **Multiple labels:** An issue may have multiple `approved-for-*` labels for different scopes (e.g., `approved-for-spec` and `approved-for-implementation`)
 
+### Bug Discovery Protocol (CRITICAL)
+
+**Discovering a bug during implementation does NOT authorize the agent to fix it.** The agent MUST:
+
+1. Report the bug as a spec issue (see [Bug Report Response](skills/issue-operations/SKILL.md))
+2. HALT the current implementation
+3. Wait for developer decision — continue with current scope or switch to bug fix
+
 ## Cross-References
 
 Sub-skills: `approval-gate-scope`. Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
