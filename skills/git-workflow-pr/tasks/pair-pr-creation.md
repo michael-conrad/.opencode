@@ -24,7 +24,7 @@ Pair mode uses the same squash workflow as autonomous mode:
 
    <body>
 
-   Implements #<issue>
+   Implements #<issue>  <!-- Use owner/repo#N when issue is in a different repo than the PR -->
 
    Co-authored-by: <dev.name> <<dev.email>> [pair-mode]
    Co-authored-by: AI: <AGENT_NAME> (<MODEL_ID>) [pair-mode]"
@@ -50,7 +50,7 @@ Pair mode uses the same squash workflow as autonomous mode:
      ## Outcome
      <What changed for stakeholders>
 
-     Implements #<issue>
+     Implements #<issue>  <!-- Use owner/repo#N when issue is in a different repo than the PR -->
 
      Co-authored-by: <dev.name> <<dev.email>> [pair-mode]
      Co-authored-by: AI: <AGENT_NAME> (<MODEL_ID>) [pair-mode]

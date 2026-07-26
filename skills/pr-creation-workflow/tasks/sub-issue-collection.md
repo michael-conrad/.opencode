@@ -35,14 +35,16 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
    ```
 
 - [ ] 3. **Include ALL issues in PR body using closing-keywords task:**
-   Use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format closing keyword lines. For same-repo issues:
+   Use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format closing keyword lines. Determine repo ownership for each issue:
+   - Issues in the same repo as the PR → `Fixes #N`
+   - Issues in a different repo (e.g., submodule issues) → `Fixes owner/repo#N`
    ```markdown
    ## Summary
    <description of what changed>
 
    Fixes #<parent>
    Fixes #<child1>
-   Fixes #<child2>
+   Fixes owner/repo#<child2>
    ```
 
 ### Work PR
@@ -68,7 +70,7 @@ For work PRs (assembled from multiple issues via the implementation-pipeline per
 #621 — Collapse executing-plans into divide-and-conquer
 
 Fixes #660
-Fixes #662
+Fixes owner/repo#662
 Fixes #621
 ```
 
@@ -113,7 +115,7 @@ Unified five approved issues into a single work implementation, eliminating fork
 #621 — Collapse executing-plans into divide-and-conquer
 
 Fixes #660
-Fixes #662
+Fixes owner/repo#662
 Fixes #621
 ```
 

@@ -170,7 +170,7 @@ github_create_pull_request(
 |--------|-------|-----------|-------------|
 | <sha> | #<N> | SC-<M> | <description> |
 
-Implements #<parent>
+Implements #<parent>  <!-- Use owner/repo#N when issue is in a different repo than the PR -->
 """,  # When is_release: true, synthesize release notes from commit log and include in body
 # Closing keywords formatted per skill({name: "pr-creation-workflow"}) → task("execute closing-keywords from pr-creation-workflow")
     head=branch_name,
@@ -204,6 +204,7 @@ A Summary sourced from the issue ticket through the issue-operations dispatcher 
 - **Dual-Auditor Cross-Validation Table**: Criterion, Auditor 1, Auditor 2, Consensus columns
 - **Spec-Card-Mapped Commits Table**: Commit, Issue, Spec Card, Description columns — maps each commit to the spec card it implements
 - `Fixes #N` or `Implements #N` annotations at bottom (informational — autoclose is inert for `<target>` merges)
+- **Cross-repo references:** When the issue is in a different repo than the PR, use `Fixes owner/repo#N` instead of `Fixes #N`
 - Target branch is `<target>` for feature work
 
 **Use `Implements #N` instead of `Fixes #N` when the issue has sub-issues or is part of a plan-bridge hierarchy.**
@@ -411,9 +412,9 @@ This diagnosis is included in the executive summary report (Step 7.5).
 
 | Spec Type | PR Body Format |
 | -- | -- |
-| Single-task | `Fixes #<parent>` |
-| Multi-task | `Fixes #<parent>` AND `Fixes #<child>` for each sub-issue |
-| Work | `## Work Items\n\n#<issue1>\n#<issue2>\n\nFixes #<parent1>\nFixes #<child1>` |
+| Single-task | `Fixes #<parent>` (or `Fixes owner/repo#<parent>` for cross-repo) |
+| Multi-task | `Fixes #<parent>` AND `Fixes #<child>` for each sub-issue (use `owner/repo#N` for cross-repo) |
+| Work | `## Work Items\n\n#<issue1>\n#<issue2>\n\nFixes #<parent1>\nFixes owner/repo#<child1>` |
 
 ### Common Issues
 
