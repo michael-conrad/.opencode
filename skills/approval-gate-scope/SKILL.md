@@ -77,7 +77,7 @@ When the agent needs to verify authorization with minimal checks — no gap-fill
    - Context: `{issue_number, issues_prefix, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-3. **Verify recording** — Read back recorded state and confirm it matches
+3. **Verify recording** — Read back recorded state and confirm it matches what was written
    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md\` and follow its instructions. Issue: {issue_number}."`
    - Context: `{issue_number, issues_prefix, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
@@ -106,7 +106,7 @@ When the agent needs to verify authorization and fill in missing artifacts (spec
    - Context: `{issue_number, issues_prefix, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-3. **Verify recording** — Read back recorded state and confirm it matches
+3. **Verify recording** — Read back recorded state and confirm it matches what was written
    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md\` and follow its instructions. Issue: {issue_number}."`
    - Context: `{issue_number, issues_prefix, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
@@ -135,7 +135,7 @@ When the agent needs to verify authorization with all gates — item decompositi
    - Context: `{issue_number, issues_prefix, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-3. **Verify recording** — Read back recorded state and confirm it matches
+3. **Verify recording** — Read back recorded state and confirm it matches what was written
    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/verify-recording.md\` and follow its instructions. Issue: {issue_number}."`
    - Context: `{issue_number, issues_prefix, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
