@@ -37,7 +37,6 @@ Write session authorization into persistent issue state (`.issues/{N}/` worktree
 4. **Update remote issue body Status field** — If the resolved scope is `for_spec` or higher, use `github_issue_write(method=update)` to edit the remote issue body, replacing `### Status: Draft` with `### Status: Approved`. If the body does not contain `### Status: Draft`, skip this step without error. Requires `github.owner` and `github.repo` in the task context.
 
 5. **Append to `comments.yaml`** — Append a new authorization record entry with:
-
    - `author: "human"` (attribution to the developer who authorized)
    - `scope: "{resolved_scope}"` (e.g., `for_implementation`)
    - `text: "{authorization_text}"` (the exact authorization phrase from chat)
