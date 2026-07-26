@@ -34,7 +34,8 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
    autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
    ```
 
-- [ ] 3. **Include ALL issues in PR body:**
+- [ ] 3. **Include ALL issues in PR body using closing-keywords task:**
+   Use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format closing keyword lines. For same-repo issues:
    ```markdown
    ## Summary
    <description of what changed>
@@ -51,7 +52,7 @@ For work PRs (assembled from multiple issues via the implementation-pipeline per
 - [ ] 1. **Read work state file** (`{project_root}/tmp/{issue-N}/work.md`) to get list of all issues in the work
 - [ ] 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
-   - `Fixes #N` annotations for all issues at the bottom
+   - `Fixes #N` annotations for all issues at the bottom (use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format)
 
 ```markdown
 **Summary:**

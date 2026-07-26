@@ -36,7 +36,7 @@ When `access_level` is `full`:
 
 **Create PR in submodule repo (targeting trunk branch):**
 - Title: Same as issue
-- Body: `Fixes #<submodule-issue-number>` + parent references
+- Body: `Fixes #<submodule-issue-number>` + parent references (format per `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")`)
 
 **If PR creation succeeds:**
 - Record: `{timestamp, submodule, operation: "trunk-push", tier: 1, issue_number, pr_number}`

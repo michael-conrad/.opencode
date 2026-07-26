@@ -34,7 +34,9 @@ Read `verdict.yaml` from `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`.
 | SCOPE_EXPANSION | PR exceeds spec scope |
 | SCOPE_INCOMPLETE | PR doesn't address full spec |
 | LINK_MISSING | Should reference spec issue |
-| CLOSING_MISSING | PR won't auto-close spec issue |
+| CLOSING_MISSING | PR won't auto-close spec issue — must use Fixes/Closes/Resolves/Implements with valid format |
+| CLOSING_BARE_HASH | PR uses bare `#N` without keyword — must prefix with Fixes/Closes/Resolves/Implements |
+| CLOSING_CROSS_REPO | PR uses bare `#N` for cross-repo reference — must use `owner/repo#N` format |
 
 ### Step 3: Generate Recommendations
 
