@@ -49,6 +49,7 @@ import re
 import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 _parent_dir = Path(__file__).resolve().parent
@@ -577,6 +578,9 @@ def main() -> int:
     print(f"Developer: {user_name}")
     print(f"Email: {user_email}")
     print(f"Git branch: {current_branch}")
+
+    now = datetime.now().astimezone()
+    print(f"Session started: {now.strftime('%A, %B %d, %Y at %I:%M %p')} {now.tzname()}")
 
     if in_wt and wt_path and main_repo:
         print(f"Worktree: {wt_path}")
