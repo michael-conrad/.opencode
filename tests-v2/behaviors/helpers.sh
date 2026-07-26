@@ -101,7 +101,7 @@ __export_sqlite_to_yaml() {
 
     if [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
         local test_home
-        test_home=$(grep '^Test home: ' "$stderr_file" | head -1 | sed 's/^Test home: //')
+        test_home=$(grep '^TEST_HOME=' "$stderr_file" | head -1 | sed 's/^TEST_HOME=//')
         if [ -n "$test_home" ]; then
             local candidate="$test_home/.local/share/opencode/opencode.db"
             if [ -f "$candidate" ]; then
@@ -111,24 +111,13 @@ __export_sqlite_to_yaml() {
         fi
     fi
 
-    if [ "$db_found" -eq 0 ]; then
-        local db_candidates=(
-            "${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.db"
-            "${XDG_STATE_HOME:-$HOME/.config}/opencode/opencode.db"
-            "$HOME/.local/share/opencode/opencode.db"
-            "$HOME/.config/opencode/opencode.db"
-        )
-        for candidate in "${db_candidates[@]}"; do
-            if [ -f "$candidate" ]; then
-                db_path="$candidate"
-                db_found=1
-                break
-            fi
-        done
-    fi
+    # NO FALLBACK to production XDG paths. The test framework MUST only use the
+    # test home SQLite DB discovered via TEST_HOME= from stderr. Falling back to
+    # production paths would leak production state into test evaluation.
+    # If the DB is not found, source_db: MISSING is the correct result — hard FAIL.
 
     if [ "$db_found" -eq 0 ]; then
-        echo "source_db: null" > "$output_file"
+        echo "source_db: MISSING" > "$output_file"
         return
     fi
 
@@ -174,7 +163,7 @@ except Exception as e:
             'harness_version': ${BEHAVIOR_HARNESS_VERSION},
             'export_error': str(e)
         }, f, indent=2)
-" 2>/dev/null || echo "source_db: ${db_path}" > "$output_file"
+" 2>/dev/null || echo "source_db: MISSING" > "$output_file"
 }
 
 behavior_run() {

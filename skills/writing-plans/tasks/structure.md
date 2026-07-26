@@ -33,9 +33,13 @@ Decompose success criteria into implementation phases, build a dependency DAG be
    - Identify which phases depend on the output of other phases
    - Record the dependency edges in the structure artifact
 5. For each phase, map SCs to items by reading `sc-summary.yaml` and creating one item per SC:
-   - Load `skill({name: "implementation-pipeline"})` and read its Trigger Dispatch Table
-   - Map each SC to an individual item with its own RED/GREEN/verify/commit cycle
-   - Each item references exactly one SC-ID
+    - Load `skill({name: "implementation-pipeline"})` and read its Trigger Dispatch Table
+    - Map each SC to an individual item with its own RED/GREEN/verify/commit cycle
+    - Each item references exactly one SC-ID
+5a. Verify triplet co-location: for each SC, confirm that its RED, GREEN, and COMMIT steps are all assigned to the same phase. If any SC has steps split across phases, return BLOCKED with reason `"TRIPLET_SPLIT: SC-N has RED in phase X and GREEN in phase Y"`.
+5b. Document the triplet integrity rule in the procedure text: "Each SC's RED, GREEN, and COMMIT steps MUST be in the same phase. No SC may have its test in one phase and its implementation in another."
+5c. Verify cross-phase dependency: for each phase, check whether any RED test depends on SC output that is not yet committed in the same phase. A RED test in phase X that depends on SC-M output from phase Y (where Y > X) is a cross-phase dependency violation. If found, return BLOCKED with reason `"CROSS_PHASE_DEP: SC-N RED in phase X depends on SC-M output from phase Y"`.
+5d. Document the cross-phase dependency rule in the procedure text: "A RED test in one phase MUST NOT depend on uncommitted SC output from another phase. Cross-phase RED dependencies are structural defects — they create implicit ordering constraints that bypass the dependency DAG."
 6. Write the structure artifact to `{issues_prefix}/{N}/artifacts/structure.yaml`:
    - Phase list with SC assignments
    - Dependency DAG edges

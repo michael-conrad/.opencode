@@ -49,14 +49,20 @@ Scan the plan at `{issues_prefix}/{N}/plan.md` for placeholder patterns, SC cove
    - For each uncovered SC: record as a finding with `SC_NOT_COVERED`.
    - For each evidence-type mismatch: record as a finding with `EVIDENCE_TYPE_MISMATCH`.
 
-5. **Type/name consistency check.** Scan the plan for:
+5. **Triplet split detection.** After SC coverage verification, verify that no SC has its RED/GREEN/COMMIT steps split across phases:
+   - For each SC referenced in the plan, collect the phase assignments for its RED, GREEN, and COMMIT steps.
+   - If any SC has its RED step in one phase and its GREEN or COMMIT step in a different phase, record as a finding with `TRIPLET_SPLIT` and the specific SC ID and phase assignments.
+   - If any SC has its GREEN step in one phase and its COMMIT step in a different phase, record as a finding with `TRIPLET_SPLIT`.
+   - The BLOCKED reason format: `SELF_REVIEW_FAILED: SC-N has RED in phase X and GREEN in phase Y`.
+
+6. **Type/name consistency check.** Scan the plan for:
    - Inconsistent skill names (same skill referenced with different casing or spelling)
    - Inconsistent task names (same task referenced with different names)
    - Mismatched file paths (paths that don't match the project's actual file structure)
    - Mismatched dispatch indicators (steps marked `(**inline**)` that should be `(**sub-agent**)` or vice versa)
    - For each inconsistency: record as a finding with the specific type.
 
-6. **Per-task cycle verification.** For every task in every phase:
+7. **Per-task cycle verification.** For every task in every phase:
    - Compare the task's step list against the per-task cycle from the implementation-pipeline TDT (loaded in step 1).
    - Verify every step from the per-task cycle is present in the task.
    - Verify no steps are combined (e.g., a single checkbox item covering both RED and GREEN).
@@ -66,14 +72,15 @@ Scan the plan at `{issues_prefix}/{N}/plan.md` for placeholder patterns, SC cove
    - For each combined step: record as a finding with `COMBINED_STEP`.
    - For each out-of-order step: record as a finding with `OUT_OF_ORDER_STEP`.
 
-7. **Write the review artifact** to `{issues_prefix}/{N}/artifacts/self-review.yaml`:
+8. **Write the review artifact** to `{issues_prefix}/{N}/artifacts/self-review.yaml`:
    - Placeholder findings list
    - SC coverage findings list
+   - Triplet split findings list
    - Type/name inconsistency findings list
    - Per-task cycle findings list
    - Overall verdict: PASS (no findings) or BLOCKED (any finding)
 
-8. **Return the result contract.**
+9. **Return the result contract.**
    - If any finding exists: return BLOCKED with `SELF_REVIEW_FAILED` and a summary of findings.
    - If no findings: return DONE with PASS verdict.
 
@@ -81,6 +88,7 @@ Scan the plan at `{issues_prefix}/{N}/plan.md` for placeholder patterns, SC cove
 
 - The plan has been scanned for placeholder patterns
 - All SCs from the spec have been checked for coverage in the plan
+- Triplet split detection has verified no SC has RED/GREEN/COMMIT steps split across phases
 - Type/name consistency has been verified across the plan
 - Every task's step list has been verified against the implementation-pipeline per-task cycle
 - The review artifact has been written to `{issues_prefix}/{N}/artifacts/self-review.yaml`

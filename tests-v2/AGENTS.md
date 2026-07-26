@@ -63,6 +63,16 @@ All scripts exit 0 unconditionally after artifact generation. The exit code sign
 | `exit $OVERALL_RESULT` | Non-zero exit signals evaluation FAIL | `exit 0` unconditionally |
 | Inline grep/pattern checks | Script evaluates output | Script generates artifacts for evaluation |
 
+### Evaluation Source: `session.yaml` (SQLite DB Export) is PRIMARY
+
+**All behavioral SC evaluation MUST use `session.yaml` (the SQLite DB export) as the PRIMARY evidence source.** The `event` table in the SQLite DB records every tool call, reasoning step, and text part in chronological order — this is the authoritative record of what the agent actually did.
+
+`stdout.log` contains only agent prose (chat output). `stderr.log` contains only the `TEST_HOME=<path>` marker for DB discovery. Neither is a reliable source for tool dispatch verification.
+
+**Assertion helpers that grep stderr or stdout (`assert_stderr_pattern_present`, `assert_required_pattern_present`, `assert_forbidden_pattern_absent`, `assert_tool_calls_made`, `assert_skill_called`, `assert_no_skill_called`) are FORBIDDEN for behavioral SC evaluation.** They operate on the wrong data source. All behavioral evaluation MUST use `session.yaml` via clean-room sub-agent inspection.
+
+The `session-to-timeline` tool at `.opencode/tools/session-to-timeline` processes `session.yaml` into a condensed timeline of tool calls for evaluation. Use this for structured analysis of agent actions.
+
 ### Script Structure
 
 ```bash
@@ -95,10 +105,24 @@ Every `behavior_run` invocation produces an artifact directory at:
 | File | Content | Required By |
 |------|---------|-------------|
 | `manifest.yaml` | Generation metadata (scenario, phase, model, timestamp, exit_code, harness_version) | Evaluation pipeline |
-| `stdout.log` | Agent prose response | Evaluator reads agent output |
-| `stderr.log` | Tool dispatch trace | Evaluator reads agent actions |
+| `session.yaml` | SQLite DB → YAML export of the `event` table (tool calls, reasoning, text parts in chronological order) | **PRIMARY** evaluation source — all agent actions and decisions |
+| `stdout.log` | Agent prose response (captured from `with-test-home` stdout) | Secondary — prose output only |
+| `stderr.log` | `with-test-home` diagnostics including `TEST_HOME=<path>` for DB discovery | Infrastructure — DB path discovery only |
 | `exit_code` | Numeric exit code from model run (0=OK, 1=harness failure) | Pipeline orchestration |
-| `session.yaml` | SQLite DB → YAML export (or `source_db: null` if DB absent) | Session context for evaluation |
+
+### Evaluation Source: `session.yaml` (SQLite DB Export) is PRIMARY
+
+**`session.yaml` is the PRIMARY and ONLY reliable source for evaluating agent behavior.** It contains the full `event` table export — every tool call, reasoning step, and text part in chronological order with timestamps. This is the authoritative record of what the agent actually did.
+
+`stdout.log` contains only the agent's prose response (what it wrote to chat). It is NOT a reliable source for tool dispatch verification — tool calls are recorded in the SQLite `event` table, not in stdout. `stderr.log` contains only the `TEST_HOME=<path>` marker used to discover the SQLite DB path.
+
+**Assertion helpers that grep stderr or stdout (`assert_stderr_pattern_present`, `assert_required_pattern_present`, etc.) are FORBIDDEN for behavioral SC evaluation.** They operate on the wrong data source. All behavioral evaluation MUST use `session.yaml` (the SQLite DB export) via clean-room sub-agent inspection.
+
+### `session.yaml` Export Mechanism
+
+The `__export_sqlite_to_yaml` function in `helpers.sh` discovers the test home SQLite DB by parsing `TEST_HOME=<path>` from stderr (emitted by `with-test-home`), then exports all tables to JSON/YAML. The `session-to-timeline` tool further processes this into a condensed timeline of tool calls for evaluation.
+
+If `session.yaml` contains `source_db: MISSING`, the SQLite DB was not found in the test home. This is a **hard FAIL** — the test environment is broken. Do NOT hunt for the DB elsewhere, do NOT substitute with stderr/stdout grep, do NOT synthesize or fabricate data. The only recovery mechanism is to verify the test does not violate clean-room separation mandates: the test must use a dedicated test home directory with the test project inside it, and `with-test-home` must emit `TEST_HOME=<path>` to stderr.
 
 ## 3. Writing a New Behavioral Test
 
