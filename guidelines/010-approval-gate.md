@@ -154,9 +154,6 @@ When a bug is reported via GitHub Issue or developer message:
 3. Do NOT ask "do you want me to fix this" — the spec IS the response
 4. The bug spec goes through standard spec→plan→implementation pipeline
 
-### Audit Auto-Fix Exemption
-
-Non-substantive GitHub Issue body formatting fixes found during deliberately-invoked audits are exempt from authorization per `approval-gate-008`. Conditional fixes still require separate authorization per `approval-gate-009`.
 
 ### Bug Discovery Protocol (CRITICAL)
 

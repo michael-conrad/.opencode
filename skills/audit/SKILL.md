@@ -128,6 +128,10 @@ Each audit task follows a sequential role chain dispatched as 4 separate `task(s
 Artifact directory: `./tmp/{issue-N}/artifacts/{task-name}/`
 
 
+### Audit Auto-Fix Exemption
+
+Non-substantive GitHub Issue body formatting fixes found during deliberately-invoked audits are exempt from authorization per `approval-gate-008`. Conditional fixes still require separate authorization per `approval-gate-009`.
+
 ### [critical-rules-XXX] Posting Spec-Audit Findings as Issue Comments
 
 **⚠️ Posting spec-audit findings as GitHub comments is FORBIDDEN.**
