@@ -1,0 +1,44 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+sc_assessments:
+  - id: SC-1
+    evidence_type: behavioral
+    verification_method: "opencode run with prompt that triggers structure task on a spec with split SCs → stderr shows BLOCKED"
+    testability: HIGH
+    notes: "Requires behavioral test harness (with-test-home). Prompt must produce a phase decomposition with split SCs."
+  - id: SC-2
+    evidence_type: behavioral
+    verification_method: "opencode run with prompt that triggers structure task on a spec with cross-phase RED dependency → stderr shows BLOCKED"
+    testability: HIGH
+    notes: "Requires behavioral test harness. Prompt must produce a phase decomposition where a RED test depends on uncommitted SC output."
+  - id: SC-3
+    evidence_type: behavioral
+    verification_method: "opencode run with prompt that triggers self-review on a plan with split SCs → stderr shows SELF_REVIEW_FAILED"
+    testability: HIGH
+    notes: "Requires behavioral test harness. Prompt must produce a plan with split SCs for self-review to detect."
+  - id: SC-4
+    evidence_type: behavioral
+    verification_method: "opencode run with prompt that triggers validate on a plan with split SCs → stderr shows FAIL"
+    testability: HIGH
+    notes: "Requires behavioral test harness. Prompt must produce a plan with split SCs for validate to detect."
+  - id: SC-5
+    evidence_type: string
+    verification_method: "grep for the rule text in structure.md"
+    testability: HIGH
+    notes: "Simple grep check. Rule text: 'Each SC's RED, GREEN, and COMMIT steps MUST be in the same phase. No SC may have its test in one phase and its implementation in another.'"
+  - id: SC-6
+    evidence_type: string
+    verification_method: "grep for the check in self-review.md"
+    testability: HIGH
+    notes: "Simple grep check for triplet integrity check documentation in self-review.md."
+  - id: SC-7
+    evidence_type: string
+    verification_method: "grep for the check in validate.md"
+    testability: HIGH
+    notes: "Simple grep check for triplet integrity check documentation in validate.md."
+  - id: SC-8
+    evidence_type: behavioral
+    verification_method: "opencode run with prompt that produces a plan with split SCs → stderr shows BLOCKED/FAIL"
+    testability: HIGH
+    notes: "End-to-end behavioral test. Verifies the full pipeline rejects defective plans."
+overall_testability: HIGH
+testability_notes: "All SCs are testable. Behavioral SCs require with-test-home harness. String SCs are simple grep checks."

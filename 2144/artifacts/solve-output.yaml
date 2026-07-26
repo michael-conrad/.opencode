@@ -1,0 +1,29 @@
+variables:
+  phase_1_completed:
+    type: bool
+    nullable: false
+  phase_2_completed:
+    type: bool
+    nullable: false
+  phase_3_completed:
+    type: bool
+    nullable: false
+  phase_1_deps_satisfied:
+    type: bool
+    nullable: false
+  phase_2_deps_satisfied:
+    type: bool
+    nullable: false
+  phase_3_deps_satisfied:
+    type: bool
+    nullable: false
+preconditions:
+  - "z3.BoolVal(phase_1_deps_satisfied)"
+  - "z3.BoolVal(phase_2_deps_satisfied)"
+  - "z3.BoolVal(phase_3_deps_satisfied)"
+invariants:
+  - "z3.Implies(z3.BoolVal(phase_2_completed), z3.BoolVal(phase_1_completed))"
+  - "z3.Implies(z3.BoolVal(phase_3_completed), z3.And(z3.BoolVal(phase_1_completed), z3.BoolVal(phase_2_completed)))"
+  - "z3.Not(z3.And(z3.BoolVal(phase_2_completed), z3.Not(z3.BoolVal(phase_1_completed))))"
+  - "z3.Not(z3.And(z3.BoolVal(phase_3_completed), z3.Not(z3.And(z3.BoolVal(phase_1_completed), z3.BoolVal(phase_2_completed)))))"
+postconditions: []

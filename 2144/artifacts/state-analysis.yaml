@@ -1,0 +1,59 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+state_transitions:
+  - sc: SC-1
+    description: "structure.md rejects split SC triplets"
+    states:
+      - from: "Phase decomposition produced (unvalidated)"
+      - to: "Phase decomposition validated (triplet co-location check passed)"
+      - on_failure: "BLOCKED — triplet split detected"
+  - sc: SC-2
+    description: "structure.md rejects cross-phase RED dependencies"
+    states:
+      - from: "Phase decomposition produced (unvalidated)"
+      - to: "Phase decomposition validated (cross-phase dependency check passed)"
+      - on_failure: "BLOCKED — cross-phase dependency detected"
+  - sc: SC-3
+    description: "self-review.md detects split SC triplets"
+    states:
+      - from: "Phase decomposition received for self-review"
+      - to: "Self-review passed (no triplet splits)"
+      - on_failure: "SELF_REVIEW_FAILED — triplet split detected"
+  - sc: SC-4
+    description: "validate.md detects split SC triplets"
+    states:
+      - from: "Phase decomposition received for validation"
+      - to: "Validation passed (no triplet splits)"
+      - on_failure: "FAIL — triplet split detected"
+  - sc: SC-5
+    description: "Document triplet rule in structure.md procedure"
+    states:
+      - from: "structure.md without triplet rule documentation"
+      - to: "structure.md with triplet rule documentation"
+  - sc: SC-6
+    description: "Document triplet check in self-review.md procedure"
+    states:
+      - from: "self-review.md without triplet check documentation"
+      - to: "self-review.md with triplet check documentation"
+  - sc: SC-7
+    description: "Document triplet check in validate.md procedure"
+    states:
+      - from: "validate.md without triplet check documentation"
+      - to: "validate.md with triplet check documentation"
+  - sc: SC-8
+    description: "Behavioral enforcement test exists"
+    states:
+      - from: "No behavioral test for triplet integrity"
+      - to: "Behavioral test exists and passes"
+phase_state_summary:
+  phase_1:
+    scs: [SC-1, SC-2, SC-5]
+    entry: "structure.md has no triplet integrity checks"
+    exit: "structure.md has triplet co-location check, cross-phase dependency check, and documented rule"
+  phase_2:
+    scs: [SC-3, SC-4, SC-6, SC-7]
+    entry: "self-review.md and validate.md have no triplet detection"
+    exit: "self-review.md and validate.md have triplet split detection and documented checks"
+  phase_3:
+    scs: [SC-8]
+    entry: "No behavioral test for triplet integrity"
+    exit: "Behavioral test exists and passes"

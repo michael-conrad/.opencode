@@ -1,0 +1,26 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+affected_files:
+  - path: ".opencode/skills/writing-plans/tasks/structure.md"
+    status: EXISTS
+    scs: [SC-1, SC-2, SC-5]
+    description: "Add triplet co-location check, cross-phase dependency check, and document triplet integrity rule"
+  - path: ".opencode/skills/writing-plans/tasks/self-review.md"
+    status: EXISTS
+    scs: [SC-3, SC-6]
+    description: "Add triplet split detection and document triplet integrity check"
+  - path: ".opencode/skills/writing-plans/tasks/validate.md"
+    status: EXISTS
+    scs: [SC-4, SC-7]
+    description: "Add triplet split detection and document triplet integrity check"
+  - path: ".opencode/guidelines/091-incremental-build.md"
+    status: EXISTS
+    scs: []
+    description: "Referenced as authority for per-item TDD cycle mandate; no changes needed"
+  - path: ".opencode/skills/writing-plans/SKILL.md"
+    status: EXISTS
+    scs: []
+    description: "Referenced as target pipeline; no changes needed per Not Included section"
+  - path: ".opencode/tests-v2/behaviors/"
+    status: EXISTS
+    scs: [SC-8]
+    description: "New behavioral enforcement test verifying triplet integrity check fires on defective plan"

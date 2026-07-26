@@ -1,0 +1,31 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+cross_cutting_scs:
+  - sc: SC-8
+    description: "Behavioral enforcement test"
+    spans_concerns:
+      - triplet-co-location
+      - cross-phase-dependency
+      - self-review-detection
+      - validate-detection
+    rationale: "SC-8 requires a behavioral test that verifies ALL triplet integrity checks (structure, self-review, validate) fire on a defective plan. This test spans all four concern areas."
+  - sc: SC-5
+    description: "Document triplet rule in structure.md"
+    spans_concerns:
+      - triplet-co-location
+      - cross-phase-dependency
+    rationale: "SC-5 documents the rule that both SC-1 (co-location) and SC-2 (cross-phase dependency) enforce. The documentation spans both enforcement concerns."
+  - sc: SC-6
+    description: "Document triplet check in self-review.md"
+    spans_concerns:
+      - self-review-detection
+    rationale: "SC-6 documents the check that SC-3 enforces. Single concern."
+  - sc: SC-7
+    description: "Document triplet check in validate.md"
+    spans_concerns:
+      - validate-detection
+    rationale: "SC-7 documents the check that SC-4 enforces. Single concern."
+independent_scs:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4

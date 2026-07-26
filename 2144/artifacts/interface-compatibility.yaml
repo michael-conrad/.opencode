@@ -1,0 +1,31 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+interfaces:
+  - module: ".opencode/skills/writing-plans/tasks/structure.md"
+    role: "Phase decomposition producer"
+    outputs:
+      - "Phase decomposition with SC-to-phase mapping"
+      - "BLOCKED status on triplet violation"
+    consumers:
+      - ".opencode/skills/writing-plans/tasks/self-review.md"
+      - ".opencode/skills/writing-plans/tasks/validate.md"
+    compatibility: "structure.md produces the phase decomposition that self-review.md and validate.md consume. Adding triplet checks at the structure level means downstream consumers receive already-validated decompositions. No interface breakage — structure.md's output contract (phase decomposition) is unchanged, only the validation gate is added."
+  - module: ".opencode/skills/writing-plans/tasks/self-review.md"
+    role: "Plan self-reviewer"
+    inputs:
+      - "Phase decomposition from structure.md"
+    outputs:
+      - "SELF_REVIEW_FAILED status on triplet split"
+    consumers:
+      - ".opencode/skills/writing-plans/tasks/validate.md"
+    compatibility: "self-review.md reads the same phase decomposition as before. Adding triplet detection is additive — no interface change. The SELF_REVIEW_FAILED status is a new output value but does not break existing consumers."
+  - module: ".opencode/skills/writing-plans/tasks/validate.md"
+    role: "Plan validator"
+    inputs:
+      - "Phase decomposition from structure.md"
+      - "Self-review results from self-review.md"
+    outputs:
+      - "FAIL status on triplet split"
+    compatibility: "validate.md reads the same phase decomposition. Adding triplet detection is additive — no interface change. FAIL is an existing output value."
+  - module: ".opencode/guidelines/091-incremental-build.md"
+    role: "Authority reference"
+    compatibility: "Read-only reference. No interface changes needed."

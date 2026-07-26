@@ -1,0 +1,4 @@
+- author: "human"
+  scope: "for_pr"
+  text: "execute verify-authorization from approval-gate-scope"
+  timestamp: "2026-07-25T20:35:21+00:00"

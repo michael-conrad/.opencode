@@ -1,0 +1,37 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+concerns:
+  - id: triplet-co-location
+    name: "Triplet Co-Location Enforcement"
+    description: "Ensure each SC's RED, GREEN, and COMMIT steps are in the same phase"
+    scs: [SC-1, SC-5]
+    phase: 1
+    affected_files:
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+  - id: cross-phase-dependency
+    name: "Cross-Phase Dependency Prevention"
+    description: "Reject phase decompositions where a RED test depends on uncommitted SC output from another phase"
+    scs: [SC-2]
+    phase: 1
+    affected_files:
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+  - id: self-review-detection
+    name: "Self-Review Triplet Detection"
+    description: "Detect and BLOCK on SCs whose RED/GREEN/COMMIT steps are split across phases during self-review"
+    scs: [SC-3, SC-6]
+    phase: 2
+    affected_files:
+      - ".opencode/skills/writing-plans/tasks/self-review.md"
+  - id: validate-detection
+    name: "Validate Triplet Detection"
+    description: "Detect and FAIL on SCs whose RED/GREEN/COMMIT steps are split across phases during validation"
+    scs: [SC-4, SC-7]
+    phase: 2
+    affected_files:
+      - ".opencode/skills/writing-plans/tasks/validate.md"
+  - id: behavioral-test
+    name: "Behavioral Enforcement Test"
+    description: "Create behavioral enforcement test that verifies triplet integrity check fires on defective plan"
+    scs: [SC-8]
+    phase: 3
+    affected_files:
+      - ".opencode/tests-v2/behaviors/"

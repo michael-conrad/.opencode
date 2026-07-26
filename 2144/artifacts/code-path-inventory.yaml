@@ -1,0 +1,42 @@
+spec_path: ".opencode/.issues/2144/spec.md"
+code_paths:
+  - sc: SC-1
+    description: "structure.md rejects phase decomposition with split SC triplets"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+    logic: "After phase decomposition, iterate over each SC's RED/GREEN/COMMIT steps. If any step belongs to a different phase than the SC's primary phase, reject with BLOCKED."
+  - sc: SC-2
+    description: "structure.md rejects phase decomposition with cross-phase RED dependency"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+    logic: "After phase decomposition, for each RED test, verify all SC outputs it depends on are committed in the same or earlier phase. If a dependency is uncommitted in a later phase, reject with BLOCKED."
+  - sc: SC-3
+    description: "self-review.md detects split SC triplets"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/self-review.md"
+    logic: "During self-review, check each SC's step-to-phase mapping. If any SC has steps in multiple phases, report SELF_REVIEW_FAILED."
+  - sc: SC-4
+    description: "validate.md detects split SC triplets"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/validate.md"
+    logic: "During validation, check each SC's step-to-phase mapping. If any SC has steps in multiple phases, report FAIL."
+  - sc: SC-5
+    description: "Document triplet integrity rule in structure.md procedure"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+    logic: "Add procedure step documenting: 'Each SC's RED, GREEN, and COMMIT steps MUST be in the same phase. No SC may have its test in one phase and its implementation in another.'"
+  - sc: SC-6
+    description: "Document triplet integrity check in self-review.md procedure"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/self-review.md"
+    logic: "Add procedure step documenting the triplet integrity check in self-review.md."
+  - sc: SC-7
+    description: "Document triplet integrity check in validate.md procedure"
+    implied_paths:
+      - ".opencode/skills/writing-plans/tasks/validate.md"
+    logic: "Add procedure step documenting the triplet integrity check in validate.md."
+  - sc: SC-8
+    description: "Behavioral enforcement test for triplet integrity"
+    implied_paths:
+      - ".opencode/tests-v2/behaviors/"
+    logic: "Create a behavioral test that sends a prompt producing a plan with split SCs and asserts stderr shows BLOCKED/FAIL."
