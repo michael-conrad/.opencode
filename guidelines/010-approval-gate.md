@@ -47,22 +47,6 @@ Creating a GitHub Issue is a reporting action, not an implementation action — 
 - 🚫 Creating a branch, writing code, or modifying files still requires authorization (separate step)
 - 🚫 Issue creation is NOT a backdoor to implementation — creating a spec issue does not authorize implementing it
 
-### Spec-to-Plan Approval Cascade (Critical)
-
-An approved spec auto-approves a faithful plan. This prevents redundant authorization requests when the plan faithfully reflects the spec.
-
-**Cascade rule:** When a faithful plan exists for the approved spec, `approval-gate-001a-cascade` auto-approves the plan without requiring separate developer input. The agent proceeds directly to implementation.
-
-**Revocation:** If the spec is revised after auto-approval, the linked plan approval is revoked per `approval-gate-006`.
-
-#### Edge Cases
-
-| Case | Rule |
-|------|------|
-| Spec approved, no plan written yet | Must create plan (call `writing-plans`), NO authorization needed for plan creation |
-| Faithful plan approved via cascade, then spec revised | Cascade approval revoked — must update plan and get new approval |
-| Unfaithful plan submitted | Must revise plan to match spec; cascade does NOT apply to unfaithful plans |
-| Spec approved with `for_spec` scope | No cascade — scope explicitly limits to spec only; plan creation requires scope expansion |
 
 ### Mandate Tiering Interaction (Critical)
 
@@ -159,21 +143,7 @@ Pipeline-initiated non-substantive spec revisions are exempt from the revocation
 
 **Non-substantive** means: changes to evidence types, verification methods, artifact paths, or SC wording that do NOT alter the implementation intent, scope, or success criteria semantics. Substantive changes (new SCs, removed SCs, changed scope, changed implementation approach) still require re-authorization per `approval-gate-006`.
 
-### Re-implementation Workflow
 
-When `approval-gate-006` fires (spec revision revokes plan approval):
-
-1. Clear the revoked approval markers
-2. Update plan to match revised spec (call `writing-plans`)
-3. Present updated plan for developer approval
-4. On approval, re-enter the implementation pipeline
-
-### Label Handling
-
-- **Apply label:** On authorization, apply `approved-for-<scope>` label to the issue
-- **Remove label:** On completion/closure, remove `approved-for-*` label
-- **No label = no approval:** Absence of `approved-for-*` label means the issue has NOT been authorized for that scope
-- **Multiple labels:** An issue may have multiple `approved-for-*` labels for different scopes (e.g., `approved-for-spec` and `approved-for-implementation`)
 
 ### Bug Report Response
 
