@@ -88,6 +88,49 @@ Every `task()` call MUST include only:
 
 Plus skill-specific fields per the Trigger Dispatch Table above.
 
+## Skill-Specific Procedures
+
+### Spec-to-Plan Approval Cascade (Critical)
+
+An approved spec auto-approves a faithful plan. This prevents redundant authorization requests when the plan faithfully reflects the spec.
+
+**Cascade rule:** When a faithful plan exists for the approved spec, `approval-gate-001a-cascade` auto-approves the plan without requiring separate developer input. The agent proceeds directly to implementation.
+
+**Revocation:** If the spec is revised after auto-approval, the linked plan approval is revoked per `approval-gate-006`.
+
+#### Edge Cases
+
+| Case | Rule |
+|------|------|
+| Spec approved, no plan written yet | Must create plan (call `writing-plans`), NO authorization needed for plan creation |
+| Faithful plan approved via cascade, then spec revised | Cascade approval revoked — must update plan and get new approval |
+| Unfaithful plan submitted | Must revise plan to match spec; cascade does NOT apply to unfaithful plans |
+| Spec approved with `for_spec` scope | No cascade — scope explicitly limits to spec only; plan creation requires scope expansion |
+
+### Re-implementation Workflow
+
+When `approval-gate-006` fires (spec revision revokes plan approval):
+
+1. Clear the revoked approval markers
+2. Update plan to match revised spec (call `writing-plans`)
+3. Present updated plan for developer approval
+4. On approval, re-enter the implementation pipeline
+
+### Label Handling
+
+- **Apply label:** On authorization, apply `approved-for-<scope>` label to the issue
+- **Remove label:** On completion/closure, remove `approved-for-*` label
+- **No label = no approval:** Absence of `approved-for-*` label means the issue has NOT been authorized for that scope
+- **Multiple labels:** An issue may have multiple `approved-for-*` labels for different scopes (e.g., `approved-for-spec` and `approved-for-implementation`)
+
+### Bug Discovery Protocol (CRITICAL)
+
+**Discovering a bug during implementation does NOT authorize the agent to fix it.** The agent MUST:
+
+1. Report the bug as a spec issue (see [Bug Report Response](skills/issue-operations/SKILL.md))
+2. HALT the current implementation
+3. Wait for developer decision — continue with current scope or switch to bug fix
+
 ## Cross-References
 
 Sub-skills: `approval-gate-scope`. Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.

@@ -188,6 +188,15 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
+### Bug Report Response
+
+When a bug is reported via GitHub Issue or developer message:
+
+1. The bug IS a spec — create a spec issue from the bug report
+2. The agent does NOT propose implementing any fix — creating the spec is sufficient
+3. Do NOT ask "do you want me to fix this" — the spec IS the response
+4. The bug spec goes through standard spec→plan→implementation pipeline
+
 ## Cross-References
 
 Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `audit --task concern-separation`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
