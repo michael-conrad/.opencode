@@ -1,0 +1,156 @@
+artifact: blast-radius
+spec: 2127
+generated: 2026-07-27T16:20:00Z
+description: >
+  Files and sections that reference the sections being removed from
+  020-go-prohibitions.md. Each entry identifies the referencing file,
+  the specific reference, and the removal target it touches.
+
+references:
+  - removal_target: "§1.1 Orchestrator Context Discipline"
+    referencing_files:
+      - file: .opencode/guidelines/000-critical-rules.md
+        lines: [563, 568]
+        reference_type: inline_rule
+        content: >
+          [critical-rules-063] Orchestrator Context Lean and
+          [critical-rules-065] Result Contract Frugality — both
+          cross-reference §1.1 of 020-go-prohibitions.md
+      - file: .opencode/guidelines/257-procedural-discipline-reference.md
+        line: 88
+        reference_type: cross_reference
+        content: 'Context cost compliance (Read [§1.1](020-go-prohibitions.md))'
+      - file: .opencode/guidelines/250-dark-prose-reference.md
+        line: 114
+        reference_type: cross_reference
+        content: 'Orchestrator context guidelines (Read [§1.1](020-go-prohibitions.md))'
+      - file: .opencode/guidelines/020-go-prohibitions.md
+        lines: [564, 569, 639]
+        reference_type: self_reference
+        content: >
+          Lines 564, 569, 639 in the critical-rules-XXX section at bottom
+          cross-reference §1.1 within the same file
+
+  - removal_target: "§5 Multi-task Plan Without Sub-issues"
+    referencing_files:
+      - file: .opencode/skills/issue-operations-sub-issues/SKILL.md
+        line: 3
+        reference_type: skill_description
+        content: 'Sub-issue tracking is REQUIRED for multi-task plans'
+      - file: .opencode/skills/issue-operations-sub-issues/SKILL.md
+        line: 64
+        reference_type: critical_violation
+        content: '[critical-rules-018] Sub-issue Structure Bypass — multi-task plans'
+      - file: .opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md
+        line: 56
+        reference_type: task_step
+        content: 'Multi-task plan verification per `020-go-prohibitions.md`'
+      - file: .opencode/skills/approval-gate-scope/tasks/verify-sub-issues.md
+        lines: [7, 44, 111, 121]
+        reference_type: task_step
+        content: >
+          Verify sub-issue structure gate for multi-task plans before
+          implementation; auto-creation authorization
+      - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md
+        line: 52
+        reference_type: task_step
+        content: 'For multi-task plans, verify sub-issue count matches phase count'
+      - file: .opencode/skills/approval-gate-scope/tasks/verify-authorization/item-decomposition-check.md
+        line: 53
+        reference_type: task_step
+        content: 'Single-task plans exempt from item decomposition check'
+
+  - removal_target: "§6 Progressive Iterative Implementation"
+    referencing_files:
+      - file: .opencode/guidelines/000-critical-rules.md
+        line: 115
+        reference_type: inline_rule
+        content: 'Checkpoint Rollback Exception — git reset --hard <checkpoint-tag>'
+
+  - removal_target: '"stop" command section'
+    referencing_files:
+      - file: .opencode/guidelines/000-critical-rules.md
+        line: 265
+        reference_type: inline_rule
+        content: '[critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt'
+
+  - removal_target: "§4 Node.js Prohibition + §4.5 Project-Local Tools"
+    referencing_files:
+      - file: .opencode/guidelines/085-project-local-tools.md
+        lines: [14, 50]
+        reference_type: cross_reference
+        content: >
+          Line 14: 'This is an exception to the global Node.js prohibition
+          (Read [020-go-prohibitions.md §4])'; Line 50: 'Read [§4]'
+      - file: .opencode/guidelines/070-environment.md
+        lines: [224, 226, 230-234, 242, 246, 248-249, 253, 257]
+        reference_type: duplicate_section
+        content: >
+          Lines 224-257 contain a duplicate Node.js Prohibition section
+          that mirrors §4 content
+
+  - removal_target: "§1.2 Interpretive Questions"
+    referencing_files:
+      - file: .opencode/guidelines/020-go-prohibitions.md
+        lines: [139, 144]
+        reference_type: self_reference
+        content: Only referenced within 020-go-prohibitions.md itself
+
+  - removal_target: "§1.5 Soliciting Authorization"
+    referencing_files:
+      - file: .opencode/guidelines/020-go-prohibitions.md
+        line: 245
+        reference_type: self_reference
+        content: Only referenced within 020-go-prohibitions.md itself
+
+  - removal_target: "5 duplicated lines in §1 (cost-blind, evidence substitution, continue waiver, silent halt, escalate)"
+    referencing_files:
+      - file: .opencode/guidelines/000-critical-rules.md
+        lines: [multiple]
+        reference_type: inline_rule
+        content: All 5 patterns are duplicated in 000-critical-rules.md
+      - file: .opencode/guidelines/065-verification-honesty.md
+        lines: [multiple]
+        reference_type: inline_rule
+        content: Cost model and anti-evasion rules in 065
+
+  - removal_target: "3 duplicated lines in §1.6 (live tool call, training data, metadata)"
+    referencing_files:
+      - file: .opencode/guidelines/065-verification-honesty.md
+        lines: [multiple]
+        reference_type: inline_rule
+        content: >
+          'Never answer without a live tool call', 'Never trust training data',
+          'Never trust metadata without a live API call' — all in 065
+
+  - removal_target: "10 duplicated ALWAYS DO items (inline work, poisoned pipeline, discard on failure, etc.)"
+    referencing_files:
+      - file: .opencode/guidelines/000-critical-rules.md
+        lines: [multiple]
+        reference_type: inline_rule
+        content: All 10 patterns are duplicated in 000-critical-rules.md
+      - file: .opencode/guidelines/065-verification-honesty.md
+        lines: [multiple]
+        reference_type: inline_rule
+        content: Test substitution and remediation rules in 065
+
+risk_assessment:
+  safe_to_remove:
+    - "§1.1 — rules preserved in 000 (lines 563, 568); cross-references in 257 and 250 point to 020 but the rules exist in 000"
+    - "§5 — sub-issue logic is implemented in skills (issue-operations-sub-issues, approval-gate-scope); the guideline is obsolete"
+    - "§6 — rules preserved in 000 (Checkpoint Rollback Exception)"
+    - '"stop" command — rules preserved in 000 (critical-rules-stop)'
+    - "5 duplicated lines in §1 — all in 000 and 065"
+    - "3 duplicated lines in §1.6 — all in 065"
+    - "10 duplicated ALWAYS DO items — all in 000 and 065"
+    - "3 restated ALWAYS DO lines — internal duplication only"
+  needs_cross_reference_update:
+    - "§4/§4.5 → 085-project-local-tools.md references §4; must update to reference new .tools/ rule"
+    - "§4/§4.5 → 070-environment.md has duplicate Node.js section; must remove or update"
+    - "§1.1 → 257 and 250 cross-references to §1.1; must update to point to 000 or remove"
+    - "§5 → issue-operations-sub-issues/tasks/read-sub-issues.md line 56 references 020-go-prohibitions.md; must update"
+  cross_reference_breakage_risk:
+    - "085-project-local-tools.md line 14: 'Read [020-go-prohibitions.md §4]' — will break if §4 is removed without updating 085"
+    - "085-project-local-tools.md line 50: 'Read [§4]' — same"
+    - "257-procedural-discipline-reference.md line 88: 'Read [§1.1]' — will break if §1.1 removed"
+    - "250-dark-prose-reference.md line 114: 'Read [§1.1]' — same"

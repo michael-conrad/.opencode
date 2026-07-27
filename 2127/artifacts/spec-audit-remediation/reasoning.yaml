@@ -1,0 +1,430 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2127
+generated_at: "2026-07-27T17:50:00Z"
+evidence_source: ".opencode/.issues/2127/artifacts/spec-audit-remediation/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2127/"
+overall_validation_status: "corrected"
+
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: false
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: false
+      body_length_chars_match: false
+    corrections:
+      - field: "size_bytes"
+        evidence_value: 5455
+        actual_value: 12053
+      - field: "modified_at"
+        evidence_value: "2026-07-27T17:30:00Z"
+        actual_value: "2026-07-27T17:43:54Z"
+      - field: "body_length_lines"
+        evidence_value: 163
+        actual_value: 160
+      - field: "body_length_chars"
+        evidence_value: 5368
+        actual_value: 11848
+  - path: "remote.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: false
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: false
+      body_length_chars_match: false
+    corrections:
+      - field: "size_bytes"
+        evidence_value: 2087
+        actual_value: 4320
+      - field: "modified_at"
+        evidence_value: "2026-07-25T11:16:00Z"
+        actual_value: "2026-07-27T17:43:37Z"
+      - field: "body_length_lines"
+        evidence_value: 43
+        actual_value: 92
+      - field: "body_length_chars"
+        evidence_value: 2040
+        actual_value: 4194
+
+spec_structure_validation:
+  headings:
+    validation_status: "validated"
+    evidence_count: 18
+    actual_count: 18
+    mismatches: []
+  success_criteria:
+    validation_status: "validated"
+    evidence_row_count: 15
+    actual_row_count: 15
+    mismatches: []
+  phases:
+    validation_status: "validated"
+    evidence_count: 6
+    actual_count: 6
+    mismatches: []
+  files_affected:
+    validation_status: "validated"
+    evidence_paths:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
+    actual_paths:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
+    mismatches: []
+  preamble:
+    validation_status: "validated"
+    evidence_fields_present:
+      - "Intent"
+      - "Problem Statement"
+      - "Root Cause/Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered"
+      - "Key Design Decisions"
+    actual_fields_present:
+      - "Intent"
+      - "Problem Statement"
+      - "Root Cause/Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered"
+      - "Key Design Decisions"
+    mismatches: []
+  documentation_sources:
+    validation_status: "corrected"
+    evidence_sources:
+      - "000-critical-rules.md lines 563-569 (critical-rules-063, critical-rules-065)"
+      - "000-critical-rules.md lines 530-531 (critical-rules-042)"
+      - "000-critical-rules.md lines 555-556 (critical-rules-044)"
+      - "000-critical-rules.md lines 559-560 (critical-rules-043)"
+      - "000-critical-rules.md lines 571-593 (critical-rules-dispatch-gate-canonical)"
+      - "000-critical-rules.md lines 595-613 (critical-rules-071)"
+      - "000-critical-rules.md lines 616-635 (critical-rules-072)"
+      - "000-critical-rules.md lines 638-639 (critical-rules-066)"
+      - "000-critical-rules.md lines 300-315 (Channel-Routing Table)"
+      - "000-critical-rules.md lines 115-125 (Checkpoint Rollback Exception)"
+      - "000-critical-rules.md lines 265-279 (critical-rules-stop)"
+      - "000-critical-rules.md lines 538-539 (Gate Non-Waiver)"
+      - "065-verification-honesty.md lines 268-314 (Cost Model)"
+      - "065-verification-honesty.md lines 324-372 (Anti-Evasion Rules)"
+      - "065-verification-honesty.md lines 320-322 (Remediation-First Protocol)"
+      - "065-verification-honesty.md lines 119-141 (Pre-Response Factual Claim Gate)"
+      - "065-verification-honesty.md lines 80-83 (No Exceptions)"
+      - "065-verification-honesty.md lines 159-200 (Metadata Verification Extension)"
+      - "020-go-prohibitions.md lines 294-296 (internal duplication)"
+      - "000-critical-rules.md (critical-rules-034, critical-rules-042, critical-rules-071/072, critical-rules-049)"
+      - "065-verification-honesty.md (Cost Model, Anti-Evasion Rules, Remediation-First Protocol)"
+    actual_sources:
+      - "020-go-prohibitions.md lines 563-569 (critical-rules-063, critical-rules-065) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 530-531 (critical-rules-042) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 555-556 (critical-rules-044) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 559-560 (critical-rules-043) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 571-593 (critical-rules-dispatch-gate-canonical) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 595-613 (critical-rules-071) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 616-635 (critical-rules-072) — NOT 000-critical-rules.md"
+      - "020-go-prohibitions.md lines 638-639 (critical-rules-066) — NOT 000-critical-rules.md"
+      - "000-critical-rules.md lines 300-315 (Channel-Routing Table)"
+      - "000-critical-rules.md lines 115-125 (Checkpoint Rollback Exception)"
+      - "000-critical-rules.md lines 265-279 (critical-rules-stop)"
+      - "020-go-prohibitions.md lines 538-539 (Gate Non-Waiver) — NOT 000-critical-rules.md"
+      - "065-verification-honesty.md lines 268-314 (Cost Model)"
+      - "065-verification-honesty.md lines 324-372 (Anti-Evasion Rules)"
+      - "065-verification-honesty.md lines 320-322 (Remediation-First Protocol)"
+      - "065-verification-honesty.md lines 119-141 (Pre-Response Factual Claim Gate)"
+      - "065-verification-honesty.md line 78 (No Exceptions) — evidence says line 80, actual is 78"
+      - "065-verification-honesty.md lines 159-200 (Metadata Verification Extension)"
+      - "020-go-prohibitions.md lines 294-296 (internal duplication)"
+      - "000-critical-rules.md (critical-rules-034 at line 206)"
+      - "020-go-prohibitions.md (critical-rules-042, critical-rules-071, critical-rules-072, critical-rules-049)"
+      - "065-verification-honesty.md (Cost Model, Anti-Evasion Rules, Remediation-First Protocol)"
+    mismatches:
+      - "8 sources incorrectly attributed to 000-critical-rules.md when content is in 020-go-prohibitions.md"
+      - "Gate Non-Waiver source incorrectly attributed to 000-critical-rules.md when content is in 020-go-prohibitions.md"
+      - "No Exceptions line number: evidence says 80-83, actual is 78"
+  status_marker:
+    validation_status: "validated"
+    evidence_value: "absent"
+    actual_value: "absent"
+  prose_elements:
+    validation_status: "validated"
+    mismatches: []
+
+determinism_validation:
+  sc_wording:
+    validation_status: "validated"
+    mismatches: []
+  fail_patterns:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_patterns: []
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_markers: []
+    false_markers: []
+  evidence_type_declarations:
+    validation_status: "validated"
+    mismatches: []
+  verification_methods:
+    validation_status: "validated"
+    mismatches: []
+  failure_description:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_provided: false
+
+documentation_source_validation:
+  urls:
+    validation_status: "corrected"
+    mismatches:
+      - source: "000-critical-rules.md lines 563-569 (critical-rules-063, critical-rules-065)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "Content 'Orchestrator Context Lean' and 'Result Contract Frugality' are in 020-go-prohibitions.md, NOT 000-critical-rules.md. 000-critical-rules.md is only 316 lines."
+      - source: "000-critical-rules.md lines 530-531 (critical-rules-042)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-042 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 555-556 (critical-rules-044)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-044 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 559-560 (critical-rules-043)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-043 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 571-593 (critical-rules-dispatch-gate-canonical)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-dispatch-gate-canonical is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 595-613 (critical-rules-071)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-071 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 616-635 (critical-rules-072)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-072 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 638-639 (critical-rules-066)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "critical-rules-066 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "000-critical-rules.md lines 538-539 (Gate Non-Waiver)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: false
+        detail: "Gate Non-Waiver Principle is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
+      - source: "065-verification-honesty.md lines 80-83 (No Exceptions)"
+        field: "referenced_content_found"
+        evidence_value: true
+        actual_value: true
+        detail: "Content found but at line 78, not line 80. Minor line number discrepancy."
+    validated_sources:
+      - "000-critical-rules.md lines 300-315 (Channel-Routing Table)"
+      - "000-critical-rules.md lines 115-125 (Checkpoint Rollback Exception)"
+      - "000-critical-rules.md lines 265-279 (critical-rules-stop)"
+      - "065-verification-honesty.md lines 268-314 (Cost Model)"
+      - "065-verification-honesty.md lines 324-372 (Anti-Evasion Rules)"
+      - "065-verification-honesty.md lines 320-322 (Remediation-First Protocol)"
+      - "065-verification-honesty.md lines 119-141 (Pre-Response Factual Claim Gate)"
+      - "065-verification-honesty.md lines 159-200 (Metadata Verification Extension)"
+      - "257-procedural-discipline-reference.md line 88 (cross-reference to §1.1)"
+      - "250-dark-prose-reference.md line 114 (cross-reference to §1.1)"
+      - "085-project-local-tools.md lines 14, 50 (cross-reference to §4)"
+      - "070-environment.md lines 224-257 (duplicate Node.js section)"
+      - "issue-operations-sub-issues/tasks/read-sub-issues.md line 56"
+  api_references:
+    validation_status: "validated"
+    mismatches: []
+  env_variables:
+    validation_status: "validated"
+    mismatches: []
+  library_patterns:
+    validation_status: "validated"
+    mismatches: []
+
+prose_validation:
+  escape_hatches:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_hatches: []
+    false_hatches: []
+  tracking_language:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_instances: []
+    false_instances: []
+  prescriptive_code:
+    validation_status: "validated"
+    evidence_count: 3
+    actual_count: 3
+    missed_instances: []
+    false_instances: []
+  cost_frame_language:
+    validation_status: "validated"
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  fix_approaches:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  sc_to_root_cause:
+    validation_status: "validated"
+    mismatches: []
+  alternatives_considered:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    mismatches: []
+  edge_cases:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    evidence_count: 2
+    actual_count: 2
+    missed_cases: []
+  potential_contradictions:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    false_contradictions: []
+    missed_contradictions: []
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  concern_map:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  code_path_inventory:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  cross_cutting_matrix:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  interface_compatibility:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  state_analysis:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  testability_assessment:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: "validated"
+    mismatches: []
+  internal_consistency:
+    validation_status: "validated"
+    mismatches: []
+  completeness:
+    validation_status: "validated"
+    mismatches: []
+    missed_undefined_terms: []
+    missed_implicit_dependencies: []
+  scope_discipline:
+    validation_status: "validated"
+    mismatches: []
+  testability:
+    validation_status: "validated"
+    mismatches: []
+  provenance:
+    validation_status: "corrected"
+    mismatches:
+      - field: "tool_call_evidence_cited"
+        evidence_value: true
+        actual_value: true
+        detail: "Evidence claims all documentation sources verified, but 9 of 20 sources are attributed to the wrong file (000-critical-rules.md vs 020-go-prohibitions.md). The tool_call_evidence_cited flag is technically true (grep was run), but the source attribution is incorrect."
+  feasibility:
+    validation_status: "validated"
+    mismatches: []
+    missed_referenced_files: []
+    missed_referenced_functions: []
+  safety:
+    validation_status: "validated"
+    mismatches: []
+  traceability:
+    validation_status: "validated"
+    mismatches: []
+  correctness:
+    validation_status: "validated"
+    mismatches: []
+
+unvalidated_items: []
+
+corrections_summary:
+  total_corrections: 24
+  sections_affected:
+    - "spec_files_validation"
+    - "spec_structure_validation.documentation_sources"
+    - "documentation_source_validation.urls"
+    - "analytical_artifact_validation"
+    - "holistic_dimension_validation.provenance"

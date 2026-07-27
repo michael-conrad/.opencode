@@ -1,0 +1,156 @@
+artifact: code-path-inventory
+spec: 2127
+generated: 2026-07-27T16:20:00Z
+description: >
+  All code paths (skill files, task files, test scripts, guidelines) that
+  reference the sections being removed from 020-go-prohibitions.md.
+  Organized by removal target.
+
+inventory:
+  - removal_target: "§1.1 Orchestrator Context Discipline"
+    code_paths:
+      - path: .opencode/guidelines/000-critical-rules.md
+        lines: [563, 568]
+        context: >
+          [critical-rules-063] Orchestrator Context Lean and
+          [critical-rules-065] Result Contract Frugality — both
+          cross-reference §1.1 of 020-go-prohibitions.md
+        action_on_removal: UPDATE cross-reference to point to 000 itself
+      - path: .opencode/guidelines/257-procedural-discipline-reference.md
+        line: 88
+        context: 'Context cost compliance (Read [§1.1](020-go-prohibitions.md))'
+        action_on_removal: UPDATE to point to 000-critical-rules.md
+      - path: .opencode/guidelines/250-dark-prose-reference.md
+        line: 114
+        context: 'Orchestrator context guidelines (Read [§1.1](020-go-prohibitions.md))'
+        action_on_removal: UPDATE to point to 000-critical-rules.md
+      - path: .opencode/guidelines/020-go-prohibitions.md
+        lines: [564, 569, 639]
+        context: Self-references within the critical-rules-XXX section at bottom
+        action_on_removal: UPDATE to point to 000-critical-rules.md
+
+  - removal_target: "§5 Multi-task Plan Without Sub-issues"
+    code_paths:
+      - path: .opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md
+        line: 56
+        context: 'Multi-task plan verification per `020-go-prohibitions.md`'
+        action_on_removal: UPDATE to reference approval-gate-scope skill instead
+      - path: .opencode/skills/approval-gate-scope/tasks/verify-sub-issues.md
+        lines: [7, 44, 111, 121]
+        context: Sub-issue verification gate for multi-task plans
+        action_on_removal: No change needed — skill implements the logic, guideline is obsolete
+      - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/sub-issue-verification.md
+        line: 52
+        context: Sub-issue count vs phase count verification
+        action_on_removal: No change needed
+      - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/item-decomposition-check.md
+        line: 53
+        context: Single-task plan exemption
+        action_on_removal: No change needed
+
+  - removal_target: "§6 Progressive Iterative Implementation"
+    code_paths:
+      - path: .opencode/guidelines/000-critical-rules.md
+        line: 115
+        context: Checkpoint Rollback Exception
+        action_on_removal: No change needed — rule is in 000
+
+  - removal_target: '"stop" command section'
+    code_paths:
+      - path: .opencode/guidelines/000-critical-rules.md
+        line: 265
+        context: critical-rules-stop
+        action_on_removal: No change needed — rule is in 000
+
+  - removal_target: "§4 Node.js Prohibition + §4.5 Project-Local Tools"
+    code_paths:
+      - path: .opencode/guidelines/085-project-local-tools.md
+        lines: [14, 50]
+        context: >
+          Line 14: 'This is an exception to the global Node.js prohibition
+          (Read [020-go-prohibitions.md §4])'; Line 50: 'Read [§4]'
+        action_on_removal: >
+          UPDATE to reference the new .tools/ rule in 020 or remove
+          the Node.js-specific cross-reference
+      - path: .opencode/guidelines/070-environment.md
+        lines: [224-257]
+        context: Duplicate Node.js Prohibition section
+        action_on_removal: REMOVE the duplicate section from 070-environment.md
+      - path: .opencode/guidelines/INDEX.md
+        line: 24
+        context: '085-project-local-tools.md trigger pattern'
+        action_on_removal: No change needed
+
+  - removal_target: "5 duplicated lines in §1 (cost-blind, evidence substitution, continue waiver, silent halt, escalate)"
+    code_paths:
+      - path: .opencode/guidelines/000-critical-rules.md
+        context: All 5 patterns have equivalents in 000
+        action_on_removal: No change needed
+      - path: .opencode/guidelines/065-verification-honesty.md
+        context: Cost model and anti-evasion rules
+        action_on_removal: No change needed
+
+  - removal_target: "3 duplicated lines in §1.6 (live tool call, training data, metadata)"
+    code_paths:
+      - path: .opencode/guidelines/065-verification-honesty.md
+        context: All 3 patterns are core rules in 065
+        action_on_removal: No change needed
+
+  - removal_target: "10 duplicated ALWAYS DO items"
+    code_paths:
+      - path: .opencode/guidelines/000-critical-rules.md
+        context: All 10 patterns have equivalents in 000
+        action_on_removal: No change needed
+      - path: .opencode/guidelines/065-verification-honesty.md
+        context: Test substitution and remediation rules
+        action_on_removal: No change needed
+
+  - removal_target: "3 restated ALWAYS DO lines"
+    code_paths:
+      - path: .opencode/guidelines/020-go-prohibitions.md
+        lines: [294, 295, 296]
+        context: Internal duplication of §1.6 NEVER DO items
+        action_on_removal: No change needed — internal cleanup
+
+test_script_references:
+  - path: .opencode/tests-v2/test-enforcement.sh
+    line: 127
+    context: 'FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="pipeline-scoped-halt"'
+    action_on_removal: >
+      No change needed — the test maps the file to a scenario, not to
+      specific sections. Compaction does not change the file's existence
+      or its test mapping.
+
+skill_references_to_020:
+  - path: .opencode/skills/git-workflow-branch/SKILL.md
+    line: 63
+    context: 'Read [§1](guidelines/020-go-prohibitions.md) for for_analysis branch restrictions'
+    action_on_removal: No change needed — §1 is KEPT
+  - path: .opencode/skills/git-workflow-commit/SKILL.md
+    line: 55
+    context: 'Read [§1](guidelines/020-go-prohibitions.md) for --no-verify restrictions'
+    action_on_removal: No change needed — §1 is KEPT
+  - path: .opencode/skills/verification-before-completion/tasks/verify.md
+    lines: [339, 356]
+    context: '020-go-prohibitions.md §1 cost-blind verification'
+    action_on_removal: No change needed — §1 is KEPT
+  - path: .opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md
+    line: 53
+    context: 'Read [GO Prohibitions §1]'
+    action_on_removal: No change needed — §1 is KEPT
+  - path: .opencode/skills/approval-gate-scope/tasks/pre-impl/yield-to-assemble-work.md
+    line: 114
+    context: '020-go-prohibitions.md §1'
+    action_on_removal: No change needed — §1 is KEPT
+  - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/scope-auto-resolve.md
+    line: 9
+    context: '020-go-prohibitions.md §1'
+    action_on_removal: No change needed — §1 is KEPT
+  - path: .opencode/skills/approval-gate-scope/SKILL.md
+    line: 285
+    context: 'Guidelines: 020-go-prohibitions.md'
+    action_on_removal: No change needed — file is KEPT
+  - path: .opencode/skills/implementation-pipeline/tasks/behavioral-test-remediation.md
+    lines: [21, 38]
+    context: '020-go-prohibitions.md §1 cost-blind verification'
+    action_on_removal: No change needed — §1 is KEPT

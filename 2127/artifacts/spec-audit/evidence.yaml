@@ -1,0 +1,530 @@
+generator: spec-audit-investigator
+issue_number: 2127
+generated_at: "2026-07-27T16:22:00Z"
+spec_local_dir: ".opencode/.issues/2127/"
+
+spec_files:
+  - path: "spec.md"
+    size_bytes: 5455
+    modified_at: "2026-07-25T11:15:00Z"
+    has_frontmatter: true
+    frontmatter_keys: ["remote_issue", "remote_url", "labels"]
+    body_length_lines: 92
+    body_length_chars: 5368
+  - path: "remote.md"
+    size_bytes: 2087
+    modified_at: "2026-07-25T11:16:00Z"
+    has_frontmatter: true
+    frontmatter_keys: ["remote_issue", "remote_url"]
+    body_length_lines: 43
+    body_length_chars: 2040
+
+spec_structure:
+  headings:
+    - level: 2
+      text: "Problem"
+      line: 7
+    - level: 2
+      text: "Proposed Solution"
+      line: 11
+    - level: 3
+      text: "Remove (duplicated in other preloaded guidelines)"
+      line: 13
+    - level: 3
+      text: "Remove (obsolete)"
+      line: 25
+    - level: 3
+      text: "Collapse"
+      line: 31
+    - level: 3
+      text: "Replace"
+      line: 38
+    - level: 3
+      text: "Keep (universal, not duplicated)"
+      line: 44
+    - level: 2
+      text: "Success Criteria"
+      line: 53
+    - level: 2
+      text: "Implementation Plan"
+      line: 73
+    - level: 3
+      text: "Phase 1: Remove duplicated sections (§1.1, §5, §6, stop command)"
+      line: 75
+    - level: 3
+      text: "Phase 2: Remove duplicated lines within §1 and §1.6"
+      line: 76
+    - level: 3
+      text: "Phase 3: Remove 10 duplicated ALWAYS DO items"
+      line: 77
+    - level: 3
+      text: "Phase 4: Collapse §1.2 and §1.5 into §1"
+      line: 78
+    - level: 3
+      text: "Phase 5: Replace §4/§4.5 with general `.tools/` rule"
+      line: 79
+    - level: 3
+      text: "Phase 6: Verify all keep sections remain and no content loss"
+      line: 80
+    - level: 2
+      text: "Files Affected"
+      line: 82
+    - level: 2
+      text: "Risks"
+      line: 87
+    - level: 2
+      text: "Dependencies"
+      line: 92
+  success_criteria:
+    present: true
+    table_columns: ["ID", "Criterion", "Evidence Type", "Verification Method"]
+    rows:
+      - id: "SC-1"
+        criterion: "Remove §1.1 Orchestrator Context Discipline"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Orchestrator Context Discipline'"
+      - id: "SC-2"
+        criterion: "Remove §5 Multi-task Plan Without Sub-issues"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Multi-task Plan Without Sub-issues'"
+      - id: "SC-3"
+        criterion: "Remove §6 Progressive Iterative Implementation"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Progressive Iterative Implementation'"
+      - id: "SC-4"
+        criterion: "Remove \"stop\" command section"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'terminal halt'"
+      - id: "SC-5"
+        criterion: "Remove 5 duplicated lines in §1 (cost-blind, evidence substitution, continue waiver, silent halt, escalate)"
+        evidence_type: "string"
+        verification_method: "grep for absence of each pattern"
+      - id: "SC-6"
+        criterion: "Remove 3 duplicated lines in §1.6 (live tool call, training data, metadata)"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Never answer without a live tool call'"
+      - id: "SC-7"
+        criterion: "Remove 3 restated ALWAYS DO lines"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Make a live tool call before every factual claim'"
+      - id: "SC-8"
+        criterion: "Remove 10 duplicated ALWAYS DO items"
+        evidence_type: "string"
+        verification_method: "grep for absence of each pattern"
+      - id: "SC-9"
+        criterion: "§1.2 merged into §1 as bullet"
+        evidence_type: "string"
+        verification_method: "grep for 'interpretive question' in §1"
+      - id: "SC-10"
+        criterion: "§1.5 collapsed into §1"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Soliciting Authorization' header"
+      - id: "SC-11"
+        criterion: "§4 replaced with general `.tools/` rule"
+        evidence_type: "string"
+        verification_method: "grep for '.tools/' in §4"
+      - id: "SC-12"
+        criterion: "All keep sections remain"
+        evidence_type: "string"
+        verification_method: "grep for each section header"
+      - id: "SC-13"
+        criterion: "No content loss — removed sections verified as duplicated in 000/065"
+        evidence_type: "behavioral"
+        verification_method: "Compare removed section content against 000/065 equivalents; verify all rules preserved in source"
+      - id: "SC-14"
+        criterion: "No orphaned cross-references to removed section names"
+        evidence_type: "string"
+        verification_method: "grep for removed section names across .opencode/ — only 000/065 remain"
+      - id: "SC-15"
+        criterion: "No line-count or word-count metrics used as success measurement"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'wc -l', 'file size', 'Final file size' in spec"
+  phases:
+    present: true
+    count: 6
+    items:
+      - heading: "Phase 1: Remove duplicated sections (§1.1, §5, §6, stop command)"
+        sub_items_count: 0
+      - heading: "Phase 2: Remove duplicated lines within §1 and §1.6"
+        sub_items_count: 0
+      - heading: "Phase 3: Remove 10 duplicated ALWAYS DO items"
+        sub_items_count: 0
+      - heading: "Phase 4: Collapse §1.2 and §1.5 into §1"
+        sub_items_count: 0
+      - heading: "Phase 5: Replace §4/§4.5 with general `.tools/` rule"
+        sub_items_count: 0
+      - heading: "Phase 6: Verify all keep sections remain and no content loss"
+        sub_items_count: 0
+  files_affected:
+    present: true
+    paths:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
+  preamble:
+    present: false
+    fields_present: []
+    fields_missing:
+      - "Intent and Executive Summary"
+      - "Problem Statement"
+      - "Root Cause / Motivation"
+      - "Approach Chosen"
+      - "Alternatives Considered & Why Discarded"
+      - "Key Design Decisions"
+    notes: "Spec uses ## Problem and ## Proposed Solution instead of the standard preamble format. Problem statement is present (as ## Problem). Approach is present (as ## Proposed Solution). Root cause is implicit. No alternatives section. No key design decisions section."
+  documentation_sources:
+    present: false
+    sources: []
+  status_marker: "absent"
+  prose_elements:
+    tables: 3
+    code_blocks: 0
+    ordered_lists: 1
+    unordered_lists: 4
+
+determinism_evidence:
+  sc_wording:
+    - id: "SC-1"
+      text: "Remove §1.1 Orchestrator Context Discipline"
+      word_count: 5
+    - id: "SC-2"
+      text: "Remove §5 Multi-task Plan Without Sub-issues"
+      word_count: 6
+    - id: "SC-3"
+      text: "Remove §6 Progressive Iterative Implementation"
+      word_count: 6
+    - id: "SC-4"
+      text: "Remove \"stop\" command section"
+      word_count: 4
+    - id: "SC-5"
+      text: "Remove 5 duplicated lines in §1 (cost-blind, evidence substitution, continue waiver, silent halt, escalate)"
+      word_count: 16
+    - id: "SC-6"
+      text: "Remove 3 duplicated lines in §1.6 (live tool call, training data, metadata)"
+      word_count: 14
+    - id: "SC-7"
+      text: "Remove 3 restated ALWAYS DO lines"
+      word_count: 6
+    - id: "SC-8"
+      text: "Remove 10 duplicated ALWAYS DO items"
+      word_count: 6
+    - id: "SC-9"
+      text: "§1.2 merged into §1 as bullet"
+      word_count: 6
+    - id: "SC-10"
+      text: "§1.5 collapsed into §1"
+      word_count: 5
+    - id: "SC-11"
+      text: "§4 replaced with general `.tools/` rule"
+      word_count: 7
+    - id: "SC-12"
+      text: "All keep sections remain"
+      word_count: 4
+    - id: "SC-13"
+      text: "No content loss — removed sections verified as duplicated in 000/065"
+      word_count: 12
+    - id: "SC-14"
+      text: "No orphaned cross-references to removed section names"
+      word_count: 8
+    - id: "SC-15"
+      text: "No line-count or word-count metrics used as success measurement"
+      word_count: 10
+  fail_patterns: []
+  ambiguity_markers: []
+  evidence_type_declarations:
+    - sc_id: "SC-1"
+      declared_type: "string"
+    - sc_id: "SC-2"
+      declared_type: "string"
+    - sc_id: "SC-3"
+      declared_type: "string"
+    - sc_id: "SC-4"
+      declared_type: "string"
+    - sc_id: "SC-5"
+      declared_type: "string"
+    - sc_id: "SC-6"
+      declared_type: "string"
+    - sc_id: "SC-7"
+      declared_type: "string"
+    - sc_id: "SC-8"
+      declared_type: "string"
+    - sc_id: "SC-9"
+      declared_type: "string"
+    - sc_id: "SC-10"
+      declared_type: "string"
+    - sc_id: "SC-11"
+      declared_type: "string"
+    - sc_id: "SC-12"
+      declared_type: "string"
+    - sc_id: "SC-13"
+      declared_type: "behavioral"
+    - sc_id: "SC-14"
+      declared_type: "string"
+    - sc_id: "SC-15"
+      declared_type: "string"
+  verification_methods:
+    - sc_id: "SC-1"
+      has_verification_method: true
+      method_text: "grep for absence of 'Orchestrator Context Discipline'"
+    - sc_id: "SC-2"
+      has_verification_method: true
+      method_text: "grep for absence of 'Multi-task Plan Without Sub-issues'"
+    - sc_id: "SC-3"
+      has_verification_method: true
+      method_text: "grep for absence of 'Progressive Iterative Implementation'"
+    - sc_id: "SC-4"
+      has_verification_method: true
+      method_text: "grep for absence of 'terminal halt'"
+    - sc_id: "SC-5"
+      has_verification_method: true
+      method_text: "grep for absence of each pattern"
+    - sc_id: "SC-6"
+      has_verification_method: true
+      method_text: "grep for absence of 'Never answer without a live tool call'"
+    - sc_id: "SC-7"
+      has_verification_method: true
+      method_text: "grep for absence of 'Make a live tool call before every factual claim'"
+    - sc_id: "SC-8"
+      has_verification_method: true
+      method_text: "grep for absence of each pattern"
+    - sc_id: "SC-9"
+      has_verification_method: true
+      method_text: "grep for 'interpretive question' in §1"
+    - sc_id: "SC-10"
+      has_verification_method: true
+      method_text: "grep for absence of 'Soliciting Authorization' header"
+    - sc_id: "SC-11"
+      has_verification_method: true
+      method_text: "grep for '.tools/' in §4"
+    - sc_id: "SC-12"
+      has_verification_method: true
+      method_text: "grep for each section header"
+    - sc_id: "SC-13"
+      has_verification_method: true
+      method_text: "Compare removed section content against 000/065 equivalents; verify all rules preserved in source"
+    - sc_id: "SC-14"
+      has_verification_method: true
+      method_text: "grep for removed section names across .opencode/ — only 000/065 remain"
+    - sc_id: "SC-15"
+      has_verification_method: true
+      method_text: "grep for absence of 'wc -l', 'file size', 'Final file size' in spec"
+  failure_description_provided: false
+  failure_description_text: "absent"
+
+documentation_source_evidence:
+  urls: []
+  api_references: []
+  env_variables: []
+  library_patterns: []
+
+prose_evidence:
+  escape_hatches: []
+  tracking_language: []
+  prescriptive_code:
+    - content: ".opencode/guidelines/020-go-prohibitions.md"
+      location: "## Files Affected, line 84"
+      type: "import_string"
+    - content: ".opencode/guidelines/070-environment.md"
+      location: "## Files Affected, line 85"
+      type: "import_string"
+    - content: "070-environment.md references §4"
+      location: "## Risks, line 90"
+      type: "import_string"
+  cost_frame_language:
+    - sc_id: "SC-15"
+      has_cost_frame: true
+    - sc_id: "SC-1"
+      has_cost_frame: false
+    - sc_id: "SC-2"
+      has_cost_frame: false
+    - sc_id: "SC-3"
+      has_cost_frame: false
+    - sc_id: "SC-4"
+      has_cost_frame: false
+    - sc_id: "SC-5"
+      has_cost_frame: false
+    - sc_id: "SC-6"
+      has_cost_frame: false
+    - sc_id: "SC-7"
+      has_cost_frame: false
+    - sc_id: "SC-8"
+      has_cost_frame: false
+    - sc_id: "SC-9"
+      has_cost_frame: false
+    - sc_id: "SC-10"
+      has_cost_frame: false
+    - sc_id: "SC-11"
+      has_cost_frame: false
+    - sc_id: "SC-12"
+      has_cost_frame: false
+    - sc_id: "SC-13"
+      has_cost_frame: false
+    - sc_id: "SC-14"
+      has_cost_frame: false
+
+reasoning_evidence:
+  root_causes:
+    - text: "020-go-prohibitions.md is ~420 lines / ~43KB. It has significant duplication with other preloaded guidelines (000, 065), internal duplication between sections, an obsolete sub-issue model in §5, and a Node.js-specific prohibition that should be a general .tools/ rule."
+      location: "## Problem, line 9"
+  fix_approaches:
+    - text: "Remove 7 duplicated sections, collapse 2 sections, replace Node.js rule with general .tools/ rule. Keep 6 universal sections."
+      location: "## Proposed Solution (lines 13-51)"
+  sc_to_root_cause:
+    - sc_id: "SC-1"
+      references_root_cause: true
+      root_cause_text: "Duplication with 000 (Orchestrator Context Discipline)"
+    - sc_id: "SC-2"
+      references_root_cause: true
+      root_cause_text: "Obsolete sub-issue model in §5"
+    - sc_id: "SC-3"
+      references_root_cause: true
+      root_cause_text: "Duplication with 000 (Progressive Iterative Implementation)"
+    - sc_id: "SC-4"
+      references_root_cause: true
+      root_cause_text: "Duplication with 000 (stop command)"
+    - sc_id: "SC-5"
+      references_root_cause: true
+      root_cause_text: "Duplication with 000 and 065 (5 lines in §1)"
+    - sc_id: "SC-6"
+      references_root_cause: true
+      root_cause_text: "Duplication with 065 (3 lines in §1.6)"
+    - sc_id: "SC-7"
+      references_root_cause: true
+      root_cause_text: "Internal duplication (3 restated ALWAYS DO lines)"
+    - sc_id: "SC-8"
+      references_root_cause: true
+      root_cause_text: "Duplication with 000 and 065 (10 ALWAYS DO items)"
+    - sc_id: "SC-9"
+      references_root_cause: true
+      root_cause_text: "Redundant section structure (§1.2 is 3 lines)"
+    - sc_id: "SC-10"
+      references_root_cause: true
+      root_cause_text: "Redundant section structure (§1.5 has restated content)"
+    - sc_id: "SC-11"
+      references_root_cause: true
+      root_cause_text: "Node.js-specific prohibition should be general .tools/ rule"
+    - sc_id: "SC-12"
+      references_root_cause: true
+      root_cause_text: "Verification that keep sections survive compaction"
+    - sc_id: "SC-13"
+      references_root_cause: true
+      root_cause_text: "Verification that no content is lost during removal"
+    - sc_id: "SC-14"
+      references_root_cause: true
+      root_cause_text: "Verification that cross-references are updated"
+    - sc_id: "SC-15"
+      references_root_cause: true
+      root_cause_text: "Verification that no line-count metrics are used"
+  alternatives_considered:
+    present: false
+    items: []
+  edge_cases:
+    present: true
+    items:
+      - "Content loss: Removed sections must be verified to exist in 000/065"
+      - "Cross-reference breakage: 070-environment.md references §4"
+  potential_contradictions: []
+
+analytical_artifact_evidence:
+  blast_radius:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/blast-radius.yaml"
+    exists: true
+    size_bytes: 7623
+    modified_at: "2026-07-27T16:20:00Z"
+  concern_map:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/concern-map.yaml"
+    exists: true
+    size_bytes: 7320
+    modified_at: "2026-07-27T16:20:00Z"
+  code_path_inventory:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/code-path-inventory.yaml"
+    exists: true
+    size_bytes: 7321
+    modified_at: "2026-07-27T16:20:00Z"
+  cross_cutting_matrix:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/cross-cutting-matrix.yaml"
+    exists: true
+    size_bytes: 6420
+    modified_at: "2026-07-27T16:20:00Z"
+  interface_compatibility:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/interface-compatibility.yaml"
+    exists: true
+    size_bytes: 5827
+    modified_at: "2026-07-27T16:20:00Z"
+  state_analysis:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/state-analysis.yaml"
+    exists: true
+    size_bytes: 6054
+    modified_at: "2026-07-27T16:20:00Z"
+  testability_assessment:
+    provided: true
+    path: ".opencode/.issues/2127/artifacts/testability-assessment.yaml"
+    exists: true
+    size_bytes: 10993
+    modified_at: "2026-07-27T16:20:00Z"
+
+holistic_dimension_evidence:
+  implementability:
+    single_approach_defined: true
+    sc_count: 15
+    ambiguous_sc_count: 0
+  internal_consistency:
+    cross_section_references: 0
+    preamble_body_alignment_notes: "Problem statement aligns with Proposed Solution. All SCs trace to the problem. No cross-section references within the spec."
+  completeness:
+    undefined_terms: []
+    tbd_todo_markers: 0
+    implicit_dependencies:
+      - "Depends on 000-critical-rules.md compaction (spec #2121) — the duplicated rules must remain in 000"
+  scope_discipline:
+    stated_boundaries: "Remove 7 duplicated sections, collapse 2 sections, replace Node.js rule with general .tools/ rule. Keep 6 universal sections."
+    potential_scope_creep_elements: []
+  testability:
+    scs_with_verification_method: 15
+    scs_without_verification_method: 0
+    subjective_judgment_scs: []
+  provenance:
+    tool_call_evidence_cited: false
+    unsupported_assertions:
+      - "The spec claims duplication with 000/065 without citing tool-call evidence. However, the analytical artifacts (blast-radius, concern-map, cross-cutting-matrix) independently verify these claims."
+  feasibility:
+    referenced_files:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
+    referenced_functions: []
+    referenced_libraries: []
+  safety:
+    destructive_operations:
+      - "Removing sections from 020-go-prohibitions.md (mitigated by SC-13 verification)"
+      - "Removing duplicate section from 070-environment.md"
+    data_loss_scenarios:
+      - "Content loss if removed sections are not actually duplicated in 000/065 (mitigated by SC-13)"
+    security_relevant_changes: []
+  traceability:
+    sc_to_phase_mapping:
+      SC-1: "Phase 1"
+      SC-2: "Phase 1"
+      SC-3: "Phase 1"
+      SC-4: "Phase 1"
+      SC-5: "Phase 2"
+      SC-6: "Phase 2"
+      SC-7: "Phase 2"
+      SC-8: "Phase 3"
+      SC-9: "Phase 4"
+      SC-10: "Phase 4"
+      SC-11: "Phase 5"
+      SC-12: "Phase 6"
+      SC-13: "Phase 6"
+      SC-14: "Phase 6"
+      SC-15: "Phase 6"
+    orphan_scs: []
+    orphan_phases: []
+  correctness:
+    problem_statement: "020-go-prohibitions.md is ~420 lines / ~43KB. It has significant duplication with other preloaded guidelines (000, 065), internal duplication between sections, an obsolete sub-issue model in §5, and a Node.js-specific prohibition that should be a general .tools/ rule."
+    root_cause: "Implicit — the file grew organically without deduplication discipline. Duplicated rules accumulated across 000, 020, and 065. The sub-issue model became obsolete when plans moved to spec folder files."
+    fix_approach: "Remove 7 duplicated sections, collapse 2 sections, replace Node.js rule with general .tools/ rule. Keep 6 universal sections. 6-phase implementation plan with per-phase SC coverage."

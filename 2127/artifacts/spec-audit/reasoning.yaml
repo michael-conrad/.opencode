@@ -1,0 +1,312 @@
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2127
+generated_at: "2026-07-27T16:25:00Z"
+evidence_source: ".opencode/.issues/2127/artifacts/spec-audit/evidence.yaml"
+spec_local_dir: ".opencode/.issues/2127/"
+overall_validation_status: "corrected"
+
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: "body_length_chars"
+        evidence_value: 5368
+        actual_value: 5291
+  - path: "remote.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: false
+      body_length_chars_match: false
+    corrections:
+      - field: "body_length_lines"
+        evidence_value: 43
+        actual_value: 44
+      - field: "body_length_chars"
+        evidence_value: 2040
+        actual_value: 1972
+
+spec_structure_validation:
+  headings:
+    validation_status: "corrected"
+    evidence_count: 18
+    actual_count: 18
+    mismatches:
+      - evidence_heading: "Remove (duplicated in other preloaded guidelines)"
+        actual_heading: "Remove (duplicated in other preloaded guidelines):"
+        type: "text_mismatch"
+      - evidence_heading: "Remove (obsolete)"
+        actual_heading: "Remove (obsolete):"
+        type: "text_mismatch"
+      - evidence_heading: "Collapse"
+        actual_heading: "Collapse:"
+        type: "text_mismatch"
+      - evidence_heading: "Replace"
+        actual_heading: "Replace:"
+        type: "text_mismatch"
+      - evidence_heading: "Keep (universal, not duplicated)"
+        actual_heading: "Keep (universal, not duplicated):"
+        type: "text_mismatch"
+  success_criteria:
+    validation_status: "validated"
+    evidence_row_count: 15
+    actual_row_count: 15
+    mismatches: []
+  phases:
+    validation_status: "validated"
+    evidence_count: 6
+    actual_count: 6
+    mismatches: []
+  files_affected:
+    validation_status: "validated"
+    evidence_paths:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
+    actual_paths:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
+    mismatches: []
+  preamble:
+    validation_status: "validated"
+    evidence_fields_present: []
+    actual_fields_present: []
+    mismatches: []
+  documentation_sources:
+    validation_status: "validated"
+    evidence_sources: []
+    actual_sources: []
+    mismatches: []
+  status_marker:
+    validation_status: "validated"
+    evidence_value: "absent"
+    actual_value: "absent"
+  prose_elements:
+    validation_status: "corrected"
+    mismatches:
+      - element: "tables"
+        evidence_count: 3
+        actual_count: 5
+      - element: "ordered_lists"
+        evidence_count: 1
+        actual_count: 0
+      - element: "unordered_lists"
+        evidence_count: 4
+        actual_count: 4
+        note: "Evidence counts list groups (4), not individual items (11). 4 is correct for list-group counting."
+
+determinism_validation:
+  sc_wording:
+    validation_status: "validated"
+    mismatches: []
+  fail_patterns:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_patterns: []
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_markers: []
+    false_markers: []
+  evidence_type_declarations:
+    validation_status: "validated"
+    mismatches: []
+  verification_methods:
+    validation_status: "validated"
+    mismatches: []
+  failure_description:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_provided: false
+
+documentation_source_validation:
+  urls:
+    validation_status: "validated"
+    mismatches: []
+  api_references:
+    validation_status: "validated"
+    mismatches: []
+  env_variables:
+    validation_status: "validated"
+    mismatches: []
+  library_patterns:
+    validation_status: "validated"
+    mismatches: []
+
+prose_validation:
+  escape_hatches:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_hatches: []
+    false_hatches: []
+  tracking_language:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_instances: []
+    false_instances: []
+  prescriptive_code:
+    validation_status: "validated"
+    evidence_count: 3
+    actual_count: 3
+    missed_instances: []
+    false_instances: []
+  cost_frame_language:
+    validation_status: "validated"
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  fix_approaches:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  sc_to_root_cause:
+    validation_status: "validated"
+    mismatches: []
+  alternatives_considered:
+    validation_status: "validated"
+    evidence_present: false
+    actual_present: false
+    mismatches: []
+  edge_cases:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    evidence_count: 2
+    actual_count: 2
+    missed_cases: []
+  potential_contradictions:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    false_contradictions: []
+    missed_contradictions: []
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  concern_map:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  code_path_inventory:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  cross_cutting_matrix:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  interface_compatibility:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  state_analysis:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+  testability_assessment:
+    validation_status: "corrected"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches:
+      - field: "modified_at"
+        evidence_value: "2026-07-27T16:20:00Z"
+        actual_value: "2026-07-27T16:21:29Z"
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: "validated"
+    mismatches: []
+  internal_consistency:
+    validation_status: "validated"
+    mismatches: []
+  completeness:
+    validation_status: "validated"
+    mismatches: []
+    missed_undefined_terms: []
+    missed_implicit_dependencies: []
+  scope_discipline:
+    validation_status: "validated"
+    mismatches: []
+  testability:
+    validation_status: "validated"
+    mismatches: []
+  provenance:
+    validation_status: "validated"
+    mismatches: []
+  feasibility:
+    validation_status: "validated"
+    mismatches: []
+    missed_referenced_files: []
+    missed_referenced_functions: []
+  safety:
+    validation_status: "validated"
+    mismatches: []
+  traceability:
+    validation_status: "validated"
+    mismatches: []
+  correctness:
+    validation_status: "validated"
+    mismatches: []
+
+unvalidated_items: []
+
+corrections_summary:
+  total_corrections: 17
+  sections_affected:
+    - "spec_files_validation"
+    - "spec_structure_validation"
+    - "analytical_artifact_validation"
