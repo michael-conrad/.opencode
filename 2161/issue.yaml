@@ -26,17 +26,50 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   Three signal sources exist:
 
 
-  1. **`### Status` in issue body** — proposed by #2159 (now closed, wrong approach)
+  1. **`### Status` in issue body** — proposed by #2159 (now closed, wrong approach).
+  Verified: `grep "### Status" .opencode/skills/approval-gate-scope/tasks/` returns
+  zero matches — the field is already absent from all task files in the approval-gate-scope
+  skill.
 
-  2. **GitHub API labels** — read by cascade, but require API availability
+  2. **GitHub API labels** — read by cascade, but require API availability. Verified:
+  gap-fill cascade files (`for-pr.md`, `for-implementation.md`, `for-plan.md`) already
+  read `issue.yaml` labels via `local-issues read` — not GitHub API.
 
   3. **`issue.yaml` labels** — written by `record-authorization` but never consumed
-  by the gap-fill cascade
+  by the gap-fill cascade. Verified: `record-authorization.md` Step 4 writes `approved-for-{scope}`
+  to `issue.yaml` labels locally. Gap-fill cascade reads `issue.yaml` labels.
 
 
   These three sources can disagree, causing agent paralysis or vibe coding. The fix
   consolidates on `issue.yaml` labels as the single source of truth, with local-first
   writes and best-effort remote mirroring.
+
+
+  ### Current State (verified 2026-07-27)
+
+
+  | Component | Status | Evidence |
+
+  |-----------|--------|----------|
+
+  | `_create_issue_files()` | Already calls `_ensure_needs_approval()` which ensures
+  `needs-approval` is first in labels | `.opencode/tools/local-issues:910-927` |
+
+  | `_ensure_needs_approval()` | Exists, ensures `needs-approval` is always in labels
+  list | `.opencode/tools/local-issues:901-907` |
+
+  | `### Status` in `record-authorization.md` | Already absent — zero matches in `approval-gate-scope/tasks/`
+  | `grep "### Status" .opencode/skills/approval-gate-scope/tasks/` → 0 matches |
+
+  | Gap-fill cascade label reads | Already reads `issue.yaml` labels via `local-issues
+  read` | `for-pr.md:18`, `for-implementation.md:18`, `for-plan.md:18` |
+
+  | `record-authorization.md` label writes | Already writes `approved-for-{scope}`
+  to `issue.yaml` locally | `verify-authorization/record-authorization.md:40`, `tasks/record-authorization.md:75`
+  |
+
+  | SC-7 critical violation | Already exists in `000-critical-rules.md:281` as `[critical-rules-073]`
+  | `grep "intent to modify" .opencode/guidelines/000-critical-rules.md` → found |
 
 
   ## Not Included
@@ -53,33 +86,43 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   ## Success Criteria
 
 
-  | ID | Criterion | Evidence Type |
+  | ID | Criterion | Evidence Type | Verification Method |
 
-  |----|-----------|---------------|
+  |----|-----------|---------------|---------------------|
 
   | SC-1 | `local-issues create` auto-applies `needs-approval` label to every new
-  issue''s `issue.yaml` | `string` |
+  issue''s `issue.yaml` | `string` | `grep "_ensure_needs_approval" .opencode/tools/local-issues`
+  — confirm function exists and is called by `_create_issue_files` |
 
   | SC-2 | Agent verifies `needs-approval` label exists in local `issue.yaml` after
-  creation — if missing, agent remediates | `behavioral` |
+  creation — if missing, agent remediates | `behavioral` | `opencode run "create issue"`
+  → assert stderr contains `local-issues read` or `local-issues update --labels +needs-approval`
+  |
 
   | SC-3 | Agent verifies `needs-approval` label exists on remote issue after creation
-  — if missing, agent remediates | `behavioral` |
+  — if missing, agent remediates | `behavioral` | `opencode run "create issue"` →
+  assert stderr contains `github_issue_read` with `get_labels` or `github_issue_add_labels`
+  |
 
   | SC-4 | `record-authorization.md` writes `approved-for-{scope}` label to `issue.yaml`
-  locally before any remote operation | `string` |
+  locally before any remote operation | `string` | `grep "approved-for-{scope}" .opencode/skills/approval-gate-scope/tasks/record-authorization.md`
+  — confirm local-first order |
 
   | SC-5 | Gap-fill cascade reads authorization state from `issue.yaml` labels (not
-  GitHub API) | `string` |
+  GitHub API) | `string` | `grep "issue.yaml" .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/*.md`
+  — confirm all files read local labels |
 
   | SC-6 | `### Status` field removed from issue body template and `record-authorization.md`
-  | `string` |
+  | `string` | `grep "### Status" .opencode/skills/approval-gate-scope/tasks/` — confirm
+  zero matches |
 
   | SC-7 | New critical violation: reading source files with intent to modify without
-  `for_implementation`+ scope | `string` |
+  `for_implementation`+ scope | `string` | `grep "intent to modify" .opencode/guidelines/000-critical-rules.md`
+  — confirm `[critical-rules-073]` section present |
 
   | SC-8 | Agent reads `issue.yaml` labels to determine approval state, not body prose
-  | `behavioral` |
+  | `behavioral` | `opencode run "check approval state for issue N"` → assert stderr
+  contains `issue.yaml` read, not body prose grep |
 
 
   ## Requirements
@@ -125,22 +168,23 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
 
   |------|-----|-------------|
 
-  | 1 | SC-1 | Change `_create_issue_files()` labels default from `[]` to `["needs-approval"]`
-  |
+  | 1 | SC-1 | Verify `_create_issue_files()` already calls `_ensure_needs_approval()`
+  — add behavioral test confirming agent behavior |
 
   | 2 | SC-2, SC-3 | Add verification step after creation: agent reads local `issue.yaml`
   and remote labels, remediates if `needs-approval` missing from either |
 
-  | 3 | SC-4 | Rewrite `record-authorization.md` Step 4: local-first label write,
-  then remote mirror, then remove `needs-approval` |
+  | 3 | SC-4 | Verify `record-authorization.md` already writes `approved-for-{scope}`
+  to `issue.yaml` locally — add behavioral test |
 
-  | 4 | SC-5 | Update gap-fill cascade to read `issue.yaml` labels via `local-issues
-  read` instead of GitHub API |
+  | 4 | SC-5 | Verify gap-fill cascade already reads `issue.yaml` labels — add behavioral
+  test |
 
-  | 5 | SC-6 | Remove `### Status` field from `record-authorization.md` procedure
-  and exit criteria |
+  | 5 | SC-6 | Verify `### Status` already absent from `record-authorization.md` —
+  add structural test |
 
-  | 6 | SC-7 | Add Tier 1 critical violation to `000-critical-rules.md` |
+  | 6 | SC-7 | Verify `[critical-rules-073]` already exists in `000-critical-rules.md`
+  — add structural test |
 
   | 7 | SC-8 | Add behavioral enforcement test verifying agent reads `issue.yaml`
   labels, not body prose |
@@ -179,6 +223,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   | REQ-12 | SC-8 | 7 |
 
   '
-updated_at: '2026-07-27T02:30:23+00:00'
+updated_at: '2026-07-27T14:37:36+00:00'
 labels:
 - +approved-for-pr
