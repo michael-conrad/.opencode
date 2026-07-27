@@ -29,6 +29,7 @@ Validator role for the content-audit chain. Reads `evidence.yaml` produced by th
 - `document_section` provided — the generated content section containing claims to verify. MUST be non-empty text.
 - `source_data_paths` provided — local file paths to source data that the claims reference. No GitHub routing fields — verification is against local source data only.
 - `artifact_evidence_dir` provided — writable directory for reasoning artifacts
+- PRELOADED_CONTEXT_REJECTED: Sub-agent MUST return BLOCKED with PRELOADED_CONTEXT_REJECTED if task() prompt contains preloaded context (inline file paths, step definitions, expected outcomes, or orchestrator-derived conclusions)
 
 ## Exit Criteria
 
