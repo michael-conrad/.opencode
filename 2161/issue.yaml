@@ -45,7 +45,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   writes and best-effort remote mirroring.
 
 
-  ### Current State (verified 2026-07-27)
+  ### Current State (last verified: 2026-07-27T14:36Z via live grep + srclight)
 
 
   | Component | Status | Evidence |
@@ -190,6 +190,128 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   labels, not body prose |
 
 
+  ## Edge Cases
+
+
+  | Condition | Expected Behavior | Recovery |
+
+  |-----------|------------------|----------|
+
+  | `local-issues read` fails (tool unavailable) | Agent reports BLOCKED with `ISSUES_WORKTREE_NOT_INITIALIZED`
+  | Developer runs `local-issues init` to bootstrap worktree |
+
+  | GitHub API unreachable for remote label verification | Agent skips remote verification,
+  proceeds with local-only state | Remote label sync occurs on next `local-issues
+  sync` cycle |
+
+  | `issue.yaml` missing `labels` field entirely | Agent treats as empty labels list,
+  remediates by adding `needs-approval` | `local-issues update --labels +needs-approval`
+  creates the field |
+
+  | `issue.yaml` has malformed YAML | Agent reports BLOCKED with `MALFORMED_ISSUE_YAML`
+  | Developer fixes YAML syntax in `.issues/{N}/issue.yaml` |
+
+  | Concurrent label modification (local write succeeds, remote write fails) | Local
+  state is authoritative — remote is best-effort mirror | Remote inconsistency resolved
+  on next `local-issues sync` |
+
+  | Issue creation fails before label write | No issue created — no label state to
+  manage | Agent retries creation; if persistent, reports BLOCKED |
+
+  | `needs-approval` already present in labels | Idempotent — no change needed | Agent
+  skips update, reports success |
+
+  | `approved-for-{scope}` write to `issue.yaml` fails | Agent reports BLOCKED with
+  `COMMIT_FAILED` | Developer resolves git conflict in `.issues/` worktree |
+
+
+  ## Documentation Sources
+
+
+  | Source | Path | Purpose |
+
+  |--------|------|---------|
+
+  | `local-issues` tool | `.opencode/tools/local-issues` | Issue creation, label read/write,
+  worktree management |
+
+  | `record-authorization.md` | `.opencode/skills/approval-gate-scope/tasks/record-authorization.md`
+  | Local-first label write procedure |
+
+  | `record-authorization.md` (verify-authorization) | `.opencode/skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md`
+  | Authorization recording with `issue.yaml` label update |
+
+  | Gap-fill cascade files | `.opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/for-*.md`
+  | Authorization state reading from `issue.yaml` labels |
+
+  | `000-critical-rules.md` | `.opencode/guidelines/000-critical-rules.md` | Tier
+  1 critical violation definitions |
+
+  | GitHub API (label operations) | `github_issue_read(method=get_labels)`, `github_issue_add_labels`
+  | Remote label verification and mirroring |
+
+
+  ## Cost Frame
+
+
+  Verification cost is measured in **defect-discovery-latency (DDL)** — the time between
+  defect introduction and discovery. Shorter DDL means cheaper fixes; longer DDL means
+  exponentially compounding cost.
+
+
+  | SC | DDL Frame | Death Spiral Risk | Break Point |
+
+  |----|-----------|-------------------|-------------|
+
+  | SC-1 | String grep — ~1s execution, catches missing `_ensure_needs_approval` at
+  commit time | Low — structural check at pre-commit gate | Pre-commit |
+
+  | SC-2 | Behavioral test — ~2min execution, catches agent skipping local label verification
+  | Medium — behavioral defect would ship to CI | Pre-PR |
+
+  | SC-3 | Behavioral test — ~2min execution, catches agent skipping remote label
+  verification | Medium — behavioral defect would ship to CI | Pre-PR |
+
+  | SC-4 | String grep — ~1s execution, catches wrong write order | Low — structural
+  check at pre-commit gate | Pre-commit |
+
+  | SC-5 | String grep — ~1s execution, catches wrong label source | Low — structural
+  check at pre-commit gate | Pre-commit |
+
+  | SC-6 | String grep — ~1s execution, catches `### Status` re-introduction | Low
+  — structural check at pre-commit gate | Pre-commit |
+
+  | SC-7 | String grep — ~1s execution, catches missing critical violation | Low —
+  structural check at pre-commit gate | Pre-commit |
+
+  | SC-8 | Behavioral test — ~2min execution, catches agent reading body prose instead
+  of labels | High — behavioral defect would cause agent paralysis in production |
+  Pre-PR |
+
+
+  ## SC Enforcement Gate
+
+
+  **All SCs MUST pass before this fix is considered complete. No partial delivery
+  is permitted — if any SC fails, the entire fix is BLOCKED until remediation resolves
+  the failure.** This is a hard gate: a single FAIL among the 8 SCs blocks advancement
+  to PR creation. The 3 behavioral SCs (SC-2, SC-3, SC-8) require clean-room semantic
+  evaluation — grep/string evidence is insufficient for behavioral SCs.
+
+
+  ## Note on SC-7 Scope
+
+
+  SC-7 (new critical violation for read-with-intent-to-modify) addresses a related
+  but independent concern from the spec''s primary root cause (three-way signal disagreement).
+  SC-7 was included because it shares implementation scope with the label YAML changes
+  (both modify `000-critical-rules.md` and `approval-gate-scope` task files). It is
+  not orphaned — it is a co-located improvement that benefits from the same implementation
+  pass. The root cause for SC-7 is: "The agent currently has no explicit prohibition
+  against reading source files with intent to modify without authorization scope,
+  creating an implicit self-authorization loophole."
+
+
   ## Dependencies
 
 
@@ -223,6 +345,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   | REQ-12 | SC-8 | 7 |
 
   '
-updated_at: '2026-07-27T14:37:36+00:00'
+updated_at: '2026-07-27T15:04:06+00:00'
 labels:
 - +approved-for-pr

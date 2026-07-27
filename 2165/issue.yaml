@@ -1,5 +1,6 @@
 title: '[SPEC] Self-contained GitBucket test container for behavioral test harness'
 status: open
+remote_number: 2165
 labels:
 - needs-approval
 - spec
