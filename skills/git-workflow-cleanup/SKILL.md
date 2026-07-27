@@ -33,7 +33,6 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 
 ### Sub-Agent Entry Criteria
 
-1. Sub-agent MUST return `PRELOADED_CONTEXT_REJECTED` if the task() prompt contains preloaded file paths, step definitions, expected outcomes, or orchestrator reasoning
 2. Sub-agent loads task file content independently — never from orchestrator context
 3. Sub-agent reads source files, runs analysis tools, executes tests freely
 4. Sub-agent returns only routing-significant data: status, finding_summary, artifact_path, blocker_reason

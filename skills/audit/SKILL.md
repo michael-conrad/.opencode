@@ -13,7 +13,7 @@ compatibility: opencode
 
 Audit via clean-room sub-agents. Each audit task is a self-contained procedure dispatched to a clean-room sub-agent via `task(subagent_type="general")`. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
 
-Spec-audit now validates analytical artifacts in addition to structural spec content. The 7 analytical artifacts are: blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, and testability assessment. Missing analytical artifacts produce a BLOCK/HALT; stale artifacts (older than the spec revision) produce a HALT.
+Spec-audit now validates analytical artifacts in addition to structural spec content. The 7 analytical artifacts are: blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, and testability assessment. Missing or stale analytical artifacts produce a BLOCK; the orchestrator routes to `writing-plans --task backfill` with `mode: retroactive` for auto-generation.
 
 ## Persona
 
@@ -29,7 +29,26 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
-- [ ] 5. **Analytical artifact validation required before audit tasks.** Spec-audit requires all 7 analytical artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment). Concern-separation requires concern-map. Plan-fidelity requires interface-compatibility. Verification-audit requires code-path-inventory. Cross-validate requires cross-cutting-matrix. Coherence-maintenance requires state-analysis. Test-quality-audit requires testability-assessment. Missing artifacts produce BLOCK/HALT; stale artifacts produce HALT.
+- [ ] 5. **Analytical artifact validation required before audit tasks.** Spec-audit requires all 7 analytical artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment). Concern-separation requires concern-map. Plan-fidelity requires interface-compatibility. Verification-audit requires code-path-inventory. Cross-validate requires cross-cutting-matrix. Coherence-maintenance requires state-analysis. Test-quality-audit requires testability-assessment. Three artifact-missing scenarios are distinguished by where the detection occurs:
+
+   - **(a) Missing at orchestration level** — orchestrator detects missing artifacts during pre-audit readiness check. Route to retroactive generation: dispatch `writing-plans --task backfill` with `mode: retroactive` context. The backfill task generates missing artifacts from the spec body.
+   - **(b) Missing discovered by sub-agent** — sub-agent detects missing artifacts during audit execution. Return `REMEDIATION_REQUIRED` with `remediation_action` specifying backfill dispatch and `remediation_context` containing `{issue_number, project_root, mode: retroactive}`. The orchestrator inspects `remediation_action`, dispatches backfill, then re-dispatches the sub-agent.
+   - **(c) Stale artifacts** — artifacts exist but their content is outdated relative to the current spec. HALT. Report staleness with stale artifact paths and the SCs whose evidence is affected. The orchestrator MUST NOT route to backfill (which operates from the spec body and would reproduce the same outdated content). Developer intervention is required to resolve spec-artifact divergence.
+
+## Sub-Agent Result Contract Schema
+
+All sub-agents dispatched from this skill MUST return a result contract with the following structure:
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `status` | Yes | `DONE` / `BLOCKED` / `OVERFLOW` / `REMEDIATION_REQUIRED` | Execution outcome |
+| `finding_summary` | Yes | string | 1-3 sentence routing-significant summary |
+| `artifact_path` | Yes | string | Path to full evidence on disk |
+| `blocker_reason` | If BLOCKED | string | Why blocked |
+| `remediation_action` | If REMEDIATION_REQUIRED | string | The action the orchestrator must take to resolve the issue |
+| `remediation_context` | If REMEDIATION_REQUIRED | dict | Context data needed to execute the remediation action (paths, parameters, etc.) |
+
+**`REMEDIATION_REQUIRED`** means the sub-agent found a problem that is not a simple blocker — it is a solvable issue with a defined remediation path. The orchestrator MUST inspect `remediation_action` and `remediation_context`, execute the remediation, then re-dispatch the sub-agent. Unlike BLOCKED (which halts the pipeline), REMEDIATION_REQUIRED carries a forward path to resolution.
 
 ## Mandatory Remediation Procedure for Audit FAIL
 
@@ -62,14 +81,7 @@ Each row dispatches 4 sequential `task()` calls — one per DiMo role (Investiga
 | "content audit" / "audit content claims" | `content-audit` | `sub-task` (DiMo chain) | {document_section, source_data_paths, role_chain: [investigator, validator, evaluator, arbiter]} |
 | "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
 | "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, remediation_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
-| "blast-radius artifact missing" | HALT | — | — |
-| "concern-map artifact missing" | HALT | — | — |
-| "code-path-inventory artifact missing" | HALT | — | — |
-| "cross-cutting-matrix artifact missing" | HALT | — | — |
-| "interface-compatibility artifact missing" | HALT | — | — |
-| "state-analysis artifact missing" | HALT | — | — |
-| "testability-assessment artifact missing" | HALT | — | — |
-| "stale analytical artifacts" | HALT | — | — |
+| "analytical artifacts missing" / artifacts needed but not found | `writing-plans --task backfill` | `sub-task` | {issue_number, project_root, mode: retroactive} |
 | completion / workflow end | `completion` | `sub-task` (DiMo chain) | {workflow_state, role_chain: [investigator, validator, evaluator, arbiter]} |
 
 ## Tasks

@@ -74,7 +74,7 @@ When the agent needs to verify authorization with minimal checks — no gap-fill
 
 2. **Record authorization** — Write session authorization into persistent issue state
    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md\` and follow its instructions. Issue: {issue_number}."`
-   - Context: `{issue_number, issues_prefix, project_root}`
+   - Context: `{issue_number, issues_prefix, project_root, github.owner, github.repo}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 3. **Verify recording** — Read back recorded state and confirm it matches what was written
@@ -103,7 +103,7 @@ When the agent needs to verify authorization and fill in missing artifacts (spec
 
 2. **Record authorization** — Write session authorization into persistent issue state
    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md\` and follow its instructions. Issue: {issue_number}."`
-   - Context: `{issue_number, issues_prefix, project_root}`
+   - Context: `{issue_number, issues_prefix, project_root, github.owner, github.repo}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 3. **Verify recording** — Read back recorded state and confirm it matches what was written
@@ -132,7 +132,7 @@ When the agent needs to verify authorization with all gates — item decompositi
 
 2. **Record authorization** — Write session authorization into persistent issue state
    - Prompt: `"Read \`skills/approval-gate-scope/tasks/verify-authorization/record-authorization.md\` and follow its instructions. Issue: {issue_number}."`
-   - Context: `{issue_number, issues_prefix, project_root}`
+   - Context: `{issue_number, issues_prefix, project_root, github.owner, github.repo}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 3. **Verify recording** — Read back recorded state and confirm it matches what was written
@@ -270,8 +270,6 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
-
-Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ### Orchestrator Entry Criteria
 

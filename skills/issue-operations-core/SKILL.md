@@ -91,8 +91,6 @@ The orchestrator MUST NOT preload execution context into `task()` prompts. Every
 
 ### Sub-Agent Entry Criteria
 
-A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains inline file paths, inline step definitions, expected outcome structures, or pre-loaded evidence. Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
-
 ### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST use the exact `task(..., prompt: "...")` string from the table — NOT write a custom prompt with preloaded context.

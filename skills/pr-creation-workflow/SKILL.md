@@ -104,16 +104,6 @@ Exclusions (MUST NOT be in prompt):
 - `agent_memory`
 - `cached_verification_results`
 
-#### Sub-Agent Entry Criteria
-
-A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-- Inline file paths to task files
-- Inline step or procedure definitions
-- Expected outcome structures or schema constraints
-- Pre-loaded evidence or orchestrator-derived conclusions
-
-Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
-
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
