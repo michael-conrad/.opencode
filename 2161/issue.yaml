@@ -124,6 +124,11 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   | `behavioral` | `opencode run "check approval state for issue N"` → assert stderr
   contains `issue.yaml` read, not body prose grep |
 
+  | SC-9 | `spec-audit-evaluator.md` removes SC-ADMONISHMENT from narrow criteria
+  list and Step 5i (admonishments are skill-card-specific, not a spec concern) | `string`
+  | `grep "SC-ADMONISHMENT" .opencode/skills/audit/tasks/spec-audit-evaluator.md`
+  — confirm zero matches |
+
 
   ## Requirements
 
@@ -160,6 +165,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
 
   12. Agent SHALL read `issue.yaml` labels to determine approval state, not body prose
 
+  13. `spec-audit-evaluator.md` SHALL remove SC-ADMONISHMENT from narrow criteria
+  list and Step 5i (admonishments are skill-card-specific, not a spec concern)
+
 
   ## Items
 
@@ -188,6 +196,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
 
   | 7 | SC-8 | Add behavioral enforcement test verifying agent reads `issue.yaml`
   labels, not body prose |
+
+  | 8 | SC-9 | Remove SC-ADMONISHMENT from `spec-audit-evaluator.md` narrow criteria
+  list and Step 5i |
 
 
   ## Edge Cases
@@ -288,13 +299,16 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
   of labels | High — behavioral defect would cause agent paralysis in production |
   Pre-PR |
 
+  | SC-9 | String grep — ~1s execution, catches SC-ADMONISHMENT re-introduction in
+  evaluator task | Low — structural check at pre-commit gate | Pre-commit |
+
 
   ## SC Enforcement Gate
 
 
   **All SCs MUST pass before this fix is considered complete. No partial delivery
   is permitted — if any SC fails, the entire fix is BLOCKED until remediation resolves
-  the failure.** This is a hard gate: a single FAIL among the 8 SCs blocks advancement
+  the failure.** This is a hard gate: a single FAIL among the 9 SCs blocks advancement
   to PR creation. The 3 behavioral SCs (SC-2, SC-3, SC-8) require clean-room semantic
   evaluation — grep/string evidence is insufficient for behavioral SCs.
 
@@ -344,7 +358,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2161/`](https://github.c
 
   | REQ-12 | SC-8 | 7 |
 
+  | REQ-13 | SC-9 | 8 |
+
   '
-updated_at: '2026-07-27T15:04:06+00:00'
 labels:
 - +approved-for-pr
+updated_at: '2026-07-27T15:40:17+00:00'

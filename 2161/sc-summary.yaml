@@ -1,4 +1,4 @@
-sc_count: 8
+sc_count: 9
 scs:
   - id: "SC-1"
     description: "local-issues create auto-applies needs-approval label to every new issue's issue.yaml"
@@ -32,3 +32,7 @@ scs:
     description: "Agent reads issue.yaml labels to determine approval state, not body prose"
     evidence_type: "behavioral"
     plan_item: 7
+  - id: "SC-9"
+    description: "spec-audit-evaluator.md removes SC-ADMONISHMENT from narrow criteria list and Step 5i"
+    evidence_type: "string"
+    plan_item: 8

@@ -47,6 +47,7 @@ These three sources can disagree, causing agent paralysis or vibe coding. The fi
 | SC-6 | `### Status` field removed from issue body template and `record-authorization.md` | `string` | `grep "### Status" .opencode/skills/approval-gate-scope/tasks/` — confirm zero matches |
 | SC-7 | New critical violation: reading source files with intent to modify without `for_implementation`+ scope | `string` | `grep "intent to modify" .opencode/guidelines/000-critical-rules.md` — confirm `[critical-rules-073]` section present |
 | SC-8 | Agent reads `issue.yaml` labels to determine approval state, not body prose | `behavioral` | `opencode run "check approval state for issue N"` → assert stderr contains `issue.yaml` read, not body prose grep |
+| SC-9 | `spec-audit-evaluator.md` removes SC-ADMONISHMENT from narrow criteria list and Step 5i (admonishments are skill-card-specific, not a spec concern) | `string` | `grep "SC-ADMONISHMENT" .opencode/skills/audit/tasks/spec-audit-evaluator.md` — confirm zero matches |
 
 ## Requirements
 
@@ -62,6 +63,7 @@ These three sources can disagree, causing agent paralysis or vibe coding. The fi
 10. `### Status` field SHALL be removed from `record-authorization.md` procedure
 11. `000-critical-rules.md` SHALL include a Tier 1 critical violation: reading source files with intent to modify constitutes implicit self-authorization
 12. Agent SHALL read `issue.yaml` labels to determine approval state, not body prose
+13. `spec-audit-evaluator.md` Step 5i SHALL emit PASS (not N/A) for non-skill/task card audits
 
 ## Items
 
@@ -74,6 +76,7 @@ These three sources can disagree, causing agent paralysis or vibe coding. The fi
 | 5 | SC-6 | Verify `### Status` already absent from `record-authorization.md` — add structural test |
 | 6 | SC-7 | Verify `[critical-rules-073]` already exists in `000-critical-rules.md` — add structural test |
 | 7 | SC-8 | Add behavioral enforcement test verifying agent reads `issue.yaml` labels, not body prose |
+| 8 | SC-9 | Fix `spec-audit-evaluator.md` Step 5i to emit PASS (not N/A) for non-skill/task card audits |
 
 ## Edge Cases
 
@@ -113,10 +116,11 @@ Verification cost is measured in **defect-discovery-latency (DDL)** — the time
 | SC-6 | String grep — ~1s execution, catches `### Status` re-introduction | Low — structural check at pre-commit gate | Pre-commit |
 | SC-7 | String grep — ~1s execution, catches missing critical violation | Low — structural check at pre-commit gate | Pre-commit |
 | SC-8 | Behavioral test — ~2min execution, catches agent reading body prose instead of labels | High — behavioral defect would cause agent paralysis in production | Pre-PR |
+| SC-9 | String grep — ~1s execution, catches N/A re-introduction in evaluator task | Low — structural check at pre-commit gate | Pre-commit |
 
 ## SC Enforcement Gate
 
-**All SCs MUST pass before this fix is considered complete. No partial delivery is permitted — if any SC fails, the entire fix is BLOCKED until remediation resolves the failure.** This is a hard gate: a single FAIL among the 8 SCs blocks advancement to PR creation. The 3 behavioral SCs (SC-2, SC-3, SC-8) require clean-room semantic evaluation — grep/string evidence is insufficient for behavioral SCs.
+**All SCs MUST pass before this fix is considered complete. No partial delivery is permitted — if any SC fails, the entire fix is BLOCKED until remediation resolves the failure.** This is a hard gate: a single FAIL among the 9 SCs blocks advancement to PR creation. The 3 behavioral SCs (SC-2, SC-3, SC-8) require clean-room semantic evaluation — grep/string evidence is insufficient for behavioral SCs.
 
 ## Note on SC-7 Scope
 
@@ -139,3 +143,4 @@ SC-7 (new critical violation for read-with-intent-to-modify) addresses a related
 | REQ-10 | SC-6 | 5 |
 | REQ-11 | SC-7 | 6 |
 | REQ-12 | SC-8 | 7 |
+| REQ-13 | SC-9 | 8 |

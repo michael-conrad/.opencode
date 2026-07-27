@@ -21,6 +21,9 @@ dispatch:
   - phase: 6
     skill: implementation-pipeline
     task: red-phase
+  - phase: 7
+    skill: implementation-pipeline
+    task: green-phase
 ---
 
 # Implementation Plan — Issue 2161
@@ -318,6 +321,42 @@ dispatch:
   - (**sub-agent**) — `task(..., prompt: "execute commit-prep from git-workflow. Read `git-workflow/tasks/commit-prep.md` first")`
   - Context: `{issue_number: 2161, sc: SC-8}`
 
+## Phase 7: Remove SC-ADMONISHMENT from spec-audit-evaluator (SC-9)
+
+### Item 1 (SC-9) — Remove SC-ADMONISHMENT from narrow criteria list and Step 5i
+
+- [ ] **red-phase.** Write a structural RED test: grep for `SC-ADMONISHMENT` in `spec-audit-evaluator.md`, confirm present.
+  - (**sub-agent**) — `task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+- [ ] **z3-check-red.** Solve check RED.
+  - (**inline**)
+- [ ] **red-doublecheck.** Verify RED.
+  - (**sub-agent**) — `task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+- [ ] **z3-check-red-doublecheck.** Solve check RED doublecheck.
+  - (**inline**)
+- [ ] **post-red-enforcement.** RED gate.
+  - (**sub-agent**) — `task(..., prompt: "execute post-red-enforcement from implementation-pipeline. Read `implementation-pipeline/tasks/post-red-enforcement.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+- [ ] **z3-check-post-red.** Solve check post-RED.
+  - (**inline**)
+- [ ] **green-phase.** Remove `SC-ADMONISHMENT` from the narrow criteria list in the exit criteria section. Remove Step 5i entirely. Already applied — verify the change is correct.
+  - (**sub-agent**) — `task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+- [ ] **z3-check-green.** Solve check GREEN.
+  - (**inline**)
+- [ ] **post-green-enforcement.** GREEN gate.
+  - (**sub-agent**) — `task(..., prompt: "execute post-green-enforcement from implementation-pipeline. Read `implementation-pipeline/tasks/post-green-enforcement.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+- [ ] **z3-check-post-green.** Solve check post-GREEN.
+  - (**inline**)
+- [ ] **checkpoint-tag-create.** Create checkpoint tag for Phase 7 Item 1.
+  - (**sub-agent**) — `task(..., prompt: "execute checkpoint-tag-create from implementation-pipeline. Read `implementation-pipeline/tasks/checkpoint-tag-create.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+- [ ] **checkpoint-commit.** Commit the change: `git add .opencode/skills/audit/tasks/spec-audit-evaluator.md && git commit -m "fix: remove SC-ADMONISHMENT from spec-audit-evaluator — admonishments are skill-card-specific, not a spec concern"`.
+  - (**sub-agent**) — `task(..., prompt: "execute commit-prep from git-workflow. Read `git-workflow/tasks/commit-prep.md` first")`
+  - Context: `{issue_number: 2161, sc: SC-9}`
+
 ## Post-Implementation
 
 - [ ] **Structural checks.** Run lint/typecheck/format on all modified files.
@@ -360,6 +399,7 @@ dispatch:
 | Timestamp | Event | Details |
 |-----------|-------|---------|
 | 2026-07-26T22:52:00Z | `plan_created` | Plan file created at `.opencode/.issues/2161/plan.md` with 6 phases, 8 SCs |
+| 2026-07-27T15:20:00Z | `plan_updated` | Added Phase 7 (SC-9) — fix spec-audit-evaluator N/A defect |
 
 ## Exit Criteria
 
@@ -373,3 +413,4 @@ dispatch:
 | SC-2 | 4 — Behavioral test: needs-approval local | behavioral test execution | behavioral |
 | SC-3 | 5 — Behavioral test: needs-approval remote | behavioral test execution | behavioral |
 | SC-8 | 6 — Behavioral test: issue.yaml labels | behavioral test execution | behavioral |
+| SC-9 | 7 — Fix spec-audit-evaluator N/A defect | grep for PASS not N/A in spec-audit-evaluator.md | string |
