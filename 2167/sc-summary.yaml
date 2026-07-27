@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: SC-1
+    description: "Audit SKILL.md scenario (c) changed: stale artifacts trigger auto-delete + backfill, not HALT"
+    evidence_type: string
+    plan_item: 1
+  - id: SC-2
+    description: "Audit SKILL.md scenario (c) includes explicit instruction to delete stale artifact files before routing to backfill"
+    evidence_type: string
+    plan_item: 1
+  - id: SC-3
+    description: "spec-creation/tasks/revise.md includes a step to delete stale artifacts after revision"
+    evidence_type: string
+    plan_item: 2
+  - id: SC-4
+    description: "No orphaned cross-references to old developer intervention required language"
+    evidence_type: string
+    plan_item: 3
+  - id: SC-5
+    description: "All 3 artifact-missing scenarios (a, b, c) now route to backfill uniformly"
+    evidence_type: semantic
+    plan_item: 3

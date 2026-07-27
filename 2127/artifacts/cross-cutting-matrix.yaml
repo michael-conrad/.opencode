@@ -1,166 +1,86 @@
-artifact: cross-cutting-matrix
+# cross-cutting-matrix.yaml — Spec #2127: 020-go-prohibitions.md compaction
+# Generated: 2026-07-27
+# Cross-cutting concerns across sections
+
+artifact_type: cross-cutting-matrix
 spec: 2127
-generated: 2026-07-27T16:20:00Z
-description: >
-  Cross-cutting concerns that span multiple sections of 020-go-prohibitions.md
-  and/or appear in multiple guideline files. Identifies which concerns are
-  duplicated, which are unique, and which need coordination during compaction.
+generated: 2026-07-27
 
-concerns:
-  - concern: "Cost-blind verification"
-    appears_in_020:
-      - "§1 lines 64-73 (5 duplicated lines)"
-      - "§1 line 226 (ALWAYS DO item)"
-    appears_in_other:
-      - "000-critical-rules.md — Tier 1 mandate"
-      - "065-verification-honesty.md — Cost Model, Anti-Evasion Rules"
-      - "080-code-standards.md — Evidence Type Taxonomy"
-    disposition: >
-      Remove from 020 (duplicated in 000 and 065). Keep the unique
-      cost-blind framing in 020 §1 line 226 if it adds 020-specific
-      context; otherwise remove.
+cross_cutting_concerns:
+  - concern: "Authorization discipline"
+    sections_affected:
+      - "§1 What GO Is Not & Self-Authorization Prohibitions"
+      - "§1.5 Soliciting Authorization"
+      - "§2 Iterative Feedback & Plan Revision"
+      - "critical-rules-027 (Confirmation ≠ Authorization)"
+      - "critical-rules-027 (Feedback ≠ Authorization)"
+    impact: low — §1.5 collapsed into §1; all authorization rules remain in §1
+    action: preserve all authorization rules in §1
 
-  - concern: "Continue waiver / session momentum"
-    appears_in_020:
-      - "§1 line 64 (5 duplicated lines)"
-      - "§1 line 225 (ALWAYS DO item)"
-      - "§1.1 line 225 (duplicated ALWAYS DO)"
-    appears_in_other:
-      - "000-critical-rules.md — Gate Non-Waiver Principle"
-    disposition: >
-      Remove from 020 (duplicated in 000). The 000 version is the
-      canonical source.
+  - concern: "Tool installation discipline"
+    sections_affected:
+      - "§4 Node.js Prohibition"
+      - "§4.5 Project-Local Tool Installation Pattern"
+      - "085-project-local-tools.md (authoritative home)"
+    impact: medium — §4/§4.5 replaced with general .tools/ rule; 085 is authoritative
+    action: new .tools/ rule in 020 references 085; update 085 cross-references
 
-  - concern: "Silent halt / search before halt"
-    appears_in_020:
-      - "§1 line 53 (5 duplicated lines)"
-      - "§1 line 206-213 (ALWAYS DO — search before halt)"
-    appears_in_other:
-      - "000-critical-rules.md — Silent Halt Without Prompt"
-    disposition: >
-      Remove line 53 (duplicated). Keep line 206-213 (unique ALWAYS DO
-      with search procedure — 6-step search algorithm is 020-specific).
+  - concern: "Sub-issue model"
+    sections_affected:
+      - "§5 Multi-task Plan Without Sub-issues"
+      - "issue-operations-sub-issues/tasks/read-sub-issues.md (cross-reference)"
+    impact: low — §5 removed; sub-issue model migrated to 000/approval-gate
+    action: update read-sub-issues.md cross-reference
 
-  - concern: "Orchestrator context management"
-    appears_in_020:
-      - "§1.1 (entire section)"
-      - "critical-rules-063, 065 at bottom"
-    appears_in_other:
-      - "000-critical-rules.md — Orchestrator Context Lean, Result Contract Frugality"
-    disposition: >
-      Remove §1.1 (duplicated in 000). Update cross-references in
-      critical-rules-063 and 065 to point to 000.
+  - concern: "Verification failure rollback"
+    sections_affected:
+      - "§6 Progressive Iterative Implementation"
+      - "000-critical-rules.md Checkpoint Rollback Exception"
+    impact: none — §6 is exact duplicate of 000
+    action: remove from 020
 
-  - concern: "Sub-issue structure / multi-task plans"
-    appears_in_020:
-      - "§5 (entire section)"
-    appears_in_other:
-      - "issue-operations-sub-issues skill"
-      - "approval-gate-scope tasks"
-    disposition: >
-      Remove §5 (obsolete sub-issue model). Sub-issue logic is
-      implemented in skills, not guidelines.
+  - concern: "Stop command behavior"
+    sections_affected:
+      - "stop command section (020)"
+      - "000-critical-rules.md critical-rules-stop"
+    impact: none — identical block in both files
+    action: remove from 020
 
-  - concern: "Node.js prohibition / project-local tools"
-    appears_in_020:
-      - "§4 (entire section)"
-      - "§4.5 (entire section)"
-    appears_in_other:
-      - "085-project-local-tools.md — full guideline"
-      - "070-environment.md — duplicate Node.js section"
-    disposition: >
-      Replace §4/§4.5 with general .tools/ rule. Remove duplicate
-      from 070-environment.md. Update 085 cross-references.
+  - concern: "Channel routing (issue comments vs chat)"
+    sections_affected:
+      - "Channel-Routing Table (020)"
+      - "Channel-Routing Table (000)"
+      - "issue-operations-core/tasks/creation.md (cross-reference to 060)"
+    impact: none — identical table in 000; external ref points to 060
+    action: remove from 020
 
   - concern: "Live tool call / training data / metadata verification"
-    appears_in_020:
-      - "§1.6 lines 277-279 (3 duplicated NEVER DO)"
-      - "§1.6 lines 294-296 (3 restated ALWAYS DO)"
-    appears_in_other:
-      - "065-verification-honesty.md — core rules"
-    disposition: >
-      Remove all 6 lines from 020 (duplicated in 065). The 065
-      versions are the canonical source.
+    sections_affected:
+      - "§1.6 Discussion Mode Mandates (lines 277-279, 294-296)"
+      - "065-verification-honesty.md"
+    impact: low — lines 277-279 are unique to 020; lines 294-296 are internal duplicates
+    action: remove lines 294-296 (internal dupes); keep lines 277-279
 
-  - concern: "Escalation / remediation protocol"
-    appears_in_020:
-      - "§1 line 73 (5 duplicated lines)"
-      - "§1 line 235 (ALWAYS DO — remediate before escalate)"
-    appears_in_other:
-      - "000-critical-rules.md — Hard Failure Discipline"
-      - "065-verification-honesty.md — Remediation-First Protocol"
-    disposition: >
-      Remove line 73 (duplicated). Keep line 235 if it adds
-      020-specific framing; otherwise remove.
+  - concern: "Cost-blind verification"
+    sections_affected:
+      - "§1 (lines 65-75)"
+      - "065-verification-honesty.md §Cost Model"
+      - "080-code-standards.md §Test Integrity Mandate"
+    impact: none — unique to 020; preserved
+    action: KEEP
 
-  - concern: "Test substitution prohibition"
-    appears_in_020:
-      - "§1 lines 64-72 (5 duplicated lines)"
-      - "§1 line 234 (ALWAYS DO — functional/behavioral test substitution)"
-    appears_in_other:
-      - "065-verification-honesty.md — Anti-Evasion Rules"
-      - "080-code-standards.md — Test Integrity Mandate"
-    disposition: >
-      Remove lines 64-72 (duplicated). Keep line 234 if it adds
-      020-specific framing; otherwise remove.
+  - concern: "Orchestrator context discipline"
+    sections_affected:
+      - "§1.1 Orchestrator Context Discipline"
+      - "critical-rules-063 (Orchestrator Context Lean)"
+      - "critical-rules-065 (Result Contract Frugality)"
+      - "critical-rules-066 (Terminology Standardization)"
+    impact: none — unique to 020; preserved
+    action: KEEP
 
-  - concern: "Submodule-only PR prohibition"
-    appears_in_020:
-      - "§1 lines 237-243 (ALWAYS DO item)"
-    appears_in_other:
-      - "000-critical-rules.md — critical-rules-049"
-    disposition: >
-      Remove from 020 (duplicated in 000). The 000 version is canonical.
-
-  - concern: "Inline work / poisoned pipeline"
-    appears_in_020:
-      - "§1 lines 214, 222 (ALWAYS DO items)"
-    appears_in_other:
-      - "000-critical-rules.md — Orchestrator Inline Work = Poisoned Pipeline"
-    disposition: >
-      Remove from 020 (duplicated in 000). The 000 version is canonical.
-
-  - concern: "Discard on sub-agent failure"
-    appears_in_020:
-      - "§1 line 223 (ALWAYS DO item)"
-    appears_in_other:
-      - "000-critical-rules.md — Discard on Sub-Agent Failure"
-    disposition: >
-      Remove from 020 (duplicated in 000). The 000 version is canonical.
-
-  - concern: "Edit-in-place / revision-not-replacement"
-    appears_in_020:
-      - "§1 line 224 (ALWAYS DO item)"
-    appears_in_other:
-      - "000-critical-rules.md — Revision-Not-Replacement"
-    disposition: >
-      Remove from 020 (duplicated in 000). The 000 version is canonical.
-
-  - concern: "PRELOADED_CONTEXT_REJECTED"
-    appears_in_020:
-      - "§1 line 214 (ALWAYS DO item, part of inline work list)"
-    appears_in_other:
-      - "000-critical-rules.md — Preloading Sub-Agent Context"
-    disposition: >
-      Remove from 020 (duplicated in 000). The 000 version is canonical.
-
-  - concern: "Scope-limited behavioral testing"
-    appears_in_020:
-      - "§1 lines 228-233 (ALWAYS DO item)"
-    appears_in_other:
-      - "080-code-standards.md — Behavioral RED/GREEN"
-    disposition: KEEP — unique 020-specific framing with ollama-probe hw reference
-
-  - concern: "Interpretive questions"
-    appears_in_020:
-      - "§1.2 (entire section)"
-    appears_in_other: null
-    disposition: MERGE into §1 as bullet — unique rule, not duplicated
-
-  - concern: "Soliciting authorization after already-authorized phrases"
-    appears_in_020:
-      - "§1.5 (entire section)"
-    appears_in_other: null
-    disposition: >
-      COLLAPSE into §1 — keep unique rule (1 sentence), remove
-      verb-prefix restatement and tables (duplicated from approval-gate skill)
+  - concern: "Node.js prohibition (070-environment.md)"
+    sections_affected:
+      - "070-environment.md Node.js Prohibition section"
+      - "020 §4 Node.js Prohibition"
+    impact: low — both being removed; 085-project-local-tools.md is the authoritative home
+    action: remove from 070-environment.md

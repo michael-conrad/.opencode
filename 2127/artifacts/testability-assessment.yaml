@@ -1,287 +1,138 @@
-artifact: testability-assessment
+# testability-assessment.yaml — Spec #2127: 020-go-prohibitions.md compaction
+# Generated: 2026-07-27
+# How to test the compaction
+
+artifact_type: testability-assessment
 spec: 2127
-generated: 2026-07-27T16:20:00Z
-description: >
-  Assessment of how to test each success criterion in spec #2127.
-  Maps each SC to its evidence type, test method, and verification
-  procedure.
+generated: 2026-07-27
 
-testability_matrix:
-  - sc: "SC-1"
-    criterion: "Remove §1.1 Orchestrator Context Discipline"
+test_strategy:
+  approach: "Content-verification (string) tests for removal SCs; semantic comparison for content-preservation SC"
+  rationale: "All SCs are string or semantic evidence type. No behavioral tests needed — the compaction removes duplicated content without changing agent behavior."
+
+test_cases:
+  - sc: "SC-1 — Remove §5 Multi-task Plan Without Sub-issues"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'Orchestrator Context Discipline'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 1. Confirm the section header and all
-      subsection headers (Orchestrator Context Lean, Sub-Agent Context
-      Generosity, Result Contract Frugality) are absent from 020.
-    pass_fail: PASS if grep returns no matches in 020
+    method: grep
+    command: 'grep -r "Multi-task Plan Without Sub-issues" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "no match"
+    fail_condition: "match found"
 
-  - sc: "SC-2"
-    criterion: "Remove §5 Multi-task Plan Without Sub-issues"
+  - sc: "SC-2 — Remove §6 Progressive Iterative Implementation"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'Multi-task Plan Without Sub-issues'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 1. Confirm the section header and all
-      sub-content are absent from 020.
-    pass_fail: PASS if grep returns no matches in 020
+    method: grep
+    command: 'grep -r "Progressive Iterative Implementation" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "no match"
+    fail_condition: "match found"
 
-  - sc: "SC-3"
-    criterion: "Remove §6 Progressive Iterative Implementation"
+  - sc: "SC-3 — Remove stop command section"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'Progressive Iterative Implementation'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 1. Confirm the section header and all
-      sub-content are absent from 020.
-    pass_fail: PASS if grep returns no matches in 020
+    method: grep
+    command: 'grep -c "terminal halt" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "0 matches"
+    fail_condition: "1+ matches"
+    note: "The 'stop' section header 'critical-rules-stop' also appears in 000 — grep for 'terminal halt' which is unique to the section body"
 
-  - sc: "SC-4"
-    criterion: 'Remove "stop" command section'
+  - sc: "SC-4 — Remove Channel-Routing Table"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'terminal halt'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 1. Confirm the critical-rules-stop section
-      is absent from 020.
-    pass_fail: PASS if grep returns no matches in 020
+    method: grep
+    command: 'grep -c "Channel-Routing Table" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "0 matches"
+    fail_condition: "1+ matches"
 
-  - sc: "SC-5"
-    criterion: "Remove 5 duplicated lines in §1"
+  - sc: "SC-5 — Remove 3 restated ALWAYS DO lines"
     evidence_type: string
-    test_method: grep
-    patterns:
-      - "Resource cost is NEVER a factor"
-      - "NEVER substitute structural evidence"
-      - "NEVER escalate without attempting remediation"
-      - '"Continue" and session momentum do NOT waive'
-      - "No silent halt without search"
-    command: >
-      For each pattern: grep -r 'PATTERN'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep for each pattern after Phase 2. Confirm all 5
-      patterns are absent from 020.
-    pass_fail: PASS if all 5 patterns absent from 020
+    method: grep
+    command: 'grep -c "Make a live tool call before every factual claim" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "1 match (the original at line 277, not the duplicate at 294)"
+    fail_condition: "0 or 2+ matches"
 
-  - sc: "SC-6"
-    criterion: "Remove 3 duplicated lines in §1.6"
+  - sc: "SC-6 — §1.2 merged into §1 as bullet"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'Never answer without a live tool call'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 2. Confirm the 3 lines (live tool call,
-      training data, metadata) are absent from 020.
-    pass_fail: PASS if grep returns no matches in 020
+    method: grep
+    command: 'grep "interpretive question" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "match found in §1 area (before line 80)"
+    fail_condition: "no match, or match in §1.2 header area"
 
-  - sc: "SC-7"
-    criterion: "Remove 3 restated ALWAYS DO lines"
+  - sc: "SC-7 — §1.5 collapsed into §1"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'Make a live tool call before every factual claim'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 2. Confirm the 3 restated ALWAYS DO
-      lines are absent from 020.
-    pass_fail: PASS if grep returns no matches in 020
+    method: grep
+    command: 'grep "Soliciting Authorization" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "0 matches (header removed; content preserved in §1)"
+    fail_condition: "1+ matches"
 
-  - sc: "SC-8"
-    criterion: "Remove 10 duplicated ALWAYS DO items"
+  - sc: "SC-8 — §4 replaced with general .tools/ rule"
     evidence_type: string
-    test_method: grep
-    patterns:
-      - "orchestrator NEVER performs inline work"
-      - "inline work irreversibly poisons the pipeline"
-      - "Discard all work on sub-agent failure"
-      - "edit the body to fix the defect"
-      - '"Continue" does NOT waive mandatory pipeline gates'
-      - "Cost-blind universal"
-      - "Functional/behavioral test substitution is FORBIDDEN"
-      - "Remediate before escalating"
-      - "NEVER create a submodule-only PR"
-    command: >
-      For each pattern: grep -r 'PATTERN'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep for each pattern after Phase 3. Confirm all 10
-      patterns are absent from 020.
-    pass_fail: PASS if all patterns absent from 020
+    method: grep
+    command: 'grep "\.tools/" .opencode/guidelines/020-go-prohibitions.md | head -5'
+    pass_condition: "match found in §4 area"
+    fail_condition: "no match"
 
-  - sc: "SC-9"
-    criterion: "§1.2 merged into §1 as bullet"
+  - sc: "SC-9 — All keep sections remain"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'interpretive question'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: >
-      Matches found in §1 section (not in a separate §1.2 header)
-    verification_procedure: >
-      Run grep after Phase 4. Confirm 'interpretive question' appears
-      in §1 (before the Authorization-Free Actions section), not as
-      a separate §1.2 header.
-    pass_fail: >
-      PASS if 'interpretive question' appears in §1 and §1.2 header
-      is absent
+    method: grep
+    commands:
+      - 'grep "Orchestrator Context Discipline" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Cost is measured in defect-discovery-latency" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "NEVER substitute structural evidence" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "NEVER escalate without attempting remediation" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Authorization-Free Actions" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "for_analysis Scope" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Discussion Mode Mandates" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Iterative Feedback" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Specialized Execution Gates" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Offer-to-Edit Bypass" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Inline Work" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "DISPATCH_GATE" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Canonical Dispatch String" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Revision-Not-Replacement" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "No-Inline-Fix" .opencode/guidelines/020-go-prohibitions.md'
+      - 'grep "Terminology Standardization" .opencode/guidelines/020-go-prohibitions.md'
+    pass_condition: "all commands return match"
+    fail_condition: "any command returns no match"
 
-  - sc: "SC-10"
-    criterion: "§1.5 collapsed into §1"
+  - sc: "SC-10 — No content loss (semantic)"
+    evidence_type: semantic
+    method: "sub-agent reads removed sections from 020 and compares against 000 equivalents"
+    commands:
+      - "Compare §6 (020:385-397) vs Checkpoint Rollback Exception (000:115-125)"
+      - "Compare stop command (020:399-413) vs critical-rules-stop (000:265-279)"
+      - "Compare Channel-Routing Table (020:642-658) vs Channel-Routing Table (000:300-315)"
+    pass_condition: "all removed sections have exact or semantically equivalent content in 000"
+    fail_condition: "any removed section has content not preserved in 000"
+
+  - sc: "SC-11 — No orphaned cross-references"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'Soliciting Authorization'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: No matches in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep after Phase 4. Confirm the §1.5 header is absent.
-      The unique rule sentence should appear in §1.
-    pass_fail: >
-      PASS if 'Soliciting Authorization' header absent and unique
-      rule present in §1
+    method: grep
+    commands:
+      - 'grep -r "Multi-task Plan Without Sub-issues" .opencode/ --include="*.md" --exclude="000-critical-rules.md"'
+      - 'grep -r "Progressive Iterative Implementation" .opencode/ --include="*.md" --exclude="000-critical-rules.md"'
+    pass_condition: "no matches outside 000"
+    fail_condition: "matches found outside 000"
 
-  - sc: "SC-11"
-    criterion: "§4 replaced with general .tools/ rule"
+  - sc: "SC-12 — No line-count/word-count metrics"
     evidence_type: string
-    test_method: grep
-    command: >
-      grep -r '\.tools/'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: >
-      Matches found in §4 section (new .tools/ rule)
-    verification_procedure: >
-      Run grep after Phase 5. Confirm '.tools/' appears in §4.
-      Confirm Node.js-specific prohibition language is absent.
-    pass_fail: >
-      PASS if '.tools/' in §4 and Node.js-specific prohibition
-      absent from §4
+    method: grep
+    command: 'grep -E "wc -l|file size|Final file size" .opencode/.issues/2127/spec.md'
+    pass_condition: "no match"
+    fail_condition: "match found"
 
-  - sc: "SC-12"
-    criterion: "All keep sections remain"
+  - sc: "SC-13 — Remove Node.js Prohibition from 070-environment.md"
     evidence_type: string
-    test_method: grep
-    keep_sections:
-      - "## 1. What GO Is Not"
-      - "Authorization-Free Actions"
-      - "for_analysis Scope"
-      - "## 1.6 Discussion Mode Mandates"
-      - "## 2. Iterative Feedback"
-      - "## 3. Specialized Execution Gates"
-      - "## 4."
-    command: >
-      For each section: grep -r 'SECTION_HEADER'
-      .opencode/guidelines/020-go-prohibitions.md
-    expected_result: All keep section headers present
-    verification_procedure: >
-      Run grep for each keep section header after all phases.
-      Confirm all are present.
-    pass_fail: PASS if all keep section headers present
+    method: grep
+    command: 'grep "## Node.js Prohibition" .opencode/guidelines/070-environment.md'
+    pass_condition: "no match"
+    fail_condition: "match found"
 
-  - sc: "SC-13"
-    criterion: "No content loss — removed sections verified as duplicated in 000/065"
-    evidence_type: behavioral
-    test_method: >
-      Clean-room sub-agent compares removed section content against
-      000-critical-rules.md and 065-verification-honesty.md equivalents
-    verification_procedure: >
-      1. Extract all removed section content from pre-compaction backup
-      2. For each removed rule, find the equivalent in 000 or 065
-      3. Verify the 000/065 version covers the same semantic rule
-      4. Report PASS only if ALL removed rules have equivalents in 000/065
-    pass_fail: >
-      PASS if every removed rule has a verified equivalent in 000/065.
-      FAIL if any removed rule has no equivalent.
+behavioral_test_required: false
+behavioral_test_rationale: "All SCs are string or semantic evidence type. The compaction removes duplicated content — it does not change agent behavior. The removed rules (stop command, checkpoint rollback, channel routing) remain in 000-critical-rules.md, so agent behavior is unchanged."
 
-  - sc: "SC-14"
-    criterion: "No orphaned cross-references to removed section names"
-    evidence_type: string
-    test_method: grep across .opencode/
-    removed_section_names:
-      - "Orchestrator Context Discipline"
-      - "Multi-task Plan Without Sub-issues"
-      - "Progressive Iterative Implementation"
-      - "Soliciting Authorization"
-    command: >
-      For each name: grep -r 'NAME' .opencode/ --include='*.md'
-    expected_result: >
-      Matches only in 000-critical-rules.md and 065-verification-honesty.md
-      (the canonical sources), not in 020-go-prohibitions.md
-    verification_procedure: >
-      Run grep for each removed section name across .opencode/.
-      Confirm no matches in 020-go-prohibitions.md. Matches in
-      000/065 are expected (they are the canonical sources).
-    pass_fail: >
-      PASS if no matches in 020-go-prohibitions.md. Matches in
-      000/065 are acceptable.
-
-  - sc: "SC-15"
-    criterion: "No line-count or word-count metrics used as success measurement"
-    evidence_type: string
-    test_method: grep
-    command: >
-      grep -r 'wc -l\|file size\|Final file size'
-      .opencode/.issues/2127/spec.md
-    expected_result: No matches in spec
-    verification_procedure: >
-      Run grep on the spec file. Confirm no line-count or file-size
-      metrics are used as success criteria.
-    pass_fail: PASS if no matches
-
-test_implementation_notes:
-  - note: "String tests (SC-1 through SC-12, SC-14, SC-15)"
-    implementation: >
-      Simple grep-based assertions. Can be run as a shell script
-      that greps for each pattern and exits with non-zero if any
-      pattern is found (for absence tests) or not found (for
-      presence tests).
-    recommended_approach: >
-      Single bash script with per-pattern grep assertions.
-      No opencode run needed.
-
-  - note: "Behavioral test (SC-13)"
-    implementation: >
-      Requires clean-room sub-agent dispatch. The sub-agent receives
-      the pre-compaction 020 content and the current 000/065 content,
-      and produces a PASS/FAIL verdict per removed rule.
-    recommended_approach: >
-      Use `opencode run` with a prompt that asks the agent to compare
-      removed content against 000/065 equivalents. Assert via
-      assert_semantic that the agent correctly identifies all
-      equivalents.
-
-  - note: "Cross-reference test (SC-14)"
-    implementation: >
-      grep across .opencode/ for each removed section name. Confirm
-      no matches in 020-go-prohibitions.md. Matches in 000/065 are
-      expected.
-    recommended_approach: >
-      Single bash script with per-name grep assertions, excluding
-      020-go-prohibitions.md from the negative assertion.
-
-  - note: "Regression risk"
-    risk: >
-      The critical-rules-XXX entries at the bottom of 020 reference
-      §1.1 (lines 563, 568, 639). If these are not updated, they
-      will contain broken cross-references.
-    mitigation: >
-      Include cross-reference update in Phase 1. Verify with SC-14.
+regression_risks:
+  - risk: "Cross-reference to §4 in 085-project-local-tools.md not updated"
+    mitigation: "SC-11 catches orphaned references; manual verification of 085 cross-references"
+  - risk: "Cross-reference to §5 in read-sub-issues.md not updated"
+    mitigation: "SC-11 catches orphaned references; manual verification of read-sub-issues.md"
+  - risk: "Content loss — removed section has unique content not in 000"
+    mitigation: "SC-10 semantic comparison catches content loss"
+  - risk: "Accidental removal of keep section"
+    mitigation: "SC-9 verifies all keep sections remain"

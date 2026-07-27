@@ -1,174 +1,188 @@
-artifact: concern-map
+# concern-map.yaml — Spec #2127: 020-go-prohibitions.md compaction
+# Generated: 2026-07-27
+# What concerns each section addresses
+
+artifact_type: concern-map
 spec: 2127
-generated: 2026-07-27T16:20:00Z
-description: >
-  Maps each section of 020-go-prohibitions.md to the concern it addresses.
-  Sections marked for removal are flagged with their disposition.
+generated: 2026-07-27
 
 sections:
-  - section: "§1 (core) — What GO Is Not & Self-Authorization Prohibitions"
-    lines: 9-77
-    concern: >
-      Defines what constitutes valid authorization, what does not,
-      and the behavioral prohibitions around solicitation, prompting,
-      and self-authorization. 22 unique rules.
-    disposition: KEEP
-    evidence_of_duplication: null
+  - id: "§1 What GO Is Not & Self-Authorization Prohibitions"
+    lines: 9-76
+    concerns:
+      - GO token prohibition
+      - echo/printf prohibition
+      - pending-state marker prohibition
+      - authorization solicitation prohibition
+      - discussion-conclusions-not-authorization
+      - questions-not-authorization
+      - silent halt requirement
+      - why-questions-observation-only
+      - discuss gate
+      - halt message discipline
+      - offer-to-edit prohibition
+      - parallel execution prohibition
+      - silent halt search requirement
+      - solicitation detection gate
+      - instructional language in blocker reports
+      - implied authorization framing
+      - forward-looking references in completion reports
+      - continue-waiver prohibition
+      - cost-blind verification
+      - behavioral test substitution prohibition
+      - remediate-before-escalate
+      - submodule-only PR prohibition
+    action: KEEP (unique to 020)
 
-  - section: "§1.1 Orchestrator Context Discipline"
-    lines: 80-135
-    concern: >
-      Context management patterns: orchestrator holds routing metadata only,
-      sub-agents get generous context, result contracts are frugal.
-    disposition: REMOVE
-    evidence_of_duplication: >
-      Duplicated in 000-critical-rules.md lines 563 (Orchestrator Context Lean)
-      and 568 (Result Contract Frugality). The three-mandate structure
-      (Orchestrator Context Lean, Sub-Agent Context Generosity, Result Contract
-      Frugality) is operational bookkeeping, not enforcement.
+  - id: "§1.1 Orchestrator Context Discipline"
+    lines: 80-133
+    concerns:
+      - orchestrator context lean
+      - sub-agent context generosity
+      - result contract frugality
+      - context flow patterns
+    action: KEEP (unique to 020)
 
-  - section: "§1.2 Interpretive Questions"
+  - id: "§1.2 Interpretive Questions"
     lines: 137-144
-    concern: >
-      Interpretive questions (why, what does) are explanation-only,
-      never modification authorization.
-    disposition: MERGE_INTO_S1
-    evidence_of_duplication: >
-      Unique rule — not duplicated in 000 or 065. Only 3 lines of
-      substantive content. Merge as additional bullet in §1.
+    concerns:
+      - interpretive questions are explanation-only
+      - no modification authorization from interpretive questions
+    action: MERGE into §1 as bullet
 
-  - section: "Authorization-Free Actions"
+  - id: "Authorization-Free Actions"
     lines: 148-162
-    concern: >
-      Actions that do not require authorization: issue creation,
-      sub-issues, labels, lint/format, feature branches (with scope).
-    disposition: KEEP
-    evidence_of_duplication: null
+    concerns:
+      - actions that do not require authorization
+      - no deliberation required for pre-authorized actions
+    action: KEEP (unique to 020)
 
-  - section: "for_analysis Scope — Self-Assignment Rules"
+  - id: "for_analysis Scope — Self-Assignment Rules"
     lines: 164-193
-    concern: >
-      Default floor scope, self-assignment conditions, branch restrictions,
-      observe/ branch rules.
-    disposition: KEEP
-    evidence_of_duplication: null
+    concerns:
+      - for_analysis self-assignment conditions
+      - branch restrictions under for_analysis
+      - observe/ branch rules
+    action: KEEP (unique to 020)
 
-  - section: "§1 (continued) — scope clarification, verb-prefix parsing, ALWAYS DO"
-    lines: 195-243
-    concern: >
-      GO scope clarification, verb-prefix parsing table, 7 unique ALWAYS DO
-      items (verify codebase state, HALT at scope boundary, parse authorization
-      phrases, halt produces status, search before halt, scope-limited behavioral
-      testing), plus 10 duplicated ALWAYS DO items.
-    disposition: KEEP_UNIQUE_REMOVE_DUPLICATED
-    evidence_of_duplication: >
-      Lines 214-250 contain 10 ALWAYS DO items duplicated in 000 and 065:
-      inline work, poisoned pipeline, discard on failure, edit-in-place,
-      continue waiver, cost-blind, test substitution, remediate before escalate,
-      PRELOADED_CONTEXT_REJECTED, submodule-only PR.
-
-  - section: "§1.5 Soliciting Authorization"
+  - id: "§1.5 Soliciting Authorization"
     lines: 245-267
-    concern: >
-      Asking for confirmation after receiving pipeline-scoped authorization
-      is a CRITICAL VIOLATION. Verb-prefix parsing table, prohibited patterns,
-      required behaviors.
-    disposition: COLLAPSE_INTO_S1
-    evidence_of_duplication: >
-      Unique rule (1 sentence) is the core. The rest (verb-prefix restatement,
-      tables, cross-references) is restatement of approval-gate skill content.
-      Collapse unique rule into §1 as bullet.
+    concerns:
+      - no solicitation after authorization
+      - verb-prefix parsing table determinism
+      - prohibited solicitation patterns
+    action: COLLAPSE into §1
 
-  - section: "§1.6 Discussion Mode Mandates"
+  - id: "§1.6 Discussion Mode Mandates"
     lines: 269-298
-    concern: >
-      Discussion mode rules: no question tool, no pigeon-holing, no topic
-      mixing, no structured output by default, live tool calls, research
-      card catalogue. 11 unique items.
-    disposition: KEEP
-    evidence_of_duplication: >
-      3 lines (live tool call, training data, metadata) duplicated in 065.
-      Remove those 3; keep remaining 11 unique items.
+    concerns:
+      - question tool prohibition
+      - pigeon-hole prohibition
+      - single-topic discussion
+      - live tool call requirement
+      - training data distrust
+      - metadata verification
+      - research during discussion
+      - research card catalogue
+    action: KEEP (unique to 020)
 
-  - section: "§2 Iterative Feedback & Plan Revision"
+  - id: "§2 Iterative Feedback & Plan Revision"
     lines: 300-306
-    concern: >
-      Discussion sessions do not grant GO, GO must be explicit, revise/update
-      are plan-only, plan revision invalidates approvals.
-    disposition: KEEP
-    evidence_of_duplication: null
+    concerns:
+      - discussion sessions do not grant GO
+      - GO must be explicit
+      - revise/update are plan-only
+      - plan revision invalidates approvals
+    action: KEEP (unique to 020)
 
-  - section: "§3 Specialized Execution Gates"
+  - id: "§3 Specialized Execution Gates"
     lines: 308
-    concern: Empty section header.
-    disposition: KEEP_EMPTY
-    evidence_of_duplication: null
+    concerns:
+      - placeholder section (empty)
+    action: KEEP (empty section, no content to lose)
 
-  - section: "§4 Node.js Prohibition in Python/Java Projects"
+  - id: "§4 Node.js Prohibition in Python/Java Projects"
     lines: 310-343
-    concern: >
-      Node.js-specific prohibition: never install Node.js in Python/Java
-      projects, never use NPX, never add npm dependencies.
-    disposition: REPLACE
-    evidence_of_duplication: >
-      Duplicated in 070-environment.md lines 224-257. The spec proposes
-      replacing with a general .tools/ rule that covers all project-local
-      tooling, not just Node.js.
+    concerns:
+      - Node.js installation prohibition
+      - NPX prohibition
+      - npm package prohibition
+      - Node.js tooling prohibition
+      - allowed exceptions (Docker, frontend repos)
+    action: REPLACE with general .tools/ rule
 
-  - section: "§4.5 Project-Local Tool Installation Pattern"
+  - id: "§4.5 Project-Local Tool Installation Pattern"
     lines: 345-358
-    concern: >
-      Exception path to §4: .tools/<tool>/ pattern, gitignored, PATH-prefixed,
-      system-isolated, cleanable.
-    disposition: REPLACE
-    evidence_of_duplication: >
-      Content is already in 085-project-local-tools.md. The spec proposes
-      merging §4 and §4.5 into a single general .tools/ rule.
+    concerns:
+      - .tools/ directory pattern
+      - PATH-prefixed invocation
+      - gitignore requirements
+      - system isolation
+      - cleanability
+    action: REPLACE with general .tools/ rule referencing 085
 
-  - section: "§5 Multi-task Plan Without Sub-issues"
+  - id: "§5 Multi-task Plan Without Sub-issues"
     lines: 362-383
-    concern: >
-      Multi-task plans must have sub-issues before implementation.
-      Sub-issues at phase level, single-task exemption, auto-creation.
-    disposition: REMOVE
-    evidence_of_duplication: >
-      Sub-issue model is obsolete — plans are files in a spec folder.
-      Sub-issue logic is implemented in skills (issue-operations-sub-issues,
-      approval-gate-scope). The guideline is a historical artifact.
+    concerns:
+      - sub-issue requirement for multi-task plans
+      - sub-issue auto-creation
+      - single-task exemption
+    action: REMOVE (obsolete — sub-issue model replaced)
 
-  - section: "§6 Progressive Iterative Implementation"
+  - id: "§6 Progressive Iterative Implementation"
     lines: 385-397
-    concern: >
-      Rollback on verification failure using checkpoint tags.
-      Pre-rollback diagnostics, git reset --hard, re-dispatch.
-    disposition: REMOVE
-    evidence_of_duplication: >
-      Duplicated in 000-critical-rules.md (Checkpoint Rollback Exception).
+    concerns:
+      - checkpoint rollback on verification failure
+      - first-step failure handling
+    action: REMOVE (duplicated in 000)
 
-  - section: '"stop" command section'
+  - id: "stop command section"
     lines: 399-413
-    concern: >
-      "stop" triggers terminal halt — zero output, zero tool calls,
-      zero proposals. Hard state transition.
-    disposition: REMOVE
-    evidence_of_duplication: >
-      Duplicated in 000-critical-rules.md (critical-rules-stop).
+    concerns:
+      - terminal halt on stop command
+      - zero output/tool calls/proposals
+    action: REMOVE (duplicated in 000)
 
-  - section: "Critical-rules-XXX entries (bottom of file)"
-    lines: 415-658
-    concern: >
-      Individual critical violation entries: Offer-to-Edit Bypass,
-      Authorization-Free Actions, Confirmation ≠ Authorization,
-      Feedback ≠ Authorization, Silent Agent Termination, Inline Screening,
-      Silent Halt Without Prompt, Inline Work, DISPATCH_GATE Checkpoint,
-      Orchestrator Inline Work, Discard on Sub-Agent Failure, Tool-Recipe
-      Task, Gate Non-Waiver, Skill Pre-Read, Preloading Context, Universal
-      Re-Task, Orchestrator Context Lean, Result Contract Frugality,
-      Canonical Dispatch String, Revision-Not-Replacement, No-Inline-Fix,
-      Terminology Standardization, Channel-Routing Table.
-    disposition: KEEP
-    evidence_of_duplication: >
-      These are the enforcement-level entries that cross-reference 000 and 065.
-      They are NOT duplicated — they are the 020-specific enforcement layer
-      that references the rules in 000/065. Removing them would lose the
-      020-specific framing.
+  - id: "critical-rules-028 through critical-rules-066 (symbolic rules)"
+    lines: 415-639
+    concerns:
+      - offer-to-edit bypass
+      - authorization-free actions
+      - confirmation vs authorization
+      - feedback vs authorization
+      - silent agent termination
+      - inline screening
+      - silent halt without prompt
+      - inline work prohibition
+      - DISPATCH_GATE checkpoint
+      - poisoned pipeline
+      - discard on sub-agent failure
+      - tool-recipe task prohibition
+      - gate non-waiver
+      - skill pre-read prohibition
+      - preloading sub-agent context
+      - universal re-task mandate
+      - orchestrator context lean
+      - result contract frugality
+      - canonical dispatch string
+      - revision-not-replacement
+      - no-inline-fix
+      - terminology standardization
+    action: KEEP (unique to 020)
+
+  - id: "Channel-Routing Table"
+    lines: 642-658
+    concerns:
+      - issue comments vs chat output routing
+      - channel selection per action type
+    action: REMOVE (duplicated in 000)
+
+  - id: "Node.js Prohibition (070-environment.md)"
+    file: 070-environment.md
+    lines: 224-257
+    concerns:
+      - Node.js installation prohibition
+      - NPX prohibition
+      - npm package prohibition
+      - Node.js tooling prohibition
+    action: REMOVE (duplicate of 020 §4, which is also being replaced)

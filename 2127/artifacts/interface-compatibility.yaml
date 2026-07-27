@@ -1,143 +1,71 @@
-artifact: interface-compatibility
+# interface-compatibility.yaml — Spec #2127: 020-go-prohibitions.md compaction
+# Generated: 2026-07-27
+# Compatibility between remaining and removed sections
+
+artifact_type: interface-compatibility
 spec: 2127
-generated: 2026-07-27T16:20:00Z
-description: >
-  Compatibility analysis between sections being removed and the remaining
-  sections of 020-go-prohibitions.md. Verifies that removal does not create
-  orphaned references, broken logic, or semantic gaps.
+generated: 2026-07-27
 
-compatibility_checks:
-  - check: "§1.1 removal → remaining §1"
-    compatible: true
-    rationale: >
-      §1.1 is self-contained context management guidance. §1 (authorization
-      rules) does not depend on §1.1. The cross-references from §1.1 to
-      §1 (e.g., cost-blind, continue waiver) are one-directional — §1
-      does not reference §1.1.
-    action: >
-      Update cross-references in 000, 257, 250 that point to §1.1 to
-      point to 000 instead.
+compatibility_analysis:
+  - removed_section: "§5 Multi-task Plan Without Sub-issues"
+    remaining_sections_affected:
+      - "critical-rules-034 (Inline Work — orchestrator performing file modifications)"
+      - "critical-rules-042 (Discard on Sub-Agent Failure)"
+      - "critical-rules-042 (Gate Non-Waiver Principle)"
+      - "critical-rules-048 (Skill Pre-Read + Inline Execution)"
+      - "critical-rules-044 (Preloading Sub-Agent Context)"
+      - "critical-rules-043 (Universal Re-Task Mandate)"
+    compatibility: FULL
+    rationale: §5 was an obsolete sub-issue model. The remaining symbolic rules (034, 042, 048, 044, 043) are independent — they govern inline work, discard-on-failure, skill pre-read, preloading, and re-task behavior. None depend on the sub-issue model from §5. No compatibility issues.
 
-  - check: "§5 removal → remaining sections"
-    compatible: true
-    rationale: >
-      §5 is self-contained. No remaining section references §5. The
-      sub-issue logic is implemented in skills, not guidelines.
-    action: >
-      Update read-sub-issues.md line 56 to reference approval-gate-scope
-      instead of 020-go-prohibitions.md.
+  - removed_section: "§6 Progressive Iterative Implementation"
+    remaining_sections_affected:
+      - "critical-rules-042 (Discard on Sub-Agent Failure)"
+      - "critical-rules-043 (Universal Re-Task Mandate)"
+    compatibility: FULL
+    rationale: §6 described checkpoint rollback on verification failure. The remaining discard/re-task rules are independent — they govern sub-agent failure handling, not checkpoint rollback. The checkpoint rollback exception remains in 000-critical-rules.md. No compatibility issues.
 
-  - check: "§6 removal → remaining sections"
-    compatible: true
-    rationale: >
-      §6 is self-contained. No remaining section references §6. The
-      checkpoint rollback logic is in 000.
-    action: None needed.
+  - removed_section: "stop command section"
+    remaining_sections_affected: []
+    compatibility: FULL
+    rationale: Identical block exists in 000-critical-rules.md. No remaining section in 020 depends on it. No compatibility issues.
 
-  - check: '"stop" command removal → remaining sections'
-    compatible: true
-    rationale: >
-      The "stop" section is self-contained. No remaining section
-      references it. The rule is in 000.
-    action: None needed.
+  - removed_section: "Channel-Routing Table"
+    remaining_sections_affected:
+      - "critical-rules-009 (Silent Agent Termination — Post-Tool Execution Output Checkpoint)"
+    compatibility: FULL
+    rationale: The Channel-Routing Table governs issue comments vs chat output routing. The Post-Tool Execution Output Checkpoint governs tool call output guarantees. These are independent concerns. The table remains in 000-critical-rules.md. No compatibility issues.
 
-  - check: "§4/§4.5 replacement → remaining sections"
-    compatible: true
-    rationale: >
-      §4 and §4.5 are self-contained. The replacement .tools/ rule
-      will occupy the same section position, maintaining structural
-      continuity. The new rule must cover the same concerns (tool
-      installation, isolation, cleanup) without the Node.js-specific
-      framing.
-    action: >
-      Update 085-project-local-tools.md cross-references to point to
-      the new .tools/ rule. Remove duplicate from 070-environment.md.
+  - removed_section: "3 restated ALWAYS DO lines (294-296)"
+    remaining_sections_affected:
+      - "§1.6 Discussion Mode Mandates (lines 277-279, 289-298)"
+    compatibility: FULL
+    rationale: Lines 294-296 restate lines 277-279. Removing the duplicates leaves the original content intact. No compatibility issues.
 
-  - check: "§1.2 merge into §1 → remaining §1"
-    compatible: true
-    rationale: >
-      §1.2 is a single rule (3 lines) that fits naturally as a bullet
-      in §1's list of authorization rules. No semantic conflict.
-    action: >
-      Move the unique rule text into §1 as an additional bullet under
-      the "Questions are NOT authorization" section.
+  - removed_section: "§1.2 Interpretive Questions (merged into §1)"
+    remaining_sections_affected:
+      - "§1 (lines 42-47 — Why questions)"
+    compatibility: FULL
+    rationale: §1.2 content is preserved as a bullet in §1. The "Why questions" section (lines 42-47) already covers similar ground. Merging creates a single coherent section. No compatibility issues.
 
-  - check: "§1.5 collapse into §1 → remaining §1"
-    compatible: true
-    rationale: >
-      The unique rule (1 sentence: asking for confirmation after
-      pipeline-scoped authorization is a CRITICAL VIOLATION) fits as
-      a bullet in §1. The verb-prefix restatement and tables are
-      removed (duplicated from approval-gate skill).
-    action: >
-      Move the unique rule sentence into §1. Remove the rest.
+  - removed_section: "§1.5 Soliciting Authorization (collapsed into §1)"
+    remaining_sections_affected:
+      - "§1 (lines 195-198 — scope detection)"
+    compatibility: FULL
+    rationale: §1.5 content is preserved in §1. The scope detection lines (195-198) already cover the verb-prefix parsing table. Collapsing creates a single coherent section. No compatibility issues.
 
-  - check: "5 duplicated lines removal from §1 → remaining §1"
-    compatible: true
-    rationale: >
-      The 5 lines (cost-blind, evidence substitution, continue waiver,
-      silent halt, escalate) are restatements of rules in 000 and 065.
-      Removing them does not create a gap because the rules exist in
-      the canonical sources.
-    action: None needed — rules preserved in 000/065.
+  - removed_section: "§4 Node.js Prohibition + §4.5 Project-Local Tool Installation Pattern"
+    remaining_sections_affected:
+      - "085-project-local-tools.md (cross-references)"
+    compatibility: PARTIAL — cross-references need update
+    rationale: §4/§4.5 replaced with general .tools/ rule. 085-project-local-tools.md has 2 cross-references to §4 that must be updated. The .tools/ content is preserved in 085 (authoritative home). Cross-reference update required.
 
-  - check: "3 duplicated lines removal from §1.6 → remaining §1.6"
-    compatible: true
-    rationale: >
-      The 3 lines (live tool call, training data, metadata) are
-      restatements of rules in 065. Removing them leaves 11 unique
-      discussion mode items intact.
-    action: None needed — rules preserved in 065.
+  - removed_section: "Node.js Prohibition (070-environment.md)"
+    remaining_sections_affected: []
+    compatibility: FULL
+    rationale: No remaining section in 070 depends on this section. No compatibility issues.
 
-  - check: "3 restated ALWAYS DO lines removal from §1.6 → remaining §1.6"
-    compatible: true
-    rationale: >
-      The 3 lines are internal duplication of the NEVER DO items
-      above them. Removing them eliminates redundancy without
-      content loss.
-    action: None needed — internal cleanup.
-
-  - check: "10 duplicated ALWAYS DO items removal from §1 → remaining §1"
-    compatible: true
-    rationale: >
-      All 10 items (inline work, poisoned pipeline, discard on failure,
-      edit-in-place, continue waiver, cost-blind, test substitution,
-      remediate before escalate, PRELOADED_CONTEXT_REJECTED,
-      submodule-only PR) are duplicated in 000 and 065.
-    action: None needed — rules preserved in 000/065.
-
-  - check: "Critical-rules-XXX entries at bottom → removed sections"
-    compatible: true
-    rationale: >
-      The critical-rules-XXX entries at the bottom of the file
-      cross-reference §1.1 (lines 563, 568, 639). These must be
-      updated to point to 000 instead of §1.1. All other entries
-      reference §1, which is KEPT.
-    action: >
-      Update lines 564, 569, 639 to reference 000-critical-rules.md
-      instead of §1.1 of 020-go-prohibitions.md.
-
-semantic_gaps:
-  - gap: "Cost-blind verification framing"
-    severity: low
-    description: >
-      020 §1 has a unique cost-blind framing that combines the
-      prohibition with the ollama-probe hw reference. If the
-      duplicated cost-blind lines are removed, the unique framing
-      (line 226) must be preserved.
-    mitigation: Keep line 226 (scope-limited behavioral testing with ollama-probe hw).
-
-  - gap: "Search-before-halt procedure"
-    severity: low
-    description: >
-      020 §1 lines 206-213 have a unique 6-step search algorithm
-      that is not in 000. The 000 version just says "search before
-      halt" without the procedure.
-    mitigation: Keep lines 206-213 in §1 ALWAYS DO.
-
-  - gap: "Authorization-Free Actions list"
-    severity: low
-    description: >
-      020 has a specific list of authorization-free actions (lines
-      148-162) that is not in 000. This is 020-specific content.
-    mitigation: Keep Authorization-Free Actions section.
+summary:
+  full_compatibility: 8 of 9 removed sections
+  partial_compatibility: 1 of 9 removed sections (§4/§4.5 — cross-reference updates needed)
+  incompatible: 0 of 9 removed sections
