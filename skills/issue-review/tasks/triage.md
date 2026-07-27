@@ -67,9 +67,15 @@ Redirection examples:
 | `qa` | Bug language detected on closer inspection | `analyze-and-spec` |
 | `analyze-and-spec` | Content is actually a feature request, not a bug | `qa` |
 
-### Output Format
+### Step 3: Apply `spec-needs-research` label on research need
 
-State results in this format:
+When the triage path indicates a research need (the issue requires investigation before a spec can be written), apply the `spec-needs-research` label:
+
+1. If the triage path is `qa` (unclear intent, needs clarification) or if the issue requires external research before spec creation, apply `spec-needs-research` to the issue
+2. Use the platform's label API to add `spec-needs-research`
+3. The `spec-needs-research` label indicates the spec is blocked on research before it can proceed to review
+
+### Output Format
 
 ```
 Triage: <path> (<confidence>)

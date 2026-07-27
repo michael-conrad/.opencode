@@ -71,7 +71,9 @@ The per-task cycle steps are discovered at runtime by loading the `implementatio
    - No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001), no JSON/YAML code blocks in the body.
    - English text only — the plan is read by the orchestrator, not parsed.
 
-9. **Return the result contract.**
+9. **Apply `spec-cleared` label.** Use the platform's label API to add `spec-cleared` to the spec issue identified by `{N}`. The `spec-cleared` label indicates the spec has been freshness-checked and is ready for plan creation.
+
+10. **Return the result contract.**
 
 ## Exit Criteria
 

@@ -146,6 +146,13 @@ issue-operations -> creation/update (github_issue_write( <!-- Routes through iss
 )
 ```
 
+### Step 6.1: Apply `spec-draft` label
+
+After the fix spec sub-issue is created, apply the `spec-draft` label to mark it as a draft spec:
+
+1. Use the platform's label API to add `spec-draft` to the newly created fix spec issue
+2. The `spec-draft` label indicates the spec is in draft state and has not yet been reviewed
+
 ### Step 7: Link Fix Spec to Bug Report
 
 Link the newly created fix spec as a sub-issue of the bug report:

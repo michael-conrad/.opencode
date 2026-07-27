@@ -71,6 +71,13 @@ When a remote API is available (github.platform is not `local`):
 
 When no remote API is available (local-only mode), use the local issue number directly.
 
+### Step 3.1: Apply `spec-draft` label
+
+When a remote API is available, apply the `spec-draft` label to the newly created issue to mark it as a draft spec:
+
+1. Use the platform's label API to add `spec-draft` to the issue
+2. The `spec-draft` label indicates the spec is in draft state and has not yet been reviewed
+
 ### Step 4: Write full spec to remote issue body
 
 When a remote API is available, write the full assembled spec to the remote issue body using the platform's update API.

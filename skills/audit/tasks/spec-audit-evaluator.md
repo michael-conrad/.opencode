@@ -60,6 +60,13 @@ Evaluator role for the spec-audit chain. Reads `evidence.yaml` (Investigator) an
 
 - [ ] 0. Remove any existing `verdict.yaml` from `{artifact_evidence_dir}/`
 
+### Step 0.1: Apply `spec-under-review` label
+
+At the start of the audit, apply the `spec-under-review` label to the spec issue to indicate it is currently under review:
+
+1. Use the platform's label API to add `spec-under-review` to the spec issue identified by `spec_issue_number`
+2. The `spec-under-review` label indicates the spec is actively being audited
+
 ### Step 1: Pre-Flight Validation Gate
 
 Validate that all required inputs are present before proceeding:
@@ -147,6 +154,10 @@ Evaluate the spec against all 11 holistic dimensions. This gate runs BEFORE narr
 - [ ] 5. If all 11 dimensions PASS:
   - Proceed to narrow criteria (Steps 5+)
   - Record `holistic_status: PASS` in the verdict
+  - Apply `spec-passed-review` label and remove `spec-under-review`:
+    1. Use the platform's label API to add `spec-passed-review` to the spec issue identified by `spec_issue_number`
+    2. Use the platform's label API to remove `spec-under-review` from the spec issue
+    3. The `spec-passed-review` label indicates the spec has passed audit review
 
 Record results:
 

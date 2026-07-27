@@ -37,7 +37,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "approval cascade" / "cascade authorization" | `approval-cascade` | `sub-task` | {parent_issue, sub_issues} |
 | "pipeline halt boundary" / "check halt_at" | `check-halt-boundary` | `sub-task` | {authorization_scope, halt_at, pipeline_phase} |
 | "apply label" / "set approval label" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |
-| "revision revocation" / "spec revised" | `revision-revocation` | `sub-task` | {spec_issue, plan_issue} |
+| "revision revocation" / "spec revised" | `revision-revocation` | `sub-task` | {spec_issue, plan_issue, label_transition: {remove: ["spec-passed-review", "spec-cleared"], apply: ["spec-draft"]}} |
 | "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
 | "verify plan pipeline" / "check pipeline completeness" | `verify-plan-pipeline` | `sub-task` | {issue_number} |
 | "verify fix spec" / "check fix spec" | `verify-fix-spec` | `sub-task` | {issue_number} |

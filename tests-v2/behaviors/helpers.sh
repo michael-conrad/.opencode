@@ -637,124 +637,6 @@ behavior_run_pool() {
     return $((1 - any_success))
 }
 
-# --- Assertion helpers (for orchestrator evaluation, NOT for scripts) ---
-
-assert_tool_calls_made() {
-    local stderr_file="$1"
-    local tool_name="$2"
-    local min_count="${3:-1}"
-    local count
-    count=$(grep -c "Tool:.*$tool_name" "$stderr_file" 2>/dev/null || true)
-    if [ "$count" -ge "$min_count" ]; then
-        return 0
-    fi
-    return 1
-}
-
-assert_forbidden_pattern_absent() {
-    local file="$1"
-    local pattern="$2"
-    local label="${3:-}"
-    if grep -q "$pattern" "$file" 2>/dev/null; then
-        if [ -n "$label" ]; then
-            echo "  FAIL: $label — forbidden pattern '$pattern' found" >&2
-        fi
-        return 1
-    fi
-    return 0
-}
-
-assert_required_pattern_present() {
-    local file="$1"
-    local pattern="$2"
-    local label="${3:-}"
-    if grep -q "$pattern" "$file" 2>/dev/null; then
-        return 0
-    fi
-    if [ -n "$label" ]; then
-        echo "  FAIL: $label — required pattern '$pattern' not found" >&2
-    fi
-    return 1
-}
-
-assert_skill_called() {
-    local stderr_file="$1"
-    local skill_name="$2"
-    if grep -q "Skill \"$skill_name\"" "$stderr_file" 2>/dev/null; then
-        return 0
-    fi
-    return 1
-}
-
-assert_no_skill_called() {
-    local stderr_file="$1"
-    local skill_name="$2"
-    if grep -q "Skill \"$skill_name\"" "$stderr_file" 2>/dev/null; then
-        return 1
-    fi
-    return 0
-}
-
-assert_stderr_pattern_present() {
-    local stderr_file="$1"
-    local pattern="$2"
-    local label="${3:-}"
-    if grep -q "$pattern" "$stderr_file" 2>/dev/null; then
-        return 0
-    fi
-    if [ -n "$label" ]; then
-        echo "  FAIL: $label — pattern '$pattern' not found in stderr" >&2
-    fi
-    return 1
-}
-
-assert_stderr_pattern_absent() {
-    local stderr_file="$1"
-    local pattern="$2"
-    local label="${3:-}"
-    if grep -q "$pattern" "$stderr_file" 2>/dev/null; then
-        if [ -n "$label" ]; then
-            echo "  FAIL: $label — pattern '$pattern' found in stderr" >&2
-        fi
-        return 1
-    fi
-    return 0
-}
-
-assert_stderr_pattern_present_all_models() {
-    local -n _outputs="$1"
-    local -n _stderrs="$2"
-    local pattern="$3"
-    local label="${4:-}"
-    for model in "${!_outputs[@]}"; do
-        local stderr="${_stderrs[$model]}"
-        if ! grep -q "$pattern" "$stderr" 2>/dev/null; then
-            if [ -n "$label" ]; then
-                echo "  FAIL: $label — pattern '$pattern' not found in stderr for model $model" >&2
-            fi
-            return 1
-        fi
-    done
-    return 0
-}
-
-assert_stderr_pattern_absent_all_models() {
-    local -n _outputs="$1"
-    local -n _stderrs="$2"
-    local pattern="$3"
-    local label="${4:-}"
-    for model in "${!_outputs[@]}"; do
-        local stderr="${_stderrs[$model]}"
-        if grep -q "$pattern" "$stderr" 2>/dev/null; then
-            if [ -n "$label" ]; then
-                echo "  FAIL: $label — pattern '$pattern' found in stderr for model $model" >&2
-            fi
-            return 1
-        fi
-    done
-    return 0
-}
-
 assert_semantic() {
     local artifact_dir="$1"
     local sc_id="$2"
@@ -763,6 +645,8 @@ assert_semantic() {
 
     local stdout_file="$artifact_dir/stdout.log"
     local stderr_file="$artifact_dir/stderr.log"
+    local session_file="$artifact_dir/session.yaml"
+    local timeline_file="$artifact_dir/timeline.yaml"
 
     if [ ! -f "$stdout_file" ] || [ ! -f "$stderr_file" ]; then
         echo "  FAIL: $sc_id — artifact files not found in $artifact_dir" >&2
@@ -774,6 +658,18 @@ assert_semantic() {
     local stderr_content
     stderr_content=$(cat "$stderr_file")
 
+    local structured_data=""
+    if [ -f "$session_file" ]; then
+        structured_data="${structured_data}
+SESSION.YAML (structured tool call data):
+$(cat "$session_file")"
+    fi
+    if [ -f "$timeline_file" ]; then
+        structured_data="${structured_data}
+TIMELINE.YAML (condensed tool call timeline):
+$(cat "$timeline_file")"
+    fi
+
     local inspector_prompt="You are a clean-room semantic inspector. Evaluate the following agent output and determine if the agent's actions and decisions satisfy this criterion:
 
 CRITERION: $description
@@ -783,6 +679,7 @@ $stdout_content
 
 STDERR (tool dispatch trace):
 $stderr_content
+${structured_data}
 
 Respond with exactly one word: PASS or FAIL. Then on a new line, provide a one-sentence justification."
 

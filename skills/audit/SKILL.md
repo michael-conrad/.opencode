@@ -33,7 +33,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
    - **(a) Missing at orchestration level** — orchestrator detects missing artifacts during pre-audit readiness check. Route to retroactive generation: dispatch `writing-plans --task backfill` with `mode: retroactive` context. The backfill task generates missing artifacts from the spec body.
    - **(b) Missing discovered by sub-agent** — sub-agent detects missing artifacts during audit execution. Return `REMEDIATION_REQUIRED` with `remediation_action` specifying backfill dispatch and `remediation_context` containing `{issue_number, project_root, mode: retroactive}`. The orchestrator inspects `remediation_action`, dispatches backfill, then re-dispatches the sub-agent.
-   - **(c) Stale artifacts** — artifacts exist but their content is outdated relative to the current spec. HALT. Report staleness with stale artifact paths and the SCs whose evidence is affected. The orchestrator MUST NOT route to backfill (which operates from the spec body and would reproduce the same outdated content). Developer intervention is required to resolve spec-artifact divergence.
+   - **(c) Stale artifacts** — artifacts exist but their content is outdated relative to the current spec. Delete stale artifact files from `{project_root}/{path}/.issues/{N}/artifacts/`. Then route to retroactive generation: dispatch `writing-plans --task backfill` with `mode: retroactive` context. The backfill task generates fresh artifacts from the current spec body.
 
 ## Sub-Agent Result Contract Schema
 
