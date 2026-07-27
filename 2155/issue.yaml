@@ -183,4 +183,6 @@ body: '> **Full spec and artifacts:** [`.opencode/.issues/2155/`](https://github
   Co-authored with AI: OpenCode (opencode/deepseek-v4-free)
 
   '
-updated_at: '2026-07-26T16:57:23+00:00'
+updated_at: '2026-07-27T21:46:42+00:00'
+labels:
+- approved-for-pr,spec
