@@ -48,9 +48,10 @@ Create a local-only draft issue. No API calls, no remote.
 | ---- | --------------- | -------------------------------------------------------------------------------- |
 | 1    | Dedup check     | `./.opencode/tools/local-issues search --query "<keywords>"` — non-empty = DUPLICATE → HALT        |
 | 2    | Create issue    | `./.opencode/tools/local-issues create --title "TITLE" --labels "L1,L2"` — captures local number N |
-| 3    | Write spec body | Full fidelity spec body content written to `.issues/N/spec.md`                   |
-| 4    | Set phase       | Phase set to `draft` in `.issues/N/state.md`                                     |
-| 5    | Verify          | `./.opencode/tools/local-issues read N` — exit 0 = PASS                                            |
+| 3    | Verify label    | `./.opencode/tools/local-issues read-labels --number N` — check `needs-approval` is in labels list. If missing: `./.opencode/tools/local-issues update N --labels needs-approval` |
+| 4    | Write spec body | Full fidelity spec body content written to `.issues/N/spec.md`                   |
+| 5    | Set phase       | Phase set to `draft` in `.issues/N/state.md`                                     |
+| 6    | Verify          | `./.opencode/tools/local-issues read N` — exit 0 = PASS                                            |
 
 **Result:** Local issue N in draft phase. No remote exists. `links.yaml` created empty.
 
@@ -104,6 +105,7 @@ ______________________________________________________________________
 - \[ \] `state.md` has correct phase value (`draft` or `promoted`)
 - \[ \] `links.yaml` exists (empty for new drafts, populated for imports/promotions)
 - \[ \] `./.opencode/tools/local-issues read N` returns exit 0
+- \[ \] `./.opencode/tools/local-issues read-labels --number N` confirms `needs-approval` is in labels list. If missing, remediation was applied via `update N --labels needs-approval`
 - \[ \] For promoted/imported: `remote_url` and `github_issue` are set in frontmatter
 - \[ \] For promoted: tag created and pushed
 

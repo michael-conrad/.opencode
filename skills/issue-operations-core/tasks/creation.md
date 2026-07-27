@@ -225,6 +225,34 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 
 **No separate comment needed.** The byline is part of the issue body content, not a standalone comment.
 
+### Step 3.5: Verify `needs-approval` Label on Remote Issue
+
+**MANDATORY post-creation check.** The `needs-approval` label MUST exist on the remote issue after creation. If the label was not applied during creation (e.g., API did not persist it), the agent MUST remediate immediately.
+
+- [ ] 1. **Read remote issue labels** via the platform sub-skill:
+   - **GitHub:** `issue-operations → read-labels` (routes to `github_issue_read(method="get_labels")`)
+   - **GitBucket:** `issue-operations → read-labels` (routes to `gb issue list --labels`)
+- [ ] 1. **Check if `needs-approval` is in the labels list**
+- [ ] 1. **If `needs-approval` is present:** proceed to Step 4
+- [ ] 1. **If `needs-approval` is missing:** remediate immediately:
+   - **GitHub:** `github_issue_write(method="add_labels", issue_number=<N>, labels=["needs-approval"])`
+   - **GitBucket:** Labels can ONLY be set during creation — post-creation label changes do not work. Report the missing label as a known limitation.
+- [ ] 1. **Re-read labels** after remediation to confirm the label was applied
+- [ ] 1. **If remediation fails:** HALT and report the label application failure
+
+**Evidence artifact (MANDATORY):**
+
+```
+Check: Post-creation label verification for #<N>
+Tool: issue-operations → read-labels
+Labels found: [list of labels]
+needs-approval present: [yes|no]
+Remediation: [none|applied|failed]
+Result: [PASS|FAIL]
+```
+
+**Note (GitBucket):** Labels can ONLY be set during creation via the `labels` parameter. Post-creation label changes do not work on GitBucket. If the label was not applied during creation, report the limitation — do not attempt remediation.
+
 ### Step 4: Report Issue Created
 
 Report based on creation flow:

@@ -278,6 +278,21 @@ When the user says "stop" (or unambiguous equivalent), the agent MUST immediatel
 - The user must explicitly restart with a new message to resume interaction
 - "stop" is a hard state transition — no recovery within the same session
 
+### [critical-rules-073] CRITICAL VIOLATION — Reading source files with intent to modify without `for_implementation`+ scope
+
+Reading source files with the intent to modify them constitutes implicit self-authorization. An agent that reads a source file and then modifies it without `for_implementation` or higher scope has bypassed the approval gate. This applies to ALL file types: source code, configuration, guidelines, skills, and task files.
+
+#### 🚫 FORBIDDEN
+- Reading a source file and then modifying it without `for_implementation`+ scope
+- Using "I was just reading" as a defense after modifying a file
+- Reading files to "understand the codebase" and then making changes without authorization
+
+#### ✅ REQUIRED
+- Before reading any source file with potential intent to modify, verify authorization scope
+- If scope is `for_analysis` or lower, read-only mode is enforced — no modifications permitted
+- If scope is `for_implementation` or higher, proceed with reading and modification
+- When in doubt about intent, treat as read-only until scope is confirmed
+
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.

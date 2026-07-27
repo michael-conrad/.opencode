@@ -15,7 +15,7 @@
 ### Item 1: Spec exists and is approved
 
 - **State:** Spec issue exists with `[SPEC]` label
-- **Verify:** Read issue `{issue_number}` — check for `[SPEC]` label
+- **Verify:** Read `issue.yaml` labels from `.issues/{N}/` — check for `[SPEC]` label
 - **If PASS:** Proceed to Item 2
 - **If FAIL:** Report `next_action: spec-creation` with reason "No approved spec found for issue {issue_number}"
 
@@ -29,7 +29,7 @@
 ### Item 3: Plan is approved
 
 - **State:** Issue has `approved-for-plan` label (or scope >= `for_plan` auto-approves)
-- **Verify:** Read issue `{issue_number}` — check for `approved-for-plan` label
+- **Verify:** Read `issue.yaml` labels from `.issues/{N}/` — check for `approved-for-plan` label
 - **If PASS:** Proceed to Item 4
 - **If FAIL:** Report `next_action: apply-label` with reason "Plan for issue {issue_number} needs approval label"
 

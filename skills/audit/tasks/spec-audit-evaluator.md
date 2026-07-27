@@ -47,7 +47,7 @@ Evaluator role for the spec-audit chain. Reads `evidence.yaml` (Investigator) an
 - `verdict.yaml` written to `{artifact_evidence_dir}/verdict.yaml`
 - Every criterion evaluated with binary PASS/FAIL — no INCONCLUSIVE, no "PASS with concerns"
 - Holistic dimensions evaluated (11 dimensions from `.opencode/reference/holistic-dimensions.yaml`)
-- Narrow criteria evaluated (SC-1 through SC-14, SC-DET, SC-STRUCTURAL-FAIL, SC-EVIDENCE-TYPE, SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, SC-PIPELINE-GATES, SC-CANONICAL-PLAN-FORM, SC-ADMONISHMENT, SC-REASONING, SC-CLAIM, SC-BLAST-RADIUS, SC-CONCERN-MAP, SC-CODE-PATH, SC-CROSS-CUTTING, SC-INTERFACE, SC-STATE, SC-TESTABILITY)
+- Narrow criteria evaluated (SC-1 through SC-14, SC-DET, SC-STRUCTURAL-FAIL, SC-EVIDENCE-TYPE, SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, SC-PIPELINE-GATES, SC-CANONICAL-PLAN-FORM, SC-REASONING, SC-CLAIM, SC-BLAST-RADIUS, SC-CONCERN-MAP, SC-CODE-PATH, SC-CROSS-CUTTING, SC-INTERFACE, SC-STATE, SC-TESTABILITY)
 - SC-SEM criteria evaluated (if spec is a skill card audit)
 - Analytical artifact criteria evaluated (if artifact paths provided)
 - Self-consistency gate applied to all PASS verdicts
@@ -292,12 +292,6 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 - [ ] 1. If the spec defines plan output format requirements, validate they use canonical checklist format
 - [ ] 2. Numbered `- [ ] N.` with sub-bullet metadata, dispatch mode indicators → PASS
 - [ ] 3. Dispatch tables, shared cross-references → FAIL
-
-#### Step 5i: Evaluate SC-ADMONISHMENT
-
-- [ ] 1. For skill card audits: verify the SKILL.md contains the 5-item Mandatory Task Discipline admonishment
-- [ ] 2. For task card audits: verify the 4-item (non-inline) or 3-item (inline) Task Discipline admonishment
-- [ ] 3. If not a skill/task card audit: mark as N/A
 
 ### Step 6: Evaluate Reasoning Soundness (A1)
 

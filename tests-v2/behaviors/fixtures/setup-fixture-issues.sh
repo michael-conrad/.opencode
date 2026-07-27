@@ -42,10 +42,10 @@ setup_fixture_issues() {
         number=$(echo "$issue_name" | grep -oE '^[0-9]+' || echo "")
         if [ -n "$number" ]; then
             mkdir -p "$workdir/.issues/$number"
-            # Copy all .md files (spec, plan, etc.) to the flat path
-            for md_file in "$workdir/.issues/open/$issue_name/"*.md; do
-                if [ -f "$md_file" ]; then
-                    cp "$md_file" "$workdir/.issues/$number/"
+            # Copy all .md and .yaml files (spec, plan, issue.yaml, etc.) to the flat path
+            for src_file in "$workdir/.issues/open/$issue_name/"*.md "$workdir/.issues/open/$issue_name/"*.yaml; do
+                if [ -f "$src_file" ]; then
+                    cp "$src_file" "$workdir/.issues/$number/"
                 fi
             done
         fi

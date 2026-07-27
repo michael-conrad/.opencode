@@ -898,10 +898,20 @@ def _check_duplicate_issue(
                 sys.exit(1)
 
 
+def _ensure_needs_approval(labels: list[str]) -> list[str]:
+    """Ensure 'needs-approval' is always in the labels list, first."""
+    result = ["needs-approval"]
+    for label in labels:
+        if label != "needs-approval":
+            result.append(label)
+    return result
+
+
 def _create_issue_files(
     number: int, title: str, labels: list[str], repo_path: Path, qualified: str
 ) -> None:
     path = get_issue_path(number, title, repo_path)
+    labels = _ensure_needs_approval(labels)
     issue = {
         "title": title,
         "status": "open",

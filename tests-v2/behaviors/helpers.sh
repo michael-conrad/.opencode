@@ -59,6 +59,215 @@ __find_project_root() {
 
 PARENT_REPO_DIR="$(__find_project_root "$BEHAVIOR_HELPERS_DIR")"
 
+# --- GitBucket container provisioning ---
+
+GITBUCKET_PID_FILE=""
+GITBUCKET_PORT_FILE=""
+GITBUCKET_DATA_DIR=""
+
+__ensure_gitbucket() {
+    # Provisions JDK, downloads GitBucket JAR, starts GitBucket, generates token.
+    # Idempotent: skips provisioning if already running.
+    local project_root="$PARENT_REPO_DIR"
+    local tools_dir="$project_root/.tools"
+    local jdk_dir="$tools_dir/jdk"
+    local gb_dir="$tools_dir/gitbucket"
+    local gb_war="$gb_dir/gitbucket.war"
+    local data_dir="$project_root/tmp/gitbucket-data"
+    local pid_file="$project_root/tmp/.gitbucket.pid"
+    local port_file="$project_root/tmp/.gitbucket.port"
+
+    GITBUCKET_PID_FILE="$pid_file"
+    GITBUCKET_PORT_FILE="$port_file"
+    GITBUCKET_DATA_DIR="$data_dir"
+
+    # Check if already running
+    if [ -f "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
+        local port
+        port=$(cat "$port_file" 2>/dev/null || echo "")
+        if [ -n "$port" ]; then
+            export GITBUCKET_PORT="$port"
+            return 0
+        fi
+    fi
+
+    # SC-1: Provision JDK
+    mkdir -p "$jdk_dir"
+    if [ ! -f "$jdk_dir/.provisioned" ]; then
+        echo "  [gitbucket] provisioning JDK..." >&2
+        local jdk_url
+        jdk_url=$(curl -sL "https://api.adoptium.net/v3/assets/version/%5B21%2C22%29?os=linux&architecture=x64&image_type=jre&project=jdk&page_size=1" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['binaries'][0]['package']['link'])" 2>/dev/null || true)
+        if [ -z "$jdk_url" ]; then
+            echo "  [gitbucket] FATAL: could not resolve JDK download URL" >&2
+            return 1
+        fi
+        local jdk_archive="$jdk_dir/jdk.tar.gz"
+        curl -sL -o "$jdk_archive" "$jdk_url" 2>/dev/null || {
+            echo "  [gitbucket] FATAL: JDK download failed" >&2
+            return 1
+        }
+        tar -xzf "$jdk_archive" -C "$jdk_dir" --strip-components=1 2>/dev/null || {
+            echo "  [gitbucket] FATAL: JDK extraction failed" >&2
+            return 1
+        }
+        rm -f "$jdk_archive"
+        touch "$jdk_dir/.provisioned"
+        echo "  [gitbucket] JDK provisioned at $jdk_dir" >&2
+    fi
+    local java_cmd="$jdk_dir/bin/java"
+    if [ ! -x "$java_cmd" ]; then
+        # Try alternate extraction layout (some archives use jdk-*/ subdir)
+        java_cmd=$(find "$jdk_dir" -name 'java' -type f 2>/dev/null | head -1)
+    fi
+    if [ -z "$java_cmd" ] || [ ! -x "$java_cmd" ]; then
+        echo "  [gitbucket] FATAL: java binary not found in $jdk_dir" >&2
+        return 1
+    fi
+
+    # SC-2: Download GitBucket JAR
+    mkdir -p "$gb_dir"
+    if [ ! -f "$gb_war" ]; then
+        echo "  [gitbucket] downloading GitBucket JAR..." >&2
+        local release_url
+        release_url=$(curl -sL "https://api.github.com/repos/gitbucket/gitbucket/releases/latest" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print([a['browser_download_url'] for a in d['assets'] if a['name'].endswith('.war')][0])" 2>/dev/null || true)
+        if [ -z "$release_url" ]; then
+            echo "  [gitbucket] FATAL: could not resolve GitBucket release URL" >&2
+            return 1
+        fi
+        curl -sL -o "$gb_war" "$release_url" 2>/dev/null || {
+            echo "  [gitbucket] FATAL: GitBucket download failed" >&2
+            return 1
+        }
+        echo "  [gitbucket] GitBucket JAR downloaded to $gb_war" >&2
+    fi
+
+    # SC-3: Start GitBucket on auto-assigned port
+    mkdir -p "$data_dir"
+    echo "  [gitbucket] starting GitBucket..." >&2
+    "$java_cmd" -jar "$gb_war" --port=0 --gitbucket.home="$data_dir" &
+    local gb_pid=$!
+    echo "$gb_pid" > "$pid_file"
+
+    # Wait for GitBucket to start and discover the auto-assigned port
+    local port=""
+    local wait_seconds=0
+    while [ $wait_seconds -lt 30 ]; do
+        # Discover port from process listening on 127.0.0.1 or *
+        port=$(ss -tlnp 2>/dev/null | grep "$gb_pid" | awk '{print $4}' | grep -oP '\d+$' | head -1 || true)
+        if [ -n "$port" ]; then
+            break
+        fi
+        sleep 1
+        wait_seconds=$((wait_seconds + 1))
+    done
+
+    if [ -z "$port" ]; then
+        echo "  [gitbucket] FATAL: GitBucket did not write port file within 30s" >&2
+        kill "$gb_pid" 2>/dev/null || true
+        return 1
+    fi
+    echo "$port" > "$port_file"
+    export GITBUCKET_PORT="$port"
+    export GB_HOST="http://localhost:$port"
+    echo "  [gitbucket] started on port $port (PID $gb_pid)" >&2
+
+    # Wait for HTTP readiness
+    local ready=0
+    wait_seconds=0
+    while [ $wait_seconds -lt 30 ]; do
+        if curl -s "http://localhost:$port/" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 1
+        wait_seconds=$((wait_seconds + 1))
+    done
+    if [ "$ready" -ne 1 ]; then
+        echo "  [gitbucket] FATAL: GitBucket not ready after 30s" >&2
+        kill "$gb_pid" 2>/dev/null || true
+        return 1
+    fi
+
+    # SC-4: Generate admin token
+    local token
+    token=$(curl -s -X POST "http://localhost:$port/api/v3/tokens" -H "Content-Type: application/json" -d '{"name":"test-token","permissions":["repo","issue"]}' 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || true)
+    if [ -z "$token" ]; then
+        # GitBucket admin default: root/root
+        token=$(curl -s -u root:root -X POST "http://localhost:$port/api/v3/tokens" -H "Content-Type: application/json" -d '{"name":"test-token","permissions":["repo","issue"]}' 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || true)
+    fi
+    if [ -z "$token" ]; then
+        echo "  [gitbucket] WARNING: could not generate admin token — using default root:root" >&2
+        export GB_TOKEN="root"
+    else
+        export GB_TOKEN="$token"
+        echo "  [gitbucket] admin token generated" >&2
+    fi
+
+    # SC-5: Create test repo via API (no gb config needed — curl with basic auth)
+    curl -s -u root:root -X POST "http://localhost:$port/api/v3/user/repos" \
+        -H "Content-Type: application/json" \
+        -d '{"name":"test-repo"}' >/dev/null 2>&1 || true
+    echo "  [gitbucket] test repo created via API" >&2
+
+    # Wire origin on the test project
+    local test_project="${TEST_PROJECT:-$project_root}"
+    if git -C "$test_project" remote get-url origin &>/dev/null; then
+        git -C "$test_project" remote remove origin 2>/dev/null || true
+    fi
+    git -C "$test_project" remote add origin "http://root:${GB_TOKEN}@localhost:${port}/git/root/test-repo.git" 2>/dev/null || true
+    git -C "$test_project" push -u origin main 2>/dev/null || true
+    echo "  [gitbucket] test repo wired as origin" >&2
+}
+
+__reset_gitbucket() {
+    # SC-6: Kill process, delete data dir, re-start fresh
+    local pid_file="${GITBUCKET_PID_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.pid}"
+    local data_dir="${GITBUCKET_DATA_DIR:-$PARENT_REPO_DIR/tmp/gitbucket-data}"
+
+    if [ -f "$pid_file" ]; then
+        local pid
+        pid=$(cat "$pid_file" 2>/dev/null || true)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            echo "  [gitbucket] killing PID $pid..." >&2
+            kill "$pid" 2>/dev/null || true
+            sleep 2
+            # Force kill if still alive
+            kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
+        fi
+        rm -f "$pid_file"
+    fi
+
+    if [ -d "$data_dir" ]; then
+        echo "  [gitbucket] removing data dir..." >&2
+        rm -rf "$data_dir"
+    fi
+
+    rm -f "${GITBUCKET_PORT_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.port}"
+    unset GITBUCKET_PORT
+
+    # Re-start fresh
+    __ensure_gitbucket
+}
+
+__kill_gitbucket() {
+    # Kill GitBucket process without restarting (for --clean-all)
+    local pid_file="${GITBUCKET_PID_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.pid}"
+    if [ -f "$pid_file" ]; then
+        local pid
+        pid=$(cat "$pid_file" 2>/dev/null || true)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
+        fi
+        rm -f "$pid_file"
+    fi
+    rm -f "$PARENT_REPO_DIR/tmp/.gitbucket.port"
+    unset GITBUCKET_PORT
+}
+
+# --- End GitBucket container provisioning ---
+
 # Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
 # The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
 # making it impossible to isolate test runs from production state.
@@ -200,6 +409,15 @@ behavior_run() {
         return 1
     }
 
+    # SC-8: Provision GitBucket if test needs remote API
+    if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
+        echo "  [harness] BEHAVIOR_NEEDS_REMOTE=1 — provisioning GitBucket..." >&2
+        __ensure_gitbucket || {
+            echo "HARNESS_FAILURE: GitBucket provisioning failed" >&2
+            return 1
+        }
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
@@ -215,6 +433,17 @@ behavior_run() {
             echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
             exit 1
         }
+
+        # Pin to local submodule commit so test agent sees feature branch changes.
+        # Mirrors the pattern in with-test-home --setup (lines 153-159).
+        # BEHAVIOR_SUBMODULE_COMMIT override still works via the guard below.
+        if [ -z "$submodule_commit" ]; then
+            local local_submodule_commit
+            local_submodule_commit=$(git -C "$PARENT_REPO_DIR/.opencode" rev-parse HEAD 2>/dev/null || true)
+            if [ -n "$local_submodule_commit" ]; then
+                submodule_commit="$local_submodule_commit"
+            fi
+        fi
 
         if [ -n "$submodule_commit" ]; then
             git -C "$attempt_workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
@@ -257,6 +486,15 @@ behavior_run() {
             (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
             rm -rf "$attempt_workdir/.issues"
             echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
+        fi
+
+        # Wire GitBucket remote on the attempt workdir if GitBucket is provisioned
+        if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ -n "${GITBUCKET_PORT:-}" ]; then
+            local gb_port="${GITBUCKET_PORT}"
+            local gb_token="${GB_TOKEN:-root}"
+            git -C "$attempt_workdir" remote add origin "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" 2>/dev/null || true
+            git -C "$attempt_workdir" push -u origin main 2>/dev/null || true
+            echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2
         fi
 
         TEST_WORKDIR="$attempt_workdir" \

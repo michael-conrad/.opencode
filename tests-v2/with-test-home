@@ -24,7 +24,7 @@
 #
 # Environment variable isolation — uses env -i with ONLY these vars:
 #   HOME, PWD, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR,
-#   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN
+#   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST
 # USER is set to "opencode-test-user" in the test environment.
 #
 # SNAP_USER_DATA/SNAP_USER_COMMON override snap's hardcoded ~/snap/opencode/
@@ -77,6 +77,22 @@ do_clean() {
 }
 
 do_clean_all() {
+    # SC-7: Kill GitBucket process if running
+    local gb_pid_file="$PROJECT_DIR/tmp/.gitbucket.pid"
+    if [ -f "$gb_pid_file" ]; then
+        local gb_pid
+        gb_pid=$(cat "$gb_pid_file" 2>/dev/null || true)
+        if [ -n "$gb_pid" ] && kill -0 "$gb_pid" 2>/dev/null; then
+            echo "Killing GitBucket (PID $gb_pid)..." >&2
+            kill "$gb_pid" 2>/dev/null || true
+            sleep 1
+            kill -0 "$gb_pid" 2>/dev/null && kill -9 "$gb_pid" 2>/dev/null || true
+        fi
+        rm -f "$gb_pid_file"
+    fi
+    rm -f "$PROJECT_DIR/tmp/.gitbucket.port"
+    rm -rf "$PROJECT_DIR/tmp/gitbucket-data"
+
     local count=0
     while IFS= read -r -d '' dir; do
         echo "Removing: $dir" >&2
@@ -388,6 +404,8 @@ env -i -C "$TEST_PROJECT" \
     LANG="$LANG" \
     TERM="$TERM" \
     GB_TOKEN="${GB_TOKEN:-}" \
+    GB_HOST="${GB_HOST:-}" \
+    GITBUCKET_PORT="${GITBUCKET_PORT:-}" \
     "$@" 2>&1 || RC=$?
 
 if [ "${KEEP_TEST_HOME:-0}" != "1" ]; then
