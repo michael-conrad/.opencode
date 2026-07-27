@@ -58,6 +58,8 @@ correctly.
 The skill card tells the orchestrator WHAT to dispatch. The task card tells
 the sub-agent HOW to execute. Only the task card goes to a sub-agent.
 
+The procedure in Step 2.5 above describes how the orchestrator reads the SKILL.md's Trigger Dispatch Table and Invocation section, then dispatches the task card via task().
+
 # Default Authorization Scope — for_analysis
 
 Until the user explicitly says "approved", "go", or equivalent, your authorization scope is `for_analysis`. Under `for_analysis`:
