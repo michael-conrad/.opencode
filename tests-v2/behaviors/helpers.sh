@@ -96,7 +96,7 @@ __ensure_gitbucket() {
     if [ ! -f "$jdk_dir/.provisioned" ]; then
         echo "  [gitbucket] provisioning JDK..." >&2
         local jdk_url
-        jdk_url=$(curl -sL "https://api.adoptium.net/v3/assets/version/%5B21%2C22%29?os=linux&architecture=x64&image_type=jre&project=jdk&page_size=1" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['binary']['package']['link'])" 2>/dev/null || true)
+        jdk_url=$(curl -sL "https://api.adoptium.net/v3/assets/version/%5B21%2C22%29?os=linux&architecture=x64&image_type=jre&project=jdk&page_size=1" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['binaries'][0]['package']['link'])" 2>/dev/null || true)
         if [ -z "$jdk_url" ]; then
             echo "  [gitbucket] FATAL: could not resolve JDK download URL" >&2
             return 1
@@ -144,19 +144,18 @@ __ensure_gitbucket() {
     # SC-3: Start GitBucket on auto-assigned port
     mkdir -p "$data_dir"
     echo "  [gitbucket] starting GitBucket..." >&2
-    "$java_cmd" -jar "$gb_war" --port=0 --data="$data_dir" &
+    "$java_cmd" -jar "$gb_war" --port=0 --gitbucket.home="$data_dir" &
     local gb_pid=$!
     echo "$gb_pid" > "$pid_file"
 
-    # Wait for port to be written (GitBucket writes port to data_dir/PORT)
+    # Wait for GitBucket to start and discover the auto-assigned port
     local port=""
     local wait_seconds=0
     while [ $wait_seconds -lt 30 ]; do
-        if [ -f "$data_dir/PORT" ]; then
-            port=$(cat "$data_dir/PORT" 2>/dev/null || true)
-            if [ -n "$port" ]; then
-                break
-            fi
+        # Discover port from process listening on 127.0.0.1 or *
+        port=$(ss -tlnp 2>/dev/null | grep "$gb_pid" | awk '{print $4}' | grep -oP '\d+$' | head -1 || true)
+        if [ -n "$port" ]; then
+            break
         fi
         sleep 1
         wait_seconds=$((wait_seconds + 1))
@@ -169,6 +168,7 @@ __ensure_gitbucket() {
     fi
     echo "$port" > "$port_file"
     export GITBUCKET_PORT="$port"
+    export GB_HOST="http://localhost:$port"
     echo "  [gitbucket] started on port $port (PID $gb_pid)" >&2
 
     # Wait for HTTP readiness
@@ -203,11 +203,14 @@ __ensure_gitbucket() {
         echo "  [gitbucket] admin token generated" >&2
     fi
 
-    # SC-5: Create test repo and wire as origin
+    # SC-5: Create test repo via API (no gb config needed — curl with basic auth)
+    curl -s -u root:root -X POST "http://localhost:$port/api/v3/user/repos" \
+        -H "Content-Type: application/json" \
+        -d '{"name":"test-repo"}' >/dev/null 2>&1 || true
+    echo "  [gitbucket] test repo created via API" >&2
+
+    # Wire origin on the test project
     local test_project="${TEST_PROJECT:-$project_root}"
-    if command -v gb &>/dev/null; then
-        GB_TOKEN="$GB_TOKEN" gb create-repo test-repo --host "http://localhost:$port" 2>/dev/null || true
-    fi
     if git -C "$test_project" remote get-url origin &>/dev/null; then
         git -C "$test_project" remote remove origin 2>/dev/null || true
     fi
@@ -483,6 +486,15 @@ behavior_run() {
             (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
             rm -rf "$attempt_workdir/.issues"
             echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
+        fi
+
+        # Wire GitBucket remote on the attempt workdir if GitBucket is provisioned
+        if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ -n "${GITBUCKET_PORT:-}" ]; then
+            local gb_port="${GITBUCKET_PORT}"
+            local gb_token="${GB_TOKEN:-root}"
+            git -C "$attempt_workdir" remote add origin "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" 2>/dev/null || true
+            git -C "$attempt_workdir" push -u origin main 2>/dev/null || true
+            echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2
         fi
 
         TEST_WORKDIR="$attempt_workdir" \

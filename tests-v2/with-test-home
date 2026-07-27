@@ -24,7 +24,7 @@
 #
 # Environment variable isolation — uses env -i with ONLY these vars:
 #   HOME, PWD, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR,
-#   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN
+#   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST
 # USER is set to "opencode-test-user" in the test environment.
 #
 # SNAP_USER_DATA/SNAP_USER_COMMON override snap's hardcoded ~/snap/opencode/
@@ -404,6 +404,8 @@ env -i -C "$TEST_PROJECT" \
     LANG="$LANG" \
     TERM="$TERM" \
     GB_TOKEN="${GB_TOKEN:-}" \
+    GB_HOST="${GB_HOST:-}" \
+    GITBUCKET_PORT="${GITBUCKET_PORT:-}" \
     "$@" 2>&1 || RC=$?
 
 if [ "${KEEP_TEST_HOME:-0}" != "1" ]; then

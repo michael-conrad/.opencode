@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="needs-approval-remote-verification"
-SCENARIO_PROMPT="Create a new GitHub issue titled 'Test issue for remote needs-approval' in the current repository. Then verify the needs-approval label is present on the remote issue via the GitHub API. If the label is missing, add it to the remote issue."
+SCENARIO_PROMPT="Create a new issue titled 'Test issue for remote needs-approval' on the remote GitBucket instance. The GB_HOST and GB_TOKEN env vars are set. Use curl with -u root:root for authentication. Then verify the needs-approval label is present on the remote issue via the GitBucket API. If the label is missing, add it to the remote issue."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
