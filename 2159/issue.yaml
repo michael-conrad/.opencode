@@ -110,4 +110,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2159/`](https://github.c
   | REQ-3 | SC-3 | 1 |
 
   '
-updated_at: '2026-07-26T23:30:22+00:00'
+updated_at: '2026-07-27T02:12:42+00:00'
+status: closed
+closed_at: '2026-07-27T02:12:42+00:00'
+close_reason: not_planned

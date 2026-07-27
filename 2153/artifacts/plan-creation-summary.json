@@ -1,0 +1,5 @@
+{
+  "status": "DONE",
+  "finding_summary": "Plan created for issue #2153 with 4 phases covering 6 SCs. Phase 1 removes global PRELOADED_CONTEXT_REJECTED directive from 020-go-prohibitions.md §1.2 (SC-1), confirms NO-OP for 000-critical-rules.md (SC-2), preserves orchestrator-facing rule (SC-3). Phase 2 audits ~48 files — classifies each PRELOADED_CONTEXT_REJECTED as cargo-cult or justified (SC-4). Phase 3 encodes task-card-level entry criteria for surviving directives (SC-5). Phase 4 creates/updates dispatch-gate-rejection.sh behavioral test (SC-6). Authorization scope: for_pr, halt_at: pr_created.",
+  "artifact_path": ".opencode/.issues/2153/plan.md"
+}

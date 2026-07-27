@@ -1,0 +1,8 @@
+overall: PASS
+categories:
+  structural: PASS
+  skill_task_validity: PASS
+  sc_coverage: PASS
+  concern_separation: PASS
+  dag_validation: PASS
+  holistic_quality: PASS

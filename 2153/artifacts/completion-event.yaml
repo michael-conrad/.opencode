@@ -1,0 +1,10 @@
+event: plan_created
+issue: 2153
+title: "Per-task-card PRELOADED_CONTEXT_REJECTED — remove global sub-agent directive, encode per-task-card entry criteria"
+phases: 4
+sc_count: 6
+plan_path: .opencode/.issues/2153/plan.md
+authorization_scope: for_pr
+halt_at: pr_created
+execution_strategy: sequential (1→2→3→4)
+recorded_at: 2026-07-26T19:31:00-04:00

@@ -1,0 +1,54 @@
+phases:
+  - phase: 1
+    name: Remove global sub-agent directive from guidelines
+    scs: [SC-1, SC-2, SC-3]
+    concern: "Guideline text surgery — remove global sub-agent mandate, preserve orchestrator rule"
+    skill: implementation-pipeline
+    task: assemble-work
+    dependencies: []
+
+  - phase: 2
+    name: Audit SKILL.md DISPATCH_GATE sections
+    scs: [SC-4]
+    concern: "Audit ~39 SKILL.md files — classify each PRELOADED_CONTEXT_REJECTED as cargo-cult or justified"
+    skill: implementation-pipeline
+    task: assemble-work
+    dependencies: [1]
+
+  - phase: 3
+    name: Encode per-task-card entry criteria where justified
+    scs: [SC-5]
+    concern: "For PRELOADED_CONTEXT_REJECTED that survives audit, ensure task-card-level entry criteria exist"
+    skill: implementation-pipeline
+    task: assemble-work
+    dependencies: [2]
+
+  - phase: 4
+    name: Update behavioral enforcement test
+    scs: [SC-6]
+    concern: "Create or update dispatch-gate-rejection.sh to test only remaining PRELOADED_CONTEXT_REJECTED cases"
+    skill: implementation-pipeline
+    task: assemble-work
+    dependencies: [3]
+
+dag_edges:
+  - from: 1
+    to: 2
+  - from: 2
+    to: 3
+  - from: 3
+    to: 4
+
+skill_task_selection:
+  phase_1:
+    skill: editing
+    task: edit-file
+  phase_2:
+    skill: audit
+    task: content-audit
+  phase_3:
+    skill: skill-creator
+    task: update
+  phase_4:
+    skill: test-driven-development
+    task: behavioral-enforcement
