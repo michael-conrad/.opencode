@@ -1,5 +1,7 @@
 comments:
 - type: authorization
-  body: 'Authorization granted: for_pr scope (halt_at: pr_created). Granted by developer
-    (Michael Conrad). Timestamp: 2026-07-27T21:46:00Z'
+  author: developer
+  scope: for_pr
+  halt_at: pr_created
   timestamp: '2026-07-27T21:46:29+00:00'
+  body: 'Authorization granted for for_pr scope (halt_at: pr_created)'
