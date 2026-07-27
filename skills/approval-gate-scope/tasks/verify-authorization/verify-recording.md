@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Read back the recorded authorization state from persistent issue state (`spec.md` frontmatter, `comments.yaml`, `issue.yaml`) and confirm it matches what was written by the `record-authorization` task. Returns PASS if all three files match expectations. Returns BLOCKED with a specific reason if any file is missing, malformed, or contains unexpected values.
+Read back the recorded authorization state from persistent issue state (`issue.yaml` labels, `comments.yaml`) and confirm it matches what was written by the `record-authorization` task. Returns PASS if both files match expectations. Returns BLOCKED with a specific reason if any file is missing, malformed, or contains unexpected values.
 
 ## Entry Criteria
 
@@ -13,7 +13,7 @@ Read back the recorded authorization state from persistent issue state (`spec.md
 
 ## Exit Criteria
 
-- All three state files verified: `spec.md` frontmatter has `status: approved`, `comments.yaml` has the authorization record, `issue.yaml` has the label
+- Both state files verified: `issue.yaml` has the `approved-for-{scope}` label, `comments.yaml` has the authorization record
 - BLOCKED returned if any check fails with a specific reason
 - Result contract returned
 
@@ -29,30 +29,7 @@ git -C .issues rev-parse --git-dir
 
 If the command fails (worktree not initialized), return BLOCKED with `reason: ISSUES_WORKTREE_NOT_INITIALIZED`.
 
-### 2. Verify `spec.md` Frontmatter
-
-1. Read `spec.md` from `.issues/{issue-N}/spec.md`:
-
-```bash
-cat .issues/{issue-N}/spec.md
-```
-
-2. Parse YAML frontmatter (content between `---` delimiters at the start of the file).
-
-3. If the file does not exist, return BLOCKED with `reason: SPEC_MD_NOT_FOUND`.
-
-4. If frontmatter is malformed (missing YAML delimiters, invalid YAML, missing `status` field), return BLOCKED with `reason: MALFORMED_FRONTMATTER`.
-
-5. Verify the `status` field is `approved`:
-
-```bash
-# Extract status from frontmatter
-sed -n '/^---$/,/^---$/p' .issues/{issue-N}/spec.md | grep '^status:' | awk '{print $2}'
-```
-
-6. If `status` is not `approved`, return BLOCKED with `reason: STATUS_NOT_APPROVED`.
-
-### 3. Verify `comments.yaml` Authorization Record
+### 2. Verify `comments.yaml` Authorization Record
 
 1. Read `comments.yaml` from `.issues/{issue-N}/comments.yaml`:
 
@@ -77,7 +54,7 @@ cat .issues/{issue-N}/comments.yaml
 
 8. If the authorization record exists but is missing required fields (`author`, `scope`, `timestamp`), return BLOCKED with `reason: INCOMPLETE_AUTHORIZATION_RECORD`.
 
-### 4. Verify `issue.yaml` Label
+### 3. Verify `issue.yaml` Label
 
 1. Read `issue.yaml` from `.issues/{issue-N}/issue.yaml`:
 
@@ -99,9 +76,9 @@ cat .issues/{issue-N}/issue.yaml
 
 8. If the label is missing from the `labels` array, return BLOCKED with `reason: MISSING_APPROVED_LABEL`.
 
-### 5. Return Result Contract
+### 4. Return Result Contract
 
-If all three checks pass, return DONE. If any check fails, return BLOCKED with the specific reason.
+If both checks pass, return DONE. If any check fails, return BLOCKED with the specific reason.
 
 ## Result Contract
 
@@ -117,9 +94,6 @@ blocker_reason: "<reason if BLOCKED>"
 | Condition | Action |
 |-----------|--------|
 | `.issues/` worktree not initialized | BLOCKED with `ISSUES_WORKTREE_NOT_INITIALIZED` |
-| Missing `spec.md` | BLOCKED with `SPEC_MD_NOT_FOUND` |
-| Malformed `spec.md` frontmatter (missing YAML delimiters, invalid YAML, missing `status` field) | BLOCKED with `MALFORMED_FRONTMATTER` |
-| `status` field is not `approved` | BLOCKED with `STATUS_NOT_APPROVED` |
 | Missing `comments.yaml` | BLOCKED with `MISSING_COMMENTS_YAML` |
 | Empty `comments.yaml` (zero bytes) | BLOCKED with `MISSING_COMMENTS_YAML` |
 | Malformed `comments.yaml` (invalid YAML, not a list) | BLOCKED with `MALFORMED_COMMENTS_YAML` |
