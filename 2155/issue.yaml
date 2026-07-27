@@ -185,4 +185,5 @@ body: '> **Full spec and artifacts:** [`.opencode/.issues/2155/`](https://github
   '
 updated_at: '2026-07-27T21:46:42+00:00'
 labels:
-- approved-for-pr,spec
+- approved-for-pr
+- spec

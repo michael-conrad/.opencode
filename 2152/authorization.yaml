@@ -1,0 +1,9 @@
+authorization:
+  session: 2026-07-27T21:46:00Z
+  scope: for_pr
+  halt_at: pr_created
+  pipeline_phase: authorization
+  granted_by: developer (Michael Conrad)
+  issues: [2152, 2153, 2155]
+status: authorized
+recorded_at: 2026-07-27T21:50:00Z

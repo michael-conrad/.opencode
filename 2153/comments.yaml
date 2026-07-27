@@ -1,5 +1,5 @@
 comments:
-- type: internal
+- type: authorization
   body: 'Authorization granted: for_pr scope (halt_at: pr_created). Granted by developer
     (Michael Conrad). Timestamp: 2026-07-27T21:46:00Z'
   timestamp: '2026-07-27T21:46:29+00:00'
