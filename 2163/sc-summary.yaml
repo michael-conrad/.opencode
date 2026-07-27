@@ -1,0 +1,42 @@
+sc_count: 10
+scs:
+  - id: "SC-1"
+    description: "__ensure_gitbucket() provisions JDK to .tools/jdk/ on first call"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "__ensure_gitbucket() downloads latest GitBucket WAR to .tools/gitbucket/ on first call"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "GitBucket starts on auto-assigned port (--port=0), port discovered from log/port file"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "GB_TOKEN env var is set from admin API token generation"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Test repo created on GitBucket and wired as test project's origin remote"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "__reset_gitbucket() kills process, deletes data dir, re-starts fresh"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "with-test-home --clean-all kills GitBucket process, preserves .tools/ cache"
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Test with BEHAVIOR_NEEDS_REMOTE=1 can create issue on GitBucket and verify labels"
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Multiple tests sharing GitBucket instance get clean state via reset"
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-10"
+    description: ".tools/ cache is gitignored and not tracked"
+    evidence_type: "string"
+    plan_item: 1

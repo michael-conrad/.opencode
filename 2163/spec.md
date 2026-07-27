@@ -1,0 +1,91 @@
+> **Full spec and artifacts: [`.opencode/.issues/2163/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2163)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/2163/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+## Objective
+
+Enable behavioral tests that require a remote API (e.g., verifying labels on a remote issue after creation) by provisioning a self-contained GitBucket instance using project-local tooling. No Docker, no external infrastructure — the test harness downloads and runs everything it needs.
+
+## Background
+
+The test harness (`behavior_run()` in `helpers.sh`) creates an isolated git repo with no `origin` remote. Tests that need to verify remote API behavior (like SC-3 from #2161: "Agent verifies needs-approval label on remote issue after creation") cannot run because the agent correctly detects "no remote" and reports blockers. The harness needs a live, local remote API to test against.
+
+## Solution
+
+The test harness provisions a self-contained GitBucket instance:
+
+1. **JDK**: Downloaded to `.tools/jdk/` (Eclipse Temurin 21 JRE) on first use, cached across sessions
+2. **GitBucket JAR**: Downloaded to `.tools/gitbucket/gitbucket.war` (latest release from GitHub API) on first use, cached
+3. **Startup**: `java -jar gitbucket.war --port=0 --data=tmp/gitbucket-data/` — auto-assigned port
+4. **Auth**: `GB_TOKEN` env var generated from admin API on startup, passed through `env -i`
+5. **Test repo**: Created on GitBucket via `gb create-repo`, wired as test project's `origin`
+6. **Reset**: Kill process, delete data dir, re-start (clean state between tests)
+7. **Cleanup**: `--clean-all` kills process, preserves `.tools/` cache
+8. **Trigger**: Test scripts set `BEHAVIOR_NEEDS_REMOTE=1` to opt in
+
+## Not Included
+
+- Docker-based solution (JAR-only, no Docker)
+- GitHub remote support (GitBucket only)
+- Multi-instance GitBucket (single instance, reset between tests)
+- Persistent GitBucket data across sessions (ephemeral, cleaned on `--clean-all`)
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type |
+|----|-----------|---------------|
+| SC-1 | `__ensure_gitbucket()` provisions JDK to `.tools/jdk/` on first call | `string` |
+| SC-2 | `__ensure_gitbucket()` downloads latest GitBucket WAR to `.tools/gitbucket/` on first call | `string` |
+| SC-3 | GitBucket starts on auto-assigned port (`--port=0`), port discovered from log/port file | `behavioral` |
+| SC-4 | `GB_TOKEN` env var is set from admin API token generation | `behavioral` |
+| SC-5 | Test repo created on GitBucket and wired as test project's `origin` remote | `behavioral` |
+| SC-6 | `__reset_gitbucket()` kills process, deletes data dir, re-starts fresh | `behavioral` |
+| SC-7 | `with-test-home --clean-all` kills GitBucket process, preserves `.tools/` cache | `behavioral` |
+| SC-8 | Test with `BEHAVIOR_NEEDS_REMOTE=1` can create issue on GitBucket and verify labels | `behavioral` |
+| SC-9 | Multiple tests sharing GitBucket instance get clean state via reset | `behavioral` |
+| SC-10 | `.tools/` cache is gitignored and not tracked | `string` |
+
+## Requirements
+
+1. `__ensure_gitbucket()` function in `helpers.sh` — provisions JDK, downloads JAR, starts GitBucket, generates token
+2. `__reset_gitbucket()` function in `helpers.sh` — kills process, deletes data dir, re-starts
+3. JDK provisioning: download Eclipse Temurin 21 JRE from adoptium API, extract to `.tools/jdk/`
+4. GitBucket JAR provisioning: resolve latest release URL from GitHub API, download to `.tools/gitbucket/gitbucket.war`
+5. Port discovery: GitBucket writes port to `GITBUCKET_PORT` env or log file; parse to get the assigned port
+6. Token generation: `curl -X POST /api/v3/tokens` with admin creds, extract token, set `GB_TOKEN`
+7. Test repo creation: `gb create-repo test-repo` on the local GitBucket instance
+8. Remote wiring: `git remote add origin http://root:$TOKEN@localhost:$PORT/git/root/test-repo.git && git push -u origin main`
+9. `BEHAVIOR_NEEDS_REMOTE=1` flag: test scripts set this to opt in; `behavior_run()` checks and calls `__ensure_gitbucket()`
+10. `--clean-all` integration: `do_clean_all()` in `with-test-home` kills GitBucket process if running
+11. `.gitignore` verification: `.tools/` and `.jdk/` entries exist (add if missing)
+12. Documentation: update `.opencode/tests-v2/AGENTS.md` with container pattern, env vars, lifecycle
+
+## Implementation Items
+
+| Item | SCs | Description |
+|------|-----|-------------|
+| 1 | SC-1, SC-10 | JDK provisioning + `.gitignore` check |
+| 2 | SC-2, SC-10 | GitBucket JAR provisioning + `.gitignore` check |
+| 3 | SC-3 | GitBucket startup with port discovery |
+| 4 | SC-4 | Token generation and `GB_TOKEN` env var |
+| 5 | SC-5 | Test repo creation and remote wiring |
+| 6 | SC-6 | Reset function |
+| 7 | SC-7 | `--clean-all` integration |
+| 8 | SC-8, SC-9 | `BEHAVIOR_NEEDS_REMOTE=1` flag + multi-test reset |
+| 9 | — | Documentation in AGENTS.md |
+
+## Dependencies
+
+- #2161 (prerequisite: test harness submodule pinning fix in `helpers.sh`)
+
+## Traceability
+
+| Artifact | Path |
+|----------|------|
+| Blast radius | `tmp/0/artifacts/blast-radius.yaml` |
+| Concern map | `tmp/0/artifacts/concern-map.yaml` |
+| Code path inventory | `tmp/0/artifacts/code-path-inventory.yaml` |
+| Cross-cutting matrix | `tmp/0/artifacts/cross-cutting-matrix.yaml` |
+| Interface compatibility | `tmp/0/artifacts/interface-compatibility.yaml` |
+| State analysis | `tmp/0/artifacts/state-analysis.yaml` |
+| Testability assessment | `tmp/0/artifacts/testability-assessment.yaml` |
