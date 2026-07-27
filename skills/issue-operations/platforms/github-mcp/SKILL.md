@@ -69,6 +69,20 @@ GitHub MCP supports the following `approved-for-*` labels for issue labeling:
 
 `needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval.
 
+## Spec Lifecycle Labels
+
+GitHub MCP supports 5 spec lifecycle labels that track spec maturity through the review pipeline. These are distinct from `approved-for-*` authorization labels — lifecycle labels describe spec maturity, while authorization labels describe implementation permission.
+
+| Label | Meaning | Applied When |
+| ----- | ------- | ------------ |
+| `spec-draft` | Spec is in draft state, being written or revised | After spec creation or revision |
+| `spec-needs-research` | Spec requires investigation before review | On triage when research is needed |
+| `spec-under-review` | Spec is under active audit/review | When audit of the spec begins |
+| `spec-passed-review` | Spec has passed audit/review | On audit PASS verdict |
+| `spec-cleared` | Spec has been cleared for implementation | When a plan is created from the spec |
+
+Lifecycle labels are additive — a spec may carry multiple labels (e.g., `spec-draft` + `spec-needs-research`). Transition between labels is managed by the spec-creation, audit, and writing-plans pipelines.
+
 ## Fallbacks
 
 None required. GitHub MCP provides complete API coverage.
