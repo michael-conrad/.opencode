@@ -1,0 +1,281 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+phase_count: 2
+phase_dependencies:
+  phase-1: []
+  phase-2:
+    - phase-1
+
+phases:
+  - id: phase-1
+    name: Post-load dispatch step (default.txt + AGENTS.md)
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    items:
+      - item_id: item-1
+        sc: SC-1
+        description: Pre-Response Gate Step 2.5 insertion in default.txt
+        evidence_type: string
+        affected_files:
+          - .opencode/prompts/default.txt
+        pipeline_steps:
+          - pre-red-baseline
+          - red-phase (content-verification: grep for absence of Step 2.5)
+          - green-phase (text insertion: add Step 2.5 to Pre-Response Gate)
+          - green-doublecheck (content-verification: grep for presence of Step 2.5)
+          - checkpoint-tag-create
+          - checkpoint-commit
+      - item_id: item-2
+        sc: SC-2
+        description: AGENTS.md Universal Skill Dispatch Gate Step 2.5 insertion
+        evidence_type: string
+        affected_files:
+          - .opencode/AGENTS.md
+        pipeline_steps:
+          - pre-red-baseline
+          - red-phase (content-verification: grep for absence of Step 2.5)
+          - green-phase (text insertion: add Step 2.5 to Universal Skill Dispatch Gate)
+          - green-doublecheck (content-verification: grep for presence of Step 2.5)
+          - checkpoint-tag-create
+          - checkpoint-commit
+      - item_id: item-3
+        sc: SC-3
+        description: Sub-Agent Routing Boundary cross-reference in default.txt
+        evidence_type: string
+        affected_files:
+          - .opencode/prompts/default.txt
+        pipeline_steps:
+          - pre-red-baseline
+          - red-phase (content-verification: grep for absence of cross-reference)
+          - green-phase (text insertion: add cross-reference to Step 2.5)
+          - green-doublecheck (content-verification: grep for presence of cross-reference)
+          - checkpoint-tag-create
+          - checkpoint-commit
+    skill_task_selection:
+      - step: assemble-work
+        skill: implementation-pipeline
+        task: assemble-work
+        dispatch: orchestrator
+      - step: pre-red-baseline
+        skill: implementation-pipeline
+        task: pre-red-baseline
+        dispatch: sub-agent
+      - step: red-phase
+        skill: test-driven-development
+        task: red
+        dispatch: sub-agent
+      - step: green-phase
+        skill: test-driven-development
+        task: green
+        dispatch: sub-agent
+      - step: green-doublecheck
+        skill: verification-before-completion
+        task: verify
+        dispatch: sub-agent
+      - step: checkpoint-tag-create
+        skill: implementation-pipeline
+        task: checkpoint-tag-create
+        dispatch: sub-agent
+      - step: checkpoint-commit
+        skill: git-workflow
+        task: commit-prep
+        dispatch: sub-agent
+      - step: structural-checks
+        skill: finishing-a-development-branch
+        task: checklist
+        dispatch: sub-agent
+      - step: green-vbc
+        skill: verification-before-completion
+        task: completion
+        dispatch: sub-agent
+      - step: sc-count-gate
+        skill: implementation-pipeline
+        task: sc-count-gate
+        dispatch: sub-agent
+      - step: pre-pr-gate
+        skill: verification-before-completion
+        task: verify
+        dispatch: sub-agent
+      - step: audit
+        skill: audit
+        task: verification-audit
+        dispatch: sub-agent
+      - step: cross-validate
+        skill: audit
+        task: cross-validate
+        dispatch: sub-agent
+      - step: review-prep
+        skill: git-workflow
+        task: review-prep
+        dispatch: sub-agent
+      - step: create-pr
+        skill: pr-creation-workflow
+        task: create
+        dispatch: sub-agent
+      - step: exec-summary
+        skill: completion-core
+        task: completion
+        dispatch: sub-agent
+
+  - id: phase-2
+    name: Poisoned pipeline wording replacement (guideline files)
+    scs:
+      - SC-4
+      - SC-5
+      - SC-6
+    items:
+      - item_id: item-4
+        sc: SC-4
+        description: Replace "poisoned pipeline" text with procedure language in both guideline files
+        evidence_type: string
+        affected_files:
+          - .opencode/guidelines/000-critical-rules.md
+          - .opencode/guidelines/020-go-prohibitions.md
+        pipeline_steps:
+          - pre-red-baseline
+          - red-phase (content-verification: grep for presence of "poisoned pipeline")
+          - green-phase (text replacement: replace metaphor with procedure language)
+          - green-doublecheck (content-verification: grep for absence of "poisoned pipeline", presence of procedure language)
+          - checkpoint-tag-create
+          - checkpoint-commit
+      - item_id: item-5
+        sc: SC-5
+        description: Correct restart target in 020-go-prohibitions.md
+        evidence_type: string
+        affected_files:
+          - .opencode/guidelines/020-go-prohibitions.md
+        pipeline_steps:
+          - pre-red-baseline
+          - red-phase (content-verification: grep for "verify-authorization" in restart context)
+          - green-phase (text replacement: "verify-authorization" → "last known good commit checkpoint tag")
+          - green-doublecheck (content-verification: grep for "last known good commit checkpoint tag")
+          - checkpoint-tag-create
+          - checkpoint-commit
+      - item_id: item-6
+        sc: SC-6
+        description: Tier downgrade from Tier 1 to Tier 2 for orchestrator-inline-work rule
+        evidence_type: string
+        affected_files:
+          - .opencode/guidelines/000-critical-rules.md
+          - .opencode/guidelines/020-go-prohibitions.md
+        pipeline_steps:
+          - pre-red-baseline
+          - red-phase (content-verification: grep for "CRITICAL VIOLATION" header on critical-rules-034)
+          - green-phase (text replacement: remove CRITICAL VIOLATION header, add Tier 2 classification + justification)
+          - green-doublecheck (content-verification: grep for "cannot be mechanically enforced", absence of CRITICAL VIOLATION header)
+          - checkpoint-tag-create
+          - checkpoint-commit
+    skill_task_selection:
+      - step: assemble-work
+        skill: implementation-pipeline
+        task: assemble-work
+        dispatch: orchestrator
+      - step: pre-red-baseline
+        skill: implementation-pipeline
+        task: pre-red-baseline
+        dispatch: sub-agent
+      - step: red-phase
+        skill: test-driven-development
+        task: red
+        dispatch: sub-agent
+      - step: green-phase
+        skill: test-driven-development
+        task: green
+        dispatch: sub-agent
+      - step: green-doublecheck
+        skill: verification-before-completion
+        task: verify
+        dispatch: sub-agent
+      - step: checkpoint-tag-create
+        skill: implementation-pipeline
+        task: checkpoint-tag-create
+        dispatch: sub-agent
+      - step: checkpoint-commit
+        skill: git-workflow
+        task: commit-prep
+        dispatch: sub-agent
+      - step: structural-checks
+        skill: finishing-a-development-branch
+        task: checklist
+        dispatch: sub-agent
+      - step: green-vbc
+        skill: verification-before-completion
+        task: completion
+        dispatch: sub-agent
+      - step: sc-count-gate
+        skill: implementation-pipeline
+        task: sc-count-gate
+        dispatch: sub-agent
+      - step: pre-pr-gate
+        skill: verification-before-completion
+        task: verify
+        dispatch: sub-agent
+      - step: audit
+        skill: audit
+        task: verification-audit
+        dispatch: sub-agent
+      - step: cross-validate
+        skill: audit
+        task: cross-validate
+        dispatch: sub-agent
+      - step: review-prep
+        skill: git-workflow
+        task: review-prep
+        dispatch: sub-agent
+      - step: create-pr
+        skill: pr-creation-workflow
+        task: create
+        dispatch: sub-agent
+      - step: exec-summary
+        skill: completion-core
+        task: completion
+        dispatch: sub-agent
+
+cross_cutting:
+  - sc: SC-7
+    description: Verify no programmatic enforcement changes introduced
+    evidence_type: structural
+    verification_method: Confirm no new files in .opencode/plugins/, .opencode/hooks/, or .opencode/tools/; confirm no new enforcement code in diffs
+    phase: final-verification
+    pipeline_steps:
+      - green-doublecheck (structural check: ls for new files, diff review for enforcement code)
+      - sc-count-gate
+      - pre-pr-gate
+
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      rationale: Phase 2 modifies guideline files (000-critical-rules.md, 020-go-prohibitions.md) which are structurally independent of Phase 1's prompt/AGENTS.md changes. However, Phase 2 should follow Phase 1 to maintain a clean commit history — prompt changes first, then guideline changes.
+  intra_phase_edges:
+    phase-1:
+      - from: item-1 (SC-1)
+        to: item-3 (SC-3)
+        rationale: SC-3 cross-references SC-1's Step 2.5 within default.txt. SC-1 must be applied first so the cross-reference target exists.
+      - from: item-1 (SC-1)
+        to: item-2 (SC-2)
+        rationale: SC-2 replicates the same Step 2.5 wording to AGENTS.md. Apply to default.txt first (SC-1), then replicate to AGENTS.md (SC-2) for consistency.
+    phase-2:
+      - from: item-4 (SC-4)
+        to: item-5 (SC-5)
+        rationale: SC-5 corrects the restart target within the same sections modified by SC-4. Apply wording replacement first, then correct the restart target.
+      - from: item-4 (SC-4)
+        to: item-6 (SC-6)
+        rationale: SC-6 changes tier classification in the same sections modified by SC-4. Apply wording replacement first, then change tier.
+
+triplet_integrity:
+  status: PASS
+  note: Each SC's RED, GREEN, and COMMIT steps are in the same phase. No SC has its test in one phase and implementation in another.
+
+cross_phase_dependency:
+  status: PASS
+  note: Phase 1 RED tests (grep on default.txt, AGENTS.md) do not depend on Phase 2 output. Phase 2 RED tests (grep on guideline files) do not depend on Phase 1 output. No cross-phase RED dependency violations.
+
+checkpoint_strategy:
+  - phase-1: After item-1, item-2, item-3 committed (prompts/default.txt + AGENTS.md changes)
+  - phase-2: After item-4, item-5, item-6 committed (guideline wording changes)
+  - final: After SC-7 verification (no-programmatic-change constraint confirmed)
+
+recorded_at: 2026-07-27T22:15:00Z

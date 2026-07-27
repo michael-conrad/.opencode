@@ -1,0 +1,113 @@
+self_review:
+  plan_path: .opencode/.issues/2152/plan.md
+  spec_path: .opencode/.issues/2152/spec.md
+  issue_number: 2152
+  overall_verdict: BLOCKED
+
+findings:
+  placeholder:
+    count: 0
+    items: []
+
+  sc_coverage:
+    count: 0
+    items: []
+    summary: "All 7 SCs (SC-1 through SC-7) are covered in the plan. SC-1→SC-3 in Phase 1, SC-4→SC-6 in Phase 2, SC-7 in Post-Implementation Steps. Evidence types match: SC-1→SC-6 are `string` with content-verification grep assertions; SC-7 is `structural` with ls/git-diff checks."
+
+  triplet_split:
+    count: 0
+    items: []
+    summary: "No SC has RED/GREEN/COMMIT steps split across phases. Each SC's full cycle is contained within its assigned phase/item."
+
+  type_name_consistency:
+    count: 0
+    items: []
+    summary: "Skill names consistent (`implementation-pipeline`), task names consistent (`assemble-work`), file paths match actual project structure, dispatch indicators correctly use `(**sub-agent**)` for all steps except SC-7 which correctly uses `(**inline**)`."
+
+  per_task_cycle:
+    count: 10
+    items:
+      - finding: MISSING_STEP
+        step: z3-check-red
+        location: "All items (Phase 1 items 1-3, Phase 2 items 4-6)"
+        detail: "Z3/solve check after RED phase is missing from every per-item cycle. The plan uses content-verification grep (string evidence) which does not require Z3 state verification, but the TDT mandates this step for all items."
+        severity: warning
+        justification: "String evidence type does not require Z3 state machine verification. The plan's content-verification grep is self-verifying."
+
+      - finding: MISSING_STEP
+        step: red-doublecheck
+        location: "All items (Phase 1 items 1-3, Phase 2 items 4-6)"
+        detail: "The TDT specifies `red-doublecheck` (verification-before-completion --task verify) as a separate step after RED. The plan conflates RED phase and RED verification into a single step (the red-phase step itself performs the grep assertion)."
+        severity: warning
+        justification: "For string evidence, the red-phase grep assertion IS the verification. A separate red-doublecheck dispatch would be redundant."
+
+      - finding: MISSING_STEP
+        step: z3-check-red-doublecheck
+        location: "All items"
+        detail: "Z3 check after red-doublecheck is missing. Same rationale as z3-check-red."
+        severity: warning
+        justification: "String evidence does not require Z3 verification."
+
+      - finding: MISSING_STEP
+        step: post-red-enforcement
+        location: "All items"
+        detail: "Post-RED enforcement gate is missing from every per-item cycle."
+        severity: warning
+        justification: "Post-red-enforcement is for behavioral enforcement test gates. The plan uses string evidence only."
+
+      - finding: MISSING_STEP
+        step: z3-check-post-red
+        location: "All items"
+        detail: "Z3 check after post-red-enforcement is missing."
+        severity: warning
+        justification: "String evidence does not require Z3 verification."
+
+      - finding: MISSING_STEP
+        step: z3-check-green
+        location: "All items"
+        detail: "Z3 check after GREEN phase is missing."
+        severity: warning
+        justification: "String evidence does not require Z3 verification."
+
+      - finding: MISSING_STEP
+        step: post-green-enforcement
+        location: "All items"
+        detail: "Post-GREEN enforcement gate is missing from every per-item cycle."
+        severity: warning
+        justification: "Post-green-enforcement is for behavioral enforcement test gates. The plan uses string evidence only."
+
+      - finding: MISSING_STEP
+        step: z3-check-post-green
+        location: "All items"
+        detail: "Z3 check after post-green-enforcement is missing."
+        severity: warning
+        justification: "String evidence does not require Z3 verification."
+
+      - finding: MISSING_STEP
+        step: regression-check
+        location: "Post-Implementation Steps"
+        detail: "Regression check (test-driven-development --task patterns) is not present in the plan's post-implementation steps."
+        severity: warning
+        justification: "The changes are text-only (string evidence). No behavioral tests exist to regress against."
+
+      - finding: MISSING_STEP
+        step: behavioral-test-remediation
+        location: "Post-Implementation Steps"
+        detail: "Behavioral test remediation step is not present."
+        severity: warning
+        justification: "No behavioral tests are involved in this plan (all string/structural evidence)."
+
+    summary: "10 TDT steps are missing from the plan's per-item cycle. All 10 are justified by evidence type: the plan uses string/structural evidence only, so Z3/solve checks, enforcement gates, regression checks, and behavioral test remediation do not apply. The plan correctly includes the applicable steps: pre-red-baseline, red-phase, green-phase, green-doublecheck, checkpoint-tag-create, checkpoint-commit per item, plus shared post-implementation steps (green-vbc, sc-count-gate, pre-pr-gate, audit, cross-validate, review-prep, create-pr, exec-summary)."
+
+  combined_steps:
+    count: 0
+    items: []
+    summary: "No steps are combined into single checkbox items. Each step has its own checkbox."
+
+  out_of_order_steps:
+    count: 0
+    items: []
+    summary: "Step ordering within each item matches the TDT ordering for the steps that are present."
+
+verdict: BLOCKED
+blocker_reason: "SELF_REVIEW_FAILED: 10 MISSING_STEP findings — the plan's per-item cycle omits z3-check-red, red-doublecheck, z3-check-red-doublecheck, post-red-enforcement, z3-check-post-red, z3-check-green, post-green-enforcement, z3-check-post-green, regression-check, and behavioral-test-remediation. All 10 are justified by evidence type (string/structural only, no Z3 or behavioral enforcement needed), but the self-review task requires strict TDT compliance. Recommend: document the evidence-type-based step skipping rationale in the plan's per-item template, or accept the plan as-is with the understanding that Z3/behavioral steps are intentionally omitted for string-evidence items."

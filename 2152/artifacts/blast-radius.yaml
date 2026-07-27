@@ -1,0 +1,38 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+affected_files:
+  - path: .opencode/prompts/default.txt
+    sections:
+      - Pre-Response Gate (lines 5-15)
+      - Sub-Agent Routing Boundary (lines 42-58)
+    change_type: text_insertion
+    risk: low
+    rationale: Add Step 2.5 after existing Step 2; cross-reference from Sub-Agent Routing Boundary. No structural changes.
+  - path: .opencode/AGENTS.md
+    sections:
+      - Universal Skill Dispatch Gate (4-step procedure)
+    change_type: text_insertion
+    risk: low
+    rationale: Add Step 2.5 to existing 4-step procedure. No structural changes.
+  - path: .opencode/guidelines/000-critical-rules.md
+    sections:
+      - critical-rules-034 (orchestrator inline work, line 206)
+      - Tier 2 section header (line 298)
+    change_type: text_replacement
+    risk: medium
+    rationale: Replace "poisoned pipeline" metaphor with procedure language; downgrade Tier 1 to Tier 2. No programmatic enforcement changes.
+  - path: .opencode/guidelines/020-go-prohibitions.md
+    sections:
+      - §1.2 inline work rule (line 222)
+      - Violation patterns table (line 496)
+      - critical-rules-034 section (lines 523-527)
+    change_type: text_replacement
+    risk: medium
+    rationale: Same wording fixes as 000-critical-rules.md; restart target correction; Tier 2 downgrade.
+downstream_consumers:
+  - All AI agents that read prompts/default.txt at session start
+  - All AI agents that read AGENTS.md at session start
+  - All AI agents that read 000-critical-rules.md during implementation
+  - All AI agents that read 020-go-prohibitions.md during implementation
+no_programmatic_impact: true
+constraint: No programmatic enforcement changes (no watchdog, no hook, no plugin changes)

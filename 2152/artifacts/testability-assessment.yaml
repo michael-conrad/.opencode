@@ -1,0 +1,60 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+sc_testability:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep for Step 2.5 text in .opencode/prompts/default.txt Pre-Response Gate section
+    testable: true
+    test_type: content-verification
+    difficulty: easy
+    notes: Exact string match — grep for "Trigger Dispatch Table" and "Invocation section" in the Pre-Response Gate section
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep for Step 2.5 text in .opencode/AGENTS.md Universal Skill Dispatch Gate section
+    testable: true
+    test_type: content-verification
+    difficulty: easy
+    notes: Exact string match — grep for "Trigger Dispatch Table" and "Invocation section" in the Universal Skill Dispatch Gate section
+  - sc: SC-3
+    evidence_type: string
+    verification_method: grep for cross-reference to Step 2.5 in .opencode/prompts/default.txt Sub-Agent Routing Boundary section
+    testable: true
+    test_type: content-verification
+    difficulty: easy
+    notes: Exact string match — grep for "Step 2.5" or "post-load dispatch" in the Sub-Agent Routing Boundary section
+  - sc: SC-4
+    evidence_type: string
+    verification_method: grep for absence of "poisoned pipeline" in both guideline files; grep for presence of procedure language
+    testable: true
+    test_type: content-verification
+    difficulty: easy
+    notes: |
+      Verify "poisoned pipeline" is absent from both files.
+      Verify procedure language ("HALT. Discard pipeline execution state. Published artifacts edited in place. Restart from last known good commit checkpoint tag") is present in both files.
+  - sc: SC-5
+    evidence_type: string
+    verification_method: grep for absence of "verify-authorization" in restart context in 020-go-prohibitions.md; grep for "last known good commit checkpoint tag"
+    testable: true
+    test_type: content-verification
+    difficulty: easy
+    notes: Verify "verify-authorization" is no longer the restart target in 020-go-prohibitions.md. Verify "last known good commit checkpoint tag" is the restart target.
+  - sc: SC-6
+    evidence_type: string
+    verification_method: grep for tier classification change in both guideline files
+    testable: true
+    test_type: content-verification
+    difficulty: easy
+    notes: |
+      Verify critical-rules-034 no longer has "CRITICAL VIOLATION" header in 000-critical-rules.md.
+      Verify "cannot be mechanically enforced" justification is present.
+      Verify the rule is classified as Tier 2 (not Tier 1).
+  - sc: SC-7
+    evidence_type: structural
+    verification_method: Confirm no new files in .opencode/plugins/, .opencode/hooks/, or .opencode/tools/; confirm no new enforcement code in diffs
+    testable: true
+    test_type: structural
+    difficulty: easy
+    notes: Structural check — verify no programmatic enforcement files were added. Only text changes to existing files.
+overall_test_strategy:
+  approach: All SCs are string or structural evidence type. Content-verification tests (grep) are sufficient for all SCs. No behavioral tests needed because no runtime behavior changes — only text/wording changes to always-injected sources.
+  constraint: No programmatic enforcement changes (SC-7) — all tests must be content-verification or structural only.

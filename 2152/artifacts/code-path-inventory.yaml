@@ -1,0 +1,57 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+code_paths:
+  - sc: SC-1
+    description: Pre-Response Gate Step 2.5 insertion
+    file: .opencode/prompts/default.txt
+    target_section: Pre-Response Gate (lines 5-15)
+    action: Insert new step between existing Step 2 and Step 3
+    new_content_summary: "2.5. After skill() loads the SKILL.md, read its Trigger Dispatch Table and Invocation section in your own context. Then dispatch the task card (tasks/<name>.md) to a sub-agent via task() using the canonical dispatch string from the Invocation section."
+  - sc: SC-2
+    description: AGENTS.md Universal Skill Dispatch Gate Step 2.5 insertion
+    file: .opencode/AGENTS.md
+    target_section: Universal Skill Dispatch Gate (4-step procedure)
+    action: Insert new step between existing Step 2 and Step 3
+    new_content_summary: "2.5. After skill() loads the SKILL.md, read its Trigger Dispatch Table and Invocation section in your own context. Then dispatch the task card (tasks/<name>.md) to a sub-agent via task() using the canonical dispatch string from the Invocation section."
+  - sc: SC-3
+    description: Sub-Agent Routing Boundary cross-reference
+    file: .opencode/prompts/default.txt
+    target_section: Sub-Agent Routing Boundary (lines 42-58)
+    action: Add cross-reference to Step 2.5 as the procedure that follows loading
+  - sc: SC-4
+    description: Replace poisoned pipeline text in 000-critical-rules.md
+    file: .opencode/guidelines/000-critical-rules.md
+    target_section: critical-rules-034 (line 206)
+    action: Replace "poisoned pipeline" metaphor with procedure language
+    new_content_summary: "Orchestrator inline work detected → HALT. Discard pipeline execution state. Published artifacts edited in place. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable."
+  - sc: SC-4
+    description: Replace poisoned pipeline text in 020-go-prohibitions.md
+    file: .opencode/guidelines/020-go-prohibitions.md
+    target_sections:
+      - §1.2 inline work rule (line 222)
+      - Violation patterns table (line 496)
+      - critical-rules-034 section (lines 523-527)
+    action: Replace "poisoned pipeline" metaphor with procedure language
+  - sc: SC-5
+    description: Correct restart target in 020-go-prohibitions.md
+    file: .opencode/guidelines/020-go-prohibitions.md
+    target_sections:
+      - line 222
+      - line 496
+      - line 527
+    action: Replace "verify-authorization" with "last known good commit checkpoint tag"
+  - sc: SC-6
+    description: Downgrade Tier 1 to Tier 2 for orchestrator-inline-work rule
+    file: .opencode/guidelines/000-critical-rules.md
+    target_section: critical-rules-034 (line 206)
+    action: Change tier classification from Tier 1 to Tier 2; add justification "cannot be mechanically enforced"
+  - sc: SC-6
+    description: Downgrade Tier 1 to Tier 2 in 020-go-prohibitions.md
+    file: .opencode/guidelines/020-go-prohibitions.md
+    target_sections:
+      - critical-rules-034 (lines 523-527)
+    action: Change tier classification from Tier 1 to Tier 2; add justification "cannot be mechanically enforced"
+  - sc: SC-7
+    description: Verify no programmatic enforcement changes
+    file: "(all affected files)"
+    action: Structural verification only — confirm no watchdog, hook, plugin, or enforcement code was added

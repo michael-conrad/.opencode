@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+approval_status: authorized
+approval_scope: for_pr
+sc_count: 7
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_summary:
+  affected_files:
+    - .opencode/prompts/default.txt (Pre-Response Gate, Sub-Agent Routing Boundary)
+    - .opencode/AGENTS.md (Universal Skill Dispatch Gate)
+    - .opencode/guidelines/000-critical-rules.md (critical-rules-034, Tier 2 section)
+    - .opencode/guidelines/020-go-prohibitions.md (§1.2, violation table, critical-rules-034)
+  sc_evidence_types:
+    - SC-1: string
+    - SC-2: string
+    - SC-3: string
+    - SC-4: string
+    - SC-5: string
+    - SC-6: string
+    - SC-7: structural
+  constraint: No programmatic enforcement changes
+  phase_count: 2
+  phase_dependencies:
+    phase-1: []
+    phase-2:
+      - phase-1
+backfill_actions:
+  - Generated blast-radius.yaml from affected-files table and codebase verification
+  - Generated concern-map.yaml from SC decomposition into 4 concern groups
+  - Generated code-path-inventory.yaml from per-SC code path analysis
+  - Generated cross-cutting-matrix.yaml from cross-file coupling analysis
+  - Generated interface-compatibility.yaml from module boundary analysis
+  - Generated state-analysis.yaml from before/after state transitions per SC
+  - Generated testability-assessment.yaml from evidence type declarations
+recorded_at: 2026-07-27T22:11:00Z

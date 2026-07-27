@@ -1,0 +1,56 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+state_transitions:
+  - sc: SC-1
+    description: Pre-Response Gate gains Step 2.5
+    before: "Pre-Response Gate has 3 steps: scan skills → skill() → proceed/justify"
+    after: "Pre-Response Gate has 4 steps: scan skills → skill() → read TDT + dispatch task cards → proceed/justify"
+    state_change: text_insertion
+    reversibility: reversible
+    rollback: git checkout .opencode/prompts/default.txt
+  - sc: SC-2
+    description: AGENTS.md Universal Skill Dispatch Gate gains Step 2.5
+    before: "4-step procedure: evaluate → skill() → proceed → justify"
+    after: "5-step procedure: evaluate → skill() → read TDT + dispatch task cards → proceed → justify"
+    state_change: text_insertion
+    reversibility: reversible
+    rollback: git checkout .opencode/AGENTS.md
+  - sc: SC-3
+    description: Sub-Agent Routing Boundary cross-references Step 2.5
+    before: "Sub-Agent Routing Boundary describes skill-card vs task-card distinction without linking to Pre-Response Gate"
+    after: "Sub-Agent Routing Boundary includes cross-reference to Step 2.5 as the procedure that follows loading"
+    state_change: text_insertion
+    reversibility: reversible
+    rollback: git checkout .opencode/prompts/default.txt
+  - sc: SC-4
+    description: Poisoned pipeline text replaced with procedure language
+    before: "000-critical-rules.md and 020-go-prohibitions.md use 'poisoned pipeline' metaphor with 'restart from verify-authorization'"
+    after: "Both files use procedure language: 'Orchestrator inline work detected → HALT. Discard pipeline execution state. Published artifacts edited in place. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable.'"
+    state_change: text_replacement
+    reversibility: reversible
+    rollback: git checkout .opencode/guidelines/000-critical-rules.md .opencode/guidelines/020-go-prohibitions.md
+  - sc: SC-5
+    description: Restart target corrected
+    before: "Restart target is 'verify-authorization' in 020-go-prohibitions.md (lines 222, 496, 527)"
+    after: "Restart target is 'last known good commit checkpoint tag' in all locations"
+    state_change: text_replacement
+    reversibility: reversible
+    rollback: git checkout .opencode/guidelines/020-go-prohibitions.md
+  - sc: SC-6
+    description: Tier downgrade for orchestrator-inline-work rule
+    before: "critical-rules-034 is Tier 1 (CRITICAL VIOLATION — HALT) in both files"
+    after: "critical-rules-034 is Tier 2 (HALT, no CRITICAL VIOLATION header, overridable by developer authorization) with justification 'cannot be mechanically enforced'"
+    state_change: tier_reclassification
+    reversibility: reversible
+    rollback: git checkout .opencode/guidelines/000-critical-rules.md .opencode/guidelines/020-go-prohibitions.md
+  - sc: SC-7
+    description: No programmatic enforcement changes
+    before: "No programmatic enforcement exists for orchestrator-inline-work rule"
+    after: "No programmatic enforcement introduced (constraint maintained)"
+    state_change: none
+    reversibility: n/a
+    rollback: n/a
+checkpoint_strategy:
+  - phase-1: After SC-1, SC-2, SC-3 (prompts/default.txt + AGENTS.md changes)
+  - phase-2: After SC-4, SC-5, SC-6 (guideline wording changes)
+  - final: After SC-7 verification

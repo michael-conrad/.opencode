@@ -1,0 +1,43 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+concern_groups:
+  - id: concern-a
+    name: Pre-Response Gate post-load dispatch
+    scs:
+      - SC-1
+      - SC-3
+    description: Add explicit Step 2.5 to the Pre-Response Gate in prompts/default.txt, and cross-reference it from the Sub-Agent Routing Boundary section
+    phase_boundary: phase-1
+    affected_files:
+      - .opencode/prompts/default.txt
+  - id: concern-b
+    name: AGENTS.md Universal Skill Dispatch Gate post-load dispatch
+    scs:
+      - SC-2
+    description: Add parallel Step 2.5 to the AGENTS.md Universal Skill Dispatch Gate
+    phase_boundary: phase-1
+    affected_files:
+      - .opencode/AGENTS.md
+  - id: concern-c
+    name: Poisoned pipeline wording replacement
+    scs:
+      - SC-4
+      - SC-5
+      - SC-6
+    description: Replace "poisoned pipeline" metaphor with procedure language across both guideline files; correct restart target; downgrade Tier 1 to Tier 2
+    phase_boundary: phase-2
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/020-go-prohibitions.md
+  - id: concern-d
+    name: No-programmatic-change constraint
+    scs:
+      - SC-7
+    description: Verify no programmatic enforcement changes are introduced
+    phase_boundary: cross-cutting
+    affected_files:
+      - (all files — verification only, no changes)
+phase_dependencies:
+  phase-1: []
+  phase-2:
+    - phase-1

@@ -1,0 +1,38 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+cross_cutting_concerns:
+  - concern: Post-load dispatch step (Step 2.5)
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    files:
+      - .opencode/prompts/default.txt
+      - .opencode/AGENTS.md
+    description: The same logical change (add Step 2.5) must be applied to two separate files (default.txt and AGENTS.md) with consistent wording. SC-3 cross-references SC-1's change within default.txt.
+    coupling: tight
+    risk: low
+    mitigation: Apply SC-1 and SC-3 first (default.txt), then replicate the same wording to SC-2 (AGENTS.md). Verify consistency.
+  - concern: Poisoned pipeline wording replacement
+    scs:
+      - SC-4
+      - SC-5
+      - SC-6
+    files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/020-go-prohibitions.md
+    description: Three changes (wording replacement, restart target correction, tier downgrade) must be applied consistently across two guideline files. 020-go-prohibitions.md has three separate locations for the poisoned pipeline text; 000-critical-rules.md has one.
+    coupling: tight
+    risk: medium
+    mitigation: Apply to 000-critical-rules.md first (single location), then replicate to all three locations in 020-go-prohibitions.md. Verify all occurrences are covered.
+  - concern: No-programmatic-change constraint
+    scs:
+      - SC-7
+    files:
+      - (all affected files)
+    description: Cross-cutting verification that no change introduces programmatic enforcement (watchdog, hook, plugin, enforcement code).
+    coupling: none
+    risk: low
+    mitigation: Structural review of all diffs before commit.
+independent_scs:
+  - SC-7

@@ -1,0 +1,57 @@
+spec_path: .opencode/.issues/2152/spec.md
+issue_number: 2152
+interfaces:
+  - module: prompts/default.txt
+    type: always-injected system prompt
+    consumers:
+      - All AI agents at session start
+    changes:
+      - Pre-Response Gate Step 2.5 insertion
+      - Sub-Agent Routing Boundary cross-reference
+    compatibility: compatible
+    rationale: Text insertion only — no structural changes to the prompt format. Existing steps renumbered but semantics preserved. All existing consumers continue to read the same sections.
+  - module: AGENTS.md
+    type: agent-facing guidelines
+    consumers:
+      - All AI agents at session start
+    changes:
+      - Universal Skill Dispatch Gate Step 2.5 insertion
+    compatibility: compatible
+    rationale: Text insertion only — no structural changes. Existing 4-step procedure becomes 5-step. All existing consumers continue to read the same sections.
+  - module: .opencode/guidelines/000-critical-rules.md
+    type: agent-facing guidelines
+    consumers:
+      - All AI agents during implementation
+      - session-enforcement.ts (reads tier metadata for buildTier1EnforcementBlock)
+    changes:
+      - critical-rules-034 wording replacement
+      - Tier 1 to Tier 2 downgrade
+    compatibility: compatible
+    rationale: |
+      Wording change only — no structural or semantic change to the rule's intent.
+      Tier downgrade from 1 to 2 affects session-enforcement.ts buildTier1EnforcementBlock():
+      critical-rules-034 will no longer be included in the Tier 1 enforcement block.
+      This is intentional per spec (SC-6: "cannot be mechanically enforced").
+      The rule still produces HALT behavior (Tier 2) but is overridable by developer authorization.
+  - module: .opencode/guidelines/020-go-prohibitions.md
+    type: agent-facing guidelines
+    consumers:
+      - All AI agents during implementation
+    changes:
+      - §1.2 inline work rule wording (line 222)
+      - Violation patterns table wording (line 496)
+      - critical-rules-034 section wording (lines 523-527)
+      - Restart target correction (verify-authorization → checkpoint tag)
+      - Tier 1 to Tier 2 downgrade
+    compatibility: compatible
+    rationale: Wording changes only — no structural or semantic change to the rule's intent. Restart target correction aligns with existing Checkpoint Rollback Exception.
+cross_module_concerns:
+  - concern: Consistent wording across default.txt and AGENTS.md
+    status: compatible
+    note: Both files receive the same Step 2.5 wording. Apply to default.txt first, then replicate to AGENTS.md.
+  - concern: Consistent wording across 000-critical-rules.md and 020-go-prohibitions.md
+    status: compatible
+    note: Both files receive the same procedure language, restart target correction, and tier downgrade. Apply to 000-critical-rules.md first (single location), then replicate to 020-go-prohibitions.md (three locations).
+  - concern: session-enforcement.ts tier enforcement
+    status: compatible
+    note: Tier downgrade from 1 to 2 means critical-rules-034 is removed from buildTier1EnforcementBlock(). This is intentional — the rule cannot be mechanically enforced.
