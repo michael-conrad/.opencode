@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2162/spec.md
+interfaces:
+  - name: gh_label_cli
+    description: "GitHub CLI for label CRUD operations"
+    operations:
+      - "gh label create <name> --repo <owner/repo> --color <color> --description <desc>"
+      - "gh label list --repo <owner/repo>"
+    consumers:
+      - skills/spec-creation/tasks/create.md
+      - skills/issue-review/tasks/analyze-and-spec.md
+      - skills/issue-review/tasks/triage.md
+      - skills/audit/tasks/spec-audit-evaluator.md
+      - skills/audit/tasks/spec-audit-validator.md
+      - skills/writing-plans/tasks/create.md
+      - skills/approval-gate-scope/SKILL.md
+    compatibility: "gh CLI must be installed and authenticated with appropriate repo permissions"
+  - name: gb_label_cli
+    description: "GitBucket CLI (gb) for label CRUD operations"
+    operations:
+      - "gb label create <name> --color <color>"
+      - "gb label list"
+    consumers:
+      - skills/spec-creation/tasks/create.md
+      - skills/issue-review/tasks/analyze-and-spec.md
+      - skills/issue-review/tasks/triage.md
+      - skills/audit/tasks/spec-audit-evaluator.md
+      - skills/audit/tasks/spec-audit-validator.md
+      - skills/writing-plans/tasks/create.md
+      - skills/approval-gate-scope/SKILL.md
+    compatibility: "gb CLI must be installed and authenticated per AGENTS.md gb CLI Tool section"
+  - name: platform_skill_files
+    description: "Platform SKILL.md files documenting available labels"
+    files:
+      - skills/issue-operations/platforms/local/SKILL.md
+      - skills/issue-operations/platforms/github-mcp/SKILL.md
+      - skills/issue-operations/platforms/gitbucket-api/SKILL.md
+    consumers:
+      - All agents consuming platform routing information
+    compatibility: "Documentation only — no code dependency"
+boundary_notes:
+  - label_application_scope: "Label application uses gh/gb CLI commands, not GitHub/GitBucket REST APIs directly. This means the gb CLI must support label operations (check gb --version v0.6.1 compatibility)."
+  - cross_repo: "gh label create targets two different GitHub repos (.opencode and opencode-config). The repo parameter must be dynamic or correctly specified in each task file."

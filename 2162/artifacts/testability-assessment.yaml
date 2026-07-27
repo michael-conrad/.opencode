@@ -1,0 +1,82 @@
+spec_path: .opencode/.issues/2162/spec.md
+scs:
+  - id: SC-1
+    evidence_type: structural
+    verification_method: "gh label list --repo <repo> | grep spec-draft"
+    testable: true
+    test_type: cli_command
+  - id: SC-2
+    evidence_type: structural
+    verification_method: "gh label list --repo <repo> | grep spec-needs-research"
+    testable: true
+    test_type: cli_command
+  - id: SC-3
+    evidence_type: structural
+    verification_method: "gh label list --repo <repo> | grep spec-under-review"
+    testable: true
+    test_type: cli_command
+  - id: SC-4
+    evidence_type: structural
+    verification_method: "gh label list --repo <repo> | grep spec-passed-review"
+    testable: true
+    test_type: cli_command
+  - id: SC-5
+    evidence_type: structural
+    verification_method: "gh label list --repo <repo> | grep spec-cleared"
+    testable: true
+    test_type: cli_command
+  - id: SC-6
+    evidence_type: behavioral
+    verification_method: "opencode run with spec creation prompt → stderr shows gh label add spec-draft"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-7
+    evidence_type: behavioral
+    verification_method: "opencode run with triage prompt → stderr shows gh label add spec-needs-research"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-8
+    evidence_type: behavioral
+    verification_method: "opencode run with audit start prompt → stderr shows gh label add spec-under-review"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-9
+    evidence_type: behavioral
+    verification_method: "opencode run with audit PASS prompt → stderr shows gh label add spec-passed-review and gh label delete spec-under-review"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-10
+    evidence_type: behavioral
+    verification_method: "opencode run with plan creation prompt → stderr shows gh label add spec-cleared"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-11
+    evidence_type: behavioral
+    verification_method: "opencode run with revision prompt → stderr shows label transition (remove passed-review+cleared, add spec-draft)"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-12
+    evidence_type: string
+    verification_method: "grep for each label name in all 3 platform SKILL.md files"
+    testable: true
+    test_type: grep
+  - id: SC-13
+    evidence_type: structural
+    verification_method: "Compare label prefixes — spec- vs approved-for- — no collision"
+    testable: true
+    test_type: static_analysis
+  - id: SC-14
+    evidence_type: structural
+    verification_method: "grep for STATUS field in spec body"
+    testable: true
+    test_type: grep
+  - id: SC-15
+    evidence_type: structural
+    verification_method: "State machine analysis — no spec-lifecycle label for terminal states"
+    testable: true
+    test_type: static_analysis
+platform_testing_notes:
+  - "Behavioral tests (SC-6 through SC-11) require opencode run with with-test-home wrapper per AGENTS.md"
+  - "Structural tests (SC-1 through SC-5) require live gh and gb CLI authentication — cannot run in isolated test home alone"
+  - "Cross-repo testing (SC-1 through SC-5) requires labels on both GitHub repos (.opencode and opencode-config)"
+  - "SC-9 is the most complex — tests label transition (remove + add), not just single label application"

@@ -1,0 +1,67 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+interfaces:
+  - interface: __ensure_gitbucket()
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    type: NEW_FUNCTION
+    consumers: [behavior_run(), __reset_gitbucket()]
+    contract:
+      - idempotent: true (cached JDK/JAR on subsequent calls)
+      - side_effects: Downloads JDK, downloads JAR, starts GitBucket, generates token, creates repo
+      - env_vars_set: [GB_TOKEN, GITBUCKET_PORT]
+      - exit_on_failure: true (provisioning failure is fatal)
+  - interface: __reset_gitbucket()
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    type: NEW_FUNCTION
+    consumers: [behavior_run() between tests, do_clean_all()]
+    contract:
+      - kills_gitbucket_process: true
+      - deletes_data_dir: true (tmp/gitbucket-data/)
+      - re_starts_gitbucket: true
+      - preserves_tools_cache: true
+  - interface: behavior_run()
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    type: MODIFY
+    change: Add BEHAVIOR_NEEDS_REMOTE=1 check
+    contract:
+      - new_env_var: BEHAVIOR_NEEDS_REMOTE
+      - when_set: Calls __ensure_gitbucket() before model run
+      - when_unset: No change (existing behavior preserved)
+  - interface: do_clean_all()
+    file: .opencode/tests-v2/with-test-home
+    type: MODIFY
+    change: Add GitBucket process kill
+    contract:
+      - kills_gitbucket: pkill -f gitbucket.war or PID file
+      - preserves_tools: true (rm -rf excludes .tools/)
+      - preserves_jdk: true
+  - interface: GB_TOKEN env var
+    type: NEW_ENV_VAR
+    consumers: [gb CLI, curl to GitBucket API]
+    contract:
+      - source: Generated from admin API POST /api/v3/tokens
+      - scope: Available in test environment via env -i allowlist
+      - format: Bearer token string
+  - interface: GITBUCKET_PORT env var
+    type: NEW_ENV_VAR
+    consumers: [gb CLI, curl to GitBucket API, git remote add]
+    contract:
+      - source: Parsed from GitBucket log or port file
+      - scope: Available in test environment
+      - format: Integer port number
+  - interface: BEHAVIOR_NEEDS_REMOTE env var
+    type: NEW_ENV_VAR
+    consumers: [behavior_run()]
+    contract:
+      - values: [0, 1]
+      - default: unset (treated as 0)
+      - when_1: Triggers __ensure_gitbucket() in behavior_run()
+compatibility_notes:
+  - note: "env -i allowlist in with-test-home must include GB_TOKEN for GitBucket API access"
+    severity: REQUIRED
+  - note: "behavior_run() lock (flock) must be held during GitBucket operations to prevent concurrent reset conflicts"
+    severity: REQUIRED
+  - note: "GitBucket port must be passed through to gb CLI and git remote add commands"
+    severity: REQUIRED
+  - note: ".tools/ and .jdk/ are already in .gitignore — no change needed"
+    severity: VERIFIED

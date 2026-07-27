@@ -1,0 +1,53 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+cross_cutting_scs:
+  - sc: SC-1
+    concerns: [JDK provisioning, Gitignore verification]
+    description: JDK provisioning (primary) + .gitignore verification (SC-10 companion)
+    span_type: WITHIN_PHASE
+  - sc: SC-2
+    concerns: [GitBucket JAR provisioning, Gitignore verification]
+    description: GitBucket JAR provisioning (primary) + .gitignore verification (SC-10 companion)
+    span_type: WITHIN_PHASE
+  - sc: SC-8
+    concerns: [BEHAVIOR_NEEDS_REMOTE flag, GitBucket startup, Token generation, Test repo creation]
+    description: End-to-end integration — requires all prior phases to be operational
+    span_type: CROSS_PHASE
+  - sc: SC-9
+    concerns: [Reset function, BEHAVIOR_NEEDS_REMOTE flag]
+    description: Multi-test reset — depends on reset function and opt-in flag
+    span_type: CROSS_PHASE
+  - sc: SC-10
+    concerns: [Gitignore verification]
+    description: Shared concern across SC-1 and SC-2 (both verify .gitignore)
+    span_type: WITHIN_PHASE
+non_cross_cutting_scs:
+  - sc: SC-3
+    concerns: [GitBucket startup and port discovery]
+  - sc: SC-4
+    concerns: [Token generation]
+  - sc: SC-5
+    concerns: [Test repo creation and remote wiring]
+  - sc: SC-6
+    concerns: [Reset function]
+  - sc: SC-7
+    concerns: [Clean-all integration]
+dependency_edges:
+  - from: SC-3
+    to: [SC-1, SC-2]
+    reason: GitBucket startup requires JDK and JAR to be provisioned first
+  - from: SC-4
+    to: [SC-3]
+    reason: Token generation requires GitBucket to be running
+  - from: SC-5
+    to: [SC-3, SC-4]
+    reason: Test repo creation requires running GitBucket and valid token
+  - from: SC-6
+    to: [SC-3]
+    reason: Reset function requires GitBucket to have been started
+  - from: SC-8
+    to: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    reason: End-to-end test requires all provisioning, startup, token, and repo setup
+  - from: SC-9
+    to: [SC-6, SC-8]
+    reason: Multi-test reset depends on reset function and opt-in flag

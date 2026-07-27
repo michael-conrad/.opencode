@@ -1,0 +1,65 @@
+spec_path: .opencode/.issues/2162/spec.md
+code_paths:
+  phase_1_label_creation:
+    - path: "gh label create spec-draft --repo michael-conrad/.opencode --color <color>"
+      sc: SC-1
+      description: "Create spec-draft label on GitHub .opencode repo"
+    - path: "gh label create spec-draft --repo michael-conrad/opencode-config --color <color>"
+      sc: SC-1
+      description: "Create spec-draft label on GitHub opencode-config repo"
+    - path: "gb label create spec-draft --color <color>"
+      sc: SC-1
+      description: "Create spec-draft label on GitBucket via gb CLI"
+    - path: "gh label create spec-needs-research ..." (same pattern for repos)
+      sc: SC-2
+      description: "Create spec-needs-research on all platforms"
+    - path: "gh label create spec-under-review ..." (same pattern)
+      sc: SC-3
+      description: "Create spec-under-review on all platforms"
+    - path: "gh label create spec-passed-review ..." (same pattern)
+      sc: SC-4
+      description: "Create spec-passed-review on all platforms"
+    - path: "gh label create spec-cleared ..." (same pattern)
+      sc: SC-5
+      description: "Create spec-cleared on all platforms"
+    - path: "gh label list --repo ... && gb label list" (verification)
+      sc: SC-13
+      description: "Verify no collision with approved-for-* labels"
+  phase_2_label_application:
+    - path: "skills/spec-creation/tasks/create.md → after spec creation, add gh label add-spec-draft step"
+      sc: SC-6
+      description: "Add spec-draft label application after spec creation in create.md"
+    - path: "skills/issue-review/tasks/analyze-and-spec.md → after issue creation, add gh label add-spec-draft step"
+      sc: SC-6
+      description: "Add spec-draft label application in analyze-and-spec.md"
+    - path: "skills/issue-review/tasks/triage.md → on research-need branch, add gh label add-spec-needs-research step"
+      sc: SC-7
+      description: "Add spec-needs-research label on triage research need"
+    - path: "skills/audit/tasks/spec-audit-evaluator.md → on audit start, add gh label add-spec-under-review"
+      sc: SC-8
+      description: "Add spec-under-review label on audit start"
+    - path: "skills/audit/tasks/spec-audit-evaluator.md → on audit PASS, remove spec-under-review, add spec-passed-review"
+      sc: SC-9
+      description: "Transition labels on audit PASS (evaluator)"
+    - path: "skills/audit/tasks/spec-audit-validator.md → on audit PASS, remove spec-under-review, add spec-passed-review"
+      sc: SC-9
+      description: "Transition labels on audit PASS (validator)"
+    - path: "skills/writing-plans/tasks/create.md → on plan creation, add gh label add-spec-cleared"
+      sc: SC-10
+      description: "Add spec-cleared on plan creation"
+    - path: "skills/approval-gate-scope/SKILL.md → Trigger Dispatch Table revision-revocation: remove passed-review+cleared, add spec-draft"
+      sc: SC-11
+      description: "Reset labels on spec revision (revision-revocation sub-task)"
+    - path: "grep/spec body STATUS field check" (verification-only)
+      sc: SC-14
+      description: "Verify no body status fields used for lifecycle tracking"
+  phase_3_documentation:
+    - path: "skills/issue-operations/platforms/local/SKILL.md → add labels section"
+      sc: SC-12
+      description: "Document spec lifecycle labels in local SKILL.md"
+    - path: "skills/issue-operations/platforms/github-mcp/SKILL.md → add labels section"
+      sc: SC-12
+      description: "Document spec lifecycle labels in github-mcp SKILL.md"
+    - path: "skills/issue-operations/platforms/gitbucket-api/SKILL.md → add labels section"
+      sc: SC-12
+      description: "Document spec lifecycle labels in gitbucket-api SKILL.md"

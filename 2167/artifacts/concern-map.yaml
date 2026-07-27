@@ -1,0 +1,25 @@
+spec: .opencode/.issues/2167/spec.md
+generated_from: spec body
+concerns:
+  - id: C1
+    name: Audit stale-artifact routing
+    scs: [SC-1, SC-2]
+    phase: 1
+    description: Fix audit SKILL.md scenario (c) to auto-delete stale artifacts and route to backfill instead of halting with developer intervention
+    affected_files:
+      - .opencode/skills/audit/SKILL.md
+  - id: C2
+    name: Spec-revision artifact cleanup
+    scs: [SC-3]
+    phase: 2
+    description: Add artifact cleanup step to spec-creation/tasks/revise.md to proactively delete stale artifacts after revision
+    affected_files:
+      - .opencode/skills/spec-creation/tasks/revise.md
+  - id: C3
+    name: Cross-reference and uniformity verification
+    scs: [SC-4, SC-5]
+    phase: 3
+    description: Verify no orphaned references to old language and all 3 scenarios route to backfill uniformly
+    affected_files:
+      - .opencode/skills/audit/SKILL.md
+      - .opencode/skills/spec-creation/tasks/revise.md

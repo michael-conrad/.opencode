@@ -1,0 +1,28 @@
+# Dependency contract for #2162 — Spec Lifecycle Labels
+# Generated from structure.yaml
+# Linear DAG: Phase 1 -> Phase 2 -> Phase 3
+
+phases:
+  - id: 1
+    name: Label Creation
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-13, SC-15]
+    description: Create all 5 spec lifecycle labels on all platforms with no collisions
+
+  - id: 2
+    name: Label Application at Lifecycle Stages
+    scs: [SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-14]
+    description: Apply labels at each spec lifecycle transition point in the relevant task files
+
+  - id: 3
+    name: Platform Documentation
+    scs: [SC-12]
+    description: Document labels in all three platform SKILL.md files
+
+dependencies:
+  - from: 1
+    to: 2
+    reason: Labels must exist (Phase 1) before they can be applied (Phase 2)
+
+  - from: 2
+    to: 3
+    reason: Labels must be applied (Phase 2) before they can be documented (Phase 3)

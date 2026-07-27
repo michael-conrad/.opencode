@@ -1,0 +1,90 @@
+domain: gitbucket-test-infrastructure
+types:
+  - name: phase
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+  - name: p4
+    type: phase
+  - name: p5
+    type: phase
+  - name: p6
+    type: phase
+  - name: p7
+    type: phase
+  - name: p8
+    type: phase
+  - name: p9
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute-p1
+    preconditions:
+      - not completed(p1)
+    effects:
+      - completed(p1)
+  - name: execute-p2
+    preconditions:
+      - not completed(p2)
+    effects:
+      - completed(p2)
+  - name: execute-p3
+    preconditions:
+      - completed(p1)
+      - completed(p2)
+      - not completed(p3)
+    effects:
+      - completed(p3)
+  - name: execute-p4
+    preconditions:
+      - completed(p3)
+      - not completed(p4)
+    effects:
+      - completed(p4)
+  - name: execute-p5
+    preconditions:
+      - completed(p3)
+      - completed(p4)
+      - not completed(p5)
+    effects:
+      - completed(p5)
+  - name: execute-p6
+    preconditions:
+      - completed(p3)
+      - not completed(p6)
+    effects:
+      - completed(p6)
+  - name: execute-p7
+    preconditions:
+      - completed(p3)
+      - not completed(p7)
+    effects:
+      - completed(p7)
+  - name: execute-p8
+    preconditions:
+      - completed(p1)
+      - completed(p2)
+      - completed(p3)
+      - completed(p4)
+      - completed(p5)
+      - completed(p6)
+      - not completed(p8)
+    effects:
+      - completed(p8)
+  - name: execute-p9
+    preconditions:
+      - completed(p8)
+      - not completed(p9)
+    effects:
+      - completed(p9)
+init: []
+goals:
+  - completed(p9)

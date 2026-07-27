@@ -1,0 +1,117 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+code_paths:
+  - sc: SC-1
+    description: __ensure_gitbucket() provisions JDK to .tools/jdk/
+    implied_paths:
+      - function: __ensure_gitbucket
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE_OR_APPEND
+      - function: __ensure_jdk
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE
+      - path: .tools/jdk/
+        action: CREATE_DIR
+      - path: .tools/jdk/jdk-21/
+        action: EXTRACT_TAR
+      - api: adoptium API (https://api.adoptium.net/v3/assets/feature_releases/21/ga)
+        action: HTTP_GET
+  - sc: SC-2
+    description: __ensure_gitbucket() downloads latest GitBucket WAR
+    implied_paths:
+      - function: __ensure_gitbucket
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE_OR_APPEND
+      - function: __ensure_gitbucket_jar
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE
+      - path: .tools/gitbucket/
+        action: CREATE_DIR
+      - path: .tools/gitbucket/gitbucket.war
+        action: DOWNLOAD
+      - api: GitHub API (latest release URL resolution)
+        action: HTTP_GET
+  - sc: SC-3
+    description: GitBucket starts on auto-assigned port, port discovered
+    implied_paths:
+      - function: __start_gitbucket
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE
+      - command: java -jar gitbucket.war --port=0 --data=tmp/gitbucket-data/
+        action: BACKGROUND_PROCESS
+      - path: tmp/gitbucket-data/
+        action: CREATE_DIR
+      - mechanism: Parse GITBUCKET_PORT from log or port file
+        action: LOG_PARSE
+  - sc: SC-4
+    description: GB_TOKEN env var set from admin API token generation
+    implied_paths:
+      - function: __generate_gb_token
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE
+      - api: POST /api/v3/tokens (admin creds)
+        action: HTTP_POST
+      - env_var: GB_TOKEN
+        action: EXPORT
+  - sc: SC-5
+    description: Test repo created on GitBucket, wired as origin
+    implied_paths:
+      - function: __create_test_repo
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE
+      - command: gb create-repo test-repo
+        action: CLI_CALL
+      - command: git remote add origin http://root:$TOKEN@localhost:$PORT/git/root/test-repo.git
+        action: GIT_COMMAND
+      - command: git push -u origin main
+        action: GIT_COMMAND
+  - sc: SC-6
+    description: __reset_gitbucket() kills process, deletes data dir, re-starts
+    implied_paths:
+      - function: __reset_gitbucket
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CREATE
+      - action: KILL_PROCESS (kill PID or pkill -f gitbucket.war)
+      - path: tmp/gitbucket-data/
+        action: DELETE_DIR
+      - action: RE_START (delegate to __start_gitbucket)
+  - sc: SC-7
+    description: --clean-all kills GitBucket process, preserves .tools/ cache
+    implied_paths:
+      - function: do_clean_all
+        file: .opencode/tests-v2/with-test-home
+        action: MODIFY
+      - action: KILL_GITBUCKET_PROCESS (pkill -f gitbucket.war or PID file)
+      - path: .tools/
+        action: PRESERVE (do not delete)
+  - sc: SC-8
+    description: Test with BEHAVIOR_NEEDS_REMOTE=1 can create issue and verify labels
+    implied_paths:
+      - function: behavior_run
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: MODIFY
+      - env_var: BEHAVIOR_NEEDS_REMOTE
+        action: CHECK_AND_DISPATCH
+      - function: __ensure_gitbucket
+        action: CALL_ON_DEMAND
+      - api: GitBucket issue creation API
+        action: HTTP_POST
+      - api: GitBucket label verification API
+        action: HTTP_GET
+  - sc: SC-9
+    description: Multiple tests sharing GitBucket instance get clean state via reset
+    implied_paths:
+      - function: __reset_gitbucket
+        file: .opencode/tests-v2/behaviors/helpers.sh
+        action: CALL_BETWEEN_TESTS
+      - mechanism: Reset called between test invocations for clean state
+        action: ORCHESTRATION
+  - sc: SC-10
+    description: .tools/ cache is gitignored and not tracked
+    implied_paths:
+      - path: .opencode/.gitignore
+        action: VERIFY_ENTRY
+      - entry: .tools/
+        status: ALREADY_EXISTS
+      - entry: .jdk/
+        status: ALREADY_EXISTS

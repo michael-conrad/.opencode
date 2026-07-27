@@ -1,0 +1,44 @@
+spec_path: .opencode/.issues/2162/spec.md
+concerns:
+  - id: label_creation
+    name: Label Creation
+    description: Create 5 spec lifecycle labels on all platforms with no collisions
+    phase: 1
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-13
+  - id: label_application
+    name: Label Application at Lifecycle Stages
+    description: Apply labels at each spec lifecycle transition point in the relevant task files
+    phase: 2
+    scs:
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+      - SC-11
+      - SC-14
+  - id: label_documentation
+    name: Platform Documentation
+    description: Document labels in all three platform SKILL.md files
+    phase: 3
+    scs:
+      - SC-12
+phase_boundaries:
+  phase_1:
+    entry: spec approved
+    exit: all 5 labels exist on all platforms, no collisions verified
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-13]
+  phase_2:
+    entry: phase 1 complete
+    exit: all lifecycle transition points have label application calls, no body status fields used
+    scs: [SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-14]
+  phase_3:
+    entry: phase 2 complete
+    exit: labels documented in all 3 platform SKILL.md files
+    scs: [SC-12]

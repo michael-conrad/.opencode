@@ -1,0 +1,28 @@
+spec: .opencode/.issues/2167/spec.md
+generated_from: spec body
+testability:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep for absence of 'developer intervention is required' in scenario (c)
+    testable: YES
+    notes: Simple grep — no behavioral test needed per spec's Not Included section
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep for 'delete stale artifact' or 'rm' in scenario (c)
+    testable: YES
+    notes: Simple grep for required pattern
+  - sc: SC-3
+    evidence_type: string
+    verification_method: grep for 'artifact' and 'delete' or 'clean' in revise.md
+    testable: YES
+    notes: Simple grep for required patterns
+  - sc: SC-4
+    evidence_type: string
+    verification_method: grep for 'developer intervention is required' across .opencode/ — only expected matches remain
+    testable: YES
+    notes: grep across entire .opencode/ directory
+  - sc: SC-5
+    evidence_type: semantic
+    verification_method: Read all 3 scenarios, verify they all route to backfill
+    testable: YES
+    notes: Requires sub-agent read + judgment — semantic evidence type

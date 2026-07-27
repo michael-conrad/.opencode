@@ -24,6 +24,9 @@ The following duplication claims are verified against live source files:
 | Channel-Routing Table duplicated in 000 | `000-critical-rules.md` | Lines 300-315 (Channel-Routing Table) | ✅ |
 | 3 restated ALWAYS DO lines (internal duplication within 020) | `020-go-prohibitions.md` | Lines 294-296 restate lines 277-279 | ✅ |
 | §5 Multi-task Plan Without Sub-issues (obsolete, not duplicated) | `020-go-prohibitions.md` | Lines 362-383 | ✅ obsolete |
+| 070-environment.md Node.js Prohibition section | `070-environment.md` | Lines 224-257 (Node.js Prohibition section) | ✅ |
+
+Duplication claims are based on live file comparison (grep of current file contents), not git history review. All claims verified against current file state as of 2026-07-27.
 
 The following claims from the previous spec version were found to be INCORRECT after live verification and are NOT included in this revision:
 
@@ -59,15 +62,15 @@ Removal was chosen because the duplicated rules already exist in their authorita
 | SC-2 | Remove §6 Progressive Iterative Implementation | string | grep for absence of 'Progressive Iterative Implementation' |
 | SC-3 | Remove "stop" command section | string | grep for absence of 'terminal halt' in 020 |
 | SC-4 | Remove Channel-Routing Table | string | grep for absence of 'Channel-Routing Table' in 020 |
-| SC-5 | Remove 3 restated ALWAYS DO lines (lines 294-296) | string | grep for absence of 'Make a live tool call before every factual claim' |
+| SC-5 | Remove 3 restated ALWAYS DO lines (the lines beginning with "Make a live tool call before every factual claim" that restate earlier NEVER DO lines) | string | grep for absence of 'Make a live tool call before every factual claim' |
 | SC-6 | §1.2 merged into §1 as bullet | string | grep for 'interpretive question' in §1 |
 | SC-7 | §1.5 collapsed into §1 | string | grep for absence of 'Soliciting Authorization' header |
 | SC-8 | §4 replaced with general `.tools/` rule | string | grep for '.tools/' in §4 |
-| SC-9 | All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items) | string | grep for each section header and unique line |
-| SC-10 | No content loss — removed sections verified as duplicated in 000 | semantic | Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based — a content-loss defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via semantic comparison. |
-| SC-11 | No orphaned cross-references to removed section names | string | grep for removed section names across .opencode/ — only 000 remains |
-| SC-12 | No line-count or word-count metrics used as success measurement | string | grep for absence of 'wc -l', 'file size', 'Final file size' in spec |
-| SC-13 | Remove duplicate Node.js Prohibition section from 070-environment.md (lines 224-257) | string | grep for absence of 'Node.js Prohibition' section in 070-environment.md |
+| SC-9 | All 4 keep categories remain: §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines (lines 277-279), cost-blind/evidence substitution/continue waiver/silent halt/escalate lines (lines 53, 64-73, 447), and all ALWAYS DO items unique to 020 (lines 214-250 subset, 301-303) | string | grep for each section header and unique line. Also verify that sections NOT in the explicit keep list (specifically §5, §6, "stop" command section, Channel-Routing Table, §4/§4.5) are actually removed from 020. Cost frame: DDL-based — a missed-removal defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
+| SC-10 | Every rule text from removed sections (§5, §6, stop command, Channel-Routing Table) exists verbatim in 000-critical-rules.md. No rule text is lost. | semantic | Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based — a content-loss defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via semantic comparison. |
+| SC-11 | No orphaned cross-references to removed section names | string | grep for removed section names across .opencode/ — only 000 remains. Cost frame: DDL-based — a broken-cross-reference defect discovered post-merge costs 100× more (manual audit of all cross-references) than catching it at verification time via grep. |
+| SC-12 | No line-count or word-count metrics used as success measurement | string | grep for absence of 'wc -l', 'file size', 'Final file size' in spec. Cost frame: DDL-based — a leftover-metric defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
+| SC-13 | Remove duplicate Node.js Prohibition section from 070-environment.md (the Node.js Prohibition section and its Project-Local Tools subsection) | string | grep for absence of 'Node.js Prohibition' section in 070-environment.md. Cost frame: DDL-based — a leftover-section defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
 
 ## Requirements
 
@@ -77,7 +80,7 @@ Removal was chosen because the duplicated rules already exist in their authorita
 | REQ-2 | Remove §6 Progressive Iterative Implementation | string |
 | REQ-3 | Remove "stop" command section | string |
 | REQ-4 | Remove Channel-Routing Table | string |
-| REQ-5 | Remove 3 restated ALWAYS DO lines (lines 294-296) | string |
+| REQ-5 | Remove 3 restated ALWAYS DO lines (the lines beginning with "Make a live tool call before every factual claim" that restate earlier NEVER DO lines) | string |
 | REQ-6 | §1.2 merged into §1 as bullet | string |
 | REQ-7 | §1.5 collapsed into §1 | string |
 | REQ-8 | §4 replaced with general `.tools/` rule | string |
@@ -85,7 +88,7 @@ Removal was chosen because the duplicated rules already exist in their authorita
 | REQ-10 | No content loss — removed sections verified as duplicated in 000 | semantic |
 | REQ-11 | No orphaned cross-references to removed section names | string |
 | REQ-12 | No line-count or word-count metrics used as success measurement | string |
-| REQ-13 | Remove duplicate Node.js Prohibition section from 070-environment.md (lines 224-257) | string |
+| REQ-13 | Remove duplicate Node.js Prohibition section from 070-environment.md (the section titled "## 4. Node.js Prohibition in Python/Java Projects" and its subsection "## 4.5 Project-Local Tool Installation Pattern") | string |
 
 ## Traceability
 
@@ -104,6 +107,8 @@ Removal was chosen because the duplicated rules already exist in their authorita
 | REQ-11 | SC-11 | Phase 5 |
 | REQ-12 | SC-12 | Phase 5 |
 | REQ-13 | SC-13 | Phase 5 |
+
+> **Note:** Verification SCs (SC-9 through SC-12) trace to the root cause of accretion/duplication as quality assurance gates — they verify that the removal operations did not introduce defects.
 
 ## Implementation Plan
 
@@ -160,6 +165,8 @@ Dispatch: verification sub-agent
 | 2026-07-27 | Added REQ references to each Implementation Plan phase heading | Validation: Phase coverage FAIL — missing REQ references in phase headings | Spec-creation revise pipeline |
 | 2026-07-27 | **Major correction**: Fixed Problem Statement, Documentation Sources, SCs, Requirements, Traceability, and Implementation Plan to reflect ACTUAL duplication (not previously claimed incorrect duplication). Removed §1.1, live tool call lines, cost-blind lines, and 10 ALWAYS DO items from removal lists — these are unique to 020. Added Channel-Routing Table to removal list (verified duplicate). | Revision reason: CRITICAL — spec's Documentation Sources table and Problem Statement were factually incorrect based on live file verification | Spec-creation revise pipeline |
 | 2026-07-27 | Added SC-13, REQ-13 for removing duplicate Node.js Prohibition section from 070-environment.md (lines 224-257). Updated Traceability and Phase 5 to include REQ-13. Fixed Risk section: corrected false claim that '070-environment.md references §4' — actual cross-reference is in 085-project-local-tools.md. Added risk for 070-environment.md's own duplicate Node.js section. | Validation: Completeness FAIL (070-environment.md in Files Affected had no SC/REQ) + Correctness FAIL (Risk section falsely claimed 070 references §4) | Spec-creation revise pipeline |
+| 2026-07-27 | Replaced line number references in SC-5 and SC-13 with section header references. Expanded SC-9 verification method to include negative case (verify sections NOT in keep list are removed). | Re-audit: SC-PRESCRIPTIVE-CODE (FAIL) and A5-GAP-ANALYSIS (FAIL) | Spec-creation revise pipeline |
+| 2026-07-27 | Added 070-environment.md row to Documentation Sources table (SC-11 remediation). Added recency check note to Documentation Sources section (A4-RESEARCH-ADEQUACY remediation). Made SC-9 criterion deterministic by enumerating exact keep categories (A5-GAP-ANALYSIS/SC-9 remediation). Made SC-10 criterion deterministic by requiring verbatim rule text preservation (SC-DET remediation). Changed SC-13 criterion to use descriptive section references instead of exact header strings (SC-PRESCRIPTIVE-CODE remediation). Added DDL/death-spiral cost-frame language to SC-9 through SC-13 verification methods (SC-13 remediation). Added root cause traceability note for verification SCs (A1-REASONING-SOUNDNESS remediation). | Re-audit: 7 FAILs (SC-11, SC-13, SC-DET, SC-PRESCRIPTIVE-CODE, A1-REASONING-SOUNDNESS, A4-RESEARCH-ADEQUACY, A5-GAP-ANALYSIS) | Spec-creation revise pipeline |
 
 ---
 

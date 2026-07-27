@@ -1,3 +1,7 @@
+---
+approved: true
+---
+
 > **Full spec and artifacts: [`#2166`](https://github.com/michael-conrad/.opencode/issues/2166)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
 > **Local artifacts:** `.opencode/.issues/2166/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings

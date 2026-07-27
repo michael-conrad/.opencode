@@ -1,0 +1,46 @@
+# Dependency contract for #2166 — Behavioral Test Assertion Cleanup
+# Generated from structure.yaml
+# Linear DAG: Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5
+
+phases:
+  - id: 1
+    name: Remove dead assertion helpers
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    description: Remove all 9 dead assertion helpers from helpers.sh
+
+  - id: 2
+    name: Convert legacy scripts to artifact-only generators
+    scs: [SC-10, SC-11]
+    description: Convert verify-auth-step5d.sh and 2146-session-timestamp.sh to artifact-only generators
+
+  - id: 3
+    name: Update assert_semantic to include structured data
+    scs: [SC-12]
+    description: Update assert_semantic to include session.yaml and timeline.yaml
+
+  - id: 4
+    name: Verify event table export
+    scs: [SC-14]
+    description: Verify __export_sqlite_to_yaml exports the event table
+
+  - id: 5
+    name: Verify backward compatibility
+    scs: [SC-13]
+    description: All existing behavioral tests continue to pass
+
+dependencies:
+  - from: 2
+    to: 1
+    reason: Scripts reference helpers being removed; conversion must happen after dead code removal
+
+  - from: 3
+    to: 2
+    reason: assert_semantic is used by the legacy scripts being converted; update after conversion
+
+  - from: 4
+    to: 3
+    reason: Event table export is independent of assert_semantic changes but must run after Phase 2 completes
+
+  - from: 5
+    to: 4
+    reason: Must run after all changes are applied to verify no regressions

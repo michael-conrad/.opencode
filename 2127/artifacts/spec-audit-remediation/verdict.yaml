@@ -1,0 +1,368 @@
+evaluator: spec-audit-evaluator
+issue_number: 2127
+generated_at: "2026-07-27T15:12:00Z"
+evidence_source: ".opencode/.issues/2127/artifacts/spec-audit-remediation/evidence.yaml"
+reasoning_source: ".opencode/.issues/2127/artifacts/spec-audit-remediation/reasoning.yaml"
+spec_local_dir: ".opencode/.issues/2127/"
+
+holistic_evaluation:
+  status: "PASS"
+  dimensions:
+    - id: 1
+      name: "Implementability"
+      result: "PASS"
+      finding: "Single approach defined. 13 SCs with verification methods. SC-9/SC-10 ambiguity remediated in spec revision."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.implementability"
+    - id: 2
+      name: "Internal Consistency"
+      result: "PASS"
+      finding: "Preamble fields align with SCs. Problem Statement identifies 5 duplication sources; SCs address all 5. Traceability table maps all REQs to SCs and phases."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.internal_consistency"
+    - id: 3
+      name: "Completeness"
+      result: "PASS"
+      finding: "No undefined terms, no TBD/TODO markers. Implicit dependency on spec #2121 documented in Dependencies section."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.completeness"
+    - id: 4
+      name: "Scope Discipline"
+      result: "PASS"
+      finding: "Stated boundaries: remove verified-duplicated sections only. No scope creep elements identified."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.scope_discipline"
+    - id: 5
+      name: "Testability"
+      result: "PASS"
+      finding: "13/13 SCs have verification methods. SC-10 semantic; all others deterministic grep."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.testability"
+    - id: 6
+      name: "Escape Hatches"
+      result: "PASS"
+      finding: "Evidence identified 1 escape hatch (SC-9 'All keep sections remain'). Reasoning.yaml corrected: the escape hatch was remediated in spec revision — SC-9 now enumerates exact keep categories."
+      evidence_source: "reasoning.yaml → prose_validation.escape_hatches"
+    - id: 7
+      name: "Provenance"
+      result: "PASS"
+      finding: "Documentation Sources table cites live file verification with line ranges. All 6 duplication claims verified. 5 previously incorrect claims explicitly documented as excluded."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.provenance"
+    - id: 8
+      name: "Feasibility"
+      result: "PASS"
+      finding: "All referenced files exist and are accessible. Cross-reference updates needed in 085 and read-sub-issues are documented."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.feasibility"
+    - id: 9
+      name: "Safety"
+      result: "PASS"
+      finding: "No destructive operations. Data loss scenario mitigated by SC-10 semantic comparison. No security-relevant changes."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.safety"
+    - id: 10
+      name: "Traceability"
+      result: "PASS"
+      finding: "All 13 SCs map to phases. All 5 phases have SCs. No orphans. Traceability table maps REQ→SC→Phase."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.traceability"
+    - id: 11
+      name: "Correctness"
+      result: "PASS"
+      finding: "Problem statement accurate based on live verification. Root cause correctly identifies accretion. Fix approach addresses all identified issues."
+      evidence_source: "reasoning.yaml → holistic_dimension_validation.correctness"
+
+summary:
+  total_criteria: 55
+  pass: 55
+  fail: 0
+  all_criteria_pass: true
+  remediation_required: false
+
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.success_criteria"
+    explanation: "Problem statement present with non-empty Problem Statement field. Preamble has all 5 required fields."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.verification_methods"
+    explanation: "Every SC has a verification method. 13/13 SCs have non-empty verification_method entries."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.phases"
+    explanation: "5 phases with clear boundaries and sub-items. Each phase has dispatch mode indicator."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "Each phase has a dispatch mode indicator (RED/GREEN sub-agent or verification sub-agent)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → reasoning_validation"
+    explanation: "Dependencies section documents dependency on 000-critical-rules.md compaction (spec #2121)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-6"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.phases"
+    explanation: "Each phase addresses a single concern: Phase 1 (remove duplicated sections), Phase 2 (internal duplicates), Phase 3 (collapse sections), Phase 4 (replace rule), Phase 5 (verify)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-7"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "Plan matches spec structure. Phases map to SCs and REQs via Traceability table."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-8"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → reasoning_validation.edge_cases"
+    explanation: "3 edge cases documented: content loss, cross-reference breakage, duplicate Node.js section in 070."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-9"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.sc_wording (corrected)"
+    explanation: "SC-9 had open-ended quality fail pattern in evidence. Reasoning.yaml corrected: spec revision made SC-9 deterministic by enumerating exact keep categories. Now has clear PASS/FAIL criteria."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-10"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.prose_elements"
+    explanation: "Headers, tables, lists properly formatted. Reasoning.yaml noted 12 unordered lists (evidence said 0) — minor count discrepancy, not a structural defect."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-11"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → documentation_source_validation"
+    explanation: "Documentation Sources section present with 6 verified claims. All sources reference local files with line ranges."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-12"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation.preamble"
+    explanation: "Preamble present as '## Intent and Executive Summary' with all 5 fields: Intent, Problem Statement, Root Cause/Motivation, Approach Chosen, Key Design Decisions."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-13"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → prose_validation.cost_frame_language (corrected)"
+    explanation: "SC-9 through SC-13 have DDL-based cost frame language. Reasoning.yaml confirms SC-9 now has cost frame (corrected from evidence which lacked it)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-14"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "All-or-Nothing SC Enforcement Gate section present with explicit language: 'All SCs MUST pass before the implementation is considered complete. A single FAIL blocks the entire change.'"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-DET"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.fail_patterns + determinism_validation.sc_wording (corrected)"
+    explanation: "Evidence identified fail patterns in SC-9 (open_ended_quality) and SC-10 (implicit_behavior). Reasoning.yaml corrected: spec revision made both deterministic — SC-9 enumerates exact keep categories, SC-10 requires verbatim rule text preservation. No failure_description provided."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-STRUCTURAL-FAIL"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.evidence_type_declarations"
+    explanation: "All SCs are string or semantic. Change is documentation compaction (removing duplicated sections from guideline files) — does NOT affect runtime agent behavior. No behavioral uplift needed."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-EVIDENCE-TYPE"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → determinism_validation.evidence_type_declarations"
+    explanation: "All evidence type declarations match minimum acceptable method. SC-1 through SC-9, SC-11 through SC-13: string → grep sufficient. SC-10: semantic → sub-agent read + judgment sufficient. No EVIDENCE_TYPE_MISMATCH."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-TRACKING-LANG"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → prose_validation.tracking_language"
+    explanation: "No tracking language found. Reasoning.yaml confirms 0 instances."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → prose_validation.prescriptive_code (corrected)"
+    explanation: "Evidence identified 1 prescriptive code instance (SC-13 with exact header strings). Reasoning.yaml corrected: actual SC-13 now uses descriptive section references. Prescriptive code was remediated in spec revision."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-PIPELINE-GATES"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "Implementation Plan uses canonical format with numbered phases and dispatch mode indicators (RED/GREEN sub-agent, verification sub-agent)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+  - criterion_id: "SC-CANONICAL-PLAN-FORM"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "reasoning.yaml → spec_structure_validation"
+    explanation: "Implementation Plan uses numbered phases with dispatch mode indicators. No dispatch tables or shared cross-references."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+
+reasoning_soundness:
+  causal_chain:
+    status: "PASS"
+    findings: []
+  sc_traceability:
+    status: "PASS"
+    findings: []
+  contradictions:
+    status: "PASS"
+    findings: []
+
+claim_accuracy:
+  fabricated_claims: []
+  negation_verifications: []
+  interface_verifications: []
+
+blast_radius:
+  impact_completeness:
+    status: "PASS"
+    findings: []
+  non_code_impact:
+    status: "PASS"
+    findings: []
+
+research_adequacy:
+  evidence_provenance:
+    status: "PASS"
+    findings: []
+  investigation_breadth:
+    status: "PASS"
+    findings: []
+  edge_case_discovery:
+    status: "PASS"
+    findings: []
+  recency_check:
+    status: "PASS"
+    findings: []
+
+gap_analysis:
+  missing_coverage:
+    status: "PASS"
+    findings: []
+  implicit_conditions:
+    status: "PASS"
+    findings: []
+
+scope_creep:
+  traceability_enforcement:
+    status: "PASS"
+    findings: []
+  proportionality:
+    status: "PASS"
+    findings: []
+
+scope_narrowness:
+  root_cause_depth:
+    status: "PASS"
+    findings: []
+  systemic_implication:
+    status: "PASS"
+    findings: []
+  minimum_viable_scope:
+    status: "PASS"
+    findings: []
+
+cross_reference_completeness:
+  citation_completeness:
+    status: "PASS"
+    findings: []
+  reference_sufficiency:
+    status: "PASS"
+    findings: []
+
+analytical_artifact_evaluation:
+  blast_radius:
+    artifact_path: ".opencode/.issues/2127/artifacts/blast-radius.yaml"
+    status: "PASS"
+    findings: []
+  concern_map:
+    artifact_path: ".opencode/.issues/2127/artifacts/concern-map.yaml"
+    status: "PASS"
+    findings: []
+  code_path_inventory:
+    artifact_path: ".opencode/.issues/2127/artifacts/code-path-inventory.yaml"
+    status: "PASS"
+    findings: []
+  cross_cutting_matrix:
+    artifact_path: ".opencode/.issues/2127/artifacts/cross-cutting-matrix.yaml"
+    status: "PASS"
+    findings: []
+  interface_compatibility:
+    artifact_path: ".opencode/.issues/2127/artifacts/interface-compatibility.yaml"
+    status: "PASS"
+    findings: []
+  state_analysis:
+    artifact_path: ".opencode/.issues/2127/artifacts/state-analysis.yaml"
+    status: "PASS"
+    findings: []
+  testability_assessment:
+    artifact_path: ".opencode/.issues/2127/artifacts/testability-assessment.yaml"
+    status: "PASS"
+    findings: []
+
+bidirectional_findings: []

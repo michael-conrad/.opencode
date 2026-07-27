@@ -1,0 +1,53 @@
+spec_path: .opencode/.issues/2162/spec.md
+cross_cutting_concerns:
+  - concern: platform_coordination
+    description: "Label creation must happen on ALL 3 platforms (GitHub .opencode, GitHub opencode-config, GitBucket) — inconsistent platform state is a defect"
+    affected_scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+    affected_phases:
+      - 1
+  - concern: label_naming_convention
+    description: "All 5 labels share the spec- prefix — naming convention must be consistent across all platforms and all documentation"
+    affected_scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-12
+    affected_phases:
+      - 1
+      - 3
+  - concern: label_state_machine_consistency
+    description: "The 5 labels form a state machine — transitions must be consistent across all application points. spec-draft→...→spec-cleared order must be maintained."
+    affected_scs:
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+      - SC-11
+    affected_phases:
+      - 2
+  - concern: revision_revocation_integrity
+    description: "Spec revision (SC-11) resets multiple labels — must remove both spec-passed-review AND spec-cleared, then add spec-draft. Atomicity matters."
+    affected_scs:
+      - SC-11
+    affected_phases:
+      - 2
+  - concern: no_status_field_enforcement
+    description: "SC-14 must be verifiable across ALL touched task files — no STATUS field is introduced anywhere"
+    affected_scs:
+      - SC-14
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+      - SC-11
+    affected_phases:
+      - 2

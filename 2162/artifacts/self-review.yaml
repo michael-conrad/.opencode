@@ -1,0 +1,20 @@
+self_review:
+  issue: 2162
+  timestamp: "2026-07-27T19:45:00Z"
+
+placeholder_findings: []
+
+sc_coverage_findings: []
+
+triplet_split_findings: []
+
+type_name_inconsistency_findings:
+  - type: FILE_PATH_MISMATCH
+    description: "Plan references platform SKILL.md files at `local/SKILL.md`, `github-mcp/SKILL.md`, `gitbucket-api/SKILL.md` but actual paths are `issue-operations/platforms/local/SKILL.md`, `issue-operations/platforms/github-mcp/SKILL.md`, `issue-operations/platforms/gitbucket-api/SKILL.md`"
+    plan_location: "Phase 3, Item 12 — GREEN phase description"
+    expected: "issue-operations/platforms/local/SKILL.md, issue-operations/platforms/github-mcp/SKILL.md, issue-operations/platforms/gitbucket-api/SKILL.md"
+    actual: "local/SKILL.md, github-mcp/SKILL.md, gitbucket-api/SKILL.md"
+
+per_task_cycle_findings: []
+
+overall_verdict: BLOCKED

@@ -1,0 +1,201 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+triplet_integrity:
+  status: PASS
+  note: "Each SC's RED, GREEN, and COMMIT steps are assigned to the same phase. No SC has steps split across phases."
+cross_phase_dependency:
+  status: PASS
+  note: "No RED test depends on uncommitted SC output from another phase. All RED tests depend only on SCs from earlier or same phase."
+phases:
+  - phase: 1
+    label: "JDK provisioning + gitignore"
+    scs: [SC-1, SC-10]
+    description: "Provision Eclipse Temurin 21 JRE to .tools/jdk/ and verify .gitignore entries"
+    evidence_types: [string, string]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+      - .opencode/.gitignore
+    dependencies: []
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-1
+        description: "__ensure_gitbucket() provisions JDK to .tools/jdk/ on first call"
+        evidence_type: string
+      - item: 2
+        sc: SC-10
+        description: ".tools/ cache is gitignored and not tracked"
+        evidence_type: string
+
+  - phase: 2
+    label: "GitBucket JAR provisioning + gitignore"
+    scs: [SC-2, SC-10]
+    description: "Download latest GitBucket WAR to .tools/gitbucket/ and verify .gitignore entries"
+    evidence_types: [string, string]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+      - .opencode/.gitignore
+    dependencies: []
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-2
+        description: "__ensure_gitbucket() downloads latest GitBucket WAR to .tools/gitbucket/ on first call"
+        evidence_type: string
+
+  - phase: 3
+    label: "GitBucket startup and port discovery"
+    scs: [SC-3]
+    description: "Start GitBucket on auto-assigned port (--port=0), discover port from log/port file"
+    evidence_types: [behavioral]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+    dependencies:
+      - phase: 1
+        reason: "GitBucket startup requires JDK to be provisioned"
+      - phase: 2
+        reason: "GitBucket startup requires JAR to be downloaded"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-3
+        description: "GitBucket starts on auto-assigned port, port discovered from log/port file"
+        evidence_type: behavioral
+
+  - phase: 4
+    label: "Token generation"
+    scs: [SC-4]
+    description: "Generate GB_TOKEN from admin API on startup"
+    evidence_types: [behavioral]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+    dependencies:
+      - phase: 3
+        reason: "Token generation requires GitBucket to be running"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-4
+        description: "GB_TOKEN env var is set from admin API token generation"
+        evidence_type: behavioral
+
+  - phase: 5
+    label: "Test repo creation and remote wiring"
+    scs: [SC-5]
+    description: "Create test repo on GitBucket, wire as test project's origin remote"
+    evidence_types: [behavioral]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+    dependencies:
+      - phase: 3
+        reason: "Test repo creation requires running GitBucket"
+      - phase: 4
+        reason: "Test repo creation requires valid token"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-5
+        description: "Test repo created on GitBucket and wired as test project's origin remote"
+        evidence_type: behavioral
+
+  - phase: 6
+    label: "Reset function"
+    scs: [SC-6]
+    description: "Kill process, delete data dir, re-start fresh"
+    evidence_types: [behavioral]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+    dependencies:
+      - phase: 3
+        reason: "Reset function requires GitBucket to have been started"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-6
+        description: "__reset_gitbucket() kills process, deletes data dir, re-starts fresh"
+        evidence_type: behavioral
+
+  - phase: 7
+    label: "Clean-all integration"
+    scs: [SC-7]
+    description: "--clean-all kills GitBucket process, preserves .tools/ cache"
+    evidence_types: [behavioral]
+    affected_files:
+      - .opencode/tests-v2/with-test-home
+    dependencies:
+      - phase: 3
+        reason: "Clean-all requires GitBucket process to be killable"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-7
+        description: "with-test-home --clean-all kills GitBucket process, preserves .tools/ cache"
+        evidence_type: behavioral
+
+  - phase: 8
+    label: "BEHAVIOR_NEEDS_REMOTE flag and multi-test reset"
+    scs: [SC-8, SC-9]
+    description: "Opt-in flag for remote tests, clean state between tests via reset"
+    evidence_types: [behavioral, behavioral]
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+    dependencies:
+      - phase: 1
+        reason: "End-to-end test requires JDK provisioning"
+      - phase: 2
+        reason: "End-to-end test requires JAR provisioning"
+      - phase: 3
+        reason: "End-to-end test requires running GitBucket"
+      - phase: 4
+        reason: "End-to-end test requires valid token"
+      - phase: 5
+        reason: "End-to-end test requires test repo"
+      - phase: 6
+        reason: "Multi-test reset depends on reset function"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle per SC)"
+    items:
+      - item: 1
+        sc: SC-8
+        description: "Test with BEHAVIOR_NEEDS_REMOTE=1 can create issue on GitBucket and verify labels"
+        evidence_type: behavioral
+      - item: 2
+        sc: SC-9
+        description: "Multiple tests sharing GitBucket instance get clean state via reset"
+        evidence_type: behavioral
+
+  - phase: 9
+    label: "Documentation"
+    scs: []
+    description: "Update AGENTS.md with container pattern, env vars, lifecycle"
+    evidence_types: []
+    affected_files:
+      - .opencode/tests-v2/AGENTS.md
+    dependencies:
+      - phase: 8
+        reason: "Documentation should reflect final implementation state"
+    skill_task: "implementation-pipeline (standard per-item TDD cycle)"
+    items: []
+
+dependency_dag:
+  edges:
+    - from: 3
+      to: [1, 2]
+      reason: "GitBucket startup requires JDK and JAR to be provisioned"
+    - from: 4
+      to: [3]
+      reason: "Token generation requires GitBucket to be running"
+    - from: 5
+      to: [3, 4]
+      reason: "Test repo creation requires running GitBucket and valid token"
+    - from: 6
+      to: [3]
+      reason: "Reset function requires GitBucket to have been started"
+    - from: 7
+      to: [3]
+      reason: "Clean-all requires GitBucket process to be killable"
+    - from: 8
+      to: [1, 2, 3, 4, 5, 6]
+      reason: "End-to-end test requires all provisioning, startup, token, repo, and reset"
+    - from: 9
+      to: [8]
+      reason: "Documentation should reflect final implementation state"

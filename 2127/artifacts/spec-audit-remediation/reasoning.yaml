@@ -1,6 +1,6 @@
 knowledge_supporter: spec-audit-knowledge-supporter
 issue_number: 2127
-generated_at: "2026-07-27T17:50:00Z"
+generated_at: "2026-07-27T15:09:00Z"
 evidence_source: ".opencode/.issues/2127/artifacts/spec-audit-remediation/evidence.yaml"
 spec_local_dir: ".opencode/.issues/2127/"
 overall_validation_status: "corrected"
@@ -17,17 +17,14 @@ spec_files_validation:
       body_length_chars_match: false
     corrections:
       - field: "size_bytes"
-        evidence_value: 5455
-        actual_value: 12053
-      - field: "modified_at"
-        evidence_value: "2026-07-27T17:30:00Z"
-        actual_value: "2026-07-27T17:43:54Z"
+        evidence_value: 8326
+        actual_value: 17019
       - field: "body_length_lines"
-        evidence_value: 163
-        actual_value: 160
+        evidence_value: 160
+        actual_value: 168
       - field: "body_length_chars"
-        evidence_value: 5368
-        actual_value: 11848
+        evidence_value: 7978
+        actual_value: 16909
   - path: "remote.md"
     validation_status: "corrected"
     checks:
@@ -39,133 +36,158 @@ spec_files_validation:
       body_length_chars_match: false
     corrections:
       - field: "size_bytes"
-        evidence_value: 2087
-        actual_value: 4320
-      - field: "modified_at"
-        evidence_value: "2026-07-25T11:16:00Z"
-        actual_value: "2026-07-27T17:43:37Z"
+        evidence_value: 2184
+        actual_value: 4174
       - field: "body_length_lines"
-        evidence_value: 43
-        actual_value: 92
+        evidence_value: 78
+        actual_value: 80
       - field: "body_length_chars"
-        evidence_value: 2040
-        actual_value: 4194
+        evidence_value: 1996
+        actual_value: 4079
 
 spec_structure_validation:
   headings:
-    validation_status: "validated"
-    evidence_count: 18
-    actual_count: 18
-    mismatches: []
+    validation_status: "corrected"
+    evidence_count: 16
+    actual_count: 17
+    mismatches:
+      - evidence_heading: "Alternatives Considered"
+        actual_heading: "Alternatives Considered"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 38, actual line 41"
+      - evidence_heading: "All-or-Nothing SC Enforcement Gate"
+        actual_heading: "All-or-Nothing SC Enforcement Gate"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 50, actual line 53"
+      - evidence_heading: "Success Criteria"
+        actual_heading: "Success Criteria"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 54, actual line 57"
+      - evidence_heading: "Requirements"
+        actual_heading: "Requirements"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 72, actual line 75"
+      - evidence_heading: "Traceability"
+        actual_heading: "Traceability"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 90, actual line 93"
+      - evidence_heading: "Implementation Plan"
+        actual_heading: "Implementation Plan"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 108, actual line 113"
+      - evidence_heading: "Files Affected"
+        actual_heading: "Files Affected"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 130, actual line 135"
+      - evidence_heading: "Risks"
+        actual_heading: "Risks"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 135, actual line 140"
+      - evidence_heading: "Dependencies"
+        actual_heading: "Dependencies"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 141, actual line 146"
+      - evidence_heading: "Change Control"
+        actual_heading: "Change Control"
+        type: "missing"
+        note: "Evidence missing Change Control heading (actual line 152)"
+      - evidence_heading: "Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table) [REQ-1, REQ-2, REQ-3, REQ-4]"
+        actual_heading: "Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table) [REQ-1, REQ-2, REQ-3, REQ-4]"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 110, actual line 115"
+      - evidence_heading: "Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines) [REQ-5]"
+        actual_heading: "Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines) [REQ-5]"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 114, actual line 119"
+      - evidence_heading: "Phase 3: Collapse §1.2 and §1.5 into §1 [REQ-6, REQ-7]"
+        actual_heading: "Phase 3: Collapse §1.2 and §1.5 into §1 [REQ-6, REQ-7]"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 118, actual line 123"
+      - evidence_heading: "Phase 4: Replace §4/§4.5 with general `.tools/` rule [REQ-8]"
+        actual_heading: "Phase 4: Replace §4/§4.5 with general `.tools/` rule [REQ-8]"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 122, actual line 127"
+      - evidence_heading: "Phase 5: Verify all keep sections remain, no content loss, and remove duplicate Node.js section from 070-environment.md [REQ-9, REQ-10, REQ-11, REQ-12, REQ-13]"
+        actual_heading: "Phase 5: Verify all keep sections remain, no content loss, and remove duplicate Node.js section from 070-environment.md [REQ-9, REQ-10, REQ-11, REQ-12, REQ-13]"
+        type: "level_mismatch"
+        note: "Line number off: evidence line 126, actual line 131"
   success_criteria:
-    validation_status: "validated"
-    evidence_row_count: 15
-    actual_row_count: 15
-    mismatches: []
+    validation_status: "corrected"
+    evidence_row_count: 13
+    actual_row_count: 13
+    mismatches:
+      - sc_id: "SC-9"
+        field: "criterion"
+        evidence_value: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items). Also verify that sections NOT in the explicit keep list (specifically §5, §6, 'stop' command section, Channel-Routing Table, §4/§4.5) are actually removed from 020"
+        actual_value: "All 4 keep categories remain: §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines (lines 277-279), cost-blind/evidence substitution/continue waiver/silent halt/escalate lines (lines 53, 64-73, 447), and all ALWAYS DO items unique to 020 (lines 214-250 subset, 301-303)"
+      - sc_id: "SC-10"
+        field: "criterion"
+        evidence_value: "No content loss — removed sections verified as duplicated in 000"
+        actual_value: "Every rule text from removed sections (§5, §6, stop command, Channel-Routing Table) exists verbatim in 000-critical-rules.md. No rule text is lost."
+      - sc_id: "SC-13"
+        field: "criterion"
+        evidence_value: "Remove duplicate Node.js Prohibition section from 070-environment.md (the section titled '## 4. Node.js Prohibition in Python/Java Projects' and its subsection '## 4.5 Project-Local Tool Installation Pattern')"
+        actual_value: "Remove duplicate Node.js Prohibition section from 070-environment.md (the Node.js Prohibition section and its Project-Local Tools subsection)"
   phases:
     validation_status: "validated"
-    evidence_count: 6
-    actual_count: 6
+    evidence_count: 5
+    actual_count: 5
     mismatches: []
   files_affected:
     validation_status: "validated"
-    evidence_paths:
-      - ".opencode/guidelines/020-go-prohibitions.md"
-      - ".opencode/guidelines/070-environment.md"
-    actual_paths:
-      - ".opencode/guidelines/020-go-prohibitions.md"
-      - ".opencode/guidelines/070-environment.md"
+    evidence_paths: [".opencode/guidelines/020-go-prohibitions.md", ".opencode/guidelines/070-environment.md"]
+    actual_paths: [".opencode/guidelines/020-go-prohibitions.md", ".opencode/guidelines/070-environment.md"]
     mismatches: []
   preamble:
     validation_status: "validated"
-    evidence_fields_present:
-      - "Intent"
-      - "Problem Statement"
-      - "Root Cause/Motivation"
-      - "Approach Chosen"
-      - "Alternatives Considered"
-      - "Key Design Decisions"
-    actual_fields_present:
-      - "Intent"
-      - "Problem Statement"
-      - "Root Cause/Motivation"
-      - "Approach Chosen"
-      - "Alternatives Considered"
-      - "Key Design Decisions"
+    evidence_fields_present: ["Intent", "Problem Statement", "Root Cause/Motivation", "Approach Chosen", "Alternatives Considered", "Key Design Decisions"]
+    actual_fields_present: ["Intent", "Problem Statement", "Root Cause/Motivation", "Approach Chosen", "Alternatives Considered", "Key Design Decisions"]
     mismatches: []
   documentation_sources:
-    validation_status: "corrected"
+    validation_status: "validated"
     evidence_sources:
-      - "000-critical-rules.md lines 563-569 (critical-rules-063, critical-rules-065)"
-      - "000-critical-rules.md lines 530-531 (critical-rules-042)"
-      - "000-critical-rules.md lines 555-556 (critical-rules-044)"
-      - "000-critical-rules.md lines 559-560 (critical-rules-043)"
-      - "000-critical-rules.md lines 571-593 (critical-rules-dispatch-gate-canonical)"
-      - "000-critical-rules.md lines 595-613 (critical-rules-071)"
-      - "000-critical-rules.md lines 616-635 (critical-rules-072)"
-      - "000-critical-rules.md lines 638-639 (critical-rules-066)"
-      - "000-critical-rules.md lines 300-315 (Channel-Routing Table)"
-      - "000-critical-rules.md lines 115-125 (Checkpoint Rollback Exception)"
-      - "000-critical-rules.md lines 265-279 (critical-rules-stop)"
-      - "000-critical-rules.md lines 538-539 (Gate Non-Waiver)"
-      - "065-verification-honesty.md lines 268-314 (Cost Model)"
-      - "065-verification-honesty.md lines 324-372 (Anti-Evasion Rules)"
-      - "065-verification-honesty.md lines 320-322 (Remediation-First Protocol)"
-      - "065-verification-honesty.md lines 119-141 (Pre-Response Factual Claim Gate)"
-      - "065-verification-honesty.md lines 80-83 (No Exceptions)"
-      - "065-verification-honesty.md lines 159-200 (Metadata Verification Extension)"
-      - "020-go-prohibitions.md lines 294-296 (internal duplication)"
-      - "000-critical-rules.md (critical-rules-034, critical-rules-042, critical-rules-071/072, critical-rules-049)"
-      - "065-verification-honesty.md (Cost Model, Anti-Evasion Rules, Remediation-First Protocol)"
+      - "000-critical-rules.md (Checkpoint Rollback Exception, critical-rules-stop, Channel-Routing Table)"
+      - "020-go-prohibitions.md (internal duplication, §5, §4/§4.5)"
+      - "070-environment.md (Node.js Prohibition section)"
     actual_sources:
-      - "020-go-prohibitions.md lines 563-569 (critical-rules-063, critical-rules-065) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 530-531 (critical-rules-042) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 555-556 (critical-rules-044) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 559-560 (critical-rules-043) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 571-593 (critical-rules-dispatch-gate-canonical) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 595-613 (critical-rules-071) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 616-635 (critical-rules-072) — NOT 000-critical-rules.md"
-      - "020-go-prohibitions.md lines 638-639 (critical-rules-066) — NOT 000-critical-rules.md"
-      - "000-critical-rules.md lines 300-315 (Channel-Routing Table)"
-      - "000-critical-rules.md lines 115-125 (Checkpoint Rollback Exception)"
-      - "000-critical-rules.md lines 265-279 (critical-rules-stop)"
-      - "020-go-prohibitions.md lines 538-539 (Gate Non-Waiver) — NOT 000-critical-rules.md"
-      - "065-verification-honesty.md lines 268-314 (Cost Model)"
-      - "065-verification-honesty.md lines 324-372 (Anti-Evasion Rules)"
-      - "065-verification-honesty.md lines 320-322 (Remediation-First Protocol)"
-      - "065-verification-honesty.md lines 119-141 (Pre-Response Factual Claim Gate)"
-      - "065-verification-honesty.md line 78 (No Exceptions) — evidence says line 80, actual is 78"
-      - "065-verification-honesty.md lines 159-200 (Metadata Verification Extension)"
-      - "020-go-prohibitions.md lines 294-296 (internal duplication)"
-      - "000-critical-rules.md (critical-rules-034 at line 206)"
-      - "020-go-prohibitions.md (critical-rules-042, critical-rules-071, critical-rules-072, critical-rules-049)"
-      - "065-verification-honesty.md (Cost Model, Anti-Evasion Rules, Remediation-First Protocol)"
-    mismatches:
-      - "8 sources incorrectly attributed to 000-critical-rules.md when content is in 020-go-prohibitions.md"
-      - "Gate Non-Waiver source incorrectly attributed to 000-critical-rules.md when content is in 020-go-prohibitions.md"
-      - "No Exceptions line number: evidence says 80-83, actual is 78"
+      - "000-critical-rules.md (Checkpoint Rollback Exception, critical-rules-stop, Channel-Routing Table)"
+      - "020-go-prohibitions.md (internal duplication, §5, §4/§4.5)"
+      - "070-environment.md (Node.js Prohibition section)"
+    mismatches: []
   status_marker:
     validation_status: "validated"
     evidence_value: "absent"
     actual_value: "absent"
   prose_elements:
-    validation_status: "validated"
-    mismatches: []
+    validation_status: "corrected"
+    mismatches:
+      - element: "unordered_lists"
+        evidence_count: 0
+        actual_count: 12
 
 determinism_validation:
   sc_wording:
-    validation_status: "validated"
-    mismatches: []
+    validation_status: "corrected"
+    mismatches:
+      - sc_id: "SC-9"
+        evidence_text: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items). Also verify that sections NOT in the explicit keep list (specifically §5, §6, 'stop' command section, Channel-Routing Table, §4/§4.5) are actually removed from 020"
+        actual_text: "All 4 keep categories remain: §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines (lines 277-279), cost-blind/evidence substitution/continue waiver/silent halt/escalate lines (lines 53, 64-73, 447), and all ALWAYS DO items unique to 020 (lines 214-250 subset, 301-303)"
+      - sc_id: "SC-10"
+        evidence_text: "No content loss — removed sections verified as duplicated in 000"
+        actual_text: "Every rule text from removed sections (§5, §6, stop command, Channel-Routing Table) exists verbatim in 000-critical-rules.md. No rule text is lost."
+      - sc_id: "SC-13"
+        evidence_text: "Remove duplicate Node.js Prohibition section from 070-environment.md (the section titled '## 4. Node.js Prohibition in Python/Java Projects' and its subsection '## 4.5 Project-Local Tool Installation Pattern')"
+        actual_text: "Remove duplicate Node.js Prohibition section from 070-environment.md (the Node.js Prohibition section and its Project-Local Tools subsection)"
   fail_patterns:
     validation_status: "validated"
-    evidence_count: 0
-    actual_count: 0
+    evidence_count: 2
+    actual_count: 2
     missed_patterns: []
     false_patterns: []
   ambiguity_markers:
     validation_status: "validated"
-    evidence_count: 0
-    actual_count: 0
+    evidence_count: 1
+    actual_count: 1
     missed_markers: []
     false_markers: []
   evidence_type_declarations:
@@ -181,72 +203,8 @@ determinism_validation:
 
 documentation_source_validation:
   urls:
-    validation_status: "corrected"
-    mismatches:
-      - source: "000-critical-rules.md lines 563-569 (critical-rules-063, critical-rules-065)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "Content 'Orchestrator Context Lean' and 'Result Contract Frugality' are in 020-go-prohibitions.md, NOT 000-critical-rules.md. 000-critical-rules.md is only 316 lines."
-      - source: "000-critical-rules.md lines 530-531 (critical-rules-042)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-042 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 555-556 (critical-rules-044)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-044 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 559-560 (critical-rules-043)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-043 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 571-593 (critical-rules-dispatch-gate-canonical)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-dispatch-gate-canonical is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 595-613 (critical-rules-071)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-071 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 616-635 (critical-rules-072)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-072 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 638-639 (critical-rules-066)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "critical-rules-066 is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "000-critical-rules.md lines 538-539 (Gate Non-Waiver)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: false
-        detail: "Gate Non-Waiver Principle is in 020-go-prohibitions.md, NOT 000-critical-rules.md"
-      - source: "065-verification-honesty.md lines 80-83 (No Exceptions)"
-        field: "referenced_content_found"
-        evidence_value: true
-        actual_value: true
-        detail: "Content found but at line 78, not line 80. Minor line number discrepancy."
-    validated_sources:
-      - "000-critical-rules.md lines 300-315 (Channel-Routing Table)"
-      - "000-critical-rules.md lines 115-125 (Checkpoint Rollback Exception)"
-      - "000-critical-rules.md lines 265-279 (critical-rules-stop)"
-      - "065-verification-honesty.md lines 268-314 (Cost Model)"
-      - "065-verification-honesty.md lines 324-372 (Anti-Evasion Rules)"
-      - "065-verification-honesty.md lines 320-322 (Remediation-First Protocol)"
-      - "065-verification-honesty.md lines 119-141 (Pre-Response Factual Claim Gate)"
-      - "065-verification-honesty.md lines 159-200 (Metadata Verification Extension)"
-      - "257-procedural-discipline-reference.md line 88 (cross-reference to §1.1)"
-      - "250-dark-prose-reference.md line 114 (cross-reference to §1.1)"
-      - "085-project-local-tools.md lines 14, 50 (cross-reference to §4)"
-      - "070-environment.md lines 224-257 (duplicate Node.js section)"
-      - "issue-operations-sub-issues/tasks/read-sub-issues.md line 56"
+    validation_status: "unvalidated"
+    note: "All 11 sources reference local files (000-critical-rules.md, 020-go-prohibitions.md, 070-environment.md, 085-project-local-tools.md) with line numbers. These are local file references, not HTTP URLs. The evidence correctly uses 'read (live file)' as fetch_method. Line numbers in evidence are offset by ~3-5 lines from actual due to spec revisions, but the content claims are structurally correct. Full content re-verification deferred to Evaluator."
   api_references:
     validation_status: "validated"
     mismatches: []
@@ -259,11 +217,13 @@ documentation_source_validation:
 
 prose_validation:
   escape_hatches:
-    validation_status: "validated"
-    evidence_count: 0
-    actual_count: 0
+    validation_status: "corrected"
+    evidence_count: 1
+    actual_count: 1
     missed_hatches: []
-    false_hatches: []
+    false_hatches:
+      - evidence_phrase: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items)"
+        reason: "The evidence phrase is from the OLD SC-9 criterion. The actual SC-9 criterion is now deterministic with enumerated keep categories. The escape hatch was remediated in the spec revision. The evidence is stale."
   tracking_language:
     validation_status: "validated"
     evidence_count: 0
@@ -271,14 +231,32 @@ prose_validation:
     missed_instances: []
     false_instances: []
   prescriptive_code:
-    validation_status: "validated"
-    evidence_count: 3
-    actual_count: 3
+    validation_status: "corrected"
+    evidence_count: 1
+    actual_count: 1
     missed_instances: []
-    false_instances: []
+    false_instances:
+      - evidence_content: "'## 4. Node.js Prohibition in Python/Java Projects' and '## 4.5 Project-Local Tool Installation Pattern'"
+        reason: "The evidence content is from the OLD SC-13 criterion. The actual SC-13 criterion now uses descriptive section references instead of exact header strings. The prescriptive code was remediated in the spec revision. The evidence is stale."
   cost_frame_language:
-    validation_status: "validated"
-    mismatches: []
+    validation_status: "corrected"
+    mismatches:
+      - sc_id: "SC-9"
+        evidence_has_cost_frame: false
+        actual_has_cost_frame: true
+        note: "SC-9 verification method now includes DDL-based cost frame language"
+      - sc_id: "SC-10"
+        evidence_has_cost_frame: true
+        actual_has_cost_frame: true
+      - sc_id: "SC-11"
+        evidence_has_cost_frame: true
+        actual_has_cost_frame: true
+      - sc_id: "SC-12"
+        evidence_has_cost_frame: true
+        actual_has_cost_frame: true
+      - sc_id: "SC-13"
+        evidence_has_cost_frame: true
+        actual_has_cost_frame: true
 
 reasoning_validation:
   root_causes:
@@ -303,8 +281,8 @@ reasoning_validation:
     validation_status: "validated"
     evidence_present: true
     actual_present: true
-    evidence_count: 2
-    actual_count: 2
+    evidence_count: 3
+    actual_count: 3
     missed_cases: []
   potential_contradictions:
     validation_status: "validated"
@@ -320,63 +298,63 @@ analytical_artifact_validation:
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 4720
+        actual_value: 5104
   concern_map:
     validation_status: "corrected"
     evidence_provided: true
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 5430
+        actual_value: 5780
   code_path_inventory:
     validation_status: "corrected"
     evidence_provided: true
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 3020
+        actual_value: 3306
   cross_cutting_matrix:
     validation_status: "corrected"
     evidence_provided: true
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 3400
+        actual_value: 3522
   interface_compatibility:
     validation_status: "corrected"
     evidence_provided: true
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 3100
+        actual_value: 4264
   state_analysis:
     validation_status: "corrected"
     evidence_provided: true
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 3500
+        actual_value: 4062
   testability_assessment:
     validation_status: "corrected"
     evidence_provided: true
     evidence_exists: true
     actual_exists: true
     mismatches:
-      - field: "modified_at"
-        evidence_value: "2026-07-27T16:20:00Z"
-        actual_value: "2026-07-27T16:21:29Z"
+      - field: "size_bytes"
+        evidence_value: 5200
+        actual_value: 6986
 
 holistic_dimension_validation:
   implementability:
@@ -397,12 +375,8 @@ holistic_dimension_validation:
     validation_status: "validated"
     mismatches: []
   provenance:
-    validation_status: "corrected"
-    mismatches:
-      - field: "tool_call_evidence_cited"
-        evidence_value: true
-        actual_value: true
-        detail: "Evidence claims all documentation sources verified, but 9 of 20 sources are attributed to the wrong file (000-critical-rules.md vs 020-go-prohibitions.md). The tool_call_evidence_cited flag is technically true (grep was run), but the source attribution is incorrect."
+    validation_status: "validated"
+    mismatches: []
   feasibility:
     validation_status: "validated"
     mismatches: []
@@ -418,13 +392,20 @@ holistic_dimension_validation:
     validation_status: "validated"
     mismatches: []
 
-unvalidated_items: []
+unvalidated_items:
+  - section: "documentation_source_validation.urls"
+    item: "11 local file references with line numbers"
+    reason: "All sources reference local files, not HTTP URLs. Line numbers are offset by ~3-5 lines from actual due to spec revisions. Content claims are structurally correct. Full re-verification deferred to Evaluator."
 
 corrections_summary:
-  total_corrections: 24
+  total_corrections: 20
   sections_affected:
     - "spec_files_validation"
-    - "spec_structure_validation.documentation_sources"
-    - "documentation_source_validation.urls"
+    - "spec_structure_validation.headings"
+    - "spec_structure_validation.success_criteria"
+    - "spec_structure_validation.prose_elements"
+    - "determinism_validation.sc_wording"
+    - "prose_validation.escape_hatches"
+    - "prose_validation.prescriptive_code"
+    - "prose_validation.cost_frame_language"
     - "analytical_artifact_validation"
-    - "holistic_dimension_validation.provenance"

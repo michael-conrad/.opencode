@@ -1,0 +1,67 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+testability:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep for JDK download URL pattern in helpers.sh + file existence check on .tools/jdk/
+    test_type: content-verification
+    difficulty: EASY
+    notes: Verify __ensure_gitbucket() or __ensure_jdk() function contains adoptium download URL
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep for GitBucket download URL pattern in helpers.sh + file existence check on .tools/gitbucket/
+    test_type: content-verification
+    difficulty: EASY
+    notes: Verify __ensure_gitbucket() or __ensure_gitbucket_jar() function contains GitHub API release URL
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: behavioral test — run with-test-home with BEHAVIOR_NEEDS_REMOTE=1, verify GITBUCKET_PORT is set and non-empty in stderr/logs
+    test_type: behavioral
+    difficulty: MEDIUM
+    notes: Requires model run with GitBucket provisioning. Port discovery mechanism must be implemented first.
+  - sc: SC-4
+    evidence_type: behavioral
+    verification_method: behavioral test — verify GB_TOKEN is set and non-empty in test environment after __ensure_gitbucket()
+    test_type: behavioral
+    difficulty: MEDIUM
+    notes: Token generation requires GitBucket to be running. Verify via env var inspection in test output.
+  - sc: SC-5
+    evidence_type: behavioral
+    verification_method: behavioral test — verify test project has origin remote pointing to localhost:$PORT after __ensure_gitbucket()
+    test_type: behavioral
+    difficulty: MEDIUM
+    notes: Requires GitBucket running + token. Verify via git remote -v in test output.
+  - sc: SC-6
+    evidence_type: behavioral
+    verification_method: behavioral test — call __reset_gitbucket(), verify GitBucket process restarts with clean data dir
+    test_type: behavioral
+    difficulty: HARD
+    notes: Requires process inspection (ps aux) and data dir state check. May need PID file mechanism.
+  - sc: SC-7
+    evidence_type: behavioral
+    verification_method: behavioral test — run with-test-home --clean-all, verify GitBucket process killed, .tools/ preserved
+    test_type: behavioral
+    difficulty: HARD
+    notes: Requires process inspection and file existence check. Clean-all is destructive — test must verify cache preservation.
+  - sc: SC-8
+    evidence_type: behavioral
+    verification_method: behavioral test — set BEHAVIOR_NEEDS_REMOTE=1, run model, verify issue created on GitBucket and labels verified
+    test_type: behavioral
+    difficulty: HARD
+    notes: End-to-end test. Requires full GitBucket stack. Verify via GitBucket API call after model run.
+  - sc: SC-9
+    evidence_type: behavioral
+    verification_method: behavioral test — run two tests sharing GitBucket instance, verify second test gets clean state
+    test_type: behavioral
+    difficulty: HARD
+    notes: Requires multi-test orchestration. Verify via state comparison (data dir contents before/after reset).
+  - sc: SC-10
+    evidence_type: string
+    verification_method: grep .opencode/.gitignore for .tools/ and .jdk/ entries
+    test_type: content-verification
+    difficulty: EASY
+    notes: Both entries already exist in .gitignore — verify only, no change needed
+overall_testability:
+  content_verification_count: 3
+  behavioral_count: 7
+  notes: "Majority behavioral (7/10) — appropriate for a runtime infrastructure change. Content-verification covers provisioning and gitignore. Behavioral tests require GitBucket to be running, which is the feature being built."

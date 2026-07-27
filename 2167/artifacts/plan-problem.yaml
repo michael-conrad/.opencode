@@ -1,0 +1,38 @@
+domain: spec-2167
+types:
+  - name: phase
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: complete-p1
+    params: []
+    preconditions: []
+    effects:
+      - done(p1)
+  - name: complete-p2
+    params: []
+    preconditions: []
+    effects:
+      - done(p2)
+  - name: complete-p3
+    params: []
+    preconditions:
+      - done(p1)
+      - done(p2)
+    effects:
+      - done(p3)
+init: []
+goals:
+  - done(p1)
+  - done(p2)
+  - done(p3)

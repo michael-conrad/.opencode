@@ -1,0 +1,49 @@
+spec_path: .opencode/.issues/2162/spec.md
+approval_status: approved
+sc_count: 15
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: skills/spec-creation/tasks/create.md
+    status: EXISTS
+    role: SC-6 — apply spec-draft after spec creation
+  - file: skills/issue-review/tasks/analyze-and-spec.md
+    status: EXISTS
+    role: SC-6 — apply spec-draft after issue creation
+  - file: skills/issue-review/tasks/triage.md
+    status: EXISTS
+    role: SC-7 — apply spec-needs-research on triage research need
+  - file: skills/audit/tasks/spec-audit-evaluator.md
+    status: EXISTS
+    role: SC-8 (apply spec-under-review on audit start) + SC-9 (transition to spec-passed-review on PASS)
+  - file: skills/audit/tasks/spec-audit-validator.md
+    status: EXISTS
+    role: SC-9 — transition to spec-passed-review on audit PASS
+  - file: skills/writing-plans/tasks/create.md
+    status: EXISTS
+    role: SC-10 — apply spec-cleared on plan creation
+  - file: skills/approval-gate-scope/SKILL.md
+    status: EXISTS
+    role: SC-11 — revision-revocation label reset
+  - file: skills/issue-operations/platforms/local/SKILL.md
+    status: EXISTS
+    role: SC-12 — document labels
+  - file: skills/issue-operations/platforms/github-mcp/SKILL.md
+    status: EXISTS
+    role: SC-12 — document labels
+  - file: skills/issue-operations/platforms/gitbucket-api/SKILL.md
+    status: EXISTS
+    role: SC-12 — document labels
+backfill_notes:
+  - All 7 artifacts were missing and have been backfilled from the spec body
+  - Artifacts reflect 3 phases, 5 labels, 3 platforms, 10 affected files
+  - State machine analysis identifies 5 states and 4 transitions across the spec lifecycle
+  - Cross-cutting concerns: platform coordination (labels on all 3 platforms), label naming convention (spec- prefix), state machine consistency, revision revocation integrity
+  - Behavioral tests (SC-6 through SC-11) require with-test-home wrapper
+  - Structural tests (SC-1 through SC-5) require live gh/gb CLI authentication

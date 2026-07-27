@@ -1,0 +1,47 @@
+spec_path: .opencode/.issues/2165/spec.md
+approval_status: approved
+sc_count: 10
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/tests-v2/behaviors/helpers.sh
+    status: EXISTS
+    change: MODIFY — add __ensure_gitbucket(), __reset_gitbucket(), BEHAVIOR_NEEDS_REMOTE flag
+  - file: .opencode/tests-v2/with-test-home
+    status: EXISTS
+    change: MODIFY — add GitBucket process kill to do_clean_all()
+  - file: .opencode/tests-v2/AGENTS.md
+    status: EXISTS
+    change: MODIFY — add container pattern documentation
+  - file: .opencode/.gitignore
+    status: EXISTS
+    change: VERIFY_ONLY — .tools/ and .jdk/ entries already present
+backfill_actions:
+  - artifact: blast-radius.yaml
+    action: BACKFILLED
+    summary: 7 affected files identified — 4 existing (helpers.sh, with-test-home, AGENTS.md, .gitignore), 3 runtime-created (.tools/jdk/, .tools/gitbucket/, tmp/gitbucket-data/)
+  - artifact: concern-map.yaml
+    action: BACKFILLED
+    summary: 10 concern groups mapped — 9 implementation phases + 1 documentation phase. SC-10 (gitignore) grouped with SC-1/SC-2 as within-phase companion
+  - artifact: code-path-inventory.yaml
+    action: BACKFILLED
+    summary: 10 code paths enumerated — 3 new functions (__ensure_gitbucket, __reset_gitbucket, helpers), 2 modified functions (behavior_run, do_clean_all), 5 API/CLI interactions
+  - artifact: cross-cutting-matrix.yaml
+    action: BACKFILLED
+    summary: 4 cross-cutting SCs identified — SC-8 and SC-9 are cross-phase (end-to-end), SC-1/SC-2 share SC-10 companion concern. 6 dependency edges documented
+  - artifact: interface-compatibility.yaml
+    action: BACKFILLED
+    summary: 7 interfaces documented — 3 new functions, 2 modified functions, 3 new env vars (GB_TOKEN, GITBUCKET_PORT, BEHAVIOR_NEEDS_REMOTE). 4 compatibility notes
+  - artifact: state-analysis.yaml
+    action: BACKFILLED
+    summary: 10 state transitions documented per SC. Global state machine with 5 states (UNPROVISIONED → PROVISIONED → RUNNING → RESET/CLEANED)
+  - artifact: testability-assessment.yaml
+    action: BACKFILLED
+    summary: 3 content-verification (string) + 7 behavioral tests. Majority behavioral (7/10) appropriate for runtime infrastructure change
+finding_summary: "All 7 analytical artifacts backfilled from spec body. Spec has 10 SCs across 9 implementation phases. Blast radius covers 4 existing files (helpers.sh, with-test-home, AGENTS.md, .gitignore) and 3 runtime-created directories. 7/10 SCs require behavioral testing — appropriate for a runtime infrastructure change. .gitignore entries for .tools/ and .jdk/ already exist (SC-10 verified)."

@@ -1,0 +1,47 @@
+self_review:
+  issue: 2165
+  verdict: BLOCKED
+  findings:
+    placeholder:
+      - type: UNRESOLVED_TEMPLATE_VARIABLE
+        pattern: "{contract_path: ...}"
+        locations:
+          - phase: 1, item: 1 (SC-1)
+          - phase: 1, item: 2 (SC-10)
+          - phase: 2, item: 1 (SC-2)
+          - phase: 3, item: 1 (SC-3)
+          - phase: 4, item: 1 (SC-4)
+          - phase: 5, item: 1 (SC-5)
+          - phase: 6, item: 1 (SC-6)
+          - phase: 7, item: 1 (SC-7)
+          - phase: 8, item: 1 (SC-8)
+          - phase: 8, item: 2 (SC-9)
+        description: "Every Z3 check step uses `contract_path: ...` with unresolved `...` placeholder. Must be resolved to actual contract path before execution."
+      - type: UNRESOLVED_TEMPLATE_VARIABLE
+        pattern: "{artifact_evidence_dir: ...}"
+        locations:
+          - post-implementation, audit step
+        description: "Audit step uses `artifact_evidence_dir: ...` with unresolved `...` placeholder. Must be resolved to actual evidence directory before execution."
+    sc_coverage:
+      - status: PASS
+        description: "All 10 SCs (SC-1 through SC-10) from spec are covered in the plan. SC-10 appears in both Phase 1 and Phase 2, which is acceptable for a string-type SC."
+    evidence_type_mismatch:
+      - status: PASS
+        description: "No evidence type mismatches. Behavioral SCs (SC-3 through SC-9) are in phases with behavioral tests. String SCs (SC-1, SC-2, SC-10) are in phases with structural/string tests."
+    triplet_split:
+      - status: PASS
+        description: "No SC has RED/GREEN/COMMIT steps split across phases. Every SC's full TDD cycle is contained within a single phase."
+    type_name_consistency:
+      - status: PASS
+        description: "All skill names, task names, file paths, and dispatch indicators are consistent. No casing/spelling mismatches detected."
+    per_task_cycle:
+      - status: PASS
+        description: "All 15 TDT per-task cycle steps are present in correct order for every SC-bearing item. Phase 9 (documentation-only) correctly omits the full TDD cycle as it has no SCs."
+      - exceptions:
+          - phase: 9
+            item: 1
+            reason: "Documentation-only item with no SCs — RED phase, Z3 checks, RED doublecheck, post-RED enforcement, post-GREEN enforcement, checkpoint tag create, checkpoint commit, and GREEN doublecheck are correctly omitted."
+  summary:
+    total_findings: 2
+    blocker: true
+    blocker_reason: "SELF_REVIEW_FAILED: 2 unresolved template variable placeholders (`contract_path: ...` in all Z3 check steps, `artifact_evidence_dir: ...` in audit step) must be resolved before execution."

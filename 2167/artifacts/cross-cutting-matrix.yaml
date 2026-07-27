@@ -1,0 +1,13 @@
+spec: .opencode/.issues/2167/spec.md
+generated_from: spec body
+cross_cutting_concerns:
+  - concern: Backfill routing uniformity
+    scs: [SC-1, SC-2, SC-5]
+    description: SC-1/SC-2 change audit scenario (c); SC-5 verifies all 3 scenarios route uniformly. These span the audit SKILL.md concern and the cross-reference verification concern.
+    spans_concerns: [C1, C3]
+  - concern: Orphaned reference cleanup
+    scs: [SC-4]
+    description: Removing 'developer intervention is required' language may affect both audit SKILL.md and any other files that reference it. Spans all concerns.
+    spans_concerns: [C1, C2, C3]
+independent_scs:
+  - SC-3: Artifact cleanup step in revise.md is self-contained and does not cross concerns

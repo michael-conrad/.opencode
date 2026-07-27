@@ -1,0 +1,25 @@
+spec_path: .opencode/.issues/2167/spec.md
+approval_status: approved
+sc_count: 5
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/skills/audit/SKILL.md
+    status: EXISTS
+    scs: [SC-1, SC-2, SC-5]
+  - file: .opencode/skills/spec-creation/tasks/revise.md
+    status: EXISTS
+    scs: [SC-3]
+backfill_summary:
+  total_artifacts: 7
+  pre_existing: 0
+  backfilled: 7
+  spec_scs: 5
+  phases: 3
+  affected_files: 2

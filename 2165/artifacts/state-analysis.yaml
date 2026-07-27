@@ -1,0 +1,97 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+state_transitions:
+  - sc: SC-1
+    initial_state: .tools/jdk/ does not exist or is empty
+    final_state: .tools/jdk/ contains Eclipse Temurin 21 JRE
+    trigger: First call to __ensure_gitbucket()
+    idempotent: true (cached, skips download on subsequent calls)
+  - sc: SC-2
+    initial_state: .tools/gitbucket/ does not exist or is empty
+    final_state: .tools/gitbucket/gitbucket.war exists
+    trigger: First call to __ensure_gitbucket()
+    idempotent: true (cached, skips download on subsequent calls)
+  - sc: SC-3
+    initial_state: GitBucket process not running
+    final_state: GitBucket process running on auto-assigned port, GITBUCKET_PORT set
+    trigger: __start_gitbucket() called from __ensure_gitbucket()
+    idempotent: false (each start may get different port)
+  - sc: SC-4
+    initial_state: GB_TOKEN not set
+    final_state: GB_TOKEN set from admin API response
+    trigger: POST /api/v3/tokens after GitBucket startup
+    idempotent: false (new token generated each time)
+  - sc: SC-5
+    initial_state: Test project has no origin remote
+    final_state: Test project has origin remote pointing to local GitBucket repo
+    trigger: __create_test_repo() after token generation
+    idempotent: false (git remote add fails if already exists — may need git remote rm first)
+  - sc: SC-6
+    initial_state: GitBucket running with data in tmp/gitbucket-data/
+    final_state: GitBucket re-started with clean data directory
+    trigger: __reset_gitbucket() called
+    transitions:
+      - step: Kill GitBucket process
+      - step: Delete tmp/gitbucket-data/
+      - step: Re-start GitBucket (delegate to __start_gitbucket)
+      - step: Re-generate token (delegate to __generate_gb_token)
+      - step: Re-create test repo (delegate to __create_test_repo)
+  - sc: SC-7
+    initial_state: GitBucket process may be running
+    final_state: GitBucket process killed, .tools/ cache preserved
+    trigger: with-test-home --clean-all
+    transitions:
+      - step: Kill GitBucket process (pkill -f gitbucket.war)
+      - step: Delete tmp/gitbucket-data/ (if exists)
+      - step: Preserve .tools/ and .jdk/ directories
+  - sc: SC-8
+    initial_state: BEHAVIOR_NEEDS_REMOTE=1 set, GitBucket may not be running
+    final_state: Issue created on GitBucket, labels verified
+    trigger: behavior_run() with BEHAVIOR_NEEDS_REMOTE=1
+    transitions:
+      - step: Check BEHAVIOR_NEEDS_REMOTE flag
+      - step: Call __ensure_gitbucket() (provisions + starts if needed)
+      - step: Run model with GitBucket available
+      - step: Create issue via API
+      - step: Verify labels via API
+  - sc: SC-9
+    initial_state: GitBucket has data from previous test
+    final_state: GitBucket has clean state for next test
+    trigger: __reset_gitbucket() called between tests
+    transitions:
+      - step: First test runs with GitBucket
+      - step: __reset_gitbucket() called after first test
+      - step: Second test runs with clean GitBucket state
+global_state_machine:
+  states:
+    - name: UNPROVISIONED
+      description: No JDK, no JAR, no GitBucket process
+      entry: Initial state
+    - name: PROVISIONED
+      description: JDK and JAR cached, GitBucket not running
+      entry: After SC-1 and SC-2 complete
+    - name: RUNNING
+      description: GitBucket running with token and test repo
+      entry: After SC-3, SC-4, SC-5 complete
+    - name: RESET
+      description: GitBucket re-started with clean data
+      entry: After SC-6 complete
+    - name: CLEANED
+      description: GitBucket killed, cache preserved
+      entry: After SC-7 complete
+  transitions:
+    - from: UNPROVISIONED
+      to: PROVISIONED
+      via: __ensure_gitbucket() (first call)
+    - from: PROVISIONED
+      to: RUNNING
+      via: __start_gitbucket() + __generate_gb_token() + __create_test_repo()
+    - from: RUNNING
+      to: RESET
+      via: __reset_gitbucket()
+    - from: RUNNING
+      to: CLEANED
+      via: do_clean_all()
+    - from: RESET
+      to: RUNNING
+      via: __start_gitbucket() + __generate_gb_token() + __create_test_repo()

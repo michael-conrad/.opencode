@@ -1,0 +1,38 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+affected_files:
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    status: EXISTS
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-8, SC-9]
+    description: Primary target — __ensure_gitbucket(), __reset_gitbucket(), BEHAVIOR_NEEDS_REMOTE=1 flag, behavior_run() integration
+    change_type: MODIFY
+  - path: .opencode/tests-v2/with-test-home
+    status: EXISTS
+    scs: [SC-7]
+    description: do_clean_all() integration — kill GitBucket process if running
+    change_type: MODIFY
+  - path: .opencode/tests-v2/AGENTS.md
+    status: EXISTS
+    scs: [SC-8, SC-9]
+    description: Documentation update — container pattern, env vars, lifecycle
+    change_type: MODIFY
+  - path: .opencode/.gitignore
+    status: EXISTS
+    scs: [SC-10]
+    description: Verify .tools/ and .jdk/ entries exist (already present)
+    change_type: VERIFY_ONLY
+  - path: .tools/jdk/
+    status: CREATED_AT_RUNTIME
+    scs: [SC-1]
+    description: JDK download target — Eclipse Temurin 21 JRE, cached across sessions
+    change_type: CREATE
+  - path: .tools/gitbucket/
+    status: CREATED_AT_RUNTIME
+    scs: [SC-2]
+    description: GitBucket WAR download target — cached across sessions
+    change_type: CREATE
+  - path: tmp/gitbucket-data/
+    status: CREATED_AT_RUNTIME
+    scs: [SC-3, SC-6]
+    description: Ephemeral GitBucket data directory — created on start, deleted on reset/clean-all
+    change_type: CREATE

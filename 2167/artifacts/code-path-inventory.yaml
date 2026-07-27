@@ -1,0 +1,28 @@
+spec: .opencode/.issues/2167/spec.md
+generated_from: spec body
+code_paths:
+  - id: CP1
+    scs: [SC-1, SC-2]
+    file: .opencode/skills/audit/SKILL.md
+    section: Mandatory Task Discipline
+    lines: 32-36
+    description: Scenario (c) stale artifacts block — change HALT+developer-intervention to delete-stale+route-to-backfill
+    change_type: modify
+  - id: CP2
+    scs: [SC-3]
+    file: .opencode/skills/spec-creation/tasks/revise.md
+    section: Procedure
+    description: Add step after revision to delete stale analytical artifacts
+    change_type: modify
+  - id: CP3
+    scs: [SC-4]
+    file: .opencode/ (all files)
+    description: Search for orphaned 'developer intervention is required' cross-references
+    change_type: search-and-remove
+  - id: CP4
+    scs: [SC-5]
+    file: .opencode/skills/audit/SKILL.md
+    section: Mandatory Task Discipline
+    lines: 34-36
+    description: Verify all 3 scenarios (a, b, c) route to backfill uniformly after change
+    change_type: verify

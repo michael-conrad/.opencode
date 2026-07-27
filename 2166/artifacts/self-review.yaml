@@ -1,0 +1,152 @@
+self_review:
+  issue: 2166
+  timestamp: "2026-07-27T19:45:00Z"
+  issuer: "OpenCode (ollama-cloud/deepseek-v4-flash)"
+  overall_verdict: PASS
+  findings:
+    placeholders: []
+    sc_coverage:
+      - sc: SC-1
+        status: COVERED
+        phase: 1
+        item: 1
+      - sc: SC-2
+        status: COVERED
+        phase: 1
+        item: 2
+      - sc: SC-3
+        status: COVERED
+        phase: 1
+        item: 3
+      - sc: SC-4
+        status: COVERED
+        phase: 1
+        item: 4
+      - sc: SC-5
+        status: COVERED
+        phase: 1
+        item: 5
+      - sc: SC-6
+        status: COVERED
+        phase: 1
+        item: 6
+      - sc: SC-7
+        status: COVERED
+        phase: 1
+        item: 7
+      - sc: SC-8
+        status: COVERED
+        phase: 1
+        item: 8
+      - sc: SC-9
+        status: COVERED
+        phase: 1
+        item: 9
+      - sc: SC-10
+        status: COVERED
+        phase: 2
+        item: 10
+      - sc: SC-11
+        status: COVERED
+        phase: 2
+        item: 11
+      - sc: SC-12
+        status: COVERED
+        phase: 3
+        item: 12
+      - sc: SC-13
+        status: COVERED
+        phase: 4
+        item: 13
+      - sc: SC-14
+        status: COVERED
+        phase: 3
+        item: 14
+    evidence_type_mismatches: []
+    triplet_splits: []
+    type_name_inconsistencies: []
+    per_task_cycle:
+      - item: 1
+        sc: SC-1
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 2
+        sc: SC-2
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 3
+        sc: SC-3
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 4
+        sc: SC-4
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 5
+        sc: SC-5
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 6
+        sc: SC-6
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 7
+        sc: SC-7
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 8
+        sc: SC-8
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 9
+        sc: SC-9
+        phase: 1
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 10
+        sc: SC-10
+        phase: 2
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 11
+        sc: SC-11
+        phase: 2
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 12
+        sc: SC-12
+        phase: 3
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 13
+        sc: SC-13
+        phase: 4
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE
+      - item: 14
+        sc: SC-14
+        phase: 3
+        steps_present: 12
+        steps_expected: 12
+        status: COMPLETE

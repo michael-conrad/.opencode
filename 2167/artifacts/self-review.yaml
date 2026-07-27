@@ -1,0 +1,38 @@
+self_review:
+  plan_path: .opencode/.issues/2167/plan.md
+  spec_path: .opencode/.issues/2167/spec.md
+  issue_number: 2167
+  timestamp: "2026-07-27T19:47:00Z"
+
+placeholder_findings: []
+  # No unresolved placeholders detected.
+  # "from structure artifact" is a valid forward reference to the structure.yaml
+  # artifact generated at execution time by the structure step — not an
+  # unresolved template variable.
+
+sc_coverage_findings: []
+  # All 5 SCs (SC-1 through SC-5) are covered:
+  # SC-1: Item 1 (Phase 1) — string evidence, grep test
+  # SC-2: Item 2 (Phase 1) — string evidence, grep test
+  # SC-3: Item 3 (Phase 2) — string evidence, grep test
+  # SC-4: Item 4 (Phase 3) — string evidence, grep test
+  # SC-5: Item 5 (Phase 3) — semantic evidence, clean-room sub-agent read
+  # No evidence type mismatches detected.
+
+triplet_split_findings: []
+  # No SC has RED/GREEN/COMMIT steps split across phases.
+  # Each SC is fully contained within its item.
+
+type_name_consistency_findings: []
+  # All skill names, task names, file paths, and dispatch indicators are consistent.
+  # No casing/spelling mismatches detected.
+
+per_task_cycle_findings: []
+  # All 5 items follow the full 13-step TDT cycle:
+  # red → z3-check-red → red-doublecheck → z3-check-red-doublecheck →
+  # post-red-enforcement → z3-check-post-red → green → z3-check-green →
+  # post-green-enforcement → z3-check-post-green → green-doublecheck →
+  # checkpoint-tag-create → checkpoint-commit
+  # No missing, combined, or out-of-order steps detected.
+
+overall_verdict: PASS

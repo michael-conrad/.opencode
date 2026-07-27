@@ -1,0 +1,52 @@
+spec_path: .opencode/.issues/2162/spec.md
+state_machine:
+  name: spec_lifecycle_labels
+  states:
+    - name: spec-draft
+      description: "Newly created spec that needs work"
+      entry_action: "apply spec-draft (remove spec-passed-review, spec-cleared if present)"
+      applied_by:
+        - skills/spec-creation/tasks/create.md (after spec creation)
+        - skills/issue-review/tasks/analyze-and-spec.md (after issue creation for bug reports)
+        - skills/approval-gate-scope/SKILL.md revision-revocation (on spec revision)
+    - name: spec-needs-research
+      description: "Spec blocked on research before review"
+      entry_action: "apply spec-needs-research (spec-draft stays or is removed depending on convention)"
+      applied_by:
+        - skills/issue-review/tasks/triage.md (on research-need branch)
+    - name: spec-under-review
+      description: "Spec currently under audit/review"
+      entry_action: "apply spec-under-review (remove spec-draft, spec-needs-research if present)"
+      applied_by:
+        - skills/audit/tasks/spec-audit-evaluator.md (on audit start)
+    - name: spec-passed-review
+      description: "Spec passed audit/review, is sound"
+      entry_action: "apply spec-passed-review, remove spec-under-review"
+      applied_by:
+        - skills/audit/tasks/spec-audit-evaluator.md (on audit PASS)
+        - skills/audit/tasks/spec-audit-validator.md (on audit PASS)
+    - name: spec-cleared
+      description: "Freshness-checked and ready for plan creation"
+      entry_action: "remove spec-passed-review (if present), apply spec-cleared"
+      applied_by:
+        - skills/writing-plans/tasks/create.md (on plan creation)
+  transitions:
+    - from: [spec-draft, spec-needs-research]
+      to: spec-under-review
+      trigger: audit starts
+      action: "remove from-state, apply spec-under-review"
+    - from: spec-under-review
+      to: spec-passed-review
+      trigger: audit PASS
+      action: "remove spec-under-review, apply spec-passed-review"
+    - from: spec-passed-review
+      to: spec-cleared
+      trigger: plan creation
+      action: "remove spec-passed-review, apply spec-cleared"
+    - from: [spec-passed-review, spec-cleared]
+      to: spec-draft
+      trigger: spec revision
+      action: "remove all spec-* labels, apply spec-draft"
+  forbidden_states:
+    - description: "No body STATUS field (SC-14)"
+    - description: "No spec-lifecycle label for terminal states (superseded, abandoned) (SC-15)"

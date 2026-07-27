@@ -1,0 +1,53 @@
+spec_path: .opencode/.issues/2165/spec.md
+sc_count: 10
+concern_groups:
+  - concern: "JDK provisioning"
+    phase: 1
+    scs: [SC-1]
+    description: Download and cache Eclipse Temurin 21 JRE to .tools/jdk/
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "GitBucket JAR provisioning"
+    phase: 2
+    scs: [SC-2]
+    description: Download and cache latest GitBucket WAR to .tools/gitbucket/
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "GitBucket startup and port discovery"
+    phase: 3
+    scs: [SC-3]
+    description: Start GitBucket on auto-assigned port, discover port from log/port file
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "Token generation"
+    phase: 4
+    scs: [SC-4]
+    description: Generate GB_TOKEN from admin API on startup
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "Test repo creation and remote wiring"
+    phase: 5
+    scs: [SC-5]
+    description: Create test repo on GitBucket, wire as test project's origin
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "Reset function"
+    phase: 6
+    scs: [SC-6]
+    description: Kill process, delete data dir, re-start fresh
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "Clean-all integration"
+    phase: 7
+    scs: [SC-7]
+    description: --clean-all kills GitBucket process, preserves .tools/ cache
+    affected_files: [.opencode/tests-v2/with-test-home]
+  - concern: "BEHAVIOR_NEEDS_REMOTE flag and multi-test reset"
+    phase: 8
+    scs: [SC-8, SC-9]
+    description: Opt-in flag for remote tests, clean state between tests via reset
+    affected_files: [.opencode/tests-v2/behaviors/helpers.sh]
+  - concern: "Documentation"
+    phase: 9
+    scs: []
+    description: Update AGENTS.md with container pattern, env vars, lifecycle
+    affected_files: [.opencode/tests-v2/AGENTS.md]
+  - concern: "Gitignore verification"
+    phase: 1
+    scs: [SC-10]
+    description: Verify .tools/ and .jdk/ entries exist in .gitignore
+    affected_files: [.opencode/.gitignore]

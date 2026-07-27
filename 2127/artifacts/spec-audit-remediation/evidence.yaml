@@ -1,78 +1,154 @@
 generator: spec-audit-investigator
 issue_number: 2127
-generated_at: "2026-07-27T18:02:00Z"
+generated_at: "2026-07-27T15:06:00Z"
 spec_local_dir: ".opencode/.issues/2127/"
 role: investigator
 role_chain: [investigator, validator, evaluator, arbiter]
 
 spec_files:
   - path: "spec.md"
-    size_bytes: 5455
-    modified_at: "2026-07-27T17:30:00Z"
+    size_bytes: 8326
+    modified_at: "2026-07-27"
     has_frontmatter: true
     frontmatter_keys: ["remote_issue", "remote_url", "labels"]
-    body_length_lines: 163
-    body_length_chars: 5368
-    notes: "Revised spec with all prior audit remediation applied. 13 SCs (not 15 as stale artifacts claim). §1.1 is KEPT (not removed)."
+    body_length_lines: 160
+    body_length_chars: 7978
   - path: "remote.md"
-    size_bytes: 2087
-    modified_at: "2026-07-25T11:16:00Z"
+    size_bytes: 2184
+    modified_at: "2026-07-27"
     has_frontmatter: true
     frontmatter_keys: ["remote_issue", "remote_url"]
-    body_length_lines: 43
-    body_length_chars: 2040
-    notes: "Remote exec summary — not revised with spec changes. Missing SC-13 (070-environment.md removal)."
+    body_length_lines: 78
+    body_length_chars: 1996
 
 spec_structure:
   headings:
-    - level: 2; text: "Intent and Executive Summary"; line: 7
-    - level: 2; text: "Documentation Sources"; line: 16
-    - level: 2; text: "Alternatives Considered"; line: 30
-    - level: 2; text: "All-or-Nothing SC Enforcement Gate"; line: 42
-    - level: 2; text: "Success Criteria"; line: 46
-    - level: 2; text: "Requirements"; line: 66
-    - level: 2; text: "Traceability"; line: 86
-    - level: 2; text: "Implementation Plan"; line: 106
-    - level: 3; text: "Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table) [REQ-1, REQ-2, REQ-3, REQ-4]"; line: 108
-    - level: 3; text: "Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines) [REQ-5]"; line: 112
-    - level: 3; text: "Phase 3: Collapse §1.2 and §1.5 into §1 [REQ-6, REQ-7]"; line: 116
-    - level: 3; text: "Phase 4: Replace §4/§4.5 with general `.tools/` rule [REQ-8]"; line: 120
-    - level: 3; text: "Phase 5: Verify all keep sections remain, no content loss, and remove duplicate Node.js section from 070-environment.md [REQ-9, REQ-10, REQ-11, REQ-12, REQ-13]"; line: 124
-    - level: 2; text: "Files Affected"; line: 130
-    - level: 2; text: "Risks"; line: 135
-    - level: 2; text: "Dependencies"; line: 141
-    - level: 2; text: "Change Control"; line: 147
+    - level: 2
+      text: "Intent and Executive Summary"
+      line: 7
+    - level: 2
+      text: "Documentation Sources"
+      line: 16
+    - level: 2
+      text: "Alternatives Considered"
+      line: 38
+    - level: 2
+      text: "All-or-Nothing SC Enforcement Gate"
+      line: 50
+    - level: 2
+      text: "Success Criteria"
+      line: 54
+    - level: 2
+      text: "Requirements"
+      line: 72
+    - level: 2
+      text: "Traceability"
+      line: 90
+    - level: 2
+      text: "Implementation Plan"
+      line: 108
+    - level: 3
+      text: "Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table) [REQ-1, REQ-2, REQ-3, REQ-4]"
+      line: 110
+    - level: 3
+      text: "Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines) [REQ-5]"
+      line: 114
+    - level: 3
+      text: "Phase 3: Collapse §1.2 and §1.5 into §1 [REQ-6, REQ-7]"
+      line: 118
+    - level: 3
+      text: "Phase 4: Replace §4/§4.5 with general `.tools/` rule [REQ-8]"
+      line: 122
+    - level: 3
+      text: "Phase 5: Verify all keep sections remain, no content loss, and remove duplicate Node.js section from 070-environment.md [REQ-9, REQ-10, REQ-11, REQ-12, REQ-13]"
+      line: 126
+    - level: 2
+      text: "Files Affected"
+      line: 130
+    - level: 2
+      text: "Risks"
+      line: 135
+    - level: 2
+      text: "Dependencies"
+      line: 141
+    - level: 2
+      text: "Change Control"
+      line: 147
   success_criteria:
     present: true
     table_columns: ["ID", "Criterion", "Evidence Type", "Verification Method"]
     rows:
-      - id: "SC-1"; criterion: "Remove §5 Multi-task Plan Without Sub-issues"; evidence_type: "string"; verification_method: "grep for absence of 'Multi-task Plan Without Sub-issues'"
-      - id: "SC-2"; criterion: "Remove §6 Progressive Iterative Implementation"; evidence_type: "string"; verification_method: "grep for absence of 'Progressive Iterative Implementation'"
-      - id: "SC-3"; criterion: "Remove \"stop\" command section"; evidence_type: "string"; verification_method: "grep for absence of 'terminal halt' in 020"
-      - id: "SC-4"; criterion: "Remove Channel-Routing Table"; evidence_type: "string"; verification_method: "grep for absence of 'Channel-Routing Table' in 020"
-      - id: "SC-5"; criterion: "Remove 3 restated ALWAYS DO lines (lines 294-296)"; evidence_type: "string"; verification_method: "grep for absence of 'Make a live tool call before every factual claim'"
-      - id: "SC-6"; criterion: "§1.2 merged into §1 as bullet"; evidence_type: "string"; verification_method: "grep for 'interpretive question' in §1"
-      - id: "SC-7"; criterion: "§1.5 collapsed into §1"; evidence_type: "string"; verification_method: "grep for absence of 'Soliciting Authorization' header"
-      - id: "SC-8"; criterion: "§4 replaced with general `.tools/` rule"; evidence_type: "string"; verification_method: "grep for '.tools/' in §4"
-      - id: "SC-9"; criterion: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items)"; evidence_type: "string"; verification_method: "grep for each section header and unique line"
-      - id: "SC-10"; criterion: "No content loss — removed sections verified as duplicated in 000"; evidence_type: "semantic"; verification_method: "Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based."
-      - id: "SC-11"; criterion: "No orphaned cross-references to removed section names"; evidence_type: "string"; verification_method: "grep for removed section names across .opencode/ — only 000 remains"
-      - id: "SC-12"; criterion: "No line-count or word-count metrics used as success measurement"; evidence_type: "string"; verification_method: "grep for absence of 'wc -l', 'file size', 'Final file size' in spec"
-      - id: "SC-13"; criterion: "Remove duplicate Node.js Prohibition section from 070-environment.md (lines 224-257)"; evidence_type: "string"; verification_method: "grep for absence of 'Node.js Prohibition' section in 070-environment.md"
+      - id: "SC-1"
+        criterion: "Remove §5 Multi-task Plan Without Sub-issues"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Multi-task Plan Without Sub-issues'"
+      - id: "SC-2"
+        criterion: "Remove §6 Progressive Iterative Implementation"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Progressive Iterative Implementation'"
+      - id: "SC-3"
+        criterion: "Remove \"stop\" command section"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'terminal halt' in 020"
+      - id: "SC-4"
+        criterion: "Remove Channel-Routing Table"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Channel-Routing Table' in 020"
+      - id: "SC-5"
+        criterion: "Remove 3 restated ALWAYS DO lines (the lines beginning with 'Make a live tool call before every factual claim' that restate earlier NEVER DO lines)"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Make a live tool call before every factual claim'"
+      - id: "SC-6"
+        criterion: "§1.2 merged into §1 as bullet"
+        evidence_type: "string"
+        verification_method: "grep for 'interpretive question' in §1"
+      - id: "SC-7"
+        criterion: "§1.5 collapsed into §1"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Soliciting Authorization' header"
+      - id: "SC-8"
+        criterion: "§4 replaced with general `.tools/` rule"
+        evidence_type: "string"
+        verification_method: "grep for '.tools/' in §4"
+      - id: "SC-9"
+        criterion: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items). Also verify that sections NOT in the explicit keep list (specifically §5, §6, 'stop' command section, Channel-Routing Table, §4/§4.5) are actually removed from 020"
+        evidence_type: "string"
+        verification_method: "grep for each section header and unique line. Also verify that sections NOT in the explicit keep list (specifically §5, §6, 'stop' command section, Channel-Routing Table, §4/§4.5) are actually removed from 020"
+      - id: "SC-10"
+        criterion: "No content loss — removed sections verified as duplicated in 000"
+        evidence_type: "semantic"
+        verification_method: "Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based."
+      - id: "SC-11"
+        criterion: "No orphaned cross-references to removed section names"
+        evidence_type: "string"
+        verification_method: "grep for removed section names across .opencode/ — only 000 remains"
+      - id: "SC-12"
+        criterion: "No line-count or word-count metrics used as success measurement"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'wc -l', 'file size', 'Final file size' in spec"
+      - id: "SC-13"
+        criterion: "Remove duplicate Node.js Prohibition section from 070-environment.md (the section titled '## 4. Node.js Prohibition in Python/Java Projects' and its subsection '## 4.5 Project-Local Tool Installation Pattern')"
+        evidence_type: "string"
+        verification_method: "grep for absence of 'Node.js Prohibition' section in 070-environment.md"
   phases:
     present: true
     count: 5
     items:
-      - heading: "Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table) [REQ-1, REQ-2, REQ-3, REQ-4]"; sub_items_count: 0; dispatch: "RED/GREEN sub-agent"
-      - heading: "Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines) [REQ-5]"; sub_items_count: 0; dispatch: "RED/GREEN sub-agent"
-      - heading: "Phase 3: Collapse §1.2 and §1.5 into §1 [REQ-6, REQ-7]"; sub_items_count: 0; dispatch: "RED/GREEN sub-agent"
-      - heading: "Phase 4: Replace §4/§4.5 with general `.tools/` rule [REQ-8]"; sub_items_count: 0; dispatch: "RED/GREEN sub-agent"
-      - heading: "Phase 5: Verify all keep sections remain, no content loss, and remove duplicate Node.js section from 070-environment.md [REQ-9, REQ-10, REQ-11, REQ-12, REQ-13]"; sub_items_count: 0; dispatch: "verification sub-agent"
+      - heading: "Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table)"
+        sub_items_count: 4
+      - heading: "Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines)"
+        sub_items_count: 1
+      - heading: "Phase 3: Collapse §1.2 and §1.5 into §1"
+        sub_items_count: 2
+      - heading: "Phase 4: Replace §4/§4.5 with general `.tools/` rule"
+        sub_items_count: 1
+      - heading: "Phase 5: Verify all keep sections remain, no content loss, and remove duplicate Node.js section from 070-environment.md"
+        sub_items_count: 5
   files_affected:
     present: true
     paths:
-      - ".opencode/guidelines/020-go-prohibitions.md — compacted"
-      - ".opencode/guidelines/070-environment.md — remove duplicate Node.js section (lines 224-257)"
+      - ".opencode/guidelines/020-go-prohibitions.md"
+      - ".opencode/guidelines/070-environment.md"
   preamble:
     present: true
     fields_present:
@@ -80,167 +156,294 @@ spec_structure:
       - "Problem Statement"
       - "Root Cause/Motivation"
       - "Approach Chosen"
-      - "Alternatives Considered & Why Discarded"
+      - "Alternatives Considered"
       - "Key Design Decisions"
     fields_missing: []
   documentation_sources:
     present: true
     sources:
-      - "000-critical-rules.md Lines 115-125 (Checkpoint Rollback Exception)"
-      - "000-critical-rules.md Lines 265-279 (critical-rules-stop)"
-      - "000-critical-rules.md Lines 300-315 (Channel-Routing Table)"
-      - "020-go-prohibitions.md Lines 294-296 (internal duplication)"
-      - "020-go-prohibitions.md Lines 362-383 (§5 obsolete)"
-  status_marker: "absent"
+      - "000-critical-rules.md (Checkpoint Rollback Exception, critical-rules-stop, Channel-Routing Table)"
+      - "020-go-prohibitions.md (internal duplication, §5, §4/§4.5)"
+      - "070-environment.md (Node.js Prohibition section)"
+  status_marker: absent
   prose_elements:
-    tables: 5
+    tables: 6
     code_blocks: 0
     ordered_lists: 0
-    unordered_lists: 4
+    unordered_lists: 0
 
 determinism_evidence:
   sc_wording:
-    - id: "SC-1"; text: "Remove §5 Multi-task Plan Without Sub-issues"; word_count: 6
-    - id: "SC-2"; text: "Remove §6 Progressive Iterative Implementation"; word_count: 6
-    - id: "SC-3"; text: "Remove \"stop\" command section"; word_count: 4
-    - id: "SC-4"; text: "Remove Channel-Routing Table"; word_count: 4
-    - id: "SC-5"; text: "Remove 3 restated ALWAYS DO lines (lines 294-296)"; word_count: 9
-    - id: "SC-6"; text: "§1.2 merged into §1 as bullet"; word_count: 6
-    - id: "SC-7"; text: "§1.5 collapsed into §1"; word_count: 5
-    - id: "SC-8"; text: "§4 replaced with general `.tools/` rule"; word_count: 7
-    - id: "SC-9"; text: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items)"; word_count: 15
-    - id: "SC-10"; text: "No content loss — removed sections verified as duplicated in 000"; word_count: 12
-    - id: "SC-11"; text: "No orphaned cross-references to removed section names"; word_count: 8
-    - id: "SC-12"; text: "No line-count or word-count metrics used as success measurement"; word_count: 10
-    - id: "SC-13"; text: "Remove duplicate Node.js Prohibition section from 070-environment.md (lines 224-257)"; word_count: 14
-  fail_patterns: []
-  ambiguity_markers: []
+    - id: "SC-1"
+      text: "Remove §5 Multi-task Plan Without Sub-issues"
+      word_count: 8
+    - id: "SC-2"
+      text: "Remove §6 Progressive Iterative Implementation"
+      word_count: 8
+    - id: "SC-3"
+      text: "Remove \"stop\" command section"
+      word_count: 5
+    - id: "SC-4"
+      text: "Remove Channel-Routing Table"
+      word_count: 5
+    - id: "SC-5"
+      text: "Remove 3 restated ALWAYS DO lines (the lines beginning with 'Make a live tool call before every factual claim' that restate earlier NEVER DO lines)"
+      word_count: 25
+    - id: "SC-6"
+      text: "§1.2 merged into §1 as bullet"
+      word_count: 7
+    - id: "SC-7"
+      text: "§1.5 collapsed into §1"
+      word_count: 5
+    - id: "SC-8"
+      text: "§4 replaced with general `.tools/` rule"
+      word_count: 8
+    - id: "SC-9"
+      text: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items). Also verify that sections NOT in the explicit keep list (specifically §5, §6, 'stop' command section, Channel-Routing Table, §4/§4.5) are actually removed from 020"
+      word_count: 38
+    - id: "SC-10"
+      text: "No content loss — removed sections verified as duplicated in 000"
+      word_count: 12
+    - id: "SC-11"
+      text: "No orphaned cross-references to removed section names"
+      word_count: 9
+    - id: "SC-12"
+      text: "No line-count or word-count metrics used as success measurement"
+      word_count: 11
+    - id: "SC-13"
+      text: "Remove duplicate Node.js Prohibition section from 070-environment.md (the section titled '## 4. Node.js Prohibition in Python/Java Projects' and its subsection '## 4.5 Project-Local Tool Installation Pattern')"
+      word_count: 28
+  fail_patterns:
+    - sc_id: "SC-9"
+      pattern: "open_ended_quality"
+      matched_text: "All keep sections remain"
+    - sc_id: "SC-10"
+      pattern: "implicit_behavior"
+      matched_text: "No content loss — removed sections verified as duplicated in 000"
+  ambiguity_markers:
+    - sc_id: "SC-9"
+      marker: "consider"
+      matched_text: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items)"
   evidence_type_declarations:
-    - sc_id: "SC-1"; declared_type: "string"
-    - sc_id: "SC-2"; declared_type: "string"
-    - sc_id: "SC-3"; declared_type: "string"
-    - sc_id: "SC-4"; declared_type: "string"
-    - sc_id: "SC-5"; declared_type: "string"
-    - sc_id: "SC-6"; declared_type: "string"
-    - sc_id: "SC-7"; declared_type: "string"
-    - sc_id: "SC-8"; declared_type: "string"
-    - sc_id: "SC-9"; declared_type: "string"
-    - sc_id: "SC-10"; declared_type: "semantic"
-    - sc_id: "SC-11"; declared_type: "string"
-    - sc_id: "SC-12"; declared_type: "string"
-    - sc_id: "SC-13"; declared_type: "string"
+    - sc_id: "SC-1"
+      declared_type: "string"
+    - sc_id: "SC-2"
+      declared_type: "string"
+    - sc_id: "SC-3"
+      declared_type: "string"
+    - sc_id: "SC-4"
+      declared_type: "string"
+    - sc_id: "SC-5"
+      declared_type: "string"
+    - sc_id: "SC-6"
+      declared_type: "string"
+    - sc_id: "SC-7"
+      declared_type: "string"
+    - sc_id: "SC-8"
+      declared_type: "string"
+    - sc_id: "SC-9"
+      declared_type: "string"
+    - sc_id: "SC-10"
+      declared_type: "semantic"
+    - sc_id: "SC-11"
+      declared_type: "string"
+    - sc_id: "SC-12"
+      declared_type: "string"
+    - sc_id: "SC-13"
+      declared_type: "string"
   verification_methods:
-    - sc_id: "SC-1"; has_verification_method: true; method_text: "grep for absence of 'Multi-task Plan Without Sub-issues'"
-    - sc_id: "SC-2"; has_verification_method: true; method_text: "grep for absence of 'Progressive Iterative Implementation'"
-    - sc_id: "SC-3"; has_verification_method: true; method_text: "grep for absence of 'terminal halt' in 020"
-    - sc_id: "SC-4"; has_verification_method: true; method_text: "grep for absence of 'Channel-Routing Table' in 020"
-    - sc_id: "SC-5"; has_verification_method: true; method_text: "grep for absence of 'Make a live tool call before every factual claim'"
-    - sc_id: "SC-6"; has_verification_method: true; method_text: "grep for 'interpretive question' in §1"
-    - sc_id: "SC-7"; has_verification_method: true; method_text: "grep for absence of 'Soliciting Authorization' header"
-    - sc_id: "SC-8"; has_verification_method: true; method_text: "grep for '.tools/' in §4"
-    - sc_id: "SC-9"; has_verification_method: true; method_text: "grep for each section header and unique line"
-    - sc_id: "SC-10"; has_verification_method: true; method_text: "Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based."
-    - sc_id: "SC-11"; has_verification_method: true; method_text: "grep for removed section names across .opencode/ — only 000 remains"
-    - sc_id: "SC-12"; has_verification_method: true; method_text: "grep for absence of 'wc -l', 'file size', 'Final file size' in spec"
-    - sc_id: "SC-13"; has_verification_method: true; method_text: "grep for absence of 'Node.js Prohibition' section in 070-environment.md"
+    - sc_id: "SC-1"
+      has_verification_method: true
+      method_text: "grep for absence of 'Multi-task Plan Without Sub-issues'"
+    - sc_id: "SC-2"
+      has_verification_method: true
+      method_text: "grep for absence of 'Progressive Iterative Implementation'"
+    - sc_id: "SC-3"
+      has_verification_method: true
+      method_text: "grep for absence of 'terminal halt' in 020"
+    - sc_id: "SC-4"
+      has_verification_method: true
+      method_text: "grep for absence of 'Channel-Routing Table' in 020"
+    - sc_id: "SC-5"
+      has_verification_method: true
+      method_text: "grep for absence of 'Make a live tool call before every factual claim'"
+    - sc_id: "SC-6"
+      has_verification_method: true
+      method_text: "grep for 'interpretive question' in §1"
+    - sc_id: "SC-7"
+      has_verification_method: true
+      method_text: "grep for absence of 'Soliciting Authorization' header"
+    - sc_id: "SC-8"
+      has_verification_method: true
+      method_text: "grep for '.tools/' in §4"
+    - sc_id: "SC-9"
+      has_verification_method: true
+      method_text: "grep for each section header and unique line. Also verify that sections NOT in the explicit keep list (specifically §5, §6, 'stop' command section, Channel-Routing Table, §4/§4.5) are actually removed from 020"
+    - sc_id: "SC-10"
+      has_verification_method: true
+      method_text: "Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based."
+    - sc_id: "SC-11"
+      has_verification_method: true
+      method_text: "grep for removed section names across .opencode/ — only 000 remains"
+    - sc_id: "SC-12"
+      has_verification_method: true
+      method_text: "grep for absence of 'wc -l', 'file size', 'Final file size' in spec"
+    - sc_id: "SC-13"
+      has_verification_method: true
+      method_text: "grep for absence of 'Node.js Prohibition' section in 070-environment.md"
   failure_description_provided: false
+  failure_description_text: absent
 
 documentation_source_evidence:
   urls:
-    - source: "000-critical-rules.md Lines 115-125 (Checkpoint Rollback Exception)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Checkpoint Rollback Exception' found at line 115 in 000-critical-rules.md"
-    - source: "000-critical-rules.md Lines 265-279 (critical-rules-stop)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'critical-rules-stop' found at line 265 in 000-critical-rules.md"
-    - source: "000-critical-rules.md Lines 300-315 (Channel-Routing Table)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Channel-Routing Table' found at line 300 in 000-critical-rules.md"
-    - source: "020-go-prohibitions.md Lines 294-296 (internal duplication)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Make a live tool call before every factual claim' found at line 294 in 020-go-prohibitions.md"
-    - source: "020-go-prohibitions.md Lines 362-383 (§5 obsolete)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Multi-task Plan Without Sub-issues' found at line 362 in 020-go-prohibitions.md"
-    - source: "070-environment.md Lines 224-257 (duplicate Node.js section)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Node.js Prohibition' found at line 224 in 070-environment.md"
-    - source: "085-project-local-tools.md Lines 14, 50 (cross-reference to §4)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Read [020-go-prohibitions.md §4]' at line 14 and 'Read [§4]' at line 50 in 085-project-local-tools.md"
-    - source: "257-procedural-discipline-reference.md Line 88 (cross-reference to §1.1)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Read [§1.1](020-go-prohibitions.md)' found at line 88 in 257-procedural-discipline-reference.md"
-    - source: "250-dark-prose-reference.md Line 114 (cross-reference to §1.1)"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Read [§1.1](020-go-prohibitions.md)' found at line 114 in 250-dark-prose-reference.md"
-    - source: "issue-operations-sub-issues/tasks/read-sub-issues.md Line 56"
-      accessible: true; http_status: 200; page_title: "N/A (local file)"
-      referenced_content_found: true; fetch_method: "grep"
-      notes: "Verified: 'Multi-task plan verification per `020-go-prohibitions.md`' found at line 56"
+    - source: "000-critical-rules.md Checkpoint Rollback Exception (lines 115-125)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "000-critical-rules.md lines 115-125 contain the Checkpoint Rollback Exception section. Content matches spec claim."
+    - source: "000-critical-rules.md critical-rules-stop (lines 265-279)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "000-critical-rules.md lines 265-279 contain the critical-rules-stop section. Content matches spec claim."
+    - source: "000-critical-rules.md Channel-Routing Table (lines 300-315)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "000-critical-rules.md lines 300-315 contain the Channel-Routing Table. Content matches spec claim."
+    - source: "020-go-prohibitions.md §6 Progressive Iterative Implementation (lines 385-397)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "020-go-prohibitions.md lines 385-397 contain §6. Content is a restatement of 000's Checkpoint Rollback Exception with an authorization source cross-reference."
+    - source: "020-go-prohibitions.md stop command section (lines 399-413)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "020-go-prohibitions.md lines 399-413 contain the stop command section. Content is identical to 000 lines 265-279."
+    - source: "020-go-prohibitions.md Channel-Routing Table (lines 642-658)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "020-go-prohibitions.md lines 642-658 contain the Channel-Routing Table. Content is identical to 000 lines 300-315."
+    - source: "020-go-prohibitions.md §5 Multi-task Plan Without Sub-issues (lines 362-383)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "020-go-prohibitions.md lines 362-383 contain §5. Content describes an obsolete sub-issue model."
+    - source: "020-go-prohibitions.md 3 restated ALWAYS DO lines (lines 294-296)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "020-go-prohibitions.md lines 294-296 contain 'Make a live tool call before every factual claim', 'Verify all claims against live sources', 'Verify all metadata with a live API call'. These are exact duplicates of lines 277-279."
+    - source: "070-environment.md Node.js Prohibition section (lines 224-257)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "070-environment.md lines 224-257 contain the Node.js Prohibition section. Content is a duplicate of 020 §4."
+    - source: "085-project-local-tools.md cross-reference to 020 §4 (line 14)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "085-project-local-tools.md line 14: 'Read [020-go-prohibitions.md §4](020-go-prohibitions.md)' — confirmed."
+    - source: "085-project-local-tools.md cross-reference to 020 §4 (line 50)"
+      accessible: true
+      http_status: 0
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: "read (live file)"
+      evidence: "085-project-local-tools.md line 50: 'Read [§4](020-go-prohibitions.md)' — confirmed."
   api_references: []
   env_variables: []
   library_patterns: []
 
 prose_evidence:
-  escape_hatches: []
+  escape_hatches:
+    - phrase: "All keep sections remain (§1.1, live tool call lines, cost-blind lines, ALWAYS DO items)"
+      location: "SC-9 criterion"
+      category: "discretion"
   tracking_language: []
   prescriptive_code:
-    - content: ".opencode/guidelines/020-go-prohibitions.md"
-      location: "## Files Affected, line 132"; type: "import_string"
-    - content: ".opencode/guidelines/070-environment.md"
-      location: "## Files Affected, line 133"; type: "import_string"
-    - content: "085-project-local-tools.md references 020 §4 (Node.js prohibition) at lines 14 and 50"
-      location: "## Risks, line 138"; type: "import_string"
-    - content: "070-environment.md has its own Node.js Prohibition section (lines 224-257)"
-      location: "## Risks, line 139"; type: "import_string"
+    - content: "'## 4. Node.js Prohibition in Python/Java Projects' and '## 4.5 Project-Local Tool Installation Pattern'"
+      location: "SC-13 criterion"
+      type: "import_string"
   cost_frame_language:
-    - sc_id: "SC-10"; has_cost_frame: true
-      notes: "Cost frame present: 'Cost frame: DDL-based — a content-loss defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via semantic comparison.'"
-    - sc_id: "SC-1"; has_cost_frame: false
-    - sc_id: "SC-2"; has_cost_frame: false
-    - sc_id: "SC-3"; has_cost_frame: false
-    - sc_id: "SC-4"; has_cost_frame: false
-    - sc_id: "SC-5"; has_cost_frame: false
-    - sc_id: "SC-6"; has_cost_frame: false
-    - sc_id: "SC-7"; has_cost_frame: false
-    - sc_id: "SC-8"; has_cost_frame: false
-    - sc_id: "SC-9"; has_cost_frame: false
-    - sc_id: "SC-11"; has_cost_frame: false
-    - sc_id: "SC-12"; has_cost_frame: false
-    - sc_id: "SC-13"; has_cost_frame: false
-    notes: "Only SC-10 has cost-frame language. Prior audit required cost-frame on all SCs. 12 of 13 SCs still lack cost-frame language."
+    - sc_id: "SC-10"
+      has_cost_frame: true
+    - sc_id: "SC-11"
+      has_cost_frame: true
+    - sc_id: "SC-12"
+      has_cost_frame: true
+    - sc_id: "SC-13"
+      has_cost_frame: true
 
 reasoning_evidence:
   root_causes:
-    - text: "020-go-prohibitions.md is ~659 lines / ~43KB. It has significant duplication with other preloaded guidelines (000, 065), internal duplication between sections, an obsolete sub-issue model in §5, and a Node.js-specific prohibition that should be a general .tools/ rule."
-      location: "## Intent and Executive Summary, line 10"
+    - text: "The file has grown beyond its original scope through accretion. Some rules accumulated that already exist in 000-critical-rules.md, creating duplication and maintenance burden."
+      location: "Intent and Executive Summary — Root Cause/Motivation"
   fix_approaches:
-    - text: "Remove verified-duplicated sections (§6, stop command, Channel-Routing Table), remove obsolete §5, remove internally-duplicated lines (3 restated ALWAYS DO lines), collapse adjacent sections, replace Node.js-specific rule with general .tools/ rule. Keep all unique-to-020 content including §1.1, live tool call lines, cost-blind lines, and all ALWAYS DO items."
-      location: "## Intent and Executive Summary, line 12"
+    - text: "Remove verified-duplicated sections (§6, stop command, Channel-Routing Table), remove obsolete §5, remove internally-duplicated lines (3 restated ALWAYS DO lines), collapse adjacent sections, replace Node.js-specific rule with general `.tools/` rule."
+      location: "Intent and Executive Summary — Approach Chosen"
   sc_to_root_cause:
-    - sc_id: "SC-1"; references_root_cause: true; root_cause_text: "Obsolete sub-issue model in §5"
-    - sc_id: "SC-2"; references_root_cause: true; root_cause_text: "Duplication with 000 (Progressive Iterative Implementation)"
-    - sc_id: "SC-3"; references_root_cause: true; root_cause_text: "Duplication with 000 (stop command)"
-    - sc_id: "SC-4"; references_root_cause: true; root_cause_text: "Duplication with 000 (Channel-Routing Table)"
-    - sc_id: "SC-5"; references_root_cause: true; root_cause_text: "Internal duplication (3 restated ALWAYS DO lines)"
-    - sc_id: "SC-6"; references_root_cause: true; root_cause_text: "Redundant section structure (§1.2 is 3 lines)"
-    - sc_id: "SC-7"; references_root_cause: true; root_cause_text: "Redundant section structure (§1.5 has restated content)"
-    - sc_id: "SC-8"; references_root_cause: true; root_cause_text: "Node.js-specific prohibition should be general .tools/ rule"
-    - sc_id: "SC-9"; references_root_cause: true; root_cause_text: "Verification that keep sections survive compaction"
-    - sc_id: "SC-10"; references_root_cause: true; root_cause_text: "Verification that no content is lost during removal"
-    - sc_id: "SC-11"; references_root_cause: true; root_cause_text: "Verification that cross-references are updated"
-    - sc_id: "SC-12"; references_root_cause: true; root_cause_text: "Verification that no line-count metrics are used"
-    - sc_id: "SC-13"; references_root_cause: true; root_cause_text: "Duplicate Node.js section in 070-environment.md"
+    - sc_id: "SC-1"
+      references_root_cause: true
+      root_cause_text: "obsolete sub-issue model accreted in 020"
+    - sc_id: "SC-2"
+      references_root_cause: true
+      root_cause_text: "duplication with 000 through accretion"
+    - sc_id: "SC-3"
+      references_root_cause: true
+      root_cause_text: "duplication with 000 through accretion"
+    - sc_id: "SC-4"
+      references_root_cause: true
+      root_cause_text: "duplication with 000 through accretion"
+    - sc_id: "SC-5"
+      references_root_cause: true
+      root_cause_text: "internal duplication through accretion"
+    - sc_id: "SC-6"
+      references_root_cause: true
+      root_cause_text: "adjacent sections that can be collapsed"
+    - sc_id: "SC-7"
+      references_root_cause: true
+      root_cause_text: "adjacent sections that can be collapsed"
+    - sc_id: "SC-8"
+      references_root_cause: true
+      root_cause_text: "Node.js-specific rule should be general .tools/ rule"
+    - sc_id: "SC-9"
+      references_root_cause: false
+      root_cause_text: absent
+    - sc_id: "SC-10"
+      references_root_cause: false
+      root_cause_text: absent
+    - sc_id: "SC-11"
+      references_root_cause: false
+      root_cause_text: absent
+    - sc_id: "SC-12"
+      references_root_cause: false
+      root_cause_text: absent
+    - sc_id: "SC-13"
+      references_root_cause: true
+      root_cause_text: "duplicate Node.js prohibition section in 070-environment.md"
   alternatives_considered:
     present: true
     items:
@@ -248,14 +451,12 @@ reasoning_evidence:
         reason_discarded: "Does not reduce file size; adds indirection; cross-references can go stale; still requires maintenance in two places"
       - alternative: "Separate guideline file"
         reason_discarded: "Creates a third home for rules that already have two homes; increases total file count; does not solve the duplication problem"
-      - alternative: "Removal (chosen)"
-        reason_discarded: "N/A — chosen approach"
   edge_cases:
     present: true
     items:
-      - "Content loss: Removed sections must be verified to exist in 000. Mitigation: SC-10 verifies each removal is safe via semantic comparison."
-      - "Cross-reference breakage: 085-project-local-tools.md references 020 §4 (Node.js prohibition) at lines 14 and 50. Mitigation: update 085-project-local-tools.md to reference the new .tools/ rule."
-      - "Duplicate Node.js section in 070-environment.md: 070-environment.md has its own Node.js Prohibition section (lines 224-257) that must be removed. Mitigation: SC-13 verifies removal."
+      - "Content loss — removed sections must be verified to exist in 000"
+      - "Cross-reference breakage — 085-project-local-tools.md references 020 §4"
+      - "Duplicate Node.js section in 070-environment.md"
   potential_contradictions: []
 
 analytical_artifact_evidence:
@@ -263,152 +464,177 @@ analytical_artifact_evidence:
     provided: true
     path: ".opencode/.issues/2127/artifacts/blast-radius.yaml"
     exists: true
-    size_bytes: 7623
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references §1.1 removal which the current spec KEEPS. References 10 removal targets; current spec has 4 removal targets + 3 structural changes + 5 verification SCs."
+    size_bytes: 4720
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - sections_removed
+      - cross_reference_update_required
+    key_findings:
+      - "8 removed sections identified with risk levels: none (5), low (2), HIGH (1 for §4 due to 085 cross-references)"
+      - "2 cross-reference updates required in 085-project-local-tools.md (lines 14, 50)"
+      - "No external references found for §5, §6, stop command, Channel-Routing Table"
   concern_map:
     provided: true
     path: ".opencode/.issues/2127/artifacts/concern-map.yaml"
     exists: true
-    size_bytes: 7320
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references §1.1 as REMOVE; current spec KEEPS §1.1. References 17 sections; current spec has different section disposition."
+    size_bytes: 5430
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - sections
+    key_findings:
+      - "18 sections mapped with actions: KEEP (10), REMOVE (4), REPLACE (2), MERGE (1), COLLAPSE (1)"
+      - "All KEEP sections are unique to 020 (Orchestrator Context Discipline, Discussion Mode Mandates, symbolic rules, etc.)"
+      - "All REMOVE sections are either duplicated in 000 or obsolete"
   code_path_inventory:
     provided: true
     path: ".opencode/.issues/2127/artifacts/code-path-inventory.yaml"
     exists: true
-    size_bytes: 7321
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references §1.1 removal and 10 removal targets. Current spec does NOT remove §1.1, 5 duplicated lines, 3 duplicated lines, or 10 ALWAYS DO items."
+    size_bytes: 3020
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - code_paths
+      - cross_reference_update_summary
+    key_findings:
+      - "3 cross-references to removed sections found: 2 in 085-project-local-tools.md (to §4), 1 in read-sub-issues.md (to §5)"
+      - "Channel-Routing Table external ref points to 060-tool-usage.md, not 020 — no update needed"
+      - "§6 and stop command have zero external references"
   cross_cutting_matrix:
     provided: true
     path: ".opencode/.issues/2127/artifacts/cross-cutting-matrix.yaml"
     exists: true
-    size_bytes: 6420
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references 16 concerns including cost-blind, continue waiver, silent halt, test substitution, submodule-only PR, inline work, discard on failure, edit-in-place, PRELOADED_CONTEXT_REJECTED — none of which are in the current spec's removal scope."
+    size_bytes: 3400
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - cross_cutting_concerns
+    key_findings:
+      - "9 cross-cutting concerns identified: authorization discipline, tool installation, sub-issue model, verification rollback, stop command, channel routing, live tool call verification, cost-blind verification, orchestrator context discipline"
+      - "Impact levels: none (3), low (4), medium (1 for tool installation discipline)"
+      - "All concerns have clear action plans"
   interface_compatibility:
     provided: true
     path: ".opencode/.issues/2127/artifacts/interface-compatibility.yaml"
     exists: true
-    size_bytes: 5827
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references §1.1 removal, 5 duplicated lines removal, 3 duplicated lines removal, 10 ALWAYS DO items removal. Current spec does NOT remove any of these."
+    size_bytes: 3100
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - compatibility_analysis
+      - summary
+    key_findings:
+      - "8 of 9 removed sections have FULL compatibility with remaining sections"
+      - "1 of 9 (§4/§4.5) has PARTIAL compatibility due to cross-reference updates needed in 085"
+      - "0 incompatible sections"
   state_analysis:
     provided: true
     path: ".opencode/.issues/2127/artifacts/state-analysis.yaml"
     exists: true
-    size_bytes: 6054
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references §1.1 removal, 5 duplicated lines removal, 3 duplicated lines removal, 10 ALWAYS DO items removal. References 6 phases; current spec has 5 phases. References SC-14/SC-15 which do not exist in current spec."
+    size_bytes: 3500
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - state_transitions
+      - state_verification_gates
+    key_findings:
+      - "8 state transitions identified: 020 file state, 070 file state, 085 cross-reference state, read-sub-issues cross-reference state, 000 dependency state, agent behavior state, sub-issue model state, Node.js prohibition state"
+      - "Risk levels: none (3), low (4), low (1 for 020 file state)"
+      - "All verification gates map to SCs with grep or semantic comparison methods"
   testability_assessment:
     provided: true
     path: ".opencode/.issues/2127/artifacts/testability-assessment.yaml"
     exists: true
-    size_bytes: 10993
-    modified_at: "2026-07-27T16:20:00Z"
-    notes: "STALE — references 15 SCs (SC-1 through SC-15). Current spec has 13 SCs (SC-1 through SC-13). References §1.1 removal, 5 duplicated lines, 3 duplicated lines, 10 ALWAYS DO items — none in current spec."
+    size_bytes: 5200
+    modified_at: "2026-07-27"
+    structure_keys:
+      - artifact_type
+      - spec
+      - generated
+      - test_strategy
+      - test_cases
+      - behavioral_test_required
+      - regression_risks
+    key_findings:
+      - "13 test cases defined, one per SC"
+      - "12 string evidence tests (grep-based), 1 semantic evidence test (SC-10)"
+      - "Behavioral test not required — all SCs are string or semantic; compaction does not change agent behavior"
+      - "4 regression risks identified with mitigations"
 
 holistic_dimension_evidence:
   implementability:
     single_approach_defined: true
     sc_count: 13
-    ambiguous_sc_count: 0
-    notes: "Single approach (removal) defined. All 13 SCs are deterministic with grep-based or comparison-based verification. No ambiguous SCs."
+    ambiguous_sc_count: 2
+    notes: "SC-9 (open-ended 'All keep sections remain') and SC-10 (implicit 'No content loss') have potential ambiguity. SC-9 is mitigated by enumerating exact keep categories. SC-10 is mitigated by requiring verbatim rule text preservation."
   internal_consistency:
-    cross_section_references: 0
-    preamble_body_alignment_notes: "Preamble aligns with body. Problem Statement → Approach Chosen → SCs → Phases all trace coherently. Documentation Sources table references verified live source locations. Alternatives Considered section documents 3 approaches with pros/cons/verdict."
+    cross_section_references: 3
+    preamble_body_alignment_notes: "Preamble fields (Problem Statement, Root Cause, Approach Chosen, Alternatives, Key Design Decisions) align with SCs. Problem Statement identifies 5 duplication sources; SCs address all 5. Documentation Sources table cross-references 000-critical-rules.md line ranges. Risks section references SC-10, SC-11, SC-13. Dependencies section references spec #2121. Traceability table maps all 13 REQs to SCs and phases."
   completeness:
     undefined_terms: []
     tbd_todo_markers: 0
     implicit_dependencies:
       - "Depends on 000-critical-rules.md compaction (spec #2121) — the duplicated rules must remain in 000"
-    notes: "No undefined terms. No TBD/TODO markers. One explicit dependency stated in Dependencies section. Requirements section (REQ-1 through REQ-13) covers all SCs. Traceability table maps REQ→SC→Phase."
   scope_discipline:
-    stated_boundaries: "Remove verified-duplicated sections (§6, stop command, Channel-Routing Table), remove obsolete §5, remove internally-duplicated lines, collapse adjacent sections, replace Node.js-specific rule with general .tools/ rule. Keep all unique-to-020 content including §1.1, live tool call lines, cost-blind lines, and all ALWAYS DO items."
+    stated_boundaries: "Remove verified-duplicated sections only. Keep all unique-to-020 content including §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines, cost-blind/evidence substitution/continue waiver/silent halt/escalate lines, and all ALWAYS DO items that are unique to 020."
     potential_scope_creep_elements: []
-    notes: "Scope boundaries are clear. 13 SCs map to 5 phases. No scope creep elements identified. The spec explicitly states what is KEPT vs REMOVED vs REPLACED."
   testability:
     scs_with_verification_method: 13
     scs_without_verification_method: 0
-    subjective_judgment_scs: []
-    notes: "All 13 SCs have explicit verification methods. 12 string-type (grep-based), 1 semantic (comparison). No subjective judgment SCs."
+    subjective_judgment_scs: ["SC-10"]
+    notes: "SC-10 requires semantic comparison (sub-agent judgment) to verify content preservation. All other SCs have deterministic grep-based verification methods."
   provenance:
     tool_call_evidence_cited: true
     unsupported_assertions: []
-    notes: "Documentation Sources section provides verified live source locations for every duplication claim. All claims verified by grep in this investigation — every referenced line/section confirmed to exist in the claimed source file."
+    notes: "Documentation Sources table cites live file verification with line ranges. All 6 duplication claims verified against current file state. 5 previously incorrect claims explicitly documented as NOT included."
   feasibility:
     referenced_files:
       - ".opencode/guidelines/020-go-prohibitions.md"
       - ".opencode/guidelines/070-environment.md"
+      - ".opencode/guidelines/000-critical-rules.md"
+      - ".opencode/guidelines/085-project-local-tools.md"
+      - ".opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md"
     referenced_functions: []
     referenced_libraries: []
-    notes: "Both referenced files exist. No external libraries or functions referenced. Physically achievable compaction task."
+    notes: "All referenced files exist and are accessible. 085-project-local-tools.md has 2 cross-references to 020 §4 that must be updated. read-sub-issues.md has 1 cross-reference to 020 §5 that must be updated."
   safety:
-    destructive_operations:
-      - "Removing sections from 020-go-prohibitions.md (mitigated by SC-10 content-loss verification)"
-      - "Removing duplicate Node.js section from 070-environment.md"
+    destructive_operations: []
     data_loss_scenarios:
-      - "Content loss if removed sections are not actually duplicated in 000 (mitigated by SC-10 semantic comparison)"
-      - "Cross-reference breakage if 085-project-local-tools.md references to §4 are not updated"
+      - "Content loss if removed section has unique content not preserved in 000 — mitigated by SC-10 semantic comparison"
     security_relevant_changes: []
-    notes: "Destructive operations are section removals. All mitigated by SC-10 (content-loss verification) and SC-11 (orphaned cross-reference check). The blast-radius artifact identifies 4 cross-references needing update."
   traceability:
     sc_to_phase_mapping:
-      SC-1: "Phase 1"; SC-2: "Phase 1"; SC-3: "Phase 1"; SC-4: "Phase 1"
+      SC-1: "Phase 1"
+      SC-2: "Phase 1"
+      SC-3: "Phase 1"
+      SC-4: "Phase 1"
       SC-5: "Phase 2"
-      SC-6: "Phase 3"; SC-7: "Phase 3"
+      SC-6: "Phase 3"
+      SC-7: "Phase 3"
       SC-8: "Phase 4"
-      SC-9: "Phase 5"; SC-10: "Phase 5"; SC-11: "Phase 5"; SC-12: "Phase 5"; SC-13: "Phase 5"
+      SC-9: "Phase 5"
+      SC-10: "Phase 5"
+      SC-11: "Phase 5"
+      SC-12: "Phase 5"
+      SC-13: "Phase 5"
     orphan_scs: []
     orphan_phases: []
-    notes: "All 13 SCs map to phases. All 13 REQs map to SCs. No orphan SCs or phases. Traceability table provides forward and backward traceability."
+    notes: "All 13 SCs map to phases. All 5 phases have SCs. No orphans. Traceability table in spec maps REQ→SC→Phase for all items."
   correctness:
-    problem_statement: "020-go-prohibitions.md is ~659 lines / ~43KB. Live verification against the actual files reveals that the spec's previous Documentation Sources table was factually incorrect — it claimed several sections and lines were duplicated in 000/065 when they are actually unique to 020. The ACTUAL duplication is limited to: §6 Progressive Iterative Implementation (restates 000's Checkpoint Rollback Exception), the 'stop' command section (identical block in both 000 and 020), and the Channel-Routing Table (identical table in both 000 and 020). Additionally, §5 contains an obsolete sub-issue model, and there is internal duplication within 020 (3 ALWAYS DO lines restating earlier NEVER DO lines). The Node.js-specific prohibition in §4 should be a general .tools/ rule."
-    root_cause: "The file has grown beyond its original scope through accretion. Some rules accumulated that already exist in 000-critical-rules.md, creating duplication and maintenance burden. Other sections were incorrectly flagged as duplicated in the previous spec version."
+    problem_statement: "020-go-prohibitions.md is ~659 lines / ~43KB. Live verification reveals ACTUAL duplication is limited to: §6 Progressive Iterative Implementation (restates 000's Checkpoint Rollback Exception), the 'stop' command section (identical block in both 000 and 020), and the Channel-Routing Table (identical table in both 000 and 020). Additionally, §5 contains an obsolete sub-issue model, and there is internal duplication within 020 (3 ALWAYS DO lines restating earlier NEVER DO lines). The Node.js-specific prohibition in §4 should be a general .tools/ rule."
+    root_cause: "The file has grown beyond its original scope through accretion. Some rules accumulated that already exist in 000-critical-rules.md, creating duplication and maintenance burden."
     fix_approach: "Remove verified-duplicated sections (§6, stop command, Channel-Routing Table), remove obsolete §5, remove internally-duplicated lines (3 restated ALWAYS DO lines), collapse adjacent sections, replace Node.js-specific rule with general .tools/ rule. Keep all unique-to-020 content including §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines, cost-blind/evidence substitution/continue waiver/silent halt/escalate lines, and all ALWAYS DO items that are unique to 020."
-    notes: "Problem statement, root cause, and fix approach are aligned. The fix directly addresses the problem. All 13 SCs trace to the root cause. The 5-phase implementation plan covers all fix elements."
-
-prior_audit_remediation_status:
-  prior_fail_count: 7
-  prior_findings:
-    - criterion: "SC-11 (Documentation Sources)"
-      prior_status: "FAIL"; current_status: "REMEDIATED"
-      evidence: "Documentation Sources section added at lines 16-28 with 5 verified source locations"
-    - criterion: "SC-12 (Preamble format)"
-      prior_status: "FAIL"; current_status: "REMEDIATED"
-      evidence: "Standard preamble format with all 5 fields present at lines 7-14"
-    - criterion: "SC-13 (Cost-frame language)"
-      prior_status: "FAIL"; current_status: "PARTIALLY_REMEDIATED"
-      evidence: "Cost-frame language added to SC-10 verification method. 12 of 13 SCs still lack cost-frame language."
-    - criterion: "SC-14 (Enforcement Gate)"
-      prior_status: "FAIL"; current_status: "REMEDIATED"
-      evidence: "All-or-Nothing SC Enforcement Gate statement added at lines 42-44"
-    - criterion: "SC-EVIDENCE-TYPE (SC-13 evidence type)"
-      prior_status: "FAIL"; current_status: "REMEDIATED"
-      evidence: "SC-10 reclassified from behavioral to semantic. Verification method updated with cost-frame language."
-    - criterion: "SC-PIPELINE-GATES (Implementation Plan format)"
-      prior_status: "FAIL"; current_status: "REMEDIATED"
-      evidence: "Implementation Plan converted to canonical format with numbered items, REQ references, and dispatch mode indicators"
-    - criterion: "research_adequacy.investigation_breadth (Alternatives Considered)"
-      prior_status: "FAIL"; current_status: "REMEDIATED"
-      evidence: "Alternatives Considered section added at lines 30-40 with 3 approaches evaluated"
-  additional_remediation:
-    - "Requirements section (REQ-1 through REQ-13) added at lines 66-84"
-    - "Traceability table added at lines 86-104"
-    - "REQ references added to each Implementation Plan phase heading"
-    - "SC-13 added for 070-environment.md duplicate Node.js section removal"
-    - "Risk section corrected: false claim that '070-environment.md references §4' — actual cross-reference is in 085-project-local-tools.md"
-
-artifact_staleness_finding:
-  status: "STALE_ARTIFACTS_DETECTED"
-  description: "All 7 analytical artifacts were generated from a previous spec version that planned to remove §1.1, 5 duplicated lines in §1, 3 duplicated lines in §1.6, and 10 duplicated ALWAYS DO items. The current spec (after live verification correction) KEEPS all of these. The artifacts reference 15 SCs and 6 phases; the current spec has 13 SCs and 5 phases."
-  affected_artifacts:
-    - ".opencode/.issues/2127/artifacts/blast-radius.yaml"
-    - ".opencode/.issues/2127/artifacts/concern-map.yaml"
-    - ".opencode/.issues/2127/artifacts/code-path-inventory.yaml"
-    - ".opencode/.issues/2127/artifacts/cross-cutting-matrix.yaml"
-    - ".opencode/.issues/2127/artifacts/interface-compatibility.yaml"
-    - ".opencode/.issues/2127/artifacts/state-analysis.yaml"
-    - ".opencode/.issues/2127/artifacts/testability-assessment.yaml"
-  remediation_required: "Developer intervention required to resolve spec-artifact divergence. The artifacts were generated from a pre-correction spec version and cannot be auto-regenerated (backfill would reproduce the same outdated content from the old spec body)."
+    live_verification_notes: "All 6 Documentation Sources claims verified against live files. §6 (020:385-397) content matches 000 Checkpoint Rollback Exception (000:115-125) with an added authorization source cross-reference. Stop command (020:399-413) is identical to 000:265-279. Channel-Routing Table (020:642-658) is identical to 000:300-315. 3 restated lines (020:294-296) are exact duplicates of 020:277-279. §5 (020:362-383) is an obsolete sub-issue model. 070-environment.md Node.js Prohibition (070:224-257) is a duplicate of 020 §4."

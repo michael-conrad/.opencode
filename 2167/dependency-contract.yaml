@@ -1,0 +1,28 @@
+# Dependency contract for #2167 — Stale analytical artifacts after spec revision
+# Generated from structure.yaml
+# DAG: Phase 1 -> Phase 3, Phase 2 -> Phase 3 (Phases 1 and 2 are independent)
+
+phases:
+  - id: 1
+    name: Fix audit SKILL.md scenario (c)
+    scs: [SC-1, SC-2]
+    description: Change audit SKILL.md scenario (c) from HALT to auto-delete + backfill with explicit delete instruction
+
+  - id: 2
+    name: Add artifact cleanup step to revise.md
+    scs: [SC-3]
+    description: Add artifact cleanup step to spec-creation/tasks/revise.md
+
+  - id: 3
+    name: Verify no orphaned references and uniform routing
+    scs: [SC-4, SC-5]
+    description: Verify no orphaned cross-references to old language and all 3 scenarios route to backfill uniformly
+
+dependencies:
+  - from: 3
+    to: 1
+    reason: Phase 3 (SC-4, SC-5) verifies uniform routing and absence of orphaned references — depends on Phase 1 changes to audit SKILL.md being committed
+
+  - from: 3
+    to: 2
+    reason: Phase 3 SC-4 checks for orphaned references across .opencode/ — depends on Phase 2 revise.md changes being committed

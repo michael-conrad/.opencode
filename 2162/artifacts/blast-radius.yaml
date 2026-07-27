@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2162/spec.md
+phase_1_label_creation:
+  affected_files:
+    - skills/issue-operations/platforms/local/SKILL.md
+    - skills/issue-operations/platforms/github-mcp/SKILL.md
+    - skills/issue-operations/platforms/gitbucket-api/SKILL.md
+  affected_platforms:
+    - github.com (michael-conrad/.opencode)
+    - github.com (michael-conrad/opencode-config)
+    - gitbucket (via gb CLI)
+  description: "Create 5 spec lifecycle labels on all 3 platforms. No code change — pure label CRUD via gh/gb CLI."
+  risk: low
+  rollback: "gh label delete / gb label delete for each label"
+phase_2_label_application:
+  affected_files:
+    - skills/spec-creation/tasks/create.md
+    - skills/issue-review/tasks/analyze-and-spec.md
+    - skills/issue-review/tasks/triage.md
+    - skills/audit/tasks/spec-audit-evaluator.md
+    - skills/audit/tasks/spec-audit-validator.md
+    - skills/writing-plans/tasks/create.md
+    - skills/approval-gate-scope/SKILL.md
+  description: "Add gh/gb label application calls to task files at lifecycle transition points. Also add label removal for revision-revocation."
+  risk: medium
+  rollback: "Revert label application calls in each file"
+phase_3_documentation:
+  affected_files:
+    - skills/issue-operations/platforms/local/SKILL.md
+    - skills/issue-operations/platforms/github-mcp/SKILL.md
+    - skills/issue-operations/platforms/gitbucket-api/SKILL.md
+  description: "Document the 5 labels in platform SKILL.md files. No code change."
+  risk: low
+  rollback: "Remove label documentation sections"
+cross_repo_impact:
+  - repo: michael-conrad/opencode-config
+    impact: "Labels must be created on opencode-config repo too (SC-1 through SC-5 apply to 'all platforms')"
+    affected_files: []

@@ -1,0 +1,18 @@
+spec: .opencode/.issues/2167/spec.md
+generated_from: spec body
+interfaces:
+  - interface: audit SKILL.md → backfill task
+    direction: audit SKILL.md dispatches writing-plans --task backfill
+    scs: [SC-1, SC-2, SC-5]
+    compatibility: COMPATIBLE
+    notes: Backfill task already accepts mode: retroactive context. No interface changes needed — only the routing decision in scenario (c) changes.
+  - interface: spec-creation revise pipeline → artifact cleanup
+    direction: revise.md deletes stale artifacts after revision
+    scs: [SC-3]
+    compatibility: COMPATIBLE
+    notes: Adding a file-deletion step to the revise procedure. No API or contract changes — purely procedural addition to the task file.
+  - interface: audit SKILL.md → spec-creation revise pipeline
+    direction: No direct interface — both independently route to backfill
+    scs: [SC-4, SC-5]
+    compatibility: INDEPENDENT
+    notes: No cross-skill interface exists. Changes are isolated to each skill's own task files.

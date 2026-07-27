@@ -1,0 +1,117 @@
+spec_path: .opencode/.issues/2166/spec.md
+issue_number: 2166
+phases:
+  - id: 1
+    name: Remove dead assertion helpers
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+    items:
+      - item: 1
+        sc: SC-1
+        description: Remove assert_tool_calls_made
+      - item: 2
+        sc: SC-2
+        description: Remove assert_skill_called
+      - item: 3
+        sc: SC-3
+        description: Remove assert_no_skill_called
+      - item: 4
+        sc: SC-4
+        description: Remove assert_stderr_pattern_present
+      - item: 5
+        sc: SC-5
+        description: Remove assert_stderr_pattern_absent
+      - item: 6
+        sc: SC-6
+        description: Remove assert_stderr_pattern_present_all_models
+      - item: 7
+        sc: SC-7
+        description: Remove assert_stderr_pattern_absent_all_models
+      - item: 8
+        sc: SC-8
+        description: Remove assert_forbidden_pattern_absent
+      - item: 9
+        sc: SC-9
+        description: Remove assert_required_pattern_present
+    skill: test-driven-development
+    task: red/green
+    dispatch: sub-agent
+    triplet_integrity: PASS
+    cross_phase_deps: NONE
+
+  - id: 2
+    name: Convert legacy scripts to artifact-only generators
+    scs:
+      - SC-10
+      - SC-11
+    items:
+      - item: 10
+        sc: SC-10
+        description: Convert verify-auth-step5d.sh to artifact-only
+      - item: 11
+        sc: SC-11
+        description: Convert 2146-session-timestamp.sh to artifact-only
+    skill: test-driven-development
+    task: red/green
+    dispatch: sub-agent
+    triplet_integrity: PASS
+    cross_phase_deps: NONE
+    depends_on:
+      - phase: 1
+        reason: Scripts reference helpers being removed; conversion must happen after dead code removal
+
+  - id: 3
+    name: Update assert_semantic and verify event table export
+    scs:
+      - SC-12
+      - SC-14
+    items:
+      - item: 12
+        sc: SC-12
+        description: Update assert_semantic to include session.yaml and timeline.yaml
+      - item: 14
+        sc: SC-14
+        description: Verify/ensure event table export in __export_sqlite_to_yaml
+    skill: test-driven-development
+    task: red/green
+    dispatch: sub-agent
+    triplet_integrity: PASS
+    cross_phase_deps: NONE
+    depends_on:
+      - phase: 2
+        reason: assert_semantic is used by the legacy scripts being converted; update after conversion
+
+  - id: 4
+    name: Verify backward compatibility
+    scs:
+      - SC-13
+    items:
+      - item: 13
+        sc: SC-13
+        description: All existing behavioral tests continue to pass
+    skill: verification-before-completion
+    task: verify
+    dispatch: sub-agent
+    triplet_integrity: PASS
+    cross_phase_deps: NONE
+    depends_on:
+      - phase: 3
+        reason: Must run after all changes are applied to verify no regressions
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+    - from: 2
+      to: 3
+    - from: 3
+      to: 4
+  description: "Linear chain: Phase 1 (remove dead helpers) -> Phase 2 (convert scripts) -> Phase 3 (update assert_semantic + event table) -> Phase 4 (backward compat verification)"

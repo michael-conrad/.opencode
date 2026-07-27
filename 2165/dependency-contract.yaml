@@ -1,0 +1,107 @@
+# Dependency contract for #2165 — GitBucket Test Infrastructure
+# Generated from structure.yaml
+# DAG: Phases 1-2 parallel roots, Phase 3 depends on 1+2, Phases 4-7 chain,
+# Phase 8 depends on 1-6, Phase 9 depends on 8
+
+phases:
+  - id: 1
+    name: JDK provisioning + gitignore
+    scs: [SC-1, SC-10]
+    description: Provision Eclipse Temurin 21 JRE to .tools/jdk/ and verify .gitignore entries
+
+  - id: 2
+    name: GitBucket JAR provisioning + gitignore
+    scs: [SC-2, SC-10]
+    description: Download latest GitBucket WAR to .tools/gitbucket/ and verify .gitignore entries
+
+  - id: 3
+    name: GitBucket startup and port discovery
+    scs: [SC-3]
+    description: Start GitBucket on auto-assigned port, discover port from log/port file
+
+  - id: 4
+    name: Token generation
+    scs: [SC-4]
+    description: Generate GB_TOKEN from admin API on startup
+
+  - id: 5
+    name: Test repo creation and remote wiring
+    scs: [SC-5]
+    description: Create test repo on GitBucket, wire as test project's origin remote
+
+  - id: 6
+    name: Reset function
+    scs: [SC-6]
+    description: Kill process, delete data dir, re-start fresh
+
+  - id: 7
+    name: Clean-all integration
+    scs: [SC-7]
+    description: --clean-all kills GitBucket process, preserves .tools/ cache
+
+  - id: 8
+    name: BEHAVIOR_NEEDS_REMOTE flag and multi-test reset
+    scs: [SC-8, SC-9]
+    description: Opt-in flag for remote tests, clean state between tests via reset
+
+  - id: 9
+    name: Documentation
+    scs: []
+    description: Update AGENTS.md with container pattern, env vars, lifecycle
+
+dependencies:
+  - from: 3
+    to: 1
+    reason: GitBucket startup requires JDK to be provisioned
+
+  - from: 3
+    to: 2
+    reason: GitBucket startup requires JAR to be downloaded
+
+  - from: 4
+    to: 3
+    reason: Token generation requires GitBucket to be running
+
+  - from: 5
+    to: 3
+    reason: Test repo creation requires running GitBucket
+
+  - from: 5
+    to: 4
+    reason: Test repo creation requires valid token
+
+  - from: 6
+    to: 3
+    reason: Reset function requires GitBucket to have been started
+
+  - from: 7
+    to: 3
+    reason: Clean-all requires GitBucket process to be killable
+
+  - from: 8
+    to: 1
+    reason: End-to-end test requires JDK provisioning
+
+  - from: 8
+    to: 2
+    reason: End-to-end test requires JAR provisioning
+
+  - from: 8
+    to: 3
+    reason: End-to-end test requires running GitBucket
+
+  - from: 8
+    to: 4
+    reason: End-to-end test requires valid token
+
+  - from: 8
+    to: 5
+    reason: End-to-end test requires test repo
+
+  - from: 8
+    to: 6
+    reason: Multi-test reset depends on reset function
+
+  - from: 9
+    to: 8
+    reason: Documentation should reflect final implementation state

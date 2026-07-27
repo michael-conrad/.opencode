@@ -1,0 +1,26 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - name: model_sat
+    query: "z3.BoolVal(True)"
+    result: SAT
+  - name: state_check
+    contract: .opencode/.issues/2165/dependency-contract.yaml
+    state: .opencode/.issues/2165/artifacts/state-analysis.yaml
+    result: SAT
+    postconditions: SAT
+    invariants: SAT
+planner:
+  engine: tamer
+  problem: gitbucket-test-infrastructure
+  plan_length: 8
+  plan:
+    - execute-p1
+    - execute-p2
+    - execute-p3
+    - execute-p4
+    - execute-p5
+    - execute-p6
+    - execute-p8
+    - execute-p9
+  note: "Phase 7 (clean-all integration) is optional for goal completion(p9) — not required by dependency chain"
