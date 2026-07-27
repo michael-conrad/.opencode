@@ -77,6 +77,22 @@ do_clean() {
 }
 
 do_clean_all() {
+    # SC-7: Kill GitBucket process if running
+    local gb_pid_file="$PROJECT_DIR/tmp/.gitbucket.pid"
+    if [ -f "$gb_pid_file" ]; then
+        local gb_pid
+        gb_pid=$(cat "$gb_pid_file" 2>/dev/null || true)
+        if [ -n "$gb_pid" ] && kill -0 "$gb_pid" 2>/dev/null; then
+            echo "Killing GitBucket (PID $gb_pid)..." >&2
+            kill "$gb_pid" 2>/dev/null || true
+            sleep 1
+            kill -0 "$gb_pid" 2>/dev/null && kill -9 "$gb_pid" 2>/dev/null || true
+        fi
+        rm -f "$gb_pid_file"
+    fi
+    rm -f "$PROJECT_DIR/tmp/.gitbucket.port"
+    rm -rf "$PROJECT_DIR/tmp/gitbucket-data"
+
     local count=0
     while IFS= read -r -d '' dir; do
         echo "Removing: $dir" >&2
