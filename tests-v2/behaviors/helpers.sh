@@ -216,6 +216,17 @@ behavior_run() {
             exit 1
         }
 
+        # Pin to local submodule commit so test agent sees feature branch changes.
+        # Mirrors the pattern in with-test-home --setup (lines 153-159).
+        # BEHAVIOR_SUBMODULE_COMMIT override still works via the guard below.
+        if [ -z "$submodule_commit" ]; then
+            local local_submodule_commit
+            local_submodule_commit=$(git -C "$PARENT_REPO_DIR/.opencode" rev-parse HEAD 2>/dev/null || true)
+            if [ -n "$local_submodule_commit" ]; then
+                submodule_commit="$local_submodule_commit"
+            fi
+        fi
+
         if [ -n "$submodule_commit" ]; then
             git -C "$attempt_workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
                 echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
