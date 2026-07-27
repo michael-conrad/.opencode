@@ -457,7 +457,7 @@ After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, s
 4. What developer action (if any) is required to proceed
 
 
-### [critical-rules-034] Inline Screening of Authorization Sets
+### [critical-rules-034] Inline Screening of Authorization Sets (Tier 2 — cannot be mechanically enforced)
 Screening authorization sets inline instead of tasking a sub-agent means introducing contamination from your own reasoning. Professional engineers always task `screen-issue` sub-agents — amateurs inline and call it fast.
 
 
@@ -465,7 +465,7 @@ Screening authorization sets inline instead of tasking a sub-agent means introdu
 Halting without first searching for existing specs and plans means leaving the user to rediscover work that may already exist. Amateurs halt blind. Professional engineers search first.
 
 
-### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task()
+### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task() (Tier 2 — cannot be mechanically enforced)
 An orchestrator that reads files, edits files, or makes decisions inline has stopped being a router and started being a contaminant. Amateurs do the work themselves. Professionals route to sub-agents. Detailed rules below.
 
 #### 🚫 FORBIDDEN
@@ -520,7 +520,7 @@ Every routing decision in the approval-gate pipeline chain MUST be followed by a
 - ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 
-### [critical-rules-034] Orchestrator Inline Work = Poisoned Pipeline
+### [critical-rules-034] Orchestrator Inline Work = Poisoned Pipeline (Tier 2 — cannot be mechanically enforced)
 Orchestrator inline work detected → HALT. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
 
 - 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" after orchestrator inline work; preserving any cached state, work state files, or verification results produced during the inline work session
@@ -531,7 +531,7 @@ Orchestrator inline work detected → HALT. Discard pipeline execution state (wo
 Preserving output from a BLOCKED sub-agent means propagating contaminated state into the next attempt. Amateurs salvage. Professionals discard and re-task with original context.
 
 
-### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies
+### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies (Tier 2 — cannot be mechanically enforced)
 Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" means you are using the agent as an API proxy, not an engineer. Professional agents task objectives. Amateurs task tool recipes. Every tool-recipe dispatch is a decision you made for the sub-agent, not a problem you gave it to solve.
 
 
