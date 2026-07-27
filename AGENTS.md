@@ -33,6 +33,8 @@ skip it are not "fast" — they produce lower-quality work by definition.
 
 2. **If one or more skills match the intent of the request: call `skill({name: "..."})` before generating output.** Loading a skill means you are using the enforcement gates designed to catch your mistakes. Skipping this step means memory is the least reliable tool available — a skipped skill call means operating without confirmed information.
 
+2.5. **Read the loaded SKILL.md's Trigger Dispatch Table and Invocation section to determine the correct dispatch string. Then dispatch the task card via task() using that canonical string.**
+
 3. **Only after skill content is loaded: proceed to produce the response.**
    The skill is not an interruption to your workflow — it IS the workflow.
    Agents who write first and verify later produce work that needs rewriting.
