@@ -15,7 +15,7 @@
 ### Item 1: Spec exists and is approved
 
 - **State:** Spec issue exists with `[SPEC]` label
-- **Verify:** Read issue `{issue_number}` — check for `[SPEC]` label
+- **Verify:** Read `issue.yaml` labels from `.issues/{N}/` — check for `[SPEC]` label
 - **If PASS:** Proceed to Item 2
 - **If FAIL:** Report `next_action: spec-creation` with reason "No approved spec found for issue {issue_number}"
 

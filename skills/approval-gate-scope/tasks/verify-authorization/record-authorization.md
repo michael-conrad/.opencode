@@ -10,7 +10,7 @@
 
 ## Purpose
 
-Write session authorization into persistent issue state (`.issues/{N}/` worktree) before any verification step reads it. Updates local state (`spec.md` frontmatter, `comments.yaml`, `issue.yaml` labels) and the remote issue body `### Status` field. Commits the worktree changes after writing.
+Write session authorization into persistent issue state (`.issues/{N}/` worktree) before any verification step reads it. Updates local state (`spec.md` frontmatter, `comments.yaml`, `issue.yaml` labels). Commits the worktree changes after writing.
 
 ## Entry Criteria
 
@@ -20,7 +20,6 @@ Write session authorization into persistent issue state (`.issues/{N}/` worktree
 
 ## Exit Criteria
 
-- Remote issue body `### Status` field updated to `Approved` (when scope is `for_spec` or higher)
 - `spec.md` frontmatter updated with `status: approved` (when scope is `for_implementation` or higher)
 - `comments.yaml` appended with authorization record (text, scope, timestamp, human attribution)
 - `issue.yaml` labels updated with `approved-for-{scope}`
@@ -34,27 +33,25 @@ Write session authorization into persistent issue state (`.issues/{N}/` worktree
 
 3. **Update `spec.md` frontmatter** — If the resolved scope is `for_implementation` or higher, add or update `status: approved` in the YAML frontmatter. If frontmatter is malformed (missing YAML delimiters, invalid YAML, missing `status` field), return BLOCKED with `reason: MALFORMED_FRONTMATTER`.
 
-4. **Update remote issue body Status field** — If the resolved scope is `for_spec` or higher, use `github_issue_write(method=update)` to edit the remote issue body, replacing `### Status: Draft` with `### Status: Approved`. If the body does not contain `### Status: Draft`, skip this step without error. Requires `github.owner` and `github.repo` in the task context.
-
-5. **Append to `comments.yaml`** — Append a new authorization record entry with:
+4. **Append to `comments.yaml`** — Append a new authorization record entry with:
    - `author: "human"` (attribution to the developer who authorized)
    - `scope: "{resolved_scope}"` (e.g., `for_implementation`)
    - `text: "{authorization_text}"` (the exact authorization phrase from chat)
    - `timestamp: "{ISO-8601-timestamp}"` (current UTC timestamp)
    - If `comments.yaml` does not exist, create it with the initial authorization record.
 
-6. **Update `issue.yaml` labels** — Add `approved-for-{scope}` to the labels array. Remove prior `approved-for-*` labels. If `issue.yaml` does not exist, create it.
+5. **Update `issue.yaml` labels** — Add `approved-for-{scope}` to the labels array. Remove prior `approved-for-*` labels. If `issue.yaml` does not exist, create it.
 
-7. **Commit worktree changes** — Run `git -C .issues/ add -A && git -C .issues/ commit -m "record authorization for #{issue_number}: {scope}"`. If commit fails (merge conflict, hook rejection, dirty index), return BLOCKED with `reason: COMMIT_FAILED` and include the git error output.
+6. **Commit worktree changes** — Run `git -C .issues/ add -A && git -C .issues/ commit -m "record authorization for #{issue_number}: {scope}"`. If commit fails (merge conflict, hook rejection, dirty index), return BLOCKED with `reason: COMMIT_FAILED` and include the git error output.
 
-8. **Handle concurrent authorization** — If commit fails because the worktree state changed between write and commit:
+7. **Handle concurrent authorization** — If commit fails because the worktree state changed between write and commit:
    - Re-read current state
    - Verify existing authorization record is compatible (same scope or higher)
    - If compatible: skip and return DONE
    - If higher scope: overwrite and retry commit
    - If conflicting scope: return BLOCKED with `reason: CONCURRENT_AUTHORIZATION_CONFLICT`
 
-9. **Return result contract** — Return DONE with summary of what was written.
+8. **Return result contract** — Return DONE with summary of what was written.
 
 ## Result Contract
 
