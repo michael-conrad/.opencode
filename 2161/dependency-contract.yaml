@@ -1,0 +1,11 @@
+dependencies:
+  - issue: 1538
+    repo: .opencode
+    relationship: "dependent"
+    description: "Needs revision to align with local-first label model — dependent on this spec"
+    status: "open"
+  - issue: 2057
+    repo: .opencode
+    relationship: "blocked_by"
+    description: "Blocked by this spec — modifies same task files (record-authorization.md)"
+    status: "open"

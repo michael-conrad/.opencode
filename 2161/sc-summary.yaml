@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "local-issues create auto-applies needs-approval label to every new issue"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "record-authorization.md writes approved-for-{scope} label to issue.yaml locally before any remote operation"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Gap-fill cascade reads authorization state from issue.yaml labels (not GitHub API)"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "### Status field removed from issue body template and record-authorization.md"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "New critical violation: reading source files with intent to modify without for_implementation+ scope"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Agent reads issue.yaml labels to determine approval state, not body prose"
+    evidence_type: "behavioral"
+    plan_item: 6
