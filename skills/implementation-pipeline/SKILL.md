@@ -192,17 +192,8 @@ Exclusions (MUST NOT be in prompt):
 - `agent_memory`
 - `cached_verification_results`
 
-#### Sub-Agent Entry Criteria
 
-A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-- Inline file paths to task files
-- Inline step or procedure definitions
-- Expected outcome structures or schema constraints
-- Pre-loaded evidence or orchestrator-derived conclusions
 
-Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
-
-**Behavioral enforcement test:** `dispatch-gate-rejection.sh` verifies sub-agents reject preloaded context with `PRELOADED_CONTEXT_REJECTED`.
 
 #### Pipeline Re-Priming Enforcement Block
 

@@ -271,8 +271,6 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
-Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
-
 ### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
