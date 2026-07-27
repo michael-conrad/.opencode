@@ -50,12 +50,17 @@ When a remote API is available, update the remote issue body with the revised sp
 
 Write the revised spec to the local path at `{spec_path}`.
 
+### Step 7: Delete stale analytical artifacts
+
+Delete all files in `{project_root}/{path}/.issues/{N}/artifacts/` to ensure stale artifacts from the previous spec version do not accumulate. Use `rm -rf {project_root}/{path}/.issues/{N}/artifacts/` to remove the entire artifacts directory.
+
 ## Exit Criteria
 
 - [ ] All validation findings addressed (or documented as won't-fix with justification)
 - [ ] Change control entry appended
 - [ ] Remote issue body updated (when API available)
 - [ ] Local spec updated at `{spec_path}`
+- [ ] Stale analytical artifacts deleted from `{project_root}/{path}/.issues/{N}/artifacts/`
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
 - [ ] No verification steps performed (no holistic check or structural validation)
 

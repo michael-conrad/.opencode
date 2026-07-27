@@ -407,6 +407,8 @@ assert_semantic() {
 
     local stdout_file="$artifact_dir/stdout.log"
     local stderr_file="$artifact_dir/stderr.log"
+    local session_file="$artifact_dir/session.yaml"
+    local timeline_file="$artifact_dir/timeline.yaml"
 
     if [ ! -f "$stdout_file" ] || [ ! -f "$stderr_file" ]; then
         echo "  FAIL: $sc_id — artifact files not found in $artifact_dir" >&2
@@ -418,6 +420,18 @@ assert_semantic() {
     local stderr_content
     stderr_content=$(cat "$stderr_file")
 
+    local structured_data=""
+    if [ -f "$session_file" ]; then
+        structured_data="${structured_data}
+SESSION.YAML (structured tool call data):
+$(cat "$session_file")"
+    fi
+    if [ -f "$timeline_file" ]; then
+        structured_data="${structured_data}
+TIMELINE.YAML (condensed tool call timeline):
+$(cat "$timeline_file")"
+    fi
+
     local inspector_prompt="You are a clean-room semantic inspector. Evaluate the following agent output and determine if the agent's actions and decisions satisfy this criterion:
 
 CRITERION: $description
@@ -427,6 +441,7 @@ $stdout_content
 
 STDERR (tool dispatch trace):
 $stderr_content
+${structured_data}
 
 Respond with exactly one word: PASS or FAIL. Then on a new line, provide a one-sentence justification."
 
