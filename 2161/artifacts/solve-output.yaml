@@ -1,0 +1,38 @@
+solver: fallback
+reason: Z3_UNAVAILABLE (ModuleNotFoundError: No module named 'z3')
+timestamp: 2026-07-26T22:44:00Z
+
+validation_results:
+  acyclic_check:
+    status: PASS
+    nodes: 6
+    edges: 3
+    cycles: none
+    detail: "ACYCLIC: 6 nodes, 3 edges, no cycles found"
+
+  dependency_ordering:
+    status: PASS
+    constraints: 3
+    ordering: [1, 2, 3, 4, 5, 6]
+    violations: []
+    detail: "ORDERING VALID: 3 constraints satisfied"
+
+  dependency_references:
+    status: PASS
+    total_references: 3
+    invalid: 0
+    detail: "All 3 dependency references valid"
+
+  invariant_check:
+    status: PASS
+    invariants:
+      - "Implies(phase_4_completed, phase_1_completed)"
+      - "Implies(phase_5_completed, phase_1_completed)"
+      - "Implies(phase_6_completed, phase_2_completed)"
+    initial_state: "All phases false — invariants hold vacuously"
+    detail: "INVARIANTS SATISFIED"
+
+overall:
+  status: PASS
+  finding_summary: "DAG is acyclic (6 nodes, 3 edges), all dependency references valid, ordering constraints satisfied, invariants hold in initial state"
+  artifact_path: ".opencode/.issues/2161/artifacts/solve-output.yaml"

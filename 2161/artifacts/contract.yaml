@@ -1,0 +1,28 @@
+variables:
+  - name: phase_1_completed
+    type: bool
+    nullable: false
+  - name: phase_2_completed
+    type: bool
+    nullable: false
+  - name: phase_3_completed
+    type: bool
+    nullable: false
+  - name: phase_4_completed
+    type: bool
+    nullable: false
+  - name: phase_5_completed
+    type: bool
+    nullable: false
+  - name: phase_6_completed
+    type: bool
+    nullable: false
+
+preconditions: []
+
+invariants:
+  - "Implies(phase_4_completed, phase_1_completed)"
+  - "Implies(phase_5_completed, phase_1_completed)"
+  - "Implies(phase_6_completed, phase_2_completed)"
+
+postconditions: []
