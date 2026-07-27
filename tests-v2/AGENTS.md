@@ -384,3 +384,62 @@ Any behavioral test that uses a prose-recall prompt is **FAIL** — the test doe
         ├── setup-fixture-issues.sh
         └── setup-story-fixtures.sh
 ```
+
+---
+
+## 11. Self-Contained GitBucket Container for Remote API Tests
+
+Tests that need to verify remote API behavior (e.g., verifying labels on a remote issue after creation) can opt in to a self-contained GitBucket instance provisioned by the test harness.
+
+### Opt-In Flag
+
+Set `BEHAVIOR_NEEDS_REMOTE=1` in the test script before calling `behavior_run()`:
+
+```bash
+BEHAVIOR_NEEDS_REMOTE=1 behavior_run "scenario-name" "prompt"
+```
+
+### Lifecycle
+
+1. **Provisioning** (`__ensure_gitbucket()` in `helpers.sh`):
+   - JDK downloaded to `.tools/jdk/` (Eclipse Temurin 21 JRE) on first call, cached
+   - GitBucket JAR downloaded to `.tools/gitbucket/gitbucket.war` on first call, cached
+   - GitBucket started on auto-assigned port (`--port=0`)
+   - Port discovered from `tmp/gitbucket-data/PORT` file
+   - Admin token generated via API, set as `GB_TOKEN` env var
+   - Test repo created and wired as test project's `origin` remote
+2. **Reset** (`__reset_gitbucket()`): kills process, deletes data dir, re-starts fresh
+3. **Cleanup** (`--clean-all`): kills GitBucket process, preserves `.tools/` cache
+
+### Environment Variables
+
+| Variable | Set By | Purpose |
+|----------|--------|---------|
+| `BEHAVIOR_NEEDS_REMOTE` | Test script | Opt-in flag (set to `1` to enable) |
+| `GITBUCKET_PORT` | `__ensure_gitbucket()` | Auto-assigned port number |
+| `GB_TOKEN` | `__ensure_gitbucket()` | GitBucket admin API token |
+
+### State Files
+
+| File | Purpose |
+|------|---------|
+| `tmp/.gitbucket.pid` | GitBucket process PID |
+| `tmp/.gitbucket.port` | Auto-assigned port number |
+| `tmp/gitbucket-data/` | GitBucket data directory (ephemeral) |
+
+### Cached Artifacts (Preserved Across Sessions)
+
+| Path | Content |
+|------|---------|
+| `.tools/jdk/` | Eclipse Temurin 21 JRE |
+| `.tools/gitbucket/gitbucket.war` | GitBucket WAR file |
+
+### Clean State Between Tests
+
+Call `__reset_gitbucket()` between test scenarios to ensure clean state:
+
+```bash
+__reset_gitbucket  # kills process, deletes data dir, re-starts
+```
+
+The `--clean-all` flag in `with-test-home` kills the GitBucket process and removes data dirs but preserves `.tools/` cache for reuse across sessions.
