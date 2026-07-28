@@ -318,7 +318,7 @@ The body must contain the following 6 sections in order:
 
 **Post-creation enforcement:** Run this check after Step 2 (issue created) and before Step 4 (report). If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to report until all 5 sections are verified present.
 
-**AI Agent Instructions enforcement:** Per #1902, AI Agent Instructions are now gate-level enforcement, not inline body sections. Read [Channel-Routing Table](guidelines/060-tool-usage.md) and Read [Audience Separation](guidelines/000-critical-rules.md) for the gate-level routing rules. The agent MUST NOT include an "AI Agent Instructions" section in the issue body — that content is internal agent guidance, not stakeholder-facing.
+**AI Agent Instructions enforcement:** Per #1902, AI Agent Instructions are now gate-level enforcement, not inline body sections. Read [Channel-Routing Table](guidelines/000-critical-rules.md) and Read [Audience Separation](guidelines/000-critical-rules.md) for the gate-level routing rules. The agent MUST NOT include an "AI Agent Instructions" section in the issue body — that content is internal agent guidance, not stakeholder-facing.
 
 ## Multi-Task Spec Handling
 

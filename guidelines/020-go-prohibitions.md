@@ -45,6 +45,12 @@ load_when: sub-agent
   - Treat "why" as an implicit "fix this"
 
   **Correct response to "why" questions:** Answer the question. If the user wants changes, they will explicitly say so.
+- **🚫 Interpretive questions are explanation-only, never modification authorization.** A user asking "why is X here?", "what does Y do?", or any interpretive question MUST be answered with explanation. The agent MUST NOT:
+  - Delete or untrack files mentioned in the question
+  - Edit files mentioned in the question
+  - Propose changes in response to the question
+  
+  File modification in response to an interpretive question is a CRITICAL VIOLATION. Only explicit "change this" or "fix this" language authorizes modification.
 - **"discuss" triggers a hard gate blocking implementation proposals.** When the user says "discuss" (or unambiguous equivalent like "let's talk about", "I want to discuss", "thoughts on"), the agent MUST NOT propose implementation, offer to implement, or suggest code changes. The agent MUST stay in discussion mode — answering questions, exploring options, and providing analysis. Any "want me to implement", "should I fix", "I can change" or equivalent implementation proposal following a "discuss" prompt is a CRITICAL VIOLATION.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
@@ -131,19 +137,6 @@ The sub-agent returns only:
 | `blocker_reason` | If BLOCKED | Why blocked |
 
 Everything else stays in the sub-agent's context and is discarded.
-
----
-
-## 1.2 Interpretive Questions Are Explanation-Only — Never Modification Authorization
-
-**🚫 Interpretive questions are explanation-only, never modification authorization.** A user asking "why is X here?", "what does Y do?", or any interpretive question MUST be answered with explanation. The agent MUST NOT:
-- Delete or untrack files mentioned in the question
-- Edit files mentioned in the question
-- Propose changes in response to the question
-
-File modification in response to an interpretive question is a CRITICAL VIOLATION. Only explicit "change this" or "fix this" language authorizes modification.
-
----
 
 ### Authorization-Free Actions — No Deliberation Required
 
@@ -242,8 +235,6 @@ EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispat
   - 🚫 FORBIDDEN: Using critical-rules-049 (submodule-only-PR prohibition) as a rationalization to skip `git-workflow --task cleanup` dispatch on "pr merged" triggers. The prohibition applies to PR creation only — it does NOT exempt cleanup dispatch.
   - ✅ CORRECT: Leave dirty pointer(s) untouched — they resolve on next pre-work cycle
 
-## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
-
 **⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
 
 The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification. "Approved #N" with no qualifier self-assigns `for_analysis` scope.
@@ -291,9 +282,6 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 - Use open-ended questions and natural language for all discussion.
 - Decompose multi-topic messages into single-topic turns.
 - Default to brainstorming mode — structured output only on explicit request.
-- Make a live tool call before every factual claim.
-- Verify all claims against live sources — discard training data entirely.
-- Verify all metadata with a live API call before acting on it.
 - Dispatch research sub-agents during active discussions without halting.
 - **Research card catalogue — `.issues/research-cards/`**: Before dispatching research, glob `*.md` in `.issues/research-cards/`, grep frontmatter for the exact research question. If an active card exists with acceptable confidence (`confidence >= 0.7`), skip the research dispatch and return cached findings. If no matching card or stale/insufficient confidence, dispatch research. After research, create or update the card with new findings, confidence score, source URLs, and tags.
 
@@ -307,44 +295,9 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 
 ## 3. Specialized Execution Gates
 
-## 4. Node.js Prohibition in Python/Java Projects
+## 4. Project-Local Tool Installation
 
-**DETESTABLE**: Installing Node.js in a Python-only or Java-only environment is absolutely prohibited. This introduces an unnecessary runtime dependency that pollutes the ecosystem and creates maintenance burden.
-
-### 🚫 NEVER DO
-
-- **NEVER install Node.js globally or locally** on Python-only or Java-only projects.
-- **NEVER use NPX** to run packages — NPX requires Node.js runtime.
-- **NEVER add Node.js-based tools to project dependencies.**
-- **NEVER suggest npm packages as solutions** in Python/Java contexts.
-- **NEVER use Node.js-based formatters, linters, or tooling** when native alternatives exist.
-
-### Context
-
-This rule applies universally to:
-
-- **Python projects**: Use `uv`, `pip`, `ruff`, `pytest` — never npm/pnpm/yarn.
-- **Java projects**: Use Maven/Gradle, JVM tooling — never npm/pnpm/yarn.
-- **Projects with mixed languages**: Isolate Node.js to its designated frontend/service layer.
-
-### ✅ ALLOWED
-
-- **Docker containers that internally use Node.js** — Node.js runs inside container, not on host.
-- **Pure Python alternatives** — `githubkit` instead of `@octokit/rest`, `httpx` instead of `axios`.
-- **Dedicated frontend repositories** where Node.js IS the correct tool for that codebase.
-- **MCP servers via Docker** — Node.js isolated in container only.
-
-### Why This Is Critical
-
-- **Security**: Node.js ecosystem has known supply-chain attack vectors.
-- **Dependency bloat**: Adds unnecessary runtime and package manager complexity.
-- **Maintenance burden**: Mixed language projects require additional CI/CD configuration.
-- **Ecosystem mismatch**: npm packages don't integrate with Python/Java tooling chains.
-- **Team friction**: Requires developers to install/maintain Node.js on their machines.
-
-## 4.5 Project-Local Tool Installation Pattern
-
-When a project requires build tools not available on the host system (e.g., `tsc`, `esbuild`, `sass`), the agent MAY install them **project-locally** as an exception to §4. Read [085-project-local-tools.md](guidelines/085-project-local-tools.md) for the full rules.
+When a project requires build tools not available on the host system, the agent MAY install them **project-locally** under `.tools/<tool>/`. Read [085-project-local-tools.md](guidelines/085-project-local-tools.md) for the full rules.
 
 ### Key Rules
 
@@ -358,59 +311,6 @@ When a project requires build tools not available on the host system (e.g., `tsc
 - **MUST NOT add to shell profiles** (`~/.bashrc`, `~/.profile`, etc.)
 
 ______________________________________________________________________
-
-## 5. Multi-task Plan Without Sub-issues — CRITICAL VIOLATION
-
-**⚠️ Implementing a multi-task plan without sub-issues is a CRITICAL GUIDELINE VIOLATION.** Sub-issues are children of the plan, not the spec.
-
-### 🚫 ABSOLUTE PROHIBITION
-
-- **NEVER implement a multi-task plan without verified sub-issue structure**
-- **NEVER proceed **to implementation** when `get_sub_issues` on the plan returns empty array for multi-task plans **without auto-creating sub-issues first****
-- **NEVER assume markdown checkboxes = task tracking**
-- **NEVER create sub-issues under the spec** — sub-issues belong to the plan
-
-### ✅ MANDATORY
-
-**Read [issue-operations skill → `link-sub-issue` task](skills/issue-operations/SKILL.md) for the complete auto-create workflow, single-task exemption, database ID requirement, and phase-level structure. Sub-issue verification is consolidated into `approval-gate --task verify-authorization` Step 5 as the single readiness check.**
-
-Key points:
-
-- Sub-issues at PHASE level under the plan, not step level
-- Single-task plans are exempt from sub-issue requirement
-- All multi-task plans MUST have sub-issues before implementation begins
-- Auto-creating sub-issues for an approved multi-task plan is a pre-implementation setup step covered by the plan's authorization. No separate authorization is required.
-- After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
-
-### 6. Progressive Iterative Implementation — Rollback on Verification Failure
-
-**MANDATORY:** When a pipeline step's verification fails AND a checkpoint tag exists for the prior PASS state, the orchestrator MUST:
-
-1. Report pre-rollback diagnostics (`git status`, `git diff --stat`)
-2. Read pipeline state to determine `$LAST_PASS_PHASE`
-3. Execute rollback: `git reset --hard <parent>/checkpoint/<issue>/phase-<LAST_PASS_PHASE>-<submodule> && git submodule update --init`
-4. Read restored pipeline state
-5. Re-dispatch the failed step with original dispatch parameters
-
-**Authorization source:** Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
-
-**No checkpoint:** First-step failure. Run `git checkout .`, re-dispatch from current state.
-
-### [critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt — zero output, zero tool calls, zero proposals
-When the user says "stop" (or unambiguous equivalent), the agent MUST immediately cease all operations: no further output, no tool calls, no proposals, no follow-up questions. "stop" is a hard state transition — there is no recovery from "stop" within the same session. The user must explicitly restart with a new message. This is a Tier 1 safety-critical rule — it NEVER yields to developer authorization.
-
-#### 🚫 FORBIDDEN
-- Producing any output after "stop" (including "okay, stopping now", "understood", or any acknowledgment)
-- Making any tool call after "stop" (including cleanup, save, or status checks)
-- Proposing alternatives, asking for clarification, or suggesting next steps
-- Treating "stop" as "stop and try something else" — it is terminal, not conditional
-- Any form of acknowledgment, confirmation, or farewell
-
-#### ✅ REQUIRED
-- On detecting "stop": immediately cease all operations
-- Zero output, zero tool calls, zero proposals
-- The user must explicitly restart with a new message to resume interaction
-- "stop" is a hard state transition — no recovery within the same session
 
 ### [critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec
 Offering to "fix it quickly" instead of creating a spec is the oldest shortcut in the book — and the fastest path to unreviewed, unapproved changes polluting your codebase. Professional engineers write a spec when a fix is identified. The ONLY permitted action when a fix is found is spec creation — nothing else, no exceptions, no "just this once."
@@ -639,21 +539,3 @@ When a sub-agent returns a defective deliverable, the orchestrator MUST NOT atte
 All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
 
 
-### Channel-Routing Table — Issue Comments vs. Chat Output
-
-**Progress executive summaries go to chat ONLY, not GitHub Issue comments.**
-
-| Action | Channel |
-|--------|---------|
-| Progress executive summaries | Chat only |
-| Review-prep / verification status | Chat only |
-| Substantive spec revision | Chat + Issue comment |
-| PR created | Chat only |
-| Issue blocked | Issue comment |
-| Bug discovered during implementation | Issue comment |
-| User question response | Issue comment |
-| Issue closure | Issue comment |
-| Agent completes implementation task | Chat only |
-| Spec-audit findings | Internal only |
-
----
