@@ -1,0 +1,21 @@
+spec_path: .opencode/.issues/2127/spec.md
+approval_status: approved
+approval_scope: for_pr
+sc_count: 13
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+  - file: .opencode/guidelines/020-go-prohibitions.md
+    status: exists
+  - file: .opencode/guidelines/070-environment.md
+    status: exists
+  - file: .opencode/guidelines/085-project-local-tools.md
+    status: exists (referenced in Risks section)
+missing_artifacts: []
+blockers: []

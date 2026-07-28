@@ -1,0 +1,80 @@
+# Validate Findings — Issue #2127
+# Compact 020-go-prohibitions.md
+# Generated: 2026-07-27T23:44:00+00:00
+
+overall_status: PASS
+
+categories:
+  - id: 1
+    name: "Structural validation"
+    status: PASS
+    checks:
+      - name: "Phase table with required columns"
+        status: PASS
+        detail: "Phase headers contain SCs, files affected, and items with numbered steps"
+      - name: "Numbered procedure steps per phase"
+        status: PASS
+        detail: "Each item has RED/Z3/RED-doublecheck/GREEN/checkpoint steps with checkbox format"
+      - name: "Exit criteria section with SC-to-phase mapping"
+        status: PASS
+        detail: "SC-to-phase mapping present in phase headers (e.g., '**SCs:** SC-1, SC-2, SC-3, SC-4'). No separate 'Exit Criteria' section, but mapping is explicit and complete."
+
+  - id: 2
+    name: "Skill+task validity"
+    status: PASS
+    checks:
+      - name: "All skill+task references valid in implementation-pipeline TDT"
+        status: PASS
+        detail: "References: test-driven-development (red/green), verification-before-completion (verify), implementation-pipeline (sc-coherence-gate, pre-red-baseline, post-red-enforcement, post-green-enforcement, checkpoint-tag-create, structural-checks, green-doublecheck, green-vbc, sc-count-gate, pre-pr-gate, cross-validate, regression-check, review-prep, create-pr, exec-summary), audit (coherence-extraction, cross-validate), git-workflow (commit-prep), finishing-a-development-branch (checklist), pr-creation-workflow (create), completion-core (completion)"
+
+  - id: 3
+    name: "SC coverage"
+    status: PASS
+    checks:
+      - name: "All SCs covered in at least one phase"
+        status: PASS
+        detail: "SC-1 through SC-4 in Phase 1, SC-5 in Phase 2, SC-6/SC-7 in Phase 3, SC-8 in Phase 4, SC-9 through SC-13 in Phase 5"
+      - name: "No triplet splits"
+        status: PASS
+        detail: "Each SC has RED/GREEN/COMMIT steps within the same phase. No SC has steps split across phases."
+
+  - id: 4
+    name: "Concern separation"
+    status: PASS
+    checks:
+      - name: "Each phase addresses exactly one concern"
+        status: PASS
+        detail: "Phase 1: remove duplicated/obsolete sections. Phase 2: remove internal duplication. Phase 3: collapse adjacent sections. Phase 4: replace Node.js rule. Phase 5: verification."
+      - name: "No two phases address the same concern"
+        status: PASS
+        detail: "Each phase has a distinct concern from the concern-map"
+
+  - id: 5
+    name: "DAG validation"
+    status: PASS
+    checks:
+      - name: "No cycles in dependency DAG"
+        status: PASS
+        detail: "Contract invariants define strict linear ordering (phase_N → phase_N-1). No cycles."
+      - name: "All phases reachable from start node"
+        status: PASS
+        detail: "Phase 1 is start node. Each subsequent phase depends on prior phase. All 5 phases reachable."
+      - name: "No orphan phases"
+        status: PASS
+        detail: "Each phase has incoming edge (from prior) and outgoing edge (to next). No orphans."
+
+  - id: 6
+    name: "Holistic quality"
+    status: PASS
+    checks:
+      - name: "No TBD/TODO placeholders"
+        status: PASS
+        detail: "No TBD or TODO patterns found in plan body"
+      - name: "All steps use checkbox format"
+        status: PASS
+        detail: "All steps use '- [ ]' checkbox format"
+      - name: "Dispatch mode consistency"
+        status: PASS
+        detail: "Inline phases (Z3 check steps) have no dispatched steps. Clean-room phases (RED/GREEN/checkpoint) have no inline steps. Dispatch mode markers consistent."
+
+findings: []

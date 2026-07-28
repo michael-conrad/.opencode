@@ -1,0 +1,35 @@
+variables:
+  phase_1_completed:
+    type: bool
+    nullable: false
+  phase_2_completed:
+    type: bool
+    nullable: false
+  phase_3_completed:
+    type: bool
+    nullable: false
+  phase_4_completed:
+    type: bool
+    nullable: false
+  phase_5_completed:
+    type: bool
+    nullable: false
+  current_phase:
+    type: int
+    domain: [1, 2, 3, 4, 5]
+  execution_phase:
+    type: string
+    domain: ["pre_implementation", "in_progress", "post_implementation"]
+preconditions:
+  - "z3.Or(execution_phase == z3.StringVal('pre_implementation'), execution_phase == z3.StringVal('in_progress'))"
+invariants:
+  - "z3.Implies(z3.BoolVal(phase_2_completed), z3.BoolVal(phase_1_completed))"
+  - "z3.Implies(z3.BoolVal(phase_3_completed), z3.BoolVal(phase_2_completed))"
+  - "z3.Implies(z3.BoolVal(phase_4_completed), z3.BoolVal(phase_3_completed))"
+  - "z3.Implies(z3.BoolVal(phase_5_completed), z3.And(z3.BoolVal(phase_1_completed), z3.BoolVal(phase_2_completed), z3.BoolVal(phase_3_completed), z3.BoolVal(phase_4_completed)))"
+  - "z3.Implies(z3.BoolVal(phase_5_completed), execution_phase == z3.StringVal('post_implementation'))"
+postconditions:
+  - "z3.BoolVal(phase_5_completed)"
+  - "execution_phase == z3.StringVal('post_implementation')"
+theorem:
+  - "z3.Implies(z3.And(z3.BoolVal(phase_1_completed), z3.BoolVal(phase_2_completed), z3.BoolVal(phase_3_completed), z3.BoolVal(phase_4_completed)), z3.BoolVal(phase_5_completed))"

@@ -9,11 +9,11 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2128
 
 ## Problem
 
-`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup), sections duplicated in 000, and tool-specific patterns that belong in skill cards.
+`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup, most of §4 Command Restrictions), sections duplicated in 000, project-specific rules (`uv run python`), and tool-specific patterns (Todowrite Lifecycle, File Renaming).
 
 ## Scope
 
-Remove 6 sections (Junie-specific, duplicated, or covered elsewhere). Move 2 sections to skill cards. Keep 5 universal sections.
+Remove 12 Junie-specific items, 2 duplicated sections, 1 covered section, 2 purged tool-specific sections, 1 project-specific rule. Keep 6 universal sections.
 
 ## Success Criteria
 
@@ -25,16 +25,24 @@ Remove 6 sections (Junie-specific, duplicated, or covered elsewhere). Move 2 sec
 | SC-4 | Remove pre-submit root cleanliness check | string |
 | SC-5 | Remove §5 Verification & Audit | string |
 | SC-6 | Remove §8 Skill Call Principle | string |
-| SC-7 | Behavioral evidence exemption → verification-before-completion | string |
-| SC-8 | Todowrite Lifecycle → mcp-tool-usage | string |
-| SC-9 | All keep sections remain | string |
-| SC-10 | Remove `./.opencode/tools/guidelines` tool | structural |
+| SC-7 | Remove fixed sleep value `15` from §4 | string |
+| SC-8 | Remove "one clear command per invocation" from §4 | string |
+| SC-9 | Remove "use built-in Edit/Write tools" from §4 | string |
+| SC-10 | Remove no `stty` from §4 | string |
+| SC-11 | Remove no heredocs from §4 | string |
+| SC-12 | Remove no repeated grep/egrep/sed from §4 | string |
+| SC-13 | Remove `sed -i`, `printf`, `echo` redirection from §4 | string |
+| SC-14 | Remove no multi-line shell loops from §4 | string |
+| SC-15 | Remove no `sed` for file edits from §4 | string |
+| SC-16 | Remove §6 File Renaming | string |
+| SC-17 | Remove §7 Todowrite Lifecycle | string |
+| SC-18 | Remove `uv run python` from §4 | string |
+| SC-19 | All keep sections remain | string |
+| SC-20 | Remove `./.opencode/tools/guidelines` tool | structural |
 
 ## Files Affected
 
 - `.opencode/guidelines/060-tool-usage.md`
-- `.opencode/skills/verification-before-completion/SKILL.md`
-- `.opencode/skills/mcp-tool-usage/SKILL.md`
 - `.opencode/tools/guidelines` (remove)
 
 ## Dependencies

@@ -1,0 +1,112 @@
+# Structure Artifact — Issue #2127
+# Compact 020-go-prohibitions.md
+
+## Phase Decomposition
+
+### Phase 1: Remove duplicated sections (§5, §6, stop command, Channel-Routing Table)
+- SCs: SC-1, SC-2, SC-3, SC-4
+- Items:
+  - item-1: SC-1 — Remove §5 Multi-task Plan Without Sub-issues
+  - item-2: SC-2 — Remove §6 Progressive Iterative Implementation
+  - item-3: SC-3 — Remove "stop" command section
+  - item-4: SC-4 — Remove Channel-Routing Table
+- Dispatch: RED/GREEN sub-agent
+- Skill+Task: test-driven-development --task red → test-driven-development --task green
+- Files affected: .opencode/guidelines/020-go-prohibitions.md
+
+### Phase 2: Remove internally-duplicated lines (3 restated ALWAYS DO lines)
+- SCs: SC-5
+- Items:
+  - item-5: SC-5 — Remove 3 restated ALWAYS DO lines
+- Dispatch: RED/GREEN sub-agent
+- Skill+Task: test-driven-development --task red → test-driven-development --task green
+- Files affected: .opencode/guidelines/020-go-prohibitions.md
+
+### Phase 3: Collapse §1.2 and §1.5 into §1
+- SCs: SC-6, SC-7
+- Items:
+  - item-6: SC-6 — §1.2 merged into §1 as bullet
+  - item-7: SC-7 — §1.5 collapsed into §1
+- Dispatch: RED/GREEN sub-agent
+- Skill+Task: test-driven-development --task red → test-driven-development --task green
+- Files affected: .opencode/guidelines/020-go-prohibitions.md
+
+### Phase 4: Replace §4/§4.5 with general `.tools/` rule
+- SCs: SC-8
+- Items:
+  - item-8: SC-8 — §4 replaced with general `.tools/` rule
+- Dispatch: RED/GREEN sub-agent
+- Skill+Task: test-driven-development --task red → test-driven-development --task green
+- Files affected: .opencode/guidelines/020-go-prohibitions.md
+
+### Phase 5: Verify all keep sections remain, no content loss, remove duplicate Node.js section from 070-environment.md, update 085-project-local-tools.md cross-references
+- SCs: SC-9, SC-10, SC-11, SC-12, SC-13
+- Items:
+  - item-9: SC-9 — All 4 keep categories remain
+  - item-10: SC-10 — No content loss — removed sections verified as duplicated in 000
+  - item-11: SC-11 — No orphaned cross-references to removed section names
+  - item-12: SC-12 — No line-count or word-count metrics used as success measurement
+  - item-13: SC-13 — Remove duplicate Node.js Prohibition section from 070-environment.md
+- Dispatch: verification sub-agent
+- Skill+Task: verification-before-completion --task verify
+- Files affected: .opencode/guidelines/020-go-prohibitions.md, .opencode/guidelines/070-environment.md, .opencode/guidelines/085-project-local-tools.md
+
+## Dependency DAG
+
+edges:
+  - from: Phase 1
+    to: Phase 5
+    reason: Phase 5 verifies that removed sections are gone
+  - from: Phase 2
+    to: Phase 5
+    reason: Phase 5 verifies that duplicated lines are removed
+  - from: Phase 3
+    to: Phase 5
+    reason: Phase 5 verifies that collapsed sections are correct
+  - from: Phase 4
+    to: Phase 5
+    reason: Phase 5 verifies that §4 replacement is correct and cross-references are updated
+
+## Dependency DAG Notes
+
+- Phases 1-4 are independent of each other — no ordering constraint between them
+- Phase 5 depends on all of Phases 1-4 (verification phase)
+- All phases operate on the same file (020-go-prohibitions.md) except Phase 5 which also touches 070-environment.md and 085-project-local-tools.md
+- Because Phases 1-4 all modify the same file, they MUST execute sequentially to avoid merge conflicts. The execution order is: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5.
+
+## Triplet Co-Location Verification
+
+- SC-1: RED/GREEN/COMMIT all in Phase 1 ✅
+- SC-2: RED/GREEN/COMMIT all in Phase 1 ✅
+- SC-3: RED/GREEN/COMMIT all in Phase 1 ✅
+- SC-4: RED/GREEN/COMMIT all in Phase 1 ✅
+- SC-5: RED/GREEN/COMMIT all in Phase 2 ✅
+- SC-6: RED/GREEN/COMMIT all in Phase 3 ✅
+- SC-7: RED/GREEN/COMMIT all in Phase 3 ✅
+- SC-8: RED/GREEN/COMMIT all in Phase 4 ✅
+- SC-9: RED/GREEN/COMMIT all in Phase 5 ✅
+- SC-10: RED/GREEN/COMMIT all in Phase 5 ✅
+- SC-11: RED/GREEN/COMMIT all in Phase 5 ✅
+- SC-12: RED/GREEN/COMMIT all in Phase 5 ✅
+- SC-13: RED/GREEN/COMMIT all in Phase 5 ✅
+
+Result: No TRIPLET_SPLIT violations.
+
+## Cross-Phase Dependency Verification
+
+- Phase 1 RED tests: grep for absence of section headers — no dependency on other phases ✅
+- Phase 2 RED tests: grep for absence of specific lines — no dependency on other phases ✅
+- Phase 3 RED tests: grep for section header presence/absence — no dependency on other phases ✅
+- Phase 4 RED tests: grep for `.tools/` pattern — no dependency on other phases ✅
+- Phase 5 RED tests: grep for keep patterns and absence of removed patterns — depends on Phase 1-4 output being correct ✅
+
+Result: No CROSS_PHASE_DEP violations. Phase 5 RED tests naturally depend on Phase 1-4 output, which is expected for a verification phase.
+
+## Execution Order
+
+Due to shared file modification (all phases touch 020-go-prohibitions.md), sequential execution is required:
+1. Phase 1 (remove sections)
+2. Phase 2 (remove duplicated lines)
+3. Phase 3 (collapse sections)
+4. Phase 4 (replace §4)
+5. Phase 5 (verify + remove Node.js from 070 + update 085 cross-refs)

@@ -1,0 +1,50 @@
+# Self-Review Artifact — Issue 2127
+# Generated: 2026-07-27T19:23:00-04:00
+# Agent: OpenCode (deepseek-v4-flash)
+
+placeholder_findings: []
+
+sc_coverage_findings: []
+
+triplet_split_findings: []
+
+type_name_inconsistency_findings: []
+
+per_task_cycle_findings:
+  - item: 9
+    sc_id: SC-9
+    phase: 5
+    finding_type: MISSING_STEP
+    missing_steps:
+      - checkpoint-tag-create
+      - checkpoint-commit
+    description: "Item 9 (SC-9) in Phase 5 is missing checkpoint-tag-create and checkpoint-commit steps from the per-task cycle. The RED/GREEN cycle ends at Z3 check post-GREEN without creating a checkpoint."
+
+  - item: 10
+    sc_id: SC-10
+    phase: 5
+    finding_type: MISSING_STEP
+    missing_steps:
+      - checkpoint-tag-create
+      - checkpoint-commit
+    description: "Item 10 (SC-10) in Phase 5 is missing checkpoint-tag-create and checkpoint-commit steps from the per-task cycle."
+
+  - item: 11
+    sc_id: SC-11
+    phase: 5
+    finding_type: MISSING_STEP
+    missing_steps:
+      - checkpoint-tag-create
+      - checkpoint-commit
+    description: "Item 11 (SC-11) in Phase 5 is missing checkpoint-tag-create and checkpoint-commit steps from the per-task cycle."
+
+  - item: 12
+    sc_id: SC-12
+    phase: 5
+    finding_type: MISSING_STEP
+    missing_steps:
+      - checkpoint-tag-create
+      - checkpoint-commit
+    description: "Item 12 (SC-12) in Phase 5 is missing checkpoint-tag-create and checkpoint-commit steps from the per-task cycle."
+
+overall_verdict: BLOCKED

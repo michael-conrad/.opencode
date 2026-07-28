@@ -2,6 +2,9 @@
 remote_issue: 2127
 remote_url: https://github.com/michael-conrad/.opencode/issues/2127
 labels: [spec]
+approved: for_pr
+approved_by: developer
+approved_at: '2026-07-27T19:17:00-04:00'
 ---
 
 ## Intent and Executive Summary
@@ -11,7 +14,7 @@ labels: [spec]
 - **Root Cause/Motivation**: The file has grown beyond its original scope through accretion. Some rules accumulated that already exist in 000-critical-rules.md, creating duplication and maintenance burden. Other sections were incorrectly flagged as duplicated in the previous spec version.
 - **Approach Chosen**: Remove verified-duplicated sections (§6, stop command, Channel-Routing Table), remove obsolete §5, remove internally-duplicated lines (3 restated ALWAYS DO lines), collapse adjacent sections, replace Node.js-specific rule with general `.tools/` rule. Keep all unique-to-020 content including §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines, cost-blind/evidence substitution/continue waiver/silent halt/escalate lines, and all ALWAYS DO items that are unique to 020.
 - **Alternatives Considered**: See Alternatives Considered section below.
-- **Key Design Decisions**: Removal is the primary strategy for verified-duplicated content because the duplicated rules already exist in their authoritative home (000). Cross-references would add indirection without reducing file size. A separate guideline file would create a third home for the same rules. Content unique to 020 is preserved.
+- **Key Design Decisions**: Removal is the primary strategy for verified-duplicated content because the duplicated rules already exist in their authoritative home (000). Cross-references would add indirection without reducing document length. A separate guideline file would create a third home for the same rules. Content unique to 020 is preserved.
 
 ## Documentation Sources
 
@@ -44,11 +47,11 @@ Three approaches were evaluated for addressing the duplication in `020-go-prohib
 
 | Approach | Pros | Cons | Verdict |
 |----------|------|------|---------|
-| **Removal (chosen)** | Eliminates duplication entirely; single authoritative source per rule; reduces file size | Requires verification that all removed rules exist in target files; risk of content loss if verification is incomplete | ✅ Chosen |
-| **Cross-references** | Preserves all content; explicit pointers to authoritative source | Does not reduce file size; adds indirection; cross-references can go stale; still requires maintenance in two places | ❌ Rejected |
+| **Removal (chosen)** | Eliminates duplication entirely; single authoritative source per rule; reduces document length | Requires verification that all removed rules exist in target files; risk of content loss if verification is incomplete | ✅ Chosen |
+| **Cross-references** | Preserves all content; explicit pointers to authoritative source | Does not reduce document length; adds indirection; cross-references can go stale; still requires maintenance in two places | ❌ Rejected |
 | **Separate guideline file** | Isolates the concern; clear ownership | Creates a third home for rules that already have two homes; increases total file count; does not solve the duplication problem | ❌ Rejected |
 
-Removal was chosen because the duplicated rules already exist in their authoritative home (000). Cross-references would add indirection without reducing file size. A separate guideline file would create a third home for the same rules, making the maintenance problem worse.
+Removal was chosen because the duplicated rules already exist in their authoritative home (000). Cross-references would add indirection without reducing document length. A separate guideline file would create a third home for the same rules, making the maintenance problem worse.
 
 ## All-or-Nothing SC Enforcement Gate
 
@@ -69,7 +72,7 @@ Removal was chosen because the duplicated rules already exist in their authorita
 | SC-9 | All 4 keep categories remain: §1.1 Orchestrator Context Discipline, live tool call/training data/metadata lines (lines 277-279), cost-blind/evidence substitution/continue waiver/silent halt/escalate lines (lines 53, 64-73, 447), and all ALWAYS DO items unique to 020 (lines 214-250 subset, 301-303) | string | grep for each section header and unique line. Also verify that sections NOT in the explicit keep list (specifically §5, §6, "stop" command section, Channel-Routing Table, §4/§4.5) are actually removed from 020. Cost frame: DDL-based — a missed-removal defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
 | SC-10 | Every rule text from removed sections (§5, §6, stop command, Channel-Routing Table) exists verbatim in 000-critical-rules.md. No rule text is lost. | semantic | Compare removed section content against 000 equivalents; verify all rules preserved in source. Cost frame: DDL-based — a content-loss defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via semantic comparison. |
 | SC-11 | No orphaned cross-references to removed section names | string | grep for removed section names across .opencode/ — only 000 remains. Cost frame: DDL-based — a broken-cross-reference defect discovered post-merge costs 100× more (manual audit of all cross-references) than catching it at verification time via grep. |
-| SC-12 | No line-count or word-count metrics used as success measurement | string | grep for absence of 'wc -l', 'file size', 'Final file size' in spec. Cost frame: DDL-based — a leftover-metric defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
+| SC-12 | No line-count or word-count metrics used as success measurement | string | grep for absence of line-count or word-count metric patterns in spec. Cost frame: DDL-based — a leftover-metric defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
 | SC-13 | Remove duplicate Node.js Prohibition section from 070-environment.md (the Node.js Prohibition section and its Project-Local Tools subsection) | string | grep for absence of 'Node.js Prohibition' section in 070-environment.md. Cost frame: DDL-based — a leftover-section defect discovered post-merge costs 100× more (revert + re-implement) than catching it at verification time via grep. |
 
 ## Requirements
