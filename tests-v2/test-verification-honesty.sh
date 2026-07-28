@@ -19,16 +19,14 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 source "$(dirname "${BASH_SOURCE[0]}")/default-model.sh"
 
-# Resolve opencode from PATH — NEVER hardcode /snap/bin/opencode.
-if command -v opencode &>/dev/null; then
-    OPENCODE_BIN="$(command -v opencode)"
-elif [ -x /usr/bin/opencode-cli ]; then
-    echo "WARNING: opencode not in PATH, falling back to opencode-cli" >&2
-    OPENCODE_BIN="/usr/bin/opencode-cli"
-else
-    echo "FATAL: no opencode binary found" >&2
+# Standalone binary at fixed cache location — full path, no PATH resolution, no snap.
+STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
+if [ ! -x "$STANDALONE_BINARY" ]; then
+    echo "FATAL: standalone binary not found at $STANDALONE_BINARY" >&2
+    echo "  Download from https://github.com/anomalyco/opencode/releases" >&2
     exit 1
 fi
+OPENCODE_BIN="$STANDALONE_BINARY"
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests-v2/with-test-home"
 
 SCENARIO_FILTER=()
