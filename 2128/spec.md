@@ -103,7 +103,7 @@ These are Junie-specific remediations that accumulated over time. ("Junie-specif
 
 ## Risks
 
-- **Cross-reference breakage**: 016-srclight-preference.md, mcp-tool-usage skill card, and audit skill card reference `tools/guidelines`. Must audit and update all 7 files (30 references).
+- **Cross-reference breakage**: 016-srclight-preference.md, mcp-tool-usage skill card, and audit skill card reference `tools/guidelines`. Must audit and update all 5 pre-existing files (30 references total).
 - **Tool removal breaks scripts**: Any hook or script calling `./.opencode/tools/guidelines` will fail. Must audit before removal.
 
 ## Dependencies

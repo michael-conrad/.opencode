@@ -10,7 +10,7 @@ labels: [spec]
 
 ## Problem Statement
 
-`065-verification-honesty.md` is ~35KB of context waste. Every sub-agent that loads this Tier 1 guideline pays the context cost for content that doesn't change behavior: sections duplicated in 000, explanatory prose, cross-reference stubs that agents ignore, and procedural content that should live in skill task files where sub-agents actually read it.
+`065-verification-honesty.md` is ~35KB of context waste. Every sub-agent that loads this Tier 1 guideline pays the context cost for content that doesn't change behavior: explanatory prose, cross-reference stubs (critical-rules blocks that merely repeat references already present in 000), and procedural content (Verification Comparison Semantics, Anti-Evasion Rules, Metadata Verification detail) that should live in skill task files where sub-agents actually read it. Verified by grep: the critical-rules blocks at lines 374-467 reference content from 000 but are not consumed by any executing agent—they are maintenance artifacts.
 
 ## Root Cause / Motivation
 
@@ -18,7 +18,7 @@ labels: [spec]
 
 ## Approach Chosen
 
-Selective compaction: remove sections that are duplicated (exist in 000), explanatory (teaching material, not rules), or ignored by agents (cross-reference stubs, Fabricating URLs orphan). Move procedural content (Verification Comparison Semantics, Anti-Evasion Rules, Metadata Verification subsets) to skill task files where sub-agents read them during execution. Collapse duplicated restatements (Zero Tolerance + Core Principle). No content is deleted — it is either removed from the guideline (if duplicated elsewhere or unnecessary) or relocated to task files.
+Selective compaction: remove explanatory sections (teaching material, not rules), procedural content moved to skill task files, cross-reference stubs ignored by agents, and the DDL cost model (explanatory prose; operational rules already encoded in 020 and 080). Collapse duplicated restatements (Zero Tolerance + Core Principle). Relocate procedural content (Verification Comparison Semantics, Anti-Evasion Rules, Metadata Verification subsets) to skill task files where sub-agents read them during execution.
 
 ## Key Design Decisions
 
