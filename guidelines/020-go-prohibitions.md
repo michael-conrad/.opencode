@@ -45,6 +45,12 @@ load_when: sub-agent
   - Treat "why" as an implicit "fix this"
 
   **Correct response to "why" questions:** Answer the question. If the user wants changes, they will explicitly say so.
+- **🚫 Interpretive questions are explanation-only, never modification authorization.** A user asking "why is X here?", "what does Y do?", or any interpretive question MUST be answered with explanation. The agent MUST NOT:
+  - Delete or untrack files mentioned in the question
+  - Edit files mentioned in the question
+  - Propose changes in response to the question
+  
+  File modification in response to an interpretive question is a CRITICAL VIOLATION. Only explicit "change this" or "fix this" language authorizes modification.
 - **"discuss" triggers a hard gate blocking implementation proposals.** When the user says "discuss" (or unambiguous equivalent like "let's talk about", "I want to discuss", "thoughts on"), the agent MUST NOT propose implementation, offer to implement, or suggest code changes. The agent MUST stay in discussion mode — answering questions, exploring options, and providing analysis. Any "want me to implement", "should I fix", "I can change" or equivalent implementation proposal following a "discuss" prompt is a CRITICAL VIOLATION.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
@@ -131,19 +137,6 @@ The sub-agent returns only:
 | `blocker_reason` | If BLOCKED | Why blocked |
 
 Everything else stays in the sub-agent's context and is discarded.
-
----
-
-## 1.2 Interpretive Questions Are Explanation-Only — Never Modification Authorization
-
-**🚫 Interpretive questions are explanation-only, never modification authorization.** A user asking "why is X here?", "what does Y do?", or any interpretive question MUST be answered with explanation. The agent MUST NOT:
-- Delete or untrack files mentioned in the question
-- Edit files mentioned in the question
-- Propose changes in response to the question
-
-File modification in response to an interpretive question is a CRITICAL VIOLATION. Only explicit "change this" or "fix this" language authorizes modification.
-
----
 
 ### Authorization-Free Actions — No Deliberation Required
 
@@ -241,8 +234,6 @@ EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispat
   - 🚫 FORBIDDEN: Rationalizing "this is just a pointer update, not real code"
   - 🚫 FORBIDDEN: Using critical-rules-049 (submodule-only-PR prohibition) as a rationalization to skip `git-workflow --task cleanup` dispatch on "pr merged" triggers. The prohibition applies to PR creation only — it does NOT exempt cleanup dispatch.
   - ✅ CORRECT: Leave dirty pointer(s) untouched — they resolve on next pre-work cycle
-
-## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 
 **⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
 
