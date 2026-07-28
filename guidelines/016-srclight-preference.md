@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Srclight Preference Guideline for Python Code Analysis
 
-This guideline defines when to prefer srclight MCP tools vs opencode built-in tools vs `.opencode/tools/guidelines` for search/analysis tasks.
+This guideline defines when to prefer srclight MCP tools vs opencode built-in tools for search/analysis tasks.
 
 ## Critical: Srclight Limitations
 
@@ -39,7 +39,7 @@ Is the task about Python code?
 │              (or pycharm_* for unique capabilities like rename)
 │
 └─ NO (docs, configs, .md files) → Use opencode built-in tools
-                                       (or .opencode/tools/guidelines for .opencode/guidelines/)
+                                       (or grep for .opencode/guidelines/)
 ```
 
 ## Tier 1: Srclight MCP (Python Code Analysis ONLY)
@@ -89,15 +89,14 @@ Use JetBrains MCP only for operations with no opencode equivalent:
 | Get file problems | `pycharm_get_file_problems` |
 | Rename refactoring | `pycharm_rename_refactoring` |
 
-## Tier 4: .opencode/tools/guidelines (Guidelines ONLY)
+## Tier 4: grep (Guidelines ONLY)
 
-Use `.opencode/tools/guidelines` commands for searching developer guidelines:
+Use `grep` for searching developer guidelines:
 
 | Task | Command |
 | -- | -- |
-| Search guidelines | `./.opencode/tools/guidelines search <term>` |
-| Read guideline | `./.opencode/tools/guidelines read <filename>` |
-| List guidelines | `./.opencode/tools/guidelines read --list` |
+| Search guidelines | `grep(pattern="<term>", path=".opencode/guidelines/")` |
+| Read guideline | `read(filePath=".opencode/guidelines/<filename>")` |
 
 ## Tool Selection Matrix
 
@@ -114,7 +113,7 @@ Use `.opencode/tools/guidelines` commands for searching developer guidelines:
 | Recent commits | `srclight_recent_changes` | `git log` |
 | Code hotspots | `srclight_git_hotspots` | Manual analysis |
 | Project overview | `srclight_codebase_map` | — |
-| **Search .md files/guidelines** | `grep` | `.opencode/tools/guidelines search` |
+| **Search .md files/guidelines** | `grep` | `grep` |
 | Find files by glob | `glob` | — |
 | Read file content | `read` | — |
 | Edit file | `edit` | — |
@@ -179,8 +178,8 @@ pycharm_search_in_files_by_text(searchText="article parsing")
 # ✅ CORRECT: Use grep for .md files
 grep(pattern="MCP", glob="**/*.md")
 
-# ✅ ALSO CORRECT: Use .opencode/tools/guidelines for .opencode/guidelines/
-# Run: ./.opencode/tools/guidelines search MCP
+# ✅ ALSO CORRECT: Use grep for .opencode/guidelines/
+# Run: grep(pattern="MCP", path=".opencode/guidelines/")
 
 # ❌ WRONG: Srclight does not index .md files
 srclight_search_symbols(query="MCP")  # Returns no results for .md files
@@ -244,11 +243,11 @@ Srclight does not support filename search.
 
 ### Guidelines and .md Files
 
-**Use `.opencode/tools/guidelines` or opencode `grep`:**
+**Use opencode `grep`:**
 
 ```
 # For .opencode/guidelines/*.md files:
-# Run: ./.opencode/tools/guidelines search <term>
+# Run: grep(pattern="<term>", path=".opencode/guidelines/")
 
 # For other .md files:
 grep(pattern="<term>", glob="**/*.md")
@@ -269,7 +268,7 @@ glob(pattern="**/test_*.py")
 | Python semantic analysis | `srclight_*` (PREFERENTIALLY) |
 | Basic file operations | opencode `read`/`write`/`edit`/`glob`/`grep` (PRIMARY) |
 | Notebook operations | `the-notebook-mcp_*` (MANDATORY for .ipynb) |
-| Guidelines search | `.opencode/tools/guidelines` or `grep` |
+| Guidelines search | `grep` |
 | Filename search | `glob` |
 | Semantic rename | `pycharm_rename_refactoring` (FALLBACK) |
 | Code reformat | `pycharm_reformat_file` (FALLBACK) |

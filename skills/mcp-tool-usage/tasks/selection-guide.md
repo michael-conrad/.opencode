@@ -28,12 +28,12 @@ Operation: READ FILE
 ├─ Python semantic → srclight_get_symbol (TIER 2)
 ├─ Any text file → opencode `read` (TIER 1)
 ├─ Notebook → the-notebook-mcp_notebook_read (TIER 2 MANDATORY)
-└─ Guidelines → .opencode/tools/guidelines read (TIER 3)
+└─ Guidelines → opencode `read` (TIER 1)
 
 Operation: SEARCH CODE
 ├─ Python semantic → srclight_search_symbols / srclight_hybrid_search (TIER 2)
 ├─ Text search → opencode `grep` (TIER 1)
-└─ Guideline search → .opencode/tools/guidelines search (TIER 3)
+└─ Guideline search → opencode `grep` (TIER 1)
 
 Operation: EDIT FILE
 ├─ Any text file → opencode `edit` (TIER 1)
