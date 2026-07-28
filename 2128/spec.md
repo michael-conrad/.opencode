@@ -4,9 +4,29 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2128
 labels: [spec]
 ---
 
+## Intent
+
+Compact 060-tool-usage.md to approximately half its current size (~8KB from ~16KB) by removing Junie-specific, project-specific, tool-specific, and duplicated/overlapping content. Keep only universally applicable rules.
+
+## Root Cause
+
+060-tool-usage.md accumulated Junie-specific remediations over time — rules added to compensate for limitations in the Junie agent CLI (shell restrictions, path resolution bugs, tool preference overrides). These rules do not apply to this agent and inflate the file to ~16KB. Sections that overlap with 000-critical-rules.md (Progressive Disclosure, Skill Call Principle) were also kept as redundant copies.
+
+## Alternatives Considered
+
+- **Alternative A: Mark sections as deprecated without removing** — would keep file size high without improving signal. Rejected.
+- **Alternative B: Move all content to individual skill cards** — would force every agent to load a skill to learn basic tool rules. Rejected; keep sections are short enough to inline.
+- **Current approach: Remove or purge 17 items, keep 6 universal sections.** Selected.
+
+## Edge Cases
+
+- **Section already absent**: If a removal target is already gone (e.g., already deleted in a parallel change), the delete operation is a no-op — grep-based verification will confirm absence regardless.
+- **Destination rules conflict**: No sections are being moved, only removed or purged. No destination conflict possible.
+- **Cross-reference already updated**: If a `tools/guidelines` reference was already updated in parallel work, SC-21 verification handles it naturally (grep for absence of the old reference).
+
 ## Problem
 
-`060-tool-usage.md` is ~15KB. It contains sections that are Junie-specific training wheels (Path Rules, Guidelines Lookup tool, pre-submit cleanliness check, most of §4 Command Restrictions), sections that overlap with content in 000 (Progressive Disclosure overlaps with Orchestrator Context Lean / critical-rules-063; Skill Call Principle overlaps with DISPATCH_GATE / Canonical Dispatch String), project-specific rules (`uv run python`), and tool-specific usage patterns (Todowrite Lifecycle, File Renaming).
+`060-tool-usage.md` is ~16KB (16578 bytes, 255 lines). It contains sections that are Junie-specific training wheels (Path Rules, Guidelines Lookup tool, pre-submit cleanliness check, most of §4 Command Restrictions), sections that overlap with content in 000 (Progressive Disclosure overlaps with Orchestrator Context Lean / critical-rules-063; Skill Call Principle overlaps with DISPATCH_GATE / Canonical Dispatch String), project-specific rules (`uv run python`), and tool-specific usage patterns (Todowrite Lifecycle, File Renaming).
 
 These are Junie-specific remediations that accumulated over time. ("Junie-specific" refers to rules added to compensate for limitations in the Junie agent CLI — shell restrictions, path resolution bugs, and tool preference overrides that do not apply to this agent.)
 
@@ -105,6 +125,15 @@ These are Junie-specific remediations that accumulated over time. ("Junie-specif
 
 - **Cross-reference breakage**: 016-srclight-preference.md, mcp-tool-usage skill card, and audit skill card reference `tools/guidelines`. Must audit and update all 5 pre-existing files (30 references total).
 - **Tool removal breaks scripts**: Any hook or script calling `./.opencode/tools/guidelines` will fail. Must audit before removal.
+
+## Documentation Sources
+
+The following claims were verified against the codebase via tool calls (July 28, 2026):
+- `grep -rl "tools/guidelines" .opencode/ --include="*.md" --include="*.yaml" --include="*.sh" --include="*.py" --include="*.ts"` — returns 7 files (5 pre-existing: 016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md; plus 2 created by this spec: spec.md, remote.md)
+- `.issues/317/plan.md` — verified exists (10255 bytes, contains 1 reference to `tools/guidelines`)
+- 060-tool-usage.md — verified exists (16578 bytes, 255 lines)
+- `.opencode/tools/guidelines` — verified exists (tool dispatcher)
+- `.opencode/tools/impl/guidelines-*` — verified exists (guidelines-edit, guidelines-read, guidelines-search, guidelines-show)
 
 ## Dependencies
 

@@ -9,11 +9,11 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2128
 
 ## Problem
 
-`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup, most of §4 Command Restrictions), sections overlapping with 000, project-specific rules (`uv run python`), and tool-specific patterns (Todowrite Lifecycle, File Renaming). These are Junie-specific remediations that accumulated over time.
+`060-tool-usage.md` is ~16KB with Junie-specific rules, sections overlapping with 000, project-specific rules, and tool-specific patterns. These are Junie-specific remediations that accumulated over time.
 
 ## Scope
 
-Remove 12 Junie-specific items, 2 overlapping sections, 1 covered section, 2 purged tool-specific sections, 1 project-specific rule. Keep 6 universal sections. Update cross-references in 7 files.
+Remove 12 Junie-specific items, 2 overlapping sections, 1 covered section, 2 purged tool-specific sections, 1 project-specific rule. Keep 6 universal sections. Update cross-references in 5 pre-existing files.
 
 ## Success Criteria
 
