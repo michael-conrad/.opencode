@@ -447,8 +447,7 @@ behavior_run() {
 
         if [ -n "$submodule_commit" ]; then
             git -C "$attempt_workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
-                echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
-                exit 1
+                echo "WARNING: could not checkout submodule commit $submodule_commit — using remote default branch" >&2
             }
         fi
 
