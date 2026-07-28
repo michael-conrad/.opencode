@@ -95,8 +95,8 @@ Use `grep` for searching developer guidelines:
 
 | Task | Command |
 | -- | -- |
-| Search guidelines | `grep(pattern="<term>", path=".opencode/guidelines/")` |
-| Read guideline | `read(filePath=".opencode/guidelines/<filename>")` |
+| Search guidelines | `grep` for `<term>` in `.opencode/guidelines/` |
+| Read guideline | `read` on `.opencode/guidelines/<filename>` |
 
 ## Tool Selection Matrix
 
@@ -179,7 +179,7 @@ pycharm_search_in_files_by_text(searchText="article parsing")
 grep(pattern="MCP", glob="**/*.md")
 
 # ✅ ALSO CORRECT: Use grep for .opencode/guidelines/
-# Run: grep(pattern="MCP", path=".opencode/guidelines/")
+# Run: grep for "MCP" in .opencode/guidelines/
 
 # ❌ WRONG: Srclight does not index .md files
 srclight_search_symbols(query="MCP")  # Returns no results for .md files
@@ -247,7 +247,7 @@ Srclight does not support filename search.
 
 ```
 # For .opencode/guidelines/*.md files:
-# Run: grep(pattern="<term>", path=".opencode/guidelines/")
+# Run: grep for "<term>" in .opencode/guidelines/
 
 # For other .md files:
 grep(pattern="<term>", glob="**/*.md")
