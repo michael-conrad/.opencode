@@ -39,7 +39,7 @@ Remove 12 Junie-specific items, 2 overlapping sections, 1 covered section, 2 pur
 | SC-18 | Remove `uv run python` from §4 + update 070 cross-ref | string |
 | SC-19 | All 6 keep sections remain (enumerated) | string |
 | SC-20 | Remove `./.opencode/tools/guidelines` tool | structural |
-| SC-21 | Update `tools/guidelines` refs in 7 files | string |
+| SC-21 | Update `tools/guidelines` refs in 5 pre-existing files | string |
 
 ## Files Affected
 

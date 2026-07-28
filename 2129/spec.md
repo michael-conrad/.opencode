@@ -8,13 +8,45 @@ labels: [spec]
 >
 > **Local artifacts:** `.opencode/.issues/2129/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-## Problem
+## Problem Statement
 
-`065-verification-honesty.md` is ~35KB of context waste. It contains sections duplicated in 000, explanatory prose, cross-reference stubs that agents ignore, and skill-card-level procedural content that should be inlined into task files where sub-agents actually read it. Every sub-agent that loads 065 (Tier 1) pays the context cost for content that doesn't change behavior.
+`065-verification-honesty.md` is ~35KB of context waste. Every sub-agent that loads this Tier 1 guideline pays the context cost for content that doesn't change behavior: sections duplicated in 000, explanatory prose, cross-reference stubs that agents ignore, and procedural content that should live in skill task files where sub-agents actually read it.
+
+## Root Cause / Motivation
+
+065 grew beyond its mandate as a guideline file through accretion — content was added over time without any compaction pass. Sections that were originally single-purpose (verification honesty rules) accumulated explanatory prose, research citations, and cross-reference stubs that are never read by executing agents. The Evidence Hierarchy table, Fabricating URLs block, and critical-rules stubs are all content that serves no behavioral function.
+
+## Approach Chosen
+
+Selective compaction: remove sections that are duplicated (exist in 000), explanatory (teaching material, not rules), or ignored by agents (cross-reference stubs, Fabricating URLs orphan). Move procedural content (Verification Comparison Semantics, Anti-Evasion Rules, Metadata Verification subsets) to skill task files where sub-agents read them during execution. Collapse duplicated restatements (Zero Tolerance + Core Principle). No content is deleted — it is either removed from the guideline (if duplicated elsewhere or unnecessary) or relocated to task files.
+
+## Key Design Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Remove master Metadata table, distribute rows to task files | Sub-agents read task files, not 065 — the master table has no executing consumer |
+| Inline to task files, not SKILL.md | SKILL.md is orchestrator routing surface — task files are where sub-agents read |
+| No back-links from 065 to task files | Cross-reference stubs are ignored by agents — the content just needs to be where sub-agents read it |
+| Delete DDL cost model entirely, don't relocate | Operational rules (cost-blind verification, evidence type hierarchy) already encoded in 020 and 080 — DDL is explanatory prose only |
+| Remove Evidence Hierarchy table | Rules it classifies (live-source only, no memory-as-evidence) already enforced by FORBIDDEN/REQUIRED lists and Pre-Response Gate |
 
 ## Scope
 
 Remove 12 sections (duplicated, explanatory, or stubs). Collapse Zero Tolerance + Core Principle. Move 3 sections to skill task files (no back-links). Remove Evidence Hierarchy table. Remove Metadata Verification master table and distribute rows to skill task files. Remove critical-rules stubs and Fabricating URLs orphan.
+
+## Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| Target task files have unexpected structure | Each inlining operation reads the target file first to verify structure before editing — HALT on unexpected format |
+| Cross-references from other files break | After compaction, grep each removed section header across the codebase — any remaining reference is a broken link requiring a follow-up fix commit |
+| #2121 not merged when this spec is implemented | Precondition: SKIP this spec if #2121 is not merged. The sections being removed in this spec may be modified by #2121 — implementing on an unmerged base produces merge conflicts |
+| Another spec modifies 065 concurrently | Stale-base detection via pre-work: verify no unmerged PRs modify 065 before starting |
+
+## Preconditions
+
+- **#2121 (000-critical-rules.md compaction) MUST be merged before this spec is implemented.** The sections being removed in this spec overlap with content that #2121 reorganizes. Implementing without #2121 first will produce incorrect results.
+- Target task files must exist at their expected paths before inlining operations begin.
 
 ## Success Criteria
 
@@ -28,7 +60,8 @@ Remove 12 sections (duplicated, explanatory, or stubs). Collapse Zero Tolerance 
 | SC-6 | Remove Relationship to Other Guidelines | string |
 | SC-7 | Remove Verification-Enforcement Boundary | string |
 | SC-8 | Remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First | string |
-| SC-9 | Keep: Evidence Requirement, No Exceptions, Pre-Response Gate, FORBIDDEN/REQUIRED. Remove: Evidence Hierarchy table | string |
+| SC-9a | Keep: Evidence Requirement, No Exceptions, Pre-Response Gate, FORBIDDEN/REQUIRED | string |
+| SC-9b | Remove Evidence Hierarchy table | string |
 | SC-10 | Remove Metadata Verification master table, distribute rows to skill task files | string |
 | SC-11 | Inline Verification Comparison Semantics in VbC operating protocol, no back-link | string |
 | SC-12 | Inline Anti-Evasion Rules + verification artifact manifest in VbC operating protocol, no back-link | string |
@@ -47,7 +80,7 @@ Remove 12 sections (duplicated, explanatory, or stubs). Collapse Zero Tolerance 
 
 ## Dependencies
 
-- Depends on 000-critical-rules.md compaction (#2121).
+- **BLOCKING: #2121 (000-critical-rules.md compaction) must be merged before this spec.** The sections being removed in this spec overlap with #2121's reorganization. Do not implement until #2121 is in trunk.
 
 ---
 

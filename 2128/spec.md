@@ -79,10 +79,10 @@ These are Junie-specific remediations that accumulated over time. ("Junie-specif
 | SC-15 | Remove no `sed` for file edits from §4 | string | grep for absence of 'NEVER use `sed` for file edits' |
 | SC-16 | Remove §6 File Renaming | string | grep for absence of 'File Renaming' |
 | SC-17 | Remove §7 Todowrite Lifecycle | string | grep for absence of 'Todowrite Lifecycle' |
-| SC-18 | Remove `uv run python` from §4 and update 070-environment.md cross-reference | string | grep for absence of 'uv run python' in 060; grep for updated cross-reference in 070 |
+| SC-18 | Remove `uv run python` from §4 and update 070-environment.md cross-reference to remove references to §4 of 060-tool-usage.md | string | grep for absence of 'uv run python' in 060; grep for absence of cross-reference to 060 for this rule in 070 |
 | SC-19 | All 6 keep sections remain after compaction: §1 Tool Priority Hierarchy, §3 Temp Files one-liner + behavioral exemption, §4 no destructive checkouts, §4 no production data edits, §4 no `--recursive` with git submodule, §9 Identity Source Semantics | string | grep for each of the 6 section headers |
 | SC-20 | Remove `./.opencode/tools/guidelines` tool | structural | tool file removed |
-| SC-21 | Update `tools/guidelines` references in all 7 affected files: 016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md — verified by grep | string | grep for absence of 'tools/guidelines' in all 7 files after Phase 4 |
+| SC-21 | Update `tools/guidelines` references in all 5 pre-existing files that reference it: 016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md | string | grep for absence of 'tools/guidelines' in all 5 files after Phase 4 |
 
 ## Implementation Plan
 
@@ -90,7 +90,7 @@ These are Junie-specific remediations that accumulated over time. ("Junie-specif
 ### Phase 2: Remove §4 Junie-specific items (fixed sleep, one command, edit/write, stty, heredocs, repeated grep, sed-i/printf/echo, multi-line loops, sed for edits) and `uv run python` from 060-tool-usage.md
 ### Phase 3: Remove §6 File Renaming and §7 Todowrite Lifecycle from 060-tool-usage.md
 ### Phase 4: Remove `./.opencode/tools/guidelines` tool, remove `.opencode/tools/impl/guidelines-*` files
-### Phase 5: Update `tools/guidelines` references across 7 files (016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md, plus this spec and remote.md)
+### Phase 5: Update `tools/guidelines` references across all 5 pre-existing files (016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md)
 ### Phase 6: Update 070-environment.md cross-reference to 060-tool-usage.md for `uv run python` rule
 ### Phase 7: Verify all 6 keep sections remain
 
