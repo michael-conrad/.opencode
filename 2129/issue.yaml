@@ -3,6 +3,121 @@ title: '[SPEC] Compact 065-verification-honesty.md — remove duplication, move 
 status: open
 labels:
 - spec
-body: ''
+body: '---
+
+  remote_issue: 2129
+
+  remote_url: https://github.com/michael-conrad/.opencode/issues/2129
+
+  labels: [spec]
+
+  ---
+
+
+  > **Full spec and artifacts: [`.opencode/.issues/2129/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.opencode/.issues/2129/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2129/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  `065-verification-honesty.md` is ~35KB of context waste. It contains sections duplicated
+  in 000, explanatory prose, cross-reference stubs that agents ignore, and skill-card-level
+  procedural content that should be inlined into task files where sub-agents actually
+  read it. Every sub-agent that loads 065 (Tier 1) pays the context cost for content
+  that doesn''t change behavior.
+
+
+  ## Scope
+
+
+  Remove 12 sections (duplicated, explanatory, or stubs). Collapse Zero Tolerance
+  + Core Principle. Move 3 sections to skill task files (no back-links). Remove Evidence
+  Hierarchy table. Remove Metadata Verification master table and distribute rows to
+  skill task files. Remove critical-rules stubs and Fabricating URLs orphan.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | Collapse Zero Tolerance + Core Principle to one statement | string |
+
+  | SC-2 | Remove Problem section | string |
+
+  | SC-3 | Remove What Constitutes Checking table | string |
+
+  | SC-4 | Remove Memory vs Verified table | string |
+
+  | SC-5 | Remove Single Exchange Window | string |
+
+  | SC-6 | Remove Relationship to Other Guidelines | string |
+
+  | SC-7 | Remove Verification-Enforcement Boundary | string |
+
+  | SC-8 | Remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First
+  | string |
+
+  | SC-9 | Keep: Evidence Requirement, No Exceptions, Pre-Response Gate, FORBIDDEN/REQUIRED.
+  Remove: Evidence Hierarchy table | string |
+
+  | SC-10 | Remove Metadata Verification master table, distribute rows to skill task
+  files | string |
+
+  | SC-11 | Inline Verification Comparison Semantics in VbC operating protocol, no
+  back-link | string |
+
+  | SC-12 | Inline Anti-Evasion Rules + verification artifact manifest in VbC operating
+  protocol, no back-link | string |
+
+  | SC-13 | Inline Metadata Verification subsets in VbC, audit, issue-operations task
+  files, no back-links | string |
+
+  | SC-14 | Remove critical-rules stubs + Fabricating URLs (lines 374-467) | string
+  |
+
+
+  ## Files Affected
+
+
+  - `.opencode/guidelines/065-verification-honesty.md` — compacted
+
+  - `.opencode/skills/verification-before-completion/tasks/operating-protocol.md`
+  — receives Verification Comparison Semantics, Anti-Evasion Rules, verification artifact
+  manifest, Metadata Verification subset
+
+  - `.opencode/skills/audit/tasks/` — receives Metadata Verification subset
+
+  - `.opencode/skills/issue-operations/tasks/` — receives Metadata Verification subset
+
+  - `.opencode/guidelines/080-code-standards.md` — remove DDL cross-reference footnote
+
+  - `.opencode/guidelines/020-go-prohibitions.md` — remove DDL cross-reference
+
+  - `.opencode/skills/implementation-pipeline/SKILL.md` — remove DONE_WITH_CONCERNS
+  coercion rule (line 82)
+
+
+  ## Dependencies
+
+
+  - Depends on 000-critical-rules.md compaction (#2121).
+
+
+  ---
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-07-25T04:04:41+00:00'
-updated_at: '2026-07-25T04:04:41+00:00'
+updated_at: '2026-07-28T03:24:25+00:00'
