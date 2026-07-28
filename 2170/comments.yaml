@@ -1,0 +1,5 @@
+comments:
+- type: internal
+  body: 'Authorization recorded: scope=for_pr, halt_at=pr_created, pipeline_phase=start.
+    Authorized by developer (session context).'
+  timestamp: '2026-07-28T16:05:24+00:00'

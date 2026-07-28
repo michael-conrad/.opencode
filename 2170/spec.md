@@ -16,6 +16,26 @@ The original spec claimed "submodule-first processing order broken" but database
 
 3. **Excessive deliberation about cleanup authorization**: The agent spends cycles consulting authorization rules for post-merge cleanup operations that should be automatic. This wastes context, produces chat noise, and amplifies the other two issues by causing the agent to second-guess itself mid-workflow.
 
+## Requirements
+
+| ID | Requirement |
+|----|-------------|
+| REQ-1 | Submodule pointer lifecycle must have a single unambiguous path: cleanup leaves dirty, pointer commits only alongside real code changes on a feature branch |
+| REQ-2 | check-pr Phase 3 must explicitly state that merge verification (Phase 2) satisfies the authorization requirement for issue closure |
+| REQ-3 | Post-merge cleanup operations must be explicitly authorized by the merge event — agent must not deliberate about authorization for cleanup |
+| REQ-4 | Pre-push hook Gate 2 message must state only the block and reason — no instructions, no workarounds |
+| REQ-5 | approval-gate.md rule 10 must clarify that "confirmed" means "verified by check-pr Phase 2" not "requires developer authorization" |
+| REQ-6 | "resolves on next pre-work cycle" language must be removed from 020-go-prohibitions.md and branch-cleanup.md — replaced with accurate description of pointer lifecycle |
+
+## Phases
+
+| Phase | Requirements | Description |
+|-------|-------------|-------------|
+| 1 | REQ-1 | Resolve dirty pointer deadlock: update branch-cleanup.md and pre-work.md to have a single consistent rule |
+| 2 | REQ-2, REQ-3 | Fix check-pr authorization ambiguity and add non-deliberation mandate |
+| 3 | REQ-4 | Update pre-push hook Gate 2 message |
+| 4 | REQ-5, REQ-6 | Update approval-gate.md and 020-go-prohibitions.md wording |
+
 ## Affected Files
 
 - `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md` (Phase 3 authorization clarity)
@@ -29,9 +49,11 @@ The original spec claimed "submodule-first processing order broken" but database
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | Dirty pointer deadlock resolved: cleanup leaves pointer dirty, pre-work No-Op Branch Guard cross-references cleanup rule, pointer only commits alongside real code changes | `string` | grep for cross-reference in pre-work.md to branch-cleanup.md |
+| SC-1a | branch-cleanup.md dirty pointer exemption explicitly states that pointer commits only alongside real code changes on a feature branch, never during cleanup | `string` | grep branch-cleanup.md for pointer lifecycle statement |
+| SC-1b | pre-work.md No-Op Branch Guard cross-references branch-cleanup.md's dirty pointer rule instead of repeating the deadlock | `string` | grep pre-work.md for cross-reference to branch-cleanup.md |
+| SC-1c | Agent does not deliberate about submodule pointer handling during cleanup — the rule is unambiguous and followed without authorization checks, cross-referencing, or reasoning about whether to commit the pointer | `behavioral` | Run cleanup workflow, export SQLite session event log, inspect for absence of deliberation patterns (no "requires authorization", no "should I commit", no rule cross-referencing chains in tool-call sequences) |
 | SC-2 | check-pr Phase 3 explicitly states that merge verification (Phase 2) satisfies the authorization requirement for issue closure | `string` | grep check-pr.md for authorization statement in Phase 3 |
-| SC-3 | Post-merge cleanup operations are explicitly authorized by the merge event — agent MUST NOT deliberate about authorization for cleanup | `string` | grep branch-cleanup.md or check-pr.md for non-deliberation mandate |
+| SC-3 | Agent does not deliberate about authorization for post-merge cleanup operations (branch deletion, issue closure, pointer acknowledgment) | `behavioral` | Run post-merge cleanup workflow, export SQLite session event log, inspect for absence of authorization deliberation patterns in tool-call sequences |
 | SC-4 | Pre-push hook Gate 2 message states only the block and reason — no instructions, no workarounds | `string` | grep pre-push hook for absence of instructional text in Gate 2 |
 | SC-5 | approval-gate.md rule 10 wording clarified: "confirmed" means "verified by check-pr Phase 2" not "requires developer authorization" | `string` | grep approval-gate.md for clarified wording |
 | SC-6 | "resolves on next pre-work cycle" language removed from 020-go-prohibitions.md and branch-cleanup.md — replaced with accurate description of pointer lifecycle | `string` | grep for absence of "resolves on next pre-work" in those files |
@@ -41,3 +63,4 @@ The original spec claimed "submodule-first processing order broken" but database
 | Date | Change | Reason | Author |
 |------|--------|--------|--------|
 | 2026-07-28 | Complete spec rewrite: replaced "submodule-first processing order broken" with three root causes (dirty pointer deadlock, check-pr authorization ambiguity, excessive deliberation about cleanup authorization). Updated affected files and success criteria. | Database evidence from 20+ sessions disproved original problem statement. Real issues discovered through SQLite analysis. | AI agent (deepseek-v4-flash) |
+| 2026-07-28 | Split SC-1 into SC-1a/SC-1b/SC-1c, uplifted SC-1c and SC-3 to behavioral evidence type, added Requirements and Phases sections, fixed SC-3 verification method ambiguity | Validation found compound SC and evidence type mismatch | AI agent (deepseek-v4-flash) |
