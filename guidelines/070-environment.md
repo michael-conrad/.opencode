@@ -221,41 +221,6 @@ analyze  # Available from any directory
 
 This pattern is especially useful for data science tools, analysis scripts, and one-off utilities that would otherwise clutter the main dependency list.
 
-## Node.js Prohibition
-
-**DETESTABLE**: Installing Node.js in a Python-only or Java-only environment is absolutely prohibited. This introduces an unnecessary runtime dependency that pollutes the ecosystem and creates maintenance burden.
-
-### 🚫 NEVER DO
-
-- **NEVER install Node.js globally or locally** on Python-only or Java-only projects.
-- **NEVER use NPX** to run packages — NPX requires Node.js runtime.
-- **NEVER add Node.js-based tools to project dependencies.**
-- **NEVER suggest npm packages as solutions** in Python/Java contexts.
-- **NEVER use Node.js-based formatters, linters, or tooling** when native alternatives exist.
-
-### Context
-
-This rule applies universally to:
-
-- **Python projects**: Use `uv`, `pip`, `ruff`, `pytest` — never npm/pnpm/yarn.
-- **Java projects**: Use Maven/Gradle, JVM tooling — never npm/pnpm/yarn.
-- **Projects with mixed languages**: Isolate Node.js to its designated frontend/service layer.
-
-### ✅ ALLOWED
-
-- **Docker containers that internally use Node.js** — Node.js runs inside container, not on host.
-- **Pure Python alternatives** — `githubkit` instead of `@octokit/rest`, `httpx` instead of `axios`.
-- **Dedicated frontend repositories** where Node.js IS the correct tool for that codebase.
-- **MCP servers via Docker** — Node.js isolated in container only.
-
-### Why This Is Critical
-
-- **Security**: Node.js ecosystem has known supply-chain attack vectors.
-- **Dependency bloat**: Adds unnecessary runtime and package manager complexity.
-- **Maintenance burden**: Mixed language projects require additional CI/CD configuration.
-- **Ecosystem mismatch**: npm packages don't integrate with Python/Java tooling chains.
-- **Team friction**: Requires developers to install/maintain Node.js on their machines.
-
 ## Production System Protection
 
 - **The AI agent is never permitted to run code against production data.** This is an absolute prohibition with no exceptions — not even for verification, inspection, or read-only queries. Any step that would execute code against production data requires explicit user instruction before execution.

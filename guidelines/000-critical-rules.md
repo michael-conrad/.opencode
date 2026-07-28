@@ -314,3 +314,230 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Agent completes implementation task | Chat only |
 | Spec-audit findings | Internal only |
 
+
+### [critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec
+Offering to "fix it quickly" instead of creating a spec is the oldest shortcut in the book — and the fastest path to unreviewed, unapproved changes polluting your codebase. Professional engineers write a spec when a fix is identified. The ONLY permitted action when a fix is found is spec creation — nothing else, no exceptions, no "just this once."
+
+
+### [critical-rules-009] Authorization-Free Actions — no deliberation required
+Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Professional engineers execute pre-authorized actions without hesitation — amateurs stop and ask for permission on every trivial step. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope. Read [010-approval-gate.md](guidelines/010-approval-gate.md).
+
+
+### [critical-rules-027] Confirmation ≠ Authorization
+"Yes, that's correct" ≠ authorization. Only "approved"/"go"/"#NNN approved". Amateurs treat confirmation as permission. Professionals wait for explicit authorization.
+
+
+### [critical-rules-027] Feedback ≠ Authorization — treating technical input as implementation permission
+User engagement is collaboration, not permission. Amateurs treat feedback as an implementation ticket. Professionals wait for explicit authorization. Read [§1](guidelines/020-go-prohibitions.md).
+
+
+### [critical-rules-009] Silent Agent Termination — producing no output before stopping
+A halt without output means leaving the developer blind. Professionals produce structured output at every stop — amateurs vanish without a trace, leaving defects undiscovered. See detailed rules below.
+
+#### Post-task() Output Guarantee
+
+After EVERY `task(subagent_type=...)` call, the agent MUST produce output — never transition directly from task() to halt without output.
+
+| After task() | Agent MUST |
+|----------------|-----------|
+| Sub-agent returned valid result | Report result or proceed to next step |
+| Sub-agent returned empty result | RE-TASK clean-room sub-agent with same scoped context |
+| Sub-agent returned error | RE-TASK clean-room sub-agent with same scoped context |
+| Re-task also failed | Report double-failure + call `--task completion` + HALT with status message + byline |
+
+| Violation Pattern | Classification |
+|-------------------|----------------|
+| Empty sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
+| Empty sub-agent result → re-task attempt → status message in chat | Acceptable: self-corrected |
+| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Task Mandate |
+
+#### Post-Tool Execution Output Checkpoint
+
+After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting. This checkpoint applies regardless of tool success/failure, sub-agent results, or workflow end-state. The output MUST include:
+1. What operation/tool was invoked
+2. What the result was (success/failure/error)
+3. What state this leaves the workflow in
+4. What developer action (if any) is required to proceed
+
+
+### [critical-rules-034] Inline Screening of Authorization Sets (Tier 2 — cannot be mechanically enforced)
+Screening authorization sets inline instead of tasking a sub-agent means introducing contamination from your own reasoning. Professional engineers always task `screen-issue` sub-agents — amateurs inline and call it fast.
+
+
+### [critical-rules-009] Silent Halt Without Prompt — no spec/plan search before stopping
+Halting without first searching for existing specs and plans means leaving the user to rediscover work that may already exist. Amateurs halt blind. Professional engineers search first.
+
+
+### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task() (Tier 2 — cannot be mechanically enforced)
+An orchestrator that reads files, edits files, or makes decisions inline has stopped being a router and started being a contaminant. Amateurs do the work themselves. Professionals route to sub-agents. Detailed rules below.
+
+#### 🚫 FORBIDDEN
+- The main orchestrator reading, editing, writing, or analyzing files in its own context
+- Sub-agents combining multiple steps (analyze + write + verify) in a single task()
+- The producer of a deliverable also verifying that deliverable (self-verification)
+- Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
+- task()ing a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
+- Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
+
+#### ✅ REQUIRED
+- ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
+- The orchestrator is a pure router — it tasks sub-agents via task() and collects result contracts, never performing work inline
+- Every pipeline stage is a logged sub-agent task() in the work state file
+- Every SKILL.md contains a task context audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
+- Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
+- Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
+
+#### Violation Patterns
+
+| Violation Pattern | Correct Action |
+| -- | -- |
+| Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
+| Orchestrator edits guideline text inline | Task guideline-update sub-agent |
+| Orchestrator creates issue content inline ("straightforward content, I'll write it myself") | Task issue-operations skill |
+| Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
+| Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
+| Orchestrator performs inline work | HALT — discard pipeline state, restart from last known good commit checkpoint tag |
+| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
+| Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
+| User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
+| Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
+| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
+| Orchestrator creates issue content inline (Edit on `.issues/` or direct `github_issue_write`) | Dispatch to `issue-operations --task creation`. **Fallback:** If `skill("issue-operations")` + `task()` is unavailable, use `github_issue_write` directly but MUST log tool name, version, and reason in a comment on the created issue. |
+
+
+### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
+Reading a SKILL.md routing section and then executing the task inline means every quality gate in that skill was silently bypassed. Amateurs inline. Professionals dispatch. See DISPATCH_GATE procedure below.
+
+#### DISPATCH_GATE Checkpoint Procedure
+Every routing decision in the approval-gate pipeline chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
+
+1. **Confirm next action is task()** — verify the routing decision has been made
+2. **Task sub-agent** — call `task(subagent_type="general")` with scoped context
+3. **Receive result contract** — collect the structured result (never read the full task file)
+4. **Log in work state file** — record which sub-agent was tasked and when
+5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
+
+- 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
+- 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
+- ✅ REQUIRED: After reading routing metadata, immediately task a sub-agent for execution
+- ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
+
+
+### [critical-rules-034] Orchestrator Inline Work = pipeline contamination (Tier 2 — cannot be mechanically enforced)
+Orchestrator inline work detected → HALT. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
+
+- 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" after orchestrator inline work; preserving any cached state, work state files, or verification results produced during the inline work session
+- ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from last known good commit checkpoint tag; log the detection event in the new work state file
+
+
+### [critical-rules-042] Discard on Sub-Agent Failure
+Preserving output from a BLOCKED sub-agent means propagating contaminated state into the next attempt. Amateurs salvage. Professionals discard and re-task with original context.
+
+
+### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies (Tier 2 — cannot be mechanically enforced)
+Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" means you are using the agent as an API proxy, not an engineer. Professional agents task objectives. Amateurs task tool recipes. Every tool-recipe dispatch is a decision you made for the sub-agent, not a problem you gave it to solve.
+
+
+### [critical-rules-042] Gate Non-Waiver Principle — "continue" does not waive mandatory gates
+Every "continue" is instruction to proceed to the next step, not to skip the step. Professional engineers know that mandatory gates are structural invariants. Amateurs treat "continue" as a shortcut past quality.
+
+
+### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
+
+Reading a skill's task files and then inlining the steps means you are bypassing the quality gates designed to catch your mistakes. Professional agents load skills. Amateurs inline. Every skill you pre-read and execute manually is a defect you accepted before writing a single line of code.
+
+**3-Way Violation Distinction:**
+
+| Violation | ID | What Happens |
+|----------|-----|-------------|
+| Pre-read skill + inline execute | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
+| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
+| Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
+
+
+### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
+Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
+
+
+### [critical-rules-043] Universal Re-Task Mandate — no inline fallback on sub-agent failure
+When a sub-agent fails, inline fallback means the failure contaminates your pipeline — you inherit the same context that caused the error. Professional engineers always re-task clean-room with the same scoped context. Amateurs patch in place and compound their problems.
+
+
+### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
+The orchestrator holds routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Task file contents, analysis artifacts, and verification results go to sub-agents or disk. Read [§1.1](guidelines/020-go-prohibitions.md).
+
+> **Note:** These are operational bookkeeping guidelines for context management. They describe how the orchestrator routes work to sub-agents — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+
+### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
+Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. Read [§1.1](guidelines/020-go-prohibitions.md).
+
+### [critical-rules-dispatch-gate-canonical] Canonical Dispatch String Violation — orchestrator uses custom prompt after reading canonical dispatch string
+
+**After loading a skill and reading its Trigger Dispatch Table, the orchestrator MUST use the canonical dispatch string verbatim from the skill's Invocation section. Writing a custom prompt with preloaded context — file paths, step sequences, expected outcomes, or orchestrator reasoning — is a DISPATCH_GATE violation.**
+
+The pattern to enforce:
+1. Load skill → read dispatch table + Invocation section → see canonical string
+2. Use that exact string as the `prompt` parameter
+3. Do NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+4. If canonical dispatch produces empty result: re-task clean-room (max 2 retries)
+
+This rule is the orchestrator-facing side of the DISPATCH_GATE protocol: the orchestrator must never send preloaded context in the first place.
+
+#### 🚫 FORBIDDEN
+
+- Writing a custom `task()` prompt with preloaded file paths, step sequences, expected outcomes, or orchestrator reasoning after reading the canonical dispatch string
+- Treating the dispatch table as "reference material" rather than a binding protocol
+- Inlining orchestrator reasoning into the prompt
+
+#### ✅ REQUIRED
+
+- Use the exact canonical dispatch string verbatim from the skill's Trigger Dispatch Table
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+- All 37 skill SKILL.md files with DISPATCH_GATE sections contain an Orchestrator Entry Criteria block documenting this rule. 1 platform sub-skill (issue-operations/platforms/local/SKILL.md) also has a DISPATCH_GATE section with Orchestrator Entry Criteria.
+
+### [critical-rules-071] Revision-Not-Replacement — defective sub-agent deliverables MUST be revised, not replaced
+When a sub-agent returns a defective deliverable (spec, plan, or other artifact), the orchestrator MUST revise the existing deliverable via the appropriate pipeline (spec-creation for specs, writing-plans for plans). The orchestrator MUST NOT create a replacement artifact (new issue, new file) unless revision is structurally impossible (e.g., the original issue was deleted).
+
+#### 🚫 FORBIDDEN
+
+- Creating a new issue/file to replace a defective sub-agent deliverable when revision is possible
+- Orphaning the original issue number by creating a replacement
+
+#### ✅ REQUIRED
+
+- Revise the existing deliverable via the appropriate pipeline (spec-creation --task revise, writing-plans --task revise)
+- If revision is structurally impossible, document the rationale in an issue comment before creating a replacement
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Creating replacement artifact instead of revising | Orphans original issue, breaks cross-references, wastes issue numbers |
+| Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
+
+
+### [critical-rules-072] No-Inline-Fix — orchestrator MUST NOT inline-fix defective sub-agent output
+When a sub-agent returns a defective deliverable, the orchestrator MUST NOT attempt to fix the defective artifact directly via `github_issue_write`, file edit, or any other direct mutation. The orchestrator MUST dispatch a revision task to the appropriate pipeline (spec-creation --task revise for specs, writing-plans --task revise for plans).
+
+#### 🚫 FORBIDDEN
+
+- Using `github_issue_write` to directly edit a defective spec/plan body
+- Using file edit tools to directly modify a defective deliverable file
+- Any direct mutation that bypasses the revision pipeline
+
+#### ✅ REQUIRED
+
+- Dispatch a revision task to the appropriate pipeline
+- Let the pipeline sub-agent handle the revision with full context and discipline
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
+| Direct mutation of issue body | Lacks spec-creation context, produces inconsistent results |
+
+
+### [critical-rules-066] Terminology Standardization — all context references must use standardized vocabulary
+All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
+

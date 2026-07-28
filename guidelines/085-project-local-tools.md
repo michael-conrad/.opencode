@@ -47,6 +47,6 @@ mkdir -p .tools && cd .tools && curl -fsSL https://nodejs.org/dist/v20.11.0/node
 
 ## Relationship to Other Guidelines
 
-- Read [§4](020-go-prohibitions.md) — Node.js Prohibition in Python/Java Projects (this guideline provides the exception path)
+- Read [§4](020-go-prohibitions.md) — Project-Local Tool Installation (this guideline provides the full rules)
 - Read [§2](060-tool-usage.md) — Path Rules (project-local tools follow worktree path resolution)
 - Read [§4](060-tool-usage.md) — Command Restrictions (sed/printf/heredoc prohibitions apply)
