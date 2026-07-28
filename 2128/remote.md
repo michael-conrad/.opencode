@@ -9,11 +9,11 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2128
 
 ## Problem
 
-`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup, most of §4 Command Restrictions), sections duplicated in 000, project-specific rules (`uv run python`), and tool-specific patterns (Todowrite Lifecycle, File Renaming). These are Junie-specific remediations that accumulated over time.
+`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup, most of §4 Command Restrictions), sections overlapping with 000, project-specific rules (`uv run python`), and tool-specific patterns (Todowrite Lifecycle, File Renaming). These are Junie-specific remediations that accumulated over time.
 
 ## Scope
 
-Remove 12 Junie-specific items, 2 duplicated sections, 1 covered section, 2 purged tool-specific sections, 1 project-specific rule. Keep 6 universal sections.
+Remove 12 Junie-specific items, 2 overlapping sections, 1 covered section, 2 purged tool-specific sections, 1 project-specific rule. Keep 6 universal sections. Update cross-references in 7 files.
 
 ## Success Criteria
 
@@ -36,14 +36,17 @@ Remove 12 Junie-specific items, 2 duplicated sections, 1 covered section, 2 purg
 | SC-15 | Remove no `sed` for file edits from §4 | string |
 | SC-16 | Remove §6 File Renaming | string |
 | SC-17 | Remove §7 Todowrite Lifecycle | string |
-| SC-18 | Remove `uv run python` from §4 | string |
-| SC-19 | All keep sections remain | string |
+| SC-18 | Remove `uv run python` from §4 + update 070 cross-ref | string |
+| SC-19 | All 6 keep sections remain (enumerated) | string |
 | SC-20 | Remove `./.opencode/tools/guidelines` tool | structural |
+| SC-21 | Update `tools/guidelines` refs in 7 files | string |
 
 ## Files Affected
 
 - `.opencode/guidelines/060-tool-usage.md`
 - `.opencode/tools/guidelines` (remove)
+- `.opencode/tools/impl/guidelines-*` (remove)
+- 5 files with `tools/guidelines` references (update)
 
 ## Dependencies
 

@@ -6,9 +6,9 @@ labels: [spec]
 
 ## Problem
 
-`060-tool-usage.md` is ~15KB. It contains sections that are Junie-specific training wheels (Path Rules, Guidelines Lookup tool, pre-submit cleanliness check, most of §4 Command Restrictions), sections duplicated in 000 (Progressive Disclosure, Skill Call Principle), project-specific rules (`uv run python`), and tool-specific usage patterns (Todowrite Lifecycle, File Renaming).
+`060-tool-usage.md` is ~15KB. It contains sections that are Junie-specific training wheels (Path Rules, Guidelines Lookup tool, pre-submit cleanliness check, most of §4 Command Restrictions), sections that overlap with content in 000 (Progressive Disclosure overlaps with Orchestrator Context Lean / critical-rules-063; Skill Call Principle overlaps with DISPATCH_GATE / Canonical Dispatch String), project-specific rules (`uv run python`), and tool-specific usage patterns (Todowrite Lifecycle, File Renaming).
 
-These are Junie-specific remediations that accumulated over time.
+These are Junie-specific remediations that accumulated over time. ("Junie-specific" refers to rules added to compensate for limitations in the Junie agent CLI — shell restrictions, path resolution bugs, and tool preference overrides that do not apply to this agent.)
 
 ## Proposed Solution
 
@@ -29,18 +29,18 @@ These are Junie-specific remediations that accumulated over time.
 | §4 — no multi-line shell loops (line 161) | Junie-specific shell limitation |
 | §4 — no `sed` for file edits (line 162) | Redundant with `sed -i` rule above |
 
-### Remove (duplicated in other preloaded guidelines):
+### Remove (overlaps with content in 000):
 
-| Section | Duplicated In |
+| Section | Overlaps With |
 |---|---|
-| §0 Progressive Disclosure (lines 9-20) | 000 (Orchestrator Context Lean) |
-| §8 Skill Call Principle (lines 198-208) | 000 (DISPATCH_GATE, Canonical Dispatch String) |
+| §0 Progressive Disclosure (lines 9-20) | 000 (critical-rules-063 Orchestrator Context Lean) — similar content, not identical |
+| §8 Skill Call Principle (lines 198-208) | 000 (DISPATCH_GATE, Canonical Dispatch String) — similar content, not identical |
 
 ### Remove (covered by other preloaded guidelines):
 
 | Section | Covered By |
 |---|---|
-| §5 Verification & Audit (lines 165-175) | 065 (verification honesty) — first two rules. Third rule (no bulk sweeps) moves to `audit` skill card |
+| §5 Verification & Audit (lines 165-175) | 065 (verification honesty) — first two rules. Third rule (no bulk sweeps) is deleted — audit skill card does not contain equivalent content |
 
 ### Purge (no destination — tool-specific or unclear value):
 
@@ -49,14 +49,14 @@ These are Junie-specific remediations that accumulated over time.
 | §6 File Renaming (line 179) | Junie-era rule about not asking for filenames; not universally applicable |
 | §7 Todowrite Lifecycle (lines 181-196) | Tool-specific lifecycle rules don't belong in guidelines |
 
-### Keep (universal, not duplicated):
+### Keep (universal, not duplicated) — 6 sections:
 
-- §1 Tool Priority Hierarchy (tier summary, prohibited patterns, API client mandate)
-- §3 Temp Files — one-liner: "All temp files go to `{project_root}/tmp/`" + behavioral evidence exemption (2 lines)
-- §4 — no destructive checkouts
-- §4 — no production data edits
-- §4 — no `--recursive` with git submodule
-- §9 Identity Source Semantics
+1. §1 Tool Priority Hierarchy (tier summary, prohibited patterns, API client mandate)
+2. §3 Temp Files — one-liner: "All temp files go to `{project_root}/tmp/`" + behavioral evidence exemption (2 lines)
+3. §4 — no destructive checkouts
+4. §4 — no production data edits
+5. §4 — no `--recursive` with git submodule
+6. §9 Identity Source Semantics
 
 ## Success Criteria
 
@@ -79,17 +79,20 @@ These are Junie-specific remediations that accumulated over time.
 | SC-15 | Remove no `sed` for file edits from §4 | string | grep for absence of 'NEVER use `sed` for file edits' |
 | SC-16 | Remove §6 File Renaming | string | grep for absence of 'File Renaming' |
 | SC-17 | Remove §7 Todowrite Lifecycle | string | grep for absence of 'Todowrite Lifecycle' |
-| SC-18 | Remove `uv run python` from §4 | string | grep for absence of 'uv run python' |
-| SC-19 | All keep sections remain | string | grep for each section header |
+| SC-18 | Remove `uv run python` from §4 and update 070-environment.md cross-reference | string | grep for absence of 'uv run python' in 060; grep for updated cross-reference in 070 |
+| SC-19 | All 6 keep sections remain after compaction: §1 Tool Priority Hierarchy, §3 Temp Files one-liner + behavioral exemption, §4 no destructive checkouts, §4 no production data edits, §4 no `--recursive` with git submodule, §9 Identity Source Semantics | string | grep for each of the 6 section headers |
 | SC-20 | Remove `./.opencode/tools/guidelines` tool | structural | tool file removed |
+| SC-21 | Update `tools/guidelines` references in all 7 affected files: 016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md — verified by grep | string | grep for absence of 'tools/guidelines' in all 7 files after Phase 4 |
 
 ## Implementation Plan
 
 ### Phase 1: Remove §0, §1 Guidelines Lookup, §2 Path Rules, §5, §8 from 060-tool-usage.md
 ### Phase 2: Remove §4 Junie-specific items (fixed sleep, one command, edit/write, stty, heredocs, repeated grep, sed-i/printf/echo, multi-line loops, sed for edits) and `uv run python` from 060-tool-usage.md
 ### Phase 3: Remove §6 File Renaming and §7 Todowrite Lifecycle from 060-tool-usage.md
-### Phase 4: Remove `./.opencode/tools/guidelines` tool and update references
-### Phase 5: Verify all keep sections remain
+### Phase 4: Remove `./.opencode/tools/guidelines` tool, remove `.opencode/tools/impl/guidelines-*` files
+### Phase 5: Update `tools/guidelines` references across 7 files (016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md, plus this spec and remote.md)
+### Phase 6: Update 070-environment.md cross-reference to 060-tool-usage.md for `uv run python` rule
+### Phase 7: Verify all 6 keep sections remain
 
 ## Files Affected
 
