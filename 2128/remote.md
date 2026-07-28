@@ -9,7 +9,7 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2128
 
 ## Problem
 
-`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup, most of §4 Command Restrictions), sections duplicated in 000, project-specific rules (`uv run python`), and tool-specific patterns (Todowrite Lifecycle, File Renaming).
+`060-tool-usage.md` contains Junie-specific rules (Path Rules, Guidelines Lookup, most of §4 Command Restrictions), sections duplicated in 000, project-specific rules (`uv run python`), and tool-specific patterns (Todowrite Lifecycle, File Renaming). These are Junie-specific remediations that accumulated over time.
 
 ## Scope
 

@@ -8,7 +8,7 @@ labels: [spec]
 
 `060-tool-usage.md` is ~15KB. It contains sections that are Junie-specific training wheels (Path Rules, Guidelines Lookup tool, pre-submit cleanliness check, most of §4 Command Restrictions), sections duplicated in 000 (Progressive Disclosure, Skill Call Principle), project-specific rules (`uv run python`), and tool-specific usage patterns (Todowrite Lifecycle, File Renaming).
 
-Research of public agent config decks (karma-works/everything-opencode, eddiemessiah/config-claude-code, survivorforge/cursor-rules) confirms: no public deck includes path resolution rules, temp file discipline, or command restrictions at this level of detail. These are Junie-specific remediations.
+These are Junie-specific remediations that accumulated over time.
 
 ## Proposed Solution
 
@@ -100,7 +100,7 @@ Research of public agent config decks (karma-works/everything-opencode, eddiemes
 
 ## Risks
 
-- **Cross-reference breakage**: 016-srclight-preference.md and mcp-tool-usage skill card reference `tools/guidelines`. Must audit and update all 47 references.
+- **Cross-reference breakage**: 016-srclight-preference.md, mcp-tool-usage skill card, and audit skill card reference `tools/guidelines`. Must audit and update all 7 files (30 references).
 - **Tool removal breaks scripts**: Any hook or script calling `./.opencode/tools/guidelines` will fail. Must audit before removal.
 
 ## Dependencies
