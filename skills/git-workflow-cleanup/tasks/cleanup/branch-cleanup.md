@@ -174,6 +174,8 @@ fi
 - ✅ REQUIRED: The parent repo `git status` after this step will show modified submodule entry/entries — this is correct and expected
 - ✅ REQUIRED: Submodule pointer updates happen on feature branches during pre-work (Step 3.5), never on trunk during cleanup
 
+**Submodule pointer lifecycle (CRITICAL):** submodule pointer commits only happen alongside real code changes on a feature branch — never during cleanup. During cleanup, dirty submodule pointers are left as-is. The pointer resolves naturally on the next pre-work cycle via the tag-based hash permanence system.
+
 **Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns the trunk branch MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
 
 ### Step 1.9: Submodule Branch Cleanup Descent
