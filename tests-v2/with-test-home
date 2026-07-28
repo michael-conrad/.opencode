@@ -113,9 +113,15 @@ seed_model_config() {
     local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.6:35b-256k}"
     local bare="${default_model#ollama/}"
 
+    # Copy vibeguard config into test home so plugin loads in tests.
+    if [ -f "$PROJECT_DIR/.opencode/vibeguard.config.json" ]; then
+        cp "$PROJECT_DIR/.opencode/vibeguard.config.json" "$TEST_HOME/.config/opencode/vibeguard.config.json"
+    fi
+
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
 {
   "\$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-vibeguard@0.1.0"],
   "provider": {
     "ollama": {
       "options": {
@@ -334,6 +340,9 @@ else
     git -C "$TEST_PROJECT" config user.email "test@test.dev"
     git -C "$TEST_PROJECT" config user.name "Test"
 
+    # Clone .opencode/ from remote, then checkout the local submodule commit
+    # to pick up feature branch changes. The local commit must be pushed to
+    # remote for the checkout to succeed.
     SUBMODULE_REMOTE_URL="https://github.com/michael-conrad/.opencode.git"
     if [ -f "$PROJECT_DIR/.gitmodules" ]; then
         SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")
