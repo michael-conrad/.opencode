@@ -1,1 +1,5 @@
-comments: []
+comments:
+- author: human
+  scope: for_pr
+  text: "execute verify-authorization from approval-gate-scope. Read `approval-gate-scope/SKILL.md` first — see Workflows section. Use the fast-path (no gap-fill needed). Issue: .opencode#2128 Authorization scope: for_pr halt_at: pr_created pipeline_phase: authorization"
+  timestamp: '2026-07-28T05:13:00+00:00'

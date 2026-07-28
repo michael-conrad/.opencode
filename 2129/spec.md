@@ -8,17 +8,30 @@ labels: [spec]
 >
 > **Local artifacts:** `.opencode/.issues/2129/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
+## Intent and Executive Summary
+
+Compact `065-verification-honesty.md` by removing explanatory prose, cross-reference stubs, and procedural content that should live in skill task files. Relocate 3 sections to task files. Remove DDL cross-references from 080 and 020. Remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline. All 17 SCs are string-type grep verifications.
+
 ## Problem Statement
 
-`065-verification-honesty.md` is ~35KB (35,078 bytes, verified by `wc -c`). Every sub-agent that loads this Tier 1 guideline pays the context cost for content that does not enforce behavior: explanatory prose, cross-reference stubs (critical-rules blocks at lines 374-467 that repeat references already present in 000), and procedural content (Verification Comparison Semantics, Anti-Evasion Rules, Metadata Verification detail) that should live in skill task files where sub-agents actually read it.
+`065-verification-honesty.md` is ~35KB (35,078 bytes, verified by `wc -c`). Every sub-agent that loads this Tier 1 guideline pays the context cost for content that does not enforce behavior: explanatory prose, cross-reference stubs (critical-rules blocks at end of file that repeat references already present in 000), and procedural content (Verification Comparison Semantics, Anti-Evasion Rules, Metadata Verification detail) that should live in skill task files where sub-agents actually read it.
 
 ## Root Cause / Motivation
 
-065 grew beyond its mandate as a guideline file through accretion — content was added over time without any compaction pass. Sections that were originally single-purpose (verification honesty rules) accumulated explanatory prose, research citations, and cross-reference stubs. The Evidence Hierarchy table, Fabricating URLs block, and critical-rules stubs (lines 374-467) are structural orphans — the Evidence Hierarchy table classifies rules already enforced by FORBIDDEN/REQUIRED lists, the Fabricating URLs block duplicates procedural steps already in git-workflow task files (verified by grep), and the critical-rules stubs merely repeat references present in 000.
+065 grew beyond its mandate as a guideline file through accretion — content was added over time without any compaction pass. Git log confirms 20+ commits touching 065 since its creation, adding sections like the DDL cost model, Anti-Evasion Rules, and critical-rules stubs without any corresponding removal. Sections that were originally single-purpose (verification honesty rules) accumulated explanatory prose, research citations, and cross-reference stubs. The Evidence Hierarchy table, Fabricating URLs block, and critical-rules stubs (end-of-file section) are structural orphans — the Evidence Hierarchy table classifies rules already enforced by FORBIDDEN/REQUIRED lists, the Fabricating URLs block duplicates procedural steps already in git-workflow task files (verified by grep), and the critical-rules stubs merely repeat references present in 000.
 
 ## Approach Chosen
 
 Selective compaction: remove explanatory sections, relocate procedural content to skill task files, remove cross-reference stubs, and remove the DDL cost model (operational rules already encoded in 020 and 080). Collapse duplicated restatements (Zero Tolerance + Core Principle). Remove DDL cross-reference footnotes from 080 and 020. Remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline. Each removed section is verified absent via grep.
+
+## Alternatives Considered & Why Discarded
+
+| Alternative | Why Discarded |
+|-------------|---------------|
+| Full rewrite of 065 | Unnecessary — most content is correct, just misplaced. Selective compaction preserves the working rules. |
+| Delete 065 entirely | Rules in 065 (Pre-Response Gate, FORBIDDEN/REQUIRED, Evidence Requirement) are not duplicated elsewhere. Deletion would lose enforcement. |
+| Split 065 into multiple guideline files | Would increase Tier 1 load count. Keeping one compact file is lower context cost than loading multiple files. |
+| Keep as-is | 35KB of context waste per sub-agent load is not acceptable. Compaction is the minimum viable change. |
 
 ## Key Design Decisions
 
@@ -35,6 +48,22 @@ Selective compaction: remove explanatory sections, relocate procedural content t
 
 Compaction of `065-verification-honesty.md`: remove 12 sections (explanatory, stubs, or procedural), collapse Zero Tolerance + Core Principle, remove Evidence Hierarchy table, remove Metadata Verification master table and distribute rows to skill task files, remove critical-rules stubs and Fabricating URLs orphan. Cross-reference cleanup: remove DDL footnotes from 080 and 020, remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline. Inline 3 sections to skill task files.
 
+## Documentation Sources
+
+All source files verified to exist at their expected paths (verified by `ls`):
+
+| Source File | Size | Purpose |
+|-------------|------|---------|
+| `.opencode/guidelines/065-verification-honesty.md` | 35,078 bytes | Target of compaction |
+| `.opencode/skills/verification-before-completion/tasks/operating-protocol.md` | 3,232 bytes | Receives inlined content |
+| `.opencode/skills/audit/tasks/` | 44 task files | Receives Metadata Verification subset |
+| `.opencode/skills/issue-operations-core/tasks/` | 16 task files | Receives Metadata Verification subset |
+| `.opencode/guidelines/080-code-standards.md` | — | Remove DDL footnote |
+| `.opencode/guidelines/020-go-prohibitions.md` | — | Remove DDL reference |
+| `.opencode/skills/implementation-pipeline/SKILL.md` | — | Remove DONE_WITH_CONCERNS rule |
+
+Commit history for 065 (verified by `git log --oneline --follow`): 20+ commits since creation, adding sections without corresponding removals — confirming accretion pattern.
+
 ## Edge Cases
 
 | Edge Case | Handling |
@@ -48,6 +77,12 @@ Compaction of `065-verification-honesty.md`: remove 12 sections (explanatory, st
 
 - **#2121 (000-critical-rules.md compaction) MUST be merged before this spec is implemented.** The sections being removed in this spec overlap with content that #2121 reorganizes.
 - Target task files must exist at their expected paths before inlining operations begin.
+
+## SC Enforcement Gate
+
+All SCs (SC-1 through SC-17) MUST pass for this spec to be considered complete. If any SC fails, the implementation is BLOCKED until remediation resolves the failure.
+
+**Cost frame:** All 17 SCs are string-type grep verifications — each costs ~0.1s to run with zero false positives. There is no behavioral test cost or death-spiral risk. The cost of running all 17 verifications is bounded at ~2s total, making exhaustive verification the default — not an optimization target.
 
 ## Success Criteria
 
@@ -67,10 +102,10 @@ Compaction of `065-verification-honesty.md`: remove 12 sections (explanatory, st
 | SC-11 | Inline Verification Comparison Semantics in verification-before-completion/tasks/operating-protocol.md, no back-link | string | grep "Verification Comparison\|exact match for external\|Per-Field Independence" operating-protocol.md -> 3 |
 | SC-12 | Inline Anti-Evasion Rules + verification artifact manifest in verification-before-completion/tasks/operating-protocol.md, no back-link | string | grep "Anti-Evasion\|verification artifact manifest" operating-protocol.md -> 2 |
 | SC-13 | Inline Metadata Verification subsets in verification-before-completion/tasks/operating-protocol.md, audit task files, issue-operations-core task files, no back-links | string | grep "Metadata Verification\|No Metadata Trust" operating-protocol.md -> 1+ AND in audit/tasks/ -> 1+ AND in issue-operations-core/tasks/ -> 1+ |
-| SC-14 | Remove critical-rules stubs + Fabricating URLs (lines 374-467) | string | Line count of 065 < 375 lines |
+| SC-14 | Remove critical-rules stubs + Fabricating URLs (end-of-file section) | string | Line count of 065 < 375 lines |
 | SC-15 | Remove DDL cross-reference footnote from 080-code-standards.md Evidence Type Taxonomy | string | grep "Cost explanation" 080-code-standards.md -> 0 |
 | SC-16 | Remove DDL cross-reference from 020-go-prohibitions.md cost-blind section | string | grep "065.*Cost Model" 020-go-prohibitions.md -> 0 |
-| SC-17 | Remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline/SKILL.md line 82 | string | grep "DONE_WITH_CONCERNS" implementation-pipeline/SKILL.md -> 0 |
+| SC-17 | Remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline/SKILL.md | string | grep "DONE_WITH_CONCERNS" implementation-pipeline/SKILL.md -> 0 |
 
 ## Files Affected
 
@@ -80,7 +115,7 @@ Compaction of `065-verification-honesty.md`: remove 12 sections (explanatory, st
 - `.opencode/skills/issue-operations-core/tasks/` — receives Metadata Verification subset
 - `.opencode/guidelines/080-code-standards.md` — remove DDL cross-reference footnote
 - `.opencode/guidelines/020-go-prohibitions.md` — remove DDL cross-reference
-- `.opencode/skills/implementation-pipeline/SKILL.md` — remove DONE_WITH_CONCERNS coercion rule (line 82)
+- `.opencode/skills/implementation-pipeline/SKILL.md` — remove DONE_WITH_CONCERNS coercion rule
 
 ## Dependencies
 
