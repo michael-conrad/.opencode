@@ -15,6 +15,7 @@ load_when: sub-agent
 ```
 TIER 1 — PRIMARY: opencode built-in tools (read/write/edit/glob/grep)
 TIER 2 — PRIMARY: Domain MCP (srclight, the-notebook-mcp, GitHub MCP)
+│  └─ srclight indexes Python code only (.py files, symbols). Does NOT index .md, docs, configs, or non-Python files.
 TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, memory, py ls/mkpkg, ollama-probe)
 TIER 4 — FALLBACK: JetBrains MCP (pycharm_*) — only for unique capabilities
 TIER 5 — LAST RESORT: Direct CLI (bash)
