@@ -359,59 +359,6 @@ When a project requires build tools not available on the host system (e.g., `tsc
 
 ______________________________________________________________________
 
-## 5. Multi-task Plan Without Sub-issues — CRITICAL VIOLATION
-
-**⚠️ Implementing a multi-task plan without sub-issues is a CRITICAL GUIDELINE VIOLATION.** Sub-issues are children of the plan, not the spec.
-
-### 🚫 ABSOLUTE PROHIBITION
-
-- **NEVER implement a multi-task plan without verified sub-issue structure**
-- **NEVER proceed **to implementation** when `get_sub_issues` on the plan returns empty array for multi-task plans **without auto-creating sub-issues first****
-- **NEVER assume markdown checkboxes = task tracking**
-- **NEVER create sub-issues under the spec** — sub-issues belong to the plan
-
-### ✅ MANDATORY
-
-**Read [issue-operations skill → `link-sub-issue` task](skills/issue-operations/SKILL.md) for the complete auto-create workflow, single-task exemption, database ID requirement, and phase-level structure. Sub-issue verification is consolidated into `approval-gate --task verify-authorization` Step 5 as the single readiness check.**
-
-Key points:
-
-- Sub-issues at PHASE level under the plan, not step level
-- Single-task plans are exempt from sub-issue requirement
-- All multi-task plans MUST have sub-issues before implementation begins
-- Auto-creating sub-issues for an approved multi-task plan is a pre-implementation setup step covered by the plan's authorization. No separate authorization is required.
-- After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
-
-### 6. Progressive Iterative Implementation — Rollback on Verification Failure
-
-**MANDATORY:** When a pipeline step's verification fails AND a checkpoint tag exists for the prior PASS state, the orchestrator MUST:
-
-1. Report pre-rollback diagnostics (`git status`, `git diff --stat`)
-2. Read pipeline state to determine `$LAST_PASS_PHASE`
-3. Execute rollback: `git reset --hard <parent>/checkpoint/<issue>/phase-<LAST_PASS_PHASE>-<submodule> && git submodule update --init`
-4. Read restored pipeline state
-5. Re-dispatch the failed step with original dispatch parameters
-
-**Authorization source:** Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
-
-**No checkpoint:** First-step failure. Run `git checkout .`, re-dispatch from current state.
-
-### [critical-rules-stop] CRITICAL VIOLATION — "stop" command triggers terminal halt — zero output, zero tool calls, zero proposals
-When the user says "stop" (or unambiguous equivalent), the agent MUST immediately cease all operations: no further output, no tool calls, no proposals, no follow-up questions. "stop" is a hard state transition — there is no recovery from "stop" within the same session. The user must explicitly restart with a new message. This is a Tier 1 safety-critical rule — it NEVER yields to developer authorization.
-
-#### 🚫 FORBIDDEN
-- Producing any output after "stop" (including "okay, stopping now", "understood", or any acknowledgment)
-- Making any tool call after "stop" (including cleanup, save, or status checks)
-- Proposing alternatives, asking for clarification, or suggesting next steps
-- Treating "stop" as "stop and try something else" — it is terminal, not conditional
-- Any form of acknowledgment, confirmation, or farewell
-
-#### ✅ REQUIRED
-- On detecting "stop": immediately cease all operations
-- Zero output, zero tool calls, zero proposals
-- The user must explicitly restart with a new message to resume interaction
-- "stop" is a hard state transition — no recovery within the same session
-
 ### [critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec
 Offering to "fix it quickly" instead of creating a spec is the oldest shortcut in the book — and the fastest path to unreviewed, unapproved changes polluting your codebase. Professional engineers write a spec when a fix is identified. The ONLY permitted action when a fix is found is spec creation — nothing else, no exceptions, no "just this once."
 
@@ -639,21 +586,3 @@ When a sub-agent returns a defective deliverable, the orchestrator MUST NOT atte
 All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
 
 
-### Channel-Routing Table — Issue Comments vs. Chat Output
-
-**Progress executive summaries go to chat ONLY, not GitHub Issue comments.**
-
-| Action | Channel |
-|--------|---------|
-| Progress executive summaries | Chat only |
-| Review-prep / verification status | Chat only |
-| Substantive spec revision | Chat + Issue comment |
-| PR created | Chat only |
-| Issue blocked | Issue comment |
-| Bug discovered during implementation | Issue comment |
-| User question response | Issue comment |
-| Issue closure | Issue comment |
-| Agent completes implementation task | Chat only |
-| Spec-audit findings | Internal only |
-
----
