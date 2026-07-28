@@ -180,7 +180,7 @@ Extract all cross-references from each guideline file without evaluating validit
 
 - [ ] 1. **Guideline-to-guideline references** — Record every reference to another guideline file (e.g., `000-critical-rules.md`, `065-verification-honesty.md`)
 - [ ] 2. **Skill references** — Record every reference to a skill (e.g., `approval-gate` skill, `git-workflow` skill)
-- [ ] 3. **Tool references** — Record every reference to a tool (e.g., `.opencode/tools/guidelines`, `session-init`)
+- [ ] 3. **Tool references** — Record every reference to a tool (e.g., `session-init`)
 - [ ] 4. **File path references** — Record every file path reference (e.g., `.opencode/guidelines/`, `src/`)
 - [ ] 5. **Section cross-references** — Record every `§` section reference or "See X" pattern
 - [ ] 6. **Issue references** — Record every `#N` issue reference
