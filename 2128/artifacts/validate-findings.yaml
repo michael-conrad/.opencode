@@ -1,0 +1,89 @@
+# Validation Findings — Issue #2128
+# Generated: 2026-07-28T05:45:00Z
+# Agent: OpenCode (deepseek-v4-flash)
+
+overall_status: PASS_WITH_FINDINGS
+plan_path: .opencode/.issues/2128/plan.md
+spec_path: .opencode/.issues/2128/spec.md
+solve_output_path: .opencode/.issues/2128/artifacts/solve-output.yaml
+solve_status: SAT
+
+categories:
+  - id: 1
+    name: "Structural validation"
+    status: PASS
+    checks:
+      - name: "Phase table with all required columns"
+        status: PASS
+        detail: "Phase table has columns: Phase, Skill, Task, Target, SCs, Depends On"
+      - name: "Each phase has numbered steps"
+        status: PASS
+        detail: "All 7 phases have procedure sections with numbered checkbox steps"
+      - name: "Exit criteria section exists"
+        status: PASS
+        detail: "Exit criteria section (C1-C8) exists with SC-to-phase mapping"
+
+  - id: 2
+    name: "Skill+task validity"
+    status: PASS
+    checks:
+      - name: "All skill+task references valid in implementation-pipeline TDT"
+        status: PASS
+        detail: "All phases reference implementation-pipeline/step-dispatch. 'step-dispatch' is a valid TDT entry (line 78 of implementation-pipeline/SKILL.md)"
+
+  - id: 3
+    name: "SC coverage"
+    status: PASS
+    checks:
+      - name: "Every SC appears in at least one phase's exit criteria"
+        status: PASS
+        detail: "All 21 SCs (SC-1 through SC-21) are covered: SC-1..SC-6 in Phase 1, SC-7..SC-15+SC-18a in Phase 2, SC-16+SC-17 in Phase 3, SC-20 in Phase 4, SC-21 in Phase 5, SC-18b in Phase 6, SC-19 in Phase 7"
+      - name: "Triplet split detection"
+        status: PASS
+        detail: "No SC has RED/GREEN/COMMIT steps split across phases. SC-18a and SC-18b are separate SCs in the spec, not a split of one SC."
+
+  - id: 4
+    name: "Concern separation"
+    status: FAIL
+    checks:
+      - name: "Each phase addresses exactly one concern"
+        status: PASS
+        detail: "Phase 1→content-removal, Phase 2→content-removal, Phase 3→content-removal, Phase 4→tool-removal, Phase 5→cross-reference-update, Phase 6→cross-reference-070, Phase 7→verification"
+      - name: "No two phases address the same concern"
+        status: FAIL
+        detail: "Phases 1, 2, 3 all address 'content-removal' concern. This is a documented design decision (plan.md 'Same-concern rationale' section: all three modify the same file sequentially to avoid merge conflicts). The concern map explicitly groups them. This is a structural violation of the separation rule but a deliberate, documented tradeoff."
+
+  - id: 5
+    name: "DAG validation"
+    status: PASS
+    checks:
+      - name: "No cycles in dependency contract DAG"
+        status: PASS
+        detail: "Edges: 1→2, 2→3, 3→7, 4→5, 2→6, 1→7, 2→7, 3→7. No cycles detected."
+      - name: "All phases reachable from start node"
+        status: PASS
+        detail: "Phase 1 and Phase 4 are start nodes (no depends_on). All phases are reachable via transitive closure."
+      - name: "No orphan phases"
+        status: PASS
+        detail: "All phases have at least one incoming edge (except start nodes 1, 4) and at least one outgoing edge (except terminal nodes 5, 6, 7). No orphan phases."
+
+  - id: 6
+    name: "Holistic quality"
+    status: PASS
+    checks:
+      - name: "No TBD/TODO placeholders"
+        status: PASS
+        detail: "No TBD or TODO placeholders found in plan body"
+      - name: "All steps use checkbox format"
+        status: PASS
+        detail: "All 22 steps across 7 phases use '- [ ]' checkbox format"
+      - name: "Dispatch mode consistency"
+        status: PASS
+        detail: "All phases use implementation-pipeline/step-dispatch consistently. No mixed dispatch modes."
+
+findings:
+  - category: 4
+    severity: warning
+    rule: "No two phases address the same concern"
+    detail: "Phases 1, 2, 3 all address 'content-removal' concern. This is a documented design tradeoff — sequential ordering on the same file prevents merge conflicts. The concern map explicitly groups these phases together."
+    recommendation: "Accept as documented design decision. The alternative (splitting content-removal into separate concerns per section) would create artificial concern boundaries that don't reflect the actual work."

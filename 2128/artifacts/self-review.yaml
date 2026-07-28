@@ -1,0 +1,44 @@
+# Self-Review Artifact — Issue #2128
+# Generated: 2026-07-28
+# Agent: OpenCode (deepseek-v4-flash)
+
+## Placeholder Findings
+
+| # | Type | Location | Detail |
+|---|------|----------|--------|
+| PH-1 | Unresolved template variable | plan.md lines 52,56,60,64,68,87,91,95,99,103,122,126,130,134,138 | `contract_path: ...` — 15 occurrences of `...` placeholder for `contract_path` context field. Must be resolved to actual contract paths before execution. |
+
+## SC Coverage Findings
+
+| # | Type | SC ID | Detail |
+|---|------|-------|--------|
+| SCG-1 | SC_NOT_COVERED | SC-18 | Spec defines SC-18 as "Remove `uv run python` from §4 and update 070-environment.md cross-reference". Plan splits this into SC-18a (Phase 2) and SC-18b (Phase 6). SC-18 as named in the spec is not directly referenced in the plan. |
+
+## Triplet Split Findings
+
+None detected. Every SC has its RED/GREEN/COMMIT steps within the same phase item.
+
+## Type/Name Inconsistency Findings
+
+| # | Type | Detail |
+|---|------|--------|
+| TNI-1 | Inconsistent SC naming | Spec SC-18 is split into SC-18a and SC-18b in the plan. The spec does not define SC-18a or SC-18b. This is a naming mismatch between spec and plan. |
+| TNI-2 | Missing context lines | Items 1-3 (SC-1, SC-2, SC-3) include `Context:` lines for every step. Items 4-22 omit `Context:` lines for z3-check steps and some other steps. Inconsistent context documentation across items. |
+
+## Per-Task Cycle Findings
+
+All 22 items follow the 16-step per-task cycle from the implementation-pipeline TDT:
+red-phase → z3-check-red → red-doublecheck → z3-check-red-doublecheck → post-red-enforcement → z3-check-post-red → green-phase → z3-check-green → post-green-enforcement → z3-check-post-green → checkpoint-tag-create → checkpoint-commit → structural-checks → green-doublecheck → green-vbc → sc-count-gate
+
+No missing steps, no combined steps, no out-of-order steps detected.
+
+## Overall Verdict
+
+BLOCKED — findings exist.
+
+| Finding Count | Severity |
+|---------------|----------|
+| 1 placeholder (15 occurrences) | MEDIUM — `contract_path: ...` must be resolved before execution |
+| 1 SC coverage gap | MEDIUM — SC-18 renamed to SC-18a/SC-18b without spec update |
+| 2 type/name inconsistencies | LOW — naming mismatch and inconsistent context documentation |
+| 0 per-task cycle violations | NONE — all items follow correct TDT cycle |

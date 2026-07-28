@@ -1,0 +1,29 @@
+spec_path: .opencode/.issues/2128/spec.md
+interface_boundaries:
+  - boundary: tools/guidelines → callers
+    direction: INBOUND
+    affected_files:
+      - .opencode/guidelines/016-srclight-preference.md
+      - .opencode/skills/mcp-tool-usage/tasks/selection-guide.md
+      - .opencode/skills/audit/tasks/guideline-audit-investigator.md
+      - .opencode/guidelines/060-tool-usage.md
+      - .opencode/.issues/317/plan.md
+    status: COMPATIBLE
+    note: All 5 callers reference tools/guidelines as a read tool. After removal, callers must use direct file read instead. No API contract change — just tool invocation path.
+  - boundary: 060-tool-usage.md §4 → 070-environment.md
+    direction: CROSS-REFERENCE
+    affected_files:
+      - .opencode/guidelines/070-environment.md
+    status: COMPATIBLE
+    note: 070-environment.md references §4 of 060-tool-usage.md for the `uv run python` rule. After removal, this cross-reference must be removed or redirected.
+  - boundary: tools/guidelines dispatcher → impl scripts
+    direction: INTERNAL
+    affected_files:
+      - .opencode/tools/guidelines
+      - .opencode/tools/impl/guidelines-edit
+      - .opencode/tools/impl/guidelines-read
+      - .opencode/tools/impl/guidelines-search
+      - .opencode/tools/impl/guidelines-show
+    status: COMPATIBLE
+    note: All impl scripts are deleted alongside the dispatcher. No orphaned references.
+no_interface_conflicts: true

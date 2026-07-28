@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2128/spec.md
+state_transitions:
+  - phase: 1
+    action: Remove §0, §1, §2, §5, §8 from 060-tool-usage.md
+    pre_state: File contains all 17 sections to remove + 6 keep sections
+    post_state: File contains 6 keep sections + remaining §3, §4, §9 content (minus Phase 2 items)
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+  - phase: 2
+    action: Remove §4 Junie-specific items and `uv run python` from 060-tool-usage.md
+    pre_state: File contains §4 with Junie-specific items
+    post_state: File contains §4 with only universal rules (no destructive checkouts, no production data edits, no --recursive)
+    scs: [SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14, SC-15, SC-18]
+  - phase: 3
+    action: Remove §6 File Renaming and §7 Todowrite Lifecycle from 060-tool-usage.md
+    pre_state: File contains §6 and §7
+    post_state: File contains only 6 keep sections + remaining §3, §4, §9
+    scs: [SC-16, SC-17]
+  - phase: 4
+    action: Remove tools/guidelines dispatcher and impl files
+    pre_state: tools/guidelines and tools/impl/guidelines-* exist
+    post_state: tools/guidelines and tools/impl/guidelines-* deleted
+    scs: [SC-20]
+  - phase: 5
+    action: Update tools/guidelines references in 5 pre-existing files
+    pre_state: 5 files contain references to tools/guidelines
+    post_state: 5 files updated to use direct file read instead of tools/guidelines
+    scs: [SC-21]
+  - phase: 6
+    action: Update 070-environment.md cross-reference
+    pre_state: 070-environment.md references §4 of 060-tool-usage.md for uv run python rule
+    post_state: Cross-reference removed or updated
+    scs: [SC-18]
+  - phase: 7
+    action: Verify all 6 keep sections remain
+    pre_state: File may have been over-compacted
+    post_state: Confirmed all 6 keep sections present
+    scs: [SC-19]

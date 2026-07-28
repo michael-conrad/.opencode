@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2128/spec.md
+concern_groups:
+  - id: content-removal
+    description: Remove Junie-specific, duplicated, and tool-specific sections from 060-tool-usage.md
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-18]
+    phases: [1, 2, 3]
+  - id: tool-removal
+    description: Remove the tools/guidelines dispatcher and its impl files
+    scs: [SC-20]
+    phases: [4]
+  - id: cross-reference-update
+    description: Update all pre-existing files that reference tools/guidelines
+    scs: [SC-21]
+    phases: [5]
+  - id: cross-reference-070
+    description: Update 070-environment.md cross-reference to 060-tool-usage.md
+    scs: [SC-18]
+    phases: [6]
+  - id: verification
+    description: Verify all 6 keep sections remain after compaction
+    scs: [SC-19]
+    phases: [7]

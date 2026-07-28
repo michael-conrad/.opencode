@@ -1,0 +1,7 @@
+check_result:
+  phase_1_preconditions: SAT
+  phase_2_postconditions_invariants: SAT
+  state_valid: true
+  timestamp: '2026-07-28T05:30:50.104285+00:00'
+  contract: .opencode/.issues/2128/dependency-contract.yaml
+  state: .opencode/.issues/2128/artifacts/state.yaml

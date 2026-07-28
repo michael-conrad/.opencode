@@ -1,0 +1,35 @@
+spec_path: .opencode/.issues/2128/spec.md
+code_paths:
+  - file: .opencode/guidelines/060-tool-usage.md
+    scs: [SC-1 through SC-19]
+    description: Main target file — remove 17 sections, keep 6. All SCs except SC-20 and SC-21 touch this file.
+  - file: .opencode/tools/guidelines
+    scs: [SC-20]
+    description: Shell script dispatcher — delete entirely.
+  - file: .opencode/tools/impl/guidelines-edit
+    scs: [SC-20]
+    description: Impl script — delete entirely.
+  - file: .opencode/tools/impl/guidelines-read
+    scs: [SC-20]
+    description: Impl script — delete entirely.
+  - file: .opencode/tools/impl/guidelines-search
+    scs: [SC-20]
+    description: Impl script — delete entirely.
+  - file: .opencode/tools/impl/guidelines-show
+    scs: [SC-20]
+    description: Impl script — delete entirely.
+  - file: .opencode/guidelines/016-srclight-preference.md
+    scs: [SC-21]
+    description: Contains reference to tools/guidelines — update to direct read.
+  - file: .opencode/skills/mcp-tool-usage/tasks/selection-guide.md
+    scs: [SC-21]
+    description: Contains reference to tools/guidelines — update to direct read.
+  - file: .opencode/skills/audit/tasks/guideline-audit-investigator.md
+    scs: [SC-21]
+    description: Contains reference to tools/guidelines — update to direct read.
+  - file: .opencode/.issues/317/plan.md
+    scs: [SC-21]
+    description: Contains reference to tools/guidelines — update to direct read.
+  - file: .opencode/guidelines/070-environment.md
+    scs: [SC-18]
+    description: Contains cross-reference to §4 of 060-tool-usage.md for uv run python rule — update to remove reference.

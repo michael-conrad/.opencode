@@ -1,0 +1,32 @@
+contract_schema_version: "1.0"
+issue: 2128
+title: "Compact 060-tool-usage.md"
+phases:
+  - id: 1
+    description: "Remove §0, §1, §2, §3 pre-submit, §5, §8 from 060-tool-usage.md"
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+    depends_on: []
+  - id: 2
+    description: "Remove §4 Junie-specific items and uv run python from 060-tool-usage.md"
+    scs: [SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14, SC-15, SC-18a]
+    depends_on: [1]
+  - id: 3
+    description: "Remove §6 File Renaming and §7 Todowrite Lifecycle from 060-tool-usage.md"
+    scs: [SC-16, SC-17]
+    depends_on: [2]
+  - id: 4
+    description: "Remove tools/guidelines tool and impl files"
+    scs: [SC-20]
+    depends_on: []
+  - id: 5
+    description: "Update tools/guidelines references across all 5 pre-existing files"
+    scs: [SC-21]
+    depends_on: [4]
+  - id: 6
+    description: "Update 070-environment.md cross-reference to 060-tool-usage.md"
+    scs: [SC-18b]
+    depends_on: [2]
+  - id: 7
+    description: "Verify all 6 keep sections remain after compaction"
+    scs: [SC-19]
+    depends_on: [1, 2, 3]

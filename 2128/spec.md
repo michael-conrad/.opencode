@@ -2,6 +2,7 @@
 remote_issue: 2128
 remote_url: https://github.com/michael-conrad/.opencode/issues/2128
 labels: [spec]
+approved: true
 ---
 
 ## Intent
@@ -99,10 +100,14 @@ These are Junie-specific remediations that accumulated over time. ("Junie-specif
 | SC-15 | Remove no `sed` for file edits from §4 | string | grep for absence of 'NEVER use `sed` for file edits' |
 | SC-16 | Remove §6 File Renaming | string | grep for absence of 'File Renaming' |
 | SC-17 | Remove §7 Todowrite Lifecycle | string | grep for absence of 'Todowrite Lifecycle' |
-| SC-18 | Remove `uv run python` from §4 and update 070-environment.md cross-reference to remove references to §4 of 060-tool-usage.md | string | grep for absence of 'uv run python' in 060; grep for absence of cross-reference to 060 for this rule in 070 |
+| SC-18a | Remove `uv run python` from §4 of 060-tool-usage.md | string | grep for absence of 'uv run python' in 060 |
+| SC-18b | Update 070-environment.md cross-reference to remove references to §4 of 060-tool-usage.md for `uv run python` rule | string | grep for absence of cross-reference to 060 for this rule in 070 |
 | SC-19 | All 6 keep sections remain after compaction: §1 Tool Priority Hierarchy, §3 Temp Files one-liner + behavioral exemption, §4 no destructive checkouts, §4 no production data edits, §4 no `--recursive` with git submodule, §9 Identity Source Semantics | string | grep for each of the 6 section headers |
 | SC-20 | Remove `./.opencode/tools/guidelines` tool | structural | tool file removed |
 | SC-21 | Update `tools/guidelines` references in all 5 pre-existing files that reference it: 016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md | string | grep for absence of 'tools/guidelines' in all 5 files after Phase 4 |
+| SC-22 | Remove 016-srclight-preference.md entirely — all content is redundant with agent's built-in tool context, srclight MCP server docs, and mcp-tool-usage skill. JetBrains MCP tier is dead (not used). | structural | file removed |
+| SC-23 | Add srclight limitations note to 060-tool-usage.md §1 Tool Priority Hierarchy under TIER 2 entry: "Srclight indexes Python code only (.py files, symbols). Does NOT index .md, docs, configs, or non-Python files." | string | grep for 'Srclight indexes' in 060-tool-usage.md |
+| SC-24 | Strip decision tree sections from selection-guide.md (lines 7-45), keep srclight troubleshooting and file-type boundaries sections | string | grep for absence of 'Python Code Operations' and 'File Operations' in selection-guide.md |
 
 ## Implementation Plan
 
@@ -113,10 +118,14 @@ These are Junie-specific remediations that accumulated over time. ("Junie-specif
 ### Phase 5: Update `tools/guidelines` references across all 5 pre-existing files (016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md)
 ### Phase 6: Update 070-environment.md cross-reference to 060-tool-usage.md for `uv run python` rule
 ### Phase 7: Verify all 6 keep sections remain
+### Phase 8: Remove 016-srclight-preference.md entirely
+### Phase 9: Add srclight limitations note to 060-tool-usage.md §1 Tool Priority Hierarchy under TIER 2 entry
+### Phase 10: Strip decision tree sections from selection-guide.md, keep troubleshooting and file-type boundaries
 
 ## Files Affected
 
-- `.opencode/guidelines/060-tool-usage.md` — compacted
+- `.opencode/guidelines/060-tool-usage.md` — compacted, srclight limitations note added
+- `.opencode/guidelines/016-srclight-preference.md` — removed entirely
 - `.opencode/tools/guidelines` — removed
 - `.opencode/tools/impl/guidelines-*` — removed
 - Various files referencing `tools/guidelines` — updated

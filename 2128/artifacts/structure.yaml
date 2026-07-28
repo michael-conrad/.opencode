@@ -1,0 +1,269 @@
+spec_path: .opencode/.issues/2128/spec.md
+sc_count: 21
+triplet_integrity_rule: "Each SC's RED, GREEN, and COMMIT steps MUST be in the same phase. No SC may have its test in one phase and its implementation in another."
+cross_phase_dependency_rule: "A RED test in one phase MUST NOT depend on uncommitted SC output from another phase. Cross-phase RED dependencies are structural defects — they create implicit ordering constraints that bypass the dependency DAG."
+phases:
+  - id: 1
+    name: "Remove §0, §1, §2, §3 pre-submit, §5, §8 from 060-tool-usage.md"
+    scs:
+      - SC-1: "Remove §0 Progressive Disclosure"
+      - SC-2: "Remove §1 Guidelines Lookup"
+      - SC-3: "Remove §2 Path Rules"
+      - SC-4: "Remove pre-submit root cleanliness check from §3"
+      - SC-5: "Remove §5 Verification & Audit"
+      - SC-6: "Remove §8 Skill Call Principle"
+    items:
+      - item: 1
+        sc_id: SC-1
+        evidence_type: string
+        red: "Write grep test for absence of 'Progressive Disclosure' in 060-tool-usage.md"
+        green: "Remove §0 Progressive Disclosure section from 060-tool-usage.md"
+        commit: "Commit SC-1 change + test"
+      - item: 2
+        sc_id: SC-2
+        evidence_type: string
+        red: "Write grep test for absence of 'Guidelines Lookup' in 060-tool-usage.md"
+        green: "Remove §1 Guidelines Lookup section from 060-tool-usage.md"
+        commit: "Commit SC-2 change + test"
+      - item: 3
+        sc_id: SC-3
+        evidence_type: string
+        red: "Write grep test for absence of 'Path Rules' in 060-tool-usage.md"
+        green: "Remove §2 Path Rules section from 060-tool-usage.md"
+        commit: "Commit SC-3 change + test"
+      - item: 4
+        sc_id: SC-4
+        evidence_type: string
+        red: "Write grep test for absence of 'pre-submit root cleanliness' in 060-tool-usage.md"
+        green: "Remove pre-submit root cleanliness check from §3 in 060-tool-usage.md"
+        commit: "Commit SC-4 change + test"
+      - item: 5
+        sc_id: SC-5
+        evidence_type: string
+        red: "Write grep test for absence of 'Verification & Audit' in 060-tool-usage.md"
+        green: "Remove §5 Verification & Audit section from 060-tool-usage.md"
+        commit: "Commit SC-5 change + test"
+      - item: 6
+        sc_id: SC-6
+        evidence_type: string
+        red: "Write grep test for absence of 'Skill Call Principle' in 060-tool-usage.md"
+        green: "Remove §8 Skill Call Principle section from 060-tool-usage.md"
+        commit: "Commit SC-6 change + test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+  - id: 2
+    name: "Remove §4 Junie-specific items and `uv run python` from 060-tool-usage.md"
+    scs:
+      - SC-7: "Remove fixed sleep value 15 from §4"
+      - SC-8: "Remove one clear command per invocation from §4"
+      - SC-9: "Remove use built-in Edit/Write tools from §4"
+      - SC-10: "Remove no stty from §4"
+      - SC-11: "Remove no heredocs from §4"
+      - SC-12: "Remove no repeated grep/egrep/sed from §4"
+      - SC-13: "Remove sed -i, printf, echo redirection from §4"
+      - SC-14: "Remove no multi-line shell loops from §4"
+      - SC-15: "Remove no sed for file edits from §4"
+      - SC-18a: "Remove uv run python from §4 (part 1 of SC-18)"
+    items:
+      - item: 7
+        sc_id: SC-7
+        evidence_type: string
+        red: "Write grep test for absence of 'Fixed sleep value' in 060-tool-usage.md"
+        green: "Remove fixed sleep value 15 line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-7 change + test"
+      - item: 8
+        sc_id: SC-8
+        evidence_type: string
+        red: "Write grep test for absence of 'One clear command per invocation' in 060-tool-usage.md"
+        green: "Remove one clear command per invocation line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-8 change + test"
+      - item: 9
+        sc_id: SC-9
+        evidence_type: string
+        red: "Write grep test for absence of 'Use built-in Edit/Write tools' in 060-tool-usage.md"
+        green: "Remove use built-in Edit/Write tools line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-9 change + test"
+      - item: 10
+        sc_id: SC-10
+        evidence_type: string
+        red: "Write grep test for absence of 'No stty' in 060-tool-usage.md"
+        green: "Remove no stty line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-10 change + test"
+      - item: 11
+        sc_id: SC-11
+        evidence_type: string
+        red: "Write grep test for absence of 'No embedded scripts via heredocs' in 060-tool-usage.md"
+        green: "Remove no heredocs line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-11 change + test"
+      - item: 12
+        sc_id: SC-12
+        evidence_type: string
+        red: "Write grep test for absence of 'repeated.*grep' pattern in 060-tool-usage.md"
+        green: "Remove no repeated grep/egrep/sed line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-12 change + test"
+      - item: 13
+        sc_id: SC-13
+        evidence_type: string
+        red: "Write grep test for absence of 'sed -i' in 060-tool-usage.md"
+        green: "Remove sed -i, printf, echo redirection line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-13 change + test"
+      - item: 14
+        sc_id: SC-14
+        evidence_type: string
+        red: "Write grep test for absence of 'Multi-line shell loops' in 060-tool-usage.md"
+        green: "Remove no multi-line shell loops line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-14 change + test"
+      - item: 15
+        sc_id: SC-15
+        evidence_type: string
+        red: "Write grep test for absence of 'NEVER use sed for file edits' in 060-tool-usage.md"
+        green: "Remove no sed for file edits line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-15 change + test"
+      - item: 16
+        sc_id: SC-18a
+        evidence_type: string
+        red: "Write grep test for absence of 'uv run python' in 060-tool-usage.md"
+        green: "Remove uv run python line from §4 in 060-tool-usage.md"
+        commit: "Commit SC-18a change + test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+  - id: 3
+    name: "Remove §6 File Renaming and §7 Todowrite Lifecycle from 060-tool-usage.md"
+    scs:
+      - SC-16: "Remove §6 File Renaming"
+      - SC-17: "Remove §7 Todowrite Lifecycle"
+    items:
+      - item: 17
+        sc_id: SC-16
+        evidence_type: string
+        red: "Write grep test for absence of 'File Renaming' in 060-tool-usage.md"
+        green: "Remove §6 File Renaming section from 060-tool-usage.md"
+        commit: "Commit SC-16 change + test"
+      - item: 18
+        sc_id: SC-17
+        evidence_type: string
+        red: "Write grep test for absence of 'Todowrite Lifecycle' in 060-tool-usage.md"
+        green: "Remove §7 Todowrite Lifecycle section from 060-tool-usage.md"
+        commit: "Commit SC-17 change + test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+  - id: 4
+    name: "Remove ./.opencode/tools/guidelines tool and impl files"
+    scs:
+      - SC-20: "Remove ./.opencode/tools/guidelines tool"
+    items:
+      - item: 19
+        sc_id: SC-20
+        evidence_type: structural
+        red: "Write test verifying tools/guidelines file exists (will fail after removal)"
+        green: "Remove .opencode/tools/guidelines and .opencode/tools/impl/guidelines-* files"
+        commit: "Commit SC-20 change + test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+  - id: 5
+    name: "Update tools/guidelines references across all 5 pre-existing files"
+    scs:
+      - SC-21: "Update tools/guidelines references in 016-srclight-preference.md, mcp-tool-usage/selection-guide.md, audit/guideline-audit-investigator.md, 060-tool-usage.md, .issues/317/plan.md"
+    items:
+      - item: 20
+        sc_id: SC-21
+        evidence_type: string
+        red: "Write grep test for absence of 'tools/guidelines' in all 5 files"
+        green: "Update tools/guidelines references to appropriate alternatives in all 5 files"
+        commit: "Commit SC-21 change + test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+  - id: 6
+    name: "Update 070-environment.md cross-reference to 060-tool-usage.md"
+    scs:
+      - SC-18b: "Update 070-environment.md cross-reference (part 2 of SC-18)"
+    items:
+      - item: 21
+        sc_id: SC-18b
+        evidence_type: string
+        red: "Write grep test for absence of cross-reference to 060 for uv run python rule in 070"
+        green: "Update 070-environment.md to remove or update cross-reference to 060-tool-usage.md for uv run python"
+        commit: "Commit SC-18b change + test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+  - id: 7
+    name: "Verify all 6 keep sections remain after compaction"
+    scs:
+      - SC-19: "All 6 keep sections remain: §1 Tool Priority Hierarchy, §3 Temp Files one-liner + behavioral exemption, §4 no destructive checkouts, §4 no production data edits, §4 no --recursive with git submodule, §9 Identity Source Semantics"
+    items:
+      - item: 22
+        sc_id: SC-19
+        evidence_type: string
+        red: "Write grep test for each of the 6 keep section headers (will fail if any missing)"
+        green: "No GREEN phase — verification only. If any section missing, restore it."
+        commit: "Commit SC-19 verification test"
+    skill_selection:
+      primary: implementation-pipeline
+      dispatch: step-level
+      red_task: "execute red from test-driven-development"
+      green_task: "execute green from test-driven-development"
+    triplet_integrity: PASS
+    cross_phase_dependency: PASS
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Phases 1, 2, 3 all modify 060-tool-usage.md — sequential ordering prevents merge conflicts"
+    - from: 2
+      to: 3
+      reason: "Phases 1, 2, 3 all modify 060-tool-usage.md — sequential ordering prevents merge conflicts"
+    - from: 3
+      to: 7
+      reason: "Phase 7 verifies keep sections — must run after all content removal phases"
+    - from: 4
+      to: 5
+      reason: "Phase 5 updates tools/guidelines references — tool removal (Phase 4) should precede reference updates"
+    - from: 2
+      to: 6
+      reason: "Phase 6 updates 070 cross-ref for uv run python — must run after SC-18a removal in Phase 2"
+    - from: 1
+      to: 7
+      reason: "Phase 7 verifies keep sections — must run after all content removal phases"
+    - from: 2
+      to: 7
+      reason: "Phase 7 verifies keep sections — must run after all content removal phases"
+    - from: 3
+      to: 7
+      reason: "Phase 7 verifies keep sections — must run after all content removal phases"

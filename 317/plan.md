@@ -8,7 +8,7 @@
 
 **Files (26 total):**
 - G1: 2 bash scripts (`tools/detect-secrets-wrapper.sh`, `tools/ensure-node`)
-- G2: 12 Python PEP 723 tools (`tools/guidelines`, `tools/md`, `tools/py`, `tools/file-exists`, `tools/session-init`, `tools/help`, `tools/jupyter`, `tools/jupyter-start`, `tools/jupyter-stop`, `tools/skildeck`, `tools/plan`, `tools/solve`)
+- G2: 11 Python PEP 723 tools (`tools/md`, `tools/py`, `tools/file-exists`, `tools/session-init`, `tools/help`, `tools/jupyter`, `tools/jupyter-start`, `tools/jupyter-stop`, `tools/skildeck`, `tools/plan`, `tools/solve`)
 - G3: 8 Python PEP 723 impl scripts (`tools/impl/guidelines-read`, `tools/impl/guidelines-show`, `tools/impl/guidelines-search`, `tools/impl/guidelines-edit`, `tools/impl/jupyter-start`, `tools/impl/jupyter-stop`, `tools/impl/py-ls`, `tools/impl/py-mkpkg`)
 - G4: 4 Python scripts (`scripts/session_context_triggers.py`, `skills/issue-operations/platforms/gitbucket-api/tests/verify_api.py`, `skills/issue-operations/platforms/gitbucket-api/tests/test_pr_idempotency.py`, `tests/regressions/regression-91-verify-structure.py`)
 - SC-5 reference: `tools/local-issues` (existing guard — verify unchanged)

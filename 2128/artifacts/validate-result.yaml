@@ -1,0 +1,4 @@
+status: DONE
+finding_summary: "Overall FAIL: 3 of 6 categories FAIL. Category 1 (structural): phase details lack numbered procedure steps. Category 2 (skill+task): 'step-level' not in TDT. Category 4 (concern separation): phases 1-3 share same concern. Category 6 (holistic): YAML context blocks instead of checkbox steps. Categories 3 (SC coverage) and 5 (DAG) PASS."
+artifact_path: ".opencode/.issues/2128/artifacts/validate-findings.yaml"
+blocker_reason: null

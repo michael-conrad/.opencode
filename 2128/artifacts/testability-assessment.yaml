@@ -1,0 +1,65 @@
+spec_path: .opencode/.issues/2128/spec.md
+sc_evidence_types:
+  - sc: SC-1
+    evidence_type: string
+    method: grep for absence of 'Progressive Disclosure' in 060-tool-usage.md
+  - sc: SC-2
+    evidence_type: string
+    method: grep for absence of 'Guidelines Lookup' in 060-tool-usage.md
+  - sc: SC-3
+    evidence_type: string
+    method: grep for absence of 'Path Rules' in 060-tool-usage.md
+  - sc: SC-4
+    evidence_type: string
+    method: grep for absence of 'pre-submit root cleanliness' in 060-tool-usage.md
+  - sc: SC-5
+    evidence_type: string
+    method: grep for absence of 'Verification & Audit' in 060-tool-usage.md
+  - sc: SC-6
+    evidence_type: string
+    method: grep for absence of 'Skill Call Principle' in 060-tool-usage.md
+  - sc: SC-7
+    evidence_type: string
+    method: grep for absence of 'Fixed sleep value' in 060-tool-usage.md
+  - sc: SC-8
+    evidence_type: string
+    method: grep for absence of 'One clear command per invocation' in 060-tool-usage.md
+  - sc: SC-9
+    evidence_type: string
+    method: grep for absence of 'Use built-in Edit/Write tools' in 060-tool-usage.md
+  - sc: SC-10
+    evidence_type: string
+    method: grep for absence of 'No `stty`' in 060-tool-usage.md
+  - sc: SC-11
+    evidence_type: string
+    method: grep for absence of 'No embedded scripts via heredocs' in 060-tool-usage.md
+  - sc: SC-12
+    evidence_type: string
+    method: grep for absence of 'repeated.*grep' in 060-tool-usage.md
+  - sc: SC-13
+    evidence_type: string
+    method: grep for absence of 'sed -i' in 060-tool-usage.md
+  - sc: SC-14
+    evidence_type: string
+    method: grep for absence of 'Multi-line shell loops' in 060-tool-usage.md
+  - sc: SC-15
+    evidence_type: string
+    method: grep for absence of 'NEVER use `sed` for file edits' in 060-tool-usage.md
+  - sc: SC-16
+    evidence_type: string
+    method: grep for absence of 'File Renaming' in 060-tool-usage.md
+  - sc: SC-17
+    evidence_type: string
+    method: grep for absence of 'Todowrite Lifecycle' in 060-tool-usage.md
+  - sc: SC-18
+    evidence_type: string
+    method: grep for absence of 'uv run python' in 060-tool-usage.md; grep for absence of cross-reference to 060 for this rule in 070-environment.md
+  - sc: SC-19
+    evidence_type: string
+    method: grep for each of the 6 keep section headers in 060-tool-usage.md
+  - sc: SC-20
+    evidence_type: structural
+    method: verify tools/guidelines and tools/impl/guidelines-* files are deleted
+  - sc: SC-21
+    evidence_type: string
+    method: grep for absence of 'tools/guidelines' in all 5 pre-existing files

@@ -1,0 +1,31 @@
+spec_path: .opencode/.issues/2128/spec.md
+cross_cutting_concerns:
+  - concern: content-removal
+    scs: [SC-1 through SC-18]
+    phases: [1, 2, 3]
+    description: All content removal SCs target the same file (060-tool-usage.md) and must be applied sequentially to avoid edit conflicts.
+  - concern: tool-removal
+    scs: [SC-20]
+    phases: [4]
+    description: Tool removal is independent of content removal — no file overlap.
+  - concern: cross-reference-update
+    scs: [SC-21]
+    phases: [5]
+    description: Cross-reference updates span 5 files across guidelines, skills, and .issues — requires grep-based audit to find all references.
+  - concern: verification
+    scs: [SC-19]
+    phases: [7]
+    description: Verification that keep sections remain is a read-only check, no file modification.
+  - concern: SC-18 spans two phases
+    scs: [SC-18]
+    phases: [2, 6]
+    description: SC-18 requires removing `uv run python` from 060-tool-usage.md (Phase 2) AND updating 070-environment.md cross-reference (Phase 6). This SC spans two separate phases.
+overlapping_scs:
+  - sc: SC-18
+    phases: [2, 6]
+    files: [.opencode/guidelines/060-tool-usage.md, .opencode/guidelines/070-environment.md]
+    note: SC-18 has two sub-actions in different phases — removal from 060 in Phase 2, cross-reference update in Phase 6.
+  - sc: SC-19
+    phases: [7]
+    files: [.opencode/guidelines/060-tool-usage.md]
+    note: Verification-only SC — no file modification, read-only grep check.

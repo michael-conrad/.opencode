@@ -1,0 +1,46 @@
+spec_path: .opencode/.issues/2128/spec.md
+affected_files:
+  - path: .opencode/guidelines/060-tool-usage.md
+    status: EXISTS
+    action: MODIFY (compact — remove 17 sections, keep 6)
+    phases: [1, 2, 3, 7]
+  - path: .opencode/tools/guidelines
+    status: EXISTS
+    action: DELETE
+    phases: [4]
+  - path: .opencode/tools/impl/guidelines-edit
+    status: EXISTS
+    action: DELETE
+    phases: [4]
+  - path: .opencode/tools/impl/guidelines-read
+    status: EXISTS
+    action: DELETE
+    phases: [4]
+  - path: .opencode/tools/impl/guidelines-search
+    status: EXISTS
+    action: DELETE
+    phases: [4]
+  - path: .opencode/tools/impl/guidelines-show
+    status: EXISTS
+    action: DELETE
+    phases: [4]
+  - path: .opencode/guidelines/016-srclight-preference.md
+    status: EXISTS
+    action: MODIFY (update tools/guidelines reference)
+    phases: [5]
+  - path: .opencode/skills/mcp-tool-usage/tasks/selection-guide.md
+    status: EXISTS
+    action: MODIFY (update tools/guidelines reference)
+    phases: [5]
+  - path: .opencode/skills/audit/tasks/guideline-audit-investigator.md
+    status: EXISTS
+    action: MODIFY (update tools/guidelines reference)
+    phases: [5]
+  - path: .opencode/.issues/317/plan.md
+    status: EXISTS
+    action: MODIFY (update tools/guidelines reference)
+    phases: [5]
+  - path: .opencode/guidelines/070-environment.md
+    status: EXISTS
+    action: MODIFY (update cross-reference to 060-tool-usage.md)
+    phases: [6]

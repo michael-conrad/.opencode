@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2128/spec.md
+approval_status: approved
+sc_count: 21
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/guidelines/060-tool-usage.md
+    status: EXISTS
+  - file: .opencode/tools/guidelines
+    status: EXISTS
+  - file: .opencode/tools/impl/guidelines-edit
+    status: EXISTS
+  - file: .opencode/tools/impl/guidelines-read
+    status: EXISTS
+  - file: .opencode/tools/impl/guidelines-search
+    status: EXISTS
+  - file: .opencode/tools/impl/guidelines-show
+    status: EXISTS
+  - file: .opencode/guidelines/016-srclight-preference.md
+    status: EXISTS
+  - file: .opencode/skills/mcp-tool-usage/tasks/selection-guide.md
+    status: EXISTS
+  - file: .opencode/skills/audit/tasks/guideline-audit-investigator.md
+    status: EXISTS
+  - file: .opencode/.issues/317/plan.md
+    status: EXISTS
+  - file: .opencode/guidelines/070-environment.md
+    status: EXISTS
+findings:
+  - All 7 analytical artifacts backfilled from spec body
+  - Spec has 21 SCs across 7 phases
+  - 6 keep sections identified for retention verification
+  - 5 pre-existing files need tools/guidelines reference updates
+  - No interface conflicts detected
