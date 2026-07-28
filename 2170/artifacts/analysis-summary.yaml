@@ -1,0 +1,44 @@
+# Analysis summary: backfill results for issue 2170
+spec_path: .opencode/.issues/2170/spec.md
+sc_count: 8
+phase_count: 4
+requirement_count: 6
+affected_file_count: 6
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_summary:
+  phases:
+    - phase: 1
+      requirements: [REQ-1]
+      scs: [SC-1a, SC-1b, SC-1c]
+      files:
+        - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+        - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    - phase: 2
+      requirements: [REQ-2, REQ-3]
+      scs: [SC-2, SC-3]
+      files:
+        - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    - phase: 3
+      requirements: [REQ-4]
+      scs: [SC-4]
+      files:
+        - .git/hooks/pre-push
+    - phase: 4
+      requirements: [REQ-5, REQ-6]
+      scs: [SC-5, SC-6]
+      files:
+        - .opencode/guidelines/010-approval-gate.md
+        - .opencode/guidelines/020-go-prohibitions.md
+        - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+cross_cutting_scs: [SC-1c, SC-3, SC-6]
+behavioral_scs: [SC-1c, SC-3]
+evidence_type_breakdown:
+  string: 6
+  behavioral: 2

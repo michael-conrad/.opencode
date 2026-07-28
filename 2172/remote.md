@@ -1,7 +1,7 @@
 ---
 remote_issue: 2172
 remote_url: "https://github.com/michael-conrad/.opencode/issues/2172"
-last_sync: 2026-07-28T10:35:00-04:00
+last_sync: 2026-07-28T16:20:33Z
 source: github.com
 ---
 

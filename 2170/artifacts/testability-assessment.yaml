@@ -1,0 +1,62 @@
+# Testability assessment: evidence types and verification methods per SC
+spec_path: .opencode/.issues/2170/spec.md
+assessments:
+  - sc: SC-1a
+    evidence_type: string
+    verification_method: grep branch-cleanup.md for pointer lifecycle statement
+    testability: trivial — single grep assertion
+    behavioral_test_required: false
+  - sc: SC-1b
+    evidence_type: string
+    verification_method: grep pre-work.md for cross-reference to branch-cleanup.md
+    testability: trivial — single grep assertion
+    behavioral_test_required: false
+  - sc: SC-1c
+    evidence_type: behavioral
+    verification_method: Run cleanup workflow, export SQLite session event log, inspect for absence of deliberation patterns
+    testability: moderate — requires full cleanup workflow execution and SQLite log inspection
+    behavioral_test_required: true
+    behavioral_test_approach: |
+      - Trigger cleanup workflow via opencode run
+      - Export session event log from SQLite
+      - Assert absence of: "requires authorization", "should I commit", rule cross-referencing chains
+      - Use assert_semantic for clean-room evaluation of agent actions
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep check-pr.md for authorization statement in Phase 3
+    testability: trivial — single grep assertion
+    behavioral_test_required: false
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: Run post-merge cleanup workflow, export SQLite session event log, inspect for absence of authorization deliberation patterns
+    testability: moderate — requires post-merge cleanup workflow execution and SQLite log inspection
+    behavioral_test_required: true
+    behavioral_test_approach: |
+      - Trigger post-merge cleanup workflow via opencode run
+      - Export session event log from SQLite
+      - Assert absence of authorization deliberation patterns in tool-call sequences
+      - Use assert_semantic for clean-room evaluation of agent actions
+  - sc: SC-4
+    evidence_type: string
+    verification_method: grep pre-push hook for absence of instructional text in Gate 2
+    testability: trivial — single grep assertion
+    behavioral_test_required: false
+  - sc: SC-5
+    evidence_type: string
+    verification_method: grep approval-gate.md for clarified wording
+    testability: trivial — single grep assertion
+    behavioral_test_required: false
+  - sc: SC-6
+    evidence_type: string
+    verification_method: grep for absence of "resolves on next pre-work" in 020-go-prohibitions.md and branch-cleanup.md
+    testability: trivial — two grep assertions
+    behavioral_test_required: false
+summary:
+  total_scs: 8
+  string_evidence: 6
+  behavioral_evidence: 2
+  behavioral_scs: [SC-1c, SC-3]
+  behavioral_test_infrastructure_needed:
+    - opencode run with cleanup workflow trigger
+    - SQLite session log export capability
+    - assert_semantic clean-room inspector

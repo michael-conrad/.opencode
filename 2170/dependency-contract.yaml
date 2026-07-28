@@ -1,0 +1,21 @@
+variables:
+  phase_1_completed:
+    type: bool
+    nullable: false
+  phase_2_completed:
+    type: bool
+    nullable: false
+  phase_3_completed:
+    type: bool
+    nullable: false
+  phase_4_completed:
+    type: bool
+    nullable: false
+  pipeline_phase:
+    type: string
+    domain: ["phase_1", "phase_2", "phase_3", "phase_4", "complete"]
+    nullable: false
+preconditions: []
+invariants: []
+postconditions: []
+theorem: []

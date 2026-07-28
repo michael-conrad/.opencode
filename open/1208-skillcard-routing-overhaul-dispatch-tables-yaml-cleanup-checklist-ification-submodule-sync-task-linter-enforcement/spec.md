@@ -1,17 +1,3 @@
----
-number: 1208
-title: "[SPEC] Skillcard routing overhaul — dispatch tables, YAML cleanup, checklist-ification, submodule-sync task, linter enforcement"
-status: open
-labels: [spec]
-created: 2026-06-14T20:48:10Z
-
----
-remote_issue: 1208
-remote_url: "https://github.com/michael-conrad/.opencode/issues/1208"
-last_sync: 2026-06-14T20:48:10Z
-source: github.com
----
-
 ## Problem
 - The #553 dispatch table removal left git-workflow with no trigger-to-task routing
 - Investigation revealed the same gap across ALL 39 SKILL.md files
@@ -22,6 +8,8 @@ source: github.com
 - SKILL.md bodies contain AI bylines, stats, and word counts that add no routing value
 - Operating protocols use prose paragraphs for sequential steps, enabling step-skipping
 - skildeck has no validation for dispatch table presence
+
+> **Sequencing: Execute after #2176.** This spec modifies SKILL.md files and task files that #2176 (Pipeline ceremony reduction) also modifies — specifically the implementation-pipeline TDT, writing-plans pipeline, and per-item cycle steps. #2176 changes pipeline *content* (what steps exist, how they dispatch). This spec changes pipeline *format* (dispatch table structure, checklist format). Execute #2176 first, then apply this spec's format changes on top of the corrected pipeline.
 
 ## Solution — 5 Workstreams
 
@@ -58,7 +46,7 @@ Dependencies: Depends on B (dispatch tables may restructure section boundaries).
 ### Workstream D — New submodule-sync Task
 Scope: git-workflow skill
 Changes:
-- New task file at `.opencode/skills/git-workflow/tasks/submodule-sync.md`
+- New task file at `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`
 - Lightweight: sync dirty submodule pointers to dev tip
 - Referenced by git-workflow dispatch table row: `"sync submodules" / "update submodules" → submodule-sync`
 Dependencies: Depends on B (dispatch table references the new task).
@@ -77,32 +65,39 @@ Dependencies: Depends on Workstream B (format must be defined before it can be v
 phases:
   - id: workstream-a
     label: YAML frontmatter cleanup
-    depends_on: []
+    depends_on: [pipeline-ceremony-reduction]
     
   - id: workstream-b
     label: Dispatch tables
-    depends_on: [workstream-a]
+    depends_on: [pipeline-ceremony-reduction, workstream-a]
     
   - id: workstream-c
     label: Checklist-ification
-    depends_on: [workstream-b]
+    depends_on: [pipeline-ceremony-reduction, workstream-b]
     
   - id: workstream-d
     label: Submodule-sync task
-    depends_on: [workstream-b]
+    depends_on: [pipeline-ceremony-reduction, workstream-b]
     
   - id: workstream-e
     label: skildeck linter
-    depends_on: [workstream-b]
+    depends_on: [pipeline-ceremony-reduction, workstream-b]
+
+external:
+  - id: pipeline-ceremony-reduction
+    label: "#2176 Pipeline ceremony reduction and legacy cleanup"
+    url: "https://github.com/michael-conrad/.opencode/issues/2176"
 
 constraints:
+  - "pipeline-ceremony-reduction → workstream_a_start"
+  - "pipeline-ceremony-reduction → workstream_b_start"
   - "workstream_a_complete → workstream_b_start"
   - "workstream_b_complete → workstream_c_start"
   - "workstream_b_complete → workstream_d_start"  
   - "workstream_b_complete → workstream_e_start"
 
 verify:
-  - solve check --contract --query "workstream_a < workstream_b and workstream_b < workstream_c and workstream_b < workstream_d and workstream_b < workstream_e" → SAT
+  - solve check --contract --query "pipeline-ceremony-reduction < workstream_a and pipeline-ceremony-reduction < workstream_b and workstream_a < workstream_b and workstream_b < workstream_c and workstream_b < workstream_d and workstream_b < workstream_e" → SAT
 ```
 
 ## SC-ID Traceability
@@ -116,7 +111,9 @@ verify:
 | SC-B3 | B | No conflicting primary triggers exist between any two dispatch tables | behavioral (cross-skill audit) |
 | SC-B4 | B | Every task listed in a skill's Tasks section has at least one dispatch table row | string |
 | SC-C1 | C | All Operating Protocol sequential procedures use - [ ] N. checklist format | string |
-| SC-D1 | D | submodule-sync task file exists at the expected path | structural |
+| SC-D1 | D | submodule-sync task file exists at `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` | structural |
 | SC-D2 | D | git-workflow dispatch table references submodule-sync for submodule sync triggers | string |
 | SC-E1 | E | skildeck validate command checks dispatch table presence in SKILL.md | behavioral |
 | SC-E2 | E | skildeck validate reports MISSING_DISPATCH_TABLE for SKILL.md without one | behavioral |
+
+🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)

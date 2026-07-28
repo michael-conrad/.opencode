@@ -1,0 +1,146 @@
+#!/bin/bash
+# Pre-push hook: Branch topology enforcement
+# Gates inspect push refspecs from stdin, not the local checkout branch.
+# stdin format per git pre-push protocol:
+#   <local-ref> SP <local-sha> SP <remote-ref> SP <remote-sha> LF
+
+SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+[ -z "$DEFAULT_BRANCH" ] && DEFAULT_BRANCH=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|^origin/||')
+
+# Read stdin refspecs. For each line, evaluate all gates.
+# If any line triggers a block, the hook exits 1.
+# If no lines on stdin, exit 0 (no pushes to validate).
+ALLOWED=true
+
+while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+    [ -z "$LOCAL_REF" ] && continue
+
+    # Skip all gates for tag pushes — tags are immutable pointers to existing
+    # commits and do not introduce new code. All gates below are branch-only.
+    if [[ "$LOCAL_REF" == refs/tags/* ]]; then
+        continue
+    fi
+
+    # Extract branch basename (strip refs/heads/)
+    LOCAL_BRANCH="${LOCAL_REF#refs/heads/}"
+    REMOTE_BRANCH="${REMOTE_REF#refs/heads/}"
+
+    # Detect delete: local-sha is all zeros => ref is being deleted
+    IS_DELETE=false
+    if echo "$LOCAL_SHA" | grep -q '^0\{40\}$'; then
+        IS_DELETE=true
+    fi
+
+    # --- Gate 0: Block direct pushes to trunk ---
+    # Deletes are always allowed (branch deletion is cleanup, not a push to trunk)
+    if [ "$IS_DELETE" = false ] && [ "$REMOTE_BRANCH" = "$DEFAULT_BRANCH" ]; then
+        if [ "$SKIP_BRANCH_PROTECTION" != "1" ]; then
+            echo ""
+            echo "BLOCKED: Direct pushes to '$DEFAULT_BRANCH' are prohibited."
+            echo ""
+            echo "Trunk branch must only receive changes through pull requests."
+            echo ""
+            echo "To override (deliberate ops action only):"
+            echo "  SKIP_BRANCH_PROTECTION=1 git push origin $DEFAULT_BRANCH"
+            echo ""
+            ALLOWED=false
+        fi
+    fi
+
+    # --- Gate 1: Merged branch topology check with open-PR exemption ---
+    # Uses remote branches (not local) so force-pushing to a branch whose PR
+    # was merged remotely (e.g. via GitHub UI or another workstation) is blocked.
+    # Only applies to same-name pushes (local branch == remote branch), not deletes.
+    # Remote-merged check: origin/branch must be strictly behind origin/$DEFAULT_BRANCH
+    # (not equal) to avoid blocking pushes on newly-created empty branches.
+    # Open-PR exemption: if the branch has an open PR against the trunk, force-push
+    # is allowed even if the branch's commits are in the trunk's history.
+    if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
+        # Fetch remote refs once
+        git fetch origin --prune 2>/dev/null || true
+
+        if git branch -r --merged "origin/$DEFAULT_BRANCH" 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
+            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH".."origin/$DEFAULT_BRANCH" 2>/dev/null || echo "0")
+            if [ "$_AHEAD" -gt 0 ]; then
+                # Check for open PR against the trunk — if one exists, allow force-push
+                _HAS_OPEN_PR=false
+                if command -v gh &>/dev/null; then
+                    _PR_COUNT=$(gh pr list --head "$LOCAL_BRANCH" --base "$DEFAULT_BRANCH" --state open --json number --jq 'length' 2>/dev/null || echo "0")
+                    [ "$_PR_COUNT" -gt 0 ] && _HAS_OPEN_PR=true
+                fi
+
+                if [ "$_HAS_OPEN_PR" = true ]; then
+                    # Open PR exists — allow force-push (PR is still active)
+                    :
+                else
+                    echo ""
+                    echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into '$DEFAULT_BRANCH'"
+                    echo ""
+                    echo "This branch has been merged and should be deleted, not pushed."
+                    echo ""
+                    echo "To clean up:"
+                    echo "  git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH"
+                    echo "  git branch -d $LOCAL_BRANCH"
+                    echo "  git push origin --delete $LOCAL_BRANCH"
+                    echo ""
+                    ALLOWED=false
+                fi
+            fi
+        fi
+    fi
+
+    # --- Gate 2: Submodule-pointer-only push blocker ---
+    # Blocks pushes where ALL changed files are submodule pointer updates.
+    # Submodule-only bump PRs are against policy — they create review overhead
+    # with no functional change. Local submodule pointer commits are fine.
+    if [ "$IS_DELETE" = false ] && [ -f ".gitmodules" ]; then
+        # Always diff against trunk tip — checks whether the ENTIRE branch
+        # is submodule-pointer-only, not just the latest push.
+        CHANGED_FILES=$(git diff --name-only "origin/$DEFAULT_BRANCH".."$LOCAL_SHA" 2>/dev/null || true)
+        SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
+
+        if [ -n "$CHANGED_FILES" ] && [ -n "$SUBMODULE_PATHS" ]; then
+            ALL_SUBMODULE_POINTERS=1
+            for f in $CHANGED_FILES; do
+                IS_SUBMODULE=0
+                for sp in $SUBMODULE_PATHS; do
+                    if [ "$f" = "$sp" ]; then
+                        IS_SUBMODULE=1
+                        break
+                    fi
+                done
+                if [ "$IS_SUBMODULE" -eq 0 ]; then
+                    ALL_SUBMODULE_POINTERS=0
+                    break
+                fi
+            done
+
+            if [ "$ALL_SUBMODULE_POINTERS" = "1" ]; then
+                echo ""
+                echo "HARD BLOCK: Submodule-pointer-only push prevented."
+                echo ""
+                echo "The branch '$LOCAL_BRANCH' contains ONLY submodule pointer changes with no"
+                echo "parent-repo source code modifications. Submodule-only bump PRs are"
+                echo "against policy — they create review overhead with no functional change."
+                echo ""
+                echo "This is a HARD STOP — not a warning. You MUST add real code changes"
+                echo "to this branch before pushing. The submodule pointer update will be"
+                echo "included in your PR alongside the real implementation."
+                echo ""
+                echo "If you have no code changes to make, delete this branch:"
+                echo "  git checkout $DEFAULT_BRANCH && git branch -D $LOCAL_BRANCH"
+                echo ""
+                echo "There is NO bypass for this gate. Do NOT create a submodule-only PR."
+                echo ""
+                ALLOWED=false
+            fi
+        fi
+    fi
+done
+
+if [ "$ALLOWED" = false ]; then
+    exit 1
+fi
+
+exit 0

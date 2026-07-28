@@ -1,0 +1,46 @@
+# Blast radius: affected files extracted from spec, verified against codebase
+spec_path: .opencode/.issues/2170/spec.md
+affected_files:
+  - path: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    phase: 2
+    scs: [SC-2]
+    status: exists
+    change_type: modify
+    description: Phase 3 authorization clarity — explicitly state merge verification satisfies issue closure auth
+  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    phase: 1
+    scs: [SC-1a, SC-1c, SC-6]
+    status: exists
+    change_type: modify
+    description: Dirty pointer deadlock resolution — single consistent rule for pointer lifecycle
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    phase: 1
+    scs: [SC-1b]
+    status: exists
+    change_type: modify
+    description: No-Op Branch Guard cross-reference to branch-cleanup.md instead of repeating deadlock
+  - path: .opencode/guidelines/010-approval-gate.md
+    phase: 4
+    scs: [SC-5]
+    status: exists
+    change_type: modify
+    description: Rule 10 wording — clarify "confirmed" means "verified by check-pr Phase 2"
+  - path: .git/hooks/pre-push
+    phase: 3
+    scs: [SC-4]
+    status: exists
+    change_type: modify
+    description: Gate 2 message — remove instructional text, state only block + reason
+  - path: .opencode/guidelines/020-go-prohibitions.md
+    phase: 4
+    scs: [SC-6]
+    status: exists
+    change_type: modify
+    description: Remove "resolves on next pre-work cycle" language, replace with accurate pointer lifecycle
+secondary_impact:
+  - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+    phase: 2
+    description: May need cross-reference update if check-pr.md Phase 3 wording changes
+  - path: .opencode/skills/git-workflow-branch/SKILL.md
+    phase: 1
+    description: May need cross-reference update if pre-work.md No-Op Branch Guard changes

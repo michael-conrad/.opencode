@@ -1,0 +1,34 @@
+sc_count: 8
+scs:
+  - id: "SC-1"
+    description: "implementation-pipeline TDT has no cross-validate, checkpoint-commit, or old per-item cycle steps. New steps present. Pipeline state machine updated. Single inline Z3 check per phase after AUDIT."
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "All git-workflow/tasks/ references updated to correct sub-skill paths. No file in .opencode/ contains git-workflow/tasks/ as a task file path."
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "No task file in .opencode/skills/*/tasks/ contains skill({name: ...}) or task(...) as an imperative instruction to the sub-agent."
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "No SKILL.md file in .opencode/skills/ contains resolve-models or auditor_1 or auditor_2 in Sub-Agent Routing sections."
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Per-item cycle dispatches 6 steps plus inline commit. Writing-plans pipeline dispatches 4 steps."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Checkpoint tag creation is inline (orchestrator runs git commands directly, no sub-agent dispatch). checkpoint-commit step removed from TDT."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Legacy task files removed or archived. No remaining reference to any removed file path exists in .opencode/."
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Orchestrator runs Z3 check inline at phase boundary after AUDIT, every phase, no skip condition."
+    evidence_type: "behavioral"
+    plan_item: 8

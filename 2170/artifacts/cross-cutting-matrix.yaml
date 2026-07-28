@@ -1,0 +1,39 @@
+# Cross-cutting matrix: SCs that span multiple concerns, phases, or files
+spec_path: .opencode/.issues/2170/spec.md
+cross_cutting_scs:
+  - sc: SC-1c
+    description: Agent behavior — no deliberation about submodule pointer handling during cleanup
+    spans:
+      - concern: dirty-pointer-lifecycle
+      - concern: cleanup-authorization
+    rationale: SC-1c bridges the pointer lifecycle rule (Phase 1) and the non-deliberation mandate (Phase 2). The agent must both have an unambiguous rule AND not deliberate about it. Implementation requires changes in branch-cleanup.md (Phase 1) and check-pr.md (Phase 2).
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+      - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+  - sc: SC-6
+    description: Remove "resolves on next pre-work cycle" from both 020-go-prohibitions.md and branch-cleanup.md
+    spans:
+      - concern: dirty-pointer-lifecycle
+      - concern: guideline-wording
+    rationale: SC-6 requires changes in both a guideline file (020-go-prohibitions.md, Phase 4) and a skill task file (branch-cleanup.md, Phase 1). The same phrase must be removed from two files in different phases.
+    affected_files:
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+  - sc: SC-3
+    description: Agent does not deliberate about authorization for post-merge cleanup
+    spans:
+      - concern: cleanup-authorization
+    rationale: SC-3 is contained within Phase 2 (check-pr.md) but its behavioral verification requires running the full cleanup workflow end-to-end.
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+independent_scs:
+  - sc: SC-1a
+    description: branch-cleanup.md dirty pointer exemption — single file, single concern
+  - sc: SC-1b
+    description: pre-work.md cross-reference — single file, single concern
+  - sc: SC-2
+    description: check-pr Phase 3 authorization statement — single file, single concern
+  - sc: SC-4
+    description: Pre-push hook Gate 2 message — single file, single concern
+  - sc: SC-5
+    description: approval-gate.md rule 10 wording — single file, single concern

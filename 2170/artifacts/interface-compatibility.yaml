@@ -1,0 +1,51 @@
+# Interface compatibility: interface boundaries between affected modules
+spec_path: .opencode/.issues/2170/spec.md
+interfaces:
+  - module: git-workflow-cleanup
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    interfaces_with:
+      - module: git-workflow-branch
+        file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+        contract: pre-work.md No-Op Branch Guard cross-references branch-cleanup.md dirty pointer rule
+        compatibility: compatible — cross-reference is unidirectional (pre-work → branch-cleanup)
+        risk: If branch-cleanup.md pointer rule wording changes, pre-work.md cross-reference must be updated in same phase
+      - module: approval-gate
+        file: .opencode/guidelines/010-approval-gate.md
+        contract: check-pr.md Phase 3 authorization statement must align with approval-gate.md rule 10
+        compatibility: compatible — Phase 2 (check-pr.md) and Phase 4 (approval-gate.md) are separate phases
+        risk: approval-gate.md rule 10 wording change in Phase 4 must not contradict check-pr.md Phase 3 statement from Phase 2
+  - module: git-workflow-branch
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    interfaces_with:
+      - module: git-workflow-cleanup
+        file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+        contract: pre-work.md No-Op Branch Guard defers to branch-cleanup.md for pointer lifecycle
+        compatibility: compatible — cross-reference is unidirectional
+  - module: approval-gate
+    files:
+      - .opencode/guidelines/010-approval-gate.md
+    interfaces_with:
+      - module: git-workflow-cleanup
+        file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+        contract: approval-gate.md rule 10 "confirmed" definition must match check-pr.md Phase 2 merge verification
+        compatibility: compatible — Phase 2 and Phase 4 are sequential
+        risk: If Phase 4 changes approval-gate.md wording, Phase 2 check-pr.md must not be reverted
+  - module: pre-push-hook
+    files:
+      - .git/hooks/pre-push
+    interfaces_with:
+      - module: git-workflow-cleanup
+        description: Pre-push hook Gate 2 blocks unauthorized pushes; cleanup workflow must respect this
+        compatibility: independent — Gate 2 message change does not affect cleanup workflow logic
+  - module: go-prohibitions
+    files:
+      - .opencode/guidelines/020-go-prohibitions.md
+    interfaces_with:
+      - module: git-workflow-cleanup
+        file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+        contract: Both files contain "resolves on next pre-work cycle" language that must be removed
+        compatibility: compatible — same change in two files, different phases
+        risk: Must ensure both files are updated (SC-6 spans Phase 1 and Phase 4)

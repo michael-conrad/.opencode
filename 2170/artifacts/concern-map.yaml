@@ -1,0 +1,34 @@
+# Concern map: SCs grouped by concern area, mapped to phase boundaries
+spec_path: .opencode/.issues/2170/spec.md
+concerns:
+  - id: dirty-pointer-lifecycle
+    name: Submodule pointer lifecycle consistency
+    description: Single unambiguous path for submodule pointer handling — cleanup leaves dirty, pointer commits only alongside real code changes
+    scs: [SC-1a, SC-1b, SC-1c]
+    phase: 1
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+  - id: cleanup-authorization
+    name: Post-merge cleanup authorization
+    description: check-pr Phase 3 must explicitly state merge verification satisfies issue closure auth; agent must not deliberate about cleanup authorization
+    scs: [SC-2, SC-3]
+    phase: 2
+    affected_files:
+      - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+  - id: pre-push-hook-message
+    name: Pre-push hook Gate 2 message hygiene
+    description: Gate 2 message must state only block and reason — no instructions, no workarounds
+    scs: [SC-4]
+    phase: 3
+    affected_files:
+      - .git/hooks/pre-push
+  - id: guideline-wording
+    name: Guideline wording corrections
+    description: Fix approval-gate.md rule 10 "confirmed" ambiguity; remove "resolves on next pre-work cycle" from 020-go-prohibitions.md and branch-cleanup.md
+    scs: [SC-5, SC-6]
+    phase: 4
+    affected_files:
+      - .opencode/guidelines/010-approval-gate.md
+      - .opencode/guidelines/020-go-prohibitions.md
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md

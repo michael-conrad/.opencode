@@ -1,0 +1,54 @@
+# Code path inventory: code paths implied by each SC
+spec_path: .opencode/.issues/2170/spec.md
+code_paths:
+  - sc: SC-1a
+    description: branch-cleanup.md dirty pointer exemption statement
+    paths:
+      - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+        section: "dirty pointer handling" or "submodule pointer"
+        action: Add or update exemption language stating pointer commits only alongside real code changes
+  - sc: SC-1b
+    description: pre-work.md No-Op Branch Guard cross-reference
+    paths:
+      - file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+        section: "No-Op Branch Guard" or "submodule pointer"
+        action: Replace inline deadlock rule with cross-reference to branch-cleanup.md
+  - sc: SC-1c
+    description: Agent does not deliberate about submodule pointer handling during cleanup
+    paths:
+      - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+        section: "dirty pointer" or "exemption"
+        action: Ensure rule is unambiguous — no authorization checks, no cross-referencing chains
+  - sc: SC-2
+    description: check-pr Phase 3 authorization statement
+    paths:
+      - file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+        section: "Phase 3" or "issue closure"
+        action: Add explicit statement that merge verification (Phase 2) satisfies authorization requirement
+  - sc: SC-3
+    description: Agent does not deliberate about authorization for post-merge cleanup
+    paths:
+      - file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+        section: "Phase 3" or "cleanup"
+        action: Add non-deliberation mandate — cleanup is explicitly authorized by merge event
+  - sc: SC-4
+    description: Pre-push hook Gate 2 message hygiene
+    paths:
+      - file: .git/hooks/pre-push
+        section: "Gate 2" or "authorization" or "block message"
+        action: Remove instructional text, keep only block statement + reason
+  - sc: SC-5
+    description: approval-gate.md rule 10 wording
+    paths:
+      - file: .opencode/guidelines/010-approval-gate.md
+        section: "rule 10" or "Close issues only after PR merge confirmed"
+        action: Clarify "confirmed" means "verified by check-pr Phase 2"
+  - sc: SC-6
+    description: Remove "resolves on next pre-work cycle" language
+    paths:
+      - file: .opencode/guidelines/020-go-prohibitions.md
+        section: "critical-rules-049" or "resolves on next pre-work"
+        action: Remove phrase, replace with accurate pointer lifecycle description
+      - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+        section: "resolves on next pre-work"
+        action: Remove phrase, replace with accurate pointer lifecycle description

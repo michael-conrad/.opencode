@@ -1,0 +1,42 @@
+sc_count: 10
+scs:
+  - id: "SC-1"
+    description: "writing-plans/tasks/create.md no longer produces plan summary lines with aggregate step counts"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "writing-plans/tasks/self-review.md no longer validates or references aggregate step counts in plan structure"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "writing-plans/tasks/validate.md no longer validates or references aggregate step counts in plan structure"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "writing-plans/reference/plan-artifact-format.md no longer documents aggregate step counts as part of plan format"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Internal pipeline bookkeeping (assemble-work.md total_steps field) is NOT modified"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Behavioral enforcement test verifies agent does NOT deliberate about step volume when executing a plan"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Spec defines the defective pattern with IS/IS NOT examples"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Spec scopes the audit with explicit in-scope and out-of-scope categories"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Spec documents relationship to existing issues #2138, #2089, #2137"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Spec does NOT contain any aggregate step count or volume metadata in its own body"
+    evidence_type: "string"
+    plan_item: 10

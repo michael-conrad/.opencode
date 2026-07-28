@@ -1,0 +1,53 @@
+# State analysis: state transitions required by each SC
+spec_path: .opencode/.issues/2170/spec.md
+state_transitions:
+  - sc: SC-1a
+    description: branch-cleanup.md dirty pointer exemption
+    current_state: Dirty pointer deadlock — cleanup says "leave dirty, next pre-work fixes it"; pre-work says "if only pointer changes, delete branch"
+    target_state: Single unambiguous rule — cleanup leaves dirty, pointer commits only alongside real code changes on a feature branch
+    transition: Update branch-cleanup.md exemption language
+  - sc: SC-1b
+    description: pre-work.md No-Op Branch Guard cross-reference
+    current_state: pre-work.md repeats the deadlock rule independently
+    target_state: pre-work.md cross-references branch-cleanup.md instead of repeating
+    transition: Replace inline rule with cross-reference
+  - sc: SC-1c
+    description: Agent does not deliberate about submodule pointer handling during cleanup
+    current_state: Agent consults authorization rules, cross-references multiple files, deliberates about whether to commit pointer
+    target_state: Agent follows unambiguous rule without deliberation — no authorization checks, no cross-referencing chains
+    transition: Make rule unambiguous in branch-cleanup.md; verify via behavioral test
+  - sc: SC-2
+    description: check-pr Phase 3 authorization statement
+    current_state: Phase 3 says "Close depth-first" unconditionally; agent doesn't know if merge verification satisfies auth
+    target_state: Phase 3 explicitly states merge verification (Phase 2) satisfies authorization requirement for issue closure
+    transition: Add explicit authorization statement to check-pr.md Phase 3
+  - sc: SC-3
+    description: Agent does not deliberate about authorization for post-merge cleanup
+    current_state: Agent spends cycles consulting authorization rules for post-merge cleanup operations
+    target_state: Agent performs cleanup without authorization deliberation — merge event is explicit authorization
+    transition: Add non-deliberation mandate to check-pr.md; verify via behavioral test
+  - sc: SC-4
+    description: Pre-push hook Gate 2 message
+    current_state: Gate 2 message includes instructions and workarounds
+    target_state: Gate 2 message states only block and reason — no instructions, no workarounds
+    transition: Edit pre-push hook Gate 2 message text
+  - sc: SC-5
+    description: approval-gate.md rule 10 wording
+    current_state: "Close issues only after PR merge confirmed" — "confirmed" is ambiguous
+    target_state: "Close issues only after PR merge confirmed (verified by check-pr Phase 2)"
+    transition: Update approval-gate.md rule 10 wording
+  - sc: SC-6
+    description: Remove "resolves on next pre-work cycle" language
+    current_state: 020-go-prohibitions.md and branch-cleanup.md contain "resolves on next pre-work cycle"
+    target_state: Both files use accurate description of pointer lifecycle
+    transition: Remove phrase from both files, replace with accurate description
+phase_dependencies:
+  - from_phase: 1
+    to_phase: 2
+    reason: Phase 1 resolves dirty pointer deadlock; Phase 2 cleanup authorization depends on unambiguous pointer state
+  - from_phase: 2
+    to_phase: 4
+    reason: Phase 2 check-pr.md authorization statement must align with Phase 4 approval-gate.md rule 10 clarification
+  - from_phase: 1
+    to_phase: 4
+    reason: SC-6 spans both phases — "resolves on next pre-work" removal in branch-cleanup.md (Phase 1) and 020-go-prohibitions.md (Phase 4)
