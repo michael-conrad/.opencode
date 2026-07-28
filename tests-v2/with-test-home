@@ -373,7 +373,8 @@ echo "[test-env] SNAP_USER_DATA=$TEST_HOME/snap/opencode"
 echo "[test-env] opencode=$TEST_HOME/bin/opencode"
 
 # Isolate to test home — env -i with explicit allowlist prevents production state leaks.
-# OPENCODE_CMD is a full path to the standalone binary — PATH is for basic system tools only.
+# OPENCODE_CMD is the full path to the standalone binary — substitute unconditionally.
+set -- "${OPENCODE_CMD[@]}" "${@:2}"
 RC=0
 env -i -C "$TEST_PROJECT" \
     HOME="$TEST_HOME" \
