@@ -20,6 +20,10 @@ phase_count: 4
 - `.git/hooks/pre-push`
 - `.opencode/guidelines/010-approval-gate.md`
 - `.opencode/guidelines/020-go-prohibitions.md`
+- `.opencode/tests-v2/with-test-home`
+- `.opencode/tests-v2/behaviors/helpers.sh`
+- `.opencode/tests-v2/test-enforcement.sh`
+- `.opencode/tests-v2/test-verification-honesty.sh`
 
 ---
 
@@ -31,6 +35,7 @@ phase_count: 4
 | 2 — Fix check-pr authorization ambiguity | `test-driven-development` | `red` | check-pr.md | SC-2, SC-3 | — |
 | 3 — Update pre-push hook Gate 2 message | `test-driven-development` | `red` | pre-push hook | SC-4 | — |
 | 4 — Update approval-gate.md and 020-go-prohibitions.md | `test-driven-development` | `red` | approval-gate.md, 020-go-prohibitions.md | SC-5, SC-6 | — |
+| 5 — Test framework isolation fix | `test-driven-development` | `red` | with-test-home, helpers.sh, test-enforcement.sh, test-verification-honesty.sh | SC-7 | — |
 
 ---
 

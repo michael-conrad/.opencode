@@ -58,6 +58,7 @@ The original spec claimed "submodule-first processing order broken" but database
 | SC-4 | Pre-push hook Gate 2 message states only the block and reason — no instructions, no workarounds | `string` | grep pre-push hook for absence of instructional text in Gate 2 |
 | SC-5 | approval-gate.md rule 10 wording clarified: "confirmed" means "verified by check-pr Phase 2" not "requires developer authorization" | `string` | grep approval-gate.md for clarified wording |
 | SC-6 | "resolves on next pre-work cycle" language removed from 020-go-prohibitions.md and branch-cleanup.md — replaced with accurate description of pointer lifecycle | `string` | grep for absence of "resolves on next pre-work" in those files |
+| SC-7 | Test framework uses full path to standalone binary at `.tools/opencode/opencode` — no PATH resolution, no snap binary, no production env var leaks | `string` | grep for `STANDALONE_BINARY` in test runner files; confirm no `command -v opencode` or `which opencode` in executable test code |
 
 ## Change Control
 
