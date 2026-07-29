@@ -436,7 +436,7 @@ env -i -C "$TEST_PROJECT" \
     USER="opencode-test-user" \
     GIT_CONFIG_NOSYSTEM=1 \
     SHELL="$SHELL" \
-    LOGNAME="$LOGNAME" \
+    LOGNAME="opencode-test-user" \
     LANG="$LANG" \
     TERM="$TERM" \
     GB_TOKEN="${GB_TOKEN:-}" \

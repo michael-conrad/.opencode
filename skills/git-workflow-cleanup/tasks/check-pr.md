@@ -132,6 +132,6 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
   - Already on $DEFAULT_BRANCH → pull latest, stay on $DEFAULT_BRANCH
   - Already on trunk → pull latest, stay on trunk
   - On non-standard branch → pull latest on current branch, do NOT switch
-- [ ] Submodule pointers in the parent repo are dirty by design. They are restored during the next pre-work cycle. Do NOT commit, reset, or otherwise correct them.
+- [ ] Submodule pointers in the parent repo are dirty by design. They are committed only alongside real code changes on a feature branch. Do NOT commit, reset, or otherwise correct them.
 - [ ] Verify clean working tree: `git status --porcelain` must be empty
 - [ ] Report final state summary and HALT

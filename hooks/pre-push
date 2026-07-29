@@ -124,15 +124,6 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
                 echo "parent-repo source code modifications. Submodule-only bump PRs are"
                 echo "against policy — they create review overhead with no functional change."
                 echo ""
-                echo "This is a HARD STOP — not a warning. You MUST add real code changes"
-                echo "to this branch before pushing. The submodule pointer update will be"
-                echo "included in your PR alongside the real implementation."
-                echo ""
-                echo "If you have no code changes to make, delete this branch:"
-                echo "  git checkout $DEFAULT_BRANCH && git branch -D $LOCAL_BRANCH"
-                echo ""
-                echo "There is NO bypass for this gate. Do NOT create a submodule-only PR."
-                echo ""
                 ALLOWED=false
             fi
         fi
