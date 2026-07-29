@@ -149,14 +149,14 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
 
   |-------|-------------|--------------|
 
-  | 1 | Model config fix — add `model` field and `models` block to `seed_model_config()`,
-  copy `uv` and `uvx` into test home | REQ-1, REQ-2 |
+  | 1 | Model config fix — add `model` field and `models` block with `ornith:35b-256k`
+  to `seed_model_config()` | REQ-1, REQ-7 |
 
   | 2 | uv/uvx copy — ensure `uv` and `uvx` are available in `$TEST_HOME/bin/` for
-  Python plugin operations | REQ-3 |
+  Python plugin operations | REQ-2 |
 
-  | 3 | set-env.sh — write debugging aid with all `env -i` variables to `$TEST_HOME/`
-  | REQ-4 |
+  | 3 | set-env.sh — write debugging aid with all `env -i` variables to `$TEST_HOME/`,
+  including SHELL/LANG/TERM from parent env | REQ-3, REQ-4, REQ-8 |
 
   | 4 | LOGNAME isolation — hardcode `LOGNAME=opencode-test-user` in `env -i` block
   | REQ-5 |
@@ -216,4 +216,4 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   finding: missing Phases section | AI agent (deepseek-v4-flash) |
 
   '
-updated_at: '2026-07-29T04:13:42+00:00'
+updated_at: '2026-07-29T04:16:10+00:00'

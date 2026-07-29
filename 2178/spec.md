@@ -62,9 +62,9 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 
 | Phase | Description | Requirements |
 |-------|-------------|--------------|
-| 1 | Model config fix — add `model` field and `models` block to `seed_model_config()`, copy `uv` and `uvx` into test home | REQ-1, REQ-2 |
-| 2 | uv/uvx copy — ensure `uv` and `uvx` are available in `$TEST_HOME/bin/` for Python plugin operations | REQ-3 |
-| 3 | set-env.sh — write debugging aid with all `env -i` variables to `$TEST_HOME/` | REQ-4 |
+| 1 | Model config fix — add `model` field and `models` block with `ornith:35b-256k` to `seed_model_config()` | REQ-1, REQ-7 |
+| 2 | uv/uvx copy — ensure `uv` and `uvx` are available in `$TEST_HOME/bin/` for Python plugin operations | REQ-2 |
+| 3 | set-env.sh — write debugging aid with all `env -i` variables to `$TEST_HOME/`, including SHELL/LANG/TERM from parent env | REQ-3, REQ-4, REQ-8 |
 | 4 | LOGNAME isolation — hardcode `LOGNAME=opencode-test-user` in `env -i` block | REQ-5 |
 | 5 | Consistency verification — verify `env -i` variable list and `set-env.sh` variable list contain the same set | REQ-6 |
 
