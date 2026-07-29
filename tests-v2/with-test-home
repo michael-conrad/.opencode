@@ -396,6 +396,13 @@ export SNAP_USER_DATA="$TEST_HOME/snap/opencode"
 export SNAP_USER_COMMON="$TEST_HOME/snap/opencode"
 export USER="opencode-test-user"
 export GIT_CONFIG_NOSYSTEM=1
+export SHELL="$SHELL"
+export LOGNAME="$LOGNAME"
+export LANG="$LANG"
+export TERM="$TERM"
+export GB_TOKEN="${GB_TOKEN:-}"
+export GB_HOST="${GB_HOST:-}"
+export GITBUCKET_PORT="${GITBUCKET_PORT:-}"
 SETENV
 chmod +x "$TEST_HOME/set-env.sh"
 
