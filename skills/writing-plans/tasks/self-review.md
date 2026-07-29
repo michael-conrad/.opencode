@@ -98,7 +98,7 @@ Scan the plan at `{issues_prefix}/{N}/plan.md` for placeholder patterns, SC cove
 
 ```yaml
 status: DONE | BLOCKED
-finding_summary: "<1-3 sentences summarizing placeholder count, SC coverage gaps, type/name issues, and per-task cycle violations>"
+finding_summary: "<1-3 sentences summarizing SC coverage gaps, type/name issues, and per-task cycle violations>"
 artifact_path: "<{issues_prefix}/{N}/artifacts/self-review.yaml>"
 blocker_reason: "<SELF_REVIEW_FAILED + summary of findings if BLOCKED>"
 ```

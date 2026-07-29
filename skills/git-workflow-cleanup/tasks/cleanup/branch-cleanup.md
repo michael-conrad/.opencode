@@ -160,7 +160,8 @@ if [ -n "$PARENT_REPO_PATH" ]; then
         echo "No corrective action needed — dirty pointer(s) are normal post-sync state."
         # DO NOT: git add, git commit, git stash, or any corrective action on dirty submodule(s)
         # The dirty pointer(s) reflect that the submodule(s) are ahead of the parent repo's recorded commit.
-        # This will be resolved naturally on the next pre-work cycle via tag-based hash permanence.
+        # Dirty pointer(s) are committed only alongside real code changes on a feature branch — never during cleanup.
+        # The pointer update happens when a feature branch includes both real code changes and the pointer update together.
     fi
 fi
 ```

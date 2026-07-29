@@ -91,7 +91,7 @@ The per-task cycle steps are discovered at runtime by loading the `implementatio
 
 ```yaml
 status: DONE | BLOCKED
-finding_summary: "<1-3 sentences summarizing phase count, task count, and SC coverage>"
+finding_summary: "<1-3 sentences summarizing SC coverage and dispatch structure>"
 artifact_path: "<{issues_prefix}/{N}/plan.md>"
 blocker_reason: "<reason if BLOCKED>"
 ```
