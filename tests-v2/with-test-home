@@ -43,14 +43,15 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
 
-# Standalone binary at fixed cache location — full path, no PATH resolution, no snap.
+# Standalone binary at fixed cache location — copied into $TEST_HOME/bin/opencode
+# so OPENCODE_CMD is always the test-home path, never a prod path.
 STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
 if [ ! -x "$STANDALONE_BINARY" ]; then
     echo "FATAL: standalone binary not found at $STANDALONE_BINARY" >&2
     echo "  Download from https://github.com/anomalyco/opencode/releases" >&2
     exit 1
 fi
-OPENCODE_CMD=("$STANDALONE_BINARY")
+# OPENCODE_CMD is set after TEST_HOME is known — see do_setup() and default flow below.
 
 usage() {
     echo "Usage: bash .opencode/tests-v2/with-test-home [--setup|--keep|--clean|--clean-all] [command...]" >&2
@@ -370,10 +371,18 @@ seed_model_config
 
 # Copy uv into test home bin so opencode can install npm plugins (vibeguard).
 UV_BINARY="$PROJECT_DIR/.tools/uv/uv"
-if [ -x "$UV_BINARY" ]; then
-    mkdir -p "$TEST_HOME/bin"
-    cp "$UV_BINARY" "$TEST_HOME/bin/uv"
+if [ ! -x "$UV_BINARY" ]; then
+    echo "FATAL: uv not found at $UV_BINARY" >&2
+    echo "  Install from https://github.com/astral-sh/uv" >&2
+    exit 1
 fi
+mkdir -p "$TEST_HOME/bin"
+cp "$UV_BINARY" "$TEST_HOME/bin/uv"
+
+# Copy standalone binary into test home bin — OPENCODE_CMD is always the test-home path.
+mkdir -p "$TEST_HOME/bin"
+cp "$STANDALONE_BINARY" "$TEST_HOME/bin/opencode"
+OPENCODE_CMD=("$TEST_HOME/bin/opencode")
 
 # Print [test-env] diagnostics before running the command.
 # TEST_HOME= on stderr is machine-parseable for __export_sqlite_to_yaml in helpers.sh
