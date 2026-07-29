@@ -1,0 +1,50 @@
+sc_count: 12
+scs:
+  - id: "SC-1"
+    description: "verify-already-implemented fires automatically on spec approval"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Gate performs SC-by-SC audit with PASS/FAIL per SC"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "ALL SCs PASS → close issue, update status, halt"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-4"
+    description: "SOME PASS, SOME FAIL → mini-plan from failing SCs, implement, re-audit"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-5"
+    description: "ALL SCs FAIL → proceed with normal pipeline"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-6"
+    description: "Remediation loop terminates after max 3 iterations and escalates"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-7"
+    description: "Result contract supports PARTIALLY_IMPLEMENTED status"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-8"
+    description: "Auto-dispatch routes PARTIALLY_IMPLEMENTED to remediate-partial"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-9"
+    description: "approval-gate-scope/SKILL.md full-path workflow includes remediation step"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-10"
+    description: "implementation-pipeline/SKILL.md TDT has remediate-partial entry"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-11"
+    description: "auto-dispatch-table.md has PARTIALLY_IMPLEMENTED row"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-12"
+    description: "approval-gate/SKILL.md TDT auto-dispatches verify-already-implemented on approval"
+    evidence_type: "behavioral"
+    plan_item: 1

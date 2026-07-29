@@ -1,0 +1,71 @@
+# Cross-cutting matrix for submodule detection replacement
+# Issue: .opencode#2180
+
+dimensions:
+  - name: context_type
+    values: [code-block, prose]
+  - name: skill
+    values: [git-workflow-cleanup, git-workflow-branch]
+  - name: replacement_form
+    values: [with_awk_pipeline, without_awk_pipeline]
+
+matrix:
+  - context_type: code-block
+    skill: git-workflow-cleanup
+    replacement_form: with_awk_pipeline
+    files:
+      - cleanup/branch-cleanup.md (SC-1)
+      - cleanup/issue-closure.md (SC-2)
+      - cleanup.md (SC-5)
+    replacement: "REPO_PATHS=$(git submodule status 2>/dev/null | awk '{print $2}')"
+    sed_removed: true
+
+  - context_type: code-block
+    skill: git-workflow-branch
+    replacement_form: with_awk_pipeline
+    files:
+      - operating-protocol.md (SC-6)
+      - pre-work.md (SC-7)
+    replacement: "REPO_PATHS=$(git submodule status 2>/dev/null | awk '{print $2}')"
+    sed_removed: true
+
+  - context_type: prose
+    skill: git-workflow-cleanup
+    replacement_form: without_awk_pipeline
+    files:
+      - check-pr.md line 34 (SC-3)
+      - check-pr.md line 112 (SC-4)
+    replacement: "git submodule status"
+
+  - context_type: prose
+    skill: git-workflow-branch
+    replacement_form: without_awk_pipeline
+    files:
+      - provenance.md (SC-8)
+    replacement: "git submodule status"
+
+cross_cutting_concerns:
+  - concern: sed pipeline removal
+    affected_occurrences: [OCC-1, OCC-2, OCC-5, OCC-6, OCC-7]
+    description: "The sed 's|/\\.git$||' and sed 's|/$||' pipeline is removed from all code-block contexts because git submodule status outputs paths without .git suffix"
+    impact: structural simplification, no behavioral change
+
+  - concern: stderr suppression
+    affected_occurrences: [OCC-1, OCC-2, OCC-5, OCC-6, OCC-7]
+    description: "2>/dev/null is preserved in code-block contexts to suppress git submodule status stderr when no submodules exist"
+    impact: consistent error handling
+
+  - concern: downstream compatibility
+    affected_occurrences: [OCC-1, OCC-2, OCC-5, OCC-6, OCC-7]
+    description: "REPO_PATHS output format changes from directory names (e.g., .opencode) to paths without .git suffix (e.g., .opencode). The SUBMODULE_PATHS filtering (skip '.') and downstream usage are compatible with both formats"
+    impact: no behavioral change to downstream logic
+
+  - concern: prose consistency
+    affected_occurrences: [OCC-3, OCC-4, OCC-8]
+    description: "Prose contexts reference git submodule status without awk pipeline. These are descriptive/checklist items, not executable code"
+    impact: documentation accuracy only
+
+independence:
+  all_replacements_are_independent: true
+  no_dependency_between_occurrences: true
+  execution_order: any

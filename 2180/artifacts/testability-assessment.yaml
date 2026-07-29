@@ -1,0 +1,125 @@
+# Testability assessment for submodule detection replacement
+# Issue: .opencode#2180
+
+evidence_type: string  # Per spec SC evidence types
+
+verification_approach:
+  method: grep-based content verification
+  rationale: "All SCs are string evidence type — verifying text presence/absence in task files. No behavioral testing needed since the change is a mechanical text replacement with no runtime behavior change."
+
+test_cases:
+  - id: TC-1
+    sc: SC-1
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    line: 189
+    old_pattern: "ls -d .git/ */.git/ */.git"
+    new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
+    verification_command: |
+      # Verify old pattern is absent
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md && echo "FAIL: old pattern still present" || echo "PASS: old pattern removed"
+      # Verify new pattern is present
+      grep -n "git submodule status" .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md | grep "awk" && echo "PASS: new pattern present" || echo "FAIL: new pattern not found"
+
+  - id: TC-2
+    sc: SC-2
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md
+    line: 295
+    old_pattern: "ls -d .git/ */.git/ */.git"
+    new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md && echo "FAIL" || echo "PASS"
+      grep -n "git submodule status" .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md | grep "awk" && echo "PASS" || echo "FAIL"
+
+  - id: TC-3
+    sc: SC-3
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 34
+    old_pattern: "ls -d .git/ */.git/ */.git/"
+    new_pattern: "git submodule status"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-cleanup/tasks/check-pr.md && echo "FAIL" || echo "PASS"
+      grep -n "git submodule status" .opencode/skills/git-workflow-cleanup/tasks/check-pr.md | head -1 && echo "PASS" || echo "FAIL"
+
+  - id: TC-4
+    sc: SC-4
+    file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    line: 112
+    old_pattern: "ls -d .git/ */.git/ */.git/"
+    new_pattern: "git submodule status"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-cleanup/tasks/check-pr.md && echo "FAIL" || echo "PASS"
+      # Verify both occurrences of new pattern exist (SC-3 and SC-4)
+      [ "$(grep -c 'git submodule status' .opencode/skills/git-workflow-cleanup/tasks/check-pr.md)" -ge 2 ] && echo "PASS: both occurrences present" || echo "FAIL: expected 2 occurrences"
+
+  - id: TC-5
+    sc: SC-5
+    file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    line: 42
+    old_pattern: "ls -d .git/ */.git/ */.git"
+    new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-cleanup/tasks/cleanup.md && echo "FAIL" || echo "PASS"
+      grep -n "git submodule status" .opencode/skills/git-workflow-cleanup/tasks/cleanup.md | grep "awk" && echo "PASS" || echo "FAIL"
+
+  - id: TC-6
+    sc: SC-6
+    file: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+    line: 26
+    old_pattern: "ls -d .git/ */.git/ */.git"
+    new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-branch/tasks/operating-protocol.md && echo "FAIL" || echo "PASS"
+      grep -n "git submodule status" .opencode/skills/git-workflow-branch/tasks/operating-protocol.md | grep "awk" && echo "PASS" || echo "FAIL"
+
+  - id: TC-7
+    sc: SC-7
+    file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    line: 108
+    old_pattern: "ls -d .git/ */.git/ */.git"
+    new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-branch/tasks/pre-work.md && echo "FAIL" || echo "PASS"
+      grep -n "git submodule status" .opencode/skills/git-workflow-branch/tasks/pre-work.md | grep "awk" && echo "PASS" || echo "FAIL"
+
+  - id: TC-8
+    sc: SC-8
+    file: .opencode/skills/git-workflow-branch/tasks/provenance.md
+    line: 17
+    old_pattern: "ls -d .git/ */.git/ */.git"
+    new_pattern: "git submodule status"
+    verification_command: |
+      grep -n "ls -d \.git/" .opencode/skills/git-workflow-branch/tasks/provenance.md && echo "FAIL" || echo "PASS"
+      grep -n "git submodule status" .opencode/skills/git-workflow-branch/tasks/provenance.md && echo "PASS" || echo "FAIL"
+
+global_verification:
+  - id: GV-1
+    description: "Verify NO occurrences of old pattern remain in any affected skill"
+    command: |
+      grep -rn "ls -d \.git/" .opencode/skills/git-workflow-cleanup/ .opencode/skills/git-workflow-branch/
+    expected: "No output (zero matches)"
+
+  - id: GV-2
+    description: "Verify sed pipeline is removed from all code-block contexts"
+    command: |
+      grep -rn "sed 's|/\\.git" .opencode/skills/git-workflow-cleanup/ .opencode/skills/git-workflow-branch/
+    expected: "No output (zero matches) — sed pipeline should be removed from all 5 code-block contexts"
+
+  - id: GV-3
+    description: "Verify new pattern exists in all 7 affected files"
+    command: |
+      for f in \
+        .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md \
+        .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md \
+        .opencode/skills/git-workflow-cleanup/tasks/check-pr.md \
+        .opencode/skills/git-workflow-cleanup/tasks/cleanup.md \
+        .opencode/skills/git-workflow-branch/tasks/operating-protocol.md \
+        .opencode/skills/git-workflow-branch/tasks/pre-work.md \
+        .opencode/skills/git-workflow-branch/tasks/provenance.md; do
+        grep -q "git submodule status" "$f" && echo "PASS: $f" || echo "FAIL: $f"
+      done
+    expected: "All 7 files report PASS"
+
+test_environment:
+  required_tools: [grep]
+  setup: "None — verification is grep-only on task files"
+  isolation: "No test home needed (no opencode run required)"

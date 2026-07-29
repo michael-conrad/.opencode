@@ -1,0 +1,67 @@
+# Blast radius analysis for replacing ls -d .git/ glob with git submodule status
+# Issue: .opencode#2180
+# Generated: retroactive backfill from writing-plans
+
+change:
+  description: Replace `ls -d .git/ */.git/ */.git/` glob pattern with `git submodule status` for submodule detection
+  reason: Glob pattern fails when submodule .git is a gitdir file rather than a directory
+
+affected_skills:
+  - name: git-workflow-cleanup
+    path: .opencode/skills/git-workflow-cleanup/
+    affected_task_files:
+      - path: tasks/cleanup/branch-cleanup.md
+        occurrences: 1
+        line: 189
+        context: code-block (variable assignment)
+        sc: SC-1
+      - path: tasks/cleanup/issue-closure.md
+        occurrences: 1
+        line: 295
+        context: code-block (variable assignment)
+        sc: SC-2
+      - path: tasks/check-pr.md
+        occurrences: 2
+        lines: [34, 112]
+        context: prose/checklist
+        sc: [SC-3, SC-4]
+      - path: tasks/cleanup.md
+        occurrences: 1
+        line: 42
+        context: code-block (variable assignment)
+        sc: SC-5
+  - name: git-workflow-branch
+    path: .opencode/skills/git-workflow-branch/
+    affected_task_files:
+      - path: tasks/operating-protocol.md
+        occurrences: 1
+        line: 26
+        context: code-block (variable assignment)
+        sc: SC-6
+      - path: tasks/pre-work.md
+        occurrences: 1
+        line: 108
+        context: prose/checklist
+        sc: SC-7
+      - path: tasks/provenance.md
+        occurrences: 1
+        line: 17
+        context: prose (entry criteria)
+        sc: SC-8
+
+total_occurrences: 8
+total_task_files: 7
+total_skills: 2
+
+not_affected:
+  - Parent repo files (no changes to root repo)
+  - Non-git-workflow skills
+  - SUBMODULE_PATHS filtering logic (works identically regardless of REPO_PATHS source)
+  - Submodule behavior itself (only detection mechanism changes)
+  - Any .py, .ts, or config files
+
+replacement_patterns:
+  code_block: "REPO_PATHS=$(git submodule status 2>/dev/null | awk '{print $2}')"
+  prose: "git submodule status"
+  sed_pipeline_removed: true
+  note: "sed pipeline that strips .git suffix is removed because git submodule status outputs paths without .git suffix"

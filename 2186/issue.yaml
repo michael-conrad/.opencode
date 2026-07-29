@@ -1,0 +1,9 @@
+title: '[SPEC-FIX] spec-audit-validator applies review-passed labels before Arbiter
+  renders final judgment'
+status: open
+labels:
+- needs-approval
+- bug,spec-fix
+body: ''
+created_at: '2026-07-29T23:56:28+00:00'
+updated_at: '2026-07-29T23:56:28+00:00'

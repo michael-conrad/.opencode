@@ -1,0 +1,54 @@
+# State analysis of submodule detection flow
+# Issue: .opencode#2180
+
+states:
+  - id: pre_change
+    description: Current state using ls -d .git/ glob
+    detection_command: "ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\\.git$||' | sed 's|/$||'"
+    behavior:
+      normal_case: "Returns '.' for parent repo + submodule directory names for registered submodules with .git/ directories"
+      edge_case_gitdir_file: "FAILS — trailing slash requires directory entries; gitdir files are not matched"
+      edge_case_no_submodules: "Returns '.' only (or empty if ls fails)"
+      edge_case_unregistered: "Detects any directory with a .git/ subdirectory, even if not in .gitmodules"
+
+  - id: post_change
+    description: Target state using git submodule status
+    detection_command: "git submodule status 2>/dev/null | awk '{print $2}'"
+    behavior:
+      normal_case: "Returns submodule paths for all registered submodules"
+      edge_case_gitdir_file: "WORKS — git submodule status reads .git files correctly"
+      edge_case_no_submodules: "Returns empty output (no error)"
+      edge_case_unregistered: "Does NOT detect unregistered submodules — correct behavior"
+      edge_case_dirty_submodule: "Still returns the path (dirty flag in column 1 is ignored by awk '{print $2}')"
+
+state_transition:
+  from: pre_change
+  to: post_change
+  trigger: "Replace ls -d .git/ glob with git submodule status in 7 task files"
+  impact:
+    - "SUBMODULE_PATHS filtering loop no longer needs to skip '.' (but the check is harmless)"
+    - "sed pipeline is removed (no longer needed)"
+    - "Unregistered submodules are no longer detected (intentional fix)"
+    - "gitdir file submodules are now correctly detected (the bug fix)"
+
+invariants:
+  - "SUBMODULE_PATHS construction logic is unchanged"
+  - "Downstream iteration over SUBMODULE_PATHS is unchanged"
+  - "All git -C operations on submodule paths work identically"
+  - "Tag suffix derivation from directory names is unchanged"
+  - "stderr suppression (2>/dev/null) is preserved"
+
+state_diagram: |
+  [Pre-change: ls -d .git/ glob]
+       |
+       | (fails for gitdir files)
+       v
+  [BUG: Submodule not detected -> cleanup skipped]
+       |
+       | (fix: replace with git submodule status)
+       v
+  [Post-change: git submodule status]
+       |
+       | (works for all submodule types)
+       v
+  [Correct submodule detection -> cleanup proceeds]
