@@ -14,10 +14,11 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   ## Objective
 
 
-  Fix 5 issues in `.opencode/tests-v2/with-test-home` on the `feature/2170-git-workflow-regression`
-  branch to improve test framework reliability and debuggability: model config to
-  prevent embedding model auto-selection, uv/uvx copy for Python plugin operations,
-  set-env.sh debugging aid, LOGNAME environment isolation fix, and env-allowlist consistency.
+  Fix 6 issues in `.opencode/tests-v2/with-test-home` and `.opencode/tests-v2/behaviors/helpers.sh`
+  on the `feature/2170-git-workflow-regression` branch to improve test framework reliability
+  and debuggability: model config to prevent embedding model auto-selection, uv/uvx
+  copy for Python plugin operations, set-env.sh debugging aid, LOGNAME environment
+  isolation fix, env-allowlist consistency, and SQLite DB export on timeout.
 
 
   ## Background
@@ -44,6 +45,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
 
   5. **Env list drift**: The `env -i` allowlist and `set-env.sh` can drift apart,
   making debugging misleading.
+
+  6. **SQLite DB export fails on timeout**: When a behavioral test times out, stdout
+  is empty and `__export_sqlite_to_yaml` only searched stdout for `TEST_HOME=`. The
+  DB path is emitted to stderr, so the export produced `source_db: MISSING`.
 
 
   ## Not Included
@@ -89,6 +94,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   | SC-5 | `env -i` variable list and `set-env.sh` variable list contain the same
   set of variables | `string` | Compare both lists — same set of variables |
 
+  | SC-6 | `__export_sqlite_to_yaml()` searches stderr for `TEST_HOME=` when stdout
+  is empty (timeout case) | `string` | grep for `stderr_file` and `TEST_HOME=` in
+  `__export_sqlite_to_yaml()` |
+
 
   ## Requirements
 
@@ -118,6 +127,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   8. REQ-8: `SHELL`, `LANG`, and `TERM` SHALL be passed from the parent environment
   (not hardcoded) to match the user''s terminal environment.
 
+  9. REQ-9: `__export_sqlite_to_yaml()` SHALL search stderr for `TEST_HOME=` when
+  stdout is empty, to handle timeout cases.
+
 
   ## Items
 
@@ -140,6 +152,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
 
   | 5 | SC-5 | Verify `env -i` var list and `set-env.sh` var list are consistent |
   consistency |
+
+  | 6 | SC-6 | Add stderr fallback to `__export_sqlite_to_yaml()` for timeout case
+  | fix |
 
 
   ## Phases
@@ -164,6 +179,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   | 5 | Consistency verification — verify `env -i` variable list and `set-env.sh`
   variable list contain the same set | REQ-6 |
 
+  | 6 | SQLite DB export stderr fallback — search stderr for `TEST_HOME=` when stdout
+  is empty | REQ-9 |
+
 
   ## Dependencies
 
@@ -171,8 +189,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   - **Branch**: `feature/2170-git-workflow-regression` (the target branch for these
   changes)
 
-  - **File**: `.opencode/tests-v2/with-test-home` (single file, all changes within
-  it)
+  - **File**: `.opencode/tests-v2/with-test-home` and `.opencode/tests-v2/behaviors/helpers.sh`
 
   - **Tools**: `.tools/uv/uv` and `.tools/uv/uvx` must exist at copy time
 
@@ -200,6 +217,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
 
   | REQ-8 | SC-3 | 3 |
 
+  | REQ-9 | SC-6 | 6 |
+
 
   ## Change Control
 
@@ -222,5 +241,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   | 2026-07-29 | Fixed Traceability table: REQ-8 → SC-3 only (not SC-4) | Validation
   finding: incorrect REQ-8 mapping to SC-4 | AI agent (deepseek-v4-flash) |
 
+  | 2026-07-29 | Added SC-6: stderr fallback for `__export_sqlite_to_yaml()`; added
+  REQ-9, Phase 6, Item 6 | Audit finding: SQLite DB export fails on timeout | AI agent
+  (deepseek-v4-flash) |
+
   '
-updated_at: '2026-07-29T04:18:34+00:00'
+updated_at: '2026-07-29T11:57:28+00:00'

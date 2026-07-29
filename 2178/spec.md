@@ -6,7 +6,7 @@
 
 ## Objective
 
-Fix 5 issues in `.opencode/tests-v2/with-test-home` on the `feature/2170-git-workflow-regression` branch to improve test framework reliability and debuggability: model config to prevent embedding model auto-selection, uv/uvx copy for Python plugin operations, set-env.sh debugging aid, LOGNAME environment isolation fix, and env-allowlist consistency.
+Fix 6 issues in `.opencode/tests-v2/with-test-home` and `.opencode/tests-v2/behaviors/helpers.sh` on the `feature/2170-git-workflow-regression` branch to improve test framework reliability and debuggability: model config to prevent embedding model auto-selection, uv/uvx copy for Python plugin operations, set-env.sh debugging aid, LOGNAME environment isolation fix, env-allowlist consistency, and SQLite DB export on timeout.
 
 ## Background
 
@@ -17,6 +17,7 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 3. **No debugging aid**: When `env -i` isolation is active, there is no way to reproduce the test environment for debugging — `set-env.sh` provides this.
 4. **LOGNAME leak**: `LOGNAME` leaks the parent environment's user into the test environment instead of being hardcoded to `opencode-test-user`.
 5. **Env list drift**: The `env -i` allowlist and `set-env.sh` can drift apart, making debugging misleading.
+6. **SQLite DB export fails on timeout**: When a behavioral test times out, stdout is empty and `__export_sqlite_to_yaml` only searched stdout for `TEST_HOME=`. The DB path is emitted to stderr, so the export produced `source_db: MISSING`.
 
 ## Not Included
 
@@ -36,6 +37,7 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | SC-3 | `do_setup()` writes `set-env.sh` to `$TEST_HOME/` with all `env -i` variables (HOME, PATH, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR, XDG_DATA_HOME, XDG_STATE_HOME, SNAP_USER_DATA, SNAP_USER_COMMON, USER, GIT_CONFIG_NOSYSTEM, SHELL, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST, GITBUCKET_PORT) | `string` | grep for `set-env.sh` heredoc; verify all 18 vars present |
 | SC-4 | `LOGNAME` in `env -i` block is hardcoded to `opencode-test-user`, not parent env leak (`LOGNAME="$LOGNAME"`) | `string` | grep `env -i` block for `LOGNAME=opencode-test-user` |
 | SC-5 | `env -i` variable list and `set-env.sh` variable list contain the same set of variables | `string` | Compare both lists — same set of variables |
+| SC-6 | `__export_sqlite_to_yaml()` searches stderr for `TEST_HOME=` when stdout is empty (timeout case) | `string` | grep for `stderr_file` and `TEST_HOME=` in `__export_sqlite_to_yaml()` |
 
 ## Requirements
 
@@ -47,6 +49,7 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 6. REQ-6: All `env -i` variables SHALL match between the `env -i` block and `set-env.sh` to prevent debugging mismatches.
 7. REQ-7: The `model` field in `opencode.jsonc` SHALL reference a model that exists in the `models` block.
 8. REQ-8: `SHELL`, `LANG`, and `TERM` SHALL be passed from the parent environment (not hardcoded) to match the user's terminal environment.
+9. REQ-9: `__export_sqlite_to_yaml()` SHALL search stderr for `TEST_HOME=` when stdout is empty, to handle timeout cases.
 
 ## Items
 
@@ -57,6 +60,7 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | 3 | SC-3 | Write `set-env.sh` heredoc in `do_setup()` with all 18 `env -i` variables | debugging |
 | 4 | SC-4 | Change `LOGNAME="$LOGNAME"` to `LOGNAME="opencode-test-user"` in `env -i` block | fix |
 | 5 | SC-5 | Verify `env -i` var list and `set-env.sh` var list are consistent | consistency |
+| 6 | SC-6 | Add stderr fallback to `__export_sqlite_to_yaml()` for timeout case | fix |
 
 ## Phases
 
@@ -67,11 +71,12 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | 3 | set-env.sh — write debugging aid with all `env -i` variables to `$TEST_HOME/`, including SHELL/LANG/TERM from parent env | REQ-3, REQ-4, REQ-8 |
 | 4 | LOGNAME isolation — hardcode `LOGNAME=opencode-test-user` in `env -i` block | REQ-5 |
 | 5 | Consistency verification — verify `env -i` variable list and `set-env.sh` variable list contain the same set | REQ-6 |
+| 6 | SQLite DB export stderr fallback — search stderr for `TEST_HOME=` when stdout is empty | REQ-9 |
 
 ## Dependencies
 
 - **Branch**: `feature/2170-git-workflow-regression` (the target branch for these changes)
-- **File**: `.opencode/tests-v2/with-test-home` (single file, all changes within it)
+- **File**: `.opencode/tests-v2/with-test-home` and `.opencode/tests-v2/behaviors/helpers.sh`
 - **Tools**: `.tools/uv/uv` and `.tools/uv/uvx` must exist at copy time
 - **Model**: `ollama/ornith:35b-256k` must be available on the Ollama server
 
@@ -86,6 +91,7 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | REQ-6 | SC-5 | 5 |
 | REQ-7 | SC-1 | 1 |
 | REQ-8 | SC-3 | 3 |
+| REQ-9 | SC-6 | 6 |
 
 ## Change Control
 
@@ -95,3 +101,4 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | 2026-07-29 | Added Phases section with 5 phases mapping to REQ references | Validation finding: missing Phases section | AI agent (deepseek-v4-flash) |
 | 2026-07-29 | Fixed Phases REQ references: Phase 1 REQ-2→REQ-7, Phase 2 REQ-3→REQ-2, Phase 3 REQ-4→REQ-3+REQ-4+REQ-8, Phase 4 REQ-5, Phase 5 REQ-6 | Validation finding: REQ mismatches and overlap | AI agent (deepseek-v4-flash) |
 | 2026-07-29 | Fixed Traceability table: REQ-8 → SC-3 only (not SC-4) | Validation finding: incorrect REQ-8 mapping to SC-4 | AI agent (deepseek-v4-flash) |
+| 2026-07-29 | Added SC-6: stderr fallback for `__export_sqlite_to_yaml()`; added REQ-9, Phase 6, Item 6 | Audit finding: SQLite DB export fails on timeout | AI agent (deepseek-v4-flash) |
