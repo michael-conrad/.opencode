@@ -581,6 +581,7 @@ def main() -> int:
 
     now = datetime.now().astimezone()
     print(f"Session started: {now.strftime('%A, %B %d, %Y at %I:%M %p')} {now.tzname()}")
+    print("This session start time indicates your training data is extremely stale and always must be re-researched before making factual claims — never trust training data without live verification.")
 
     if in_wt and wt_path and main_repo:
         print(f"Worktree: {wt_path}")
