@@ -100,6 +100,8 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 
 ## Phase 3: Close Linked Issues
 
+**Merge verification (Phase 2) satisfies the authorization requirement for issue closure.** Per approval-gate.md rule 10, "confirmed" means "verified by check-pr Phase 2" — it does NOT require the developer to say "approved" or "go" for each individual issue closure. Phase 2's mergeability diagnosis and merge-commit verification constitute the authorization check. Proceed with closure without soliciting developer approval.
+
 - [ ] Search open issues: for each merged PR, query the platform's issue tracker for open issues referencing the PR number or commit SHAs (via PR body, comments, commit messages, or linked PR references)
 - [ ] Check sub-issues, siblings, parents, and cross-repo issues for closure eligibility
 - [ ] Close depth-first: sub-repos first, children before parents, cross-repo
@@ -130,6 +132,6 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
   - Already on $DEFAULT_BRANCH → pull latest, stay on $DEFAULT_BRANCH
   - Already on trunk → pull latest, stay on trunk
   - On non-standard branch → pull latest on current branch, do NOT switch
-- [ ] Submodule pointers in the parent repo are dirty by design. They are restored during the next pre-work cycle. Do NOT commit, reset, or otherwise correct them.
+- [ ] Submodule pointers in the parent repo are dirty by design. They are committed only alongside real code changes on a feature branch. Do NOT commit, reset, or otherwise correct them.
 - [ ] Verify clean working tree: `git status --porcelain` must be empty
 - [ ] Report final state summary and HALT

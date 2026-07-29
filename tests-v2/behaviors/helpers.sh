@@ -309,15 +309,19 @@ __export_sqlite_to_yaml() {
     local db_found=0
     local db_path=""
 
+    # Search stdout first, then stderr — TEST_HOME= is emitted to stderr by with-test-home.
+    local test_home=""
     if [ -n "$stdout_file" ] && [ -f "$stdout_file" ]; then
-        local test_home
         test_home=$(grep '^TEST_HOME=' "$stdout_file" | head -1 | sed 's/^TEST_HOME=//')
-        if [ -n "$test_home" ]; then
-            local candidate="$test_home/.local/share/opencode/opencode.db"
-            if [ -f "$candidate" ]; then
-                db_path="$candidate"
-                db_found=1
-            fi
+    fi
+    if [ -z "$test_home" ] && [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
+        test_home=$(grep '^TEST_HOME=' "$stderr_file" | head -1 | sed 's/^TEST_HOME=//')
+    fi
+    if [ -n "$test_home" ]; then
+        local candidate="$test_home/.local/share/opencode/opencode.db"
+        if [ -f "$candidate" ]; then
+            db_path="$candidate"
+            db_found=1
         fi
     fi
 

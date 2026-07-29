@@ -1,36 +1,44 @@
 {
   "enabled": true,
+  "debug": false,
+  "placeholder_prefix": "__VG_",
+  "session": {
+    "ttl": "1h",
+    "max_mappings": 100000
+  },
   "patterns": {
+    "builtin": [],
     "regex": [
       {
-        "name": "openai-api-key",
         "pattern": "sk-[A-Za-z0-9]{20,}",
-        "description": "OpenAI API key format"
+        "category": "OPENAI_API_KEY"
       },
       {
-        "name": "github-pat",
-        "pattern": "ghp_[A-Za-z0-9]{36,}",
-        "description": "GitHub personal access token"
+        "pattern": "(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}",
+        "category": "GITHUB_PAT"
       },
       {
-        "name": "aws-access-key",
         "pattern": "AKIA[0-9A-Z]{16}",
-        "description": "AWS access key ID"
+        "category": "AWS_ACCESS_KEY"
+      },
+      {
+        "pattern": "-----BEGIN\\s*(RSA|DSA|EC|PGP|SSH|OPENSSH)?\\s*PRIVATE KEY-----",
+        "category": "PRIVATE_KEY"
+      },
+      {
+        "pattern": "(?:password|passwd|pwd)\\s*[=:]\\s*\\S+",
+        "category": "PASSWORD_ASSIGNMENT"
+      },
+      {
+        "pattern": "(?:secret|api_key|api-key|secret_key|secret_token)\\s*[=:]\\s*\\S+",
+        "category": "SECRET_ASSIGNMENT"
       }
     ],
-    "builtin": [
-      "email",
-      "phone",
-      "id",
-      "uuid",
-      "ipv4",
-      "mac_address"
-    ],
-    "keywords": [
-      "secret",
-      "password",
-      "token",
-      "key"
+    "exclude": [
+      "example.com",
+      "localhost",
+      "127.0.0.1",
+      "0.0.0.0"
     ]
   }
 }

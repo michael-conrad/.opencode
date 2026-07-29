@@ -170,12 +170,13 @@ bash .opencode/tests-v2/behaviors/<scenario>.sh
 
 ### Binary
 
-- **`opencode`** resolved from PATH — the ONLY binary used. NEVER hardcode `/snap/bin/opencode`.
-- **`opencode-cli`** at `/usr/bin/opencode-cli` — fallback only, NOT the primary binary.
+- **`opencode`** is copied from `.tools/opencode/opencode` into `$TEST_HOME/bin/opencode` by `with-test-home`. The `OPENCODE_CMD` variable is set to `("$TEST_HOME/bin/opencode")` — the test-home path, never a prod path.
+- **NEVER resolve from PATH** — `command -v opencode` may find `/snap/bin/opencode` which hardcodes `SNAP_USER_DATA=~/snap/opencode/` and leaks production state.
+- **NEVER hardcode `/snap/bin/opencode`** — the snap wrapper ignores `$HOME` and writes to the production SQLite DB.
 
-**Why PATH resolution instead of hardcoding:** The snap wrapper at `/snap/bin/opencode` → `/usr/bin/snap` ignores `$HOME` and hardcodes `SNAP_USER_DATA=~/snap/opencode/`, which leaks production state into test environments. Resolving from PATH allows the test harness to use any opencode installation while maintaining `HOME` isolation.
+**Why copy instead of PATH resolution:** The snap wrapper at `/snap/bin/opencode` → `/usr/bin/snap` ignores `$HOME` and hardcodes `SNAP_USER_DATA=~/snap/opencode/`, which leaks production state into test environments. Copying the standalone binary into the test home ensures the test uses the correct binary with the test home's `SNAP_USER_DATA` override.
 
-**DO NOT hardcode a specific binary path.** If the binary location changes, update the PATH, not the script.
+**If the binary location changes**, update the `STANDALONE_BINARY` path in `with-test-home` and the test runner scripts.
 
 ### `with-test-home` — Fully Isolated Test Runner
 
@@ -200,8 +201,8 @@ Uses `env -i` with an explicit allowlist. Only these variables are passed throug
 | `SNAP_USER_COMMON` | Set to test home | Overrides snap's common data directory |
 | `GIT_CONFIG_NOSYSTEM` | `1` | Prevents system git config from leaking |
 | `SHELL` | Parent env | Required by some tools |
-| `USER` | Parent env | Required by some tools |
-| `LOGNAME` | Parent env | Required by some tools |
+| `USER` | Set to `opencode-test-user` | Test identity |
+| `LOGNAME` | Set to `opencode-test-user` | Test identity (hardcoded, not parent env leak) |
 | `LANG` | Parent env | Locale |
 | `TERM` | Parent env | Terminal type |
 | `GB_TOKEN` | Parent env (if set) | GitBucket API token |
@@ -212,13 +213,37 @@ Uses `env -i` with an explicit allowlist. Only these variables are passed throug
 
 The command runs from `TEST_PROJECT` (the test project directory inside the test home). This ensures opencode discovers the test project's `.opencode/` as its project root, not the production project's.
 
-#### Local Submodule Checkout
+#### Submodule Checkout
 
-`.opencode/` is checked out locally via `cp -a` from the parent repo, NOT cloned from remote. This ensures the test environment sees unmerged feature branch changes. The checkout includes all feature branch modifications (config files, test scripts, etc.).
+`.opencode/` is cloned from the remote URL (not `cp -a` from the parent repo). After cloning, the test harness checks out the same commit as the local `.opencode` submodule HEAD to pick up feature branch changes. If the commit is not pushed to remote, a WARNING is emitted and the remote default branch is used instead.
+
+**Feature branch changes MUST be pushed to remote before running tests.** The clone from remote ensures the test environment has a clean git history and proper submodule state.
 
 #### Model Config Generation
 
-`seed_model_config()` generates a minimal `opencode.jsonc` by querying the Ollama API (`curl http://localhost:11434/api/tags`) for available models. It does NOT copy the production `opencode.jsonc` — that file contains secrets, API keys, and environment-specific settings that must not leak into test environments.
+`seed_model_config()` generates a minimal `opencode.jsonc` with:
+- `"model": "ollama/ornith:35b-256k"` — explicit model field to prevent opencode from auto-selecting an embedding model from the project config
+- `"models": { "$bare": {}, "ornith:35b-256k": {} }` — both the default model and ornith in the models block so the model field resolves
+
+It does NOT copy the production `opencode.jsonc` — that file contains secrets, API keys, and environment-specific settings that must not leak into test environments.
+
+#### uv/uvx Copy
+
+`do_setup()` copies `uv` and `uvx` from `.tools/uv/` into `$TEST_HOME/bin/` so opencode can use them for Python-based plugin operations (e.g., vibeguard plugin npm installs). If `uv` is not found at `.tools/uv/uv`, the script exits with a FATAL error.
+
+#### set-env.sh Debugging Aid
+
+`do_setup()` writes `set-env.sh` into `$TEST_HOME/` with all `env -i` variables for debugging. This allows reproducing the test environment outside the harness:
+
+```bash
+source $TEST_HOME/set-env.sh
+```
+
+The file includes: HOME, PATH, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR, XDG_DATA_HOME, XDG_STATE_HOME, SNAP_USER_DATA, SNAP_USER_COMMON, USER, GIT_CONFIG_NOSYSTEM, SHELL, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST, GITBUCKET_PORT.
+
+#### SQLite DB Export on Timeout
+
+`__export_sqlite_to_yaml()` in `helpers.sh` searches both stdout and stderr for `TEST_HOME=<path>` to discover the SQLite DB. Previously it only searched stdout — when a behavioral test timed out, stdout was empty and the export produced `source_db: MISSING`. Now it falls back to stderr, which always contains the `TEST_HOME=` marker emitted by `with-test-home`.
 
 #### Isolation Verification Procedure
 
@@ -240,10 +265,13 @@ The `project.worktree` field MUST contain the test project path (under `tmp/test
 4. Set `PATH` to parent env PATH only
 5. Create test sub-folder: `{test_home}/project/`
 6. `git init` the test sub-folder
-7. Checkout `.opencode/` locally via `cp -a` from parent repo (NOT cloned from remote)
-8. Seed `opencode.jsonc` config by querying Ollama API for available models
-9. Run `opencode models` to verify CLI works (smoke test)
-10. Run `opencode run "hello world"` to verify model works (smoke test)
+7. Clone `.opencode/` from remote, then checkout local submodule commit
+8. Copy standalone binary from `.tools/opencode/opencode` to `$TEST_HOME/bin/opencode`
+9. Copy `uv` and `uvx` from `.tools/uv/` to `$TEST_HOME/bin/`
+10. Write `set-env.sh` into test home with all `env -i` variables
+11. Seed `opencode.jsonc` config with `model: ollama/ornith:35b-256k` and models block
+12. Run `opencode models` to verify CLI works (smoke test)
+13. Run `opencode run "hello world"` to verify model works (smoke test)
 
 ### Smoke Test Requirements
 
@@ -339,11 +367,11 @@ DEFAULT_TEST_MODEL="ollama/other-model:tag" bash .opencode/tests-v2/behaviors/<s
 
 ### Binary Resolution
 
-`opencode` is resolved from PATH via `command -v opencode`. **DO NOT hardcode a specific binary path** (e.g., `/snap/bin/opencode`). The snap wrapper ignores `$HOME` and leaks production state. If the binary location changes, update the PATH, not the script.
+`opencode` is copied from `.tools/opencode/opencode` into `$TEST_HOME/bin/opencode` by `with-test-home`. **DO NOT resolve from PATH** — `command -v opencode` may find `/snap/bin/opencode` which ignores `$HOME` and leaks production state. If the binary location changes, update the `STANDALONE_BINARY` path in `with-test-home` and the test runner scripts.
 
 ### Isolation Requirements
 
-The isolation contract (environment variables, working directory, submodule checkout, model config generation) is defined in §5. **DO NOT change isolation requirements without an approved spec.** Changes to the `env -i` allowlist, `HOME`/`SNAP_USER_DATA` handling, or submodule checkout pattern can silently break isolation and leak production state.
+The isolation contract (environment variables, working directory, submodule checkout, model config generation, binary copy, uv/uvx copy, set-env.sh) is defined in §5. **DO NOT change isolation requirements without an approved spec.** Changes to the `env -i` allowlist, `HOME`/`SNAP_USER_DATA` handling, binary resolution, or submodule checkout pattern can silently break isolation and leak production state.
 
 ## 10. Prompt Construction Mandate
 
