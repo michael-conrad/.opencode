@@ -117,6 +117,7 @@ seed_model_config() {
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
 {
   "\$schema": "https://opencode.ai/config.json",
+  "model": "$default_model",
   "provider": {
     "ollama": {
       "options": {
