@@ -29,7 +29,10 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 6. [Relationship to Content-Verification Tests](#6-relationship-to-content-verification-tests)
 7. [Cleanup](#7-cleanup)
 8. [Triple Co-Application Reference](#8-triple-co-application-reference)
-9. [Prompt Construction Mandate](#9-prompt-construction-mandate)
+9. [Change Control](#9-change-control)
+10. [Testing Lessons Learned — Failure Patterns and Remediation](#10-testing-lessons-learned--failure-patterns-and-remediation)
+11. [Prompt Construction Mandate](#11-prompt-construction-mandate)
+12. [Self-Contained GitBucket Container for Remote API Tests](#12-self-contained-gitbucket-container-for-remote-api-tests)
 
 ---
 
@@ -373,7 +376,125 @@ DEFAULT_TEST_MODEL="ollama/other-model:tag" bash .opencode/tests-v2/behaviors/<s
 
 The isolation contract (environment variables, working directory, submodule checkout, model config generation, binary copy, uv/uvx copy, set-env.sh) is defined in §5. **DO NOT change isolation requirements without an approved spec.** Changes to the `env -i` allowlist, `HOME`/`SNAP_USER_DATA` handling, binary resolution, or submodule checkout pattern can silently break isolation and leak production state.
 
-## 10. Prompt Construction Mandate
+## 10. Testing Lessons Learned — Failure Patterns and Remediation
+
+This section documents failure patterns discovered during implementation of #2170/#2172/#2173/#2175. These are mandatory reading for any agent running behavioral tests.
+
+### 10.1 Stale Lock Contention
+
+**Symptom:** `HARNESS_FAILURE: lock contention — another test is running (waited 30s)`
+
+**Root cause:** A prior `behavior_run()` invocation was killed (bash tool timeout, SIGTERM, or crash) before releasing the `flock` at `tmp/.behavior-run.lock`. The lock file remains on disk with no process holding it, but the next test attempt sees the file and waits 30s before failing.
+
+**Remediation:**
+```bash
+rm -f tmp/.behavior-run.lock
+```
+Then re-run the test. Always clean stale locks before re-running.
+
+**Prevention:** The lock file is advisory — it does not auto-expire. Always run `bash .opencode/tests-v2/with-test-home --clean-all` between test sessions to clean up stale state.
+
+### 10.2 Bash Tool Timeout (Default 120s Kills 35B Models)
+
+**Symptom:** `HARNESS_FAILURE: behavior_run produced empty output after all retries` — stdout is empty, stderr has only `TEST_HOME=<path>`.
+
+**Root cause:** The bash tool's default timeout is 120s (120000ms). A 35B model takes 5-10 minutes to produce a response for a cleanup workflow. The bash tool kills the script before the model finishes, producing empty stdout. The retry logic sees empty output and retries, but the same timeout kills it again.
+
+**Remediation:**
+```bash
+# ALWAYS pass timeout=600000 (600 seconds) when running behavioral tests
+bash .opencode/tests-v2/behaviors/<scenario>.sh
+# ^ bash tool MUST have timeout: 600000
+```
+
+**Evidence check:** Even when the bash tool kills the script, the SQLite DB in the test home contains the partial session data. Export it manually:
+```bash
+TEST_HOME=$(grep '^TEST_HOME=' tmp/behavioral-evidence-<scenario>-<phase>-<model>/stderr.log | sed 's/^TEST_HOME=//')
+python3 -c "
+import json, sqlite3
+db = '$TEST_HOME/.local/share/opencode/opencode.db'
+conn = sqlite3.connect(db)
+conn.row_factory = sqlite3.Row
+c = conn.cursor()
+c.execute('SELECT * FROM event ORDER BY id')
+events = [dict(r) for r in c.fetchall()]
+result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+with open('tmp/behavioral-evidence-<scenario>-<phase>-<model>/session.yaml', 'w') as f:
+    json.dump(result, f, indent=2, default=str)
+"
+```
+This exports the SQLite DB even when the test was killed mid-run, allowing evaluation of partial output.
+
+### 10.3 Missing session.yaml Export (stderr Fallback)
+
+**Symptom:** Artifact directory has `stdout.log`, `stderr.log`, `manifest.yaml`, `exit_code` but NO `session.yaml`. The `__export_sqlite_to_yaml()` function produced `source_db: MISSING`.
+
+**Root cause:** `__export_sqlite_to_yaml()` in `helpers.sh` searches stdout for `TEST_HOME=<path>`. When the bash tool kills the script (timeout), stdout is empty. The function reports `source_db: MISSING`. The fix (applied in #2182) adds stderr fallback — `with-test-home` always emits `TEST_HOME=<path>` to stderr.
+
+**Remediation (pre-fix):** Manually export the SQLite DB using the procedure in §10.2.
+
+**Remediation (post-fix):** The `__export_sqlite_to_yaml()` function now searches stderr when stdout is empty. If `session.yaml` is still missing, the test home may have been cleaned. Check `ls tmp/test-home-*/` for the test home directory.
+
+### 10.4 Fabricated Model Excuses — ABSOLUTE PROHIBITION
+
+**Symptom:** Agent reports "model timed out", "model too large", "model not available", or "model unavailability" as justification for skipping a behavioral test or reporting it as PASS without running it.
+
+**Root cause:** The agent fabricates model excuses instead of diagnosing the actual failure (stale lock, bash tool timeout, missing stderr fallback). This is a CRITICAL VIOLATION of verification honesty.
+
+**Prohibition:** An agent MUST NOT claim model unavailability, model timeout, or model incompatibility without tool-call evidence. The remediation-first protocol applies:
+1. Check for stale lock: `ls -la tmp/.behavior-run.lock`
+2. Check bash tool timeout: verify `timeout` parameter >= 600000ms
+3. Check stderr for `TEST_HOME=<path>` — the model DID run, the harness just couldn't capture output
+4. Manually export SQLite DB from test home (see §10.2)
+5. Only after ALL remediation attempts fail may the agent report FAIL with evidence of each attempt
+
+**Evidence that the model works:** The model (qwen3.6:35b-256k) is verified to work with the test harness. It produces valid output for cleanup workflows in 5-10 minutes. Any claim that it "doesn't work" or "is too large" is a fabrication unless backed by tool-call evidence.
+
+### 10.5 Post-Timeout Recovery Procedure
+
+When a behavioral test times out (bash tool kills the script), follow this procedure:
+
+1. **Locate the artifact directory:**
+   ```bash
+   ls -lt tmp/behavioral-evidence-<scenario>-*/
+   ```
+
+2. **Extract TEST_HOME from stderr:**
+   ```bash
+   TEST_HOME=$(grep '^TEST_HOME=' tmp/behavioral-evidence-<scenario>-<phase>-<model>/stderr.log | sed 's/^TEST_HOME=//')
+   ```
+
+3. **Verify the SQLite DB exists:**
+   ```bash
+   ls -la "$TEST_HOME/.local/share/opencode/opencode.db"
+   ```
+
+4. **Export session.yaml manually:**
+   ```bash
+   python3 -c "
+   import json, sqlite3
+   db = '$TEST_HOME/.local/share/opencode/opencode.db'
+   conn = sqlite3.connect(db)
+   conn.row_factory = sqlite3.Row
+   c = conn.cursor()
+   c.execute('SELECT * FROM event ORDER BY id')
+   events = [dict(r) for r in c.fetchall()]
+   result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+   with open('tmp/behavioral-evidence-<scenario>-<phase>-<model>/session.yaml', 'w') as f:
+       json.dump(result, f, indent=2, default=str)
+   "
+   ```
+
+5. **Evaluate the partial output:** The session.yaml contains all tool calls and reasoning up to the point of timeout. This is valid evidence for evaluating agent behavior — the agent's decisions up to the timeout are observable.
+
+6. **Clean up and re-run with longer timeout:**
+   ```bash
+   rm -f tmp/.behavior-run.lock
+   bash .opencode/tests-v2/with-test-home --clean-all
+   # Re-run with timeout=900000 (900 seconds) in the bash tool
+   ```
+
+## 11. Prompt Construction Mandate
 
 Behavioral test prompts MUST trigger natural agent behavior — they MUST NOT interview the agent about what it *would* do.
 
@@ -415,7 +536,7 @@ Any behavioral test that uses a prose-recall prompt is **FAIL** — the test doe
 
 ---
 
-## 11. Self-Contained GitBucket Container for Remote API Tests
+## 12. Self-Contained GitBucket Container for Remote API Tests
 
 Tests that need to verify remote API behavior (e.g., verifying labels on a remote issue after creation) can opt in to a self-contained GitBucket instance provisioned by the test harness.
 
