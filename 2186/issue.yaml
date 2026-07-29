@@ -4,6 +4,43 @@ status: open
 labels:
 - needs-approval
 - bug,spec-fix
-body: ''
+body: "## Problem\n\nThe `spec-audit-validator` task applies `spec-passed-review`\
+  \ and removes `spec-under-review` labels during Step 0.1 — **before** the Evaluator\
+  \ and Arbiter have rendered their verdicts. In the actual run for `.opencode#2180`,\
+  \ the Validator applied `spec-passed-review` despite the Evaluator later finding\
+  \ 7 FAIL criteria. Labels should only be applied after the Arbiter produces a clean\
+  \ PASS judgment.\n\n## Root Cause\n\nTwo roles in the DiMo chain apply lifecycle\
+  \ labels prematurely:\n\n1. **Validator** (`spec-audit-validator.md`, Step 0.1,\
+  \ lines 48-54): Applies `spec-passed-review` and removes `spec-under-review` when\
+  \ validation completes successfully. But validation is only the second step in a\
+  \ 3-step chain — the Evaluator and Arbiter haven't run yet.\n\n2. **Evaluator**\
+  \ (`spec-audit-evaluator.md`, Step 4, lines 157-160): Applies `spec-passed-review`\
+  \ and removes `spec-under-review` when the holistic evaluation gate PASSes. But\
+  \ holistic evaluation is only one part of the full audit — narrow criteria evaluation\
+  \ and the Arbiter synthesis haven't run yet.\n\n3. **Arbiter** (`spec-audit-arbiter.md`):\
+  \ Has **no** label application logic at all, despite being the role that produces\
+  \ the final `PASS|DRAFT|FAIL` judgment.\n\n## Fix\n\nMove all lifecycle label application\
+  \ to the Arbiter role, gated on a clean PASS judgment (`final_judgment.status ==\
+  \ \"PASS\"`). The Validator should only validate evidence — not apply lifecycle\
+  \ labels. The Evaluator should only evaluate criteria — not apply lifecycle labels.\n\
+  \n### Specific changes:\n\n1. **Validator**: Remove Step 0.1 entirely (lines 48-54).\
+  \ The Validator validates evidence and writes `reasoning.yaml` — it should not touch\
+  \ issue labels.\n\n2. **Evaluator**: Remove the label application from Step 4 (lines\
+  \ 157-160, the `spec-passed-review` / `spec-under-review` block). The Evaluator\
+  \ evaluates criteria and writes `verdict.yaml` — it should not touch issue labels.\
+  \ Keep the `spec-under-review` application in Step 0.1 (lines 63-68) as that marks\
+  \ the start of the audit.\n\n3. **Arbiter**: Add a new step after Step 8 (Determine\
+  \ Final Judgment) that applies labels:\n   - If `final_judgment.status == \"PASS\"\
+  `: apply `spec-passed-review`, remove `spec-under-review`\n   - If `final_judgment.status\
+  \ == \"DRAFT\"` or `\"FAIL\"`: leave labels as-is (spec remains `spec-under-review`)\n\
+  \n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|----------|---------------|\n\
+  | SC-1 | Validator task file no longer contains `spec-passed-review` or `spec-draft`\
+  \ label operations | `string` |\n| SC-2 | Arbiter task file contains label-application\
+  \ logic gated on clean PASS | `string` |\n| SC-3 | No other role in the spec-audit\
+  \ chain applies lifecycle labels (except Evaluator Step 0.1 `spec-under-review`\
+  \ which marks audit start) | `string` |\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md`\
+  \ — Remove Step 0.1 label application\n- `.opencode/skills/audit/tasks/spec-audit-evaluator.md`\
+  \ — Remove Step 4 label application (keep Step 0.1 `spec-under-review`)\n- `.opencode/skills/audit/tasks/spec-audit-arbiter.md`\
+  \ — Add label application step gated on clean PASS\n\n## Dependencies\n\nNone.\n"
 created_at: '2026-07-29T23:56:28+00:00'
-updated_at: '2026-07-29T23:56:28+00:00'
+updated_at: '2026-07-29T23:56:38+00:00'
