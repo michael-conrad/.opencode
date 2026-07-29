@@ -124,7 +124,8 @@ seed_model_config() {
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        "$bare": {}
+        "$bare": {},
+        "ornith:35b-256k": {}
       }
     }
   }
