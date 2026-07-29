@@ -368,6 +368,13 @@ fi
 
 seed_model_config
 
+# Copy uv into test home bin so opencode can install npm plugins (vibeguard).
+UV_BINARY="$PROJECT_DIR/.tools/uv/uv"
+if [ -x "$UV_BINARY" ]; then
+    mkdir -p "$TEST_HOME/bin"
+    cp "$UV_BINARY" "$TEST_HOME/bin/uv"
+fi
+
 # Print [test-env] diagnostics before running the command.
 # TEST_HOME= on stderr is machine-parseable for __export_sqlite_to_yaml in helpers.sh
 echo "TEST_HOME=$TEST_HOME" >&2
@@ -387,7 +394,7 @@ set -- "${OPENCODE_CMD[@]}" "${@:2}"
 RC=0
 env -i -C "$TEST_PROJECT" \
     HOME="$TEST_HOME" \
-    PATH="/usr/local/bin:/usr/bin:/bin" \
+    PATH="$TEST_HOME/bin:/usr/local/bin:/usr/bin:/bin" \
     XDG_CONFIG_HOME="$TEST_HOME/.config" \
     XDG_CACHE_HOME="$TEST_HOME/.cache" \
     XDG_RUNTIME_DIR="$TEST_HOME/.runtime" \
