@@ -9,7 +9,7 @@
 # ///
 
 # fmt: on
-"""
+__doc__ = """
 DESCRIPTION: Extract structured tool call timeline from behavioral test session.yaml.
 
 Reads a session.yaml (JSON export of opencode SQLite DB 'part' table) and produces a
