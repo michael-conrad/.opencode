@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "seed_model_config() writes model field and models block with ornith:35b-256k in test home opencode.jsonc"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "do_setup() copies uv and uvx from .tools/uv/ into $TEST_HOME/bin/"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "do_setup() writes set-env.sh to $TEST_HOME/ with all env -i variables"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "LOGNAME in env -i block is hardcoded to opencode-test-user, not parent env leak"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "env -i variable list and set-env.sh variable list contain the same set of variables"
+    evidence_type: "string"
+    plan_item: 5

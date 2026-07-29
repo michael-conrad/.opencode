@@ -1,0 +1,95 @@
+> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2178)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/2178/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+---
+
+## Objective
+
+Fix 5 issues in `.opencode/tests-v2/with-test-home` on the `feature/2170-git-workflow-regression` branch to improve test framework reliability and debuggability: model config to prevent embedding model auto-selection, uv/uvx copy for Python plugin operations, set-env.sh debugging aid, LOGNAME environment isolation fix, and env-allowlist consistency.
+
+## Background
+
+The `with-test-home` test framework wrapper creates isolated test environments for running opencode behavioral tests. During development on the `feature/2170-git-workflow-regression` branch, several defects were identified:
+
+1. **Model auto-selection**: Without an explicit `model` field in the test home `opencode.jsonc`, opencode auto-selects `qwen3-embedding:latest` from the project config — a model not pulled on this host, causing test failures.
+2. **Missing uv/uvx**: Python-based plugin operations (e.g., vibeguard plugin npm installs) require `uv` and `uvx` in PATH, but these are not copied into the test home.
+3. **No debugging aid**: When `env -i` isolation is active, there is no way to reproduce the test environment for debugging — `set-env.sh` provides this.
+4. **LOGNAME leak**: `LOGNAME` leaks the parent environment's user into the test environment instead of being hardcoded to `opencode-test-user`.
+5. **Env list drift**: The `env -i` allowlist and `set-env.sh` can drift apart, making debugging misleading.
+
+## Not Included
+
+- Changes to the `env -i` isolation mechanism itself (the allowlist approach)
+- Changes to the warmup/smoke test logic
+- Changes to the `--clean` or `--clean-all` logic
+- Changes to the isolation verification (unexpected file detection)
+- Changes to the project directory creation or submodule cloning
+- Changes to behavioral test scenarios or assertion helpers
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|----------|---------------|---------------------|
+| SC-1 | `seed_model_config()` writes `model` field and `models` block with `ornith:35b-256k` in test home `opencode.jsonc` | `string` | grep for `model` and `models` in `seed_model_config()` output |
+| SC-2 | `do_setup()` copies `uv` and `uvx` from `.tools/uv/` into `$TEST_HOME/bin/` | `string` | grep for `cp uv` and `cp uvx` in `do_setup()` |
+| SC-3 | `do_setup()` writes `set-env.sh` to `$TEST_HOME/` with all `env -i` variables (HOME, PATH, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR, XDG_DATA_HOME, XDG_STATE_HOME, SNAP_USER_DATA, SNAP_USER_COMMON, USER, GIT_CONFIG_NOSYSTEM, SHELL, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST, GITBUCKET_PORT) | `string` | grep for `set-env.sh` heredoc; verify all 18 vars present |
+| SC-4 | `LOGNAME` in `env -i` block is hardcoded to `opencode-test-user`, not parent env leak (`LOGNAME="$LOGNAME"`) | `string` | grep `env -i` block for `LOGNAME=opencode-test-user` |
+| SC-5 | `env -i` variable list and `set-env.sh` variable list contain the same set of variables | `string` | Compare both lists — same set of variables |
+
+## Requirements
+
+1. REQ-1: The test home `opencode.jsonc` SHALL specify a `model` field and `models` block to prevent opencode from auto-selecting an embedding model.
+2. REQ-2: The `do_setup()` function SHALL copy `uv` and `uvx` from `.tools/uv/` into `$TEST_HOME/bin/`.
+3. REQ-3: The `do_setup()` function SHALL write `set-env.sh` into `$TEST_HOME/` with all `env -i` variables for debugging.
+4. REQ-4: The `set-env.sh` SHALL include: HOME, PATH, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR, XDG_DATA_HOME, XDG_STATE_HOME, SNAP_USER_DATA, SNAP_USER_COMMON, USER, GIT_CONFIG_NOSYSTEM, SHELL, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST, GITBUCKET_PORT.
+5. REQ-5: The `LOGNAME` variable in the `env -i` block SHALL be hardcoded to `opencode-test-user`, not leaked from the parent environment.
+6. REQ-6: All `env -i` variables SHALL match between the `env -i` block and `set-env.sh` to prevent debugging mismatches.
+7. REQ-7: The `model` field in `opencode.jsonc` SHALL reference a model that exists in the `models` block.
+8. REQ-8: `SHELL`, `LANG`, and `TERM` SHALL be passed from the parent environment (not hardcoded) to match the user's terminal environment.
+
+## Items
+
+| Item | SC | Description | Change Type |
+|------|----|-------------|-------------|
+| 1 | SC-1 | Add `model` field and `models` block with `ornith:35b-256k` to `seed_model_config()` | config |
+| 2 | SC-2 | Add `uv` and `uvx` copy from `.tools/uv/` to `$TEST_HOME/bin/` in `do_setup()` | tooling |
+| 3 | SC-3 | Write `set-env.sh` heredoc in `do_setup()` with all 18 `env -i` variables | debugging |
+| 4 | SC-4 | Change `LOGNAME="$LOGNAME"` to `LOGNAME="opencode-test-user"` in `env -i` block | fix |
+| 5 | SC-5 | Verify `env -i` var list and `set-env.sh` var list are consistent | consistency |
+
+## Phases
+
+| Phase | Description | Requirements |
+|-------|-------------|--------------|
+| 1 | Model config fix — add `model` field and `models` block to `seed_model_config()`, copy `uv` and `uvx` into test home | REQ-1, REQ-2 |
+| 2 | uv/uvx copy — ensure `uv` and `uvx` are available in `$TEST_HOME/bin/` for Python plugin operations | REQ-3 |
+| 3 | set-env.sh — write debugging aid with all `env -i` variables to `$TEST_HOME/` | REQ-4 |
+| 4 | LOGNAME isolation — hardcode `LOGNAME=opencode-test-user` in `env -i` block | REQ-5 |
+| 5 | Consistency verification — verify `env -i` variable list and `set-env.sh` variable list contain the same set | REQ-6 |
+
+## Dependencies
+
+- **Branch**: `feature/2170-git-workflow-regression` (the target branch for these changes)
+- **File**: `.opencode/tests-v2/with-test-home` (single file, all changes within it)
+- **Tools**: `.tools/uv/uv` and `.tools/uv/uvx` must exist at copy time
+- **Model**: `ollama/ornith:35b-256k` must be available on the Ollama server
+
+## Traceability
+
+| Requirement | SC | Item |
+|-------------|----|------|
+| REQ-1 | SC-1 | 1 |
+| REQ-2 | SC-2 | 2 |
+| REQ-3, REQ-4 | SC-3 | 3 |
+| REQ-5 | SC-4 | 4 |
+| REQ-6 | SC-5 | 5 |
+| REQ-7 | SC-1 | 1 |
+| REQ-8 | SC-3, SC-4 | 3, 4 |
+
+## Change Control
+
+| Date | Change | Reason | Author |
+|------|--------|--------|--------|
+| 2026-07-29 | Fixed file path references: `tests-v2/with-test-home` → `.opencode/tests-v2/with-test-home` in Objective and Dependencies sections | Validation finding: incorrect file path (missing `.opencode/` prefix) | AI agent (deepseek-v4-flash) |
+| 2026-07-29 | Added Phases section with 5 phases mapping to REQ references | Validation finding: missing Phases section | AI agent (deepseek-v4-flash) |
