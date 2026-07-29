@@ -372,11 +372,12 @@ else
     exit 1
 fi
 
-# Copy uv into test home bin for Python-based plugin operations.
-UV_BINARY="$PROJECT_DIR/.tools/uv/uv"
-if [ -x "$UV_BINARY" ]; then
+# Copy uv and uvx into test home bin for Python-based plugin operations.
+UV_DIR="$PROJECT_DIR/.tools/uv"
+if [ -x "$UV_DIR/uv" ]; then
     mkdir -p "$TEST_HOME/bin"
-    cp "$UV_BINARY" "$TEST_HOME/bin/uv"
+    cp "$UV_DIR/uv" "$TEST_HOME/bin/uv"
+    cp "$UV_DIR/uvx" "$TEST_HOME/bin/uvx"
 fi
 
 # Print [test-env] diagnostics before running the command.
