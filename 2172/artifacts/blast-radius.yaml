@@ -1,0 +1,15 @@
+spec: 2172
+description: Blast radius for session timestamp addition
+affected_files:
+  - path: .opencode/tools/session-init
+    status: EXISTS
+    changes:
+      - Add print line for session timestamp (SC-1, SC-3, SC-5)
+      - Position timestamp after Git branch line (SC-2)
+      - Add staleness warning line after timestamp (SC-6)
+      - Import datetime module (SC-4)
+downstream_impact:
+  - AI agent system prompt: timestamp appears in session-init stdout
+  - No other files modified
+  - No API changes
+  - No config changes

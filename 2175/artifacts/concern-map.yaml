@@ -1,0 +1,42 @@
+spec: ".opencode#2175"
+concerns:
+  - id: remediation-create
+    description: "Remove step-count summary from create.md plan output"
+    scs: [SC-1]
+    phase: 2
+  - id: remediation-self-review
+    description: "Remove step-count validation from self-review.md"
+    scs: [SC-2]
+    phase: 2
+  - id: remediation-validate
+    description: "Remove step-count validation from validate.md"
+    scs: [SC-3]
+    phase: 2
+  - id: remediation-format
+    description: "Remove step-count format documentation from plan-artifact-format.md"
+    scs: [SC-4]
+    phase: 2
+  - id: verification-bookkeeping
+    description: "Verify assemble-work.md total_steps is NOT modified"
+    scs: [SC-5]
+    phase: 3
+  - id: behavioral-test
+    description: "Create behavioral enforcement test for step-volume non-deliberation"
+    scs: [SC-6]
+    phase: 3
+  - id: spec-pattern-definition
+    description: "Spec defines defective pattern with IS/IS NOT examples"
+    scs: [SC-7]
+    phase: 1
+  - id: spec-scope
+    description: "Spec scopes audit with in-scope/out-of-scope categories"
+    scs: [SC-8]
+    phase: 1
+  - id: spec-cross-refs
+    description: "Spec documents relationship to #2138, #2089, #2137"
+    scs: [SC-9]
+    phase: 1
+  - id: spec-self-consistency
+    description: "Spec does NOT contain aggregate step counts in its own body"
+    scs: [SC-10]
+    phase: 1

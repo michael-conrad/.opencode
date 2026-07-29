@@ -1,0 +1,62 @@
+plan_path: .opencode/.issues/2175/plan.md
+spec_path: .opencode/.issues/2175/spec.md
+solve_status: SAT
+overall_status: PASS
+categories:
+  - id: 1
+    name: "Structural validation"
+    result: PASS
+    checks:
+      - check: "plan.md has phase sections with SC coverage"
+        result: PASS
+      - check: "each phase has procedure section with numbered steps"
+        result: PASS
+      - check: "exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+  - id: 2
+    name: "Skill+task validity"
+    result: PASS
+    checks:
+      - check: "All skill+task references match implementation-pipeline TDT"
+        result: PASS
+        details: "Phase 1 uses verification/verify (spec quality verification). Phases 2-3 use implementation-pipeline/execute (remediation and verification). All dispatch strings match canonical TDT entries."
+  - id: 3
+    name: "SC coverage"
+    result: PASS
+    checks:
+      - check: "All 10 SCs appear in at least one phase"
+        result: PASS
+      - check: "No triplet splits (RED/GREEN/COMMIT across phases)"
+        result: PASS
+        details: "Each SC's RED/GREEN/COMMIT steps are in the same phase. SC-1 through SC-4 in Phase 2, SC-5 through SC-6 in Phase 3, SC-7 through SC-10 in Phase 1."
+  - id: 4
+    name: "Concern separation"
+    result: PASS
+    checks:
+      - check: "Each phase addresses exactly one concern"
+        result: PASS
+        details: "Phase 1: spec quality verification. Phase 2: remediation (remove step counts). Phase 3: verification (bookkeeping + behavioral test)."
+      - check: "No two phases address the same concern"
+        result: PASS
+  - id: 5
+    name: "DAG validation"
+    result: PASS
+    checks:
+      - check: "DAG has no cycles"
+        result: PASS
+      - check: "All phases reachable from start node"
+        result: PASS
+      - check: "No orphan phases"
+        result: PASS
+        details: "Linear chain: Phase 1 → Phase 2 → Phase 3. Each phase has exactly one incoming and one outgoing edge (except start/end)."
+  - id: 6
+    name: "Holistic quality"
+    result: PASS
+    checks:
+      - check: "No TBD/TODO placeholders"
+        result: PASS
+      - check: "All steps use checkbox format"
+        result: PASS
+      - check: "Dispatch mode consistency"
+        result: PASS
+        details: "All sub-agent steps use (**sub-agent**) indicator. Z3 check steps use (**inline**). No dispatch mode violations."

@@ -1,0 +1,12 @@
+phases:
+  - id: phase-1
+    name: Fix session-to-timeline docstring
+    depends_on: []
+  - id: phase-2
+    name: Restore session-init executable bit
+    depends_on: []
+dag:
+  edges: []
+  acyclic: true
+  all_phases_reachable: true
+  orphan_phases: []

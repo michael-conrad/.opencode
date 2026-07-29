@@ -1,0 +1,14 @@
+spec: 2172
+state_transitions:
+  - sc: SC-1
+    from: No timestamp in output
+    to: Timestamp emitted in stdout
+    trigger: main() execution
+  - sc: SC-2
+    from: Timestamp absent or misplaced
+    to: Timestamp after Git branch line, before ## CLI Auth Status
+    trigger: print() order in main()
+  - sc: SC-6
+    from: No staleness warning
+    to: Staleness warning emitted after timestamp
+    trigger: print() order in main()

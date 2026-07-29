@@ -1,0 +1,20 @@
+solver: fallback
+result: PASS
+acyclic_check:
+  status: ACYCLIC
+  nodes: 2
+  edges: 0
+  cycles: []
+chain_verification:
+  status: CHAIN_VALID
+  items: [phase-1, phase-2]
+  missing_dependencies: []
+ordering_verification:
+  status: ORDERING_VALID
+  constraints_satisfied: 0
+  violations: []
+limitations:
+  - SAT solving not available
+  - Unsat core extraction not available
+  - Theorem proving not available
+  - Branching constraints not available

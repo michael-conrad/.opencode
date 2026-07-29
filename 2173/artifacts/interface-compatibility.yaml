@@ -1,0 +1,13 @@
+spec: ".opencode/.issues/2173/spec.md"
+interfaces:
+  - module: .opencode/tools/session-to-timeline
+    interface_type: CLI tool (uv run --script)
+    change: docstring format only
+    compatibility: No interface change — __doc__ assignment is semantically identical to bare string for Python execution
+    risk: none
+  - module: .opencode/tools/session-init
+    interface_type: CLI tool (uv run --script)
+    change: file mode only
+    compatibility: No interface change — executable bit does not affect behavior
+    risk: none
+no_interface_breaking_changes: true

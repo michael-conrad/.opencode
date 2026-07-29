@@ -1,0 +1,72 @@
+spec: ".opencode#2175"
+phases:
+  - id: 1
+    name: "Spec quality verification"
+    scs: [SC-7, SC-8, SC-9, SC-10]
+    description: "Verify spec already satisfies quality criteria (pattern definition, scope, cross-refs, self-consistency)"
+    skill: "verification"
+    task: "verify"
+    items:
+      - item: 1
+        sc: SC-7
+        description: "Verify spec defines defective pattern with IS/IS NOT examples"
+      - item: 2
+        sc: SC-8
+        description: "Verify spec scopes audit with in-scope/out-of-scope categories"
+      - item: 3
+        sc: SC-9
+        description: "Verify spec documents relationship to #2138, #2089, #2137"
+      - item: 4
+        sc: SC-10
+        description: "Verify spec does NOT contain aggregate step counts in its own body"
+
+  - id: 2
+    name: "Remediation — remove aggregate step counts from plan artifacts"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    description: "Update 4 affected files to remove aggregate step count summaries. Each file is an independent item with its own RED/GREEN cycle."
+    skill: "implementation-pipeline"
+    task: "execute"
+    items:
+      - item: 5
+        sc: SC-1
+        description: "Remove step-count summary from create.md plan output"
+        file: .opencode/skills/writing-plans/tasks/create.md
+      - item: 6
+        sc: SC-2
+        description: "Remove step-count validation from self-review.md"
+        file: .opencode/skills/writing-plans/tasks/self-review.md
+      - item: 7
+        sc: SC-3
+        description: "Remove step-count validation from validate.md"
+        file: .opencode/skills/writing-plans/tasks/validate.md
+      - item: 8
+        sc: SC-4
+        description: "Remove step-count format documentation from plan-artifact-format.md"
+        file: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+
+  - id: 3
+    name: "Verification — pipeline bookkeeping unchanged + behavioral test"
+    scs: [SC-5, SC-6]
+    description: "Verify assemble-work.md total_steps is NOT modified. Create behavioral enforcement test for step-volume non-deliberation."
+    skill: "implementation-pipeline"
+    task: "execute"
+    items:
+      - item: 9
+        sc: SC-5
+        description: "Verify assemble-work.md total_steps field is PRESENT and UNCHANGED"
+        file: .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+      - item: 10
+        sc: SC-6
+        description: "Create behavioral enforcement test for step-volume non-deliberation"
+        file: .opencode/tests-v2/behaviors/
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Phase 1 verifies spec quality before remediation begins"
+    - from: 2
+      to: 3
+      reason: "Phase 2 remediation must complete before Phase 3 verification"
+  no_cross_phase_deps: true
+  triplet_integrity: "Each SC's RED/GREEN/COMMIT steps are in the same phase"

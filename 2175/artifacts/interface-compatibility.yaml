@@ -1,0 +1,28 @@
+spec: ".opencode#2175"
+interfaces:
+  - module: .opencode/skills/writing-plans/tasks/create.md
+    consumers:
+      - "writing-plans orchestrator (reads plan output)"
+      - "implementation-pipeline (receives plan)"
+    change: "Remove aggregate step count summary from plan output"
+    impact: "No consumer reads the aggregate step count for routing decisions. The orchestrator dispatches steps one-at-a-time via step-level dispatch — it never needs the total count. Removal is safe."
+  - module: .opencode/skills/writing-plans/tasks/self-review.md
+    consumers:
+      - "writing-plans orchestrator (validates plan structure)"
+    change: "Remove step-count validation"
+    impact: "Step-count validation is a structural check on metadata that has no routing use. Removal does not affect plan correctness."
+  - module: .opencode/skills/writing-plans/tasks/validate.md
+    consumers:
+      - "writing-plans orchestrator (validates plan structure)"
+    change: "Remove step-count validation"
+    impact: "Same as self-review.md — step-count validation has no routing use."
+  - module: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    consumers:
+      - "skill-creator (reference for plan format)"
+    change: "Remove step-count format documentation"
+    impact: "Documentation-only change. No runtime impact."
+  - module: .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+    consumers:
+      - "implementation-pipeline (internal bookkeeping)"
+    change: "NONE — verify NOT modified"
+    impact: "Pipeline bookkeeping (total_steps field) is consumed by the pipeline, not the orchestrator. Legitimate use — no change needed."

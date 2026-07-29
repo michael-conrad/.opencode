@@ -1,0 +1,29 @@
+spec: ".opencode#2175"
+state_transitions:
+  - sc: SC-1
+    from: "create.md produces plan with aggregate step count summary"
+    to: "create.md produces plan WITHOUT aggregate step count summary"
+    trigger: "Edit create.md to remove step-count summary lines"
+  - sc: SC-2
+    from: "self-review.md validates aggregate step counts in plan structure"
+    to: "self-review.md does NOT validate aggregate step counts"
+    trigger: "Edit self-review.md to remove step-count validation"
+  - sc: SC-3
+    from: "validate.md validates aggregate step counts in plan structure"
+    to: "validate.md does NOT validate aggregate step counts"
+    trigger: "Edit validate.md to remove step-count validation"
+  - sc: SC-4
+    from: "plan-artifact-format.md documents aggregate step counts"
+    to: "plan-artifact-format.md does NOT document aggregate step counts"
+    trigger: "Edit plan-artifact-format.md to remove step-count documentation"
+  - sc: SC-5
+    from: "assemble-work.md has total_steps field (current state)"
+    to: "assemble-work.md still has total_steps field (unchanged)"
+    trigger: "Verify — no edit needed"
+  - sc: SC-6
+    from: "No behavioral test for step-volume non-deliberation"
+    to: "Behavioral test exists and passes"
+    trigger: "Create new behavioral test script in tests-v2/behaviors/"
+no_state_change:
+  - "assemble-work.md total_steps field — must remain unchanged"
+  - "Spec quality SCs (SC-7 through SC-10) — already satisfied"

@@ -1,0 +1,27 @@
+spec: ".opencode#2175"
+description: "Files affected by removing aggregate step counts from plan artifacts"
+affected_files:
+  - path: .opencode/skills/writing-plans/tasks/create.md
+    change: "Remove step-count summary from plan output (e.g., '134 steps total across 4 phases')"
+    exists: true
+  - path: .opencode/skills/writing-plans/tasks/self-review.md
+    change: "Remove step-count validation from plan structure review"
+    exists: true
+  - path: .opencode/skills/writing-plans/tasks/validate.md
+    change: "Remove step-count validation from plan structure validation"
+    exists: true
+  - path: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    change: "Remove step-count format documentation"
+    exists: true
+  - path: .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+    change: "VERIFY NOT modified — pipeline bookkeeping is legitimate"
+    exists: true
+  - path: .opencode/tests-v2/behaviors/
+    change: "New behavioral enforcement test for step-volume non-deliberation"
+    exists: true
+out_of_scope:
+  - "Internal pipeline bookkeeping (assemble-work.md total_steps field)"
+  - "Spec SC tables with line counts (#2138)"
+  - "Agent output pattern detection (#2089)"
+  - "Pseudo-machine-parseable formatting (#2137)"
+  - "lessons-learned/ directory"

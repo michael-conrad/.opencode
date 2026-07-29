@@ -1,0 +1,14 @@
+spec: ".opencode/.issues/2173/spec.md"
+code_paths:
+  - sc: SC-1
+    file: .opencode/tools/session-to-timeline
+    lines_affected: "~12 (bare string docstring → __doc__ = assignment)"
+    description: Replace bare string docstring with explicit __doc__ assignment
+  - sc: SC-2
+    file: .opencode/tools/session-init
+    lines_affected: N/A (file mode only)
+    description: git chmod +x on session-init
+  - sc: SC-3
+    file: .opencode/tools/session-init
+    lines_affected: N/A (verification only)
+    description: Run session-init to verify executable bit works

@@ -1,0 +1,15 @@
+spec: ".opencode/.issues/2173/spec.md"
+scs:
+  - id: SC-1
+    concerns: [concern-docstring]
+    cross_cutting: false
+    notes: Isolated to session-to-timeline only
+  - id: SC-2
+    concerns: [concern-execbit]
+    cross_cutting: false
+    notes: Isolated to session-init file mode only
+  - id: SC-3
+    concerns: [concern-execbit]
+    cross_cutting: false
+    notes: Verification of session-init after chmod
+no_cross_cutting_concerns: true

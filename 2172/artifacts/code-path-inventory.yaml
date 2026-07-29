@@ -1,0 +1,12 @@
+spec: 2172
+code_paths:
+  - file: .opencode/tools/session-init
+    function: main()
+    line_range: 557-633
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+    description: main() emits all output lines; timestamp and staleness warning added here
+  - file: .opencode/tools/session-init
+    imports: datetime
+    line: 52
+    scs: [SC-4]
+    description: datetime import already exists

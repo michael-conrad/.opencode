@@ -1,0 +1,14 @@
+spec: 2172
+cross_cutting:
+  - scs: [SC-1, SC-3, SC-5]
+    concern: timestamp-output
+    description: All three SCs govern the format of the timestamp line
+  - scs: [SC-2]
+    concern: timestamp-position
+    description: Position is independent of format
+  - scs: [SC-4]
+    concern: runtime-generation
+    description: Import dependency, independent of output format
+  - scs: [SC-6]
+    concern: staleness-warning
+    description: Separate output line, independent of timestamp format

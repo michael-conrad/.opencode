@@ -1,0 +1,14 @@
+spec: ".opencode#2175"
+phases:
+  - id: 1
+    name: "Spec quality verification"
+    scs: [SC-7, SC-8, SC-9, SC-10]
+    depends_on: []
+  - id: 2
+    name: "Remediation — remove aggregate step counts from plan artifacts"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    depends_on: [1]
+  - id: 3
+    name: "Verification — pipeline bookkeeping unchanged + behavioral test"
+    scs: [SC-5, SC-6]
+    depends_on: [2]

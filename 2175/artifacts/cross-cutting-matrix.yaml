@@ -1,0 +1,26 @@
+spec: ".opencode#2175"
+cross_cutting_concerns:
+  - concern: "Step-count pattern removal"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    files:
+      - .opencode/skills/writing-plans/tasks/create.md
+      - .opencode/skills/writing-plans/tasks/self-review.md
+      - .opencode/skills/writing-plans/tasks/validate.md
+      - .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    description: "All 4 files share the same remediation pattern: find and remove aggregate step count references. Each is independent — no cross-file dependencies."
+  - concern: "Verification scope"
+    scs: [SC-5, SC-6]
+    files:
+      - .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+      - .opencode/tests-v2/behaviors/
+    description: "SC-5 verifies non-modification of assemble-work.md. SC-6 creates a new behavioral test. These are independent verification concerns."
+  - concern: "Spec quality"
+    scs: [SC-7, SC-8, SC-9, SC-10]
+    description: "Spec-level quality criteria — already satisfied by the existing spec. No code changes needed."
+independent_scs:
+  - SC-1: "Independent — only touches create.md"
+  - SC-2: "Independent — only touches self-review.md"
+  - SC-3: "Independent — only touches validate.md"
+  - SC-4: "Independent — only touches plan-artifact-format.md"
+  - SC-5: "Independent — verification-only, no modification"
+  - SC-6: "Independent — new file in tests-v2/behaviors/"

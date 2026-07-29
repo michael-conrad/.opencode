@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2172/spec.md
+approval_status: approved
+sc_count: 6
+artifacts:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_findings:
+  - file: .opencode/tools/session-init
+    status: EXISTS
+backfill_note: All 7 artifacts generated retroactively from spec body

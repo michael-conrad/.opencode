@@ -1,0 +1,26 @@
+spec_path: .opencode/.issues/2175/spec.md
+approval_status: approved
+approval_source: label approved-for-pr on GitHub Issue #2175
+sc_count: 10
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - file: .opencode/skills/writing-plans/tasks/create.md
+    status: EXISTS
+  - file: .opencode/skills/writing-plans/tasks/self-review.md
+    status: EXISTS
+  - file: .opencode/skills/writing-plans/tasks/validate.md
+    status: EXISTS
+  - file: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    status: EXISTS
+  - file: .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+    status: EXISTS
+  - file: .opencode/tests-v2/behaviors/
+    status: EXISTS (directory)
+finding_summary: "Spec approved (label: approved-for-pr), 10 SCs, all 5 affected files exist. All 7 analytical artifacts are MISSING — backfill required before plan creation."

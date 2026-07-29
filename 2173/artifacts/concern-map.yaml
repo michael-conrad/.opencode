@@ -1,0 +1,12 @@
+spec: ".opencode/.issues/2173/spec.md"
+concerns:
+  - id: concern-docstring
+    name: session-to-timeline docstring fix
+    scs: [SC-1]
+    phase: 1
+    description: Fix bare string docstring to explicit __doc__ assignment
+  - id: concern-execbit
+    name: session-init executable bit
+    scs: [SC-2, SC-3]
+    phase: 2
+    description: Restore executable bit on session-init and verify it runs

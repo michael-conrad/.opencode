@@ -1,0 +1,26 @@
+spec: ".opencode#2175"
+code_paths:
+  - sc: SC-1
+    file: .opencode/skills/writing-plans/tasks/create.md
+    description: "Find and remove lines that produce aggregate step count summaries (e.g., 'N steps total across M phases')"
+    pattern: "step.*total|total.*step|steps.*across|aggregate.*step"
+  - sc: SC-2
+    file: .opencode/skills/writing-plans/tasks/self-review.md
+    description: "Find and remove lines that validate or reference aggregate step counts in plan structure"
+    pattern: "step.*count|total.*step|step.*total|aggregate"
+  - sc: SC-3
+    file: .opencode/skills/writing-plans/tasks/validate.md
+    description: "Find and remove lines that validate or reference aggregate step counts in plan structure"
+    pattern: "step.*count|total.*step|step.*total|aggregate"
+  - sc: SC-4
+    file: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    description: "Find and remove lines that document aggregate step counts as part of plan format"
+    pattern: "step.*count|total.*step|step.*total|aggregate|summary.*step"
+  - sc: SC-5
+    file: .opencode/skills/implementation-pipeline/tasks/assemble-work.md
+    description: "Verify total_steps field is PRESENT and UNCHANGED — do not modify"
+    pattern: "total_steps"
+  - sc: SC-6
+    file: .opencode/tests-v2/behaviors/
+    description: "Create new behavioral enforcement test script that verifies agent does NOT deliberate about step volume"
+    pattern: "new file"

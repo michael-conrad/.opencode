@@ -1,0 +1,4 @@
+solver: fallback
+status: PASS
+finding_summary: Single-phase plan with 6 SCs — no cross-phase dependencies. Dependency DAG is empty (trivial). All SCs modify main() in one file with additive print statements — no ordering constraints.
+artifact_path: .opencode/.issues/2172/artifacts/solve-result.yaml

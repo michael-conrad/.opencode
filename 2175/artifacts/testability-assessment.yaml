@@ -1,0 +1,53 @@
+spec: ".opencode#2175"
+testability:
+  - sc: SC-1
+    evidence_type: string
+    method: "grep create.md for absence of step-count summary patterns"
+    testable: true
+    difficulty: easy
+  - sc: SC-2
+    evidence_type: string
+    method: "grep self-review.md for absence of step-count validation patterns"
+    testable: true
+    difficulty: easy
+  - sc: SC-3
+    evidence_type: string
+    method: "grep validate.md for absence of step-count validation patterns"
+    testable: true
+    difficulty: easy
+  - sc: SC-4
+    evidence_type: string
+    method: "grep plan-artifact-format.md for absence of step-count format documentation"
+    testable: true
+    difficulty: easy
+  - sc: SC-5
+    evidence_type: string
+    method: "grep assemble-work.md for presence of total_steps field (unchanged)"
+    testable: true
+    difficulty: easy
+  - sc: SC-6
+    evidence_type: behavioral
+    method: "opencode run with plan execution prompt → assert_semantic for clean-room evaluation"
+    testable: true
+    difficulty: medium
+    notes: "Requires clean-room semantic inspector. Behavioral test script in tests-v2/behaviors/."
+  - sc: SC-7
+    evidence_type: string
+    method: "grep spec for pattern definition with IS/IS NOT examples"
+    testable: true
+    difficulty: easy
+  - sc: SC-8
+    evidence_type: string
+    method: "grep spec for scope section with in-scope/out-of-scope"
+    testable: true
+    difficulty: easy
+  - sc: SC-9
+    evidence_type: string
+    method: "grep spec for cross-references to #2138, #2089, #2137"
+    testable: true
+    difficulty: easy
+  - sc: SC-10
+    evidence_type: string
+    method: "grep spec for absence of step-count patterns"
+    testable: true
+    difficulty: easy

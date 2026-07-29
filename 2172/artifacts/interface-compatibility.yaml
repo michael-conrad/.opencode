@@ -1,0 +1,14 @@
+spec: 2172
+interfaces:
+  - module: session-init
+    interface: stdout
+    direction: output
+    consumers: [AI agent system prompt]
+    scs: [SC-1, SC-2, SC-3, SC-5, SC-6]
+    compatibility: No interface changes — new line appended to existing stdout stream
+  - module: session-init
+    interface: datetime.datetime.now().astimezone()
+    direction: internal
+    consumers: [main()]
+    scs: [SC-4]
+    compatibility: datetime already imported at line 52

@@ -1,0 +1,10 @@
+spec: ".opencode#2175"
+checks:
+  - tool: solve check
+    contract: .opencode/.issues/2175/dependency-contract.yaml
+    state: .opencode/.issues/2175/artifacts/state-analysis.yaml
+    result: SAT
+    details: "SAT (+ postconditions + invariants)"
+solve_status: SAT
+plan_status: SKIPPED
+notes: "solve check returned SAT. solve model requires a Z3 query expression — dependency contract is simple linear chain (1→2→3) with no branching, so SAT is trivially satisfied. plan tool skipped — no PDDL domain file for this simple linear DAG."

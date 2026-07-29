@@ -1,0 +1,18 @@
+spec: 2172
+concerns:
+  - id: timestamp-output
+    description: Emit session timestamp in human-readable format
+    scs: [SC-1, SC-3, SC-5]
+    phase: 1
+  - id: timestamp-position
+    description: Place timestamp at correct position in output
+    scs: [SC-2]
+    phase: 1
+  - id: runtime-generation
+    description: Generate timestamp at runtime via datetime module
+    scs: [SC-4]
+    phase: 1
+  - id: staleness-warning
+    description: Emit staleness warning after timestamp
+    scs: [SC-6]
+    phase: 1

@@ -1,0 +1,26 @@
+overall_status: PASS
+categories:
+  - id: 1
+    name: Structural validation
+    result: PASS
+    findings: []
+  - id: 2
+    name: Skill+task validity
+    result: PASS
+    findings: []
+  - id: 3
+    name: SC coverage
+    result: PASS
+    findings: []
+  - id: 4
+    name: Concern separation
+    result: PASS
+    findings: []
+  - id: 5
+    name: DAG validation
+    result: PASS
+    findings: []
+  - id: 6
+    name: Holistic quality
+    result: PASS
+    findings: []

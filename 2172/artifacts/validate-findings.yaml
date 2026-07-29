@@ -1,0 +1,67 @@
+spec: 2172
+plan_path: .opencode/.issues/2172/plan.md
+categories:
+  - id: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - check: Phase table with required columns
+        result: PASS
+        note: Single phase with SC coverage, dispatch indicators, and step enumeration
+      - check: Procedure section with numbered steps
+        result: PASS
+        note: Each item has numbered checkbox steps
+      - check: Exit criteria with SC-to-phase mapping
+        result: PASS
+        note: Phase 1 covers all 6 SCs
+  - id: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - check: Skill+task references match implementation-pipeline TDT
+        result: PASS
+        note: All references use implementation-pipeline/assemble-work, valid per TDT
+  - id: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - check: All SCs covered in at least one phase
+        result: PASS
+        note: SC-1 through SC-6 all in Phase 1
+      - check: No triplet splits
+        result: PASS
+        note: Single phase — no RED/GREEN/COMMIT split possible
+  - id: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - check: Each phase addresses one concern
+        result: PASS
+        note: Single phase covers all 4 concerns (timestamp-output, timestamp-position, runtime-generation, staleness-warning)
+  - id: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - check: No cycles
+        result: PASS
+        note: Single phase — no DAG edges
+      - check: All phases reachable
+        result: PASS
+        note: Single phase, trivially reachable
+      - check: No orphan phases
+        result: PASS
+        note: Single phase
+  - id: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - check: No TBD/TODO placeholders
+        result: PASS
+        note: No placeholders found
+      - check: Checkbox format used
+        result: PASS
+        note: All steps use - [ ] checkbox format
+      - check: Dispatch mode consistency
+        result: PASS
+        note: All steps correctly marked as inline, sub-agent, or clean-room
+overall_status: PASS

@@ -1,0 +1,32 @@
+spec: 2172
+phases:
+  - id: 1
+    name: Add session timestamp and staleness warning
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+    items:
+      - item: 1
+        sc: SC-1
+        description: session-init emits human-readable datetime (date, day of week, time, timezone)
+      - item: 2
+        sc: SC-2
+        description: Timestamp appears after Git branch line, before ## CLI Auth Status
+      - item: 3
+        sc: SC-3
+        description: Natural English prose format — e.g. "Session started: Saturday, July 25, 2026 at 19:17 EDT"
+      - item: 4
+        sc: SC-4
+        description: Generated at runtime via Python's datetime module
+      - item: 5
+        sc: SC-5
+        description: Local time with local timezone abbreviation (not bare UTC)
+      - item: 6
+        sc: SC-6
+        description: Staleness warning emitted on its own line after the timestamp
+    skill: implementation-pipeline
+    task: assemble-work
+    dispatch: clean-room
+    triplet_integrity: PASS — all 6 SCs in same phase
+    cross_phase_deps: NONE — single phase
+dependency_dag:
+  edges: []
+  note: Single phase — no cross-phase dependencies

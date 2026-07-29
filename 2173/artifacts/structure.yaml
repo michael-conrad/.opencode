@@ -1,0 +1,46 @@
+spec: ".opencode/.issues/2173/spec.md"
+phases:
+  - id: phase-1
+    name: Fix session-to-timeline docstring
+    scs: [SC-1]
+    items:
+      - item: 1
+        sc: SC-1
+        description: Change bare string docstring to explicit __doc__ assignment
+        red: Write test that verifies session-to-timeline with no args prints usage message
+        green: Replace bare string docstring with __doc__ = assignment
+        verify: Run session-to-timeline with no args; assert stderr contains "DESCRIPTION" or "Usage"
+        commit: Commit test + fix together
+    dependencies: []
+    skill_task_map:
+      red-phase: test-driven-development --task red
+      green-phase: test-driven-development --task green
+      verify: verification-before-completion --task verify
+  - id: phase-2
+    name: Restore session-init executable bit
+    scs: [SC-2, SC-3]
+    items:
+      - item: 2
+        sc: SC-2
+        description: chmod +x on session-init
+        red: Verify session-init is NOT executable in committed submodule (git ls-tree shows 100644)
+        green: git -C .opencode chmod +x tools/session-init
+        verify: git -C .opencode ls-tree HEAD -- tools/session-init shows mode 100755
+        commit: Commit mode change
+      - item: 3
+        sc: SC-3
+        description: Verify session-init runs without Permission denied
+        red: Write test that verifies session-init exits with code 0
+        green: (already done by item 2 — chmod +x)
+        verify: Run .opencode/tools/session-init; assert exit code 0
+        commit: Included in item 2 commit
+    dependencies: []
+dependency_dag:
+  edges: []
+  no_cross_phase_dependencies: true
+triplet_integrity:
+  verified: true
+  violations: []
+cross_phase_dependency:
+  verified: true
+  violations: []

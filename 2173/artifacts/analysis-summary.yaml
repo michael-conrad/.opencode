@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2173/spec.md
+approval_status: approved
+sc_count: 3
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/tools/session-to-timeline
+    exists: true
+  - file: .opencode/tools/session-init
+    exists: true
+backfill_required: true
+backfill_completed: true

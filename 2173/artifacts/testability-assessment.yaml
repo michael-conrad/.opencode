@@ -1,0 +1,17 @@
+spec: ".opencode/.issues/2173/spec.md"
+scs:
+  - id: SC-1
+    evidence_type: string
+    verification_method: Run .opencode/tools/session-to-timeline with no args; assert stderr contains "DESCRIPTION" or "Usage"
+    testable: true
+    automation: manual CLI command
+  - id: SC-2
+    evidence_type: structural
+    verification_method: git -C .opencode ls-tree HEAD -- tools/session-init shows mode 100755
+    testable: true
+    automation: manual git command
+  - id: SC-3
+    evidence_type: behavioral
+    verification_method: Run .opencode/tools/session-init; assert exit code 0
+    testable: true
+    automation: manual CLI command

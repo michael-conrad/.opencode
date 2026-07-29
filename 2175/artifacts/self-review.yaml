@@ -1,0 +1,76 @@
+plan_path: .opencode/.issues/2175/plan.md
+spec_path: .opencode/.issues/2175/spec.md
+overall_verdict: PASS
+findings:
+  placeholders:
+    count: 0
+    items: []
+  sc_coverage:
+    total_scs: 10
+    covered_scs: 10
+    uncovered_scs: []
+    evidence_type_mismatches: []
+    details:
+      - sc: SC-1
+        phase: 2
+        item: 5
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-2
+        phase: 2
+        item: 6
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-3
+        phase: 2
+        item: 7
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-4
+        phase: 2
+        item: 8
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-5
+        phase: 3
+        item: 9
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-6
+        phase: 3
+        item: 10
+        evidence_type: behavioral
+        phase_capable: true
+      - sc: SC-7
+        phase: 1
+        item: 1
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-8
+        phase: 1
+        item: 2
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-9
+        phase: 1
+        item: 3
+        evidence_type: string
+        phase_capable: true
+      - sc: SC-10
+        phase: 1
+        item: 4
+        evidence_type: string
+        phase_capable: true
+  triplet_splits:
+    count: 0
+    items: []
+  type_name_consistency:
+    count: 0
+    items: []
+  per_task_cycle:
+    total_tasks: 10
+    tasks_with_full_cycle: 10
+    missing_steps: []
+    combined_steps: []
+    out_of_order_steps: []
+    notes: "Items 2-4 and 6-10 use abbreviated context parameters (no dispatch strings repeated) but all 24 per-task cycle steps are present in every item. Full context is documented in Item 1 (Phase 1) and Items 5, 9, 10 (Phases 2-3) as reference patterns."

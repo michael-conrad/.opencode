@@ -1,0 +1,15 @@
+spec: ".opencode/.issues/2173/spec.md"
+state_transitions:
+  - sc: SC-1
+    from: session-to-timeline has bare string docstring → __doc__ = "execuvrun--script$0$@"
+    to: session-to-timeline has explicit __doc__ assignment → correct usage message
+    trigger: edit file, replace bare string with __doc__ = assignment
+  - sc: SC-2
+    from: session-init committed with mode 100644 (non-executable)
+    to: session-init committed with mode 100755 (executable)
+    trigger: git chmod +x
+  - sc: SC-3
+    from: session-init not yet verified as executable
+    to: session-init verified as executable (exit code 0)
+    trigger: run session-init
+no_shared_state: true

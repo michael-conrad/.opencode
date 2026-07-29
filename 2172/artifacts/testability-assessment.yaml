@@ -1,0 +1,20 @@
+spec: 2172
+testability:
+  - sc: SC-1
+    evidence_type: behavioral
+    verification: Run session-init, capture stdout, verify datetime string present
+  - sc: SC-2
+    evidence_type: string
+    verification: grep for timestamp line position relative to Git branch and ## CLI Auth Status
+  - sc: SC-3
+    evidence_type: string
+    verification: grep for "Session started:" pattern with day, date, time, timezone
+  - sc: SC-4
+    evidence_type: structural
+    verification: Check datetime import exists in session-init source
+  - sc: SC-5
+    evidence_type: string
+    verification: grep for timezone abbreviation (not "UTC") in timestamp line
+  - sc: SC-6
+    evidence_type: string
+    verification: grep for staleness warning text after timestamp line

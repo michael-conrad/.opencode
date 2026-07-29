@@ -1,0 +1,11 @@
+spec: ".opencode/.issues/2173/spec.md"
+affected_files:
+  - path: .opencode/tools/session-to-timeline
+    exists: true
+    change_type: edit
+    impact: docstring format change — bare string to explicit __doc__ assignment
+  - path: .opencode/tools/session-init
+    exists: true
+    change_type: chmod
+    impact: file mode 100644 → 100755 (executable bit)
+no_other_files_affected: true
