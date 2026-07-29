@@ -85,7 +85,7 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | REQ-5 | SC-4 | 4 |
 | REQ-6 | SC-5 | 5 |
 | REQ-7 | SC-1 | 1 |
-| REQ-8 | SC-3, SC-4 | 3, 4 |
+| REQ-8 | SC-3 | 3 |
 
 ## Change Control
 
@@ -93,3 +93,5 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 |------|--------|--------|--------|
 | 2026-07-29 | Fixed file path references: `tests-v2/with-test-home` → `.opencode/tests-v2/with-test-home` in Objective and Dependencies sections | Validation finding: incorrect file path (missing `.opencode/` prefix) | AI agent (deepseek-v4-flash) |
 | 2026-07-29 | Added Phases section with 5 phases mapping to REQ references | Validation finding: missing Phases section | AI agent (deepseek-v4-flash) |
+| 2026-07-29 | Fixed Phases REQ references: Phase 1 REQ-2→REQ-7, Phase 2 REQ-3→REQ-2, Phase 3 REQ-4→REQ-3+REQ-4+REQ-8, Phase 4 REQ-5, Phase 5 REQ-6 | Validation finding: REQ mismatches and overlap | AI agent (deepseek-v4-flash) |
+| 2026-07-29 | Fixed Traceability table: REQ-8 → SC-3 only (not SC-4) | Validation finding: incorrect REQ-8 mapping to SC-4 | AI agent (deepseek-v4-flash) |

@@ -198,7 +198,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
 
   | REQ-7 | SC-1 | 1 |
 
-  | REQ-8 | SC-3, SC-4 | 3, 4 |
+  | REQ-8 | SC-3 | 3 |
 
 
   ## Change Control
@@ -215,5 +215,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   | 2026-07-29 | Added Phases section with 5 phases mapping to REQ references | Validation
   finding: missing Phases section | AI agent (deepseek-v4-flash) |
 
+  | 2026-07-29 | Fixed Phases REQ references: Phase 1 REQ-2→REQ-7, Phase 2 REQ-3→REQ-2,
+  Phase 3 REQ-4→REQ-3+REQ-4+REQ-8, Phase 4 REQ-5, Phase 5 REQ-6 | Validation finding:
+  REQ mismatches and overlap | AI agent (deepseek-v4-flash) |
+
+  | 2026-07-29 | Fixed Traceability table: REQ-8 → SC-3 only (not SC-4) | Validation
+  finding: incorrect REQ-8 mapping to SC-4 | AI agent (deepseek-v4-flash) |
+
   '
-updated_at: '2026-07-29T04:16:10+00:00'
+updated_at: '2026-07-29T04:18:34+00:00'
