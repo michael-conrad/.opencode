@@ -43,15 +43,15 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
 
-# Standalone binary at fixed cache location — copied into $TEST_HOME/bin/opencode
-# so OPENCODE_CMD is always the test-home path, never a prod path.
-STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
-if [ ! -x "$STANDALONE_BINARY" ]; then
-    echo "FATAL: standalone binary not found at $STANDALONE_BINARY" >&2
-    echo "  Download from https://github.com/anomalyco/opencode/releases" >&2
-    exit 1
+# Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
+# The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
+# making it impossible to isolate test runs from production state.
+if [ -x "$PROJECT_DIR/.tools/opencode/opencode" ]; then
+    export PATH="$PROJECT_DIR/.tools/opencode:$PATH"
 fi
-# OPENCODE_CMD is set after TEST_HOME is known — see do_setup() and default flow below.
+
+# OPENCODE_CMD is bare "opencode" — env -i PATH resolution finds $TEST_HOME/bin/opencode
+OPENCODE_CMD=("opencode")
 
 usage() {
     echo "Usage: bash .opencode/tests-v2/with-test-home [--setup|--keep|--clean|--clean-all] [command...]" >&2
@@ -114,15 +114,9 @@ seed_model_config() {
     local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.6:35b-256k}"
     local bare="${default_model#ollama/}"
 
-    # Copy vibeguard config into test home so plugin loads in tests.
-    if [ -f "$PROJECT_DIR/.opencode/vibeguard.config.json" ]; then
-        cp "$PROJECT_DIR/.opencode/vibeguard.config.json" "$TEST_HOME/.config/opencode/vibeguard.config.json"
-    fi
-
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
 {
   "\$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-vibeguard@0.1.0"],
   "provider": {
     "ollama": {
       "options": {
@@ -341,9 +335,6 @@ else
     git -C "$TEST_PROJECT" config user.email "test@test.dev"
     git -C "$TEST_PROJECT" config user.name "Test"
 
-    # Clone .opencode/ from remote, then checkout the local submodule commit
-    # to pick up feature branch changes. The local commit must be pushed to
-    # remote for the checkout to succeed.
     SUBMODULE_REMOTE_URL="https://github.com/michael-conrad/.opencode.git"
     if [ -f "$PROJECT_DIR/.gitmodules" ]; then
         SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")
@@ -369,26 +360,21 @@ fi
 
 seed_model_config
 
-# Copy uv into test home bin so opencode can install npm plugins (vibeguard).
-UV_BINARY="$PROJECT_DIR/.tools/uv/uv"
-if [ ! -x "$UV_BINARY" ]; then
-    echo "FATAL: uv not found at $UV_BINARY" >&2
-    echo "  Install from https://github.com/astral-sh/uv" >&2
+# Copy standalone binary to $TEST_HOME/bin so env -i PATH resolution finds it.
+STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
+if [ -x "$STANDALONE_BINARY" ]; then
+    mkdir -p "$TEST_HOME/bin"
+    cp "$STANDALONE_BINARY" "$TEST_HOME/bin/opencode"
+else
+    echo "FATAL: standalone binary not found at $STANDALONE_BINARY" >&2
     exit 1
 fi
-mkdir -p "$TEST_HOME/bin"
-cp "$UV_BINARY" "$TEST_HOME/bin/uv"
-
-# Copy standalone binary into test home bin — OPENCODE_CMD is always the test-home path.
-mkdir -p "$TEST_HOME/bin"
-cp "$STANDALONE_BINARY" "$TEST_HOME/bin/opencode"
-OPENCODE_CMD=("$TEST_HOME/bin/opencode")
 
 # Print [test-env] diagnostics before running the command.
 # TEST_HOME= on stderr is machine-parseable for __export_sqlite_to_yaml in helpers.sh
 echo "TEST_HOME=$TEST_HOME" >&2
 echo "[test-env] HOME=$TEST_HOME"
-echo "[test-env] PATH=$PATH"
+echo "[test-env] PATH=$TEST_HOME/bin:$PATH"
 echo "[test-env] USER=opencode-test-user"
 echo "[test-env] XDG_DATA_HOME=$TEST_HOME/.local/share"
 echo "[test-env] XDG_CONFIG_HOME=$TEST_HOME/.config"
@@ -397,13 +383,13 @@ echo "[test-env] XDG_CACHE_HOME=$TEST_HOME/.cache"
 echo "[test-env] SNAP_USER_DATA=$TEST_HOME/snap/opencode"
 echo "[test-env] opencode=$TEST_HOME/bin/opencode"
 
-# Isolate to test home — env -i with explicit allowlist prevents production state leaks.
-# OPENCODE_CMD is the full path to the standalone binary — substitute unconditionally.
-set -- "${OPENCODE_CMD[@]}" "${@:2}"
+# Isolate XDG state AND snap data to test home using env -i with explicit allowlist.
+# FORBIDDEN: /snap/bin/opencode and snap run hardcode SNAP_USER_DATA=~/snap/opencode/
+# Override SNAP_USER_DATA to redirect the SQLite DB to the test home instead of production.
 RC=0
 env -i -C "$TEST_PROJECT" \
     HOME="$TEST_HOME" \
-    PATH="$TEST_HOME/bin:/usr/local/bin:/usr/bin:/bin" \
+    PATH="$TEST_HOME/bin:$PATH" \
     XDG_CONFIG_HOME="$TEST_HOME/.config" \
     XDG_CACHE_HOME="$TEST_HOME/.cache" \
     XDG_RUNTIME_DIR="$TEST_HOME/.runtime" \
@@ -412,14 +398,13 @@ env -i -C "$TEST_PROJECT" \
     SNAP_USER_DATA="$TEST_HOME/snap/opencode" \
     SNAP_USER_COMMON="$TEST_HOME/snap/opencode" \
     USER="opencode-test-user" \
-    LOGNAME="opencode-test-user" \
-    SHELL="/bin/bash" \
-    LANG="C.UTF-8" \
+    GIT_CONFIG_NOSYSTEM=1 \
+    SHELL="$SHELL" \
+    LOGNAME="$LOGNAME" \
+    LANG="$LANG" \
     TERM="$TERM" \
     GB_TOKEN="${GB_TOKEN:-}" \
     GB_HOST="${GB_HOST:-}" \
-    GB_USER="${GB_USER:-}" \
-    GB_PASS="${GB_PASS:-}" \
     GITBUCKET_PORT="${GITBUCKET_PORT:-}" \
     "$@" 2>&1 || RC=$?
 

@@ -198,12 +198,8 @@ __ensure_gitbucket() {
     if [ -z "$token" ]; then
         echo "  [gitbucket] WARNING: could not generate admin token — using default root:root" >&2
         export GB_TOKEN="root"
-        export GB_USER="root"
-        export GB_PASS="root"
     else
         export GB_TOKEN="$token"
-        export GB_USER="root"
-        export GB_PASS="root"
         echo "  [gitbucket] admin token generated" >&2
     fi
 
@@ -272,14 +268,14 @@ __kill_gitbucket() {
 
 # --- End GitBucket container provisioning ---
 
-# Standalone binary at fixed cache location — full path, no PATH resolution, no snap.
-STANDALONE_BINARY="$PARENT_REPO_DIR/.tools/opencode/opencode"
-if [ ! -x "$STANDALONE_BINARY" ]; then
-    echo "FATAL: standalone binary not found at $STANDALONE_BINARY" >&2
-    echo "  Download from https://github.com/anomalyco/opencode/releases" >&2
-    exit 1
+# Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
+# The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
+# making it impossible to isolate test runs from production state.
+if [ -x "$PARENT_REPO_DIR/.tools/opencode/opencode" ]; then
+    export PATH="$PARENT_REPO_DIR/.tools/opencode:$PATH"
 fi
-OPENCODE_CMD=("$STANDALONE_BINARY")
+
+OPENCODE_CMD=("opencode")
 BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PARENT_REPO_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-2}"
@@ -451,7 +447,8 @@ behavior_run() {
 
         if [ -n "$submodule_commit" ]; then
             git -C "$attempt_workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
-                echo "WARNING: could not checkout submodule commit $submodule_commit — using remote default branch" >&2
+                echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
+                exit 1
             }
         fi
 
