@@ -372,7 +372,7 @@ else
     exit 1
 fi
 
-# Copy uv into test home bin so opencode can install npm plugins (vibeguard).
+# Copy uv into test home bin for Python-based plugin operations.
 UV_BINARY="$PROJECT_DIR/.tools/uv/uv"
 if [ -x "$UV_BINARY" ]; then
     mkdir -p "$TEST_HOME/bin"
