@@ -68,7 +68,5 @@ If all checks pass:
 
 ## Cross-References
 
-- `assemble-work.md` — Calls this gate before handoff to pipeline-executor
-- `pipeline-executor.md` — Requires this gate to have passed before execution
 - `SKILL.md` §Overview — Step-level dispatch mandate
 - `000-critical-rules.md` §critical-rules-034 — Clean-room sub-agent requirement

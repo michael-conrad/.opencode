@@ -486,7 +486,6 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `tasks/drift-detection-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/drift-detection-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
-- `tasks/cross-validate.md` — Cross-validate Arbiter role (analogous role, different domain)
 - `000-critical-rules.md` — spec-code alignment, hard failure discipline
 - `130-authority-source.md` — code as authoritative source
 - `065-verification-honesty.md` — live-source verification mandate, hard failure discipline

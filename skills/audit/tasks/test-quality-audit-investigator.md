@@ -417,7 +417,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/test-quality-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
-- `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
 - Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
 - Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
 - Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)

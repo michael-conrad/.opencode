@@ -325,7 +325,6 @@ summary: "Evidence collected: {N} phases, {M} symbols, {K} cross-phase overlaps,
 ## Cross-References
 
 - `tasks/concern-separation.md` — Evaluator role (consumes this evidence)
-- `tasks/cross-validate.md` — Arbiter (final judgment)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 

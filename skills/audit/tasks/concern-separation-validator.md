@@ -427,7 +427,6 @@ summary: "Evidence validated: {N} items checked, {M} VALIDATED, {K} UNVERIFIED, 
 
 - `tasks/concern-separation-investigator.md` — Investigator role (produces evidence.yaml)
 - `tasks/concern-separation.md` — Evaluator role (consumes reasoning.yaml)
-- `tasks/cross-validate.md` — Arbiter (final judgment)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 

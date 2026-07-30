@@ -346,7 +346,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/content-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
-- `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol

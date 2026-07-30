@@ -112,10 +112,7 @@ cross_reference:
       section: "Step 0 pre-flight gate"
       dimensions: "plan 1-11"
       last_verified: null
-    - file: ".opencode/skills/implementation-pipeline/tasks/pre-flight.md"
-      section: "Step 0 pre-flight gate"
-      dimensions: "plan 1-11"
-      last_verified: null
+
   producer_self_checks:
     - file: ".opencode/skills/spec-creation/tasks/create.md"
       section: "Template sections"

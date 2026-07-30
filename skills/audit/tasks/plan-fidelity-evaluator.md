@@ -357,7 +357,6 @@ needs_clean_room: [SC-IDs]
 - `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
 - `tasks/plan-fidelity-validator.md` — upstream reasoning role role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
-- `tasks/resolve-models.md` — Arbiter role (consumes this task's `verdict.yaml`)
 - `audit/SKILL.md` — chain dispatch (Investigator → upstream reasoning role → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
 - Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md) (PF-STRUCTURAL-FAIL uplift), Read [critical-rules-034](guidelines/000-critical-rules.md) (inline work prohibition)

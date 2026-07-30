@@ -432,7 +432,6 @@ remediation_required: <true|false>
 - `tasks/concern-separation-investigator.md` — Investigator role (produces evidence.yaml)
 - `tasks/concern-separation-validator.md` — Validator role (produces reasoning.yaml)
 - `tasks/concern-separation-evaluator.md` — Evaluator role (produces verdict.yaml)
-- `tasks/cross-validate.md` — General Arbiter (cross-validate for other audit tasks)
 - `audit/SKILL.md` — role chain dispatch
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
