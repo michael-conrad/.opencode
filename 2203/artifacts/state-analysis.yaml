@@ -1,0 +1,81 @@
+# State analysis: Implementation-workflow reference card (#2203)
+
+state_machine:
+  initial_state: "initial"
+  phases:
+    phase_1:
+      name: "Reference card creation"
+      entry_state: "initial"
+      actions:
+        - "Create reference card at writing-plans/reference/implementation-workflow.md"
+        - "Populate with per-task cycle from implementation-pipeline TDT and Invocation"
+      exit_state: "reference_card_created"
+      invariants:
+        - "implementation-pipeline/SKILL.md TDT and Invocation still have dispatch strings (duplicate existence)"
+        - "All dispatch strings in card are character-for-character identical to TDT"
+
+    phase_2:
+      name: "Plan writer update"
+      entry_state: "reference_card_created"
+      actions:
+        - "Update create.md to read reference card instead of loading implementation-pipeline"
+        - "Update research.md to use reference card for skill+task selection"
+        - "Update validate.md to verify against reference card"
+        - "Update plan-artifact-format.md validation rule"
+      exit_state: "plan_writer_reads_card"
+      invariants:
+        - "implementation-pipeline/SKILL.md TDT still has dispatch strings (not yet stripped)"
+        - "Plan writer produces identical plans whether it reads TDT or card"
+        - "No behavioral change to plan output"
+
+    phase_3:
+      name: "Source skill cleanup"
+      entry_state: "plan_writer_reads_card"
+      actions:
+        - "Strip dispatch strings from implementation-pipeline/SKILL.md TDT rows"
+        - "Add 'See reference card' directive to Invocation section"
+        - "Preserve DONE_WITH_CONCERNS coercion rule"
+        - "Update audit task cross-references"
+        - "Update approval-gate-scope cross-references if needed"
+        - "Update 065-verification-honesty.md cross-reference"
+      exit_state: "pipeline_stripped"
+      invariants:
+        - "implementation-pipeline still functional for state management, remediation routing, enforcement"
+        - "Enforcement rules (coercion, re-priming, artifact retention) unchanged"
+
+    phase_4:
+      name: "Cleanup and testing"
+      entry_state: "pipeline_stripped"
+      actions:
+        - "Purge any remaining deprecated references"
+        - "Add behavioral enforcement tests for new plan-writing workflow"
+        - "Run full verification suite"
+      exit_state: "complete"
+      invariants:
+        - "No references to implementation-pipeline TDT for dispatch string content"
+        - "All behavioral tests pass"
+
+state_transitions:
+  - from: "initial"
+    to: "reference_card_created"
+    via: "Phase 1"
+    verification: "File exists at expected path, grep confirms all dispatch strings present"
+
+  - from: "reference_card_created"
+    to: "plan_writer_reads_card"
+    via: "Phase 2"
+    verification: "Behavioral test: plan writer produces correct plan using reference card"
+
+  - from: "plan_writer_reads_card"
+    to: "pipeline_stripped"
+    via: "Phase 3"
+    verification:
+      - "Structural: grep 'task(..., prompt:' in implementation-pipeline/SKILL.md returns empty"
+      - "Behavioral: orchestrator dispatches correctly without loading implementation-pipeline skill"
+
+  - from: "pipeline_stripped"
+    to: "complete"
+    via: "Phase 4"
+    verification:
+      - "Behavioral enforcement tests pass"
+      - "All cross-references updated"

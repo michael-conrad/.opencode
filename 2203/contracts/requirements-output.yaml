@@ -1,0 +1,120 @@
+# Requirements extraction: Implementation-workflow reference card (#2203)
+# Verified against actual codebase
+
+explicit_requirements:
+  - id: REQ-EX-1
+    description: "Create reference card at writing-plans/reference/implementation-workflow.md"
+    source: "Problem statement — proposed solution"
+    verified: true
+    verification: "Directory skills/writing-plans/reference/ exists (contains plan-artifact-format.md)"
+
+  - id: REQ-EX-2
+    description: "Reference card defines the canonical per-task cycle with FULL dispatch strings"
+    source: "Problem statement"
+    verified: true
+    verification: "Current dispatch strings live in implementation-pipeline/SKILL.md Invocation section (lines 93-107)"
+
+  - id: REQ-EX-3
+    description: "Plan writer (create.md) reads reference card instead of loading implementation-pipeline TDT"
+    source: "Problem statement"
+    verified: true
+    verification: "create.md line 32: 'Load the implementation-pipeline TDT' — currently loads live skill"
+
+  - id: REQ-EX-4
+    description: "research.md reads reference card for skill+task selection instead of TDT"
+    source: "Problem statement"
+    verified: true
+    verification: "research.md line 36: 'Read the implementation-pipeline Trigger Dispatch Table'"
+
+  - id: REQ-EX-5
+    description: "validate.md verifies against reference card instead of TDT"
+    source: "Problem statement"
+    verified: true
+    verification: "validate.md line 34: 'Verify every skill+task reference matches implementation-pipeline TDT'"
+
+  - id: REQ-EX-6
+    description: "plan-artifact-format.md updated to include dispatch string in step format"
+    source: "Problem statement"
+    verified: true
+    verification: "plan-artifact-format.md line 91 references implementation-pipeline TDT for validation"
+
+  - id: REQ-EX-7
+    description: "implementation-pipeline/SKILL.md dispatch strings stripped, routes to reference card"
+    source: "Problem statement"
+    verified: true
+    verification: "TDT lines 47-67 and Invocation lines 81-108 contain all dispatch strings"
+
+implicit_requirements:
+  - id: REQ-IM-1
+    description: "Reference card must be readable without loading a skill (static file)"
+    source: "Core design goal — decouple plan writer from live skill loading"
+    verified: true
+    justification: "The whole point is to avoid the orchestrator loading implementation-pipeline at execution time. A .md file in reference/ is static — no skill() call needed."
+
+  - id: REQ-IM-2
+    description: "Reference card must be the single source of truth for dispatch strings — no duplication between card and TDT"
+    source: "Design principle — single source of truth"
+    verified: true
+    justification: "Current design has dispatch strings ONLY in implementation-pipeline TDT. The card becomes the SSOT."
+
+  - id: REQ-IM-3
+    description: "Plan-fidelity auditor and audit sub-tasks must update cross-references from implementation-pipeline/SKILL.md to reference card (or both)"
+    source: "Affected files analysis"
+    verified: true
+    verification: "plan-fidelity-evaluator.md line 118: 'Gate sequence matches Read [implementation-pipeline SKILL.md]'"
+
+  - id: REQ-IM-4
+    description: "Plans must be fully self-contained — orchestrator can dispatch without loading implementation-pipeline skill"
+    source: "Problem statement — core requirement"
+    verified: true
+    justification: "The orchestrator reads the plan. Each plan step contains the full dispatch string. No skill loading needed at execution time."
+
+  - id: REQ-IM-5
+    description: "Reference card must include dispatch indicator semantics (inline/sub-agent/clean-room)"
+    source: "Plan steps use dispatch indicators — they must be documented in one place"
+    verified: true
+    verification: "plan-artifact-format.md lines 146-153 define dispatch indicators"
+
+constraint_requirements:
+  - id: REQ-CO-1
+    description: "implementation-pipeline must retain step-level orchestration + state management + remediation routing"
+    source: "Problem statement — 'no dispatch strings — those live in the card'"
+    verified: true
+    justification: "The skill still manages pipeline state (solve), remediation routing, and lifecycle events. Only the dispatch strings move."
+
+  - id: REQ-CO-2
+    description: "DONE_WITH_CONCERNS coercion rule must remain enforceable after TDT strip"
+    source: "Critical enforcement rule — referenced by approval-gate-scope and 065-verification-honesty.md"
+    verified: true
+    verification: "065-verification-honesty.md line 318 references implementation-pipeline/SKILL.md Trigger Dispatch Table for coercion rule"
+
+  - id: REQ-CO-3
+    description: "No functional change to orchestrator dispatch behavior at execution time"
+    source: "Refactoring — behavioral preservation"
+    verification: "The same dispatch strings move from Invocation section to reference card. Orchestrator behavior is identical."
+
+  - id: REQ-CO-4
+    description: "Audit skill cross-references must be preserved (can redirect to reference card)"
+    source: "Backward compatibility for audit tasks"
+    verification: "4 audit task files reference implementation-pipeline/SKILL.md for TDT"
+
+non_requirements:
+  - id: REQ-NR-1
+    description: "The implementation-pipeline state machine (solve) is NOT affected"
+    justification: "State management stays in the skill — only dispatch strings move"
+
+  - id: REQ-NR-2
+    description: "The implementation-pipeline enforcement rules and pipeline re-priming blocks are NOT affected"
+    justification: "Only TDT and Invocation sections change; enforcement blocks remain"
+
+  - id: REQ-NR-3
+    description: "The artifact retention policy (permanent vs ephemeral) is NOT affected"
+    justification: "That's orthogonal to dispatch string location"
+
+  - id: REQ-NR-4
+    description: "The approval-gate-scope authorization workflow is NOT affected"
+    justification: "It references implementation-pipeline by name for routing — continues to work"
+
+  - id: REQ-NR-5
+    description: "Tertiary files (those referencing implementation-pipeline by name only) are NOT in scope"
+    justification: "They refer to the skill for routing/dispatch, not for TDT content"

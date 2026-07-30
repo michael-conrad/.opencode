@@ -1,0 +1,52 @@
+# Concern map: Implementation-workflow reference card (#2203)
+
+concerns:
+  - id: CON-REFERENCE-CARD
+    name: "Reference card creation"
+    description: "Create the static reference document containing canonical dispatch strings"
+    phases: [1]
+    items: [1, 2]
+    files:
+      - skills/writing-plans/reference/implementation-workflow.md
+    separation_boundary: "Pure content creation — no logic change, no workflow change"
+
+  - id: CON-PLAN-WRITER
+    name: "Plan writer update"
+    description: "Update plan-writing pipeline (create, research, validate) to read static reference card"
+    phases: [2]
+    items: [3, 4, 5, 6]
+    files:
+      - skills/writing-plans/tasks/create.md
+      - skills/writing-plans/tasks/research.md
+      - skills/writing-plans/tasks/validate.md
+      - skills/writing-plans/reference/plan-artifact-format.md
+    separation_boundary: "All in writing-plans skill — internal refactoring"
+
+  - id: CON-PIPELINE-CLEANUP
+    name: "Source skill cleanup"
+    description: "Strip dispatch strings from implementation-pipeline, update downstream cross-references"
+    phases: [3]
+    items: [7, 8]
+    files:
+      - skills/implementation-pipeline/SKILL.md
+      - skills/audit/tasks/plan-fidelity-evaluator.md
+      - skills/audit/tasks/verification-audit-arbiter.md
+      - skills/audit/tasks/verification-audit-investigator.md
+      - skills/audit/tasks/verification-audit-evaluator.md
+      - skills/audit/tasks/verification-audit-validator.md
+      - skills/approval-gate-scope/SKILL.md
+      - guidelines/065-verification-honesty.md
+    separation_boundary: "Cross-skill updates — affects implementation-pipeline, audit, approval-gate, guidelines"
+
+  - id: CON-CLEANUP-TEST
+    name: "Cleanup and testing"
+    description: "Purge deprecated references, add behavioral enforcement tests"
+    phases: [4]
+    items: [9, 10]
+    files: []
+    separation_boundary: "Testing and cleanup — no production file changes beyond Phase 3"
+
+concern_separation_verification:
+  - No two phases address the same concern: VERIFIED
+  - Each phase has exactly one concern: VERIFIED
+  - Concern boundaries are non-overlapping: VERIFIED

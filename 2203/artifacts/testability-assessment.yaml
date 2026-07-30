@@ -1,0 +1,76 @@
+# Testability assessment: Implementation-workflow reference card (#2203)
+
+test_strategy:
+  phase_1_reference_card_creation:
+    test_types:
+      - type: structural
+        description: "Verify file exists at expected path"
+        tool: "ls/grep"
+        assertion: "File skills/writing-plans/reference/implementation-workflow.md exists"
+      - type: string
+        description: "Verify all 17 dispatch strings from Invocation are present in card"
+        tool: "grep"
+        assertion: "Each step name (pre-regression, red, green, verify, etc.) appears in card with dispatch string"
+    overall: "STRUCTURAL — file creation + content verification. No behavioral test needed."
+
+  phase_2_plan_writer_update:
+    test_types:
+      - type: behavioral
+        description: "Verify create.md reads reference card instead of loading implementation-pipeline skill"
+        tool: "opencode run with writing-plans scenario"
+        artifact: "stderr shows 'Read implementation-workflow.md' not 'Load the implementation-pipeline TDT'"
+        assert_helper: "assert_stderr_pattern_present or assert_semantic"
+      - type: behavioral
+        description: "Verify research.md reads reference card for skill+task selection"
+        tool: "opencode run with research scenario"
+        artifact: "stderr shows reference card reading"
+        assert_helper: "assert_semantic"
+      - type: behavioral
+        description: "Verify validate.md validates against reference card"
+        tool: "opencode run with validate scenario"
+        artifact: "stderr shows reference card validation"
+        assert_helper: "assert_semantic"
+      - type: structural
+        description: "Verify plan-artifact-format.md line 91 updated"
+        tool: "grep"
+        assertion: "Validation rule references implementation-workflow.md"
+    overall: "BEHAVIORAL — primary evidence from opencode run. Structural secondary."
+
+  phase_3_source_skill_cleanup:
+    test_types:
+      - type: string
+        description: "Verify dispatch strings removed from implementation-pipeline/SKILL.md"
+        tool: "grep"
+        assertion: "No 'task(..., prompt:' lines in implementation-pipeline/SKILL.md"
+      - type: string
+        description: "Verify DONE_WITH_CONCERNS coercion rule still present"
+        tool: "grep"
+        assertion: "'DONE_WITH_CONCERNS is coerced to FAIL' still in skill file or redirected"
+      - type: string
+        description: "Verify audit cross-references updated"
+        tool: "grep"
+        assertion: "audit tasks reference implementation-workflow.md instead of/in addition to implementation-pipeline/SKILL.md"
+      - type: structural
+        description: "Record count of implementation-pipeline references before and after"
+        tool: "grep -r 'implementation-pipeline' | wc -l"
+    overall: "STRING/STRUCTURAL — content verification. No behavioral test needed."
+
+  phase_4_cleanup_and_testing:
+    test_types:
+      - type: behavioral
+        description: "End-to-end plan-writing workflow with reference card"
+        tool: "opencode run with full plan-writing scenario"
+        artifact: "Plan writer produces correct plan, validator validates against card, auditor verifies against card"
+        assert_helper: "assert_semantic with clean-room sub-agent"
+      - type: behavioral
+        description: "Orchestrator dispatching from plan without loading implementation-pipeline skill"
+        tool: "opencode run with implementation scenario"
+        artifact: "stderr shows dispatch strings from plan, not from skill loading"
+        assert_helper: "assert_semantic"
+    overall: "BEHAVIORAL — primary evidence from opencode run."
+
+test_priority:
+  - "Phase 2 behavioral tests are highest priority — they validate the core refactoring"
+  - "Phase 3 string tests are medium priority — content verification"
+  - "Phase 4 behavioral tests validate end-to-end behavior"
+  - "Phase 1 structural tests are low priority — file creation sanity check"

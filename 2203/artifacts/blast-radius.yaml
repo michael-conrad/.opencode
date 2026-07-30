@@ -1,0 +1,80 @@
+# Blast radius analysis: Implementation-workflow reference card (#2203)
+
+components:
+  - name: "Reference card (NEW)"
+    path: skills/writing-plans/reference/implementation-workflow.md
+    status: NEW
+    ripple_effect_phases:
+      - phase: 1
+        effect: "Primary — this IS the component being created"
+    ripple_effect_files:
+      - skills/writing-plans/tasks/create.md
+      - skills/writing-plans/tasks/research.md
+      - skills/writing-plans/tasks/validate.md
+      - skills/writing-plans/reference/plan-artifact-format.md
+    notes: "Central document. All plan writing/validation/audit tasks reference this."
+
+  - name: "implementation-pipeline SKILL.md"
+    path: skills/implementation-pipeline/SKILL.md
+    status: MODIFIED
+    change: "Strip dispatch strings from TDT + Invocation; keep state management, remediation, enforcement"
+    ripple_effect_phases:
+      - phase: 3
+        effect: "Primary — TDT and Invocation sections modified"
+    ripple_effect_files:
+      - skills/approval-gate-scope/SKILL.md (references coercion rule in TDT)
+      - guidelines/065-verification-honesty.md (references coercion rule)
+      - skills/audit/tasks/*.md (cross-references)
+
+  - name: "Writing-plans create task"
+    path: skills/writing-plans/tasks/create.md
+    status: MODIFIED
+    change: "Read reference card instead of loading implementation-pipeline skill"
+    ripple_effect: "None — internal change, consumer is plan orchestrator"
+
+  - name: "Writing-plans research task"
+    path: skills/writing-plans/tasks/research.md
+    status: MODIFIED
+    change: "Read reference card for skill+task selection"
+    ripple_effect: "None — internal change, consumer is structure artifact"
+
+  - name: "Writing-plans validate task"
+    path: skills/writing-plans/tasks/validate.md
+    status: MODIFIED
+    change: "Verify against reference card"
+    ripple_effect: "None — internal change, produces validate-findings.yaml"
+
+  - name: "Plan artifact format specification"
+    path: skills/writing-plans/reference/plan-artifact-format.md
+    status: MODIFIED
+    change: "Update validation rule reference from implementation-pipeline TDT to reference card"
+    ripple_effect: "Plan consumers read updated validation rule"
+
+  - name: "Audit plan-fidelity-evaluator"
+    path: skills/audit/tasks/plan-fidelity-evaluator.md
+    status: MODIFIED
+    change: "Update cross-reference from implementation-pipeline/SKILL.md to reference card"
+    ripple_effect: "None — cosmetic cross-reference update"
+
+  - name: "Audit verification-audit tasks (4 files)"
+    paths:
+      - skills/audit/tasks/verification-audit-arbiter.md
+      - skills/audit/tasks/verification-audit-investigator.md
+      - skills/audit/tasks/verification-audit-evaluator.md
+      - skills/audit/tasks/verification-audit-validator.md
+    status: MODIFIED
+    change: "Update cross-reference from implementation-pipeline/SKILL.md to reference card"
+    ripple_effect: "None — cosmetic cross-reference update"
+
+  - name: "approval-gate-scope SKILL.md"
+    path: skills/approval-gate-scope/SKILL.md
+    status: REVIEWED
+    change: "May need cross-reference update for coercion rule reference"
+    ripple_effect: "None — coercion rule preserved in implementation-pipeline or redirected"
+
+out_of_scope:
+  - "Tertiary files referencing implementation-pipeline by name only (not TDT content)"
+  - "dispatch-table.yaml (already DEPRECATED)"
+  - "CHANGELOG.md / README.md (informational only)"
+  - "scripts/session_context_triggers.py"
+  - "tmp/rewrite_descriptions.py"

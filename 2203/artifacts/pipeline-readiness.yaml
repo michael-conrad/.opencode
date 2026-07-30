@@ -1,0 +1,153 @@
+# Pipeline readiness gate: Implementation-workflow reference card (#2203)
+
+validation:
+  atomicity:
+    status: PASS
+    description: "Every SC maps to exactly one RED→GREEN→COMMIT cycle"
+    items:
+      - item: 1
+        sc_id: SC-1
+        status: PASS
+        reason: "Single SC — create reference card file"
+      - item: 2
+        sc_id: SC-2
+        status: PASS
+        reason: "Single SC — populate card with dispatch strings"
+      - item: 3
+        sc_id: SC-3
+        status: PASS
+        reason: "Single SC — update create.md"
+      - item: 4
+        sc_id: SC-4
+        status: PASS
+        reason: "Single SC — update research.md"
+      - item: 5
+        sc_id: SC-5
+        status: PASS
+        reason: "Single SC — update validate.md"
+      - item: 6
+        sc_id: SC-6
+        status: PASS
+        reason: "Single SC — update plan-artifact-format.md"
+      - item: 7
+        sc_id: SC-7
+        status: PASS
+        reason: "Single SC — strip TDT"
+      - item: 8
+        sc_id: SC-8
+        status: PASS
+        reason: "Single SC — cross-reference update"
+      - item: 9
+        sc_id: SC-9
+        status: PASS
+        reason: "Single SC — cleanup"
+      - item: 10
+        sc_id: SC-10
+        status: PASS
+        reason: "Single SC — behavioral tests"
+
+  dependency_ordering:
+    status: PASS
+    description: "SC dependency DAG is acyclic"
+    dag:
+      - sc: SC-1
+        depends_on: []
+      - sc: SC-2
+        depends_on: [SC-1]
+      - sc: SC-3
+        depends_on: [SC-1]
+      - sc: SC-4
+        depends_on: [SC-1]
+      - sc: SC-5
+        depends_on: [SC-1, SC-2]
+      - sc: SC-6
+        depends_on: [SC-1, SC-2]
+      - sc: SC-7
+        depends_on: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+      - sc: SC-8
+        depends_on: [SC-7]
+      - sc: SC-9
+        depends_on: [SC-7, SC-8]
+      - sc: SC-10
+        depends_on: [SC-3, SC-4, SC-5, SC-6]
+    cycles_detected: none
+    acyclic: true
+
+  single_concern:
+    status: PASS
+    description: "Every SC targets one file category and one verification domain"
+    items:
+      - item: 1
+        file_category: "reference card (NEW)"
+        verification_domain: structural
+        status: PASS
+      - item: 2
+        file_category: "reference card content"
+        verification_domain: string
+        status: PASS
+      - item: 3
+        file_category: "writing-plans/create.md"
+        verification_domain: behavioral
+        status: PASS
+      - item: 4
+        file_category: "writing-plans/research.md"
+        verification_domain: behavioral
+        status: PASS
+      - item: 5
+        file_category: "writing-plans/validate.md"
+        verification_domain: behavioral
+        status: PASS
+      - item: 6
+        file_category: "plan-artifact-format.md"
+        verification_domain: structural
+        status: PASS
+      - item: 7
+        file_category: "implementation-pipeline/SKILL.md"
+        verification_domain: string + structural
+        status: PASS
+      - item: 8
+        file_category: "cross-references (multi-file)"
+        verification_domain: string
+        status: PASS
+      - item: 9
+        file_category: "cleanup (multi-file)"
+        verification_domain: string
+        status: PASS
+      - item: 10
+        file_category: "behavioral tests (new files)"
+        verification_domain: behavioral
+        status: PASS
+
+  phase_dependency:
+    status: PASS
+    description: "Phase dependency graph is acyclic"
+    phase_dag:
+      - phase: 1
+        depends_on: []
+      - phase: 2
+        depends_on: [1]
+      - phase: 3
+        depends_on: [1, 2]
+      - phase: 4
+        depends_on: [2, 3]
+    cycles_detected: none
+    acyclic: true
+
+  three_tier_structure:
+    status: PASS
+    description: "Multi-phase spec has pre/per-file/post structure"
+    pre_phases: []
+    per_phases:
+      - phase: 1
+        tier: "Creation tier — create new file"
+      - phase: 2
+        tier: "Migration tier — update consumers"
+      - phase: 3
+        tier: "Cleanup tier — strip old source"
+      - phase: 4
+        tier: "Verification tier — tests and cleanup"
+    post_phases: []
+    notes: "4 phases, all are implementation phases (no pre/post separation needed for this refactoring scope)"
+
+overall_status: PASS
+blocker: false

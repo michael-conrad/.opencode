@@ -1,0 +1,122 @@
+# Pre-spec inspection: Implementation-workflow reference card (#2203)
+# Searched .opencode/ submodule for all files referencing implementation-pipeline
+
+affected_files:
+  # PRIMARY — direct modification targets
+  - path: skills/implementation-pipeline/SKILL.md
+    role: SOURCE_OF_TRUTH — TDT + Invocation section with canonical dispatch strings
+    change: Strip dispatch strings from TDT and Invocation; route to reference card
+    sections:
+      - TDT (lines 47-67) — all dispatch string rows deprecated in favor of reference card
+      - Invocation (lines 81-108) — all sub-agent canonical dispatch strings move to reference card
+    dependencies:
+      - All plan consumers reference this via plan-artifact-format.md validation rule
+      - All plan-fidelity auditors reference this for PF-SEQUENCE-MATCHES
+      - approval-gate-scope references this for DONE_WITH_CONCERNS coercion
+
+  - path: skills/writing-plans/reference/plan-artifact-format.md
+    role: Canonical plan format — defines phase table + skill/task validation
+    change: Update validation rule to reference reference card instead of implementation-pipeline TDT
+    key_lines:
+      - Line 91: "Every `Skill`+`Task` pair MUST exist in the `implementation-pipeline/SKILL.md` Trigger Dispatch Table"
+
+  - path: skills/writing-plans/tasks/create.md
+    role: Plan writer — currently loads implementation-pipeline TDT at runtime
+    change: Read reference card instead of loading implementation-pipeline skill
+    key_lines:
+      - Line 14: "The per-task cycle steps are discovered at runtime by loading the `implementation-pipeline` skill"
+      - Line 32: "Load the implementation-pipeline TDT. Read the Trigger Dispatch Table."
+
+  - path: skills/writing-plans/tasks/research.md
+    role: Phase decomposition — selects skill+task from TDT
+    change: Read reference card for skill+task selection
+    key_lines:
+      - Line 36: "Read the implementation-pipeline Trigger Dispatch Table"
+      - Description: "select skill+task from implementation-pipeline TDT"
+
+  - path: skills/writing-plans/tasks/validate.md
+    role: Plan validation — verifies against TDT
+    change: Verify against reference card
+    key_lines:
+      - Line 34: "Verify every skill+task reference in the plan matches a valid entry in the implementation-pipeline TDT"
+
+  - path: skills/writing-plans/reference/implementation-workflow.md
+    role: NEW reference card — canonical dispatch strings reference
+    change: CREATE this file — contains full per-task cycle with dispatch strings
+    content_sections:
+      - Per-task cycle definition (RED→GREEN→COMMIT)
+      - Full canonical dispatch strings (from current Invocation section)
+      - Dispatch indicator semantics
+      - Step labels and ordering
+      - Validation rules for plan consumers
+
+  # SECONDARY — reference implementation-pipeline but may need updating
+  - path: skills/audit/tasks/plan-fidelity-evaluator.md
+    role: Plan fidelity auditor — verifies gate sequence against TDT
+    change: May need to reference reference card instead of/or in addition to implementation-pipeline SKILL.md
+    key_lines:
+      - Line 118: "Gate sequence matches Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md)"
+
+  - path: skills/audit/tasks/verification-audit-arbiter.md
+  - path: skills/audit/tasks/verification-audit-investigator.md
+  - path: skills/audit/tasks/verification-audit-evaluator.md
+  - path: skills/audit/tasks/verification-audit-validator.md
+    role: Audit sub-tasks — each reads implementation-pipeline SKILL.md for TDT
+    change: Update cross-reference from implementation-pipeline/SKILL.md to reference card
+
+  - path: skills/approval-gate-scope/SKILL.md
+    role: Authorization scope — references DONE_WITH_CONCERNS coercion rule in TDT
+    change: Must preserve coercion rule reference or route through reference card
+
+  # TERTIARY — reference implementation-pipeline by name, don't read TDT
+  - path: skills/git-workflow-branch/tasks/pre-work.md
+  - path: skills/git-workflow-branch/tasks/operating-protocol.md
+  - path: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+  - path: skills/approval-gate-scope/tasks/pre-impl/yield-to-assemble-work.md
+  - path: skills/approval-gate-scope/tasks/pre-impl/build-dependency-graph.md
+  - path: skills/approval-gate-scope/tasks/pre-impl/write-work-state.md
+  - path: skills/approval-gate-scope/tasks/screen/screen-issue-gate2.md
+  - path: skills/approval-gate-scope/tasks/gap-fill-cascade/for-pr.md
+  - path: skills/approval-gate-scope/tasks/gap-fill-cascade/for-implementation.md
+  - path: skills/approval-gate-scope/tasks/verify-authorization/auto-dispatch.md
+  - path: skills/approval-gate-scope/tasks/column-validation.md
+  - path: skills/approval-gate-scope/tasks/pre-implementation-analysis.md
+  - path: skills/approval-gate-scope/enforcement/auto-dispatch-table.md
+  - path: skills/pr-creation-workflow/tasks/create.md
+  - path: skills/pr-creation-workflow/tasks/sub-issue-collection.md
+  - path: skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+  - path: skills/executing-plans/SKILL.md
+  - path: skills/executing-plans/tasks/start.md
+  - path: skills/executing-plans/tasks/operating-protocol.md
+  - path: skills/verification-enforcement/tasks/enforce.md
+  - path: skills/pre-analysis/tasks/analyze.md
+  - path: skills/using-git-worktrees/tasks/create-worktree.md
+  - path: skills/using-git-worktrees/tasks/reference.md
+  - path: skills/finishing-a-development-branch/tasks/checklist.md
+  - path: skills/approval-gate/SKILL.md
+  - path: skills/approval-gate-scope/SKILL.md
+  - path: skills/implementation-pipeline/enforcement/context-passing.md
+  - path: skills/implementation-pipeline/enforcement/work-state-verification.md
+  - path: skills/implementation-pipeline/enforcement/overflow-signal.md
+  - path: skills/issue-operations-core/tasks/single-task-check.md
+  - path: skills/git-workflow-pr/tasks/review-prep/push-and-cleanup.md
+  - path: skills/writing-plans/SKILL.md
+  - path: guidelines/065-verification-honesty.md
+  - path: guidelines/000-critical-rules.md
+  - path: CHANGELOG.md
+  - path: README.md
+  - path: dispatch-table.yaml (DEPRECATED)
+  - path: scripts/session_context_triggers.py
+  - path: tmp/rewrite_descriptions.py
+    role: Reference implementation-pipeline by name for routing/calling purposes
+    change: No direct change needed — they refer to the skill by name, not to TDT content
+
+patterns_and_conventions:
+  - Convention: Reference cards live in `skills/<skill>/reference/` directory
+    example: writing-plans/reference/plan-artifact-format.md
+  - Convention: Skill task files read reference docs at runtime for authoritative data
+    example: create.md reads plan-artifact-format.md for plan schema
+  - Convention: TDT is currently the single source of truth for dispatch strings
+    problem: Orchestrator must load implementation-pipeline skill at execution time to get strings
+  - Convention: Cross-references use Read [Text](path) pattern
+  - Convention: Audit tasks read implementation-pipeline/SKILL.md for gate sequence verification

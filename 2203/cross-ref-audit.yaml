@@ -1,0 +1,135 @@
+# Cross-reference audit: implementation-pipeline references (#2203)
+# Generated from pre-spec-inspection.yaml analysis
+
+sources:
+  - description: "Pre-spec inspection grep of .opencode/ submodule for files referencing implementation-pipeline"
+    artifact: "pre-spec-inspection.yaml"
+    verification_date: "2026-07-30"
+
+categories:
+  PRIMARY:
+    description: "Direct modification targets — files whose behavior changes"
+    files:
+      - path: skills/implementation-pipeline/SKILL.md
+        change: "Strip dispatch strings from TDT and Invocation; route to reference card"
+        sections:
+          - "TDT (lines 47-67) — all dispatch string rows deprecated in favor of reference card"
+          - "Invocation (lines 81-108) — all sub-agent canonical dispatch strings move to reference card"
+        preserve:
+          - "DONE_WITH_CONCERNS coercion rule"
+          - "State management (solve integration)"
+          - "Remediation routing"
+          - "Enforcement blocks"
+          - "Pipeline re-priming"
+          - "Artifact retention"
+      - path: skills/writing-plans/reference/implementation-workflow.md
+        role: "NEW — reference card with per-task cycle and dispatch strings"
+        change: "CREATE this file"
+        content_sections:
+          - "Per-task cycle definition (RED→GREEN→COMMIT)"
+          - "Full 17 canonical dispatch strings (pre-regression through exec-summary)"
+          - "Dispatch indicator semantics (inline/sub-agent/clean-room)"
+          - "Step labels and ordering"
+          - "Validation rules for plan consumers"
+      - path: skills/writing-plans/tasks/create.md
+        change: "Read reference card instead of loading implementation-pipeline TDT"
+        key_lines:
+          - "Line 14: replace 'loading implementation-pipeline skill' with 'read reference card'"
+          - "Line 32: replace 'Load the implementation-pipeline TDT' with 'Read the implementation-workflow reference card'"
+      - path: skills/writing-plans/tasks/research.md
+        change: "Read reference card for skill+task selection"
+        key_lines:
+          - "Line 36: replace 'Read the implementation-pipeline Trigger Dispatch Table' with 'Read the implementation-workflow reference card'"
+      - path: skills/writing-plans/tasks/validate.md
+        change: "Verify against reference card"
+        key_lines:
+          - "Line 34: replace 'verify against implementation-pipeline TDT' with 'verify against reference card'"
+      - path: skills/writing-plans/reference/plan-artifact-format.md
+        change: "Update validation rule to reference reference card"
+        key_lines:
+          - "Line 91: replace 'implementation-pipeline/SKILL.md' with 'implementation-workflow.md'"
+
+  SECONDARY:
+    description: "Cross-reference update needed — references implementation-pipeline/SKILL.md for TDT content"
+    files:
+      - path: skills/audit/tasks/plan-fidelity-evaluator.md
+        change: "Update cross-reference from implementation-pipeline/SKILL.md to reference card"
+        key_lines:
+          - "Line 118: 'Gate sequence matches Read [implementation-pipeline SKILL.md]'"
+      - path: skills/audit/tasks/verification-audit-arbiter.md
+        change: "Update cross-reference to reference card"
+      - path: skills/audit/tasks/verification-audit-investigator.md
+        change: "Update cross-reference to reference card"
+      - path: skills/audit/tasks/verification-audit-evaluator.md
+        change: "Update cross-reference to reference card"
+      - path: skills/audit/tasks/verification-audit-validator.md
+        change: "Update cross-reference to reference card"
+      - path: skills/approval-gate-scope/SKILL.md
+        change: "Review coercion rule reference — may need to preserve or redirect"
+        note: "Coercion rule stays in implementation-pipeline; cross-reference may remain unchanged"
+      - path: guidelines/065-verification-honesty.md
+        change: "Update reference to implementation-pipeline SKILL.md Trigger Dispatch Table for coercion rule"
+
+  TERTIARY:
+    description: "Name-only reference — reference implementation-pipeline as routing target, not for TDT content. No change needed."
+    files:
+      - path: skills/git-workflow-branch/tasks/pre-work.md
+      - path: skills/git-workflow-branch/tasks/operating-protocol.md
+      - path: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+      - path: skills/approval-gate-scope/tasks/pre-impl/yield-to-assemble-work.md
+      - path: skills/approval-gate-scope/tasks/pre-impl/build-dependency-graph.md
+      - path: skills/approval-gate-scope/tasks/pre-impl/write-work-state.md
+      - path: skills/approval-gate-scope/tasks/screen/screen-issue-gate2.md
+      - path: skills/approval-gate-scope/tasks/gap-fill-cascade/for-pr.md
+      - path: skills/approval-gate-scope/tasks/gap-fill-cascade/for-implementation.md
+      - path: skills/approval-gate-scope/tasks/verify-authorization/auto-dispatch.md
+      - path: skills/approval-gate-scope/tasks/column-validation.md
+      - path: skills/approval-gate-scope/tasks/pre-implementation-analysis.md
+      - path: skills/approval-gate-scope/enforcement/auto-dispatch-table.md
+      - path: skills/pr-creation-workflow/tasks/create.md
+      - path: skills/pr-creation-workflow/tasks/sub-issue-collection.md
+      - path: skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+      - path: skills/executing-plans/SKILL.md
+      - path: skills/executing-plans/tasks/start.md
+      - path: skills/executing-plans/tasks/operating-protocol.md
+      - path: skills/verification-enforcement/tasks/enforce.md
+      - path: skills/pre-analysis/tasks/analyze.md
+      - path: skills/using-git-worktrees/tasks/create-worktree.md
+      - path: skills/using-git-worktrees/tasks/reference.md
+      - path: skills/finishing-a-development-branch/tasks/checklist.md
+      - path: skills/approval-gate/SKILL.md
+      - path: skills/implementation-pipeline/enforcement/context-passing.md
+      - path: skills/implementation-pipeline/enforcement/work-state-verification.md
+      - path: skills/implementation-pipeline/enforcement/overflow-signal.md
+      - path: skills/issue-operations-core/tasks/single-task-check.md
+      - path: skills/git-workflow-pr/tasks/review-prep/push-and-cleanup.md
+      - path: skills/writing-plans/SKILL.md
+
+  EXCLUDED:
+    description: "Not part of .opencode/ submodule or non-structural files"
+    files:
+      - path: guidelines/000-critical-rules.md
+        reason: "Root repo guideline — not in .opencode/ submodule"
+      - path: CHANGELOG.md
+        reason: "Root repo file — informational only"
+      - path: README.md
+        reason: "Root repo file — informational only"
+      - path: dispatch-table.yaml
+        reason: "Already DEPRECATED"
+      - path: scripts/session_context_triggers.py
+        reason: "Root repo script — name-only reference"
+      - path: tmp/rewrite_descriptions.py
+        reason: "Root repo throwaway script"
+
+file_count:
+  PRIMARY: 6
+  SECONDARY: 7
+  TERTIARY: 29
+  EXCLUDED: 6
+  total_checked: 48
+
+execution_order:
+  - phase: "Phase 3 — update SECONDARY files after implementation-pipeline SKILL.md is stripped"
+    files: [all SECONDARY files]
+  - phase: "Phase 4 — verify TERTIARY files need no change, purge any missed references"
+    files: [all TERTIARY files]

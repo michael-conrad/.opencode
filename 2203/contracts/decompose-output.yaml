@@ -1,0 +1,137 @@
+# Problem decomposition: Implementation-workflow reference card (#2203)
+
+decomposition:
+  items:
+    - item_number: 1
+      phase: 1
+      sc_id: SC-1
+      description: "Create reference card at writing-plans/reference/implementation-workflow.md"
+      concern: "Reference card creation"
+      files: ["skills/writing-plans/reference/implementation-workflow.md"]
+      type: NEW_FILE
+      input: "Current implementation-pipeline/SKILL.md TDT + Invocation dispatch strings"
+      output: "New reference card with full per-task cycle documentation"
+      verification: "File exists at expected path, contains all dispatch strings from current Invocation section"
+
+    - item_number: 2
+      phase: 1
+      sc_id: SC-2
+      description: "Reference card defines per-task cycle with full dispatch strings"
+      concern: "Reference card content"
+      files: ["skills/writing-plans/reference/implementation-workflow.md"]
+      type: CONTENT
+      input: "implementation-pipeline/SKILL.md lines 47-67 (TDT) and lines 81-108 (Invocation)"
+      output: "Reference card sections: per-task cycle steps, full dispatch strings, dispatch indicator semantics, step labels"
+      verification: "Every dispatch string from Invocation section present in card. Structural — grep for each step name."
+
+    - item_number: 3
+      phase: 2
+      sc_id: SC-3
+      description: "create.md reads reference card instead of implementation-pipeline TDT"
+      concern: "Plan writer update"
+      files: ["skills/writing-plans/tasks/create.md"]
+      type: MODIFY
+      input: "create.md loads implementation-pipeline TDT at runtime (line 32)"
+      output: "create.md reads implementation-workflow.md reference card"
+      verification: "Behavioral — orchestrator writing a plan loads the reference card, not the pipeline skill"
+
+    - item_number: 4
+      phase: 2
+      sc_id: SC-4
+      description: "research.md reads reference card for skill+task selection"
+      concern: "Phase decomposition update"
+      files: ["skills/writing-plans/tasks/research.md"]
+      type: MODIFY
+      input: "research.md reads implementation-pipeline TDT (line 36)"
+      output: "research.md reads implementation-workflow.md for skill+task selection"
+      verification: "Behavioral — decomposition agent reads reference card for skill+task mapping"
+
+    - item_number: 5
+      phase: 2
+      sc_id: SC-5
+      description: "validate.md verifies against reference card"
+      concern: "Plan validation update"
+      files: ["skills/writing-plans/tasks/validate.md"]
+      type: MODIFY
+      input: "validate.md reads implementation-pipeline TDT (line 34)"
+      output: "validate.md verifies against implementation-workflow.md reference card"
+      verification: "Behavioral — validation sub-agent reads reference card for skill+task validity check"
+
+    - item_number: 6
+      phase: 2
+      sc_id: SC-6
+      description: "plan-artifact-format.md updated to include dispatch string in step format"
+      concern: "Plan format update"
+      files: ["skills/writing-plans/reference/plan-artifact-format.md"]
+      type: MODIFY
+      input: "Plan artifact format references implementation-pipeline/SKILL.md TDT (line 91)"
+      output: "Plan artifact format references implementation-workflow.md. Phase table or step format includes dispatch string column."
+      verification: "Structural — grep for reference to implementation-workflow.md in plan-artifact-format.md"
+
+    - item_number: 7
+      phase: 3
+      sc_id: SC-7
+      description: "implementation-pipeline/SKILL.md dispatch strings stripped, route to reference card"
+      concern: "Source skill cleanup"
+      files: ["skills/implementation-pipeline/SKILL.md"]
+      type: MODIFY
+      input: "TDT (lines 47-67) and Invocation (lines 81-108) contain all dispatch strings"
+      output: "TDT retains step labels and routing context but dispatch strings removed. Invocation section: 'See reference card for canonical dispatch strings.'"
+      verification:
+        - "Structural — grep confirms dispatch strings no longer in implementation-pipeline/SKILL.md"
+        - "Preserve: DONE_WITH_CONCERNS coercion rule, remediation routing, state management, enforcement blocks, pipeline re-priming, artifact retention"
+
+    - item_number: 8
+      phase: 3
+      sc_id: SC-8
+      description: "All cross-references across .opencode/ checked and updated"
+      concern: "Cross-reference update"
+      files: ["skills/audit/tasks/plan-fidelity-evaluator.md", "skills/audit/tasks/verification-audit-arbiter.md", "skills/audit/tasks/verification-audit-investigator.md", "skills/audit/tasks/verification-audit-evaluator.md", "skills/audit/tasks/verification-audit-validator.md", "skills/approval-gate-scope/SKILL.md", "guidelines/065-verification-honesty.md"]
+      type: MODIFY
+      input: "Cross-references pointing to implementation-pipeline/SKILL.md for TDT"
+      output: "Cross-references pointing to implementation-workflow.md reference card (or both)"
+      verification: "Structural — every Read [implementation-pipeline SKILL.md] reference checked and updated"
+
+    - item_number: 9
+      phase: 4
+      sc_id: SC-9
+      description: "Deprecated implementation-pipeline references purged"
+      concern: "Cleanup"
+      files: []  # All files identified in pre-spec-inspection that need review
+      type: CLEANUP
+      input: "References to implementation-pipeline TDT throughout codebase"
+      output: "All references either updated or confirmed stale (e.g., dispatch-table.yaml is already DEPRECATED)"
+      verification: "Structural — grep for 'implementation-pipeline' returns only routing references, not TDT content references"
+
+    - item_number: 10
+      phase: 4
+      sc_id: SC-10
+      description: "Behavioral enforcement tests exist for the new plan-writing workflow"
+      concern: "Test creation"
+      files: []
+      type: NEW_FILE
+      input: "New reference card and updated plan-writing workflow"
+      output: "Behavioral enforcement tests verifying plan writer reads reference card, plan validator checks against card"
+      verification: "Behavioral — tests pass with green-phase implementation"
+
+phase_structure:
+  - phase: 1
+    name: "Reference card creation"
+    concern: "Create the reference document"
+    items: [1, 2]
+    depends_on: []
+  - phase: 2
+    name: "Plan writer update"
+    concern: "Update plan-writing pipeline to read reference card"
+    items: [3, 4, 5, 6]
+    depends_on: [1]
+  - phase: 3
+    name: "Source skill cleanup"
+    concern: "Strip dispatch strings from implementation-pipeline, update cross-references"
+    items: [7, 8]
+    depends_on: [1, 2]
+  - phase: 4
+    name: "Cleanup and testing"
+    concern: "Purge deprecated references, add behavioral tests"
+    items: [9, 10]
+    depends_on: [2, 3]

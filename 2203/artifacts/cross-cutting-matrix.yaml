@@ -1,0 +1,27 @@
+# Cross-cutting matrix: Implementation-workflow reference card (#2203)
+
+cross_cutting_concerns:
+  - concern: "Single source of truth for dispatch strings"
+    affected_phases: [1, 2, 3]
+    description: "During Phase 1, SSOT is the reference card. Phase 2 migrates readers. Phase 3 removes old source. There is a window where both TDT and card exist — synchronization must be maintained."
+    resolution: "Phase 2 must NOT land before Phase 1. Phase 3 must NOT land before Phase 2. Strict phase ordering prevents drift window."
+
+  - concern: "DONE_WITH_CONCERNS coercion rule"
+    affected_phases: [3]
+    description: "The coercion rule is currently in implementation-pipeline TDT. If TDT is stripped, this rule must be preserved or moved."
+    resolution: "Keep coercion rule in implementation-pipeline/SKILL.md as a standalone section (not part of TDT). Or add to reference card with cross-reference. Prefer keeping it in the skill since it's an enforcement rule, not a dispatch string."
+
+  - concern: "Cross-reference consistency"
+    affected_phases: [3]
+    description: "Multiple files reference implementation-pipeline/SKILL.md for TDT content. All must be updated consistently."
+    resolution: "Single grep check at Phase 3 start to capture all references, update in batch."
+
+  - concern: "Behavioral test coverage"
+    affected_phases: [4]
+    description: "Behavioral tests verify plan writer behavior. Both old behavior (loading TDT) and new behavior (reading card) need test coverage."
+    resolution: "RED-phase behavioral tests that fail with old behavior, PASS with new behavior."
+
+  - concern: "Backward compatibility with existing plans"
+    affected_phases: [2, 3]
+    description: "Existing plans embed step-level dispatch from TDT. The orchestrator reads plans, not skills. Existing plans will still work because the orchestrator always read the plan — not the TDT at execution time."
+    resolution: "No compatibility concern. The orchestrator reads the plan for dispatch instructions. The plan was written using TDT strings (Phase 1) or reference card strings (after Phase 2). Both produce valid plans."

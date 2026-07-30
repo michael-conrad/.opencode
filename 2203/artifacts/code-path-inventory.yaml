@@ -1,0 +1,87 @@
+# Code path inventory: Implementation-workflow reference card (#2203)
+
+phases:
+  phase_1_reference_card_creation:
+    concern: "Reference card creation"
+    code_paths:
+      - path: skills/writing-plans/reference/implementation-workflow.md
+        touch_type: CREATE
+        description: "New reference card with per-task cycle and dispatch strings"
+        source_data: skills/implementation-pipeline/SKILL.md (lines 47-67 TDT, lines 81-108 Invocation)
+    git_operations:
+      - git add skills/writing-plans/reference/implementation-workflow.md
+      - git commit -m "Add implementation-workflow reference card"
+
+  phase_2_plan_writer_update:
+    concern: "Plan writer update"
+    code_paths:
+      - path: skills/writing-plans/tasks/create.md
+        touch_type: MODIFY
+        changes:
+          - "Replace TDT loading step with reference card reading step"
+          - "Update step 1: 'Read the implementation-workflow reference card' instead of 'Load the implementation-pipeline TDT'"
+          - "Update all references from 'implementation-pipeline TDT' to 'reference card'"
+      - path: skills/writing-plans/tasks/research.md
+        touch_type: MODIFY
+        changes:
+          - "Replace TDT reading step with reference card reading step"
+          - "Update description: 'select skill+task from reference card'"
+      - path: skills/writing-plans/tasks/validate.md
+        touch_type: MODIFY
+        changes:
+          - "Replace TDT validation with reference card validation"
+          - "Update category 2: 'verify against reference card'"
+      - path: skills/writing-plans/reference/plan-artifact-format.md
+        touch_type: MODIFY
+        changes:
+          - "Update validation rule (line 91)"
+          - "Add dispatch string field to step format if needed"
+    git_operations:
+      - git add skills/writing-plans/tasks/create.md
+      - git add skills/writing-plans/tasks/research.md
+      - git add skills/writing-plans/tasks/validate.md
+      - git add skills/writing-plans/reference/plan-artifact-format.md
+      - git commit -m "Update plan writer to read reference card for dispatch strings"
+
+  phase_3_source_skill_cleanup:
+    concern: "Source skill cleanup"
+    code_paths:
+      - path: skills/implementation-pipeline/SKILL.md
+        touch_type: MODIFY
+        changes:
+          - "Remove dispatch strings from TDT rows"
+          - "Retain step labels and routing context"
+          - "Add 'See reference card' directive to Invocation section"
+          - "Preserve DONE_WITH_CONCERNS coercion rule"
+          - "Preserve remediation routing, state management, enforcement blocks"
+      - path: skills/audit/tasks/plan-fidelity-evaluator.md
+        touch_type: MODIFY
+        changes: ["Update Read [implementation-pipeline SKILL.md] → reference card"]
+      - path: skills/audit/tasks/verification-audit-arbiter.md
+        touch_type: MODIFY
+        changes: ["Update cross-reference"]
+      - path: skills/audit/tasks/verification-audit-investigator.md
+        touch_type: MODIFY
+        changes: ["Update cross-reference"]
+      - path: skills/audit/tasks/verification-audit-evaluator.md
+        touch_type: MODIFY
+        changes: ["Update cross-reference"]
+      - path: skills/audit/tasks/verification-audit-validator.md
+        touch_type: MODIFY
+        changes: ["Update cross-reference"]
+    git_operations:
+      - git add skills/implementation-pipeline/SKILL.md
+      - git add skills/audit/tasks/*.md
+      - git commit -m "Strip dispatch strings from pipeline skill, route to reference card"
+
+  phase_4_cleanup_and_testing:
+    concern: "Cleanup and testing"
+    code_paths:
+      - path: (all files from Phase 3 cross-references)
+        touch_type: MODIFY if not already done
+      - path: (new behavioral test files)
+        touch_type: CREATE
+        changes: ["Behavioral enforcement tests for plan writer reading reference card"]
+    git_operations:
+      - git add .
+      - git commit -m "Purge deprecated references, add behavioral enforcement tests"
