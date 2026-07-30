@@ -73,7 +73,7 @@ Before any cleanup operations, detect and build routing context for submodules u
    - Include `submodule_paths` in task context for `issue-closure` and `branch-cleanup` sub-tasks
    - Each sub-task uses the routing context to route API calls to the correct owner/repo for files under a submodule path
 
-- [ ] 5. **If no submodules detected** (glob scan returned only root repo): proceed normally, no routing context needed.
+- [ ] 5. **If no submodules detected** (`git submodule status` returned only root repo): proceed normally, no routing context needed.
 
 ### Step 1: Verify PR Merge and Run Gates
 

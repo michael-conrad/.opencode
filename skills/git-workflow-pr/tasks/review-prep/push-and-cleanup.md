@@ -27,7 +27,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ### Step 0: Submodule Feature Push via Sub-Agent Orchestrator Dispatch (CONDITIONAL)
 
-**If no submodules detected via glob scan:** Skip entirely.
+**If no submodules detected via `git submodule status`:** Skip entirely.
 
 **If submodules detected:** The dispatches a sub-agent via `task(subagent_type="general")` to handle submodule push automation instead of executing inline bash.
 
@@ -40,7 +40,7 @@ must_receive:
   - parent_repo_owner: string   # github.owner of parent repo
   - parent_repo_name: string    # github.repo of parent repo
   - parent_branch: string       # feature branch name in parent
-  - submodule_paths: string[]   # list of submodule paths from glob scan
+  - submodule_paths: string[]   # list of submodule paths from `git submodule status`
   - dev_name: string            # developer name for commit authorship
   - dev_email: string           # developer email for commit authorship
 
