@@ -1,0 +1,54 @@
+sc_count: 13
+scs:
+  - id: "SC-13"
+    description: "Phase 1 investigation produces per-workflow applicability assessment artifact"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-1"
+    description: "gb-cli skill exists at .opencode/skills/gb-cli/SKILL.md with valid YAML frontmatter"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-2"
+    description: "SKILL.md uses routing-only template (no procedure text)"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-3"
+    description: "Description field uses agent-intent format"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-4"
+    description: "Task cards exist for workflows determined by Phase 1 investigation"
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-5"
+    description: "Each task card follows canonical 6-section structure"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-6"
+    description: "No gb command duplicates git-workflow procedures"
+    evidence_type: "semantic"
+    plan_item: 7
+  - id: "SC-7"
+    description: "Task cards include gb auth status as entry criterion for auth-dependent operations"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Skill covers all gb CLI commands from capability manifest"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Common Workflows task card with end-to-end examples"
+    evidence_type: "structural"
+    plan_item: 10
+  - id: "SC-11"
+    description: "gb pr merge prohibition with CRITICAL VIOLATION block"
+    evidence_type: "string"
+    plan_item: 11
+  - id: "SC-12"
+    description: "All task cards include SPDX + provenance headers and AI co-authored byline"
+    evidence_type: "string"
+    plan_item: 12
+  - id: "SC-8"
+    description: "gb-cli entry appears in <available_skills> after deployment"
+    evidence_type: "behavioral"
+    plan_item: 13

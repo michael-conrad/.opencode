@@ -1,0 +1,35 @@
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+  phase_3_complete:
+    type: bool
+  phase_4_complete:
+    type: bool
+  phase_5_complete:
+    type: bool
+  phase_6_complete:
+    type: bool
+preconditions:
+  - "z3.Not(phase_1_complete)"
+  - "z3.Not(phase_2_complete)"
+  - "z3.Not(phase_3_complete)"
+  - "z3.Not(phase_4_complete)"
+  - "z3.Not(phase_5_complete)"
+  - "z3.Not(phase_6_complete)"
+invariants:
+  - "z3.Implies(phase_2_complete, phase_1_complete)"
+  - "z3.Implies(phase_3_complete, phase_1_complete)"
+  - "z3.Implies(phase_4_complete, phase_1_complete)"
+  - "z3.Implies(phase_5_complete, z3.And(phase_2_complete, phase_3_complete))"
+  - "z3.Implies(phase_6_complete, phase_1_complete)"
+postconditions:
+  - "phase_1_complete"
+  - "phase_2_complete"
+  - "phase_3_complete"
+  - "phase_4_complete"
+  - "phase_5_complete"
+  - "phase_6_complete"
+theorem:
+  - "z3.Implies(phase_6_complete, z3.And(phase_1_complete, phase_2_complete, phase_3_complete, phase_4_complete, phase_5_complete))"

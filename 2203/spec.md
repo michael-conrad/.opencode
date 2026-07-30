@@ -25,13 +25,13 @@ The refactoring moves the dispatch strings from the implementation-pipeline TDT 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | `writing-plans/reference/implementation-workflow.md` exists | structural | `ls` |
-| SC-2 | Reference card contains all 17 canonical dispatch strings (pre-regression through exec-summary) from the implementation-pipeline Invocation section | string | grep each step name |
+| SC-2 | Reference card contains all 17 canonical dispatch strings (pre-regression through exec-summary plus step-dispatch) from the implementation-pipeline Invocation section | string | grep each step name |
 | SC-3 | `create.md` reads the reference card instead of loading the implementation-pipeline TDT | behavioral | `opencode run` with plan-writing scenario, stderr shows reference card read |
 | SC-4 | `research.md` reads the reference card for skill+task selection instead of implementation-pipeline TDT | behavioral | `opencode run` with research scenario |
 | SC-5 | `validate.md` validates against the reference card instead of implementation-pipeline TDT | behavioral | `opencode run` with validate scenario |
 | SC-6 | `plan-artifact-format.md` validation rule (line 91) references the reference card | string | grep |
 | SC-7 | `implementation-pipeline/SKILL.md` dispatch strings stripped, retains state management + enforcement + coercion rule | string + structural | grep for absence of `task(..., prompt:` lines; assert coercion rule present |
-| SC-8 | Audit cross-references (plan-fidelity-evaluator, 4 verification-audit tasks) updated from `implementation-pipeline/SKILL.md` to reference card | string | grep |
+| SC-8 | Audit cross-references updated: plan-fidelity-evaluator and 4 verification-audit tasks replace dispatch-string references from implementation-pipeline/SKILL.md → reference card; 065-verification-honesty.md line 413 updated (TDT URL extraction ref), lines 318/453 preserved (coercion rule) | string | grep |
 | SC-9 | Deprecated implementation-pipeline dispatch-string references purged across all `.opencode/` files | string | `grep -r` count comparison |
 | SC-10 | Behavioral enforcement tests exist for the new plan-writing workflow (create.md reads card, validate.md validates against card) | behavioral | `opencode run` with enforcement test scenario |
 
@@ -39,7 +39,7 @@ The refactoring moves the dispatch strings from the implementation-pipeline TDT 
 
 The spec SHALL:
 
-1. **REQ-1**: Create a static reference card at `skills/writing-plans/reference/implementation-workflow.md` containing the per-task cycle definition (RED→GREEN→COMMIT), all 17 canonical dispatch strings, dispatch indicator semantics, step labels, and validation rules for plan consumers.
+1. **REQ-1**: Create a static reference card at `skills/writing-plans/reference/implementation-workflow.md` containing the per-task cycle definition (RED→GREEN→COMMIT), all 17 canonical dispatch strings (pre-regression through exec-summary plus step-dispatch), dispatch indicator semantics, step labels, and validation rules for plan consumers.
 
 2. **REQ-2**: Update `skills/writing-plans/tasks/create.md` to read the reference card instead of loading the implementation-pipeline TDT at runtime. Replace "Load the implementation-pipeline TDT" with "Read the implementation-workflow reference card".
 
@@ -51,7 +51,7 @@ The spec SHALL:
 
 6. **REQ-6**: Strip dispatch strings from `skills/implementation-pipeline/SKILL.md` TDT rows and Invocation section. Preserve the DONE_WITH_CONCERNS coercion rule, state management, remediation routing, enforcement blocks, pipeline re-priming, and artifact retention.
 
-7. **REQ-7**: Update audit cross-references (plan-fidelity-evaluator.md, 4 verification-audit tasks) from `implementation-pipeline/SKILL.md` to the reference card. Preserve references to the pipeline skill for enforcement rules (coercion, state management).
+7. **REQ-7**: Update audit cross-references from `implementation-pipeline/SKILL.md` to the reference card for dispatch-string references only. Affected files: plan-fidelity-evaluator.md (replace dispatch-string reference), 4 verification-audit tasks that reference dispatch strings, 065-verification-honesty.md line 413 (TDT URL extraction reference → reference card). Preserve ALL existing references in approval-gate-scope/SKILL.md and 065-verification-honesty.md lines 318/453 — these point to the pipeline skill's coercion rule and enforcement blocks, which are out of scope. Dispatch-string-only scope: no enforcement rules, state management, coercion references, or pipeline skill name-only references are updated.
 
 8. **REQ-8**: Purge all remaining deprecated implementation-pipeline dispatch-string references across `.opencode/` files.
 
@@ -68,7 +68,7 @@ The spec SHALL:
 | 5 | 2 | SC-5 | Update validate.md to validate against reference card | Plan writer update | `skills/writing-plans/tasks/validate.md` |
 | 6 | 2 | SC-6 | Update plan-artifact-format.md validation rule | Plan writer update | `skills/writing-plans/reference/plan-artifact-format.md` |
 | 7 | 3 | SC-7 | Strip dispatch strings from implementation-pipeline/SKILL.md | Source skill cleanup | `skills/implementation-pipeline/SKILL.md` |
-| 8 | 3 | SC-8 | Update audit cross-references | Source skill cleanup | plan-fidelity-evaluator.md, 4 verification-audit tasks, approval-gate-scope/SKILL.md, 065-verification-honesty.md |
+| 8 | 3 | SC-8 | Update audit cross-references — plan-fidelity-evaluator.md (replace dispatch-string ref), verification-audit-*.md (4 files, replace dispatch-string ref); partial update 065-verification-honesty.md (line 413 only — TDT URL extraction ref → reference card, preserve lines 318/453 — coercion rule) | Source skill cleanup | plan-fidelity-evaluator.md, verification-audit-*.md (4), 065-verification-honesty.md |
 | 9 | 4 | SC-9 | Purge deprecated dispatch-string references | Cleanup | All `.opencode/` files identified in pre-spec inspection |
 | 10 | 4 | SC-10 | Add behavioral enforcement tests | Cleanup | New test files under `.opencode/tests-v2/behaviors/` |
 
@@ -96,3 +96,12 @@ The spec SHALL:
 > **Full spec and artifacts: [`.opencode/.issues/2203/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2203)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
 > **Local artifacts:** `.opencode/.issues/2203/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
+## Change Control
+
+| Date | Change | Reason | Author |
+|------|--------|--------|--------|
+| 2026-07-30 | Item 8: removed approval-gate-scope/SKILL.md, split into explicit groups (plan-fidelity-evaluator + 4 verification-audit tasks replace dispatch-string refs; 065-verification-honesty.md line 413 updated, lines 318/453 preserved) | Finding 1 (consistency FAIL — Item 8 contradicted REQ-7/Dependencies) + Finding 2 (scope fidelity FAIL — Item 8 overreached by including preservation-only file) | opencode (deepseek-v4-flash-free) |
+| 2026-07-30 | SC-8: clarified which cross-references get updated vs preserved; added explicit line-number scope for 065-verification-honesty.md | Finding 1 — SC-8 was ambiguous about which of 065-verification-honesty.md's 3 references should be updated | opencode (deepseek-v4-flash-free) |
+| 2026-07-30 | REQ-7: split into dispatch-string-only scope with explicit preservation boundaries for approval-gate-scope/SKILL.md and 065-verification-honesty.md lines 318/453 | Finding 1 — REQ-7 lacked scope boundaries, allowing contradictory interpretation with Dependencies section | opencode (deepseek-v4-flash-free) |
+| 2026-07-30 | SC-2/REQ-1: fixed string count parenthetical "(pre-regression through exec-summary)" → "(pre-regression through exec-summary plus step-dispatch)" — 17 total includes step-dispatch; "through exec-summary" yields 16 | Validator finding — string count mismatch | opencode (deepseek-v4-flash-free) |
