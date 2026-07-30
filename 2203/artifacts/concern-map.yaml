@@ -1,0 +1,75 @@
+artifact_type: concern-map
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+concerns:
+  - id: reference-card-creation
+    description: Creating and populating the static implementation-workflow reference card
+    phases:
+      - phase: 1
+        items:
+          - 1 (SC-1): Create reference card file
+          - 2 (SC-2): Populate card with ALL 23 sections from pipeline skill
+    files:
+      - skills/writing-plans/reference/implementation-workflow.md (created)
+
+  - id: plan-writer-update
+    description: Updating plan-writing tasks to read the reference card instead of loading the live skill
+    phases:
+      - phase: 2
+        items:
+          - 3 (SC-3): Update create.md to read reference card
+          - 4 (SC-4): Update research.md to read reference card
+          - 5 (SC-5): Update validate.md to validate against reference card
+          - 6 (SC-6): Update plan-artifact-format.md validation rule
+    files:
+      - skills/writing-plans/tasks/create.md (modified)
+      - skills/writing-plans/tasks/research.md (modified)
+      - skills/writing-plans/tasks/validate.md (modified)
+      - skills/writing-plans/reference/plan-artifact-format.md (modified)
+
+  - id: source-skill-deletion
+    description: Deleting the implementation-pipeline skill directory entirely, updating cross-references and pipeline chain
+    phases:
+      - phase: 3
+        items:
+          - 7 (SC-7): DELETE skills/implementation-pipeline/ entirely
+          - 8 (SC-8): Update ALL cross-references — 5 audit tasks, 065-verification-honesty.md, tertiary files
+          - 9 (SC-9): Pipeline chain updates across tertiary files
+          - 11 (SC-11): Coercion rule migration — DONE_WITH_CONCERNS to reference card
+          - 12 (SC-12): Enforcement doc merge — 4 files into reference card, delete originals
+    files:
+      - skills/implementation-pipeline/ (deleted)
+      - .opencode/ files per cross-ref-audit.yaml (modified)
+      - skills/approval-gate-scope/SKILL.md (modified)
+      - 065-verification-honesty.md (modified)
+
+  - id: cleanup-and-testing
+    description: Adding behavioral enforcement tests and final orphan reference sweep
+    phases:
+      - phase: 4
+        items:
+          - 10 (SC-10): Add behavioral enforcement tests
+          - 13 (SC-13): Orphan reference sweep — grep for remaining skills/implementation-pipeline/ refs
+    files:
+      - .opencode/tests-v2/behaviors/* (created)
+      - All .opencode/ files (scanned, not modified)
+
+concern_dependencies:
+  - source: reference-card-creation
+    target: plan-writer-update
+    reason: Tasks cannot read the reference card until it exists
+
+  - source: plan-writer-update
+    target: source-skill-deletion
+    reason: Implementation-pipeline cannot be deleted until all tasks are migrated to reference card
+
+  - source: source-skill-deletion
+    target: cleanup-and-testing
+    reason: Final orphan sweep and behavioral tests run after all migrations are complete
+
+risks:
+  - concern: source-skill-deletion
+    risk: Partial cross-reference update leaves dangling references
+    mitigation: SC-13 final grep sweep confirms zero matches

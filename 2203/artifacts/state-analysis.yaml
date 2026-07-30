@@ -1,0 +1,70 @@
+artifact_type: state-analysis
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+state_model:
+  description: |
+    The refactoring removes the solve-based state management from implementation-pipeline
+    and replaces it with plan-step-order-as-state-machine. The plan's phase/item ordering
+    IS the state machine — no external solve state needed.
+
+state_transitions_before:
+  - trigger: plan-approved
+    from: plan_created
+    to: awaiting_implementation
+    via: authorization-cascade
+    managed_by: implementation-pipeline state machine
+
+  - trigger: phase-complete
+    from: in_phase_N
+    to: in_phase_N+1
+    via: verify → commit cycle
+    managed_by: implementation-pipeline state machine
+
+state_transitions_after:
+  - trigger: plan-approved
+    from: plan_created
+    to: awaiting_implementation
+    via: authorization-cascade
+    managed_by: PLAN_ORDER (no explicit state file)
+
+  - trigger: phase-complete
+    from: in_phase_N
+    to: in_phase_N+1
+    via: verify → commit cycle
+    managed_by: PLAN_ORDER (next item in plan)
+
+removed_state_machinery:
+  - pipeline-state-machine.yaml (deleted)
+  - solve state verification calls (removed)
+  - State management guidance moved to reference card as optional section
+
+replaced_by:
+  - Plan item ordering (items table in spec)
+  - Implementation in phase order (Phase 1 → Phase 2 → Phase 3 → Phase 4)
+  - Each phase's items ordered sequentially
+
+state_invariants:
+  - invariant: plan-items-immutable
+    description: Item IDs, phase assignment, and SC linkage do not change during execution
+    enforcement: Spec change control section tracks modifications
+
+  - invariant: sequential-phase-execution
+    description: Phases execute in order (1 → 2 → 3 → 4), no parallel phase execution
+    enforcement: Pipeline phases are sequential by design
+
+  - invariant: phase-completion-before-next
+    description: All items in Phase N must complete before Phase N+1 begins
+    enforcement: Each phase items deploy independently
+
+risk_assessment:
+  - risk: State machine removal breaks existing verification workflows
+    likelihood: LOW
+    impact: MEDIUM
+    mitigation: State management guidance preserved as optional section in reference card
+
+  - risk: Plan step order is less rigorous than explicit state machine
+    likelihood: LOW
+    impact: LOW
+    mitigation: Plan phases are explicitly ordered and gated by verification-before-completion

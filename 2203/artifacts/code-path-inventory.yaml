@@ -1,0 +1,116 @@
+artifact_type: code-path-inventory
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+files:
+
+  # Phase 1 — CREATE
+  - path: skills/writing-plans/reference/implementation-workflow.md
+    action: CREATE
+    phase: 1
+    items: [1, 2]
+    scs: [SC-1, SC-2]
+    description: Static reference card containing all 23 sections from implementation-pipeline/SKILL.md, enforcement rules, coercion rule, state guidance
+
+  # Phase 2 — MODIFY
+  - path: skills/writing-plans/tasks/create.md
+    action: MODIFY
+    phase: 2
+    items: [3]
+    scs: [SC-3]
+    description: Replace "Load the implementation-pipeline TDT" with "Read the implementation-workflow reference card"
+
+  - path: skills/writing-plans/tasks/research.md
+    action: MODIFY
+    phase: 2
+    items: [4]
+    scs: [SC-4]
+    description: Update skill+task selection to read from reference card instead of implementation-pipeline TDT
+
+  - path: skills/writing-plans/tasks/validate.md
+    action: MODIFY
+    phase: 2
+    items: [5]
+    scs: [SC-5]
+    description: Validate plan skill+task references against reference card instead of implementation-pipeline TDT
+
+  - path: skills/writing-plans/reference/plan-artifact-format.md
+    action: MODIFY
+    phase: 2
+    items: [6]
+    scs: [SC-6]
+    description: Replace validation rule referencing implementation-pipeline/SKILL.md with reference card reference
+
+  # Phase 3 — DELETE + MODIFY
+  - path: skills/implementation-pipeline/SKILL.md
+    action: DELETE
+    phase: 3
+    items: [7]
+    scs: [SC-7]
+    description: Deleted entirely — 23 sections subsumed into reference card
+
+  - path: skills/implementation-pipeline/enforcement/
+    action: DELETE
+    phase: 3
+    items: [7, 12]
+    scs: [SC-7, SC-12]
+    description: 4 enforcement reference docs merged into reference card, originals deleted
+
+  - path: skills/implementation-pipeline/pipeline-state-machine.yaml
+    action: DELETE
+    phase: 3
+    items: [7]
+    scs: [SC-7]
+    description: Deleted — plan step order IS the state machine
+
+  # Cross-reference updates (Phase 3)
+  - path: skills/audit/tasks/*.md
+    action: MODIFY
+    phase: 3
+    items: [8]
+    scs: [SC-8]
+    description: 5 audit tasks — redirect implementation-pipeline gate-sequence refs to reference card
+    count: 5
+
+  - path: .opencode/guidelines/065-verification-honesty.md
+    action: MODIFY
+    phase: 3
+    items: [8, 11]
+    scs: [SC-8, SC-11]
+    section: Pre-Response Factual Claim Gate
+    description: Update TDT URL extraction ref and coercion rule ref to reference card
+
+  - path: skills/approval-gate-scope/SKILL.md
+    action: MODIFY
+    phase: 3
+    items: [11]
+    scs: [SC-11]
+    description: Update DONE_WITH_CONCERNS coercion rule reference to reference card
+
+  # Pipeline chain updates (Phase 3)
+  - path: .opencode/ (tertiary files with pipeline chain refs)
+    action: MODIFY
+    phase: 3
+    items: [9]
+    scs: [SC-9]
+    description: Replace old chain with new chain across tertiary files
+    pattern_old: "pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep"
+    pattern_new: "pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep"
+
+  # Phase 4 — CREATE + SCAN
+  - path: .opencode/tests-v2/behaviors/
+    action: CREATE
+    phase: 4
+    items: [10]
+    scs: [SC-10]
+    description: New behavioral enforcement tests for plan-writer workflow and delete-not-strip verification
+    count: 2
+
+  - path: .opencode/ (all files)
+    action: SCAN
+    phase: 4
+    items: [13]
+    scs: [SC-13]
+    description: Final grep sweep for remaining skills/implementation-pipeline/ references
+    grep_pattern: "skills/implementation-pipeline/"

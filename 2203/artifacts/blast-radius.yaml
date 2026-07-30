@@ -1,0 +1,60 @@
+artifact_type: blast-radius
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+affected_skills:
+  - name: implementation-pipeline
+    impact: DELETED
+    reason: Entire skill directory (SKILL.md, enforcement/*.md, pipeline-state-machine.yaml) removed — all content subsumed into reference card
+
+  - name: writing-plans
+    impact: MODIFIED
+    files_modified:
+      - skills/writing-plans/tasks/create.md
+      - skills/writing-plans/tasks/research.md
+      - skills/writing-plans/tasks/validate.md
+      - skills/writing-plans/reference/plan-artifact-format.md
+    files_created:
+      - skills/writing-plans/reference/implementation-workflow.md
+    reason: Plan writer tasks updated to read static reference card instead of loading live skill TDT
+
+  - name: audit
+    impact: MODIFIED
+    files_modified_count: 5
+    reason: 5 audit tasks reference implementation-pipeline gate-sequence verification — redirected to reference card
+
+  - name: approval-gate-scope
+    impact: MODIFIED
+    files_modified:
+      - skills/approval-gate-scope/SKILL.md
+    reason: DONE_WITH_CONCERNS coercion rule reference updated to point to reference card
+
+affected_guidelines:
+  - guideline: 065-verification-honesty.md
+    impact: MODIFIED
+    section: Pre-Response Factual Claim Gate (TDT URL extraction ref)
+    reason: Coercion rule reference and TDT URL extraction ref updated to reference card
+
+affected_tests:
+  - type: behavioral
+    location: .opencode/tests-v2/behaviors/
+    files_created: 2+
+    reason: New behavioral tests for plan-writer reading card, validator against card, delete-not-strip verification
+
+tertiary_files_with_pipeline_chain_refs:
+  impact: MODIFIED
+  reason: Old chain "pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep" replaced with "pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep"
+
+not_in_scope:
+  - CHANGELOG.md
+  - README.md
+  - dispatch-table.yaml (already DEPRECATED)
+  - scripts/session_context_triggers.py (name-only reference)
+  - tmp/rewrite_descriptions.py (throwaway script)
+
+blast_summary: |
+  The refactoring deletes one skill directory entirely and modifies 8+ skill/guideline files
+  across .opencode/. All changes are internal to .opencode/ — no parent-repo files affected.
+  The primary risk is partial cross-reference updates leaving dangling references after the
+  implementation-pipeline directory is deleted (mitigated by SC-13 final grep sweep).

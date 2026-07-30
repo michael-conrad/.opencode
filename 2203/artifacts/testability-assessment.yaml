@@ -1,0 +1,123 @@
+artifact_type: testability-assessment
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+testability_overview:
+  overall: HIGH
+  rationale: |
+    Most changes are structural (file exists, string patterns match) and testable
+    with simple grep/ls assertions. Behavioral changes (plan writer reads card) are
+    testable via opencode run with stderr inspection. Only behavioral tests require
+    the full opencode test harness.
+
+sc_testability:
+
+  - sc: SC-1
+    evidence_type: structural
+    test_method: ls
+    testable: true
+    difficulty: TRIVIAL
+    command: ls skills/writing-plans/reference/implementation-workflow.md
+
+  - sc: SC-2
+    evidence_type: string
+    test_method: grep each section header
+    testable: true
+    difficulty: EASY
+    command: grep "## " skills/writing-plans/reference/implementation-workflow.md | wc -l
+
+  - sc: SC-3
+    evidence_type: behavioral
+    test_method: opencode run with plan-writing scenario
+    testable: true
+    difficulty: MEDIUM
+    requires_harness: true
+    harness: with-test-home
+    assertion: stderr shows reference card read instead of skill() load
+
+  - sc: SC-4
+    evidence_type: behavioral
+    test_method: opencode run with research scenario
+    testable: true
+    difficulty: MEDIUM
+    requires_harness: true
+    harness: with-test-home
+
+  - sc: SC-5
+    evidence_type: behavioral
+    test_method: opencode run with validate scenario
+    testable: true
+    difficulty: MEDIUM
+    requires_harness: true
+    harness: with-test-home
+
+  - sc: SC-6
+    evidence_type: string
+    test_method: grep
+    testable: true
+    difficulty: TRIVIAL
+    command: grep "implementation-workflow" skills/writing-plans/reference/plan-artifact-format.md
+
+  - sc: SC-7
+    evidence_type: string + structural
+    test_method: ls + grep
+    testable: true
+    difficulty: TRIVIAL
+    commands:
+      - "ls skills/implementation-pipeline/ 2>&1 | grep 'No such file'"
+      - "grep -r 'skills/implementation-pipeline/' .opencode/ --include='*.md' | grep -v '\.issues/'"
+
+  - sc: SC-8
+    evidence_type: string
+    test_method: grep cross-ref count comparison
+    testable: true
+    difficulty: EASY
+    command: grep per sub-group with before/after count comparison
+
+  - sc: SC-9
+    evidence_type: string
+    test_method: grep for old chain; assert absent
+    testable: true
+    difficulty: TRIVIAL
+    command: grep for old chain pattern in .opencode/ files
+
+  - sc: SC-10
+    evidence_type: behavioral
+    test_method: opencode run with enforcement test scenario
+    testable: true
+    difficulty: MEDIUM
+    requires_harness: true
+    harness: with-test-home
+
+  - sc: SC-11
+    evidence_type: string
+    test_method: grep
+    testable: true
+    difficulty: EASY
+    command: grep "implementation-workflow" skills/approval-gate-scope/SKILL.md .opencode/guidelines/065-verification-honesty.md
+
+  - sc: SC-12
+    evidence_type: structural
+    test_method: ls + grep
+    testable: true
+    difficulty: EASY
+    commands:
+      - "ls skills/writing-plans/reference/implementation-workflow.md"
+      - "grep for state management guidance content in card"
+
+  - sc: SC-13
+    evidence_type: string
+    test_method: grep
+    testable: true
+    difficulty: TRIVIAL
+    command: "grep -r 'skills/implementation-pipeline/' .opencode/ --include='*.md' | grep -v '\.issues/' | wc -l"
+
+infrastructure_requirements:
+  - behavioral tests require standalone opencode binary at .tools/opencode/opencode
+  - behavioral tests require with-test-home wrapper functional
+  - behavioral tests require AI model responding within timeout
+  - behavioral tests require writable test home at ./tmp/test-home-*
+
+risk_if_unexecutable:
+  note: If behavioral test infrastructure is unavailable, SC-3, SC-4, SC-5, SC-10 will FAIL (cannot substitute structural evidence)

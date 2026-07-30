@@ -33,6 +33,8 @@ Two approaches were considered for decoupling the plan writer from the implement
 
 ## Success Criteria
 
+**All 13 success criteria below MUST pass for implementation to be considered complete. No SC is optional.**
+
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | `writing-plans/reference/implementation-workflow.md` exists | structural | `ls` |

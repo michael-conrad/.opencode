@@ -1,0 +1,72 @@
+artifact_type: cross-cutting-matrix
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+matrix:
+  - concern: reference-card-creation
+    phase: 1
+    cross_cutting_with:
+      - concern: plan-writer-update
+        nature: prerequisite
+        detail: Reference card must exist before tasks can read it
+      - concern: source-skill-deletion
+        nature: prerequisite
+        detail: All 23 sections must be captured in card before source directory is deleted
+      - concern: cleanup-and-testing
+        nature: weak
+        detail: Behavioral tests verify card exists (SC-1)
+
+  - concern: plan-writer-update
+    phase: 2
+    cross_cutting_with:
+      - concern: reference-card-creation
+        nature: dependent
+        detail: Reads from card created in Phase 1
+      - concern: source-skill-deletion
+        nature: dependency
+        detail: All 4 task files must be updated before source skill can be deleted
+      - concern: cleanup-and-testing
+        nature: verification-target
+        detail: Behavioral tests verify create/research/validate read card instead of TDT
+
+  - concern: source-skill-deletion
+    phase: 3
+    cross_cutting_with:
+      - concern: reference-card-creation
+        nature: consequence
+        detail: Deletion only possible after all content captured in card
+      - concern: plan-writer-update
+        nature: consequence
+        detail: Deletion only possible after all tasks migrated
+      - concern: cleanup-and-testing
+        nature: verification-target
+        detail: Behavioral tests verify directory is deleted, orphan sweep catches missed refs
+
+  - concern: cleanup-and-testing
+    phase: 4
+    cross_cutting_with:
+      - concern: reference-card-creation
+        nature: verification
+        detail: Tests verify card exists
+      - concern: plan-writer-update
+        nature: verification
+        detail: Tests verify tasks read card
+      - concern: source-skill-deletion
+        nature: verification
+        detail: Tests verify directory deleted, orphan sweep confirms zero dangling refs
+
+shared_concerns:
+  - id: cross-reference-consistency
+    description: All references to implementation-pipeline must be consistently updated across all affected files
+    affected_phases: [3]
+    affected_items: [8, 9, 11]
+    risk: Partial update leaves dangling references
+    mitigation: SC-13 final grep sweep
+
+  - id: content-fidelity
+    description: All 23 sections from implementation-pipeline/SKILL.md must be faithfully reproduced in reference card
+    affected_phases: [1]
+    affected_items: [2]
+    risk: Content omission breaks downstream plan-writing
+    mitigation: Section-by-section verification against source before deletion

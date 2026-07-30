@@ -1,0 +1,81 @@
+artifact_type: pipeline-readiness
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+pipeline_order:
+  - phase: 1
+    name: Reference Card Creation
+    items: [1, 2]
+    scs: [SC-1, SC-2]
+    status: NOT_STARTED
+
+  - phase: 2
+    name: Plan Writer Update
+    items: [3, 4, 5, 6]
+    scs: [SC-3, SC-4, SC-5, SC-6]
+    status: NOT_STARTED
+    depends_on: [phase-1]
+
+  - phase: 3
+    name: Source Skill Deletion
+    items: [7, 8, 9, 11, 12]
+    scs: [SC-7, SC-8, SC-9, SC-11, SC-12]
+    status: NOT_STARTED
+    depends_on: [phase-2]
+
+  - phase: 4
+    name: Cleanup and Testing
+    items: [10, 13]
+    scs: [SC-10, SC-13]
+    status: NOT_STARTED
+    depends_on: [phase-3]
+
+gates:
+  - gate: phase-1-complete
+    entry_criteria:
+      - Reference card file created
+      - All 23 sections populated
+    exit_criteria:
+      - SC-1 PASS (structural: ls)
+      - SC-2 PASS (string: grep section headers)
+    next: phase-2
+
+  - gate: phase-2-complete
+    entry_criteria:
+      - Phase 1 complete
+    exit_criteria:
+      - SC-3 PASS (behavioral: opencode run)
+      - SC-4 PASS (behavioral: opencode run)
+      - SC-5 PASS (behavioral: opencode run)
+      - SC-6 PASS (string: grep)
+    next: phase-3
+
+  - gate: phase-3-complete
+    entry_criteria:
+      - Phase 2 complete
+    exit_criteria:
+      - SC-7 PASS (string + structural)
+      - SC-8 PASS (string: grep cross-ref count)
+      - SC-9 PASS (string: grep old chain absent)
+      - SC-11 PASS (string: grep)
+      - SC-12 PASS (structural: ls)
+    next: phase-4
+
+  - gate: phase-4-complete
+    entry_criteria:
+      - Phase 3 complete
+    exit_criteria:
+      - SC-10 PASS (behavioral: opencode run)
+      - SC-13 PASS (string: grep zero matches)
+    next: DONE
+
+pre_implementation_checks:
+  - Source implementation-pipeline/SKILL.md must be read for content extraction before Phase 1
+  - All .opencode/ files with pipeline chain pattern must be identified before Phase 3
+  - Cross-reference audit (cross-ref-audit.yaml) must be complete before Phase 3
+
+notes: |
+  Phase 3 items are grouped because they all touch source-skill-deletion concern
+  and share the same dependency on Phase 2 completion. Items within Phase 3 can
+  be reordered as needed (cross-ref updates before deletion, etc.).

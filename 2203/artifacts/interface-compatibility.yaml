@@ -1,0 +1,84 @@
+artifact_type: interface-compatibility
+spec_title: "Decouple plan-writing from implementation-pipeline"
+issue_number: 2203
+generated_at: 2026-07-30T17:35:00Z
+
+interfaces:
+
+  # Plan Writer Interface (reading dispatch metadata)
+  - component: writing-plans/tasks/create.md
+    interface: plan-dispatch-discovery
+    current: Loads implementation-pipeline TDT via skill() at runtime
+    target: Reads implementation-workflow.md static reference card
+    compatibility: COMPATIBLE
+    notes: |
+      Both approaches produce the same dispatch strings. The reference card contains
+      the same 17 canonical dispatch strings as the TDT. The reading mechanism
+      changes from skill() dynamic load to file-based static read, but the output
+      (dispatch string set) is identical.
+
+  - component: writing-plans/tasks/research.md
+    interface: skill-task-selection
+    current: Reads implementation-pipeline TDT for skill+task selection
+    target: Reads implementation-workflow.md reference card for skill+task selection
+    compatibility: COMPATIBLE
+    notes: Reference card contains the same trigger dispatch table content.
+
+  - component: writing-plans/tasks/validate.md
+    interface: plan-validation
+    current: Validates against implementation-pipeline TDT as authority
+    target: Validates against implementation-workflow.md reference card as authority
+    compatibility: COMPATIBLE
+    notes: Authority source changes but content is identical.
+
+  - component: writing-plans/reference/plan-artifact-format.md
+    interface: artifact-format-validation
+    current: References implementation-pipeline/SKILL.md as validation authority
+    target: References implementation-workflow.md as validation authority
+    compatibility: COMPATIBLE
+    notes: Simple reference replacement, no behavioral change.
+
+  # Audit Interface
+  - component: skills/audit/tasks/*.md (5 tasks)
+    interface: gate-sequence-verification
+    current: References implementation-pipeline gate-sequence
+    target: References implementation-workflow.md gate-sequence
+    compatibility: COMPATIBLE
+    notes: Gate sequence content preserved verbatim in reference card.
+
+  # Coercion Rule Interface
+  - component: approval-gate-scope/SKILL.md
+    interface: coercion-rule-lookup
+    current: References DONE_WITH_CONCERNS coercion rule in implementation-pipeline/SKILL.md
+    target: References coercion rule in implementation-workflow.md
+    compatibility: COMPATIBLE
+    notes: Rule content identical, only path changes.
+
+  - component: 065-verification-honesty.md
+    interface: coercion-rule-lookup
+    current: References coercion rule and TDT URL extraction in implementation-pipeline/SKILL.md
+    target: References coercion rule and TDT URL extraction in implementation-workflow.md
+    compatibility: COMPATIBLE
+    notes: Both references updated to new path.
+
+  # Pipeline Chain Interface
+  - component: Tertiary files with pipeline chain refs
+    interface: pipeline-chain
+    current: "pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep"
+    target: "pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep"
+    compatibility: BEHAVIORAL_CHANGE
+    notes: |
+      The pipeline chain changes which skill the orchestrator dispatches after pre-work.
+      Old: dispatches implementation-pipeline skill. New: dispatches execute-plan from
+      writing-plans. The chain names are different but the pipeline phase ordering is
+      preserved — it's a rename, not a structural change.
+
+compatibility_summary:
+  compatible_count: 7
+  behavioral_change_count: 1
+  incompatible_count: 0
+  overall: COMPATIBLE
+  notes: |
+    All interface changes are content-preserving renames/references except the pipeline
+    chain change which is a behavioral rename (same ordering, different skill dispatch).
+    No consumer is left without a valid provider.
