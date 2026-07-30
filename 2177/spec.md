@@ -1,0 +1,79 @@
+# [SPEC] VibeGuard config: disable builtin scanners, target only credentials
+
+## Objective
+
+Configure the opencode-vibeguard@0.1.0 plugin to only redact real credentials (API keys, tokens, private keys, password/secret assignments) and stop redacting benign identifiers (email addresses, IPs, UUIDs, phone numbers, MAC addresses, keyword substring matches).
+
+## Background
+
+The opencode-vibeguard@0.1.0 plugin currently has builtin scanners enabled for email, china_phone, china_id, uuid, ipv4, and mac_address, plus broad keyword matching on "secret", "password", "token", "key". These produce extensive false positives.
+
+## Not Included
+
+- Changes to the vibeguard plugin source code
+- Changes to `.opencode/opencode.jsonc` plugin declaration
+- Changes to any other project files
+- Adding new builtin scanners or keyword patterns
+- Verifying the plugin loads in the test environment
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | `.opencode/vibeguard.config.json` has `patterns.builtin` set to an empty array `[]` | `string` | grep for `builtin: []` in config file |
+| SC-2 | `.opencode/vibeguard.config.json` has no `patterns.keywords` key | `string` | grep confirms absence of `keywords` key |
+| SC-3 | `.opencode/vibeguard.config.json` contains a regex pattern for private key blocks (`-----BEGIN ... PRIVATE KEY-----`) | `string` | grep for `private-key` pattern name in config |
+| SC-4 | `.opencode/vibeguard.config.json` contains a regex pattern for password/passwd/pwd assignments | `string` | grep for `password-assignment` pattern name in config |
+| SC-5 | `.opencode/vibeguard.config.json` contains a regex pattern for secret/API key assignments | `string` | grep for `secret-assignment` pattern name in config |
+| SC-6 | `.opencode/vibeguard.config.json` is valid JSON | `string` | `python3 -c "import json; json.load(open('.opencode/vibeguard.config.json'))"` |
+
+## Requirements
+
+1. The config file SHALL be named `vibeguard.config.json` and located at `.opencode/vibeguard.config.json`.
+2. The `patterns.builtin` array SHALL be empty (`[]`).
+3. The `patterns.keywords` key SHALL be absent from the config.
+4. The `patterns.regex` array SHALL include at minimum: openai-api-key, github-pat, aws-access-key, private-key, password-assignment, and secret-assignment patterns.
+5. The private-key pattern SHALL match `-----BEGIN` followed by optional key type (RSA, DSA, EC, PGP, SSH, OPENSSH) followed by `PRIVATE KEY-----`.
+6. The password-assignment pattern SHALL match `password`, `passwd`, or `pwd` followed by `=` or `:` and a non-whitespace value.
+7. The secret-assignment pattern SHALL match `secret`, `api_key`, `api-key`, `secret_key`, or `secret_token` followed by `=` or `:` and a non-whitespace value.
+8. The config SHALL be valid JSON (parseable by `JSON.parse`).
+
+## Items
+
+| Item | SC | Description |
+|------|----|-------------|
+| 1 | SC-1 | Set `patterns.builtin` to `[]` |
+| 2 | SC-2 | Remove `patterns.keywords` key |
+| 3 | SC-3 | Add private-key regex pattern |
+| 4 | SC-4 | Add password-assignment regex pattern |
+| 5 | SC-5 | Add secret-assignment regex pattern |
+| 6 | SC-6 | Validate final config JSON |
+
+## Dependencies
+
+- opencode-vibeguard@0.1.0 plugin declared in `.opencode/opencode.jsonc`
+- Plugin config loading: project root `vibeguard.config.json` → `.opencode/vibeguard.config.json` → `~/.config/opencode/vibeguard.config.json`
+
+## Traceability
+
+| Requirement | SCs | Items |
+|-------------|-----|-------|
+| R1 (config file name/location) | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6 | 1, 2, 3, 4, 5, 6 |
+| R2 (builtin empty) | SC-1 | 1 |
+| R3 (keywords absent) | SC-2 | 2 |
+| R4 (regex patterns) | SC-3, SC-4, SC-5 | 3, 4, 5 |
+| R5 (private-key pattern) | SC-3 | 3 |
+| R6 (password-assignment pattern) | SC-4 | 4 |
+| R7 (secret-assignment pattern) | SC-5 | 5 |
+| R8 (valid JSON) | SC-6 | 6 |
+| R9 (config file exists) | SC-6 | 6 |
+
+## Verification Note
+
+All success criteria use `string` evidence type (static file inspection) because the vibeguard plugin cannot be loaded in the test environment. Behavioral verification via `opencode run` is not possible — the plugin fails to load in the test harness for reasons not yet diagnosed. Production loading is user-verified only.
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-30 | SC-6: changed evidence type from `behavioral` to `string`, verification method from `opencode run` to `python3 -c` JSON parse. Not Included: added line about plugin not loading in test env. | SC-6 declared `behavioral` evidence but plugin does not load in test environment — contradiction. Revised to `string` (valid JSON check only). | michael-conrad |

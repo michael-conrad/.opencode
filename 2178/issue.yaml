@@ -183,6 +183,13 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   is empty | REQ-9 |
 
 
+  ## Status
+
+
+  **Implementation audit: PASS** (2026-07-30) — all 6 SCs substantively verified.
+  See `./tmp/2178/artifacts/verification-audit/judgment.yaml` for full audit trail.
+
+
   ## Dependencies
 
 
@@ -245,5 +252,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2178/`](https://github.c
   REQ-9, Phase 6, Item 6 | Audit finding: SQLite DB export fails on timeout | AI agent
   (deepseek-v4-flash) |
 
+  | 2026-07-30 | Implementation audit PASS — all 6 SCs substantively correct. Spec-documentation
+  drift noted: SC-2/SC-3 code in main body, not `do_setup()` | Verification audit
+  finding | AI agent (deepseek-v4-flash) |
+
   '
-updated_at: '2026-07-29T11:57:28+00:00'
+updated_at: '2026-07-30T13:39:46+00:00'

@@ -11,9 +11,11 @@ The existing `research` skill is a modality-aware dispatch wrapper with no resea
 
 The upstream `0-research` skill from the [claude-skill-registry](https://github.com/majiayu000/claude-skill-registry/blob/main/skills/data/0-research/SKILL.md) (MIT license) has a structured 4-phase methodology that fills this gap.
 
+Additionally, the SKILL.md `description` field is written as user-utterance triggers ("Load via skill() when discovering information...", "User phrases: research, investigate...") rather than as an agent-intent semantic router. Per the [skill-card-description-standards](../../reference/skill-card-description-standards.md), the description must describe what the skill accomplishes in terms of agent task intent, not what the user says.
+
 ## Approach
 
-Keep the existing skill's infrastructure. Replace the methodology in the task files with the upstream's 4-phase methodology, report template, quality standards, and cross-reference validation.
+Keep the existing skill's infrastructure. Replace the methodology in the task files with the upstream's 4-phase methodology, report template, quality standards, and cross-reference validation. Rewrite the SKILL.md description to describe agent task intent rather than user utterances.
 
 ### Preserve (existing infrastructure)
 
@@ -29,12 +31,17 @@ Keep the existing skill's infrastructure. Replace the methodology in the task fi
 - `research-multi.md`: Incorporate methodology for each per-modality sub-research
 - `completion.md`: Add report artifact generation to documented output
 
+### Fix (SKILL.md)
+
+- Rewrite `description` field to describe agent task intent (what the skill accomplishes) — not user utterances or "Load via skill() when..." meta-instructions
+- Import upstream methodology content into the SKILL.md Overview section as a reference summary
+
 ## Affected Files
 
-- `.opencode/skills/research/tasks/research.md` — primary target
-- `.opencode/skills/research/tasks/research-multi.md` — secondary target
-- `.opencode/skills/research/tasks/completion.md` — minor update
-- `.opencode/skills/research/SKILL.md` — description update (if needed)
+- `.opencode/skills/research/tasks/research.md` — primary target: add 4-phase methodology, search strategy, cross-reference validation, report template, quality standards, domain-specific guidance
+- `.opencode/skills/research/tasks/research-multi.md` — secondary target: incorporate methodology for each per-modality sub-research
+- `.opencode/skills/research/tasks/completion.md` — minor update: add report artifact generation
+- `.opencode/skills/research/SKILL.md` — fix description field (agent-intent format), import upstream methodology as reference summary in Overview
 
 ## Success Criteria
 
@@ -49,7 +56,9 @@ Keep the existing skill's infrastructure. Replace the methodology in the task fi
 | SC-7 | Existing infrastructure (modality-aware dispatch, `multimodal-dispatch` routing, `ResearchResult` schema, pipeline integration) is preserved | `string` | grep for multimodal-dispatch, ResearchResult, DISPATCH_GATE references |
 | SC-8 | `research-multi.md` updated to incorporate methodology for each per-modality sub-research | `string` | grep for methodology references in research-multi.md |
 | SC-9 | `completion.md` updated to include report artifact generation in documented output | `string` | grep for report artifact generation in completion.md |
-| SC-10 | Behavioral enforcement test verifies agent follows 4-phase methodology when dispatched | `behavioral` | `opencode run` with research prompt → stderr assertions for phase dispatch |
+| SC-10 | SKILL.md `description` field describes agent task intent (what the skill accomplishes) — no "Load via skill() when...", no "User phrases:", no "Also load when..." meta-instructions | `string` | grep description field in SKILL.md frontmatter; verify absence of "Load via skill()", "User phrases", "Also load" |
+| SC-11 | SKILL.md Overview section includes upstream methodology as a reference summary (4-phase structure, quality standards, report template) | `string` | grep for phase names and quality standards in Overview |
+| SC-12 | Behavioral enforcement test verifies agent follows 4-phase methodology when dispatched | `behavioral` | `opencode run` with research prompt → stderr assertions for phase dispatch |
 
 ## Out of Scope
 

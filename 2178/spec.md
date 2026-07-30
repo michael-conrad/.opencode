@@ -73,6 +73,10 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | 5 | Consistency verification — verify `env -i` variable list and `set-env.sh` variable list contain the same set | REQ-6 |
 | 6 | SQLite DB export stderr fallback — search stderr for `TEST_HOME=` when stdout is empty | REQ-9 |
 
+## Status
+
+**Implementation audit: PASS** (2026-07-30) — all 6 SCs substantively verified. See `./tmp/2178/artifacts/verification-audit/judgment.yaml` for full audit trail.
+
 ## Dependencies
 
 - **Branch**: `feature/2170-git-workflow-regression` (the target branch for these changes)
@@ -102,3 +106,4 @@ The `with-test-home` test framework wrapper creates isolated test environments f
 | 2026-07-29 | Fixed Phases REQ references: Phase 1 REQ-2→REQ-7, Phase 2 REQ-3→REQ-2, Phase 3 REQ-4→REQ-3+REQ-4+REQ-8, Phase 4 REQ-5, Phase 5 REQ-6 | Validation finding: REQ mismatches and overlap | AI agent (deepseek-v4-flash) |
 | 2026-07-29 | Fixed Traceability table: REQ-8 → SC-3 only (not SC-4) | Validation finding: incorrect REQ-8 mapping to SC-4 | AI agent (deepseek-v4-flash) |
 | 2026-07-29 | Added SC-6: stderr fallback for `__export_sqlite_to_yaml()`; added REQ-9, Phase 6, Item 6 | Audit finding: SQLite DB export fails on timeout | AI agent (deepseek-v4-flash) |
+| 2026-07-30 | Implementation audit PASS — all 6 SCs substantively correct. Spec-documentation drift noted: SC-2/SC-3 code in main body, not `do_setup()` | Verification audit finding | AI agent (deepseek-v4-flash) |
