@@ -1,0 +1,78 @@
+# Interface Compatibility — Spec #2176
+# Interface contracts between phases: what each phase produces that downstream phases consume
+
+interfaces:
+  # ── Phase 1 → Phase 4 ──
+  - producer_phase: 1
+    consumer_phase: 4
+    produced:
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        change: Updated TDT with new 6-step cycle (pre-regression, pre-regression-verify, red, green, post-regression, verify, commit inline, audit DiMo)
+        consumed_by: Phase 4 pipeline restructuring — Phase 4 modifies the same TDT to collapse per-item cycle
+        contract: Phase 1 must produce a TDT that Phase 4 can further modify. Phase 1 adds new steps; Phase 4 restructures the cycle. The TDT must be in a consistent intermediate state after Phase 1.
+        risk: If Phase 1 and Phase 4 have conflicting TDT changes, the second modification may overwrite the first.
+        mitigation: Phase 1 and Phase 4 are sequential (Phase 4 depends on Phase 1). Phase 4 reads Phase 1's output as its starting state.
+
+  # ── Phase 1 → Phase 5 ──
+  - producer_phase: 1
+    consumer_phase: 5
+    produced:
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        change: Updated Z3 integration — single inline check per phase after AUDIT
+        consumed_by: Phase 5 does not directly consume this, but the Z3 change must be consistent with the final TDT state after Phase 4
+        contract: Z3 integration (Phase 1) must be compatible with the restructured TDT (Phase 4)
+        risk: Phase 4 restructuring may move or rename steps that Phase 1's Z3 integration references
+        mitigation: Phase 4 must verify Z3 integration references are updated to match new step names
+
+  # ── Phase 3 → Phase 5 ──
+  - producer_phase: 3
+    consumer_phase: 5
+    produced:
+      - file: (multiple task files)
+        change: skill()+task() instructions replaced with result contract instructions
+        consumed_by: Phase 5 removes some of these same files — wasted work if Phase 3 modifies files slated for removal
+        contract: Phase 3 should NOT modify files that Phase 5 will remove. Phase 3 should skip files in the removal list.
+        risk: Phase 3 modifies files that Phase 5 removes, wasting effort
+        mitigation: Phase 3 must be aware of the Phase 5 removal list and skip those files. Alternatively, move removal to Phase 3.
+
+  # ── Phase 4 → Phase 5 ──
+  - producer_phase: 4
+    consumer_phase: 5
+    produced:
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        change: Restructured TDT with collapsed per-item cycle
+        consumed_by: Phase 5 removes checkpoint-tag-create task file — must verify TDT no longer references it
+        contract: After Phase 4, the TDT must not reference any task file that Phase 5 will remove
+        risk: Phase 5 removes files that the TDT still references, breaking the TDT
+        mitigation: Phase 5 must grep-audit the TDT for removed file references before removal
+
+  # ── Phase 2 → All phases ──
+  - producer_phase: 2
+    consumer_phase: all
+    produced:
+      - file: (7 files with path fixes)
+        change: git-workflow/tasks/ references updated to correct sub-skill paths
+        consumed_by: All subsequent phases read these files; correct paths are a prerequisite for correct operation
+        contract: Path references must resolve to existing files after Phase 2
+        risk: If Phase 2 introduces incorrect paths, downstream phases operate on broken references
+        mitigation: Phase 2 must verify each path resolves to an existing file
+
+  # ── Phase 5 → Final state ──
+  - producer_phase: 5
+    consumer_phase: final
+    produced:
+      - file: (12 removed task files)
+        change: Files removed from filesystem
+        consumed_by: Final state — no file in .opencode/ references any removed path
+        contract: grep-audit across entire .opencode/ tree must show zero references to any removed file path
+        risk: Orphaned references in guidelines, CHANGELOG, or other files
+        mitigation: Full grep-audit before final commit
+
+  # ── No interface between ──
+  no_interface:
+    - description: Phase 2 (path fixes) and Phase 3 (sub-agent dispatch prohibition)
+      reason: Different files, no shared state
+    - description: Phase 2 (path fixes) and Phase 4 (pipeline restructuring)
+      reason: Different sections of implementation-pipeline/SKILL.md (paths vs TDT)
+    - description: Phase 3 (resolve-models cleanup) and Phase 4 (pipeline restructuring)
+      reason: Different sections of SKILL.md files (Sub-Agent Routing vs TDT)

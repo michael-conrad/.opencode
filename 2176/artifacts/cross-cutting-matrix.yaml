@@ -1,0 +1,103 @@
+# Cross-Cutting Matrix — Spec #2176
+# Files and concerns that appear in multiple phases
+
+cross_cutting_concerns:
+  - file: .opencode/skills/implementation-pipeline/SKILL.md
+    appears_in_phases: [1, 4]
+    concern: TDT updates (Phase 1) + pipeline restructuring (Phase 4)
+    risk: Phase 4 depends on Phase 1 — TDT must be updated before pipeline restructuring
+    mitigation: Phase 1 must complete before Phase 4 begins; same file modified twice
+
+  - file: .opencode/skills/implementation-pipeline/SKILL.md
+    appears_in_phases: [3, 4]
+    concern: resolve-models cleanup (Phase 3) + pipeline restructuring (Phase 4)
+    risk: Both modify Sub-Agent Routing section; merge conflicts possible
+    mitigation: Phase 3 resolve-models changes are independent of Phase 4 TDT changes (different sections)
+
+  - file: .opencode/skills/writing-plans/SKILL.md
+    appears_in_phases: [3, 4]
+    concern: resolve-models cleanup (Phase 3) + TDT collapse (Phase 4)
+    risk: Both modify SKILL.md; different sections but same file
+    mitigation: Phase 3 removes resolve-models from Sub-Agent Routing; Phase 4 restructures TDT — no overlap
+
+  - file: .opencode/skills/writing-plans/tasks/explore.md
+    appears_in_phases: [3, 5]
+    concern: skill()+task() audit (Phase 3) + file removal (Phase 5)
+    risk: Phase 3 may modify the file, Phase 5 removes it
+    mitigation: If Phase 3 modifies it, the modification is wasted work — file is removed in Phase 5.
+          RECOMMENDATION: Remove in Phase 3 instead of Phase 5, or skip Phase 3 modifications for files slated for removal.
+
+  - file: .opencode/skills/writing-plans/tasks/structure.md
+    appears_in_phases: [3, 5]
+    concern: skill()+task() audit (Phase 3) + file removal (Phase 5)
+    risk: Same as explore.md — wasted modification
+    mitigation: Same recommendation — remove in Phase 3 or skip modifications for slated-removal files.
+
+  - file: .opencode/skills/writing-plans/tasks/solve.md
+    appears_in_phases: [3, 5]
+    concern: skill()+task() audit (Phase 3) + file removal (Phase 5)
+    risk: Same as explore.md — wasted modification
+    mitigation: Same recommendation.
+
+  - file: .opencode/skills/writing-plans/tasks/self-review.md
+    appears_in_phases: [3, 5]
+    concern: skill()+task() audit (Phase 3) + file removal (Phase 5)
+    risk: Same as explore.md — wasted modification
+    mitigation: Same recommendation.
+
+  - file: .opencode/skills/implementation-pipeline/tasks/checkpoint-tag-create.md
+    appears_in_phases: [3, 5]
+    concern: skill()+task() audit (Phase 3) + file removal (Phase 5)
+    risk: Same as above — wasted modification if Phase 3 touches it
+    mitigation: Same recommendation.
+
+  # ── Concern-level cross-cutting ──
+  - concern: TDT updates
+    appears_in_phases: [1, 4]
+    files:
+      - .opencode/skills/implementation-pipeline/SKILL.md
+    dependency: Phase 1 must precede Phase 4 (same TDT file)
+
+  - concern: resolve-models cleanup
+    appears_in_phases: [3]
+    files:
+      - .opencode/skills/implementation-pipeline/SKILL.md
+      - .opencode/skills/writing-plans/SKILL.md
+      - .opencode/skills/audit/SKILL.md
+      - .opencode/skills/verification-before-completion/SKILL.md
+      - .opencode/skills/verification/SKILL.md
+      - .opencode/skills/completeness-gate/SKILL.md
+      - .opencode/skills/executing-plans/SKILL.md
+      - .opencode/skills/finishing-a-development-branch/SKILL.md
+      - .opencode/skills/git-workflow/SKILL.md
+      - .opencode/skills/git-workflow-pr/SKILL.md
+      - .opencode/skills/issue-operations/SKILL.md
+      - .opencode/skills/issue-review/SKILL.md
+      - .opencode/skills/pr-creation-workflow/SKILL.md
+      - .opencode/skills/spec-creation/SKILL.md
+    note: All 14 SKILL.md files can be modified in parallel — no interdependency
+
+  - concern: skill()+task() audit
+    appears_in_phases: [3]
+    files:
+      - 30+ task files across 10+ skill directories
+    note: All task files can be modified in parallel — no interdependency between task files
+
+  - concern: path reference fixes
+    appears_in_phases: [2]
+    files:
+      - .opencode/skills/implementation-pipeline/SKILL.md
+      - .opencode/skills/completion-core/SKILL.md
+      - .opencode/skills/approval-gate-scope/tasks/verify-closed-issue.md
+      - .opencode/skills/pr-creation-workflow/tasks/create.md
+      - .opencode/guidelines/065-verification-honesty.md
+      - .opencode/CHANGELOG.md
+      - .opencode/.guidelines/registry.yaml
+    note: All path fixes can be done in parallel — no interdependency
+
+  - concern: legacy file removal
+    appears_in_phases: [5]
+    files:
+      - 12 legacy task files
+      - Entire .opencode/ tree (cross-reference audit)
+    note: File removal + grep-audit can be done in parallel

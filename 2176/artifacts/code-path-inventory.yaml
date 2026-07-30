@@ -1,0 +1,258 @@
+# Code Path Inventory — Spec #2176
+# Inventory of all code paths that will be modified
+
+code_paths:
+  # ── SKILL.md TDTs ──
+  - file: .opencode/skills/implementation-pipeline/SKILL.md
+    sections:
+      - Trigger Dispatch Table (TDT) — remove cross-validate, checkpoint-commit, old per-item cycle steps
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+      - Pipeline state machine reference — update to new 6-step cycle
+      - Z3 integration section — single inline check per phase after AUDIT
+    phases: [1, 4]
+    scs: [SC-1, SC-4, SC-5, SC-8]
+
+  - file: .opencode/skills/writing-plans/SKILL.md
+    sections:
+      - Trigger Dispatch Table (TDT) — collapse from 8+ steps to 4 (analyze, research, create, validate)
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3, 4]
+    scs: [SC-4, SC-5]
+
+  - file: .opencode/skills/audit/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/verification-before-completion/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/verification/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/completeness-gate/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/executing-plans/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/finishing-a-development-branch/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/git-workflow/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/git-workflow-pr/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/issue-operations/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/issue-review/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/pr-creation-workflow/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  - file: .opencode/skills/spec-creation/SKILL.md
+    sections:
+      - Sub-Agent Routing — remove resolve-models/auditor_1/auditor_2 references
+    phases: [3]
+    scs: [SC-4]
+
+  # ── Task Files ──
+  - file: .opencode/skills/implementation-pipeline/tasks/cross-validate.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/resolve-models.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/checkpoint-tag-create.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-6, SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/sc-count-gate.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/pre-red-baseline.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/post-red-enforcement.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/post-green-enforcement.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/tdd-chaining-gate.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/implementation-pipeline/tasks/pre-flight.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/writing-plans/tasks/explore.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/writing-plans/tasks/structure.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/writing-plans/tasks/solve.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/skills/writing-plans/tasks/self-review.md
+    action: REMOVE
+    phases: [5]
+    scs: [SC-7]
+
+  # ── Task Files with skill()+task() instructions (30+ files) ──
+  # Full enumeration requires grep-audit; representative list:
+  - file: .opencode/skills/implementation-pipeline/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/writing-plans/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/approval-gate/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/git-workflow/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/git-workflow-pr/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/verification-before-completion/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/audit/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/spec-creation/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/executing-plans/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  - file: .opencode/skills/finishing-a-development-branch/tasks/ (multiple)
+    action: MODIFY — replace skill()+task() with result contract instructions
+    phases: [3]
+    scs: [SC-3]
+
+  # ── Path Reference Fixes ──
+  - file: .opencode/skills/completion-core/SKILL.md
+    action: MODIFY — fix git-workflow/tasks/ path references
+    phases: [2]
+    scs: [SC-2]
+
+  - file: .opencode/skills/approval-gate-scope/tasks/verify-closed-issue.md
+    action: MODIFY — fix git-workflow/tasks/ path references
+    phases: [2]
+    scs: [SC-2]
+
+  - file: .opencode/skills/pr-creation-workflow/tasks/create.md
+    action: MODIFY — fix git-workflow/tasks/ path references
+    phases: [2]
+    scs: [SC-2]
+
+  - file: .opencode/guidelines/065-verification-honesty.md
+    action: MODIFY — fix git-workflow/tasks/ path references
+    phases: [2]
+    scs: [SC-2]
+
+  - file: .opencode/CHANGELOG.md
+    action: MODIFY — fix git-workflow/tasks/ path references
+    phases: [2]
+    scs: [SC-2]
+
+  - file: .opencode/.guidelines/registry.yaml
+    action: MODIFY — fix git-workflow/tasks/ path references
+    phases: [2]
+    scs: [SC-2]
+
+  # ── State Machine ──
+  - file: .opencode/skills/implementation-pipeline/pipeline-state-machine.yaml
+    action: MODIFY — update state transitions for new 6-step cycle + inline Z3 check
+    phases: [1]
+    scs: [SC-1, SC-8]
+
+  # ── Guidelines ──
+  - file: .opencode/guidelines/091-incremental-build.md
+    action: REVIEW — may reference old per-item cycle steps
+    phases: [5]
+    scs: [SC-7]
+
+  - file: .opencode/guidelines/000-critical-rules.md
+    action: REVIEW — may reference checkpoint-commit
+    phases: [5]
+    scs: [SC-7]

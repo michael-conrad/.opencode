@@ -1,0 +1,199 @@
+# State Analysis — Spec #2176
+# State transitions: what state each file is in before and after each phase
+
+state_transitions:
+  # ── Phase 1: TDT and state machine updates ──
+  - phase: 1
+    files:
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        before: TDT has cross-validate, checkpoint-commit, old per-item cycle steps; Sub-Agent Routing has resolve-models references; Z3 integration has bifurcated check
+        after: TDT has new 6-step cycle (pre-regression, pre-regression-verify, red, green, post-regression, verify, commit inline, audit DiMo); cross-validate and checkpoint-commit removed; Z3 integration has single inline check per phase after AUDIT
+        unchanged: Sub-Agent Routing section (resolve-models references still present — handled in Phase 3)
+
+      - file: .opencode/skills/implementation-pipeline/pipeline-state-machine.yaml
+        before: State machine reflects old per-item cycle with cross-validate and checkpoint-commit states
+        after: State machine reflects new 6-step cycle with inline Z3 check after AUDIT
+
+  # ── Phase 2: Path reference fixes ──
+  - phase: 2
+    files:
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+      - file: .opencode/skills/completion-core/SKILL.md
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+      - file: .opencode/skills/approval-gate-scope/tasks/verify-closed-issue.md
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+      - file: .opencode/skills/pr-creation-workflow/tasks/create.md
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+      - file: .opencode/guidelines/065-verification-honesty.md
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+      - file: .opencode/CHANGELOG.md
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+      - file: .opencode/.guidelines/registry.yaml
+        before: Contains stale git-workflow/tasks/ path references
+        after: All git-workflow/tasks/ references updated to correct sub-skill paths
+
+  # ── Phase 3: Sub-agent dispatch prohibition + resolve-models cleanup ──
+  - phase: 3
+    files:
+      # skill()+task() audit (30+ task files)
+      - file: .opencode/skills/*/tasks/*.md (30+ files)
+        before: Contains skill({name: ...}) or task(...) as imperative instructions to sub-agent
+        after: skill()+task() instructions replaced with result contract instructions (e.g., "return a result contract with status/finding_summary/artifact_path")
+
+      # resolve-models cleanup (14 SKILL.md files)
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed from Sub-Agent Routing
+
+      - file: .opencode/skills/audit/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/verification-before-completion/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/verification/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/completeness-gate/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/executing-plans/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/finishing-a-development-branch/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/git-workflow/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/git-workflow-pr/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/issue-operations/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/issue-review/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/pr-creation-workflow/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/spec-creation/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+      - file: .opencode/skills/writing-plans/SKILL.md
+        before: Sub-Agent Routing section contains resolve-models/auditor_1/auditor_2 references
+        after: resolve-models/auditor_1/auditor_2 references removed
+
+  # ── Phase 4: Pipeline restructuring ──
+  - phase: 4
+    files:
+      - file: .opencode/skills/implementation-pipeline/SKILL.md
+        before: TDT has new 6-step cycle (from Phase 1) but per-item cycle still has 15+ steps
+        after: TDT has collapsed 6-step per-item cycle (pre-regression → pre-regression-verify → RED → GREEN → post-regression → VERIFY) + inline COMMIT + DiMo AUDIT
+
+      - file: .opencode/skills/writing-plans/SKILL.md
+        before: TDT has 8+ steps (explore, structure, solve, self-review, etc.)
+        after: TDT has 4-step pipeline (ANALYZE → RESEARCH → CREATE → VALIDATE)
+
+      - file: .opencode/skills/writing-plans/tasks/explore.md
+        before: Exists as a task file referenced by old TDT
+        after: Still exists (removed in Phase 5) — but no longer referenced by TDT
+
+      - file: .opencode/skills/writing-plans/tasks/structure.md
+        before: Exists as a task file referenced by old TDT
+        after: Still exists (removed in Phase 5) — but no longer referenced by TDT
+
+      - file: .opencode/skills/writing-plans/tasks/solve.md
+        before: Exists as a task file referenced by old TDT
+        after: Still exists (removed in Phase 5) — but no longer referenced by TDT
+
+      - file: .opencode/skills/writing-plans/tasks/self-review.md
+        before: Exists as a task file referenced by old TDT
+        after: Still exists (removed in Phase 5) — but no longer referenced by TDT
+
+  # ── Phase 5: File cleanup ──
+  - phase: 5
+    files:
+      # Legacy task files removed
+      - file: .opencode/skills/implementation-pipeline/tasks/cross-validate.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/resolve-models.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/checkpoint-tag-create.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/sc-count-gate.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/pre-red-baseline.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/post-red-enforcement.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/post-green-enforcement.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/tdd-chaining-gate.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/implementation-pipeline/tasks/pre-flight.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/writing-plans/tasks/explore.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/writing-plans/tasks/structure.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/writing-plans/tasks/solve.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      - file: .opencode/skills/writing-plans/tasks/self-review.md
+        before: Exists on filesystem
+        after: REMOVED
+
+      # Cross-reference audit
+      - file: .opencode/ (entire tree)
+        before: May contain references to removed file paths
+        after: Zero references to any removed file path

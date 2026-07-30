@@ -48,8 +48,9 @@ Replace all 8 occurrences of the `ls -d .git/ */.git/ */.git/` glob pattern with
 | SC-6 | `operating-protocol.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
 | SC-7 | `pre-work.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
 | SC-8 | `provenance.md` submodule detection prose: `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-9 | All prose descriptions referencing "glob scan" as the submodule detection method SHALL be updated to reference `git submodule status` instead. Affected files: `pre-work.md` (lines 108, 123, 150, 171), `check-pr.md` (line 34), `cleanup.md` (line 76), `enforcement-gate.md` (lines 28, 68), `push-and-cleanup.md` (lines 30, 43) | `string` | grep for absence of "glob scan" in submodule detection context, presence of `git submodule status` reference |
 
-**SC Enforcement Gate:** All 8 SCs must PASS for the implementation to be considered complete. Any single FAIL blocks the implementation.
+**SC Enforcement Gate:** All 9 SCs must PASS for the implementation to be considered complete. Any single FAIL blocks the implementation.
 
 ## Requirements
 
@@ -70,6 +71,7 @@ Replace all 8 occurrences of the `ls -d .git/ */.git/ */.git/` glob pattern with
 | 6 | SC-6 | `git-workflow-branch/tasks/operating-protocol.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
 | 7 | SC-7 | `git-workflow-branch/tasks/pre-work.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
 | 8 | SC-8 | `git-workflow-branch/tasks/provenance.md` | Submodule detection prose | Replace glob with `git submodule status` (prose) |
+| 9 | SC-9 | `pre-work.md`, `check-pr.md`, `cleanup.md`, `enforcement-gate.md`, `push-and-cleanup.md` | Prose descriptions of submodule detection method | Replace "glob scan" references with `git submodule status` |
 
 ## Dependencies
 
@@ -81,5 +83,11 @@ None. All 8 replacements are independent — any order works.
 |-------------|-----|-------|
 | R1 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8 | 1-8 |
 | R2 | SC-1, SC-2, SC-5, SC-6, SC-7 | 1, 2, 5, 6, 7 |
-| R3 | SC-3, SC-4, SC-8 | 3, 4, 8 |
+| R3 | SC-3, SC-4, SC-8, SC-9 | 3, 4, 8, 9 |
 | R4 | SC-1, SC-2, SC-5, SC-6, SC-7 | 1, 2, 5, 6, 7 |
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-29 | Added SC-9 and Item 9: update prose descriptions referencing "glob scan" as submodule detection method to reference `git submodule status` instead. 10 occurrences across 5 files. | Revision request: prose descriptions still reference "glob scan" after the command was changed to `git submodule status`. | Developer (revision request) |

@@ -1,0 +1,95 @@
+# Testability Assessment — Spec #2176
+# How each SC can be verified
+
+assessments:
+  - sc: SC-1
+    criterion: implementation-pipeline TDT has no cross-validate, checkpoint-commit, or old per-item cycle steps. New steps present. Pipeline state machine updated. Single inline Z3 check per phase after AUDIT.
+    evidence_type: string
+    verification_method: grep for removed step names in TDT; grep for new step names
+    test_approach: |
+      grep -n 'cross-validate\|checkpoint-commit' .opencode/skills/implementation-pipeline/SKILL.md → expect 0 matches
+      grep -n 'pre-regression\|pre-regression-verify\|post-regression' .opencode/skills/implementation-pipeline/SKILL.md → expect matches
+      grep -n 'z3\|Z3\|inline.*check' .opencode/skills/implementation-pipeline/SKILL.md → expect match for single inline check
+    confidence: high — deterministic string matching
+
+  - sc: SC-2
+    criterion: All git-workflow/tasks/ references updated to correct sub-skill paths. No file in .opencode/ contains "git-workflow/tasks/" as a task file path.
+    evidence_type: string
+    verification_method: grep 'git-workflow/tasks/' across .opencode/ — expect 0 matches
+    test_approach: |
+      grep -r 'git-workflow/tasks/' .opencode/ --include='*.md' --include='*.yaml' | grep -v CHANGELOG.md | grep -v '.git/'
+      → expect 0 matches (CHANGELOG entries may be exempt)
+    confidence: high — deterministic string matching
+
+  - sc: SC-3
+    criterion: No task file in .opencode/skills/*/tasks/ contains skill({name: ...}) or task(...) as an imperative instruction to the sub-agent.
+    evidence_type: string
+    verification_method: grep for skill({name: pattern in tasks/ directories
+    test_approach: |
+      grep -rn 'skill({name:' .opencode/skills/*/tasks/ --include='*.md'
+      → expect 0 matches
+      grep -rn 'task(' .opencode/skills/*/tasks/ --include='*.md'
+      → expect 0 matches (or only non-imperative references)
+    confidence: high — deterministic string matching
+    caveat: May need to distinguish imperative skill()+task() from explanatory text or code examples
+
+  - sc: SC-4
+    criterion: No SKILL.md file in .opencode/skills/ contains "resolve-models" or "auditor_1" or "auditor_2" in Sub-Agent Routing sections.
+    evidence_type: string
+    verification_method: grep for resolve-models/auditor_1/auditor_2 in SKILL.md files
+    test_approach: |
+      grep -rn 'resolve-models\|auditor_1\|auditor_2' .opencode/skills/*/SKILL.md
+      → expect 0 matches
+    confidence: high — deterministic string matching
+
+  - sc: SC-5
+    criterion: Per-item cycle dispatches 6 steps (pre-regression, pre-regression-verify, red, green, post-regression, verify) plus inline commit. Writing-plans pipeline dispatches 4 steps (analyze, research, create, validate).
+    evidence_type: behavioral
+    verification_method: opencode run with full pipeline scenario, assert_semantic for step sequence
+    test_approach: |
+      bash .opencode/tests-v2/with-test-home opencode run '<pipeline scenario prompt>'
+      assert_semantic "SC-5" "Agent dispatched exactly 6 per-item steps and 4 writing-plans steps in correct order"
+    confidence: medium — behavioral test depends on model inference; step sequence may vary
+    remediation: Increase BEHAVIOR_TIMEOUT if model is slow; use assert_semantic for semantic matching
+
+  - sc: SC-6
+    criterion: Checkpoint tag creation is inline (orchestrator runs git commands directly, no sub-agent dispatch). checkpoint-commit step removed from TDT.
+    evidence_type: behavioral
+    verification_method: opencode run with checkpoint scenario, assert_stderr_pattern for inline git tag
+    test_approach: |
+      bash .opencode/tests-v2/with-test-home opencode run '<checkpoint scenario prompt>'
+      assert_stderr_pattern_present 'git tag\|git.*tag\|checkpoint.*tag'
+      assert_stderr_pattern_absent 'Skill "checkpoint-tag-create"\|task.*checkpoint'
+    confidence: medium — behavioral test; stderr pattern matching is reliable for tool dispatch strings
+
+  - sc: SC-7
+    criterion: Legacy task files removed or archived. No remaining reference to any removed file path exists in .opencode/.
+    evidence_type: string
+    verification_method: ls for each removed file + grep for each path
+    test_approach: |
+      for f in cross-validate resolve-models checkpoint-tag-create sc-count-gate pre-red-baseline post-red-enforcement post-green-enforcement tdd-chaining-gate pre-flight; do
+        test -f ".opencode/skills/implementation-pipeline/tasks/$f.md" && echo "STILL EXISTS: $f" || echo "REMOVED: $f"
+      done
+      for f in explore structure solve self-review; do
+        test -f ".opencode/skills/writing-plans/tasks/$f.md" && echo "STILL EXISTS: $f" || echo "REMOVED: $f"
+      done
+      # Cross-reference audit
+      for path in cross-validate resolve-models checkpoint-tag-create sc-count-gate pre-red-baseline post-red-enforcement post-green-enforcement tdd-chaining-gate pre-flight; do
+        grep -r "$path" .opencode/ --include='*.md' --include='*.yaml' --include='*.json' | grep -v '.git/' && echo "REFERENCE FOUND: $path"
+      done
+    confidence: high — deterministic file existence check + string matching
+
+  - sc: SC-8
+    criterion: Orchestrator runs Z3 check inline at phase boundary after AUDIT, every phase, no skip condition.
+    evidence_type: behavioral
+    verification_method: opencode run with multi-phase scenario, assert_semantic for Z3 check after each AUDIT
+    test_approach: |
+      bash .opencode/tests-v2/with-test-home opencode run '<multi-phase scenario prompt>'
+      assert_semantic "SC-8" "Agent ran Z3 check after every AUDIT phase boundary, no skip"
+    confidence: medium — behavioral test; depends on model following the TDT correctly
+    remediation: Increase BEHAVIOR_TIMEOUT; use assert_semantic for semantic matching of Z3 check presence
+
+evidence_type_summary:
+  string: 4 (SC-1, SC-2, SC-3, SC-4, SC-7)
+  behavioral: 3 (SC-5, SC-6, SC-8)
+  total_scs: 8
