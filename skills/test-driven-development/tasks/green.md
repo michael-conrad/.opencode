@@ -57,7 +57,4 @@ GREEN-phase sub-agents implement code only — they MUST NOT write or modify tes
 
 ### Violation Handling
 
-The `post-green-enforcement` gate runs
-`git diff --name-only -- test/ | wc -l` and FAILs if the count > 0. If this gate
-fires, the orchestrator re-dispatches the GREEN-phase from clean-room state — no
-inline fallback.
+The GREEN-phase sub-agent MUST NOT modify any file under `test/`. If `git diff --name-only -- test/` shows changes after GREEN, the orchestrator re-dispatches the GREEN-phase from clean-room state — no inline fallback.
