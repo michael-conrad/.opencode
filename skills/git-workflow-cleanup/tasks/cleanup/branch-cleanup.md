@@ -30,7 +30,7 @@ Invoke `audit --task closure-verification --pr <N>` with `audit_phase: post_merg
 
 The dispatches the audit pipeline:
 
-1. **`skill({name: "audit"})`** — load the audit skill
+1. **Dispatch `audit`** — load the audit skill
 2. **Task `resolve-models`** — dispatch a clean-room sub-agent to resolve two cross-family auditor models via capability probe
 3. **Task `closure-verification`** — dispatch two auditor sub-agents in parallel (each receives `spec_local_dir`, `audit_phase: post_merge`, PR number, and the standard dispatch fields only — no orchestrator reasoning, no pre-loaded findings)
 4. **Task `cross-validate`** — dispatch a sub-agent with the pre-resolved `auditor_artifact_paths` to compute consensus

@@ -17,7 +17,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ```
 ☐ Changelog Generated
-  - Run: `` `skill({name: "changelog-generator"})` ``
+  - Run: `` Dispatch `changelog-generator` ``
   - Stage: git add CHANGELOG.md
   - Verify: git status --porcelain CHANGELOG.md shows "M CHANGELOG.md"
   - OR: [skip changelog] directive present in commit message or PR title
@@ -91,7 +91,7 @@ Work PRs correctly have N commits where N = number of implementation items.
 **2. Changelog Generated**
 
 ```bash
-`skill({name: "changelog-generator"})`
+Dispatch `changelog-generator`
 git add CHANGELOG.md
 git status --porcelain CHANGELOG.md  # Should show staged changes
 ```
@@ -124,7 +124,7 @@ Verify commit message includes BOTH trailers:
 
 - Single-task: Include `Fixes #<parent>` in PR body
 - Multi-task: Include `Fixes #<parent>` AND `Fixes #<child>` for EACH sub-issue
-- Format closing keywords per `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")`
+- Format closing keywords per `pr-creation-workflow` → `task("execute closing-keywords from pr-creation-workflow")`
 
 **7. Pipeline Chain Completion (MANDATORY — Zero Tolerance)**
 

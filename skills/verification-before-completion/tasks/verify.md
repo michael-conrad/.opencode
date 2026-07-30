@@ -158,9 +158,9 @@ Sub-agent searches all listed directories for evidence files via `glob`/`read`.
 Inline execution bypasses every quality gate — clean-room isolation, cross-family auditors, evidence classification. A structurally correct implementation produced inline is indistinguishable from a bypass until the dispatch log is checked.
 
 - [ ] 1. Check the dispatch log for `skill()` calls matching the current pipeline stage:
-   - `skill({name: "spec-creation"})` or `skill({name: "writing-plans"})` for plan/spec stages
-   - `skill({name: "verification-before-completion"})` for this verification stage
-   - `skill({name: "audit"})` for audit stages
+   - `spec-creation` or `writing-plans` for plan/spec stages
+   - `verification-before-completion` for this verification stage
+   - `audit` for audit stages
 - [ ] 2. If the dispatch log is empty (no `skill()` calls recorded): return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
 - [ ] 3. If the dispatch log has `skill()` calls but none match the current pipeline stage: return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
 - [ ] 4. If the dispatch log has matching `skill()` calls: proceed to Step 0.5a

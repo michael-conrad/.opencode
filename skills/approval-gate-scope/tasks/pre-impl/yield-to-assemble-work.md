@@ -87,7 +87,7 @@ After presenting the plan, proceed immediately to the implementation-pipeline pe
 Yield control to the implementation-pipeline SKILL.md Trigger Dispatch Table:
 
 ```text
-`skill({name: "implementation-pipeline"})` then dispatch per the SKILL.md Trigger Dispatch Table
+Dispatch to the implementation-pipeline per the SKILL.md Trigger Dispatch Table
 ```
 
 The implementation-pipeline reads the work state file and handles:

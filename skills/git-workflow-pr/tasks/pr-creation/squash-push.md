@@ -24,7 +24,7 @@ Before proceeding to changelog generation, evaluate ALL available skills against
 
 1. Read the `<available_skills>` list from the system prompt
 2. Evaluate each skill's description and trigger phrases against the current context (release PR creation)
-3. If one or more skills match: call `skill({name: "..."})` before proceeding
+3. If one or more skills match: dispatch the matching skill before proceeding
 4. If no skill applies directly: provide a one-sentence justification in chat
 
 **Release PR context:** When `{is_release: true}` or the context is a release PR, the agent MUST dispatch at minimum `changelog-generator` and `git-workflow` before proceeding. "No skill applies directly" is NOT a valid justification for release PR contexts.
@@ -33,7 +33,7 @@ Before proceeding to changelog generation, evaluate ALL available skills against
 
 Check for `[skip changelog]` in last commit message or PR title. If present, skip.
 
-If not present, execute: `` `skill({name: "changelog-generator"})` ``
+If not present, dispatch `changelog-generator`
 
 Then stage: `git add CHANGELOG.md`
 

@@ -172,7 +172,7 @@ github_create_pull_request(
 
 Implements #<parent>  <!-- Use owner/repo#N when issue is in a different repo than the PR -->
 """,  # When is_release: true, synthesize release notes from commit log and include in body
-# Closing keywords formatted per skill({name: "pr-creation-workflow"}) → task("execute closing-keywords from pr-creation-workflow")
+# Closing keywords formatted per pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow")
     head=branch_name,
     base="<target>"
 )

@@ -6,7 +6,7 @@
 
 ## Invocation
 
-`` `skill({name: "test-driven-development"})` `` then `` `task(..., prompt: "execute refactor task from test-driven-development")` ``
+Dispatch `test-driven-development` with `task(..., prompt: "execute refactor task from test-driven-development")`
 
 ## Exit Criteria
 

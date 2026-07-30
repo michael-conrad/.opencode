@@ -73,7 +73,7 @@ evidence_artifacts:
 
 **`--skip-submodules` flag:** Warn and proceed without submodule push steps. Skip task() entirely; go to Step 1.
 
-**Provenance tracking after submodule push:** Invoke `` `skill({name: "git-workflow"})` `` then `` `task(..., prompt: "execute provenance task from git-workflow with mode=trunk-push")` `` for each pushed submodule. Provenance is best-effort tracking.
+**Provenance tracking after submodule push:** Invoke `git-workflow` with `task(..., prompt: "execute provenance task from git-workflow with mode=trunk-push")` for each pushed submodule. Provenance is best-effort tracking.
 
 ### Step 1: Temp File Cleanup (MANDATORY)
 

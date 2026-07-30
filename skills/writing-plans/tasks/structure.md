@@ -33,7 +33,7 @@ Decompose success criteria into implementation phases, build a dependency DAG be
    - Identify which phases depend on the output of other phases
    - Record the dependency edges in the structure artifact
 5. For each phase, map SCs to items by reading `sc-summary.yaml` and creating one item per SC:
-    - Load `skill({name: "implementation-pipeline"})` and read its Trigger Dispatch Table
+    - Read the implementation-pipeline Trigger Dispatch Table
     - Map each SC to an individual item with its own RED/GREEN/verify/commit cycle
     - Each item references exactly one SC-ID
 5a. Verify triplet co-location: for each SC, confirm that its RED, GREEN, and COMMIT steps are all assigned to the same phase. If any SC has steps split across phases, return BLOCKED with reason `"TRIPLET_SPLIT: SC-N has RED in phase X and GREEN in phase Y"`.
