@@ -88,7 +88,7 @@ The phase table is the routing table. Each row maps a phase to a skill+task disp
 | SCs | Yes | SC IDs this phase covers | `SC-4, SC-11` |
 | Depends On | Yes | Phase numbers this phase depends on | `—` or `1, 3` |
 
-**Validation:** Every `Skill`+`Task` pair MUST exist in the `implementation-pipeline/SKILL.md` Trigger Dispatch Table. The plan writer MUST verify this by checking `ls .opencode/skills/<skill>/SKILL.md` and confirming the task is listed in the dispatch table.
+**Validation:** Every `Skill`+`Task` pair MUST exist in the implementation-workflow reference card at `skills/writing-plans/reference/implementation-workflow.md` Trigger Dispatch Table. The plan writer MUST verify this by reading the reference card and confirming the task is listed in the dispatch table.
 
 ### 3.4 Phase Details
 

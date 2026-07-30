@@ -1,16 +1,17 @@
 ---
-name: implementation-pipeline
-description: "Implementation pipeline that dispatches stages to clean-room sub-agents, manages state, and handles remediation routing. Load via skill() when executing an approved plan through the implementation pipeline. Also load when dispatching pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. MUST dispatch here after plan approval, before any file modification. User phrases: execute pipeline, dispatch stages, manage state, handle remediation"
+name: implementation-workflow
+description: "Static reference card containing all implementation-pipeline workflow content — dispatch strings, enforcement rules, coercion rule, artifact retention, remediation routing, sub-agent routing, and state management guidance. Read by plan-writer tasks instead of loading the live implementation-pipeline skill."
 license: MIT
-compatibility: opencode
+provenance: AI-generated
 ---
 
-# Implementation Pipeline
+# Implementation Workflow Reference Card
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **Purpose:** This is a static reference card containing ALL content from the former `skills/implementation-pipeline/SKILL.md` and its enforcement directory. Plan-writer tasks (`create.md`, `research.md`, `validate.md`) read this card instead of loading the live skill. The orchestrator reads the plan (which contains baked-in dispatch strings) at execution time — no `skill()` call needed at plan-writing or execution time.
 
 ## Overview
 
@@ -67,7 +68,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 **Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
 - [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
-- [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Trigger Dispatch Table.
+- [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this reference card §Trigger Dispatch Table.
 - [ ] 3. On clean PASS: run inline Z3 check via `.opencode/tools/solve check --state-path ... --contract-path ...`
 
 ## Step Labels (for #932 naming convention)
@@ -115,7 +116,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 
 **Orchestrator entry point:** The orchestrator reads the plan and dispatches each step per the Trigger Dispatch Table using step-level dispatch. The orchestrator reads each step's dispatch indicator: `(**inline**)` for direct execution, `(**sub-agent**)` or `(**clean-room**)` for individual `task()` dispatch. No phase-level batching. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
 **Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, z3-check inline). See Invocation section for the complete sequence.
 
@@ -151,7 +152,7 @@ This directive tells the sub-agent which task file to load independently — it 
 
 This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
 
-#### Dispatch Context Contract
+### Dispatch Context Contract
 
 Every `task()` call MUST include only:
 
@@ -171,19 +172,16 @@ Exclusions (MUST NOT be in prompt):
 - `agent_memory`
 - `cached_verification_results`
 
+### Pipeline Re-Priming Enforcement Block
 
-
-
-#### Pipeline Re-Priming Enforcement Block
-
-At every pipeline stage transition (pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep), the orchestrator re-encounters this enforcement block restating procedural discipline:
+At every pipeline stage transition (pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep), the orchestrator re-encounters this enforcement block restating procedural discipline:
 
 - Sub-agents execute — orchestrators route
 - No inline work — all file modifications, analysis, and decisions go through clean-room sub-agents
 - The orchestrator holds routing metadata only — task file contents, analysis artifacts, and verification results go to sub-agents or disk
 - Every stage transition is a re-encounter of this discipline — context degrades between gates, and re-priming prevents drift
 
-#### Orchestrator Entry Criteria
+### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
 - Use the exact `task(..., prompt: "...")` string from the table
@@ -193,13 +191,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## State Management
 
-- `solve state init {project_root}/tmp/{issue-N}/state/` at `pre-regression` step — creates state file with `current_step: pre-regression`, `pipeline_state: init`
-- `solve state update {project_root}/tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
-- `solve check --state-path {project_root}/tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
-
-Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
-
-Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
+> **Note:** Plan step order IS the state machine. The former `pipeline-state-machine.yaml` and Z3-based solve state tracking have been removed. The pipeline's step sequence in the plan defines the valid state transitions. No separate state machine contract is needed.
 
 ## Remediation Routing
 
@@ -209,13 +201,13 @@ When a step returns FAIL, the orchestrator:
 - [ ] 3. Routes to `remediation_steps[0].target_step` based on research findings
 - [ ] 4. Re-runs the pipeline from the target remediation step
 
-## Enforcement Reference
+## DONE_WITH_CONCERNS Coercion Rule
 
-| Document | Purpose |
+`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
 
-| Sub-agent context shape | Context shape and exclusions for task() routing |
-| `enforcement/overflow-signal.md` | OVERFLOW contract and re-routing strategies |
-| `enforcement/work-state-verification.md` | Verification table and work state format |
+This rule is referenced by:
+- `approval-gate-scope/SKILL.md` — Trigger Dispatch Table
+- `guidelines/065-verification-honesty.md` — Hard Failure Discipline section
 
 ## Artifact Retention
 
@@ -232,7 +224,7 @@ Artifacts under `{project_root}/tmp/{issue-N}/` are ephemeral — they are clean
 At the start of each pipeline step, clean previous-run artifacts for that step to prevent stale state contamination:
 
 | Step Label | Pre-Cleanup Action |
-
+|------------|-------------------|
 | `pre-regression` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-regression-*` |
 | `pre-regression-verify` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-regression-verify-*` |
 | `red` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-red-*` |
@@ -289,26 +281,254 @@ The lifecycle manifest is append-only. Never delete or edit existing entries —
 - [ ] 12. **Cost-blind verification:** Never skip routing or verification to save resources
 - [ ] 13. **Completeness gate required:** Run `completeness-gate --task check` after RED/GREEN before audit
 
+## Sub-agent Context Shape
+
+### Context shape and exclusions for task() routing
+
+The sub-agent receives only routing metadata and task-specific context. Exclusions:
+- Orchestrator reasoning
+- Expected outcomes
+- Inline file paths
+- Agent memory
+- Cached verification results
+
+### Work State File Format
+
+Work state files are stored at `{project_root}/tmp/{issue-N}/work.md` and contain:
+
+```markdown
+# Work State: <branch-name>
+
+Authorization: "<authorization-text>"
+Authorization scope: <scope>
+PR strategy: <strategy>
+Branch: <branch-name>
+Worktree: <worktree-path>
+
+## Issues
+
+- [x|#] <issue-number> — <issue-title>
+
+## Progress
+
+### <issue-number> — <title>
+- Status: PENDING | IN_PROGRESS | DONE | BLOCKED
+- Sub-branch: <sub-branch-name>
+- Result: <result-contract-summary>
+```
+
+### Evidence Artifacts
+
+Every claim about work state MUST have a corresponding tool-call artifact:
+- Work state file read → verify branch/status entries
+- Git commands → verify branch/worktree state
+- GitHub API calls → verify issue/PR state
+
+Claims without artifacts are verification honesty violations.
+
+## Context Passing
+
+### What Pre-Work Needs FROM Authorization
+
+```yaml
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+issue_number: int
+```
+
+**`must_receive` validation:** The task context `must_receive` array MUST include `authorization_scope`. If missing, HALT and report a context-contamination violation.
+
+### What Implementation Needs FROM Pre-Work
+
+```yaml
+branch: string
+working_tree_clean: bool
+```
+
+### What Review-Prep Needs FROM Implementation
+
+```yaml
+files_changed: list
+commit_summary: string
+implementation_status: success | failure
+```
+
+### What Verification Gate Needs FROM Implementation
+
+```yaml
+issue_number: int
+phase: string
+success_criteria: list
+files_changed: list
+```
+
+### What Finishing Checklist Needs FROM Verification
+
+```yaml
+branch: string
+verification_passed: true
+```
+
+### What Chat Needs FROM Review-Prep
+
+```yaml
+compare_url: string (actionable link)
+exec_summary: string (markdown, human-readable)
+```
+
+### Phase Progress — What Travels at Phase Boundaries
+
+When the orchestrator task()s a sub-agent for a phase that follows a prior phase, the task context MUST carry phase progress information composed from prior sub-agent results and the work state file at `{project_root}/tmp/{N}/work.md`. This information ensures each phase knows what has already been accomplished and can act accordingly.
+
+The orchestrator builds phase_progress incrementally. Before each sub-agent task():
+- [ ] 1. Read the work state file (`{project_root}/tmp/{N}/work.md`) to identify which phases are already complete
+- [ ] 2. Accumulate `completed_phases`, `concern_boundaries_crossed`, and `verification_evidence` from each prior sub-agent's result
+- [ ] 3. If this sub-agent's work crosses a concern boundary, note the transition in `concern_boundaries_crossed`
+
+**How it is NOT composed:** There is no fixed template, no rigid YAML schema, no mandatory section headers. The orchestrator describes progress in natural prose that communicates what the next sub-agent needs to know. The information requirement is the rule; the encoding is up to the agent.
+
+### Decision Log for Full Context History
+
+`prior_context` in the task context carries the most recent intent summary — it is designed for immediate consumption by the next sub-agent. For the full history of design decisions across ALL phases, the orchestrator and sub-agents should reference the **Decision Log** persisted on the Plan issue.
+
+The Decision Log is an append-only sequence stored in `.issues/` local storage. Each entry captures one sub-agent's `decision_log_entry` — the design decisions made during that phase. It survives session restarts because it lives in the `.issues/` directory, not in transient agent context.
+
+When `prior_context` references a decision that may need fuller explanation, the orchestrator should note "see Decision Log in `.issues/N/comments.md`" so the sub-agent can retrieve the full context history if needed.
+
+To append a decision log entry:
+```bash
+./.opencode/tools/local-issues comment N --body "decision_log_entry: <content>"
+```
+
+Decision log entries are classified as `internal` content per the content classification gate. They are written to `.issues/N/comments.md` only — they are NOT posted to GitHub Issue comments.
+
+### Edge Cases
+
+#### Context Lost Between Steps
+If a yield-back produces empty or missing fields:
+- [ ] 1. HALT orchestration
+- [ ] 2. Report which context field is missing
+- [ ] 3. Wait for manual intervention
+
+#### Phase Progress with No Prior Phases
+For the first sub-agent task()ed (no prior phases completed), `phase_progress` should still be present but note that no prior phases exist. For example: "No phases completed yet. This is the first phase." This ensures the field is never absent — it is either populated with prior progress or explicitly states that no progress has been made.
+
+#### Pre-Work Asks for Auth Again
+Pre-work receives context from orchestrator — no re-authorization check needed. If pre-work prompts for auth, it received stale context. Re-invoke with fresh context from approval-gate.
+
+### Live Verification: Context Accuracy (MANDATORY)
+
+**Verify task context accuracy before sending to sub-agents.**
+
+| Claim | Verification Action | Tool Call | Problem Class |
+|-------|-------------------|-----------|---------------|
+| "worktree.path correct" | Verify path exists | `ls -d <path>` | STRUCTURE-VIOLATION |
+| "Session vars current" | Verify vars match session init | Check against session values | VERIFICATION-GAP |
+| "Prior results accurate" | Verify result contracts from prior sub-agents | Read work state file | VERIFICATION-GAP |
+
+## Dispatch Mode Verification Gate
+
+Pre-execution verification gate that runs after `assemble-work` creates the dispatch plan but before `pipeline-executor` begins execution. Rejects any plan containing `per-phase` or `batched` dispatch modes, or steps without explicit dispatch indicators.
+
+### Entry Criteria
+
+- [ ] 1. Work state file exists at `{project_root}/tmp/{issue-N}/work.md`
+- [ ] 2. Plan is available at `{plan_path}`
+- [ ] 3. All plan steps are identified with step numbers
+
+### Procedure
+
+#### 1. Scan for Prohibited Modes
+Check the entire plan for any occurrence of:
+- `per-phase` — forbidden
+- `batched` — forbidden
+- `batch` — forbidden
+- `Dispatch: sub-agent-with-context` — forbidden
+- `Dispatch: sub-agent-clean-room` — forbidden
+- Phase-level dispatch without per-step indicators — forbidden
+
+**If any prohibited mode found:**
+1. Record the exact location (file, line, step)
+2. Return `status: BLOCKED` with `reason: PROHIBITED_DISPATCH_MODE`
+3. Include `artifact_path` pointing to the scan output
+
+#### 2. Verify Every Step Has an Explicit Indicator
+Check every step in the plan for an explicit dispatch indicator:
+- `(**inline**)` — valid
+- `(**sub-agent**)` — valid
+- `(**clean-room**)` — valid
+
+**If any step lacks an indicator:**
+1. Record the step number and name
+2. Return `status: BLOCKED` with `reason: MISSING_DISPATCH_INDICATOR`
+3. Include the list of steps missing indicators in `blocker_reason`
+
+#### 3. Verify No Default Mode
+Confirm that the plan does not document any "default dispatch mode" or "fallback dispatch" — every step must be explicit.
+
+**If any default/fallback dispatch documentation found:**
+1. Return `status: BLOCKED` with `reason: DEFAULT_DISPATCH_FOUND`
+
+#### 4. Return PASS
+If all checks pass:
+- `status: DONE`
+- `finding_summary: "All steps have valid dispatch indicators. No prohibited modes found. {N} steps verified."`
+- `artifact_path: {project_root}/tmp/{issue-N}/verify/dispatch-mode-verification.yaml`
+
+### Verification
+
+- [ ] grep for `per-phase` in plan → absent
+- [ ] grep for `batched` in plan → absent
+- [ ] grep for `batch` in plan → absent
+- [ ] Every step matches `\(\*\*(inline|sub-agent|clean-room)\*\*\)` pattern
+- [ ] No step matches `\(\*\*(per-phase|batched)\*\*\)` pattern
+
+## Overflow Signal
+
+### OVERFLOW Contract Format
+
+When a sub-agent's context window exceeds capacity during execution, it MUST emit an OVERFLOW result contract:
+
+```yaml
+status: OVERFLOW
+task: <task-name>
+completed_items: [<item-ids-or-names>]
+remaining_items: [<item-ids-or-names>]
+context_usage: <estimated-percentage>
+suggested_split: <proposed-split-strategy>
+```
+
+### Re-Dispatch Protocol
+
+When the implementation-pipeline per the Trigger Dispatch Table receives an OVERFLOW result:
+
+- [ ] 1. Record completed items in work state file
+- [ ] 2. Create new sub-agent task(s) for remaining items using suggested split strategy
+- [ ] 3. Re-dispatch new sub-agent(s) with reduced scope
+- [ ] 4. Continue orchestration with accumulated results
+
+### Split Strategies
+
+| Strategy | When | Action |
+|----------|------|--------|
+| Per-item | Single large item causing overflow | Split into one sub-agent per remaining item |
+| Per-phase | Multi-phase task with phase boundary | Split at phase boundaries |
+| Chunked | Many small items | Split remaining items into 2-3 equal chunks |
+| Fallback | No clear split point | HALT and report context overflow to developer |
+
+### Context Allocation Awareness
+
+Signal OVERFLOW only on concrete, observable signs:
+- Tool output is truncated mid-result with content missing
+- Required spec, plan, or file content cannot be included in task context because earlier content fills the window
+- Previously read content is no longer accessible due to context displacement
+
+Sub-process dispatch (opencode run, task()) spawns independent processes — they do not affect orchestrator context allocation.
+
 ## Cross-References
 
 Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `research`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
-
-```
-
-### [critical-rules-025] Main Agent Implements Directly
-Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. Read [implementation-pipeline skill](skills/implementation-pipeline/SKILL.md) Trigger Dispatch Table. Orchestrator tasks sub-agents via task() only.
-
-
-### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
-Pipeline chain: pre-work → implementation-pipeline (Trigger Dispatch Table) → verification-before-completion → finishing-checklist → review-prep. Skipping any step means accepting undiscovered defects into every deliverable downstream. Each step MANDATORY.
-
-
-### [critical-rules-016] Skill Bypass = Critical Violation
-Every step in pipeline chain is enforceable, not advisory. Professional engineers follow the chain — amateurs take shortcuts and produce broken deliverables.
-
-
-### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
-Pipeline stage transitions require re-encountering an enforcement block restating procedural discipline identity. Professional engineers re-prime at every boundary. Amateurs let context degrade between gates.
-
-
+Co-authored with AI: OpenCode (deepseek-v4-flash)

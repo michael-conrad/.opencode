@@ -1,6 +1,6 @@
 ---
 name: research
-description: Decompose SCs into phases, build dependency DAG, select skill+task from implementation-pipeline TDT, run Z3 constraint solving
+description: Decompose SCs into phases, build dependency DAG, select skill+task from implementation-workflow reference card, run Z3 constraint solving
 provenance: AI-generated
 ---
 
@@ -8,7 +8,7 @@ provenance: AI-generated
 
 ## Purpose
 
-Decompose success criteria into implementation phases, build a dependency DAG between phases, select the skill+task from the implementation-pipeline Trigger Dispatch Table for each phase, and run Z3 constraint solving for SAT verification.
+Decompose success criteria into implementation phases, build a dependency DAG between phases, select the skill+task from the implementation-workflow reference card for each phase, and run Z3 constraint solving for SAT verification.
 
 ## Task Discipline
 
@@ -33,7 +33,7 @@ Decompose success criteria into implementation phases, build a dependency DAG be
    - Identify which phases depend on the output of other phases
    - Record the dependency edges in the structure artifact
 5. For each phase, map SCs to items by reading `sc-summary.yaml` and creating one item per SC:
-   - Read the implementation-pipeline Trigger Dispatch Table
+   - Read the implementation-workflow reference card at `skills/writing-plans/reference/implementation-workflow.md`
    - Map each SC to an individual item with its own RED/GREEN/verify/commit cycle
    - Each item references exactly one SC-ID
 6. Verify triplet co-location: for each SC, confirm that its RED, GREEN, and COMMIT steps are all assigned to the same phase. If any SC has steps split across phases, return BLOCKED with reason `"TRIPLET_SPLIT: SC-N has RED in phase X and GREEN in phase Y"`.

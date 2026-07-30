@@ -31,7 +31,7 @@ Performs structural validation of the plan against 6 check categories: skill+tas
    - Verify exit criteria section exists with SC-to-phase mapping.
 
    **Category 2 — Skill+task validity:**
-   - Verify every skill+task reference in the plan matches a valid entry in the implementation-pipeline TDT.
+   - Verify every skill+task reference in the plan matches a valid entry in the implementation-workflow reference card at `skills/writing-plans/reference/implementation-workflow.md`.
    - If any reference is invalid: record as a finding with FAIL.
 
    **Category 3 — SC coverage:**
