@@ -47,40 +47,30 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | User says / Context | Task | Dispatches To | Dispatch | Context passed |
 |---------------------|------|---------------|----------|----------------|
 | "execute plan" / "implement spec" / "run pipeline" / "assemble work" | `assemble-work` | Orchestrator entry — reads plan, creates branches, dispatches sub-agents | `orchestrator` | {issue_number, plan_path, authorization_scope, halt_at} |
-| "sc-coherence-gate" / "coherence gate" | `sc-coherence-gate` | `audit --task coherence-extraction` | `sub-task` | {issue_number} |
-| "pre-red-baseline" / "baseline check" | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` | `sub-task` | {issue_number} |
-| "red-phase" / "write failing test" | `red-phase` | `test-driven-development --task red` | `sub-task` | {issue_number} |
-| "z3-check-red" / "solve check RED" | `z3-check-red` | `solve --task check` | `inline` | {issue_number, contract_path} |
-| "red-doublecheck" / "verify RED" | `red-doublecheck` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
-| "z3-check-red-doublecheck" / "solve check RED doublecheck" | `z3-check-red-doublecheck` | `solve --task check` | `inline` | {issue_number, contract_path} |
-| "post-red-enforcement" / "RED gate" | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` | `sub-task` | {issue_number} |
-| "z3-check-post-red" / "solve check post-RED" | `z3-check-post-red` | `solve --task check` | `inline` | {issue_number, contract_path} |
-| "green-phase" / "implement" | `green-phase` | `test-driven-development --task green` | `sub-task` | {issue_number} |
-| "z3-check-green" / "solve check GREEN" | `z3-check-green` | `solve --task check` | `inline` | {issue_number, contract_path} |
-| "post-green-enforcement" / "GREEN gate" | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` | `sub-task` | {issue_number} |
-| "z3-check-post-green" / "solve check post-GREEN" | `z3-check-post-green` | `solve --task check` | `inline` | {issue_number, contract_path} |
-| "checkpoint-tag-create" / "create checkpoint tag" | `checkpoint-tag-create` | `implementation-pipeline --task checkpoint-tag-create` | `sub-task` | {issue_number} |
-| "checkpoint-commit" / "save checkpoint" | `checkpoint-commit` | `git-workflow --task commit-prep` | `sub-task` | {issue_number} |
+| "pre-regression" / "baseline check" | `pre-regression` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
+| "pre-regression-verify" / "verify baseline" | `pre-regression-verify` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
+| "red-phase" / "write failing test" | `red` | `test-driven-development --task red` | `sub-task` | {issue_number} |
+| "green-phase" / "implement" | `green` | `test-driven-development --task green` | `sub-task` | {issue_number} |
+| "post-regression" / "re-run tests" | `post-regression` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
+| "verify" / "verify implementation" | `verify` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
+| "commit inline" / "inline commit" | `commit-inline` | Orchestrator runs git add + git commit directly | `inline` | {issue_number} |
+| "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
+| "z3-check" / "solve check" | `z3-check` | `solve --task check` | `inline` | {issue_number, contract_path} |
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `finishing-a-development-branch --task checklist` | `sub-task` | {issue_number} |
-| "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
-| "green-vbc" / "verification before completion" | `green-vbc` | `verification-before-completion --task completion` | `sub-task` | {issue_number} |
 | "sc-count-gate" / "SC count gate" | `sc-count-gate` | Reads `sc-summary.yaml` total SC count, counts verified SCs from VbC evidence, BLOCKs if `verified_count < total_count` (any SC has no verdict) | `sub-task` | {issue_number} |
 | "pre-pr-gate" / "pre-PR gate" | `pre-pr-gate` | `verification-before-completion --task verify` — reads all SC verdicts, BLOCKs if any FAIL | `sub-task` | {issue_number} |
 | "rationalization-check" / "check for rationalization" | `rationalization-check` | `verification-before-completion --task verify` — dispatches clean-room sub-agent to evaluate whether proposed action is a rationalization. Sub-agent receives ONLY proposed action + rule text. Returns BLOCKED with REMEDIATION_MANDATORY if rationalization detected. | `sub-task` | {issue_number, proposed_action, rule_text} |
-| "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
-| "cross-validate" / "consensus check" | `cross-validate` | `audit --task cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
 | "behavioral-test-remediation" / "remediate behavioral test" | `behavioral-test-remediation` | `implementation-pipeline --task behavioral-test-remediation` | `sub-task` | {issue_number, test_artifact_path, sc_list} |
 | "review-prep" / "prepare review" | `review-prep` | `git-workflow --task review-prep` | `sub-task` | {issue_number} |
 | "create-pr" / "create pull request" | `create-pr` | `pr-creation-workflow --task create` | `sub-task` | {issue_number, authorization_scope, halt_at} |
 | "exec-summary" / "completion" | `exec-summary` | `completion-core --task completion` | `sub-task` | {issue_number} |
-| "multiple red phases" / "batch red" / "red/red/red" / "batched RED/GREEN" | `tdd-chaining-gate` | `implementation-pipeline --task tdd-chaining-gate` | `sub-task` | {issue_number} |
 | "execute step" / "dispatch step" / "step dispatch" | `step-dispatch` | Orchestrator reads step's dispatch indicator: `(**inline**)` executes directly, `(**sub-agent**)` dispatches with context, `(**clean-room**)` dispatches with routing metadata only | `orchestrator` | {issue_number, plan_path, step_number} |
 
 **Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
 - [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
 - [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Trigger Dispatch Table.
-- [ ] 3. On clean PASS: collect the `artifact_path` and pass as `auditor_artifact_paths` context to `cross-validate`.
+- [ ] 3. On clean PASS: run inline Z3 check via `.opencode/tools/solve check --state-path ... --contract-path ...`
 
 ## Pre-Flight
 
@@ -88,7 +78,7 @@ Read [pre-flight verification and authorization context requirements](implementa
 
 ## Step Labels (for #932 naming convention)
 
-`assemble-work`, `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `sc-count-gate`, `pre-pr-gate`, `rationalization-check`, `audit`, `cross-validate`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
+`assemble-work`, `pre-regression`, `pre-regression-verify`, `red`, `green`, `post-regression`, `verify`, `commit-inline`, `audit`, `z3-check`, `structural-checks`, `sc-count-gate`, `pre-pr-gate`, `rationalization-check`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
 
 ## Invocation
 
@@ -106,21 +96,18 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 
 | Step | Canonical Dispatch String |
 |------|--------------------------|
-| `sc-coherence-gate` | `task(..., prompt: "execute coherence-extraction from audit. Read \`audit/tasks/coherence-extraction.md\` first")` |
-| `pre-red-baseline` | `task(..., prompt: "execute pre-red-baseline from implementation-pipeline. Read \`implementation-pipeline/tasks/pre-red-baseline.md\` first")` |
-| `red-phase` | `task(..., prompt: "execute red from test-driven-development. Read \`test-driven-development/tasks/red.md\` first")` |
-| `red-doublecheck` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
-| `post-red-enforcement` | `task(..., prompt: "execute post-red-enforcement from implementation-pipeline. Read \`implementation-pipeline/tasks/post-red-enforcement.md\` first")` |
-| `green-phase` | `task(..., prompt: "execute green from test-driven-development. Read \`test-driven-development/tasks/green.md\` first")` |
-| `post-green-enforcement` | `task(..., prompt: "execute post-green-enforcement from implementation-pipeline. Read \`implementation-pipeline/tasks/post-green-enforcement.md\` first")` |
-| `checkpoint-tag-create` | `task(..., prompt: "execute checkpoint-tag-create from implementation-pipeline. Read \`implementation-pipeline/tasks/checkpoint-tag-create.md\` first")` |
-| `checkpoint-commit` | `task(..., prompt: "execute commit-prep from git-workflow. Read \`git-workflow/tasks/commit-prep.md\` first")` |
+| `pre-regression` | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
+| `pre-regression-verify` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
+| `red` | `task(..., prompt: "execute red from test-driven-development. Read \`test-driven-development/tasks/red.md\` first")` |
+| `green` | `task(..., prompt: "execute green from test-driven-development. Read \`test-driven-development/tasks/green.md\` first")` |
+| `post-regression` | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
+| `verify` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
+| `commit-inline` | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch |
+| `audit` | `task(..., prompt: "execute audit from audit. Read \`audit/tasks/verification-audit.md\` first")` |
+| `z3-check` | Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly — no sub-agent dispatch |
 | `structural-checks` | `task(..., prompt: "execute checklist from finishing-a-development-branch. Read \`finishing-a-development-branch/tasks/checklist.md\` first")` |
-| `green-doublecheck` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
-| `green-vbc` | `task(..., prompt: "execute completion from verification-before-completion. Read \`verification-before-completion/tasks/completion.md\` first")` |
 | `sc-count-gate` | `task(..., prompt: "execute sc-count-gate from implementation-pipeline. Read \`implementation-pipeline/tasks/sc-count-gate.md\` first")` — reads `sc-summary.yaml` total, counts verified SCs, BLOCKs if `verified_count < total_count` |
 | `pre-pr-gate` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` — reads all SC verdicts, BLOCKs if any FAIL |
-| `cross-validate` | `task(..., prompt: "execute cross-validate from audit. Read \`audit/tasks/cross-validate.md\` first")` |
 | `regression-check` | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
 | `behavioral-test-remediation` | `task(..., prompt: "execute behavioral-test-remediation from implementation-pipeline. Read \`implementation-pipeline/tasks/behavioral-test-remediation.md\` first")` |
 | `review-prep` | `task(..., prompt: "execute review-prep from git-workflow. Read \`git-workflow/tasks/review-prep.md\` first")` |
@@ -130,7 +117,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 **Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
 1. Dispatch audit task (sub-agent) — dispatch the appropriate audit task via `task(subagent_type="general")`
 2. `remediate` (inline) — if non-clean-pass, remediate and restart from step 1
-3. `cross-validate` (clean-room) — produce cross-validate findings
+3. `z3-check` (inline) — orchestrator runs Z3 check after AUDIT per phase
 
 ## Sub-Agent Routing
 
@@ -138,7 +125,7 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 
 All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks also use `subagent_type="general"` — the task file provides all role-specific behavior. Dispatch contracts carry exactly 2 fields: `spec_local_dir` and `artifact_evidence_dir`. No `audit_phase` field. Read [audit SKILL.md §DISPATCH_GATE](skills/audit/SKILL.md). `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
-**Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
+**Exception — audit sequence:** The audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (dispatch audit task, remediate inline, z3-check inline). See Invocation section for the complete sequence.
 
 Exclusions: implementation context, agent memory, cached verification results.
 
@@ -154,11 +141,11 @@ Every sub-agent MUST independently discover scope and produce its own result con
 
 | Violation | Forbidden Pattern | Correct Pattern |
 |-----------|-------------------|-----------------|
-| Preloaded file paths | "Read the task file then execute step 1" | "execute red-phase from implementation-pipeline" |
-| Preloaded step sequences | "Step 1: red. Step 2: green." | "execute green-phase from implementation-pipeline" |
+| Preloaded file paths | "Read the task file then execute step 1" | "execute red from test-driven-development" |
+| Preloaded step sequences | "Step 1: red. Step 2: green." | "execute green from test-driven-development" |
 | Preloaded expected outcomes | "Return { test_count, pass_count }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The rename was just completed so we need to..." | Pure objective, no narrative |
-| Missing task file discovery directive | "execute green-phase from implementation-pipeline" without task file path | "execute green-phase from implementation-pipeline. Read `implementation-pipeline/tasks/green-phase.md` first" |
+| Missing task file discovery directive | "execute green from test-driven-development" without task file path | "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first" |
 
 ## Required: Sub-agent Task File Discovery Directive
 
@@ -214,7 +201,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## State Management
 
-- `solve state init {project_root}/tmp/{issue-N}/state/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
+- `solve state init {project_root}/tmp/{issue-N}/state/` at `pre-regression` step — creates state file with `current_step: pre-regression`, `pipeline_state: init`
 - `solve state update {project_root}/tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
 - `solve check --state-path {project_root}/tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
 
@@ -254,22 +241,18 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 
 | Step Label | Pre-Cleanup Action |
 
-| `pre-red-baseline` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
-| `post-red-enforcement` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-*` |
-| `red-phase` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
-| `z3-check-red` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-red-*` |
-| `green-phase` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
-| `z3-check-green` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-green-*` |
-| `post-green-enforcement` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
-| `checkpoint-tag-create` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
-| `checkpoint-commit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
+| `pre-regression` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-regression-*` |
+| `pre-regression-verify` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-regression-verify-*` |
+| `red` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-red-*` |
+| `green` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-*` |
+| `post-regression` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-post-regression-*` |
+| `verify` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-verify-*` |
+| `commit-inline` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-commit-inline-*` |
+| `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
+| `z3-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-*` |
 | `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
-| `green-doublecheck` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
-| `green-vbc` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
 | `sc-count-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-sc-count-gate-*` |
 | `pre-pr-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-pr-gate-*` |
-| `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
-| `cross-validate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
 | `regression-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
 | `behavioral-test-remediation` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-behavioral-test-remediation-*` |
 
