@@ -403,8 +403,8 @@ Constructing URLs from template variables instead of extracting them from the AP
 For URLs to resources that have been **created by an API call** (PR URL, Issue URL), the agent MUST extract the `html_url` field from the API response — never construct from template variables.
 
 **Procedural enforcement in skill tasks:** The following skill task files contain mandatory URL extraction steps:
-- `git-workflow/tasks/pr-creation.md` Step 7 — PR URL extraction from `github_create_pull_request`
-- `git-workflow/tasks/review-prep.md` — PR URL extraction after PR creation
+- `git-workflow-pr/tasks/pr-creation.md` Step 7 — PR URL extraction from `github_create_pull_request`
+- `git-workflow-pr/tasks/review-prep.md` — PR URL extraction after PR creation
 - `approval-gate/tasks/post-implementation.md` — PR URL extraction after PR creation
 - `issue-operations/tasks/link-sub-issue.md` Step 4 — Sub-issue URL extraction from `github_issue_write`
 - `issue-operations/tasks/creation.md` — Issue URL extraction from `github_issue_write`

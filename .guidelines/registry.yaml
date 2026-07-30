@@ -17,7 +17,7 @@ fragments:
       estimated_tokens: 425
       description: "Branch-before-edit protocol and stash workflow critical rule"
     destinations:
-      - path: .opencode/skills/git-workflow/tasks/pre-work.md
+      - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
         hash: sha256:2c61c49fcf3c9bef0469b8ccc9da958fa1d04a6c3bacbfee60f07fdedc2f5a62
         line_range:
           start: 7
@@ -38,7 +38,7 @@ fragments:
       estimated_tokens: 225
       description: "Commit policy and co-author trailers"
     destinations:
-      - path: .opencode/skills/git-workflow/tasks/commit-prep.md
+      - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
         hash: sha256:ecfe3f399f161502ebb75e38130b5e3acb663af37e91dd264005222675b78c4a
         line_range:
           start: 7
@@ -58,7 +58,7 @@ fragments:
       estimated_tokens: 180
       description: "PR creation authorization and timing"
     destinations:
-      - path: .opencode/skills/git-workflow/tasks/pr-creation.md
+      - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
         hash: sha256: TBD
         line_range:
           start: 1
@@ -82,7 +82,7 @@ fragments:
       estimated_tokens: 120
       description: "Branch deletion protocol after merge"
     destinations:
-      - path: .opencode/skills/git-workflow/tasks/cleanup.md
+      - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
         hash: sha256: TBD
         line_range:
           start: 1
@@ -101,7 +101,7 @@ fragments:
       estimated_tokens: 160
       description: "Issue closure protocol and timing"
     destinations:
-      - path: .opencode/skills/git-workflow/tasks/cleanup.md
+      - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
         hash: sha256: TBD
         line_range:
           start: 80

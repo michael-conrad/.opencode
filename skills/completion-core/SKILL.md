@@ -53,7 +53,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 | Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
-| Missing task file discovery directive | "execute cleanup task from git-workflow" without task file path | "execute cleanup task from git-workflow. Read \`git-workflow/tasks/cleanup.md\` first" |
+| Missing task file discovery directive | "execute cleanup task from git-workflow" without task file path | "execute cleanup task from git-workflow. Read \`git-workflow-cleanup/tasks/cleanup.md\` first" |
 
 #### Required: Sub-agent Task File Discovery Directive
 

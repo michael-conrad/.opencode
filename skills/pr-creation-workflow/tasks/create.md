@@ -55,5 +55,5 @@ pr_url: "https://github.com/{owner}/{repo}/pull/{number}"
 
 ## Cross-References
 
-- `git-workflow/tasks/pr-creation/create-pr.md` — PR body composition and API call
+- `git-workflow-pr/tasks/pr-creation.md` — PR body composition and API call
 - `implementation-pipeline/SKILL.md` — Pipeline step that dispatches here
