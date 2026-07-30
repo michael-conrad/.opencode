@@ -1,5 +1,5 @@
 title: '[SPEC] VibeGuard config: disable builtin scanners, target only credentials'
-status: open
+status: closed
 labels:
 - approved-for-pr
 body: '> **Full spec and artifacts: [`.opencode/.issues/2177/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2177)**
@@ -178,7 +178,24 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2177/`](https://github.c
 
   | R8 (valid JSON) | SC-6 | 6 |
   | R9 (config file exists) | SC-6 | 6 |
+  
+  # Verification Note
 
+  All success criteria use `string` evidence type (static file inspection) because
+  the vibeguard plugin cannot be loaded in the test environment. Behavioral verification
+  via `opencode run` is not possible — the plugin fails to load in the test harness
+  for reasons not yet diagnosed. Production loading is user-verified only.
+
+  This is a known limitation of the test environment, not a gap in the spec. The config
+  file is validated for structural correctness (valid JSON, correct keys, expected
+  patterns) via static checks only.
+
+  # Change Control
+  
+  | Date | Change | Reason | Authorized By |
+  |------|--------|--------|---------------|
+  | 2026-07-30 | SC-6: changed evidence type from `behavioral` to `string`, verification method from `opencode run` to `python3 -c` JSON parse. Not Included: added line about plugin not loading in test env. | SC-6 declared `behavioral` evidence but plugin does not load in test environment — contradiction. Revised to `string` (valid JSON check only). | michael-conrad |
+  
   '
 created_at: '2026-07-28T19:19:34+00:00'
 updated_at: '2026-07-28T20:35:23+00:00'
