@@ -571,17 +571,15 @@ def main() -> int:
     else:
         install_hooks()
 
-    current_branch = get_current_branch() or "unknown"
     in_wt, wt_path, main_repo = detect_worktree()
     hooks_path = get_hooks_path()
-
-    print(f"Developer: {user_name}")
-    print(f"Email: {user_email}")
-    print(f"Git branch: {current_branch}")
 
     now = datetime.now().astimezone()
     print(f"Session started: {now.strftime('%A, %B %d, %Y at %I:%M %p')} {now.tzname()}")
     print("This session start time indicates your training data is extremely stale and always must be re-researched before making factual claims — never trust training data without live verification.")
+
+    print(f"Developer: {user_name}")
+    print(f"Email: {user_email}")
 
     if in_wt and wt_path and main_repo:
         print(f"Worktree: {wt_path}")
