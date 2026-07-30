@@ -14,6 +14,16 @@ The refactoring moves ALL 23 sections of implementation-pipeline content into a 
 
 **Two-phase lookup problem eliminated:** Before this change, every plan-write requires: (1) orchestrator loads implementation-pipeline skill, (2) reads TDT for dispatch strings. After this change: plan writer reads a static `.md` file directly — no `skill()` call needed at plan-writing time. The orchestrator reads the plan (which contains baked-in dispatch strings) at execution time, so no skill loading is needed at execution time either.
 
+## Alternatives Considered
+
+### Delete-not-strip vs Strip-dispatch-strings-only
+
+Two approaches were considered for decoupling the plan writer from the implementation-pipeline skill:
+
+**Delete-not-strip (chosen):** Delete the entire `skills/implementation-pipeline/` directory and subsume all content sections into a static reference card. The directory is removed entirely — no files remain. This provides a clean break with no risk of stale files being misinterpreted as active.
+
+**Strip-dispatch-strings-only (rejected):** Remove only the TDT and dispatch strings from the implementation-pipeline SKILL.md, leaving the enforcement rules, state machine, and other content in place. This was rejected because a stripped skill directory is a maintenance liability — future agents may not recognize the directory as deprecated, stale cross-references may accumulate around the remaining files, and the plan writer would still depend on the skill directory existing (just with fewer files inside). Delete-not-strip was chosen because it eliminates ambiguity: the absence of the directory forces all cross-references to be updated, and no future work can accidentally depend on the old skill.
+
 ## Not Included
 
 - CHANGELOG.md, README.md — informational only, no structural change
@@ -26,13 +36,13 @@ The refactoring moves ALL 23 sections of implementation-pipeline content into a 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | `writing-plans/reference/implementation-workflow.md` exists | structural | `ls` |
-| SC-2 | Reference card contains All content sections from implementation-pipeline/SKILL.md: per-task cycle, 17 canonical dispatch strings, dispatch indicator semantics, audit sequence protocol, DISPATCH_GATE protocol, sub-agent file discovery directive, dispatch context contract, pipeline re-priming enforcement, orchestrator entry criteria, DONE_WITH_CONCERNS coercion rule, remediation routing, 13 pipeline enforcement rules, artifact retention rules, lifecycle manifest event emission, sub-agent context shape, worktree mode | string | grep each section header |
+| SC-2 | Reference card contains all 16 content sections enumerated below from implementation-pipeline/SKILL.md: per-task cycle, 17 canonical dispatch strings, dispatch indicator semantics, audit sequence protocol, DISPATCH_GATE protocol, sub-agent file discovery directive, dispatch context contract, pipeline re-priming enforcement, orchestrator entry criteria, DONE_WITH_CONCERNS coercion rule, remediation routing, 13 pipeline enforcement rules, artifact retention rules, lifecycle manifest event emission, sub-agent context shape, worktree mode | string | grep each section header; authoritative section list at cross-ref-audit.yaml CREATE_TARGET.sections |
 | SC-3 | `create.md` reads the reference card instead of loading the implementation-pipeline TDT | behavioral | `opencode run` with plan-writing scenario, stderr shows reference card read |
 | SC-4 | `research.md` reads the reference card for skill+task selection instead of implementation-pipeline TDT | behavioral | `opencode run` with research scenario |
 | SC-5 | `validate.md` validates against the reference card instead of implementation-pipeline TDT | behavioral | `opencode run` with validate scenario |
 | SC-6 | `plan-artifact-format.md` validation rule references the reference card | string | grep |
 | SC-7 | `skills/implementation-pipeline/` deleted entirely — all files (SKILL.md, enforcement/*.md, pipeline-state-machine.yaml) removed. All 23 sections of content subsumed into reference card or appropriate destinations | string + structural | `ls` confirms directory absent; grep confirms no orphaned path references |
-| SC-8 | ALL cross-references to `skills/implementation-pipeline/` across `.opencode/` updated — every reference redirected to `skills/writing-plans/reference/implementation-workflow.md`, applicable replacement guideline, or removed. Sub-groups: (a) 5 audit tasks, (c) 065-verification-honesty.md (line 413 only — TDT URL extraction ref), (e) tertiary files with pipeline chain refs | string | grep cross-ref count comparison per sub-group |
+| SC-8 | ALL cross-references to `skills/implementation-pipeline/` across `.opencode/` updated — every reference redirected to `skills/writing-plans/reference/implementation-workflow.md`, applicable replacement guideline, or removed. Sub-groups: (a) 5 audit tasks, (c) 065-verification-honesty.md (Pre-Response Factual Claim Gate section — TDT URL extraction ref), (e) tertiary files with pipeline chain refs | string | grep cross-ref count comparison per sub-group |
 | SC-9 | Pipeline chain replacement — old chain `pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep` replaced with `pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep` in: implementation-pipeline/SKILL.md enforcement block (deleted via SC-7) and tertiary files across `.opencode/` | string | grep for old chain pattern; assert absent |
 | SC-10 | Behavioral enforcement tests exist for the new plan-writing workflow (create.md reads card, validate.md validates against card) and for the delete-not-strip approach (implementation-pipeline directory absent) | behavioral | `opencode run` with enforcement test scenario |
 | SC-11 | Coercion rule preserved — DONE_WITH_CONCERNS coercion rule moves to reference card; approval-gate-scope/SKILL.md and 065-verification-honesty.md references updated to point to reference card | string | grep |
@@ -55,7 +65,7 @@ The spec SHALL:
 
 6. **REQ-6**: DELETE `skills/implementation-pipeline/` entirely. All 23 content sections subsumed into the reference card or appropriate destinations. State management (solve state) is deleted — plan step order IS the state machine. DONE_WITH_CONCERNS coercion rule moves to reference card. Enforcement rules move to reference card. Enforcement reference docs (4 files) merged into reference card.
 
-7. **REQ-7**: Update ALL cross-references to implementation-pipeline across `.opencode/`. Every reference to `skills/implementation-pipeline/SKILL.md` or any path under `skills/implementation-pipeline/` must be redirected to `skills/writing-plans/reference/implementation-workflow.md`, the applicable replacement guideline, or removed. This includes 5 audit tasks, 065-verification-honesty.md (line 413), and all tertiary files.
+7. **REQ-7**: Update ALL cross-references to implementation-pipeline across `.opencode/`. Every reference to `skills/implementation-pipeline/SKILL.md` or any path under `skills/implementation-pipeline/` must be redirected to `skills/writing-plans/reference/implementation-workflow.md`, the applicable replacement guideline, or removed. This includes 5 audit tasks, 065-verification-honesty.md (Pre-Response Factual Claim Gate section), and all tertiary files.
 
 8. **REQ-8**: Pipeline chain replacement — old chain `pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep` replaced with `pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep` in: implementation-pipeline/SKILL.md enforcement block (deleted via SC-7) and tertiary files across `.opencode/`.
 
@@ -76,7 +86,7 @@ The spec SHALL:
 | 5 | 2 | SC-5 | Update validate.md to validate against reference card | Plan writer update | `skills/writing-plans/tasks/validate.md` |
 | 6 | 2 | SC-6 | Update plan-artifact-format.md validation rule | Plan writer update | `skills/writing-plans/reference/plan-artifact-format.md` |
 | 7 | 3 | SC-7 | DELETE skills/implementation-pipeline/ entirely | Source skill deletion | `skills/implementation-pipeline/` (all files) |
-| 8 | 3 | SC-8 | Update ALL cross-references — sub-groups: (a) 5 audit tasks, (c) 065-verification-honesty.md (line 413 only — TDT URL extraction ref), (e) tertiary files with pipeline chain refs | Cross-reference update | All `.opencode/` files per cross-ref-audit.yaml |
+| 8 | 3 | SC-8 | Update ALL cross-references — sub-groups: (a) 5 audit tasks, (c) 065-verification-honesty.md (Pre-Response Factual Claim Gate section — TDT URL extraction ref), (e) tertiary files with pipeline chain refs | Cross-reference update | All `.opencode/` files per cross-ref-audit.yaml |
 | 9 | 3 | SC-9 | Pipeline chain updates (pre-work → execute-plan) across tertiary files | Pipeline chain rename | All `.opencode/` files with old chain pattern |
 | 10 | 4 | SC-10 | Add behavioral enforcement tests (plan-writer + delete-not-strip) | Cleanup | New test files under `.opencode/tests-v2/behaviors/` |
 | 11 | 3 | SC-11 | Coercion rule migration — move DONE_WITH_CONCERNS rule to reference card, update approval-gate-scope and 065-verification-honesty refs | Coercion rule | reference card, approval-gate-scope/SKILL.md, 065-verification-honesty.md |
@@ -89,6 +99,23 @@ The spec SHALL:
 - **Related skills**: `writing-plans` — all plan-writing tasks being updated; `audit` — cross-references updated (5 audit files); `approval-gate-scope` — coercion rule redirect
 - **Guidelines**: `080-code-standards.md` — behavioral test mandate for guideline/skill changes; `065-verification-honesty.md` — coercion rule refs updated
 - **No other spec dependencies** — this is a standalone refactoring
+
+## Risks and Edge Cases
+
+### File path conflicts
+The reference card at `skills/writing-plans/reference/implementation-workflow.md` occupies a path previously unused. Ensure no existing or planned file uses this path. The `skills/writing-plans/reference/` directory already exists for `plan-artifact-format.md`, so the parent directory is established.
+
+### Partial cross-reference updates
+If a cross-reference to `skills/implementation-pipeline/` is missed during the migration, the reference will dangle after the directory is deleted. Mitigation: SC-13 requires a final grep sweep confirming zero matches for `skills/implementation-pipeline/` across all `.opencode/` files. The grep sweep MUST run after all other changes are committed.
+
+### Behavioral test infrastructure failure preconditions
+Behavioral tests (SC-10) require `opencode run` with a test harness. Preconditions:
+- Standalone opencode binary available at `.tools/opencode/opencode` or installable
+- `with-test-home` wrapper functional
+- AI model (default or configured) responds within timeout
+- Test home directory at `./tmp/test-home-*` is writable and not locked
+
+If infrastructure is unavailable, SC-10 cannot be verified with behavioral evidence, and the SC would FAIL per the Evidence Type Taxonomy (behavioral evidence requires test execution).
 
 ## Traceability
 
@@ -120,3 +147,4 @@ The spec SHALL:
 | 2026-07-30 | REQ-7: split into dispatch-string-only scope with explicit preservation boundaries for approval-gate-scope/SKILL.md and 065-verification-honesty.md lines 318/453 | Finding 1 — REQ-7 lacked scope boundaries, allowing contradictory interpretation with Dependencies section | opencode (deepseek-v4-flash-free) |
 | 2026-07-30 | SC-2/REQ-1: fixed string count parenthetical "(pre-regression through exec-summary)" → "(pre-regression through exec-summary plus step-dispatch)" — 17 total includes step-dispatch; "through exec-summary" yields 16 | Validator finding — string count mismatch | opencode (deepseek-v4-flash-free) |
 | 2026-07-30 | Validation fixes: Background — removed false 000-critical-rules.md claim (live grep confirms zero occurrences). SC-2/REQ-1 — "23 content sections" replaced with accurate count-free references (source SKILL.md has 16 ##-level sections). SC-8 — removed (b) 000-critical-rules.md and (d) approval-gate-scope (SC-11 covers coercion rule). SC-8(c) — scoped to line 413 only (TDT URL extraction ref). SC-9/REQ-8 — removed 000-critical-rules.md from scope, clarified replacement scope. Item 8 — removed overlapping sub-groups. REQ-7 — removed 000-critical-rules.md and approval-gate-scope from file list. | 5 validation failures from spec audit | opencode (deepseek-v4-flash-free) |
+| 2026-07-30 | SC-2: replaced "All content sections" with "all 16 content sections enumerated below"; added cross-ref note to Verification Method. SC-8(c): replaced fragile line 413 with stable "Pre-Response Factual Claim Gate section" anchor. REQ-7 / Item 8: same stable anchor. Added Alternatives Considered section (delete-not-strip vs strip-dispatch-strings-only). Added Risks and Edge Cases section (file path conflicts, partial cross-ref updates, behavioral test infrastructure preconditions). | Remediate 3 audit findings from spec-audit (FAIL 1: open-ended SC-2; FAIL 2: fragile line reference; FAIL 3: analytical gaps) | opencode (deepseek-v4-flash-free) |
