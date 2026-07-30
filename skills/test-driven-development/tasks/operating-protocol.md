@@ -22,18 +22,18 @@ All TDD task headings in plan documents MUST use the SC-ID parenthetical format:
 **✅ CORRECT:**
 ```text
 ### TDD-1: Update sc-coherence-gate with evidence-type uplift scan (SC-6)
-### TDD-4: Add post-red-enforcement to routing table (SC-1, SC-5)
+### TDD-4: Add pre-regression-verify to routing table (SC-1, SC-5)
 ```
 
 **🚫 INCORRECT:**
 ```text
 ### TDD-1: Update sc-coherence-gate with evidence-type uplift scan  ← missing SC-ID
-### TDD-4: Add post-red-enforcement: SC-1, SC-5  ← wrong format
+### TDD-4: Add pre-regression-verify: SC-1, SC-5  ← wrong format
 ```
 
 ### Enforcement
 
-The `pre-red-baseline` sub-agent parses plan TDD headings, extracts SC-IDs, and cross-references against the spec SC table. If any TDD heading references an SC-ID that does not exist in the spec, the gate returns BLOCKED with `MISSING-TRACEABILITY`.
+The TDD heading validator parses plan TDD headings, extracts SC-IDs, and cross-references against the spec SC table. If any TDD heading references an SC-ID that does not exist in the spec, the validator returns BLOCKED with `MISSING-TRACEABILITY`.
 
 ### SC-ID Extraction Contract
 

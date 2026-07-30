@@ -74,4 +74,4 @@ RED-phase sub-agents write tests only — they MUST NOT modify `src/` or any imp
 
 ### Violation Handling
 
-The `post-red-enforcement` gate executes `git diff --name-only -- src/ | wc -l` and FAILs if the count > 0. If this gate fires, the orchestrator re-dispatches the RED-phase from clean-room state — no inline fallback.
+The RED-phase sub-agent MUST NOT modify any file under `src/`. If `git diff --name-only -- src/` shows changes after RED, the orchestrator re-dispatches the RED-phase from clean-room state — no inline fallback.
