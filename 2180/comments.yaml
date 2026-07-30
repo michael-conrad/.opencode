@@ -1,0 +1,5 @@
+- type: authorization
+  author: human
+  scope: for_pr
+  text: "approved #2180 to PR"
+  timestamp: "2026-07-29T21:13:00Z"

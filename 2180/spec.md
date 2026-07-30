@@ -36,6 +36,8 @@ Replace all 8 occurrences of the `ls -d .git/ */.git/ */.git/` glob pattern with
 
 ## Success Criteria
 
+**Cost frame:** Each SC below verifies a single text replacement. The DDL cost of the old glob pattern is production-incident-level (manual cleanup, investigation, delayed PRs). The cost of verifying each replacement via grep is near-zero (seconds per file). A grep FAIL at implementation time costs minutes to fix. A grep PASS that missed a replacement would be caught at the next behavioral test run — the DDL is bounded to the test cycle, not production.
+
 | ID | Criterion | Evidence Type | Verification Method |
 |----|----------|---------------|-------------------|
 | SC-1 | `branch-cleanup.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
@@ -58,16 +60,16 @@ Replace all 8 occurrences of the `ls -d .git/ */.git/ */.git/` glob pattern with
 
 ## Items
 
-| Item | SC | File | Area | Replacement |
+| Item | SC | File | Area | Change Type |
 |------|----|------|------|-------------|
-| 1 | SC-1 | `git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 2 | SC-2 | `git-workflow-cleanup/tasks/cleanup/issue-closure.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 3 | SC-3 | `git-workflow-cleanup/tasks/check-pr.md` | Submodule detection prose (first occurrence) | `git submodule status` (prose) |
-| 4 | SC-4 | `git-workflow-cleanup/tasks/check-pr.md` | Submodule detection prose (second occurrence) | `git submodule status` (prose) |
-| 5 | SC-5 | `git-workflow-cleanup/tasks/cleanup.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 6 | SC-6 | `git-workflow-branch/tasks/operating-protocol.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 7 | SC-7 | `git-workflow-branch/tasks/pre-work.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 8 | SC-8 | `git-workflow-branch/tasks/provenance.md` | Submodule detection prose | `git submodule status` (prose) |
+| 1 | SC-1 | `git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
+| 2 | SC-2 | `git-workflow-cleanup/tasks/cleanup/issue-closure.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
+| 3 | SC-3 | `git-workflow-cleanup/tasks/check-pr.md` | Submodule detection prose (first occurrence) | Replace glob with `git submodule status` (prose) |
+| 4 | SC-4 | `git-workflow-cleanup/tasks/check-pr.md` | Submodule detection prose (second occurrence) | Replace glob with `git submodule status` (prose) |
+| 5 | SC-5 | `git-workflow-cleanup/tasks/cleanup.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
+| 6 | SC-6 | `git-workflow-branch/tasks/operating-protocol.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
+| 7 | SC-7 | `git-workflow-branch/tasks/pre-work.md` | Submodule detection variable assignment | Replace glob with `git submodule status \| awk` pipeline |
+| 8 | SC-8 | `git-workflow-branch/tasks/provenance.md` | Submodule detection prose | Replace glob with `git submodule status` (prose) |
 
 ## Dependencies
 
