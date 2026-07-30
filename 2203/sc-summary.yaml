@@ -1,0 +1,42 @@
+sc_count: 10
+scs:
+  - id: "SC-1"
+    description: "writing-plans/reference/implementation-workflow.md exists"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Reference card contains all 17 canonical dispatch strings (pre-regression through exec-summary) from the implementation-pipeline Invocation section"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "create.md reads the reference card instead of loading the implementation-pipeline TDT"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "research.md reads the reference card for skill+task selection instead of implementation-pipeline TDT"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "validate.md validates against the reference card instead of implementation-pipeline TDT"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "plan-artifact-format.md validation rule (line 91) references the reference card"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "implementation-pipeline/SKILL.md dispatch strings stripped, retains state management + enforcement + coercion rule"
+    evidence_type: "string + structural"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Audit cross-references (plan-fidelity-evaluator, 4 verification-audit tasks) updated from implementation-pipeline/SKILL.md to reference card"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Deprecated implementation-pipeline dispatch-string references purged across all .opencode/ files"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Behavioral enforcement tests exist for the new plan-writing workflow (create.md reads card, validate.md validates against card)"
+    evidence_type: "behavioral"
+    plan_item: 10
