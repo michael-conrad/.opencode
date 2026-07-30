@@ -1,5 +1,5 @@
-# Cross-reference audit: implementation-pipeline references (#2203)
-# Generated from pre-spec-inspection.yaml analysis
+# Cross-reference audit: implementation-pipeline references (#2203, revised: delete-not-strip)
+# Generated: 2026-07-30
 
 sources:
   - description: "Pre-spec inspection grep of .opencode/ submodule for files referencing implementation-pipeline"
@@ -7,71 +7,91 @@ sources:
     verification_date: "2026-07-30"
 
 categories:
-  PRIMARY:
-    description: "Direct modification targets — files whose behavior changes"
+  DELETE_TARGET:
+    description: "Files to be deleted — implementation-pipeline skill directory"
     files:
       - path: skills/implementation-pipeline/SKILL.md
-        change: "Strip dispatch strings from TDT and Invocation; route to reference card"
-        sections:
-          - "TDT (lines 47-67) — all dispatch string rows deprecated in favor of reference card"
-          - "Invocation (lines 81-108) — all sub-agent canonical dispatch strings move to reference card"
-        preserve:
-          - "DONE_WITH_CONCERNS coercion rule"
-          - "State management (solve integration)"
-          - "Remediation routing"
-          - "Enforcement blocks"
-          - "Pipeline re-priming"
-          - "Artifact retention"
+        action: "DELETE entirely"
+        content_sections: 23
+        note: "All content migrated to skills/writing-plans/reference/implementation-workflow.md before deletion"
+      - path: skills/implementation-pipeline/enforcement/context-passing.md
+        action: "DELETE — content merged into reference card DISPATCH_GATE Protocol section"
+      - path: skills/implementation-pipeline/enforcement/dispatch-mode-verification.md
+        action: "DELETE — content merged into reference card Pipeline Enforcement Rules section"
+      - path: skills/implementation-pipeline/enforcement/overflow-signal.md
+        action: "DELETE — content merged into reference card Artifact Retention Rules section"
+      - path: skills/implementation-pipeline/enforcement/work-state-verification.md
+        action: "DELETE — content merged into reference card Sub-agent Context Shape section"
+      - path: skills/implementation-pipeline/pipeline-state-machine.yaml
+        action: "DELETE — no replacement; plan step order IS the state machine"
+
+  CREATE_TARGET:
+    description: "New file to be created"
+    files:
       - path: skills/writing-plans/reference/implementation-workflow.md
-        role: "NEW — reference card with per-task cycle and dispatch strings"
-        change: "CREATE this file"
-        content_sections:
-          - "Per-task cycle definition (RED→GREEN→COMMIT)"
-          - "Full 17 canonical dispatch strings (pre-regression through exec-summary)"
-          - "Dispatch indicator semantics (inline/sub-agent/clean-room)"
-          - "Step labels and ordering"
-          - "Validation rules for plan consumers"
+        role: "Reference card — all 23 sections from implementation-pipeline"
+        sections:
+          - "Per-Task Cycle — step labels with dispatch indicators"
+          - "Canonical Dispatch Strings — all 17 step → task() mappings"
+          - "Dispatch Indicator Semantics — inline/sub-agent/clean-room"
+          - "Audit Sequence Protocol — audit → remediate → z3-check"
+          - "DISPATCH_GATE Protocol — orchestrator prompt rules, forbidden patterns"
+          - "Required Sub-agent Task File Discovery Directive"
+          - "Dispatch Context Contract — what to pass, what to exclude"
+          - "Pipeline Re-Priming Enforcement Block"
+          - "Orchestrator Entry Criteria"
+          - "DONE_WITH_CONCERNS Coercion Rule"
+          - "Remediation Routing — FAIL → research → re-dispatch"
+          - "Pipeline Enforcement Rules — all 13 rules"
+          - "Artifact Retention Rules — permanent/ephemeral/pre-cleanup"
+          - "Lifecycle Manifest Event Emission — YAML format"
+          - "Sub-agent Context Shape"
+          - "Worktree Mode — path prefix rule"
+
+  PRIMARY:
+    description: "Direct modification targets — plan-writer tasks"
+    files:
       - path: skills/writing-plans/tasks/create.md
         change: "Read reference card instead of loading implementation-pipeline TDT"
-        key_lines:
-          - "Line 14: replace 'loading implementation-pipeline skill' with 'read reference card'"
-          - "Line 32: replace 'Load the implementation-pipeline TDT' with 'Read the implementation-workflow reference card'"
       - path: skills/writing-plans/tasks/research.md
         change: "Read reference card for skill+task selection"
-        key_lines:
-          - "Line 36: replace 'Read the implementation-pipeline Trigger Dispatch Table' with 'Read the implementation-workflow reference card'"
       - path: skills/writing-plans/tasks/validate.md
-        change: "Verify against reference card"
-        key_lines:
-          - "Line 34: replace 'verify against implementation-pipeline TDT' with 'verify against reference card'"
+        change: "Validate against reference card"
       - path: skills/writing-plans/reference/plan-artifact-format.md
         change: "Update validation rule to reference reference card"
-        key_lines:
-          - "Line 91: replace 'implementation-pipeline/SKILL.md' with 'implementation-workflow.md'"
 
-  SECONDARY:
-    description: "Cross-reference update needed — references implementation-pipeline/SKILL.md for TDT content"
+  AUDIT_CROSS_REFS:
+    description: "Audit tasks — dispatch-string references → reference card"
     files:
       - path: skills/audit/tasks/plan-fidelity-evaluator.md
-        change: "Update cross-reference from implementation-pipeline/SKILL.md to reference card"
-        key_lines:
-          - "Line 118: 'Gate sequence matches Read [implementation-pipeline SKILL.md]'"
+        change: "Replace dispatch-string reference → reference card"
       - path: skills/audit/tasks/verification-audit-arbiter.md
-        change: "Update cross-reference to reference card"
+        change: "Replace dispatch-string reference → reference card"
       - path: skills/audit/tasks/verification-audit-investigator.md
-        change: "Update cross-reference to reference card"
+        change: "Replace dispatch-string reference → reference card"
       - path: skills/audit/tasks/verification-audit-evaluator.md
-        change: "Update cross-reference to reference card"
+        change: "Replace dispatch-string reference → reference card"
       - path: skills/audit/tasks/verification-audit-validator.md
-        change: "Update cross-reference to reference card"
-      - path: skills/approval-gate-scope/SKILL.md
-        change: "Review coercion rule reference — may need to preserve or redirect"
-        note: "Coercion rule stays in implementation-pipeline; cross-reference may remain unchanged"
-      - path: guidelines/065-verification-honesty.md
-        change: "Update reference to implementation-pipeline SKILL.md Trigger Dispatch Table for coercion rule"
+        change: "Replace dispatch-string reference → reference card"
 
-  TERTIARY:
-    description: "Name-only reference — reference implementation-pipeline as routing target, not for TDT content. No change needed."
+  GUIDELINE_CROSS_REFS:
+    description: "Guidelines — all refs updated to reference card"
+    files:
+      - path: guidelines/000-critical-rules.md
+        change: "3 critical rule blocks — update chain + path refs"
+        note: "Root repo guideline — updated via root repo"
+      - path: guidelines/065-verification-honesty.md
+        change: "All refs — TDT URL extraction, coercion rule, enforcement blocks → reference card"
+
+  SKILL_CROSS_REFS:
+    description: "Skills — coercion rule or path references"
+    files:
+      - path: skills/approval-gate-scope/SKILL.md
+        change: "DONE_WITH_CONCERNS coercion rule redirect → reference card"
+
+  TERTIARY_CHAIN_UPDATE:
+    description: "Pipeline chain update — implementation-pipeline → execute-plan"
+    change_pattern: "pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep → pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep"
     files:
       - path: skills/git-workflow-branch/tasks/pre-work.md
       - path: skills/git-workflow-branch/tasks/operating-protocol.md
@@ -98,9 +118,6 @@ categories:
       - path: skills/using-git-worktrees/tasks/reference.md
       - path: skills/finishing-a-development-branch/tasks/checklist.md
       - path: skills/approval-gate/SKILL.md
-      - path: skills/implementation-pipeline/enforcement/context-passing.md
-      - path: skills/implementation-pipeline/enforcement/work-state-verification.md
-      - path: skills/implementation-pipeline/enforcement/overflow-signal.md
       - path: skills/issue-operations-core/tasks/single-task-check.md
       - path: skills/git-workflow-pr/tasks/review-prep/push-and-cleanup.md
       - path: skills/writing-plans/SKILL.md
@@ -108,8 +125,6 @@ categories:
   EXCLUDED:
     description: "Not part of .opencode/ submodule or non-structural files"
     files:
-      - path: guidelines/000-critical-rules.md
-        reason: "Root repo guideline — not in .opencode/ submodule"
       - path: CHANGELOG.md
         reason: "Root repo file — informational only"
       - path: README.md
@@ -122,14 +137,29 @@ categories:
         reason: "Root repo throwaway script"
 
 file_count:
-  PRIMARY: 6
-  SECONDARY: 7
-  TERTIARY: 29
-  EXCLUDED: 6
-  total_checked: 48
+  DELETE_TARGET: 6
+  CREATE_TARGET: 1
+  PRIMARY: 4
+  AUDIT_CROSS_REFS: 5
+  GUIDELINE_CROSS_REFS: 2
+  SKILL_CROSS_REFS: 1
+  TERTIARY_CHAIN_UPDATE: 28
+  EXCLUDED: 5
+  total_modified: 47
+  total_checked: 52
 
 execution_order:
-  - phase: "Phase 3 — update SECONDARY files after implementation-pipeline SKILL.md is stripped"
-    files: [all SECONDARY files]
-  - phase: "Phase 4 — verify TERTIARY files need no change, purge any missed references"
-    files: [all TERTIARY files]
+  - phase: "Phase 1 — create reference card"
+    files: [CREATE_TARGET]
+  - phase: "Phase 2 — update PRIMARY files"
+    files: [PRIMARY]
+  - phase: "Phase 3 — update cross-refs before deletion"
+    order:
+      - "Step 1: AUDIT_CROSS_REFS (5 files)"
+      - "Step 2: GUIDELINE_CROSS_REFS (2 files)"
+      - "Step 3: SKILL_CROSS_REFS (1 file)"
+      - "Step 4: TERTIARY_CHAIN_UPDATE (28 files)"
+    delete_after:
+      - "Step 5: DELETE_TARGET (6 files) — only after all cross-refs verified"
+  - phase: "Phase 4 — cleanup + tests"
+    files: []

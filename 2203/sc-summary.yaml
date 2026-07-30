@@ -1,11 +1,11 @@
-sc_count: 10
+sc_count: 13
 scs:
   - id: "SC-1"
     description: "writing-plans/reference/implementation-workflow.md exists"
     evidence_type: "structural"
     plan_item: 1
   - id: "SC-2"
-    description: "Reference card contains all 17 canonical dispatch strings (pre-regression through exec-summary) from the implementation-pipeline Invocation section"
+    description: "Reference card contains all 23 content sections from implementation-pipeline"
     evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
@@ -21,22 +21,34 @@ scs:
     evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "plan-artifact-format.md validation rule (line 91) references the reference card"
+    description: "plan-artifact-format.md validation rule references the reference card"
     evidence_type: "string"
     plan_item: 6
   - id: "SC-7"
-    description: "implementation-pipeline/SKILL.md dispatch strings stripped, retains state management + enforcement + coercion rule"
+    description: "skills/implementation-pipeline/ deleted entirely — all files removed"
     evidence_type: "string + structural"
     plan_item: 7
   - id: "SC-8"
-    description: "Audit cross-references (plan-fidelity-evaluator, 4 verification-audit tasks) updated from implementation-pipeline/SKILL.md to reference card"
+    description: "ALL cross-references to skills/implementation-pipeline/ across .opencode/ updated"
     evidence_type: "string"
     plan_item: 8
   - id: "SC-9"
-    description: "Deprecated implementation-pipeline dispatch-string references purged across all .opencode/ files"
+    description: "Pipeline chain references updated — old chain replaced with pre-work → execute-plan → verification-before-completion → finishing-checklist → review-prep"
     evidence_type: "string"
     plan_item: 9
   - id: "SC-10"
-    description: "Behavioral enforcement tests exist for the new plan-writing workflow (create.md reads card, validate.md validates against card)"
+    description: "Behavioral enforcement tests exist for plan-writing workflow and delete-not-strip approach"
     evidence_type: "behavioral"
     plan_item: 10
+  - id: "SC-11"
+    description: "Coercion rule preserved — DONE_WITH_CONCERNS moves to reference card; consumer refs updated"
+    evidence_type: "string"
+    plan_item: 11
+  - id: "SC-12"
+    description: "State management guidance moved to reference card as optional section"
+    evidence_type: "structural"
+    plan_item: 12
+  - id: "SC-13"
+    description: "Enforcement directory contents merged into reference card or deleted; no orphaned references"
+    evidence_type: "string"
+    plan_item: 13

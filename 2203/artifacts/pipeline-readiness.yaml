@@ -1,0 +1,87 @@
+# Pipeline Readiness — #2203 (revised: delete-not-strip)
+# Generated: 2026-07-30
+
+phase_1_reference_card_creation:
+  items: [1, 2]
+  scs: [SC-1, SC-2]
+  preconditions:
+    - "Read current skills/implementation-pipeline/SKILL.md — extract all 23 sections"
+    - "Verify directory at skills/writing-plans/reference/ exists"
+  risks:
+    - "Content drift between read time and write time — snapshot once, write immediately"
+  readiness: READY
+
+phase_2_plan_writer_update:
+  items: [3, 4, 5, 6]
+  scs: [SC-3, SC-4, SC-5, SC-6]
+  preconditions:
+    - "Phase 1 complete (reference card exists with all content)"
+    - "Read current create.md, research.md, validate.md, plan-artifact-format.md"
+  risks:
+    - "Reference card content not yet final — must stabilize before Phase 2"
+  readiness: BLOCKED_ON Phase 1
+
+phase_3_delete_and_cross_refs:
+  items: [7, 8, 9, 11, 12]
+  scs: [SC-7, SC-8, SC-9, SC-11, SC-12]
+  sub_phases:
+    cross_reference_update:
+      order: 1
+      description: "Update ALL cross-references before deletion"
+      preconditions:
+        - "Phase 2 complete (plan-writer tasks reference card correctly)"
+      file_count: 45+
+      execution:
+        - "Sub-group (a): 5 audit tasks — replace dispatch-string refs"
+        - "Sub-group (b): 000-critical-rules.md — 3 critical rule blocks"
+        - "Sub-group (c): 065-verification-honesty.md — all refs"
+        - "Sub-group (d): approval-gate-scope/SKILL.md — coercion rule redirect"
+        - "Sub-group (e): 30+ tertiary files — pipeline chain updates"
+    enforcement_doc_merge:
+      order: 2
+      description: "Merge 4 enforcement/*.md files into reference card"
+      preconditions:
+        - "Cross-reference update complete (no in-flight refs to enforcement files)"
+      files:
+        - "context-passing.md → DISPATCH_GATE Protocol section"
+        - "dispatch-mode-verification.md → Pipeline Enforcement Rules section"
+        - "overflow-signal.md → Artifact Retention Rules section"
+        - "work-state-verification.md → Sub-agent Context Shape section"
+    deletion:
+      order: 3
+      description: "DELETE skills/implementation-pipeline/ directory"
+      preconditions:
+        - "All cross-references updated"
+        - "All enforcement content merged into card"
+      verification: "ls confirms directory absent"
+  readiness: BLOCKED_ON Phase 2
+
+phase_4_cleanup_and_tests:
+  items: [10, 13]
+  scs: [SC-10, SC-13]
+  preconditions:
+    - "Phase 3 complete (deletion happened, no cross-refs left)"
+  sub_phases:
+    behavioral_tests:
+      order: 1
+      description: "Write behavioral enforcement tests"
+      file_count: 2+
+      scenarios:
+        - "create.md reads reference card (not TDT)"
+        - "validate.md validates against reference card"
+        - "implementation-pipeline directory absent (delete-not-strip)"
+    orphan_sweep:
+      order: 2
+      description: "Final grep for any remaining skills/implementation-pipeline/ references"
+      command: "grep -r 'skills/implementation-pipeline/' .opencode/ --include='*.md' --include='*.yaml' --include='*.yml' --include='*.json' || echo 'CLEAN'"
+      success_criteria: "Zero matches"
+  readiness: BLOCKED_ON Phase 3
+
+overall_pipeline:
+  status: "Readiness assessment complete"
+  sequential_gates:
+    - "Phase 1 → Phase 2: reference card complete"
+    - "Phase 2 → Phase 3: plan-writer tasks updated"
+    - "Phase 3 → Phase 4: deletion complete, no cross-refs remain"
+  parallel_possible_within_phase:
+    - "Phase 4: behavioral tests (item 10) and orphan sweep (item 13) can run in parallel"

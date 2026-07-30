@@ -1,0 +1,80 @@
+# Blast Radius Analysis — #2203 (revised: delete-not-strip)
+# Generated: 2026-07-30
+
+scope: ".opencode/ submodule"
+change_type: "DELETE + CREATE + UPDATE (cross-references)"
+
+directly_affected:
+  - path: skills/implementation-pipeline/
+    impact: "DELETED entirely — 1 SKILL.md, 4 enforcement/*.md, pipeline-state-machine.yaml"
+    blast_radius: "Full removal — files no longer exist"
+  - path: skills/writing-plans/reference/implementation-workflow.md
+    impact: "CREATED — new reference card with all 23 sections"
+    blast_radius: "New file, no prior state"
+
+primary_cross_references:
+  - path: skills/writing-plans/tasks/create.md
+    impact: "Read reference card instead of loading implementation-pipeline TDT"
+    severity: "behavioral"
+  - path: skills/writing-plans/tasks/research.md
+    impact: "Read reference card for skill+task selection"
+    severity: "behavioral"
+  - path: skills/writing-plans/tasks/validate.md
+    impact: "Validate against reference card instead of implementation-pipeline TDT"
+    severity: "behavioral"
+  - path: skills/writing-plans/reference/plan-artifact-format.md
+    impact: "Replace validation rule cross-reference"
+    severity: "string"
+
+audit_cross_references:
+  - path: skills/audit/tasks/plan-fidelity-evaluator.md
+    impact: "Replace dispatch-string reference → reference card"
+    severity: "string"
+  - path: skills/audit/tasks/verification-audit-arbiter.md
+    impact: "Replace dispatch-string reference → reference card"
+    severity: "string"
+  - path: skills/audit/tasks/verification-audit-investigator.md
+    impact: "Replace dispatch-string reference → reference card"
+    severity: "string"
+  - path: skills/audit/tasks/verification-audit-evaluator.md
+    impact: "Replace dispatch-string reference → reference card"
+    severity: "string"
+  - path: skills/audit/tasks/verification-audit-validator.md
+    impact: "Replace dispatch-string reference → reference card"
+    severity: "string"
+
+guideline_cross_references:
+  - path: guidelines/000-critical-rules.md (root repo)
+    impact: "3 critical rule blocks — update chain reference and skill path refs"
+    severity: "string"
+  - path: guidelines/065-verification-honesty.md
+    impact: "All refs updated — TDT URL extraction, coercion rule, enforcement blocks → reference card"
+    severity: "string"
+  - path: guidelines/080-code-standards.md
+    impact: "Behavioral test mandate (reference only, no path change)"
+    severity: "reference"
+
+skill_cross_references:
+  - path: skills/approval-gate-scope/SKILL.md
+    impact: "DONE_WITH_CONCERNS coercion rule redirect → reference card"
+    severity: "string"
+  - path: skills/executing-plans/SKILL.md (tertiary)
+    impact: "Pipeline chain update: implementation-pipeline → execute-plan"
+    severity: "string"
+  - path: skills/approval-gate/SKILL.md (tertiary)
+    impact: "Pipeline chain update"
+    severity: "string"
+  - path: skills/git-workflow-branch/tasks/pre-work.md (tertiary)
+    impact: "Pipeline chain update"
+    severity: "string"
+  - path: skills/finishing-a-development-branch/tasks/checklist.md (tertiary)
+    impact: "Pipeline chain update"
+    severity: "string"
+
+behavioral_tests:
+  - path: ".opencode/tests-v2/behaviors/"
+    impact: "New test files for plan-writer workflow + delete-not-strip verification"
+    severity: "new"
+
+total_files_directly_modified: ~45
+total_files_deleted: 6 (1 SKILL.md + 4 enforcement/*.md + 1 pipeline-state-machine.yaml)
