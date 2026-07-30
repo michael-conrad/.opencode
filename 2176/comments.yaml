@@ -1,0 +1,5 @@
+authorization_records:
+  - author: "human"
+    scope: "for_plan"
+    text: "execute verify-authorization from approval-gate-scope"
+    timestamp: "2026-07-29T23:51:00Z"
