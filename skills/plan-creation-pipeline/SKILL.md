@@ -66,7 +66,7 @@ Every task context MUST include the authorization context block (see `plan-creat
 
 ## Sub-Agent Routing
 
-All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include `audit_phase` in task context when routing auditors. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
 Exclusions: implementation context, agent memory, cached verification results.
 

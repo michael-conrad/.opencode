@@ -29,7 +29,7 @@ The per-task cycle steps are discovered at runtime by loading the `implementatio
 
 ## Procedure
 
-1. **Load the implementation-pipeline TDT.** Call `skill({name: "implementation-pipeline"})` and read the Trigger Dispatch Table. Extract the per-task cycle steps — these are the rows that form the RED→GREEN→COMMIT cycle for a single task. The TDT is the single authoritative source for what steps exist. Do NOT hardcode or assume any step ordering.
+1. **Load the implementation-pipeline TDT.** Read the Trigger Dispatch Table. Extract the per-task cycle steps — these are the rows that form the RED→GREEN→COMMIT cycle for a single task. The TDT is the single authoritative source for what steps exist. Do NOT hardcode or assume any step ordering.
 
 2. **Read the structure artifact** from `{issues_prefix}/{N}/artifacts/structure.yaml`.
    - If missing: return BLOCKED with `STRUCTURE_ARTIFACT_NOT_FOUND`.

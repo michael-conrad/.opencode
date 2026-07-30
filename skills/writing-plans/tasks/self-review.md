@@ -29,7 +29,7 @@ Scan the plan at `{issues_prefix}/{N}/plan.md` for placeholder patterns, SC cove
 
 ## Procedure
 
-1. **Load the implementation-pipeline TDT.** Call `skill({name: "implementation-pipeline"})` and read the Trigger Dispatch Table. Extract the per-task cycle steps — these are the rows that form the RED→GREEN→COMMIT cycle for a single task. The TDT is the single authoritative source for what steps exist. Do NOT hardcode or assume any step ordering.
+1. **Load the implementation-pipeline TDT.** Read the Trigger Dispatch Table. Extract the per-task cycle steps — these are the rows that form the RED→GREEN→COMMIT cycle for a single task. The TDT is the single authoritative source for what steps exist. Do NOT hardcode or assume any step ordering.
 
 2. **Read the plan file** from `{issues_prefix}/{N}/plan.md`. Extract all task sections and their step lists.
 

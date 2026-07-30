@@ -100,8 +100,8 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] If issues remain open after verified merge, close them with a comment referencing the merged PR
 
 ### Post-Merge Cleanup Verification
-- [ ] `skill({name: "git-workflow", args: "--task cleanup"})` invoked after PR merge confirmation (CRITICAL — skipping is a guideline violation)
-- [ ] 🚫 FORBIDDEN: Reading cleanup task files into context and task()ing a generic sub-agent with custom step-by-step instructions. This is a critical-rules-048 violation. The ONLY permitted invocation is `skill({name: "git-workflow", args: "--task cleanup"})`.
+- [ ] Dispatch `git-workflow --task cleanup` after PR merge confirmation (CRITICAL — skipping is a guideline violation)
+- [ ] 🚫 FORBIDDEN: Reading cleanup task files into context and task()ing a generic sub-agent with custom step-by-step instructions. This is a critical-rules-048 violation. The ONLY permitted invocation is dispatching `git-workflow --task cleanup`.
 - [ ] Local trunk branch synced with origin/$DEFAULT_BRANCH (trunk HEAD matches origin/$DEFAULT_BRANCH HEAD)
 - [ ] Merged feature branch deleted (local and remote)
 - [ ] No stale worktrees remaining from the merged branch

@@ -65,7 +65,7 @@ The `merged_in_repo` and `submodule_context` fields are REQUIRED inputs to `issu
 
 After verifying the PR merge and before switching to dev, rebase all other open PRs onto the updated `dev` branch.
 
-Invoke: `` `skill({name: "git-workflow"})` `` then `` `task(..., prompt: "execute rebase-pending task from git-workflow")` ``
+Invoke: dispatch `git-workflow` with `task(..., prompt: "execute rebase-pending task from git-workflow")`
 
 Summary:
 1. List all open PRs: `github_list_pull_requests(owner, repo, state="open")`

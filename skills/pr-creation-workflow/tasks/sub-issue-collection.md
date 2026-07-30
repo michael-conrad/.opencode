@@ -35,7 +35,7 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
    ```
 
 - [ ] 3. **Include ALL issues in PR body using closing-keywords task:**
-   Use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format closing keyword lines. Determine repo ownership for each issue:
+   Use `pr-creation-workflow` → `task("execute closing-keywords from pr-creation-workflow")` to format closing keyword lines. Determine repo ownership for each issue:
    - Issues in the same repo as the PR → `Fixes #N`
    - Issues in a different repo (e.g., submodule issues) → `Fixes owner/repo#N`
    ```markdown
@@ -54,7 +54,7 @@ For work PRs (assembled from multiple issues via the implementation-pipeline per
 - [ ] 1. **Read work state file** (`{project_root}/tmp/{issue-N}/work.md`) to get list of all issues in the work
 - [ ] 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
-   - `Fixes #N` annotations for all issues at the bottom (use `skill({name: "pr-creation-workflow"})` → `task("execute closing-keywords from pr-creation-workflow")` to format)
+   - `Fixes #N` annotations for all issues at the bottom (use `pr-creation-workflow` → `task("execute closing-keywords from pr-creation-workflow")` to format)
 
 ```markdown
 **Summary:**
