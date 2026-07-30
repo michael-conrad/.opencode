@@ -53,6 +53,12 @@ body: "## Problem\n\nThe `spec-audit-validator` task applies `spec-passed-review
   \ SC-1b, SC-3, SC-4 |\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md`\
   \ — Remove Step 0.1 label application\n- `.opencode/skills/audit/tasks/spec-audit-evaluator.md`\
   \ — Remove Step 4 label application (keep Step 0.1 `spec-under-review`)\n- `.opencode/skills/audit/tasks/spec-audit-arbiter.md`\
-  \ — Add label application step gated on clean PASS\n\n## Dependencies\n\nNone.\n"
+  \ — Add label application step gated on clean PASS\n\n## Dependencies\n\nNone.\n\
+  \n\n## Change Control\n\n| Date | Change | Reason | Author |\n|------|--------|--------|--------|\n\
+  | 2026-07-29 | Split SC-1 into SC-1a (structural) and SC-1b (string); added R12\
+  \ requirement with traceability; renumbered SC-2→SC-3, SC-3→SC-4; added Requirements,\
+  \ Traceability, Items, Phases sections | Validation findings: (1) R12 traceability\
+  \ gap, (2) SC-1 non-atomic, (3) SC-1 evidence type mismatch | spec-creation revise\
+  \ pipeline |\n\n"
 created_at: '2026-07-29T23:56:28+00:00'
-updated_at: '2026-07-30T00:17:09+00:00'
+updated_at: '2026-07-30T00:17:45+00:00'
