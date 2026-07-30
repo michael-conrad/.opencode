@@ -31,7 +31,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ## Phase 1: Scan for Merged PRs
 
-- [ ] Build repo list from session-init values plus `git submodule status`
+- [ ] Build repo list from `git submodule status`
 - [ ] For each repo, query merged PRs via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_list_pull_requests` filtered by `merged_at`, `gitbucket` → `gb pr list` filtered by `merged`, `local` → no PRs exist, skip)
 - [ ] Report all merged PRs found with PR number, title, branch, and merged_at timestamp
 - [ ] If no merged PRs found: report and HALT
