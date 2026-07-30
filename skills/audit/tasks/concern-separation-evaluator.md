@@ -467,7 +467,6 @@ needs_clean_room: [SC-IDs]
 
 - `tasks/concern-separation-investigator.md` — Investigator role (produces evidence.yaml)
 - `tasks/concern-separation-validator.md` — upstream reasoning role role (produces reasoning.yaml)
-- `tasks/cross-validate.md` — Arbiter (final judgment, consumes verdict.yaml)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 

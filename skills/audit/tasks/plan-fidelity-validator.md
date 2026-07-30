@@ -296,7 +296,6 @@ summary: "Evidence validated: {validated_count}/{total_items} items confirmed. {
 
 - `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Evaluator role (consumes this task's `reasoning.yaml`)
-- `tasks/resolve-models.md` — Arbiter role reference (consumes `reasoning.yaml`)
 - `audit/SKILL.md` — chain dispatch (Investigator → Validator → Evaluator → Arbiter)
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)
 

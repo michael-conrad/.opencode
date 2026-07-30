@@ -252,8 +252,6 @@ remediation_required: true | false
 - `tasks/plan-fidelity-validator.md` — Validator role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity-evaluator.md` — Evaluator role (produces `verdict.yaml` consumed by this task)
 - `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
-- `tasks/cross-validate.md` — Sole Arbiter for verification-audit (reference implementation)
-- `tasks/resolve-models.md` — Arbiter role reference documentation
 - `audit/SKILL.md` — chain dispatch (Investigator → Validator → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
 - `guidelines/000-critical-rules.md` — critical-rules-020 (soft-passing prohibition), critical-rules-hard-fail, critical-rules-034 (inline work prohibition)

@@ -387,7 +387,6 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/coherence-maintenance.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - `tasks/coherence-extraction.md` — baseline generation (prerequisite for this task)
-- `tasks/cross-validate.md` — Arbiter role (consumes all upstream artifacts)
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

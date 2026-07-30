@@ -57,11 +57,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
 | "z3-check" / "solve check" | `z3-check` | `solve --task check` | `inline` | {issue_number, contract_path} |
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `finishing-a-development-branch --task checklist` | `sub-task` | {issue_number} |
-| "sc-count-gate" / "SC count gate" | `sc-count-gate` | Reads `sc-summary.yaml` total SC count, counts verified SCs from VbC evidence, BLOCKs if `verified_count < total_count` (any SC has no verdict) | `sub-task` | {issue_number} |
 | "pre-pr-gate" / "pre-PR gate" | `pre-pr-gate` | `verification-before-completion --task verify` — reads all SC verdicts, BLOCKs if any FAIL | `sub-task` | {issue_number} |
 | "rationalization-check" / "check for rationalization" | `rationalization-check` | `verification-before-completion --task verify` — dispatches clean-room sub-agent to evaluate whether proposed action is a rationalization. Sub-agent receives ONLY proposed action + rule text. Returns BLOCKED with REMEDIATION_MANDATORY if rationalization detected. | `sub-task` | {issue_number, proposed_action, rule_text} |
 | "regression-check" / "regression tests" | `regression-check` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
-| "behavioral-test-remediation" / "remediate behavioral test" | `behavioral-test-remediation` | `implementation-pipeline --task behavioral-test-remediation` | `sub-task` | {issue_number, test_artifact_path, sc_list} |
 | "review-prep" / "prepare review" | `review-prep` | `git-workflow --task review-prep` | `sub-task` | {issue_number} |
 | "create-pr" / "create pull request" | `create-pr` | `pr-creation-workflow --task create` | `sub-task` | {issue_number, authorization_scope, halt_at} |
 | "exec-summary" / "completion" | `exec-summary` | `completion-core --task completion` | `sub-task` | {issue_number} |
@@ -72,13 +70,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Trigger Dispatch Table.
 - [ ] 3. On clean PASS: run inline Z3 check via `.opencode/tools/solve check --state-path ... --contract-path ...`
 
-## Pre-Flight
-
-Read [pre-flight verification and authorization context requirements](implementation-pipeline/tasks/pre-flight.md)
-
 ## Step Labels (for #932 naming convention)
 
-`assemble-work`, `pre-regression`, `pre-regression-verify`, `red`, `green`, `post-regression`, `verify`, `commit-inline`, `audit`, `z3-check`, `structural-checks`, `sc-count-gate`, `pre-pr-gate`, `rationalization-check`, `regression-check`, `behavioral-test-remediation`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
+`pre-regression`, `pre-regression-verify`, `red`, `green`, `post-regression`, `verify`, `commit-inline`, `audit`, `z3-check`, `structural-checks`, `pre-pr-gate`, `rationalization-check`, `regression-check`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
 
 ## Invocation
 
@@ -106,10 +100,8 @@ Steps that route to owning skills use the owning skill's canonical dispatch stri
 | `audit` | `task(..., prompt: "execute audit from audit. Read \`audit/tasks/verification-audit.md\` first")` |
 | `z3-check` | Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly — no sub-agent dispatch |
 | `structural-checks` | `task(..., prompt: "execute checklist from finishing-a-development-branch. Read \`finishing-a-development-branch/tasks/checklist.md\` first")` |
-| `sc-count-gate` | `task(..., prompt: "execute sc-count-gate from implementation-pipeline. Read \`implementation-pipeline/tasks/sc-count-gate.md\` first")` — reads `sc-summary.yaml` total, counts verified SCs, BLOCKs if `verified_count < total_count` |
 | `pre-pr-gate` | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` — reads all SC verdicts, BLOCKs if any FAIL |
 | `regression-check` | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
-| `behavioral-test-remediation` | `task(..., prompt: "execute behavioral-test-remediation from implementation-pipeline. Read \`implementation-pipeline/tasks/behavioral-test-remediation.md\` first")` |
 | `review-prep` | `task(..., prompt: "execute review-prep from git-workflow. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
 | `create-pr` | `task(..., prompt: "execute create from pr-creation-workflow. Read \`pr-creation-workflow/tasks/create.md\` first")` |
 | `exec-summary` | `task(..., prompt: "execute completion from completion-core. Read \`completion-core/tasks/completion.md\` first")` |
@@ -251,10 +243,8 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
 | `z3-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-*` |
 | `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
-| `sc-count-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-sc-count-gate-*` |
 | `pre-pr-gate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-pr-gate-*` |
 | `regression-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
-| `behavioral-test-remediation` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-behavioral-test-remediation-*` |
 
 ## Lifecycle Manifest Event Emission
 
