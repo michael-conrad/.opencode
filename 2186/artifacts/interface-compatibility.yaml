@@ -1,0 +1,76 @@
+# Interface Compatibility — Issue .opencode#2186
+# Lifecycle label placement: Validator/Evaluator → Arbiter
+
+artifact_type: interface_compatibility
+issue_number: 2186
+generated_at: "2026-07-29T20:09:00Z"
+spec: ".opencode/.issues/2186/spec.md"
+
+## Interface Analysis
+
+interface_changes: []
+
+## Dispatch Contract Verification
+
+dispatch_contracts:
+  - role: "spec-audit-validator"
+    file: ".opencode/skills/audit/tasks/spec-audit-validator.md"
+    current_parameters:
+      - artifact_evidence_dir
+      - spec_local_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+    change: "REMOVE Step 0.1 (label operations)"
+    parameter_change: "none"
+    notes: "Validator still receives spec_issue_number, github.owner, github.repo — but no longer uses them for label operations. Parameters remain in dispatch contract for consistency (orchestrator provides same contract to all roles)."
+
+  - role: "spec-audit-evaluator"
+    file: ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
+    current_parameters:
+      - spec_local_dir
+      - artifact_evidence_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+      - blast_radius_path (optional)
+      - concern_map_path (optional)
+      - code_path_inventory_path (optional)
+      - cross_cutting_matrix_path (optional)
+      - interface_compatibility_path (optional)
+      - state_analysis_path (optional)
+      - testability_assessment_path (optional)
+      - failure_description (optional)
+    change: "REMOVE Step 4 label block (preserve Step 0.1 spec-under-review)"
+    parameter_change: "none"
+    notes: "Evaluator still applies spec-under-review at Step 0.1 — no parameter change needed."
+
+  - role: "spec-audit-arbiter"
+    file: ".opencode/skills/audit/tasks/spec-audit-arbiter.md"
+    current_parameters:
+      - spec_local_dir
+      - artifact_evidence_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+    change: "ADD new step after Step 8 (label operations gated on PASS)"
+    parameter_change: "none"
+    notes: >
+      Arbiter already receives spec_issue_number, github.owner, and github.repo in its
+      dispatch contract. These are the only parameters needed for label API calls.
+      No new parameters required.
+
+## Parameter Sufficiency
+
+parameter_sufficiency:
+  arbiter_has_spec_issue_number: true
+  arbiter_has_github_owner: true
+  arbiter_has_github_repo: true
+  new_parameters_required: false
+  notes: "The Arbiter's existing dispatch contract already contains all parameters needed for label operations. spec_issue_number identifies the target issue. github.owner and github.repo identify the repository for platform API routing."
+
+## Backward Compatibility
+
+backward_compatibility:
+  breaking_changes: false
+  notes: "No interface changes. All 3 roles retain their existing dispatch contracts. The Arbiter gains a new step but no new parameters. The Validator and Evaluator lose steps but their contracts are unchanged."

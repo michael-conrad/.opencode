@@ -12,22 +12,22 @@ affected_skills:
     affected_task_files:
       - path: tasks/cleanup/branch-cleanup.md
         occurrences: 1
-        line: 189
+        area: submodule detection variable assignment
         context: code-block (variable assignment)
         sc: SC-1
       - path: tasks/cleanup/issue-closure.md
         occurrences: 1
-        line: 295
+        area: submodule detection variable assignment
         context: code-block (variable assignment)
         sc: SC-2
       - path: tasks/check-pr.md
         occurrences: 2
-        lines: [34, 112]
+        areas: [submodule detection prose (first occurrence), submodule detection prose (second occurrence)]
         context: prose/checklist
         sc: [SC-3, SC-4]
       - path: tasks/cleanup.md
         occurrences: 1
-        line: 42
+        area: submodule detection variable assignment
         context: code-block (variable assignment)
         sc: SC-5
   - name: git-workflow-branch
@@ -35,17 +35,17 @@ affected_skills:
     affected_task_files:
       - path: tasks/operating-protocol.md
         occurrences: 1
-        line: 26
+        area: submodule detection variable assignment
         context: code-block (variable assignment)
         sc: SC-6
       - path: tasks/pre-work.md
         occurrences: 1
-        line: 108
-        context: prose/checklist
+        area: submodule detection variable assignment
+        context: code-block (variable assignment)
         sc: SC-7
       - path: tasks/provenance.md
         occurrences: 1
-        line: 17
+        area: submodule detection prose
         context: prose (entry criteria)
         sc: SC-8
 

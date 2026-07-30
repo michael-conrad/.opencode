@@ -1,0 +1,50 @@
+sc_count: 12
+scs:
+  - id: "SC-1"
+    description: "skills/implementation-verification/SKILL.md exists with valid frontmatter (name, description, license, provenance)"
+    evidence_type: structural
+    plan_item: 1
+  - id: "SC-2"
+    description: "SKILL.md has Workflows section describing 5 sequential task() dispatches: 4 DiMo roles + 1 routing"
+    evidence_type: string
+    plan_item: 1
+  - id: "SC-3"
+    description: "SKILL.md has Trigger Dispatch Table with implementation-verification entry"
+    evidence_type: string
+    plan_item: 1
+  - id: "SC-4"
+    description: "SKILL.md has Invocation section with canonical dispatch strings for all 5 tasks"
+    evidence_type: string
+    plan_item: 1
+  - id: "SC-5"
+    description: "tasks/verify-implementation-investigator.md exists with DiMo Investigator procedure"
+    evidence_type: structural
+    plan_item: 2
+  - id: "SC-6"
+    description: "tasks/verify-implementation-validator.md exists with DiMo Validator procedure"
+    evidence_type: structural
+    plan_item: 3
+  - id: "SC-7"
+    description: "tasks/verify-implementation-evaluator.md exists with DiMo Evaluator procedure"
+    evidence_type: structural
+    plan_item: 4
+  - id: "SC-8"
+    description: "tasks/verify-implementation-arbiter.md exists with DiMo Arbiter procedure"
+    evidence_type: structural
+    plan_item: 5
+  - id: "SC-9"
+    description: "tasks/route-verdict.md exists with 3-way routing logic (ALL PASS -> close, PARTIAL -> remediate, ALL FAIL -> normal pipeline)"
+    evidence_type: structural
+    plan_item: 6
+  - id: "SC-10"
+    description: "approval-gate/SKILL.md TDT has entry auto-dispatching to implementation-verification --task verify-implementation on approval"
+    evidence_type: string
+    plan_item: 7
+  - id: "SC-11"
+    description: "approval-gate-scope/SKILL.md full-path workflow Step 13 dispatches to implementation-verification instead of inline verify-already-implemented"
+    evidence_type: string
+    plan_item: 8
+  - id: "SC-12"
+    description: "auto-dispatch.md routing table handles 3-way verdict (ALL PASS, PARTIAL, ALL FAIL) from implementation-verification"
+    evidence_type: string
+    plan_item: 9

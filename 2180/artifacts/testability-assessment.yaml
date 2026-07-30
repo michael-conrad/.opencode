@@ -11,19 +11,19 @@ test_cases:
   - id: TC-1
     sc: SC-1
     file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
-    line: 189
+    area: submodule detection variable assignment
     old_pattern: "ls -d .git/ */.git/ */.git"
     new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
     verification_command: |
-      # Verify old pattern is absent
+      # Verify old pattern is absent from branch-cleanup.md submodule detection section
       grep -n "ls -d \.git/" .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md && echo "FAIL: old pattern still present" || echo "PASS: old pattern removed"
-      # Verify new pattern is present
+      # Verify new pattern is present in branch-cleanup.md submodule detection section
       grep -n "git submodule status" .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md | grep "awk" && echo "PASS: new pattern present" || echo "FAIL: new pattern not found"
 
   - id: TC-2
     sc: SC-2
     file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md
-    line: 295
+    area: submodule detection variable assignment
     old_pattern: "ls -d .git/ */.git/ */.git"
     new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
     verification_command: |
@@ -33,7 +33,7 @@ test_cases:
   - id: TC-3
     sc: SC-3
     file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
-    line: 34
+    area: submodule detection prose (first occurrence)
     old_pattern: "ls -d .git/ */.git/ */.git/"
     new_pattern: "git submodule status"
     verification_command: |
@@ -43,7 +43,7 @@ test_cases:
   - id: TC-4
     sc: SC-4
     file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
-    line: 112
+    area: submodule detection prose (second occurrence)
     old_pattern: "ls -d .git/ */.git/ */.git/"
     new_pattern: "git submodule status"
     verification_command: |
@@ -54,7 +54,7 @@ test_cases:
   - id: TC-5
     sc: SC-5
     file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
-    line: 42
+    area: submodule detection variable assignment
     old_pattern: "ls -d .git/ */.git/ */.git"
     new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
     verification_command: |
@@ -64,7 +64,7 @@ test_cases:
   - id: TC-6
     sc: SC-6
     file: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
-    line: 26
+    area: submodule detection variable assignment
     old_pattern: "ls -d .git/ */.git/ */.git"
     new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
     verification_command: |
@@ -74,7 +74,7 @@ test_cases:
   - id: TC-7
     sc: SC-7
     file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
-    line: 108
+    area: submodule detection variable assignment
     old_pattern: "ls -d .git/ */.git/ */.git"
     new_pattern: "git submodule status 2>/dev/null | awk '{print $2}'"
     verification_command: |
@@ -84,7 +84,7 @@ test_cases:
   - id: TC-8
     sc: SC-8
     file: .opencode/skills/git-workflow-branch/tasks/provenance.md
-    line: 17
+    area: submodule detection prose
     old_pattern: "ls -d .git/ */.git/ */.git"
     new_pattern: "git submodule status"
     verification_command: |

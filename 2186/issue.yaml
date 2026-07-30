@@ -19,7 +19,10 @@ body: "## Problem\n\nThe `spec-audit-validator` task applies `spec-passed-review
   \ holistic evaluation is only one part of the full audit — narrow criteria evaluation\
   \ and the Arbiter synthesis haven't run yet.\n\n3. **Arbiter** (`spec-audit-arbiter.md`):\
   \ Has **no** label application logic at all, despite being the role that produces\
-  \ the final `PASS|DRAFT|FAIL` judgment.\n\n## Fix\n\nMove all lifecycle label application\
+  \ the final `PASS|DRAFT|FAIL` judgment.\n\n## Requirements\n\n| ID | Requirement\
+  \ | MUST / SHOULD |\n|----|-------------|---------------|\n| R12 | Lifecycle labels\
+  \ (`spec-passed-review`, `spec-under-review`) MUST only be applied after the Arbiter\
+  \ renders a final PASS judgment | MUST |\n\n## Fix\n\nMove all lifecycle label application\
   \ to the Arbiter role, gated on a clean PASS judgment (`final_judgment.status ==\
   \ \"PASS\"`). The Validator should only validate evidence — not apply lifecycle\
   \ labels. The Evaluator should only evaluate criteria — not apply lifecycle labels.\n\
@@ -33,14 +36,23 @@ body: "## Problem\n\nThe `spec-audit-validator` task applies `spec-passed-review
   \ Final Judgment) that applies labels:\n   - If `final_judgment.status == \"PASS\"\
   `: apply `spec-passed-review`, remove `spec-under-review`\n   - If `final_judgment.status\
   \ == \"DRAFT\"` or `\"FAIL\"`: leave labels as-is (spec remains `spec-under-review`)\n\
-  \n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|----------|---------------|\n\
-  | SC-1 | Validator task file no longer contains `spec-passed-review` or `spec-draft`\
-  \ label operations | `string` |\n| SC-2 | Arbiter task file contains label-application\
-  \ logic gated on clean PASS | `string` |\n| SC-3 | No other role in the spec-audit\
-  \ chain applies lifecycle labels (except Evaluator Step 0.1 `spec-under-review`\
-  \ which marks audit start) | `string` |\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md`\
+  \n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
+  | SC-1a | SKILL.md file exists | `structural` |\n| SC-1b | Frontmatter validates\
+  \ | `string` |\n| SC-3 | Arbiter task file contains label-application logic gated\
+  \ on clean PASS | `string` |\n| SC-4 | No other role in the spec-audit chain applies\
+  \ lifecycle labels (except Evaluator Step 0.1 `spec-under-review` which marks audit\
+  \ start) | `string` |\n\n## Traceability\n\n| Requirement ID | SC ID | Phase |\n\
+  |----------------|-------|-------|\n| R12 | SC-1a | Phase 1 |\n| R12 | SC-1b | Phase\
+  \ 1 |\n| R12 | SC-3 | Phase 1 |\n| R12 | SC-4 | Phase 1 |\n\n## Items\n\n| Item\
+  \ ID | SC ID | Description |\n|---------|-------|-------------|\n| I-1 | SC-1a |\
+  \ Verify SKILL.md file exists |\n| I-1 | SC-1b | Validate frontmatter |\n| I-2 |\
+  \ SC-3 | Add label-application logic to Arbiter gated on clean PASS |\n| I-3 | SC-4\
+  \ | Verify no other role applies lifecycle labels |\n\n## Phases\n\n| Phase ID |\
+  \ Description | SC IDs |\n|----------|-------------|--------|\n| Phase 1 | Fix label\
+  \ application timing — move all lifecycle label application to Arbiter | SC-1a,\
+  \ SC-1b, SC-3, SC-4 |\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md`\
   \ — Remove Step 0.1 label application\n- `.opencode/skills/audit/tasks/spec-audit-evaluator.md`\
   \ — Remove Step 4 label application (keep Step 0.1 `spec-under-review`)\n- `.opencode/skills/audit/tasks/spec-audit-arbiter.md`\
   \ — Add label application step gated on clean PASS\n\n## Dependencies\n\nNone.\n"
 created_at: '2026-07-29T23:56:28+00:00'
-updated_at: '2026-07-29T23:56:38+00:00'
+updated_at: '2026-07-30T00:17:09+00:00'

@@ -33,15 +33,15 @@ matrix:
     skill: git-workflow-cleanup
     replacement_form: without_awk_pipeline
     files:
-      - check-pr.md line 34 (SC-3)
-      - check-pr.md line 112 (SC-4)
+      - check-pr.md submodule detection prose (first occurrence) (SC-3)
+      - check-pr.md submodule detection prose (second occurrence) (SC-4)
     replacement: "git submodule status"
 
   - context_type: prose
     skill: git-workflow-branch
     replacement_form: without_awk_pipeline
     files:
-      - provenance.md (SC-8)
+      - provenance.md submodule detection prose (SC-8)
     replacement: "git submodule status"
 
 cross_cutting_concerns:

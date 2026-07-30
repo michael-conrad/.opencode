@@ -7,7 +7,7 @@ old_pattern_regex: "ls -d \\.git/.*\\.git"
 occurrences:
   - id: OCC-1
     file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
-    line: 189
+    area: submodule detection variable assignment
     full_line: "REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\\.git$||' | sed 's|/$||')"
     context_type: code-block
     downstream_usage: |
@@ -17,7 +17,7 @@ occurrences:
 
   - id: OCC-2
     file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure.md
-    line: 295
+    area: submodule detection variable assignment
     full_line: "REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\\.git$||' | sed 's|/$||')"
     context_type: code-block
     downstream_usage: |
@@ -27,27 +27,26 @@ occurrences:
 
   - id: OCC-3
     file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
-    line: 34
+    area: submodule detection prose (first occurrence)
     full_line: "- [ ] Build repo list from session-init values plus filesystem glob scan: `ls -d .git/ */.git/ */.git/`"
     context_type: prose/checklist
     downstream_usage: |
-      Checklist item describing Phase 1 repo list construction.
-      The repo list feeds into merged PR queries per platform.
+      Checklist item describing repo list construction for merged PR queries.
     sc: SC-3
 
   - id: OCC-4
     file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
-    line: 112
+    area: submodule detection prose (second occurrence)
     full_line: "- [ ] Detect submodules via filesystem glob scan: `ls -d .git/ */.git/ */.git/`"
     context_type: prose/checklist
     downstream_usage: |
-      Checklist item describing Phase 4 submodule detection.
+      Checklist item describing submodule detection for branch cleanup.
       Submodules are cleaned up (trunk switch, branch delete, tag delete, prune).
     sc: SC-4
 
   - id: OCC-5
     file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
-    line: 42
+    area: submodule detection variable assignment
     full_line: "REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\\.git$||' | sed 's|/$||')"
     context_type: code-block
     downstream_usage: |
@@ -57,7 +56,7 @@ occurrences:
 
   - id: OCC-6
     file: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
-    line: 26
+    area: submodule detection variable assignment
     full_line: "**Suffix Rule:** Tag suffix MUST be derived from the discovered repo's directory name (e.g., `.opencode` -> `-opencode`). Use glob scan to discover repo directories: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\\.git$||' | sed 's|/$||')`."
     context_type: code-block
     downstream_usage: |
@@ -67,9 +66,9 @@ occurrences:
 
   - id: OCC-7
     file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
-    line: 108
+    area: submodule detection variable assignment
     full_line: "- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\\.git$||' | sed 's|/$||')`."
-    context_type: prose/checklist
+    context_type: code-block
     downstream_usage: |
       Checklist item for submodule initialization check.
       If non-root repos found, submodule sync is deferred to sub-agent task().
@@ -77,7 +76,7 @@ occurrences:
 
   - id: OCC-8
     file: .opencode/skills/git-workflow-branch/tasks/provenance.md
-    line: 17
+    area: submodule detection prose
     full_line: "- Glob scan detects non-root git repos at project root (`ls -d .git/ */.git/ */.git`)"
     context_type: prose (entry criteria)
     downstream_usage: |

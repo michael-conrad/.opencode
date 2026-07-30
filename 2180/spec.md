@@ -1,38 +1,53 @@
-> **Full spec and artifacts: [`.opencode#2180`](https://github.com/michael-conrad/.opencode/tree/issues-data/2180)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
->
-> **Local artifacts:** `.opencode/.issues/2180/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
-
 # [SPEC-FIX] Replace `ls -d .git/` glob with `git submodule status` for submodule detection
 
-## Objective
+## Intent and Executive Summary
 
-Replace all 8 occurrences of the `ls -d .git/ */.git/ */.git/` glob pattern across 7 task files in `git-workflow-cleanup` and `git-workflow-branch` with `git submodule status`, which correctly detects submodules whose `.git` is a gitdir file rather than a directory.
+### Problem Statement
+The `ls -d .git/ */.git/ */.git/` glob pattern used across 7 task files in `git-workflow-cleanup` and `git-workflow-branch` fails to detect submodules whose `.git` is a gitdir file (e.g., `.opencode/.git` contains `gitdir: ../.git/modules/.opencode`) rather than a directory. The trailing slash in the glob requires directory entries — files are not matched. This causes the `check-pr` sub-agent to report "No submodule `.git/` dirs found" despite `.opencode/.git/` existing, leading to skipped submodule cleanup.
 
-## Background
+### Root Cause / Motivation
+The glob pattern `ls -d .git/ */.git/ */.git/` uses trailing slashes, which in POSIX globbing require the matched path to be a directory. When git submodules are checked out as submodule repos, their `.git` entry is a gitdir file (containing a pointer like `gitdir: ../.git/modules/.opencode`), not a directory. The glob silently returns nothing for these entries, and the submodule detection logic proceeds as if no submodules exist.
 
-The glob pattern `ls -d .git/ */.git/ */.git/` fails when a submodule's `.git` is a gitdir file (e.g., `.opencode/.git` contains `gitdir: ../.git/modules/.opencode`) rather than a directory. The trailing slash in the glob requires directory entries — files are not matched. This caused the `check-pr` sub-agent to report "No submodule `.git/` dirs found" despite `.opencode/.git/` existing, leading to skipped submodule cleanup.
+The defect-discovery-latency (DDL) cost: this defect was discovered in production when the `check-pr` sub-agent skipped submodule cleanup, leaving stale worktree state. The cost of the behavioral test that would have caught it (running `ls -d .git/` against a gitdir-file submodule) is near-zero. The cost of the production incident (manual cleanup, investigation time, delayed PRs) is orders of magnitude higher.
 
-`git submodule status` is the canonical git command for submodule detection. It works regardless of whether `.git` is a directory or a gitdir file, and it also provides the submodule SHA and dirty status.
+### Approach Chosen
+Replace all 8 occurrences of the `ls -d .git/ */.git/ */.git/` glob pattern with `git submodule status`, the canonical git command for submodule detection. `git submodule status` works regardless of whether `.git` is a directory or a gitdir file, and also provides the submodule SHA and dirty status.
+
+### Alternatives Considered & Why Discarded
+- **Keep glob but remove trailing slash**: Would match both directories and files, but would also match non-submodule `.git` entries (e.g., the parent repo's `.git`). Discarded because it introduces false positives.
+- **Use `find -name .git`**: Would recursively search all directories, potentially matching nested git repos. Discarded because it's less precise than `git submodule status`.
+- **Use `git config --file .gitmodules --get-regexp`**: Would parse `.gitmodules` directly but would miss submodules that are initialized but not yet in `.gitmodules`. Discarded because `git submodule status` is the canonical, maintained interface.
+
+### Key Design Decisions
+- Code-block contexts use `git submodule status 2>/dev/null | awk '{print $2}'` to extract submodule paths from the status output.
+- Prose/checklist contexts use `git submodule status` without the awk pipeline, since the context is descriptive.
+- The `sed` pipeline that strips `.git` suffix from glob results is removed, since `git submodule status` outputs paths without `.git` suffix.
+- No changes to the `SUBMODULE_PATHS` filtering logic — it works identically regardless of how `REPO_PATHS` was populated.
 
 ## Not Included
-
 - No changes to submodule behavior itself — only the detection mechanism
 - No changes to parent repo files
 - No changes to non-git-workflow skills
-- No changes to the `SUBMODULE_PATHS` filtering logic (it works identically regardless of how `REPO_PATHS` was populated)
+- No changes to the `SUBMODULE_PATHS` filtering logic
+
+## Documentation Sources
+- `git submodule status` — Git documentation: https://git-scm.com/docs/git-submodule#Documentation/git-submodule.txt-status
+- POSIX glob behavior (trailing slash requires directory entries) — documented in POSIX.1-2017 `glob()` specification
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|----------|---------------|-------------------|
-| SC-1 | `branch-cleanup.md` line 188: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-2 | `issue-closure.md` line 295: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-3 | `check-pr.md` line 34: `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-4 | `check-pr.md` line 112: `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-5 | `cleanup.md` line 42: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-6 | `operating-protocol.md` line 26: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-7 | `pre-work.md` line 108: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
-| SC-8 | `provenance.md` line 17: `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-1 | `branch-cleanup.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-2 | `issue-closure.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-3 | `check-pr.md` submodule detection prose: `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-4 | `check-pr.md` submodule detection prose (second occurrence): `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-5 | `cleanup.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-6 | `operating-protocol.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-7 | `pre-work.md` submodule detection section: `ls -d .git/` replaced with `git submodule status \| awk '{print $2}'` | `string` | grep for absence of old pattern, presence of new pattern |
+| SC-8 | `provenance.md` submodule detection prose: `ls -d .git/` replaced with `git submodule status` (prose context) | `string` | grep for absence of old pattern, presence of new pattern |
+
+**SC Enforcement Gate:** All 8 SCs must PASS for the implementation to be considered complete. Any single FAIL blocks the implementation.
 
 ## Requirements
 
@@ -43,16 +58,16 @@ The glob pattern `ls -d .git/ */.git/ */.git/` fails when a submodule's `.git` i
 
 ## Items
 
-| Item | SC | File | Line | Replacement |
+| Item | SC | File | Area | Replacement |
 |------|----|------|------|-------------|
-| 1 | SC-1 | `git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | 188 | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 2 | SC-2 | `git-workflow-cleanup/tasks/cleanup/issue-closure.md` | 295 | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 3 | SC-3 | `git-workflow-cleanup/tasks/check-pr.md` | 34 | `git submodule status` (prose) |
-| 4 | SC-4 | `git-workflow-cleanup/tasks/check-pr.md` | 112 | `git submodule status` (prose) |
-| 5 | SC-5 | `git-workflow-cleanup/tasks/cleanup.md` | 42 | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 6 | SC-6 | `git-workflow-branch/tasks/operating-protocol.md` | 26 | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 7 | SC-7 | `git-workflow-branch/tasks/pre-work.md` | 108 | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
-| 8 | SC-8 | `git-workflow-branch/tasks/provenance.md` | 17 | `git submodule status` (prose) |
+| 1 | SC-1 | `git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
+| 2 | SC-2 | `git-workflow-cleanup/tasks/cleanup/issue-closure.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
+| 3 | SC-3 | `git-workflow-cleanup/tasks/check-pr.md` | Submodule detection prose (first occurrence) | `git submodule status` (prose) |
+| 4 | SC-4 | `git-workflow-cleanup/tasks/check-pr.md` | Submodule detection prose (second occurrence) | `git submodule status` (prose) |
+| 5 | SC-5 | `git-workflow-cleanup/tasks/cleanup.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
+| 6 | SC-6 | `git-workflow-branch/tasks/operating-protocol.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
+| 7 | SC-7 | `git-workflow-branch/tasks/pre-work.md` | Submodule detection variable assignment | `REPO_PATHS=$(git submodule status 2>/dev/null \| awk '{print $2}')` |
+| 8 | SC-8 | `git-workflow-branch/tasks/provenance.md` | Submodule detection prose | `git submodule status` (prose) |
 
 ## Dependencies
 

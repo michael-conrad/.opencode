@@ -1,0 +1,46 @@
+# Concern Map — Issue .opencode#2186
+# Lifecycle label placement in the spec-audit DiMo chain
+
+artifact_type: concern_map
+issue_number: 2186
+generated_at: "2026-07-29T20:09:00Z"
+spec: ".opencode/.issues/2186/spec.md"
+
+## Concern Definition
+
+concerns:
+  - id: C-1
+    name: "Lifecycle label placement in spec-audit DiMo chain"
+    description: >
+      Which role in the spec-audit chain (Investigator → Validator → Evaluator → Arbiter)
+      is responsible for applying lifecycle labels (spec-under-review, spec-passed-review)
+      to the spec issue. Currently labels are applied prematurely by Validator and Evaluator.
+      The fix moves all lifecycle label application to the Arbiter, gated on clean PASS.
+
+## Concern-to-Phase Mapping
+
+phases:
+  - phase: 1
+    concern: C-1
+    description: "Remove label operations from Validator Step 0.1"
+    files:
+      - ".opencode/skills/audit/tasks/spec-audit-validator.md"
+  - phase: 2
+    concern: C-1
+    description: "Remove label operations from Evaluator Step 4"
+    files:
+      - ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
+  - phase: 3
+    concern: C-1
+    description: "Add label operations to Arbiter after Step 8"
+    files:
+      - ".opencode/skills/audit/tasks/spec-audit-arbiter.md"
+
+## Concern Isolation
+
+concern_isolation:
+  single_concern: true
+  concern_count: 1
+  all_phases_same_concern: true
+  cross_concern_dependencies: []
+  notes: "All 3 phases address the same concern — lifecycle label placement. No cross-concern dependencies."

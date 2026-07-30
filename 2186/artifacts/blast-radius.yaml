@@ -1,0 +1,69 @@
+# Blast Radius Analysis — Issue .opencode#2186
+# Lifecycle label placement: Validator/Evaluator → Arbiter
+
+artifact_type: blast_radius
+issue_number: 2186
+generated_at: "2026-07-29T20:09:00Z"
+spec: ".opencode/.issues/2186/spec.md"
+
+## Affected Files
+
+affected_files:
+  - path: ".opencode/skills/audit/tasks/spec-audit-validator.md"
+    change: "Remove Step 0.1 — no label operations"
+    impact: "Validator no longer applies spec-passed-review or removes spec-under-review"
+    lines_affected: "48-54"
+  - path: ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
+    change: "Remove spec-passed-review / spec-under-review label block from Step 4"
+    impact: "Evaluator no longer applies spec-passed-review or removes spec-under-review on holistic PASS"
+    lines_affected: "157-160"
+  - path: ".opencode/skills/audit/tasks/spec-audit-arbiter.md"
+    change: "Add new step after Step 8: apply labels gated on PASS"
+    impact: "Arbiter applies spec-passed-review and removes spec-under-review only when final_judgment.status == PASS"
+    lines_affected: "After Step 8 (new step)"
+
+## Unaffected Files (explicitly scoped out)
+
+unaffected_files:
+  - path: ".opencode/skills/audit/tasks/spec-audit-investigator.md"
+    reason: "Investigator has no label operations — no change needed"
+  - path: ".opencode/skills/audit/tasks/cross-validate.md"
+    reason: "Cross-validate is a separate chain — no label operations"
+  - path: ".opencode/skills/audit/tasks/verification-audit.md"
+    reason: "Different audit type — no label operations affected"
+  - path: ".opencode/skills/audit/tasks/plan-fidelity.md"
+    reason: "Different audit type — no label operations affected"
+  - path: ".opencode/skills/audit/SKILL.md"
+    reason: "Skill card has no label logic — dispatch table unchanged"
+  - path: ".opencode/skills/audit/tasks/spec-audit.md"
+    reason: "DiMo chain dispatch logic unchanged — only individual role tasks change"
+
+## Dependency Impact
+
+dependency_impact:
+  - dependent: "spec-audit-evaluator"
+    impact: "None — Evaluator's Step 0.1 spec-under-review application is preserved"
+  - dependent: "spec-audit-arbiter"
+    impact: "Receives new responsibility — must apply labels after final judgment"
+  - dependent: "spec-audit-validator"
+    impact: "Loses Step 0.1 entirely — validates evidence only"
+  - dependent: "DiMo chain orchestrator"
+    impact: "None — dispatch order and contract unchanged"
+
+## Cross-Skill Impact
+
+cross_skill_impact:
+  - skill: "audit"
+    impact: "None — all changes within the same skill"
+  - skill: "issue-operations"
+    impact: "None — label API calls are already used by all 3 roles; no new API surface needed"
+  - skill: "approval-gate"
+    impact: "None — spec-passed-review label semantics unchanged, only timing of application"
+
+## Summary
+
+summary:
+  total_affected_files: 3
+  total_unaffected_audit_files: 5
+  cross_skill_impact: false
+  scope: "Contained entirely within .opencode/skills/audit/tasks/ — no blast outside audit skill"

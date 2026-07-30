@@ -1,0 +1,114 @@
+# State Analysis — Issue .opencode#2186
+# Lifecycle label placement: Validator/Evaluator → Arbiter
+
+artifact_type: state_analysis
+issue_number: 2186
+generated_at: "2026-07-29T20:09:00Z"
+spec: ".opencode/.issues/2186/spec.md"
+
+## State Machine: Label Lifecycle
+
+### Current State (Before Fix)
+
+state_machine_before:
+  description: "Labels are applied prematurely by Validator and Evaluator before Arbiter renders final judgment"
+  states:
+    - name: "spec-under-review"
+      applied_by: "Evaluator Step 0.1"
+      removed_by: "Validator Step 0.1 OR Evaluator Step 4"
+      timing: "Applied at start of evaluation; removed during validation or holistic gate"
+  transitions:
+    - from: "no label"
+      to: "spec-under-review"
+      trigger: "Evaluator Step 0.1 — audit starts"
+      role: "Evaluator"
+    - from: "spec-under-review"
+      to: "spec-passed-review"
+      trigger: "Validator Step 0.1 — validation completes successfully"
+      role: "Validator"
+      problem: "Premature — Evaluator and Arbiter haven't run yet"
+    - from: "spec-under-review"
+      to: "spec-passed-review"
+      trigger: "Evaluator Step 4 — holistic evaluation PASSes"
+      role: "Evaluator"
+      problem: "Premature — narrow criteria and Arbiter haven't run yet"
+    - from: "spec-under-review"
+      to: "spec-under-review"
+      trigger: "Evaluator Step 4 — holistic evaluation FAILs (DRAFT)"
+      role: "Evaluator"
+      notes: "Spec stays under-review; narrow criteria not evaluated"
+  problems:
+    - "Validator applies spec-passed-review before Evaluator and Arbiter run"
+    - "Evaluator applies spec-passed-review before Arbiter runs"
+    - "Arbiter has no label operations — cannot correct premature labels"
+    - "Race condition: Validator may set spec-passed-review, then Evaluator finds FAIL criteria"
+
+### Target State (After Fix)
+
+state_machine_after:
+  description: "Only the Arbiter applies spec-passed-review / removes spec-under-review, gated on clean PASS"
+  states:
+    - name: "spec-under-review"
+      applied_by: "Evaluator Step 0.1"
+      removed_by: "Arbiter Step 8.1 (only on PASS)"
+      timing: "Applied at start of evaluation; removed only after Arbiter confirms PASS"
+  transitions:
+    - from: "no label"
+      to: "spec-under-review"
+      trigger: "Evaluator Step 0.1 — audit starts"
+      role: "Evaluator"
+    - from: "spec-under-review"
+      to: "spec-passed-review"
+      trigger: "Arbiter Step 8.1 — final_judgment.status == PASS"
+      role: "Arbiter"
+      condition: "final_judgment.status == PASS"
+    - from: "spec-under-review"
+      to: "spec-under-review"
+      trigger: "Arbiter Step 8.1 — final_judgment.status == DRAFT or FAIL"
+      role: "Arbiter"
+      condition: "final_judgment.status != PASS"
+      notes: "Labels unchanged — spec remains under-review"
+  invariants:
+    - "spec-passed-review is NEVER applied before the Arbiter renders final judgment"
+    - "spec-under-review is NEVER removed before the Arbiter renders final judgment"
+    - "Only the Arbiter may apply spec-passed-review or remove spec-under-review"
+    - "Evaluator Step 0.1 spec-under-review application is preserved (marks audit start)"
+
+## State Comparison
+
+comparison:
+  aspect: "Who applies spec-passed-review"
+  before: "Validator (Step 0.1) OR Evaluator (Step 4)"
+  after: "Arbiter (Step 8.1) only"
+  improvement: "Labels applied only after full audit chain completes"
+
+  aspect: "Who removes spec-under-review"
+  before: "Validator (Step 0.1) OR Evaluator (Step 4)"
+  after: "Arbiter (Step 8.1) only"
+  improvement: "spec-under-review persists until Arbiter confirms PASS"
+
+  aspect: "When labels are applied"
+  before: "After 2nd role (Validator) or 3rd role (Evaluator) in 4-role chain"
+  after: "After 4th role (Arbiter) — end of chain"
+  improvement: "Labels applied at the correct point — after all evaluation is complete"
+
+  aspect: "Race condition risk"
+  before: "High — Validator may set spec-passed-review before Evaluator finds FAIL"
+  after: "None — only Arbiter applies labels, after all upstream roles have completed"
+  improvement: "No race condition"
+
+## State Invariants
+
+invariants:
+  - id: INV-1
+    description: "spec-passed-review MUST NOT be applied before the Arbiter renders final judgment"
+    enforcement: "Remove label operations from Validator and Evaluator"
+  - id: INV-2
+    description: "spec-under-review MUST be applied at audit start (Evaluator Step 0.1)"
+    enforcement: "Preserve Evaluator Step 0.1 spec-under-review application"
+  - id: INV-3
+    description: "spec-under-review MUST be removed ONLY on Arbiter PASS judgment"
+    enforcement: "Gate label removal on final_judgment.status == PASS in Arbiter"
+  - id: INV-4
+    description: "spec-under-review MUST persist on Arbiter DRAFT or FAIL judgment"
+    enforcement: "No label changes when final_judgment.status != PASS"
