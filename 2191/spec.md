@@ -47,11 +47,12 @@ Import and adapt the existing gh-cli skill from [majiayu000/claude-skill-registr
 | SC-5 | Each task card follows canonical structure: Purpose, Task Discipline, Entry Criteria, Procedure, Exit Criteria, Result Contract | `string` | grep each task card for all 6 required sections |
 | SC-6 | No gh command in gh-cli task cards that also appears in git-workflow task cards for PR creation, branch management, or commit operations | `semantic` | Sub-agent reads both gh-cli and git-workflow task cards, confirms no duplicate procedure steps |
 | SC-7 | Task cards include `gh auth status` verification as an entry criterion for all gh operations that require authentication | `string` | grep all task cards for "auth status" or "auth" in Entry Criteria |
-| SC-8 | A `gh-cli` entry appears in `<available_skills>` after deployment (opencode discovers it from the directory) | `behavioral` | `opencode run` with prompt that triggers gh CLI intent, verify skill appears in available_skills via stderr |
+| SC-8 | A behavioral test script exists at `.opencode/tests-v2/behaviors/2191-sc8-gh-cli-skill.sh` that follows the canonical template structure and references the gh-cli skill | `structural + string` | `ls` for file existence + `grep` for template structure (Purpose, Entry Criteria, Procedure, Exit Criteria sections) and skill reference (gh-cli) |
 | SC-9 | The skill covers all 20 command categories from the source, organized into 16 workflow-based task cards (authenticate, create-pr, triage-issues, review-pr, do-release, search-investigate, manage-repo, run-ci-cd, manage-secrets, manage-codespaces, manage-org, manage-gists, manage-keys, manage-projects, manage-aliases, generate-completion) | `string` | grep task cards for each of the 20 command categories across the 16 workflow task cards |
 | SC-10 | The skill includes a "Common Workflows" section or task card with exactly 3 end-to-end workflow examples adapted from the source | `structural` | File exists with exactly 3 workflow examples |
 | SC-11 | The skill explicitly prohibits `gh pr merge` (delegating merge to human-only per critical-rules-merge) with a critical violation block | `string` | grep for "pr merge" prohibition or "critical-rules-merge" reference |
 | SC-12 | All task cards include SPDX + provenance headers and AI co-authored byline | `string` | grep each task card for "SPDX-FileCopyrightText" and "Co-authored with AI" |
+| SC-14 | After PR merge, the gh-cli skill appears in `<available_skills>` when running opencode in a clean environment | `behavioral` | Run the behavioral test at `.opencode/tests-v2/behaviors/2191-sc8-gh-cli-skill.sh` post-merge and confirm PASS. This is a post-merge acceptance criterion, not a pre-merge implementation gate. |
 
 ### Cost-Frame Justification
 
@@ -67,15 +68,18 @@ Each SC's evidence type is chosen based on defect-discovery-latency (DDL) cost:
 | SC-5 | `string` | Section header presence is a deterministic text pattern — grep catches missing sections instantly. |
 | SC-6 | `semantic` | Overlap detection requires understanding what each command does in context — a sub-agent must read both skill's task cards and judge whether procedures overlap. String matching alone would miss semantic duplicates (same operation, different flag order). |
 | SC-7 | `string` | Entry criterion text is a deterministic pattern — grep for "auth status" catches missing auth checks. |
-| SC-8 | `behavioral` | Skill discovery is a runtime behavior — the agent must actually run and the skill must appear in available_skills. Structural checks (file exists) would pass even if auto-discovery is broken. Only behavioral testing catches the runtime failure. |
+| SC-8 | `structural + string` | Skill discovery is a runtime behavior, but the test environment clones `.opencode` from the remote (not the feature branch), so a behavioral test would always fail pre-merge. The structural+string check verifies the test script exists, follows the template, and references the skill — catching script-absence and structural defects at the earliest gate. The behavioral verification is deferred to SC-14 (post-merge). |
 | SC-9 | `string` | Command category coverage is a text-pattern check — grep for each category name across task cards. |
 | SC-10 | `structural` | Workflow example count is a static property — counting sections in a file verifies in <1s. |
 | SC-11 | `string` | Prohibition text is a deterministic pattern — grep for "pr merge" or "critical-rules-merge" catches missing prohibition. |
 | SC-12 | `string` | Header presence is a deterministic text pattern — grep for SPDX and byline strings catches missing headers. |
+| SC-14 | `behavioral` | Post-merge acceptance criterion. Behavioral testing is the only sufficient evidence type for runtime skill discovery — structural checks (file exists) would pass even if auto-discovery is broken. The DDL cost is acceptable post-merge because the test runs once after deployment, not on every pre-merge iteration. |
 
 ### Enforcement Gate
 
 All SCs (SC-1 through SC-13) must pass verification for this spec to be considered complete. A single FAIL means the entire implementation is incomplete.
+
+SC-14 is a post-merge acceptance criterion, not a pre-merge implementation gate. It does not block implementation or PR creation. SC-14 must pass after the PR is merged to confirm the skill is discoverable in a clean environment.
 
 ## Approach
 
@@ -198,3 +202,7 @@ The source skill at [majiayu000/claude-skill-registry](https://github.com/majiay
 | 2026-07-30 | Added Alternatives Considered subsection to preamble documenting write-from-scratch, different-source, and chosen-approach | A4-investigation-breadth: missing alternatives | Spec audit |
 | 2026-07-30 | Added recency check step to Phase 1: verify no existing gh-cli skill and no path conflicts | A4-recency-check: missing recency check | Spec audit |
 | 2026-07-30 | Updated SC-1 with boundary test (≤1024 chars via wc -c), SC-4 with exact count (exactly 4), SC-10 with exact count (exactly 3) | A5-missing-coverage: missing boundary tests | Spec audit |
+| 2026-07-30 | SC-8: changed from `behavioral` to `structural + string` evidence type; criterion now verifies test script existence, template structure, and skill reference instead of runtime skill discovery | SC-8 circular dependency: behavioral test requires post-merge environment (test clones .opencode from remote, not feature branch) | Revision request |
+| 2026-07-30 | Added SC-14: post-merge acceptance criterion verifying gh-cli skill appears in `<available_skills>` in a clean environment | SC-8 circular dependency: behavioral verification deferred to post-merge | Revision request |
+| 2026-07-30 | Updated Cost-Frame Justification table: added SC-14 entry, updated SC-8 DDL justification | SC-8 circular dependency | Revision request |
+| 2026-07-30 | Updated Enforcement Gate statement: noted SC-14 is post-merge, not a pre-merge gate | SC-8 circular dependency | Revision request |
