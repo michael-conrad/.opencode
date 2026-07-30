@@ -1,8 +1,8 @@
 title: '[SPEC-FIX] Document submodule-only push bypass + repo-check lessons in AGENTS.md'
 status: open
 labels:
-- needs-approval
 - spec-draft
+- approved-for-pr
 body: ''
 created_at: '2026-07-30T02:45:40+00:00'
-updated_at: '2026-07-30T02:45:40+00:00'
+updated_at: '2026-07-30T02:46:03+00:00'
