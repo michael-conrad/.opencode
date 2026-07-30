@@ -1,0 +1,49 @@
+# Analysis Summary — gh-cli Skill Creation
+# Generated: 2026-07-30
+# Source: .opencode/.issues/2191/spec.md
+
+spec_path: .opencode/.issues/2191/spec.md
+issue: 2191
+title: "gh-cli skill creation"
+sc_count: 13
+phase_count: 4
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+
+scope_summary:
+  new_files: 21  # 1 SKILL.md + 20 task cards
+  modified_files: 3  # git-workflow, issue-operations, release-promoter SKILL.md
+  unaffected_areas:
+    - src/
+    - test/
+    - .opencode/guidelines/
+    - .opencode/tools/
+    - .opencode/plugins/
+    - .opencode/hooks/
+    - .opencode/scripts/
+    - All other skills not listed in affected files
+
+key_findings:
+  - finding: "All 7 analytical artifacts backfilled from spec body"
+    severity: info
+  - finding: "13 success criteria across 4 phases — 92.3% automatable (12/13)"
+    severity: info
+  - finding: "SC-6 (no gh command overlap) requires semantic sub-agent — highest risk SC"
+    severity: warning
+  - finding: "SC-8 (runtime skill discovery) requires behavioral test — only SC requiring opencode run"
+    severity: warning
+  - finding: "9 interface boundaries identified — all compatible with existing conventions"
+    severity: info
+  - finding: "4 state transitions from NO_SKILL to TESTS_PASSING — each with rollback conditions"
+    severity: info
+  - finding: "Cross-cutting concern: template compliance (SC-5, SC-12) spans all 4 concern groups"
+    severity: info
+  - finding: "High-risk interface: gh-cli ↔ git-workflow delegation boundary (IF-3) — must verify no overlap"
+    severity: warning

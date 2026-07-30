@@ -1,0 +1,138 @@
+# Code Path Inventory — gh-cli Skill Creation
+# Generated: 2026-07-30
+# Source: .opencode/.issues/2191/spec.md
+
+spec_path: .opencode/.issues/2191/spec.md
+issue: 2191
+title: "gh-cli skill creation"
+
+code_paths:
+  # SC-1: SKILL.md file existence and frontmatter validation
+  - id: CP-1
+    scs: [SC-1]
+    description: "SKILL.md file creation with valid YAML frontmatter"
+    code_path: ".opencode/skills/gh-cli/SKILL.md"
+    entry_point: "opencode skill auto-discovery reads .opencode/skills/<name>/SKILL.md"
+    verification_path: "ls .opencode/skills/gh-cli/SKILL.md && head -5 .opencode/skills/gh-cli/SKILL.md | grep -E '^name:|^description:|^license:'"
+    evidence_type: structural
+    notes: "File existence + frontmatter field presence. Description ≤1024 chars via wc -c."
+
+  # SC-2: Routing-only template (no procedure text)
+  - id: CP-2
+    scs: [SC-2]
+    description: "SKILL.md uses routing-only template — no Entry Criteria, Procedure, or Operating Protocol sections"
+    code_path: ".opencode/skills/gh-cli/SKILL.md"
+    entry_point: "opencode skill loader reads SKILL.md for routing metadata"
+    verification_path: "grep -E '^## (Entry Criteria|Procedure|Operating Protocol)' .opencode/skills/gh-cli/SKILL.md"
+    evidence_type: string
+    notes: "grep for prohibited section headers — must return no matches"
+
+  # SC-3: Agent-intent description format
+  - id: CP-3
+    scs: [SC-3]
+    description: "Description field uses agent-intent format — no 'Load via skill() when', 'User phrases:', 'Dispatch when'"
+    code_path: ".opencode/skills/gh-cli/SKILL.md"
+    entry_point: "opencode skill loader reads description for semantic routing"
+    verification_path: "grep -E '(Load via skill\\(\\) when|User phrases:|Dispatch when)' .opencode/skills/gh-cli/SKILL.md"
+    evidence_type: string
+    notes: "grep for prohibited meta-instruction patterns — must return no matches"
+
+  # SC-13: Source description remediated from user-utterance format
+  - id: CP-13
+    scs: [SC-13]
+    description: "Description does not use 'when the user asks', 'Use this skill when', or equivalent user-utterance framing"
+    code_path: ".opencode/skills/gh-cli/SKILL.md"
+    entry_point: "opencode skill loader reads description"
+    verification_path: "grep -E '(when the user asks|Use this skill when|when the user)' .opencode/skills/gh-cli/SKILL.md"
+    evidence_type: string
+    notes: "Compare source description against final; confirm no user-utterance framing"
+
+  # SC-4: Exactly 4 core workflow task cards
+  - id: CP-4
+    scs: [SC-4]
+    description: "Exactly 4 core workflow task cards exist: authenticate, create-pr, triage-issues, review-pr"
+    code_path: ".opencode/skills/gh-cli/tasks/"
+    entry_point: "opencode skill loader discovers task cards in tasks/ subdirectory"
+    verification_path: "ls .opencode/skills/gh-cli/tasks/ | grep -E '^(authenticate|create-pr|triage-issues|review-pr)\\.md$' | wc -l"
+    evidence_type: structural
+    notes: "Count must equal exactly 4"
+
+  # SC-5: Each task card has all 6 required sections
+  - id: CP-5
+    scs: [SC-5]
+    description: "Each task card follows canonical structure: Purpose, Task Discipline, Entry Criteria, Procedure, Exit Criteria, Result Contract"
+    code_path: ".opencode/skills/gh-cli/tasks/*.md"
+    entry_point: "sub-agent reads task card for execution procedure"
+    verification_path: "for f in .opencode/skills/gh-cli/tasks/*.md; do grep -q '^## Purpose' $f && grep -q '^## Task Discipline' $f && grep -q '^## Entry Criteria' $f && grep -q '^## Procedure' $f && grep -q '^## Exit Criteria' $f && grep -q '^## Result Contract' $f || echo MISSING_SECTIONS: $f; done"
+    evidence_type: string
+    notes: "All 6 sections required in every task card"
+
+  # SC-6: No gh command overlap with git-workflow
+  - id: CP-6
+    scs: [SC-6]
+    description: "No gh command in gh-cli task cards that also appears in git-workflow task cards for PR/branch/commit operations"
+    code_path: ".opencode/skills/gh-cli/tasks/ + .opencode/skills/git-workflow/"
+    entry_point: "agent dispatches to either gh-cli or git-workflow based on operation type"
+    verification_path: "sub-agent reads both skill's task cards and compares procedure steps"
+    evidence_type: semantic
+    notes: "Requires sub-agent to read and compare — string matching alone insufficient"
+
+  # SC-7: Auth status check in entry criteria
+  - id: CP-7
+    scs: [SC-7]
+    description: "All auth-dependent task cards include gh auth status verification as entry criterion"
+    code_path: ".opencode/skills/gh-cli/tasks/*.md"
+    entry_point: "sub-agent reads entry criteria before executing task"
+    verification_path: "grep -l 'auth status\\|gh auth' .opencode/skills/gh-cli/tasks/*.md | wc -l"
+    evidence_type: string
+    notes: "All task cards except completion.md must have auth check"
+
+  # SC-8: Skill appears in available_skills at runtime
+  - id: CP-8
+    scs: [SC-8]
+    description: "gh-cli appears in <available_skills> after deployment"
+    code_path: "opencode runtime (skill auto-discovery)"
+    entry_point: "opencode session-init reads .opencode/skills/ directory"
+    verification_path: "opencode run with prompt that triggers gh CLI intent; verify skill appears in available_skills via stderr"
+    evidence_type: behavioral
+    notes: "Only behavioral testing catches runtime auto-discovery failures"
+
+  # SC-9: All 20 command categories covered across 16 workflow task cards
+  - id: CP-9
+    scs: [SC-9]
+    description: "All 20 command categories from source organized into 16 workflow-based task cards"
+    code_path: ".opencode/skills/gh-cli/tasks/*.md"
+    entry_point: "agent dispatches to specific workflow task card"
+    verification_path: "grep for each of the 20 command categories across all 16 workflow task cards"
+    evidence_type: string
+    notes: "20 categories: auth, pr, issue, release, repo, run, secret, codespace, org, gist, ssh-key, gpg-key, project, alias, extension, completion, search, browse, label, api"
+
+  # SC-10: Exactly 3 end-to-end workflow examples
+  - id: CP-10
+    scs: [SC-10]
+    description: "Common Workflows section or task card with exactly 3 end-to-end workflow examples"
+    code_path: ".opencode/skills/gh-cli/tasks/common-workflows.md"
+    entry_point: "agent reads workflow examples for reference"
+    verification_path: "grep -c '^### Example' .opencode/skills/gh-cli/tasks/common-workflows.md"
+    evidence_type: structural
+    notes: "Count must equal exactly 3"
+
+  # SC-11: gh pr merge prohibition
+  - id: CP-11
+    scs: [SC-11]
+    description: "Skill explicitly prohibits gh pr merge with critical violation block"
+    code_path: ".opencode/skills/gh-cli/tasks/pr-management.md"
+    entry_point: "agent reads task card and sees prohibition before attempting merge"
+    verification_path: "grep -E 'pr merge|critical-rules-merge' .opencode/skills/gh-cli/tasks/pr-management.md"
+    evidence_type: string
+    notes: "Must reference critical-rules-merge or contain explicit pr merge prohibition"
+
+  # SC-12: SPDX + provenance headers and AI byline
+  - id: CP-12
+    scs: [SC-12]
+    description: "All task cards include SPDX + provenance headers and AI co-authored byline"
+    code_path: ".opencode/skills/gh-cli/tasks/*.md"
+    entry_point: "audit trail and attribution"
+    verification_path: "for f in .opencode/skills/gh-cli/tasks/*.md; do grep -q 'SPDX-FileCopyrightText' $f && grep -q 'Co-authored with AI' $f || echo MISSING_HEADERS: $f; done"
+    evidence_type: string
+    notes: "Every task card must have both SPDX and byline"

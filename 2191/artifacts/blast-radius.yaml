@@ -1,0 +1,200 @@
+# Blast Radius — gh-cli Skill Creation
+# Generated: 2026-07-30
+# Source: .opencode/.issues/2191/spec.md
+
+spec_path: .opencode/.issues/2191/spec.md
+issue: 2191
+title: "gh-cli skill creation"
+
+affected_files:
+  # NEW files (skill card + 20 task cards)
+  - path: .opencode/skills/gh-cli/SKILL.md
+    action: CREATE
+    category: skill_card
+    risk: high
+    verification: SC-1, SC-2, SC-3, SC-13
+    notes: "Routing-only SKILL.md with YAML frontmatter. Must use agent-intent description format."
+
+  - path: .opencode/skills/gh-cli/tasks/authenticate.md
+    action: CREATE
+    category: task_card
+    risk: medium
+    verification: SC-5, SC-7, SC-12
+    notes: "Auth workflow: gh auth status → gh auth login → verify → gh config set"
+
+  - path: .opencode/skills/gh-cli/tasks/repo-operations.md
+    action: CREATE
+    category: task_card
+    risk: medium
+    verification: SC-5, SC-7, SC-12
+    notes: "Repo operations: create, fork, edit topics/visibility, labels"
+
+  - path: .opencode/skills/gh-cli/tasks/issue-management.md
+    action: CREATE
+    category: task_card
+    risk: medium
+    verification: SC-5, SC-7, SC-12
+    notes: "Issue triage: list, view, edit, comment, close"
+
+  - path: .opencode/skills/gh-cli/tasks/pr-management.md
+    action: CREATE
+    category: task_card
+    risk: high
+    verification: SC-5, SC-6, SC-7, SC-11, SC-12
+    notes: "PR operations: create, view, checkout, review. CRITICAL: gh pr merge prohibited."
+
+  - path: .opencode/skills/gh-cli/tasks/codespaces.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Codespace lifecycle: list, create, ssh/code, delete"
+
+  - path: .opencode/skills/gh-cli/tasks/actions.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "CI/CD: run list, view, rerun, watch"
+
+  - path: .opencode/skills/gh-cli/tasks/release-management.md
+    action: CREATE
+    category: task_card
+    risk: medium
+    verification: SC-5, SC-7, SC-12
+    notes: "Release: tag, create, upload assets, view"
+
+  - path: .opencode/skills/gh-cli/tasks/search-browse.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Search: repos, issues, PRs, code; gh browse"
+
+  - path: .opencode/skills/gh-cli/tasks/org-management.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Org: view, list-members, repo list/create for org"
+
+  - path: .opencode/skills/gh-cli/tasks/gist-management.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Gist: create, list, view, edit, delete"
+
+  - path: .opencode/skills/gh-cli/tasks/label-management.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Labels: create, list, edit, delete"
+
+  - path: .opencode/skills/gh-cli/tasks/project-management.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Projects: list, view"
+
+  - path: .opencode/skills/gh-cli/tasks/status.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Status: gh status, gh issue/pr status"
+
+  - path: .opencode/skills/gh-cli/tasks/aliases-extensions.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Aliases and extensions: set, list, delete, install, remove"
+
+  - path: .opencode/skills/gh-cli/tasks/api-requests.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "Raw API: gh api with method, endpoint, data"
+
+  - path: .opencode/skills/gh-cli/tasks/ssh-gpg-keys.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-7, SC-12
+    notes: "SSH/GPG keys: list, add, delete"
+
+  - path: .opencode/skills/gh-cli/tasks/secrets-variables.md
+    action: CREATE
+    category: task_card
+    risk: medium
+    verification: SC-5, SC-7, SC-12
+    notes: "Secrets and variables: list, set, delete"
+
+  - path: .opencode/skills/gh-cli/tasks/completion.md
+    action: CREATE
+    category: task_card
+    risk: low
+    verification: SC-5, SC-12
+    notes: "Shell completion: gh completion -s bash/zsh/fish/powershell"
+
+  - path: .opencode/skills/gh-cli/tasks/common-workflows.md
+    action: CREATE
+    category: task_card
+    risk: medium
+    verification: SC-5, SC-10, SC-12
+    notes: "Exactly 3 end-to-end workflow examples adapted from source"
+
+  # MODIFY files (cross-reference integration)
+  - path: .opencode/skills/git-workflow/SKILL.md
+    action: MODIFY
+    category: cross_reference
+    risk: low
+    verification: Phase 3
+    notes: "Add gh-cli cross-reference in relevant sections"
+
+  - path: .opencode/skills/issue-operations/SKILL.md
+    action: MODIFY
+    category: cross_reference
+    risk: low
+    verification: Phase 3
+    notes: "Add gh-cli cross-reference in relevant sections"
+
+  - path: .opencode/skills/release-promoter/SKILL.md
+    action: MODIFY
+    category: cross_reference
+    risk: low
+    verification: Phase 3
+    notes: "Add gh-cli cross-reference in relevant sections"
+
+# Files NOT affected (verified no overlap)
+unaffected_scope:
+  - .opencode/skills/approval-gate/
+  - .opencode/skills/audit/
+  - .opencode/skills/brainstorming/
+  - .opencode/skills/spec-creation/
+  - .opencode/skills/writing-plans/
+  - .opencode/skills/implementation-pipeline/
+  - .opencode/skills/verification-before-completion/
+  - .opencode/guidelines/
+  - src/
+  - test/
+
+# Verification matrix: which SCs verify which files
+sc_to_file_map:
+  SC-1: [.opencode/skills/gh-cli/SKILL.md]
+  SC-2: [.opencode/skills/gh-cli/SKILL.md]
+  SC-3: [.opencode/skills/gh-cli/SKILL.md]
+  SC-13: [.opencode/skills/gh-cli/SKILL.md]
+  SC-4: [.opencode/skills/gh-cli/tasks/authenticate.md, .opencode/skills/gh-cli/tasks/create-pr.md, .opencode/skills/gh-cli/tasks/triage-issues.md, .opencode/skills/gh-cli/tasks/review-pr.md]
+  SC-5: [all task cards]
+  SC-6: [.opencode/skills/gh-cli/tasks/pr-management.md, .opencode/skills/git-workflow/SKILL.md]
+  SC-7: [all auth-dependent task cards]
+  SC-8: [.opencode/skills/gh-cli/SKILL.md]  # runtime discovery
+  SC-9: [all 16 workflow task cards]
+  SC-10: [.opencode/skills/gh-cli/tasks/common-workflows.md]
+  SC-11: [.opencode/skills/gh-cli/tasks/pr-management.md]
+  SC-12: [all task cards, .opencode/skills/gh-cli/SKILL.md]

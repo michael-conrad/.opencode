@@ -1,0 +1,107 @@
+# Concern Map — gh-cli Skill Creation
+# Generated: 2026-07-30
+# Source: .opencode/.issues/2191/spec.md
+
+spec_path: .opencode/.issues/2191/spec.md
+issue: 2191
+title: "gh-cli skill creation"
+
+concern_groups:
+  - id: C1
+    name: "Skill card creation"
+    description: "Create the SKILL.md with routing-only template, valid frontmatter, agent-intent description"
+    phases: [1]
+    scs: [SC-1, SC-2, SC-3, SC-13]
+    files:
+      - .opencode/skills/gh-cli/SKILL.md
+    risk: high
+    notes: "Foundation — all other phases depend on this directory and SKILL.md existing"
+
+  - id: C2
+    name: "Core workflow task cards"
+    description: "Create the 4 core workflow task cards: authenticate, create-pr, triage-issues, review-pr"
+    phases: [2]
+    scs: [SC-4, SC-5, SC-7, SC-11, SC-12]
+    files:
+      - .opencode/skills/gh-cli/tasks/authenticate.md
+      - .opencode/skills/gh-cli/tasks/create-pr.md
+      - .opencode/skills/gh-cli/tasks/triage-issues.md
+      - .opencode/skills/gh-cli/tasks/review-pr.md
+    risk: high
+    notes: "Core workflows — most frequently used by agents. Must include auth checks and merge prohibition."
+
+  - id: C3
+    name: "Extended workflow task cards"
+    description: "Create the remaining 12 workflow task cards covering all 20 command categories"
+    phases: [2]
+    scs: [SC-5, SC-7, SC-9, SC-12]
+    files:
+      - .opencode/skills/gh-cli/tasks/do-release.md
+      - .opencode/skills/gh-cli/tasks/search-investigate.md
+      - .opencode/skills/gh-cli/tasks/manage-repo.md
+      - .opencode/skills/gh-cli/tasks/run-ci-cd.md
+      - .opencode/skills/gh-cli/tasks/manage-secrets.md
+      - .opencode/skills/gh-cli/tasks/manage-codespaces.md
+      - .opencode/skills/gh-cli/tasks/manage-org.md
+      - .opencode/skills/gh-cli/tasks/manage-gists.md
+      - .opencode/skills/gh-cli/tasks/manage-keys.md
+      - .opencode/skills/gh-cli/tasks/manage-projects.md
+      - .opencode/skills/gh-cli/tasks/manage-aliases.md
+      - .opencode/skills/gh-cli/tasks/generate-completion.md
+    risk: medium
+    notes: "Extended coverage — less frequently used but must cover all 20 source command categories"
+
+  - id: C4
+    name: "Common workflows and examples"
+    description: "Create the common-workflows task card with exactly 3 end-to-end workflow examples"
+    phases: [2]
+    scs: [SC-5, SC-10, SC-12]
+    files:
+      - .opencode/skills/gh-cli/tasks/common-workflows.md
+    risk: medium
+    notes: "End-to-end examples adapted from source skill"
+
+  - id: C5
+    name: "Cross-reference integration"
+    description: "Add gh-cli cross-references to git-workflow, issue-operations, and release-promoter skills"
+    phases: [3]
+    scs: [SC-6]
+    files:
+      - .opencode/skills/git-workflow/SKILL.md
+      - .opencode/skills/issue-operations/SKILL.md
+      - .opencode/skills/release-promoter/SKILL.md
+    risk: low
+    notes: "Cross-references ensure agents route to gh-cli for gh-specific operations"
+
+  - id: C6
+    name: "Behavioral enforcement tests"
+    description: "Create behavioral tests for skill dispatch, merge prohibition, and auth check enforcement"
+    phases: [4]
+    scs: [SC-8]
+    files:
+      - .opencode/tests-v2/behaviors/gh-cli-*.sh
+    risk: medium
+    notes: "Behavioral tests verify runtime agent behavior — the only sufficient evidence for SC-8"
+
+phase_to_concern_map:
+  phase_1: [C1]
+  phase_2: [C2, C3, C4]
+  phase_3: [C5]
+  phase_4: [C6]
+
+concern_dependencies:
+  - from: C1
+    to: [C2, C3, C4]
+    reason: "SKILL.md must exist before task cards can be created (directory must exist)"
+  - from: C2
+    to: [C5]
+    reason: "Core task cards define the gh-cli interface that cross-references point to"
+  - from: C3
+    to: [C5]
+    reason: "Extended task cards complete the gh-cli interface"
+  - from: C4
+    to: [C5]
+    reason: "Common workflows are part of the gh-cli interface"
+  - from: C5
+    to: [C6]
+    reason: "Cross-references must be in place before behavioral tests verify agent routing"
