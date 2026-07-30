@@ -290,7 +290,7 @@ for issue_num, classification in closure_candidates.items():
 
 If `submodule_paths` is not provided, resolve sub-folder repo mappings from session-init context:
 - `issue-operations -> read-issue` with resolved `owner`/`repo` per submodule <!-- Routes through issue-operations per SPEC #683 -->
-- Glob scan discovered repos used for `path → owner/repo` mapping:
+- `git submodule status` discovered repos used for `path → owner/repo` mapping:
   ```bash
   REPO_PATHS=$(git submodule status | awk '{print $2}')
   for RP in $REPO_PATHS; do
