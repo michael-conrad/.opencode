@@ -150,7 +150,7 @@ SHA256 hashes ensure content integrity:
 sha256sum .opencode/.guidelines/branch-first-protocol.md
 
 # Calculate hash for destination
-sha256sum .opencode/skills/git-workflow/tasks/pre-work.md
+sha256sum .opencode/skills/git-workflow-branch/tasks/pre-work.md
 ```
 
 Hashes change only when content changes.
