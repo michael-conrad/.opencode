@@ -31,7 +31,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ## Phase 1: Scan for Merged PRs
 
-- [ ] Build repo list from session-init values plus filesystem glob scan: `ls -d .git/ */.git/ */.git/`
+- [ ] Build repo list from session-init values plus filesystem glob scan: `git submodule status`
 - [ ] For each repo, query merged PRs via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_list_pull_requests` filtered by `merged_at`, `gitbucket` → `gb pr list` filtered by `merged`, `local` → no PRs exist, skip)
 - [ ] Report all merged PRs found with PR number, title, branch, and merged_at timestamp
 - [ ] If no merged PRs found: report and HALT
@@ -109,7 +109,7 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 
 ## Phase 4: Submodule Branch Cleanup
 
-- [ ] Detect submodules via filesystem glob scan: `ls -d .git/ */.git/ */.git/`
+- [ ] Detect submodules via `git submodule status`
 - [ ] For each submodule with a feature branch, clean up the merged branch
 - [ ] Restore submodules to trunk tip via sub-agent task()
 - [ ] Do NOT create dependency-sync PRs — leave submodule pointers dirty

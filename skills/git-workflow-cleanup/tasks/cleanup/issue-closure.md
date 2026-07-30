@@ -292,7 +292,7 @@ If `submodule_paths` is not provided, resolve sub-folder repo mappings from sess
 - `issue-operations -> read-issue` with resolved `owner`/`repo` per submodule <!-- Routes through issue-operations per SPEC #683 -->
 - Glob scan discovered repos used for `path → owner/repo` mapping:
   ```bash
-  REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+  REPO_PATHS=$(git submodule status | awk '{print $2}')
   for RP in $REPO_PATHS; do
       [ "$RP" = "." ] && continue
       REMOTE_URL=$(git -C "$RP" remote get-url origin 2>/dev/null || echo "")

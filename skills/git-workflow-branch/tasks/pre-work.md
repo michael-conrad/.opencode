@@ -105,7 +105,7 @@ git rebase origin/"$DEFAULT_BRANCH"
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(git submodule status | awk '{print $2}' 2>/dev/null)`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
 - [ ] 2. **Submodule currency check:** Deferred to the sub-agent task() (Steps 2.7/3.5).
 - [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to a sub-agent — do NOT run `git submodule init` or `git submodule foreach` inline.

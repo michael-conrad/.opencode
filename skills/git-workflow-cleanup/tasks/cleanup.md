@@ -34,21 +34,12 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ### Step 0: Detect Submodules and Build Routing Context
 
-Before any cleanup operations, detect and build routing context for submodules using filesystem glob scan.
+Before any cleanup operations, detect and build routing context for submodules using `git submodule status`.
 
-- [ ] 1. **Glob scan for git repos at project root:**
+- [ ] 1. **Detect submodules via `git submodule status`:**
 
    ```bash
-   REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
-   ```
-
-   Filter out `.` (self) and collect only submodule paths (non-root repos):
-   ```bash
-   SUBMODULE_PATHS=""
-   for RP in $REPO_PATHS; do
-       [ "$RP" = "." ] && continue
-       SUBMODULE_PATHS="$SUBMODULE_PATHS $RP"
-   done
+   SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
    ```
 
    If `SUBMODULE_PATHS` is empty: no submodules detected, proceed normally (no submodule routing context).
