@@ -183,15 +183,10 @@ fi
 
 After parent repo trunk parking (Step 1.7), descend into each submodule to clean merged branches while preserving the dirty submodule pointer.
 
-**Detect submodules via filesystem glob scan:**
+**Detect submodules via git submodule status:**
 
 ```bash
-REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
-SUBMODULE_PATHS=""
-for RP in $REPO_PATHS; do
-    [ "$RP" = "." ] && continue
-    SUBMODULE_PATHS="$SUBMODULE_PATHS $RP"
-done
+SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
 ```
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.

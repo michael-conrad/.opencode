@@ -105,7 +105,7 @@ git rebase origin/"$DEFAULT_BRANCH"
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Run `git submodule status` to detect git repos: `REPO_PATHS=$(git submodule status | awk '{print $2}' 2>/dev/null)`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
 - [ ] 2. **Submodule currency check:** Deferred to the sub-agent task() (Steps 2.7/3.5).
 - [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to a sub-agent — do NOT run `git submodule init` or `git submodule foreach` inline.
@@ -120,7 +120,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| Task() sub-agent for submodule ops | Step 2.5/3 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
+| Task() sub-agent for submodule ops | Step 2.5/3 | Tier 1 mandate prerequisite | Submodules detected via `git submodule status` |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by Read [Skipping Git Pre-Check](guidelines/000-critical-rules.md) | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 6 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -147,7 +147,7 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 ### Sub-Agent Boundary: Submodule Operations — Orchestrator Dispatch
 
-When submodules are detected via glob scan, the dispatches a sub-agent via `task(subagent_type="general")` for submodule initialization, sync, and status operations. The sub-agent receives only:
+When submodules are detected via `git submodule status`, the dispatches a sub-agent via `task(subagent_type="general")` for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
@@ -168,7 +168,7 @@ When submodules are detected via glob scan, the dispatches a sub-agent via `task
 
 **All submodule work completes before any main repo work.** The main repo's submodule pointer is a committed SHA — syncing submodules to trunk tip updates the submodule working tree but does NOT update the main repo's gitlink entry. The main repo feature branch must be created AFTER the submodule pointer is updated to the tagged SHA.
 
-**If no submodules detected via glob scan:** Skip this step and proceed to Step 4.
+**If no submodules detected via `git submodule status`:** Skip this step and proceed to Step 4.
 
 **If submodules detected:** The dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 

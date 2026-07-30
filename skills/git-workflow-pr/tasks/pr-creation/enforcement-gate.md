@@ -25,7 +25,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ### Step 0: Submodule PR Dependency Check (MANDATORY GATE)
 
-**If no submodules detected via glob scan:** Skip entirely.
+**If no submodules detected via `git submodule status`:** Skip entirely.
 
 **If submodules detected:**
 
@@ -65,7 +65,7 @@ summary: <text>
 
 ### Step 0.5: Submodule-Bump-Only PR Gate (MANDATORY — parent repo only)
 
-**If `identity_source` is NOT `root` or no submodules detected via glob scan:** Skip entirely.
+**If `identity_source` is NOT `root` or no submodules detected via `git submodule status`:** Skip entirely.
 
 **If parent repo context (`identity_source == "root"` AND submodules detected):**
 
