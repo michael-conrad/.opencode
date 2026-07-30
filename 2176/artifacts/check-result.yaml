@@ -1,0 +1,3 @@
+status: DONE
+finding_summary: "Dependency DAG validated. Phase 1 (foundation) has no dependencies. Phase 2 depends on Phase 1: Implies(phase_2, phase_1). Phase 3 is independent (no invariant constraint). Phase 4 depends on Phase 1: Implies(phase_4, phase_1). Phase 5 depends on all prior phases: Implies(phase_5, And(phase_1..phase_4)). Preconditions SAT (initial state valid). Postconditions+invariants UNSAT as expected (initial state cannot satisfy completion postconditions). All 5 dependency edges correctly encoded in contract invariants."
+artifact_path: .opencode/.issues/2176/artifacts/check-result.yaml

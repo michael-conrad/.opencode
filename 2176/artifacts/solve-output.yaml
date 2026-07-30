@@ -1,0 +1,13 @@
+check:
+  phase_1_preconditions: SAT
+  phase_2_postconditions_invariants: UNSAT
+  model:
+    phase_1_completed: false
+    phase_2_completed: false
+    phase_3_completed: false
+    phase_4_completed: false
+    phase_5_completed: false
+  unsat_core:
+    labels: []
+    analysis: "Postconditions require all phases true; state has all phases false. Invariants (dependency implications) are vacuously satisfied. Conflict is between state assignments and postcondition goals — expected for initial state."
+  summary: "State is valid for preconditions (initial state, nothing started). Postconditions fail because they represent the goal state (all phases completed) which the initial state has not yet reached. This is the expected result for a pre-implementation state check."

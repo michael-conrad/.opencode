@@ -1,0 +1,41 @@
+self_review:
+  issue: 2176
+  plan_path: .opencode/.issues/2176/plan.md
+  spec_path: .opencode/.issues/2176/spec.md
+  overall_verdict: BLOCKED
+
+  placeholder_findings: []
+
+  sc_coverage_findings: []
+
+  triplet_split_findings: []
+
+  type_name_inconsistency_findings: []
+
+  per_task_cycle_findings:
+    - finding_id: MISSING_STEP-1
+      severity: error
+      description: "Post-implementation section dispatches sc-count-gate (line 347) referencing implementation-pipeline/tasks/sc-count-gate.md, but this file is in the Phase 5 Item 7 removal list. When post-implementation runs after Phase 5, the file will not exist."
+      plan_location: "Post-implementation section, line 347-349"
+      step_name: sc-count-gate
+      affected_phase: "Phase 5 (Item 7 removal list)"
+    - finding_id: MISSING_STEP-2
+      severity: error
+      description: "Post-implementation section dispatches cross-validate (line 360) referencing audit/tasks/cross-validate.md, but this file is in the Phase 5 Item 7 removal list. When post-implementation runs after Phase 5, the file will not exist."
+      plan_location: "Post-implementation section, line 360-362"
+      step_name: cross-validate
+      affected_phase: "Phase 5 (Item 7 removal list)"
+    - finding_id: MISSING_STEP-3
+      severity: error
+      description: "Post-implementation section dispatches behavioral-test-remediation (line 366) referencing implementation-pipeline/tasks/behavioral-test-remediation.md, but this file is in the Phase 5 Item 7 removal list. When post-implementation runs after Phase 5, the file will not exist."
+      plan_location: "Post-implementation section, line 366-368"
+      step_name: behavioral-test-remediation
+      affected_phase: "Phase 5 (Item 7 removal list)"
+
+  summary: >
+    3 MISSING_STEP findings: post-implementation section dispatches sc-count-gate,
+    cross-validate, and behavioral-test-remediation — all three reference task files
+    that are in the Phase 5 Item 7 removal list. Post-implementation runs after all
+    phases, so these files will not exist when dispatched. The plan must either
+    reorder post-implementation steps before Phase 5 file removal, or remove these
+    steps from post-implementation.

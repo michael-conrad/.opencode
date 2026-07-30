@@ -1,5 +1,9 @@
 authorization_records:
-  - author: "human"
-    scope: "for_plan"
-    text: "execute verify-authorization from approval-gate-scope"
-    timestamp: "2026-07-29T23:51:00Z"
+- author: human
+  scope: for_plan
+  text: execute verify-authorization from approval-gate-scope
+  timestamp: '2026-07-29T23:51:00Z'
+comments:
+- type: internal
+  body: 'Authorization record: scope=for_pr, phrase=''plan approved for PR'', timestamp=2026-07-30T04:35:00Z'
+  timestamp: '2026-07-30T04:35:16+00:00'

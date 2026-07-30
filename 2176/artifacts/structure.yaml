@@ -1,0 +1,253 @@
+# Structure Artifact for Issue #2176
+# Pipeline Ceremony Reduction — Phase Decomposition, Dependency DAG, and Skill+Task Selection
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+schema_version: "1.0"
+generated_at: "2026-07-29T23:56:00Z"
+issue_number: 2176
+issues_prefix: ".opencode/.issues/"
+
+# Triplet Integrity Rule (documented per procedure step 5b):
+# Each SC's RED, GREEN, and COMMIT steps MUST be in the same phase.
+# No SC may have its test in one phase and its implementation in another.
+
+# Cross-Phase Dependency Rule (documented per procedure step 5d):
+# A RED test in one phase MUST NOT depend on uncommitted SC output from another phase.
+# Cross-phase RED dependencies are structural defects — they create implicit ordering
+# constraints that bypass the dependency DAG.
+
+triplet_integrity:
+  status: PASS
+  note: "All 8 SCs have RED/GREEN/COMMIT within the same phase. No triplet split detected."
+
+cross_phase_dependency:
+  status: PASS
+  note: "No RED test depends on uncommitted SC output from another phase. All cross-phase dependencies are satisfied through the explicit dependency DAG (Phase N output committed before Phase N+1 RED runs)."
+
+phases:
+  - id: 1
+    name: "TDT and state machine updates"
+    scs:
+      - SC-1
+      - SC-8
+    items:
+      - item: 1
+        sc: SC-1
+        description: "Update implementation-pipeline TDT — remove cross-validate, checkpoint-commit, old per-item cycle steps. Add pre-regression, pre-regression-verify, red, green, post-regression, verify, commit inline, audit DiMo steps. Update pipeline state machine."
+        red: "Write enforcement test: grep TDT for removed step names (cross-validate, checkpoint-commit) — expect 0 matches. grep for new step names — expect matches."
+        green: "Edit implementation-pipeline/SKILL.md TDT and pipeline-state-machine.yaml"
+        commit: "Commit both files together"
+      - item: 8
+        sc: SC-8
+        description: "Single inline Z3 check per phase after AUDIT, every phase, no skip condition."
+        red: "Write enforcement test: opencode run with multi-phase scenario, assert_semantic for Z3 check after each AUDIT"
+        green: "Update implementation-pipeline/SKILL.md to specify inline Z3 check after AUDIT in the TDT and Invocation sections"
+        commit: "Commit with SC-1 changes (same files)"
+    affected_files:
+      - ".opencode/skills/implementation-pipeline/SKILL.md"
+      - ".opencode/skills/implementation-pipeline/pipeline-state-machine.yaml"
+    skill_selection:
+      primary_skill: "implementation-pipeline"
+      task: "TDT update is inline orchestrator work (editing SKILL.md and state machine per spec). Dispatch sub-agent via task() with prompt: 'execute TDT-update from implementation-pipeline. Read implementation-pipeline/tasks/tdt-update.md first' — or if no such task file exists, dispatch general sub-agent with objective: update TDT and state machine per spec SC-1 and SC-8."
+      dispatch_mode: "sub-agent"
+      notes: "SC-1 and SC-8 share the same affected files (SKILL.md + state machine). Both items committed together in one commit."
+
+  - id: 2
+    name: "Fix path references"
+    scs:
+      - SC-2
+    items:
+      - item: 2
+        sc: SC-2
+        description: "Fix all git-workflow/tasks/ path references to correct sub-skill paths across 7 files."
+        red: "Write enforcement test: grep 'git-workflow/tasks/' across .opencode/ — expect 0 matches"
+        green: "Edit each of the 7 affected files to replace git-workflow/tasks/ with correct sub-skill paths"
+        commit: "Commit all 7 file changes together"
+    affected_files:
+      - ".opencode/skills/implementation-pipeline/SKILL.md"
+      - ".opencode/skills/completion-core/SKILL.md"
+      - ".opencode/skills/approval-gate-scope/tasks/verify-closed-issue.md"
+      - ".opencode/skills/pr-creation-workflow/tasks/create.md"
+      - ".opencode/guidelines/065-verification-honesty.md"
+      - ".opencode/CHANGELOG.md"
+      - ".opencode/.guidelines/registry.yaml"
+    skill_selection:
+      primary_skill: "general sub-agent"
+      task: "Dispatch sub-agent with objective: find and replace git-workflow/tasks/ references with correct sub-skill paths across the 7 affected files. Sub-agent independently reads each file, identifies the correct path, and applies edits."
+      dispatch_mode: "sub-agent"
+      notes: "Phase 1 must complete first — implementation-pipeline/SKILL.md is shared between Phase 1 and Phase 2. Phase 1 TDT changes must be in place before Phase 2 path fixes are applied to the same file."
+
+  - id: 3
+    name: "Sub-agent dispatch prohibition"
+    scs:
+      - SC-3
+      - SC-4
+    items:
+      - item: 3
+        sc: SC-3
+        description: "Audit all task files for imperative skill()/task() instructions. Replace with result contract instructions. Skip files in Phase 5 removal list."
+        red: "Write enforcement test: grep for skill({name: pattern in tasks/ directories — expect 0 imperative matches (documentation references permitted)"
+        green: "For each task file with imperative skill()/task() instructions: replace with result contract instructions. Skip Phase 5 removal targets."
+        commit: "Commit all task file changes together"
+      - item: 4
+        sc: SC-4
+        description: "Remove stale resolve-models, auditor_1, auditor_2 references from all SKILL.md files. Skip files in Phase 5 removal list."
+        red: "Write enforcement test: grep for resolve-models/auditor_1/auditor_2 in SKILL.md files — expect 0 matches"
+        green: "For each SKILL.md with stale references: remove the references. Skip Phase 5 removal targets."
+        commit: "Commit all SKILL.md changes together"
+    affected_files:
+      - "All task files matching grep -rn 'skill({name:\|task(' .opencode/skills/*/tasks/ (~100+ files)"
+      - "All SKILL.md files matching grep -rnl 'resolve-models' .opencode/skills/*/SKILL.md (14 files)"
+    skip_list:
+      - ".opencode/skills/implementation-pipeline/tasks/checkpoint-tag-create.md"
+      - ".opencode/skills/implementation-pipeline/tasks/sc-count-gate.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pre-red-baseline.md"
+      - ".opencode/skills/implementation-pipeline/tasks/post-red-enforcement.md"
+      - ".opencode/skills/implementation-pipeline/tasks/post-green-enforcement.md"
+      - ".opencode/skills/implementation-pipeline/tasks/tdd-chaining-gate.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pre-flight.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md"
+      - ".opencode/skills/implementation-pipeline/tasks/sc-closeout.md"
+      - ".opencode/skills/implementation-pipeline/tasks/assemble-work.md"
+      - ".opencode/skills/implementation-pipeline/tasks/behavioral-test-remediation.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pipeline-executor.md"
+      - ".opencode/skills/audit/tasks/cross-validate.md"
+      - ".opencode/skills/audit/tasks/resolve-models.md"
+    skill_selection:
+      primary_skill: "audit + general sub-agent"
+      task: "Phase 3 requires two passes: (1) audit all task files for imperative skill()/task() instructions, classify each as imperative vs documentation reference, and produce a list of files needing edits. (2) Apply edits to each file, replacing imperative instructions with result contract instructions. For SKILL.md files, remove resolve-models/auditor_1/auditor_2 references. Both passes MUST skip the Phase 5 removal list."
+      dispatch_mode: "sub-agent"
+      notes: "SC-3 and SC-4 are independent (task files vs SKILL.md files) but both must skip the same Phase 5 removal list. Can be dispatched as parallel sub-agents or sequential. Phase 3 can run in parallel with Phase 2 (different affected files)."
+
+  - id: 4
+    name: "Pipeline restructuring"
+    scs:
+      - SC-5
+    items:
+      - item: 5
+        sc: SC-5
+        description: "Collapse per-item cycle to 6 steps (pre-regression, pre-regression-verify, red, green, post-regression, verify) plus inline commit. Collapse writing-plans pipeline to 4 steps (analyze, research, create, validate)."
+        red: "Write enforcement test: opencode run with full pipeline scenario, assert_semantic for step sequence (6 per-item steps + inline commit, 4 writing-plans steps)"
+        green: "Update implementation-pipeline/SKILL.md TDT and Invocation for new per-item cycle. Update writing-plans/SKILL.md for new 4-step pipeline. Update/remove writing-plans/tasks/ (explore, structure, solve, self-review)."
+        commit: "Commit all pipeline restructuring changes together"
+    affected_files:
+      - ".opencode/skills/implementation-pipeline/SKILL.md"
+      - ".opencode/skills/writing-plans/SKILL.md"
+      - ".opencode/skills/writing-plans/tasks/explore.md"
+      - ".opencode/skills/writing-plans/tasks/structure.md"
+      - ".opencode/skills/writing-plans/tasks/solve.md"
+      - ".opencode/skills/writing-plans/tasks/self-review.md"
+    skill_selection:
+      primary_skill: "implementation-pipeline + writing-plans"
+      task: "Dispatch sub-agent with objective: restructure per-item cycle in implementation-pipeline/SKILL.md to 6 steps + inline commit. Restructure writing-plans/SKILL.md to 4-step pipeline. Update or remove writing-plans/tasks/ files as needed. Depends on Phase 1 TDT changes being committed first."
+      dispatch_mode: "sub-agent"
+      notes: "Depends on Phase 1 (same implementation-pipeline/SKILL.md file — TDT must be updated before pipeline restructuring). Phase 4 must run after Phase 1 completes."
+
+  - id: 5
+    name: "File cleanup"
+    scs:
+      - SC-6
+      - SC-7
+    items:
+      - item: 6
+        sc: SC-6
+        description: "Make checkpoint tag creation inline (orchestrator runs git commands directly, no sub-agent dispatch). Remove checkpoint-commit step from TDT."
+        red: "Write enforcement test: opencode run with checkpoint scenario, assert_stderr_pattern for inline git tag (no sub-agent dispatch)"
+        green: "Update implementation-pipeline/SKILL.md TDT to mark checkpoint-tag-create as inline. Remove checkpoint-commit step. Update pipeline-state-machine.yaml to remove checkpoint-commit transitions."
+        commit: "Commit with SC-7 changes"
+      - item: 7
+        sc: SC-7
+        description: "Remove 14 legacy task files. Audit cross-references — no remaining reference to any removed file path."
+        red: "Write enforcement test: ls for each removed file — expect 'No such file'. grep for each removed file path across .opencode/ — expect 0 matches"
+        green: "Remove 14 legacy task files. Fix any cross-references found."
+        commit: "Commit with SC-6 changes"
+    affected_files:
+      - ".opencode/skills/implementation-pipeline/SKILL.md"
+      - ".opencode/skills/implementation-pipeline/pipeline-state-machine.yaml"
+      - "14 legacy task files to remove (see removal_list)"
+    removal_list:
+      - ".opencode/skills/implementation-pipeline/tasks/checkpoint-tag-create.md"
+      - ".opencode/skills/implementation-pipeline/tasks/sc-count-gate.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pre-red-baseline.md"
+      - ".opencode/skills/implementation-pipeline/tasks/post-red-enforcement.md"
+      - ".opencode/skills/implementation-pipeline/tasks/post-green-enforcement.md"
+      - ".opencode/skills/implementation-pipeline/tasks/tdd-chaining-gate.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pre-flight.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md"
+      - ".opencode/skills/implementation-pipeline/tasks/sc-closeout.md"
+      - ".opencode/skills/implementation-pipeline/tasks/assemble-work.md"
+      - ".opencode/skills/implementation-pipeline/tasks/behavioral-test-remediation.md"
+      - ".opencode/skills/implementation-pipeline/tasks/pipeline-executor.md"
+      - ".opencode/skills/audit/tasks/cross-validate.md"
+      - ".opencode/skills/audit/tasks/resolve-models.md"
+    skill_selection:
+      primary_skill: "git-workflow (cleanup) + general sub-agent"
+      task: "Dispatch sub-agent with objective: (1) Update implementation-pipeline/SKILL.md to mark checkpoint-tag-create as inline, remove checkpoint-commit step. (2) Update pipeline-state-machine.yaml to remove checkpoint-commit transitions. (3) Remove 14 legacy task files. (4) Audit cross-references across .opencode/ for any remaining references to removed file paths."
+      dispatch_mode: "sub-agent"
+      notes: "Depends on all prior phases. SC-6 and SC-7 share the same affected files (SKILL.md + state machine) and are committed together."
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Phase 1 and Phase 2 both modify implementation-pipeline/SKILL.md. TDT changes (Phase 1) must be in place before path reference fixes (Phase 2) are applied to the same file."
+    - from: 1
+      to: 4
+      reason: "Phase 4 restructures the per-item cycle in implementation-pipeline/SKILL.md. The TDT must be updated first (Phase 1) before the pipeline can be restructured."
+    - from: 1
+      to: 5
+      reason: "Phase 5 removes checkpoint-commit from TDT and state machine. TDT must be updated first."
+    - from: 2
+      to: 5
+      reason: "Phase 5 removes legacy task files. Path references must be fixed first to avoid stale references to removed files."
+    - from: 3
+      to: 5
+      reason: "Phase 5 removes legacy task files. Phase 3 must skip Phase 5 removal targets — this dependency ensures Phase 3 work is not wasted on files slated for deletion."
+    - from: 4
+      to: 5
+      reason: "Phase 5 removes checkpoint-commit step. Pipeline must be restructured first so the removal is consistent with the new TDT."
+
+  parallel_groups:
+    - group: 1
+      phases: [1]
+      note: "Phase 1 must execute first (foundation for all downstream phases)"
+    - group: 2
+      phases: [2, 3]
+      note: "Phase 2 and Phase 3 can execute in parallel (different affected files, no shared dependencies)"
+    - group: 3
+      phases: [4]
+      note: "Phase 4 depends on Phase 1 (same TDT file)"
+    - group: 4
+      phases: [5]
+      note: "Phase 5 depends on all prior phases"
+
+execution_order:
+  - "Phase 1: TDT and state machine updates (SC-1, SC-8)"
+  - "Phase 2: Fix path references (SC-2) — can run in parallel with Phase 3"
+  - "Phase 3: Sub-agent dispatch prohibition (SC-3, SC-4) — can run in parallel with Phase 2"
+  - "Phase 4: Pipeline restructuring (SC-5) — depends on Phase 1"
+  - "Phase 5: File cleanup (SC-6, SC-7) — depends on all prior phases"
+
+skill_task_selection:
+  phase_1:
+    skill: "implementation-pipeline"
+    task: "TDT update (inline orchestrator work per spec — editing SKILL.md and state machine)"
+    dispatch: "sub-agent via task() with objective: update TDT and state machine per SC-1 and SC-8"
+  phase_2:
+    skill: "general sub-agent"
+    task: "Find-and-replace git-workflow/tasks/ references across 7 files"
+    dispatch: "sub-agent via task() with objective: fix path references across affected files"
+  phase_3:
+    skill: "audit + general sub-agent"
+    task: "Audit task files for imperative skill()/task() instructions and SKILL.md files for resolve-models references. Apply edits, skipping Phase 5 removal list."
+    dispatch: "sub-agent via task() with objective: audit and fix task files and SKILL.md files, skip Phase 5 removal targets"
+  phase_4:
+    skill: "implementation-pipeline + writing-plans"
+    task: "Restructure per-item cycle and writing-plans pipeline"
+    dispatch: "sub-agent via task() with objective: restructure per-item cycle to 6 steps + inline commit, restructure writing-plans to 4 steps"
+  phase_5:
+    skill: "git-workflow (cleanup) + general sub-agent"
+    task: "Make checkpoint tags inline, remove legacy task files, audit cross-references"
+    dispatch: "sub-agent via task() with objective: update TDT for inline checkpoint, remove checkpoint-commit, remove 14 legacy files, audit cross-references"
