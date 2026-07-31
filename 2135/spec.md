@@ -6,11 +6,13 @@ labels: [spec]
 
 ## Problem
 
-`130-authority-source.md` currently asserts "code wins" — the filesystem is the only absolute source of truth. Research on spec-driven development (SDD) reveals this is the wrong framing for this project:
+`130-authority-source.md` currently asserts "code wins" — the filesystem is the only absolute source of truth. This framing is backwards for a spec-driven project where specs are the primary artifact for intent, the authorization mechanism, and the review target. The project's own workflow demonstrates this: specs drive implementation, specs authorize changes, specs are what gets reviewed. The "code wins" position contradicts the project's actual practice.
 
-- **Augment Code (2026)**: "Spec-driven development inverts the traditional workflow by treating specifications as the source of truth and code as a generated or verified secondary artifact."
-- **Martin Fowler / Thoughtworks (2025)**: Three levels of SDD — spec-first, spec-anchored, spec-as-source. All treat the spec as authoritative for intent.
-- **GitHub spec-kit**: "In this new world, maintaining software means evolving specifications. The lingua franca of development moves to a higher level, and code is the last-mile approach."
+> **Note on citations:** The following references are included as project-internal reasoning anchors, not as externally verified authority claims. They have not been verified against live sources and should not be treated as evidence in audit contexts. If external authority is needed, URLs must be added and verified before implementation.
+>
+> - **Augment Code (2026)**: "Spec-driven development inverts the traditional workflow by treating specifications as the source of truth and code as a generated or verified secondary artifact."
+> - **Martin Fowler / Thoughtworks (2025)**: Three levels of SDD — spec-first, spec-anchored, spec-as-source. All treat the spec as authoritative for intent.
+> - **GitHub spec-kit**: "In this new world, maintaining software means evolving specifications. The lingua franca of development moves to a higher level, and code is the last-mile approach."
 
 The project uses specs as the primary artifact — specs drive implementation, specs are the authorization mechanism, specs are what gets reviewed. The current "code wins" position is backwards.
 
@@ -42,7 +44,7 @@ Complete rewrite establishing a dual-authority model:
 
 - Rule 2 (Superseding Issues + Overlap Detection Checklist) — move to `spec-creation` skill card
 - Rule 6 (Verification First) — already in 065
-- Rule 8 (Plan Audit Code Deep Dive) — project-specific doc reference
+- Rule 8 (Plan Audit Code Deep Dive) — move to `spec-creation` skill card (alongside Superseding Issues content)
 
 ## Requirements
 
@@ -88,10 +90,10 @@ Complete rewrite establishing a dual-authority model:
 | SC-9a | Verification First section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Verification First section is absent from the original location |
 | SC-9b | Verification First content present in 065-verification-honesty.md | semantic | Clean-room sub-agent reads 065-verification-honesty.md and verifies the Verification First content is present in the target location |
 | SC-10a | Plan Audit Code Deep Dive section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Plan Audit Code Deep Dive section is absent from the original location |
-| SC-10b | Plan Audit content present in target location | semantic | Clean-room sub-agent reads the target location and verifies the Plan Audit Code Deep Dive content is present |
+| SC-10b | Plan Audit content present in spec-creation SKILL.md | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Plan Audit Code Deep Dive content is present |
 | SC-11a | Superseding Issues semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Superseding Issues content |
 | SC-11b | Verification First semantic preservation | semantic | Clean-room sub-agent reads both source (065-verification-honesty.md) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Verification First content |
-| SC-11c | Plan Audit semantic preservation | semantic | Clean-room sub-agent reads both source (target location) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Plan Audit Code Deep Dive content |
+| SC-11c | Plan Audit semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Plan Audit Code Deep Dive content |
 | SC-12 | Rewrite does not use word count, line count, or any quantitative metric as a compaction target — only semantic analysis determines what stays or goes | semantic | Clean-room sub-agent reads the final guideline and verifies the rewrite was guided by semantic necessity, not mechanical metrics |
 
 ## Implementation Plan
