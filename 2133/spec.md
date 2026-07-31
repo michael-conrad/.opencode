@@ -6,11 +6,13 @@ labels: [spec]
 
 ## Problem
 
-`091-incremental-build.md` is ~49 lines / ~2.8KB — already compacted. Three minor issues remain:
+`091-incremental-build.md` has three semantic defects that reduce clarity and maintainability:
 
-1. Line 9 cross-refs 000-critical-rules.md (preloaded, already in context)
-2. Line 47 restates "Implementation work is measured ONLY by..." — already in 020-go-prohibitions.md §1.1
-3. Line 49 says "Symbolic rules below — the prose above this line replaces the previous ~200 lines" — dead reference to already-removed content
+1. **Duplicate cross-reference on line 9**: The same `000-critical-rules.md` cross-ref appears twice in the same line. The first instance is redundant — the second instance (after "Also covered by...") is the canonical one. The first instance adds no information and should be removed.
+
+2. **Duplicated paragraph on line 47**: The paragraph "Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count, byte-dispatch formulas) are NOT valid proxies for implementation complexity." is already present in `020-go-prohibitions.md` §1.1 as a note. Having it in both files creates a maintenance burden — updates to the principle must be made in two places, and the two copies will inevitably drift. The canonical copy is in `020-go-prohibitions.md`; the copy in `091-incremental-build.md` should be removed.
+
+3. **Dead reference on line 49**: The line "Symbolic rules below — the prose above this line replaces the previous ~200 lines of advisory text." references content that was already removed. This is a stale artifact from a prior compaction pass — it refers to text that no longer exists and serves no purpose. It should be removed.
 
 ## Proposed Solution
 
@@ -45,6 +47,12 @@ labels: [spec]
 ## Dependencies
 
 - None.
+
+## Change Control
+
+| Date | Change | Reason | Authorizer |
+|------|--------|--------|------------|
+| 2026-07-31 | Rewrote Problem section: replaced metric-based justification (line count, file size) with pure semantic analysis of each defect | Spec violated principle that word/line counts are not valid measures for compaction; justification must be semantic | spec-creation pipeline (revision task) |
 
 ---
 

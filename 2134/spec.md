@@ -49,24 +49,19 @@ Keep the two remaining triggers:
 
 Suppress non-actionable triggers from output.
 
-### Remove:
-
-- Purged triggers list (line 15) — historical record, not actionable
-- Cross-references to source files (`session_context_triggers.py`, `session-enforcement.ts`) — not preloaded
-- Cross-reference to 000-critical-rules.md — preloaded, already in context
-
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | Self-Simulation Prohibition section exists | string | grep for 'Self-Simulation' |
-| SC-2 | Prohibition covers all mechanisms (shell, file, comment, tool output, session trigger) | string | grep for each mechanism |
+| SC-2 | Prohibition covers all mechanisms (shell, file, comment, tool output, session trigger) with equivalent semantic force | semantic | Clean-room sub-agent reads the prohibition text and judges whether each mechanism is covered with equivalent normative force |
 | SC-3 | Session Trigger No-Echo section exists | string | grep for 'No-Echo' |
 | SC-4 | Trigger Behavior Map with 2 triggers exists | string | grep for 'pair_mode_resume' and 'nested_opencode_fatal' |
 | SC-5 | Suppression Rule exists | string | grep for 'Suppression Rule' |
-| SC-6 | Purged triggers list removed | string | grep for absence of 'on_main_branch' |
-| SC-7 | Source file cross-references removed | string | grep for absence of 'session_context_triggers.py' |
-| SC-8 | Cross-reference to 000 removed | string | grep for absence of '000-critical-rules.md' in cross-refs |
+| SC-6 | The guideline does not contain non-actionable historical records that could confuse agent behavior | semantic | Clean-room sub-agent reads the guideline and judges whether any remaining content is non-actionable historical record rather than actionable instruction |
+| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline | semantic | Clean-room sub-agent reads the guideline and judges whether cross-references to files not in the preloaded context would cause confusion or dead links |
+| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) | semantic | Clean-room sub-agent reads the guideline and judges whether any cross-reference to 000-critical-rules.md is redundant given its preloaded status |
+| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite with equivalent semantic force | semantic | Clean-room sub-agent reads both original and rewritten guideline, compares each actionable instruction, and judges whether semantic force is preserved |
 
 ## Implementation Plan
 
@@ -81,12 +76,20 @@ Suppress non-actionable triggers from output.
 
 ## Risks
 
-- **Over-broad prohibition**: If the Self-Simulation Prohibition is too broad, it may block legitimate workflows (e.g., writing a file and then reading it for verification). Mitigation: the prohibition targets instruction-consumption, not data-consumption. Writing a file and reading it back for verification is allowed. Writing instructions and reading them back as commands is forbidden.
+- **Over-broad prohibition**: If the Self-Simulation Prohibition is too broad, it may block legitimate workflows (e.g., writing a file and then reading it for verification). Mitigation: the prohibition targets instruction-consumption, not data-consumption. Writing a file and reading it back for verification is allowed. Writing instructions and reading them back as commands is forbidden. **The guideline text MUST operationalize this distinction** — the "instruction-consumption vs data-consumption" boundary is a semantic distinction that must be encoded in the guideline's wording, not just noted as a risk. The rewrite must include explicit language distinguishing prohibited instruction-consumption from permitted data-consumption, with examples of each.
 - **False sense of security**: A guideline alone cannot prevent self-simulation if the agent is compromised. Mitigation: this is one layer in a defense-in-depth approach. The tool-level ban (020, no echo/printf) and architectural constraints (session isolation) provide complementary layers.
 
 ## Dependencies
 
 - None.
+
+---
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-31 | Reframed SCs 6-8 from removal targets to semantic-preservation targets; upgraded SC-2 evidence type from string to semantic; added SC-9 (semantic preservation of original actionable content); removed "Remove:" section (implementation detail moved to plan); added note that guideline text must operationalize instruction-consumption vs data-consumption distinction | Revision request: spec framed around text removal rather than semantic preservation; evidence types needed upgrading; implementation details belonged in plan | Developer (revision request) |
 
 ---
 

@@ -6,11 +6,11 @@ labels: [spec]
 
 ## Problem
 
-`090-data-integrity.md` is ~96 lines / ~8KB. Its rules are narrow data processing pipeline failure modes from a specific project (no synthetic data, fail fast on missing fields, verify before recommend, tqdm for batch jobs). These don't cover general data integrity concerns that apply across projects: validation at system boundaries, serialization integrity, data classification, migration integrity, audit trails, data retention.
+`090-data-integrity.md` contains narrow data processing pipeline failure modes from a specific project (PubMed XML pipeline). These rules are project-specific and don't cover general data integrity concerns that apply across projects: validation at system boundaries, serialization integrity, data classification, migration integrity, audit trails, data retention.
 
 ## Proposed Solution
 
-Replace the entire file with a broadened data integrity framework covering 6 categories. The existing narrow rules are subsumed by the broader principles.
+Revise the file: preserve the specific battle-tested rules (no synthetic data, fail fast, no hardcoded IDs, batch ops, tqdm, cross-references) and add the broader 6-category framework as new sections.
 
 ### New Structure
 
@@ -37,8 +37,22 @@ Replace the entire file with a broadened data integrity framework covering 6 cat
 | Production data protection | Data classification |
 | No hardcoded entity IDs | Data validation at boundaries |
 | Batch ops (pagination, parameter limits) | Data validation at boundaries |
-| tqdm | Removed — tool-specific, not a data integrity principle |
-| Cross-reference to 200-errors.md | Removed — not preloaded |
+| tqdm | Preserved — operational rule for batch progress tracking |
+| Cross-reference to 200-errors.md | Preserved — navigation aid for error handling rules |
+
+> **Note:** All other existing rules are preserved and supplemented by the broader categories, not replaced.
+
+## Requirements
+
+| ID | Requirement | Source |
+|----|-------------|--------|
+| REQ-1 | Data validation at system boundaries — validate structure, types, and constraints when data enters or exits the system | Proposed Solution §1 |
+| REQ-2 | Serialization integrity — all serialized formats must be versioned with backward compatibility and traceability | Proposed Solution §2 |
+| REQ-3 | Data classification — classify data by sensitivity (PII, internal, public, production) with restricted access for production data | Proposed Solution §3 |
+| REQ-4 | Migration integrity — all data migrations must be reversible with source-to-target verification before deployment | Proposed Solution §4 |
+| REQ-5 | Audit trail — every data mutation must be traceable to its source and authorization | Proposed Solution §5 |
+| REQ-6 | Data retention — define retention policies per classification; no data persists beyond its retention window without review | Proposed Solution §6 |
+| REQ-7 | Preserve existing specific rules — no synthetic data, fail fast, no hardcoded IDs, batch ops, tqdm, cross-references | Proposed Solution (Existing Rules Superseded) |
 
 ## Success Criteria
 
@@ -46,33 +60,50 @@ Replace the entire file with a broadened data integrity framework covering 6 cat
 |----|-----------|---------------|---------------------|
 | SC-1 | File contains 6 data integrity categories | string | grep for each category header |
 | SC-2 | No remaining project-specific references (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date) | string | grep for absence of each |
-| SC-3 | No remaining cross-reference to 200-errors.md | string | grep for absence of '200-errors' |
-| SC-4 | No remaining tqdm requirement | string | grep for absence of 'tqdm' |
-| SC-5 | Data validation at boundaries covers structure, types, constraints, missing data, entity resolution | string | grep for each concept |
-| SC-6 | Serialization integrity covers versioning, backward compat, traceability | string | grep for each concept |
-| SC-7 | Data classification covers sensitivity levels, production data restrictions | string | grep for each concept |
-| SC-8 | Migration integrity covers reversibility, verification, sampling | string | grep for each concept |
-| SC-9 | Audit trail covers traceability, authorization, documented changes | string | grep for each concept |
-| SC-10 | Data retention covers retention policies per classification | string | grep for retention policy |
+| SC-3 | Existing specific rules preserved (no synthetic data, fail fast, no hardcoded IDs, batch ops, tqdm, cross-references) | string | grep for each preserved rule |
+| SC-4 | Data validation at boundaries covers structure, types, constraints, missing data, entity resolution | string | grep for each concept |
+| SC-5 | Serialization integrity covers versioning, backward compat, traceability | string | grep for each concept |
+| SC-6 | Data classification covers sensitivity levels, production data restrictions | string | grep for each concept |
+| SC-7 | Migration integrity covers reversibility, verification, sampling | string | grep for each concept |
+| SC-8 | Audit trail covers traceability, authorization, documented changes | string | grep for each concept |
+| SC-9 | Data retention covers retention policies per classification | string | grep for retention policy |
+| SC-10 | Agent rejects synthetic/fabricated data when generating code examples | behavioral | opencode run with prompt requesting fabricated data; verify agent declines |
+| SC-11 | Agent fails fast on missing required data instead of using defaults | behavioral | opencode run with prompt about missing field handling; verify agent raises error |
+| SC-12 | Agent does not hardcode entity IDs in generated code | behavioral | opencode run with prompt requiring entity references; verify dynamic derivation |
+| SC-13 | No specific failure-mode rules were lost in the revision | semantic | Sub-agent reads both old and new file; verifies all specific rules from old file are present in new file |
 
 ## Implementation Plan
 
-### Phase 1: Replace entire file content with new 6-category framework
+### Phase 1: Revise file: preserve existing rules, add 6 new categories, update cross-references
 ### Phase 2: Verify all project-specific references removed
 ### Phase 3: Verify all 6 categories present with correct scope
 
 ## Files Affected
 
-- `.opencode/guidelines/090-data-integrity.md` — replaced entirely
+- `.opencode/guidelines/090-data-integrity.md` — revised: preserve existing rules, add 6 new categories
 
 ## Risks
 
 - **Over-broadening**: If the categories are too abstract, they won't constrain agent behavior. Mitigation: each category includes concrete examples of what it forbids and requires.
 - **Loss of specific failure modes**: The narrow rules (no synthetic data, fail fast) are real failure patterns. Mitigation: they're subsumed under the broader categories, not lost.
+- **Lobotomization**: Removing specific failure-mode rules in favor of abstract categories. Mitigation: SC-13 verifies semantic preservation of all specific rules.
 
 ## Dependencies
 
 - None.
+
+---
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-31 | Problem: replaced size-based framing (~96 lines / ~8KB) with semantic framing (project-specific PubMed pipeline rules) | Defect #1: size-based problem framing is not a valid measure | Review findings |
+| 2026-07-31 | Proposed Solution: changed from "Replace entire file" to "Revise file: preserve existing rules, add 6 new categories" | Defect #4: destructive replacement would lose battle-tested rules | Review findings |
+| 2026-07-31 | Existing Rules Superseded: changed tqdm and 200-errors from "Removed" to "Preserved"; added note that all existing rules are preserved and supplemented | Defect #3: lobotomization risk from removing specific rules | Review findings |
+| 2026-07-31 | Success Criteria: replaced all 10 string-only SCs with 9 string + 3 behavioral + 1 semantic SCs; removed SC-3/SC-4 (absence of tqdm/200-errors) replaced with SC-3 (preserved rules) | Defect #2: EVIDENCE_TYPE_MISMATCH — runtime-behavioral change requires behavioral evidence; Defect #5: no behavioral enforcement tests | Review findings |
+| 2026-07-31 | Implementation Plan: Phase 1 updated to reflect revise approach | Defect #4: consistency with Proposed Solution change | Review findings |
+| 2026-07-31 | Risks: added lobotomization risk with SC-13 mitigation | Defect #3: explicit risk tracking for rule preservation | Review findings |
 
 ---
 

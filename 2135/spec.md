@@ -49,15 +49,17 @@ Complete rewrite establishing a dual-authority model:
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | Dual-authority principle stated (spec for intent, code for state) | string | grep for 'spec is authoritative for intent' |
-| SC-2 | Rule 1: Spec for intent, code for state | string | grep for 'Spec for intent' |
-| SC-3 | Rule 2: Spec before code | string | grep for 'Spec before code' |
-| SC-4 | Rule 3: Documentation Drift Protocol | string | grep for 'Documentation Drift Protocol' |
-| SC-5 | Rule 4: Spec revision revokes plan approval | string | grep for 'spec revision revokes' |
-| SC-6 | Rule 5: Suppression of Reactive Remediation | string | grep for 'Suppression of Reactive Remediation' |
-| SC-7 | Rule 6: Verification against spec | string | grep for 'Verification against spec' |
-| SC-8 | Superseding Issues section removed | string | grep for absence of 'Superseding Issues' |
-| SC-9 | Verification First section removed | string | grep for absence of 'Verification First' |
-| SC-10 | Plan Audit Code Deep Dive section removed | string | grep for absence of 'Plan Audit Requires Code Deep Dive' |
+| SC-2 | Rule 1: Spec for intent, code for state | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly expresses the dual-authority relationship (spec defines what to build, code implements it) |
+| SC-3 | Rule 2: Spec before code | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly states that every code change requires an approved spec |
+| SC-4 | Rule 3: Documentation Drift Protocol | semantic | Clean-room sub-agent reads guideline and verifies the drift protocol correctly describes updating spec to match current code state as an administrative sync |
+| SC-5 | Rule 4: Spec revision revokes plan approval | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly states that substantive spec revision revokes linked plan approvals |
+| SC-6 | Rule 5: Suppression of Reactive Remediation | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly prohibits changing code to match a spec that is wrong about current state |
+| SC-7 | Rule 6: Verification against spec | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly states that completion verification checks code against spec success criteria |
+| SC-8 | Superseding Issues section removed | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Superseding Issues + Overlap Detection Checklist content is present in the target location, and reads 130-authority-source.md to confirm the section is absent from the original location |
+| SC-9 | Verification First section removed | semantic | Clean-room sub-agent reads 065-verification-honesty.md and verifies the Verification First content is present in the target location, and reads 130-authority-source.md to confirm the section is absent from the original location |
+| SC-10 | Plan Audit Code Deep Dive section removed | semantic | Clean-room sub-agent reads the target location and verifies the Plan Audit Code Deep Dive content is present, and reads 130-authority-source.md to confirm the section is absent from the original location |
+| SC-11 | All semantic content from removed sections (Superseding Issues, Verification First, Plan Audit Code Deep Dive) is preserved in target locations (spec-creation SKILL.md, 065-verification-honesty.md) | semantic | Clean-room sub-agent reads both source and target files, compares content, and verifies no semantic loss occurred during relocation |
+| SC-12 | Rewrite does not use word count, line count, or any quantitative metric as a compaction target — only semantic analysis determines what stays or goes | semantic | Clean-room sub-agent reads the final guideline and verifies the rewrite was guided by semantic necessity, not mechanical metrics |
 
 ## Implementation Plan
 
@@ -65,6 +67,7 @@ Complete rewrite establishing a dual-authority model:
 ### Phase 2: Write 6 new rules
 ### Phase 3: Remove superseded rules (Superseding Issues, Verification First, Plan Audit)
 ### Phase 4: Verify all 6 rules present and removed content absent
+### Phase 5: Clean-room semantic audit — dispatch a clean-room sub-agent to compare source and target files for all three relocated sections, verifying no semantic content loss occurred before the rewrite is accepted
 
 ## Files Affected
 
@@ -75,11 +78,22 @@ Complete rewrite establishing a dual-authority model:
 
 - **Confusion between intent and state**: Agents may struggle to distinguish "spec is wrong about current state" from "code doesn't implement spec intent." Mitigation: each rule includes concrete examples of both failure modes.
 - **Cross-reference breakage**: Other files referencing the old "code wins" framing. Mitigation: grep for 'code wins' and 'code is the only absolute source of truth' across the codebase.
+- **Mechanical compaction**: Using word count, line count, or other quantitative metrics as compaction targets risks lobotomizing the guideline — removing content that is semantically important but verbose. Mitigation: SC-12 explicitly prohibits mechanical compaction targets; only semantic analysis determines what stays or goes. Phase 5 (clean-room semantic audit) enforces this gate.
 
 ## Dependencies
 
 - None.
 
 ---
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-31 | Upgraded SC-2 through SC-10 evidence types from `string` to `semantic` | grep cannot verify rule correctness, only phrase presence; semantic analysis required for content-correctness SCs | Revision request |
+| 2026-07-31 | Added SC-11: semantic content preservation from removed sections | Spec lacked verification that relocated content is preserved in target locations | Revision request |
+| 2026-07-31 | Added SC-12: prohibition on mechanical compaction metrics | Spec lacked prohibition on word/line count as compaction targets | Revision request |
+| 2026-07-31 | Added Phase 5: clean-room semantic audit to Implementation Plan | Ensures no content loss before rewrite is accepted | Revision request |
+| 2026-07-31 | Added mechanical compaction risk to Risks section | Documents risk of quantitative compaction targets causing lobotomization | Revision request |
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
