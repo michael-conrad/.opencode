@@ -101,7 +101,7 @@ body: '## Objective
 
   | REQ-2 | SC-3, SC-8 | Phase 2 |
 
-  | REQ-3 | SC-4, SC-9 | Phase 3 |
+  | REQ-3 | SC-4, SC-9 | Phase 3 (content preserved in moved Enforcement Test Mandate) |
 
   | REQ-4 | SC-5 | Phase 3 (no-op) |
 
@@ -148,8 +148,7 @@ body: '## Objective
   - **Phase 2** (REQ-2): Move Enforcement Test Mandate to test-driven-development
   skill card
 
-  - **Phase 3** (REQ-3, REQ-4): Remove Behavioral RED/GREEN section; verify Test Integrity
-  Mandate stays
+  - **Phase 3** (REQ-3, REQ-4): Remove Behavioral RED/GREEN section (content preserved in moved Enforcement Test Mandate); verify Test Integrity Mandate stays in 080
 
   - **Phase 3.5** (REQ-2, REQ-3): Lobotomization gate — run behavioral enforcement
   tests to verify no constraint loss
