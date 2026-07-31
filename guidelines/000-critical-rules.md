@@ -315,10 +315,6 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Spec-audit findings | Internal only |
 
 
-### [critical-rules-027] Feedback ≠ Authorization — treating technical input as implementation permission
-User engagement is collaboration, not permission. Amateurs treat feedback as an implementation ticket. Professionals wait for explicit authorization. Read [§1](guidelines/020-go-prohibitions.md).
-
-
 ### [critical-rules-009] Silent Agent Termination — producing no output before stopping
 A halt without output means leaving the developer blind. Professionals produce structured output at every stop — amateurs vanish without a trace, leaving defects undiscovered. See detailed rules below.
 
