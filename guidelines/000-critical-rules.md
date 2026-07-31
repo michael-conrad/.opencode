@@ -410,8 +410,7 @@ Reading a skill's task files and then inlining the steps means you are bypassing
 Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
 
 
-### [critical-rules-043] Universal Re-Task Mandate — no inline fallback on sub-agent failure
-When a sub-agent fails, inline fallback means the failure contaminates your pipeline — you inherit the same context that caused the error. Professional engineers always re-task clean-room with the same scoped context. Amateurs patch in place and compound their problems.
+
 
 
 
