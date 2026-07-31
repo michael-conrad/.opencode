@@ -446,25 +446,7 @@ This rule is the orchestrator-facing side of the DISPATCH_GATE protocol: the orc
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 - All 37 skill SKILL.md files with DISPATCH_GATE sections contain an Orchestrator Entry Criteria block documenting this rule. 1 platform sub-skill (issue-operations/platforms/local/SKILL.md) also has a DISPATCH_GATE section with Orchestrator Entry Criteria.
 
-### [critical-rules-071] Revision-Not-Replacement — defective sub-agent deliverables MUST be revised, not replaced
-When a sub-agent returns a defective deliverable (spec, plan, or other artifact), the orchestrator MUST revise the existing deliverable via the appropriate pipeline (spec-creation for specs, writing-plans for plans). The orchestrator MUST NOT create a replacement artifact (new issue, new file) unless revision is structurally impossible (e.g., the original issue was deleted).
 
-#### 🚫 FORBIDDEN
-
-- Creating a new issue/file to replace a defective sub-agent deliverable when revision is possible
-- Orphaning the original issue number by creating a replacement
-
-#### ✅ REQUIRED
-
-- Revise the existing deliverable via the appropriate pipeline (spec-creation --task revise, writing-plans --task revise)
-- If revision is structurally impossible, document the rationale in an issue comment before creating a replacement
-
-#### Why This Matters
-
-| Violation Pattern | Consequence |
-|-------------------|-------------|
-| Creating replacement artifact instead of revising | Orphans original issue, breaks cross-references, wastes issue numbers |
-| Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
 
 
 
