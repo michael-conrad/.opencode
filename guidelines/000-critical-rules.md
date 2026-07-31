@@ -373,11 +373,7 @@ Every routing decision in the approval-gate pipeline chain MUST be followed by a
 - ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 
-### [critical-rules-034] Orchestrator Inline Work = pipeline contamination (Tier 2 — cannot be mechanically enforced)
-Orchestrator inline work detected → HALT. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](guidelines/000-critical-rules.md).
 
-- 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" after orchestrator inline work; preserving any cached state, work state files, or verification results produced during the inline work session
-- ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from last known good commit checkpoint tag; log the detection event in the new work state file
 
 
 
