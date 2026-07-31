@@ -112,14 +112,14 @@ Suppress non-actionable triggers from output.
 | ID | Criterion | Evidence Type | Verification Method | Cost Frame |
 |----|-----------|---------------|---------------------|------------|
 | SC-1 | Self-Simulation Prohibition section exists | string | grep for 'Self-Simulation' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-2 | Prohibition covers all 5 mechanisms (shell, file, comment, tool output, session trigger) with equivalent semantic force | semantic | Clean-room sub-agent runs Verification Checklist V-SC-2 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-2 | Prohibition covers all 5 mechanisms (shell, file, comment, tool output, session trigger) — verified by Checklist V-SC-2 | semantic | Clean-room sub-agent runs Verification Checklist V-SC-2 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 | SC-3 | Session Trigger No-Echo section exists | string | grep for 'No-Echo' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 | SC-4 | Trigger Behavior Map with 2 triggers exists | string | grep for 'pair_mode_resume' and 'nested_opencode_fatal' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 | SC-5 | Suppression Rule exists | string | grep for 'Suppression Rule' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-6 | The guideline does not contain non-actionable historical records | semantic | Clean-room sub-agent runs Verification Checklist V-SC-6 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline | semantic | Clean-room sub-agent runs Verification Checklist V-SC-7 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) | semantic | Clean-room sub-agent runs Verification Checklist V-SC-8 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite with equivalent semantic force | semantic | Clean-room sub-agent runs Verification Checklist V-SC-9 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-6 | The guideline does not contain non-actionable historical records — verified by Checklist V-SC-6 | semantic | Clean-room sub-agent runs Verification Checklist V-SC-6 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline — verified by Checklist V-SC-7 | semantic | Clean-room sub-agent runs Verification Checklist V-SC-7 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) — verified by Checklist V-SC-8 | semantic | Clean-room sub-agent runs Verification Checklist V-SC-8 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite — verified by Checklist V-SC-9 | semantic | Clean-room sub-agent runs Verification Checklist V-SC-9 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 
 ## SC Enforcement Gate
 
