@@ -12,10 +12,6 @@ load_when: sub-agent
 
 When instructed to check, verify, confirm, look up, or ensure something — the agent MUST perform actual verification work using tools, commands, or queries. Memory alone is NOT sufficient.
 
-## Core Principle
-
-**When instructed to check, verify, confirm, look up, or ensure anything — the agent MUST perform actual verification work using tools, commands, or queries. Memory alone is NOT sufficient.**
-
 The agent must never shortcut verification by recalling information from memory (session context, prior tool calls, or training data) instead of performing actual verification.
 
 ## Evidence Requirement
