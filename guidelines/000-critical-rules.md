@@ -315,35 +315,6 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Spec-audit findings | Internal only |
 
 
-### [critical-rules-009] Silent Agent Termination — producing no output before stopping
-A halt without output means leaving the developer blind. Professionals produce structured output at every stop — amateurs vanish without a trace, leaving defects undiscovered. See detailed rules below.
-
-#### Post-task() Output Guarantee
-
-After EVERY `task(subagent_type=...)` call, the agent MUST produce output — never transition directly from task() to halt without output.
-
-| After task() | Agent MUST |
-|----------------|-----------|
-| Sub-agent returned valid result | Report result or proceed to next step |
-| Sub-agent returned empty result | RE-TASK clean-room sub-agent with same scoped context |
-| Sub-agent returned error | RE-TASK clean-room sub-agent with same scoped context |
-| Re-task also failed | Report double-failure + call `--task completion` + HALT with status message + byline |
-
-| Violation Pattern | Classification |
-|-------------------|----------------|
-| Empty sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
-| Empty sub-agent result → re-task attempt → status message in chat | Acceptable: self-corrected |
-| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Task Mandate |
-
-#### Post-Tool Execution Output Checkpoint
-
-After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting. This checkpoint applies regardless of tool success/failure, sub-agent results, or workflow end-state. The output MUST include:
-1. What operation/tool was invoked
-2. What the result was (success/failure/error)
-3. What state this leaves the workflow in
-4. What developer action (if any) is required to proceed
-
-
 ### [critical-rules-034] Inline Screening of Authorization Sets (Tier 2 — cannot be mechanically enforced)
 Screening authorization sets inline instead of tasking a sub-agent means introducing contamination from your own reasoning. Professional engineers always task `screen-issue` sub-agents — amateurs inline and call it fast.
 
