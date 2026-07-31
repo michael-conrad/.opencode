@@ -204,7 +204,6 @@ The correct pattern:
 |-----------|-----|-------------|
 
 | Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
-| Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
 | **Skill card dispatched to sub-agent** | **critical-rules-XXX** | **Agent dispatches SKILL.md content (skill card) to sub-agent via task(); sub-agent receives orchestrator-level routing instructions it cannot execute** |
 
 
@@ -385,8 +384,7 @@ Orchestrator inline work detected → HALT. Discard pipeline execution state (wo
 Preserving output from a BLOCKED sub-agent means propagating contaminated state into the next attempt. Amateurs salvage. Professionals discard and re-task with original context.
 
 
-### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies (Tier 2 — cannot be mechanically enforced)
-Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" means you are using the agent as an API proxy, not an engineer. Professional agents task objectives. Amateurs task tool recipes. Every tool-recipe dispatch is a decision you made for the sub-agent, not a problem you gave it to solve.
+
 
 
 
