@@ -10,7 +10,7 @@ labels: [spec]
 
 1. **Duplicate content**: Core Principle (lines 15-17) restates Zero Tolerance (lines 9-13) with identical wording ("read ALL comments", "body/description alone is NEVER sufficient context"). Two copies of the same rule in the same file create ambiguity about which is authoritative — agents may treat one as binding and the other as advisory.
 
-2. **Teaching material displaces rule density**: Why This Matters table (lines 19-28), Examples table (lines 97-101), and Relationship to Other Guidelines section (lines 111-117) explain, illustrate, or cross-reference the rule rather than stating it. For sub-agents that load this guideline, every line of teaching material is a line that could carry an enforceable rule. The guideline's purpose is to govern agent behavior — not to educate the agent about why the rule exists.
+2. **Teaching material displaces rule density**: Why This Matters table (lines 19-28), Examples table (lines 97-101), and Relationship to Other Critical Rules section (lines 111-117) explain, illustrate, or cross-reference the rule rather than stating it. For sub-agents that load this guideline, every line of teaching material is a line that could carry an enforceable rule. The guideline's purpose is to govern agent behavior — not to educate the agent about why the rule exists.
 
 3. **Verbose decision tables**: When This Applies table (lines 38-48) is an 8-row decision table that can be expressed as a single sentence with one exception clause. The table format adds visual noise without adding rule content.
 
@@ -32,7 +32,7 @@ Teaching material is not inherently harmful — it helps human readers. But for 
 |---|---|---|
 | Why This Matters table | 19-28 | Explanatory — illustrates consequences of non-compliance. Rule already stated in Zero Tolerance. |
 | Examples table | 97-101 | Illustrative — shows hypothetical scenarios for Staleness Rule. Rule already stated with De Minimis Bound. |
-| Relationship to Other Guidelines | 111-117 | Cross-reference catalog — lists related rules without modifying enforcement. Agents with full context already have these cross-references loaded. |
+| Relationship to Other Critical Rules | 111-117 | Cross-reference catalog — lists related rules without modifying enforcement. Agents with full context already have these cross-references loaded. |
 
 ### Collapse:
 
@@ -53,15 +53,15 @@ Teaching material is not inherently harmful — it helps human readers. But for 
 - Evidence Requirement + COUNTS/NOT
 - Staleness Rule + Significant Actions list + De Minimis Bound + Single Exchange Window
 - FORBIDDEN/REQUIRED
-- Related Guidelines section (distinct from Relationship to Other Guidelines — Related Guidelines at lines 136-141 is a compact reference list, not teaching material)
+- Related Guidelines section (distinct from Relationship to Other Critical Rules — Related Guidelines at lines 136-141 is a compact reference list, not teaching material)
 
-### Distinction: Related Guidelines vs. Relationship to Other Guidelines
+### Distinction: Related Guidelines vs. Relationship to Other Critical Rules
 
 The file has two cross-reference sections:
-- **Relationship to Other Guidelines** (lines 111-117): Prose paragraphs explaining how this guideline relates to each referenced rule. This is teaching material — it explains rather than enforces.
+- **Relationship to Other Critical Rules** (lines 111-117): Prose paragraphs explaining how this guideline relates to each referenced rule. This is teaching material — it explains rather than enforces.
 - **Related Guidelines** (lines 136-141): A compact bullet list of guideline names with one-line descriptions. This is reference material — it tells sub-agents where to find related rules without explaining them.
 
-**Action**: Remove Relationship to Other Guidelines (teaching material). Keep Related Guidelines (reference material).
+**Action**: Remove Relationship to Other Critical Rules (teaching material). Keep Related Guidelines (reference material).
 
 ### Scope Analysis: critical-rules-012 Cross-References
 
@@ -77,15 +77,17 @@ The file contains two `critical-rules-012` entries (lines 143-148) in the critic
 | SC-2 | Why This Matters table removed | string | grep for absence of 'Why This Matters' |
 | SC-3 | When This Applies table replaced with one-sentence exception containing "passive reading" | string | grep for 'passive reading' returns exactly 1 match |
 | SC-4 | Examples table removed | string | grep for absence of 'Resource last read' |
-| SC-5 | Relationship to Other Guidelines section removed | string | grep for absence of 'Relationship to Other Guidelines' |
-| SC-6 | Zero Tolerance, Scope of Resources, Evidence Requirement, Staleness Rule (including Significant Actions, De Minimis Bound, Single Exchange Window), FORBIDDEN/REQUIRED, and Related Guidelines all remain with same content, same position relative to each other, and same heading level | string | grep for each section header at ## level; verify order preserved |
+| SC-5 | Relationship to Other Critical Rules section removed | string | grep for absence of 'Relationship to Other Critical Rules' |
+| SC-6a | Zero Tolerance, Scope of Resources, Evidence Requirement, Staleness Rule (including Significant Actions, De Minimis Bound, Single Exchange Window), FORBIDDEN/REQUIRED, and Related Guidelines all remain with same content | string | diff each section against original; verify no content changes |
+| SC-6b | Zero Tolerance, Scope of Resources, Evidence Requirement, Staleness Rule (including Significant Actions, De Minimis Bound, Single Exchange Window), FORBIDDEN/REQUIRED, and Related Guidelines remain in same position relative to each other | string | grep for each section header; verify order preserved |
+| SC-6c | Zero Tolerance, Scope of Resources, Evidence Requirement, Staleness Rule (including Significant Actions, De Minimis Bound, Single Exchange Window), FORBIDDEN/REQUIRED, and Related Guidelines remain at same heading level (##) | string | grep for each section header at ## level; verify all at ## |
 
 ## Implementation Plan
 
 ### Phase 1: Collapse Core Principle into Zero Tolerance
-### Phase 2: Remove Why This Matters, Examples, Relationship to Other Guidelines
+### Phase 2: Remove Why This Matters, Examples, Relationship to Other Critical Rules
 ### Phase 3: Replace When This Applies table with one-sentence exception
-### Phase 4: Verify all keep sections remain in correct order
+### Phase 4: Verify all keep sections remain with same content (SC-6a), same position (SC-6b), and same heading level (SC-6c)
 
 ## Files Affected
 
@@ -97,7 +99,7 @@ The file contains two `critical-rules-012` entries (lines 143-148) in the critic
 
 2. **Reduced agent compliance from removing Why This Matters**: The table concretely shows what gets missed and the consequence. Removing it may reduce agent motivation to follow the rule. **Mitigation**: The rule is enforced by pre-commit hooks and behavioral tests — not by agent motivation. Compliance is structural, not motivational.
 
-3. **Sub-agent context loss from removing Relationship to Other Guidelines**: Sub-agents that load this guideline in isolation may not know about related rules (Verification Honesty, Bug Discovery, Authority Source). **Mitigation**: The Related Guidelines section (kept) provides the same cross-references in a more compact format. Sub-agents with full context already have these cross-references loaded from the guidelines index.
+3. **Sub-agent context loss from removing Relationship to Other Critical Rules**: Sub-agents that load this guideline in isolation may not know about related rules (Verification Honesty, Bug Discovery, Authority Source). **Mitigation**: The Related Guidelines section (kept) provides the same cross-references in a more compact format. Sub-agents with full context already have these cross-references loaded from the guidelines index.
 
 4. **Duplicate "read ALL comments" phrase if Core Principle merge is incomplete**: If the merge leaves residual text containing "read ALL comments" in the old Core Principle location, SC-1 will fail. **Mitigation**: SC-1 explicitly tests for a single occurrence.
 
@@ -119,7 +121,7 @@ The file contains two `critical-rules-012` entries (lines 143-148) in the critic
 
 2. **Keep Why This Matters but condense to prose**: Replace the table with 1-2 sentences explaining why comment reading matters. **Rejected**: The table format is the problem (visual noise), not the content. Prose would be shorter but still teaching material.
 
-3. **Keep Relationship to Other Guidelines but condense it**: Reduce from 3 bullet points to 1 sentence. **Rejected**: The section's purpose is explanatory — any version of it is teaching material. The Related Guidelines section already provides the cross-references.
+3. **Keep Relationship to Other Critical Rules but condense it**: Reduce from 3 bullet points to 1 sentence. **Rejected**: The section's purpose is explanatory — any version of it is teaching material. The Related Guidelines section already provides the cross-references.
 
 4. **Keep When This Applies table but reduce rows**: Keep only the most common actions. **Rejected**: The one-sentence replacement with exception clause is strictly better — it covers all cases with fewer lines.
 
@@ -136,6 +138,7 @@ The file contains two `critical-rules-012` entries (lines 143-148) in the critic
 | Date | Change | Reason | Author |
 |------|--------|--------|--------|
 | 2026-07-31 | Revised spec: reframed Problem statement (semantic/behavioral justification), substantiated all claims with operational definitions, defined SCs operationally (SC-1/SC-3/SC-6), expanded scope analysis (critical-rules-012, Staleness Rule subsections, Related Guidelines vs Relationship distinction), replaced Risks escape hatch with honest assessment, added teaching material definition, added Alternatives Considered, added Edge Cases | Spec-audit FAIL — 8 of 11 holistic dimensions failed | OpenCode (deepseek-v4-flash) |
+| 2026-07-31 | Fixed heading name: "Relationship to Other Guidelines" → "Relationship to Other Critical Rules" throughout spec. Split SC-6 into SC-6a (content preservation), SC-6b (position preservation), SC-6c (heading level preservation). Updated Phase 4 to reference SC-6a/SC-6b/SC-6c. | Validation found 2 defects: wrong heading name and compound SC-6 | OpenCode (deepseek-v4-flash) |
 
 ---
 
