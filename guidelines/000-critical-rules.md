@@ -313,8 +313,7 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Spec-audit findings | Internal only |
 
 
-### [critical-rules-009] Silent Halt Without Prompt — no spec/plan search before stopping
-Halting without first searching for existing specs and plans means leaving the user to rediscover work that may already exist. Amateurs halt blind. Professional engineers search first.
+
 
 
 
