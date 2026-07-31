@@ -1,0 +1,45 @@
+# Cross-Cutting Matrix — Issue #2129
+# Backfilled from spec body
+cross_cutting_scs:
+  - sc: SC-10b
+    concerns:
+      - concern-metadata (Metadata Verification distribution)
+      - concern-inline (content inlining to operating-protocol.md)
+    note: "SC-10b distributes Metadata Verification rows to operating-protocol.md, which is the same target file as SC-11a and SC-12a inlining operations. These edits must be sequenced to avoid conflicts."
+
+  - sc: SC-10c
+    concerns:
+      - concern-metadata (Metadata Verification distribution)
+    note: "SC-10c distributes to audit/task files — independent of other SCs."
+
+  - sc: SC-10d
+    concerns:
+      - concern-metadata (Metadata Verification distribution)
+    note: "SC-10d distributes to issue-operations-core/task files — independent of other SCs."
+
+  - sc: SC-11a
+    concerns:
+      - concern-inline (Verification Comparison Semantics)
+      - concern-metadata (same target file as SC-10b)
+    note: "Shares operating-protocol.md target with SC-10b. Edits must be merged or sequenced."
+
+  - sc: SC-12a
+    concerns:
+      - concern-inline (Anti-Evasion Rules)
+      - concern-metadata (same target file as SC-10b)
+    note: "Shares operating-protocol.md target with SC-10b and SC-11a. Edits must be merged or sequenced."
+
+  - sc: SC-1
+    concerns:
+      - concern-collapse
+      - concern-remove-sections
+    note: "SC-1 (collapse Zero Tolerance + Core Principle) operates on 065, same file as SC-2 through SC-9b and SC-14. Must be sequenced after removal operations."
+
+independent_scs:
+  - SC-2 through SC-7, SC-8, SC-9b, SC-14: "All operate on 065 only — independent of other files"
+  - SC-9a1 through SC-9a4: "Verify-only, operate on 065"
+  - SC-10a, SC-10e: "Operate on 065 only"
+  - SC-11b, SC-12b: "Verify-only, operate on 065"
+  - SC-15: "Operates on 080 only"
+  - SC-16: "Operates on 020 only"
+  - SC-17: "Operates on writing-plans/reference/implementation-workflow.md only"

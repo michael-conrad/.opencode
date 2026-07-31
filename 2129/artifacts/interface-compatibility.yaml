@@ -1,0 +1,48 @@
+# Interface Compatibility — Issue #2129
+# Backfilled from spec body
+interfaces:
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    direction: content relocation (065 → operating-protocol.md)
+    compatibility: FULL
+    note: "Content is being moved from a guideline file (read by sub-agents as Tier 1) to a task file (read by sub-agents during VbC dispatch). No interface contract change — same content, different file."
+
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/skills/audit/tasks/
+    direction: content relocation (065 → audit task files)
+    compatibility: FULL
+    note: "Metadata Verification rows are procedural content that belongs in task files. No interface contract change."
+
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/skills/issue-operations-core/tasks/
+    direction: content relocation (065 → issue-ops-core task files)
+    compatibility: FULL
+    note: "Metadata Verification rows are procedural content that belongs in task files. No interface contract change."
+
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/guidelines/080-code-standards.md
+    direction: remove cross-reference footnote
+    compatibility: FULL
+    note: "Removing a footnote reference. No behavioral change to 080."
+
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/guidelines/020-go-prohibitions.md
+    direction: remove cross-reference
+    compatibility: FULL
+    note: "Removing a cross-reference. No behavioral change to 020."
+
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/skills/writing-plans/reference/implementation-workflow.md
+    direction: remove DONE_WITH_CONCERNS coercion rule
+    compatibility: FULL
+    note: "Removing a rule that references an invalid sub-agent status. No behavioral change."
+
+  - source: .opencode/guidelines/065-verification-honesty.md
+    target: .opencode/guidelines/000-critical-rules.md
+    direction: none (no changes to 000)
+    compatibility: FULL
+    note: "Precondition: #2121 partially implemented. No direct changes to 000 in this spec."
+
+interface_risks:
+  - risk: "Cross-reference breakage — other files may reference removed sections in 065"
+    mitigation: "grep each removed section header across the codebase after compaction; any remaining reference requires a follow-up fix commit"

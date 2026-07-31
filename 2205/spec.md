@@ -50,8 +50,8 @@ Delete `executing-plans/` skill directory. Remove or update all stale `implement
 |----|-----------|---------------|---------------------|
 | SC-1 | `executing-plans/` skill directory deleted | structural | `ls .opencode/skills/executing-plans/` returns error |
 | SC-2 | No `dispatch-table.yaml` entries reference `implementation-pipeline` | string | `grep -c "implementation-pipeline" .opencode/dispatch-table.yaml` returns 0 |
-| SC-3 | No `implementation-pipeline` references in `.md` files outside CHANGELOG.md | string | `grep -r "implementation-pipeline" .opencode/ --include="*.md" | grep -v CHANGELOG.md | wc -l` returns 0 |
-| SC-4 | No `implementation-pipeline` references in non-md files (yaml, py, txt, sh) | string | `grep -r "implementation-pipeline" .opencode/ --include="*.yaml" --include="*.py" --include="*.txt" --include="*.sh" | wc -l` returns 0 |
+| SC-3 | No `implementation-pipeline` references in `.md` files outside CHANGELOG.md, `.issues/` historical specs, and `implementation-workflow.md` self-description | string | `grep -r "implementation-pipeline" .opencode/ --include="*.md" | grep -v CHANGELOG.md | grep -v ".opencode/.issues/" | grep -v "implementation-workflow.md" | wc -l` returns 0 |
+| SC-4 | No `implementation-pipeline` references in non-md files (yaml, py, txt, sh) outside `.issues/` historical specs, `tmp/` artifacts, and intentional test file comments | string | `grep -r "implementation-pipeline" .opencode/ --include="*.yaml" --include="*.py" --include="*.txt" --include="*.sh" | grep -v ".opencode/.issues/" | grep -v ".opencode/tmp/" | grep -v "2203-" | grep -v "2205-sc3-implementation-pipeline-references.sh" | wc -l` returns 0 |
 | SC-5 | `rationalization-check-remediation.sh` behavioral test removed | structural | `ls .opencode/tests-v2/behaviors/rationalization-check-remediation.sh` returns error |
 | SC-6 | `rationalization-check-pipeline.sh` updated to check reference card | string | grep for `implementation-workflow.md` in the test file |
 | SC-7 | `writing-plans-create.sh` grep patterns updated to `implementation-workflow` | string | grep for `implementation-workflow` in the test file |

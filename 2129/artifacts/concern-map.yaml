@@ -1,0 +1,58 @@
+# Concern Map — Issue #2129
+# Backfilled from spec body
+concerns:
+  - id: concern-remove-sections
+    name: "Remove 9 sections from 065"
+    scs:
+      - SC-2 (Remove Problem section)
+      - SC-3 (Remove What Constitutes Checking table)
+      - SC-4 (Remove Memory vs Verified table)
+      - SC-5 (Remove Single Exchange Window)
+      - SC-6 (Remove Relationship to Other Guidelines)
+      - SC-7 (Remove Verification-Enforcement Boundary)
+      - SC-8 (Remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First)
+      - SC-9b (Remove Evidence Hierarchy table)
+      - SC-14 (Remove critical-rules stubs + Fabricating URLs)
+    phase: phase-1
+
+  - id: concern-collapse
+    name: "Collapse Zero Tolerance + Core Principle"
+    scs:
+      - SC-1 (Collapse Zero Tolerance + Core Principle to one section)
+    phase: phase-2
+
+  - id: concern-inline
+    name: "Inline content to task files"
+    scs:
+      - SC-11a (Inline Verification Comparison Semantics in operating-protocol.md)
+      - SC-11b (No back-link from 065 to Verification Comparison Semantics)
+      - SC-12a (Inline Anti-Evasion Rules + verification artifact manifest in operating-protocol.md)
+      - SC-12b (No back-link from 065 to Anti-Evasion Rules)
+    phase: phase-3
+
+  - id: concern-metadata
+    name: "Remove Metadata Verification master table + distribute rows"
+    scs:
+      - SC-10a (Remove Metadata Verification master table from 065)
+      - SC-10b (Distribute to VbC operating-protocol.md)
+      - SC-10c (Distribute to audit task files)
+      - SC-10d (Distribute to issue-operations-core task files)
+      - SC-10e (No back-links from 065)
+    phase: phase-4
+
+  - id: concern-cross-ref
+    name: "Cross-reference cleanup"
+    scs:
+      - SC-15 (Remove DDL footnote from 080)
+      - SC-16 (Remove DDL reference from 020)
+      - SC-17 (Remove DONE_WITH_CONCERNS from writing-plans)
+    phase: phase-5
+
+  - id: concern-verify-kept
+    name: "Verify kept sections remain in 065"
+    scs:
+      - SC-9a1 (Evidence Requirement heading present)
+      - SC-9a2 (No Exceptions heading present)
+      - SC-9a3 (Pre-Response Factual Claim Gate heading present)
+      - SC-9a4 (FORBIDDEN/REQUIRED headings present)
+    phase: phase-6

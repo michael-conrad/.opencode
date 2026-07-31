@@ -1,0 +1,109 @@
+# Testability Assessment — Issue #2129
+# Backfilled from spec body
+sc_evidence_types:
+  - sc: SC-1
+    evidence_type: string
+    verification: grep for heading count
+    cost: ~0.1s
+  - sc: SC-2
+    evidence_type: string
+    verification: grep for ^## Problem$
+    cost: ~0.1s
+  - sc: SC-3
+    evidence_type: string
+    verification: grep for "What Constitutes"
+    cost: ~0.1s
+  - sc: SC-4
+    evidence_type: string
+    verification: grep for "Memory vs"
+    cost: ~0.1s
+  - sc: SC-5
+    evidence_type: string
+    verification: grep for "Single Exchange Window"
+    cost: ~0.1s
+  - sc: SC-6
+    evidence_type: string
+    verification: grep for "Relationship to Other Guidelines"
+    cost: ~0.1s
+  - sc: SC-7
+    evidence_type: string
+    verification: grep for "Verification-Enforcement Boundary"
+    cost: ~0.1s
+  - sc: SC-8
+    evidence_type: string
+    verification: grep for "Hard Failure Discipline"
+    cost: ~0.1s
+  - sc: SC-9a1
+    evidence_type: string
+    verification: grep for ## Evidence Requirement
+    cost: ~0.1s
+  - sc: SC-9a2
+    evidence_type: string
+    verification: grep for ## No Exceptions
+    cost: ~0.1s
+  - sc: SC-9a3
+    evidence_type: string
+    verification: grep for ## Pre-Response Factual Claim Gate
+    cost: ~0.1s
+  - sc: SC-9a4
+    evidence_type: string
+    verification: grep for 🚫 FORBIDDEN and ✅ REQUIRED
+    cost: ~0.1s
+  - sc: SC-9b
+    evidence_type: string
+    verification: grep for "Evidence Hierarchy"
+    cost: ~0.1s
+  - sc: SC-10a
+    evidence_type: string
+    verification: grep for "Metadata Categories Requiring Verification"
+    cost: ~0.1s
+  - sc: SC-10b
+    evidence_type: string
+    verification: grep for "Metadata Verification" or "No Metadata Trust" in operating-protocol.md
+    cost: ~0.1s
+  - sc: SC-10c
+    evidence_type: string
+    verification: grep for "Metadata Verification" or "No Metadata Trust" in audit/task files
+    cost: ~0.1s
+  - sc: SC-10d
+    evidence_type: string
+    verification: grep for "Metadata Verification" or "No Metadata Trust" in issue-ops-core/task files
+    cost: ~0.1s
+  - sc: SC-10e
+    evidence_type: string
+    verification: grep for "Metadata Verification" in 065
+    cost: ~0.1s
+  - sc: SC-11a
+    evidence_type: string
+    verification: grep for "Verification Comparison", "exact match for external", "Per-Field Independence" in operating-protocol.md
+    cost: ~0.1s
+  - sc: SC-11b
+    evidence_type: string
+    verification: grep for "Verification Comparison" in 065
+    cost: ~0.1s
+  - sc: SC-12a
+    evidence_type: string
+    verification: grep for "Anti-Evasion" and "verification artifact manifest" in operating-protocol.md
+    cost: ~0.1s
+  - sc: SC-12b
+    evidence_type: string
+    verification: grep for "Anti-Evasion" in 065
+    cost: ~0.1s
+  - sc: SC-14
+    evidence_type: string
+    verification: wc -l < 375 on 065
+    cost: ~0.1s
+  - sc: SC-15
+    evidence_type: string
+    verification: grep for "Cost explanation" in 080
+    cost: ~0.1s
+  - sc: SC-16
+    evidence_type: string
+    verification: grep for "065.*Cost Model" in 020
+    cost: ~0.1s
+  - sc: SC-17
+    evidence_type: string
+    verification: grep for "DONE_WITH_CONCERNS" in writing-plans/reference/implementation-workflow.md
+    cost: ~0.1s
+
+assessment: "All 26 SCs are string-type grep verifications. No behavioral tests needed. Each SC can be verified in ~0.1s via grep or wc. Low testability risk — all verifications are deterministic pattern matches."

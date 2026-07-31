@@ -1,0 +1,33 @@
+spec_path: .opencode/.issues/2129/spec.md
+approval_status: approved
+approval_scope: for_pr
+sc_count: 26
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/guidelines/065-verification-honesty.md
+    status: EXISTS
+  - file: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    status: EXISTS
+  - file: .opencode/skills/audit/tasks/
+    status: EXISTS
+  - file: .opencode/skills/issue-operations-core/tasks/
+    status: EXISTS
+  - file: .opencode/guidelines/080-code-standards.md
+    status: EXISTS
+  - file: .opencode/guidelines/020-go-prohibitions.md
+    status: EXISTS
+  - file: .opencode/skills/writing-plans/reference/implementation-workflow.md
+    status: EXISTS
+findings:
+  - All 7 analytical artifacts were missing and have been backfilled from the spec body.
+  - Spec is a compaction spec with 26 string-type grep-verification SCs across 6 phases.
+  - 7 affected files verified to exist at expected paths.
+  - Cross-cutting concern: SC-10b, SC-11a, and SC-12a all target operating-protocol.md — edits must be sequenced or merged.
+  - Precondition: #2121 is partially implemented — verify current 000 state before implementation.

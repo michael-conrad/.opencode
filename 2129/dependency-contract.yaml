@@ -1,0 +1,55 @@
+# Dependency Contract — Issue #2129
+# Phase ordering and dependency DAG for 065 compaction
+phases:
+  - id: phase-1
+    name: "Remove 9 sections from 065"
+    depends_on: []
+  - id: phase-2
+    name: "Collapse Zero Tolerance + Core Principle"
+    depends_on: [phase-1]
+  - id: phase-3
+    name: "Inline content to task files"
+    depends_on: [phase-1]
+  - id: phase-4
+    name: "Remove Metadata Verification master table + distribute rows"
+    depends_on: [phase-1]
+  - id: phase-5
+    name: "Cross-reference cleanup"
+    depends_on: []
+  - id: phase-6
+    name: "Verify kept sections remain in 065"
+    depends_on: [phase-1]
+
+variables:
+  sections_removed:
+    type: bool
+  zero_tolerance_collapsed:
+    type: bool
+  content_inlined:
+    type: bool
+  metadata_distributed:
+    type: bool
+  cross_refs_cleaned:
+    type: bool
+  kept_sections_verified:
+    type: bool
+
+transitions:
+  - phase: phase-1
+    preconditions: []
+    postconditions: [sections_removed]
+  - phase: phase-2
+    preconditions: [sections_removed]
+    postconditions: [zero_tolerance_collapsed]
+  - phase: phase-3
+    preconditions: [sections_removed]
+    postconditions: [content_inlined]
+  - phase: phase-4
+    preconditions: [sections_removed]
+    postconditions: [metadata_distributed]
+  - phase: phase-5
+    preconditions: []
+    postconditions: [cross_refs_cleaned]
+  - phase: phase-6
+    preconditions: [sections_removed]
+    postconditions: [kept_sections_verified]

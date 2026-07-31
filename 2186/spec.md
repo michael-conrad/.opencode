@@ -13,6 +13,19 @@ The current `verify-already-implemented` gate in `approval-gate-scope` has three
 
 The fix creates a dedicated `implementation-verification` skill with proper DiMo chain and 3-way routing.
 
+### Fix
+
+The following changes address the label mapping defects in the current audit chain, where label application was split across Validator and Evaluator instead of being centralized in the Arbiter:
+
+1. **Validator (`spec-audit-validator.md`)**: Remove Step 0.1 label application (`spec-passed-review` / `spec-under-review`). The Validator validates evidence — it does not determine audit outcome, so it should not apply outcome labels.
+
+2. **Evaluator (`spec-audit-evaluator.md`)**: Remove the label application from Step 4 (holistic PASS branch). Keep the `spec-under-review` application in Step 0.1 (marks start of audit). The Evaluator produces verdicts but the final label decision belongs to the Arbiter.
+
+3. **Arbiter (`spec-audit-arbiter.md`)**: Add label application based on final judgment:
+   - If `final_judgment.status == "PASS"`: apply `spec-passed-review`, remove all other `spec-*` labels
+   - If `final_judgment.status == "DRAFT"`: apply `spec-under-review`, remove all other `spec-*` labels
+   - If `final_judgment.status == "FAIL"`: apply `spec-remediation-required`, remove all other `spec-*` labels
+
 ### Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
@@ -29,6 +42,9 @@ The fix creates a dedicated `implementation-verification` skill with proper DiMo
 | SC-10 | `approval-gate/SKILL.md` TDT has entry auto-dispatching to `implementation-verification --task verify-implementation` on approval | `string` | grep for implementation-verification in approval-gate/SKILL.md TDT |
 | SC-11 | `approval-gate-scope/SKILL.md` full-path workflow Step 13 dispatches to `implementation-verification` instead of inline `verify-already-implemented` | `string` | grep for implementation-verification in approval-gate-scope/SKILL.md Step 13 |
 | SC-12 | `auto-dispatch.md` routing table handles 3-way verdict (ALL PASS, PARTIAL, ALL FAIL) from implementation-verification | `string` | grep for PARTIAL in auto-dispatch.md routing table |
+| SC-13 | Arbiter applies labels based on final judgment: PASS → `spec-passed-review`, DRAFT → `spec-under-review`, FAIL → `spec-remediation-required` | `string` | grep for label application in spec-audit-arbiter.md Step 8.5 |
+| SC-14 | Validator does NOT apply outcome labels (Step 0.1 removed) | `string` | grep confirms no `spec-passed-review` label application in spec-audit-validator.md |
+| SC-15 | Evaluator does NOT apply outcome labels in Step 4 (only Step 0.1 `spec-under-review` remains) | `string` | grep confirms no `spec-passed-review` label application in spec-audit-evaluator.md Step 4 |
 
 ### Requirements
 1. The `implementation-verification` skill SHALL have a SKILL.md with frontmatter, Overview, Persona, Workflows, TDT, Invocation, and Cross-References sections
@@ -43,6 +59,9 @@ The fix creates a dedicated `implementation-verification` skill with proper DiMo
 10. The approval-gate-scope full-path workflow Step 13 SHALL route to implementation-verification
 11. The auto-dispatch routing table SHALL handle 3-way verdict from implementation-verification
 12. The old verify-already-implemented task files SHALL remain on disk (deprecated, not dispatched)
+13. The Arbiter SHALL apply labels based on final judgment: PASS → `spec-passed-review`, DRAFT → `spec-under-review`, FAIL → `spec-remediation-required`, removing all other `spec-*` labels in each case
+14. The Validator SHALL NOT apply outcome labels (Step 0.1 removed)
+15. The Evaluator SHALL NOT apply outcome labels in Step 4; only Step 0.1 `spec-under-review` SHALL remain
 
 ### Items
 
@@ -57,6 +76,7 @@ The fix creates a dedicated `implementation-verification` skill with proper DiMo
 | 7 | SC-10 | Update `approval-gate/SKILL.md` TDT + Invocation |
 | 8 | SC-11 | Update `approval-gate-scope/SKILL.md` Step 13 |
 | 9 | SC-12 | Update `auto-dispatch.md` routing table |
+| 10 | SC-13, SC-14, SC-15 | Update label mapping: Arbiter Step 8.5, remove from Validator Step 0.1, remove from Evaluator Step 4 |
 
 ### Dependencies
 - `audit` skill — DiMo chain pattern reference (task card structure, artifact format)
@@ -80,6 +100,9 @@ The fix creates a dedicated `implementation-verification` skill with proper DiMo
 | R10 | SC-11 | 2 |
 | R11 | SC-12 | 2 |
 | R12 | — | — |
+| R13 | SC-13 | 3 |
+| R14 | SC-14 | 3 |
+| R15 | SC-15 | 3 |
 
 ### Phases
 
@@ -94,9 +117,21 @@ The fix creates a dedicated `implementation-verification` skill with proper DiMo
 - Update `auto-dispatch.md` routing table
 - Files: `approval-gate/SKILL.md`, `approval-gate-scope/SKILL.md`, `approval-gate-scope/tasks/verify-authorization/auto-dispatch.md`
 
+**Phase 3: Centralize label mapping in Arbiter (Item 10)**
+- Add Step 8.5 to `spec-audit-arbiter.md` with 3-way label mapping
+- Remove Step 0.1 label application from `spec-audit-validator.md`
+- Remove Step 4 label application from `spec-audit-evaluator.md` (keep Step 0.1)
+- Files: `skills/audit/tasks/spec-audit-arbiter.md`, `skills/audit/tasks/spec-audit-validator.md`, `skills/audit/tasks/spec-audit-evaluator.md`
+
 ### Not Included
 - Behavioral enforcement tests (scoped to separate implementation phase)
 - Changes to the audit skill's DiMo pattern
 - Changes to writing-plans, executing-plans, or any other skill
 - Deletion of old verify-already-implemented task files (kept on disk, deprecated)
 - Changes to the parent repo
+
+### Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-07-31 | Added Fix section with label mapping changes; added SC-13, SC-14, SC-15; added R13, R14, R15; added Item 10; added Phase 3; added Step 8.5 to Arbiter; removed Step 0.1 from Validator; removed Step 4 label application from Evaluator | Centralize label mapping in Arbiter to handle all 3 verdicts (PASS, DRAFT, FAIL) with distinct labels | Michael Conrad |

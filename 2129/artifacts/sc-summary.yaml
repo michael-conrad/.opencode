@@ -1,0 +1,107 @@
+# SC Summary — Issue #2129
+# Backfilled from spec body
+scs:
+  - id: SC-1
+    description: "Collapse Zero Tolerance + Core Principle to one section"
+    evidence_type: string
+    phase: phase-2
+  - id: SC-2
+    description: "Remove Problem section"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-3
+    description: "Remove What Constitutes Checking table"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-4
+    description: "Remove Memory vs Verified table"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-5
+    description: "Remove Single Exchange Window"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-6
+    description: "Remove Relationship to Other Guidelines"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-7
+    description: "Remove Verification-Enforcement Boundary"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-8
+    description: "Remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-9a1
+    description: "Keep Evidence Requirement heading in 065"
+    evidence_type: string
+    phase: phase-6
+  - id: SC-9a2
+    description: "Keep No Exceptions heading in 065"
+    evidence_type: string
+    phase: phase-6
+  - id: SC-9a3
+    description: "Keep Pre-Response Factual Claim Gate heading in 065"
+    evidence_type: string
+    phase: phase-6
+  - id: SC-9a4
+    description: "Keep FORBIDDEN/REQUIRED headings in 065"
+    evidence_type: string
+    phase: phase-6
+  - id: SC-9b
+    description: "Remove Evidence Hierarchy table"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-10a
+    description: "Remove Metadata Verification master table from 065"
+    evidence_type: string
+    phase: phase-4
+  - id: SC-10b
+    description: "Distribute Metadata Verification rows to VbC operating-protocol.md"
+    evidence_type: string
+    phase: phase-4
+  - id: SC-10c
+    description: "Distribute Metadata Verification rows to audit task files"
+    evidence_type: string
+    phase: phase-4
+  - id: SC-10d
+    description: "Distribute Metadata Verification rows to issue-operations-core task files"
+    evidence_type: string
+    phase: phase-4
+  - id: SC-10e
+    description: "No back-links from 065 to Metadata Verification content"
+    evidence_type: string
+    phase: phase-4
+  - id: SC-11a
+    description: "Inline Verification Comparison Semantics in operating-protocol.md"
+    evidence_type: string
+    phase: phase-3
+  - id: SC-11b
+    description: "No back-link from 065 to Verification Comparison Semantics"
+    evidence_type: string
+    phase: phase-3
+  - id: SC-12a
+    description: "Inline Anti-Evasion Rules + verification artifact manifest in operating-protocol.md"
+    evidence_type: string
+    phase: phase-3
+  - id: SC-12b
+    description: "No back-link from 065 to Anti-Evasion Rules"
+    evidence_type: string
+    phase: phase-3
+  - id: SC-14
+    description: "Remove critical-rules stubs + Fabricating URLs (end-of-file section)"
+    evidence_type: string
+    phase: phase-1
+  - id: SC-15
+    description: "Remove DDL cross-reference footnote from 080-code-standards.md"
+    evidence_type: string
+    phase: phase-5
+  - id: SC-16
+    description: "Remove DDL cross-reference from 020-go-prohibitions.md"
+    evidence_type: string
+    phase: phase-5
+  - id: SC-17
+    description: "Remove DONE_WITH_CONCERNS coercion rule from writing-plans/reference/implementation-workflow.md"
+    evidence_type: string
+    phase: phase-5

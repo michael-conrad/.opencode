@@ -1,0 +1,132 @@
+# Code Path Inventory — Issue #2129
+# Backfilled from spec body
+code_paths:
+  - sc: SC-1
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: collapse Zero Tolerance + Core Principle sections
+    verification: grep for heading count
+
+  - sc: SC-2
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Problem section
+    verification: grep for ^## Problem$
+
+  - sc: SC-3
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove What Constitutes Checking table
+    verification: grep for "What Constitutes"
+
+  - sc: SC-4
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Memory vs Verified table
+    verification: grep for "Memory vs"
+
+  - sc: SC-5
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Single Exchange Window section
+    verification: grep for "Single Exchange Window"
+
+  - sc: SC-6
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Relationship to Other Guidelines section
+    verification: grep for "Relationship to Other Guidelines"
+
+  - sc: SC-7
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Verification-Enforcement Boundary section
+    verification: grep for "Verification-Enforcement Boundary"
+
+  - sc: SC-8
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First
+    verification: grep for "Hard Failure Discipline"
+
+  - sc: SC-9a1
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify Evidence Requirement heading remains
+    verification: grep for ## Evidence Requirement
+
+  - sc: SC-9a2
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify No Exceptions heading remains
+    verification: grep for ## No Exceptions
+
+  - sc: SC-9a3
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify Pre-Response Factual Claim Gate heading remains
+    verification: grep for ## Pre-Response Factual Claim Gate
+
+  - sc: SC-9a4
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify FORBIDDEN/REQUIRED headings remain
+    verification: grep for 🚫 FORBIDDEN and ✅ REQUIRED
+
+  - sc: SC-9b
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Evidence Hierarchy table
+    verification: grep for "Evidence Hierarchy"
+
+  - sc: SC-10a
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove Metadata Verification master table
+    verification: grep for "Metadata Categories Requiring Verification"
+
+  - sc: SC-10b
+    path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    operation: add Metadata Verification content
+    verification: grep for "Metadata Verification" or "No Metadata Trust"
+
+  - sc: SC-10c
+    path: .opencode/skills/audit/tasks/
+    operation: add Metadata Verification content to at least one task file
+    verification: grep for "Metadata Verification" or "No Metadata Trust"
+
+  - sc: SC-10d
+    path: .opencode/skills/issue-operations-core/tasks/
+    operation: add Metadata Verification content to at least one task file
+    verification: grep for "Metadata Verification" or "No Metadata Trust"
+
+  - sc: SC-10e
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify no back-links to Metadata Verification
+    verification: grep for "Metadata Verification"
+
+  - sc: SC-11a
+    path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    operation: inline Verification Comparison Semantics
+    verification: grep for "Verification Comparison", "exact match for external", "Per-Field Independence"
+
+  - sc: SC-11b
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify no back-link to Verification Comparison Semantics
+    verification: grep for "Verification Comparison"
+
+  - sc: SC-12a
+    path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    operation: inline Anti-Evasion Rules + verification artifact manifest
+    verification: grep for "Anti-Evasion" and "verification artifact manifest"
+
+  - sc: SC-12b
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: verify no back-link to Anti-Evasion Rules
+    verification: grep for "Anti-Evasion"
+
+  - sc: SC-14
+    path: .opencode/guidelines/065-verification-honesty.md
+    operation: remove critical-rules stubs + Fabricating URLs (end-of-file section)
+    verification: wc -l < 375
+
+  - sc: SC-15
+    path: .opencode/guidelines/080-code-standards.md
+    operation: remove DDL cross-reference footnote
+    verification: grep for "Cost explanation"
+
+  - sc: SC-16
+    path: .opencode/guidelines/020-go-prohibitions.md
+    operation: remove DDL cross-reference
+    verification: grep for "065.*Cost Model"
+
+  - sc: SC-17
+    path: .opencode/skills/writing-plans/reference/implementation-workflow.md
+    operation: remove DONE_WITH_CONCERNS coercion rule
+    verification: grep for "DONE_WITH_CONCERNS"

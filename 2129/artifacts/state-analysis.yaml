@@ -1,0 +1,8 @@
+# State Analysis — Issue #2129
+variables:
+  sections_removed: false
+  zero_tolerance_collapsed: false
+  content_inlined: false
+  metadata_distributed: false
+  cross_refs_cleaned: false
+  kept_sections_verified: false

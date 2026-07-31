@@ -1,0 +1,26 @@
+# Blast Radius — Issue #2129
+# Backfilled from spec body
+spec_path: .opencode/.issues/2129/spec.md
+affected_files:
+  - path: .opencode/guidelines/065-verification-honesty.md
+    action: compact (remove 9 sections, collapse Zero Tolerance + Core Principle, remove Evidence Hierarchy, remove Metadata Verification table, remove critical-rules stubs + Fabricating URLs)
+    verified: EXISTS
+  - path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    action: receive inlined content (Verification Comparison Semantics, Anti-Evasion Rules, verification artifact manifest, Metadata Verification subset)
+    verified: EXISTS
+  - path: .opencode/skills/audit/tasks/
+    action: receive Metadata Verification subset
+    verified: EXISTS
+  - path: .opencode/skills/issue-operations-core/tasks/
+    action: receive Metadata Verification subset
+    verified: EXISTS
+  - path: .opencode/guidelines/080-code-standards.md
+    action: remove DDL cross-reference footnote
+    verified: EXISTS
+  - path: .opencode/guidelines/020-go-prohibitions.md
+    action: remove DDL cross-reference
+    verified: EXISTS
+  - path: .opencode/skills/writing-plans/reference/implementation-workflow.md
+    action: remove DONE_WITH_CONCERNS coercion rule
+    verified: EXISTS
+scope_boundary: "Compaction only — no behavioral changes to enforcement rules. All SCs are string-type grep verifications."

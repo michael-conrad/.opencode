@@ -1,0 +1,76 @@
+# Validation Findings — Issue #2129
+# Generated: 2026-07-31
+overall_status: PASS
+
+categories:
+  - id: category-1
+    name: "Structural validation"
+    status: PASS
+    checks:
+      - check: "Phase table with required columns"
+        result: PASS
+        detail: "Plan uses markdown sections (## Phase N) with Concern, SCs covered, and task lists — all required columns present"
+      - check: "Each phase has numbered steps"
+        result: PASS
+        detail: "All 6 phases have numbered task items (Task 1.1, Task 2.1, etc.) with checkbox steps"
+      - check: "Exit criteria section with SC-to-phase mapping"
+        result: PASS
+        detail: "Each phase has 'SCs covered:' line providing SC-to-phase mapping; no dedicated Exit Criteria section but mapping is present in each phase header"
+
+  - id: category-2
+    name: "Skill+task validity"
+    status: PASS
+    checks:
+      - check: "All skill+task references valid"
+        result: PASS
+        detail: "Plan dispatches to test-driven-development (green) and verification-before-completion (verify) — both match valid entries in implementation-workflow.md reference card"
+
+  - id: category-3
+    name: "SC coverage"
+    status: PASS
+    checks:
+      - check: "All SCs covered in at least one phase"
+        result: PASS
+        detail: "All 26 SCs (SC-1 through SC-17, SC-9a1 through SC-9a4, SC-10a through SC-10e, SC-11a through SC-11b, SC-12a through SC-12b) appear in at least one phase's SCs covered list"
+      - check: "Triplet split detection"
+        result: PASS
+        detail: "No SC has RED/GREEN/COMMIT steps split across phases — all three steps are within the same phase for every SC"
+
+  - id: category-4
+    name: "Concern separation"
+    status: PASS
+    checks:
+      - check: "Each phase addresses exactly one concern"
+        result: PASS
+        detail: "Phase 1→concern-remove-sections, Phase 2→concern-collapse, Phase 3→concern-inline, Phase 4→concern-metadata, Phase 5→concern-cross-ref, Phase 6→concern-verify-kept"
+      - check: "No two phases address the same concern"
+        result: PASS
+        detail: "All 6 concerns are unique across phases"
+
+  - id: category-5
+    name: "DAG validation"
+    status: PASS
+    checks:
+      - check: "No cycles in dependency contract DAG"
+        result: PASS
+        detail: "DAG edges: phase-1→phase-2, phase-1→phase-3, phase-1→phase-4, phase-1→phase-6; phase-5 has no deps — no cycles"
+      - check: "All phases reachable from start node"
+        result: PASS
+        detail: "phase-1 and phase-5 are start nodes; all other phases depend on phase-1"
+      - check: "No orphan phases"
+        result: PASS
+        detail: "phase-5 is a valid independent start node (no deps, no dependents) — not an orphan"
+
+  - id: category-6
+    name: "Holistic quality"
+    status: PASS
+    checks:
+      - check: "No TBD/TODO placeholders"
+        result: PASS
+        detail: "No TBD or TODO placeholders found in plan body"
+      - check: "All steps use checkbox format"
+        result: PASS
+        detail: "All steps use `- [ ]` or `- [x]` checkbox format"
+      - check: "Dispatch mode consistency"
+        result: PASS
+        detail: "Inline phases (1, 2, 5, 6) have no dispatched steps; Phase 3 and 4 correctly use (**sub-agent**) for GREEN steps that require sub-agent dispatch"

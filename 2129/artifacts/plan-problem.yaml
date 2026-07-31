@@ -1,0 +1,65 @@
+# Planning Problem — Issue #2129
+domain: 065-compaction
+types:
+  - name: state_var
+objects:
+  - name: sections_removed
+    type: state_var
+  - name: zero_tolerance_collapsed
+    type: state_var
+  - name: content_inlined
+    type: state_var
+  - name: metadata_distributed
+    type: state_var
+  - name: cross_refs_cleaned
+    type: state_var
+  - name: kept_sections_verified
+    type: state_var
+fluents:
+  - name: completed
+    params:
+      - name: v
+        type: state_var
+actions:
+  - name: execute_phase_1
+    params: []
+    preconditions: []
+    effects:
+      - completed(sections_removed)
+  - name: execute_phase_2
+    params: []
+    preconditions:
+      - completed(sections_removed)
+    effects:
+      - completed(zero_tolerance_collapsed)
+  - name: execute_phase_3
+    params: []
+    preconditions:
+      - completed(sections_removed)
+    effects:
+      - completed(content_inlined)
+  - name: execute_phase_4
+    params: []
+    preconditions:
+      - completed(sections_removed)
+    effects:
+      - completed(metadata_distributed)
+  - name: execute_phase_5
+    params: []
+    preconditions: []
+    effects:
+      - completed(cross_refs_cleaned)
+  - name: execute_phase_6
+    params: []
+    preconditions:
+      - completed(sections_removed)
+    effects:
+      - completed(kept_sections_verified)
+init: []
+goals:
+  - completed(sections_removed)
+  - completed(zero_tolerance_collapsed)
+  - completed(content_inlined)
+  - completed(metadata_distributed)
+  - completed(cross_refs_cleaned)
+  - completed(kept_sections_verified)
