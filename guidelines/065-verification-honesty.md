@@ -49,17 +49,6 @@ When the agent performs verification, it MUST show evidence:
 - **"Obvious" facts**: Still must verify — obvious things are wrong surprisingly often
 - **Previous tool output**: Still must re-run — unless the output is from the immediately preceding exchange
 
-## Evidence Hierarchy
-
-| Tier | Source | Classification | When Permitted |
-|------|--------|----------------|----------------|
-| **Direct evidence** | Live tool call in current session (file read, signature lookup, test execution, API query) | Evidence | As sole basis for PASS judgment |
-| **Process metadata** | PR merge status, issue state, labels, comments | Context only | May inform where to look, NEVER basis for PASS |
-| **Session memory** | Tool call from earlier in same exchange | Evidence (single-exchange window) | ONLY if from immediately preceding exchange |
-| **Session memory (stale)** | Tool call from earlier in same session (not last exchange) | Context only | Treat as unverified; re-read if state may have changed |
-| **Cross-session memory** | Recollection from previous session | PROXY — always stale | NEVER evidence; must re-verify |
-| **Training data** | Model weights / parametric knowledge | PROXY — always stale | NEVER evidence; suggest-only with staleness disclaimer |
-
 ## Pre-Response Factual Claim Gate
 
 **Producing a response with factual claims and zero preceding tool calls is a CRITICAL VIOLATION.** Every factual claim in agent output MUST be preceded by at least one tool call that verifies it.
