@@ -419,8 +419,7 @@ The orchestrator holds routing metadata only (worktree.path, github.owner, githu
 
 > **Note:** These are operational bookkeeping guidelines for context management. They describe how the orchestrator routes work to sub-agents — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
 
-### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
-Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. Read [§1.1](guidelines/020-go-prohibitions.md).
+
 
 
 
