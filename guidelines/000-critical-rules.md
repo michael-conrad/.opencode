@@ -489,6 +489,5 @@ When a sub-agent returns a defective deliverable, the orchestrator MUST NOT atte
 | Direct mutation of issue body | Lacks spec-creation context, produces inconsistent results |
 
 
-### [critical-rules-066] Terminology Standardization — all context references must use standardized vocabulary
-All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. Read [§1.1 Terminology Standardization](guidelines/020-go-prohibitions.md). CHANGELOG entries and historical references are exempt.
+
 
