@@ -133,7 +133,7 @@ The clean-room sub-agent MUST check each of the following items against the rewr
 
 | # | Check | PASS Condition |
 |---|-------|----------------|
-| 1 | Shell output mechanism | Guideline contains a MUST NOT statement covering echo, printf, heredocs, or equivalent shell output commands that produce text later consumed as instructions |
+| 1 | Shell output mechanism | Guideline contains a MUST NOT statement covering echo, printf, heredocs, or any shell command that writes text to stdout/stderr which is later consumed as instructions |
 | 2 | File write + read mechanism | Guideline contains a MUST NOT statement covering writing instructions to a file and later reading that file as context/instructions |
 | 3 | Comment + process mechanism | Guideline contains a MUST NOT statement covering posting a comment to an issue/PR and later reading that comment as instructions |
 | 4 | Tool output re-ingestion mechanism | Guideline contains a MUST NOT statement covering producing output via one tool call and consuming it via another as instructions |
@@ -174,7 +174,7 @@ The clean-room sub-agent MUST check each of the following items against both the
 
 | # | Original Instruction | PASS Condition |
 |---|---------------------|----------------|
-| 1 | No-Echo rule: agent MUST NOT print SESSION_TRIGGERS content verbatim | Rewritten guideline contains a MUST NOT statement with equivalent normative strength covering session trigger echoing |
+| 1 | No-Echo rule: agent MUST NOT print SESSION_TRIGGERS content verbatim | Rewritten guideline contains a MUST NOT statement covering session trigger echoing (grep for 'MUST NOT' within the No-Echo section) |
 | 2 | Trigger Behavior Map: pair_mode_resume → continue pair mode workflow | Rewritten guideline contains the pair_mode_resume trigger with the same agent behavior (continue pair mode workflow) |
 | 3 | Trigger Behavior Map: nested_opencode_fatal → HALT all operations | Rewritten guideline contains the nested_opencode_fatal trigger with the same agent behavior (HALT all operations, report to developer) |
 | 4 | Suppression Rule: suppress non-actionable triggers from output | Rewritten guideline contains a rule to suppress non-actionable triggers from agent output |
