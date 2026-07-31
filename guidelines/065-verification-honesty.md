@@ -49,13 +49,6 @@ When the agent performs verification, it MUST show evidence:
 - **"Obvious" facts**: Still must verify — obvious things are wrong surprisingly often
 - **Previous tool output**: Still must re-run — unless the output is from the immediately preceding exchange
 
-## Relationship to Other Guidelines
-
-- `075-docs-verification.md` — Mandatory verification against external documentation (different scope: external docs vs. behavioral honesty)
-- `067-context-completeness.md` — Reading all comments before acting (complementary: this rule requires showing evidence of reading)
-- `000-critical-rules.md` — Zero tolerance enforcement
-- `130-authority-source.md` — Code as authoritative source
-
 ## Verification-Enforcement Boundary
 
 The `verification-enforcement` skill supersedes this guideline for content generation workflows. When an agent is generating content — runbooks, specs, plans, documentation, or correspondence — the `verification-enforcement` skill's proactive verification requirements take priority. The skill tasks section-based sub-agents to collect evidence artifacts for every factual claim before generation begins, and resolves unverified claims after generation through its revisit pass. This represents a stricter, more structured form of proactive verification than this guideline alone provides.
