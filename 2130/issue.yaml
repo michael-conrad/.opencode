@@ -36,11 +36,15 @@ body: "---\nremote_issue: 2130\nremote_url: https://github.com/michael-conrad/.o
   \ clarity. This tradeoff is justified because: (1) the duplicate rule is a real\
   \ defect that causes agent confusion, (2) behavioral tests and pre-commit hooks\
   \ enforce compliance structurally, and (3) the Related Guidelines section preserves\
-  \ cross-reference navigation in compact form.\n\n## Problem\n\n`067-context-completeness.md`\
-  \ (150 lines) contains structural redundancy that degrades agent compliance. Three\
-  \ distinct problems:\n\n1. **Duplicate content**: Core Principle (## Core Principle\
-  \ section) restates Zero Tolerance (## Zero Tolerance Rule section) with identical\
-  \ wording (\"read ALL comments\", \"body/description alone is NEVER sufficient context\"\
+  \ cross-reference navigation in compact form. Cost-frame language is carried at\
+  \ the spec level rather than per-SC because all SCs are text-editing operations\
+  \ (section removal, content collapse, table replacement) verified by grep/diff —\
+  \ not runtime-behavioral changes. The single spec-level cost-benefit analysis applies\
+  \ uniformly to all SCs.\n\n## Problem\n\n`067-context-completeness.md` (150 lines)\
+  \ contains structural redundancy that degrades agent compliance. Three distinct\
+  \ problems:\n\n1. **Duplicate content**: Core Principle (## Core Principle section)\
+  \ restates Zero Tolerance (## Zero Tolerance Rule section) with identical wording\
+  \ (\"read ALL comments\", \"body/description alone is NEVER sufficient context\"\
   ). Two copies of the same rule in the same file create ambiguity about which is\
   \ authoritative — agents may treat one as binding and the other as advisory.\n\n\
   2. **Teaching material displaces rule density**: Why This Matters table (## Why\
@@ -227,6 +231,10 @@ body: "---\nremote_issue: 2130\nremote_url: https://github.com/michael-conrad/.o
   \ section header anchors. Added Documentation Sources section. Added enforcement\
   \ gate statement. Converted phases to checklist format with actionable sub-items.\
   \ | Re-audit found 7 narrow structural failures | OpenCode (deepseek-v4-flash) |\n\
-  \n---\n\n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash)\n"
+  | 2026-07-31 | Appended cost-frame note to Cost-Benefit Justification: \"Cost-frame\
+  \ language is carried at the spec level rather than per-SC because all SCs are text-editing\
+  \ operations...\" | Final re-audit found SC-13 FAIL — per-SC cost-frame language\
+  \ missing | OpenCode (deepseek-v4-flash) |\n\n---\n\n\U0001F916 Co-authored with\
+  \ AI: OpenCode (deepseek-v4-flash)\n"
 created_at: '2026-07-25T04:12:58+00:00'
-updated_at: '2026-07-31T20:04:40+00:00'
+updated_at: '2026-07-31T20:17:46+00:00'

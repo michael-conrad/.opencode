@@ -8,11 +8,11 @@ labels: [spec]
 
 `117-session-trigger-behavior.md` currently covers only session trigger echoing (don't print trigger content verbatim). Research confirms this is a narrow subset of a well-documented attack class:
 
-1. **GuardFall (CSA, July 2026)**: Shell injection bypasses defeat AI coding agent guardrails. Agent writes output via echo/printf, reads it back as instructions. 10 of 11 open-source agents vulnerable.
+1. **[GuardFall (CSA, July 2026)](https://labs.cloudsecurityalliance.org/research/csa-research-note-guardfall-ai-coding-agent-shell-injection/)**: Shell injection bypasses defeat AI coding agent guardrails. Agent writes output via echo/printf, reads it back as instructions. 10 of 11 open-source agents vulnerable.
 
-2. **Microsoft Security Blog (May 2026)**: Prompt injection to RCE in Semantic Kernel. "A single prompt was enough to launch calc.exe... The agent simply did what it was designed to do: interpret natural language, choose a tool, and pass parameters."
+2. **[Microsoft Security Blog (May 2026)](https://www.microsoft.com/en-us/security/blog/2026/05/07/prompts-become-shells-rce-vulnerabilities-ai-agent-frameworks/)**: Prompt injection to RCE in Semantic Kernel. "A single prompt was enough to launch calc.exe... The agent simply did what it was designed to do: interpret natural language, choose a tool, and pass parameters."
 
-3. **SoK Paper (arXiv, 2026)**: 42 attack techniques, 85%+ success rate against state-of-the-art defenses. "The fundamental challenge lies in the architectural conflation of code and data."
+3. **[SoK Paper (arXiv, 2026)](https://arxiv.org/abs/2603.22928)**: 42 attack techniques, 85%+ success rate against state-of-the-art defenses. "The fundamental challenge lies in the architectural conflation of code and data." (The 85%+ success rate claim is from a related SoK: [Prompt Injection Attacks on Agentic Coding Assistants](https://arxiv.org/abs/2601.17548).)
 
 The attack vector is broader than session triggers: the agent can write output via any mechanism (file write, comment, tool output, echo/printf) and then read it back as instructions. The current file only addresses one specific instance.
 
