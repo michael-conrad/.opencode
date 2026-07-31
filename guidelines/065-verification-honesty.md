@@ -315,7 +315,7 @@ A break occurs when behavioral verification catches a defect at the earliest pos
 
 ### DONE_WITH_CONCERNS Coercion Trigger
 
-`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule in `implementation-pipeline/SKILL.md` Trigger Dispatch Table. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
+`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule in `skills/writing-plans/reference/implementation-workflow.md` Trigger Dispatch Table. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
 
 ### Remediation-First Protocol
 
@@ -450,7 +450,7 @@ Reporting verification without tool-call evidence means presenting guesses as fa
 
 ### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
 
-A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped. `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The bright-line coercion rule in `implementation-pipeline/SKILL.md` Trigger Dispatch Table governs this coercion.
+A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped. `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The bright-line coercion rule in `skills/writing-plans/reference/implementation-workflow.md` Trigger Dispatch Table governs this coercion.
 
 **Remediation-first sequence (mandated by #763):**
 1. **Remediate** the root cause — diagnose what produced the FAIL

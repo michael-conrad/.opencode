@@ -325,7 +325,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/verification-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/verification-audit-validator.md` — upstream reasoning role role (produces reasoning.yaml consumed by this task)
 - Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
-- Read [implementation-pipeline SKILL.md](skills/implementation-pipeline/SKILL.md) — Trigger Dispatch Table (dispatches verification-audit)
+- Read [implementation-workflow reference card](skills/writing-plans/reference/implementation-workflow.md) — Trigger Dispatch Table (dispatches verification-audit)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate, hard failure discipline
 - Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live-source verification mandate, stale evidence prohibition
 

@@ -11,7 +11,7 @@ returns: "{status, artifact_path, finding_summary}"
 
 Generates a structured implementation plan from the structure artifact. The plan is structured markdown with English instructions. Every task in every phase enumerates every step from the implementation-pipeline's per-task cycle — no skipping, no combining, no grouping.
 
-The per-task cycle steps are discovered at runtime by loading the `implementation-pipeline` skill and reading its Trigger Dispatch Table. The plan writer MUST NOT embed a hardcoded copy of the workflow.
+The per-task cycle steps are discovered at runtime by reading the implementation-workflow reference card at `skills/writing-plans/reference/implementation-workflow.md`. The plan writer MUST NOT embed a hardcoded copy of the workflow.
 
 ## Task Discipline
 
@@ -29,7 +29,7 @@ The per-task cycle steps are discovered at runtime by loading the `implementatio
 
 ## Procedure
 
-1. **Load the implementation-pipeline TDT.** Read the Trigger Dispatch Table. Extract the per-task cycle steps — these are the rows that form the RED→GREEN→COMMIT cycle for a single task. The TDT is the single authoritative source for what steps exist. Do NOT hardcode or assume any step ordering.
+1. **Read the implementation-workflow reference card.** Read `skills/writing-plans/reference/implementation-workflow.md`. Extract the Trigger Dispatch Table and the per-task cycle steps — these are the rows that form the RED→GREEN→COMMIT cycle for a single task. The reference card is the single authoritative source for what steps exist. Do NOT hardcode or assume any step ordering.
 
 2. **Read the structure artifact** from `{issues_prefix}/{N}/artifacts/structure.yaml`.
    - If missing: return BLOCKED with `STRUCTURE_ARTIFACT_NOT_FOUND`.
