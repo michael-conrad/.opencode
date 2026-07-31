@@ -42,15 +42,6 @@ When the agent performs verification, it MUST show evidence:
 - "X is Y" without any visible tool call or command
 - "As we know, X is Y" (training knowledge presented as verified)
 
-## Memory vs. Verified Distinction
-
-| Pattern | Classification | Acceptable? |
-| -- | -- | -- |
-| "I checked earlier that X is Y" | Memory recall | ❌ Must re-verify |
-| "The file contains Z (from my earlier read)" | Memory recall | ❌ Must re-read |
-| "X is Y — verified by `git status` just now" | Verified | ✅ |
-| "Running `git status` confirms X is Y" | Verified | ✅ |
-
 ## No Exceptions
 
 - **Fresh session**: Still must verify — training data is not verification
