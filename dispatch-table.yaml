@@ -179,7 +179,7 @@ issue_pr_workflow:
     task: "checklist"
     purpose: "Run completion checklist before PR"
     
-  # Git workflow tasks (called by implementation-pipeline orchestration)
+  # Git workflow tasks (called by plan execution orchestration)
   - trigger: "Implementation-pipeline calls pre-work"
     skill: "git-workflow"
     task: "pre-work"
