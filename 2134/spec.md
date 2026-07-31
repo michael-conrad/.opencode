@@ -4,6 +4,14 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2134
 labels: [spec]
 ---
 
+## Intent and Executive Summary
+
+- **Problem Statement:** The current `117-session-trigger-behavior.md` guideline only addresses session trigger echoing (don't print trigger content verbatim). This is a narrow subset of a well-documented attack class where AI agents produce output that they later consume as instructions.
+- **Root Cause / Motivation:** The Self-Simulation attack vector is broader than session triggers: the agent can write output via shell, file write, comment posting, or tool output, then read it back as instructions. The current guideline only covers one mechanism.
+- **Approach Chosen:** Complete rewrite with 4 sections: (1) Self-Simulation Prohibition (new), (2) Session Trigger No-Echo (narrowed), (3) Trigger Behavior Map (narrowed), (4) Suppression Rule (existing).
+- **Alternatives Considered & Why Discarded:** See Alternatives Considered section.
+- **Key Design Decisions:** The prohibition is mechanism-independent — any path from "agent produces text" to "agent reads that text as instructions" is forbidden. The distinction between instruction-consumption and data-consumption is operationalized in the guideline text.
+
 ## Problem
 
 `117-session-trigger-behavior.md` currently covers only session trigger echoing (don't print trigger content verbatim). Research confirms this is a narrow subset of a well-documented attack class:
@@ -15,6 +23,17 @@ labels: [spec]
 3. **[SoK Paper (arXiv, 2026)](https://arxiv.org/abs/2603.22928)**: 42 attack techniques, 85%+ success rate against state-of-the-art defenses. "The fundamental challenge lies in the architectural conflation of code and data." (The 85%+ success rate claim is from a related SoK: [Prompt Injection Attacks on Agentic Coding Assistants](https://arxiv.org/abs/2601.17548).)
 
 The attack vector is broader than session triggers: the agent can write output via any mechanism (file write, comment, tool output, echo/printf) and then read it back as instructions. The current file only addresses one specific instance.
+
+**State verified:** Git log for `.opencode/guidelines/117-session-trigger-behavior.md` shows 8 commits since creation. The most recent commit (`908f5894 checkpoint(#2121): step-14 complete`) did not address the self-simulation gap. No superseding changes exist.
+
+## Documentation Sources
+
+| Source | URL | Verification |
+|--------|-----|-------------|
+| GuardFall: Shell Injection Defeats AI Coding Agent Guardrails (CSA, July 2026) | https://labs.cloudsecurityalliance.org/research/csa-research-note-guardfall-ai-coding-agent-shell-injection/ | Verified accessible — content matches spec claims |
+| When prompts become shells: RCE vulnerabilities in AI agent frameworks (Microsoft Security Blog, May 2026) | https://www.microsoft.com/en-us/security/blog/2026/05/07/prompts-become-shells-rce-vulnerabilities-ai-agent-frameworks/ | Verified accessible — content matches spec claims |
+| SoK: The Attack Surface of Agentic AI — Tools, and Autonomy (arXiv, 2026) | https://arxiv.org/abs/2603.22928 | Verified accessible — content matches spec claims |
+| Prompt Injection Attacks on Agentic Coding Assistants: A Systematic Analysis (arXiv, 2026) | https://arxiv.org/abs/2601.17548 | Verified accessible — 85%+ success rate claim confirmed |
 
 ## Proposed Solution
 
@@ -49,6 +68,27 @@ Keep the two remaining triggers:
 
 Suppress non-actionable triggers from output.
 
+## Alternatives Considered
+
+| Alternative | Why Discarded |
+|-------------|---------------|
+| **Incremental patch** — Add self-simulation language to the existing No-Echo section without restructuring | The existing No-Echo section is narrowly scoped to session triggers. Adding mechanism-independent language would create a section with two conflicting scopes (narrow trigger-echo + broad self-simulation), making the guideline harder to follow. A clean 4-section structure is clearer. |
+| **Tool-level enforcement** — Add the prohibition to `020-go-prohibitions.md` (which already bans echo/printf) instead of `117-session-trigger-behavior.md` | `020-go-prohibitions.md` covers shell output mechanisms (echo, printf, heredocs). The Self-Simulation Prohibition covers additional mechanisms (file write+read, comment+process, tool output re-ingestion) that are conceptually distinct from shell output. Keeping the prohibition in the session-trigger file groups all "agent produces output it later consumes" rules together. |
+| **Single monolithic section** — One large "Self-Simulation Prohibition" section without narrowing existing content | The existing No-Echo, Trigger Map, and Suppression sections contain actionable instructions that must be preserved. A monolithic rewrite would risk losing or weakening these instructions. The 4-section approach preserves existing content while adding the new prohibition. |
+
+## Definitions
+
+| Term | Definition |
+|------|-----------|
+| **equivalent semantic force** | A rewritten instruction has equivalent semantic force when it uses the same normative strength (MUST, MUST NOT, SHOULD) for the same behavioral constraint, covers the same mechanisms, and does not introduce exceptions or escape hatches not present in the original. |
+| **non-actionable historical records** | Content that describes past state, removed features, or historical context without prescribing current agent behavior. Such content is non-actionable when it does not contain any MUST, MUST NOT, SHOULD, or equivalent normative instruction for the agent. |
+| **preloaded in agent context** | Files and configuration that are loaded into the agent's system prompt or context at session start, as specified by the `instructions` array in `opencode.jsonc` and the `load_when` fields in guideline frontmatter. |
+
+## Preconditions
+
+- **SC-7 (SC-9)**: The implementor MUST have access to both the original guideline file (`.opencode/guidelines/117-session-trigger-behavior.md`) and the rewritten version for comparison.
+- **SC-7**: The implementor MUST know which files are preloaded in agent context. This is determined by the `instructions` array in `opencode.jsonc` and the `load_when` fields in guideline frontmatter.
+
 ## Requirements
 
 | ID | Description |
@@ -69,17 +109,21 @@ Suppress non-actionable triggers from output.
 
 ## Success Criteria
 
-| ID | Criterion | Evidence Type | Verification Method |
-|----|-----------|---------------|---------------------|
-| SC-1 | Self-Simulation Prohibition section exists | string | grep for 'Self-Simulation' |
-| SC-2 | Prohibition covers all mechanisms (shell, file, comment, tool output, session trigger) with equivalent semantic force | semantic | Clean-room sub-agent reads the prohibition text and judges whether each mechanism is covered with equivalent normative force |
-| SC-3 | Session Trigger No-Echo section exists | string | grep for 'No-Echo' |
-| SC-4 | Trigger Behavior Map with 2 triggers exists | string | grep for 'pair_mode_resume' and 'nested_opencode_fatal' |
-| SC-5 | Suppression Rule exists | string | grep for 'Suppression Rule' |
-| SC-6 | The guideline does not contain non-actionable historical records that could confuse agent behavior | semantic | Clean-room sub-agent reads the guideline and judges whether any remaining content is non-actionable historical record rather than actionable instruction |
-| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline | semantic | Clean-room sub-agent reads the guideline and judges whether cross-references to files not in the preloaded context would cause confusion or dead links |
-| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) | semantic | Clean-room sub-agent reads the guideline and judges whether any cross-reference to 000-critical-rules.md is redundant given its preloaded status |
-| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite with equivalent semantic force | semantic | Clean-room sub-agent reads both original and rewritten guideline, compares each actionable instruction, and judges whether semantic force is preserved |
+| ID | Criterion | Evidence Type | Verification Method | Cost Frame |
+|----|-----------|---------------|---------------------|------------|
+| SC-1 | Self-Simulation Prohibition section exists | string | grep for 'Self-Simulation' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-2 | Prohibition covers all mechanisms (shell, file, comment, tool output, session trigger) with equivalent semantic force | semantic | Clean-room sub-agent reads the prohibition text and judges whether each mechanism is covered with equivalent normative force | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-3 | Session Trigger No-Echo section exists | string | grep for 'No-Echo' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-4 | Trigger Behavior Map with 2 triggers exists | string | grep for 'pair_mode_resume' and 'nested_opencode_fatal' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-5 | Suppression Rule exists | string | grep for 'Suppression Rule' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-6 | The guideline does not contain non-actionable historical records that could confuse agent behavior | semantic | Clean-room sub-agent reads the guideline and judges whether any remaining content is non-actionable historical record rather than actionable instruction | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline | semantic | Clean-room sub-agent reads the guideline and judges whether cross-references to files not in the preloaded context would cause confusion or dead links | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) | semantic | Clean-room sub-agent reads the guideline and judges whether any cross-reference to 000-critical-rules.md is redundant given its preloaded status | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite with equivalent semantic force | semantic | Clean-room sub-agent reads both original and rewritten guideline, compares each actionable instruction, and judges whether semantic force is preserved | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+
+## SC Enforcement Gate
+
+All SCs (SC-1 through SC-9) MUST pass for this spec to be considered complete. A single FAIL blocks the entire spec. Partial implementation is not permitted.
 
 ## Implementation Plan
 
@@ -96,6 +140,7 @@ Suppress non-actionable triggers from output.
 
 - **Over-broad prohibition**: If the Self-Simulation Prohibition is too broad, it may block legitimate workflows (e.g., writing a file and then reading it for verification). Mitigation: the prohibition targets instruction-consumption, not data-consumption. Writing a file and reading it back for verification is allowed. Writing instructions and reading them back as commands is forbidden. **The guideline text MUST operationalize this distinction** — the "instruction-consumption vs data-consumption" boundary is a semantic distinction that must be encoded in the guideline's wording, not just noted as a risk. The rewrite must include explicit language distinguishing prohibited instruction-consumption from permitted data-consumption, with examples of each.
 - **False sense of security**: A guideline alone cannot prevent self-simulation if the agent is compromised. Mitigation: this is one layer in a defense-in-depth approach. The tool-level ban (020, no echo/printf) and architectural constraints (session isolation) provide complementary layers.
+- **Semantic SC non-determinism (accepted):** SC-6 and SC-7 use open-ended quality terms ('could confuse agent behavior', 'would cause confusion or dead links') without explicit thresholds. This non-determinism is accepted as inherent to semantic SCs — the Definitions section provides criteria for classifying content, and verification uses clean-room sub-agent judgment. No further threshold specification is possible without converting these to string/structural SCs, which would defeat their purpose.
 
 ## Dependencies
 
@@ -109,6 +154,9 @@ Suppress non-actionable triggers from output.
 |------|--------|--------|---------------|
 | 2026-07-31 | Reframed SCs 6-8 from removal targets to semantic-preservation targets; upgraded SC-2 evidence type from string to semantic; added SC-9 (semantic preservation of original actionable content); removed "Remove:" section (implementation detail moved to plan); added note that guideline text must operationalize instruction-consumption vs data-consumption distinction | Revision request: spec framed around text removal rather than semantic preservation; evidence types needed upgrading; implementation details belonged in plan | Developer (revision request) |
 | 2026-07-31 | Added Requirements section (REQ-1 through REQ-4) between Proposed Solution and Success Criteria; added Traceability table mapping REQ → SC → Phase; updated Implementation Plan phase headings to reference SC/REQ IDs | Validation found 3 structural gaps: missing Requirements section, missing Traceability table, phase headings lacked SC/REQ references | Developer (revision request) |
+| 2026-07-31 | Added inline source URLs for 3 research claims (GuardFall, Microsoft Security Blog, SoK Paper); added Definitions section (equivalent semantic force, non-actionable historical records, preloaded in agent context); added Preconditions section (SC-7, SC-9) | Spec-audit H-7 (3 research claims without verifiable source URLs) and H-3 (3 undefined terms, 2 implicit dependencies) | Developer (revision request) |
+| 2026-07-31 | Added semantic SC non-determinism acceptance note to Risks section (Fix 1); added Alternatives Considered section between Proposed Solution and Definitions (Fix 2); added commit history verification note to Problem section (Fix 3) | Spec-audit arbiter: SC-DET / A5-missing-coverage, A4-investigation-breadth, A4-recency-check | Developer (revision request) |
+| 2026-07-31 | Added Documentation Sources section after Problem (Fix 1); added Intent and Executive Summary section at top of body (Fix 2); added Cost Frame column to Success Criteria table (Fix 3); added SC Enforcement Gate section before Implementation Plan (Fix 4) | Spec-audit found 4 remaining formatting-convention FAILs — all remediated to zero FAILs | Developer (revision request) |
 
 ---
 
