@@ -87,25 +87,26 @@ body: "---\nremote_issue: 2135\nremote_url: https://github.com/michael-conrad/.o
   \ code diverge on matters of fact, the spec is updated to match reality. Cost: one\
   \ sub-agent dispatch + two file reads. |\n| SC-3 | Rule 2: Spec before code | semantic\
   \ | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'every\
-  \ code change requires an approved spec' is present, (b) no exception or escape\
-  \ hatch language weakens the requirement. Cost: one sub-agent dispatch + one file\
-  \ read. |\n| SC-4 | Rule 3: Documentation Drift Protocol | semantic | Clean-room\
-  \ sub-agent reads guideline and verifies ALL of: (a) the phrase 'Documentation Drift\
-  \ Protocol' is present, (b) a statement that updating the spec to match code state\
-  \ is an administrative sync (not a code change). Cost: one sub-agent dispatch +\
-  \ one file read. |\n| SC-5 | Rule 4: Spec revision revokes plan approval | semantic\
-  \ | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'spec\
-  \ revision revokes plan approval' is present, (b) a reference to approval-gate-006\
-  \ is present. Cost: one sub-agent dispatch + one file read. |\n| SC-6 | Rule 5:\
-  \ Suppression of Reactive Remediation | semantic | Clean-room sub-agent reads guideline\
-  \ and verifies ALL of: (a) the phrase 'Suppression of Reactive Remediation' is present,\
-  \ (b) a statement that code must not be changed to match a spec that is wrong about\
-  \ current state. Cost: one sub-agent dispatch + one file read. |\n| SC-7 | Rule\
-  \ 6: Verification against spec | semantic | Clean-room sub-agent reads guideline\
-  \ and verifies ALL of: (a) the phrase 'Verification against spec' is present, (b)\
-  \ a statement that the spec is the benchmark and code is measured against it. Cost:\
-  \ one sub-agent dispatch + one file read. |\n| SC-8a | Superseding Issues section\
-  \ absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md\
+  \ code change requires an approved spec' is present, (b) grep for absence of the\
+  \ following exception phrases in the rule's section: 'unless', 'except when', 'may\
+  \ be skipped', 'optionally'. Cost: one sub-agent dispatch + one file read. |\n|\
+  \ SC-4 | Rule 3: Documentation Drift Protocol | semantic | Clean-room sub-agent\
+  \ reads guideline and verifies ALL of: (a) the phrase 'Documentation Drift Protocol'\
+  \ is present, (b) a statement that updating the spec to match code state is an administrative\
+  \ sync (not a code change). Cost: one sub-agent dispatch + one file read. |\n| SC-5\
+  \ | Rule 4: Spec revision revokes plan approval | semantic | Clean-room sub-agent\
+  \ reads guideline and verifies ALL of: (a) the phrase 'spec revision revokes plan\
+  \ approval' is present, (b) a reference to approval-gate-006 is present. Cost: one\
+  \ sub-agent dispatch + one file read. |\n| SC-6 | Rule 5: Suppression of Reactive\
+  \ Remediation | semantic | Clean-room sub-agent reads guideline and verifies ALL\
+  \ of: (a) the phrase 'Suppression of Reactive Remediation' is present, (b) a statement\
+  \ that code must not be changed to match a spec that is wrong about current state.\
+  \ Cost: one sub-agent dispatch + one file read. |\n| SC-7 | Rule 6: Verification\
+  \ against spec | semantic | Clean-room sub-agent reads guideline and verifies ALL\
+  \ of: (a) the phrase 'Verification against spec' is present, (b) a statement that\
+  \ the spec is the benchmark and code is measured against it. Cost: one sub-agent\
+  \ dispatch + one file read. |\n| SC-8a | Superseding Issues section absent from\
+  \ 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md\
   \ and confirms the Superseding Issues + Overlap Detection Checklist section is absent\
   \ from the original location. Cost: one sub-agent dispatch + one file read. |\n\
   | SC-8b | Superseding Issues content present in spec-creation SKILL.md | semantic\
@@ -147,38 +148,39 @@ body: "---\nremote_issue: 2135\nremote_url: https://github.com/michael-conrad/.o
   \ and source code. Cost: one sub-agent dispatch + two file reads. |\n| SC-12 | Rewrite\
   \ does not use word count, line count, or any quantitative metric as a compaction\
   \ target | semantic | Clean-room sub-agent reads the final guideline file and verifies\
-  \ NONE of the following mechanical compaction artifacts are present: (a) any comment\
-  \ or marker indicating a size-based truncation decision (e.g., 'removed for length',\
-  \ 'truncated', 'compacted to fit'), (b) any discontinuity in content flow that suggests\
-  \ content was removed to meet a size target. Cost: one sub-agent dispatch + one\
-  \ file read. |\n\n## SC Enforcement Gate\n\nAll SCs (SC-1 through SC-12) must pass\
-  \ with clean verdicts before the implementation is accepted. A single FAIL blocks\
-  \ acceptance. No SC may be deferred, weakened, or removed to achieve a pass.\n\n\
-  ## Edge Cases and Error Recovery\n\nThe following edge cases are defined for the\
-  \ implementation:\n\n| Edge Case | Recovery Procedure |\n|-----------|-------------------|\n\
-  | Target file (spec-creation SKILL.md) does not exist at implementation time | HALT.\
-  \ Report missing target file. Do not create the file — the spec-creation SKILL.md\
-  \ must exist before content relocation. |\n| Source section not found at expected\
-  \ location in 130-authority-source.md | HALT. Report that the section was not found.\
-  \ The spec's assumption about section location may be stale — verify current file\
-  \ state and update the spec if needed. |\n| Semantic preservation check (Phase 5)\
-  \ reveals content loss | HALT. Report which content items are missing. Do not accept\
-  \ the implementation. The missing content must be restored before proceeding. |\n\
-  | Target file already contains overlapping content | HALT. Report the overlap. Do\
-  \ not duplicate content. The existing content in the target file must be reconciled\
-  \ with the relocated content. |\n| Mechanical compaction artifact detected in final\
-  \ guideline | HALT. Report the artifact location. The compaction must be reversed\
-  \ and the content restored before proceeding. |\n\n## Implementation Plan\n\n###\
-  \ Phase 1: Write new dual-authority principle [REQ-7]\n### Phase 2: Write 6 new\
-  \ rules [REQ-1 through REQ-6]\n### Phase 3: Remove superseded rules and relocate\
-  \ content [REQ-8]\n  - Move Superseding Issues + Overlap Detection Checklist to\
-  \ spec-creation SKILL.md\n  - Move Verification First to 065-verification-honesty.md\n\
-  \  - Move Plan Audit Code Deep Dive to spec-creation SKILL.md\n### Phase 4: Verify\
-  \ all 6 rules present and removed content absent [REQ-9]\n### Phase 5: Clean-room\
-  \ semantic audit — verify no content loss [REQ-8, REQ-9]\n  - Dispatch clean-room\
-  \ sub-agent to verify SC-11a, SC-11b, SC-11c, SC-12\n\n## Files Affected\n\n- `.opencode/guidelines/130-authority-source.md`\
-  \ — rewritten\n- `.opencode/skills/spec-creation/SKILL.md` — receives Superseding\
-  \ Issues + Overlap Detection Checklist + Plan Audit Code Deep Dive\n- `.opencode/guidelines/065-verification-honesty.md`\
+  \ NONE of the following mechanical compaction artifacts are present: (a) grep for\
+  \ absence of 'removed for length', 'truncated', 'compacted to fit', 'shortened for\
+  \ size', 'abbreviated for space' in the file, (b) clean-room sub-agent reads the\
+  \ file and verifies no content-free section headers (a heading with no body text\
+  \ below it) exist. Cost: one sub-agent dispatch + one file read. |\n\n## SC Enforcement\
+  \ Gate\n\nAll SCs (SC-1 through SC-12) must pass with clean verdicts before the\
+  \ implementation is accepted. A single FAIL blocks acceptance. No SC may be deferred,\
+  \ weakened, or removed to achieve a pass.\n\n## Edge Cases and Error Recovery\n\n\
+  The following edge cases are defined for the implementation:\n\n| Edge Case | Recovery\
+  \ Procedure |\n|-----------|-------------------|\n| Target file (spec-creation SKILL.md)\
+  \ does not exist at implementation time | HALT. Report missing target file. Do not\
+  \ create the file — the spec-creation SKILL.md must exist before content relocation.\
+  \ |\n| Source section not found at expected location in 130-authority-source.md\
+  \ | HALT. Report that the section was not found. The spec's assumption about section\
+  \ location may be stale — verify current file state and update the spec if needed.\
+  \ |\n| Semantic preservation check (Phase 5) reveals content loss | HALT. Report\
+  \ which content items are missing. Do not accept the implementation. The missing\
+  \ content must be restored before proceeding. |\n| Target file already contains\
+  \ overlapping content | HALT. Report the overlap. Do not duplicate content. The\
+  \ existing content in the target file must be reconciled with the relocated content.\
+  \ |\n| Mechanical compaction artifact detected in final guideline | HALT. Report\
+  \ the artifact location. The compaction must be reversed and the content restored\
+  \ before proceeding. |\n\n## Implementation Plan\n\n### Phase 1: Write new dual-authority\
+  \ principle [REQ-7]\n### Phase 2: Write 6 new rules [REQ-1 through REQ-6]\n### Phase\
+  \ 3: Remove superseded rules and relocate content [REQ-8]\n  - Move Superseding\
+  \ Issues + Overlap Detection Checklist to spec-creation SKILL.md\n  - Move Verification\
+  \ First to 065-verification-honesty.md\n  - Move Plan Audit Code Deep Dive to spec-creation\
+  \ SKILL.md\n### Phase 4: Verify all 6 rules present and removed content absent [REQ-9]\n\
+  ### Phase 5: Clean-room semantic audit — verify no content loss [REQ-8, REQ-9]\n\
+  \  - Dispatch clean-room sub-agent to verify SC-11a, SC-11b, SC-11c, SC-12\n\n##\
+  \ Files Affected\n\n- `.opencode/guidelines/130-authority-source.md` — rewritten\n\
+  - `.opencode/skills/spec-creation/SKILL.md` — receives Superseding Issues + Overlap\
+  \ Detection Checklist + Plan Audit Code Deep Dive\n- `.opencode/guidelines/065-verification-honesty.md`\
   \ — receives Verification First content\n\n## Risks\n\n- **Confusion between intent\
   \ and state**: Agents may struggle to distinguish \"spec is wrong about current\
   \ state\" from \"code doesn't implement spec intent.\" Mitigation: each rule includes\
@@ -191,4 +193,4 @@ body: "---\nremote_issue: 2135\nremote_url: https://github.com/michael-conrad/.o
   \ clean-room sub-agent.\n\n## Dependencies\n\n- None.\n\n---\n\n\U0001F916 Co-authored\
   \ with AI: OpenCode (deepseek-v4-flash)\n"
 created_at: '2026-07-25T04:33:36+00:00'
-updated_at: '2026-07-31T20:46:35+00:00'
+updated_at: '2026-07-31T20:51:59+00:00'

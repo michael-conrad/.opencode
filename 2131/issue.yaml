@@ -33,8 +33,7 @@ body: '## Objective
   | REQ-2 | Move Enforcement Test Mandate to test-driven-development skill card with
   no constraint loss |
 
-  | REQ-3 | Remove Behavioral RED/GREEN section from 080 (normative content preserved
-  in 000) |
+  | REQ-3 | Remove Behavioral RED/GREEN section from 080 (normative content preserved in 080's Enforcement Test Mandate section — 000 only has a cross-reference to 080) |
 
   | REQ-4 | Test Integrity Mandate remains in 080 (only summary exists in 000) |
 
