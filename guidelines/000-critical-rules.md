@@ -389,8 +389,7 @@ Preserving output from a BLOCKED sub-agent means propagating contaminated state 
 Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" means you are using the agent as an API proxy, not an engineer. Professional agents task objectives. Amateurs task tool recipes. Every tool-recipe dispatch is a decision you made for the sub-agent, not a problem you gave it to solve.
 
 
-### [critical-rules-042] Gate Non-Waiver Principle — "continue" does not waive mandatory gates
-Every "continue" is instruction to proceed to the next step, not to skip the step. Professional engineers know that mandatory gates are structural invariants. Amateurs treat "continue" as a shortcut past quality.
+
 
 
 
