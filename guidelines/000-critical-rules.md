@@ -380,8 +380,7 @@ Orchestrator inline work detected → HALT. Discard pipeline execution state (wo
 - ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from last known good commit checkpoint tag; log the detection event in the new work state file
 
 
-### [critical-rules-042] Discard on Sub-Agent Failure
-Preserving output from a BLOCKED sub-agent means propagating contaminated state into the next attempt. Amateurs salvage. Professionals discard and re-task with original context.
+
 
 
 
