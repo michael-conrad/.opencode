@@ -30,7 +30,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 **Detect branch type first:**
 
 ```bash
-# Check if this is a work branch (assembly by the implementation-pipeline per the SKILL.md Trigger Dispatch Table)
+# Check if this is a work branch (assembly during plan execution)
 ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 # Read scope fields from work state file if present
@@ -79,7 +79,7 @@ Single-issue PRs must have EXACTLY ONE commit. No exceptions.
 
 **Work branch (work state file exists):**
 
-Work branches have one commit per implementation item (N commits). This is correct — do NOT re-squash. The implementation-pipeline per the SKILL.md Trigger Dispatch Table already squash-merged each feature branch into the work branch with proper individual commit messages.
+Work branches have one commit per implementation item (N commits). This is correct — do NOT re-squash. Plan execution already squash-merged each feature branch into the work branch with proper individual commit messages.
 
 ```bash
 # Verify work branch has expected commits (one per implementation item)

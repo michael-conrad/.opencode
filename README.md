@@ -98,7 +98,7 @@ Self-contained modules with YAML frontmatter for self-discovery:
 | Category | Skills |
 |----------|--------|
 | Workflow | `approval-gate`, `git-workflow`, `executing-plans`, `writing-plans`, `finishing-a-development-branch` |
-| Planning | `brainstorming`, `spec-creation`, `implementation-pipeline` |
+| Planning | `brainstorming`, `spec-creation` |
 | Quality | `spec-auditor`, `guideline-auditor`, `coherence-auditor`, `code-size-enforcement`, `plan-fidelity-auditor` |
 | Review | `requesting-code-review`, `receiving-code-review`, `issue-review` |
 | Debug | `systematic-debugging`, `conflict-resolution` |

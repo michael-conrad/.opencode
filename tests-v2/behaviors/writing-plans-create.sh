@@ -5,9 +5,9 @@
 # Content-Verification Test: Writing-Plans Create Task Card
 #
 # Verifies that skills/writing-plans/tasks/create.md produces plans with
-# the full per-task cycle from the implementation-pipeline TDT.
+# the full per-task cycle from the implementation-workflow reference card.
 # Every task in every phase must enumerate every step from the
-# implementation-pipeline's per-task cycle (RED, Z3 check RED, RED doublecheck,
+# implementation-workflow reference card's per-task cycle (RED, Z3 check RED, RED doublecheck,
 # Z3 check RED doublecheck, Post-RED enforcement, Z3 check post-RED, GREEN,
 # Z3 check GREEN, Post-GREEN enforcement, Z3 check post-GREEN, Checkpoint tag,
 # Checkpoint commit).
@@ -37,12 +37,12 @@ else
     echo "  [MISSING] $CREATE_MD does not exist (expected RED)"
 fi
 
-# Check 2: Must reference loading the implementation-pipeline TDT at runtime
-if grep -qi 'implementation-pipeline.*TDT\|load.*implementation-pipeline\|read.*implementation-pipeline.*trigger\|skill.*implementation-pipeline' "$CREATE_MD" 2>/dev/null; then
+# Check 2: Must reference loading the implementation-workflow reference card at runtime
+if grep -qi 'implementation-workflow.*reference.*card\|load.*implementation-workflow\|read.*implementation-workflow.*reference\|skill.*implementation-workflow' "$CREATE_MD" 2>/dev/null; then
     LOADS_TDT=true
-    echo "  [FOUND] References loading implementation-pipeline TDT"
+    echo "  [FOUND] References loading implementation-workflow reference card"
 else
-    echo "  [MISSING] No reference to loading implementation-pipeline TDT (expected RED)"
+    echo "  [MISSING] No reference to loading implementation-workflow reference card (expected RED)"
 fi
 
 # Check 3: Must enumerate the full per-task cycle steps

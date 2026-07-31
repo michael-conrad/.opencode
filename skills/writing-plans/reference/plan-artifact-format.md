@@ -4,7 +4,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **Status:** Living document. This is the single source of truth for the plan artifact format. All plan creation tools (`writing-plans`) and plan consumers (`implementation-pipeline`, `audit`) MUST conform to this specification.
+> **Status:** Living document. This is the single source of truth for the plan artifact format. All plan creation tools (`writing-plans`) and plan consumers (`audit`) MUST conform to this specification.
 
 ---
 

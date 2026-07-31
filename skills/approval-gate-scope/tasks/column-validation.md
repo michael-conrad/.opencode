@@ -11,7 +11,7 @@ The pre-approval gate validates the following columns in the spec's SC table. Ea
 
 | Column | Validation Rule | Block On | Apply To |
 |--------|----------------|----------|----------|
-| Pipeline Step Binding | Every SC MUST have a valid pipeline step binding matching a step in `implementation-pipeline` dispatch table | Missing, invalid, or misspelled step name | All specs |
+| Pipeline Step Binding | Every SC MUST have a valid pipeline step binding matching a step in `implementation-workflow` reference card per-task cycle steps | Missing, invalid, or misspelled step name | All specs |
 | Re-Entry Step | Every SC MUST declare a re-entry step. For single-task specs, may be `null`. For multi-phase, MUST reference a valid step within the bound phase | Missing for multi-phase, or references step outside phase scope | All specs |
 | Verification Gate | Every SC's Verification Gate MUST be consistent with its Evidence Type per the Evidence Type Taxonomy: `behavioral` → pre-commit, `semantic` → pre-PR, `string` → CI, `structural` → none | EVIDENCE_TYPE_MISMATCH — behavioral SC with CI gate, etc. | All specs |
 | Artifact Path | Every SC with a non-structural evidence type MUST declare an artifact path. Structural SCs MAY omit | Missing when evidence type is behavioral/semantic/string | All specs |

@@ -56,8 +56,8 @@ Generate and validate implementation plans from approved specs. Flat architectur
 |------|---------|
 | `tasks/analyze.md` | Verify spec exists locally, check approval from frontmatter, validate analytical artifacts exist |
 | `tasks/backfill.md` | Generate missing analytical artifacts from spec body when spec-creation did not produce them |
-| `tasks/research.md` | Decompose SCs into phases, build dependency DAG, select skill+task from implementation-pipeline TDT, run Z3 constraint solving |
-| `tasks/create.md` | Write self-contained plan with full implementation-pipeline workflow per task. Plan is structured markdown with English instructions. Every task enumerates every step from the implementation-pipeline's per-task cycle. No skipping, no combining, no grouping |
+| `tasks/research.md` | Decompose SCs into phases, build dependency DAG, select skill+task from implementation-workflow reference card Trigger Dispatch Table, run Z3 constraint solving |
+| `tasks/create.md` | Write self-contained plan with full implementation-workflow reference card per-task cycle. Plan is structured markdown with English instructions. Every task enumerates every step from the implementation-workflow reference card's per-task cycle. No skipping, no combining, no grouping |
 | `tasks/validate.md` | Structural validation, skill+task validity, SC coverage check, holistic quality gate |
 | `tasks/revise.md` | Plan revision from validation findings with change tracking |
 | `tasks/completion.md` | Lifecycle event append, execution strategy determination, summary report |
@@ -83,4 +83,4 @@ writing-plans/
 
 ## Cross-References
 
-Skills: `spec-creation` (upstream — produces the spec consumed by analyze), `approval-gate` (authorization gate before plan creation), `implementation-pipeline` (downstream — consumes the plan), `audit` (plan-audit), `solve` (Z3 constraint solver). Guidelines: `000-critical-rules.md` (clean-room discipline, monolithic implementation prohibition), `080-code-standards.md` (evidence type taxonomy, plan structure), `091-incremental-build.md` (per-item TDD cycle).
+Skills: `spec-creation` (upstream — produces the spec consumed by analyze), `approval-gate` (authorization gate before plan creation), `audit` (plan-audit), `solve` (Z3 constraint solver). Guidelines: `000-critical-rules.md` (clean-room discipline, monolithic implementation prohibition), `080-code-standards.md` (evidence type taxonomy, plan structure), `091-incremental-build.md` (per-item TDD cycle).

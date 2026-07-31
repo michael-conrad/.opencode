@@ -133,4 +133,4 @@ When `approval-gate-006` fires (spec revision revokes plan approval):
 
 ## Cross-References
 
-Sub-skills: `approval-gate-scope`. Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
+Sub-skills: `approval-gate-scope`. Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `writing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.

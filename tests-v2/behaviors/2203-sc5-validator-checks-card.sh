@@ -3,7 +3,7 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-5: validate.md validates against the reference card instead of implementation-pipeline TDT.
+# SC-5: validate.md validates against the reference card instead of the former implementation-pipeline TDT.
 # The test sends a validate scenario and verifies the agent validates against the reference card.
 
 set -euo pipefail

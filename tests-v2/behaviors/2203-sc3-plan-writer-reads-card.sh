@@ -3,7 +3,7 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-3: create.md reads the reference card instead of loading the implementation-pipeline TDT.
+# SC-3: create.md reads the reference card instead of loading the former implementation-pipeline TDT.
 # The test sends a plan-writing prompt and verifies the agent reads the reference card.
 
 set -euo pipefail

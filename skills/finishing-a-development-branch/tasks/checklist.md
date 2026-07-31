@@ -83,7 +83,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 **This format applies to EVERY halt point where implementation is reported complete:**
 - review-prep after implementation
-- Sub-agent result reports from implementation-pipeline task()
+- Sub-agent result reports from plan execution
 - Phase boundary halts (merge gates between phases)
 - Approval-gate post-implementation reports
 

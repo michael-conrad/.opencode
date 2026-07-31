@@ -38,7 +38,7 @@
 - **State:** Verification artifacts exist for all SCs in spec
 - **Verify:** Check `{project_root}/tmp/{issue_number}/artifacts/` for SC verification evidence
 - **If PASS:** Proceed to Item 5
-- **If FAIL:** Report `next_action: implementation-pipeline` with reason "Implementation not complete for issue {issue_number}"
+- **If FAIL:** Report `next_action: follow-plan` with reason "Implementation not complete for issue {issue_number}"
 
 ### Item 5: PR exists
 
