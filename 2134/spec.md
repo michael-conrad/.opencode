@@ -49,6 +49,24 @@ Keep the two remaining triggers:
 
 Suppress non-actionable triggers from output.
 
+## Requirements
+
+| ID | Description |
+|----|-------------|
+| REQ-1 | The guideline MUST prohibit the agent from producing output that it later consumes as instructions, regardless of mechanism. |
+| REQ-2 | The guideline MUST preserve all actionable instructions from the original (no-echo rule, trigger behavior map, suppression rule). |
+| REQ-3 | The guideline MUST NOT contain non-actionable historical records that could confuse agent behavior. |
+| REQ-4 | The guideline MUST operationalize the distinction between instruction-consumption and data-consumption. |
+
+## Traceability
+
+| REQ | SC(s) | Phase |
+|-----|-------|-------|
+| REQ-1 | SC-1, SC-2 | Phase 1 |
+| REQ-2 | SC-3, SC-4, SC-5, SC-9 | Phase 2 |
+| REQ-3 | SC-6, SC-7, SC-8 | Phase 3 |
+| REQ-4 | SC-2 (mitigation note) | Phase 1 |
+
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
@@ -65,10 +83,10 @@ Suppress non-actionable triggers from output.
 
 ## Implementation Plan
 
-### Phase 1: Write new Self-Simulation Prohibition section
-### Phase 2: Narrow existing sections (No-Echo, Trigger Map, Suppression)
-### Phase 3: Remove purged triggers list and source file cross-refs
-### Phase 4: Verify all 4 sections present and removed content absent
+### Phase 1: Write new Self-Simulation Prohibition section (SC-1, SC-2)
+### Phase 2: Narrow existing sections — No-Echo, Trigger Map, Suppression (SC-3, SC-4, SC-5, SC-9)
+### Phase 3: Remove non-actionable historical records and stale cross-refs (SC-6, SC-7, SC-8)
+### Phase 4: Verify all sections present and semantic preservation (SC-1 through SC-9)
 
 ## Files Affected
 
@@ -90,6 +108,7 @@ Suppress non-actionable triggers from output.
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-07-31 | Reframed SCs 6-8 from removal targets to semantic-preservation targets; upgraded SC-2 evidence type from string to semantic; added SC-9 (semantic preservation of original actionable content); removed "Remove:" section (implementation detail moved to plan); added note that guideline text must operationalize instruction-consumption vs data-consumption distinction | Revision request: spec framed around text removal rather than semantic preservation; evidence types needed upgrading; implementation details belonged in plan | Developer (revision request) |
+| 2026-07-31 | Added Requirements section (REQ-1 through REQ-4) between Proposed Solution and Success Criteria; added Traceability table mapping REQ → SC → Phase; updated Implementation Plan phase headings to reference SC/REQ IDs | Validation found 3 structural gaps: missing Requirements section, missing Traceability table, phase headings lacked SC/REQ references | Developer (revision request) |
 
 ---
 

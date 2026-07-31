@@ -44,6 +44,34 @@ Complete rewrite establishing a dual-authority model:
 - Rule 6 (Verification First) — already in 065
 - Rule 8 (Plan Audit Code Deep Dive) — project-specific doc reference
 
+## Requirements
+
+| ID | Requirement | Source |
+|----|-------------|--------|
+| REQ-1 | Spec for intent, code for state — When a spec makes an incorrect claim about current code behavior, revise the spec to match reality. When code fails to implement the spec's intent, fix the code. | Rule 1 |
+| REQ-2 | Spec before code — Every code change requires an approved spec. | Rule 2 |
+| REQ-3 | Documentation Drift Protocol — When spec and code diverge on matters of fact, update the spec to reflect current state as an administrative sync. | Rule 3 |
+| REQ-4 | Spec revision revokes plan approval — Substantive spec revision revokes linked plan approvals per approval-gate-006. | Rule 4 |
+| REQ-5 | Suppression of Reactive Remediation — Do not change code to match a spec that is wrong about current state; fix the spec first. | Rule 5 |
+| REQ-6 | Verification against spec — Before claiming completion, verify the code implements the spec's success criteria. | Rule 6 |
+| REQ-7 | Dual-authority principle — The spec is authoritative for intent; the code is authoritative for current state. Neither wins absolutely. | Principle |
+| REQ-8 | Removed sections preservation — All semantic content from removed sections (Superseding Issues, Verification First, Plan Audit Code Deep Dive) is preserved in target locations. | Remove |
+| REQ-9 | No mechanical compaction — Only semantic analysis determines what stays or goes; word count, line count, or quantitative metrics are not compaction targets. | Risks |
+
+## Traceability
+
+| Requirement | Success Criteria | Phase |
+|-------------|-----------------|-------|
+| REQ-1 | SC-2 | Phase 2 |
+| REQ-2 | SC-3 | Phase 2 |
+| REQ-3 | SC-4 | Phase 2 |
+| REQ-4 | SC-5 | Phase 2 |
+| REQ-5 | SC-6 | Phase 2 |
+| REQ-6 | SC-7 | Phase 2 |
+| REQ-7 | SC-1 | Phase 1 |
+| REQ-8 | SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b, SC-11a, SC-11b, SC-11c | Phase 3, Phase 5 |
+| REQ-9 | SC-12 | Phase 4, Phase 5 |
+
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
@@ -55,19 +83,24 @@ Complete rewrite establishing a dual-authority model:
 | SC-5 | Rule 4: Spec revision revokes plan approval | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly states that substantive spec revision revokes linked plan approvals |
 | SC-6 | Rule 5: Suppression of Reactive Remediation | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly prohibits changing code to match a spec that is wrong about current state |
 | SC-7 | Rule 6: Verification against spec | semantic | Clean-room sub-agent reads guideline and verifies the rule correctly states that completion verification checks code against spec success criteria |
-| SC-8 | Superseding Issues section removed | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Superseding Issues + Overlap Detection Checklist content is present in the target location, and reads 130-authority-source.md to confirm the section is absent from the original location |
-| SC-9 | Verification First section removed | semantic | Clean-room sub-agent reads 065-verification-honesty.md and verifies the Verification First content is present in the target location, and reads 130-authority-source.md to confirm the section is absent from the original location |
-| SC-10 | Plan Audit Code Deep Dive section removed | semantic | Clean-room sub-agent reads the target location and verifies the Plan Audit Code Deep Dive content is present, and reads 130-authority-source.md to confirm the section is absent from the original location |
-| SC-11 | All semantic content from removed sections (Superseding Issues, Verification First, Plan Audit Code Deep Dive) is preserved in target locations (spec-creation SKILL.md, 065-verification-honesty.md) | semantic | Clean-room sub-agent reads both source and target files, compares content, and verifies no semantic loss occurred during relocation |
+| SC-8a | Superseding Issues section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Superseding Issues + Overlap Detection Checklist section is absent from the original location |
+| SC-8b | Superseding Issues content present in spec-creation SKILL.md | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Superseding Issues + Overlap Detection Checklist content is present in the target location |
+| SC-9a | Verification First section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Verification First section is absent from the original location |
+| SC-9b | Verification First content present in 065-verification-honesty.md | semantic | Clean-room sub-agent reads 065-verification-honesty.md and verifies the Verification First content is present in the target location |
+| SC-10a | Plan Audit Code Deep Dive section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Plan Audit Code Deep Dive section is absent from the original location |
+| SC-10b | Plan Audit content present in target location | semantic | Clean-room sub-agent reads the target location and verifies the Plan Audit Code Deep Dive content is present |
+| SC-11a | Superseding Issues semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Superseding Issues content |
+| SC-11b | Verification First semantic preservation | semantic | Clean-room sub-agent reads both source (065-verification-honesty.md) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Verification First content |
+| SC-11c | Plan Audit semantic preservation | semantic | Clean-room sub-agent reads both source (target location) and original (130-authority-source.md) files, compares content, and verifies no semantic loss occurred during relocation of Plan Audit Code Deep Dive content |
 | SC-12 | Rewrite does not use word count, line count, or any quantitative metric as a compaction target — only semantic analysis determines what stays or goes | semantic | Clean-room sub-agent reads the final guideline and verifies the rewrite was guided by semantic necessity, not mechanical metrics |
 
 ## Implementation Plan
 
-### Phase 1: Write new dual-authority principle
-### Phase 2: Write 6 new rules
-### Phase 3: Remove superseded rules (Superseding Issues, Verification First, Plan Audit)
-### Phase 4: Verify all 6 rules present and removed content absent
-### Phase 5: Clean-room semantic audit — dispatch a clean-room sub-agent to compare source and target files for all three relocated sections, verifying no semantic content loss occurred before the rewrite is accepted
+### Phase 1: Write new dual-authority principle [REQ-7]
+### Phase 2: Write 6 new rules [REQ-1 through REQ-6]
+### Phase 3: Remove superseded rules (Superseding Issues, Verification First, Plan Audit) [REQ-8]
+### Phase 4: Verify all 6 rules present and removed content absent [REQ-9]
+### Phase 5: Clean-room semantic audit — dispatch a clean-room sub-agent to compare source and target files for all three relocated sections, verifying no semantic content loss occurred before the rewrite is accepted [REQ-8, REQ-9]
 
 ## Files Affected
 
@@ -95,5 +128,12 @@ Complete rewrite establishing a dual-authority model:
 | 2026-07-31 | Added SC-12: prohibition on mechanical compaction metrics | Spec lacked prohibition on word/line count as compaction targets | Revision request |
 | 2026-07-31 | Added Phase 5: clean-room semantic audit to Implementation Plan | Ensures no content loss before rewrite is accepted | Revision request |
 | 2026-07-31 | Added mechanical compaction risk to Risks section | Documents risk of quantitative compaction targets causing lobotomization | Revision request |
+| 2026-07-31 | Added Requirements section (REQ-1 through REQ-9) | Validation found 5 FAILs — missing Requirements section | Revision request |
+| 2026-07-31 | Added Traceability table mapping REQs to SCs to Phases | Validation found 5 FAILs — missing Traceability table | Revision request |
+| 2026-07-31 | Decomposed SC-8 into SC-8a (absent) and SC-8b (present) | Compound SC — combines two distinct verifications (source absence + target presence) | Revision request |
+| 2026-07-31 | Decomposed SC-9 into SC-9a (absent) and SC-9b (present) | Compound SC — combines two distinct verifications (source absence + target presence) | Revision request |
+| 2026-07-31 | Decomposed SC-10 into SC-10a (absent) and SC-10b (present) | Compound SC — combines two distinct verifications (source absence + target presence) | Revision request |
+| 2026-07-31 | Decomposed SC-11 into SC-11a (Superseding Issues), SC-11b (Verification First), SC-11c (Plan Audit) | Compound SC — combines three distinct semantic preservation checks | Revision request |
+| 2026-07-31 | Added REQ references to Phase headings | Validation found 5 FAILs — missing REQ references in phase headings | Revision request |
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
