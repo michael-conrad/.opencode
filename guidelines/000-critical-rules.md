@@ -467,26 +467,7 @@ When a sub-agent returns a defective deliverable (spec, plan, or other artifact)
 | Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
 
 
-### [critical-rules-072] No-Inline-Fix — orchestrator MUST NOT inline-fix defective sub-agent output
-When a sub-agent returns a defective deliverable, the orchestrator MUST NOT attempt to fix the defective artifact directly via `github_issue_write`, file edit, or any other direct mutation. The orchestrator MUST dispatch a revision task to the appropriate pipeline (spec-creation --task revise for specs, writing-plans --task revise for plans).
 
-#### 🚫 FORBIDDEN
-
-- Using `github_issue_write` to directly edit a defective spec/plan body
-- Using file edit tools to directly modify a defective deliverable file
-- Any direct mutation that bypasses the revision pipeline
-
-#### ✅ REQUIRED
-
-- Dispatch a revision task to the appropriate pipeline
-- Let the pipeline sub-agent handle the revision with full context and discipline
-
-#### Why This Matters
-
-| Violation Pattern | Consequence |
-|-------------------|-------------|
-| Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
-| Direct mutation of issue body | Lacks spec-creation context, produces inconsistent results |
 
 
 
