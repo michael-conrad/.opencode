@@ -26,20 +26,6 @@ phase_count: 7
 
 ---
 
-## Phase Table
-
-| Phase | Skill | Task | Target | SCs | Depends On |
-|-------|-------|------|--------|-----|------------|
-| 1 — Delete executing-plans | `general` | `edit` | `skills/executing-plans/` directory | SC-1 | — |
-| 2 — Remove dispatch-table entries | `general` | `edit` | `dispatch-table.yaml` | SC-2 | — |
-| 3 — Bulk .md file cleanup | `general` | `edit` | All `.md` files with stale refs | SC-3 | — |
-| 4 — Bulk non-md file cleanup | `general` | `edit` | yaml, py, txt, sh files | SC-4 | — |
-| 5 — Remove obsolete test | `general` | `edit` | `rationalization-check-remediation.sh` | SC-5 | — |
-| 6 — Update behavioral tests | `general` | `edit` | 5 behavioral test files | SC-6,7,8,9,10 | — |
-| 7 — Individual file cleanup | `general` | `edit` | 8 individual files | SC-11,12,13,14,15,16,17,18 | — |
-
----
-
 ## Pre-implementation
 
 - [ ] 1. **Coherence gate (**sub-agent**).** Dispatch coherence extraction to verify spec/plan coherence before any RED routing.
