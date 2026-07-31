@@ -410,7 +410,7 @@ For URLs to resources that have been **created by an API call** (PR URL, Issue U
 - `issue-operations/tasks/creation.md` — Issue URL extraction from `github_issue_write`
 - `issue-operations/tasks/completion.md` — Issue URL extraction from `github_issue_write`
 - `verification-before-completion/tasks/completion.md` — Issue URL extraction from `github_issue_write`
-- `implementation-pipeline/SKILL.md` Trigger Dispatch Table — PR URL extraction after PR creation
+- `implementation-workflow reference card` — PR URL extraction after PR creation
 - `finishing-a-development-branch/tasks/checklist.md` — URL extraction checklist verification
 
 - **PR URL:** Extract from `github_create_pull_request` response `html_url` field

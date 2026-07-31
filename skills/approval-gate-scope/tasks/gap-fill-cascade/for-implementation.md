@@ -38,7 +38,7 @@
 - **State:** Verification artifacts exist for all SCs in spec
 - **Verify:** Check `{project_root}/tmp/{issue_number}/artifacts/` for SC verification evidence
 - **If PASS:** Report `all_states_verified: true` with summary "All states verified for for_implementation scope"
-- **If FAIL:** Report `next_action: implementation-pipeline` with reason "Implementation not complete for issue {issue_number}"
+- **If FAIL:** Report `next_action: follow-plan` with reason "Implementation not complete for issue {issue_number}"
 
 ---
 

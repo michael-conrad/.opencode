@@ -1,6 +1,6 @@
 ---
 name: create
-purpose: "Write self-contained plan with full implementation-pipeline workflow per task"
+purpose: "Write self-contained plan with full implementation-workflow reference card per task"
 entry_gate: structure_artifact
 returns: "{status, artifact_path, finding_summary}"
 ---
@@ -9,7 +9,7 @@ returns: "{status, artifact_path, finding_summary}"
 
 ## Purpose
 
-Generates a structured implementation plan from the structure artifact. The plan is structured markdown with English instructions. Every task in every phase enumerates every step from the implementation-pipeline's per-task cycle — no skipping, no combining, no grouping.
+Generates a structured implementation plan from the structure artifact. The plan is structured markdown with English instructions. Every task in every phase enumerates every step from the implementation-workflow reference card's per-task cycle — no skipping, no combining, no grouping.
 
 The per-task cycle steps are discovered at runtime by reading the implementation-workflow reference card at `skills/writing-plans/reference/implementation-workflow.md`. The plan writer MUST NOT embed a hardcoded copy of the workflow.
 
@@ -45,7 +45,7 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 5. **Build the plan body.** For each phase from the structure artifact:
    - Write a phase heading with concern and SC coverage.
-   - For each task in the phase, enumerate every step from the implementation-pipeline's per-task cycle (discovered in step 1). Each step gets its own checkbox list item with:
+   - For each task in the phase, enumerate every step from the implementation-workflow reference card's per-task cycle (discovered in step 1). Each step gets its own checkbox list item with:
      - Step name and description
      - Dispatch indicator: `(**inline**)`, `(**sub-agent**)`, or `(**clean-room**)`
      - Context parameters as dash sub-bullets
@@ -79,7 +79,7 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 - The plan has been written to `{issues_prefix}/{N}/plan.md`
 - The plan frontmatter contains `dispatch:` array with skill+task refs per phase
-- Every task in every phase enumerates every step from the implementation-pipeline per-task cycle
+- Every task in every phase enumerates every step from the implementation-workflow reference card per-task cycle
 - All SCs are mapped to at least one phase
 - No circular dependencies in the phase DAG
 - The plan uses structured markdown: checkbox lists with dash sub-bullets

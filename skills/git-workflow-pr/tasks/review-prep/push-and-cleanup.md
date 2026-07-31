@@ -77,7 +77,7 @@ evidence_artifacts:
 
 ### Step 1: Temp File Cleanup (MANDATORY)
 
-Clean scoped issue temp files. Pipeline artifacts under `{project_root}/tmp/{issue-N}/artifacts/` are NOT cleaned here — they are cleaned by the step-specific pre-cleanup table in implementation-pipeline SKILL.md and at PR merge by the cleanup task.
+Clean scoped issue temp files. Pipeline artifacts under `{project_root}/tmp/{issue-N}/artifacts/` are NOT cleaned here — they are cleaned by the step-specific pre-cleanup table in implementation-workflow reference card and at PR merge by the cleanup task.
 
 ```bash
 rm -rf {project_root}/tmp/{issue-N}/temp_*.py {project_root}/tmp/{issue-N}/test_*.py {project_root}/tmp/{issue-N}/design-*.md 2>/dev/null

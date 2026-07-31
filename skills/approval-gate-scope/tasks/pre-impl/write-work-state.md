@@ -32,7 +32,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 | Strategy | When | How |
 |----------|------|-----|
 | **Sequential** | Must-precede chain exists | Execute in dependency order |
-| **Parallel** | Independent issues | task() via `implementation-pipeline` |
+| **Parallel** | Independent issues | orchestrator reads plan |
 | **Hybrid** | Mix of both | Serial for must-precede, parallel for independent groups |
 | **Exclude** | Meta/non-code, already-implemented, superseded, moot | Report exclusion with reason |
 | **Reduce scope** | Partially-implemented | Include remaining phases only |

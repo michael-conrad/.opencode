@@ -148,6 +148,6 @@ These environment variables are consumed by:
 
 - `git-workflow` tasks (review-prep, pr-creation, cleanup)
 - `finishing-a-development-branch` skill
-- `implementation-pipeline` task context
-- `implementation-pipeline` per the SKILL.md Trigger Dispatch Table
+- plan execution task context
+- plan execution
 - `pre-implementation-analysis` execution plan

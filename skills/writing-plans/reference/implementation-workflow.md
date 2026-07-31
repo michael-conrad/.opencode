@@ -77,7 +77,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Invocation
 
-`skill({name: "implementation-pipeline"})` — call the skill, then:
+The orchestrator reads the plan and dispatches each step per the Trigger Dispatch Table below. Dispatch strings are baked into the plan.
 
 ### Orchestrator-Level Tasks (read and execute directly, no task() call)
 
@@ -502,7 +502,7 @@ suggested_split: <proposed-split-strategy>
 
 ### Re-Dispatch Protocol
 
-When the implementation-pipeline per the Trigger Dispatch Table receives an OVERFLOW result:
+When the orchestrator receives an OVERFLOW result during plan execution:
 
 - [ ] 1. Record completed items in work state file
 - [ ] 2. Create new sub-agent task(s) for remaining items using suggested split strategy

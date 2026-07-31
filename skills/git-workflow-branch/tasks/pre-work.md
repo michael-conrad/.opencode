@@ -436,7 +436,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Context Received from Orchestration Layer
 
-**Input context from `implementation-pipeline`:**
+**Input context from orchestrator:**
 
 ```yaml
 authorization: confirmed (from approval-gate)
@@ -459,7 +459,7 @@ working_tree_clean: true
 ready_for: "implementation"
 ```
 
-The orchestration layer (`implementation-pipeline`) receives this yield and passes relevant context to the implementation subagent.
+The orchestration layer receives this yield and passes relevant context to the implementation subagent.
 
 ## ⚠️ Edge Case: Already Implemented (No Changes Needed)
 

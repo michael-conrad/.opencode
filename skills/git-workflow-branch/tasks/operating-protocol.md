@@ -33,9 +33,9 @@ All git tags in this project follow a unified naming convention. The suffix rule
 
 **Cross-references:**
 - Spec #950 — canonical suffix derivation rule
-- Spec #391 — checkpoint tag lifecycle (create during implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table, delete during cleanup)
+- Spec #391 — checkpoint tag lifecycle (create during plan execution, delete during cleanup)
 - `pre-work.md` Step 3.5 — hash permanence tag creation
-- `implementation-pipeline/SKILL.md` Trigger Dispatch Table — checkpoint creation and rollback substeps
+- `implementation-workflow.md` reference card — checkpoint creation and rollback substeps
 - `branch-cleanup.md` Step 3.3 — checkpoint tag deletion
 
 ## Exit Criteria
