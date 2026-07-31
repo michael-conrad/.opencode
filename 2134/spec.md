@@ -112,18 +112,72 @@ Suppress non-actionable triggers from output.
 | ID | Criterion | Evidence Type | Verification Method | Cost Frame |
 |----|-----------|---------------|---------------------|------------|
 | SC-1 | Self-Simulation Prohibition section exists | string | grep for 'Self-Simulation' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-2 | Prohibition covers all mechanisms (shell, file, comment, tool output, session trigger) with equivalent semantic force | semantic | Clean-room sub-agent reads the prohibition text and judges whether each mechanism is covered with equivalent normative force | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-2 | Prohibition covers all 5 mechanisms (shell, file, comment, tool output, session trigger) with equivalent semantic force | semantic | Clean-room sub-agent runs Verification Checklist V-SC-2 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 | SC-3 | Session Trigger No-Echo section exists | string | grep for 'No-Echo' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 | SC-4 | Trigger Behavior Map with 2 triggers exists | string | grep for 'pair_mode_resume' and 'nested_opencode_fatal' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 | SC-5 | Suppression Rule exists | string | grep for 'Suppression Rule' | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-6 | The guideline does not contain non-actionable historical records | semantic | Clean-room sub-agent reads the guideline and checks whether any remaining content is non-actionable historical record (defined in Definitions) rather than actionable instruction | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline | semantic | Clean-room sub-agent reads the guideline and checks whether any cross-reference targets a file not in the preloaded context (defined in Definitions) | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) | semantic | Clean-room sub-agent reads the guideline and checks whether any cross-reference to 000-critical-rules.md is present as a standalone reference | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
-| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite with equivalent semantic force | semantic | Clean-room sub-agent reads both original and rewritten guideline, compares each actionable instruction, and judges whether semantic force is preserved | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-6 | The guideline does not contain non-actionable historical records | semantic | Clean-room sub-agent runs Verification Checklist V-SC-6 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-7 | Source file cross-references that are not preloaded in agent context are absent from the guideline | semantic | Clean-room sub-agent runs Verification Checklist V-SC-7 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-8 | Cross-reference to 000-critical-rules.md is not present as a standalone reference (it is preloaded and does not need explicit mention) | semantic | Clean-room sub-agent runs Verification Checklist V-SC-8 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
+| SC-9 | Every actionable instruction in the original guideline (no-echo rule, trigger behavior map, suppression rule) is preserved in the rewrite with equivalent semantic force | semantic | Clean-room sub-agent runs Verification Checklist V-SC-9 | Cost-blind: verification MUST NOT be skipped or downgraded based on resource concerns |
 
 ## SC Enforcement Gate
 
 All SCs (SC-1 through SC-9) MUST pass for this spec to be considered complete. A single FAIL blocks the entire spec. Partial implementation is not permitted.
+
+## Verification Checklists
+
+### V-SC-2: Prohibition covers all 5 mechanisms
+
+The clean-room sub-agent MUST check each of the following items against the rewritten guideline. All 5 MUST pass for SC-2 to PASS.
+
+| # | Check | PASS Condition |
+|---|-------|----------------|
+| 1 | Shell output mechanism | Guideline contains a MUST NOT statement covering echo, printf, heredocs, or equivalent shell output commands that produce text later consumed as instructions |
+| 2 | File write + read mechanism | Guideline contains a MUST NOT statement covering writing instructions to a file and later reading that file as context/instructions |
+| 3 | Comment + process mechanism | Guideline contains a MUST NOT statement covering posting a comment to an issue/PR and later reading that comment as instructions |
+| 4 | Tool output re-ingestion mechanism | Guideline contains a MUST NOT statement covering producing output via one tool call and consuming it via another as instructions |
+| 5 | Session trigger echoing mechanism | Guideline contains a MUST NOT statement covering printing trigger data verbatim and acting on it |
+
+### V-SC-6: No non-actionable historical records
+
+The clean-room sub-agent MUST check each of the following items against the rewritten guideline. All MUST pass for SC-6 to PASS.
+
+| # | Check | PASS Condition |
+|---|-------|----------------|
+| 1 | Purged triggers list | The list of purged triggers (on_main_branch, protected_branch_with_changes, etc.) is absent from the guideline |
+| 2 | Spec reference to #426 | Any reference to spec #426 as a historical event is absent from the guideline |
+| 3 | Per-turn guard reference | Any reference to the removed per-turn protected branch edit guard is absent from the guideline |
+| 4 | Non-actionable content | Every remaining section contains at least one MUST, MUST NOT, or SHOULD instruction for the agent |
+
+### V-SC-7: No stale cross-references
+
+The clean-room sub-agent MUST check each of the following items against the rewritten guideline. All MUST pass for SC-7 to PASS.
+
+| # | Check | PASS Condition |
+|---|-------|----------------|
+| 1 | session_context_triggers.py | No cross-reference to session_context_triggers.py exists in the guideline |
+| 2 | session-enforcement.ts | No cross-reference to session-enforcement.ts exists in the guideline |
+| 3 | Preloaded file references | Any cross-reference to a file targets only files in the preloaded context (opencode.jsonc instructions array, load_when fields in guideline frontmatter) |
+
+### V-SC-8: No standalone 000-critical-rules.md reference
+
+The clean-room sub-agent MUST check the following item. It MUST pass for SC-8 to PASS.
+
+| # | Check | PASS Condition |
+|---|-------|----------------|
+| 1 | Standalone reference | No standalone cross-reference to 000-critical-rules.md exists in the guideline body (the file is preloaded and does not need explicit mention) |
+
+### V-SC-9: Semantic preservation of original actionable instructions
+
+The clean-room sub-agent MUST check each of the following items against both the original and rewritten guideline. All MUST pass for SC-9 to PASS.
+
+| # | Original Instruction | PASS Condition |
+|---|---------------------|----------------|
+| 1 | No-Echo rule: agent MUST NOT print SESSION_TRIGGERS content verbatim | Rewritten guideline contains a MUST NOT statement with equivalent normative strength covering session trigger echoing |
+| 2 | Trigger Behavior Map: pair_mode_resume → continue pair mode workflow | Rewritten guideline contains the pair_mode_resume trigger with the same agent behavior (continue pair mode workflow) |
+| 3 | Trigger Behavior Map: nested_opencode_fatal → HALT all operations | Rewritten guideline contains the nested_opencode_fatal trigger with the same agent behavior (HALT all operations, report to developer) |
+| 4 | Suppression Rule: suppress non-actionable triggers from output | Rewritten guideline contains a rule to suppress non-actionable triggers from agent output |
 
 ## Implementation Plan
 
