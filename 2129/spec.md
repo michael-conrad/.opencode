@@ -82,30 +82,28 @@ Commit history for 065 (verified by `git log --oneline --follow`): 20+ commits s
 
 All SCs (SC-1 through SC-17) MUST pass for this spec to be considered complete. If any SC fails, the implementation is BLOCKED until remediation resolves the failure.
 
-**Cost frame:** All 17 SCs are string-type grep verifications — each costs ~0.1s to run with zero false positives. There is no behavioral test cost or death-spiral risk. The cost of running all 17 verifications is bounded at ~2s total, making exhaustive verification the default — not an optimization target.
-
 ## Success Criteria
 
-| ID | Criterion | Evidence Type | Verification Method |
-|----|-----------|---------------|---------------------|
-| SC-1 | Collapse Zero Tolerance + Core Principle to one section (one heading, no duplicate content) | string | grep -c '## Zero Tolerance Rule' -> 1, grep -c '## Core Principle' -> 0 |
-| SC-2 | Remove Problem section | string | grep -c '^## Problem$' -> 0 |
-| SC-3 | Remove What Constitutes Checking table | string | grep -c "What Constitutes" -> 0 |
-| SC-4 | Remove Memory vs Verified table | string | grep -c "Memory vs" -> 0 |
-| SC-5 | Remove Single Exchange Window | string | grep -c "Single Exchange Window" -> 0 |
-| SC-6 | Remove Relationship to Other Guidelines | string | grep -c "Relationship to Other Guidelines" -> 0 |
-| SC-7 | Remove Verification-Enforcement Boundary | string | grep -c "Verification-Enforcement Boundary" -> 0 |
-| SC-8 | Remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First | string | grep -c "Hard Failure Discipline" -> 0 |
-| SC-9a | Keep: Evidence Requirement, No Exceptions, Pre-Response Gate, FORBIDDEN/REQUIRED | string | grep '## Evidence Requirement\|## No Exceptions\|## Pre-Response Factual Claim Gate' -> 3 |
-| SC-9b | Remove Evidence Hierarchy table | string | grep -c "Evidence Hierarchy" -> 0 |
-| SC-10 | Remove Metadata Verification master table, distribute rows to VbC operating-protocol.md, audit task files, issue-operations-core task files | string | grep -c "Metadata Categories Requiring Verification" -> 0 |
-| SC-11 | Inline Verification Comparison Semantics in verification-before-completion/tasks/operating-protocol.md, no back-link | string | grep "Verification Comparison\|exact match for external\|Per-Field Independence" operating-protocol.md -> 3 |
-| SC-12 | Inline Anti-Evasion Rules + verification artifact manifest in verification-before-completion/tasks/operating-protocol.md, no back-link | string | grep "Anti-Evasion\|verification artifact manifest" operating-protocol.md -> 2 |
-| SC-13 | Inline Metadata Verification subsets in verification-before-completion/tasks/operating-protocol.md, audit task files, issue-operations-core task files, no back-links | string | grep "Metadata Verification\|No Metadata Trust" operating-protocol.md -> 1+ AND in audit/tasks/ -> 1+ AND in issue-operations-core/tasks/ -> 1+ |
-| SC-14 | Remove critical-rules stubs + Fabricating URLs (end-of-file section) | string | Line count of 065 < 375 lines |
-| SC-15 | Remove DDL cross-reference footnote from 080-code-standards.md Evidence Type Taxonomy | string | grep "Cost explanation" 080-code-standards.md -> 0 |
-| SC-16 | Remove DDL cross-reference from 020-go-prohibitions.md cost-blind section | string | grep "065.*Cost Model" 020-go-prohibitions.md -> 0 |
-| SC-17 | Remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline/SKILL.md | string | grep "DONE_WITH_CONCERNS" implementation-pipeline/SKILL.md -> 0 |
+| ID | Criterion | Evidence Type | Verification Method | Cost Frame |
+|----|-----------|---------------|---------------------|------------|
+| SC-1 | Collapse Zero Tolerance + Core Principle to one section (one heading, no duplicate content) | string | Verify only one `## Zero Tolerance Rule` heading exists in 065 and no `## Core Principle` heading remains | ~0.1s grep |
+| SC-2 | Remove Problem section | string | Verify no `^## Problem$` heading exists in 065 | ~0.1s grep |
+| SC-3 | Remove What Constitutes Checking table | string | Verify no "What Constitutes" text exists in 065 | ~0.1s grep |
+| SC-4 | Remove Memory vs Verified table | string | Verify no "Memory vs" text exists in 065 | ~0.1s grep |
+| SC-5 | Remove Single Exchange Window | string | Verify no "Single Exchange Window" text exists in 065 | ~0.1s grep |
+| SC-6 | Remove Relationship to Other Guidelines | string | Verify no "Relationship to Other Guidelines" text exists in 065 | ~0.1s grep |
+| SC-7 | Remove Verification-Enforcement Boundary | string | Verify no "Verification-Enforcement Boundary" text exists in 065 | ~0.1s grep |
+| SC-8 | Remove Hard Failure Discipline + DDL + DONE_WITH_CONCERNS + Remediation-First | string | Verify no "Hard Failure Discipline" text exists in 065 | ~0.1s grep |
+| SC-9a | Keep: Evidence Requirement, No Exceptions, Pre-Response Gate, FORBIDDEN/REQUIRED | string | Verify all 3 headings (`## Evidence Requirement`, `## No Exceptions`, `## Pre-Response Factual Claim Gate`) are present in 065 | ~0.1s grep |
+| SC-9b | Remove Evidence Hierarchy table | string | Verify no "Evidence Hierarchy" text exists in 065 | ~0.1s grep |
+| SC-10 | Remove Metadata Verification master table, distribute rows to VbC operating-protocol.md, audit task files, issue-operations-core task files | string | Verify no "Metadata Categories Requiring Verification" text exists in 065 | ~0.1s grep |
+| SC-11 | Inline Verification Comparison Semantics in verification-before-completion/tasks/operating-protocol.md, no back-link | string | Verify "Verification Comparison", "exact match for external", and "Per-Field Independence" all present in operating-protocol.md | ~0.1s grep |
+| SC-12 | Inline Anti-Evasion Rules + verification artifact manifest in verification-before-completion/tasks/operating-protocol.md, no back-link | string | Verify "Anti-Evasion" and "verification artifact manifest" both present in operating-protocol.md | ~0.1s grep |
+| SC-13 | Inline Metadata Verification subsets in verification-before-completion/tasks/operating-protocol.md, audit task files, issue-operations-core task files, no back-links | string | Verify "Metadata Verification" or "No Metadata Trust" present in operating-protocol.md AND in at least one audit/task file AND in at least one issue-operations-core/task file | ~0.1s grep |
+| SC-14 | Remove critical-rules stubs + Fabricating URLs (end-of-file section) | string | Verify 065 line count is under 375 lines | ~0.1s wc |
+| SC-15 | Remove DDL cross-reference footnote from 080-code-standards.md Evidence Type Taxonomy | string | Verify no "Cost explanation" text exists in 080-code-standards.md | ~0.1s grep |
+| SC-16 | Remove DDL cross-reference from 020-go-prohibitions.md cost-blind section | string | Verify no "065.*Cost Model" pattern exists in 020-go-prohibitions.md | ~0.1s grep |
+| SC-17 | Remove DONE_WITH_CONCERNS coercion rule from implementation-pipeline/SKILL.md | string | Verify no "DONE_WITH_CONCERNS" text exists in implementation-pipeline/SKILL.md | ~0.1s grep |
 
 ## Files Affected
 

@@ -1,1 +1,5 @@
-comments: []
+comments:
+- author: "human"
+  scope: "for_plan"
+  text: "authorization_scope: for_plan, halt_at: plan_created"
+  timestamp: "2026-07-30T22:41:00Z"

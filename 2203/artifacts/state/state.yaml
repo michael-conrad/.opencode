@@ -1,0 +1,13 @@
+phase_1_done: false
+phase_2_done: false
+phase_3_done: false
+phase_4_done: false
+ref_card_exists: false
+plan_writers_updated: false
+pipeline_dir_deleted: false
+cross_refs_updated: false
+chain_renamed: false
+coercion_migrated: false
+enforcement_merged: false
+behavioral_tests_exist: false
+orphan_sweep_clean: false

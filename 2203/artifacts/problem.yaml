@@ -1,0 +1,44 @@
+domain: implementation-pipeline-decouple
+types:
+  - name: phase
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+  - name: phase_4
+    type: phase
+fluents:
+  - name: phase_done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: complete_phase_1
+    preconditions: []
+    effects:
+      - phase_done(phase_1)
+  - name: complete_phase_2
+    preconditions:
+      - phase_done(phase_1)
+    effects:
+      - phase_done(phase_2)
+  - name: complete_phase_3
+    preconditions:
+      - phase_done(phase_1)
+      - phase_done(phase_2)
+    effects:
+      - phase_done(phase_3)
+  - name: complete_phase_4
+    preconditions:
+      - phase_done(phase_3)
+    effects:
+      - phase_done(phase_4)
+init: []
+goals:
+  - phase_done(phase_1)
+  - phase_done(phase_2)
+  - phase_done(phase_3)
+  - phase_done(phase_4)

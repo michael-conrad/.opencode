@@ -1,0 +1,36 @@
+schema_version: "1.0"
+issue_number: 2203
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - name: model
+    query: "z3.And(phase_1_done, phase_2_done, phase_3_done, phase_4_done)"
+    result: SAT
+    model:
+      phase_1_done: true
+      phase_2_done: true
+      phase_3_done: true
+      phase_4_done: true
+      ref_card_exists: true
+      plan_writers_updated: true
+      pipeline_dir_deleted: true
+      cross_refs_updated: true
+      chain_renamed: true
+      coercion_migrated: true
+      enforcement_merged: true
+      behavioral_tests_exist: true
+      orphan_sweep_clean: true
+  - name: check
+    state_path: .opencode/.issues/2203/artifacts/state/state.yaml
+    contract_path: .opencode/.issues/2203/dependency-contract.yaml
+    result: SAT
+    note: "Initial state (all false) satisfies preconditions + postconditions + invariants"
+planner:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 4
+  plan:
+    - complete_phase_1()
+    - complete_phase_2()
+    - complete_phase_3()
+    - complete_phase_4()

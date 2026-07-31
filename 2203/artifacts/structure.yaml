@@ -1,0 +1,138 @@
+schema_version: "1.0"
+issue_number: 2203
+phases:
+  - id: 1
+    name: Reference card creation
+    scs:
+      - SC-1
+      - SC-2
+    items:
+      - item: 1
+        sc: SC-1
+        description: Create reference card file at skills/writing-plans/reference/implementation-workflow.md
+        files:
+          - skills/writing-plans/reference/implementation-workflow.md
+      - item: 2
+        sc: SC-2
+        description: Populate card with all 16 content sections from implementation-pipeline/SKILL.md
+        files:
+          - skills/writing-plans/reference/implementation-workflow.md
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 2
+    name: Plan writer update
+    scs:
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+    items:
+      - item: 3
+        sc: SC-3
+        description: Update create.md to read reference card instead of loading implementation-pipeline TDT
+        files:
+          - skills/writing-plans/tasks/create.md
+      - item: 4
+        sc: SC-4
+        description: Update research.md to read reference card for skill+task selection
+        files:
+          - skills/writing-plans/tasks/research.md
+      - item: 5
+        sc: SC-5
+        description: Update validate.md to validate against reference card
+        files:
+          - skills/writing-plans/tasks/validate.md
+      - item: 6
+        sc: SC-6
+        description: Update plan-artifact-format.md validation rule to reference reference card
+        files:
+          - skills/writing-plans/reference/plan-artifact-format.md
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 3
+    name: Source skill deletion and cross-reference update
+    scs:
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-11
+      - SC-12
+    items:
+      - item: 7
+        sc: SC-7
+        description: DELETE skills/implementation-pipeline/ entirely
+        files:
+          - skills/implementation-pipeline/
+      - item: 8
+        sc: SC-8
+        description: Update ALL cross-references — sub-groups (a) 5 audit tasks, (c) 065-verification-honesty.md, (e) tertiary files
+        files:
+          - All .opencode/ files per cross-ref-audit.yaml
+      - item: 9
+        sc: SC-9
+        description: Pipeline chain updates (pre-work -> execute-plan) across tertiary files
+        files:
+          - All .opencode/ files with old chain pattern
+      - item: 11
+        sc: SC-11
+        description: Coercion rule migration — move DONE_WITH_CONCERNS rule to reference card, update approval-gate-scope and 065-verification-honesty refs
+        files:
+          - reference card
+          - approval-gate-scope/SKILL.md
+          - 065-verification-honesty.md
+      - item: 12
+        sc: SC-12
+        description: Enforcement doc merge — merge 4 enforcement directory files into reference card, delete originals
+        files:
+          - reference card
+          - enforcement/*.md
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 4
+    name: Cleanup
+    scs:
+      - SC-10
+      - SC-13
+    items:
+      - item: 10
+        sc: SC-10
+        description: Add behavioral enforcement tests (plan-writer + delete-not-strip)
+        files:
+          - .opencode/tests-v2/behaviors/
+      - item: 13
+        sc: SC-13
+        description: Orphan reference sweep — final grep for remaining skills/implementation-pipeline/ references
+        files:
+          - All .opencode/ files
+    skill_task: "red from test-driven-development (SC-10), green from test-driven-development (SC-13)"
+    dispatch_string: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Phase 2 plan writer tasks need reference card to exist before they can read it"
+    - from: 1
+      to: 3
+      reason: "Phase 3 needs reference card to exist for content migration (SC-11 coercion rule, SC-12 enforcement docs) and for directory deletion (SC-7 content must be subsumed first)"
+    - from: 2
+      to: 3
+      reason: "Phase 3 directory deletion (SC-7) requires plan writer tasks to no longer reference the live TDT"
+    - from: 3
+      to: 4
+      reason: "Phase 4 behavioral tests (SC-10) need all changes in place; orphan sweep (SC-13) needs directory deleted and refs updated"
+
+triplet_co_location:
+  status: PASS
+  details: "All SCs have RED, GREEN, and COMMIT steps within the same phase"
+
+cross_phase_dependency:
+  status: PASS
+  details: "No RED test depends on SC output from a later phase"
+
+skill_task_selection:
+  source: "implementation-pipeline Trigger Dispatch Table"
+  note: "All phases use green-phase dispatch for file modifications. Phase 4 SC-10 uses red-phase for behavioral test creation. Each item within a phase gets its own RED/GREEN/verify/commit cycle per the per-item TDD mandate."

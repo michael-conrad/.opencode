@@ -1,0 +1,139 @@
+schema_version: "1.0"
+issue_number: 2203
+project_root: /home/muksihs/git/opencode-config
+issues_prefix: .opencode/.issues
+variables:
+  phase_1_done:
+    type: bool
+  phase_2_done:
+    type: bool
+  phase_3_done:
+    type: bool
+  phase_4_done:
+    type: bool
+  ref_card_exists:
+    type: bool
+  plan_writers_updated:
+    type: bool
+  pipeline_dir_deleted:
+    type: bool
+  cross_refs_updated:
+    type: bool
+  chain_renamed:
+    type: bool
+  coercion_migrated:
+    type: bool
+  enforcement_merged:
+    type: bool
+  behavioral_tests_exist:
+    type: bool
+  orphan_sweep_clean:
+    type: bool
+preconditions:
+  - "z3.Implies(phase_1_done, ref_card_exists)"
+  - "z3.Implies(phase_2_done, z3.And(ref_card_exists, plan_writers_updated))"
+  - "z3.Implies(phase_3_done, z3.And(phase_1_done, phase_2_done, pipeline_dir_deleted, cross_refs_updated, chain_renamed, coercion_migrated, enforcement_merged))"
+  - "z3.Implies(phase_4_done, z3.And(phase_3_done, behavioral_tests_exist, orphan_sweep_clean))"
+  - "z3.Implies(phase_2_done, phase_1_done)"
+  - "z3.Implies(phase_3_done, z3.And(phase_1_done, phase_2_done))"
+  - "z3.Implies(phase_4_done, phase_3_done)"
+invariants:
+  - "z3.Not(z3.And(phase_2_done, z3.Not(phase_1_done)))"
+  - "z3.Not(z3.And(phase_3_done, z3.Not(z3.And(phase_1_done, phase_2_done))))"
+  - "z3.Not(z3.And(phase_4_done, z3.Not(phase_3_done)))"
+phases:
+  - id: 1
+    name: Reference card creation
+    depends_on: []
+    preconditions:
+      - "skills/implementation-pipeline/SKILL.md exists (source content)"
+      - "skills/writing-plans/reference/ directory exists"
+    postconditions:
+      - "skills/writing-plans/reference/implementation-workflow.md exists"
+      - "skills/writing-plans/reference/implementation-workflow.md contains all 16 content sections from implementation-pipeline/SKILL.md"
+    items:
+      - item: 1
+        sc: SC-1
+        evidence_type: structural
+      - item: 2
+        sc: SC-2
+        evidence_type: string
+
+  - id: 2
+    name: Plan writer update
+    depends_on:
+      - 1
+    preconditions:
+      - "skills/writing-plans/reference/implementation-workflow.md exists (from Phase 1)"
+      - "skills/writing-plans/tasks/create.md exists"
+      - "skills/writing-plans/tasks/research.md exists"
+      - "skills/writing-plans/tasks/validate.md exists"
+      - "skills/writing-plans/reference/plan-artifact-format.md exists"
+    postconditions:
+      - "create.md reads reference card instead of loading implementation-pipeline TDT"
+      - "research.md reads reference card for skill+task selection"
+      - "validate.md validates against reference card"
+      - "plan-artifact-format.md validation rule references reference card"
+    items:
+      - item: 3
+        sc: SC-3
+        evidence_type: behavioral
+      - item: 4
+        sc: SC-4
+        evidence_type: behavioral
+      - item: 5
+        sc: SC-5
+        evidence_type: behavioral
+      - item: 6
+        sc: SC-6
+        evidence_type: string
+
+  - id: 3
+    name: Source skill deletion and cross-reference update
+    depends_on:
+      - 1
+      - 2
+    preconditions:
+      - "Phase 1 complete (reference card exists with all content)"
+      - "Phase 2 complete (plan writer tasks no longer reference live TDT)"
+      - "skills/implementation-pipeline/ directory exists (to be deleted)"
+    postconditions:
+      - "skills/implementation-pipeline/ directory absent"
+      - "All cross-references to skills/implementation-pipeline/ updated"
+      - "Pipeline chain updated (pre-work -> execute-plan)"
+      - "Coercion rule migrated to reference card"
+      - "Enforcement docs merged into reference card"
+    items:
+      - item: 7
+        sc: SC-7
+        evidence_type: string + structural
+      - item: 8
+        sc: SC-8
+        evidence_type: string
+      - item: 9
+        sc: SC-9
+        evidence_type: string
+      - item: 11
+        sc: SC-11
+        evidence_type: string
+      - item: 12
+        sc: SC-12
+        evidence_type: structural
+
+  - id: 4
+    name: Cleanup
+    depends_on:
+      - 3
+    preconditions:
+      - "Phase 3 complete (directory deleted, refs updated)"
+      - ".opencode/tests-v2/behaviors/ directory exists"
+    postconditions:
+      - "Behavioral enforcement tests exist for plan-writer workflow and delete-not-strip"
+      - "Zero orphaned references to skills/implementation-pipeline/ remain"
+    items:
+      - item: 10
+        sc: SC-10
+        evidence_type: behavioral
+      - item: 13
+        sc: SC-13
+        evidence_type: string

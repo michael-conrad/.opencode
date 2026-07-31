@@ -1,50 +1,90 @@
-artifact_type: analysis-summary
-spec_title: "Decouple plan-writing from implementation-pipeline"
+schema_version: "1.0"
 issue_number: 2203
-generated_at: 2026-07-30T17:35:00Z
-
-summary: |
-  This spec refactors the plan-writing pipeline to remove its runtime dependency on the
-  implementation-pipeline skill. The core approach is "delete-not-strip": all 23 sections
-  of implementation-pipeline/SKILL.md (plus 4 enforcement docs and state machine) are
-  subsumed into a static reference card at skills/writing-plans/reference/implementation-workflow.md.
-  The plan writer tasks, research task, and validation task read this card instead of
-  loading the live skill. The implementation-pipeline directory is then deleted entirely.
-
-  The refactoring spans 4 phases across 13 items/SCs:
-  - Phase 1: Create and populate the reference card
-  - Phase 2: Update plan-writing tasks (create, research, validate, plan-artifact-format)
-  - Phase 3: Delete source skill, update all cross-references, migrate coercion rule
-  - Phase 4: Add behavioral enforcement tests, run final orphan reference sweep
-
-  Key risks: partial cross-reference updates (mitigated by SC-13 grep sweep), behavioral
-  test infrastructure failure (SC-3/4/5/10 would FAIL if harness unavailable).
-
-key_findings:
-  - finding: "Two-phase lookup problem eliminated"
-    detail: Plan writer no longer calls skill() at runtime — reads static .md file directly
-    confidence: HIGH
-
-  - finding: "Zero parent-repo impact"
-    detail: All changes are internal to .opencode/ — no files outside .opencode/ are affected
-    confidence: HIGH
-
-  - finding: "Pipeline chain is a rename, not structural change"
-    detail: Old "implementation-pipeline" → new "execute-plan" preserves same phase ordering
-    confidence: HIGH
-
-  - finding: "Solve-based state management removed"
-    detail: Plan step order IS the state machine — no explicit state file needed
-    confidence: MEDIUM
-    note: State guidance preserved as optional section in reference card
-
-artifacts_generated:
-  - blast-radius.yaml
-  - concern-map.yaml
-  - code-path-inventory.yaml
-  - cross-cutting-matrix.yaml
-  - interface-compatibility.yaml
-  - state-analysis.yaml
-  - testability-assessment.yaml
-  - pipeline-readiness.yaml
-  - analysis-summary.yaml
+project_root: /home/muksihs/git/opencode-config
+issues_prefix: .opencode/.issues
+spec_path: .opencode/.issues/2203/spec.md
+phases:
+  - id: 1
+    name: Reference card creation
+    description: Create and populate the static reference card at skills/writing-plans/reference/implementation-workflow.md
+    items:
+      - item: 1
+        sc: SC-1
+        description: Create reference card file
+        files:
+          - skills/writing-plans/reference/implementation-workflow.md
+      - item: 2
+        sc: SC-2
+        description: Populate card with ALL 16 content sections from pipeline skill
+        files:
+          - skills/writing-plans/reference/implementation-workflow.md
+  - id: 2
+    name: Plan writer update
+    description: Update create.md, research.md, validate.md, and plan-artifact-format.md to read the reference card
+    items:
+      - item: 3
+        sc: SC-3
+        description: Update create.md to read reference card
+        files:
+          - skills/writing-plans/tasks/create.md
+      - item: 4
+        sc: SC-4
+        description: Update research.md to read reference card
+        files:
+          - skills/writing-plans/tasks/research.md
+      - item: 5
+        sc: SC-5
+        description: Update validate.md to validate against reference card
+        files:
+          - skills/writing-plans/tasks/validate.md
+      - item: 6
+        sc: SC-6
+        description: Update plan-artifact-format.md validation rule
+        files:
+          - skills/writing-plans/reference/plan-artifact-format.md
+  - id: 3
+    name: Source skill deletion and cross-reference update
+    description: Delete skills/implementation-pipeline/, update all cross-references, migrate coercion rule, merge enforcement docs
+    items:
+      - item: 7
+        sc: SC-7
+        description: DELETE skills/implementation-pipeline/ entirely
+        files:
+          - skills/implementation-pipeline/
+      - item: 8
+        sc: SC-8
+        description: Update ALL cross-references — sub-groups (a) 5 audit tasks, (c) 065-verification-honesty.md, (e) tertiary files
+        files:
+          - All .opencode/ files per cross-ref-audit.yaml
+      - item: 9
+        sc: SC-9
+        description: Pipeline chain updates (pre-work -> execute-plan) across tertiary files
+        files:
+          - All .opencode/ files with old chain pattern
+      - item: 11
+        sc: SC-11
+        description: Coercion rule migration — move DONE_WITH_CONCERNS rule to reference card, update approval-gate-scope and 065-verification-honesty refs
+        files:
+          - reference card
+          - approval-gate-scope/SKILL.md
+          - 065-verification-honesty.md
+      - item: 12
+        sc: SC-12
+        description: Enforcement doc merge — merge 4 enforcement directory files into reference card, delete originals
+        files:
+          - reference card
+          - enforcement/*.md
+  - id: 4
+    name: Cleanup
+    description: Add behavioral enforcement tests and orphan reference sweep
+    items:
+      - item: 10
+        sc: SC-10
+        description: Add behavioral enforcement tests (plan-writer + delete-not-strip)
+        files:
+          - .opencode/tests-v2/behaviors/
+      - item: 13
+        sc: SC-13
+        description: Orphan reference sweep — final grep for remaining skills/implementation-pipeline/ references
+        files:
+          - All .opencode/ files

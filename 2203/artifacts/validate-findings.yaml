@@ -1,0 +1,93 @@
+schema_version: "1.0"
+issue_number: 2203
+generated_at: 2026-07-30T18:12:00Z
+overall_status: PASS
+categories:
+  - id: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - name: phase-table-columns
+        status: PASS
+        detail: "Phase table has all required columns: Phase, Skill, Task, Target, SCs, Depends On"
+      - name: numbered-steps
+        status: PASS
+        detail: "Each phase has numbered procedure steps (1-60)"
+      - name: exit-criteria
+        status: PASS
+        detail: "Exit criteria section exists with C1-C13 mapping to SCs"
+
+  - id: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - name: skill-task-references
+        status: PASS
+        detail: "All skill+task references valid: test-driven-development (red/green/patterns), audit (coherence-maintenance), verification-before-completion (verify), finishing-a-development-branch (checklist), git-workflow (review-prep), pr-creation-workflow (create), completion-core (completion)"
+      - name: implementation-pipeline-tdt-match
+        status: PASS
+        detail: "All dispatched steps match canonical dispatch strings in implementation-pipeline TDT"
+
+  - id: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - name: all-scs-covered
+        status: PASS
+        detail: "All 13 SCs (SC-1 through SC-13) appear in phase table and exit criteria"
+        sc_coverage:
+          SC-1: Phase 1
+          SC-2: Phase 1
+          SC-3: Phase 2
+          SC-4: Phase 2
+          SC-5: Phase 2
+          SC-6: Phase 2
+          SC-7: Phase 3
+          SC-8: Phase 3
+          SC-9: Phase 3
+          SC-10: Phase 4
+          SC-11: Phase 3
+          SC-12: Phase 3
+          SC-13: Phase 4
+      - name: triplet-split-detection
+        status: PASS
+        detail: "No SC has RED/GREEN/COMMIT steps split across phases. Each SC's steps are contained within a single phase."
+
+  - id: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - name: one-concern-per-phase
+        status: PASS
+        detail: "Phase 1 → reference-card-creation, Phase 2 → plan-writer-update, Phase 3 → source-skill-deletion, Phase 4 → cleanup-and-testing"
+      - name: no-duplicate-concerns
+        status: PASS
+        detail: "No two phases address the same concern"
+
+  - id: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - name: no-cycles
+        status: PASS
+        detail: "Dependency chain is linear: 1→2→3→4. No cycles detected."
+      - name: all-phases-reachable
+        status: PASS
+        detail: "All 4 phases reachable from start node (Phase 1 has no dependencies)"
+      - name: no-orphan-phases
+        status: PASS
+        detail: "Every phase has incoming edges (except Phase 1) and outgoing edges (except Phase 4)"
+
+  - id: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - name: no-tbd-todo
+        status: PASS
+        detail: "No TBD or TODO placeholders found in plan body"
+      - name: checkbox-format
+        status: PASS
+        detail: "All 60 steps use checkbox format (- [ ])"
+      - name: dispatch-mode-consistency
+        status: PASS
+        detail: "All steps have consistent dispatch indicators: inline steps (checkpoint commits, directory deletion, orphan sweep) have no sub-agent dispatch; sub-agent/clean-room steps have task() dispatch"
