@@ -315,10 +315,6 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Spec-audit findings | Internal only |
 
 
-### [critical-rules-009] Authorization-Free Actions — no deliberation required
-Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Professional engineers execute pre-authorized actions without hesitation — amateurs stop and ask for permission on every trivial step. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope. Read [010-approval-gate.md](guidelines/010-approval-gate.md).
-
-
 ### [critical-rules-027] Confirmation ≠ Authorization
 "Yes, that's correct" ≠ authorization. Only "approved"/"go"/"#NNN approved". Amateurs treat confirmation as permission. Professionals wait for explicit authorization.
 
