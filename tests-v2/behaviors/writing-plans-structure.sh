@@ -6,7 +6,7 @@
 #
 # Verifies that skills/writing-plans/tasks/research.md produces phase
 # decomposition, builds a dependency DAG, selects skill+task from
-# the implementation-pipeline Trigger Dispatch Table, and runs Z3 solving.
+# the implementation-workflow Trigger Dispatch Table, and runs Z3 solving.
 #
 # RED phase: research.md does NOT exist yet.
 # Expected to FAIL (non-zero exit).
@@ -51,12 +51,12 @@ else
     echo "  [MISSING] Dependency DAG (expected RED)"
 fi
 
-# Check 4: Must select skill+task from implementation-pipeline TDT
-if $EXISTS && grep -qi 'implementation-pipeline\|trigger.*dispatch.*table\|tdt\|skill.*task.*select\|dispatch.*table\|pipeline.*tdt' "$RESEARCH_MD" 2>/dev/null; then
+# Check 4: Must select skill+task from implementation-workflow TDT
+if $EXISTS && grep -qi 'implementation-workflow\|trigger.*dispatch.*table\|tdt\|skill.*task.*select\|dispatch.*table\|workflow.*tdt' "$RESEARCH_MD" 2>/dev/null; then
     HAS_TDT_SELECT=true
-    echo "  [FOUND] Implementation-pipeline TDT selection"
+    echo "  [FOUND] Implementation-workflow TDT selection"
 else
-    echo "  [MISSING] Implementation-pipeline TDT selection (expected RED)"
+    echo "  [MISSING] Implementation-workflow TDT selection (expected RED)"
 fi
 
 # Check 5: Must run Z3 constraint solving

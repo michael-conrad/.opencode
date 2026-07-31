@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
 # GREEN phase test: rationalization-check-pipeline
-# Verifies that implementation-pipeline SKILL.md has the rationalization-check TDT entry
+# Verifies that implementation-workflow reference has the rationalization-check TDT entry
 
 set -euo pipefail
 
 echo "=== GREEN Test: rationalization-check-pipeline ==="
-echo "Checking implementation-pipeline SKILL.md for rationalization-check TDT entry..."
+echo "Checking implementation-workflow reference for rationalization-check TDT entry..."
 
-SKILL_MD=".opencode/skills/implementation-pipeline/SKILL.md"
+SKILL_MD=".opencode/skills/writing-plans/reference/implementation-workflow.md"
 ALL_PASS=true
 
 if [ ! -f "$SKILL_MD" ]; then
