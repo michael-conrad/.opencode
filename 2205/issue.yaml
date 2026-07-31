@@ -1,7 +1,7 @@
 title: '[SPEC] Remove stale implementation-pipeline and executing-plans references'
 status: open
 labels:
-- needs-approval
+- approved-for-pr
 - spec
 body: ''
 created_at: '2026-07-31T03:36:31+00:00'
