@@ -49,14 +49,6 @@ When the agent performs verification, it MUST show evidence:
 - **"Obvious" facts**: Still must verify — obvious things are wrong surprisingly often
 - **Previous tool output**: Still must re-run — unless the output is from the immediately preceding exchange
 
-## Single Exchange Window
-
-The ONLY exception: if a resource was read and its state confirmed within the current session, and no state-change trigger has occurred, the agent MAY reference that state without re-reading. Any earlier reference requires re-verification.
-
-State-change triggers: user explicitly says something changed, API response indicates change, 5+ minutes elapsed with other agents active, session boundary, resource modified by the agent itself.
-
-This is consistent with the Session-Verified State Trust rule in `000-critical-rules.md`.
-
 ## Relationship to Other Guidelines
 
 - `075-docs-verification.md` — Mandatory verification against external documentation (different scope: external docs vs. behavioral honesty)
