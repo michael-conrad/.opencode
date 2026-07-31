@@ -3,6 +3,7 @@ title: '[SPEC] Compact 065-verification-honesty.md — remove duplication, move 
 status: open
 labels:
 - spec
+- approved-for-plan
 body: '---
 
   remote_issue: 2129
