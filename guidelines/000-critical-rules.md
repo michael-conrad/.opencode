@@ -315,10 +315,6 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Spec-audit findings | Internal only |
 
 
-### [critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec
-Offering to "fix it quickly" instead of creating a spec is the oldest shortcut in the book — and the fastest path to unreviewed, unapproved changes polluting your codebase. Professional engineers write a spec when a fix is identified. The ONLY permitted action when a fix is found is spec creation — nothing else, no exceptions, no "just this once."
-
-
 ### [critical-rules-009] Authorization-Free Actions — no deliberation required
 Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Professional engineers execute pre-authorized actions without hesitation — amateurs stop and ask for permission on every trivial step. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope. Read [010-approval-gate.md](guidelines/010-approval-gate.md).
 
