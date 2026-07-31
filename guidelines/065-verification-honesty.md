@@ -18,30 +18,6 @@ When instructed to check, verify, confirm, look up, or ensure something — the 
 
 The agent must never shortcut verification by recalling information from memory (session context, prior tool calls, or training data) instead of performing actual verification.
 
-## Problem
-
-When instructed to "check", "verify", "confirm", "look up", or "ensure" something, AI agents sometimes:
-
-- Report values from earlier in the current session without re-checking
-- Report values from previous sessions as if they were verified
-- Claim something is confirmed without showing the tool call or command that produced the confirmation
-- Respond from training knowledge instead of querying the actual codebase/state
-- Assume state hasn't changed since the last check
-
-This erodes trust and leads to incorrect assertions about the codebase.
-
-## What Constitutes "Checking"
-
-The rule applies to ALL verification actions, not just explicit "check" instructions:
-
-| Trigger | Example |
-| -- | -- |
-| Explicit instruction | "Check if tests pass" |
-| Implicit verification | Agent claims file exists without reading it |
-| Status confirmation | Agent reports git status from memory |
-| Factual assertion | Agent states a value is X without confirming |
-| Pre-condition validation | Agent assumes a dependency is installed |
-
 ## Evidence Requirement
 
 When the agent performs verification, it MUST show evidence:
