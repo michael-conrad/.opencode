@@ -202,7 +202,7 @@ The correct pattern:
 
 | Violation | ID | What Happens |
 |-----------|-----|-------------|
-| Pre-read skill + inline execute | critical-rules-048 | Agent reads task card `.md` file, executes steps manually without calling `skill()` |
+
 | Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
 | Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
 | **Skill card dispatched to sub-agent** | **critical-rules-XXX** | **Agent dispatches SKILL.md content (skill card) to sub-agent via task(); sub-agent receives orchestrator-level routing instructions it cannot execute** |
@@ -393,17 +393,7 @@ Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" m
 Every "continue" is instruction to proceed to the next step, not to skip the step. Professional engineers know that mandatory gates are structural invariants. Amateurs treat "continue" as a shortcut past quality.
 
 
-### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
 
-Reading a skill's task files and then inlining the steps means you are bypassing the quality gates designed to catch your mistakes. Professional agents load skills. Amateurs inline. Every skill you pre-read and execute manually is a defect you accepted before writing a single line of code.
-
-**3-Way Violation Distinction:**
-
-| Violation | ID | What Happens |
-|----------|-----|-------------|
-| Pre-read skill + inline execute | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
-| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
-| Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
 
 
 
