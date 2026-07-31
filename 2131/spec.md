@@ -84,21 +84,21 @@ Reorganize `080-code-standards.md` by moving testing procedure to the `test-driv
 | SC-3 | Enforcement Test Mandate moved to test-driven-development skill card | string + semantic | grep for 'Enforcement Test Mandate' in test-driven-development/SKILL.md + semantic analysis that all subsections (Evidence Type Taxonomy, SC-to-Test Traceability, RED-Phase Ordering, Behavioral RED/GREEN gate) are present in the destination |
 | SC-4 | Behavioral RED/GREEN section removed from 080 | string + semantic | grep for absence of 'Behavioral RED/GREEN as Primary Enforcement Gate' in 080 + semantic analysis that the section's normative content (behavioral tests are PRIMARY) is preserved in the moved Enforcement Test Mandate section (Phase 2 destination) |
 | SC-5 | Test Integrity Mandate remains in 080 with content intact | string + semantic | grep for 'Test Integrity Mandate' in 080 + semantic analysis that all 6 rules (No Lobotomizing, Timeout Diagnosable, Research Sub-Agents, FAIL is Hard Gate, Clean-Room Semantic Inspection, Artifact Generated is NOT PASS) are present |
-| SC-6 | All keep sections remain in 080 with their original section headers and no content removed or reworded | string + semantic | grep for each keep section header + semantic analysis comparing before/after content of each keep section — PASS only if every keep section's content is byte-identical to the original (no changes during generalization of adjacent sections) |
+| SC-6 | All keep sections remain in 080 with their original section headers and no content removed or reworded | string + semantic | grep for each keep section header + semantic analysis comparing before/after content of each keep section — PASS only if every keep section's content has no content removed and no wording changed (whitespace-only differences are acceptable) |
 | SC-7 | Generalized Parsing Logic Changes preserve the pipeline-rerun constraint | semantic | Clean-room sub-agent reads before/after text and confirms: (a) the pipeline-rerun requirement is present in the generalized version, (b) the scope of "metadata-affecting changes" is not narrowed, (c) no project-specific paths leaked into the generalized version. PASS only if all three sub-checks pass. |
 | SC-8 | Moved Enforcement Test Mandate preserves all normative rules in the destination | semantic | Clean-room sub-agent reads source and destination and confirms: (a) every normative rule from the source section is present in the destination, (b) no rules were dropped during the move, (c) cross-references to 000 are updated to point to the correct section. PASS only if all three sub-checks pass. |
 | SC-9 | Removed Behavioral RED/GREEN section's normative content exists in the moved Enforcement Test Mandate | semantic | Clean-room sub-agent reads 080 before/after and the moved Enforcement Test Mandate to confirm: (a) every normative statement from the removed section exists in the moved Enforcement Test Mandate, (b) no content was silently dropped, (c) cross-references in 080 that pointed to removed sections are updated. PASS only if all three sub-checks pass. |
 
 ## Implementation Plan
 
-### Phase 1 (REQ-1): Generalize Parsing Logic Changes and Libraries & Packages sections
-### Phase 2 (REQ-2): Move Enforcement Test Mandate to test-driven-development skill card
-### Phase 3 (REQ-3, REQ-4): Remove Behavioral RED/GREEN section; verify Test Integrity Mandate stays in 080
-### Phase 3.5 (REQ-2, REQ-3): Lobotomization gate — run behavioral enforcement tests to verify no constraint loss
-- Run `bash .opencode/tests-v2/test-enforcement.sh --changed` to verify content-verification tests pass
-- Run `bash .opencode/tests-v2/behaviors/<relevant-scenario>.sh` to verify behavioral tests pass
-- If any behavioral test fails, the move/removal has caused constraint loss — revert and investigate
-### Phase 4 (REQ-5): Verify all keep sections remain
+- [ ] 1. (REQ-1) Generalize Parsing Logic Changes and Libraries & Packages sections — replace project-specific references with universal language per Proposed Solution tables
+- [ ] 2. (REQ-2) Move Enforcement Test Mandate section (lines 418-573) from 080 to test-driven-development/SKILL.md — preserve all normative rules, update cross-references
+- [ ] 3. (REQ-3, REQ-4) Remove Behavioral RED/GREEN section (lines 574-604) from 080 — content preserved in moved Enforcement Test Mandate. Verify Test Integrity Mandate (lines 606-717) stays in 080 with content intact
+- [ ] 4. (REQ-2, REQ-3) Lobotomization gate — run behavioral enforcement tests to verify no constraint loss:
+  - Run `bash .opencode/tests-v2/test-enforcement.sh --changed` to verify content-verification tests pass
+  - Run `bash .opencode/tests-v2/behaviors/<relevant-scenario>.sh` to verify behavioral tests pass
+  - If any behavioral test fails, the move/removal has caused constraint loss — revert and investigate
+- [ ] 5. (REQ-5) Verify all keep sections remain in 080 with content intact — grep for each keep section header + semantic analysis
 
 ## Files Affected
 
@@ -122,6 +122,14 @@ Reorganize `080-code-standards.md` by moving testing procedure to the `test-driv
 | `.opencode/guidelines/080-code-standards.md` | Internal file | Source file being compacted — all line ranges verified against live file |
 | `.opencode/guidelines/000-critical-rules.md` | Internal file | Contains cross-reference to 080's Behavioral RED/GREEN section (line 922) — normative content is preserved in the moved Enforcement Test Mandate, not in 000 |
 | `.opencode/skills/test-driven-development/SKILL.md` | Internal file | Destination for moved Enforcement Test Mandate — verified that section does not already exist |
+
+## Cost-Frame Language Note
+
+This spec is a reorganization/compaction spec with no runtime execution. All SCs use `string + semantic` or `semantic` evidence types — no behavioral SCs exist. Cost-frame reformation language (applicable to behavioral SCs with runtime execution) is not applicable to this spec type.
+
+## Recency Check
+
+The line ranges in the Proposed Solution tables (Parsing Logic Changes: lines 20-25, Libraries & Packages: lines 60-70, Enforcement Test Mandate: lines 418-573, Behavioral RED/GREEN: lines 574-604, Test Integrity Mandate: lines 606-717) were verified against the current state of `.opencode/guidelines/080-code-standards.md` at the time of spec creation. The Documentation Sources section references live files that were verified to exist.
 
 ## All-or-Nothing Gate
 
@@ -147,5 +155,6 @@ This spec's success criteria are an all-or-nothing gate: ALL 9 SCs (SC-1 through
 | 2026-07-31 | Added Requirements section (REQ-1 through REQ-5) and Traceability table; fixed Remove table (Test Integrity Mandate stays in 080); fixed line ranges (418-573, 574-604, 606-717); scoped SC-6 as single check; removed Phase 3 (Test Integrity Mandate removal); removed #2121 dependency | Validation findings: missing requirements/traceability, Test Integrity Mandate not fully in 000, line range inaccuracies, SC-6 compound, plan/risks out of date | spec-creation pipeline |
 | 2026-07-31 | Added Objective section; added REQ references to phase headings | Validation findings: missing Objective section, phase headings lacked REQ references | spec-creation pipeline |
 | 2026-07-31 | Added Intent and Executive Summary (5-field preamble), Edge Cases section, Documentation Sources section, All-or-Nothing Gate statement; tightened SC-6/7/8/9 wording to remove open-ended quality terms and implicit behavior | Spec-audit FAIL findings: SC-8 (edge cases), SC-9/SC-DET (determinism), SC-11 (doc sources), SC-12 (preamble), SC-14 (gate statement), research_adequacy (edge case analysis) | spec-creation pipeline |
+| 2026-07-31 | Fixed REQ-3, SC-4, SC-9 to reference moved Enforcement Test Mandate (not 000) — 000 only has a cross-reference to 080; fixed issue.yaml to match; added Cost-Frame Language Note, Recency Check section; converted Implementation Plan to canonical `- [ ] N.` checklist format; aligned SC-6 criterion/verification method wording | Spec-audit FAIL findings: SC-6 misalignment, SC-DET determinism, SC-PIPELINE-GATES checklist format, SC-13 cost-frame, research_adequacy.recency_check, gap_analysis.missing_coverage | spec-creation pipeline |
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)

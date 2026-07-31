@@ -165,34 +165,39 @@ body: "---\nremote_issue: 2135\nremote_url: https://github.com/michael-conrad/.o
   \ size', 'abbreviated for space' in the file, (b) clean-room sub-agent reads the\
   \ file and verifies no content-free section headers (a heading with no body text\
   \ below it) exist. Cost: one sub-agent dispatch + one file read. |\n\n## SC Enforcement\
-  \ Gate\n\nAll SCs (SC-1 through SC-12) must pass with clean verdicts before the\
-  \ implementation is accepted. A single FAIL blocks acceptance. No SC may be deferred,\
-  \ weakened, or removed to achieve a pass.\n\n## Edge Cases and Error Recovery\n\n\
-  The following edge cases are defined for the implementation:\n\n| Edge Case | Recovery\
-  \ Procedure |\n|-----------|-------------------|\n| Target file (spec-creation SKILL.md)\
-  \ does not exist at implementation time | HALT. Report missing target file. Do not\
-  \ create the file — the spec-creation SKILL.md must exist before content relocation.\
-  \ |\n| Source section not found at expected location in 130-authority-source.md\
-  \ | HALT. Report that the section was not found. The spec's assumption about section\
-  \ location may be stale — verify current file state and update the spec if needed.\
-  \ |\n| Semantic preservation check (Phase 5) reveals content loss | HALT. Report\
-  \ which content items are missing. Do not accept the implementation. The missing\
-  \ content must be restored before proceeding. |\n| Target file already contains\
-  \ overlapping content | HALT. Report the overlap. Do not duplicate content. The\
-  \ existing content in the target file must be reconciled with the relocated content.\
-  \ |\n| Mechanical compaction artifact detected in final guideline | HALT. Report\
-  \ the artifact location. The compaction must be reversed and the content restored\
-  \ before proceeding. |\n\n## Implementation Plan\n\n### Phase 1: Write new dual-authority\
-  \ principle [REQ-7]\n### Phase 2: Write 6 new rules [REQ-1 through REQ-6]\n### Phase\
-  \ 3: Remove superseded rules and relocate content [REQ-8]\n  - Move Superseding\
-  \ Issues + Overlap Detection Checklist to spec-creation SKILL.md\n  - Move Verification\
-  \ First to 065-verification-honesty.md\n  - Move Plan Audit Code Deep Dive to spec-creation\
-  \ SKILL.md\n### Phase 4: Verify all 6 rules present and removed content absent [REQ-9]\n\
-  ### Phase 5: Clean-room semantic audit — verify no content loss [REQ-8, REQ-9]\n\
-  \  - Dispatch clean-room sub-agent to verify SC-11a, SC-11b, SC-11c, SC-12\n\n##\
-  \ Files Affected\n\n- `.opencode/guidelines/130-authority-source.md` — rewritten\n\
-  - `.opencode/skills/spec-creation/SKILL.md` — receives Superseding Issues + Overlap\
-  \ Detection Checklist + Plan Audit Code Deep Dive\n- `.opencode/guidelines/065-verification-honesty.md`\
+  \ Gate\n\n- [ ] 1. All SCs (SC-1 through SC-12) must pass with clean verdicts before\
+  \ the implementation is accepted. A single FAIL blocks acceptance. No SC may be\
+  \ deferred, weakened, or removed to achieve a pass. [dispatch: orchestrator]\n\n\
+  ## Documentation Sources\n\nN/A — all claims in this spec are about the project's\
+  \ own codebase and workflow, verified by tool-call evidence (ls on skill directories,\
+  \ grep on guideline files). No external authority claims are made.\n\n## Edge Cases\
+  \ and Error Recovery\n\nThe following edge cases are defined for the implementation:\n\
+  \n| Edge Case | Recovery Procedure |\n|-----------|-------------------|\n| Target\
+  \ file (spec-creation SKILL.md) does not exist at implementation time | HALT. Report\
+  \ missing target file. Do not create the file — the spec-creation SKILL.md must\
+  \ exist before content relocation. |\n| Source section not found at expected location\
+  \ in 130-authority-source.md | HALT. Report that the section was not found. The\
+  \ spec's assumption about section location may be stale — verify current file state\
+  \ and update the spec if needed. |\n| Semantic preservation check (Phase 5) reveals\
+  \ content loss | HALT. Report which content items are missing. Do not accept the\
+  \ implementation. The missing content must be restored before proceeding. |\n| Target\
+  \ file already contains overlapping content | HALT. Report the overlap. Do not duplicate\
+  \ content. The existing content in the target file must be reconciled with the relocated\
+  \ content. |\n| Mechanical compaction artifact detected in final guideline | HALT.\
+  \ Report the artifact location. The compaction must be reversed and the content\
+  \ restored before proceeding. |\n\n## Implementation Plan\n\n- [ ] 1. Phase 1: Write\
+  \ new dual-authority principle [REQ-7] [dispatch: sub-agent]\n- [ ] 2. Phase 2:\
+  \ Write 6 new rules [REQ-1 through REQ-6] [dispatch: sub-agent]\n- [ ] 3. Phase\
+  \ 3: Remove superseded rules and relocate content [REQ-8] [dispatch: sub-agent]\n\
+  \  - Sub-step: Move Superseding Issues + Overlap Detection Checklist to spec-creation\
+  \ SKILL.md\n  - Sub-step: Move Verification First to 065-verification-honesty.md\n\
+  \  - Sub-step: Move Plan Audit Code Deep Dive to spec-creation SKILL.md\n- [ ] 4.\
+  \ Phase 4: Verify all 6 rules present and removed content absent [REQ-9] [dispatch:\
+  \ sub-agent]\n- [ ] 5. Phase 5: Clean-room semantic audit — verify no content loss\
+  \ [REQ-8, REQ-9] [dispatch: sub-agent]\n  - Sub-step: Dispatch clean-room sub-agent\
+  \ to verify SC-11a, SC-11b, SC-11c, SC-12\n\n## Files Affected\n\n- `.opencode/guidelines/130-authority-source.md`\
+  \ — rewritten\n- `.opencode/skills/spec-creation/SKILL.md` — receives Superseding\
+  \ Issues + Overlap Detection Checklist + Plan Audit Code Deep Dive\n- `.opencode/guidelines/065-verification-honesty.md`\
   \ — receives Verification First content\n\n## Risks\n\n- **Confusion between intent\
   \ and state**: Agents may struggle to distinguish \"spec is wrong about current\
   \ state\" from \"code doesn't implement spec intent.\" Mitigation: each rule includes\
@@ -205,4 +210,4 @@ body: "---\nremote_issue: 2135\nremote_url: https://github.com/michael-conrad/.o
   \ clean-room sub-agent.\n\n## Dependencies\n\n- None.\n\n---\n\n\U0001F916 Co-authored\
   \ with AI: OpenCode (deepseek-v4-flash)\n"
 created_at: '2026-07-25T04:33:36+00:00'
-updated_at: '2026-07-31T20:57:19+00:00'
+updated_at: '2026-07-31T21:03:26+00:00'

@@ -98,7 +98,11 @@ Complete rewrite establishing a dual-authority model:
 
 ## SC Enforcement Gate
 
-All SCs (SC-1 through SC-12) must pass with clean verdicts before the implementation is accepted. A single FAIL blocks acceptance. No SC may be deferred, weakened, or removed to achieve a pass.
+- [ ] 1. All SCs (SC-1 through SC-12) must pass with clean verdicts before the implementation is accepted. A single FAIL blocks acceptance. No SC may be deferred, weakened, or removed to achieve a pass. [dispatch: orchestrator]
+
+## Documentation Sources
+
+N/A — all claims in this spec are about the project's own codebase and workflow, verified by tool-call evidence (ls on skill directories, grep on guideline files). No external authority claims are made.
 
 ## Edge Cases and Error Recovery
 
@@ -114,15 +118,15 @@ The following edge cases are defined for the implementation:
 
 ## Implementation Plan
 
-### Phase 1: Write new dual-authority principle [REQ-7]
-### Phase 2: Write 6 new rules [REQ-1 through REQ-6]
-### Phase 3: Remove superseded rules and relocate content [REQ-8]
-  - Move Superseding Issues + Overlap Detection Checklist to spec-creation SKILL.md
-  - Move Verification First to 065-verification-honesty.md
-  - Move Plan Audit Code Deep Dive to spec-creation SKILL.md
-### Phase 4: Verify all 6 rules present and removed content absent [REQ-9]
-### Phase 5: Clean-room semantic audit — verify no content loss [REQ-8, REQ-9]
-  - Dispatch clean-room sub-agent to verify SC-11a, SC-11b, SC-11c, SC-12
+- [ ] 1. Phase 1: Write new dual-authority principle [REQ-7] [dispatch: sub-agent]
+- [ ] 2. Phase 2: Write 6 new rules [REQ-1 through REQ-6] [dispatch: sub-agent]
+- [ ] 3. Phase 3: Remove superseded rules and relocate content [REQ-8] [dispatch: sub-agent]
+  - Sub-step: Move Superseding Issues + Overlap Detection Checklist to spec-creation SKILL.md
+  - Sub-step: Move Verification First to 065-verification-honesty.md
+  - Sub-step: Move Plan Audit Code Deep Dive to spec-creation SKILL.md
+- [ ] 4. Phase 4: Verify all 6 rules present and removed content absent [REQ-9] [dispatch: sub-agent]
+- [ ] 5. Phase 5: Clean-room semantic audit — verify no content loss [REQ-8, REQ-9] [dispatch: sub-agent]
+  - Sub-step: Dispatch clean-room sub-agent to verify SC-11a, SC-11b, SC-11c, SC-12
 
 ## Files Affected
 
