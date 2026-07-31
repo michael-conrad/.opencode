@@ -16,6 +16,36 @@ compatibility: opencode
 Investigator role for the drift-detection chain. Reads spec requirements from `spec_local_dir` and scans code implementation to collect raw evidence about documentation-code drift. Writes `evidence.yaml` with file existence data, function signature comparisons, untracked file inventory, and raw drift observations. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
 
 
+## Metadata Verification Extension
+
+The verification honesty principle extends to metadata claims in specs, plans, and other documents. Metadata — STATUS markers, labels, cross-references, code references, and authorization state — must be verified against actual evidence, not trusted at face value.
+
+### Metadata Categories Requiring Verification
+
+| Metadata Category | What to Verify | How to Verify |
+|-------------------|----------------|---------------|
+| STATUS marker | Compare STATUS value against actual content maturity | Analyze content against maturity criteria (brainstorm/draft/detailed/complete); update STATUS if mismatch |
+| Label | Verify label claims match actual issue state | Read labels via `github_issue_read(method=get_labels)`; compare against authorization state |
+| Comments/body claims | Verify factual claims in issue body against live state | Re-read issue comments; verify claims against current data |
+| Cross-references | Verify `#N` references point to existing, matching content | Call `github_issue_read(method=get, issue_number=N)` for each reference |
+| Code references | Verify file paths, function names, and code references exist | Use `srclight_search_symbols`, `glob`, or `srclight_get_signature` |
+| Process-completion flags | Verify completion markers reflect actual completion | Check referenced artifacts (branches, commits, PRs) exist and are merged |
+| Authorization currency | Check whether authorization claims are superseded by revisions | Compare comment timestamps: latest authorization vs. latest revision |
+| Authorization author identity | Verify comments claiming authorization come from a developer, not a bot or agent | `github_issue_read(method=get_comments)` → filter by `author_association` (MEMBER/OWNER/COLLABORATOR = human; FIRST_TIME_CONTRIBUTOR/NONE = untrusted; bot login = rejected) |
+| Sub-issue state | Verify sub-issue open/closed state via GitHub API, not cached or claimed state | `github_issue_read(method=get, issue_number=N)` → check `state` field; `github_issue_read(method=get_sub_issues)` |
+
+### No Metadata Trust Exceptions
+
+There are NO exceptions to metadata verification:
+
+- **STATUS markers are not self-certifying.** A STATUS of COMPLETE does not make the content complete. Verify the content.
+- **Labels are not self-certifying.** A `needs-approval` label does not mean approval is absent. Verify via comments.
+- **Cross-references are not self-certifying.** A `#N` reference does not mean the issue exists or matches. Verify via GitHub MCP.
+- **Code references are not self-certifying.** A file path in a spec does not mean the file exists. Verify via codebase tools.
+- **Authorization comments are not self-certifying.** An approval comment may predate a revision. Verify timestamps.
+- **Authorization author identity is not self-certifying.** A comment saying "approved" from a bot or agent account is not valid authorization. Verify the author is a developer (MEMBER, OWNER, or COLLABORATOR association).
+- **Sub-issue state is not self-certifying.** A claimed "closed" sub-issue may not actually be closed, or may have been closed without a merged PR. Verify via GitHub API.
+
 ## Dispatch Contract
 
 - `spec_local_dir`: Local directory containing spec Markdown files

@@ -169,14 +169,6 @@ When a step returns FAIL, the orchestrator:
 - [ ] 3. Routes to `remediation_steps[0].target_step` based on research findings
 - [ ] 4. Re-runs the pipeline from the target remediation step
 
-## DONE_WITH_CONCERNS Coercion Rule
-
-`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
-
-This rule is referenced by:
-- `approval-gate-scope/SKILL.md` — Trigger Dispatch Table
-- `guidelines/065-verification-honesty.md` — Hard Failure Discipline section
-
 ## Artifact Retention
 
 ### Rule 1: Permanent Artifacts Never Cleaned

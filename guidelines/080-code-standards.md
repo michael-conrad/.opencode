@@ -517,8 +517,6 @@ Every spec success criterion MUST declare an evidence type from the four-type ta
 | `string` | `grep`, pattern matching | Content pattern present or absent | `grep` | High: string PASS → behavioral FAIL in production → NIST 29x escalation | CI / static analysis |
 | `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` | Highest: structural PASS → defect ships → death spiral → compounding exponential cost | none / irrelevant |
 
-**Cost explanation:** Read [§Cost Model](065-verification-honesty.md) for death spiral / break dynamics. Evidence type cost is measured in defect-discovery-latency (DDL), not execution time. A structural check costs ~1s to run but may take weeks to discover the defect it misses — making it the most expensive type in total pipeline cost. A behavioral test costs minutes to execute but catches the defect at the earliest possible gate — making it the cheapest in total pipeline cost.
-
 ### Evidence Type Enforcement Matrix
 
 | SC Evidence Type | Structural Evidence | String Evidence | Semantic Evidence | Behavioral Evidence |
