@@ -1,0 +1,16 @@
+issue_number: 2207
+generated_at: "2026-07-31T15:03:00Z"
+solve_status: SAT
+plan_status: "N/A (no problem file — contract is dependency-only, no Z3 variables declared)"
+checks:
+  - check: "solve check --contract-path dependency-contract.yaml --state-path structure.yaml"
+    result: SAT
+    detail: "SAT (+ postconditions + invariants)"
+  - check: "solve model --contract-path dependency-contract.yaml --query <expr>"
+    result: "N/A — contract has no Z3 variable declarations (only phase dependency lists)"
+  - check: "solve plan --contract-path dependency-contract.yaml"
+    result: "N/A — plan tool requires a problem file, not a contract file"
+notes:
+  - "The dependency contract defines phase ordering (depends_on) but has no Z3 variables/preconditions/invariants"
+  - "solve check validated the structure.yaml state against the contract — returned SAT"
+  - "Phase ordering is enforced by the sequential plan execution (Phase 1 → Phase 2 → Phase 3)"

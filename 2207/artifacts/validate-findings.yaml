@@ -1,0 +1,133 @@
+issue_number: 2207
+generated_at: "2026-07-31T15:07:00Z"
+overall_status: PASS
+categories:
+  - category: 1 — Structural validation
+    status: PASS
+    checks:
+      - check: Phase table with all required columns
+        result: PASS
+        detail: "Frontmatter dispatch table has phase, skill, task columns"
+      - check: Each phase has procedure section with numbered steps
+        result: PASS
+        detail: "Phase 1 (Item 1), Phase 2 (Item 2), Phase 3 (Items 3-7) all have numbered steps"
+      - check: Exit criteria section exists with SC-to-phase mapping
+        result: PASS
+        detail: "Exit Criteria section at line 240 with SC-to-phase mapping for all 7 SCs"
+
+  - category: 2 — Skill+task validity
+    status: PASS
+    checks:
+      - check: Pre-Implementation coherence gate dispatch
+        result: PASS
+        detail: "Dispatches to verification-before-completion/tasks/verify.md — exists and matches canonical pattern"
+      - check: Pre-Implementation baseline check (patterns.md)
+        result: PASS
+        detail: "test-driven-development/tasks/patterns.md exists and dispatch string matches canonical pattern"
+      - check: Phase 1 RED (red.md)
+        result: PASS
+      - check: Phase 1 GREEN (green.md)
+        result: PASS
+      - check: Phase 1 Verify (verify.md)
+        result: PASS
+      - check: Phase 2 RED (red.md)
+        result: PASS
+      - check: Phase 2 GREEN (green.md)
+        result: PASS
+      - check: Phase 2 Verify (verify.md)
+        result: PASS
+      - check: Phase 3 RED (red.md)
+        result: PASS
+      - check: Phase 3 Verify (verify.md)
+        result: PASS
+      - check: Post-Implementation checklist
+        result: PASS
+        detail: "finishing-a-development-branch/tasks/checklist.md exists"
+      - check: Post-Implementation pre-PR gate
+        result: PASS
+        detail: "verification-before-completion/tasks/verify.md exists"
+      - check: Post-Implementation review-prep
+        result: PASS
+        detail: "git-workflow-pr/tasks/review-prep.md exists"
+      - check: Post-Implementation create PR
+        result: PASS
+        detail: "pr-creation-workflow/tasks/create.md exists"
+      - check: Post-Implementation executive summary
+        result: PASS
+        detail: "completion-core/tasks/completion.md exists"
+      - check: No coherence-maintenance references
+        result: PASS
+        detail: "No references to audit/tasks/coherence-maintenance.md — previous FAIL resolved"
+
+  - category: 3 — SC coverage
+    status: PASS
+    checks:
+      - check: SC-1 covered
+        result: PASS
+        detail: "Phase 1, Item 1 — Delete 22 excess rule blocks"
+      - check: SC-2 covered
+        result: PASS
+        detail: "Phase 2, Item 2 — Classify critical-rules-073"
+      - check: SC-3 covered
+        result: PASS
+        detail: "Phase 3, Item 3 — Verify header count = 19"
+      - check: SC-4 covered
+        result: PASS
+        detail: "Phase 3, Item 4 — Verify 0 Read[] cross-refs"
+      - check: SC-5 covered
+        result: PASS
+        detail: "Phase 3, Item 5 — Verify 0 Why This Matters"
+      - check: SC-6 covered
+        result: PASS
+        detail: "Phase 3, Item 6 — Verify <3 dark prose instances"
+      - check: SC-7 covered
+        result: PASS
+        detail: "Phase 3, Item 7 — Verify 0 refs to deleted skill dirs"
+      - check: Triplet split detection
+        result: PASS
+        detail: "No SC has RED/GREEN/COMMIT steps split across phases"
+
+  - category: 4 — Concern separation
+    status: WARN
+    checks:
+      - check: Concern-map artifact exists
+        result: FAIL
+        detail: "concern-map.yaml not found in .opencode/.issues/2207/artifacts/. Cannot formally verify against artifact."
+      - check: Each phase addresses exactly one concern
+        result: PASS
+        detail: "Phase 1 (Delete excess rules), Phase 2 (Classify 073), Phase 3 (Verify SCs) — each addresses a distinct concern"
+      - check: No two phases address same concern
+        result: PASS
+        detail: "No overlap detected between phase concerns"
+
+  - category: 5 — DAG validation
+    status: PASS
+    checks:
+      - check: No cycles in dependency contract
+        result: PASS
+        detail: "Phase 1 → Phase 2 → Phase 3 is a linear DAG with no cycles"
+      - check: All phases reachable from start node
+        result: PASS
+        detail: "Phase 1 (depends_on: []) is the start node; Phase 2 depends on Phase 1; Phase 3 depends on Phase 1 and Phase 2"
+      - check: No orphan phases
+        result: PASS
+        detail: "All phases have at least one incoming or outgoing edge"
+
+  - category: 6 — Holistic quality
+    status: PASS
+    checks:
+      - check: No TBD/TODO placeholders
+        result: PASS
+        detail: "No TBD or TODO found in plan body"
+      - check: All steps use checkbox format
+        result: PASS
+        detail: "All steps use `- [ ]` checkbox format"
+      - check: Dispatch mode consistency
+        result: PASS
+        detail: "All clean-room steps have dispatched task() calls. All inline steps (commit, no-code-change GREEN) are orchestrator-executed. No inline step has a task() call and no clean-room step lacks one."
+
+findings:
+  - category: 4
+    severity: WARN
+    finding: "concern-map.yaml artifact missing from artifacts directory"
+    recommendation: "Generate concern-map.yaml artifact to enable formal concern separation verification"

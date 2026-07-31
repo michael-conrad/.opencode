@@ -1,0 +1,38 @@
+sc_count: 9
+scs:
+  - id: "SC-1"
+    description: "The 23 excess rule blocks listed in the Excess Rules table are deleted from .opencode/guidelines/000-critical-rules.md"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The 5 orphaned rule blocks targeting deleted skill directories are deleted from .opencode/guidelines/000-critical-rules.md"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Each of the 5 orphaned rules is embedded in an appropriate existing target file with its full header and body"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-4"
+    description: "critical-rules-073 is classified: either kept as a universal rule in 000-critical-rules.md or moved to an appropriate target file"
+    evidence_type: "semantic"
+    plan_item: 3
+  - id: "SC-5"
+    description: "The total count of ### [critical-rules-*] rule headers in the file equals 18 (or 19 if critical-rules-073 is classified as universal)"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-6"
+    description: "No Read[ cross-references to preloaded guidelines remain in the file"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-7"
+    description: "No Why This Matters tables remain in the file"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-8"
+    description: "Per-entry dark prose framing appears fewer than 3 times in the file"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-9"
+    description: "No rule in the file references a deleted skill directory (executing-plans/ or implementation-pipeline/)"
+    evidence_type: "string"
+    plan_item: 4

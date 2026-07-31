@@ -1,0 +1,145 @@
+issue_number: 2207
+generated_at: "2026-07-31T15:02:00Z"
+spec_path: ".opencode/.issues/2207/spec.md"
+target_file: ".opencode/guidelines/000-critical-rules.md"
+phases:
+  - id: 1
+    name: "Delete excess rules"
+    scs: [SC-1]
+    items:
+      - item: 1
+        sc: SC-1
+        description: "Delete 22 excess rule blocks from .opencode/guidelines/000-critical-rules.md"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+  - id: 2
+    name: "Classify critical-rules-073"
+    scs: [SC-2]
+    items:
+      - item: 2
+        sc: SC-2
+        description: "Read critical-rules-073 body and classify as universal (keep in source) or skill-specific (move to target)"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+  - id: 3
+    name: "Verify all SCs"
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7]
+    items:
+      - item: 3
+        sc: SC-3
+        description: "Verify header count = 19"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**inline**)"
+            canonical: "No code change — verification-only phase"
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+      - item: 4
+        sc: SC-4
+        description: "Verify 0 Read[] cross-refs to guidelines/"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**inline**)"
+            canonical: "No code change — verification-only phase"
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+      - item: 5
+        sc: SC-5
+        description: "Verify 0 Why This Matters tables"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**inline**)"
+            canonical: "No code change — verification-only phase"
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+      - item: 6
+        sc: SC-6
+        description: "Verify <3 dark prose instances"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**inline**)"
+            canonical: "No code change — verification-only phase"
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+      - item: 7
+        sc: SC-7
+        description: "Verify 0 refs to deleted skill dirs (executing-plans, implementation-pipeline)"
+        steps:
+          - step: red
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+          - step: green
+            dispatch: "(**inline**)"
+            canonical: "No code change — verification-only phase"
+          - step: verify
+            dispatch: "(**clean-room**)"
+            canonical: 'task(..., prompt: "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first")'
+          - step: commit-inline
+            dispatch: "(**inline**)"
+            canonical: "orchestrator runs git add + git commit"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Phase 1 must complete before Phase 2 to avoid edit conflicts on the same file"
+    - from: 2
+      to: 3
+      reason: "Phase 2 must complete before Phase 3 (verification runs on final state)"
+    - from: 1
+      to: 3
+      reason: "Phase 1 deletions affect SC-3, SC-4, SC-5, SC-6, SC-7 counts"
+    - from: 2
+      to: 3
+      reason: "Phase 2 classification affects SC-3 header count"
+triplet_co_location: PASS
+cross_phase_dependency: PASS

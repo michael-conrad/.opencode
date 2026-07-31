@@ -1,0 +1,31 @@
+issue_number: 2207
+generated_at: "2026-07-31T15:00:00Z"
+spec_path: ".opencode/.issues/2207/spec.md"
+target_file: ".opencode/guidelines/000-critical-rules.md"
+sc_count: 7
+phases:
+  - id: 1
+    name: "Delete excess rules"
+    scs: [SC-1]
+    description: "Delete 22 excess rule blocks from 000-critical-rules.md that were never removed by #2121 Phase 3"
+  - id: 2
+    name: "Classify critical-rules-073"
+    scs: [SC-2]
+    description: "Read critical-rules-073 body and classify as universal (keep in source) or skill-specific (move to target)"
+  - id: 3
+    name: "Verify all SCs"
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7]
+    description: "Run all verification checks against the modified file"
+dependencies:
+  - from: 1
+    to: 2
+    reason: "Phase 1 must complete before Phase 2 to avoid edit conflicts on the same file"
+  - from: 2
+    to: 3
+    reason: "Phase 2 must complete before Phase 3 (verification runs on final state)"
+  - from: 1
+    to: 3
+    reason: "Phase 1 deletions affect SC-3, SC-4, SC-5, SC-6, SC-7 counts"
+  - from: 2
+    to: 3
+    reason: "Phase 2 classification affects SC-3 header count"
