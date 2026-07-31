@@ -76,19 +76,19 @@ Revise the file: preserve the specific battle-tested rules (no synthetic data, f
 
 | REQ | SCs | Phase |
 |-----|-----|-------|
-| REQ-1 | SC-1, SC-4 | Phase 1 |
-| REQ-2 | SC-1, SC-5 | Phase 1 |
-| REQ-3 | SC-1, SC-6 | Phase 1 |
-| REQ-4 | SC-1, SC-7 | Phase 1 |
-| REQ-5 | SC-1, SC-8 | Phase 1 |
-| REQ-6 | SC-1, SC-9 | Phase 1 |
+| REQ-1 | SC-1, SC-4 | Phase 1, Phase 3 |
+| REQ-2 | SC-1, SC-5 | Phase 1, Phase 3 |
+| REQ-3 | SC-1, SC-6 | Phase 1, Phase 3 |
+| REQ-4 | SC-1, SC-7 | Phase 1, Phase 3 |
+| REQ-5 | SC-1, SC-8 | Phase 1, Phase 3 |
+| REQ-6 | SC-1, SC-9 | Phase 1, Phase 3 |
 | REQ-7 | SC-2, SC-3, SC-10, SC-11, SC-12, SC-13 | Phase 1, Phase 2 |
 
 ## Implementation Plan
 
 ### Phase 1: Revise file: preserve existing rules, add 6 new categories, update cross-references (REQ-1–REQ-7)
-### Phase 2: Verify all project-specific references removed (SC-2)
-### Phase 3: Verify all 6 categories present with correct scope (SC-1, SC-4–SC-9)
+### Phase 2: Verify all project-specific references removed (SC-2, REQ-7)
+### Phase 3: Verify all 6 categories present with correct scope (SC-1, SC-4–SC-9, REQ-1–REQ-6)
 
 ## Files Affected
 
@@ -119,6 +119,7 @@ Revise the file: preserve the specific battle-tested rules (no synthetic data, f
 | 2026-07-31 | Added Requirements section (REQ-1–REQ-7) between Proposed Solution and Success Criteria | Structural validation: missing explicit Requirements section | Validation findings |
 | 2026-07-31 | Added Traceability table mapping REQs→SCs→Phases after Success Criteria | Structural validation: missing Traceability section | Validation findings |
 | 2026-07-31 | Added SC-2 to Traceability table under REQ-7 with Phase 1, Phase 2 | Re-validation: SC-2 was missing from Traceability table | Validation findings |
+| 2026-07-31 | Added Phase 3 to Traceability table (REQ-1–REQ-6 → Phase 3); added REQ references to Phase 2 and Phase 3 headings | Re-validation: Phase 3 missing from Traceability table; Phase 2/Phase 3 headings lacked REQ refs | Validation findings |
 | 2026-07-31 | Updated Phase headings with REQ references and SC references | Structural validation: phase headings lacked REQ/SC references | Validation findings |
 
 ---
