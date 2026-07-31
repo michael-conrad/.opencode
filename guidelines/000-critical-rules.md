@@ -315,10 +315,6 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Spec-audit findings | Internal only |
 
 
-### [critical-rules-034] Inline Screening of Authorization Sets (Tier 2 — cannot be mechanically enforced)
-Screening authorization sets inline instead of tasking a sub-agent means introducing contamination from your own reasoning. Professional engineers always task `screen-issue` sub-agents — amateurs inline and call it fast.
-
-
 ### [critical-rules-009] Silent Halt Without Prompt — no spec/plan search before stopping
 Halting without first searching for existing specs and plans means leaving the user to rediscover work that may already exist. Amateurs halt blind. Professional engineers search first.
 
