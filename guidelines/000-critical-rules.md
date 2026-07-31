@@ -203,7 +203,6 @@ The correct pattern:
 | Violation | ID | What Happens |
 |-----------|-----|-------------|
 
-| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
 | **Skill card dispatched to sub-agent** | **critical-rules-XXX** | **Agent dispatches SKILL.md content (skill card) to sub-agent via task(); sub-agent receives orchestrator-level routing instructions it cannot execute** |
 
 
@@ -318,41 +317,7 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 Halting without first searching for existing specs and plans means leaving the user to rediscover work that may already exist. Amateurs halt blind. Professional engineers search first.
 
 
-### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task() (Tier 2 — cannot be mechanically enforced)
-An orchestrator that reads files, edits files, or makes decisions inline has stopped being a router and started being a contaminant. Amateurs do the work themselves. Professionals route to sub-agents. Detailed rules below.
 
-#### 🚫 FORBIDDEN
-- The main orchestrator reading, editing, writing, or analyzing files in its own context
-- Sub-agents combining multiple steps (analyze + write + verify) in a single task()
-- The producer of a deliverable also verifying that deliverable (self-verification)
-- Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
-- task()ing a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
-- Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
-
-#### ✅ REQUIRED
-- ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
-- The orchestrator is a pure router — it tasks sub-agents via task() and collects result contracts, never performing work inline
-- Every pipeline stage is a logged sub-agent task() in the work state file
-- Every SKILL.md contains a task context audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
-- Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
-- Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
-
-#### Violation Patterns
-
-| Violation Pattern | Correct Action |
-| -- | -- |
-| Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
-| Orchestrator edits guideline text inline | Task guideline-update sub-agent |
-| Orchestrator creates issue content inline ("straightforward content, I'll write it myself") | Task issue-operations skill |
-| Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
-| Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
-| Orchestrator performs inline work | HALT — discard pipeline state, restart from last known good commit checkpoint tag |
-| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
-| Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
-| User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
-| Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
-| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
-| Orchestrator creates issue content inline (Edit on `.issues/` or direct `github_issue_write`) | Dispatch to `issue-operations --task creation`. **Fallback:** If `skill("issue-operations")` + `task()` is unavailable, use `github_issue_write` directly but MUST log tool name, version, and reason in a comment on the created issue. |
 
 
 
