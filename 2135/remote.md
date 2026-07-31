@@ -55,6 +55,7 @@ Complete rewrite establishing dual-authority model: spec authoritative for inten
 
 - `.opencode/guidelines/130-authority-source.md`
 - `.opencode/skills/spec-creation/SKILL.md`
+- `.opencode/guidelines/065-verification-honesty.md`
 
 ## Dependencies
 
