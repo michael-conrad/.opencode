@@ -30,11 +30,19 @@ labels: [spec]
 | SC-2 | Remove "Implementation work is measured" paragraph | string | grep for absence of 'tested verified correct code operations' |
 | SC-3 | Remove "Symbolic rules below" line | string | grep for absence of 'Symbolic rules below' |
 
+## Traceability
+
+| SC ID | Phase |
+|-------|-------|
+| SC-1 | Phase 1 |
+| SC-2 | Phase 2 |
+| SC-3 | Phase 3 |
+
 ## Implementation Plan
 
-### Phase 1: Deduplicate line 9 cross-ref
-### Phase 2: Remove line 47 paragraph
-### Phase 3: Remove line 49
+### Phase 1: Deduplicate line 9 cross-ref (SC-1)
+### Phase 2: Remove line 47 paragraph (SC-2)
+### Phase 3: Remove line 49 (SC-3)
 
 ## Files Affected
 
@@ -53,6 +61,7 @@ labels: [spec]
 | Date | Change | Reason | Authorizer |
 |------|--------|--------|------------|
 | 2026-07-31 | Rewrote Problem section: replaced metric-based justification (line count, file size) with pure semantic analysis of each defect | Spec violated principle that word/line counts are not valid measures for compaction; justification must be semantic | spec-creation pipeline (revision task) |
+| 2026-07-31 | Added Traceability section mapping SCs to Phases; added REQ references to Phase headings | Validation found 3 structural gaps: missing Traceability section, missing Traceability table, Phases lacked REQ references | spec-creation pipeline (revision task) |
 
 ---
 

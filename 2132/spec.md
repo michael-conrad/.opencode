@@ -72,11 +72,23 @@ Revise the file: preserve the specific battle-tested rules (no synthetic data, f
 | SC-12 | Agent does not hardcode entity IDs in generated code | behavioral | opencode run with prompt requiring entity references; verify dynamic derivation |
 | SC-13 | No specific failure-mode rules were lost in the revision | semantic | Sub-agent reads both old and new file; verifies all specific rules from old file are present in new file |
 
+## Traceability
+
+| REQ | SCs | Phase |
+|-----|-----|-------|
+| REQ-1 | SC-1, SC-4 | Phase 1 |
+| REQ-2 | SC-1, SC-5 | Phase 1 |
+| REQ-3 | SC-1, SC-6 | Phase 1 |
+| REQ-4 | SC-1, SC-7 | Phase 1 |
+| REQ-5 | SC-1, SC-8 | Phase 1 |
+| REQ-6 | SC-1, SC-9 | Phase 1 |
+| REQ-7 | SC-3, SC-10, SC-11, SC-12, SC-13 | Phase 1 |
+
 ## Implementation Plan
 
-### Phase 1: Revise file: preserve existing rules, add 6 new categories, update cross-references
-### Phase 2: Verify all project-specific references removed
-### Phase 3: Verify all 6 categories present with correct scope
+### Phase 1: Revise file: preserve existing rules, add 6 new categories, update cross-references (REQ-1–REQ-7)
+### Phase 2: Verify all project-specific references removed (SC-2)
+### Phase 3: Verify all 6 categories present with correct scope (SC-1, SC-4–SC-9)
 
 ## Files Affected
 
@@ -104,6 +116,9 @@ Revise the file: preserve the specific battle-tested rules (no synthetic data, f
 | 2026-07-31 | Success Criteria: replaced all 10 string-only SCs with 9 string + 3 behavioral + 1 semantic SCs; removed SC-3/SC-4 (absence of tqdm/200-errors) replaced with SC-3 (preserved rules) | Defect #2: EVIDENCE_TYPE_MISMATCH — runtime-behavioral change requires behavioral evidence; Defect #5: no behavioral enforcement tests | Review findings |
 | 2026-07-31 | Implementation Plan: Phase 1 updated to reflect revise approach | Defect #4: consistency with Proposed Solution change | Review findings |
 | 2026-07-31 | Risks: added lobotomization risk with SC-13 mitigation | Defect #3: explicit risk tracking for rule preservation | Review findings |
+| 2026-07-31 | Added Requirements section (REQ-1–REQ-7) between Proposed Solution and Success Criteria | Structural validation: missing explicit Requirements section | Validation findings |
+| 2026-07-31 | Added Traceability table mapping REQs→SCs→Phases after Success Criteria | Structural validation: missing Traceability section | Validation findings |
+| 2026-07-31 | Updated Phase headings with REQ references and SC references | Structural validation: phase headings lacked REQ/SC references | Validation findings |
 
 ---
 
