@@ -355,22 +355,7 @@ An orchestrator that reads files, edits files, or makes decisions inline has sto
 | Orchestrator creates issue content inline (Edit on `.issues/` or direct `github_issue_write`) | Dispatch to `issue-operations --task creation`. **Fallback:** If `skill("issue-operations")` + `task()` is unavailable, use `github_issue_write` directly but MUST log tool name, version, and reason in a comment on the created issue. |
 
 
-### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
-Reading a SKILL.md routing section and then executing the task inline means every quality gate in that skill was silently bypassed. Amateurs inline. Professionals dispatch. See DISPATCH_GATE procedure below.
 
-#### DISPATCH_GATE Checkpoint Procedure
-Every routing decision in the approval-gate pipeline chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
-
-1. **Confirm next action is task()** — verify the routing decision has been made
-2. **Task sub-agent** — call `task(subagent_type="general")` with scoped context
-3. **Receive result contract** — collect the structured result (never read the full task file)
-4. **Log in work state file** — record which sub-agent was tasked and when
-5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
-
-- 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
-- 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
-- ✅ REQUIRED: After reading routing metadata, immediately task a sub-agent for execution
-- ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 
 
