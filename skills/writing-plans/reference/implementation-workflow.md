@@ -43,41 +43,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## Trigger Dispatch Table
-
-| User says / Context | Task | Dispatches To | Dispatch | Context passed |
-|---------------------|------|---------------|----------|----------------|
-| "execute plan" / "implement spec" / "run pipeline" / "assemble work" | `assemble-work` | Orchestrator entry — reads plan, creates branches, dispatches sub-agents | `orchestrator` | {issue_number, plan_path, authorization_scope, halt_at} |
-| "pre-regression" / "baseline check" | `pre-regression` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
-| "pre-regression-verify" / "verify baseline" | `pre-regression-verify` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
-| "red-phase" / "write failing test" | `red` | `test-driven-development --task red` | `sub-task` | {issue_number} |
-| "green-phase" / "implement" | `green` | `test-driven-development --task green` | `sub-task` | {issue_number} |
-| "post-regression" / "re-run tests" | `post-regression` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
-| "verify" / "verify implementation" | `verify` | `verification-before-completion --task verify` | `sub-task` | {issue_number} |
-| "commit inline" / "inline commit" | `commit-inline` | Orchestrator runs git add + git commit directly | `inline` | {issue_number} |
-| "audit" / "audit step" | `audit` | Orchestrator dispatch — dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) via `task(subagent_type="general")` | `orchestrator` | {issue_number} |
-| "z3-check" / "solve check" | `z3-check` | `solve --task check` | `inline` | {issue_number, contract_path} |
-| "structural-checks" / "lint/typecheck" | `structural-checks` | `finishing-a-development-branch --task checklist` | `sub-task` | {issue_number} |
-| "pre-pr-gate" / "pre-PR gate" | `pre-pr-gate` | `verification-before-completion --task verify` — reads all SC verdicts, BLOCKs if any FAIL | `sub-task` | {issue_number} |
-| "rationalization-check" / "check for rationalization" | `rationalization-check` | `verification-before-completion --task verify` — dispatches clean-room sub-agent to evaluate whether proposed action is a rationalization. Sub-agent receives ONLY proposed action + rule text. Returns BLOCKED with REMEDIATION_MANDATORY if rationalization detected. | `sub-task` | {issue_number, proposed_action, rule_text} |
-| "regression-check" / "regression tests" | `regression-check` | `test-driven-development --task patterns` | `sub-task` | {issue_number} |
-| "review-prep" / "prepare review" | `review-prep` | `git-workflow --task review-prep` | `sub-task` | {issue_number} |
-| "create-pr" / "create pull request" | `create-pr` | `pr-creation-workflow --task create` | `sub-task` | {issue_number, authorization_scope, halt_at} |
-| "exec-summary" / "completion" | `exec-summary` | `completion-core --task completion` | `sub-task` | {issue_number} |
-| "execute step" / "dispatch step" / "step dispatch" | `step-dispatch` | Orchestrator reads step's dispatch indicator: `(**inline**)` executes directly, `(**sub-agent**)` dispatches with context, `(**clean-room**)` dispatches with routing metadata only | `orchestrator` | {issue_number, plan_path, step_number} |
-
-**Note:** The `audit` step dispatches the appropriate audit task (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation) via `task(subagent_type="general")`:
-- [ ] 1. Dispatch the audit task from audit skill with {spec_local_dir, artifact_evidence_dir}
-- [ ] 2. If the audit returns non-clean-pass (FAIL): remediate the root cause, then restart from step 1. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this reference card §Trigger Dispatch Table.
-- [ ] 3. On clean PASS: run inline Z3 check via `.opencode/tools/solve check --state-path ... --contract-path ...`
-
-## Step Labels (for #932 naming convention)
-
-`pre-regression`, `pre-regression-verify`, `red`, `green`, `post-regression`, `verify`, `commit-inline`, `audit`, `z3-check`, `structural-checks`, `pre-pr-gate`, `rationalization-check`, `regression-check`, `review-prep`, `create-pr`, `exec-summary`, `step-dispatch`
-
 ## Invocation
 
-The orchestrator reads the plan and dispatches each step per the Trigger Dispatch Table below. Dispatch strings are baked into the plan.
+The orchestrator reads the plan and dispatches each step per its dispatch indicator. Dispatch strings are baked into the plan.
 
 ### Orchestrator-Level Tasks (read and execute directly, no task() call)
 
