@@ -1,0 +1,50 @@
+phases:
+  - number: 1
+    name: "Delete executing-plans directory"
+    concern: "Remove vestigial forwarding skill directory"
+    scs: [SC-1]
+    skill: "general"
+    task: "edit"
+    depends_on: []
+  - number: 2
+    name: "Remove dispatch-table entries"
+    concern: "Remove stale skill routing entries from dispatch-table.yaml"
+    scs: [SC-2]
+    skill: "general"
+    task: "edit"
+    depends_on: []
+  - number: 3
+    name: "Bulk .md file cleanup"
+    concern: "Remove implementation-pipeline references from all .md files except CHANGELOG.md"
+    scs: [SC-3]
+    skill: "general"
+    task: "edit"
+    depends_on: []
+  - number: 4
+    name: "Bulk non-md file cleanup"
+    concern: "Remove implementation-pipeline references from yaml, py, txt, sh files"
+    scs: [SC-4]
+    skill: "general"
+    task: "edit"
+    depends_on: []
+  - number: 5
+    name: "Remove obsolete behavioral test"
+    concern: "Remove test that checks non-existent file path"
+    scs: [SC-5]
+    skill: "general"
+    task: "edit"
+    depends_on: []
+  - number: 6
+    name: "Update behavioral tests"
+    concern: "Update grep patterns and prompts in behavioral test files"
+    scs: [SC-6, SC-7, SC-8, SC-9, SC-10]
+    skill: "general"
+    task: "edit"
+    depends_on: []
+  - number: 7
+    name: "Individual file cleanup"
+    concern: "Remove implementation-pipeline references from individual files"
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-18]
+    skill: "general"
+    task: "edit"
+    depends_on: []
