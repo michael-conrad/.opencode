@@ -9,6 +9,15 @@
 # that behavioral tests can reference. Fixture issues come from
 # tests/behaviors/fixtures/issues/.
 #
+# MANDATORY: Every behavioral test that references issue content (spec, plan, etc.)
+# in its prompt MUST have corresponding fixture files in fixtures/issues/{N}/.
+# The harness auto-injects all fixture directories into the test repo.
+# Without fixtures, the test will fail at runtime because the issue directory
+# does not exist in the isolated test environment.
+#
+# Fixture paths in prompts MUST use .issues/{N}/ (root-level, injected by this script),
+# NOT .opencode/.issues/{N}/ (submodule path, not injected).
+#
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail

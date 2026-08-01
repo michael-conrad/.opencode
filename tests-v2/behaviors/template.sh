@@ -10,6 +10,13 @@
 #
 # Valid: "Implement SC-3 from spec #42" (triggers actual code writing)
 # Invalid: "Describe how you would implement SC-3" (tests prose recall, not behavior)
+#
+# FIXTURE REQUIREMENT:
+# If the prompt references issue content (e.g., .issues/2211/spec.md), fixture files
+# MUST be created at fixtures/issues/{N}/ BEFORE running the test. The harness
+# auto-injects all fixture directories into the test repo. Without fixtures, the
+# test will fail at runtime because the issue directory doesn't exist.
+# See .opencode/tests-v2/AGENTS.md §3 Step 0 for the fixture creation procedure.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
