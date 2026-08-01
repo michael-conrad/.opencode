@@ -319,6 +319,37 @@ The harness uses `flock` (file lock) for mutual exclusion. A lock file at `tmp/.
 # timeout=600000 (600 seconds, milliseconds). NEVER omit.
 ```
 
+### Timeout Export Procedure — MANDATORY
+
+When a behavioral test times out (bash tool kills the script), the agent MUST NOT retry blindly. Instead:
+
+1. **Locate the test home directory** — the most recent `tmp/test-home-{timestamp}/` directory. The test harness creates one per run.
+2. **Export the SQLite DB** — the DB survives the timeout. Export it to the artifact directory:
+   ```bash
+   mkdir -p tmp/behavioral-evidence-{scenario}-{phase}-{model}/
+   python3 -c "
+   import json, sqlite3
+   db = 'tmp/test-home-{timestamp}/.local/share/opencode/opencode.db'
+   conn = sqlite3.connect(db)
+   conn.row_factory = sqlite3.Row
+   c = conn.cursor()
+   c.execute('SELECT * FROM event ORDER BY id')
+   events = [dict(r) for r in c.fetchall()]
+   result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+   with open('tmp/behavioral-evidence-{scenario}-{phase}-{model}/session.yaml', 'w') as f:
+       json.dump(result, f, indent=2, default=str)
+   "
+   ```
+3. **Inspect the agent's reasoning** — read the `message.part.updated.1` events from the exported session.yaml. The agent's text parts show what it was doing, what it found, and where it was when the timeout hit.
+4. **Check tool calls** — if the agent made tool calls (read, grep, skill, task), the behavior is being tested. The timeout is a model speed issue, not a test defect.
+5. **Adjust the prompt or fixtures** based on what the agent was doing at timeout:
+   - If the agent was still reading/planning with zero tool calls → prompt is too complex, simplify it
+   - If the agent was verifying SCs and found the right things → behavior is correct, timeout is just model speed
+   - If the agent was going in the wrong direction → fix the prompt or fixtures
+6. **Document the finding** — if the exported session.yaml shows correct behavior, that IS the behavioral evidence. The timeout does not invalidate the evidence the agent produced up to that point.
+
+**🚫 FORBIDDEN:** Retrying the same test with the same model and same timeout expecting a different result. If the model is too slow for the prompt complexity, either simplify the prompt or use a faster model. Do not burn compute cycles on the same failing configuration.
+
 ### Test Isolation Mandates — ZERO TOLERANCE
 
 The following mandates are non-waivable. Violation = pipeline halt.
