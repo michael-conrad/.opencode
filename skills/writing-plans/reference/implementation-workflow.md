@@ -4,18 +4,22 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-## RED-GREEN Daisy-Chain
+## Pre-implementation
 
 | Step Name | Owning Skill | Canonical Dispatch String | Description |
 |-----------|-------------|--------------------------|-------------|
 | `pre-regression` | test-driven-development | `task(..., prompt: "execute phase-0 task from test-driven-development")` | Run regression test patterns before RED phase |
 | `pre-regression-verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` | Verify pre-regression results |
+
+## RED-GREEN Daisy-Chain
+
+| Step Name | Owning Skill | Canonical Dispatch String | Description |
+|-----------|-------------|--------------------------|-------------|
 | `red` | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` | Write a failing enforcement test for the SC |
 | `green` | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` | Implement the change that makes the test pass |
 | `post-regression` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` | Run regression test patterns after GREEN phase |
 | `verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` | Verify implementation against success criteria |
-
-After the daisy-chain completes, the orchestrator runs `git add <files> && git commit -m "<message>"` inline — no sub-agent dispatch.
+| `commit-inline` | (orchestrator) | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch | Stage and commit changes |
 
 ## Post-implementation
 
@@ -65,7 +69,7 @@ Artifacts under `{project_root}/tmp/{issue-N}/` are ephemeral — they are clean
 
 ### Rule 3: Step-Specific Pre-Cleanup
 
-At the start of each pipeline step, clean previous-run artifacts for that step to prevent stale state contamination:
+At the start of each pipeline step, clean previous-run artifacts for that step and subsequent steps to prevent stale state contamination:
 
 | Step Label | Pre-Cleanup Action |
 |------------|-------------------|
