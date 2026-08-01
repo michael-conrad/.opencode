@@ -36,16 +36,9 @@ Read all analysis artifacts from `{analysis_artifact_path}`:
 
 ### Step 2: Assemble spec document
 
-Construct the spec with all required sections:
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) and assemble the spec against its required sections.
 
-1. **Objective** — What this spec achieves
-2. **Background** — Why this spec exists, context, defects being addressed
-3. **Not Included** — Explicitly excluded scope
-4. **Success Criteria** — Table with ID, Criterion, Evidence Type, Verification Method columns
-5. **Requirements** — Numbered requirements with SHALL language
-6. **Items** — Per-SC item enumeration. Each SC maps to exactly one item (plan_item number). Items are numbered sequentially starting from 1.
-7. **Dependencies** — Prerequisite specs, skills, guidelines
-8. **Traceability** — Table mapping Requirements → SCs → Phases
+Read [cost-model-standards.md](reference/cost-model-standards.md) and write per-SC cost-frame statements following the dark-prose-007 pattern.
 
 ### Step 2.1: Write sc-summary.yaml
 

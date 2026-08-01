@@ -37,20 +37,16 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 3. **Read the spec file** from `{issues_prefix}/{N}/spec.md` to extract all success criteria with their evidence types.
 
-4. **Build the plan frontmatter.** Write YAML frontmatter with:
-   - `plan_schema_version: "1.0"`
-   - `issue: {N}`
-   - `title: "<short description>"`
-   - `dispatch:` array — one entry per phase with `phase`, `skill`, `task` references from the structure artifact.
+4. **Build the plan frontmatter.** Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Plan Frontmatter. Write YAML frontmatter with the required fields.
 
-5. **Build the plan body.** For each phase from the structure artifact:
-   - Write a phase heading with concern and SC coverage.
-   - For each task in the phase, enumerate every step from the implementation-workflow reference card's per-task cycle (discovered in step 1). Each step gets its own checkbox list item with:
-     - Step name and description
-     - Dispatch indicator: `(**inline**)`, `(**sub-agent**)`, or `(**clean-room**)`
-     - Context parameters as dash sub-bullets
-     - SC-ID binding: each task references exactly one SC-ID from the spec
-   - Every task MUST enumerate every step from the per-task cycle. No skipping. No combining. No grouping.
+5. **Build the plan body.** Read [plan-structure-standards.md](reference/plan-structure-standards.md) for structural expectations:
+   - Three-tier layout (Tier 1 global pre/post, Tier 2 per-phase, Tier 3 per-item)
+   - Per-item daisy chain: RED → GREEN → verify → commit
+   - Dispatch indicators: `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`
+   - Step format: numbered checkbox with sub-bullets, no prescriptive code
+   - Admonishments: compliance (top only), one-step-at-a-time, step status, self-remediation, enforcement gate
+   - Phase file sections: code path coverage, cross-cutting SCs, interface boundaries, state transitions
+   - Prohibited patterns: no dispatch tables, no TBD/TODO, no shared cross-references, no zero-indexed, no line numbers, no multi-dispatch steps, no non-standard indicators, no omitted mandatory gates
    - Each item references exactly one SC-ID. No item may cover multiple SCs.
 
 6. **Write pre-implementation steps** at the start of the plan (before any phase):
@@ -63,10 +59,8 @@ The per-task cycle steps are discovered at runtime by reading the implementation
    - These appear once per plan, not per phase.
 
 8. **Write the plan to disk** at `{issues_prefix}/{N}/plan.md`:
-   - Frontmatter with dispatch metadata.
-   - Pre-implementation section.
-   - Phase sections with per-task per-step enumeration.
-   - Post-implementation section.
+   - Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Plan Index Sections for the required index structure.
+   - Read [cost-model-standards.md](reference/cost-model-standards.md) and write per-phase cost-frame statements following the dark-prose-007 pattern.
    - Use structured markdown: checkbox lists with dash sub-bullets for context parameters.
    - No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001), no JSON/YAML code blocks in the body.
    - English text only — the plan is read by the orchestrator, not parsed.
