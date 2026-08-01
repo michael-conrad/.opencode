@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.2.0] - Unreleased
 
+### Changed
+
+- **Implementation-workflow reference card as data catalog** (#2214) - Rewrote `skills/writing-plans/reference/implementation-workflow.md` as a pure data catalog. Removed all orchestrator-level routing sections (Persona, Worktree Mode, Mandatory Task Discipline, DISPATCH_GATE, Sub-Agent Routing, YAML frontmatter). Added 6 data tables: Pipeline Step Catalog, Trigger Dispatch Table, Per-Task Cycle, Gate Sequence, Coercion Rules, Artifact Retention. All 10 SCs verified PASS. All cross-references remain valid.
+
 ### Added
 
 - **Derivation Provenance rule** (#1794) - Added Tier 2 critical rule to `000-critical-rules.md` requiring every element in agent output to trace to a specific consumer or first-principles derivation. "Because it's there in the other location" is not a valid justification. Applies to code, specs, plans, contracts, routing tables, and config files. Cross-referenced in `080-code-standards.md` Design Principles section. 3 behavioral tests: consumer verification gate, Java parameter derivation, routing scope dead weight detection.
