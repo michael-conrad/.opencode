@@ -34,6 +34,16 @@ After the Gate Evidence Audit Table is assembled, identify all issues with statu
 | Issue closed as completed but success criteria fail Gate 2 | `state: closed` + Gate 2 FAIL | Reopen (not-implemented-despite-closure) |
 | Sub-issue open but parent PR merged with `Fixes` on parent | Sub-issue `state: open` + parent has merged PR | Evaluate: auto-close if criteria met, or include remaining work |
 
+**Already-implemented closure decision table:**
+
+| Scenario | Action | Rationale |
+|----------|--------|-----------|
+| Already-implemented issue referenced by another spec-fix | Close via the spec-fix's closure procedure | The spec-fix owns the closure — it may have additional steps |
+| Already-implemented with no referencing spec-fix | Close via `verify-already-implemented` auto-close procedure | Standard auto-close path |
+| Already-implemented but sub-issues still open | DOWNGRADE to partially-implemented — do NOT close | Parent cannot close while children are open |
+| Already-implemented but cross-references inconsistent | DOWNGRADE to partially-implemented — do NOT close | Graph must be consistent before closure |
+| Already-implemented but `verify-already-implemented` not yet called | Call `verify-already-implemented` first | Must verify before closing |
+
 **Procedure:**
 
 1. **Collect inconsistencies:** From the screening results, collect all issues where the current GitHub state contradicts the verified implementation state:
@@ -46,6 +56,13 @@ After the Gate Evidence Audit Table is assembled, identify all issues with statu
    - `state`: current state from GitHub API
    - `classification`: one of `auto-close (merged PR)`, `auto-close (code verified)`, `reopen`, `no-action (not_planned)`, `no-action (duplicate)`, `uncertain`
    - `evidence_summary`: brief description of why the state is wrong
+
+2.5. **Determine closure path for already-implemented findings:** For each finding with `category: already-implemented`, determine the closure path:
+   - If referenced by a spec-fix → route to spec-fix's closure procedure
+   - If standalone → route to `verify-already-implemented` auto-close
+   - If sub-issues still open → DOWNGRADE to partially-implemented
+   - If cross-references inconsistent → DOWNGRADE to partially-implemented
+   - If `verify-already-implemented` not yet called → call it first
 
 3. **Invoke `reconcile-issue-graph`:** Pass the findings list to the reconciliation task. Follow the `reconcile-issue-graph` procedure exactly:
    - Step 1: Categorize findings (reuse classifications from above)

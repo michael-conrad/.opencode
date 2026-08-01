@@ -182,10 +182,14 @@ bash .opencode/tests-v2/test-enforcement.sh --tag <tag>
 ### Model Override
 
 ```bash
-DEFAULT_TEST_MODEL="ollama/other-model:cloud" \
+DEFAULT_TEST_MODEL="ollama/other-model:tag" \
 BEHAVIOR_PHASE="RED" \
 bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
+
+**⚠️ `DEFAULT_TEST_MODEL` override requires the feature branch to be pushed to remote.** The test harness clones `.opencode/` from remote and checks out the local submodule HEAD commit. If the feature branch changes (including `seed_model_config()` fixes) are not pushed, the harness uses the remote default branch which has the old code. The `seed_model_config()` function in `with-test-home` dynamically interpolates `$default_model` into the `opencode.jsonc` `model` field — this fix was applied in commit `f5c66371`. Without it, the `model` field was hardcoded to `ollama/ornith:35b-256k` regardless of `DEFAULT_TEST_MODEL`.
+
+**🚫 FORBIDDEN:** Asking the developer for authorization to push test framework fixes. Test framework changes that fix broken behavior are not implementation — they are infrastructure maintenance. The agent commits and pushes autonomously. The earlier pattern of asking "authorize push?" for a test harness bugfix was a routing-bypass self-authorization violation.
 
 ## 5. Infrastructure Details
 
@@ -243,8 +247,10 @@ The command runs from `TEST_PROJECT` (the test project directory inside the test
 #### Model Config Generation
 
 `seed_model_config()` generates a minimal `opencode.jsonc` with:
-- `"model": "ollama/ornith:35b-256k"` — explicit model field to prevent opencode from auto-selecting an embedding model from the project config
-- `"models": { "$bare": {}, "ornith:35b-256k": {} }` — both the default model and ornith in the models block so the model field resolves
+- `"model": "$default_model"` — uses `DEFAULT_TEST_MODEL` env var (falls back to `ollama/qwen3.6:35b-256k`). This is the single source of truth for which model runs the test.
+- `"models": { "$bare": {} }` — only the requested model is registered. No hardcoded model entries.
+
+The `model` field MUST match the `DEFAULT_TEST_MODEL` value. Previously the function hardcoded `"model": "ollama/ornith:35b-256k"` regardless of `DEFAULT_TEST_MODEL`, which caused behavioral tests to always attempt loading ornith (21GB) even when a smaller model was requested via env var. This is now fixed — the `model` field is dynamically interpolated from `$default_model`.
 
 It does NOT copy the production `opencode.jsonc` — that file contains secrets, API keys, and environment-specific settings that must not leak into test environments.
 
@@ -290,7 +296,7 @@ The `project.worktree` field MUST contain the test project path (under `tmp/test
 8. Copy standalone binary from `.tools/opencode/opencode` to `$TEST_HOME/bin/opencode`
 9. Copy `uv` and `uvx` from `.tools/uv/` to `$TEST_HOME/bin/`
 10. Write `set-env.sh` into test home with all `env -i` variables
-11. Seed `opencode.jsonc` config with `model: ollama/ornith:35b-256k` and models block
+11. Seed `opencode.jsonc` config with `model` set to `DEFAULT_TEST_MODEL` (dynamic, not hardcoded)
 12. Run `opencode models` to verify CLI works (smoke test)
 13. Run `opencode run "hello world"` to verify model works (smoke test)
 
@@ -312,6 +318,37 @@ The harness uses `flock` (file lock) for mutual exclusion. A lock file at `tmp/.
 ```
 # timeout=600000 (600 seconds, milliseconds). NEVER omit.
 ```
+
+### Timeout Export Procedure — MANDATORY
+
+When a behavioral test times out (bash tool kills the script), the agent MUST NOT retry blindly. Instead:
+
+1. **Locate the test home directory** — the most recent `tmp/test-home-{timestamp}/` directory. The test harness creates one per run.
+2. **Export the SQLite DB** — the DB survives the timeout. Export it to the artifact directory:
+   ```bash
+   mkdir -p tmp/behavioral-evidence-{scenario}-{phase}-{model}/
+   python3 -c "
+   import json, sqlite3
+   db = 'tmp/test-home-{timestamp}/.local/share/opencode/opencode.db'
+   conn = sqlite3.connect(db)
+   conn.row_factory = sqlite3.Row
+   c = conn.cursor()
+   c.execute('SELECT * FROM event ORDER BY id')
+   events = [dict(r) for r in c.fetchall()]
+   result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+   with open('tmp/behavioral-evidence-{scenario}-{phase}-{model}/session.yaml', 'w') as f:
+       json.dump(result, f, indent=2, default=str)
+   "
+   ```
+3. **Inspect the agent's reasoning** — read the `message.part.updated.1` events from the exported session.yaml. The agent's text parts show what it was doing, what it found, and where it was when the timeout hit.
+4. **Check tool calls** — if the agent made tool calls (read, grep, skill, task), the behavior is being tested. The timeout is a model speed issue, not a test defect.
+5. **Adjust the prompt or fixtures** based on what the agent was doing at timeout:
+   - If the agent was still reading/planning with zero tool calls → prompt is too complex, simplify it
+   - If the agent was verifying SCs and found the right things → behavior is correct, timeout is just model speed
+   - If the agent was going in the wrong direction → fix the prompt or fixtures
+6. **Document the finding** — if the exported session.yaml shows correct behavior, that IS the behavioral evidence. The timeout does not invalidate the evidence the agent produced up to that point.
+
+**🚫 FORBIDDEN:** Retrying the same test with the same model and same timeout expecting a different result. If the model is too slow for the prompt complexity, either simplify the prompt or use a faster model. Do not burn compute cycles on the same failing configuration.
 
 ### Test Isolation Mandates — ZERO TOLERANCE
 
