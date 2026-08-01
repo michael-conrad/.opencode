@@ -26,7 +26,7 @@ code_paths:
     action: Query platform API (github_list_pull_requests or gb pr list) for merged PRs
            in the submodule repo matching the branch name
     references:
-      - "github_list_pull_requests" or "gb pr list"
+      - 'github_list_pull_requests or gb pr list'
       - Submodule repo owner/repo resolution from gitlink path
 
   - sc: SC-3
@@ -53,8 +53,8 @@ code_paths:
     condition: Trunk parked after dead-branch deletion
     action: Acknowledge dirty pointer state (reuse branch-cleanup.md Step 1.7 pattern)
     references:
-      - branch-cleanup.md Step 1.7 (dirty pointer acknowledgment)
-      - "git status" to detect dirty submodule
+      - 'branch-cleanup.md Step 1.7 (dirty pointer acknowledgment)'
+      - 'git status to detect dirty submodule'
 
   - sc: SC-5
     path: check-pr.md Phase 5 → new dead-branch detection step (non-pointer guard)
