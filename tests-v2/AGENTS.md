@@ -129,6 +129,24 @@ If `session.yaml` contains `source_db: MISSING`, the SQLite DB was not found in 
 
 ## 3. Writing a New Behavioral Test
 
+### Step 0: Create Fixture Issues (MANDATORY if test references issue content)
+
+If the test prompt references a spec, plan, or any issue content (e.g., `.issues/2211/spec.md`), the test MUST have corresponding fixture files in `fixtures/issues/{N}/`. The harness auto-injects all fixture issue directories into the test repo's `.issues/` directory via `setup_fixture_issues()`.
+
+**Fixture creation procedure:**
+
+1. Create the fixture directory: `mkdir -p .opencode/tests-v2/behaviors/fixtures/issues/{N}/`
+2. Copy the spec, plan, and any other files the test needs:
+   ```bash
+   cp .opencode/.issues/{N}/spec.md .opencode/tests-v2/behaviors/fixtures/issues/{N}/
+   cp .opencode/.issues/{N}/plan.md .opencode/tests-v2/behaviors/fixtures/issues/{N}/
+   ```
+3. The harness injects these into the test repo at `.issues/{N}/` (flat path) and `.issues/open/{N}/` (open directory).
+
+**🚫 FORBIDDEN:** Writing a test that references issue content without creating fixture files. The test will fail at runtime because the issue directory doesn't exist in the isolated test environment.
+
+**✅ REQUIRED:** Every test that references `.issues/{N}/` paths in its prompt MUST have corresponding fixture files. The prompt path MUST use `.issues/{N}/` (the root-level path injected by fixtures), NOT `.opencode/.issues/{N}/` (the submodule path which is not injected).
+
 ### Step 1: Create the Script
 
 Copy `template.sh` to a new file with a descriptive name. Set `SCENARIO_NAME` (kebab-case) and `SCENARIO_PROMPT` (the message sent to the model).

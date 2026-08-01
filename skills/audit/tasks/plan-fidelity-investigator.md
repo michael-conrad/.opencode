@@ -57,10 +57,7 @@ Read the spec from `spec_local_dir/`:
 - [ ] 1. Read `spec_local_dir/spec.md` for the full spec body
 - [ ] 2. Extract the SC table — all success criteria with IDs, descriptions, and evidence types
 - [ ] 3. Extract the Files Affected table — all file paths the spec declares as in-scope
-- [ ] 4. Extract phase descriptions — what each phase is supposed to accomplish
-- [ ] 5. Extract cross-references — issue references (`#N`), file path references, skill references
-- [ ] 6. Extract delegation references — any "delegate to", "unified", "merged into", or "replaced by" directives
-- [ ] 7. Extract the spec's scope boundary — what is explicitly in-scope and out-of-scope
+- [ ] 4. Read [spec-structure-standards.md](reference/spec-structure-standards.md). For each required section in the reference doc, collect evidence about its presence, content, and structure.
 
 Record all extracted spec data in the evidence structure:
 
@@ -73,19 +70,11 @@ spec:
       evidence_type: "<behavioral|semantic|string|structural>"
   files_affected:
     - "<path>"
-  phases:
-    - name: "<phase name>"
-      description: "<text>"
-  cross_references:
-    issue_refs: ["#N"]
-    file_refs: ["<path>"]
-    skill_refs: ["<skill-name>"]
-  delegation_refs:
-    - directive: "<delegate to|unified|merged into|replaced by>"
-      target: "<text>"
-  scope:
-    in_scope: ["<description>"]
-    out_of_scope: ["<description>"]
+  sections:
+    - name: "<section name>"
+      present: <true|false>
+      content_summary: "<text>"
+      structure_issues: ["<description>"]
 ```
 
 ### Step 3: Extract Plan Content
@@ -99,14 +88,7 @@ Read the plan from `spec_local_dir/`:
 - [ ] 5. Extract all steps across all phases — step numbers, descriptions, sub-bullets, SC references
 - [ ] 6. Extract dispatch indicators from step titles — ``, `(**sub-agent**)`, `(**clean-room**)`
 - [ ] 7. Extract TDD checkpoints — RED/GREEN/REFACTOR structure, RED and GREEN separation
-- [ ] 8. Extract admonishments — compliance admonishment at top and bottom
-- [ ] 9. Extract the plan's scope — files referenced in plan steps
-- [ ] 10. Extract cross-references from plan — issue references, file paths, skill references
-- [ ] 11. Extract delegation definitions — concrete definitions for spec delegation references
-- [ ] 12. Extract gate sequence — pipeline gates referenced in plan steps
-- [ ] 13. Extract verification instructions — what evidence types each step's verification requires
-- [ ] 14. Extract Z3 contract references — if plan references Z3 contracts
-- [ ] 15. Extract prescriptive content — any line numbers, exact code, or file paths in RED/GREEN conditions
+- [ ] 8. Read [plan-structure-standards.md](reference/plan-structure-standards.md). For each structural element in the reference doc, collect evidence about its presence, content, and format.
 
 Record all extracted plan data in the evidence structure:
 
@@ -129,30 +111,11 @@ plan:
     red_phases: ["<phase name>"]
     green_phases: ["<phase name>"]
     red_green_separated: <true|false>
-  admonishments:
-    prologue_present: <true|false>
-    epilogue_present: <true|false>
-    canonical_text_match: <true|false>
-  plan_scope:
-    files_referenced: ["<path>"]
-  cross_references:
-    issue_refs: ["#N"]
-    file_refs: ["<path>"]
-    skill_refs: ["<skill-name>"]
-  delegation_definitions:
-    - directive: "<delegate to|unified|merged into|replaced by>"
-      target: "<text>"
-      concrete_definition: "<text or null if missing>"
-  gate_sequence: ["<gate name>"]
-  verification_instructions:
-    - step: <N>
-      sc_id: "SC-N"
-      required_evidence_type: "<behavioral|semantic|string|structural>"
-  z3_contract_refs: ["<contract path or null>"]
-  prescriptive_content:
-    - step: <N>
-      type: "<line_number|exact_code|file_path>"
-      content: "<text>"
+  structural_elements:
+    - name: "<element name>"
+      present: <true|false>
+      content_summary: "<text>"
+      format_issues: ["<description>"]
 ```
 
 ### Step 4: Collect Structural Alignment Evidence
@@ -167,8 +130,7 @@ Compare spec and plan at the structural level — record facts, not judgments:
 - [ ] 6. **Step numbering** — record whether steps are globally numbered or per-phase restart
 - [ ] 7. **Dispatch mode consistency** — record each phase's declared dispatch mode and each step's dispatch indicator
 - [ ] 8. **Checklist format** — record whether steps use `- [ ] N.` format with sub-bullets
-- [ ] 9. **One-step protocol** — record whether the one-step-at-a-time admonishment is present
-- [ ] 10. **Sub-step expansion** — record any steps that describe more than one atomic action
+- [ ] 9. **Sub-step expansion** — record any steps that describe more than one atomic action
 
 Record in evidence:
 
@@ -195,7 +157,6 @@ structural_alignment:
       declared_dispatch: "<inline|sub-agent|sub-agent-clean-room>"
       step_indicators: ["<inline|sub-agent|clean-room>"]
   checklist_format: "<all_steps_compliant|some_steps_noncompliant>"
-  one_step_protocol_present: <true|false>
   sub_step_expansion:
     multi_action_steps: [<step numbers>]
 ```
@@ -208,11 +169,6 @@ Extract content-level data for deeper analysis by downstream roles:
 - [ ] 2. **Edge case coverage** — extract edge cases mentioned in spec and which plan steps address them
 - [ ] 3. **Error recovery** — extract error recovery paths in spec and which plan steps address them
 - [ ] 4. **Root cause depth** — extract root cause description from spec and which plan phase addresses it
-- [ ] 5. **Delegation completeness** — for each delegation reference in spec, record whether plan has a concrete definition
-- [ ] 6. **Gate sequence** — extract the pipeline gate sequence from plan and record it
-- [ ] 7. **Verification evidence types** — for each SC, record what evidence type the plan's verification instructions require
-- [ ] 8. **Cost-frame prose** — record whether each phase's instructions carry cost-frame reformation prose
-- [ ] 9. **SC gate language** — record whether plan task structure references the all-or-nothing gate from spec
 
 Record in evidence:
 
@@ -232,19 +188,7 @@ content_evidence:
   root_cause:
     spec_description: "<text>"
     plan_phase_addressing: "<phase name or null>"
-  delegation_completeness:
-    - directive: "<text>"
-      has_concrete_definition: <true|false>
-  gate_sequence: ["<gate name>"]
-  verification_evidence_types:
-    - sc_id: "SC-N"
-      spec_declared_type: "<behavioral|semantic|string|structural>"
-      plan_required_type: "<behavioral|semantic|string|structural>"
-  cost_frame_prose:
-    - phase: "<name>"
-      present: <true|false>
-  sc_gate_language:
-    present: <true|false>
+
 ```
 
 ### Step 6: Collect Blast Radius Evidence
@@ -287,24 +231,22 @@ spec:
   path: "<path>"
   sc_table: [...]
   files_affected: [...]
-  phases: [...]
-  cross_references: {...}
-  delegation_refs: [...]
-  scope: {...}
+  sections:
+    - name: "<section name>"
+      present: <bool>
+      content_summary: "<text>"
+      structure_issues: ["<description>"]
 plan:
   path: "<path>"
   phase_files: [...]
   phase_table: [...]
   steps: [...]
   tdd_checkpoints: {...}
-  admonishments: {...}
-  plan_scope: {...}
-  cross_references: {...}
-  delegation_definitions: [...]
-  gate_sequence: [...]
-  verification_instructions: [...]
-  z3_contract_refs: [...]
-  prescriptive_content: [...]
+  structural_elements:
+    - name: "<element name>"
+      present: <bool>
+      content_summary: "<text>"
+      format_issues: ["<description>"]
 structural_alignment:
   phase_coverage: [...]
   phase_ordering: {...}
@@ -314,18 +256,12 @@ structural_alignment:
   step_numbering: "<value>"
   dispatch_mode_consistency: [...]
   checklist_format: "<value>"
-  one_step_protocol_present: <bool>
   sub_step_expansion: {...}
 content_evidence:
   approach: {...}
   edge_cases: [...]
   error_recovery: [...]
   root_cause: {...}
-  delegation_completeness: [...]
-  gate_sequence: [...]
-  verification_evidence_types: [...]
-  cost_frame_prose: [...]
-  sc_gate_language: {...}
 blast_radius: [...]
 cross_reference_evidence:
   issue_refs: [...]

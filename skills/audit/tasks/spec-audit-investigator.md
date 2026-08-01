@@ -92,12 +92,9 @@ Extract structural elements from the spec body without evaluating quality:
 
 - [ ] 1. **Section inventory** — List every markdown heading (`##`, `###`, `####`) with its text and line position
 - [ ] 2. **SC table extraction** — If the spec contains a Success Criteria table, extract every row with all columns present (ID, Criterion, Evidence Type, Verification Method). Record exactly what is in the spec — do not infer missing columns
-- [ ] 3. **Phase inventory** — If the spec defines phases, list each phase with its heading text and any sub-items
-- [ ] 4. **Files Affected inventory** — If the spec has a Files Affected section, list every file path mentioned
-- [ ] 5. **Preamble presence** — Record whether the spec has a "## Intent and Executive Summary" section and which of the 5 preamble fields are present (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions)
-- [ ] 6. **Documentation Sources inventory** — If the spec has a Documentation Sources section, list every URL, API reference, and documentation claim
-- [ ] 7. **STATUS marker** — Record the spec's STATUS marker value if present
-- [ ] 8. **Prose structure inventory** — Record presence of tables, code blocks, lists, and other structural elements
+- [ ] 3. **Files Affected inventory** — If the spec has a Files Affected section, list every file path mentioned
+- [ ] 4. **Required sections inventory** — Read [spec-structure-standards.md](reference/spec-structure-standards.md). For each required section in the reference doc, collect evidence about its presence, content, and structure. Record what is found — do not infer or assume.
+- [ ] 5. **Prose structure inventory** — Record presence of tables, code blocks, lists, and other structural elements
 
 Record in evidence:
 
@@ -115,23 +112,17 @@ spec_structure:
         criterion: "<text>"
         evidence_type: "<type or empty>"
         verification_method: "<text or empty>"
-  phases:
-    present: true | false
-    count: <N>
-    items:
-      - heading: "<phase heading>"
-        sub_items_count: <N>
   files_affected:
     present: true | false
     paths: ["<path>", ...]
-  preamble:
-    present: true | false
-    fields_present: ["<field>", ...]
-    fields_missing: ["<field>", ...]
-  documentation_sources:
-    present: true | false
-    sources: ["<URL or reference>", ...]
-  status_marker: "<STATUS value or absent>"
+  required_sections:
+    reference_doc: "reference/spec-structure-standards.md"
+    sections:
+      - name: "<section name from reference doc>"
+        present: true | false
+        heading_text: "<actual heading text found or absent>"
+        content_summary: "<brief summary of what was found>"
+        has_required_elements: true | false | unable_to_determine
   prose_elements:
     tables: <N>
     code_blocks: <N>
