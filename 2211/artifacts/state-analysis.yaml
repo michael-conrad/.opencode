@@ -1,59 +1,29 @@
-# state-analysis.yaml — backfilled from spec body
-spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T22:46:00Z
-mode: retroactive
-
-state_transitions:
-  - id: ST-1
-    description: spec-audit-evaluator criteria derivation
-    initial_state: Hard-coded SC-1 through SC-14 table in Step 5a; hard-coded rules in Steps 5b-5h; hard-coded cost-frame rule in SC-13
-    final_state: Step 5a reads from spec-structure-standards.md; Steps 5b-5h read from spec-structure-standards.md; SC-13 reads from cost-model-standards.md
-    sc: SC-1, SC-6
-    phase: 1, 6
-    invariant: SC-DET and SC-STRUCTURAL-FAIL remain as explicit instructions (behavioral judgments)
-
-  - id: ST-2
-    description: spec-audit-investigator evidence collection
-    initial_state: Hard-coded section names in Step 3; static YAML evidence structure with phases, preamble, documentation_sources, status_marker fields
-    final_state: Step 3 reads from spec-structure-standards.md; YAML evidence structure is dynamic (derived from reference doc sections)
-    sc: SC-2
-    phase: 2
-    invariant: Evidence collection discipline ("Record what is found — do not infer or assume") preserved
-
-  - id: ST-3
-    description: plan-fidelity-evaluator PF criteria derivation
-    initial_state: Hard-coded PF criteria in Step 3; hard-coded cost-frame rule in PF-7a
-    final_state: Step 3 reads from plan-structure-standards.md; PF-7a reads from cost-model-standards.md; PF-4, PF-DELEGATION, PF-GLOBAL-NUMBERING removed
-    sc: SC-3, SC-7
-    phase: 3, 6
-    invariant: PF-1, PF-2, PF-3, PF-5, PF-STRUCTURAL-FAIL, PF-Z3-CONTRACT, PF-SEQUENCE-MATCHES remain as explicit instructions
-
-  - id: ST-4
-    description: plan-fidelity-investigator evidence collection
-    initial_state: Hard-coded evidence collection items in Steps 2-5; static YAML evidence structures with 15+ fields
-    final_state: Steps 2-5 read from spec-structure-standards.md and plan-structure-standards.md; YAML evidence structures are dynamic
-    sc: SC-4
-    phase: 4
-    invariant: Cross-artifact comparisons (PF-1, PF-2, PF-3, PF-5) remain as explicit instructions
-
-  - id: ST-5
-    description: reference doc path verification
-    initial_state: Read references point to paths that may or may not exist
-    final_state: All Read reference paths verified to point to existing files
-    sc: SC-5
-    phase: 5
-    invariant: Verification only — no file modifications
-
-invariants:
-  - Behavioral judgments (determinism, evidence type uplift) remain as explicit instructions — cannot be codified as structural rules
-  - Cross-artifact comparisons (PF-1, PF-2, PF-3, PF-5) remain as explicit instructions — require comparing two artifacts
-  - PF-STRUCTURAL-FAIL, PF-Z3-CONTRACT, PF-SEQUENCE-MATCHES remain as explicit instructions — structural fail detection, Z3 contract verification, sequence matching
-  - Reference docs are the single source of truth — both producers and auditors read from them
-  - The audit DiMo chain dispatch is not changed
-  - Behavioral enforcement tests are not created by this spec
-
-state_dependencies:
-  - ST-1, ST-2, ST-3, ST-4: Depend on reference docs existing (created by .opencode#2210)
-  - ST-5: Depends on ST-1 through ST-4 being complete (verifies references added by those phases)
-  - ST-1 (Phase 6 part): Depends on ST-1 (Phase 1 part) being complete (updates same file)
-  - ST-3 (Phase 6 part): Depends on ST-3 (Phase 3 part) being complete (updates same file)
+states:
+  - name: spec-audit-evaluator-before
+    description: spec-audit-evaluator.md with hard-coded SC table and criteria
+    transitions:
+      - to: spec-audit-evaluator-after
+        trigger: Phase 1 + Phase 6 implementation
+  - name: spec-audit-evaluator-after
+    description: spec-audit-evaluator.md with Read references to spec-structure-standards and cost-model-standards
+  - name: spec-audit-investigator-before
+    description: spec-audit-investigator.md with hard-coded section names and evidence structure
+    transitions:
+      - to: spec-audit-investigator-after
+        trigger: Phase 2 implementation
+  - name: spec-audit-investigator-after
+    description: spec-audit-investigator.md with Read reference to spec-structure-standards and dynamic evidence structure
+  - name: plan-fidelity-evaluator-before
+    description: plan-fidelity-evaluator.md with hard-coded PF criteria
+    transitions:
+      - to: plan-fidelity-evaluator-after
+        trigger: Phase 3 + Phase 6 implementation
+  - name: plan-fidelity-evaluator-after
+    description: plan-fidelity-evaluator.md with Read references to plan-structure-standards and cost-model-standards
+  - name: plan-fidelity-investigator-before
+    description: plan-fidelity-investigator.md with hard-coded evidence collection items
+    transitions:
+      - to: plan-fidelity-investigator-after
+        trigger: Phase 4 implementation
+  - name: plan-fidelity-investigator-after
+    description: plan-fidelity-investigator.md with Read reference to plan-structure-standards and dynamic evidence structure

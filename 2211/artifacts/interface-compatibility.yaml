@@ -1,79 +1,37 @@
-# interface-compatibility.yaml — backfilled from spec body
-spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T22:46:00Z
-mode: retroactive
-
 interfaces:
-  - interface: spec-audit-evaluator → spec-structure-standards.md
-    type: Read reference
-    direction: evaluator reads from reference doc
-    change: Step 5a replaces hard-coded SC table with Read reference; Steps 5b-5h replace hard-coded rules with Read references
-    compatibility: FORWARD — evaluator must handle any structure the reference doc defines
-    risk: If reference doc defines sections the evaluator cannot derive criteria from, audit produces incorrect verdicts
-    mitigation: Reference doc is canonical — if evaluator can't derive, evaluator is wrong
-
-  - interface: spec-audit-evaluator → cost-model-standards.md
-    type: Read reference
-    direction: evaluator reads from reference doc
-    change: SC-13 replaces hard-coded cost-frame rule with Read reference
-    compatibility: FORWARD — evaluator must handle any cost-frame pattern the reference doc defines
-    risk: Reference doc may define patterns that don't match the dark-prose-007 pattern expected
-
-  - interface: spec-audit-investigator → spec-structure-standards.md
-    type: Read reference
-    direction: investigator reads from reference doc
-    change: Step 3 replaces hard-coded section names with Read reference; YAML evidence structure becomes dynamic
-    compatibility: FORWARD — investigator must collect evidence against any sections the reference doc defines
-    risk: Dynamic YAML structure may break downstream consumers that expect static fields
-    mitigation: spec_structure YAML fields removed; consumers must handle dynamic structure
-
-  - interface: plan-fidelity-evaluator → plan-structure-standards.md
-    type: Read reference
-    direction: evaluator reads from reference doc
-    change: Step 3 replaces hard-coded PF criteria with Read reference
-    compatibility: FORWARD — evaluator must verify any structural element the reference doc defines
-    risk: Reference doc may define elements the evaluator cannot verify
-
-  - interface: plan-fidelity-evaluator → cost-model-standards.md
-    type: Read reference
-    direction: evaluator reads from reference doc
-    change: PF-7a replaces hard-coded cost-frame rule with Read reference
-    compatibility: FORWARD — evaluator must handle any cost-frame pattern the reference doc defines
-
-  - interface: plan-fidelity-investigator → spec-structure-standards.md
-    type: Read reference
-    direction: investigator reads from reference doc
-    change: Step 2 replaces hard-coded spec evidence collection with Read reference
-    compatibility: FORWARD — investigator must collect evidence against any sections the reference doc defines
-
-  - interface: plan-fidelity-investigator → plan-structure-standards.md
-    type: Read reference
-    direction: investigator reads from reference doc
-    change: Step 3 replaces hard-coded plan evidence collection with Read reference
-    compatibility: FORWARD — investigator must collect evidence against any elements the reference doc defines
-
-  - interface: spec-audit-evaluator → spec-audit-investigator
-    type: Shared YAML evidence structure
-    direction: Both read from spec-structure-standards.md independently
-    change: Both now derive evidence structure from the same reference doc
-    compatibility: CONVERGENT — both should produce compatible evidence structures since they read from the same source
-    risk: If one derives differently from the other, evidence structures diverge
-
-  - interface: plan-fidelity-evaluator → plan-fidelity-investigator
-    type: Shared YAML evidence structure
-    direction: Both read from plan-structure-standards.md independently
-    change: Both now derive evidence structure from the same reference doc
-    compatibility: CONVERGENT — both should produce compatible evidence structures
-    risk: If one derives differently from the other, evidence structures diverge
-
-  - interface: auditor task files → .opencode#2210 reference docs
-    type: File existence dependency
-    direction: Auditor files depend on reference docs created by .opencode#2210
-    change: New dependency — auditor files now fail at runtime if reference docs don't exist
-    compatibility: BACKWARD — if .opencode#2210 hasn't completed, auditor files have broken Read references
-    mitigation: Sequential phase ordering; Phase 5 verifies reference doc paths
-
-backward_compatibility:
-  - Removed YAML fields (phases, preamble, documentation_sources, status_marker, etc.) may break downstream consumers that read these fields
-  - Removed SC IDs (SC-3, SC-4, SC-6, SC-7, SC-8, SC-10, SC-13) may break cross-references in other files
-  - Removed PF criteria (PF-4, PF-DELEGATION, PF-GLOBAL-NUMBERING) may break cross-references
+  - source: spec-audit-evaluator.md
+    target: reference/spec-structure-standards.md
+    type: read-reference
+    description: Evaluator reads spec-structure-standards to derive structural criteria
+    compatible: true
+    precondition: reference/spec-structure-standards.md must exist (.opencode#2210)
+  - source: spec-audit-investigator.md
+    target: reference/spec-structure-standards.md
+    type: read-reference
+    description: Investigator reads spec-structure-standards to collect evidence
+    compatible: true
+    precondition: reference/spec-structure-standards.md must exist (.opencode#2210)
+  - source: plan-fidelity-evaluator.md
+    target: reference/plan-structure-standards.md
+    type: read-reference
+    description: Evaluator reads plan-structure-standards to derive structural criteria
+    compatible: true
+    precondition: reference/plan-structure-standards.md must exist (.opencode#2210)
+  - source: plan-fidelity-investigator.md
+    target: reference/plan-structure-standards.md
+    type: read-reference
+    description: Investigator reads plan-structure-standards to collect evidence
+    compatible: true
+    precondition: reference/plan-structure-standards.md must exist (.opencode#2210)
+  - source: spec-audit-evaluator.md
+    target: reference/cost-model-standards.md
+    type: read-reference
+    description: Evaluator reads cost-model-standards for SC-13 cost-frame check
+    compatible: true
+    precondition: reference/cost-model-standards.md must exist (.opencode#2210)
+  - source: plan-fidelity-evaluator.md
+    target: reference/cost-model-standards.md
+    type: read-reference
+    description: Evaluator reads cost-model-standards for PF-7a cost-frame check
+    compatible: true
+    precondition: reference/cost-model-standards.md must exist (.opencode#2210)

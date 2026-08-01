@@ -1,0 +1,50 @@
+domain: auditor-refactor
+types:
+  - name: phase
+objects:
+  - name: phase-1
+    type: phase
+  - name: phase-2
+    type: phase
+  - name: phase-3
+    type: phase
+  - name: phase-4
+    type: phase
+  - name: phase-5
+    type: phase
+  - name: phase-6
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+  - name: dependency-met
+    params:
+      - name: p
+        type: phase
+      - name: dep
+        type: phase
+actions:
+  - name: execute-phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - not completed(p)
+    effects:
+      - completed(p)
+init:
+  - dependency-met(phase-5, phase-1)
+  - dependency-met(phase-5, phase-2)
+  - dependency-met(phase-5, phase-3)
+  - dependency-met(phase-5, phase-4)
+  - dependency-met(phase-6, phase-1)
+  - dependency-met(phase-6, phase-3)
+goals:
+  - completed(phase-1)
+  - completed(phase-2)
+  - completed(phase-3)
+  - completed(phase-4)
+  - completed(phase-5)
+  - completed(phase-6)

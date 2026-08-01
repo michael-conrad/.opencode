@@ -1,61 +1,21 @@
-# concern-map.yaml — backfilled from spec body
-spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T22:46:00Z
-mode: retroactive
-
 concerns:
-  - id: C1
-    name: spec-audit-evaluator reference doc integration
-    description: Update spec-audit-evaluator.md to read from spec-structure-standards.md and cost-model-standards.md instead of hard-coding criteria
+  - name: spec-audit-evaluator-update
+    description: Update spec-audit-evaluator.md to reference canonical reference docs
     scs: [SC-1, SC-6]
     phases: [1, 6]
-    files:
-      - .opencode/skills/audit/tasks/spec-audit-evaluator.md
-
-  - id: C2
-    name: spec-audit-investigator reference doc integration
-    description: Update spec-audit-investigator.md to read from spec-structure-standards.md instead of hard-coding section names
+  - name: spec-audit-investigator-update
+    description: Update spec-audit-investigator.md to reference canonical reference docs
     scs: [SC-2]
     phases: [2]
-    files:
-      - .opencode/skills/audit/tasks/spec-audit-investigator.md
-
-  - id: C3
-    name: plan-fidelity-evaluator reference doc integration
-    description: Update plan-fidelity-evaluator.md to read from plan-structure-standards.md and cost-model-standards.md instead of hard-coding PF criteria
+  - name: plan-fidelity-evaluator-update
+    description: Update plan-fidelity-evaluator.md to reference canonical reference docs
     scs: [SC-3, SC-7]
     phases: [3, 6]
-    files:
-      - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
-
-  - id: C4
-    name: plan-fidelity-investigator reference doc integration
-    description: Update plan-fidelity-investigator.md to read from spec-structure-standards.md and plan-structure-standards.md instead of hard-coding evidence collection items
+  - name: plan-fidelity-investigator-update
+    description: Update plan-fidelity-investigator.md to reference canonical reference docs
     scs: [SC-4]
     phases: [4]
-    files:
-      - .opencode/skills/audit/tasks/plan-fidelity-investigator.md
-
-  - id: C5
-    name: reference doc path verification
-    description: Verify that all Read reference paths point to existing files
+  - name: reference-doc-verification
+    description: Verify reference doc paths exist
     scs: [SC-5]
     phases: [5]
-    files: []  # verification only
-
-  - id: C6
-    name: cost-frame criteria update
-    description: Update both evaluators' cost-frame criteria to reference cost-model-standards.md
-    scs: [SC-6, SC-7]
-    phases: [6]
-    files:
-      - .opencode/skills/audit/tasks/spec-audit-evaluator.md
-      - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
-
-concern_boundaries:
-  C1: "spec-audit evaluator only — no changes to investigator, plan-fidelity, or other task files"
-  C2: "spec-audit investigator only — no changes to evaluator, plan-fidelity, or other task files"
-  C3: "plan-fidelity evaluator only — no changes to investigator, spec-audit, or other task files"
-  C4: "plan-fidelity investigator only — no changes to evaluator, spec-audit, or other task files"
-  C5: "verification only — no file modifications"
-  C6: "spans both evaluators — shared concern across C1 and C3"

@@ -1,0 +1,98 @@
+phases:
+  - id: 1
+    name: Update spec-audit-evaluator.md
+    scs: [SC-1]
+    items:
+      - id: 1
+        sc: SC-1
+        description: Update spec-audit-evaluator.md Step 5a and Steps 5b-5h
+    skill: audit
+    task: modify
+    dependencies: []
+    dispatch: "execute modify from audit"
+
+  - id: 2
+    name: Update spec-audit-investigator.md
+    scs: [SC-2]
+    items:
+      - id: 2
+        sc: SC-2
+        description: Update spec-audit-investigator.md Step 3
+    skill: audit
+    task: modify
+    dependencies: []
+    dispatch: "execute modify from audit"
+
+  - id: 3
+    name: Update plan-fidelity-evaluator.md
+    scs: [SC-3]
+    items:
+      - id: 3
+        sc: SC-3
+        description: Update plan-fidelity-evaluator.md Step 3
+    skill: audit
+    task: modify
+    dependencies: []
+    dispatch: "execute modify from audit"
+
+  - id: 4
+    name: Update plan-fidelity-investigator.md
+    scs: [SC-4]
+    items:
+      - id: 4
+        sc: SC-4
+        description: Update plan-fidelity-investigator.md Steps 2-5
+    skill: audit
+    task: modify
+    dependencies: []
+    dispatch: "execute modify from audit"
+
+  - id: 5
+    name: Verify reference doc paths
+    scs: [SC-5]
+    items:
+      - id: 5
+        sc: SC-5
+        description: Verify all Read reference paths point to existing files
+    skill: verification
+    task: verify
+    dependencies: [1, 2, 3, 4]
+    dispatch: "execute verify from verification"
+
+  - id: 6
+    name: Update cost-frame criteria
+    scs: [SC-6, SC-7]
+    items:
+      - id: 6
+        sc: SC-6
+        description: Update spec-audit-evaluator.md SC-13 to reference cost-model-standards
+      - id: 7
+        sc: SC-7
+        description: Update plan-fidelity-evaluator.md PF-7a to reference cost-model-standards
+    skill: audit
+    task: modify
+    dependencies: [1, 3]
+    dispatch: "execute modify from audit"
+
+dag_edges:
+  - from: 1
+    to: 5
+  - from: 2
+    to: 5
+  - from: 3
+    to: 5
+  - from: 4
+    to: 5
+  - from: 1
+    to: 6
+  - from: 3
+    to: 6
+
+solve_output:
+  solve_status: SAT
+  plan_status: N/A (PDDL format required)
+  sat_checks:
+    - check: model
+      status: SAT
+    - check: state
+      status: SAT

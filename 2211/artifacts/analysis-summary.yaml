@@ -1,28 +1,15 @@
-# analysis-summary.yaml — backfill result
-spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T22:46:00Z
-mode: retroactive
+spec_path: .opencode/.issues/2211/spec.md
+approval_status: approved
 sc_count: 7
-phase_count: 6
-
-artifacts:
-  blast-radius.yaml: backfilled
-  concern-map.yaml: backfilled
-  code-path-inventory.yaml: backfilled
-  cross-cutting-matrix.yaml: backfilled
-  interface-compatibility.yaml: backfilled
-  state-analysis.yaml: backfilled
-  testability-assessment.yaml: backfilled
-
-scope_summary:
-  affected_files:
-    - .opencode/skills/audit/tasks/spec-audit-evaluator.md
-    - .opencode/skills/audit/tasks/spec-audit-investigator.md
-    - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
-    - .opencode/skills/audit/tasks/plan-fidelity-investigator.md
-  reference_docs_required:
-    - reference/spec-structure-standards.md
-    - reference/plan-structure-standards.md
-    - reference/cost-model-standards.md
-  dependency: .opencode#2210 must complete first
-  sc_evidence_types: all string
+artifact_presence:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_findings:
+  - All 4 affected files exist in the codebase
+  - Reference docs (spec-structure-standards.md, plan-structure-standards.md, cost-model-standards.md) must exist from .opencode#2210
+  - No scope boundary violations detected

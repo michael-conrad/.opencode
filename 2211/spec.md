@@ -2,6 +2,7 @@
 remote_issue: 2211
 remote_url: https://github.com/michael-conrad/.opencode/issues/2211
 labels: [spec]
+approved: true
 ---
 
 > **Full spec and artifacts: [`.opencode/.issues/2211/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2211)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.

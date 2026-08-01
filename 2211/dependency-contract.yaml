@@ -1,0 +1,59 @@
+# dependency-contract.yaml — .opencode#2211
+spec: .opencode/.issues/2211/spec.md
+generated: 2026-07-31T22:59:00Z
+
+external_dependencies:
+  - issue: .opencode#2210
+    description: Creates reference docs (spec-structure-standards.md, plan-structure-standards.md, cost-model-standards.md) that this spec reads from
+    status: required
+    verification: Read each referenced path — expect file exists
+
+phases:
+  - id: 1
+    name: Update spec-audit-evaluator.md
+    scs: [SC-1]
+    dependencies: []
+    preconditions:
+      - .opencode#2210 reference docs exist
+
+  - id: 2
+    name: Update spec-audit-investigator.md
+    scs: [SC-2]
+    dependencies: []
+    preconditions:
+      - .opencode#2210 reference docs exist
+
+  - id: 3
+    name: Update plan-fidelity-evaluator.md
+    scs: [SC-3]
+    dependencies: []
+    preconditions:
+      - .opencode#2210 reference docs exist
+
+  - id: 4
+    name: Update plan-fidelity-investigator.md
+    scs: [SC-4]
+    dependencies: []
+    preconditions:
+      - .opencode#2210 reference docs exist
+
+  - id: 5
+    name: Verify reference doc paths
+    scs: [SC-5]
+    dependencies: [1, 2, 3, 4]
+    preconditions:
+      - All Read references added by Phases 1-4 exist in the updated files
+
+  - id: 6
+    name: Update spec-audit-evaluator.md SC-13 cost-frame
+    scs: [SC-6]
+    dependencies: [1]
+    preconditions:
+      - spec-audit-evaluator.md updated (Phase 1)
+
+  - id: 7
+    name: Update plan-fidelity-evaluator.md PF-7a cost-frame
+    scs: [SC-7]
+    dependencies: [3]
+    preconditions:
+      - plan-fidelity-evaluator.md updated (Phase 3)

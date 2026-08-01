@@ -1,69 +1,29 @@
-# blast-radius.yaml — backfilled from spec body
-spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T22:46:00Z
-mode: retroactive
-
 affected_files:
   - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
-    phase: [1, 6]
-    change: Update Step 5a (replace hard-coded SC table with Read reference), Steps 5b-5h (replace hard-coded rules with Read references), SC-13 (replace cost-frame rule with Read reference)
-    risk: medium — structural changes to audit evaluator logic
-
+    scs: [SC-1, SC-6]
+    change_type: modify
+    description: Update Step 5a to reference spec-structure-standards, remove hard-coded SC table, update Steps 5b-5h, update SC-13 cost-frame
   - path: .opencode/skills/audit/tasks/spec-audit-investigator.md
-    phase: [2]
-    change: Update Step 3 (replace hard-coded section names with Read reference, remove phase inventory and STATUS marker, update YAML evidence structure)
-    risk: medium — structural changes to evidence collection logic
-
+    scs: [SC-2]
+    change_type: modify
+    description: Update Step 3 to reference spec-structure-standards, remove eliminated items
   - path: .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
-    phase: [3, 6]
-    change: Update Step 3 (replace hard-coded PF criteria with Read reference, remove PF-4/PF-DELEGATION/PF-GLOBAL-NUMBERING, update PF-CHECKLIST-FORMAT/PF-DISPATCH-MODE/PF-DISPATCH-DEFECTS/PF-SUBSTEP-EXPAND), PF-7a (replace cost-frame rule with Read reference)
-    risk: medium — structural changes to plan fidelity evaluator logic
-
+    scs: [SC-3, SC-7]
+    change_type: modify
+    description: Update Step 3 to reference plan-structure-standards, remove eliminated PF criteria, update PF-7a cost-frame
   - path: .opencode/skills/audit/tasks/plan-fidelity-investigator.md
-    phase: [4]
-    change: Update Steps 2-5 (replace hard-coded evidence collection items with Read reference, remove multiple fields from YAML evidence structures)
-    risk: medium — structural changes to evidence collection logic
-
-affected_systems:
-  - system: audit pipeline
-    impact: Auditor task files now read from canonical reference docs instead of hard-coding criteria
-    dependency: Requires .opencode#2210 to complete first (creates the reference docs)
-
-  - system: spec-audit evaluator
-    impact: SC evaluation criteria derived from spec-structure-standards.md; 5 SCs removed, 7 SCs derived from reference
-    dependency: reference/spec-structure-standards.md must exist
-
-  - system: spec-audit investigator
-    impact: Evidence collection driven by reference doc sections; 2 items removed, YAML structure simplified
-    dependency: reference/spec-structure-standards.md must exist
-
-  - system: plan-fidelity evaluator
-    impact: PF criteria derived from plan-structure-standards.md; 3 PF criteria removed, 4 updated to reference
-    dependency: reference/plan-structure-standards.md must exist
-
-  - system: plan-fidelity investigator
-    impact: Evidence collection driven by reference doc elements; 15+ items removed from Steps 2-5
-    dependency: reference/plan-structure-standards.md must exist
-
-  - system: cost-frame evaluation
-    impact: Both evaluators reference cost-model-standards.md for cost-frame rules
-    dependency: reference/cost-model-standards.md must exist
-
-affected_processes:
-  - process: spec audit (evaluator)
-    change: SC table derivation changes from hard-coded to reference-doc-driven
-  - process: spec audit (investigator)
-    change: Evidence collection changes from hard-coded section names to reference-doc-driven
-  - process: plan fidelity audit (evaluator)
-    change: PF criteria derivation changes from hard-coded to reference-doc-driven
-  - process: plan fidelity audit (investigator)
-    change: Evidence collection changes from hard-coded items to reference-doc-driven
-
-not_affected:
-  - .opencode/skills/audit/SKILL.md — no changes to skill card
-  - .opencode/skills/audit/tasks/ — no changes to other task files
-  - .opencode/skills/writing-plans/ — producer templates handled by .opencode#2210
-  - .opencode/skills/solve/ — no changes
-  - .opencode/skills/approval-gate/ — no changes
-  - Behavioral enforcement tests — explicitly excluded
-  - Audit DiMo chain dispatch — explicitly excluded
+    scs: [SC-4]
+    change_type: modify
+    description: Update Steps 2-5 to reference plan-structure-standards, remove eliminated evidence collection items
+  - path: reference/spec-structure-standards.md
+    scs: [SC-5]
+    change_type: verify
+    description: Must exist (created by .opencode#2210)
+  - path: reference/plan-structure-standards.md
+    scs: [SC-5]
+    change_type: verify
+    description: Must exist (created by .opencode#2210)
+  - path: reference/cost-model-standards.md
+    scs: [SC-6, SC-7]
+    change_type: verify
+    description: Must exist (created by .opencode#2210)
