@@ -1,0 +1,99 @@
+# State Analysis — Issue 2214
+# Generated: 2026-08-01
+# Source: spec.md (revised 2026-08-01)
+
+spec_path: ".opencode/.issues/2214/spec.md"
+issue: 2214
+title: "Rewrite implementation-workflow.md as pure data catalog"
+
+# State transitions required by each SC
+# This is a single-file content rewrite — no runtime state machine changes
+
+state_transitions:
+  SC-1:
+    description: "File contains only data tables — no orchestrator sections"
+    initial_state: "File contains orchestrator routing content (Persona, Worktree Mode, etc.)"
+    final_state: "File contains only 6 data tables"
+    transition: "Remove all orchestrator-level sections, keep only data table content"
+    state_type: "file_content"
+    verification: "grep for absence of prohibited section headers"
+
+  SC-2:
+    description: "No YAML frontmatter"
+    initial_state: "File has YAML frontmatter with name:, license:, provenance:"
+    final_state: "File has no YAML frontmatter"
+    transition: "Remove frontmatter delimiters and fields"
+    state_type: "file_content"
+    verification: "grep for absence of frontmatter delimiters"
+
+  SC-3:
+    description: "Pipeline Step Catalog table exists"
+    initial_state: "No Pipeline Step Catalog table"
+    final_state: "Pipeline Step Catalog table present with correct columns"
+    transition: "Create table with step name, description, what it produces columns"
+    state_type: "file_content"
+    verification: "grep for table with those column headers"
+
+  SC-4:
+    description: "Trigger Dispatch Table exists"
+    initial_state: "No Trigger Dispatch Table (dispatch info embedded in routing prose)"
+    final_state: "Trigger Dispatch Table present with correct columns"
+    transition: "Create table with step name, owning skill, canonical dispatch string columns"
+    state_type: "file_content"
+    verification: "grep for table with those column headers"
+
+  SC-5:
+    description: "Per-Task Cycle section defines RED→GREEN→COMMIT"
+    initial_state: "Per-Task Cycle embedded in routing prose"
+    final_state: "Per-Task Cycle as standalone section"
+    transition: "Extract cycle definition into dedicated section"
+    state_type: "file_content"
+    verification: "grep for RED, GREEN, COMMIT step definitions"
+
+  SC-6:
+    description: "Gate Sequence section lists mandatory gate order"
+    initial_state: "Gate sequence embedded in routing prose"
+    final_state: "Gate Sequence as standalone section"
+    transition: "Extract gate order into dedicated section"
+    state_type: "file_content"
+    verification: "grep for gate sequence definition"
+
+  SC-7:
+    description: "Coercion Rules section"
+    initial_state: "No dedicated Coercion Rules section"
+    final_state: "Coercion Rules section present"
+    transition: "Create section documenting DONE_WITH_CONCERNS → FAIL and evidence type mismatch"
+    state_type: "file_content"
+    verification: "grep for coercion rule definitions"
+
+  SC-8:
+    description: "Artifact Retention section"
+    initial_state: "No dedicated Artifact Retention section"
+    final_state: "Artifact Retention section present"
+    transition: "Create section documenting cleanup triggers and scope"
+    state_type: "file_content"
+    verification: "grep for artifact retention rules"
+
+  SC-9:
+    description: "Cross-references remain valid"
+    initial_state: "Cross-references point to current file path"
+    final_state: "Cross-references still point to same file path (unchanged)"
+    transition: "Verify — no change needed (path is stable)"
+    state_type: "verification"
+    verification: "grep for reference paths in task files still resolve"
+
+  SC-10:
+    description: "Plan writer task files still read same path"
+    initial_state: "Task files read file at current path"
+    final_state: "Task files still read file at same path"
+    transition: "Verify — no change needed (path is stable)"
+    state_type: "verification"
+    verification: "grep for unchanged read paths in those task files"
+
+# Summary
+summary:
+  total_transitions: 10
+  file_content_transitions: 8
+  verification_only: 2
+  risk: "Low — all transitions are content-only within a single file. No runtime state changes."
+  rollback: "Single file revert restores all state"

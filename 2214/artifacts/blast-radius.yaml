@@ -1,0 +1,60 @@
+# Blast Radius — Issue 2214
+# Generated: 2026-08-01
+# Source: spec.md (revised 2026-08-01)
+
+spec_path: ".opencode/.issues/2214/spec.md"
+issue: 2214
+title: "Rewrite implementation-workflow.md as pure data catalog"
+
+# Primary file — the single file being rewritten
+primary_file:
+  path: ".opencode/skills/writing-plans/reference/implementation-workflow.md"
+  status: EXISTS
+  change_type: rewrite
+  scope: "Strip orchestrator routing content (Persona, Worktree Mode, Mandatory Task Discipline, DISPATCH_GATE, Sub-Agent Routing, YAML frontmatter). Replace with 6 data tables."
+
+# Consumer files — read the reference file but are NOT modified
+consumer_files:
+  - path: ".opencode/skills/writing-plans/tasks/create.md"
+    status: EXISTS
+    change_type: none
+    constraint: "Must continue to resolve the same file path after rewrite"
+  - path: ".opencode/skills/writing-plans/tasks/research.md"
+    status: EXISTS
+    change_type: none
+    constraint: "Must continue to resolve the same file path after rewrite"
+  - path: ".opencode/skills/writing-plans/tasks/validate.md"
+    status: EXISTS
+    change_type: none
+    constraint: "Must continue to resolve the same file path after rewrite"
+  - path: ".opencode/skills/audit/tasks/spec-audit-*.md"
+    status: EXISTS
+    change_type: none
+    constraint: "May reference dispatch strings from Trigger Dispatch Table"
+  - path: ".opencode/skills/audit/tasks/plan-fidelity-*.md"
+    status: EXISTS
+    change_type: none
+    constraint: "May reference dispatch strings from Trigger Dispatch Table"
+
+# Files explicitly NOT in scope
+out_of_scope:
+  - path: ".opencode/skills/writing-plans/SKILL.md"
+    reason: "No changes to the writing-plans skill card"
+  - path: ".opencode/skills/writing-plans/tasks/*.md"
+    reason: "No consumer-side behavioral changes — only the reference doc format changes"
+  - path: ".opencode/skills/audit/tasks/*.md"
+    reason: "No consumer-side changes to audit task files"
+  - path: ".opencode/guidelines/*.md"
+    reason: "No pipeline enforcement rule changes"
+
+# Cross-reference integrity check
+cross_references:
+  - source: ".opencode/skills/writing-plans/tasks/create.md"
+    target: "skills/writing-plans/reference/implementation-workflow.md"
+    must_remain_valid: true
+  - source: ".opencode/skills/writing-plans/tasks/research.md"
+    target: "skills/writing-plans/reference/implementation-workflow.md"
+    must_remain_valid: true
+  - source: ".opencode/skills/writing-plans/tasks/validate.md"
+    target: "skills/writing-plans/reference/implementation-workflow.md"
+    must_remain_valid: true

@@ -1,0 +1,53 @@
+# Analysis Summary — Issue 2214
+# Generated: 2026-08-01
+# Source: spec.md (revised 2026-08-01)
+
+spec_path: ".opencode/.issues/2214/spec.md"
+issue: 2214
+title: "Rewrite implementation-workflow.md as pure data catalog"
+mode: retroactive
+
+sc_count: 10
+
+artifacts:
+  blast-radius:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/blast-radius.yaml"
+    summary: "Single primary file (implementation-workflow.md), 5 consumer files (create.md, research.md, validate.md, spec-audit-*.md, plan-fidelity-*.md), 4 out-of-scope file groups. No consumer-side changes — path stability is the only interface constraint."
+
+  concern-map:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/concern-map.yaml"
+    summary: "3 concerns identified: content-purity (SC-1, SC-2), data-tables (SC-3 through SC-8), cross-reference-integrity (SC-9, SC-10). Maps to 2 phases: Phase 1 (rewrite), Phase 2 (verify)."
+
+  code-path-inventory:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/code-path-inventory.yaml"
+    summary: "10 SCs mapped to code paths. SC-1 through SC-8 operate on the single reference file. SC-9 and SC-10 operate on consumer task files (verification only)."
+
+  cross-cutting-matrix:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/cross-cutting-matrix.yaml"
+    summary: "0 cross-cutting SCs. All 10 SCs map to exactly one concern. No SC spans multiple concerns — this is a clean single-file rewrite with sequential phases."
+
+  interface-compatibility:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/interface-compatibility.yaml"
+    summary: "FULL compatibility. The only interface is file path + markdown format — both remain unchanged. No module-to-module interface changes."
+
+  state-analysis:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/state-analysis.yaml"
+    summary: "10 state transitions: 8 file-content transitions (content removal + table creation), 2 verification-only transitions. All transitions are content-only within a single file. No runtime state changes."
+
+  testability-assessment:
+    status: backfilled
+    path: ".opencode/.issues/2214/artifacts/testability-assessment.yaml"
+    summary: "All 10 SCs use string evidence (grep). 10/10 HIGH testability. No behavioral tests needed — content-only rewrite with no runtime behavioral changes."
+
+scope_summary:
+  primary_file: ".opencode/skills/writing-plans/reference/implementation-workflow.md"
+  consumer_files: 5
+  out_of_scope_groups: 4
+  phases: 2
+  risk: "Low — single file rewrite, no consumer-side changes, no runtime behavioral changes"

@@ -1,0 +1,78 @@
+# Cross-Cutting Matrix — Issue 2214
+# Generated: 2026-08-01
+# Source: spec.md (revised 2026-08-01)
+
+spec_path: ".opencode/.issues/2214/spec.md"
+issue: 2214
+title: "Rewrite implementation-workflow.md as pure data catalog"
+
+# SCs that span multiple concerns
+
+cross_cutting_scs:
+  - id: SC-1
+    description: "File contains only data tables — no orchestrator sections"
+    concerns: ["content-purity"]
+    spans_multiple: false
+    note: "Single concern — content removal only"
+
+  - id: SC-2
+    description: "No YAML frontmatter"
+    concerns: ["content-purity"]
+    spans_multiple: false
+    note: "Single concern — frontmatter removal"
+
+  - id: SC-3
+    description: "Pipeline Step Catalog table"
+    concerns: ["data-tables"]
+    spans_multiple: false
+    note: "Single concern — table creation"
+
+  - id: SC-4
+    description: "Trigger Dispatch Table"
+    concerns: ["data-tables"]
+    spans_multiple: false
+    note: "Single concern — table creation"
+
+  - id: SC-5
+    description: "Per-Task Cycle section"
+    concerns: ["data-tables"]
+    spans_multiple: false
+    note: "Single concern — section creation"
+
+  - id: SC-6
+    description: "Gate Sequence section"
+    concerns: ["data-tables"]
+    spans_multiple: false
+    note: "Single concern — section creation"
+
+  - id: SC-7
+    description: "Coercion Rules section"
+    concerns: ["data-tables"]
+    spans_multiple: false
+    note: "Single concern — section creation"
+
+  - id: SC-8
+    description: "Artifact Retention section"
+    concerns: ["data-tables"]
+    spans_multiple: false
+    note: "Single concern — section creation"
+
+  - id: SC-9
+    description: "Cross-references remain valid"
+    concerns: ["cross-reference-integrity"]
+    spans_multiple: false
+    note: "Single concern — verification only"
+
+  - id: SC-10
+    description: "Plan writer task files still read same path"
+    concerns: ["cross-reference-integrity"]
+    spans_multiple: false
+    note: "Single concern — verification only"
+
+# No SC spans multiple concerns — this is a clean single-file rewrite
+# with two sequential phases (rewrite then verify)
+summary:
+  total_scs: 10
+  cross_cutting_count: 0
+  single_concern_count: 10
+  note: "All SCs map to exactly one concern. No cross-cutting dependencies between concerns."
