@@ -483,3 +483,4 @@ None — SC-7 is phase-specific.
 
 - `2026-07-31T23:10:00Z` — `plan_created` — Plan file at `.opencode/.issues/2211/plan.md` with 7 phases. Authorization scope: `for_plan`. Halt at: `plan_created`.
 - `2026-07-31T23:22:00Z` — `plan_revised` — Plan restructured to include all required sections per `reference/plan-structure-standards.md`: Goal/Architecture/Files/Dispatch, Blast Radius, Phase Table, Exit Criteria, per-phase Code Path Coverage/Cross-Cutting SCs/Interface Boundaries/State Transitions/Phase Completion blocks/Concern transitions, and all four admonishments. Dispatch table removed from frontmatter.
+- `2026-08-01T05:21:45Z` — `pr_created` — PR #2215 created at https://github.com/michael-conrad/.opencode/pull/2215
