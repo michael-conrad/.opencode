@@ -37,12 +37,12 @@
 | `post-regression` | test-driven-development | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
 | `verify` | verification-before-completion | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
 | `commit-inline` | (orchestrator) | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch |
-| `audit` | audit | `task(..., prompt: "execute audit from audit. Read \`audit/tasks/verification-audit.md\` first")` |
+| `audit` | audit | `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence |
 | `z3-check` | (orchestrator) | Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly — no sub-agent dispatch |
 | `structural-checks` | finishing-a-development-branch | `task(..., prompt: "execute checklist from finishing-a-development-branch. Read \`finishing-a-development-branch/tasks/checklist.md\` first")` |
 | `pre-pr-gate` | verification-before-completion | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` — reads all SC verdicts, BLOCKs if any FAIL |
 | `regression-check` | test-driven-development | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
-| `review-prep` | git-workflow | `task(..., prompt: "execute review-prep from git-workflow. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
+| `review-prep` | git-workflow-pr | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
 | `create-pr` | pr-creation-workflow | `task(..., prompt: "execute create from pr-creation-workflow. Read \`pr-creation-workflow/tasks/create.md\` first")` |
 | `exec-summary` | completion-core | `task(..., prompt: "execute completion from completion-core. Read \`completion-core/tasks/completion.md\` first")` |
 
