@@ -4,51 +4,35 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+## Pre-implementation
 
-## Pipeline Step Catalog
+| Step Name | Owning Skill | Canonical Dispatch String | Description |
+|-----------|-------------|--------------------------|-------------|
+| `pre-regression` | test-driven-development | `task(..., prompt: "execute phase-0 task from test-driven-development")` | Run regression test patterns before RED phase |
+| `pre-regression-verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` | Verify pre-regression results |
 
-| Step Name | Description | What It Produces |
-|-----------|-------------|------------------|
-| `pre-regression` | Run regression test patterns before RED phase | Test pattern evidence, baseline pass/fail |
-| `pre-regression-verify` | Verify pre-regression results | Verification verdict (PASS/FAIL) |
-| `red` | Write a failing enforcement test for the SC | Failing test file, RED evidence |
-| `green` | Implement the change that makes the test pass | Implementation code, GREEN evidence |
-| `post-regression` | Run regression test patterns after GREEN phase | Regression pass/fail evidence |
-| `verify` | Verify implementation against success criteria | SC verdicts, evidence artifacts |
-| `commit-inline` | Stage and commit changes | Git commit |
-| `audit` | Adversarial audit of the deliverable | Audit verdict, findings report |
-| `z3-check` | Run Z3 constraint solver verification | Solver pass/fail, constraint evidence |
-| `structural-checks` | Run finishing checklist (lint, typecheck, etc.) | Structural check results |
-| `pre-pr-gate` | Verify all SC verdicts before PR creation | Gate verdict (BLOCK if any FAIL) |
-| `regression-check` | Final regression check before PR | Regression pass/fail |
-| `review-prep` | Prepare PR review context | Review summary, compare URL |
-| `create-pr` | Create the pull request | PR URL |
-| `exec-summary` | Generate completion executive summary | Lifecycle event, summary report |
+## RED-GREEN Daisy-Chain
 
-## Trigger Dispatch Table
+| Step Name | Owning Skill | Canonical Dispatch String | Description |
+|-----------|-------------|--------------------------|-------------|
+| `red` | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` | Write a failing enforcement test for the SC |
+| `green` | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` | Implement the change that makes the test pass |
+| `post-regression` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` | Run regression test patterns after GREEN phase |
+| `verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` | Verify implementation against success criteria |
+| `commit-inline` | (orchestrator) | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch | Stage and commit changes |
 
-| Step Name | Owning Skill | Canonical Dispatch String |
-|-----------|-------------|--------------------------|
-| `pre-regression` | test-driven-development | `task(..., prompt: "execute phase-0 task from test-driven-development")` |
-| `pre-regression-verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
-| `red` | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
-| `green` | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
-| `post-regression` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` |
-| `verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
-| `commit-inline` | (orchestrator) | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch |
-| `audit` | audit | `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence |
-| `z3-check` | (orchestrator) | Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly — no sub-agent dispatch |
-| `structural-checks` | finishing-a-development-branch | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
-| `pre-pr-gate` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` — reads all SC verdicts, BLOCKs if any FAIL |
-| `regression-check` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` |
-| `review-prep` | git-workflow-pr | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
-| `create-pr` | pr-creation-workflow | `task(..., prompt: "execute create task from pr-creation-workflow")` |
-| `exec-summary` | completion-core | `task(..., prompt: "execute completion task from completion-core")` |
+## Post-implementation
 
-**Audit sequence exception:** The audit is a multi-step sequence, not a single dispatch:
-1. Dispatch audit task (sub-agent) — dispatch the appropriate audit task via `task(subagent_type="general")`
-2. `remediate` (inline) — if non-clean-pass, remediate and restart from step 1
-3. `z3-check` (inline) — orchestrator runs Z3 check after AUDIT per phase
+| Step Name | Owning Skill | Canonical Dispatch String | Description |
+|-----------|-------------|--------------------------|-------------|
+| `audit` | audit | `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence | Adversarial audit of the deliverable |
+| `z3-check` | (orchestrator) | Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly — no sub-agent dispatch | Run Z3 constraint solver verification |
+| `structural-checks` | finishing-a-development-branch | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` | Run finishing checklist (lint, typecheck, etc.) |
+| `pre-pr-gate` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` — reads all SC verdicts, BLOCKs if any FAIL | Verify all SC verdicts before PR creation |
+| `regression-check` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` | Final regression check before PR |
+| `review-prep` | git-workflow-pr | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` | Prepare PR review context |
+| `create-pr` | pr-creation-workflow | `task(..., prompt: "execute create task from pr-creation-workflow")` | Create the pull request |
+| `exec-summary` | completion-core | `task(..., prompt: "execute completion task from completion-core")` | Generate completion executive summary |
 
 ## Per-Task Cycle
 
@@ -65,27 +49,6 @@ Each SC follows a RED → GREEN → COMMIT sequence:
 - RED must fail before GREEN begins
 - COMMIT includes both the test and the implementation
 - No co-author trailers during implementation commits — those are added during squash at PR time
-
-## Gate Sequence
-
-Mandatory gate order for a phase:
-
-1. `pre-regression` — Run regression test patterns before any changes
-2. `pre-regression-verify` — Verify pre-regression results
-3. `red` — Write failing enforcement test
-4. `green` — Implement the change
-5. `post-regression` — Run regression test patterns after changes
-6. `verify` — Verify implementation against success criteria
-7. `commit-inline` — Stage and commit changes
-8. `audit` — Adversarial audit of the deliverable
-9. `z3-check` — Z3 constraint solver verification
-10. `structural-checks` — Lint, typecheck, finishing checklist
-
-**Rules:**
-- Gates are sequential — no skipping
-- Each gate must PASS before the next gate begins
-- FAIL at any gate blocks the phase — remediate and restart from the failed gate
-- "Continue" does NOT waive any gate
 
 ## Coercion Rules
 
