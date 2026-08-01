@@ -4,22 +4,18 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-## Pre-implementation
+## RED-GREEN Daisy-Chain
 
 | Step Name | Owning Skill | Canonical Dispatch String | Description |
 |-----------|-------------|--------------------------|-------------|
 | `pre-regression` | test-driven-development | `task(..., prompt: "execute phase-0 task from test-driven-development")` | Run regression test patterns before RED phase |
 | `pre-regression-verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` | Verify pre-regression results |
-
-## RED-GREEN Daisy-Chain
-
-| Step Name | Owning Skill | Canonical Dispatch String | Description |
-|-----------|-------------|--------------------------|-------------|
 | `red` | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` | Write a failing enforcement test for the SC |
 | `green` | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` | Implement the change that makes the test pass |
 | `post-regression` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` | Run regression test patterns after GREEN phase |
 | `verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` | Verify implementation against success criteria |
-| `commit-inline` | (orchestrator) | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch | Stage and commit changes |
+
+After the daisy-chain completes, the orchestrator runs `git add <files> && git commit -m "<message>"` inline — no sub-agent dispatch.
 
 ## Post-implementation
 
@@ -79,7 +75,6 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `green` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-*` |
 | `post-regression` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-post-regression-*` |
 | `verify` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-verify-*` |
-| `commit-inline` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-commit-inline-*` |
 | `audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-audit-*` |
 | `z3-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-*` |
 | `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
