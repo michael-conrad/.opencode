@@ -2,3 +2,4 @@
   scope: "for_pr"
   text: "authorization_scope=for_pr (explicitly provided in context)"
   timestamp: "2026-08-01T14:23:00Z"
+  type: authorization
