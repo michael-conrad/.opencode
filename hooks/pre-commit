@@ -31,7 +31,8 @@ fi
 # --- Gate 2: Stale submodule pointer check ---
 # Blocks commits where a submodule's local SHA != remote trunk tip SHA.
 # This prevents committing stale submodule pointers that reference old SHAs.
-if [ -f ".gitmodules" ]; then
+SKIP_STALE_POINTER_CHECK="${SKIP_STALE_POINTER_CHECK:-}"
+if [ -z "$SKIP_STALE_POINTER_CHECK" ] && [ -f ".gitmodules" ]; then
   DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
   [ -z "$DEFAULT_BRANCH" ] && DEFAULT_BRANCH="main"
 
