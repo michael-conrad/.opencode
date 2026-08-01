@@ -1,0 +1,63 @@
+# interface-compatibility.yaml — Interface boundaries between affected modules
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+interfaces:
+  plan-creation-pipeline -> writing-plans:
+    type: "routing passthrough"
+    status: "REMOVED"
+    description: "plan-creation-pipeline's plan-create step was a literal passthrough to writing-plans --task create. No interface contract existed — it was a pure routing hop."
+    compatibility: "No impact — removing the passthrough means writing-plans is called directly instead of through plan-creation-pipeline"
+    risk: "none"
+
+  plan-creation-pipeline -> approval-gate:
+    type: "authorization verification"
+    status: "MOVED"
+    description: "plan-creation-pipeline's spec-to-plan-handoff step called approval-gate --task verify-authorization. This is now handled by writing-plans/tasks/handoff.md."
+    compatibility: "Same interface (approval-gate --task verify-authorization), different caller. No contract change."
+    risk: "none"
+
+  plan-creation-pipeline -> local-issues:
+    type: "worktree sync"
+    status: "MOVED"
+    description: "plan-creation-pipeline's plan-completion step called local-issues sync. This is now handled by writing-plans/tasks/completion.md."
+    compatibility: "Same interface (local-issues sync), different caller. No contract change."
+    risk: "none"
+
+  plan-creation-pipeline -> solve:
+    type: "Z3 constraint solving"
+    status: "UNCHANGED"
+    description: "plan-creation-pipeline's solve-model, solve-check, and plan-plan steps dispatched to solve and plan skills. These steps already exist in writing-plans/tasks/research.md as steps 10-12."
+    compatibility: "No change — steps remain in research.md. SC-7 explicitly verifies no behavioral change."
+    risk: "none"
+
+  plan/SKILL.md description -> plan-creation-pipeline:
+    type: "text reference"
+    status: "NEEDS_UPDATE"
+    description: "plan/SKILL.md description field references 'plan-creation-pipeline (6-step orchestrator)' as a distinct skill from writing-plans."
+    compatibility: "Text reference only — no API or routing dependency. Update to reference writing-plans instead."
+    risk: "low — stale reference would confuse skill selection but not break functionality"
+
+  writing-plans/SKILL.md -> plan-creation-pipeline:
+    type: "cross-reference"
+    status: "NEEDS_AUDIT"
+    description: "writing-plans/SKILL.md Cross-References section lists plan-creation-pipeline as a related skill."
+    compatibility: "Cross-reference only — no API dependency. Must be updated to remove plan-creation-pipeline reference."
+    risk: "low — stale cross-reference would not break functionality"
+
+affected_skills:
+  - name: "approval-gate"
+    interface_change: "none"
+    notes: "Same task interface, different caller"
+  - name: "solve"
+    interface_change: "none"
+    notes: "Steps remain in research.md unchanged"
+  - name: "plan"
+    interface_change: "none"
+    notes: "Steps remain in research.md unchanged"
+  - name: "local-issues"
+    interface_change: "none"
+    notes: "Same sync interface, different caller"

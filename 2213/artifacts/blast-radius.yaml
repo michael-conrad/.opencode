@@ -1,0 +1,54 @@
+# blast-radius.yaml — Affected files extracted from spec, verified against codebase
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+affected_files:
+  - path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
+    action: DELETE
+    sc_coverage: [SC-1]
+    exists: true
+    notes: "Skill directory root — entire skill is deleted per SC-1"
+
+  - path: ".opencode/skills/plan-creation-pipeline/tasks/authorization-context.md"
+    action: DELETE
+    sc_coverage: [SC-1]
+    exists: true
+    notes: "Only task file in plan-creation-pipeline — deleted alongside SKILL.md"
+
+  - path: ".opencode/skills/writing-plans/tasks/handoff.md"
+    action: CREATE
+    sc_coverage: [SC-2]
+    exists: false
+    notes: "New lightweight task that calls approval-gate --task verify-authorization"
+
+  - path: ".opencode/skills/writing-plans/SKILL.md"
+    action: MODIFY
+    sc_coverage: [SC-3, SC-6]
+    exists: true
+    notes: "Update Trigger Dispatch Table, Workflows section, file structure to reflect new handoff step and workflow order"
+
+  - path: ".opencode/skills/writing-plans/tasks/completion.md"
+    action: MODIFY
+    sc_coverage: [SC-4]
+    exists: true
+    notes: "Add worktree sync (local-issues sync) and chat output with exec summary + URL + AI byline"
+
+  - path: ".opencode/skills/plan/SKILL.md"
+    action: MODIFY
+    sc_coverage: [SC-5]
+    exists: true
+    notes: "Update description field to remove 'plan-creation-pipeline' reference"
+
+cross_reference_files:
+  - path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
+    action: DELETE (self)
+    sc_coverage: [SC-1]
+    notes: "Self-references in description, name, and routing table — all removed on delete"
+
+  - path: ".opencode/skills/plan/SKILL.md"
+    action: MODIFY
+    sc_coverage: [SC-5]
+    notes: "Description field references plan-creation-pipeline as distinct skill — must be updated to reference writing-plans only"

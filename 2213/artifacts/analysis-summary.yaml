@@ -1,0 +1,51 @@
+# analysis-summary.yaml — Backfill analysis summary
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+backfill_mode: retroactive
+
+artifacts:
+  blast-radius:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/blast-radius.yaml"
+    summary: "6 affected files identified: 2 DELETE (plan-creation-pipeline SKILL.md + tasks/authorization-context.md), 1 CREATE (writing-plans/tasks/handoff.md), 3 MODIFY (writing-plans/SKILL.md, writing-plans/tasks/completion.md, plan/SKILL.md). All existing files verified present in codebase."
+
+  concern-map:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/concern-map.yaml"
+    summary: "6 concern groups identified: (1) Delete plan-creation-pipeline, (2) Add handoff step, (3) Update workflow order, (4) Enhance completion task, (5) Update cross-references, (6) Verify no behavioral change to Z3 steps."
+
+  code-path-inventory:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/code-path-inventory.yaml"
+    summary: "Code paths mapped per SC. SC-1: 2 DELETE paths. SC-2: 1 CREATE path. SC-3/SC-6: MODIFY writing-plans/SKILL.md. SC-4: MODIFY completion.md. SC-5: MODIFY plan/SKILL.md + grep audit. SC-7: VERIFY_ONLY research.md."
+
+  cross-cutting-matrix:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/cross-cutting-matrix.yaml"
+    summary: "SC-3 and SC-6 are cross-cutting — both modify writing-plans/SKILL.md and should be in the same phase. SC-5 depends on SC-1 (delete before updating references). SC-1, SC-2, SC-4, SC-7 are independent."
+
+  interface-compatibility:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/interface-compatibility.yaml"
+    summary: "No interface contract changes. plan-creation-pipeline was a pure routing passthrough — its 3 dispatch targets (approval-gate, local-issues, solve) are all moved to writing-plans with identical interfaces. plan/SKILL.md description has a stale text reference that needs updating."
+
+  state-analysis:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/state-analysis.yaml"
+    summary: "7 state transitions mapped. SC-1: directory deletion. SC-2: file creation. SC-3/SC-6: SKILL.md edits. SC-4: completion.md enhancement. SC-5: grep-and-replace across codebase. SC-7: verification-only (no state change)."
+
+  testability-assessment:
+    status: backfilled
+    file: ".opencode/.issues/2213/artifacts/testability-assessment.yaml"
+    summary: "Evidence types per SC: SC-1 (structural), SC-2 (string+behavioral), SC-3 (string), SC-4 (string+behavioral), SC-5 (string), SC-6 (string), SC-7 (behavioral). 3 SCs require behavioral tests (SC-2, SC-4, SC-7). 4 SCs verifiable with string/structural checks."
+
+scope_summary:
+  affected_skills: 3
+  affected_task_files: 3
+  affected_guidelines: 0
+  total_affected_files: 6
+  phases_proposed: 6
+  behavioral_tests_required: 3

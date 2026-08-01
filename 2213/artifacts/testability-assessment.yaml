@@ -1,0 +1,63 @@
+# testability-assessment.yaml — Evidence type assignment per SC
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+assessments:
+  SC-1:
+    description: "plan-creation-pipeline skill directory is deleted"
+    declared_evidence: structural
+    assessment: "structural — verify directory does not exist (ls)"
+    testability: "trivial — single ls command"
+    behavioral_test_required: false
+    verification_method: "ls .opencode/skills/plan-creation-pipeline/ should fail"
+
+  SC-2:
+    description: "writing-plans workflow gains a handoff step before analyze"
+    declared_evidence: string + behavioral
+    assessment: "string — grep for handoff in writing-plans/SKILL.md Workflows section; behavioral — opencode run with plan-creation prompt, verify approval-gate is dispatched before analyze"
+    testability: "moderate — behavioral test requires opencode run with real model"
+    behavioral_test_required: true
+    verification_method: "string: grep for 'handoff' in writing-plans/SKILL.md; behavioral: opencode run 'create a plan from spec' and assert stderr shows approval-gate dispatch before analyze"
+
+  SC-3:
+    description: "writing-plans workflow order is: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    declared_evidence: string
+    assessment: "string — grep for workflow order in writing-plans/SKILL.md"
+    testability: "trivial — single grep for the ordered step list"
+    behavioral_test_required: false
+    verification_method: "grep for 'handoff' then 'analyze' then 'research' then 'create' then 'validate' then 'completion' in order in writing-plans/SKILL.md"
+
+  SC-4:
+    description: "writing-plans/tasks/completion.md gains worktree sync and chat output"
+    declared_evidence: string + behavioral
+    assessment: "string — grep for 'local-issues sync' and 'exec summary' in completion.md; behavioral — opencode run with plan completion prompt, verify chat output contains exec summary + URL + AI byline"
+    testability: "moderate — behavioral test requires opencode run with real model"
+    behavioral_test_required: true
+    verification_method: "string: grep for 'local-issues sync' and 'exec summary' in completion.md; behavioral: opencode run 'complete plan for issue N' and assert stderr shows local-issues sync and chat output"
+
+  SC-5:
+    description: "All cross-references to plan-creation-pipeline updated to writing-plans"
+    declared_evidence: string
+    assessment: "string — grep for 'plan-creation-pipeline' across .opencode/ should return empty"
+    testability: "trivial — single grep command"
+    behavioral_test_required: false
+    verification_method: "grep -r 'plan-creation-pipeline' .opencode/ --include='*.md' should return no matches"
+
+  SC-6:
+    description: "writing-plans/SKILL.md Trigger Dispatch Table and Workflows section updated"
+    declared_evidence: string
+    assessment: "string — grep for updated workflow order in Trigger Dispatch Table and Workflows section"
+    testability: "trivial — single grep"
+    behavioral_test_required: false
+    verification_method: "grep for workflow order in writing-plans/SKILL.md"
+
+  SC-7:
+    description: "No behavioral change to Z3/planning steps"
+    declared_evidence: behavioral
+    assessment: "behavioral — verify research.md steps 10-12 are unchanged; diff against original or behavioral test with opencode run"
+    testability: "moderate — requires diff or behavioral test"
+    behavioral_test_required: true
+    verification_method: "diff research.md against git HEAD to confirm steps 10-12 unchanged; or opencode run with plan-creation prompt and verify Z3 steps are dispatched identically"

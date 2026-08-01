@@ -1,0 +1,43 @@
+# concern-map.yaml — SC decomposition into concern groups with phase boundaries
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+concern_groups:
+  - name: "Delete plan-creation-pipeline"
+    phase: 1
+    scs: [SC-1]
+    description: "Remove the plan-creation-pipeline skill directory entirely (SKILL.md + tasks/authorization-context.md)"
+    rationale: "No functional dependency on other changes — can be done first to eliminate routing ambiguity"
+
+  - name: "Add handoff step to writing-plans"
+    phase: 2
+    scs: [SC-2]
+    description: "Create writing-plans/tasks/handoff.md that calls approval-gate --task verify-authorization"
+    rationale: "Depends on SC-1 (delete old pipeline) to avoid routing ambiguity; must exist before workflow order is updated"
+
+  - name: "Update writing-plans workflow order"
+    phase: 3
+    scs: [SC-3, SC-6]
+    description: "Update writing-plans/SKILL.md Trigger Dispatch Table and Workflows section to reflect: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    rationale: "Depends on SC-2 (handoff task exists) and SC-1 (old pipeline deleted); SC-6 is a documentation update on the same file"
+
+  - name: "Enhance completion task"
+    phase: 4
+    scs: [SC-4]
+    description: "Add worktree sync (local-issues sync) and chat output with exec summary + URL + AI byline to writing-plans/tasks/completion.md"
+    rationale: "Independent enhancement to completion.md — no dependency on other phases"
+
+  - name: "Update cross-references"
+    phase: 5
+    scs: [SC-5]
+    description: "Update all cross-references to plan-creation-pipeline in other skills/guidelines to reference writing-plans instead"
+    rationale: "Can be done after SC-1 (delete) to ensure no stale references remain; grep-based audit required"
+
+  - name: "Verify no behavioral change to Z3 steps"
+    phase: 6
+    scs: [SC-7]
+    description: "Verify that steps 10-12 of research.md (solve-model, solve-check, plan-plan) are unchanged"
+    rationale: "Verification-only phase — no code changes; can be done last or in parallel with other phases"

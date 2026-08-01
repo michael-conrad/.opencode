@@ -1,0 +1,55 @@
+# cross-cutting-matrix.yaml — SCs that span multiple concerns
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+cross_cutting_scs:
+  SC-3:
+    description: "writing-plans workflow order is: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    spans_concerns:
+      - "Update writing-plans workflow order"
+      - "writing-plans/SKILL.md documentation"
+    shared_file: ".opencode/skills/writing-plans/SKILL.md"
+    shared_with: [SC-6]
+    notes: "SC-3 and SC-6 both modify writing-plans/SKILL.md — SC-3 changes workflow order, SC-6 updates Trigger Dispatch Table and Workflows section. These are complementary changes to the same file and should be in the same phase."
+
+  SC-6:
+    description: "writing-plans/SKILL.md Trigger Dispatch Table and Workflows section updated"
+    spans_concerns:
+      - "Update writing-plans workflow order"
+      - "writing-plans/SKILL.md documentation"
+    shared_file: ".opencode/skills/writing-plans/SKILL.md"
+    shared_with: [SC-3]
+    notes: "Same file as SC-3 — both changes should be applied together in phase 3"
+
+  SC-5:
+    description: "All cross-references to plan-creation-pipeline updated to writing-plans"
+    spans_concerns:
+      - "Update cross-references"
+      - "Delete plan-creation-pipeline (indirect)"
+    shared_file: ".opencode/skills/plan/SKILL.md"
+    shared_with: [SC-1]
+    notes: "SC-5 depends on SC-1 (delete old pipeline) to ensure no stale references remain. plan/SKILL.md is the only known cross-reference outside the deleted skill."
+
+independent_scs:
+  SC-1:
+    description: "Delete plan-creation-pipeline skill directory"
+    concern: "Delete plan-creation-pipeline"
+    notes: "Independent — no shared files with other SCs"
+
+  SC-2:
+    description: "writing-plans gains handoff step"
+    concern: "Add handoff step"
+    notes: "Independent — creates new file, no shared files with other SCs"
+
+  SC-4:
+    description: "completion.md gains worktree sync and chat output"
+    concern: "Enhance completion task"
+    notes: "Independent — modifies completion.md only"
+
+  SC-7:
+    description: "No behavioral change to Z3 steps"
+    concern: "Verify no behavioral change"
+    notes: "Verification-only — no file modifications"

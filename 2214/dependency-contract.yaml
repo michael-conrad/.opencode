@@ -1,0 +1,18 @@
+phases:
+  - name: "Phase 1: Rewrite reference file as data catalog"
+    depends_on: []
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+  - name: "Phase 2: Verify cross-reference integrity"
+    depends_on:
+      - "Phase 1: Rewrite reference file as data catalog"
+    scs:
+      - SC-9
+      - SC-10

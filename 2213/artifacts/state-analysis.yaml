@@ -1,0 +1,67 @@
+# state-analysis.yaml — State transitions required by each SC
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+state_transitions:
+  SC-1:
+    description: "Delete plan-creation-pipeline skill directory"
+    initial_state: "plan-creation-pipeline/ exists with SKILL.md + tasks/authorization-context.md"
+    final_state: "plan-creation-pipeline/ does not exist"
+    transition: "rm -rf .opencode/skills/plan-creation-pipeline/"
+    verification: "ls .opencode/skills/plan-creation-pipeline/ returns 'No such file or directory'"
+    side_effects:
+      - "Any agent that had plan-creation-pipeline loaded will get a skill-not-found error on next dispatch"
+      - "Cross-references in other files become stale (handled by SC-5)"
+
+  SC-2:
+    description: "Create writing-plans/tasks/handoff.md"
+    initial_state: "writing-plans/tasks/handoff.md does not exist"
+    final_state: "writing-plans/tasks/handoff.md exists with approval-gate dispatch"
+    transition: "Create file with approval-gate --task verify-authorization call"
+    verification: "File exists and contains approval-gate dispatch"
+    side_effects: []
+
+  SC-3:
+    description: "Update writing-plans workflow order"
+    initial_state: "writing-plans/SKILL.md has workflow: analyze -> research -> create -> validate -> (revise loop) -> completion"
+    final_state: "writing-plans/SKILL.md has workflow: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    transition: "Edit Workflows section in SKILL.md to prepend handoff step"
+    verification: "Workflows section shows handoff as first step"
+    side_effects:
+      - "Retroactive plan workflow also needs handoff step (addressed by SC-6)"
+
+  SC-4:
+    description: "Enhance completion.md with worktree sync and chat output"
+    initial_state: "writing-plans/tasks/completion.md has basic lifecycle event append"
+    final_state: "writing-plans/tasks/completion.md has worktree sync + chat output with exec summary + URL + AI byline"
+    transition: "Edit completion.md to add local-issues sync call and chat output section"
+    verification: "completion.md contains local-issues sync and chat output instructions"
+    side_effects: []
+
+  SC-5:
+    description: "Update all cross-references to plan-creation-pipeline"
+    initial_state: "plan/SKILL.md description references plan-creation-pipeline; other files may also reference it"
+    final_state: "No file in .opencode/ references plan-creation-pipeline (except git history)"
+    transition: "grep for plan-creation-pipeline across .opencode/, update each match to reference writing-plans"
+    verification: "grep -r 'plan-creation-pipeline' .opencode/ returns empty"
+    side_effects: []
+
+  SC-6:
+    description: "Update writing-plans/SKILL.md Trigger Dispatch Table and Workflows"
+    initial_state: "writing-plans/SKILL.md has current Trigger Dispatch Table and Workflows"
+    final_state: "writing-plans/SKILL.md has updated Trigger Dispatch Table and Workflows reflecting new order"
+    transition: "Edit Trigger Dispatch Table and Workflows sections in SKILL.md"
+    verification: "Trigger Dispatch Table and Workflows reflect handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    side_effects:
+      - "Same file as SC-3 — changes must be coordinated"
+
+  SC-7:
+    description: "Verify no behavioral change to Z3/planning steps"
+    initial_state: "research.md steps 10-12 (solve-model, solve-check, plan-plan) are unchanged"
+    final_state: "research.md steps 10-12 are confirmed unchanged"
+    transition: "No transition — verification only"
+    verification: "diff research.md against original to confirm steps 10-12 unchanged"
+    side_effects: []

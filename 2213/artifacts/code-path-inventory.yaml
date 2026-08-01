@@ -1,0 +1,85 @@
+# code-path-inventory.yaml — Code paths implied by each SC
+# Generated: 2026-08-01T15:21:00Z
+# Mode: retroactive
+
+spec_path: ".opencode/.issues/2213/spec.md"
+sc_count: 7
+
+code_paths:
+  SC-1:
+    description: "plan-creation-pipeline skill directory is deleted"
+    paths:
+      - action: DELETE
+        path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
+        verification: "git rm or rm -rf on the directory; verify with ls"
+      - action: DELETE
+        path: ".opencode/skills/plan-creation-pipeline/tasks/authorization-context.md"
+        verification: "Deleted as part of directory removal"
+    notes: "Entire skill directory removed — no deprecation, no migration"
+
+  SC-2:
+    description: "writing-plans workflow gains a handoff step before analyze"
+    paths:
+      - action: CREATE
+        path: ".opencode/skills/writing-plans/tasks/handoff.md"
+        content: "Lightweight task calling approval-gate --task verify-authorization"
+        verification: "File exists, contains approval-gate dispatch"
+    notes: "New task file; no modification to existing files"
+
+  SC-3:
+    description: "writing-plans workflow order is: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    paths:
+      - action: MODIFY
+        path: ".opencode/skills/writing-plans/SKILL.md"
+        sections_affected:
+          - "Workflows section — reorder steps to include handoff as first step"
+          - "Trigger Dispatch Table — add handoff entry if needed"
+    notes: "Workflow order change in SKILL.md only"
+
+  SC-4:
+    description: "writing-plans/tasks/completion.md gains worktree sync and chat output"
+    paths:
+      - action: MODIFY
+        path: ".opencode/skills/writing-plans/tasks/completion.md"
+        additions:
+          - "local-issues sync call for worktree sync"
+          - "Chat output with exec summary + URL + AI byline"
+    notes: "Enhancement to existing completion task"
+
+  SC-5:
+    description: "All cross-references to plan-creation-pipeline updated to writing-plans"
+    paths:
+      - action: MODIFY
+        path: ".opencode/skills/plan/SKILL.md"
+        field: "description"
+        old_text: "plan-creation-pipeline (6-step orchestrator)"
+        new_text: "writing-plans (implementation plans from specs)"
+      - action: AUDIT
+        path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
+        notes: "Self-references — deleted with SC-1, no update needed"
+    cross_reference_audit:
+      known_matches:
+        - ".opencode/skills/plan/SKILL.md:3"  # description field
+      grep_command: "grep -r 'plan-creation-pipeline' .opencode/"
+      expected_remaining: []  # All should be resolved
+
+  SC-6:
+    description: "writing-plans/SKILL.md Trigger Dispatch Table and Workflows updated"
+    paths:
+      - action: MODIFY
+        path: ".opencode/skills/writing-plans/SKILL.md"
+        sections_affected:
+          - "Trigger Dispatch Table — reflect new workflow order"
+          - "Workflows section — add retroactive plan workflow with backfill step"
+    notes: "Documentation update to SKILL.md — same file as SC-3"
+
+  SC-7:
+    description: "No behavioral change to Z3/planning steps in research.md"
+    paths:
+      - action: VERIFY_ONLY
+        path: ".opencode/skills/writing-plans/tasks/research.md"
+        steps_to_verify_unchanged:
+          - "Step 10: solve-model"
+          - "Step 11: solve-check"
+          - "Step 12: plan-plan"
+    notes: "Verification-only — no file modifications"
