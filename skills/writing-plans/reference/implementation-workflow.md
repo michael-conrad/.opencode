@@ -4,7 +4,6 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **Purpose:** This is a static reference card containing the per-item cycle, gate sequence, dispatch tables, and enforcement rules for the implementation pipeline. Plan-writer tasks (`create.md`, `research.md`, `validate.md`) read this card instead of loading a live skill. The orchestrator reads the plan (which contains baked-in dispatch strings) at execution time — no `skill()` call needed at plan-writing or execution time.
 
 ## Pipeline Step Catalog
 
