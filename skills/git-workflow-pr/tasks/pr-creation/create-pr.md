@@ -254,6 +254,15 @@ All AI-authored PR bodies MUST contain one of the following byline patterns:
 
 If `is_release: true`, proceed to post-merge steps (Step 7.x). Otherwise, continue to Step 7.
 
+### Step 6.8: Submodule SHA Verification (--release Mode)
+
+When `is_release: true`, verify that all submodule pointers reference the remote trunk tip SHA before proceeding:
+
+- [ ] 1. For each submodule in `.gitmodules`, get the staged submodule SHA: `git diff --cached <submodule-path> | grep "^+Subproject commit" | awk '{print $3}'`
+- [ ] 2. Get the remote trunk tip SHA: `git -C <submodule-path> rev-parse "origin/$DEFAULT_BRANCH"`
+- [ ] 3. If the staged SHA does NOT match the remote trunk tip SHA: BLOCK the release. Report the mismatch and HALT. Do NOT create the PR.
+- [ ] 4. If all submodule SHAs match: proceed to Step 6.75.
+
 ### Step 7: EXTRACT URL FROM API RESPONSE
 
 **🚫 CRITICAL VIOLATION: Fabricating URLs from template is a CRITICAL GUIDELINE VIOLATION.**
