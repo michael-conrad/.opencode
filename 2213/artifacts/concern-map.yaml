@@ -1,43 +1,80 @@
-# concern-map.yaml — SC decomposition into concern groups with phase boundaries
-# Generated: 2026-08-01T15:21:00Z
+# concern-map.yaml
+# Generated: 2026-08-01T15:31:00Z
+# Spec: .opencode/.issues/2213/spec.md
 # Mode: retroactive
 
-spec_path: ".opencode/.issues/2213/spec.md"
-sc_count: 7
+concerns:
+  - id: CONCERN-1
+    name: "Skill deletion"
+    description: "Remove the plan-creation-pipeline skill directory entirely"
+    scs:
+      - SC-1
+    phase_boundary: 1
+    rationale: "Deletion is a prerequisite — no other change makes sense if the skill still exists"
 
-concern_groups:
-  - name: "Delete plan-creation-pipeline"
-    phase: 1
+  - id: CONCERN-2
+    name: "Handoff step creation"
+    description: "Create writing-plans/tasks/handoff.md that verifies authorization via approval-gate"
+    scs:
+      - SC-2
+    phase_boundary: 2
+    rationale: "New task file must exist before the workflow can reference it"
+
+  - id: CONCERN-3
+    name: "Workflow reordering"
+    description: "Update writing-plans/SKILL.md Trigger Dispatch Table and Workflows section to reflect new order: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    scs:
+      - SC-3
+      - SC-6
+    phase_boundary: 3
+    rationale: "Workflow order and TDT updates are documentation changes that must follow the structural changes"
+
+  - id: CONCERN-4
+    name: "Completion enhancement"
+    description: "Add worktree sync (local-issues sync) and chat output (exec summary + URL + AI byline) to writing-plans/tasks/completion.md"
+    scs:
+      - SC-4
+    phase_boundary: 4
+    rationale: "Completion task enhancement is independent of workflow reordering"
+
+  - id: CONCERN-5
+    name: "Cross-reference migration"
+    description: "Update all references to plan-creation-pipeline across the codebase to reference writing-plans instead"
+    scs:
+      - SC-5
+    phase_boundary: 5
+    rationale: "Cross-reference updates are a sweep operation that can be done after structural changes"
+
+  - id: CONCERN-6
+    name: "Z3/planning step preservation"
+    description: "Verify that solve-model, solve-check, plan-plan steps in research.md remain unchanged"
+    scs:
+      - SC-7
+    phase_boundary: 6
+    rationale: "Verification that no behavioral change occurred — must be validated after all other changes"
+
+phase_boundaries:
+  phase_1:
+    concerns: [CONCERN-1]
     scs: [SC-1]
-    description: "Remove the plan-creation-pipeline skill directory entirely (SKILL.md + tasks/authorization-context.md)"
-    rationale: "No functional dependency on other changes — can be done first to eliminate routing ambiguity"
-
-  - name: "Add handoff step to writing-plans"
-    phase: 2
+    description: "Delete plan-creation-pipeline skill directory"
+  phase_2:
+    concerns: [CONCERN-2]
     scs: [SC-2]
-    description: "Create writing-plans/tasks/handoff.md that calls approval-gate --task verify-authorization"
-    rationale: "Depends on SC-1 (delete old pipeline) to avoid routing ambiguity; must exist before workflow order is updated"
-
-  - name: "Update writing-plans workflow order"
-    phase: 3
+    description: "Create handoff.md task file"
+  phase_3:
+    concerns: [CONCERN-3]
     scs: [SC-3, SC-6]
-    description: "Update writing-plans/SKILL.md Trigger Dispatch Table and Workflows section to reflect: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
-    rationale: "Depends on SC-2 (handoff task exists) and SC-1 (old pipeline deleted); SC-6 is a documentation update on the same file"
-
-  - name: "Enhance completion task"
-    phase: 4
+    description: "Update writing-plans SKILL.md workflow and TDT"
+  phase_4:
+    concerns: [CONCERN-4]
     scs: [SC-4]
-    description: "Add worktree sync (local-issues sync) and chat output with exec summary + URL + AI byline to writing-plans/tasks/completion.md"
-    rationale: "Independent enhancement to completion.md — no dependency on other phases"
-
-  - name: "Update cross-references"
-    phase: 5
+    description: "Enhance completion.md with sync and chat output"
+  phase_5:
+    concerns: [CONCERN-5]
     scs: [SC-5]
-    description: "Update all cross-references to plan-creation-pipeline in other skills/guidelines to reference writing-plans instead"
-    rationale: "Can be done after SC-1 (delete) to ensure no stale references remain; grep-based audit required"
-
-  - name: "Verify no behavioral change to Z3 steps"
-    phase: 6
+    description: "Migrate cross-references from plan-creation-pipeline to writing-plans"
+  phase_6:
+    concerns: [CONCERN-6]
     scs: [SC-7]
-    description: "Verify that steps 10-12 of research.md (solve-model, solve-check, plan-plan) are unchanged"
-    rationale: "Verification-only phase — no code changes; can be done last or in parallel with other phases"
+    description: "Verify Z3/planning steps unchanged"

@@ -6,6 +6,15 @@
 
 Add automatic SC-by-SC implementation audit to the `verify-already-implemented` gate, triggered on spec approval (not user utterance), with a three-way routing decision: fully implemented (autoclose), partially implemented (remediation loop), or not implemented (normal pipeline). The SC-by-SC audit is a task card under the `audit` skill — `verify-already-implemented` dispatches to it rather than performing inline verification.
 
+## Supersedes
+
+This spec subsumes and replaces the following issues:
+
+| Issue | Title | Relationship |
+|-------|-------|-------------|
+| **#1415** | `[SPEC] verify-already-implemented gate in for_pr auto-dispatch before gap-fill` | **Subsumed** — #2185's auto-dispatch on approval (SC-1, SC-11) covers all scopes including `for_pr`. The single-file edit to `auto-dispatch-table.md` is included as Item 9. |
+| **#2186** | `[SPEC] Create implementation-verification skill for DiMo-based SC-by-SC implementation audit` | **Superseded** — #2185 takes the correct architectural approach: extend the existing `audit` skill rather than creating a parallel skill. #2186's label-timing fix (spec-audit-validator/evaluator/arbiter label application) is extracted as a separate issue. |
+
 ## Background
 
 The `verify-already-implemented` gate exists in the approval-gate-scope workflow but has three defects:
@@ -24,6 +33,7 @@ The fix adds: (a) auto-dispatch on approval event, (b) SC-by-SC audit via audit 
 - Changes to the normal implementation pipeline (plan → implement → PR) — only the routing to it is affected
 - Changes to the autoclose behavior — existing autoclose path is preserved unchanged
 - Behavioral enforcement tests — these are scoped to a separate implementation phase
+- Label-timing fix for spec-audit chain (Validator/Evaluator applying labels before Arbiter) — extracted as a separate issue from superseded #2186
 
 ## Success Criteria
 
@@ -45,6 +55,9 @@ The fix adds: (a) auto-dispatch on approval event, (b) SC-by-SC audit via audit 
 | SC-11 | approval-gate/SKILL.md TDT auto-dispatches verify-already-implemented on approval | `behavioral` | `opencode run` with approval event → verify agent dispatches verify-already-implemented via approval-gate TDT |
 | SC-12 | `audit/tasks/implementation-audit.md` exists and performs SC-by-SC verification against the codebase | `structural` | File exists at `.opencode/skills/audit/tasks/implementation-audit.md` |
 | SC-13 | audit/SKILL.md TDT has implementation-audit entry | `string` | grep for implementation-audit in audit/SKILL.md TDT |
+| SC-14 | `auto-dispatch-table.md` `for_pr` scope row includes pre-gap-fill `verify-already-implemented` dispatch | `string` | grep for `verify-already-implemented` in `for_pr` row of auto-dispatch-table.md |
+| SC-15 | When `for_pr` authorization and already-implemented → autoclose, no gap-fill, no PR | `behavioral` | `opencode run` with `for_pr` on merged spec → verify issue closed, no PR created |
+| SC-16 | When `for_pr` authorization and not-implemented → proceed with normal gap-fill and PR | `behavioral` | `opencode run` with `for_pr` on unimplemented spec → verify PR created |
 
 ## Requirements
 
@@ -71,6 +84,7 @@ The fix adds: (a) auto-dispatch on approval event, (b) SC-by-SC audit via audit 
 | 6 | SC-8 | Update approval-gate-scope/SKILL.md full-path workflow with remediation step |
 | 7 | SC-9 | Add remediate-partial entry to implementation-pipeline/SKILL.md TDT |
 | 8 | SC-10 | Update auto-dispatch-table.md with PARTIALLY_IMPLEMENTED row |
+| 9 | SC-14, SC-15, SC-16 | Add pre-gap-fill `verify-already-implemented` dispatch to `for_pr` scope row in auto-dispatch-table.md (subsumes #1415) |
 
 ## Dependencies
 
@@ -80,6 +94,7 @@ The fix adds: (a) auto-dispatch on approval event, (b) SC-by-SC audit via audit 
 - `implementation-pipeline` skill — new remediate-partial TDT entry
 - `git-workflow` skill — branch creation for remediation (existing, no changes needed)
 - `writing-plans` skill — mini-plan creation (existing, no changes needed)
+- `auto-dispatch-table.md` — `for_pr` row update (subsumes #1415)
 
 ## Traceability
 
@@ -98,6 +113,7 @@ The fix adds: (a) auto-dispatch on approval event, (b) SC-by-SC audit via audit 
 | — (workflow documentation) | SC-8 | Phase 6 |
 | — (pipeline TDT) | SC-9 | Phase 7 |
 | — (dispatch table) | SC-10 | Phase 8 |
+| — (for_pr auto-dispatch) | SC-14, SC-15, SC-16 | Phase 9 |
 
 ## Phases
 
@@ -137,8 +153,14 @@ The fix adds: (a) auto-dispatch on approval event, (b) SC-by-SC audit via audit 
 - Add PARTIALLY_IMPLEMENTED row to auto-dispatch-table.md Context Differentiation table
 - Files: `.opencode/skills/approval-gate-scope/enforcement/auto-dispatch-table.md`
 
+### Phase 9: for_pr auto-dispatch (SC-14, SC-15, SC-16) — subsumes #1415
+- Add pre-gap-fill `verify-already-implemented` dispatch to `for_pr` scope row in `auto-dispatch-table.md`
+- If already implemented → autoclose via existing Step 5 → HALT
+- If not already implemented → proceed with normal gap-fill chain
+- Files: `.opencode/skills/approval-gate-scope/enforcement/auto-dispatch-table.md`
+
 ## Change Control
 
 | Date | Change | Reason | Author |
 |------|--------|--------|--------|
-| 2026-07-29 | v2 — Architectural correction: SC-by-SC audit moved to `audit/tasks/implementation-audit.md` task card; verify-already-implemented dispatches to audit skill instead of inline verification. Added Phase 2 (audit task card). Split SC-4 into atomic SCs (SC-4a through SC-4d). Added SC-12, SC-13 for audit task card. Fixed traceability gap (SC-9, SC-10, SC-11 now mapped). Updated affected files, dependencies, and phases. | Architectural correction — audit skill owns verification, approval-gate-scope owns routing. Validation: traceability gap (SC-9/SC-10/SC-11 unmapped), atomicity (SC-4 compound). | Agent (architectural correction) |
+| 2026-08-01 | v3 — Subsumed #1415 (for_pr auto-dispatch), superseded #2186 (standalone skill). Added Supersedes section, SC-14/15/16, Item 9, Phase 9, updated Dependencies. #2186's label-timing fix extracted as separate issue. | Consolidation: #2185 is the canonical implementation audit spec. #1415 is a subset. #2186 takes wrong architectural approach (parallel skill vs extending audit). | Agent (consolidation) |

@@ -1,55 +1,79 @@
-# cross-cutting-matrix.yaml — SCs that span multiple concerns
-# Generated: 2026-08-01T15:21:00Z
+# cross-cutting-matrix.yaml
+# Generated: 2026-08-01T15:31:00Z
+# Spec: .opencode/.issues/2213/spec.md
 # Mode: retroactive
 
-spec_path: ".opencode/.issues/2213/spec.md"
-sc_count: 7
-
-cross_cutting_scs:
-  SC-3:
-    description: "writing-plans workflow order is: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
-    spans_concerns:
-      - "Update writing-plans workflow order"
-      - "writing-plans/SKILL.md documentation"
-    shared_file: ".opencode/skills/writing-plans/SKILL.md"
-    shared_with: [SC-6]
-    notes: "SC-3 and SC-6 both modify writing-plans/SKILL.md — SC-3 changes workflow order, SC-6 updates Trigger Dispatch Table and Workflows section. These are complementary changes to the same file and should be in the same phase."
-
-  SC-6:
-    description: "writing-plans/SKILL.md Trigger Dispatch Table and Workflows section updated"
-    spans_concerns:
-      - "Update writing-plans workflow order"
-      - "writing-plans/SKILL.md documentation"
-    shared_file: ".opencode/skills/writing-plans/SKILL.md"
-    shared_with: [SC-3]
-    notes: "Same file as SC-3 — both changes should be applied together in phase 3"
-
-  SC-5:
-    description: "All cross-references to plan-creation-pipeline updated to writing-plans"
-    spans_concerns:
-      - "Update cross-references"
-      - "Delete plan-creation-pipeline (indirect)"
-    shared_file: ".opencode/skills/plan/SKILL.md"
-    shared_with: [SC-1]
-    notes: "SC-5 depends on SC-1 (delete old pipeline) to ensure no stale references remain. plan/SKILL.md is the only known cross-reference outside the deleted skill."
-
-independent_scs:
+cross_cutting_analysis:
   SC-1:
-    description: "Delete plan-creation-pipeline skill directory"
-    concern: "Delete plan-creation-pipeline"
-    notes: "Independent — no shared files with other SCs"
+    concerns: [CONCERN-1]
+    spans_multiple_concerns: false
+    cross_cutting_with: []
+    notes: "Isolated deletion concern — no other SC touches the same files"
 
   SC-2:
-    description: "writing-plans gains handoff step"
-    concern: "Add handoff step"
-    notes: "Independent — creates new file, no shared files with other SCs"
+    concerns: [CONCERN-2]
+    spans_multiple_concerns: false
+    cross_cutting_with: []
+    notes: "Isolated creation concern — new file, no overlap"
+
+  SC-3:
+    concerns: [CONCERN-3]
+    spans_multiple_concerns: false
+    cross_cutting_with:
+      - SC-6
+    notes: "SC-3 and SC-6 both modify writing-plans/SKILL.md — SC-3 updates Workflows, SC-6 updates TDT. These are separate sections of the same file but must be coordinated to avoid edit conflicts"
 
   SC-4:
-    description: "completion.md gains worktree sync and chat output"
-    concern: "Enhance completion task"
-    notes: "Independent — modifies completion.md only"
+    concerns: [CONCERN-4]
+    spans_multiple_concerns: false
+    cross_cutting_with: []
+    notes: "Isolated modification to completion.md — no overlap with other SCs"
+
+  SC-5:
+    concerns: [CONCERN-5]
+    spans_multiple_concerns: true
+    cross_cutting_with:
+      - SC-1
+    notes: "SC-5 updates references to plan-creation-pipeline. SC-1 deletes the skill. The cross-reference updates in SC-5 must happen BEFORE the deletion in SC-1, or the references will point to a deleted skill. Dependency: SC-5 must precede SC-1 for the plan/SKILL.md description update (which references plan-creation-pipeline). However, the deletion (SC-1) can happen before the sweep of stale issue references."
+
+  SC-6:
+    concerns: [CONCERN-3]
+    spans_multiple_concerns: false
+    cross_cutting_with:
+      - SC-3
+    notes: "SC-6 and SC-3 both modify writing-plans/SKILL.md. Must be implemented together in the same phase to avoid file conflicts"
 
   SC-7:
-    description: "No behavioral change to Z3 steps"
-    concern: "Verify no behavioral change"
-    notes: "Verification-only — no file modifications"
+    concerns: [CONCERN-6]
+    spans_multiple_concerns: false
+    cross_cutting_with: []
+    notes: "Verification-only SC — no file modifications. Must run after all other changes"
+
+dependency_edges:
+  - from: SC-5
+    to: SC-1
+    reason: "plan/SKILL.md description references plan-creation-pipeline — must update reference before deleting the skill"
+  - from: SC-3
+    to: SC-2
+    reason: "Workflow order cannot reference handoff step until handoff.md exists"
+  - from: SC-6
+    to: SC-2
+    reason: "TDT cannot reference handoff task until handoff.md exists"
+  - from: SC-7
+    to: SC-1
+    reason: "Must verify Z3 steps unchanged after all modifications are complete"
+  - from: SC-7
+    to: SC-2
+    reason: "Must verify Z3 steps unchanged after all modifications are complete"
+  - from: SC-7
+    to: SC-3
+    reason: "Must verify Z3 steps unchanged after all modifications are complete"
+  - from: SC-7
+    to: SC-4
+    reason: "Must verify Z3 steps unchanged after all modifications are complete"
+  - from: SC-7
+    to: SC-5
+    reason: "Must verify Z3 steps unchanged after all modifications are complete"
+  - from: SC-7
+    to: SC-6
+    reason: "Must verify Z3 steps unchanged after all modifications are complete"

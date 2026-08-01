@@ -1,85 +1,140 @@
-# code-path-inventory.yaml — Code paths implied by each SC
-# Generated: 2026-08-01T15:21:00Z
+# code-path-inventory.yaml
+# Generated: 2026-08-01T15:31:00Z
+# Spec: .opencode/.issues/2213/spec.md
 # Mode: retroactive
-
-spec_path: ".opencode/.issues/2213/spec.md"
-sc_count: 7
 
 code_paths:
   SC-1:
-    description: "plan-creation-pipeline skill directory is deleted"
+    description: "Delete plan-creation-pipeline skill directory"
     paths:
       - action: DELETE
         path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
-        verification: "git rm or rm -rf on the directory; verify with ls"
+        type: skill_card
+        verification: "rm -rf .opencode/skills/plan-creation-pipeline/"
       - action: DELETE
         path: ".opencode/skills/plan-creation-pipeline/tasks/authorization-context.md"
-        verification: "Deleted as part of directory removal"
-    notes: "Entire skill directory removed — no deprecation, no migration"
+        type: task_file
+        verification: "rm -rf .opencode/skills/plan-creation-pipeline/"
+      - action: DELETE
+        path: ".opencode/skills/plan-creation-pipeline/pipeline-state-machine.yaml"
+        type: contract
+        verification: "rm -rf .opencode/skills/plan-creation-pipeline/"
+    implied_actions:
+      - "git rm -r .opencode/skills/plan-creation-pipeline/"
+      - "Verify no remaining references in writing-plans cross-references"
 
   SC-2:
-    description: "writing-plans workflow gains a handoff step before analyze"
+    description: "Create handoff.md task that verifies authorization"
     paths:
       - action: CREATE
         path: ".opencode/skills/writing-plans/tasks/handoff.md"
-        content: "Lightweight task calling approval-gate --task verify-authorization"
-        verification: "File exists, contains approval-gate dispatch"
-    notes: "New task file; no modification to existing files"
+        type: task_file
+        content: "Task file that calls approval-gate --task verify-authorization"
+    implied_actions:
+      - "Create handoff.md with entry criteria, procedure, exit criteria"
+      - "handoff.md must call approval-gate --task verify-authorization"
+      - "Return DONE if authorized, BLOCKED if not"
 
   SC-3:
-    description: "writing-plans workflow order is: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    description: "Update writing-plans workflow order"
     paths:
       - action: MODIFY
         path: ".opencode/skills/writing-plans/SKILL.md"
-        sections_affected:
-          - "Workflows section — reorder steps to include handoff as first step"
-          - "Trigger Dispatch Table — add handoff entry if needed"
-    notes: "Workflow order change in SKILL.md only"
+        type: skill_card
+        section: "Workflows"
+        change: "Reorder workflow steps: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    implied_actions:
+      - "Update Workflows section in SKILL.md"
+      - "Ensure handoff appears before analyze in all workflow tables"
 
   SC-4:
-    description: "writing-plans/tasks/completion.md gains worktree sync and chat output"
+    description: "Enhance completion.md with sync and chat output"
     paths:
       - action: MODIFY
         path: ".opencode/skills/writing-plans/tasks/completion.md"
-        additions:
-          - "local-issues sync call for worktree sync"
-          - "Chat output with exec summary + URL + AI byline"
-    notes: "Enhancement to existing completion task"
+        type: task_file
+        change: "Add local-issues sync call and chat output (exec summary + URL + AI byline)"
+    implied_actions:
+      - "Add local-issues sync step to completion procedure"
+      - "Add chat output generation with exec summary, URL, AI byline"
 
   SC-5:
-    description: "All cross-references to plan-creation-pipeline updated to writing-plans"
+    description: "Update cross-references from plan-creation-pipeline to writing-plans"
     paths:
       - action: MODIFY
         path: ".opencode/skills/plan/SKILL.md"
-        field: "description"
-        old_text: "plan-creation-pipeline (6-step orchestrator)"
-        new_text: "writing-plans (implementation plans from specs)"
-      - action: AUDIT
-        path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
-        notes: "Self-references — deleted with SC-1, no update needed"
-    cross_reference_audit:
-      known_matches:
-        - ".opencode/skills/plan/SKILL.md:3"  # description field
-      grep_command: "grep -r 'plan-creation-pipeline' .opencode/"
-      expected_remaining: []  # All should be resolved
+        type: skill_card
+        field: description
+        change: "Replace 'plan-creation-pipeline (6-step orchestrator)' with 'writing-plans (implementation plans from specs)'"
+      - action: MODIFY
+        path: ".opencode/.issues/2153/plan.md"
+        type: plan_file
+        change: "Replace plan-creation-pipeline reference"
+      - action: MODIFY
+        path: ".opencode/.issues/1384/audit-report.md"
+        type: audit_file
+        change: "Replace plan-creation-pipeline reference"
+      - action: MODIFY
+        path: ".opencode/.issues/2056/issue.yaml"
+        type: issue_metadata
+        change: "Replace plan-creation-pipeline reference"
+      - action: MODIFY
+        path: ".opencode/.issues/1358/spec.md"
+        type: spec_file
+        change: "Replace plan-creation-pipeline reference"
+      - action: MODIFY
+        path: ".opencode/.issues/2008/spec.md"
+        type: spec_file
+        change: "Replace plan-creation-pipeline references"
+      - action: MODIFY
+        path: ".opencode/.issues/2081/plan-04-external-caller-migration.md"
+        type: plan_file
+        change: "Replace plan-creation-pipeline reference"
+      - action: MODIFY
+        path: ".opencode/.issues/2081/plan.md"
+        type: plan_file
+        change: "Replace plan-creation-pipeline references"
+      - action: MODIFY
+        path: ".opencode/.issues/1437/plan-clean-room.md"
+        type: plan_file
+        change: "Replace plan-creation-pipeline references"
+      - action: MODIFY
+        path: ".opencode/.issues/1437/dependency-contract.yaml"
+        type: contract
+        change: "Replace plan-creation-pipeline reference"
+      - action: MODIFY
+        path: ".opencode/.issues/1437/plan.md"
+        type: plan_file
+        change: "Replace plan-creation-pipeline reference"
+    implied_actions:
+      - "Full grep for plan-creation-pipeline across .opencode/"
+      - "Update each match to reference writing-plans instead"
 
   SC-6:
-    description: "writing-plans/SKILL.md Trigger Dispatch Table and Workflows updated"
+    description: "Update writing-plans SKILL.md TDT and Workflows"
     paths:
       - action: MODIFY
         path: ".opencode/skills/writing-plans/SKILL.md"
-        sections_affected:
-          - "Trigger Dispatch Table — reflect new workflow order"
-          - "Workflows section — add retroactive plan workflow with backfill step"
-    notes: "Documentation update to SKILL.md — same file as SC-3"
+        type: skill_card
+        sections:
+          - "Trigger Dispatch Table"
+          - "Workflows"
+        change: "Add handoff entry to TDT; update Workflows section to reflect new order"
+    implied_actions:
+      - "Add handoff row to Trigger Dispatch Table"
+      - "Update Workflows section tables with new step order"
 
   SC-7:
-    description: "No behavioral change to Z3/planning steps in research.md"
+    description: "No behavioral change to Z3/planning steps"
     paths:
-      - action: VERIFY_ONLY
+      - action: VERIFY_UNCHANGED
         path: ".opencode/skills/writing-plans/tasks/research.md"
-        steps_to_verify_unchanged:
+        type: task_file
+        steps_to_preserve:
           - "Step 10: solve-model"
           - "Step 11: solve-check"
           - "Step 12: plan-plan"
-    notes: "Verification-only — no file modifications"
+        verification: "Diff research.md before and after changes — steps 10-12 must be identical"
+    implied_actions:
+      - "Take baseline of research.md before any changes"
+      - "After all other changes, diff research.md to confirm steps 10-12 unchanged"

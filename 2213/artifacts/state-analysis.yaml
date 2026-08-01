@@ -1,67 +1,68 @@
-# state-analysis.yaml — State transitions required by each SC
-# Generated: 2026-08-01T15:21:00Z
+# state-analysis.yaml
+# Generated: 2026-08-01T15:31:00Z
+# Spec: .opencode/.issues/2213/spec.md
 # Mode: retroactive
-
-spec_path: ".opencode/.issues/2213/spec.md"
-sc_count: 7
 
 state_transitions:
   SC-1:
     description: "Delete plan-creation-pipeline skill directory"
-    initial_state: "plan-creation-pipeline/ exists with SKILL.md + tasks/authorization-context.md"
-    final_state: "plan-creation-pipeline/ does not exist"
-    transition: "rm -rf .opencode/skills/plan-creation-pipeline/"
+    initial_state: "plan-creation-pipeline/ exists with SKILL.md + tasks/authorization-context.md + pipeline-state-machine.yaml"
+    final_state: "plan-creation-pipeline/ directory deleted"
+    state_type: "filesystem"
     verification: "ls .opencode/skills/plan-creation-pipeline/ returns 'No such file or directory'"
-    side_effects:
-      - "Any agent that had plan-creation-pipeline loaded will get a skill-not-found error on next dispatch"
-      - "Cross-references in other files become stale (handled by SC-5)"
 
   SC-2:
-    description: "Create writing-plans/tasks/handoff.md"
+    description: "Create handoff.md task file"
     initial_state: "writing-plans/tasks/handoff.md does not exist"
-    final_state: "writing-plans/tasks/handoff.md exists with approval-gate dispatch"
-    transition: "Create file with approval-gate --task verify-authorization call"
-    verification: "File exists and contains approval-gate dispatch"
-    side_effects: []
+    final_state: "writing-plans/tasks/handoff.md exists with authorization verification procedure"
+    state_type: "filesystem"
+    verification: "ls .opencode/skills/writing-plans/tasks/handoff.md returns file"
 
   SC-3:
     description: "Update writing-plans workflow order"
-    initial_state: "writing-plans/SKILL.md has workflow: analyze -> research -> create -> validate -> (revise loop) -> completion"
-    final_state: "writing-plans/SKILL.md has workflow: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
-    transition: "Edit Workflows section in SKILL.md to prepend handoff step"
-    verification: "Workflows section shows handoff as first step"
-    side_effects:
-      - "Retroactive plan workflow also needs handoff step (addressed by SC-6)"
+    initial_state: "writing-plans/SKILL.md Workflows section has order: analyze -> research -> create -> validate -> (revise loop) -> completion"
+    final_state: "writing-plans/SKILL.md Workflows section has order: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+    state_type: "content"
+    verification: "grep for workflow step order in SKILL.md"
 
   SC-4:
-    description: "Enhance completion.md with worktree sync and chat output"
-    initial_state: "writing-plans/tasks/completion.md has basic lifecycle event append"
-    final_state: "writing-plans/tasks/completion.md has worktree sync + chat output with exec summary + URL + AI byline"
-    transition: "Edit completion.md to add local-issues sync call and chat output section"
-    verification: "completion.md contains local-issues sync and chat output instructions"
-    side_effects: []
+    description: "Enhance completion.md with sync and chat output"
+    initial_state: "completion.md has no local-issues sync or chat output steps"
+    final_state: "completion.md has local-issues sync step and chat output (exec summary + URL + AI byline)"
+    state_type: "content"
+    verification: "grep for 'local-issues sync' and 'exec summary' in completion.md"
 
   SC-5:
-    description: "Update all cross-references to plan-creation-pipeline"
-    initial_state: "plan/SKILL.md description references plan-creation-pipeline; other files may also reference it"
-    final_state: "No file in .opencode/ references plan-creation-pipeline (except git history)"
-    transition: "grep for plan-creation-pipeline across .opencode/, update each match to reference writing-plans"
-    verification: "grep -r 'plan-creation-pipeline' .opencode/ returns empty"
-    side_effects: []
+    description: "Update cross-references from plan-creation-pipeline to writing-plans"
+    initial_state: "plan-creation-pipeline referenced in plan/SKILL.md description and various .issues/ files"
+    final_state: "All references to plan-creation-pipeline updated to writing-plans"
+    state_type: "content"
+    verification: "grep -r 'plan-creation-pipeline' .opencode/ returns empty (excluding deleted directory)"
 
   SC-6:
-    description: "Update writing-plans/SKILL.md Trigger Dispatch Table and Workflows"
-    initial_state: "writing-plans/SKILL.md has current Trigger Dispatch Table and Workflows"
-    final_state: "writing-plans/SKILL.md has updated Trigger Dispatch Table and Workflows reflecting new order"
-    transition: "Edit Trigger Dispatch Table and Workflows sections in SKILL.md"
-    verification: "Trigger Dispatch Table and Workflows reflect handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
-    side_effects:
-      - "Same file as SC-3 — changes must be coordinated"
+    description: "Update writing-plans SKILL.md TDT and Workflows"
+    initial_state: "writing-plans/SKILL.md TDT has no handoff entry; Workflows section has old order"
+    final_state: "writing-plans/SKILL.md TDT has handoff entry; Workflows section has new order"
+    state_type: "content"
+    verification: "grep for handoff in TDT and Workflows sections"
 
   SC-7:
-    description: "Verify no behavioral change to Z3/planning steps"
-    initial_state: "research.md steps 10-12 (solve-model, solve-check, plan-plan) are unchanged"
-    final_state: "research.md steps 10-12 are confirmed unchanged"
-    transition: "No transition — verification only"
-    verification: "diff research.md against original to confirm steps 10-12 unchanged"
-    side_effects: []
+    description: "No behavioral change to Z3/planning steps"
+    initial_state: "research.md steps 10-12 (solve-model, solve-check, plan-plan) as-is"
+    final_state: "research.md steps 10-12 identical to initial state"
+    state_type: "verification"
+    verification: "diff research.md before and after changes — steps 10-12 must be identical"
+
+state_dependencies:
+  - from: SC-5
+    to: SC-1
+    reason: "plan/SKILL.md description must be updated before plan-creation-pipeline is deleted, otherwise the reference points to a deleted skill"
+  - from: SC-3
+    to: SC-2
+    reason: "Workflow order cannot reference handoff step until handoff.md exists"
+  - from: SC-6
+    to: SC-2
+    reason: "TDT cannot reference handoff task until handoff.md exists"
+  - from: SC-7
+    to: ALL
+    reason: "Verification of unchanged Z3 steps must be the final state check after all other transitions are complete"

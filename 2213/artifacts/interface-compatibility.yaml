@@ -1,63 +1,80 @@
-# interface-compatibility.yaml — Interface boundaries between affected modules
-# Generated: 2026-08-01T15:21:00Z
+# interface-compatibility.yaml
+# Generated: 2026-08-01T15:31:00Z
+# Spec: .opencode/.issues/2213/spec.md
 # Mode: retroactive
 
-spec_path: ".opencode/.issues/2213/spec.md"
-sc_count: 7
+interface_boundaries:
+  - interface: "writing-plans SKILL.md -> tasks/handoff.md"
+    type: "skill_to_task"
+    affected_by: [SC-2, SC-3, SC-6]
+    compatibility: COMPATIBLE
+    analysis: |
+      writing-plans/SKILL.md Workflows section references handoff.md as the first step.
+      handoff.md is a new task file. The SKILL.md must add a TDT entry and Workflows row
+      for the handoff step. No existing interface is broken — this is additive.
 
-interfaces:
-  plan-creation-pipeline -> writing-plans:
-    type: "routing passthrough"
-    status: "REMOVED"
-    description: "plan-creation-pipeline's plan-create step was a literal passthrough to writing-plans --task create. No interface contract existed — it was a pure routing hop."
-    compatibility: "No impact — removing the passthrough means writing-plans is called directly instead of through plan-creation-pipeline"
-    risk: "none"
+  - interface: "writing-plans SKILL.md -> tasks/completion.md"
+    type: "skill_to_task"
+    affected_by: [SC-4]
+    compatibility: COMPATIBLE
+    analysis: |
+      completion.md gains new steps (local-issues sync, chat output). The existing
+      interface (SKILL.md references completion.md) is unchanged — the task file
+      signature (entry criteria, exit criteria, result contract) is preserved.
 
-  plan-creation-pipeline -> approval-gate:
-    type: "authorization verification"
-    status: "MOVED"
-    description: "plan-creation-pipeline's spec-to-plan-handoff step called approval-gate --task verify-authorization. This is now handled by writing-plans/tasks/handoff.md."
-    compatibility: "Same interface (approval-gate --task verify-authorization), different caller. No contract change."
-    risk: "none"
+  - interface: "plan/SKILL.md description -> other skills"
+    type: "skill_to_skill"
+    affected_by: [SC-5]
+    compatibility: COMPATIBLE
+    analysis: |
+      plan/SKILL.md description field references plan-creation-pipeline as a distinct skill.
+      Updating to reference writing-plans instead is a string replacement in the description
+      field. No behavioral interface change — the description is routing metadata for agents.
 
-  plan-creation-pipeline -> local-issues:
-    type: "worktree sync"
-    status: "MOVED"
-    description: "plan-creation-pipeline's plan-completion step called local-issues sync. This is now handled by writing-plans/tasks/completion.md."
-    compatibility: "Same interface (local-issues sync), different caller. No contract change."
-    risk: "none"
+  - interface: "writing-plans/tasks/handoff.md -> approval-gate --task verify-authorization"
+    type: "task_to_skill"
+    affected_by: [SC-2]
+    compatibility: COMPATIBLE
+    analysis: |
+      handoff.md calls approval-gate --task verify-authorization. This is an existing
+      interface — approval-gate already exposes verify-authorization. No new interface
+      contract needed.
 
-  plan-creation-pipeline -> solve:
-    type: "Z3 constraint solving"
-    status: "UNCHANGED"
-    description: "plan-creation-pipeline's solve-model, solve-check, and plan-plan steps dispatched to solve and plan skills. These steps already exist in writing-plans/tasks/research.md as steps 10-12."
-    compatibility: "No change — steps remain in research.md. SC-7 explicitly verifies no behavioral change."
-    risk: "none"
+  - interface: "writing-plans/tasks/completion.md -> local-issues sync"
+    type: "task_to_tool"
+    affected_by: [SC-4]
+    compatibility: COMPATIBLE
+    analysis: |
+      completion.md calls local-issues sync. This is an existing tool interface.
+      No compatibility concerns.
 
-  plan/SKILL.md description -> plan-creation-pipeline:
-    type: "text reference"
-    status: "NEEDS_UPDATE"
-    description: "plan/SKILL.md description field references 'plan-creation-pipeline (6-step orchestrator)' as a distinct skill from writing-plans."
-    compatibility: "Text reference only — no API or routing dependency. Update to reference writing-plans instead."
-    risk: "low — stale reference would confuse skill selection but not break functionality"
+  - interface: "plan-creation-pipeline/SKILL.md (deleted) -> callers"
+    type: "skill_to_caller"
+    affected_by: [SC-1]
+    compatibility: BREAKING_CHANGE
+    analysis: |
+      Deleting plan-creation-pipeline breaks all callers that reference it.
+      SC-5 (cross-reference migration) must update all callers before or alongside
+      the deletion. The callers are:
+      - plan/SKILL.md description field
+      - Various .issues/ files with stale references
+      These are documentation/descriptive references, not runtime dispatch calls,
+      so the breakage is limited to agent routing metadata.
 
-  writing-plans/SKILL.md -> plan-creation-pipeline:
-    type: "cross-reference"
-    status: "NEEDS_AUDIT"
-    description: "writing-plans/SKILL.md Cross-References section lists plan-creation-pipeline as a related skill."
-    compatibility: "Cross-reference only — no API dependency. Must be updated to remove plan-creation-pipeline reference."
-    risk: "low — stale cross-reference would not break functionality"
+  - interface: "writing-plans/tasks/research.md steps 10-12"
+    type: "task_internal"
+    affected_by: [SC-7]
+    compatibility: UNCHANGED
+    analysis: |
+      Steps 10-12 (solve-model, solve-check, plan-plan) must remain identical.
+      No interface change is permitted. Verification via diff.
 
-affected_skills:
-  - name: "approval-gate"
-    interface_change: "none"
-    notes: "Same task interface, different caller"
-  - name: "solve"
-    interface_change: "none"
-    notes: "Steps remain in research.md unchanged"
-  - name: "plan"
-    interface_change: "none"
-    notes: "Steps remain in research.md unchanged"
-  - name: "local-issues"
-    interface_change: "none"
-    notes: "Same sync interface, different caller"
+interface_summary:
+  total_interfaces: 7
+  compatible: 5
+  breaking_change: 1
+  unchanged: 1
+  notes: |
+    The only breaking change is the deletion of plan-creation-pipeline, which
+    is intentional per the spec. All callers must be updated via SC-5 before
+    or alongside the deletion.

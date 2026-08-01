@@ -1,54 +1,77 @@
-# blast-radius.yaml — Affected files extracted from spec, verified against codebase
-# Generated: 2026-08-01T15:21:00Z
+# blast-radius.yaml
+# Generated: 2026-08-01T15:31:00Z
+# Spec: .opencode/.issues/2213/spec.md
 # Mode: retroactive
 
 spec_path: ".opencode/.issues/2213/spec.md"
-sc_count: 7
-
 affected_files:
   - path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
     action: DELETE
-    sc_coverage: [SC-1]
     exists: true
-    notes: "Skill directory root — entire skill is deleted per SC-1"
-
+    verified_by: "ls"
   - path: ".opencode/skills/plan-creation-pipeline/tasks/authorization-context.md"
     action: DELETE
-    sc_coverage: [SC-1]
     exists: true
-    notes: "Only task file in plan-creation-pipeline — deleted alongside SKILL.md"
-
+    verified_by: "ls"
   - path: ".opencode/skills/writing-plans/tasks/handoff.md"
     action: CREATE
-    sc_coverage: [SC-2]
     exists: false
-    notes: "New lightweight task that calls approval-gate --task verify-authorization"
-
+    verified_by: "ls"
   - path: ".opencode/skills/writing-plans/SKILL.md"
     action: MODIFY
-    sc_coverage: [SC-3, SC-6]
     exists: true
-    notes: "Update Trigger Dispatch Table, Workflows section, file structure to reflect new handoff step and workflow order"
-
+    verified_by: "ls"
   - path: ".opencode/skills/writing-plans/tasks/completion.md"
     action: MODIFY
-    sc_coverage: [SC-4]
     exists: true
-    notes: "Add worktree sync (local-issues sync) and chat output with exec summary + URL + AI byline"
-
+    verified_by: "ls"
   - path: ".opencode/skills/plan/SKILL.md"
     action: MODIFY
-    sc_coverage: [SC-5]
     exists: true
-    notes: "Update description field to remove 'plan-creation-pipeline' reference"
+    verified_by: "ls"
 
-cross_reference_files:
-  - path: ".opencode/skills/plan-creation-pipeline/SKILL.md"
-    action: DELETE (self)
-    sc_coverage: [SC-1]
-    notes: "Self-references in description, name, and routing table — all removed on delete"
-
+cross_reference_targets:
   - path: ".opencode/skills/plan/SKILL.md"
-    action: MODIFY
-    sc_coverage: [SC-5]
-    notes: "Description field references plan-creation-pipeline as distinct skill — must be updated to reference writing-plans only"
+    field: description
+    current_reference: "plan-creation-pipeline (6-step orchestrator)"
+    target_reference: "writing-plans (implementation plans from specs)"
+    sc: SC-5
+  - path: ".opencode/.issues/2153/plan.md"
+    reference: "plan-creation-pipeline/SKILL.md"
+    sc: SC-5
+  - path: ".opencode/.issues/1384/audit-report.md"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+  - path: ".opencode/.issues/2056/issue.yaml"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+  - path: ".opencode/.issues/1358/spec.md"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+  - path: ".opencode/.issues/2008/spec.md"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+  - path: ".opencode/.issues/2081/plan-04-external-caller-migration.md"
+    reference: "plan-creation-pipeline/SKILL.md"
+    sc: SC-5
+  - path: ".opencode/.issues/2081/plan.md"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+  - path: ".opencode/.issues/1437/plan-clean-room.md"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+  - path: ".opencode/.issues/1437/dependency-contract.yaml"
+    reference: "plan-creation-pipeline/SKILL.md"
+    sc: SC-5
+  - path: ".opencode/.issues/1437/plan.md"
+    reference: "plan-creation-pipeline"
+    sc: SC-5
+
+scope_summary:
+  total_affected_files: 6
+  deletes: 2
+  creates: 1
+  modifies: 3
+  cross_reference_updates_needed: 12
+  primary_skill: writing-plans
+  removed_skill: plan-creation-pipeline
