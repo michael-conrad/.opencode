@@ -191,7 +191,7 @@ Use direct `pyproject.toml` dependencies when:
 ```toml
 [project]
 name = "analysis-tool"
-version = "0.1.0"
+version = "0.1.2"
 requires-python = ">=3.12"
 dependencies = [ "pandas>=2.0", "matplotlib>=3.7", "seaborn>=0.12",]
 

@@ -135,6 +135,6 @@
     }
   },
   "plugin": [
-    "opencode-vibeguard@0.1.0"
+    "opencode-vibeguard@0.1.2"
   ]
 }

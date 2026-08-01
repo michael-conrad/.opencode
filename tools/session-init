@@ -365,7 +365,7 @@ def install_hooks() -> None:
 
 
 def _extract_version_from_pyproject() -> str:
-    """Extract version string from pyproject.toml, or return '0.1.0' as fallback."""
+    """Extract version string from pyproject.toml, or return '0.1.2' as fallback."""
     pyproject_path = os.path.join(os.getcwd(), "pyproject.toml")
     if os.path.isfile(pyproject_path):
         try:
@@ -378,7 +378,7 @@ def _extract_version_from_pyproject() -> str:
                             return parts[1].strip().strip('"').strip("'")
         except OSError:
             pass
-    return "0.1.0"
+    return "0.1.2"
 
 
 

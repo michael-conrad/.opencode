@@ -1,6 +1,6 @@
 [project]
 name = "opencode-tools"
-version = "0.1.0"
+version = "0.1.2"
 description = "OpenCode agent tools — session-init, auth, and CLI utilities"
 requires-python = "~=3.12"
 
