@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: SC-1
+    description: Agent detects that a branch's only diff from trunk is submodule pointer changes
+    evidence_type: behavioral
+    plan_item: 1
+  - id: SC-2
+    description: Agent verifies submodule PR merge status via platform API before deleting parent branch
+    evidence_type: behavioral
+    plan_item: 2
+  - id: SC-3
+    description: Agent deletes the dead branch (local + remote) and parks at trunk tip
+    evidence_type: behavioral
+    plan_item: 3
+  - id: SC-4
+    description: Agent leaves submodule pointer dirty after trunk parking (does NOT commit it)
+    evidence_type: behavioral
+    plan_item: 4
+  - id: SC-5
+    description: Agent does NOT delete branches with real code changes (non-submodule files in diff)
+    evidence_type: behavioral
+    plan_item: 5
+  - id: SC-6
+    description: Existing merged-branch cleanup (Phase 5) continues to work unchanged
+    evidence_type: behavioral
+    plan_item: 6
