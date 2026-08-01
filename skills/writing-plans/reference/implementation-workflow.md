@@ -4,7 +4,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **Purpose:** This is a static reference card containing ALL content from the former `skills/implementation-pipeline/SKILL.md` and its enforcement directory. Plan-writer tasks (`create.md`, `research.md`, `validate.md`) read this card instead of loading the live skill. The orchestrator reads the plan (which contains baked-in dispatch strings) at execution time — no `skill()` call needed at plan-writing or execution time.
+> **Purpose:** This is a static reference card containing the per-item cycle, gate sequence, dispatch tables, and enforcement rules for the implementation pipeline. Plan-writer tasks (`create.md`, `research.md`, `validate.md`) read this card instead of loading a live skill. The orchestrator reads the plan (which contains baked-in dispatch strings) at execution time — no `skill()` call needed at plan-writing or execution time.
 
 ## Pipeline Step Catalog
 
@@ -30,21 +30,21 @@
 
 | Step Name | Owning Skill | Canonical Dispatch String |
 |-----------|-------------|--------------------------|
-| `pre-regression` | test-driven-development | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
-| `pre-regression-verify` | verification-before-completion | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
-| `red` | test-driven-development | `task(..., prompt: "execute red from test-driven-development. Read \`test-driven-development/tasks/red.md\` first")` |
-| `green` | test-driven-development | `task(..., prompt: "execute green from test-driven-development. Read \`test-driven-development/tasks/green.md\` first")` |
-| `post-regression` | test-driven-development | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
-| `verify` | verification-before-completion | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` |
+| `pre-regression` | test-driven-development | `task(..., prompt: "execute phase-0 task from test-driven-development")` |
+| `pre-regression-verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| `red` | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| `green` | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| `post-regression` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` |
+| `verify` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
 | `commit-inline` | (orchestrator) | Orchestrator runs `git add <files> && git commit -m "<message>"` directly — no sub-agent dispatch |
 | `audit` | audit | `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence |
 | `z3-check` | (orchestrator) | Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly — no sub-agent dispatch |
-| `structural-checks` | finishing-a-development-branch | `task(..., prompt: "execute checklist from finishing-a-development-branch. Read \`finishing-a-development-branch/tasks/checklist.md\` first")` |
-| `pre-pr-gate` | verification-before-completion | `task(..., prompt: "execute verify from verification-before-completion. Read \`verification-before-completion/tasks/verify.md\` first")` — reads all SC verdicts, BLOCKs if any FAIL |
-| `regression-check` | test-driven-development | `task(..., prompt: "execute patterns from test-driven-development. Read \`test-driven-development/tasks/patterns.md\` first")` |
+| `structural-checks` | finishing-a-development-branch | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
+| `pre-pr-gate` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` — reads all SC verdicts, BLOCKs if any FAIL |
+| `regression-check` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` |
 | `review-prep` | git-workflow-pr | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
-| `create-pr` | pr-creation-workflow | `task(..., prompt: "execute create from pr-creation-workflow. Read \`pr-creation-workflow/tasks/create.md\` first")` |
-| `exec-summary` | completion-core | `task(..., prompt: "execute completion from completion-core. Read \`completion-core/tasks/completion.md\` first")` |
+| `create-pr` | pr-creation-workflow | `task(..., prompt: "execute create task from pr-creation-workflow")` |
+| `exec-summary` | completion-core | `task(..., prompt: "execute completion task from completion-core")` |
 
 **Audit sequence exception:** The audit is a multi-step sequence, not a single dispatch:
 1. Dispatch audit task (sub-agent) — dispatch the appropriate audit task via `task(subagent_type="general")`
@@ -72,14 +72,15 @@ Each SC follows a RED → GREEN → COMMIT sequence:
 Mandatory gate order for a phase:
 
 1. `pre-regression` — Run regression test patterns before any changes
-2. `red` — Write failing enforcement test
-3. `green` — Implement the change
-4. `post-regression` — Run regression test patterns after changes
-5. `verify` — Verify implementation against success criteria
-6. `commit` — Stage and commit changes
-7. `audit` — Adversarial audit of the deliverable
-8. `z3-check` — Z3 constraint solver verification
-9. `structural-checks` — Lint, typecheck, finishing checklist
+2. `pre-regression-verify` — Verify pre-regression results
+3. `red` — Write failing enforcement test
+4. `green` — Implement the change
+5. `post-regression` — Run regression test patterns after changes
+6. `verify` — Verify implementation against success criteria
+7. `commit-inline` — Stage and commit changes
+8. `audit` — Adversarial audit of the deliverable
+9. `z3-check` — Z3 constraint solver verification
+10. `structural-checks` — Lint, typecheck, finishing checklist
 
 **Rules:**
 - Gates are sequential — no skipping
