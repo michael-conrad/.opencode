@@ -124,6 +124,22 @@ For each merged PR, perform a full mergeability diagnosis using the 6-field chec
 - [ ] Delete checkpoint tags only: `git tag -d <parent>/checkpoint/*` and `git push origin --delete <parent>/checkpoint/*`
 - [ ] Prune remote references: `git fetch --prune && git remote prune origin`
 
+### Dead-Branch Detection (Pointer-Only Branches)
+
+For each unmerged branch found during the scan, detect branches whose only diff from trunk is submodule pointer changes. These are "dead branches" — the submodule work was done via a submodule PR, and the parent branch has no real code changes of its own.
+
+- [ ] **Detect pointer-only branches**: For each unmerged branch, run `git diff --stat origin/$DEFAULT_BRANCH...HEAD` and check if the only changed files are submodule paths (`.opencode/` or other submodule entries). If the diff contains non-submodule file changes, classify as `has_real_changes` — do NOT delete.
+- [ ] **Verify submodule PR merge status**: For each pointer-only branch, identify which submodule(s) changed. Query the platform API (`github_list_pull_requests` for GitHub, `gb pr list` for GitBucket) to check if the submodule's corresponding PR has been merged. If the submodule PR is NOT merged, do NOT delete the parent branch.
+- [ ] **Delete dead branch**: If the branch is pointer-only AND the submodule PR is merged:
+  ```bash
+  git checkout "$DEFAULT_BRANCH"
+  git branch -D <branch>
+  git push origin --delete <branch>
+  ```
+- [ ] **Park at trunk tip, preserve dirty pointer**: After deleting the dead branch, the repo is on trunk tip. The submodule pointer remains dirty (pointing to the submodule's feature branch SHA, not trunk). Do NOT commit, reset, or correct it — leave it dirty per the existing submodule discipline.
+- [ ] **Non-pointer guard**: If `git diff --stat origin/$DEFAULT_BRANCH...HEAD` shows any non-submodule file changes (source code, config, docs, etc.), do NOT delete the branch. Report it as `has_real_changes` and skip.
+- [ ] **Preserve existing logic**: The merged-branch cleanup steps above (switch to trunk, verify content, delete merged branches, delete checkpoint tags, prune) remain unchanged. Dead-branch detection runs AFTER merged-branch cleanup, on the remaining unmerged branches only.
+
 ## Phase 6: Depth-First Final State
 
 - [ ] Iterate ALL discovered repos depth-first: submodule tips, then parent tip
