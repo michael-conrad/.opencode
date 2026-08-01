@@ -228,27 +228,17 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 
 #### Step 5a: Evaluate Structural Criteria (SC-1 through SC-14)
 
-| Criterion ID | Description | Evidence Source | Evaluation Rule |
-|--------------|-------------|-----------------|-----------------|
-| SC-1 | Problem statement present | `spec_structure_validation.preamble` | PASS if preamble present with non-empty Problem Statement |
-| SC-2 | Success criteria measurable | `spec_structure_validation.success_criteria` + `determinism_validation.verification_methods` | PASS if every SC has a verification method |
-| SC-3 | Phases well-structured | `spec_structure_validation.phases` | PASS if phases have clear boundaries and sub-items |
-| SC-4 | Steps actionable | `spec_structure_validation` | PASS if each step has a file path or task reference |
-| SC-5 | Dependencies identified | `reasoning_validation` | PASS if phase dependencies are documented |
-| SC-6 | Concerns separated | `spec_structure_validation.phases` | PASS if single concern per phase |
-| SC-7 | Fidelity maintained | `spec_structure_validation` | PASS if plan matches spec structure |
-| SC-8 | Operational clarity | `reasoning_validation.edge_cases` | PASS if edge cases and error recovery defined |
-| SC-9 | Determinism achieved | `determinism_validation` | PASS if repeatable execution path (see also SC-DET) |
-| SC-10 | Prose structure valid | `spec_structure_validation.prose_elements` | PASS if headers, lists, tables properly formatted |
-| SC-11 | Documentation Sources present and populated | `documentation_source_validation` | PASS if non-empty Documentation Sources section with verified live sources |
-| SC-12 | Preamble present | `spec_structure_validation.preamble` | PASS if "## Intent and Executive Summary" with all 5 fields for standard+ specs |
-| SC-13 | Cost-frame prose + runtime execution in SCs | `prose_validation.cost_frame_language` | PASS if each SC carries cost-frame reformation language |
-| SC-14 | SC Enforcement Gate present and explicit | `spec_structure_validation` | PASS if spec contains all-or-nothing gate statement |
+Read [spec-structure-standards.md](reference/spec-structure-standards.md). For each required section in the reference doc, check that the spec has that section with the correct content. For each SC in the spec's SC table, verify it has a verification method, that dependencies are documented, and that SCs are deterministic.
 
-- [ ] 1. For each SC-1 through SC-14, read the corresponding evidence from `reasoning.yaml`
-- [ ] 2. Apply the evaluation rule — render PASS or FAIL
-- [ ] 3. If the upstream reasoning role flagged the evidence as `corrected`, use the corrected values
-- [ ] 4. If the upstream reasoning role flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+**Removed SCs (no longer evaluated as separate criteria):** SC-3 (phases), SC-4 (steps), SC-6 (concerns), SC-7 (fidelity), SC-8 (edge cases), SC-10 (prose structure), SC-13 (cost-frame)
+
+**Derived SCs (evaluated through reference doc sections):** SC-1 (preamble), SC-2 (verification methods), SC-5 (dependencies), SC-9 (determinism), SC-11 (documentation sources), SC-12 (preamble fields), SC-14 (enforcement gate)
+
+- [ ] 1. Read `spec-structure-standards.md` from `reference/spec-structure-standards.md`
+- [ ] 2. For each required section in the reference doc, verify the spec has that section with correct content
+- [ ] 3. For each SC in the spec's SC table, verify it has a verification method, that dependencies are documented, and that SCs are deterministic
+- [ ] 4. If the upstream reasoning role flagged the evidence as `corrected`, use the corrected values
+- [ ] 5. If the upstream reasoning role flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
 
 #### Step 5b: Evaluate SC-DET (Determinism)
 
@@ -270,39 +260,23 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 
 #### Step 5d: Evaluate SC-EVIDENCE-TYPE
 
-- [ ] 1. For each SC, read the declared evidence type from `determinism_validation.evidence_type_declarations`
-- [ ] 2. Verify the evidence provided matches the minimum acceptable method:
-  - `structural` → file existence evidence sufficient
-  - `string` → grep/pattern evidence sufficient
-  - `semantic` → sub-agent read + judgment evidence sufficient
-  - `behavioral` → test execution with output inspection required
-- [ ] 3. If the declared type is `behavioral` and only structural evidence exists → FAIL with `EVIDENCE_TYPE_MISMATCH`
-- [ ] 4. If the declared type is `semantic` and only string evidence exists → FAIL with `EVIDENCE_TYPE_MISMATCH`
-- [ ] 5. Default to `string` if no evidence type is declared
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Evidence Type Taxonomy and verify each SC's evidence matches the minimum acceptable method.
 
 #### Step 5e: Evaluate SC-TRACKING-LANG
 
-- [ ] 1. Read `prose_validation.tracking_language` from `reasoning.yaml`
-- [ ] 2. If any tracking/status language instances exist ("implemented", "pending", "confirmed", "viable", "completed") → FAIL
-- [ ] 3. Only forward-looking "MUST be" language is permitted
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Prohibited Content Patterns and verify the spec contains no tracking/status language.
 
 #### Step 5f: Evaluate SC-PRESCRIPTIVE-CODE
 
-- [ ] 1. Read `prose_validation.prescriptive_code` from `reasoning.yaml`
-- [ ] 2. If any prescriptive code instances exist (exact file paths with line numbers, exact import strings, exact assertion code) → FAIL
-- [ ] 3. Spec should use file area references only
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Prohibited Content Patterns and verify the spec contains no prescriptive code.
 
 #### Step 5g: Evaluate SC-PIPELINE-GATES
 
-- [ ] 1. Read `spec_structure_validation` from `reasoning.yaml`
-- [ ] 2. Verify pipeline gates use canonical checklist format: numbered `- [ ] N.` with dispatch mode indicators
-- [ ] 3. Gate tables (per-unit or shared cross-reference) → FAIL
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Format Requirements and verify pipeline gates use the canonical checklist format.
 
 #### Step 5h: Evaluate SC-CANONICAL-PLAN-FORM
 
-- [ ] 1. If the spec defines plan output format requirements, validate they use canonical checklist format
-- [ ] 2. Numbered `- [ ] N.` with sub-bullet metadata, dispatch mode indicators → PASS
-- [ ] 3. Dispatch tables, shared cross-references → FAIL
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Format Requirements and verify any plan output format requirements use the canonical checklist format.
 
 ### Step 6: Evaluate Reasoning Soundness (A1)
 
