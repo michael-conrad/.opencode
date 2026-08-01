@@ -1,0 +1,66 @@
+# cross-cutting-matrix.yaml — backfilled from spec body
+spec: .opencode/.issues/2211/spec.md
+generated: 2026-07-31T22:46:00Z
+mode: retroactive
+
+cross_cutting_concerns:
+  - concern: reference doc integration pattern
+    description: All four auditor task files adopt the same pattern — replace hard-coded criteria with Read [Text](path) references to canonical docs
+    scs_involved: [SC-1, SC-2, SC-3, SC-4, SC-6, SC-7]
+    phases: [1, 2, 3, 4, 6]
+    shared_pattern: "Read [<doc>.md](reference/<doc>.md) and derive criteria/evidence from its sections"
+    risk: If the pattern is applied inconsistently across files, some auditors will still hard-code while others reference
+
+  - concern: criteria removal consistency
+    description: Multiple criteria are removed across all four files — must ensure no removed criterion is still referenced elsewhere
+    scs_involved: [SC-1, SC-2, SC-3, SC-4]
+    phases: [1, 2, 3, 4]
+    removed_items:
+      - spec-audit-evaluator: SC-3, SC-4, SC-6, SC-7, SC-8, SC-10, SC-13 (moved to cost-model)
+      - spec-audit-investigator: phase inventory, STATUS marker, hard-coded section names
+      - plan-fidelity-evaluator: PF-4, PF-DELEGATION, PF-GLOBAL-NUMBERING
+      - plan-fidelity-investigator: 15+ evidence collection items
+    risk: Cross-file references to removed criteria may still exist (e.g., a removed SC ID referenced in another file)
+
+  - concern: cost-frame criteria
+    description: Both evaluators (spec-audit and plan-fidelity) need cost-frame criteria updated to reference cost-model-standards.md
+    scs_involved: [SC-6, SC-7]
+    phases: [6]
+    shared_files:
+      - .opencode/skills/audit/tasks/spec-audit-evaluator.md
+      - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+    risk: Must update both — missing one leaves inconsistency
+
+  - concern: YAML evidence structure changes
+    description: Both investigator files have YAML evidence structures that need field removals
+    scs_involved: [SC-2, SC-4]
+    phases: [2, 4]
+    shared_pattern: Remove static fields from YAML evidence structures, replace with dynamic derivation from reference docs
+    risk: YAML structure changes in one investigator but not the other creates asymmetry
+
+  - concern: reference doc path validity
+    description: All Read references across all four files must point to existing files
+    scs_involved: [SC-5]
+    phases: [5]
+    shared_references:
+      - reference/spec-structure-standards.md — referenced by spec-audit-evaluator, spec-audit-investigator, plan-fidelity-investigator
+      - reference/plan-structure-standards.md — referenced by plan-fidelity-evaluator, plan-fidelity-investigator
+      - reference/cost-model-standards.md — referenced by spec-audit-evaluator, plan-fidelity-evaluator
+    risk: If any reference doc doesn't exist (created by .opencode#2210), all dependent files fail at runtime
+
+  - concern: remaining explicit instructions
+    description: Some criteria remain as explicit instructions because they are behavioral judgments or cross-artifact comparisons
+    scs_involved: [SC-1, SC-3]
+    phases: [1, 3]
+    remaining_items:
+      - spec-audit-evaluator: SC-DET, SC-STRUCTURAL-FAIL
+      - plan-fidelity-evaluator: PF-1, PF-2, PF-3, PF-5, PF-STRUCTURAL-FAIL, PF-Z3-CONTRACT, PF-SEQUENCE-MATCHES
+    risk: These could drift from their source definitions over time — no reference doc to sync against
+
+phase_dependencies:
+  Phase 1: None (independent)
+  Phase 2: None (independent)
+  Phase 3: None (independent)
+  Phase 4: None (independent)
+  Phase 5: Phases 1-4 must be complete (verifies references added by those phases)
+  Phase 6: Phases 1 and 3 must be complete (updates evaluators modified in those phases)

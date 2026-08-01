@@ -1,1 +1,5 @@
-comments: []
+comments:
+  - author: "human"
+    scope: "for_plan"
+    text: "execute verify-authorization from approval-gate-scope"
+    timestamp: "2026-07-31T22:55:00Z"

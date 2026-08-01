@@ -1,0 +1,82 @@
+# testability-assessment.yaml — backfilled from spec body
+spec: .opencode/.issues/2211/spec.md
+generated: 2026-07-31T22:46:00Z
+mode: retroactive
+
+testability:
+
+  - sc: SC-1
+    description: spec-audit-evaluator Step 5a replaces hard-coded SC table with Read reference; SC-3/4/6/7/8/10/13 removed; SC-1/2/5/9/11/12/14 derived from reference doc; Steps 5b-5h updated
+    evidence_type: string
+    verification_method: grep for SC-1 through SC-14 table removed; grep for Read reference; grep for removed SC IDs absent
+    testable: true
+    test_approach: grep-based content verification — check file for presence/absence of specific patterns
+    automation: grep on the task file
+    difficulty: low
+
+  - sc: SC-2
+    description: spec-audit-investigator Step 3 replaces hard-coded section names with Read reference; phase inventory and STATUS marker removed
+    evidence_type: string
+    verification_method: grep for hard-coded section names removed; grep for Read reference; grep for removed items absent
+    testable: true
+    test_approach: grep-based content verification
+    automation: grep on the task file
+    difficulty: low
+
+  - sc: SC-3
+    description: plan-fidelity-evaluator Step 3 replaces hard-coded PF criteria with Read reference; PF-4/PF-DELEGATION/PF-GLOBAL-NUMBERING removed; PF-CHECKLIST-FORMAT/PF-DISPATCH-MODE/PF-DISPATCH-DEFECTS/PF-SUBSTEP-EXPAND updated
+    evidence_type: string
+    verification_method: grep for removed PF criteria absent; grep for Read reference
+    testable: true
+    test_approach: grep-based content verification
+    automation: grep on the task file
+    difficulty: low
+
+  - sc: SC-4
+    description: plan-fidelity-investigator Steps 2-5 replaces hard-coded evidence collection items with Read reference; 15+ items removed
+    evidence_type: string
+    verification_method: grep for removed evidence collection items absent; grep for Read reference
+    testable: true
+    test_approach: grep-based content verification
+    automation: grep on the task file
+    difficulty: low
+
+  - sc: SC-5
+    description: All Read reference paths point to existing files
+    evidence_type: string
+    verification_method: read each referenced path — expect file exists
+    testable: true
+    test_approach: File existence check for each referenced path
+    automation: read tool on each path
+    difficulty: low
+
+  - sc: SC-6
+    description: spec-audit-evaluator SC-13 replaces hard-coded cost-frame rule with Read reference to cost-model-standards.md
+    evidence_type: string
+    verification_method: grep for Read reference to cost-model-standards; grep for old hard-coded rule removed
+    testable: true
+    test_approach: grep-based content verification
+    automation: grep on the task file
+    difficulty: low
+
+  - sc: SC-7
+    description: plan-fidelity-evaluator PF-7a replaces hard-coded cost-frame rule with Read reference to cost-model-standards.md
+    evidence_type: string
+    verification_method: grep for Read reference to cost-model-standards; grep for old hard-coded rule removed
+    testable: true
+    test_approach: grep-based content verification
+    automation: grep on the task file
+    difficulty: low
+
+summary:
+  total_scs: 7
+  testable: 7
+  not_testable: 0
+  evidence_type_distribution:
+    string: 7
+    behavioral: 0
+    semantic: 0
+    structural: 0
+  dominant_evidence_type: string
+  test_approach_summary: All SCs are verifiable via grep-based content checks and file existence checks. No behavioral or semantic testing required — the changes are structural (replacing hard-coded text with Read references and removing criteria).
+  risk: String evidence is sufficient for these SCs because the changes are purely structural — replacing text patterns in task files. No runtime behavior change is being verified.

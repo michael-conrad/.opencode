@@ -1,0 +1,116 @@
+# code-path-inventory.yaml — backfilled from spec body
+spec: .opencode/.issues/2211/spec.md
+generated: 2026-07-31T22:46:00Z
+mode: retroactive
+
+code_paths:
+  - file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    scs: [SC-1, SC-6]
+    phases: [1, 6]
+    sections_touched:
+      - Step 5a — SC table derivation (replace hard-coded table with Read reference)
+      - Step 5b (SC-DET) — remains explicit instruction
+      - Step 5c (SC-STRUCTURAL-FAIL) — remains explicit instruction
+      - Step 5d (SC-EVIDENCE-TYPE) — replace hard-coded taxonomy with Read reference
+      - Step 5e (SC-TRACKING-LANG) — replace hard-coded list with Read reference
+      - Step 5f (SC-PRESCRIPTIVE-CODE) — replace hard-coded rules with Read reference
+      - Step 5g (SC-PIPELINE-GATES) — replace hard-coded rules with Read reference
+      - Step 5h (SC-CANONICAL-PLAN-FORM) — replace hard-coded rules with Read reference
+      - SC-13 (cost-frame) — replace hard-coded evaluation rule with Read reference
+    code_patterns:
+      - "Read [spec-structure-standards.md](reference/spec-structure-standards.md)" — new Read reference
+      - "Read [cost-model-standards.md](reference/cost-model-standards.md)" — new Read reference
+      - "For each required section in the reference doc, check that the spec has that section" — derived criteria pattern
+      - "For each SC in the spec's SC table, verify it has a verification method" — derived criteria pattern
+      - "dependencies are documented" — derived criteria pattern
+      - "SCs are deterministic" — derived criteria pattern
+    removed_patterns:
+      - Hard-coded SC-1 through SC-14 table
+      - Hard-coded evidence type taxonomy
+      - Hard-coded prohibited content patterns list
+      - Hard-coded prescriptive code rules
+      - Hard-coded pipeline gate format rules
+      - Hard-coded cost-frame evaluation rule
+
+  - file: .opencode/skills/audit/tasks/spec-audit-investigator.md
+    scs: [SC-2]
+    phases: [2]
+    sections_touched:
+      - Step 3 — evidence collection (replace hard-coded section names with Read reference)
+      - Step 3.3 (Phase inventory) — removed
+      - Step 3.5 (Preamble presence) — replaced with Read reference
+      - Step 3.6 (Documentation Sources) — removed as hard-coded section name
+      - Step 3.7 (STATUS marker) — removed
+      - spec_structure YAML evidence structure — remove phases, preamble, documentation_sources, status_marker fields
+    code_patterns:
+      - "Read [spec-structure-standards.md](reference/spec-structure-standards.md)" — new Read reference
+      - "For each required section in the reference doc, collect evidence about its presence, content, and structure" — derived evidence collection pattern
+      - "Record what is found — do not infer or assume" — evidence collection discipline
+    removed_patterns:
+      - Hard-coded section name list (Intent and Executive Summary, Documentation Sources, STATUS marker)
+      - Phase inventory step
+      - STATUS marker check
+      - Static YAML fields: phases, preamble, documentation_sources, status_marker
+
+  - file: .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+    scs: [SC-3, SC-7]
+    phases: [3, 6]
+    sections_touched:
+      - Step 3 — PF criteria derivation (replace hard-coded criteria with Read reference)
+      - PF-4 (edge cases) — removed
+      - PF-DELEGATION — removed
+      - PF-GLOBAL-NUMBERING — removed
+      - PF-6, PF-7, PF-7a, PF-ADMONISHMENT, PF-ONE-STEP, PF-PRESCRIPTIVE-CODE — replaced with Read reference
+      - PF-CHECKLIST-FORMAT — replaced with Read reference
+      - PF-DISPATCH-MODE — replaced with Read reference
+      - PF-DISPATCH-DEFECTS — replaced with Read reference
+      - PF-SUBSTEP-EXPAND — replaced with Read reference
+      - PF-7a (cost-frame) — replaced with Read reference
+      - PF-1, PF-2, PF-3, PF-5, PF-STRUCTURAL-FAIL, PF-Z3-CONTRACT, PF-SEQUENCE-MATCHES — remain explicit
+    code_patterns:
+      - "Read [plan-structure-standards.md](reference/plan-structure-standards.md)" — new Read reference
+      - "Read [cost-model-standards.md](reference/cost-model-standards.md)" — new Read reference
+      - "For each structural element in the reference doc, verify the plan has that element with the correct format" — derived criteria pattern
+      - "verify all steps use the canonical checklist format" — derived format check
+      - "verify every step has exactly one valid dispatch indicator" — derived dispatch check
+      - "verify dispatch declarations are consistent with step indicators" — derived consistency check
+      - "verify no step describes more than one atomic action" — derived atomicity check
+    removed_patterns:
+      - Hard-coded PF-4, PF-DELEGATION, PF-GLOBAL-NUMBERING criteria
+      - Hard-coded PF-6, PF-7, PF-7a, PF-ADMONISHMENT, PF-ONE-STEP, PF-PRESCRIPTIVE-CODE rules
+      - Hard-coded checklist format rule
+      - Hard-coded dispatch mode rule
+      - Hard-coded dispatch defects rule
+      - Hard-coded substep expansion rule
+      - Hard-coded cost-frame evaluation rule
+
+  - file: .opencode/skills/audit/tasks/plan-fidelity-investigator.md
+    scs: [SC-4]
+    phases: [4]
+    sections_touched:
+      - Step 2 — spec evidence collection (replace hard-coded items with Read reference)
+      - Step 2.4 (phase descriptions) — removed
+      - Step 2.5 (cross-references) — removed
+      - Step 2.6 (delegation references) — removed
+      - Step 2.7 (scope boundary) — removed
+      - spec YAML evidence structure — remove phases, cross_references, delegation_refs, scope fields
+      - Step 3 — plan evidence collection (replace hard-coded items with Read reference)
+      - Step 3.8 (admonishments) — removed
+      - Step 3.9 (plan scope) — removed
+      - Step 3.10 (cross-references from plan) — removed
+      - Step 3.11 (delegation definitions) — removed
+      - Step 3.12 (gate sequence) — removed
+      - Step 3.13 (verification instructions) — removed
+      - Step 3.14 (Z3 contract references) — removed
+      - Step 3.15 (prescriptive content) — removed
+      - plan YAML evidence structure — remove admonishments, plan_scope, cross_references, delegation_definitions, gate_sequence, verification_instructions, z3_contract_refs, prescriptive_content fields
+      - Step 4 — one-step protocol (Step 4.9 removed)
+      - Step 5 — completeness checks (Steps 5.5-5.9 removed)
+    code_patterns:
+      - "Read [spec-structure-standards.md](reference/spec-structure-standards.md)" — new Read reference
+      - "Read [plan-structure-standards.md](reference/plan-structure-standards.md)" — new Read reference
+      - "For each required section in the reference doc, collect evidence about its presence, content, and structure" — derived evidence collection pattern
+      - "For each structural element in the reference doc, collect evidence about its presence, content, and format" — derived evidence collection pattern
+    removed_patterns:
+      - 15+ hard-coded evidence collection items across Steps 2-5
+      - Static YAML fields: phases, cross_references, delegation_refs, scope, admonishments, plan_scope, delegation_definitions, gate_sequence, verification_instructions, z3_contract_refs, prescriptive_content
