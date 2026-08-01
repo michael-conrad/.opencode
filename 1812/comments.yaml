@@ -1,1 +1,5 @@
-comments: []
+comments:
+- author: "human"
+  scope: "for_pr"
+  text: "execute verify-authorization from approval-gate-scope. Issue: 1812. Context: authorization_scope=for_pr, halt_at=pr_created"
+  timestamp: "2026-08-01T20:47:00Z"
