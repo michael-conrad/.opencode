@@ -182,10 +182,14 @@ bash .opencode/tests-v2/test-enforcement.sh --tag <tag>
 ### Model Override
 
 ```bash
-DEFAULT_TEST_MODEL="ollama/other-model:cloud" \
+DEFAULT_TEST_MODEL="ollama/other-model:tag" \
 BEHAVIOR_PHASE="RED" \
 bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
+
+**⚠️ `DEFAULT_TEST_MODEL` override requires the feature branch to be pushed to remote.** The test harness clones `.opencode/` from remote and checks out the local submodule HEAD commit. If the feature branch changes (including `seed_model_config()` fixes) are not pushed, the harness uses the remote default branch which has the old code. The `seed_model_config()` function in `with-test-home` dynamically interpolates `$default_model` into the `opencode.jsonc` `model` field — this fix was applied in commit `f5c66371`. Without it, the `model` field was hardcoded to `ollama/ornith:35b-256k` regardless of `DEFAULT_TEST_MODEL`.
+
+**🚫 FORBIDDEN:** Asking the developer for authorization to push test framework fixes. Test framework changes that fix broken behavior are not implementation — they are infrastructure maintenance. The agent commits and pushes autonomously. The earlier pattern of asking "authorize push?" for a test harness bugfix was a routing-bypass self-authorization violation.
 
 ## 5. Infrastructure Details
 
@@ -243,8 +247,10 @@ The command runs from `TEST_PROJECT` (the test project directory inside the test
 #### Model Config Generation
 
 `seed_model_config()` generates a minimal `opencode.jsonc` with:
-- `"model": "ollama/ornith:35b-256k"` — explicit model field to prevent opencode from auto-selecting an embedding model from the project config
-- `"models": { "$bare": {}, "ornith:35b-256k": {} }` — both the default model and ornith in the models block so the model field resolves
+- `"model": "$default_model"` — uses `DEFAULT_TEST_MODEL` env var (falls back to `ollama/qwen3.6:35b-256k`). This is the single source of truth for which model runs the test.
+- `"models": { "$bare": {} }` — only the requested model is registered. No hardcoded model entries.
+
+The `model` field MUST match the `DEFAULT_TEST_MODEL` value. Previously the function hardcoded `"model": "ollama/ornith:35b-256k"` regardless of `DEFAULT_TEST_MODEL`, which caused behavioral tests to always attempt loading ornith (21GB) even when a smaller model was requested via env var. This is now fixed — the `model` field is dynamically interpolated from `$default_model`.
 
 It does NOT copy the production `opencode.jsonc` — that file contains secrets, API keys, and environment-specific settings that must not leak into test environments.
 
@@ -290,7 +296,7 @@ The `project.worktree` field MUST contain the test project path (under `tmp/test
 8. Copy standalone binary from `.tools/opencode/opencode` to `$TEST_HOME/bin/opencode`
 9. Copy `uv` and `uvx` from `.tools/uv/` to `$TEST_HOME/bin/`
 10. Write `set-env.sh` into test home with all `env -i` variables
-11. Seed `opencode.jsonc` config with `model: ollama/ornith:35b-256k` and models block
+11. Seed `opencode.jsonc` config with `model` set to `DEFAULT_TEST_MODEL` (dynamic, not hardcoded)
 12. Run `opencode models` to verify CLI works (smoke test)
 13. Run `opencode run "hello world"` to verify model works (smoke test)
 

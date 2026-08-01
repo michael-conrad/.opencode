@@ -645,7 +645,7 @@ assert_semantic() {
     local artifact_dir="$1"
     local sc_id="$2"
     local description="$3"
-    local model="${4:-ollama/ornith:35b-256k}"
+    local model="${4:-$DEFAULT_TEST_MODEL}"
 
     local stdout_file="$artifact_dir/stdout.log"
     local stderr_file="$artifact_dir/stderr.log"
