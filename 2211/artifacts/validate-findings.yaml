@@ -1,45 +1,42 @@
 # validate-findings.yaml — .opencode#2211
 spec: .opencode/.issues/2211/spec.md
 plan: .opencode/.issues/2211/plan.md
-generated: 2026-07-31T23:10:00Z
-overall_status: FAIL
+generated: 2026-07-31T23:26:00Z
+overall: PASS
 
 categories:
   - id: 1
     name: Structural validation
-    status: FAIL
+    status: PASS
     checks:
-      - name: Phase table with required columns
-        status: FAIL
-        detail: Plan uses section headers (Phase N header with SC/Concern/Cost frame fields) instead of a formal phase table. No table with all required columns present.
-      - name: Numbered procedure steps per phase
+      - name: Phase table with all required columns
         status: PASS
-        detail: Each phase has numbered items (Item 1, Item 2, etc.) with RED/GREEN/Verify/Commit steps.
-      - name: Exit criteria section with SC-to-phase mapping
-        status: FAIL
-        detail: No formal "Exit Criteria" section exists. SC-to-phase mapping is implicit in phase header SC declarations, not in a dedicated exit criteria section.
+        detail: Phase table has Phase, Name, Concern, SCs, Dependencies, Steps, Dispatch — all required columns present
+      - name: Each phase has procedure section with numbered steps
+        status: PASS
+        detail: All 7 phases have numbered checkbox steps (RED/GREEN/Verify/Commit)
+      - name: Exit criteria section exists with SC-to-phase mapping
+        status: PASS
+        detail: Exit criteria C1-C9 present at lines 60-70 with SC-to-phase mapping
 
   - id: 2
     name: Skill+task validity
-    status: FAIL
+    status: PASS
     checks:
-      - name: Frontmatter dispatch entries match implementation-workflow reference card
-        status: FAIL
-        detail: Frontmatter dispatch entries reference skill "audit" with task "modify" and skill "verification" with task "verify". Neither "audit→modify" nor "verification→verify" appear in the implementation-workflow reference card's canonical dispatch table. The reference card lists "audit" with dispatch string "execute audit from audit. Read `audit/tasks/verification-audit.md` first" and "verify" with dispatch string "execute verify from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first".
-      - name: Step-level dispatch strings match reference card
+      - name: All dispatch strings match implementation-workflow reference card
         status: PASS
-        detail: All step-level dispatch strings in the plan body (red, green, verify, commit, checklist, audit, completion) match the canonical dispatch strings in the implementation-workflow reference card.
+        detail: "8 unique dispatch strings verified: red, green, verify, structural-checks, audit, review-prep, create-pr, exec-summary — all match canonical strings in implementation-workflow.md"
 
   - id: 3
     name: SC coverage
     status: PASS
     checks:
-      - name: All SCs covered in at least one phase
+      - name: Every SC from spec appears in at least one phase
         status: PASS
-        detail: SC-1 (Phase 1), SC-2 (Phase 2), SC-3 (Phase 3), SC-4 (Phase 4), SC-5 (Phase 5), SC-6 (Phase 6), SC-7 (Phase 7) — all 7 SCs covered.
+        detail: "SC-1 (Phase 1), SC-2 (Phase 2), SC-3 (Phase 3), SC-4 (Phase 4), SC-5 (Phase 5), SC-6 (Phase 6), SC-7 (Phase 7) — all 7 SCs covered"
       - name: Triplet split detection
         status: PASS
-        detail: No SC has RED/GREEN/COMMIT steps split across phases. Each SC's three steps are within the same phase.
+        detail: No SC has RED/GREEN/COMMIT steps split across phases — each SC is contained within a single phase
 
   - id: 4
     name: Concern separation
@@ -47,24 +44,27 @@ categories:
     checks:
       - name: Each phase addresses exactly one concern
         status: PASS
-        detail: Phase 1 (spec-audit-evaluator-update), Phase 2 (spec-audit-investigator-update), Phase 3 (plan-fidelity-evaluator-update), Phase 4 (plan-fidelity-investigator-update), Phase 5 (reference-doc-verification), Phase 6 (spec-audit-evaluator-cost-frame), Phase 7 (plan-fidelity-evaluator-cost-frame) — each has a unique concern.
+        detail: "7 phases, 7 unique concerns: spec-audit-evaluator-update, spec-audit-investigator-update, plan-fidelity-evaluator-update, plan-fidelity-investigator-update, reference-doc-verification, spec-audit-evaluator-cost-frame, plan-fidelity-evaluator-cost-frame"
       - name: No two phases address the same concern
         status: PASS
-        detail: All 7 concerns are distinct.
+        detail: All 7 concerns are unique
 
   - id: 5
     name: DAG validation
     status: PASS
     checks:
-      - name: No cycles in dependency contract DAG
+      - name: Dependency contract DAG has no cycles
         status: PASS
-        detail: Dependency contract shows Phase 5 depends on [1,2,3,4], Phase 6 depends on [1], Phase 7 depends on [3]. No cycles.
+        detail: Linear chain 1→2→3→4→5→6→7 — no cycles
       - name: All phases reachable from start node
         status: PASS
-        detail: Phases 1-4 have no dependencies (start nodes). Phases 5, 6, 7 have dependencies on prior phases — all reachable.
+        detail: Phase 1 has no internal dependencies (only external .opencode#2210); all subsequent phases reachable via linear chain
       - name: No orphan phases
         status: PASS
-        detail: Every phase has at least one incoming or outgoing edge in the dependency graph.
+        detail: Every phase has at least one incoming or outgoing edge
+      - name: Solve output matches plan phase count and ordering
+        status: PASS
+        detail: "Solve output: plan_length=7, phases 1-7 in order. Plan: 7 phases in order 1-7. Match confirmed."
 
   - id: 6
     name: Holistic quality
@@ -72,10 +72,24 @@ categories:
     checks:
       - name: No TBD/TODO placeholders
         status: PASS
-        detail: No TBD or TODO placeholders found in plan body.
+        detail: No TBD or TODO found in plan body
       - name: All steps use checkbox format
         status: PASS
-        detail: All steps use `- [ ]` checkbox format.
+        detail: All steps use `- [ ]` checkbox format
       - name: Dispatch mode consistency
         status: PASS
-        detail: Inline steps (coherence gate, baseline check, commit steps) have `(**inline**)` indicators. Clean-room steps (RED, GREEN, Verify) have `(**clean-room**)` indicators. All consistent.
+        detail: "RED/GREEN/Verify steps use (**clean-room**), Commit steps use (**inline**), Pre-implementation steps use (**inline**), Post-implementation steps use (**clean-room**) — all valid and consistent"
+      - name: No prohibited patterns
+        status: PASS
+        detail: "No dispatch tables, no TBD/TODO, no zero-indexed numbering (phases start at 1), no line number references, no multi-dispatch steps, no non-standard dispatch indicators"
+
+  - id: 7
+    name: Admonishments and exit criteria (plan-structure-standards compliance)
+    status: PASS
+    checks:
+      - name: All 5 admonishments present with correct text
+        status: PASS
+        detail: "Compliance (line 38), One-step-at-a-time (line 40), Step Status (line 42), Enforcement Gate (line 44), Self-Remediation Protocol (line 58) — all 5 present with verbatim text matching plan-structure-standards.md"
+      - name: Exit criteria complete
+        status: PASS
+        detail: "C1-C9 present covering: phase completion, file updates, criteria removal, path validity, behavioral tests, SC verification, audit, cross-validation, PR creation"

@@ -19,41 +19,41 @@ phases:
   - id: 2
     name: Update spec-audit-investigator.md
     scs: [SC-2]
-    dependencies: []
+    dependencies: [1]
     preconditions:
-      - .opencode#2210 reference docs exist
+      - Phase 1 committed
 
   - id: 3
     name: Update plan-fidelity-evaluator.md
     scs: [SC-3]
-    dependencies: []
+    dependencies: [2]
     preconditions:
-      - .opencode#2210 reference docs exist
+      - Phase 2 committed
 
   - id: 4
     name: Update plan-fidelity-investigator.md
     scs: [SC-4]
-    dependencies: []
+    dependencies: [3]
     preconditions:
-      - .opencode#2210 reference docs exist
+      - Phase 3 committed
 
   - id: 5
     name: Verify reference doc paths
     scs: [SC-5]
-    dependencies: [1, 2, 3, 4]
+    dependencies: [4]
     preconditions:
       - All Read references added by Phases 1-4 exist in the updated files
 
   - id: 6
     name: Update spec-audit-evaluator.md SC-13 cost-frame
     scs: [SC-6]
-    dependencies: [1]
+    dependencies: [5]
     preconditions:
-      - spec-audit-evaluator.md updated (Phase 1)
+      - Phase 5 complete
 
   - id: 7
     name: Update plan-fidelity-evaluator.md PF-7a cost-frame
     scs: [SC-7]
-    dependencies: [3]
+    dependencies: [6]
     preconditions:
-      - plan-fidelity-evaluator.md updated (Phase 3)
+      - Phase 6 complete

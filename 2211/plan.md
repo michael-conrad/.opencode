@@ -1,38 +1,8 @@
 ---
+plan_schema_version: 1
 issue: 2211
-spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T23:05:00Z
-author: OpenCode (deepseek-v4-flash)
-approved: true
-dispatch:
-  - phase: 1
-    skill: audit
-    task: modify
-    dispatch_string: "execute modify from audit"
-  - phase: 2
-    skill: audit
-    task: modify
-    dispatch_string: "execute modify from audit"
-  - phase: 3
-    skill: audit
-    task: modify
-    dispatch_string: "execute modify from audit"
-  - phase: 4
-    skill: audit
-    task: modify
-    dispatch_string: "execute modify from audit"
-  - phase: 5
-    skill: verification
-    task: verify
-    dispatch_string: "execute verify from verification"
-  - phase: 6
-    skill: audit
-    task: modify
-    dispatch_string: "execute modify from audit"
-  - phase: 7
-    skill: audit
-    task: modify
-    dispatch_string: "execute modify from audit"
+title: "Update Auditor Task Files to Reference Canonical Reference Docs"
+dispatch: [audit, verification, test-driven-development, verification-before-completion, finishing-a-development-branch, git-workflow, pr-creation-workflow, completion-core]
 ---
 
 # Plan: Update Auditor Task Files to Reference Canonical Reference Docs
@@ -40,6 +10,64 @@ dispatch:
 **Issue:** `.opencode#2211`
 **Spec:** `.opencode/.issues/2211/spec.md`
 **Dependency:** `.opencode#2210` — must complete first (creates reference docs)
+
+## Goal / Architecture / Files / Dispatch
+
+**Goal:** Update the four auditor task files to read from canonical reference docs (`reference/spec-structure-standards.md`, `reference/plan-structure-standards.md`, `reference/cost-model-standards.md`) via `Read [Text](path)` instead of hard-coding structural criteria. Remove criteria eliminated during brainstorming.
+
+**Architecture:** The auditor task files currently hard-code their own separate criteria lists that duplicate — and have drifted from — the producer templates. The fix replaces hard-coded criteria with `Read [Text](path)` references to canonical reference docs created by `.opencode#2210`. Criteria that are cross-artifact comparisons or behavioral judgments remain as explicit instructions.
+
+**Files:**
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` — update Step 5a, Steps 5b-5h, SC-13
+- `.opencode/skills/audit/tasks/spec-audit-investigator.md` — update Step 3
+- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` — update Step 3, PF-7a
+- `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` — update Steps 2-5
+
+**Dispatch:** `audit` (modify task files), `verification` (verify reference doc paths), `test-driven-development` (RED/GREEN cycles), `verification-before-completion` (verify SCs), `finishing-a-development-branch` (checklist), `git-workflow` (review-prep), `pr-creation-workflow` (create PR), `completion-core` (lifecycle event)
+
+## Blast Radius
+
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` — Step 5a (SC table), Steps 5b-5h (individual SC checks), SC-13 (cost-frame)
+- `.opencode/skills/audit/tasks/spec-audit-investigator.md` — Step 3 (spec structure evidence collection)
+- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` — Step 3 (PF criteria), PF-7a (cost-frame)
+- `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` — Steps 2-5 (evidence collection items)
+- `reference/spec-structure-standards.md` — read-only dependency (created by `.opencode#2210`)
+- `reference/plan-structure-standards.md` — read-only dependency (created by `.opencode#2210`)
+- `reference/cost-model-standards.md` — read-only dependency (created by `.opencode#2210`)
+
+> **Compliance:** All SCs must pass before completion. Partial implementation is not permitted. Each item is daisy-chained — item N's commit is precondition for item N+1's RED.
+
+> **One step at a time.** Execute exactly one step. Report progress. Wait for instruction before the next step.
+
+> **Step status:** Report `[item N] [PASS|FAIL]` after each step. If FAIL, report blocker and halt.
+
+> **Enforcement gate:** All SCs must pass before this plan is complete.
+
+## Phase Table
+
+| Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch |
+|-------|------|---------|-----|-------------|-------|----------|
+| 1 | Update spec-audit-evaluator.md | spec-audit-evaluator-update | SC-1 | `.opencode#2210` | 1-4 | audit |
+| 2 | Update spec-audit-investigator.md | spec-audit-investigator-update | SC-2 | Phase 1 | 5-8 | audit |
+| 3 | Update plan-fidelity-evaluator.md | plan-fidelity-evaluator-update | SC-3 | Phase 2 | 9-12 | audit |
+| 4 | Update plan-fidelity-investigator.md | plan-fidelity-investigator-update | SC-4 | Phase 3 | 13-16 | audit |
+| 5 | Verify reference doc paths | reference-doc-verification | SC-5 | `.opencode#2210` | 17-20 | verification |
+| 6 | Update spec-audit-evaluator.md SC-13 cost-frame | spec-audit-evaluator-cost-frame | SC-6 | Phase 5 | 21-24 | audit |
+| 7 | Update plan-fidelity-evaluator.md PF-7a cost-frame | plan-fidelity-evaluator-cost-frame | SC-7 | Phase 6 | 25-28 | audit |
+
+> **Self-Remediation Protocol:** If a step FAILs: diagnose root cause, fix the deliverable, re-verify. If the fix requires spec revision, update the spec and re-enter the plan. Escalate only after remediation failure.
+
+## Exit Criteria
+
+- [ ] C1: All 7 phases complete with PASS
+- [ ] C2: All 4 auditor task files updated to reference canonical reference docs
+- [ ] C3: Eliminated criteria removed from all 4 task files
+- [ ] C4: All `Read [Text](path)` references point to existing files
+- [ ] C5: Behavioral enforcement tests pass for all modified task files
+- [ ] C6: All SCs verified via verification-before-completion
+- [ ] C7: Audit confirms plan executed faithfully against spec
+- [ ] C8: Cross-validation confirms audit and verification agree
+- [ ] C9: PR created with all changes
 
 ## Pre-Implementation Steps
 
@@ -49,11 +77,35 @@ dispatch:
 - [ ] **Baseline check.** Verify the current state of all affected files before modification. Read each file listed in the blast radius and confirm the content matches the "before" state described in the spec. If any file has already been modified, return BLOCKED with `BASELINE_CHANGED`.
   - (**inline**)
 
-## Phase 1: Update spec-audit-evaluator.md
+---
 
-**SC:** SC-1
+## Phase 1 — Update spec-audit-evaluator.md
+
 **Concern:** spec-audit-evaluator-update
-**Cost frame:** Grepping for the Read reference costs one search. Skipping means the evaluator still hard-codes its SC table and drifts from the reference doc.
+**Files:** `.opencode/skills/audit/tasks/spec-audit-evaluator.md`
+**SCs:** SC-1
+**Dependencies:** `.opencode#2210` (reference docs must exist)
+**Entry:** Coherence gate and baseline check passed
+**Exit:** spec-audit-evaluator.md Step 5a and Steps 5b-5h updated to reference spec-structure-standards
+
+### Code Path Coverage
+
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` Step 5a — SC-1 through SC-14 table
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` Steps 5b-5h — individual SC checks
+
+### Cross-Cutting SCs
+
+None — SC-1 is phase-specific.
+
+### Interface Boundaries
+
+- `reference/spec-structure-standards.md` — read-only dependency, must exist
+- No changes to other auditor task files
+
+### State Transitions
+
+- Before: spec-audit-evaluator.md hard-codes SC-1 through SC-14 table
+- After: spec-audit-evaluator.md reads from reference/spec-structure-standards.md via `Read [Text](path)`
 
 ### Item 1 — Update spec-audit-evaluator.md Step 5a and Steps 5b-5h
 
@@ -79,11 +131,39 @@ dispatch:
 - [ ] **Commit.** Stage and commit the changes to `spec-audit-evaluator.md` with a descriptive message.
   - (**inline**) `git add .opencode/skills/audit/tasks/spec-audit-evaluator.md && git commit -m "Phase 1: Update spec-audit-evaluator.md to reference spec-structure-standards"`
 
-## Phase 2: Update spec-audit-investigator.md
+### Phase Completion
 
-**SC:** SC-2
+- [ ] VbC: Verify SC-1 — grep for SC-1 through SC-14 table removed; grep for Read reference present; grep for removed SC IDs absent
+- [ ] Concern transition: Complete. Proceed to Phase 2 (spec-audit-investigator.md).
+
+---
+
+## Phase 2 — Update spec-audit-investigator.md
+
 **Concern:** spec-audit-investigator-update
-**Cost frame:** Grepping for the Read reference costs one search. Skipping means the investigator still hard-codes section names that drift from the reference doc.
+**Files:** `.opencode/skills/audit/tasks/spec-audit-investigator.md`
+**SCs:** SC-2
+**Dependencies:** Phase 1 complete
+**Entry:** Phase 1 committed
+**Exit:** spec-audit-investigator.md Step 3 updated to reference spec-structure-standards
+
+### Code Path Coverage
+
+- `.opencode/skills/audit/tasks/spec-audit-investigator.md` Step 3 — spec structure evidence collection
+
+### Cross-Cutting SCs
+
+None — SC-2 is phase-specific.
+
+### Interface Boundaries
+
+- `reference/spec-structure-standards.md` — read-only dependency, must exist
+- No changes to other auditor task files
+
+### State Transitions
+
+- Before: spec-audit-investigator.md hard-codes section names (Intent and Executive Summary, Documentation Sources, STATUS marker)
+- After: spec-audit-investigator.md reads from reference/spec-structure-standards.md via `Read [Text](path)`
 
 ### Item 2 — Update spec-audit-investigator.md Step 3
 
@@ -104,11 +184,39 @@ dispatch:
 - [ ] **Commit.** Stage and commit the changes.
   - (**inline**) `git add .opencode/skills/audit/tasks/spec-audit-investigator.md && git commit -m "Phase 2: Update spec-audit-investigator.md to reference spec-structure-standards"`
 
-## Phase 3: Update plan-fidelity-evaluator.md
+### Phase Completion
 
-**SC:** SC-3
+- [ ] VbC: Verify SC-2 — grep for hard-coded section names removed; grep for Read reference present; grep for removed items absent
+- [ ] Concern transition: Complete. Proceed to Phase 3 (plan-fidelity-evaluator.md).
+
+---
+
+## Phase 3 — Update plan-fidelity-evaluator.md
+
 **Concern:** plan-fidelity-evaluator-update
-**Cost frame:** Grepping for the Read reference costs one search. Skipping means the plan-fidelity evaluator still hard-codes PF criteria that drift from the reference doc.
+**Files:** `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md`
+**SCs:** SC-3
+**Dependencies:** Phase 2 complete
+**Entry:** Phase 2 committed
+**Exit:** plan-fidelity-evaluator.md Step 3 updated to reference plan-structure-standards
+
+### Code Path Coverage
+
+- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` Step 3 — PF criteria
+
+### Cross-Cutting SCs
+
+None — SC-3 is phase-specific.
+
+### Interface Boundaries
+
+- `reference/plan-structure-standards.md` — read-only dependency, must exist
+- No changes to other auditor task files
+
+### State Transitions
+
+- Before: plan-fidelity-evaluator.md hard-codes PF criteria (PF-4, PF-6, PF-7, PF-7a, PF-ADMONISHMENT, PF-ONE-STEP, PF-DELEGATION, PF-PRESCRIPTIVE-CODE, PF-GLOBAL-NUMBERING)
+- After: plan-fidelity-evaluator.md reads from reference/plan-structure-standards.md via `Read [Text](path)`
 
 ### Item 3 — Update plan-fidelity-evaluator.md Step 3
 
@@ -133,11 +241,43 @@ dispatch:
 - [ ] **Commit.** Stage and commit the changes.
   - (**inline**) `git add .opencode/skills/audit/tasks/plan-fidelity-evaluator.md && git commit -m "Phase 3: Update plan-fidelity-evaluator.md to reference plan-structure-standards"`
 
-## Phase 4: Update plan-fidelity-investigator.md
+### Phase Completion
 
-**SC:** SC-4
+- [ ] VbC: Verify SC-3 — grep for removed PF criteria absent; grep for Read reference present
+- [ ] Concern transition: Complete. Proceed to Phase 4 (plan-fidelity-investigator.md).
+
+---
+
+## Phase 4 — Update plan-fidelity-investigator.md
+
 **Concern:** plan-fidelity-investigator-update
-**Cost frame:** Grepping for the Read reference costs one search. Skipping means the plan-fidelity investigator still hard-codes evidence collection items that drift from the reference doc.
+**Files:** `.opencode/skills/audit/tasks/plan-fidelity-investigator.md`
+**SCs:** SC-4
+**Dependencies:** Phase 3 complete
+**Entry:** Phase 3 committed
+**Exit:** plan-fidelity-investigator.md Steps 2-5 updated to reference plan-structure-standards
+
+### Code Path Coverage
+
+- `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` Step 2 — spec evidence collection
+- `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` Step 3 — plan evidence collection
+- `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` Step 4 — one-step protocol
+- `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` Step 5 — delegation, gate sequence, verification evidence, cost-frame, SC gate language
+
+### Cross-Cutting SCs
+
+None — SC-4 is phase-specific.
+
+### Interface Boundaries
+
+- `reference/spec-structure-standards.md` — read-only dependency, must exist
+- `reference/plan-structure-standards.md` — read-only dependency, must exist
+- No changes to other auditor task files
+
+### State Transitions
+
+- Before: plan-fidelity-investigator.md hard-codes evidence collection items (phase descriptions, cross-references, delegation, scope boundary, admonishments, plan scope, gate sequence, verification instructions, Z3 contracts, prescriptive content, cost-frame prose, SC gate language)
+- After: plan-fidelity-investigator.md reads from reference/plan-structure-standards.md via `Read [Text](path)`
 
 ### Item 4 — Update plan-fidelity-investigator.md Steps 2-5
 
@@ -157,11 +297,41 @@ dispatch:
 - [ ] **Commit.** Stage and commit the changes.
   - (**inline**) `git add .opencode/skills/audit/tasks/plan-fidelity-investigator.md && git commit -m "Phase 4: Update plan-fidelity-investigator.md to reference plan-structure-standards"`
 
-## Phase 5: Verify reference doc paths
+### Phase Completion
 
-**SC:** SC-5
+- [ ] VbC: Verify SC-4 — grep for removed evidence collection items absent; grep for Read reference present
+- [ ] Concern transition: Complete. Proceed to Phase 5 (reference doc path verification).
+
+---
+
+## Phase 5 — Verify reference doc paths
+
 **Concern:** reference-doc-verification
-**Cost frame:** Reading each referenced path costs one read call per path. Skipping means a missing reference doc isn't caught until the auditor fails at runtime.
+**Files:** (verification only — no file modifications)
+**SCs:** SC-5
+**Dependencies:** `.opencode#2210` (reference docs must exist)
+**Entry:** Phase 4 committed
+**Exit:** All `Read [Text](path)` references verified to point to existing files
+
+### Code Path Coverage
+
+- `reference/spec-structure-standards.md` — must exist
+- `reference/plan-structure-standards.md` — must exist
+- `reference/cost-model-standards.md` — must exist
+
+### Cross-Cutting SCs
+
+None — SC-5 is phase-specific.
+
+### Interface Boundaries
+
+- All three reference docs are read-only dependencies created by `.opencode#2210`
+- No changes to any auditor task files
+
+### State Transitions
+
+- Before: Reference doc paths are unverified
+- After: All paths confirmed to point to existing files
 
 ### Item 5 — Verify all Read reference paths point to existing files
 
@@ -181,11 +351,39 @@ dispatch:
 - [ ] **Commit.** Stage and commit any changes (if verification found issues that needed fixing).
   - (**inline**) `git add .opencode/skills/audit/tasks/ && git commit -m "Phase 5: Verify reference doc paths"`
 
-## Phase 6: Update spec-audit-evaluator.md SC-13 cost-frame
+### Phase Completion
 
-**SC:** SC-6
+- [ ] VbC: Verify SC-5 — read each referenced path — expect file exists
+- [ ] Concern transition: Complete. Proceed to Phase 6 (spec-audit-evaluator.md SC-13 cost-frame).
+
+---
+
+## Phase 6 — Update spec-audit-evaluator.md SC-13 cost-frame
+
 **Concern:** spec-audit-evaluator-cost-frame
-**Cost frame:** Grepping for the Read reference to cost-model-standards costs one search. Skipping means the evaluator still hard-codes the cost-frame rule and drifts from the reference doc.
+**Files:** `.opencode/skills/audit/tasks/spec-audit-evaluator.md`
+**SCs:** SC-6
+**Dependencies:** Phase 5 complete
+**Entry:** Phase 5 committed
+**Exit:** spec-audit-evaluator.md SC-13 updated to reference cost-model-standards
+
+### Code Path Coverage
+
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` SC-13 — cost-frame evaluation rule
+
+### Cross-Cutting SCs
+
+None — SC-6 is phase-specific.
+
+### Interface Boundaries
+
+- `reference/cost-model-standards.md` — read-only dependency, must exist
+- No changes to other auditor task files
+
+### State Transitions
+
+- Before: spec-audit-evaluator.md hard-codes SC-13 cost-frame evaluation rule
+- After: spec-audit-evaluator.md reads from reference/cost-model-standards.md via `Read [Text](path)`
 
 ### Item 6 — Update spec-audit-evaluator.md SC-13 to reference cost-model-standards
 
@@ -202,11 +400,39 @@ dispatch:
 - [ ] **Commit.** Stage and commit the changes.
   - (**inline**) `git add .opencode/skills/audit/tasks/spec-audit-evaluator.md && git commit -m "Phase 6: Update SC-13 cost-frame to reference cost-model-standards"`
 
-## Phase 7: Update plan-fidelity-evaluator.md PF-7a cost-frame
+### Phase Completion
 
-**SC:** SC-7
+- [ ] VbC: Verify SC-6 — grep for Read reference to cost-model-standards present; grep for old hard-coded rule removed
+- [ ] Concern transition: Complete. Proceed to Phase 7 (plan-fidelity-evaluator.md PF-7a cost-frame).
+
+---
+
+## Phase 7 — Update plan-fidelity-evaluator.md PF-7a cost-frame
+
 **Concern:** plan-fidelity-evaluator-cost-frame
-**Cost frame:** Grepping for the Read reference to cost-model-standards costs one search. Skipping means the evaluator still hard-codes the cost-frame rule and drifts from the reference doc.
+**Files:** `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md`
+**SCs:** SC-7
+**Dependencies:** Phase 6 complete
+**Entry:** Phase 6 committed
+**Exit:** plan-fidelity-evaluator.md PF-7a updated to reference cost-model-standards
+
+### Code Path Coverage
+
+- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` PF-7a — cost-frame evaluation rule
+
+### Cross-Cutting SCs
+
+None — SC-7 is phase-specific.
+
+### Interface Boundaries
+
+- `reference/cost-model-standards.md` — read-only dependency, must exist
+- No changes to other auditor task files
+
+### State Transitions
+
+- Before: plan-fidelity-evaluator.md hard-codes PF-7a cost-frame evaluation rule
+- After: plan-fidelity-evaluator.md reads from reference/cost-model-standards.md via `Read [Text](path)`
 
 ### Item 7 — Update plan-fidelity-evaluator.md PF-7a to reference cost-model-standards
 
@@ -222,6 +448,13 @@ dispatch:
 
 - [ ] **Commit.** Stage and commit the changes.
   - (**inline**) `git add .opencode/skills/audit/tasks/plan-fidelity-evaluator.md && git commit -m "Phase 7: Update PF-7a cost-frame to reference cost-model-standards"`
+
+### Phase Completion
+
+- [ ] VbC: Verify SC-7 — grep for Read reference to cost-model-standards present; grep for old hard-coded rule removed
+- [ ] Concern transition: Complete. Proceed to Post-Implementation Steps.
+
+---
 
 ## Post-Implementation Steps
 
@@ -249,3 +482,4 @@ dispatch:
 ## Lifecycle Events
 
 - `2026-07-31T23:10:00Z` — `plan_created` — Plan file at `.opencode/.issues/2211/plan.md` with 7 phases. Authorization scope: `for_plan`. Halt at: `plan_created`.
+- `2026-07-31T23:22:00Z` — `plan_revised` — Plan restructured to include all required sections per `reference/plan-structure-standards.md`: Goal/Architecture/Files/Dispatch, Blast Radius, Phase Table, Exit Criteria, per-phase Code Path Coverage/Cross-Cutting SCs/Interface Boundaries/State Transitions/Phase Completion blocks/Concern transitions, and all four admonishments. Dispatch table removed from frontmatter.

@@ -1,6 +1,6 @@
 # solve-output.yaml — research task output
 spec: .opencode/.issues/2211/spec.md
-generated: 2026-07-31T23:01:00Z
+generated: 2026-07-31T23:25:00Z
 task: research
 
 solve_model:
@@ -15,11 +15,12 @@ solve_check:
 plan:
   engine: tamer
   status: SOLVED_SATISFICING
-  plan_length: 6
+  plan_length: 7
   plan:
     - execute-phase(phase-1)
-    - execute-phase(phase-3)
     - execute-phase(phase-2)
-    - execute-phase(phase-6)
-    - execute-phase(phase-5)
+    - execute-phase(phase-3)
     - execute-phase(phase-4)
+    - execute-phase(phase-5)
+    - execute-phase(phase-6)
+    - execute-phase(phase-7)
