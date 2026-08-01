@@ -1,0 +1,50 @@
+# Blast Radius — .opencode#2210
+# Generated: retroactive backfill from spec
+# Spec: Create canonical reference docs and update producer templates
+
+affected_files:
+  new:
+    - .opencode/reference/spec-structure-standards.md
+    - .opencode/reference/plan-structure-standards.md
+    - .opencode/reference/cost-model-standards.md
+  modified:
+    - .opencode/skills/spec-creation/tasks/create.md
+    - .opencode/skills/writing-plans/tasks/create.md
+  verification_only:
+    - (Phase 5 — no file changes)
+
+affected_skills:
+  - spec-creation (producer template updated)
+  - writing-plans (producer template updated)
+
+affected_systems:
+  - Spec creation pipeline (reads reference docs instead of inline lists)
+  - Plan creation pipeline (reads reference docs instead of inline lists)
+  - Reference doc system (new category of canonical documents)
+
+impact_zones:
+  - zone: spec-structure
+    description: Spec structure is now defined by reference/spec-structure-standards.md
+    files:
+      - .opencode/reference/spec-structure-standards.md
+      - .opencode/skills/spec-creation/tasks/create.md
+  - zone: plan-structure
+    description: Plan structure is now defined by reference/plan-structure-standards.md
+    files:
+      - .opencode/reference/plan-structure-standards.md
+      - .opencode/skills/writing-plans/tasks/create.md
+  - zone: cost-model
+    description: Cost frame language is now defined by reference/cost-model-standards.md
+    files:
+      - .opencode/reference/cost-model-standards.md
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/writing-plans/tasks/create.md
+
+not_affected:
+  - Auditor task files (handled by .opencode#2211)
+  - Audit DiMo chain dispatch
+  - Behavioral enforcement tests
+  - Solve skill / Z3 constraint solver
+  - Approval-gate pipeline
+  - Implementation-pipeline SKILL.md or state machine
+  - Any YAML schemas, manifest operations, or backward-compat handling

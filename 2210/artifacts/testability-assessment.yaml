@@ -1,0 +1,110 @@
+# Testability Assessment — .opencode#2210
+# Generated: retroactive backfill from spec
+
+sc_testability:
+  - id: SC-1
+    description: reference/spec-structure-standards.md exists with canonical spec required sections
+    evidence_type: string
+    verification_method: diff reference doc sections against Phase 1 section list in this spec
+    test_approach: |
+      Read reference/spec-structure-standards.md and grep for each required section heading.
+      Verify all 11 sections present: Intent and Executive Summary, Not Included, Success Criteria,
+      Requirements, Items, Dependencies, Traceability, Documentation Sources, Enforcement Gate,
+      Cost Frame, Edge Cases.
+    cost: one read call + one grep per section
+    risk_if_skipped: Structurally wrong doc not caught until first spec created from it fails audit
+
+  - id: SC-2
+    description: reference/plan-structure-standards.md exists with canonical plan structure
+    evidence_type: string
+    verification_method: diff reference doc elements against Phase 2 section list in this spec
+    test_approach: |
+      Read reference/plan-structure-standards.md and verify:
+      - Three-tier layout (global pre-steps, per-phase, global post-steps)
+      - Per-item RED/GREEN/verify/commit daisy chain
+      - Dispatch indicators (inline/sub-agent/clean-room)
+      - Admonishments (compliance, one-step-at-a-time, step status, self-remediation, enforcement gate)
+      - Blast radius section
+      - Phase file sections (code path, cross-cutting, interface, state)
+      - Prohibited patterns (no dispatch tables, no TBD/TODO, no shared cross-refs, no zero-indexed, no line numbers, no multi-dispatch, no non-standard indicators, no omitted mandatory gates)
+      - Cost-frame per phase
+    cost: one read call + grep per element
+    risk_if_skipped: Structurally wrong plan not caught until first plan-fidelity audit
+
+  - id: SC-3
+    description: spec-creation/tasks/create.md Step 2 replaces inline section list with Read reference
+    evidence_type: string
+    verification_method: grep for inline section list removed; grep for Read reference; grep for each new required section
+    test_approach: |
+      Read spec-creation/tasks/create.md Step 2 and verify:
+      - No inline section list present
+      - Read [spec-structure-standards.md](reference/spec-structure-standards.md) present
+      - Preamble (6 fields), Documentation Sources, Enforcement Gate, Cost Frame (per-SC), Edge Cases present
+    cost: one grep search
+    risk_if_skipped: Producer template still hard-codes its section list
+
+  - id: SC-4
+    description: writing-plans/tasks/create.md references plan-structure-standards.md for structural expectations
+    evidence_type: string
+    verification_method: grep for Read reference; grep for each new required element
+    test_approach: |
+      Read writing-plans/tasks/create.md Steps 4-8 and verify:
+      - Read [plan-structure-standards.md](reference/plan-structure-standards.md) present
+      - Three-tier layout, per-item daisy chain, admonishments, blast radius section, phase file sections, prohibited patterns, cost-frame per phase present
+    cost: one grep search
+    risk_if_skipped: Plan producer template still hard-codes its structure
+
+  - id: SC-5
+    description: No new pipeline steps, YAML schemas, manifest write/read operations, or backward-compat handling
+    evidence_type: string
+    verification_method: grep for manifest, schema, backward-compat patterns
+    test_approach: |
+      Grep all changed files for prohibited patterns:
+      - "manifest" (in pipeline/step context)
+      - "schema" (in YAML/schema context)
+      - "backward" or "backward-compat" or "backwards"
+      - New step numbers or pipeline stage additions
+    cost: one grep search
+    risk_if_skipped: Ceremony creep goes undetected
+
+  - id: SC-6
+    description: reference/cost-model-standards.md exists with DDL cost model and dark-prose-007 formula
+    evidence_type: string
+    verification_method: diff reference doc sections against Phase 6 section list in this spec
+    test_approach: |
+      Read reference/cost-model-standards.md and verify:
+      - DDL cost model (death spiral/break dynamics, tiered table, research grounding)
+      - Cost-frame formula (dark-prose-007 pattern)
+      - Examples of correctly formed per-SC cost-frame statements
+    cost: one read call
+    risk_if_skipped: Cost frame language inconsistent across producer templates
+
+  - id: SC-7
+    description: spec-creation/tasks/create.md references cost-model-standards.md for Cost Frame section
+    evidence_type: string
+    verification_method: grep for Read reference to cost-model-standards
+    test_approach: |
+      Read spec-creation/tasks/create.md and verify:
+      - Read [cost-model-standards.md](reference/cost-model-standards.md) present in Cost Frame section
+      - Cost Frame section assembled by reading reference doc and writing per-SC cost-frame statements
+    cost: one grep search
+    risk_if_skipped: Spec Cost Frame section missing or inconsistent
+
+  - id: SC-8
+    description: writing-plans/tasks/create.md references cost-model-standards.md for per-phase cost frame
+    evidence_type: string
+    verification_method: grep for Read reference to cost-model-standards
+    test_approach: |
+      Read writing-plans/tasks/create.md and verify:
+      - Read [cost-model-standards.md](reference/cost-model-standards.md) present in per-phase cost frame step
+      - Per-phase cost frame assembled by reading reference doc and writing per-phase cost-frame statements
+    cost: one grep search
+    risk_if_skipped: Plan per-phase cost frame missing or inconsistent
+
+testability_summary:
+  all_scs_testable: true
+  primary_evidence_type: string
+  test_approach: grep + read verification for all 8 SCs
+  total_test_cost: 8 grep/read operations
+  behavioral_tests_needed: false
+  notes: All SCs are structural/string evidence type — no behavioral tests required. Verification is via file existence, grep for patterns, and diff against spec section lists.

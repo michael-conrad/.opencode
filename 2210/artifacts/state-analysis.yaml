@@ -1,0 +1,64 @@
+# State Analysis — .opencode#2210
+# Generated: retroactive backfill from spec
+
+initial_state:
+  - spec-creation/tasks/create.md Step 2: Contains inline section list (no reference to spec-structure-standards.md)
+  - writing-plans/tasks/create.md Steps 4-8: Contains inline plan structure description (no reference to plan-structure-standards.md)
+  - spec-creation/tasks/create.md: No Cost Frame section
+  - writing-plans/tasks/create.md: No per-phase cost frame
+  - reference/spec-structure-standards.md: Does not exist
+  - reference/plan-structure-standards.md: Does not exist
+  - reference/cost-model-standards.md: Does not exist
+
+phase_transitions:
+  - phase: 1
+    action: Create reference/spec-structure-standards.md
+    from_state: File does not exist
+    to_state: File exists with canonical spec structure sections
+    scs: [SC-1]
+
+  - phase: 2
+    action: Create reference/plan-structure-standards.md
+    from_state: File does not exist
+    to_state: File exists with canonical plan structure
+    scs: [SC-2]
+
+  - phase: 3
+    action: Update spec-creation/tasks/create.md Step 2
+    from_state: Inline section list
+    to_state: Read [spec-structure-standards.md](reference/spec-structure-standards.md) reference
+    scs: [SC-3]
+
+  - phase: 4
+    action: Update writing-plans/tasks/create.md Steps 4-8
+    from_state: Inline plan structure description
+    to_state: Reference to plan-structure-standards.md with all required elements
+    scs: [SC-4]
+
+  - phase: 5
+    action: Verify no ceremony added
+    from_state: (verification only — no state change)
+    to_state: (verification only — no state change)
+    scs: [SC-5]
+
+  - phase: 6
+    action: Create reference/cost-model-standards.md and update both producer templates
+    from_state: No cost-model-standards.md; no Cost Frame in spec template; no per-phase cost frame in plan template
+    to_state: cost-model-standards.md exists; both templates reference it for cost frame
+    scs: [SC-6, SC-7, SC-8]
+
+final_state:
+  - reference/spec-structure-standards.md: Exists with canonical spec structure
+  - reference/plan-structure-standards.md: Exists with canonical plan structure
+  - reference/cost-model-standards.md: Exists with DDL cost model
+  - spec-creation/tasks/create.md Step 2: References spec-structure-standards.md; includes Cost Frame section referencing cost-model-standards.md
+  - writing-plans/tasks/create.md Steps 4-8: References plan-structure-standards.md; includes per-phase cost frame referencing cost-model-standards.md
+  - No new pipeline steps, YAML schemas, manifests, or backward-compat handling introduced
+
+state_invariants:
+  - No new pipeline steps added
+  - No new YAML schemas introduced
+  - No manifest write/read operations
+  - No backward-compat handling
+  - Reference docs are read-only — never modified by producer templates
+  - Producer templates read reference docs but do not write to them

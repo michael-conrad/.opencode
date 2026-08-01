@@ -1,0 +1,56 @@
+# Cross-Cutting Matrix — .opencode#2210
+# Generated: retroactive backfill from spec
+
+cross_cutting_concerns:
+  - concern: reference-doc-consistency
+    description: All three reference docs must follow consistent format and terminology
+    affected_phases: [1, 2, 6]
+    affected_scs: [SC-1, SC-2, SC-6]
+    risk: Inconsistent reference doc formats cause confusion for producer templates
+    mitigation: Reference docs are read-only inputs — each producer template reads its specific doc independently
+
+  - concern: producer-template-coherence
+    description: Both producer templates must be updated to use Read [Text](path) pattern consistently
+    affected_phases: [3, 4, 6]
+    affected_scs: [SC-3, SC-4, SC-7, SC-8]
+    risk: One template updated but not the other
+    mitigation: Phases 3 and 4 are sequential; Phase 6 updates both templates
+
+  - concern: no-ceremony-creep
+    description: All phases must avoid introducing new pipeline steps, YAML schemas, manifests, or backward-compat
+    affected_phases: [1, 2, 3, 4, 6]
+    affected_scs: [SC-5]
+    risk: Any phase could inadvertently add ceremony
+    mitigation: Phase 5 explicitly verifies no ceremony added across all changed files
+
+  - concern: cost-model-integration
+    description: Cost frame must be consistently applied in both producer templates
+    affected_phases: [6]
+    affected_scs: [SC-7, SC-8]
+    risk: Cost frame applied differently in spec vs plan templates
+    mitigation: Both templates read from the same cost-model-standards.md reference doc
+
+  - concern: read-pattern-consistency
+    description: All Read [Text](path) references must use correct relative paths
+    affected_phases: [3, 4, 6]
+    affected_scs: [SC-3, SC-4, SC-7, SC-8]
+    risk: Incorrect relative path breaks the reference
+    mitigation: Paths are relative to the task file location; verify during Phase 5
+
+cross_phase_dependencies:
+  - from_phase: 1
+    to_phase: 3
+    via: spec-structure-standards.md
+    description: Phase 3 depends on Phase 1 reference doc existing
+  - from_phase: 2
+    to_phase: 4
+    via: plan-structure-standards.md
+    description: Phase 4 depends on Phase 2 reference doc existing
+  - from_phase: 6
+    to_phase: 3
+    via: cost-model-standards.md
+    description: Phase 6 Cost Frame update modifies same file as Phase 3
+  - from_phase: 6
+    to_phase: 4
+    via: cost-model-standards.md
+    description: Phase 6 per-phase cost frame modifies same file as Phase 4

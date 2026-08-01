@@ -1,0 +1,67 @@
+# Concern Map — .opencode#2210
+# Generated: retroactive backfill from spec
+
+concerns:
+  - id: spec-structure-standards
+    description: Canonical spec required sections and format
+    phases: [1]
+    affected_components:
+      - .opencode/reference/spec-structure-standards.md (new)
+    scs: [SC-1]
+    requirements: [REQ-1]
+
+  - id: plan-structure-standards
+    description: Canonical plan structure, tiers, dispatch indicators, prohibited patterns
+    phases: [2]
+    affected_components:
+      - .opencode/reference/plan-structure-standards.md (new)
+    scs: [SC-2]
+    requirements: [REQ-2]
+
+  - id: producer-template-update-spec
+    description: Update spec-creation/create.md to reference spec-structure-standards
+    phases: [3]
+    affected_components:
+      - .opencode/skills/spec-creation/tasks/create.md (modified)
+    scs: [SC-3]
+    requirements: [REQ-3]
+
+  - id: producer-template-update-plan
+    description: Update writing-plans/create.md to reference plan-structure-standards
+    phases: [4]
+    affected_components:
+      - .opencode/skills/writing-plans/tasks/create.md (modified)
+    scs: [SC-4]
+    requirements: [REQ-4]
+
+  - id: no-ceremony
+    description: Verify no new pipeline steps, YAML schemas, manifests, or backward-compat
+    phases: [5]
+    affected_components:
+      - (verification only — no file changes)
+    scs: [SC-5]
+    requirements: [REQ-5]
+
+  - id: cost-model-standards
+    description: DDL cost model reference doc and producer template updates
+    phases: [6]
+    affected_components:
+      - .opencode/reference/cost-model-standards.md (new)
+      - .opencode/skills/spec-creation/tasks/create.md (modified)
+      - .opencode/skills/writing-plans/tasks/create.md (modified)
+    scs: [SC-6, SC-7, SC-8]
+    requirements: [REQ-6, REQ-7, REQ-8]
+
+concern_dependencies:
+  - from: spec-structure-standards
+    to: producer-template-update-spec
+    reason: Phase 3 depends on Phase 1 reference doc existing
+  - from: plan-structure-standards
+    to: producer-template-update-plan
+    reason: Phase 4 depends on Phase 2 reference doc existing
+  - from: cost-model-standards
+    to: producer-template-update-spec
+    reason: Phase 6 Cost Frame update depends on cost-model-standards existing
+  - from: cost-model-standards
+    to: producer-template-update-plan
+    reason: Phase 6 per-phase cost frame depends on cost-model-standards existing

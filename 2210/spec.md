@@ -8,19 +8,26 @@ labels: [spec]
 >
 > **Local artifacts:** `.opencode/.issues/2210/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-## Objective
+## Intent and Executive Summary
 
-Create canonical reference documents (`reference/spec-structure-standards.md` and `reference/plan-structure-standards.md`) that define the required structure for specs and plans. Update the producer templates (`spec-creation/tasks/create.md` and `writing-plans/tasks/create.md`) to read from these reference docs and include all missing required elements identified during the auditor criteria audit.
+**Problem Statement:** The spec-audit and plan-fidelity auditors check for structural criteria that the producer templates never told the plan writer to include. This creates a 39-item gap between what producers produce and what auditors check.
 
-This is Spec A of a two-spec split. Spec B (`.opencode#2211`) updates the auditor task files to read from the same reference docs.
+**Root Cause / Motivation:** The producer templates (`spec-creation/tasks/create.md`, `writing-plans/tasks/create.md`) hard-code inline section lists that are incomplete. The auditor task files hard-code their own separate criteria lists. These two lists drifted apart over time. The root cause is the absence of a single canonical reference document that both sides read from.
 
-## Background
+**Approach Chosen:** Create two canonical reference documents (`reference/spec-structure-standards.md` and `reference/plan-structure-standards.md`) that define the required structure for specs and plans. Update the producer templates to read from these reference docs via `Read [Text](path)` instead of hard-coding inline lists. This is Spec A of a two-spec split — Spec B (`.opencode#2211`) updates the auditor task files to read from the same reference docs.
 
-The spec-audit and plan-fidelity auditors check for structural criteria that the producer templates never told the plan writer to include. A brainstorming session identified 39 items of misalignment between what producers produce and what auditors check. This spec addresses the producer side: create the canonical reference docs and update the producer templates to include all missing required elements.
+**Alternatives Considered & Why Discarded:**
+1. Manifest approach (producer writes YAML manifest, verifier reads it): Rejected — adds write step, read step, YAML schema, backward-compat handling, and drift risk. Violates `.opencode#2176` ceremony reduction intent.
+2. Cross-reference comments in task files: Rejected — comments are not enforceable and drift silently.
+3. Keep hard-coded criteria but audit them for correctness: Rejected — the 36-item misalignment proves this doesn't work.
+4. Single monolithic spec: Rejected — split into Spec A (producer side) and Spec B (auditor side) for manageable scope.
 
-The reference docs serve as the single source of truth that both producers and auditors read via `Read [Text](path)`. When the structure changes, one doc is updated and both sides adjust on their next read.
+**Key Design Decisions:**
+- Reference docs are the single source of truth — both producers and auditors read via `Read [Text](path)`. When structure changes, one doc is updated and both sides adjust on their next read.
+- No new pipeline steps, YAML schemas, manifest write/read operations, or backward-compat handling (aligned with `.opencode#2176` ceremony reduction).
+- The preamble (6 fields) subsumes the old Objective and Background sections.
 
-This spec is aligned with `.opencode#2176` (pipeline ceremony reduction): it adds no new pipeline steps, no YAML schemas, no manifest write/read operations, and no backward-compat handling.
+**User Intent / Original Prompt:** "audit the specs against themselves for requirements for specs" — eat your own dogfood. The specs must follow the canonical structure they define.
 
 ## Not Included
 
@@ -35,13 +42,29 @@ This spec is aligned with `.opencode#2176` (pipeline ceremony reduction): it add
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `reference/spec-structure-standards.md` exists and declares the canonical spec required sections: Objective, Background, Not Included, Success Criteria (with Evidence Type column), Requirements (numbered SHALL), Items (per-SC enumeration), Dependencies, Traceability (Req→SC→Phase), Intent and Executive Summary (6 fields: Problem Statement, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions, User Intent/Original Prompt), Documentation Sources, Enforcement Gate, Cost Frame (per-SC), Edge Cases | string | diff reference doc sections against the resolved item list from the brainstorming session |
-| SC-2 | `reference/plan-structure-standards.md` exists and declares the canonical plan structure: three-tier layout (global pre-steps → per-phase daisy-chained items → global post-steps), per-item RED/GREEN/verify/commit daisy chain, dispatch indicators (inline/sub-agent/clean-room), step format (checklist with sub-bullets, no prescriptive code), admonishments (compliance top-only, one-step-at-a-time, step status, self-remediation, enforcement gate), blast radius section, phase file sections (code path coverage, cross-cutting SCs, interface boundaries, state transitions), prohibited patterns (no dispatch tables, no TBD/TODO, no shared cross-references, no zero-indexed, no line numbers, no multi-dispatch steps, no non-standard indicators, no omitted mandatory gates), cost-frame per phase | string | diff reference doc elements against the resolved item list |
+| SC-1 | `reference/spec-structure-standards.md` exists and declares the canonical spec required sections: Intent and Executive Summary (6 fields), Not Included, Success Criteria (with Evidence Type column), Requirements (numbered SHALL), Items (per-SC enumeration), Dependencies, Traceability (Req→SC→Phase), Documentation Sources, Enforcement Gate, Cost Frame (per-SC), Edge Cases | string | diff reference doc sections against Phase 1 section list in this spec |
+| SC-2 | `reference/plan-structure-standards.md` exists and declares the canonical plan structure: three-tier layout (global pre-steps → per-phase daisy-chained items → global post-steps), per-item RED/GREEN/verify/commit daisy chain, dispatch indicators (inline/sub-agent/clean-room), step format (checklist with sub-bullets, no prescriptive code), admonishments (compliance top-only, one-step-at-a-time, step status, self-remediation, enforcement gate), blast radius section, phase file sections (code path coverage, cross-cutting SCs, interface boundaries, state transitions), prohibited patterns (no dispatch tables, no TBD/TODO, no shared cross-references, no zero-indexed, no line numbers, no multi-dispatch steps, no non-standard indicators, no omitted mandatory gates), cost-frame per phase | string | diff reference doc elements against Phase 2 section list in this spec |
 | SC-3 | `spec-creation/tasks/create.md` Step 2 replaces its inline section list with `Read [spec-structure-standards.md](reference/spec-structure-standards.md)` and assembles the spec against it. The preamble (6 fields), Documentation Sources, Enforcement Gate, Cost Frame (per-SC), and Edge Cases are added as required sections. | string | grep for inline section list removed; grep for Read reference; grep for each new required section |
 | SC-4 | `writing-plans/tasks/create.md` references `plan-structure-standards.md` for structural expectations. The three-tier layout, per-item daisy chain, admonishments (compliance top-only, one-step-at-a-time, step status, self-remediation, enforcement gate), blast radius section, phase file sections (code path, cross-cutting, interface, state), prohibited patterns, and cost-frame per phase are added as required elements. | string | grep for Read reference; grep for each new required element |
 | SC-5 | No new pipeline steps, YAML schemas, manifest write/read operations, or backward-compat handling introduced | string | grep for manifest, schema, backward-compat patterns |
+| SC-6 | `reference/cost-model-standards.md` exists and declares the DDL cost model (death spiral/break dynamics, tiered table by evidence type, research grounding) and the dark-prose-007 cost-frame formula | string | diff reference doc sections against Phase 6 section list in this spec |
+| SC-7 | `spec-creation/tasks/create.md` references `cost-model-standards.md` for the Cost Frame section. The Cost Frame section is assembled by reading the reference doc and writing per-SC cost-frame statements following the dark-prose-007 pattern. | string | grep for Read reference to cost-model-standards |
+| SC-8 | `writing-plans/tasks/create.md` references `cost-model-standards.md` for the per-phase cost frame. The per-phase cost frame is assembled by reading the reference doc and writing per-phase cost-frame statements following the dark-prose-007 pattern. | string | grep for Read reference to cost-model-standards |
 
 > **Enforcement gate:** All success criteria must pass before this spec is considered complete. Partial implementation is not permitted.
+
+## Cost Frame
+
+Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
+
+- SC-1: Verifying the reference doc exists costs one read call. Skipping means a structurally wrong doc isn't caught until the first spec created from it fails audit.
+- SC-2: Verifying the plan structure reference doc costs one read call. Skipping means a structurally wrong plan isn't caught until the first plan-fidelity audit.
+- SC-3: Grepping for the Read reference costs one search. Skipping means the producer template still hard-codes its section list.
+- SC-4: Grepping for the Read reference costs one search. Skipping means the plan producer template still hard-codes its structure.
+- SC-5: Grepping for prohibited patterns costs one search. Skipping means ceremony creep goes undetected.
+- SC-6: Verifying the cost model reference doc exists costs one read call. Skipping means the cost-frame formula isn't canonicalized and per-SC cost statements drift from the dark-prose-007 pattern.
+- SC-7: Verifying the spec producer template references cost-model-standards costs one grep search. Skipping means the Cost Frame section is assembled without the canonical formula.
+- SC-8: Verifying the plan producer template references cost-model-standards costs one grep search. Skipping means per-phase cost frames are assembled without the canonical formula.
 
 ## Requirements
 
@@ -50,6 +73,9 @@ This spec is aligned with `.opencode#2176` (pipeline ceremony reduction): it add
 - REQ-3: `spec-creation/tasks/create.md` references spec-structure-standards and includes all missing required sections
 - REQ-4: `writing-plans/tasks/create.md` references plan-structure-standards and includes all missing required elements
 - REQ-5: No new pipeline ceremony introduced
+- REQ-6: `reference/cost-model-standards.md` created with DDL cost model and dark-prose-007 formula
+- REQ-7: `spec-creation/tasks/create.md` references cost-model-standards for Cost Frame section
+- REQ-8: `writing-plans/tasks/create.md` references cost-model-standards for per-phase cost frame
 
 ## Items
 
@@ -60,6 +86,9 @@ This spec is aligned with `.opencode#2176` (pipeline ceremony reduction): it add
 | 3 | SC-3 | Update `spec-creation/tasks/create.md` |
 | 4 | SC-4 | Update `writing-plans/tasks/create.md` |
 | 5 | SC-5 | Verify no ceremony added |
+| 6 | SC-6 | Create `reference/cost-model-standards.md` |
+| 7 | SC-7 | Update `spec-creation/tasks/create.md` Cost Frame section |
+| 8 | SC-8 | Update `writing-plans/tasks/create.md` per-phase cost frame |
 
 ## Dependencies
 
@@ -74,6 +103,9 @@ This spec is aligned with `.opencode#2176` (pipeline ceremony reduction): it add
 | REQ-3 | SC-3 | Phase 3 |
 | REQ-4 | SC-4 | Phase 4 |
 | REQ-5 | SC-5 | Phase 5 |
+| REQ-6 | SC-6 | Phase 6 |
+| REQ-7 | SC-7 | Phase 6 |
+| REQ-8 | SC-8 | Phase 6 |
 
 ## Phases
 
@@ -82,19 +114,17 @@ This spec is aligned with `.opencode#2176` (pipeline ceremony reduction): it add
 Create `reference/spec-structure-standards.md` declaring:
 
 **Required sections:**
-1. Objective — What this spec achieves
-2. Background — Why this spec exists, context, defects being addressed
-3. Not Included — Explicitly excluded scope
-4. Success Criteria — Table with ID, Criterion, Evidence Type, Verification Method columns
-5. Requirements — Numbered requirements with SHALL language
-6. Items — Per-SC item enumeration. Each SC maps to exactly one item. Items numbered sequentially from 1.
-7. Dependencies — Prerequisite specs, skills, guidelines
-8. Traceability — Table mapping Requirements → SCs → Phases
-9. Intent and Executive Summary — Preamble with 6 fields: Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions, User Intent / Original Prompt
-10. Documentation Sources — Table with Source, Type, Location, Verification columns
-11. Enforcement Gate — All-or-nothing statement: all SCs must pass before completion
-12. Cost Frame — Per-SC cost-frame language justifying verification costs relative to defect-discovery cost
-13. Edge Cases — Boundary conditions, failure modes, and their resolutions
+1. Intent and Executive Summary — Preamble with 6 fields: Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions, User Intent / Original Prompt. This section subsumes Objective and Background.
+2. Not Included — Explicitly excluded scope
+3. Success Criteria — Table with ID, Criterion, Evidence Type, Verification Method columns
+4. Requirements — Numbered requirements with SHALL language
+5. Items — Per-SC item enumeration. Each SC maps to exactly one item. Items numbered sequentially from 1.
+6. Dependencies — Prerequisite specs, skills, guidelines
+7. Traceability — Table mapping Requirements → SCs → Phases
+8. Documentation Sources — Table with Source, Type, Location, Verification columns
+9. Enforcement Gate — All-or-nothing statement: all SCs must pass before completion
+10. Cost Frame — Per-SC cost-frame language justifying verification costs relative to defect-discovery cost
+11. Edge Cases — Boundary conditions, failure modes, and their resolutions
 
 **SC table column requirements:** ID, Criterion, Evidence Type, Verification Method
 
@@ -210,6 +240,34 @@ Verify that no new pipeline steps, YAML schemas, manifest write/read operations,
 **Affected files:**
 - Verification only
 
+### Phase 6 (REQ-6, REQ-7, REQ-8): Create cost-model-standards.md and update producer templates
+
+Create `reference/cost-model-standards.md` declaring:
+
+**DDL cost model:**
+- Cost is measured in defect-discovery-latency, not tool calls
+- Death spiral: structural PASS → defect ships → production discovery → 1000× rework cost
+- Break: behavioral FAIL at gate 1 → immediate fix → zero downstream cost
+- Tiered table by evidence type (behavioral/semantic/string/structural) with DDL multiplier and death spiral/break classification
+- Research grounding: IBM 100×, NIST $59.5B, Capers Jones DRE
+
+**Cost-frame formula (dark-prose-007):**
+- Computation frame: cost IS defect-discovery-latency
+- Action cost: [action] costs [magnitude] — [consequence]
+- Skipping cost: [skipped action] costs [magnitude] — [consequence]
+- Identity anchor: Correctness is the only metric
+
+**Examples:** Correctly formed per-SC cost-frame statements following the dark-prose-007 pattern
+
+**Producer template updates:**
+- `spec-creation/tasks/create.md`: Add `Read [cost-model-standards.md](reference/cost-model-standards.md)` to the Cost Frame section assembly step. The Cost Frame section is assembled by reading the reference doc and writing per-SC cost-frame statements following the dark-prose-007 pattern.
+- `writing-plans/tasks/create.md`: Add `Read [cost-model-standards.md](reference/cost-model-standards.md)` to the per-phase cost frame step. The per-phase cost frame is assembled by reading the reference doc and writing per-phase cost-frame statements following the dark-prose-007 pattern.
+
+**Affected files:**
+- `.opencode/reference/cost-model-standards.md` — new
+- `.opencode/skills/spec-creation/tasks/create.md` — update Cost Frame section
+- `.opencode/skills/writing-plans/tasks/create.md` — update per-phase cost frame
+
 ## Documentation Sources
 
 | Source | Type | Location | Verification |
@@ -224,8 +282,9 @@ Verify that no new pipeline steps, YAML schemas, manifest write/read operations,
 
 - `.opencode/reference/spec-structure-standards.md` — new
 - `.opencode/reference/plan-structure-standards.md` — new
-- `.opencode/skills/spec-creation/tasks/create.md` — update Step 2
-- `.opencode/skills/writing-plans/tasks/create.md` — update Steps 4-8
+- `.opencode/reference/cost-model-standards.md` — new
+- `.opencode/skills/spec-creation/tasks/create.md` — update Step 2, add Cost Frame section
+- `.opencode/skills/writing-plans/tasks/create.md` — update Steps 4-8, add per-phase cost frame
 
 ## Risks
 

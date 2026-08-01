@@ -8,35 +8,25 @@ labels: [spec]
 >
 > **Local artifacts:** `.opencode/.issues/2211/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-## Objective
+## Intent and Executive Summary
 
-Update the four auditor task files (`spec-audit-evaluator.md`, `spec-audit-investigator.md`, `plan-fidelity-evaluator.md`, `plan-fidelity-investigator.md`) to read from the canonical reference docs (`reference/spec-structure-standards.md` and `reference/plan-structure-standards.md`) instead of hard-coding structural criteria. Remove criteria that were eliminated during the brainstorming session.
+**Problem Statement:** The four auditor task files (`spec-audit-evaluator.md`, `spec-audit-investigator.md`, `plan-fidelity-evaluator.md`, `plan-fidelity-investigator.md`) hard-code structural criteria that duplicate — and have drifted from — the producer templates. A brainstorming session identified 39 items of misalignment.
 
-This is Spec B of a two-spec split. Spec A (`.opencode#2210`) creates the reference docs and updates the producer templates. This spec depends on those reference docs existing.
+**Root Cause / Motivation:** The auditor task files hard-code their own separate criteria lists that are not synchronized with the producer templates. When the producer side changes, the auditor side must be manually updated. The root cause is the absence of a single canonical reference document that both sides read from. Spec A (`.opencode#2210`) creates those reference docs. This spec updates the auditor side to read from them.
 
-## Background
+**Approach Chosen:** Update the four auditor task files to read from the canonical reference docs (`reference/spec-structure-standards.md` and `reference/plan-structure-standards.md`) via `Read [Text](path)` instead of hard-coding structural criteria. Remove criteria that were eliminated during the brainstorming session. This is Spec B of a two-spec split — Spec A (`.opencode#2210`) creates the reference docs and updates the producer templates.
 
-The brainstorming session identified 39 items of misalignment between what producers produce and what auditors check. The resolutions were:
+**Alternatives Considered & Why Discarded:**
+1. Single monolithic spec: Rejected — split into Spec A (producer side) and Spec B (auditor side) for manageable scope.
+2. Keep all hard-coded criteria: Rejected — the 36-item misalignment proves this doesn't work.
+3. Move everything to reference docs including behavioral checks: Rejected — behavioral judgments (determinism, evidence type uplift) cannot be codified as structural rules.
 
-**Removed from auditors (no producer counterpart, not worth adding):**
-- Phases in spec-audit (SC-3, SC-6) — plan concept checked against wrong artifact
-- STATUS marker in investigator — prohibited pattern, SC-TRACKING-LANG covers it
-- PF-DELEGATION — too rare, false FAILs on most plans
-- Z3 contract refs in investigator — redundant with PF-Z3-CONTRACT evaluator
-- Verification instructions in investigator — redundant with PF-STRUCTURAL-FAIL evaluator
-- Gate sequence in investigator — redundant with PF-SEQUENCE-MATCHES evaluator
-- PF-4 (edge cases in plan) — error recovery is a pipeline invariant
-- PF-GLOBAL-NUMBERING — no evidence of defect prevention
+**Key Design Decisions:**
+- Reference docs are the single source of truth — both producers and auditors read via `Read [Text](path)`.
+- Criteria that are cross-artifact comparisons or behavioral judgments (PF-1, PF-2, PF-3, PF-5, PF-STRUCTURAL-FAIL, PF-Z3-CONTRACT, PF-SEQUENCE-MATCHES) remain as explicit instructions — they cannot be codified as structural rules.
+- Eliminated criteria: phases in spec-audit (plan concept), STATUS marker (prohibited pattern), PF-DELEGATION (too rare), Z3 contract refs (redundant), verification instructions (redundant), gate sequence (redundant), PF-4 (pipeline invariant), PF-GLOBAL-NUMBERING (no defect prevention evidence).
 
-**Removed from auditors (spec concept, not plan concept):**
-- SC-13 (cost-frame in spec) — now required per-SC in spec template
-- PF-7 (SC gate language in plan) — now required in plan admonishments
-
-**Moved to reference docs (both producers and auditors read via Read[Text](path)):**
-- Spec structure: required sections, preamble fields, SC table columns, evidence type taxonomy, prohibited patterns, format requirements, enforcement gate, cost-frame, edge cases, documentation sources
-- Plan structure: three-tier layout, per-item daisy chain, dispatch indicators, step format, admonishments, blast radius, phase file sections, prohibited patterns, cost-frame per phase
-
-This spec updates the four auditor task files to read from the reference docs and removes the eliminated criteria.
+**User Intent / Original Prompt:** "audit the specs against themselves for requirements for specs" — eat your own dogfood. The specs must follow the canonical structure they define.
 
 ## Not Included
 
@@ -55,8 +45,22 @@ This spec updates the four auditor task files to read from the reference docs an
 | SC-3 | `plan-fidelity/tasks/plan-fidelity-evaluator.md` Step 3 replaces hard-coded PF criteria that derive from plan structure (PF-4, PF-6, PF-7, PF-7a, PF-ADMONISHMENT, PF-ONE-STEP, PF-DELEGATION, PF-PRESCRIPTIVE-CODE, PF-GLOBAL-NUMBERING) with `Read [plan-structure-standards.md](reference/plan-structure-standards.md)` and derives criteria from its elements. PF-4, PF-DELEGATION, PF-GLOBAL-NUMBERING are removed entirely. PF-CHECKLIST-FORMAT, PF-DISPATCH-MODE, PF-DISPATCH-DEFECTS, PF-SUBSTEP-EXPAND reference the reference doc for their rule definitions. PF-1, PF-2, PF-3, PF-5, PF-STRUCTURAL-FAIL, PF-Z3-CONTRACT, PF-SEQUENCE-MATCHES remain as explicit instructions. | string | grep for removed PF criteria absent; grep for Read reference |
 | SC-4 | `plan-fidelity/tasks/plan-fidelity-investigator.md` Steps 2-5 replaces hard-coded evidence collection items (phase descriptions, cross-references, delegation, scope boundary, admonishments, plan scope, gate sequence, verification instructions, Z3 contracts, prescriptive content, cost-frame prose, SC gate language) with `Read [plan-structure-standards.md](reference/plan-structure-standards.md)` and collects evidence against its elements. Delegation refs (Step 2.6, 3.11, 5.5), gate sequence (Step 3.12), verification instructions (Step 3.13), Z3 contract refs (Step 3.14), cost-frame prose (Step 5.8), and SC gate language (Step 5.9) are removed. | string | grep for removed evidence collection items absent; grep for Read reference |
 | SC-5 | All reference doc `Read [Text](path)` references point to existing files (created by `.opencode#2210`) | string | read each referenced path — expect file exists |
+| SC-6 | `spec-audit-evaluator.md` SC-13 (cost-frame) replaces hard-coded evaluation rule with `Read [cost-model-standards.md](reference/cost-model-standards.md)` and verifies each SC's cost frame follows the dark-prose-007 pattern | string | grep for Read reference to cost-model-standards; grep for old hard-coded rule removed |
+| SC-7 | `plan-fidelity-evaluator.md` PF-7a (cost-frame) replaces hard-coded evaluation rule with `Read [cost-model-standards.md](reference/cost-model-standards.md)` and verifies each phase's cost frame follows the dark-prose-007 pattern | string | grep for Read reference to cost-model-standards; grep for old hard-coded rule removed |
 
 > **Enforcement gate:** All success criteria must pass before this spec is considered complete. Partial implementation is not permitted.
+
+## Cost Frame
+
+Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
+
+- SC-1: Grepping for the Read reference costs one search. Skipping means the evaluator still hard-codes its SC table and drifts from the reference doc.
+- SC-2: Grepping for the Read reference costs one search. Skipping means the investigator still hard-codes section names that drift from the reference doc.
+- SC-3: Grepping for the Read reference costs one search. Skipping means the plan-fidelity evaluator still hard-codes PF criteria that drift from the reference doc.
+- SC-4: Grepping for the Read reference costs one search. Skipping means the plan-fidelity investigator still hard-codes evidence collection items that drift from the reference doc.
+- SC-5: Reading each referenced path costs one read call per path. Skipping means a missing reference doc isn't caught until the auditor fails at runtime.
+- SC-6: Grepping for the Read reference to cost-model-standards costs one search. Skipping means the evaluator still hard-codes the cost-frame rule and drifts from the reference doc.
+- SC-7: Grepping for the Read reference to cost-model-standards costs one search. Skipping means the plan-fidelity evaluator still hard-codes the cost-frame rule and drifts from the reference doc.
 
 ## Requirements
 
@@ -65,6 +69,8 @@ This spec updates the four auditor task files to read from the reference docs an
 - REQ-3: `plan-fidelity-evaluator.md` references plan-structure-standards, removes eliminated PF criteria
 - REQ-4: `plan-fidelity-investigator.md` references plan-structure-standards, removes eliminated items
 - REQ-5: All reference doc paths are valid
+- REQ-6: `spec-audit-evaluator.md` SC-13 references cost-model-standards
+- REQ-7: `plan-fidelity-evaluator.md` PF-7a references cost-model-standards
 
 ## Items
 
@@ -75,6 +81,8 @@ This spec updates the four auditor task files to read from the reference docs an
 | 3 | SC-3 | Update `plan-fidelity-evaluator.md` |
 | 4 | SC-4 | Update `plan-fidelity-investigator.md` |
 | 5 | SC-5 | Verify reference doc paths |
+| 6 | SC-6 | Update `spec-audit-evaluator.md` SC-13 to reference cost-model-standards |
+| 7 | SC-7 | Update `plan-fidelity-evaluator.md` PF-7a to reference cost-model-standards |
 
 ## Dependencies
 
@@ -89,6 +97,8 @@ This spec updates the four auditor task files to read from the reference docs an
 | REQ-3 | SC-3 | Phase 3 |
 | REQ-4 | SC-4 | Phase 4 |
 | REQ-5 | SC-5 | Phase 5 |
+| REQ-6 | SC-6 | Phase 6 |
+| REQ-7 | SC-7 | Phase 6 |
 
 ## Phases
 
@@ -184,6 +194,18 @@ Verify that all `Read [Text](path)` references in the updated auditor task files
 **Affected files:**
 - Verification only
 
+### Phase 6 (REQ-6, REQ-7): Update auditor cost-frame criteria to reference cost-model-standards
+
+**spec-audit-evaluator.md Step 5a changes:**
+- SC-13 (cost-frame): Replace hard-coded evaluation rule with: `Read [cost-model-standards.md](reference/cost-model-standards.md) and verify each SC's cost frame follows the dark-prose-007 pattern.`
+
+**plan-fidelity-evaluator.md Step 3 changes:**
+- PF-7a (cost-frame): Replace hard-coded evaluation rule with: `Read [cost-model-standards.md](reference/cost-model-standards.md) and verify each phase's cost frame follows the dark-prose-007 pattern.`
+
+**Affected files:**
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md`
+- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md`
+
 ## Documentation Sources
 
 | Source | Type | Location | Verification |
@@ -197,9 +219,9 @@ Verify that all `Read [Text](path)` references in the updated auditor task files
 
 ## Files Affected
 
-- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` — update Step 5a, Steps 5b-5h
+- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` — update Step 5a, Steps 5b-5h, SC-13
 - `.opencode/skills/audit/tasks/spec-audit-investigator.md` — update Step 3
-- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` — update Step 3
+- `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` — update Step 3, PF-7a
 - `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` — update Steps 2-5
 
 ## Risks

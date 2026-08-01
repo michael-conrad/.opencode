@@ -1,0 +1,71 @@
+# Code Path Inventory — .opencode#2210
+# Generated: retroactive backfill from spec
+
+code_paths:
+  - id: spec-creation-create-step2
+    file: .opencode/skills/spec-creation/tasks/create.md
+    location: Step 2
+    current_behavior: Contains inline section list for spec assembly
+    target_behavior: Replace inline section list with Read [spec-structure-standards.md](reference/spec-structure-standards.md)
+    change_type: replace-inline-with-reference
+    phases: [3, 6]
+    scs: [SC-3, SC-7]
+
+  - id: spec-creation-create-cost-frame
+    file: .opencode/skills/spec-creation/tasks/create.md
+    location: Cost Frame section assembly step
+    current_behavior: No Cost Frame section (missing required section)
+    target_behavior: Add Read [cost-model-standards.md](reference/cost-model-standards.md) and assemble per-SC cost-frame statements
+    change_type: add-new-section
+    phases: [6]
+    scs: [SC-7]
+
+  - id: writing-plans-create-steps4-8
+    file: .opencode/skills/writing-plans/tasks/create.md
+    location: Steps 4-8
+    current_behavior: Contains inline plan structure description
+    target_behavior: Replace inline structure with reference to plan-structure-standards.md; add three-tier layout, daisy chain, admonishments, blast radius, phase file sections, prohibited patterns, cost-frame per phase
+    change_type: replace-inline-with-reference
+    phases: [4, 6]
+    scs: [SC-4, SC-8]
+
+  - id: writing-plans-create-cost-frame
+    file: .opencode/skills/writing-plans/tasks/create.md
+    location: Per-phase cost frame step
+    current_behavior: No per-phase cost frame (missing required element)
+    target_behavior: Add Read [cost-model-standards.md](reference/cost-model-standards.md) and assemble per-phase cost-frame statements
+    change_type: add-new-element
+    phases: [6]
+    scs: [SC-8]
+
+  - id: verification-no-ceremony
+    file: (verification only)
+    location: Phase 5
+    current_behavior: N/A
+    target_behavior: Verify no new pipeline steps, YAML schemas, manifests, or backward-compat handling introduced
+    change_type: verification-only
+    phases: [5]
+    scs: [SC-5]
+
+new_code_paths:
+  - id: spec-structure-standards
+    file: .opencode/reference/spec-structure-standards.md
+    type: reference-doc
+    consumers:
+      - .opencode/skills/spec-creation/tasks/create.md (Step 2)
+    phases: [1]
+
+  - id: plan-structure-standards
+    file: .opencode/reference/plan-structure-standards.md
+    type: reference-doc
+    consumers:
+      - .opencode/skills/writing-plans/tasks/create.md (Steps 4-8)
+    phases: [2]
+
+  - id: cost-model-standards
+    file: .opencode/reference/cost-model-standards.md
+    type: reference-doc
+    consumers:
+      - .opencode/skills/spec-creation/tasks/create.md (Cost Frame section)
+      - .opencode/skills/writing-plans/tasks/create.md (per-phase cost frame)
+    phases: [6]

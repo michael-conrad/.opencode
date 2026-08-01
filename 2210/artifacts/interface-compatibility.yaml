@@ -1,0 +1,56 @@
+# Interface Compatibility — .opencode#2210
+# Generated: retroactive backfill from spec
+
+interfaces:
+  - id: reference-doc-to-producer
+    type: read-only-input
+    description: Reference docs are read-only inputs consumed by producer templates via Read [Text](path)
+    direction: reference-doc → producer-template
+    consumers:
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/writing-plans/tasks/create.md
+    producers:
+      - .opencode/reference/spec-structure-standards.md
+      - .opencode/reference/plan-structure-standards.md
+      - .opencode/reference/cost-model-standards.md
+    compatibility_concerns:
+      - Reference doc format must be parseable by LLM reading the task file
+      - Relative path from task file to reference doc must be correct
+      - Reference doc must be committed before producer template references it
+    backward_compat: none needed — reference docs are new files
+
+  - id: producer-template-to-spec-output
+    type: generation
+    description: Producer template generates spec/plan output based on reference doc structure
+    direction: producer-template → spec/plan output
+    consumers:
+      - (generated spec/plan files)
+    producers:
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/writing-plans/tasks/create.md
+    compatibility_concerns:
+      - Generated output must match reference doc structure
+      - No structural drift between reference doc and generated output
+    backward_compat: existing specs/plans with non-standard structure will fail audit — this is correct behavior per spec Edge Cases
+
+  - id: spec-b-dependency
+    type: forward-dependency
+    description: .opencode#2211 (auditor updates) depends on these reference docs existing
+    direction: .opencode#2210 → .opencode#2211
+    consumers:
+      - .opencode/.issues/2211/ (auditor task files)
+    producers:
+      - .opencode/reference/spec-structure-standards.md
+      - .opencode/reference/plan-structure-standards.md
+      - .opencode/reference/cost-model-standards.md
+    compatibility_concerns:
+      - Reference doc structure must be stable before Spec B reads from it
+      - If reference docs change after Spec B implementation, both sides must be updated
+    backward_compat: Spec B is sequential — must not start until Spec A completes
+
+no_new_interfaces:
+  - No new pipeline steps
+  - No new YAML schemas
+  - No manifest write/read operations
+  - No backward-compat handling
+  - No new API endpoints or function signatures
