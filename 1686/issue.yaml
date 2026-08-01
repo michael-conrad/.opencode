@@ -1,5 +1,5 @@
-labels: '[[]"'
+labels:
+- approved-for-pr
 number: 1686
 state: CLOSED
-title: "[SPEC-FIX] Reorder pre-work steps \u2014 submodule sync must precede feature\"
-  \ branch creation"
+title: "[SPEC-FIX] Reorder pre-work steps — submodule sync must precede feature branch creation"
