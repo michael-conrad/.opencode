@@ -218,7 +218,7 @@ body: '## Intent and Executive Summary
 
   | SC-6 | String — SKILL.md routing metadata update. Low cost. |
 
-  | SC-7 | Behavioral — pre/post behavioral test comparison. Medium cost. |
+  | SC-7 | String — pre/post stderr dispatch pattern comparison. Low cost. |
 
 
   ## Edge Cases
@@ -232,9 +232,9 @@ body: '## Intent and Executive Summary
   it must be fixed in a follow-up. The pre-implementation grep audit minimizes this
   risk.
 
-  - **SC-7 behavioral regression:** If the Z3 steps produce different output after
-  the workflow reorder, the change must be reverted and the root cause investigated.
-  The behavioral test baseline captures pre-change behavior.
+  - **SC-7 regression:** If the Z3 steps produce different stderr dispatch patterns
+  after the workflow reorder, the change must be reverted and the root cause investigated.
+  The pre-change stderr baseline captures pre-change behavior.
 
   - **SC-2 authorization failure:** If `approval-gate --task verify-authorization`
   blocks the handoff, the plan creation workflow halts with a clear BLOCKED message
@@ -328,4 +328,4 @@ body: '## Intent and Executive Summary
 
   '
 created_at: '2026-08-01T03:34:59+00:00'
-updated_at: '2026-08-01T15:42:10+00:00'
+updated_at: '2026-08-01T15:44:34+00:00'
