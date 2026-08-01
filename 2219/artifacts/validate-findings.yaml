@@ -1,0 +1,111 @@
+# Validation Findings — Issue #2219
+# Generated: validate task from writing-plans
+# Timestamp: 2026-08-01T20:08:00Z
+
+overall_status: FAIL
+
+categories:
+
+  - id: 1
+    name: Structural validation
+    status: FAIL
+    checks:
+      - id: 1.1
+        name: Phase table with all required columns
+        status: PASS
+        detail: "Phase table has columns: Phase, Skill, Task, Target, SCs, Depends On — all required columns present"
+      - id: 1.2
+        name: Each phase has a procedure section with numbered steps
+        status: FAIL
+        detail: "Phase 1, 2, 3 have Context YAML blocks (detection_logic, deletion_logic, verification) but NO numbered procedure steps. The task requires numbered steps (1., 2., 3., etc.) per phase."
+      - id: 1.3
+        name: Exit criteria section exists with SC-to-phase mapping
+        status: PASS
+        detail: "Exit criteria section (lines 96-105) has 8 criteria C1-C8 mapping to SC-1 through SC-6"
+
+  - id: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - id: 2.1
+        name: All skill+task references match valid entries in implementation-workflow reference card
+        status: PASS
+        detail: "All references valid: test-driven-development/red → tasks/red.md, test-driven-development/green → tasks/green.md, test-driven-development/patterns → tasks/patterns.md. Note: 'patterns' is not in the implementation-workflow reference card's RED-GREEN Daisy-Chain table but exists as a task file. The reference card does not list all possible tasks — only the canonical dispatch chain. The task file exists, so the reference is valid."
+
+  - id: 3
+    name: SC coverage
+    status: FAIL
+    checks:
+      - id: 3.1
+        name: Every SC from spec appears in at least one phase's exit criteria
+        status: PASS
+        detail: "SC-1 through SC-6 all appear in phase SC assignments (Phase 1: SC-1, SC-2, SC-5; Phase 2: SC-3, SC-4; Phase 3: SC-6) and exit criteria C1-C8 cover all 6 SCs"
+      - id: 3.2
+        name: Triplet split detection — no SC has RED/GREEN/COMMIT split across phases
+        status: FAIL
+        detail: "Multiple triplet splits detected:
+          - SC-1: RED in Phase 1, GREEN/COMMIT not in any phase → TRIPLET_SPLIT + INCOMPLETE
+          - SC-2: RED in Phase 1, GREEN/COMMIT not in any phase → TRIPLET_SPLIT + INCOMPLETE
+          - SC-3: GREEN in Phase 2, RED/COMMIT not in any phase → TRIPLET_SPLIT + INCOMPLETE
+          - SC-4: GREEN in Phase 2, RED/COMMIT not in any phase → TRIPLET_SPLIT + INCOMPLETE
+          - SC-5: RED in Phase 1, GREEN/COMMIT not in any phase → TRIPLET_SPLIT + INCOMPLETE
+          - SC-6: patterns task (not RED/GREEN/COMMIT) → N/A
+          Root cause: Plan splits RED and GREEN across phases by task type (Phase 1=red, Phase 2=green) instead of per-SC cycles. Each SC needs its own RED/GREEN/COMMIT in the same phase."
+
+  - id: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - id: 4.1
+        name: Each phase addresses exactly one concern from concern-map
+        status: PASS
+        detail: "Phase 1 → detection (SC-1, SC-2, SC-5), Phase 2 → deletion (SC-3, SC-4), Phase 3 → verification (SC-6). One concern per phase."
+      - id: 4.2
+        name: No two phases address the same concern
+        status: PASS
+        detail: "All three concerns (detection, deletion, verification) are unique across phases"
+
+  - id: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - id: 5.1
+        name: Dependency contract DAG has no cycles
+        status: PASS
+        detail: "DAG: Phase 1 → Phase 2 → Phase 3. No cycles."
+      - id: 5.2
+        name: All phases reachable from start node
+        status: PASS
+        detail: "Phase 1 has no dependencies (start node). Phase 2 depends on Phase 1. Phase 3 depends on Phase 2. All reachable."
+      - id: 5.3
+        name: No orphan phases
+        status: PASS
+        detail: "All phases have at least one incoming or outgoing edge"
+
+  - id: 6
+    name: Holistic quality
+    status: FAIL
+    checks:
+      - id: 6.1
+        name: No TBD/TODO placeholders in plan body
+        status: PASS
+        detail: "No TBD or TODO placeholders found in plan body"
+      - id: 6.2
+        name: All steps use checkbox format
+        status: FAIL
+        detail: "Phase details use YAML context blocks, not checkbox-format steps. Exit criteria use checkbox format (- [ ]) but phase procedures have no steps at all — only YAML context blocks describing logic. No checkbox-format procedure steps exist."
+      - id: 6.3
+        name: Dispatch mode consistency
+        status: PASS
+        detail: "All phases use clean-room dispatch (test-driven-development skill with red/green/patterns tasks). No inline steps mixed with dispatched steps."
+
+findings:
+  - category: 1
+    severity: FAIL
+    summary: "Phase procedures lack numbered steps — they use YAML context blocks instead of numbered procedure steps"
+  - category: 3
+    severity: FAIL
+    summary: "Triplet split: SC-1, SC-2, SC-5 have RED in Phase 1 but no GREEN/COMMIT phase; SC-3, SC-4 have GREEN in Phase 2 but no RED/COMMIT phase. Plan organizes phases by task type (red, green) instead of per-SC cycles."
+  - category: 6
+    severity: FAIL
+    summary: "Phase procedures use YAML context blocks instead of checkbox-format steps"

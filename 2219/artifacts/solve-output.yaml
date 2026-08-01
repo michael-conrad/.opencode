@@ -1,0 +1,26 @@
+# Solve Output — Issue #2219
+# Generated: research task from writing-plans
+
+solve_model:
+  status: SAT
+  query: "z3.BoolVal(True)"
+  note: No variables declared in dependency-contract.yaml; trivial SAT
+
+solve_check:
+  status: SAT
+  preconditions: SAT
+  postconditions_invariants: SAT (+ postconditions + invariants)
+  state_path: .opencode/.issues/2219/artifacts/state-analysis.yaml
+  contract_path: .opencode/.issues/2219/dependency-contract.yaml
+
+plan:
+  status: SOLVED_SATISFICING
+  engine: tamer
+  plan_length: 3
+  steps:
+    - execute_detection()
+    - execute_deletion()
+    - execute_verification()
+  problem_path: .opencode/.issues/2219/artifacts/plan-problem.yaml
+
+timestamp: 2026-08-01T20:05:00Z

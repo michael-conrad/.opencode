@@ -1,0 +1,73 @@
+# Dependency Contract — #2219 — Dead-Branch Detection and Deletion
+schema_version: "1.0"
+issue: 2219
+phases:
+  - id: 1
+    name: "Detection"
+    scs: ["SC-1"]
+    depends_on: []
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: 2
+    name: "Submodule PR verification"
+    scs: ["SC-2"]
+    depends_on: [1]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: 3
+    name: "Deletion"
+    scs: ["SC-3"]
+    depends_on: [1, 2]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: 4
+    name: "Dirty pointer"
+    scs: ["SC-4"]
+    depends_on: [3]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: 5
+    name: "Non-pointer guard"
+    scs: ["SC-5"]
+    depends_on: [1]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: 6
+    name: "Existing cleanup"
+    scs: ["SC-6"]
+    depends_on: []
+    skill: test-driven-development
+    task: full daisy-chain per SC
+post_implementation:
+  - id: post-1
+    name: "audit"
+    skill: audit
+    dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first")'
+  - id: post-2
+    name: "z3-check"
+    skill: "(orchestrator)"
+    dispatch: '.opencode/tools/solve check --state-path ... --contract-path ...'
+  - id: post-3
+    name: "structural-checks"
+    skill: finishing-a-development-branch
+    dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'
+  - id: post-4
+    name: "pre-pr-gate"
+    skill: verification-before-completion
+    dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+  - id: post-5
+    name: "regression-check"
+    skill: test-driven-development
+    dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+  - id: post-6
+    name: "review-prep"
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first")'
+  - id: post-7
+    name: "create-pr"
+    skill: pr-creation-workflow
+    dispatch: 'task(..., prompt: "execute create task from pr-creation-workflow")'
+  - id: post-8
+    name: "exec-summary"
+    skill: completion-core
+    dispatch: 'task(..., prompt: "execute completion task from completion-core")'

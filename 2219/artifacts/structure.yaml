@@ -1,0 +1,112 @@
+# Structure Artifact — Issue #2219
+# Generated: research task from writing-plans
+
+spec_path: .opencode/.issues/2219/spec.md
+sc_count: 6
+
+phases:
+  - id: 1
+    name: Detection
+    concern: detection
+    description: Dead-branch detection — identify whether current branch is an unmergeable submodule-pointer-only dead branch
+    scs:
+      - SC-1: Detect that branch's only diff from trunk is submodule pointer changes
+      - SC-2: Verify submodule PR merge status via platform API before deletion
+      - SC-5: Do NOT delete branches with real code changes (non-submodule files in diff)
+    items:
+      - item: 1
+        sc: SC-1
+        red_skill: test-driven-development
+        red_dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green_skill: test-driven-development
+        green_dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify_skill: verification-before-completion
+        verify_dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - item: 2
+        sc: SC-2
+        red_skill: test-driven-development
+        red_dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green_skill: test-driven-development
+        green_dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify_skill: verification-before-completion
+        verify_dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - item: 5
+        sc: SC-5
+        red_skill: test-driven-development
+        red_dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green_skill: test-driven-development
+        green_dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify_skill: verification-before-completion
+        verify_dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+    entry_condition: Current branch is unmerged (not handled by merged-branch deletion above)
+    exit_condition: Branch classified as dead (pointer-only) or live (has real changes)
+
+  - id: 2
+    name: Deletion
+    concern: deletion
+    description: Dead-branch deletion — delete the dead branch, park at trunk tip, acknowledge dirty submodule pointer
+    scs:
+      - SC-3: Delete dead branch (local + remote) and park at trunk tip
+      - SC-4: Leave submodule pointer dirty after trunk parking (do NOT commit it)
+    items:
+      - item: 3
+        sc: SC-3
+        red_skill: test-driven-development
+        red_dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green_skill: test-driven-development
+        green_dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify_skill: verification-before-completion
+        verify_dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - item: 4
+        sc: SC-4
+        red_skill: test-driven-development
+        red_dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green_skill: test-driven-development
+        green_dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify_skill: verification-before-completion
+        verify_dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+    entry_condition: Detection concern returned DEAD classification + submodule PR merge confirmed
+    exit_condition: Branch deleted, repo parked on trunk, dirty pointer acknowledged
+
+  - id: 3
+    name: Verification
+    concern: verification
+    description: Existing cleanup preservation — verify existing merged-branch cleanup logic continues to work unchanged
+    scs:
+      - SC-6: Existing merged-branch cleanup (Phase 5) continues to work unchanged
+    items:
+      - item: 6
+        sc: SC-6
+        red_skill: test-driven-development
+        red_dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green_skill: test-driven-development
+        green_dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify_skill: verification-before-completion
+        verify_dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+    entry_condition: All detection and deletion changes implemented
+    exit_condition: Existing cleanup behavioral tests pass + grep confirms Phase 5 logic unmodified
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      type: prerequisite
+      reason: Deletion can only proceed after detection classifies the branch as dead
+    - from: 2
+      to: 3
+      type: prerequisite
+      reason: Verification runs after all changes are implemented
+
+triplet_co_location:
+  status: PASS
+  details: All 6 SCs have RED/GREEN/COMMIT within the same phase
+
+cross_phase_dependency:
+  status: PASS
+  details: No RED test depends on SC output from a later phase

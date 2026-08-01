@@ -1,0 +1,68 @@
+# Interface Compatibility — Issue #2219
+# Generated: backfill from spec.md
+
+spec_path: .opencode/.issues/2219/spec.md
+
+interfaces:
+  - name: check-pr.md Phase 5 → Phase 6 handoff
+    type: task-file-phase-boundary
+    description: |
+      The new dead-branch detection step sits at the end of Phase 5. Branches classified
+      as DEAD are deleted within Phase 5. Branches classified as LIVE (non-pointer changes)
+      fall through to Phase 6's existing branch-aware parking.
+    compatibility: COMPATIBLE
+    rationale: |
+      Phase 6 already handles unmerged branches via branch-aware parking (line 131).
+      The new step only intercepts dead branches for deletion — live branches still
+      reach Phase 6 unchanged. No Phase 6 logic modification needed.
+
+  - name: check-pr.md → branch-cleanup.md (dirty pointer pattern)
+    type: cross-task-pattern-reuse
+    description: |
+      The dirty pointer acknowledgment in the new step reuses the pattern from
+      branch-cleanup.md Step 1.7 (acknowledge, do NOT commit).
+    compatibility: COMPATIBLE
+    rationale: |
+      Pattern reuse is explicitly documented in the spec (Key Design Decision #5).
+      The pattern is self-contained (git status check + acknowledgment message) and
+      does not require importing or calling branch-cleanup.md.
+
+  - name: check-pr.md → branch-cleanup.md (branch deletion pattern)
+    type: cross-task-pattern-reuse
+    description: |
+      The branch deletion logic reuses the pattern from branch-cleanup.md Step 3.4
+      (git branch -d + git push origin --delete).
+    compatibility: COMPATIBLE
+    rationale: |
+      Pattern reuse is explicitly documented (Key Design Decision #4). The deletion
+      commands are standard git operations with no dependency on branch-cleanup.md
+      internals.
+
+  - name: check-pr.md → platform API (submodule PR verification)
+    type: external-api-interface
+    description: |
+      The submodule PR merge verification queries the platform API targeting the
+      submodule repo. Uses github_list_pull_requests (GitHub) or gb pr list (GitBucket).
+    compatibility: COMPATIBLE
+    rationale: |
+      The spec requires platform-aware routing (Requirement R2). The submodule repo's
+      owner/repo must be resolved from the gitlink path. The API call pattern is
+      identical to Phase 1's merged PR scan but targeting a different repo.
+
+  - name: check-pr.md → pre-work.md (No-Op Branch Guard)
+    type: cross-task-context-reference
+    description: |
+      The spec references pre-work.md Step 4 (No-Op Branch Guard) as context for why
+      dead branches exist — the guard prevents submodule-only PR creation, so the
+      cleanup side must handle the resulting dead branches.
+    compatibility: NOT_MODIFIED
+    rationale: |
+      Read-only reference. The No-Op Branch Guard is explicitly listed as "Not Included"
+      (not modified). No interface change needed.
+
+interface_summary:
+  total_interfaces: 4
+  compatible: 3
+  not_modified: 1
+  incompatible: 0
+  modification_required: false

@@ -1,0 +1,46 @@
+domain: submodule-dead-branch-cleanup
+types:
+  - name: phase
+objects:
+  - name: detection
+    type: phase
+  - name: deletion
+    type: phase
+  - name: verification
+    type: phase
+fluents:
+  - name: phase_done
+    params:
+      - name: p
+        type: phase
+  - name: phase_ready
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_detection
+    preconditions:
+      - phase_ready(detection)
+    effects:
+      - phase_done(detection)
+      - phase_ready(deletion)
+  - name: execute_deletion
+    preconditions:
+      - phase_ready(deletion)
+      - phase_done(detection)
+    effects:
+      - phase_done(deletion)
+      - phase_ready(verification)
+  - name: execute_verification
+    preconditions:
+      - phase_ready(verification)
+      - phase_done(detection)
+      - phase_done(deletion)
+    effects:
+      - phase_done(verification)
+init:
+  - phase_ready(detection)
+goals:
+  - phase_done(detection)
+  - phase_done(deletion)
+  - phase_done(verification)

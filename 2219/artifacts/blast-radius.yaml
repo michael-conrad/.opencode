@@ -1,0 +1,38 @@
+# Blast Radius — Issue #2219
+# Generated: backfill from spec.md
+# Spec: [SPEC-FIX] Cleanup workflow must detect and delete submodule-pointer-only dead branches
+
+spec_path: .opencode/.issues/2219/spec.md
+
+primary_target:
+  file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+  modification: Add dead-branch detection step at end of Phase 5 (after merged-branch deletion and checkpoint tag cleanup)
+  scope: Single step insertion — no structural changes to existing Phase 5 logic
+  verified_exists: true
+
+reference_files:
+  - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    usage: Reuse Step 1.7 (dirty pointer acknowledgment pattern) and Step 3.4 (branch deletion pattern)
+    modification: None — read-only reference
+    verified_exists: true
+  - file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    usage: Reference Step 4 (No-Op Branch Guard) for context — no modification
+    modification: None — read-only reference
+    verified_exists: true
+  - file: .opencode/guidelines/000-critical-rules.md
+    usage: Reference critical-rules-049 (submodule-only PR prohibition) for context
+    modification: None — read-only reference
+    verified_exists: true
+
+not_modified:
+  - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+  - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+  - .opencode/guidelines/000-critical-rules.md
+  - .opencode/skills/git-workflow-cleanup/SKILL.md
+  - Any behavioral enforcement test files
+
+blast_radius_assessment:
+  direct_changes: 1 file (check-pr.md)
+  indirect_impact: None — all reference files are read-only
+  regression_risk: Low — new step is additive at end of Phase 5; existing Phase 5 logic unchanged
+  rollback_strategy: Remove the added step from check-pr.md Phase 5

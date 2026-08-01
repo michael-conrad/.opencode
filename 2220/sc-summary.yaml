@@ -1,0 +1,50 @@
+sc_count: 12
+scs:
+  - id: SC-1
+    description: approval-gate-scope/SKILL.md content merged into approval-gate/SKILL.md with all sections preserved
+    evidence_type: semantic
+    plan_item: 1
+  - id: SC-2
+    description: approval-gate-scope/SKILL.md file deleted
+    evidence_type: structural
+    plan_item: 2
+  - id: SC-3
+    description: All skill() dispatch calls updated from approval-gate-scope to approval-gate
+    evidence_type: string
+    plan_item: 3
+  - id: SC-4
+    description: All 22 task files under approval-gate-scope/tasks/ deleted
+    evidence_type: structural
+    plan_item: 4
+  - id: SC-5
+    description: All 5 enforcement files under approval-gate-scope/enforcement/ deleted
+    evidence_type: structural
+    plan_item: 5
+  - id: SC-6
+    description: All 13 verify-authorization sub-task files deleted
+    evidence_type: structural
+    plan_item: 6
+  - id: SC-7
+    description: All 2 screen sub-task files deleted
+    evidence_type: structural
+    plan_item: 7
+  - id: SC-8
+    description: All 3 gap-fill-cascade sub-task files deleted
+    evidence_type: structural
+    plan_item: 8
+  - id: SC-9
+    description: All 6 pre-impl sub-task files deleted
+    evidence_type: structural
+    plan_item: 9
+  - id: SC-10
+    description: All cross-references to deleted task files updated or removed
+    evidence_type: string
+    plan_item: 10
+  - id: SC-11
+    description: Behavioral enforcement tests updated to use new dispatch interface
+    evidence_type: behavioral
+    plan_item: 11
+  - id: SC-12
+    description: No remaining references to approval-gate-scope in any .opencode/ file
+    evidence_type: string
+    plan_item: 12

@@ -1,0 +1,45 @@
+# Concern Map — Issue #2219
+# Generated: backfill from spec.md
+
+spec_path: .opencode/.issues/2219/spec.md
+
+concerns:
+  - id: detection
+    name: Dead-Branch Detection
+    description: Identify whether the current branch is an unmergeable submodule-pointer-only dead branch
+    scs:
+      - SC-1: Detect that branch's only diff from trunk is submodule pointer changes
+      - SC-2: Verify submodule PR merge status via platform API before deletion
+      - SC-5: Do NOT delete branches with real code changes (non-submodule files in diff)
+    phase_boundary: Phase 5 (end), after merged-branch deletion and checkpoint tag cleanup
+    entry_condition: Current branch is unmerged (not handled by merged-branch deletion above)
+    exit_condition: Branch classified as dead (pointer-only) or live (has real changes)
+
+  - id: deletion
+    name: Dead-Branch Deletion
+    description: Delete the dead branch, park at trunk tip, and acknowledge dirty submodule pointer
+    scs:
+      - SC-3: Delete dead branch (local + remote) and park at trunk tip
+      - SC-4: Leave submodule pointer dirty after trunk parking (do NOT commit it)
+    phase_boundary: Phase 5 (end), conditional on detection concern classifying branch as dead
+    entry_condition: Detection concern returned DEAD classification + submodule PR merge confirmed
+    exit_condition: Branch deleted, repo parked on trunk, dirty pointer acknowledged
+
+  - id: verification
+    name: Existing Cleanup Preservation
+    description: Verify existing merged-branch cleanup logic continues to work unchanged
+    scs:
+      - SC-6: Existing merged-branch cleanup (Phase 5) continues to work unchanged
+    phase_boundary: Post-implementation verification
+    entry_condition: All detection and deletion changes implemented
+    exit_condition: Existing cleanup behavioral tests pass + grep confirms Phase 5 logic unmodified
+
+concern_dependencies:
+  - from: detection
+    to: deletion
+    type: prerequisite
+    reason: Deletion can only proceed after detection classifies the branch as dead
+  - from: deletion
+    to: verification
+    type: prerequisite
+    reason: Verification runs after all changes are implemented

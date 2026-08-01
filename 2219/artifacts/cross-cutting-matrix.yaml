@@ -1,0 +1,45 @@
+# Cross-Cutting Matrix — Issue #2219
+# Generated: backfill from spec.md
+
+spec_path: .opencode/.issues/2219/spec.md
+
+matrix:
+  - sc: SC-1
+    concerns: [detection]
+    cross_cutting: false
+    note: Purely within detection concern — no span to other concerns
+
+  - sc: SC-2
+    concerns: [detection]
+    cross_cutting: false
+    note: Purely within detection concern — submodule PR verification is a detection sub-step
+
+  - sc: SC-3
+    concerns: [deletion]
+    cross_cutting: false
+    note: Purely within deletion concern — branch deletion and trunk parking
+
+  - sc: SC-4
+    concerns: [deletion]
+    cross_cutting: false
+    note: Purely within deletion concern — dirty pointer acknowledgment
+
+  - sc: SC-5
+    concerns: [detection]
+    cross_cutting: false
+    note: Purely within detection concern — non-pointer guard is a detection sub-step
+
+  - sc: SC-6
+    concerns: [verification]
+    cross_cutting: true
+    note: Verification concern spans all changes — verifies that existing Phase 5 logic
+         is unmodified, which touches both detection and deletion concerns indirectly
+
+cross_cutting_summary:
+  total_scs: 6
+  cross_cutting_scs: 1 (SC-6)
+  independent_scs: 5 (SC-1, SC-2, SC-3, SC-4, SC-5)
+  concern_isolation: |
+    Detection and deletion concerns are sequential (detection → deletion) but not
+    cross-cutting. Each SC maps to exactly one concern except SC-6 which verifies
+    the entire change set.

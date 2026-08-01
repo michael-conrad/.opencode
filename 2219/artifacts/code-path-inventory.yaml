@@ -1,0 +1,79 @@
+# Code Path Inventory — Issue #2219
+# Generated: backfill from spec.md
+
+spec_path: .opencode/.issues/2219/spec.md
+
+code_paths:
+  - sc: SC-1
+    path: check-pr.md Phase 5 → new dead-branch detection step
+    description: |
+      After merged-branch deletion and checkpoint tag cleanup, check if current branch
+      is unmerged. If unmerged, run `git diff --stat origin/$DEFAULT_BRANCH...HEAD`
+      to check if all changed files are submodule paths.
+    condition: Current branch is unmerged (not deleted by merged-branch step)
+    action: Classify as DEAD if all changed paths are submodule paths; LIVE otherwise
+    references:
+      - "git diff --stat origin/$DEFAULT_BRANCH...HEAD"
+      - "git branch --show-current"
+
+  - sc: SC-2
+    path: check-pr.md Phase 5 → new dead-branch detection step (submodule PR verification)
+    description: |
+      After detection classifies branch as DEAD, identify the submodule repo from
+      the changed submodule path(s). Query the platform API for PR merge status
+      targeting the submodule repo.
+    condition: Branch classified as DEAD
+    action: Query platform API (github_list_pull_requests or gb pr list) for merged PRs
+           in the submodule repo matching the branch name
+    references:
+      - "github_list_pull_requests" or "gb pr list"
+      - Submodule repo owner/repo resolution from gitlink path
+
+  - sc: SC-3
+    path: check-pr.md Phase 5 → new dead-branch deletion step
+    description: |
+      After submodule PR merge is confirmed, delete the dead branch locally and remotely,
+      then park the repo at trunk tip.
+    condition: Submodule PR merge confirmed
+    action: |
+      1. git branch -d <branch>
+      2. git push origin --delete <branch>
+      3. git checkout "$DEFAULT_BRANCH"
+      4. git pull origin "$DEFAULT_BRANCH" --ff-only
+    references:
+      - branch-cleanup.md Step 3.4 (branch deletion pattern)
+      - "git branch -d"
+      - "git push origin --delete"
+
+  - sc: SC-4
+    path: check-pr.md Phase 5 → new dead-branch deletion step (dirty pointer)
+    description: |
+      After trunk parking, acknowledge the dirty submodule pointer. Do NOT commit,
+      stash, or reset it.
+    condition: Trunk parked after dead-branch deletion
+    action: Acknowledge dirty pointer state (reuse branch-cleanup.md Step 1.7 pattern)
+    references:
+      - branch-cleanup.md Step 1.7 (dirty pointer acknowledgment)
+      - "git status" to detect dirty submodule
+
+  - sc: SC-5
+    path: check-pr.md Phase 5 → new dead-branch detection step (non-pointer guard)
+    description: |
+      If the diff contains any non-submodule files, the branch is NOT dead.
+      Skip deletion and fall through to Phase 6's existing branch-aware parking.
+    condition: git diff shows non-submodule files
+    action: Report branch as live, fall through to Phase 6
+    references:
+      - "git diff --stat origin/$DEFAULT_BRANCH...HEAD"
+      - Phase 6 branch-aware parking (existing logic)
+
+  - sc: SC-6
+    path: check-pr.md Phase 5 → existing merged-branch cleanup (unchanged)
+    description: |
+      Verify that existing Phase 5 logic (merged-branch deletion, checkpoint tag cleanup)
+      is not modified by the new dead-branch detection step.
+    condition: All changes implemented
+    action: Run existing cleanup behavioral tests + grep Phase 5 for unmodified logic
+    references:
+      - Existing cleanup behavioral tests
+      - grep on check-pr.md Phase 5 sections

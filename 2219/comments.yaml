@@ -1,9 +1,13 @@
-type: authorization
-author: human
-scope: for_pr
-text: 'approved for PR: .opencode#2219'
-timestamp: '2026-08-01T19:57:00Z'
-comments:
+- type: authorization
+  author: human
+  scope: for_pr
+  text: 'approved for PR: .opencode#2219'
+  timestamp: '2026-08-01T19:57:00Z'
+- type: authorization
+  author: human
+  scope: for_pr
+  text: 'approved for stacking into this PR: .opencode#1686 .opencode#1812 .opencode#1710'
+  timestamp: '2026-08-01T20:30:00Z'
 - type: internal
   body: 'Authorization: for_pr scope from ''approved for PR: .opencode#2219'''
   timestamp: '2026-08-01T19:58:00+00:00'

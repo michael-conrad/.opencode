@@ -1,0 +1,90 @@
+# Testability Assessment — Issue #2219
+# Generated: backfill from spec.md
+
+spec_path: .opencode/.issues/2219/spec.md
+
+testability:
+  - sc: SC-1
+    evidence_type: behavioral
+    test_method: opencode run with test repo
+    test_description: |
+      Create a test repo with a branch whose only diff from trunk is a submodule
+      pointer change. Send the agent through cleanup workflow. Assert via
+      assert_semantic that the agent detects the branch as dead (pointer-only).
+    feasibility: HIGH
+    complexity: LOW
+    risk: Low — diff check is deterministic git operation
+    behavioral_test_required: true
+
+  - sc: SC-2
+    evidence_type: behavioral
+    test_method: opencode run with merged vs unmerged submodule PR
+    test_description: |
+      Two scenarios: (a) submodule PR is merged — agent should proceed to deletion;
+      (b) submodule PR is not merged — agent should NOT delete, fall through to Phase 6.
+      Assert via assert_semantic for decision logic.
+    feasibility: HIGH
+    complexity: MEDIUM
+    risk: Medium — requires setting up submodule repo with controlled PR state
+    behavioral_test_required: true
+
+  - sc: SC-3
+    evidence_type: behavioral
+    test_method: opencode run with test repo
+    test_description: |
+      After dead-branch detection and submodule PR merge confirmation, verify agent
+      deletes local + remote branch and parks at trunk tip. Assert via assert_semantic
+      for deletion + parking actions, with assert_stderr_pattern as secondary
+      corroboration.
+    feasibility: HIGH
+    complexity: LOW
+    risk: Low — deletion commands are standard git operations
+    behavioral_test_required: true
+
+  - sc: SC-4
+    evidence_type: behavioral
+    test_method: opencode run with test repo
+    test_description: |
+      After trunk parking, verify agent does NOT commit the dirty submodule pointer.
+      Assert via assert_semantic for dirty pointer preservation, with
+      assert_stderr_pattern_absent as secondary corroboration.
+    feasibility: HIGH
+    complexity: LOW
+    risk: Low — dirty pointer preservation is a no-op (do nothing)
+    behavioral_test_required: true
+
+  - sc: SC-5
+    evidence_type: behavioral
+    test_method: opencode run with mixed-content branch
+    test_description: |
+      Create a branch with both submodule pointer changes and real code changes.
+      Verify agent does NOT delete the branch — falls through to Phase 6.
+      Assert via assert_semantic for preservation decision.
+    feasibility: HIGH
+    complexity: LOW
+    risk: Low — diff check catches non-submodule files deterministically
+    behavioral_test_required: true
+
+  - sc: SC-6
+    evidence_type: behavioral + string
+    test_method: |
+      Behavioral: Run existing cleanup behavioral tests — all must pass unchanged.
+      String: grep Phase 5 sections in check-pr.md to confirm existing logic unmodified.
+    test_description: |
+      Verify that the new dead-branch detection step does not alter existing Phase 5
+      merged-branch deletion or checkpoint tag cleanup logic.
+    feasibility: HIGH
+    complexity: LOW
+    risk: Low — additive change at end of Phase 5
+    behavioral_test_required: true
+
+summary:
+  total_scs: 6
+  behavioral_only: 5 (SC-1, SC-2, SC-3, SC-4, SC-5)
+  behavioral_and_string: 1 (SC-6)
+  all_testable: true
+  blocking_factors: []
+  test_infrastructure_needed:
+    - Test repo with submodule
+    - Submodule repo with controlled PR state (merged + unmerged)
+    - Platform API access for PR queries

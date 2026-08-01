@@ -1,0 +1,63 @@
+# State Analysis — Issue #2219
+# Generated: backfill from spec.md
+
+spec_path: .opencode/.issues/2219/spec.md
+
+state_transitions:
+  - sc: SC-1
+    from: UNKNOWN_BRANCH_TYPE — current branch is unmerged, type not yet classified
+    to: DEAD_BRANCH — diff shows only submodule pointer changes
+    to: LIVE_BRANCH — diff shows non-submodule files
+    trigger: git diff --stat origin/$DEFAULT_BRANCH...HEAD
+    condition: Current branch is unmerged (not handled by merged-branch deletion)
+
+  - sc: SC-2
+    from: DEAD_BRANCH — branch classified as pointer-only
+    to: SUBMODULE_PR_MERGED — submodule PR merge confirmed via API
+    to: SUBMODULE_PR_NOT_MERGED — submodule PR not merged or not found
+    trigger: Platform API query targeting submodule repo
+    condition: Branch classified as DEAD
+
+  - sc: SC-3
+    from: SUBMODULE_PR_MERGED — deletion authorized
+    to: BRANCH_DELETED — local and remote branch deleted
+    to: BRANCH_DELETION_FAILED — remote delete failed (already deleted)
+    trigger: git branch -d + git push origin --delete
+    condition: Submodule PR merge confirmed
+
+  - sc: SC-3 (continued)
+    from: BRANCH_DELETED — branch removed
+    to: PARKED_ON_TRUNK — repo on trunk at tip
+    trigger: git checkout "$DEFAULT_BRANCH" + git pull --ff-only
+    condition: Branch deleted successfully
+
+  - sc: SC-4
+    from: PARKED_ON_TRUNK — repo on trunk
+    to: DIRTY_POINTER_ACKNOWLEDGED — dirty submodule pointer detected and acknowledged
+    trigger: git status check for modified submodule entries
+    condition: Trunk parked after dead-branch deletion
+    invariant: Pointer MUST remain dirty — no commit, stash, or reset
+
+  - sc: SC-5
+    from: UNKNOWN_BRANCH_TYPE — current branch is unmerged
+    to: LIVE_BRANCH — diff shows non-submodule files
+    trigger: git diff --stat origin/$DEFAULT_BRANCH...HEAD
+    condition: Any non-submodule file in diff
+    fallthrough: Phase 6 branch-aware parking (existing logic, unchanged)
+
+  - sc: SC-6
+    from: IMPLEMENTED — all changes applied
+    to: VERIFIED — existing cleanup tests pass + Phase 5 logic unmodified
+    trigger: Run existing behavioral tests + grep
+    condition: All detection and deletion changes implemented
+
+state_machine:
+  initial: UNKNOWN_BRANCH_TYPE
+  terminal_states:
+    - PARKED_ON_TRUNK (dead branch deleted, dirty pointer acknowledged)
+    - LIVE_BRANCH (falls through to Phase 6)
+    - SUBMODULE_PR_NOT_MERGED (falls through to Phase 6)
+  error_states:
+    - BRANCH_DELETION_FAILED (remote already deleted — continue with local + trunk park)
+    - TRUNK_PULL_FAILED (non-ff) — report and halt, preserve dirty pointer
+    - SUBMODULE_REPO_INACCESSIBLE — fall through to Phase 6

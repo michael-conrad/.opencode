@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2219/spec.md
+approval_status: approved
+approval_source: issue.yaml (labels: approved-for-pr) + comments.yaml (authorization scope: for_pr)
+frontmatter_approved_field: absent (no YAML frontmatter in spec.md; approval tracked at issue level)
+sc_count: 6
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+artifacts:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    status: EXISTS — primary target
+  - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    status: EXISTS — reference only, not modified
+  - file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    status: EXISTS — reference only, not modified
+  - file: .opencode/guidelines/000-critical-rules.md
+    status: EXISTS — reference only, not modified
+backfill_summary:
+  total_artifacts_backfilled: 7
+  concerns_identified: 3 (detection, deletion, verification)
+  cross_cutting_scs: 1 (SC-6)
+  state_transitions: 8
+  testable_scs: 6 of 6
+  behavioral_test_required: 6 of 6
