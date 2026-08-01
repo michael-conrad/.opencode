@@ -117,15 +117,14 @@ seed_model_config() {
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
 {
   "\$schema": "https://opencode.ai/config.json",
-  "model": "ollama/ornith:35b-256k",
+  "model": "$default_model",
   "provider": {
     "ollama": {
       "options": {
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        "$bare": {},
-        "ornith:35b-256k": {}
+        "$bare": {}
       }
     }
   }
