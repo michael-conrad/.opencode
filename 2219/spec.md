@@ -2,127 +2,168 @@
 >
 > **Local artifacts:** `.opencode/.issues/2219/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-# [SPEC-FIX] Cleanup workflow must detect and delete submodule-pointer-only dead branches
+# [SPEC-FIX] Submodule pointer discipline: pre-work ordering, dead-branch cleanup, PR guards, and pre-commit enforcement
 
 ## Intent and Executive Summary
 
-**Problem Statement:** When a submodule PR merges, the parent repo may have a corresponding feature branch whose only diff from main is submodule pointer changes (gitlink updates in `.opencode/`). This branch is unmergeable — submodule-only PRs are forbidden per critical-rules-049. The `check-pr` task currently defers cleanup when the current branch is unmerged (Phase 6, line 131), leaving the repo on a dead branch with no path to resolution.
+**Problem Statement:** The submodule pointer lifecycle has four gaps that together produce dead branches, stale pointers, and submodule-only PRs:
 
-**Root Cause / Motivation:** The cleanup workflow has no mechanism to detect branches that are unmergeable by design. The existing merged-branch cleanup (Phase 5) only handles branches whose PRs have merged. The dead-branch detection fills this gap: branches whose only diff from trunk is submodule pointer changes are unmergeable artifacts that must be deleted, not deferred.
+1. **Pre-work ordering (#1686):** `pre-work.md` creates the parent feature branch before syncing submodules, so the parent branch captures a stale submodule pointer. When the submodule later advances, the parent's pointer is already outdated.
+2. **Dead-branch cleanup (#2219):** When a submodule PR merges, the parent repo may have a corresponding feature branch whose only diff from main is submodule pointer changes. This branch is unmergeable (submodule-only PRs are forbidden per critical-rules-049). The `check-pr` task defers cleanup, leaving the repo on a dead branch.
+3. **PR creation guards (#1812):** `implementation.md` and `pr-creation.md` instruct the agent to stage dirty submodule pointers without checking for non-submodule changes, creating submodule-only PRs. The prohibition in `020-go-prohibitions.md` is scoped to "during cleanup" only.
+4. **Pre-commit enforcement (#1710):** No enforcement mechanism verifies that submodule pointer commits reference the remote trunk tip SHA. Agents commit stale SHAs without detection.
 
-**Approach Chosen:** Add a dead-branch detection step at the end of Phase 5 (Parent Branch Cleanup) in `check-pr.md`. The step checks if the current branch is unmerged and its only diff from trunk is submodule pointer changes. If so, it verifies the submodule PR merge status via API, deletes the dead branch (local + remote), parks at trunk tip, and acknowledges the dirty submodule pointer.
+**Root Cause / Motivation:** The submodule pointer workflow has no end-to-end discipline. Each gap is a separate pipeline stage (pre-work → cleanup → PR creation → commit), and each stage lacks the guard it needs.
+
+**Approach Chosen:** Fix all four gaps in a single stacked PR:
+1. Reorder `pre-work.md` steps so submodule sync precedes feature branch creation
+2. Add dead-branch detection to `check-pr.md` Phase 5
+3. Add guards to `implementation.md` and `pr-creation.md` to prevent submodule-only staging; widen the prohibition in `020-go-prohibitions.md`
+4. Add pre-commit enforcement for stale submodule pointer SHAs
 
 **Alternatives Considered & Why Discarded:**
-- *Defer to Phase 6 branch-aware parking* — Phase 6 currently defers unmerged branches. Adding dead-branch detection there would mix concerns (parking vs. deletion). Detection belongs in Phase 5 where deletion happens.
-- *Add a new Phase 5.5* — A separate phase adds structural complexity. The dead-branch detection is a conditional branch within Phase 5's cleanup scope.
-- *Modify the pre-work guard to prevent dead branches* — The pre-work No-Op Branch Guard (pre-work.md Step 4) already prevents submodule-only PR creation. The cleanup-side fix is complementary, not a replacement.
+- *Separate PRs for each gap* — The gaps are interdependent: fixing pre-work without fixing cleanup leaves dead branches. Fixing cleanup without fixing PR guards recreates them. A single stacked PR ensures all gates are in place.
+- *Modify only the pre-push hook* — The hook already blocks submodule-only pushes, but the agent creates PRs locally without pushing. Task file guards are needed at the source.
 
 **Key Design Decisions:**
-1. Dead-branch detection runs at the end of Phase 5, after merged-branch deletion and checkpoint tag cleanup
-2. Detection uses `git diff --stat origin/$DEFAULT_BRANCH...HEAD` to check if all changed files are submodule paths
-3. Submodule PR merge verification uses the platform API targeting the submodule repo
-4. Branch deletion reuses the existing pattern from branch-cleanup.md Step 3.4
-5. Dirty submodule pointer handling reuses the pattern from branch-cleanup.md Step 1.7 (acknowledge, do NOT commit)
-6. Branches with real code changes (non-submodule files in diff) are NOT deleted — they fall through to Phase 6's existing branch-aware parking
+1. Pre-work reorder: submodule sync → tag → feature branch creation (parent + submodule)
+2. Dead-branch detection: `git diff --stat origin/$DEFAULT_BRANCH...HEAD` to identify pointer-only branches
+3. PR guards: verify non-submodule changes exist before staging submodule pointer
+4. Pre-commit enforcement: block commits where submodule SHA != remote trunk tip
+5. All four fixes in one stacked PR with a single feature branch
 
-**User Intent / Original Prompt:** Fix the cleanup workflow to handle the case where a submodule PR merges but the parent repo's feature branch is stuck as an unmergeable dead branch.
+**User Intent / Original Prompt:** Fix the submodule pointer lifecycle end-to-end: pre-work ordering, dead-branch cleanup, PR guards, and pre-commit enforcement.
 
 ## Not Included
 
-- Modifying the pre-work No-Op Branch Guard (pre-work.md Step 4) — it already works correctly
-- Modifying branch-cleanup.md — its patterns are reused, not changed
-- Adding new critical violation entries to SKILL.md — cross-references only
-- Creating new task files — the fix is contained within check-pr.md
-- Behavioral enforcement tests — these are scoped to the implementation plan, not the spec
+- Changes to the pre-push hook (already blocks submodule-only pushes)
+- CI workflows (no CI infrastructure exists)
+- Changes to how existing hooks work for non-submodule commits
+- Changes to `branch-cleanup.md` — its patterns are reused, not changed
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|-------------------|
-| SC-1 | Agent detects that a branch's only diff from trunk is submodule pointer changes | `behavioral` | `opencode run` with test repo → assert_semantic for detection decision |
-| SC-2 | Agent verifies submodule PR merge status via platform API before deleting parent branch | `behavioral` | `opencode run` with merged vs unmerged submodule PR → assert_semantic for decision logic |
-| SC-3 | Agent deletes the dead branch (local + remote) and parks at trunk tip | `behavioral` | `opencode run` → assert_semantic for deletion + parking actions, with assert_stderr_pattern as secondary corroboration |
-| SC-4 | Agent leaves submodule pointer dirty after trunk parking (does NOT commit it) | `behavioral` | `opencode run` → assert_semantic for dirty pointer preservation, with assert_stderr_pattern_absent as secondary corroboration |
-| SC-5 | Agent does NOT delete branches with real code changes (non-submodule files in diff) | `behavioral` | `opencode run` with mixed-content branch → assert_semantic for preservation decision |
-| SC-6 | Existing merged-branch cleanup (Phase 5) continues to work unchanged | `behavioral` + `string` | Existing cleanup behavioral tests pass + grep confirms Phase 5 logic unmodified |
+| SC-1 | Submodule sync appears BEFORE feature branch creation in pre-work.md | `string` | grep for step ordering — submodule steps precede branch creation |
+| SC-2 | Submodule feature branch creation step references the tagged commit, not trunk tip | `string` | grep for submodule branch creation using the tag |
+| SC-3 | Behavioral test verifies agent syncs submodules before creating main repo feature branch | `behavioral` | `opencode run` with pre-work scenario → assert_semantic for ordering |
+| SC-4 | All step numbers in pre-work.md are internally consistent | `string` | grep for orphan references to old step numbers |
+| SC-5 | Submodule feature branch creation handles the "already exists" edge case | `string` | grep for existence check before branch creation |
+| SC-6 | Agent detects that a branch's only diff from trunk is submodule pointer changes | `behavioral` | `opencode run` with test repo → assert_semantic for detection decision |
+| SC-7 | Agent verifies submodule PR merge status via platform API before deleting parent branch | `behavioral` | `opencode run` with merged vs unmerged submodule PR → assert_semantic for decision logic |
+| SC-8 | Agent deletes the dead branch (local + remote) and parks at trunk tip | `behavioral` | `opencode run` → assert_semantic for deletion + parking actions, with assert_stderr_pattern as secondary corroboration |
+| SC-9 | Agent leaves submodule pointer dirty after trunk parking (does NOT commit it) | `behavioral` | `opencode run` → assert_semantic for dirty pointer preservation, with assert_stderr_pattern_absent as secondary corroboration |
+| SC-10 | Agent does NOT delete branches with real code changes (non-submodule files in diff) | `behavioral` | `opencode run` with mixed-content branch → assert_semantic for preservation decision |
+| SC-11 | Existing merged-branch cleanup (Phase 5) continues to work unchanged | `behavioral` + `string` | Existing cleanup behavioral tests pass + grep confirms Phase 5 logic unmodified |
+| SC-12 | `implementation.md` guards against submodule-only staging — before staging submodule pointer, verifies non-submodule changes exist | `string` | grep for guard logic in implementation.md |
+| SC-13 | `pr-creation.md` guards against submodule-only staging — before staging submodule pointer, verifies non-submodule changes exist | `string` | grep for guard logic in pr-creation.md |
+| SC-14 | Universal prohibition in `020-go-prohibitions.md` says "in ANY context, for ANY reason" (not scoped to cleanup only) | `string` | grep for universal scope in prohibition text |
+| SC-15 | Behavioral test verifies agent declines submodule-only PR creation | `behavioral` | `opencode run` with submodule-only prompt → assert_semantic for decline behavior |
+| SC-16 | Pre-commit hook blocks submodule-pointer commits where local SHA != remote trunk tip SHA | `behavioral` | bash test creating stale pointer, attempting commit, verifying block |
+| SC-17 | git-workflow SKILL.md has a release-pr trigger dispatch entry in the Trigger Dispatch Table | `string` | grep for release-pr in SKILL.md |
+| SC-18 | create-pr task has a --release mode section with submodule SHA verification step | `string` | grep for --release or release mode in create-pr.md |
+| SC-19 | Agent tasked with release PR dispatches pre-work before any submodule operations | `behavioral` | `opencode run` with release PR prompt → assert_semantic for pre-work dispatch |
 
 ## Requirements
 
-1. The check-pr task SHALL detect when the current branch's only diff from trunk is submodule pointer changes
-2. The check-pr task SHALL verify submodule PR merge status via platform API before deleting the parent branch
-3. The check-pr task SHALL delete the dead branch (local and remote) when submodule PR merge is confirmed
-4. The check-pr task SHALL park the repo at trunk tip after dead-branch deletion
-5. The check-pr task SHALL leave the submodule pointer dirty after trunk parking (MUST NOT commit it)
-6. The check-pr task SHALL NOT delete branches whose diff contains non-submodule files
-7. The check-pr task SHALL preserve the existing merged-branch cleanup logic unchanged
+1. pre-work.md SHALL reorder steps so submodule sync precedes feature branch creation
+2. pre-work.md SHALL create submodule feature branches from the tagged commit
+3. pre-work.md SHALL handle the "already exists" edge case for submodule branches
+4. check-pr.md SHALL detect pointer-only branches at end of Phase 5
+5. check-pr.md SHALL verify submodule PR merge status via platform API before deletion
+6. check-pr.md SHALL delete dead branches (local + remote) and park at trunk tip
+7. check-pr.md SHALL leave submodule pointer dirty after trunk parking
+8. check-pr.md SHALL NOT delete branches with non-submodule changes
+9. check-pr.md SHALL preserve existing merged-branch cleanup logic
+10. implementation.md SHALL guard against submodule-only staging
+11. pr-creation.md SHALL guard against submodule-only staging
+12. 020-go-prohibitions.md SHALL have universal submodule-only PR prohibition
+13. Pre-commit hook SHALL block submodule-pointer commits where SHA != remote trunk tip
+14. git-workflow SKILL.md SHALL have a release-pr trigger dispatch entry
+15. create-pr task SHALL have a --release mode with submodule SHA verification
 
 ## Items
 
-| Item | SC | Description |
+| Item | SCs | Description |
 |------|-----|-------------|
-| 1 | SC-1 | Add dead-branch detection step at end of Phase 5: check if current branch is unmerged and pointer-only |
-| 2 | SC-2 | Add submodule PR merge verification: identify submodule repo, query merge status via API |
-| 3 | SC-3 | Add dead-branch deletion: delete local + remote branch, park at trunk tip |
-| 4 | SC-4 | Add dirty pointer acknowledgment: reuse branch-cleanup.md Step 1.7 pattern |
-| 5 | SC-5 | Add non-pointer branch guard: skip deletion if diff contains non-submodule files |
-| 6 | SC-6 | Verify existing Phase 5 logic is unmodified; run existing cleanup tests |
+| 1 | SC-1, SC-2, SC-3, SC-4, SC-5 | Reorder pre-work.md: submodule sync before feature branch creation |
+| 2 | SC-6, SC-7, SC-8, SC-9, SC-10, SC-11 | Add dead-branch detection to check-pr.md Phase 5 |
+| 3 | SC-12, SC-13, SC-14, SC-15 | Add guards to implementation.md, pr-creation.md, 020-go-prohibitions.md |
+| 4 | SC-16, SC-17, SC-18, SC-19 | Add pre-commit enforcement for stale submodule pointers |
 
 ## Dependencies
 
-- **Prerequisite specs:** None
-- **Skills:** `git-workflow-cleanup` — the check-pr task is part of this skill
-- **Guidelines:** `000-critical-rules.md` §critical-rules-049 (submodule-only PR prohibition), `080-code-standards.md` (evidence type taxonomy, behavioral test mandate)
-- **Reference files:** `branch-cleanup.md` Step 1.7 (dirty pointer pattern), Step 3.4 (branch deletion pattern), `pre-work.md` Step 4 (No-Op Branch Guard)
+- **Prerequisite specs:** None — all four gaps are independent and can be implemented in any order
+- **Skills:** `git-workflow-branch` (pre-work.md), `git-workflow-cleanup` (check-pr.md), `git-workflow-commit` (implementation.md), `git-workflow-pr` (pr-creation.md)
+- **Guidelines:** `000-critical-rules.md` §critical-rules-049 (submodule-only PR prohibition), `020-go-prohibitions.md` (prohibition scope)
+- **Reference files:** `branch-cleanup.md` Step 1.7 (dirty pointer), Step 3.4 (branch deletion), `pre-work.md` (current step ordering)
 
 ## Traceability
 
 | Requirement | SC(s) | Phase |
 |-------------|-------|-------|
-| R1 (detection) | SC-1 | Detection |
-| R2 (submodule PR verification) | SC-2 | Detection |
-| R3 (branch deletion) | SC-3 | Deletion |
-| R4 (trunk parking) | SC-3 | Deletion |
-| R5 (dirty pointer) | SC-4 | Deletion |
-| R6 (non-pointer guard) | SC-5 | Detection |
-| R7 (existing cleanup) | SC-6 | Verification |
+| R1 (pre-work reorder) | SC-1, SC-3, SC-4 | Pre-work |
+| R2 (submodule branch from tag) | SC-2 | Pre-work |
+| R3 (already exists edge case) | SC-5 | Pre-work |
+| R4 (dead-branch detection) | SC-6 | Cleanup |
+| R5 (submodule PR verification) | SC-7 | Cleanup |
+| R6 (branch deletion + parking) | SC-8 | Cleanup |
+| R7 (dirty pointer) | SC-9 | Cleanup |
+| R8 (non-pointer guard) | SC-10 | Cleanup |
+| R9 (existing cleanup) | SC-11 | Cleanup |
+| R10 (implementation guard) | SC-12 | PR guards |
+| R11 (pr-creation guard) | SC-13 | PR guards |
+| R12 (universal prohibition) | SC-14 | PR guards |
+| R13 (pre-commit hook) | SC-16 | Pre-commit |
+| R14 (release-pr dispatch) | SC-17 | Pre-commit |
+| R15 (--release mode) | SC-18 | Pre-commit |
 
 ## Documentation Sources
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
-| check-pr.md | Task file | `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md` | Read file |
-| branch-cleanup.md | Task file | `.opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | Read file |
 | pre-work.md | Task file | `.opencode/skills/git-workflow-branch/tasks/pre-work.md` | Read file |
+| check-pr.md | Task file | `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md` | Read file |
+| implementation.md | Task file | `.opencode/skills/git-workflow-commit/tasks/implementation.md` | Read file |
+| pr-creation.md | Task file | `.opencode/skills/git-workflow-pr/tasks/pr-creation.md` | Read file |
+| branch-cleanup.md | Task file | `.opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | Read file |
+| 020-go-prohibitions.md | Guideline | `.opencode/guidelines/020-go-prohibitions.md` | Read file |
 | critical-rules-049 | Guideline | `.opencode/guidelines/000-critical-rules.md` | Read file |
-| Analysis artifacts | YAML | `tmp/spec-fix-submodule-dead-branch/artifacts/` | Read directory |
+| git-workflow SKILL.md | Skill card | `.opencode/skills/git-workflow/SKILL.md` | Read file |
+| pre-push hook | Hook | `.opencode/hooks/pre-push` | Read file |
 
 ## Enforcement Gate
 
-ALL success criteria MUST pass before this spec-fix is considered complete. Partial implementation is not acceptable — the dead-branch detection, submodule PR verification, deletion, dirty pointer handling, non-pointer guard, and existing cleanup preservation must all be verified.
+ALL 19 success criteria MUST pass before this spec is considered complete. No partial delivery is permitted.
 
 ## Cost Frame
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Running the behavioral detection test costs minutes of execution time. Skipping means a dead branch is left in the repo, blocking future cleanup runs and confusing the agent.
-- SC-2: Verifying submodule PR merge status via API costs one API call. Skipping means the agent deletes a branch whose submodule changes haven't been incorporated — data loss.
-- SC-3: Running the deletion behavioral test costs minutes. Skipping means the deletion logic silently fails and the dead branch persists.
-- SC-4: Verifying dirty pointer preservation costs minutes. Skipping means the agent commits the dirty pointer, violating the submodule-only PR prohibition.
-- SC-5: Running the non-pointer guard test costs minutes. Skipping means the agent deletes a branch with real code changes — data loss.
-- SC-6: Running existing cleanup tests costs minutes. Skipping means the fix breaks existing cleanup behavior without detection.
+- SC-1 through SC-5: Verifying pre-work step ordering costs one grep search. Skipping means the parent branch captures a stale submodule pointer, causing the "stale commit" problem on every feature branch.
+- SC-6 through SC-11: Verifying dead-branch detection costs one behavioral test run per SC. Skipping means dead branches accumulate in the repo indefinitely.
+- SC-12 through SC-15: Verifying PR guards costs one grep + one behavioral test. Skipping means the agent continues creating submodule-only PRs.
+- SC-16 through SC-19: Verifying pre-commit enforcement costs one behavioral test. Skipping means stale submodule pointer SHAs are committed without detection.
 
 ## Edge Cases
 
-- **Submodule PR not merged:** The agent MUST NOT delete the parent branch. It falls through to Phase 6's existing branch-aware parking (defer cleanup).
-- **Multiple submodules with pointer changes:** The diff check (`git diff --stat`) shows all changed paths. If ALL are submodule paths, the branch is dead. If ANY non-submodule path exists, the branch is NOT dead.
-- **No submodule PR found:** The agent cannot verify merge status. The branch is NOT deleted — it falls through to Phase 6 deferral.
-- **Branch has both pointer changes and real code changes:** The diff check catches non-submodule files. The branch is NOT dead — it falls through to Phase 6.
-- **Remote branch already deleted:** `git push origin --delete` fails gracefully. The agent continues with local deletion and trunk parking.
-- **Trunk pull fails (non-ff):** The agent reports the failure and halts. The dirty pointer is preserved.
-- **Submodule repo inaccessible (network error):** The agent cannot verify merge status. The branch is NOT deleted — it falls through to Phase 6 deferral.
+- **Submodule feature branch already exists:** pre-work.md must check `git branch --list` before creation and skip if exists
+- **Submodule tag push fails:** Verify tag exists locally before creating branch from it
+- **Branch with only submodule changes + no real code:** PR guard catches this — HALT before staging
+- **Branch with real code changes + dirty submodule:** PR guard passes — submodule pointer is staged alongside real changes
+- **Cleanup workflow:** The existing cleanup prohibition already handles this. The task file guards are an additional safety net
+- **Pre-push hook still fires:** The hook remains as a last-resort block. The task file guards prevent the agent from ever reaching the hook with a submodule-only PR
+- **External cross-references to old step numbers:** Grep all `.opencode/` files before renumbering pre-work.md steps
 
-## Change Control
+## Affected Files
 
-| Date | Change | Reason | Authorized By |
-|------|--------|--------|---------------|
-| 2026-08-01 | SC-3 and SC-4 verification methods changed from assert_stderr_pattern/assert_stderr_pattern_absent to assert_semantic (primary) with stderr assertions as secondary corroboration | Validation FAIL on dimension 9 (Evidence type correctness): behavioral evidence type requires assert_semantic, not string-level stderr assertions, as primary verification method | Validation gate (dimension 9) |
+- **MODIFY:** `.opencode/skills/git-workflow-branch/tasks/pre-work.md` — reorder steps, add submodule branch creation
+- **MODIFY:** `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md` — add dead-branch detection at end of Phase 5
+- **MODIFY:** `.opencode/skills/git-workflow-commit/tasks/implementation.md` — add submodule-only staging guard
+- **MODIFY:** `.opencode/skills/git-workflow-pr/tasks/pr-creation.md` — add submodule-only staging guard
+- **MODIFY:** `.opencode/guidelines/020-go-prohibitions.md` — widen prohibition to universal scope
+- **MODIFY:** `.opencode/skills/git-workflow/SKILL.md` — add release-pr trigger dispatch entry
+- **MODIFY:** `.opencode/skills/git-workflow/tasks/pr-creation/create-pr.md` — add --release mode with submodule SHA verification
+- **MODIFY:** `.opencode/hooks/pre-push` — add pre-commit gate for stale submodule pointers
+- **CREATE:** `.opencode/tests-v2/behaviors/` — new behavioral enforcement tests
