@@ -230,15 +230,16 @@ For each narrow criterion, evaluate using the validated evidence from `reasoning
 
 Read [spec-structure-standards.md](reference/spec-structure-standards.md). For each required section in the reference doc, check that the spec has that section with the correct content. For each SC in the spec's SC table, verify it has a verification method, that dependencies are documented, and that SCs are deterministic.
 
-**Removed SCs (no longer evaluated as separate criteria):** SC-3 (phases), SC-4 (steps), SC-6 (concerns), SC-7 (fidelity), SC-8 (edge cases), SC-10 (prose structure), SC-13 (cost-frame)
+**Removed SCs (no longer evaluated as separate criteria):** SC-3 (phases), SC-4 (steps), SC-6 (concerns), SC-7 (fidelity), SC-8 (edge cases), SC-10 (prose structure)
 
-**Derived SCs (evaluated through reference doc sections):** SC-1 (preamble), SC-2 (verification methods), SC-5 (dependencies), SC-9 (determinism), SC-11 (documentation sources), SC-12 (preamble fields), SC-14 (enforcement gate)
+**Derived SCs (evaluated through reference doc sections):** SC-1 (preamble), SC-2 (verification methods), SC-5 (dependencies), SC-9 (determinism), SC-11 (documentation sources), SC-12 (preamble fields), SC-13 (cost-frame), SC-14 (enforcement gate)
 
 - [ ] 1. Read `spec-structure-standards.md` from `reference/spec-structure-standards.md`
 - [ ] 2. For each required section in the reference doc, verify the spec has that section with correct content
 - [ ] 3. For each SC in the spec's SC table, verify it has a verification method, that dependencies are documented, and that SCs are deterministic
 - [ ] 4. If the upstream reasoning role flagged the evidence as `corrected`, use the corrected values
 - [ ] 5. If the upstream reasoning role flagged the evidence as `unvalidated`, note the uncertainty in the explanation but still render a verdict
+- [ ] 6. **SC-13 (cost-frame):** Read [cost-model-standards.md](reference/cost-model-standards.md) and verify each SC's cost frame follows the dark-prose-007 pattern
 
 #### Step 5b: Evaluate SC-DET (Determinism)
 
