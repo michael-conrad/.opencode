@@ -416,6 +416,64 @@ bash .opencode/tests-v2/with-test-home --clean-all
 | Behavioral (this directory) | Artifact generation | Model produced output for a scenario | Runs model, dumps artifacts |
 | Content-verification (`test-enforcement.sh`) | Text presence | Rule text exists in the right file | Greps files, no model needed |
 
+## 6a. Two-SC Pattern: Artifact Generation + Clean-Room Evaluation
+
+Every behavioral test (artifact-only generator) MUST be paired with a spec SC that dispatches a clean-room sub-agent to evaluate the generated artifacts. A single SC that both runs `opencode run` and evaluates the output conflates two concerns — the evaluation cannot be independently verified.
+
+### The Pattern
+
+| SC | Evidence Type | Action | Depends On |
+|----|--------------|--------|------------|
+| SC-N | `behavioral` | Run `opencode run` via behavioral test script, produce artifacts (session.yaml, stdout.log, stderr.log) | Nothing |
+| SC-N+1 | `behavioral` | Dispatch clean-room sub-agent to read session.yaml and evaluate agent actions against the criterion | SC-N (artifacts must exist) |
+
+### Why Two SCs
+
+- **SC-N (artifact generation):** The behavioral test script runs the model and exits 0. It does NOT evaluate — it only generates. This SC passes when artifacts are produced (exit code 0, session.yaml exists).
+- **SC-N+1 (clean-room evaluation):** A clean-room sub-agent reads the session.yaml (the SQLite DB export — the PRIMARY evidence source per §2) and judges whether the agent's tool calls, reasoning, and decisions satisfy the behavioral criterion. This sub-agent receives ONLY the artifact path and the SC criterion — no orchestrator context, no expected outcomes, no cached results.
+
+### Prohibited Patterns
+
+| Pattern | Why Prohibited |
+|---------|----------------|
+| Single SC that both runs `opencode run` and asserts on output | Conflates generation and evaluation; evaluation cannot be independently verified |
+| Assertion helpers (`assert_stderr_pattern_*`, `assert_required_pattern_present`) on behavioral SCs | String evidence for behavioral criterion = EVIDENCE_TYPE_MISMATCH |
+| Clean-room sub-agent receives orchestrator reasoning or expected outcomes | Contaminates evaluation with orchestrator bias |
+| Evaluating from stdout.log or stderr.log instead of session.yaml | stdout.log is prose only; stderr.log is diagnostics only. session.yaml (SQLite DB export) is the authoritative record of agent actions |
+
+### Required Pattern
+
+```yaml
+# In the spec's Success Criteria table:
+| SC-N | Agent dispatches approval-gate skill when asked to verify authorization | behavioral | opencode run → session.yaml |
+| SC-N+1 | Clean-room evaluation confirms agent dispatched approval-gate skill | behavioral | Clean-room sub-agent reads session.yaml from SC-N artifacts |
+```
+
+### Implementation
+
+**SC-N (artifact generation):**
+```bash
+# behavioral test script — artifact-only generator
+behavior_run "scenario-name" "prompt"
+exit 0
+```
+
+**SC-N+1 (clean-room evaluation):**
+```bash
+# Evaluation script or task dispatch
+task(..., prompt: "Read session.yaml from {artifact_path}. Evaluate whether the agent's tool calls and decisions satisfy SC-N+1: {criterion}. Return PASS/FAIL with evidence.")
+```
+
+The evaluation sub-agent receives ONLY:
+- The artifact directory path
+- The SC criterion text
+- `github.owner`, `github.repo` (for context)
+
+It does NOT receive:
+- Orchestrator reasoning about what the agent should have done
+- Expected outcomes or pre-determined verdicts
+- Cached results from prior runs
+
 ## 7. Cleanup
 
 ```bash
