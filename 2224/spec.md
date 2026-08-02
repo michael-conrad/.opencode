@@ -1,0 +1,70 @@
+# [SPEC] Move verify-plan-pipeline from approval-gate-scope to writing-plans
+
+## Problem
+
+The `verify-plan-pipeline` task lives in `approval-gate-scope` but validates that the `writing-plans` pipeline was followed (checks for spec file, feature branch, Z3 artifacts, audit artifacts, completion artifacts). This is a post-pipeline integrity check for `writing-plans`, not an authorization scope concern. It belongs in the `writing-plans` skill.
+
+Additionally, the `approval-gate` and `approval-gate-scope` skill descriptions include trigger phrases for "verify plan pipeline" / "check pipeline completeness" that route agents to the wrong skill. Moving the task and updating descriptions improves agent intent matching.
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | `verify-plan-pipeline` task file exists at `writing-plans/tasks/verify-plan-pipeline.md` | `structural` | File exists at target path |
+| SC-2 | `approval-gate/SKILL.md` no longer references `verify-plan-pipeline` in Trigger Dispatch Table or Invocation section | `string` | grep for `verify-plan-pipeline` in `approval-gate/SKILL.md` returns no matches |
+| SC-3 | `approval-gate-scope/SKILL.md` no longer references `verify-plan-pipeline` in Trigger Dispatch Table | `string` | grep for `verify-plan-pipeline` in `approval-gate-scope/SKILL.md` returns no matches |
+| SC-4 | `writing-plans/SKILL.md` includes `verify-plan-pipeline` in its Task Cards table | `string` | grep for `verify-plan-pipeline` in `writing-plans/SKILL.md` finds it in Task Cards section |
+| SC-5 | `writing-plans/SKILL.md` includes `verify-plan-pipeline` in its File Structure listing | `string` | grep for `verify-plan-pipeline` in `writing-plans/SKILL.md` finds it in File Structure section |
+| SC-6 | `writing-plans/SKILL.md` description includes trigger phrases for plan pipeline verification | `string` | Description contains "verify plan pipeline" or "check pipeline completeness" |
+| SC-7 | `approval-gate` skill description no longer includes "verify plan pipeline" or "check pipeline completeness" trigger phrases | `string` | grep for those phrases in `approval-gate/SKILL.md` description returns no matches |
+| SC-8 | `approval-gate-scope` skill description no longer includes "verify plan pipeline" or "check pipeline completeness" trigger phrases | `string` | grep for those phrases in `approval-gate-scope/SKILL.md` description returns no matches |
+| SC-9 | `writing-plans/SKILL.md` has a Trigger Dispatch Table row for "verify plan pipeline" / "check pipeline completeness" | `string` | TDT row exists mapping trigger phrases to `verify-plan-pipeline` task |
+| SC-10 | `writing-plans/SKILL.md` has an Invocation section entry for `verify-plan-pipeline` | `string` | Invocation table has row for `verify-plan-pipeline` with canonical dispatch string |
+| SC-11 | `writing-plans/SKILL.md` Workflows section includes a "verify pipeline" workflow or step | `string` | Workflows section references `verify-plan-pipeline` dispatch |
+| SC-12 | No behavioral regression — agent dispatched with "verify plan pipeline" routes to `writing-plans` skill, not `approval-gate` | `behavioral` | `opencode run` with prompt containing "verify plan pipeline" → stderr shows `Skill "writing-plans"` dispatch |
+
+## Approach
+
+### Phase 1: Move task file
+
+1. Copy `approval-gate-scope/tasks/verify-plan-pipeline.md` to `writing-plans/tasks/verify-plan-pipeline.md`
+2. Delete the original file from `approval-gate-scope/tasks/`
+
+### Phase 2: Update approval-gate/SKILL.md
+
+1. Remove the TDT row: `| "verify plan pipeline" / "check pipeline completeness" | \`verify-plan-pipeline\` | ...`
+2. Remove the Invocation row: `| \`verify-plan-pipeline\` | \`task(...)\` | ...`
+
+### Phase 3: Update approval-gate-scope/SKILL.md
+
+1. Remove the TDT row for `verify-plan-pipeline`
+2. Update description to remove "verify plan pipeline" / "check pipeline completeness" trigger phrases
+
+### Phase 4: Update writing-plans/SKILL.md
+
+1. Add `verify-plan-pipeline` to Task Cards table
+2. Add `tasks/verify-plan-pipeline.md` to File Structure listing
+3. Add a "verify pipeline" workflow step (or standalone workflow) in Workflows section
+4. Add Trigger Dispatch Table with row for "verify plan pipeline" / "check pipeline completeness"
+5. Add Invocation section entry for `verify-plan-pipeline`
+6. Update description to include "verify plan pipeline" / "check pipeline completeness" trigger phrases
+
+### Phase 5: Verify
+
+1. grep for stale references — confirm no remaining references in approval-gate files
+2. grep for new references — confirm writing-plans has all required references
+3. Run behavioral test: dispatch agent with "verify plan pipeline" prompt, confirm it routes to writing-plans
+
+## Affected Files
+
+- `.opencode/skills/approval-gate/SKILL.md` — remove TDT and Invocation rows
+- `.opencode/skills/approval-gate-scope/SKILL.md` — remove TDT row, update description
+- `.opencode/skills/approval-gate-scope/tasks/verify-plan-pipeline.md` — delete (moved)
+- `.opencode/skills/writing-plans/SKILL.md` — add TDT, Invocation, task card, file structure, workflow step, update description
+- `.opencode/skills/writing-plans/tasks/verify-plan-pipeline.md` — new file (moved from approval-gate-scope)
+
+## Not Affected
+
+- No guidelines change needed
+- No enforcement test change needed (behavioral test SC-12 is new)
+- No other skills reference `verify-plan-pipeline`
