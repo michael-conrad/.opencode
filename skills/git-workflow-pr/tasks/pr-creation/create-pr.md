@@ -137,42 +137,14 @@ autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
 
 **GitHub (`github.platform=github`):**
 
+Read [pr-body-template.md](reference/pr-body-template.md) for the full PR body template structure.
+
 ```python
 github_create_pull_request(
     owner=<github.owner>,
     repo=<github.repo>,
     title="[SPEC] <description>",  # When is_release: true, use "Release v<version>: promote <target> → trunk"
-    body="""**Summary:**
-
-<1-2 sentences describing impact and stakeholder value, sourced from issue body via issue-operations --task read-issue>
-
-**Outcome:** <What changed for stakeholders>
-
-**Verification Attestation:** All success criteria verified PASS — exact-match against live evidence. Dual independent auditors from different model families returned consensus PASS on every criterion. No caveats. No qualifications. Every PASS is a binary exact match. This deliverable is ready for merge.
-
-**Detail: VbC Table**
-
-| ID | Criterion | Test | Result |
-|----|-----------|------|--------|
-| SC-1 | ... | structural: ... | PASS |
-| SC-2 | ... | behavioral: ... | PASS |
-
-**Detail: Dual-Auditor Cross-Validation**
-
-| Criterion | Evidence Type | Auditor 1 | Auditor 2 | Consensus |
-|-----------|---------------|-----------|-----------|-----------|
-| SC-1 | PASS | PASS | PASS |
-| SC-2 | PASS | PASS | PASS |
-
-**Detail: Spec-Card-Mapped Commits**
-
-| Commit | Issue | Spec Card | Description |
-|--------|-------|-----------|-------------|
-| <sha> | #<N> | SC-<M> | <description> |
-
-Implements #<parent>  <!-- Use owner/repo#N when issue is in a different repo than the PR -->
-""",  # When is_release: true, synthesize release notes from commit log and include in body
-# Closing keywords formatted per pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow")
+    body="""<PR body assembled per pr-body-template.md>""",
     head=branch_name,
     base="<target>"
 )
@@ -180,8 +152,10 @@ Implements #<parent>  <!-- Use owner/repo#N when issue is in a different repo th
 
 **GitBucket (`github.platform=gitbucket`):**
 
+Read [pr-body-template.md](reference/pr-body-template.md) for the full PR body template structure.
+
 ```bash
-./.opencode/tools/gitbucket-api create-pr <owner> <repo> "[SPEC] <description>" <branch-name> <target> --body "<PR body>"
+./.opencode/tools/gitbucket-api create-pr <owner> <repo> "[SPEC] <description>" <branch-name> <target> --body "<PR body assembled per pr-body-template.md>"
 ```
 
 ### Step 6.1: Rebase After Push
