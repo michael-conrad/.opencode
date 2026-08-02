@@ -504,7 +504,6 @@ behavior_run() {
 
             # Create a branch with real code changes + submodule pointer changes (live branch)
             git -C "$attempt_workdir" checkout -b feature/2219-real-changes main 2>/dev/null || true
-            echo "real code change" > "$attempt_workdir/src/test.txt"
             mkdir -p "$attempt_workdir/src"
             echo "real code change" > "$attempt_workdir/src/test.txt"
             echo "# dirty submodule pointer" >> "$attempt_workdir/.gitmodules"
