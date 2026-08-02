@@ -492,6 +492,28 @@ behavior_run() {
             echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
         fi
 
+        if [ "${BEHAVIOR_SETUP_DEAD_BRANCHES:-0}" = "1" ]; then
+            # Create a branch with only submodule pointer changes (dead branch)
+            git -C "$attempt_workdir" checkout -b feature/2219-sub-pointer-only main 2>/dev/null || true
+            # Simulate a dirty submodule pointer by modifying .gitmodules or creating a submodule entry
+            echo "# dirty submodule pointer" >> "$attempt_workdir/.gitmodules"
+            git -C "$attempt_workdir" add .gitmodules 2>/dev/null || true
+            git -C "$attempt_workdir" commit -m "chore: update submodule pointer" 2>/dev/null || true
+            # Reset to main to leave the branch as-is
+            git -C "$attempt_workdir" checkout main 2>/dev/null || true
+
+            # Create a branch with real code changes + submodule pointer changes (live branch)
+            git -C "$attempt_workdir" checkout -b feature/2219-real-changes main 2>/dev/null || true
+            echo "real code change" > "$attempt_workdir/src/test.txt"
+            mkdir -p "$attempt_workdir/src"
+            echo "real code change" > "$attempt_workdir/src/test.txt"
+            echo "# dirty submodule pointer" >> "$attempt_workdir/.gitmodules"
+            git -C "$attempt_workdir" add src/test.txt .gitmodules 2>/dev/null || true
+            git -C "$attempt_workdir" commit -m "feat: real change plus submodule update" 2>/dev/null || true
+            git -C "$attempt_workdir" checkout main 2>/dev/null || true
+            echo "  [harness] dead branches set up (feature/2219-sub-pointer-only, feature/2219-real-changes)"
+        fi
+
         # Wire GitBucket remote on the attempt workdir if GitBucket is provisioned
         if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ -n "${GITBUCKET_PORT:-}" ]; then
             local gb_port="${GITBUCKET_PORT}"

@@ -11,8 +11,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+BEHAVIOR_SETUP_DEAD_BRANCHES=1
 SCENARIO_NAME="2219-sc10-non-pointer-guard"
-SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-real-changes' which has real code changes (src/main.py modified) plus submodule pointer changes. Do NOT delete this branch — it has real code changes."
+SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-real-changes' which has real code changes (src/test.txt modified) plus submodule pointer changes. Do NOT delete this branch — it has real code changes."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 

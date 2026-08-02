@@ -11,6 +11,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+BEHAVIOR_SETUP_DEAD_BRANCHES=1
 SCENARIO_NAME="2219-sc6-dead-branch-detection"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-sub-pointer-only'. The only difference from main is a submodule pointer change in .opencode. Run the cleanup workflow."
 
