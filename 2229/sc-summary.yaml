@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "skildeck lint extended with structural completeness checks"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Content-verification test scenario added to test-enforcement.sh"
+    evidence_type: "string + structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Behavioral enforcement test in behaviors/"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: ".opencode/AGENTS.md updated with reference to enforcement mechanism"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "AGENTS.md (root) updated with reference to enforcement mechanism"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "000-critical-rules.md updated with critical-rules-074"
+    evidence_type: "string + behavioral"
+    plan_item: 6

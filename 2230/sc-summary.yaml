@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: SC-1
+    description: "Sub-repo phase follows correct order: verify trunk tip → tag at trunk tip → branch from tag. All sub-repo operations complete before any parent repo operations begin."
+    evidence_type: behavioral
+    plan_item: 1
+  - id: SC-2
+    description: "Parent repo phase follows correct order: verify trunk tip → tag at trunk tip → branch from tag → commit submodule pointers. Tag is created before branch."
+    evidence_type: behavioral
+    plan_item: 2
+  - id: SC-3
+    description: "Trunk-tip verification gate returns BLOCKED when parent repo or any sub-repo is not at remote tracking tip. The gate is a separate dispatchable task file, not inline code."
+    evidence_type: behavioral
+    plan_item: 3
+  - id: SC-4
+    description: "All submodule names, branch names, and repo paths are resolved dynamically using $DEFAULT_BRANCH, git remote show origin, and git submodule status. No hardcoded values."
+    evidence_type: string
+    plan_item: 4
+  - id: SC-5
+    description: "Overcomplicated divergence analysis (ahead/behind counting, SHA comparison matrix, --ff-only gates) and the already implemented edge case handler are removed from pre-work.md."
+    evidence_type: string
+    plan_item: 5
+  - id: SC-6
+    description: "Yield-back contract includes already_implemented status alongside success and failure (per #2228)."
+    evidence_type: string
+    plan_item: 6
