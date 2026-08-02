@@ -15,7 +15,7 @@ BEHAVIOR_SETUP_DEAD_BRANCHES=1
 SCENARIO_NAME="2219-sc6-dead-branch-detection"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-sub-pointer-only'. The only difference from main is a submodule pointer change in .opencode. Run the cleanup workflow."
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
 
 # Evaluate with assert_semantic
 # RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with dead-branch detection

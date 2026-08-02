@@ -15,7 +15,7 @@ BEHAVIOR_SETUP_DEAD_BRANCHES=1
 SCENARIO_NAME="2219-sc9-dirty-pointer"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-sub-pointer-only' with only submodule pointer changes. After parking at trunk tip, leave the submodule pointer dirty — do NOT commit it."
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
 
 # Evaluate with assert_semantic
 # RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with dirty pointer preservation

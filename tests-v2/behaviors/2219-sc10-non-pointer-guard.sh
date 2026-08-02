@@ -15,7 +15,7 @@ BEHAVIOR_SETUP_DEAD_BRANCHES=1
 SCENARIO_NAME="2219-sc10-non-pointer-guard"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-real-changes' which has real code changes (src/test.txt modified) plus submodule pointer changes. Do NOT delete this branch — it has real code changes."
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
 
 # Evaluate with assert_semantic
 # RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with the non-pointer guard
