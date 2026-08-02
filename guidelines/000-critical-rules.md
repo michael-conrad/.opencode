@@ -117,7 +117,7 @@ Pre-commit hook output is binding. If a hook blocks a commit, fix the violation.
 `git reset --hard <checkpoint-tag>` is authorized automatically (no developer prompt) when ALL conditions are met:
 
 1. A checkpoint tag exists matching `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `git-workflow/SKILL.md` — Read [Tag Convention](skills/git-workflow/SKILL.md)
-2. The current pipeline step's verification failed (VbC or dual-auditor FAIL)
+2. The current pipeline step's verification failed (VbC or DiMo 4-role chain FAIL)
 3. The reset target is the checkpoint tag (not any other ref)
 4. Pre-rollback diagnostics (`git status`, `git diff --stat`) reported to chat
 5. The reset is followed by work-state-based re-dispatch

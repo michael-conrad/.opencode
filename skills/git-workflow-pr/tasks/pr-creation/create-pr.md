@@ -65,7 +65,7 @@ The Summary section MUST be sourced from the issue ticket body that authorized t
 | **Summary** | Issue ticket body (spec/plan issue for this PR) | `issue-operations --task read-issue` on parent issue |
 | **Outcome** | Issue ticket body + implementation knowledge | Synthesized from issue body + changesets |
 | **VbC Table** | VbC verification report | `read {project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` |
-| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` |
+| **DiMo Chain Attestation** | Arbiter judgment result contract | `read {project_root}/tmp/{issue-N}/artifacts/judgment.yaml` |
 | **Tracking references** | Sub-issues from parent | `issue-operations --task read-sub-issues` on parent issue |
 
 ### Step 4.75: Verification-Evidence-Check Gate
@@ -76,7 +76,7 @@ The verification-evidence check is a gate, not a banner. A PR without evidence i
 
 1. Check `{project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` exists and contains PASS for all SCs
 2. Check `{project_root}/tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
-3. Check `{project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
+3. Check `{project_root}/tmp/{issue-N}/artifacts/judgment.yaml` exists and reports `overall_verdict: PASS` from the DiMo chain arbiter
 4. If any artifact is MISSING or reports FAIL: do NOT create a PR
 
 **Blocked State (Missing or Failing Verification Evidence):**
@@ -99,9 +99,9 @@ Status: BLOCKED
 Gate: verification-evidence-check
 Blockers:
   - [MISSING] {project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md — VbC table not found
-  - [FAIL] {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
-    SC-1: Auditor 1 PASS, Auditor 2 FAIL
-    Remediation: Re-audit SC-1 with fresh model pair
+  - [FAIL] {project_root}/tmp/{issue-N}/artifacts/judgment.yaml — DiMo chain arbiter reports FAIL
+    SC-1: Evaluator PASS, Arbiter FAIL
+    Remediation: Re-audit SC-1 with fresh DiMo chain
 remediation: "Run verification-before-completion --task verify, then audit before retrying PR creation"
 next_step: "remediate then re-audit"
 ```
@@ -137,42 +137,14 @@ autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
 
 **GitHub (`github.platform=github`):**
 
+Read [pr-body-template.md](reference/pr-body-template.md) for the full PR body template structure.
+
 ```python
 github_create_pull_request(
     owner=<github.owner>,
     repo=<github.repo>,
     title="[SPEC] <description>",  # When is_release: true, use "Release v<version>: promote <target> → trunk"
-    body="""**Summary:**
-
-<1-2 sentences describing impact and stakeholder value, sourced from issue body via issue-operations --task read-issue>
-
-**Outcome:** <What changed for stakeholders>
-
-**Verification Attestation:** All success criteria verified PASS — exact-match against live evidence. Dual independent auditors from different model families returned consensus PASS on every criterion. No caveats. No qualifications. Every PASS is a binary exact match. This deliverable is ready for merge.
-
-**Detail: VbC Table**
-
-| ID | Criterion | Test | Result |
-|----|-----------|------|--------|
-| SC-1 | ... | structural: ... | PASS |
-| SC-2 | ... | behavioral: ... | PASS |
-
-**Detail: Dual-Auditor Cross-Validation**
-
-| Criterion | Evidence Type | Auditor 1 | Auditor 2 | Consensus |
-|-----------|---------------|-----------|-----------|-----------|
-| SC-1 | PASS | PASS | PASS |
-| SC-2 | PASS | PASS | PASS |
-
-**Detail: Spec-Card-Mapped Commits**
-
-| Commit | Issue | Spec Card | Description |
-|--------|-------|-----------|-------------|
-| <sha> | #<N> | SC-<M> | <description> |
-
-Implements #<parent>  <!-- Use owner/repo#N when issue is in a different repo than the PR -->
-""",  # When is_release: true, synthesize release notes from commit log and include in body
-# Closing keywords formatted per pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow")
+    body="""<PR body assembled per pr-body-template.md>""",
     head=branch_name,
     base="<target>"
 )
@@ -180,8 +152,10 @@ Implements #<parent>  <!-- Use owner/repo#N when issue is in a different repo th
 
 **GitBucket (`github.platform=gitbucket`):**
 
+Read [pr-body-template.md](reference/pr-body-template.md) for the full PR body template structure.
+
 ```bash
-./.opencode/tools/gitbucket-api create-pr <owner> <repo> "[SPEC] <description>" <branch-name> <target> --body "<PR body>"
+./.opencode/tools/gitbucket-api create-pr <owner> <repo> "[SPEC] <description>" <branch-name> <target> --body "<PR body assembled per pr-body-template.md>"
 ```
 
 ### Step 6.1: Rebase After Push
@@ -197,11 +171,13 @@ git rebase origin/<target>
 
 A Summary sourced from the issue ticket through the issue-operations dispatcher is what correct attribution looks like. A free-formed summary means the reviewer cannot verify intent against the authorizing issue — the summary is an unverifiable assertion. Professional-grade PRs derive their Summary from the authorizing issue; bodies that fabricate it introduce scope the reviewer never approved.
 
+Read [pr-body-template.md](reference/pr-body-template.md) for the canonical PR body template structure. The template defines all required sections:
+
 - **Summary** section: 1-2 sentences describing stakeholder value (NOT implementation details) — sourced from issue body via `issue-operations --task read-issue`
 - **Outcome** section: What changed for stakeholders
 - **Verification Attestation**: Binary PASS language — no caveats, no justifications, no false-fail remediation language
 - **VbC Table**: ID, Criterion, Test, Result columns — Test column includes test-type annotations (structural, behavioral, semantic, string) per `080-code-standards.md` §Evidence Type Taxonomy
-- **Dual-Auditor Cross-Validation Table**: Criterion, Auditor 1, Auditor 2, Consensus columns
+- **DiMo Chain Attestation Table**: Criterion, Evidence Type, Investigator, Validator, Evaluator, Arbiter columns
 - **Spec-Card-Mapped Commits Table**: Commit, Issue, Spec Card, Description columns — maps each commit to the spec card it implements
 - `Fixes #N` or `Implements #N` annotations at bottom (informational — autoclose is inert for `<target>` merges)
 - **Cross-repo references:** When the issue is in a different repo than the PR, use `Fixes owner/repo#N` instead of `Fixes #N`

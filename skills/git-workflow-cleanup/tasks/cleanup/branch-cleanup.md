@@ -24,7 +24,7 @@ Delete merged branches, clean stale references, remove worktrees, sync trunk, an
 
 **⚠️ Before any branch operations, verify issue closure via audit.**
 
-Invoke `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`. The dual-auditor dispatch must complete with a PASS consensus before any branch operations proceed.
+Invoke `audit --task closure-verification --pr <N>` with `audit_phase: post_merge`. The DiMo 4-role chain dispatch must complete with a PASS consensus before any branch operations proceed.
 
 #### Dispatch Procedure (Orchestrator)
 

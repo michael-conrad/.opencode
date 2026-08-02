@@ -82,6 +82,7 @@ Each row dispatches 4 sequential `task()` calls — one per DiMo role (Investiga
 | "analytical artifacts present" / "all artifacts ready" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, analytical_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
 | "post-remediation re-audit" / "re-audit after remediation" | `spec-audit` | `sub-task` (DiMo chain) | {issue_number, spec_local_dir, remediation_artifact_dir, role_chain: [investigator, validator, evaluator, arbiter]} |
 | "analytical artifacts missing" / artifacts needed but not found | `writing-plans --task backfill` | `sub-task` | {issue_number, project_root, mode: retroactive} |
+| "pr body audit" / "audit PR body" | `pr-body-audit` | `sub-task` | {pr_body_text, template_path} |
 | completion / workflow end | `completion` | `sub-task` (DiMo chain) | {workflow_state, role_chain: [investigator, validator, evaluator, arbiter]} |
 
 ## Tasks

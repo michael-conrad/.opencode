@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: "Generate implementation plans from approved specs with phase decomposition, self-contained code, TDD cycles, and execution handoff. Plans are REQUIRED before implementation."
+description: "Generate implementation plans from approved specs with phase decomposition, self-contained code, TDD cycles, and execution handoff. Also load when verifying plan pipeline completeness or checking pipeline artifacts. Plans are REQUIRED before implementation. User phrases: create plan, verify plan pipeline, check pipeline completeness"
 license: MIT
 compatibility: opencode
 provenance: AI-generated
@@ -60,6 +60,7 @@ Generate and validate implementation plans from approved specs. Flat architectur
 | `tasks/create.md` | Write self-contained plan with full implementation-workflow reference card per-task cycle. Plan is structured markdown with English instructions. Every task enumerates every step from the implementation-workflow reference card's per-task cycle. No skipping, no combining, no grouping |
 | `tasks/validate.md` | Structural validation, skill+task validity, SC coverage check, holistic quality gate |
 | `tasks/revise.md` | Plan revision from validation findings with change tracking |
+| `tasks/verify-plan-pipeline.md` | Verify plan pipeline completeness — validates that all writing-plans pipeline artifacts exist and are consistent |
 | `tasks/completion.md` | Lifecycle event append, execution strategy determination, summary report |
 
 ## File Structure
@@ -74,6 +75,7 @@ writing-plans/
     create.md
     validate.md
     revise.md
+    verify-plan-pipeline.md
     completion.md
   contracts/
     (18 templates — 9 input/output pairs)

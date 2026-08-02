@@ -61,7 +61,7 @@ Pair mode uses the same squash workflow as autonomous mode:
 - Use `Implements #N` for pair-mode PRs (never `Fixes` or `Closes`)
 - `Implements` links the PR to the issue without auto-closing on merge
 - Auto-closure bypasses verification gates — `Fixes`/`Closes` are prohibited
-- Format closing keywords per `pr-creation-workflow` → `task("execute closing-keywords from pr-creation-workflow")`
+- Format closing keywords per `git-workflow-pr` → `task("execute closing-keywords from git-workflow-pr")`
 
 ## Result Contract
 

@@ -13,13 +13,15 @@ Run the 11-dimension holistic self-check and structural validation (SC completen
 - [ ] `issue_number` and `spec_path` received in dispatch context
 - [ ] No producer context, orchestrator reasoning, or expected outcomes in the prompt
 - [ ] Spec file exists at `{spec_path}`
-- [ ] Spec has all required sections (Objective, Background, SCs, Requirements, Phases, Traceability)
+- [ ] Analytical artifacts directory exists at `{project_root}/{path}/.issues/{issue_number}/artifacts/` (or warning logged if not)
 
 ## Procedure
 
-### Step 1: Read spec
+### Step 1: Read spec and reference documents
 
 Read the full spec from `{spec_path}`.
+
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) and load the required section inventory dynamically. The section list is NOT hardcoded — it is loaded from the reference document.
 
 ### Step 2: Run 11-dimension holistic self-check
 
@@ -27,7 +29,7 @@ Evaluate the spec against all 11 holistic dimensions:
 
 | # | Dimension | What to Check |
 |---|-----------|---------------|
-| 1 | **Completeness** | All required sections present (Objective, Background, SCs, Requirements, Phases, Traceability, Dependencies) |
+| 1 | **Completeness** | All required sections present (loaded dynamically from spec-structure-standards.md) |
 | 2 | **Clarity** | Each SC is unambiguous, testable, and has a single interpretation |
 | 3 | **Consistency** | No internal contradictions between sections, SCs, and requirements |
 | 4 | **Correctness** | All factual claims verified against codebase (file paths, function names, config values) |
@@ -43,13 +45,81 @@ For each dimension, produce a PASS or FAIL verdict with a brief justification.
 
 ### Step 3: Run structural validation
 
-Check:
+#### Step 3.1: Format-level conformance checks
 
-- **SC completeness:** Every SC has an ID, Criterion, Evidence Type, and Verification Method
-- **Evidence type validity:** Every evidence type is one of `behavioral`, `semantic`, `string`, `structural`
-- **Traceability completeness:** Every requirement appears in the Traceability table; every SC appears in the Traceability table
-- **Phase coverage:** Every phase has REQ references in its heading
-- **No orphaned sections:** No section that is required but empty or missing
+Check the spec against format-level rules loaded from spec-structure-standards.md:
+
+- **SHALL language conformance:** Verify normative statements use "SHALL" (mandatory), "SHOULD" (recommendation), "MAY" (optional). Flag "must", "will", "should" (unqualified) as violations.
+- **dark-prose-007 conformance:** Verify each SC includes a cost-frame statement explaining failure costs in dark prose authority frame. Flag SCs missing cost-frame language.
+- **Documentation Sources conformance:** Verify the SC table includes a Documentation Sources column. Flag missing column or empty entries.
+
+#### Step 3.2: Determinism check
+
+Check each SC for determinism violations. Prohibited patterns (loaded from spec-structure-standards.md):
+
+- Adverbs without thresholds: "quickly", "efficiently", "properly"
+- Comparatives without baselines: "better", "faster", "more readable"
+- Open-ended quality terms: "good", "clean", "well-structured"
+- Missing expected values: "should match" without specifying what
+- Implicit behavior: "should work correctly" without defining "correctly"
+- Either/or ambiguity: "or", "either", "alternatively" in Required Actions
+- Hedging language: "should", "may", "preferably", "ideally", "if possible", "as appropriate", "as needed", "consider", "optionally", "if desired", "TBD", "TODO", "to be determined", "use best judgment", "if time permits", "implementor's discretion"
+- Escape hatches: "or similar", "or equivalent", "and/or", "etc.", "and so on"
+- Ambiguity markers: vague references without clear targets, unspecified thresholds, undefined terms
+
+For each SC, record which prohibited patterns are present. Flag any SC with ≥1 prohibited pattern as FAIL.
+
+#### Step 3.3: Compound-SC detection
+
+Check each SC for compound structure — an SC that bundles multiple independently verifiable claims:
+
+- **Conjunctions:** "and", "or", "also", "plus" that join distinct verification targets
+- **Multiple verification targets:** The SC describes more than one thing to verify (e.g., "X is Y and Z is W")
+- **Cross-concern references:** The SC references concerns from different phases or domains
+
+For each compound SC detected, flag as FAIL with the specific compound pattern identified. The spec must decompose compound SCs into individual atomic SCs.
+
+#### Step 3.4: Causal-chain verification
+
+Verify the causal chain between root causes and SCs:
+
+- **Root cause to SC mapping:** For each root cause identified in the spec, verify at least one SC addresses it
+- **Orphan detection:** Identify SCs that do not trace to any root cause (orphan SCs) and root causes not addressed by any SC (orphan root causes)
+- **Causal sufficiency:** Verify the set of SCs is sufficient to address all identified root causes
+
+Flag any orphan SCs or orphan root causes as FAIL.
+
+#### Step 3.5: Evidence-type-to-method cross-check
+
+Verify each SC's evidence type matches its verification method using the lookup table:
+
+| Evidence Type | Required Verification Method |
+|---------------|----------------------------|
+| `behavioral` | Test execution (`opencode run`, `pytest`, `bash test.sh`) |
+| `semantic` | Sub-agent read + analytical judgment |
+| `string` | `grep`, pattern matching |
+| `structural` | `ls`, `wc`, file existence |
+
+For each SC, verify:
+1. The declared evidence type is one of the four valid types
+2. The verification method matches the evidence type per the lookup table
+3. The verification method is specific enough to produce a PASS/FAIL verdict
+
+Flag any mismatch as FAIL with `EVIDENCE_TYPE_MISMATCH` classification.
+
+#### Step 3.6: Artifact cross-reference check
+
+Cross-reference the spec against analytical artifacts at `{project_root}/{path}/.issues/{issue_number}/artifacts/`:
+
+- **Blast-radius alignment:** Verify the spec's affected files match the blast-radius artifact
+- **Concern-map alignment:** Verify the spec's phases align with concern boundaries from the concern-map artifact
+- **Interface-compatibility alignment:** Verify the spec's interface changes match the interface-compatibility artifact
+- **Testability-assessment alignment:** Verify the spec's verification methods match the testability-assessment artifact
+
+For each artifact, check:
+1. The artifact file exists and is non-empty
+2. The spec's claims are consistent with the artifact's findings
+3. Any discrepancies are flagged as warnings (not hard FAIL — artifacts may be preliminary)
 
 ### Step 4: Produce verdict
 

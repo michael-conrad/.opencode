@@ -63,11 +63,7 @@ fragments:
         line_range:
           start: 1
           end: 80
-      - path: .opencode/skills/pr-creation-workflow/SKILL.md
-        hash: sha256: TBD
-        line_range:
-          start: 50
-          end: 100
+
     sync_status: synchronized
     last_sync: 2026-04-06T10:00:00Z
     notes: "PR must wait for explicit 'create a PR' instruction"

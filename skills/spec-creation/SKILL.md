@@ -41,6 +41,18 @@ analyze → create → validate → (revise → validate)* → done
    - **Returns:** `{status, spec_path, finding_summary}`
    - Then return to step 3 (validate)
 
+#### Tiered Escalation (validate→revise loop)
+
+The validate→revise loop uses a 3-tier escalation when validation continues to fail:
+
+| Tier | Condition | Action |
+|------|-----------|--------|
+| **Tier 1** | First 3 validate→revise iterations | Continue the loop. Each iteration addresses the specific validation findings from the previous run. No escalation. |
+| **Tier 2** | 4th consecutive validate FAIL | Dispatch a structural diagnostic: task a clean-room sub-agent to analyze the spec's structural defects independently. The diagnostic produces a structured defect report identifying root causes of repeated validation failures. |
+| **Tier 3** | 5th+ consecutive validate FAIL (or diagnostic reveals fundamental spec defect) | Escalate to user. Report: (a) the validation findings from all iterations, (b) the structural diagnostic findings, (c) a recommendation for spec restructuring or user guidance. HALT — do not continue the loop without user input. |
+
+The tier counter resets when validate returns PASS (successful exit from the loop).
+
 5. **If validate returns PASS:** Spec is ready for approval. Report spec_path and issue_url.
 
 ### Revise an existing spec
@@ -53,7 +65,7 @@ analyze → create → validate → (revise → validate)* → done
    - **Context passed:** `{issue_number, spec_path}`
    - **Returns:** `{status, verdicts, finding_summary}`
 
-3. If validate returns FAIL, return to step 1. If PASS, spec is ready.
+3. If validate returns FAIL, return to step 1 (with tiered escalation per the Tiered Escalation section above). If PASS, spec is ready.
 
 ## Task Files
 

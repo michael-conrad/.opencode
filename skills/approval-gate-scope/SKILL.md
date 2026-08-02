@@ -39,7 +39,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "apply label" / "set approval label" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |
 | "revision revocation" / "spec revised" | `revision-revocation` | `sub-task` | {spec_issue, plan_issue, label_transition: {remove: ["spec-passed-review", "spec-cleared"], apply: ["spec-draft"]}} |
 | "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
-| "verify plan pipeline" / "check pipeline completeness" | `verify-plan-pipeline` | `sub-task` | {issue_number} |
 | "verify fix spec" / "check fix spec" | `verify-fix-spec` | `sub-task` | {issue_number} |
 | "verify open questions" | `verify-open-questions` | `sub-task` | {issue_number} |
 | "verify QA mode" / "Q/A mode" | `verify-qa-mode` | `sub-task` | {issue_number} |
@@ -282,4 +281,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Parent skill: `approval-gate`. Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `writing-plans`, `pre-analysis`, `audit`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`, `020-go-prohibitions.md`.
+Parent skill: `approval-gate`. Skills: `git-workflow`, `git-workflow-pr`, `issue-review`, `writing-plans`, `pre-analysis`, `audit`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`, `020-go-prohibitions.md`.

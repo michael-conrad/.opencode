@@ -1,6 +1,6 @@
 ---
 name: git-workflow-pr
-description: "Pull request creation, review preparation, and PR lifecycle management. Load via skill() when the agent needs to create pull requests, prepare reviews, or handle PR lifecycle completion. Also load when handling pair mode PR creation or post-implementation tasks. Every PR MUST be an authorized, intentional delivery. User phrases: create PR, prepare review, complete PR lifecycle, pair mode PR"
+description: "Pull request creation, review preparation, and PR lifecycle management. Every PR MUST be an authorized, intentional delivery."
 license: MIT
 provenance: AI-generated
 ---
@@ -11,34 +11,42 @@ provenance: AI-generated
 
 Pull request management sub-skill of git-workflow. Handles PR creation, review preparation, pair mode PR creation, post-implementation tasks, and PR lifecycle completion. Enforces stacked PR strategy — one branch, N commits, one PR. PR creation requires `for_pr` authorization scope or explicit developer instruction.
 
-## Trigger Dispatch Table
+## Workflows
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "pr-creation" / "create PR" | `pr-creation` | `sub-task` | {branch_name, spec_summary, is_release} |
-| "review-prep" / "prepare review" | `review-prep` | `sub-task` | {branch_name} |
-| "pair-pr-creation" / "pair PR" | `pair-pr-creation` | `sub-task` | {branch_name} |
-| "post-implementation" / "post-impl" | `post-implementation` | `sub-task` | {branch_name} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+### Create PR
 
-## DISPATCH_GATE
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope or explicit developer instruction."
+2. Dispatch `pr-creation` task via `task()` with `{branch_name, spec_summary, is_release}`.
+3. Sub-agent reads `tasks/pr-creation/` and executes PR creation procedure.
+4. Sub-agent returns result contract with PR URL and status.
 
-### Orchestrator Entry Criteria
+### Prepare review
 
-1. Confirm the next action is `task()` — not inline execution
-2. Use the canonical dispatch string from the Trigger Dispatch Table verbatim
-3. Do NOT preload file paths, step sequences, expected outcomes, or orchestrator reasoning
-4. Task a clean-room sub-agent via `task(subagent_type="general")`
-5. Receive result contract (status, finding_summary, artifact_path, blocker_reason)
-6. Log in work state file — record which sub-agent was tasked and when
-7. Proceed based on result contract — route to next pipeline step
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Review preparation requires `for_pr` scope."
+2. Dispatch `review-prep` task via `task()` with `{branch_name}`.
+3. Sub-agent reads `tasks/review-prep/` and executes review preparation.
+4. Sub-agent returns result contract with readiness status.
 
-### Sub-Agent Entry Criteria
+### Create pair mode PR
 
-2. Sub-agent loads task file content independently — never from orchestrator context
-3. Sub-agent reads source files, runs analysis tools, executes tests freely
-4. Sub-agent returns only routing-significant data: status, finding_summary, artifact_path, blocker_reason
-5. Full evidence artifacts go to disk — never in the result contract
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope."
+2. Dispatch `pair-pr-creation` task via `task()` with `{branch_name}`.
+3. Sub-agent reads `tasks/pair-pr-creation/` and executes pair mode PR creation.
+4. Sub-agent returns result contract with PR URL and status.
+
+### Post-implementation
+
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_implementation`. If not authorized, HALT with "Post-implementation tasks require `for_implementation` scope."
+2. Dispatch `post-implementation` task via `task()` with `{branch_name}`.
+3. Sub-agent reads `tasks/post-implementation/` and executes post-implementation tasks.
+4. Sub-agent returns result contract with completion status.
+
+### Complete workflow
+
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Workflow completion requires `for_pr` scope."
+2. Dispatch `completion` task via `task()` with `{workflow_state}`.
+3. Sub-agent reads `tasks/completion/` and executes completion procedure.
+4. Sub-agent returns result contract with final status.
 
 ## Tasks
 
@@ -53,7 +61,6 @@ Pull request management sub-skill of git-workflow. Handles PR creation, review p
 ## Cross-References
 
 - Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
-- Read [pr-creation-workflow skill](skills/pr-creation-workflow/SKILL.md) for PR authorization and readiness verification
 - Read [critical-rules-016](guidelines/000-critical-rules.md) for PR body format requirements
 - Read [critical-rules-016](guidelines/000-critical-rules.md) for compare URL base branch rules
 - Read [critical-rules-019](guidelines/000-critical-rules.md) for PR creation authorization
@@ -83,5 +90,3 @@ Bright-line companion:
 PR organization IS branch organization. Stacked PR IS the only valid organization.
 Every authorization scope declares exactly one strategy: stacked or none.
 Creating N branches for N issues IS a critical violation — Period.
-
-

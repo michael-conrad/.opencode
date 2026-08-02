@@ -40,6 +40,15 @@ Read [spec-structure-standards.md](reference/spec-structure-standards.md) and as
 
 Read [cost-model-standards.md](reference/cost-model-standards.md) and write per-SC cost-frame statements following the dark-prose-007 pattern.
 
+### Step 2.1: Apply format-level rules
+
+Apply the following format-level rules during spec body assembly:
+
+- **SHALL language:** Use "SHALL" for mandatory requirements, "SHOULD" for recommendations, "MAY" for optional behavior. Avoid "must", "will", "should" (unqualified) in normative statements.
+- **dark-prose-007 pattern:** Each SC MUST include a cost-frame statement explaining what failure costs (time, complexity, defects) — written in dark prose authority frame.
+- **SC determinism:** Every SC MUST be a single, independently verifiable claim. No compound SCs, no ambiguous wording, no hedging language.
+- **Documentation Sources columns:** The SC table MUST include a Documentation Sources column listing the live documentation URLs or source paths that verify each SC's claims.
+
 ### Step 2.1: Write sc-summary.yaml
 
 Write the SC summary to `{project_root}/{path}/.issues/{issue_number}/sc-summary.yaml`:
@@ -84,6 +93,17 @@ Write the full spec to the correct local path:
 
 Include the GitHub URL blockquote at the top of the local spec:
 
+### Step 6: Copy analytical artifacts
+
+Copy analytical artifacts from the analysis step to the issue's artifact directory:
+
+1. Source: `tmp/{issue_number}/artifacts/`
+2. Destination: `{project_root}/{path}/.issues/{issue_number}/artifacts/`
+3. Use `shutil.copytree` or equivalent to copy the full artifact directory
+4. If the source directory does not exist, log a warning and continue (artifacts may have been cleaned up)
+
+This ensures analytical artifacts are preserved alongside the spec for downstream consumers (auditors, plan creators).
+
 ```
 > **Full spec and artifacts: [`{issues_prefix}{N}/`]({browser_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
@@ -93,9 +113,11 @@ Include the GitHub URL blockquote at the top of the local spec:
 ## Exit Criteria
 
 - [ ] Spec assembled with all required sections
+- [ ] Format-level rules applied (SHALL language, dark-prose-007, SC determinism, Documentation Sources columns)
 - [ ] Remote issue created (when API available) with `[SPEC]` prefix and `needs-approval` label
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
+- [ ] Analytical artifacts copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
 - [ ] No verification steps performed (no holistic check or structural validation)
 
