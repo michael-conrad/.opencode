@@ -1,0 +1,22 @@
+# Solve Output — Z3 and Planner Results
+spec: .opencode/.issues/2214/spec.md
+
+solve_model:
+  status: SAT
+  query: "z3.BoolVal(True)"
+  note: "Trivial SAT — contract has no variables/preconditions/invariants to constrain"
+
+solve_check:
+  status: SAT
+  preconditions: SAT
+  postconditions_invariants: SAT
+  note: "State analysis satisfies contract constraints"
+
+planner:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  plan:
+    - execute(phase1)
+    - execute(phase2)
+  note: "2-phase sequential plan: Phase 1 (rewrite) → Phase 2 (verify cross-references)"

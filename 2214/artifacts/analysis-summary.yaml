@@ -1,0 +1,21 @@
+status: DONE
+finding_summary: "All 7 analytical artifacts backfilled from spec body. Spec has 10 SCs across 2 phases. 4 concern groups identified (content-purity, table-consolidation, cross-cutting-sections, cross-reference-integrity). 2 cross-cutting SCs (SC-1 spans content-purity + table-consolidation; SC-9/SC-10 are cross-reference-integrity). All SCs testable via string evidence (grep). No behavioral tests needed."
+artifact_path: ".opencode/.issues/2214/artifacts/analysis-summary.yaml"
+blocker_reason: null
+spec:
+  path: ".opencode/.issues/2214/spec.md"
+  approved: true
+  sc_count: 10
+artifacts:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary:
+  skills/writing-plans/reference/implementation-workflow.md: EXISTS
+  skills/writing-plans/tasks/create.md: EXISTS
+  skills/writing-plans/tasks/research.md: EXISTS
+  skills/writing-plans/tasks/validate.md: EXISTS

@@ -1,0 +1,116 @@
+# Backfilled from spec body — issue #2220
+# Code paths implied by each SC
+
+code_paths:
+  - sc: SC-1
+    description: Merge approval-gate-scope/SKILL.md content into approval-gate/SKILL.md
+    paths:
+      - read: .opencode/skills/approval-gate-scope/SKILL.md
+      - read: .opencode/skills/approval-gate/SKILL.md
+      - write: .opencode/skills/approval-gate/SKILL.md
+    verification:
+      - "Read merged SKILL.md and verify 4 section groups with required subsections"
+
+  - sc: SC-2
+    description: Delete approval-gate-scope/SKILL.md
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/SKILL.md
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/SKILL.md returns error"
+
+  - sc: SC-3
+    description: Update all skill() dispatch calls from approval-gate-scope to approval-gate
+    paths:
+      - read: .opencode/skills/approval-gate/SKILL.md
+      - read: .opencode/guidelines/000-critical-rules.md
+      - write: .opencode/skills/approval-gate/SKILL.md
+      - write: .opencode/guidelines/000-critical-rules.md
+    verification:
+      - "grep -r 'approval-gate-scope' .opencode/ returns zero matches (after Phase 2 deletes)"
+
+  - sc: SC-4
+    description: Delete 22 task files in approval-gate-scope/tasks/
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/tasks/apply-label.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/authorization-context.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/column-validation.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/completion.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/pre-implementation-analysis.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/reconcile-issue-graph.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/record-authorization.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/screen-issue.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-already-implemented.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-blockers.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-closed-issue.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-codebase.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-fix-spec.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-open-questions.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-qa-mode.md
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-sub-issues.md
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/tasks/ returns error or empty"
+
+  - sc: SC-5
+    description: Delete 5 enforcement files in approval-gate-scope/enforcement/
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/enforcement/adversarial-verification.md
+      - delete: .opencode/skills/approval-gate-scope/enforcement/auto-dispatch-table.md
+      - delete: .opencode/skills/approval-gate-scope/enforcement/closed-issue-verification.md
+      - delete: .opencode/skills/approval-gate-scope/enforcement/scope-parsing.md
+      - delete: .opencode/skills/approval-gate-scope/enforcement/sub-issue-graph-traversal.md
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/enforcement/ returns error or empty"
+
+  - sc: SC-6
+    description: Delete 13 verify-authorization sub-task files
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/tasks/verify-authorization/
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/tasks/verify-authorization/ returns error or empty"
+
+  - sc: SC-7
+    description: Delete 2 screen sub-task files
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/tasks/screen/
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/tasks/screen/ returns error or empty"
+
+  - sc: SC-8
+    description: Delete 3 gap-fill-cascade sub-task files
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/ returns error or empty"
+
+  - sc: SC-9
+    description: Delete 6 pre-impl sub-task files
+    paths:
+      - delete: .opencode/skills/approval-gate-scope/tasks/pre-impl/
+    verification:
+      - "ls .opencode/skills/approval-gate-scope/tasks/pre-impl/ returns error or empty"
+
+  - sc: SC-10
+    description: Update cross-references in other skills/guidelines
+    paths:
+      - read: .opencode/guidelines/000-critical-rules.md
+      - read: .opencode/skills/approval-gate/SKILL.md
+      - write: .opencode/guidelines/000-critical-rules.md
+      - write: .opencode/skills/approval-gate/SKILL.md
+    verification:
+      - "grep -r 'approval-gate-scope/tasks/' .opencode/ returns zero matches"
+
+  - sc: SC-11
+    description: Update behavioral enforcement tests
+    paths:
+      - read: .opencode/tests-v2/behaviors/approval-gate-scope-routing.sh
+      - read: .opencode/tests-v2/behaviors/fast-path-workflow-reorder.sh
+      - write: .opencode/tests-v2/behaviors/approval-gate-scope-routing.sh
+      - write: .opencode/tests-v2/behaviors/fast-path-workflow-reorder.sh
+    verification:
+      - "opencode run with skill dispatch assertion: stderr contains 'Skill \"approval-gate\"' and NOT 'Skill \"approval-gate-scope\"'"
+
+  - sc: SC-12
+    description: Verify no remaining references to approval-gate-scope
+    paths:
+      - verification: "grep -r 'approval-gate-scope' .opencode/ returns zero matches across all file types"

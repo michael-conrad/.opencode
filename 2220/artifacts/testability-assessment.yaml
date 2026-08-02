@@ -1,0 +1,103 @@
+# Backfilled from spec body — issue #2220
+# Evidence types and verification methods per SC
+
+testability:
+  - sc: SC-1
+    evidence_type: semantic
+    verification_method: "Clean-room sub-agent reads merged SKILL.md and verifies 4 section groups with required subsections"
+    testable: true
+    automation: "Sub-agent read + judgment"
+    risk: low
+
+  - sc: SC-2
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/SKILL.md returns error"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-3
+    evidence_type: string
+    verification_method: "grep -r 'approval-gate-scope' .opencode/ returns zero matches"
+    testable: true
+    automation: "grep command"
+    risk: low
+    note: "Must run AFTER Phase 2 deletes, or deleted files will produce false positives"
+
+  - sc: SC-4
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/tasks/ returns error or empty"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-5
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/enforcement/ returns error or empty"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-6
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/tasks/verify-authorization/ returns error or empty"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-7
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/tasks/screen/ returns error or empty"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-8
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/ returns error or empty"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-9
+    evidence_type: structural
+    verification_method: "ls .opencode/skills/approval-gate-scope/tasks/pre-impl/ returns error or empty"
+    testable: true
+    automation: "ls command"
+    risk: none
+
+  - sc: SC-10
+    evidence_type: string
+    verification_method: "grep -r 'approval-gate-scope/tasks/' .opencode/ returns zero matches"
+    testable: true
+    automation: "grep command"
+    risk: low
+
+  - sc: SC-11
+    evidence_type: behavioral
+    verification_method: "opencode run with skill dispatch assertion: stderr contains 'Skill \"approval-gate\"' and NOT 'Skill \"approval-gate-scope\"'"
+    testable: true
+    automation: "opencode run via with-test-home wrapper"
+    risk: medium
+    infrastructure_required:
+      - "Model availability (verified via opencode models)"
+      - "with-test-home wrapper"
+      - "BEHAVIOR_TIMEOUT >= 600000ms"
+
+  - sc: SC-12
+    evidence_type: string
+    verification_method: "grep -r 'approval-gate-scope' .opencode/ returns zero matches across all file types"
+    testable: true
+    automation: "grep command"
+    risk: low
+    note: "Final sweep — must run after all other SCs are complete"
+
+summary:
+  evidence_type_distribution:
+    semantic: 1
+    structural: 7
+    string: 3
+    behavioral: 1
+  total_scs: 12
+  all_testable: true
+  infrastructure_gate: "SC-11 requires opencode run infrastructure — if unavailable, SC-11 is FAIL per spec"

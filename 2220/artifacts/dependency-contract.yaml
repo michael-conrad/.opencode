@@ -1,0 +1,61 @@
+# Dependency contract — issue #2220
+# Phase ordering and dependency constraints
+
+phases:
+  phase_1:
+    name: "Merge and rename"
+    scs: [SC-1, SC-3]
+    dependencies: []
+    description: "Merge SKILL.md content and update dispatch calls before deleting source files"
+    rationale: "SC-1 and SC-3 must complete before Phase 2 deletes, because deleting the source files first would lose the content to merge and break in-flight dispatches"
+
+  phase_2:
+    name: "Delete files"
+    scs: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    dependencies: [phase_1]
+    description: "Delete all approval-gate-scope files and directories"
+    rationale: "Must wait for Phase 1 to complete so merged content and updated dispatch calls are in place before removing source files"
+    internal_order:
+      - "SC-2 (delete SKILL.md) can run in parallel with SC-4..9 (delete task/enforcement directories)"
+      - "All sub-directory deletes (SC-4..9) can run in parallel"
+      - "SC-2 must complete before the parent directory can be fully removed"
+
+  phase_3:
+    name: "Update references and verify"
+    scs: [SC-10, SC-11, SC-12]
+    dependencies: [phase_2]
+    description: "Update cross-references, behavioral tests, and final verification sweep"
+    rationale: "Cross-references to deleted task files must be updated after the files are deleted. Behavioral tests must dispatch to the merged skill after the old skill is removed. Final sweep must run last."
+    internal_order:
+      - "SC-10 (cross-references) and SC-11 (behavioral tests) can run in parallel"
+      - "SC-12 (final sweep) must run last — it verifies all other SCs are complete"
+
+constraints:
+  - "SC-3 grep verification (grep -r 'approval-gate-scope') must run AFTER Phase 2 deletes, or deleted files will produce false positive matches"
+  - "SC-11 requires opencode run infrastructure (model availability, with-test-home wrapper, BEHAVIOR_TIMEOUT >= 600000ms)"
+  - "SC-12 is the terminal gate — all other SCs must pass before SC-12 can pass"
+  - "Phase ordering is strict: Phase 1 → Phase 2 → Phase 3. No parallel execution across phases."
+
+verification_order:
+  - "Phase 1: Verify SC-1 (semantic) + SC-3 (string grep)"
+  - "Phase 2: Verify SC-2, SC-4..9 (structural ls checks — can run in parallel)"
+  - "Phase 3: Verify SC-10 (string grep) + SC-11 (behavioral opencode run) in parallel, then SC-12 (string grep) last"
+
+# Z3 solver variables, preconditions, invariants
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+  phase_3_complete:
+    type: bool
+
+preconditions:
+  - "z3.BoolVal(True)"
+
+invariants:
+  - "z3.Implies(phase_2_complete, phase_1_complete)"
+  - "z3.Implies(phase_3_complete, phase_2_complete)"
+
+postconditions:
+  - "phase_3_complete"

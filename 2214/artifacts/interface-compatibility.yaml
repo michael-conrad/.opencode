@@ -1,0 +1,37 @@
+# Interface Compatibility — interface boundaries between affected modules
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+interfaces:
+  - consumer: skills/writing-plans/tasks/create.md
+    provider: skills/writing-plans/reference/implementation-workflow.md
+    contract: "create.md reads implementation-workflow.md at fixed path for dispatch strings and pipeline step definitions"
+    change: none
+    compatible: true
+    evidence: "File path unchanged (REQ-1); no consumer-side changes (Not Included)"
+
+  - consumer: skills/writing-plans/tasks/research.md
+    provider: skills/writing-plans/reference/implementation-workflow.md
+    contract: "research.md reads implementation-workflow.md at fixed path for dispatch strings and pipeline step definitions"
+    change: none
+    compatible: true
+    evidence: "File path unchanged (REQ-1); no consumer-side changes (Not Included)"
+
+  - consumer: skills/writing-plans/tasks/validate.md
+    provider: skills/writing-plans/reference/implementation-workflow.md
+    contract: "validate.md reads implementation-workflow.md at fixed path for dispatch strings and pipeline step definitions"
+    change: none
+    compatible: true
+    evidence: "File path unchanged (REQ-1); no consumer-side changes (Not Included)"
+
+  - consumer: skills/audit/tasks/
+    provider: skills/writing-plans/reference/implementation-workflow.md
+    contract: "Audit task files may reference dispatch strings from implementation-workflow.md"
+    change: none
+    compatible: true
+    evidence: "All dispatch entries preserved (REQ-3); file path unchanged (REQ-1)"
+
+summary:
+  all_compatible: true
+  risk: low
+  rationale: "Single file rewrite with no consumer-side changes; file path guaranteed stable by REQ-1; all dispatch entries preserved by REQ-3"

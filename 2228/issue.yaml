@@ -1,0 +1,187 @@
+body: '> **Full spec and artifacts: [`.opencode/.issues/2228/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2228)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2228/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  # [SPEC] Add structured result contract to pre-work "Already Implemented" edge case
+
+
+  ## Intent and Executive Summary
+
+
+  - **Problem Statement:** The pre-work task''s "Already Implemented" edge case (detected
+  when investigation reveals all proposed changes are already present) has no structured
+  result contract. It instructs the sub-agent to close the issue and HALT, but yields
+  no structured data to the orchestrator. The orchestrator receives no signal about
+  what happened — it sees a sub-agent that returned without a contract, which is indistinguishable
+  from a failure or overflow.
+
+  - **Root Cause / Motivation:** The yield-back contract at the end of pre-work.md
+  defines `status: success | failure` but does not include `already_implemented`.
+  The edge case section has procedural steps (detect, skip branch, close issue, HALT)
+  but no YAML result contract block. The orchestrator cannot distinguish "already
+  implemented" from "sub-agent failed silently."
+
+  - **Approach Chosen:** Add `already_implemented` to the yield-back contract''s status
+  enum, add a result contract YAML block to the edge case section, and add a yield-back
+  step to the edge case procedure before HALT.
+
+  - **Alternatives Considered & Why Discarded:** (1) Handle at the approval-gate level
+  only — rejected because pre-work has its own detection logic that runs before approval-gate
+  dispatch. (2) Use a separate task file for the edge case — rejected because the
+  edge case is tightly coupled to pre-work''s investigation flow.
+
+  - **Key Design Decisions:** The `already_implemented` status is additive — existing
+  parsers continue to work with `success`/`failure` values. The edge case result contract
+  mirrors the existing yield-back contract structure with `status: already_implemented`
+  and minimal fields.
+
+  - **User Intent / Original Prompt:** Add a structured result contract to the pre-work
+  "Already Implemented" edge case so the orchestrator receives a clear signal when
+  no changes are needed.
+
+
+  ## Not Included
+
+
+  - Changes to orchestrator routing logic (orchestrator already handles result contracts
+  generically)
+
+  - Changes to approval-gate-scope''s verify-already-implemented task (separate concern)
+
+  - Behavioral enforcement tests (all changes are structural/string — contract schema
+  and YAML block presence)
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|----------|---------------|-------------------|
+
+  | SC-1 | Yield-back contract status enum includes `already_implemented` alongside
+  `success` and `failure` | `string` | Read pre-work.md yield-back section — grep
+  for `status: success \| failure \| already_implemented` |
+
+  | SC-2 | Edge case section contains a result contract YAML block with `status: already_implemented`
+  and relevant fields | `structural` | Read pre-work.md edge case section — confirm
+  YAML block exists with `status: already_implemented` |
+
+  | SC-3 | Edge case procedure includes a yield-back step before HALT that yields
+  the result contract | `structural` | Read pre-work.md edge case section — confirm
+  yield-back step (checklist item) exists before the HALT step |
+
+
+  ## Requirements
+
+
+  1. The yield-back contract SHALL include `already_implemented` as a valid status
+  value in the status enum.
+
+  2. The edge case section SHALL contain a YAML result contract block with `status:
+  already_implemented`.
+
+  3. The edge case result contract SHALL include fields: `status`, `issue`, `finding_summary`.
+
+  4. The edge case procedure SHALL include a yield-back step that yields the result
+  contract before the HALT step.
+
+  5. The existing `success` and `failure` status values SHALL remain unchanged.
+
+
+  ## Items
+
+
+  1. **ITEM-1 (SC-1):** Add `already_implemented` to the yield-back contract status
+  enum.
+
+  2. **ITEM-2 (SC-2):** Add result contract YAML block to the edge case section.
+
+  3. **ITEM-3 (SC-3):** Add yield-back step to the edge case procedure before HALT.
+
+
+  ## Dependencies
+
+
+  - None. Single file change to `.opencode/skills/git-workflow-branch/tasks/pre-work.md`.
+
+
+  ## Traceability
+
+
+  | Requirement | SC | Item |
+
+  |-------------|----|------|
+
+  | R1 | SC-1 | ITEM-1 |
+
+  | R2 | SC-2 | ITEM-2 |
+
+  | R3 | SC-2 | ITEM-2 |
+
+  | R4 | SC-3 | ITEM-3 |
+
+  | R5 | SC-1 | ITEM-1 |
+
+
+  ## Documentation Sources
+
+
+  | Source | Type | Location | Verification |
+
+  |--------|------|----------|-------------|
+
+  | pre-work.md yield-back section | Task file | `.opencode/skills/git-workflow-branch/tasks/pre-work.md:448-462`
+  | Read in current session |
+
+  | pre-work.md edge case section | Task file | `.opencode/skills/git-workflow-branch/tasks/pre-work.md:464-505`
+  | Read in current session |
+
+
+  ## Enforcement Gate
+
+
+  All SCs (SC-1, SC-2, SC-3) MUST pass before this spec is considered complete. No
+  partial delivery.
+
+
+  ## Cost Frame
+
+
+  Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
+  only metric.
+
+
+  - SC-1: Verifying the status enum includes `already_implemented` costs one grep
+  call. Skipping means the orchestrator never receives the signal and treats already-implemented
+  as a silent failure.
+
+  - SC-2: Verifying the YAML block exists costs one read call. Skipping means the
+  edge case produces no structured output and the orchestrator cannot route on the
+  result.
+
+  - SC-3: Verifying the yield-back step exists costs one read call. Skipping means
+  the sub-agent halts without yielding and the orchestrator sees an empty result contract.
+
+
+  ## Edge Cases
+
+
+  - **Orchestrator receives `already_implemented` but does not handle it:** Existing
+  orchestrator routing treats unknown status values as BLOCKED — safe degradation.
+
+  - **Edge case detected after branch creation:** The edge case detection runs before
+  branch creation (Step 1 of the edge case procedure). If detection occurs later,
+  the normal success path applies.
+
+  - **Multiple edge cases detected simultaneously:** Only one edge case (already implemented)
+  exists in pre-work. No conflict possible.
+
+  '
+updated_at: '2026-08-02T15:09:48+00:00'

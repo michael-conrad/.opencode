@@ -1,0 +1,120 @@
+# Structure Artifact — Phase Decomposition, Dependency DAG, Skill+Task Selection
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+phases:
+  - name: "Phase 1: Rewrite reference file as data catalog"
+    depends_on: []
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+    items:
+      - sc_id: SC-1
+        description: "File contains only 3 focused tables (Pre-implementation, RED-GREEN Daisy-Chain, Post-implementation) plus cross-cutting sections (Per-Task Cycle, Coercion Rules, Artifact Retention)"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-2
+        description: "No YAML frontmatter with name:, license:, or provenance:"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-3
+        description: "Pre-implementation table exists with columns: step name, owning skill, dispatch string, description"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-4
+        description: "RED-GREEN Daisy-Chain table exists with columns: step name, owning skill, dispatch string, description"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-5
+        description: "Per-Task Cycle section defines the RED→GREEN→COMMIT sequence"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-6
+        description: "Post-implementation table exists with columns: step name, owning skill, dispatch string, description"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-7
+        description: "Coercion Rules section documents DONE_WITH_CONCERNS → FAIL and evidence type mismatch rules"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-8
+        description: "Artifact Retention section documents what gets cleaned when"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+
+  - name: "Phase 2: Verify cross-reference integrity"
+    depends_on:
+      - "Phase 1: Rewrite reference file as data catalog"
+    scs:
+      - SC-9
+      - SC-10
+    items:
+      - sc_id: SC-9
+        description: "All existing cross-references to this file from other task files remain valid after rewrite"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+      - sc_id: SC-10
+        description: "Plan writer task files (create.md, research.md, validate.md) still read the file at the same path"
+        evidence_type: string
+        red_skill: test-driven-development
+        red_task: "execute red task from test-driven-development"
+        green_skill: test-driven-development
+        green_task: "execute green task from test-driven-development"
+        verify_skill: verification-before-completion
+        verify_task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: "Phase 1: Rewrite reference file as data catalog"
+      to: "Phase 2: Verify cross-reference integrity"

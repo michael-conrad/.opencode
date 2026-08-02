@@ -1,0 +1,68 @@
+# Backfilled from spec body — issue #2220
+# SCs that span multiple concerns
+
+cross_cutting:
+  - sc: SC-1
+    concerns: [merge-skill-content]
+    spans_multiple: false
+    note: "Pure merge of SKILL.md content — single concern"
+
+  - sc: SC-2
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Single file delete — single concern"
+
+  - sc: SC-3
+    concerns: [update-dispatch-calls]
+    spans_multiple: false
+    note: "String replacement across files — single concern"
+
+  - sc: SC-4
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Directory delete — single concern"
+
+  - sc: SC-5
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Directory delete — single concern"
+
+  - sc: SC-6
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Directory delete — single concern"
+
+  - sc: SC-7
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Directory delete — single concern"
+
+  - sc: SC-8
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Directory delete — single concern"
+
+  - sc: SC-9
+    concerns: [delete-files]
+    spans_multiple: false
+    note: "Directory delete — single concern"
+
+  - sc: SC-10
+    concerns: [update-cross-references]
+    spans_multiple: false
+    note: "Cross-reference updates — single concern, but touches multiple files"
+
+  - sc: SC-11
+    concerns: [update-behavioral-tests]
+    spans_multiple: false
+    note: "Test updates — single concern"
+
+  - sc: SC-12
+    concerns: [final-verification]
+    spans_multiple: true
+    note: "Final sweep verifies ALL concerns are complete — cross-cutting by nature"
+
+summary:
+  cross_cutting_scs: [SC-12]
+  single_concern_scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
+  note: "This is a structural refactor with clean phase boundaries. Only SC-12 (final verification sweep) is cross-cutting."

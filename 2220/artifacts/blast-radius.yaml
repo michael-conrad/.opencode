@@ -1,0 +1,82 @@
+# Backfilled from spec body — issue #2220
+# SC-1: Merge approval-gate-scope/SKILL.md into approval-gate/SKILL.md
+# SC-2: Delete approval-gate-scope/SKILL.md
+# SC-3: Update skill() dispatch calls
+# SC-4: Delete 22 task files
+# SC-5: Delete 5 enforcement files
+# SC-6: Delete 13 verify-authorization sub-task files
+# SC-7: Delete 2 screen sub-task files
+# SC-8: Delete 3 gap-fill-cascade sub-task files
+# SC-9: Delete 6 pre-impl sub-task files
+# SC-10: Update cross-references in other skills/guidelines
+# SC-11: Update behavioral enforcement tests
+# SC-12: Verify no remaining references
+
+affected_files:
+  - path: .opencode/skills/approval-gate/SKILL.md
+    action: modify
+    sc: [SC-1]
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/SKILL.md
+    action: delete
+    sc: [SC-2]
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/tasks/
+    action: delete_directory
+    sc: [SC-4]
+    file_count: 22
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/enforcement/
+    action: delete_directory
+    sc: [SC-5]
+    file_count: 5
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/tasks/verify-authorization/
+    action: delete_directory
+    sc: [SC-6]
+    file_count: 13
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/tasks/screen/
+    action: delete_directory
+    sc: [SC-7]
+    file_count: 2
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/
+    action: delete_directory
+    sc: [SC-8]
+    file_count: 3
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/tasks/pre-impl/
+    action: delete_directory
+    sc: [SC-9]
+    file_count: 6
+    status: verified_exists
+  - path: .opencode/skills/approval-gate-scope/
+    action: delete_directory
+    sc: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    status: verified_exists
+
+cross_reference_files:
+  - path: .opencode/guidelines/000-critical-rules.md
+    action: modify
+    sc: [SC-10]
+    status: verified_exists
+  - path: .opencode/skills/approval-gate/SKILL.md
+    action: modify
+    sc: [SC-10]
+    status: verified_exists
+  - path: .opencode/tests-v2/behaviors/approval-gate-scope-routing.sh
+    action: modify
+    sc: [SC-11]
+    status: verified_exists
+  - path: .opencode/tests-v2/behaviors/fast-path-workflow-reorder.sh
+    action: modify
+    sc: [SC-11]
+    status: verified_exists
+
+# Cross-references to update (from grep results):
+# .opencode/guidelines/000-critical-rules.md — references approval-gate-scope
+# .opencode/skills/approval-gate/SKILL.md — references approval-gate-scope
+# .opencode/tests-v2/behaviors/approval-gate-scope-routing.sh — behavioral test
+# .opencode/tests-v2/behaviors/fast-path-workflow-reorder.sh — behavioral test
+# Various .opencode/.issues/ files — historical references, not in scope for update

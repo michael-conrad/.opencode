@@ -1,0 +1,60 @@
+# Backfilled from spec body — issue #2220
+# Concern groups derived from 12 SCs across 3 phases
+
+concerns:
+  - id: merge-skill-content
+    name: Merge SKILL.md content
+    description: Consolidate approval-gate-scope/SKILL.md content into approval-gate/SKILL.md
+    scs: [SC-1]
+    phase: 1
+    files:
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/skills/approval-gate-scope/SKILL.md
+
+  - id: update-dispatch-calls
+    name: Update skill() dispatch calls
+    description: Change all skill({name: 'approval-gate-scope'}) to skill({name: 'approval-gate'})
+    scs: [SC-3]
+    phase: 1
+    files:
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/guidelines/000-critical-rules.md
+
+  - id: delete-files
+    name: Delete approval-gate-scope files and directories
+    description: Remove all task files, enforcement files, sub-task directories, and the SKILL.md
+    scs: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    phase: 2
+    files:
+      - .opencode/skills/approval-gate-scope/SKILL.md
+      - .opencode/skills/approval-gate-scope/tasks/
+      - .opencode/skills/approval-gate-scope/enforcement/
+      - .opencode/skills/approval-gate-scope/tasks/verify-authorization/
+      - .opencode/skills/approval-gate-scope/tasks/screen/
+      - .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/
+      - .opencode/skills/approval-gate-scope/tasks/pre-impl/
+
+  - id: update-cross-references
+    name: Update cross-references
+    description: Update or remove all cross-references to deleted task files in other skills/guidelines
+    scs: [SC-10]
+    phase: 3
+    files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/skills/approval-gate/SKILL.md
+
+  - id: update-behavioral-tests
+    name: Update behavioral enforcement tests
+    description: Update behavioral tests to dispatch to merged skill instead of deleted tasks
+    scs: [SC-11]
+    phase: 3
+    files:
+      - .opencode/tests-v2/behaviors/approval-gate-scope-routing.sh
+      - .opencode/tests-v2/behaviors/fast-path-workflow-reorder.sh
+
+  - id: final-verification
+    name: Final verification sweep
+    description: Verify no remaining references to approval-gate-scope in .opencode/
+    scs: [SC-12]
+    phase: 3
+    files: []  # grep sweep across entire .opencode/ tree

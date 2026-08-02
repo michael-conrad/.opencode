@@ -1,18 +1,26 @@
 phases:
-  - name: "Phase 1: Rewrite reference file as data catalog"
+  - name: "Phase 1: Strip orchestrator content"
     depends_on: []
     scs:
       - SC-1
       - SC-2
+  - name: "Phase 2: Consolidate 5 representations into 3 tables"
+    depends_on:
+      - "Phase 1: Strip orchestrator content"
+    scs:
       - SC-3
       - SC-4
-      - SC-5
       - SC-6
+  - name: "Phase 3: Preserve cross-cutting sections"
+    depends_on:
+      - "Phase 2: Consolidate 5 representations into 3 tables"
+    scs:
+      - SC-5
       - SC-7
       - SC-8
-  - name: "Phase 2: Verify cross-reference integrity"
+  - name: "Phase 4: Verify cross-references"
     depends_on:
-      - "Phase 1: Rewrite reference file as data catalog"
+      - "Phase 3: Preserve cross-cutting sections"
     scs:
       - SC-9
       - SC-10

@@ -1,0 +1,44 @@
+# Analysis summary — issue #2220
+# Backfilled from spec body
+
+spec_path: .opencode/.issues/2220/spec.md
+sc_count: 12
+phase_count: 3
+
+phases:
+  phase_1:
+    scs: [SC-1, SC-3]
+    description: "Merge SKILL.md content and update dispatch calls"
+  phase_2:
+    scs: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    description: "Delete approval-gate-scope files and directories"
+  phase_3:
+    scs: [SC-10, SC-11, SC-12]
+    description: "Update cross-references, behavioral tests, and final verification"
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+  analysis-summary: backfilled
+  dependency-contract: backfilled
+
+scope_summary:
+  type: structural_refactor
+  description: "Consolidate approval-gate skill hierarchy from 53 files across 4 levels to ~6 files in 1 flat directory"
+  affected_directories:
+    - .opencode/skills/approval-gate/ (modify SKILL.md)
+    - .opencode/skills/approval-gate-scope/ (delete entire tree)
+  affected_files_count: ~53 files deleted, 1 file modified
+  cross_reference_files: 4 files to update
+  behavioral_tests: 2 files to update
+  no_new_files: true
+  evidence_type_distribution:
+    semantic: 1
+    structural: 7
+    string: 3
+    behavioral: 1

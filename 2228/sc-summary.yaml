@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "Yield-back contract status enum includes already_implemented"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Edge case section contains result contract YAML block with status: already_implemented"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Edge case procedure includes yield-back step before HALT"
+    evidence_type: "structural"
+    plan_item: 3

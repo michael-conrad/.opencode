@@ -1,0 +1,49 @@
+# Backfilled from spec body — issue #2220
+# Interface boundaries between affected modules
+
+interfaces:
+  - interface: skill_dispatch
+    description: "skill({name: 'approval-gate-scope'}) → skill({name: 'approval-gate'})"
+    affected_scs: [SC-3]
+    callers:
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/guidelines/000-critical-rules.md
+    compatibility: breaking
+    migration: "Rename all callers from 'approval-gate-scope' to 'approval-gate'"
+    verification: "grep -r 'approval-gate-scope' .opencode/ returns zero matches"
+
+  - interface: cross_reference_paths
+    description: "Read [Text](path) references to approval-gate-scope task files"
+    affected_scs: [SC-10]
+    callers:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/skills/approval-gate/SKILL.md
+    compatibility: breaking
+    migration: "Update or remove all cross-references to deleted task files"
+    verification: "grep -r 'approval-gate-scope/tasks/' .opencode/ returns zero matches"
+
+  - interface: behavioral_test_dispatch
+    description: "Behavioral test dispatch to approval-gate-scope tasks"
+    affected_scs: [SC-11]
+    callers:
+      - .opencode/tests-v2/behaviors/approval-gate-scope-routing.sh
+      - .opencode/tests-v2/behaviors/fast-path-workflow-reorder.sh
+    compatibility: breaking
+    migration: "Update behavioral tests to dispatch to merged skill"
+    verification: "opencode run with stderr assertions for correct skill dispatch"
+
+  - interface: approval-gate-scope_directory
+    description: "Entire approval-gate-scope/ directory tree"
+    affected_scs: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    callers: []
+    compatibility: breaking
+    migration: "Delete entire directory tree after all cross-references are updated"
+    verification: "ls .opencode/skills/approval-gate-scope/ returns error"
+
+summary:
+  all_interfaces_breaking: true
+  migration_order:
+    - "Phase 1: Merge SKILL.md content (SC-1) + update dispatch calls (SC-3)"
+    - "Phase 2: Delete files/directories (SC-2, SC-4..9)"
+    - "Phase 3: Update cross-references (SC-10) + behavioral tests (SC-11) + final sweep (SC-12)"
+  note: "Phase ordering is critical — cross-references must be updated before files are deleted, or the grep verification will fail on the deleted files themselves."

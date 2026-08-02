@@ -1,0 +1,82 @@
+# Testability Assessment — evidence types assigned to each SC
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+sc_assessments:
+  SC-1:
+    evidence_type: string
+    verification_method: "grep for absence of Pipeline Step Catalog / Trigger Dispatch Table / Gate Sequence / Audit Sequence Exception / Persona / Worktree Mode / Mandatory Task Discipline / DISPATCH_GATE / Sub-Agent Routing sections"
+    testable: true
+    automation: "grep -v -E '(Pipeline Step Catalog|Trigger Dispatch Table|Gate Sequence|Audit Sequence Exception|Persona|Worktree Mode|Mandatory Task Discipline|DISPATCH_GATE|Sub-Agent Routing)' implementation-workflow.md"
+    cost: low
+
+  SC-2:
+    evidence_type: string
+    verification_method: "grep for absence of frontmatter delimiters"
+    testable: true
+    automation: "grep -c '^---$' implementation-workflow.md → must be 0"
+    cost: low
+
+  SC-3:
+    evidence_type: string
+    verification_method: "grep for table with step name, owning skill, dispatch string, description column headers under Pre-implementation section"
+    testable: true
+    automation: "grep -A5 'Pre-implementation' implementation-workflow.md | grep -E '(step name|owning skill|dispatch string|description)'"
+    cost: low
+
+  SC-4:
+    evidence_type: string
+    verification_method: "grep for table with step name, owning skill, dispatch string, description column headers under RED-GREEN Daisy-Chain section"
+    testable: true
+    automation: "grep -A5 'RED-GREEN Daisy-Chain' implementation-workflow.md | grep -E '(step name|owning skill|dispatch string|description)'"
+    cost: low
+
+  SC-5:
+    evidence_type: string
+    verification_method: "grep for RED, GREEN, COMMIT step definitions under Per-Task Cycle section"
+    testable: true
+    automation: "grep -A10 'Per-Task Cycle' implementation-workflow.md | grep -E '(RED|GREEN|COMMIT)'"
+    cost: low
+
+  SC-6:
+    evidence_type: string
+    verification_method: "grep for table with step name, owning skill, dispatch string, description column headers under Post-implementation section"
+    testable: true
+    automation: "grep -A5 'Post-implementation' implementation-workflow.md | grep -E '(step name|owning skill|dispatch string|description)'"
+    cost: low
+
+  SC-7:
+    evidence_type: string
+    verification_method: "grep for DONE_WITH_CONCERNS → FAIL and evidence type mismatch rules under Coercion Rules section"
+    testable: true
+    automation: "grep -A10 'Coercion Rules' implementation-workflow.md | grep -E '(DONE_WITH_CONCERNS|FAIL|evidence type mismatch)'"
+    cost: low
+
+  SC-8:
+    evidence_type: string
+    verification_method: "grep for artifact retention rules under Artifact Retention section"
+    testable: true
+    automation: "grep -A10 'Artifact Retention' implementation-workflow.md | grep -E '(clean|retain|retention|artifact)'"
+    cost: low
+
+  SC-9:
+    evidence_type: string
+    verification_method: "grep for all reference paths in task files still resolve"
+    testable: true
+    automation: "grep -r 'implementation-workflow.md' skills/writing-plans/tasks/ skills/audit/tasks/"
+    cost: low
+
+  SC-10:
+    evidence_type: string
+    verification_method: "grep for unchanged read paths in create.md, research.md, validate.md"
+    testable: true
+    automation: "grep 'implementation-workflow.md' skills/writing-plans/tasks/create.md skills/writing-plans/tasks/research.md skills/writing-plans/tasks/validate.md"
+    cost: low
+
+summary:
+  all_testable: true
+  evidence_type_distribution:
+    string: 10
+  cost_distribution:
+    low: 10
+  notes: "All SCs verified by grep (string evidence). No behavioral tests needed per spec Cost Frame."

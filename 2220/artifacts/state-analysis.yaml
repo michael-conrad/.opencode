@@ -1,0 +1,67 @@
+# Backfilled from spec body — issue #2220
+# State transitions required by each SC
+
+states:
+  - state: approval-gate-scope_exists
+    description: "The approval-gate-scope/ directory tree exists with all files"
+    initial: true
+    transitions:
+      - action: "Merge SKILL.md content (SC-1)"
+        next_state: approval-gate_merged
+      - action: "Update dispatch calls (SC-3)"
+        next_state: dispatch_calls_updated
+      - action: "Delete files (SC-2, SC-4..9)"
+        next_state: approval-gate-scope_deleted
+      - action: "Update cross-references (SC-10)"
+        next_state: cross_references_updated
+      - action: "Update behavioral tests (SC-11)"
+        next_state: behavioral_tests_updated
+      - action: "Final verification sweep (SC-12)"
+        next_state: all_clean
+
+  - state: approval-gate_merged
+    description: "approval-gate-scope/SKILL.md content merged into approval-gate/SKILL.md"
+    reached_by: [SC-1]
+    required_for: [SC-2]
+    note: "Merge must complete before deleting the source file"
+
+  - state: dispatch_calls_updated
+    description: "All skill() dispatch calls use 'approval-gate' instead of 'approval-gate-scope'"
+    reached_by: [SC-3]
+    required_for: [SC-2]
+    note: "Dispatch calls must be updated before deleting the target skill"
+
+  - state: approval-gate-scope_deleted
+    description: "Entire approval-gate-scope/ directory tree removed"
+    reached_by: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    required_for: [SC-10, SC-12]
+    note: "Phase 2 deletes must complete before Phase 3 verification"
+
+  - state: cross_references_updated
+    description: "All cross-references to deleted task files updated or removed"
+    reached_by: [SC-10]
+    required_for: [SC-12]
+
+  - state: behavioral_tests_updated
+    description: "Behavioral enforcement tests updated to use merged skill"
+    reached_by: [SC-11]
+    required_for: [SC-12]
+
+  - state: all_clean
+    description: "No remaining references to approval-gate-scope in .opencode/"
+    reached_by: [SC-12]
+    terminal: true
+
+phase_state_map:
+  phase_1:
+    entry: approval-gate-scope_exists
+    exit: dispatch_calls_updated
+    scs: [SC-1, SC-3]
+  phase_2:
+    entry: dispatch_calls_updated
+    exit: approval-gate-scope_deleted
+    scs: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+  phase_3:
+    entry: approval-gate-scope_deleted
+    exit: all_clean
+    scs: [SC-10, SC-11, SC-12]

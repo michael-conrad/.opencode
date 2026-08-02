@@ -1,0 +1,31 @@
+# Cross-Cutting Matrix — SCs that span multiple concerns
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+cross_cutting_scs:
+  SC-1:
+    concerns: [content-purity, table-consolidation]
+    description: "No orchestrator content AND no redundant representations — spans both content-purity (removing routing sections) and table-consolidation (replacing 5 representations with 3 tables)"
+    risk: low
+    mitigation: "Both aspects handled in same Phase 1 rewrite pass; grep verification covers both"
+
+  SC-9:
+    concerns: [cross-reference-integrity]
+    description: "Cross-references from all consumer task files must remain valid"
+    risk: low
+    mitigation: "File path unchanged (REQ-1); Phase 2 verification pass confirms all read paths resolve"
+
+  SC-10:
+    concerns: [cross-reference-integrity]
+    description: "Plan writer task files specifically must still read the same path"
+    risk: low
+    mitigation: "Subset of SC-9; same Phase 2 verification pass"
+
+non_cross_cutting_scs:
+  - SC-2: content-purity only (frontmatter removal)
+  - SC-3: table-consolidation only (Pre-implementation table)
+  - SC-4: table-consolidation only (RED-GREEN Daisy-Chain table)
+  - SC-5: cross-cutting-sections only (Per-Task Cycle)
+  - SC-6: table-consolidation only (Post-implementation table)
+  - SC-7: cross-cutting-sections only (Coercion Rules)
+  - SC-8: cross-cutting-sections only (Artifact Retention)

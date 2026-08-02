@@ -1,3 +1,8 @@
+---
+approved: true
+scope: for_pr
+---
+
 > **Full spec and artifacts: [`.opencode/.issues/2214/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2214)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
 > **Local artifacts:** `.opencode/.issues/2214/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings

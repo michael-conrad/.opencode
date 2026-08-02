@@ -1,0 +1,36 @@
+# State Analysis — state transitions required by each SC
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+initial_state:
+  file: skills/writing-plans/reference/implementation-workflow.md
+  description: "Contains YAML frontmatter, Persona, Worktree Mode, Mandatory Task Discipline, DISPATCH_GATE, Sub-Agent Routing, and 5 redundant representations (Pipeline Step Catalog, Trigger Dispatch Table, Gate Sequence, Audit Sequence Exception, Artifact Pre-Cleanup)"
+
+transitions:
+  - phase: 1
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8]
+    action: rewrite
+    from_state: "Current file with orchestrator content + 5 redundant representations"
+    to_state: "File with 3 focused tables + cross-cutting sections, no orchestrator content, no frontmatter"
+    verification:
+      - grep for absence of prohibited sections (SC-1)
+      - grep for absence of frontmatter delimiters (SC-2)
+      - grep for presence of Pre-implementation table (SC-3)
+      - grep for presence of RED-GREEN Daisy-Chain table (SC-4)
+      - grep for presence of Per-Task Cycle section (SC-5)
+      - grep for presence of Post-implementation table (SC-6)
+      - grep for presence of Coercion Rules section (SC-7)
+      - grep for presence of Artifact Retention section (SC-8)
+
+  - phase: 2
+    scs: [SC-9, SC-10]
+    action: verify
+    from_state: "Rewritten file"
+    to_state: "Rewritten file with confirmed cross-reference integrity"
+    verification:
+      - grep for read paths in create.md, research.md, validate.md still resolve (SC-9, SC-10)
+      - grep for read paths in audit task files still resolve (SC-9)
+
+final_state:
+  file: skills/writing-plans/reference/implementation-workflow.md
+  description: "Contains 3 focused tables (Pre-implementation, RED-GREEN Daisy-Chain, Post-implementation) plus cross-cutting sections (Per-Task Cycle, Coercion Rules, Artifact Retention). No orchestrator content. No YAML frontmatter. All consumer read paths unchanged."

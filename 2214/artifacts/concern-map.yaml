@@ -1,0 +1,28 @@
+# Concern Map — SCs decomposed into concern groups mapped to phase boundaries
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+concerns:
+  - name: content-purity
+    description: File must contain only sub-agent-facing reference content — no orchestrator routing sections, no YAML frontmatter
+    scs: [SC-1, SC-2]
+    phase: 1
+    phase_description: "Phase 1 (REQ-5, REQ-6) — Rewrite the file: strip orchestrator content, consolidate 5 representations into 3 tables, preserve cross-cutting sections"
+
+  - name: table-consolidation
+    description: Replace 5 redundant representations with 3 focused tables, each carrying all 4 columns
+    scs: [SC-3, SC-4, SC-6]
+    phase: 1
+    phase_description: "Phase 1 (REQ-5, REQ-6) — Rewrite the file: strip orchestrator content, consolidate 5 representations into 3 tables, preserve cross-cutting sections"
+
+  - name: cross-cutting-sections
+    description: Preserve Per-Task Cycle, Coercion Rules, and Artifact Retention as standalone sections
+    scs: [SC-5, SC-7, SC-8]
+    phase: 1
+    phase_description: "Phase 1 (REQ-5, REQ-6) — Rewrite the file: strip orchestrator content, consolidate 5 representations into 3 tables, preserve cross-cutting sections"
+
+  - name: cross-reference-integrity
+    description: All existing cross-references from other task files must remain valid after rewrite
+    scs: [SC-9, SC-10]
+    phase: 2
+    phase_description: "Phase 2 (REQ-1, REQ-2) — Verify all cross-references remain valid"

@@ -1,0 +1,39 @@
+# Blast Radius — affected files extracted from spec and verified against codebase
+spec: .opencode/.issues/2214/spec.md
+sc_count: 10
+
+files:
+  - path: skills/writing-plans/reference/implementation-workflow.md
+    role: primary
+    change_type: rewrite
+    status: EXISTS
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8]
+    description: Target file — strip orchestrator content, consolidate 5 redundant representations into 3 focused tables, preserve cross-cutting sections
+
+  - path: skills/writing-plans/tasks/create.md
+    role: consumer
+    change_type: none (read-only)
+    status: EXISTS
+    scs: [SC-9, SC-10]
+    description: Consumer — reads implementation-workflow.md at same path; must continue to resolve
+
+  - path: skills/writing-plans/tasks/research.md
+    role: consumer
+    change_type: none (read-only)
+    status: EXISTS
+    scs: [SC-9, SC-10]
+    description: Consumer — reads implementation-workflow.md at same path; must continue to resolve
+
+  - path: skills/writing-plans/tasks/validate.md
+    role: consumer
+    change_type: none (read-only)
+    status: EXISTS
+    scs: [SC-9, SC-10]
+    description: Consumer — reads implementation-workflow.md at same path; must continue to resolve
+
+  - path: skills/audit/tasks/
+    role: consumer
+    change_type: none (read-only)
+    status: EXISTS
+    scs: [SC-9]
+    description: Consumer — may reference dispatch strings from implementation-workflow.md; must continue to resolve
