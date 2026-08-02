@@ -1,0 +1,57 @@
+# Blast radius per phase — Spec #2225
+# Generated: backfill from spec body
+
+phases:
+  phase_1:
+    name: "Add dynamic-loading rule to task-card-structure-standards.md"
+    scs: [SC-1]
+    affected_files:
+      - .opencode/reference/task-card-structure-standards.md
+    ripple_effects:
+      - All future task files that validate against reference-dependent criteria must load dynamically
+      - No immediate codebase impact — prospective rule only
+    risk: low
+
+  phase_2:
+    name: "Update create.md to load and apply format-level rules"
+    scs: [SC-2, SC-11]
+    affected_files:
+      - .opencode/skills/spec-creation/tasks/create.md
+    ripple_effects:
+      - create.md Step 2 must load spec-structure-standards.md and cost-model-standards.md
+      - create.md exit criteria must include artifact copy step
+      - Downstream: all specs created after this change will have format-level rules applied
+    risk: medium
+
+  phase_3:
+    name: "Update validate.md with structured checks"
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    affected_files:
+      - .opencode/skills/spec-creation/tasks/validate.md
+    ripple_effects:
+      - validate.md entry criteria must load section inventory dynamically
+      - validate.md procedure gains 7 new structured checks
+      - validate→revise loop may trigger more frequently due to stricter validation
+      - Downstream: specs passing validation will have fewer audit defects
+    risk: high — validate.md is the core quality gate
+
+  phase_4:
+    name: "Add tiered escalation to spec-creation/SKILL.md"
+    scs: [SC-10]
+    affected_files:
+      - .opencode/skills/spec-creation/SKILL.md
+    ripple_effects:
+      - validate→revise loop gains iteration limit (3 iterations → structural diagnostic → user)
+      - Prevents infinite loops on unfixable specs
+    risk: low
+
+  phase_5:
+    name: "Add artifact pre-flight gate to spec-audit-investigator.md"
+    scs: [SC-12]
+    affected_files:
+      - .opencode/skills/audit/tasks/spec-audit-investigator.md
+    ripple_effects:
+      - spec-audit-investigator Step 1 gains artifact presence check
+      - Returns REMEDIATION_REQUIRED with backfill dispatch if artifacts missing
+      - Downstream: audit pipeline can auto-remediate missing artifacts
+    risk: medium

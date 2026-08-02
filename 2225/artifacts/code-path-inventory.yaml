@@ -1,0 +1,71 @@
+# Code path inventory — Spec #2225
+# Generated: backfill from spec body
+
+phases:
+  phase_1:
+    scs: [SC-1]
+    code_paths:
+      - file: .opencode/reference/task-card-structure-standards.md
+        section: "Canonical Sections"
+        action: "Add rule requiring dynamic loading of reference-dependent criteria via Read [Text](path)"
+        implied_by: "SC-1 requires a new rule in the reference document"
+
+  phase_2:
+    scs: [SC-2, SC-11]
+    code_paths:
+      - file: .opencode/skills/spec-creation/tasks/create.md
+        section: "Step 2: Assemble spec document"
+        action: "Add Read [spec-structure-standards.md] and Read [cost-model-standards.md] calls; apply format-level rules during assembly"
+        implied_by: "SC-2 requires create.md to load and apply format-level rules"
+      - file: .opencode/skills/spec-creation/tasks/create.md
+        section: "Exit Criteria"
+        action: "Add artifact copy step: copy artifacts from tmp/{issue_number}/artifacts/ to .issues/{N}/artifacts/"
+        implied_by: "SC-11 requires create.md to copy analytical artifacts"
+
+  phase_3:
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    code_paths:
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Entry Criteria"
+        action: "Replace hardcoded section list with dynamic loading via Read [spec-structure-standards.md]"
+        implied_by: "SC-3 requires dynamic section inventory loading"
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Procedure"
+        action: "Add format-level conformance check: REQs use SHALL, Cost Frame uses dark-prose-007, Documentation Sources has 4 columns"
+        implied_by: "SC-4 requires format-level conformance checks"
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Procedure"
+        action: "Add determinism check: check each SC against prohibited pattern list (TBD, TODO, 'use best judgment', etc.)"
+        implied_by: "SC-5 requires structured determinism check"
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Procedure"
+        action: "Add compound-SC detection: check for conjunctions, multiple verification targets, cross-concern references"
+        implied_by: "SC-6 requires compound-SC detection"
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Procedure"
+        action: "Add causal-chain verification: every root cause maps to ≥1 SC, every SC maps to ≥1 root cause"
+        implied_by: "SC-7 requires causal-chain verification"
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Procedure"
+        action: "Add evidence-type-to-method cross-check lookup table"
+        implied_by: "SC-8 requires verification-method-to-evidence-type cross-check"
+      - file: .opencode/skills/spec-creation/tasks/validate.md
+        section: "Procedure"
+        action: "Add artifact cross-reference: blast-radius→Affected Files, concern-map→phases, etc."
+        implied_by: "SC-9 requires artifact cross-reference check"
+
+  phase_4:
+    scs: [SC-10]
+    code_paths:
+      - file: .opencode/skills/spec-creation/SKILL.md
+        section: "Workflows"
+        action: "Document tiered escalation: after 3 validate→revise iterations, dispatch structural diagnostic; if that fails, escalate to user"
+        implied_by: "SC-10 requires tiered escalation documentation"
+
+  phase_5:
+    scs: [SC-12]
+    code_paths:
+      - file: .opencode/skills/audit/tasks/spec-audit-investigator.md
+        section: "Step 1: Pre-Flight Validation Gate"
+        action: "Add analytical artifact presence check; return REMEDIATION_REQUIRED with backfill dispatch if missing"
+        implied_by: "SC-12 requires artifact pre-flight gate"

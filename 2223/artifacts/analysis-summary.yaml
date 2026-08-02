@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2223/spec.md
+approval_status: approved
+approval_field: true
+authorization_scope: for_pr
+sc_count: 30
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+  - file: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    status: exists
+  - file: .opencode/skills/git-workflow-pr/SKILL.md
+    status: exists
+  - file: .opencode/skills/pr-creation-workflow/
+    status: exists
+  - file: .opencode/skills/audit/SKILL.md
+    status: exists
+  - file: .opencode/guidelines/000-critical-rules.md
+    status: exists
+  - file: .opencode/guidelines/250-dark-prose-reference.md
+    status: exists
+  - file: .opencode/guidelines/255-distribution-shifting-reference.md
+    status: exists
+  - file: .opencode/guidelines/257-procedural-discipline-reference.md
+    status: exists
+  - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    status: exists
+  - file: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+    status: new_file_to_create
+  - file: .opencode/skills/git-workflow-pr/reference/closing-keywords.md
+    status: to_be_moved
+findings: []

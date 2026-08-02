@@ -1,190 +1,125 @@
-# Code Path Inventory — Spec #2223
-# Generated: 2026-08-01
-# Mode: retroactive
+# code-path-inventory.yaml — Analytical Artifact for Spec #2223
+# Generated: retroactive backfill from spec body
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
 
-task_files:
-  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-    type: task
-    purpose: PR body creation and PR creation API call
-    sections_affected:
-      - "Step 4.5: Dispatch Chain Compliance Gate" (no change)
-      - "Step 4.75: Read Source Artifacts" — Data Flow table (update attestation column)
-      - "Step 4.75: Verification-Evidence-Check Gate" (update artifact check from audit-cross-validate-*.json to judgment.yaml)
-      - "Step 6: Create PR (Platform-Agnostic)" — inline body template (extract to reference file)
-      - "PR Body Requirements" section (update attestation language)
-    dispatch_context: {branch_name, spec_summary, is_release}
+spec: 2223
+artifact: code-path-inventory
+generated_at: 2026-08-02T03:17:00Z
+mode: retroactive
 
-  - path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
-    type: task
-    purpose: PR review preparation
-    sections_affected: Cross-References (update pr-creation-workflow reference)
-    dispatch_context: {branch_name}
+code_paths:
+  - id: CP-1
+    name: PR body generation (GitHub MCP)
+    trigger: create-pr task dispatched from git-workflow-pr
+    current_flow:
+      - create-pr.md reads inline template content
+      - Inline template contains dual-auditor attestation
+      - Template embedded in github_create_pull_request() call
+      - Verification-evidence-check gate checks audit-cross-validate-*.json
+    target_flow:
+      - create-pr.md reads standalone template from reference/pr-body-template.md
+      - Template contains DiMo 4-role chain attestation
+      - Template referenced (not embedded) in API call
+      - Verification-evidence-check gate checks judgment.yaml
+    affected_scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
 
-  - path: .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
-    type: task
-    purpose: Report PR URL after creation
-    sections_affected: closing-keywords format reference (update)
-    dispatch_context: {branch_name}
+  - id: CP-2
+    name: PR body generation (GitBucket CLI)
+    trigger: create-pr task dispatched from git-workflow-pr (GitBucket platform)
+    current_flow:
+      - create-pr.md reads inline template content (duplicated for GitBucket)
+      - Same inline template with dual-auditor attestation
+    target_flow:
+      - create-pr.md references same standalone template as GitHub MCP section
+      - Single source of truth for both platforms
+    affected_scs: [SC-12]
 
-  - path: .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
-    type: task
-    purpose: Create PR from pair mode branch
-    sections_affected: closing-keywords format reference (update)
-    dispatch_context: {branch_name}
+  - id: CP-3
+    name: Authorization scope check
+    trigger: orchestrator needs to verify PR authorization before dispatching PR creation
+    current_flow:
+      - orchestrator calls skill({name: "pr-creation-workflow"})
+      - pr-creation-workflow dispatches pre-pr-checklist task
+      - pre-pr-checklist checks authorization_scope
+      - Returns result contract to orchestrator
+    target_flow:
+      - orchestrator checks authorization_scope inline (one-line conditional)
+      - No skill() or task() call needed
+      - Eliminates dispatch round-trip
+    affected_scs: [SC-13, SC-15]
 
-  - path: .opencode/skills/git-workflow-pr/tasks/completion.md
-    type: task
-    purpose: PR lifecycle completion
-    sections_affected: none (no pr-creation-workflow references)
-    dispatch_context: {workflow_state}
+  - id: CP-4
+    name: Skill discovery and routing
+    trigger: agent loads available_skills or dispatches via skill()
+    current_flow:
+      - pr-creation-workflow appears in available_skills list
+      - dispatch-table.yaml has pr-creation-workflow entry
+      - Cross-references in 20+ files point to pr-creation-workflow
+    target_flow:
+      - pr-creation-workflow removed from available_skills
+      - dispatch-table.yaml entry removed
+      - All cross-references updated to git-workflow-pr or removed
+    affected_scs: [SC-13, SC-29, SC-30]
 
+  - id: CP-5
+    name: PR body audit
+    trigger: audit skill dispatched to verify PR body
+    current_flow:
+      - No PR body audit task exists
+      - Structural defects in PR bodies go undetected
+    target_flow:
+      - audit skill has pr-body-audit task
+      - Task verifies all 11 enumerated requirements (a) through (k)
+      - PR body structural defects caught before PR creation
+    affected_scs: [SC-20, SC-21]
+
+  - id: CP-6
+    name: git-workflow-pr SKILL.md routing
+    trigger: orchestrator loads git-workflow-pr skill
+    current_flow:
+      - SKILL.md has Trigger Dispatch Table with 5 rows
+      - SKILL.md has DISPATCH_GATE section
+      - Description uses "Load via skill() when" format
+      - Cross-reference to pr-creation-workflow
+    target_flow:
+      - SKILL.md has Workflows section with 5 workflows
+      - No Trigger Dispatch Table or DISPATCH_GATE
+      - Description uses agent-intent format
+      - No cross-reference to pr-creation-workflow
+    affected_scs: [SC-16, SC-17, SC-18, SC-19, SC-30]
+
+  - id: CP-7
+    name: Terminology references
+    trigger: agent reads guidelines or cleanup task files
+    current_flow:
+      - 5 files contain "dual-auditor" references
+      - References describe audit pipeline that no longer exists
+    target_flow:
+      - All "dual-auditor" references replaced with "DiMo chain"
+      - Terminology matches current audit pipeline
+    affected_scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
+
+  - id: CP-8
+    name: closing-keywords.md reference
+    trigger: sub-agent needs to format closing keywords for PR body
+    current_flow:
+      - Reference: pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow")
+      - File lives at .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
+    target_flow:
+      - Reference: git-workflow-pr → task("execute closing-keywords from git-workflow-pr")
+      - File lives at .opencode/skills/git-workflow-pr/reference/closing-keywords.md
+    affected_scs: [SC-14, SC-29]
+
+dead_code_paths:
   - path: .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
-    type: task
-    purpose: Pre-PR checklist (to be deleted)
-    sections_affected: entire file (deleted)
-    dispatch_context: {branch_name}
-
+    reason: Skill directory to be deleted; authorization check folded into orchestrator inline
   - path: .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
-    type: task
-    purpose: Sub-issue collection (to be deleted)
-    sections_affected: entire file (deleted)
-    dispatch_context: {issue_number}
-
+    reason: Skill directory to be deleted; sub-issue collection handled by issue-operations
   - path: .opencode/skills/pr-creation-workflow/tasks/create.md
-    type: task
-    purpose: PR creation (to be deleted)
-    sections_affected: entire file (deleted)
-    dispatch_context: {issue_number, authorization_scope, halt_at}
-
+    reason: Skill directory to be deleted; PR creation handled by git-workflow-pr
   - path: .opencode/skills/pr-creation-workflow/tasks/completion.md
-    type: task
-    purpose: Workflow completion (to be deleted)
-    sections_affected: entire file (deleted)
-    dispatch_context: {workflow_state}
-
+    reason: Skill directory to be deleted; completion handled by git-workflow-pr
   - path: .opencode/skills/pr-creation-workflow/tasks/operating-protocol.md
-    type: task
-    purpose: Operating protocol (to be deleted)
-    sections_affected: entire file (deleted)
-    dispatch_context: none
-
-skill_files:
-  - path: .opencode/skills/git-workflow-pr/SKILL.md
-    type: skill
-    purpose: PR lifecycle management
-    sections_affected:
-      - description field (change to agent-intent format)
-      - Trigger Dispatch Table (replace with Workflows section)
-      - DISPATCH_GATE section (remove)
-      - Cross-References (remove pr-creation-workflow reference)
-    dispatch_protocol: orchestrator reads Workflows section, dispatches via task()
-
-  - path: .opencode/skills/pr-creation-workflow/SKILL.md
-    type: skill
-    purpose: PR authorization (to be deleted)
-    sections_affected: entire file (deleted)
-    dispatch_protocol: removed — authorization check folded into git-workflow-pr Workflows section
-
-  - path: .opencode/skills/audit/SKILL.md
-    type: skill
-    purpose: Adversarial audit
-    sections_affected: Trigger Dispatch Table (add pr-body-audit task entry)
-    dispatch_protocol: DiMo 4-role chain
-
-guideline_files:
-  - path: .opencode/guidelines/000-critical-rules.md
-    type: guideline
-    purpose: Critical rules — Tier 1/2/3 mandates
-    sections_affected: Checkpoint Rollback Exception section (dual-auditor → DiMo chain)
-
-  - path: .opencode/guidelines/250-dark-prose-reference.md
-    type: guideline
-    purpose: Dark prose patterns reference
-    sections_affected: Lines 179, 218 (dual-auditor → DiMo chain)
-
-  - path: .opencode/guidelines/255-distribution-shifting-reference.md
-    type: guideline
-    purpose: Distribution shifting reference
-    sections_affected: Line 222 (dual-auditor → DiMo chain)
-
-  - path: .opencode/guidelines/257-procedural-discipline-reference.md
-    type: guideline
-    purpose: Procedural discipline reference
-    sections_affected: Line 279 (dual-auditor → DiMo chain)
-
-  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
-    type: task
-    purpose: Post-merge branch cleanup
-    sections_affected: Step 0 (dual-auditor → DiMo chain)
-
-reference_files:
-  - path: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
-    type: reference
-    purpose: Standalone PR body template (NEW)
-    sections: [Summary, Outcome, Verification Attestation, VbC Table, DiMo Chain Attestation, Spec-Card-Mapped Commits, closing keywords]
-
-  - path: .opencode/skills/git-workflow-pr/reference/closing-keywords.md
-    type: reference
-    purpose: Closing keyword patterns (MOVED from pr-creation-workflow)
-    source: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
-
-cross_reference_files:
-  - path: .opencode/README.md
-    type: documentation
-    reference_type: skill name in operations table
-    action: update or remove pr-creation-workflow entry
-
-  - path: .opencode/dispatch-table.yaml
-    type: configuration
-    reference_type: skill routing entry
-    action: remove pr-creation-workflow entries
-
-  - path: .opencode/tests-v2/test-enforcement.sh
-    type: test
-    reference_type: FILE_SCENARIO_MAP entry
-    action: remove pr-creation-workflow entry
-
-  - path: .opencode/.guidelines/registry.yaml
-    type: configuration
-    reference_type: migrated content registry
-    action: remove pr-creation-workflow entry
-
-  - path: .opencode/guidelines/010-approval-gate.md
-    type: guideline
-    reference_type: cross-reference to skill
-    action: update reference
-
-  - path: .opencode/skills/approval-gate/SKILL.md
-    type: skill
-    reference_type: cross-reference in Cross-References section
-    action: remove pr-creation-workflow reference
-
-  - path: .opencode/skills/approval-gate-scope/SKILL.md
-    type: skill
-    reference_type: cross-reference in Cross-References section
-    action: remove pr-creation-workflow reference
-
-  - path: .opencode/skills/git-workflow/SKILL.md
-    type: skill
-    reference_type: cross-reference in Cross-References section
-    action: remove pr-creation-workflow reference
-
-  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
-    type: task
-    reference_type: cross-reference to skill
-    action: update reference
-
-  - path: .opencode/skills/requesting-code-review/tasks/prepare.md
-    type: task
-    reference_type: closing-keywords format reference
-    action: update to reference git-workflow-pr
-
-  - path: .opencode/skills/writing-plans/reference/implementation-workflow.md
-    type: reference
-    reference_type: dispatch table entry
-    action: update to reference git-workflow-pr
-
-  - path: .opencode/tests-v2/behaviors/fixtures/issues/2211/plan.md
-    type: test fixture
-    reference_type: dispatch list and task references
-    action: update references
+    reason: Skill directory to be deleted
+  - path: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
+    reason: MOVED to git-workflow-pr/reference/ — not dead, relocated

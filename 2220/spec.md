@@ -37,7 +37,7 @@
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `approval-gate-scope/SKILL.md` content is merged into `approval-gate/SKILL.md` with all routing metadata, scope model, bug discovery protocol, and DISPATCH_GATE protocol preserved | `semantic` | Clean-room sub-agent reads merged SKILL.md and verifies all sections are present |
+| SC-1 | `approval-gate-scope/SKILL.md` content is merged into `approval-gate/SKILL.md` with all routing metadata (Trigger Dispatch Table, Invocation section, DISPATCH_GATE protocol), scope model (Authorization Scope Model table, verb-prefix parsing table, halt_at values), bug discovery protocol (Bug Discovery Protocol section), and DISPATCH_GATE protocol (Orchestrator Entry Criteria, DISPATCH_GATE Checkpoint Procedure) present in the merged SKILL.md | `semantic` | Clean-room sub-agent reads merged SKILL.md and verifies all 4 section groups (routing metadata, scope model, bug discovery protocol, DISPATCH_GATE protocol) are present with their constituent subsections |
 | SC-2 | `approval-gate-scope/SKILL.md` file is deleted | `structural` | `ls .opencode/skills/approval-gate-scope/SKILL.md` returns error |
 | SC-3 | All `skill({name: 'approval-gate-scope'})` calls across the codebase are updated to `skill({name: 'approval-gate'})` | `string` | `grep -r 'approval-gate-scope' .opencode/` returns zero matches |
 | SC-4 | All 22 task files under `approval-gate-scope/tasks/` are deleted | `structural` | `ls .opencode/skills/approval-gate-scope/tasks/` returns error or empty |
@@ -47,7 +47,7 @@
 | SC-8 | All 3 gap-fill-cascade sub-task files are deleted | `structural` | `ls .opencode/skills/approval-gate-scope/tasks/gap-fill-cascade/` returns error or empty |
 | SC-9 | All 6 pre-impl sub-task files are deleted | `structural` | `ls .opencode/skills/approval-gate-scope/tasks/pre-impl/` returns error or empty |
 | SC-10 | All cross-references in other skills/guidelines that dispatch to deleted task files are updated or removed | `string` | `grep -r 'approval-gate-scope/tasks/' .opencode/` returns zero matches |
-| SC-11 | Behavioral enforcement tests that dispatched to deleted tasks are updated to use the new dispatch interface | `behavioral` | `opencode run` with skill dispatch assertion verifies `approval-gate` loads correctly |
+| SC-11 | Behavioral enforcement tests that dispatched to deleted tasks are updated to use the new dispatch interface | `behavioral` | `opencode run` with skill dispatch assertion: stderr contains `Skill "approval-gate"` and does NOT contain `Skill "approval-gate-scope"` |
 | SC-12 | No remaining references to `approval-gate-scope` exist in any `.opencode/` file | `string` | `grep -r 'approval-gate-scope' .opencode/` returns zero matches across all file types |
 
 ## Requirements
@@ -77,6 +77,7 @@
 ## Dependencies
 
 - **Prerequisite:** None — this is a self-contained structural refactor of the approval-gate skill hierarchy.
+- **Infrastructure (SC-11):** Behavioral enforcement tests require `opencode run` infrastructure: model availability (verified via `opencode models`), test harness (`with-test-home` wrapper), and `BEHAVIOR_TIMEOUT >= 600000ms` for model inference. If infrastructure is unavailable, SC-11 is FAIL — no structural substitute is permitted.
 - **Downstream:** All skills that dispatch to `approval-gate-scope` must be updated (SC-3, SC-10). Behavioral enforcement tests must be updated (SC-11).
 
 ## Traceability

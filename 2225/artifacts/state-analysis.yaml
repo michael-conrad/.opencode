@@ -1,0 +1,70 @@
+# State analysis — Spec #2225
+# Generated: backfill from spec body
+
+state_machine: spec_creation_pipeline
+
+states:
+  - name: spec_draft
+    description: "Spec has been created but not validated"
+    entry_action: "create.md assembles spec and writes to .issues/{N}/spec.md"
+    exit_action: "validate.md runs holistic self-check"
+
+  - name: spec_validated
+    description: "Spec has passed validation"
+    entry_action: "validate.md returns PASS"
+    exit_action: "Spec is ready for approval"
+
+  - name: spec_revision_needed
+    description: "Spec failed validation and needs revision"
+    entry_action: "validate.md returns FAIL"
+    exit_action: "revise.md updates spec based on findings"
+
+  - name: spec_structural_diagnostic
+    description: "Spec has failed validation 3+ times — structural diagnostic dispatched"
+    entry_action: "After 3 validate→revise iterations without PASS"
+    exit_action: "Structural diagnostic runs; if that fails, escalate to user"
+
+phase_transitions:
+  phase_1:
+    from: null
+    to: phase_1_complete
+    trigger: "Add dynamic-loading rule to task-card-structure-standards.md"
+    state_after: "Reference document updated with new rule"
+
+  phase_2:
+    from: null
+    to: phase_2_complete
+    trigger: "Update create.md to load format-level rules and copy artifacts"
+    state_after: "create.md loads reference documents and copies artifacts"
+
+  phase_3:
+    from: null
+    to: phase_3_complete
+    trigger: "Update validate.md with 7 structured checks"
+    state_after: "validate.md has dynamic section loading and structured checks"
+
+  phase_4:
+    from: null
+    to: phase_4_complete
+    trigger: "Add tiered escalation to SKILL.md"
+    state_after: "validate→revise loop has iteration limit and escalation path"
+
+  phase_5:
+    from: null
+    to: phase_5_complete
+    trigger: "Add artifact pre-flight gate to spec-audit-investigator.md"
+    state_after: "Audit investigator checks artifact presence before proceeding"
+
+state_transitions_required_by_scs:
+  SC-1: "task-card-structure-standards.md transitions from 'no dynamic-loading rule' to 'has dynamic-loading rule'"
+  SC-2: "create.md transitions from 'no format-level loading' to 'loads and applies format-level rules'"
+  SC-3: "validate.md transitions from 'hardcoded section list' to 'dynamic section inventory loading'"
+  SC-4: "validate.md transitions from 'no format-level checks' to 'has format-level conformance checks'"
+  SC-5: "validate.md transitions from 'no determinism check' to 'has structured determinism check'"
+  SC-6: "validate.md transitions from 'no compound-SC detection' to 'has compound-SC detection'"
+  SC-7: "validate.md transitions from 'no causal-chain check' to 'has causal-chain verification'"
+  SC-8: "validate.md transitions from 'no evidence-type cross-check' to 'has evidence-type-to-method lookup'"
+  SC-9: "validate.md transitions from 'no artifact cross-reference' to 'has artifact cross-reference check'"
+  SC-10: "SKILL.md transitions from 'no iteration limit' to 'has tiered escalation documentation'"
+  SC-11: "create.md transitions from 'no artifact copy' to 'copies artifacts in exit criteria'"
+  SC-12: "spec-audit-investigator.md transitions from 'no artifact check' to 'has artifact pre-flight gate'"

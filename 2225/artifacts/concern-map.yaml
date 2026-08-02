@@ -1,0 +1,44 @@
+# Concern map — Spec #2225
+# Generated: backfill from spec body
+
+concern_groups:
+  - name: "Reference document standards"
+    scs: [SC-1]
+    phase: 1
+    description: "Add rule requiring dynamic loading of reference-dependent criteria"
+    affected_files:
+      - .opencode/reference/task-card-structure-standards.md
+
+  - name: "Spec assembly (create.md)"
+    scs: [SC-2, SC-11]
+    phase: 2
+    description: "Update create.md to load format-level rules and copy artifacts"
+    affected_files:
+      - .opencode/skills/spec-creation/tasks/create.md
+
+  - name: "Spec validation (validate.md)"
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    phase: 3
+    description: "Update validate.md with dynamic section loading and 7 structured checks"
+    affected_files:
+      - .opencode/skills/spec-creation/tasks/validate.md
+
+  - name: "Pipeline orchestration (SKILL.md)"
+    scs: [SC-10]
+    phase: 4
+    description: "Add tiered escalation to validate→revise loop"
+    affected_files:
+      - .opencode/skills/spec-creation/SKILL.md
+
+  - name: "Audit investigator pre-flight"
+    scs: [SC-12]
+    phase: 5
+    description: "Add artifact presence check to spec-audit-investigator.md"
+    affected_files:
+      - .opencode/skills/audit/tasks/spec-audit-investigator.md
+
+phase_boundaries:
+  phase_1_to_2: "Phase 1 (reference standards) must complete before Phase 2 (create.md) because create.md's dynamic loading depends on the rule being defined"
+  phase_2_to_3: "Phase 2 (create.md) and Phase 3 (validate.md) are independent — create.md changes don't affect validate.md structure"
+  phase_3_to_4: "Phase 4 (SKILL.md tiered escalation) depends on Phase 3 (validate.md) because the escalation wraps the validate→revise loop"
+  phase_4_to_5: "Phase 5 (audit investigator) is independent of Phases 1-4 — it's a separate pipeline"

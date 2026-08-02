@@ -1,0 +1,46 @@
+# Interface compatibility — Spec #2225
+# Generated: backfill from spec body
+
+interfaces:
+  - module: .opencode/reference/task-card-structure-standards.md
+    change_type: modified
+    compatibility: backward_compatible
+    description: "Adding a new rule section — existing content unchanged"
+    consumers:
+      - spec-creation/tasks/create.md
+      - spec-creation/tasks/validate.md
+      - skill-creator (validation)
+
+  - module: .opencode/skills/spec-creation/tasks/create.md
+    change_type: modified
+    compatibility: backward_compatible
+    description: "Adding Read [Text] calls to Step 2 and artifact copy to exit criteria — existing procedure unchanged"
+    consumers:
+      - spec-creation/SKILL.md (Workflows section dispatches create task)
+      - spec-creation/tasks/validate.md (consumes create.md output)
+
+  - module: .opencode/skills/spec-creation/tasks/validate.md
+    change_type: modified
+    compatibility: backward_compatible
+    description: "Adding 7 new structured checks to procedure — existing checks unchanged"
+    consumers:
+      - spec-creation/SKILL.md (Workflows section dispatches validate task)
+      - spec-creation/tasks/revise.md (consumes validate.md output for revision loop)
+
+  - module: .opencode/skills/spec-creation/SKILL.md
+    change_type: modified
+    compatibility: backward_compatible
+    description: "Adding tiered escalation documentation to Workflows section — existing pipeline sequence unchanged"
+    consumers:
+      - orchestrator (dispatches spec-creation pipeline)
+
+  - module: .opencode/skills/audit/tasks/spec-audit-investigator.md
+    change_type: modified
+    compatibility: backward_compatible
+    description: "Adding artifact presence check to Step 1 — existing procedure unchanged"
+    consumers:
+      - audit/spec-audit.md (evaluator role consumes investigator output)
+
+breaking_changes: []
+new_interfaces: []
+removed_interfaces: []

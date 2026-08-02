@@ -1,0 +1,35 @@
+# Cross-cutting matrix — Spec #2225
+# Generated: backfill from spec body
+
+cross_cutting_concerns:
+  - concern: "Dynamic loading from reference documents"
+    scs: [SC-1, SC-2, SC-3]
+    phases: [1, 2, 3]
+    description: "SC-1 defines the rule, SC-2 applies it to create.md, SC-3 applies it to validate.md"
+    span_type: "multi_phase_vertical"
+
+  - concern: "Format-level conformance"
+    scs: [SC-2, SC-4]
+    phases: [2, 3]
+    description: "SC-2 applies format-level rules during assembly (create.md), SC-4 checks them during validation (validate.md)"
+    span_type: "multi_phase_vertical"
+
+  - concern: "Analytical artifact lifecycle"
+    scs: [SC-9, SC-11, SC-12]
+    phases: [2, 3, 5]
+    description: "SC-11 copies artifacts (create.md), SC-9 cross-references them (validate.md), SC-12 checks presence (audit investigator)"
+    span_type: "multi_phase_vertical"
+
+  - concern: "validate→revise loop quality"
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
+    phases: [3, 4]
+    description: "SCs 3-9 add structured checks to validate.md; SC-10 adds tiered escalation to the loop"
+    span_type: "multi_phase_vertical"
+
+single_phase_scs:
+  - sc: SC-1
+    phase: 1
+    reason: "Standalone rule addition to reference document — no cross-cutting concern"
+  - sc: SC-10
+    phase: 4
+    reason: "Standalone SKILL.md workflow change — no cross-cutting concern"

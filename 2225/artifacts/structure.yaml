@@ -1,0 +1,133 @@
+# Structure artifact — Spec #2225
+# Generated: research task from writing-plans
+
+phases:
+  - id: 1
+    name: "Add dynamic-loading rule to task-card-structure-standards.md"
+    scs: [SC-1]
+    items:
+      - sc: SC-1
+        description: "Add rule requiring dynamic loading of reference-dependent criteria via Read [Text](path)"
+        red: "grep for absence of 'reference-dependent criteria' and 'Read [Text]' in task-card-structure-standards.md"
+        green: "Add rule section to task-card-structure-standards.md"
+        commit: "git add .opencode/reference/task-card-structure-standards.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: orchestrator
+
+  - id: 2
+    name: "Update create.md to load and apply format-level rules"
+    scs: [SC-2, SC-11]
+    items:
+      - sc: SC-2
+        description: "create.md Step 2 loads spec-structure-standards.md and cost-model-standards.md and applies format-level rules"
+        red: "grep for absence of 'Read [spec-structure-standards.md]' and 'Read [cost-model-standards.md]' in create.md"
+        green: "Add Read [Text] calls to create.md Step 2; apply format-level rules during assembly"
+        commit: "git add .opencode/skills/spec-creation/tasks/create.md && git commit"
+      - sc: SC-11
+        description: "create.md copies analytical artifacts from tmp/ to .issues/{N}/artifacts/ in exit criteria"
+        red: "grep for absence of 'copy' and 'artifacts' in create.md exit criteria"
+        green: "Add artifact copy step to create.md exit criteria"
+        commit: "git add .opencode/skills/spec-creation/tasks/create.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: orchestrator
+
+  - id: 3
+    name: "Update validate.md with structured checks"
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+    items:
+      - sc: SC-3
+        description: "validate.md loads required section inventory dynamically from spec-structure-standards.md"
+        red: "grep for hardcoded section list in validate.md entry criteria or procedure"
+        green: "Replace hardcoded section list with dynamic loading via Read [spec-structure-standards.md]"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+      - sc: SC-4
+        description: "validate.md has structured format-level conformance checks (SHALL, dark-prose-007, Documentation Sources)"
+        red: "grep for absence of 'SHALL' and 'dark-prose-007' and 'Documentation Sources' in validate.md procedure"
+        green: "Add format-level conformance check procedure to validate.md"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+      - sc: SC-5
+        description: "validate.md has structured determinism check with prohibited pattern list"
+        red: "grep for absence of prohibited patterns list in validate.md"
+        green: "Add determinism check with prohibited pattern list to validate.md"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+      - sc: SC-6
+        description: "validate.md has structured compound-SC detection procedure"
+        red: "grep for absence of 'compound' or 'conjunction' or 'multiple verification' in validate.md"
+        green: "Add compound-SC detection procedure to validate.md"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+      - sc: SC-7
+        description: "validate.md verifies causal chain between root causes and SCs"
+        red: "grep for absence of 'causal chain' or 'root cause' in validate.md"
+        green: "Add causal-chain verification procedure to validate.md"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+      - sc: SC-8
+        description: "validate.md has evidence-type-to-method cross-check lookup table"
+        red: "grep for absence of lookup table mapping evidence types to verification methods in validate.md"
+        green: "Add evidence-type-to-method cross-check lookup table to validate.md"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+      - sc: SC-9
+        description: "validate.md cross-references spec against analytical artifacts"
+        red: "grep for absence of 'blast-radius' or 'concern-map' or 'interface-compatibility' in validate.md"
+        green: "Add artifact cross-reference check to validate.md"
+        commit: "git add .opencode/skills/spec-creation/tasks/validate.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: orchestrator
+
+  - id: 4
+    name: "Add tiered escalation to spec-creation/SKILL.md"
+    scs: [SC-10]
+    items:
+      - sc: SC-10
+        description: "spec-creation/SKILL.md documents tiered escalation in validate→revise loop"
+        red: "grep for absence of 'tiered escalation' or 'structural diagnostic' in spec-creation SKILL.md"
+        green: "Add tiered escalation documentation to SKILL.md Workflows section"
+        commit: "git add .opencode/skills/spec-creation/SKILL.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: orchestrator
+
+  - id: 5
+    name: "Add artifact pre-flight gate to spec-audit-investigator.md"
+    scs: [SC-12]
+    items:
+      - sc: SC-12
+        description: "spec-audit-investigator.md Step 1 checks for analytical artifact presence"
+        red: "grep for absence of 'analytical_artifact_dir' and 'REMEDIATION_REQUIRED' in spec-audit-investigator.md"
+        green: "Add artifact pre-flight gate to spec-audit-investigator.md Step 1"
+        commit: "git add .opencode/skills/audit/tasks/spec-audit-investigator.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: orchestrator
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Phase 1 (reference standards) must complete before Phase 2 (create.md) because create.md's dynamic loading depends on the rule being defined"
+    - from: 3
+      to: 4
+      reason: "Phase 4 (SKILL.md tiered escalation) depends on Phase 3 (validate.md) because the escalation wraps the validate→revise loop"
+  independent_sets:
+    - [2, 3]
+    - [4, 5]
+
+triplet_co_location:
+  status: PASS
+  details: "All 12 SCs have RED, GREEN, and COMMIT steps assigned to the same phase"
+
+cross_phase_dependency:
+  status: PASS
+  details: "No RED test depends on SC output from a later phase"

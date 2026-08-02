@@ -1,0 +1,59 @@
+domain: pr-body-template
+types:
+  - name: phase
+objects:
+  - name: Phase_1
+    type: phase
+  - name: Phase_2
+    type: phase
+  - name: Phase_3
+    type: phase
+  - name: Phase_4
+    type: phase
+  - name: Phase_5
+    type: phase
+  - name: Phase_6
+    type: phase
+fluents:
+  - name: phase_done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: complete_Phase_1
+    preconditions: []
+    effects:
+      - phase_done(Phase_1)
+  - name: complete_Phase_2
+    preconditions:
+      - phase_done(Phase_1)
+    effects:
+      - phase_done(Phase_2)
+  - name: complete_Phase_3
+    preconditions:
+      - phase_done(Phase_2)
+    effects:
+      - phase_done(Phase_3)
+  - name: complete_Phase_4
+    preconditions:
+      - phase_done(Phase_1)
+    effects:
+      - phase_done(Phase_4)
+  - name: complete_Phase_5
+    preconditions:
+      - phase_done(Phase_1)
+    effects:
+      - phase_done(Phase_5)
+  - name: complete_Phase_6
+    preconditions:
+      - phase_done(Phase_2)
+    effects:
+      - phase_done(Phase_6)
+init: []
+goals:
+  - phase_done(Phase_1)
+  - phase_done(Phase_2)
+  - phase_done(Phase_3)
+  - phase_done(Phase_4)
+  - phase_done(Phase_5)
+  - phase_done(Phase_6)

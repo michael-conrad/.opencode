@@ -1,0 +1,73 @@
+# Dependency Contract — #2223 — PR body template: standalone format, DiMo attestation, skill consolidation
+schema_version: "1.0"
+issue: 2223
+phases:
+  - id: Phase 1
+    name: "Extract PR body template, update attestation, update gates"
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
+    depends_on: []
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 2
+    name: "Delete pr-creation-workflow skill, preserve closing-keywords.md"
+    scs: [SC-13, SC-14, SC-15]
+    depends_on: [Phase 1]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 3
+    name: "Add Workflows section to git-workflow-pr SKILL.md, fix description"
+    scs: [SC-16, SC-17, SC-18, SC-19]
+    depends_on: [Phase 2]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 4
+    name: "Add pr-body-audit task to audit skill"
+    scs: [SC-20, SC-21]
+    depends_on: [Phase 1]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 5
+    name: "Update stale dual-auditor terminology across all affected files"
+    scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
+    depends_on: [Phase 1]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 6
+    name: "Update cross-references"
+    scs: [SC-29, SC-30]
+    depends_on: [Phase 2]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+post_implementation:
+  - id: post-1
+    name: "audit"
+    skill: audit
+    dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit...")'
+  - id: post-2
+    name: "z3-check"
+    skill: "(orchestrator)"
+    dispatch: '.opencode/tools/solve check --state-path ... --contract-path ...'
+  - id: post-3
+    name: "structural-checks"
+    skill: finishing-a-development-branch
+    dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'
+  - id: post-4
+    name: "pre-pr-gate"
+    skill: verification-before-completion
+    dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+  - id: post-5
+    name: "regression-check"
+    skill: test-driven-development
+    dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+  - id: post-6
+    name: "review-prep"
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr...")'
+  - id: post-7
+    name: "create-pr"
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute pr-creation from git-workflow-pr...")'
+  - id: post-8
+    name: "exec-summary"
+    skill: completion-core
+    dispatch: 'task(..., prompt: "execute completion task from completion-core")'

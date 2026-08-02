@@ -1,0 +1,35 @@
+# solve-output.yaml — Z3 and Planner Results for Spec #2223
+# Generated: 2026-08-02T04:20:00Z
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+
+spec: 2223
+artifact: solve-output
+generated_at: 2026-08-02T04:20:00Z
+
+solve_status:
+  model: SKIPPED
+  model_reason: "solve model --query requires Z3 expression syntax; contract has no variables section for model query"
+  check: SAT
+  check_detail: "SAT (+ postconditions + invariants)"
+
+plan_status:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 6
+  plan:
+    - complete_Phase_1()
+    - complete_Phase_2()
+    - complete_Phase_3()
+    - complete_Phase_4()
+    - complete_Phase_6()
+    - complete_Phase_5()
+
+verification:
+  triplet_co_location: PASS
+  cross_phase_dependency: PASS
+  dependency_dag_edges:
+    - Phase_1 -> Phase_2
+    - Phase_1 -> Phase_4
+    - Phase_1 -> Phase_5
+    - Phase_2 -> Phase_3
+    - Phase_2 -> Phase_6

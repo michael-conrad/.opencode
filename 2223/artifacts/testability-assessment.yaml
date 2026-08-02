@@ -1,235 +1,169 @@
-# Testability Assessment — Spec #2223
-# Generated: 2026-08-01
-# Mode: retroactive
+# testability-assessment.yaml — Analytical Artifact for Spec #2223
+# Generated: retroactive backfill from spec body
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+
+spec: 2223
+artifact: testability-assessment
+generated_at: 2026-08-02T03:17:00Z
+mode: retroactive
 
 sc_testability:
   - sc: SC-1
     evidence_type: structural
     test_method: File existence check
-    command: "test -f .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
+    test_command: test -f .opencode/skills/git-workflow-pr/reference/pr-body-template.md
     difficulty: trivial
     automation: full
 
-  - sc: SC-2
+  - sc: SC-2 through SC-8
     evidence_type: string
-    test_method: grep for section header
-    command: "grep '**Summary:**' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-3
-    evidence_type: string
-    test_method: grep for section header
-    command: "grep '**Outcome:**' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-4
-    evidence_type: string
-    test_method: grep for section header
-    command: "grep '**Verification Attestation:**' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-5
-    evidence_type: string
-    test_method: grep for section header
-    command: "grep '**Detail: VbC Table**' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-6
-    evidence_type: string
-    test_method: grep for section header
-    command: "grep '**Detail: DiMo Chain Attestation**' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-7
-    evidence_type: string
-    test_method: grep for section header
-    command: "grep '**Detail: Spec-Card-Mapped Commits**' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-8
-    evidence_type: string
-    test_method: grep for closing keyword pattern
-    command: "grep -E 'Fixes #|Implements #' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
+    test_method: grep for section headers in template file
+    test_command: grep for each required section header
     difficulty: trivial
     automation: full
 
   - sc: SC-9
     evidence_type: string
-    test_method: grep for table header
-    command: "grep 'Criterion.*Evidence Type.*Investigator.*Validator.*Evaluator.*Arbiter' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
+    test_method: grep for table header columns in template file
+    test_command: grep for "Criterion | Evidence Type | Investigator | Validator | Evaluator | Arbiter"
     difficulty: trivial
     automation: full
 
   - sc: SC-10
     evidence_type: string
-    test_method: grep for attestation text
-    command: "grep 'DiMo 4-role' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
+    test_method: grep for "DiMo 4-role" in template file
+    test_command: grep -q "DiMo 4-role" .opencode/skills/git-workflow-pr/reference/pr-body-template.md
     difficulty: trivial
     automation: full
 
   - sc: SC-11
     evidence_type: string
-    test_method: grep for specific attestation line
-    command: "grep 'no synthesis corrections' .opencode/skills/git-workflow-pr/reference/pr-body-template.md"
+    test_method: grep for "no synthesis corrections" in template file
+    test_command: grep -q "no synthesis corrections" .opencode/skills/git-workflow-pr/reference/pr-body-template.md
     difficulty: trivial
     automation: full
 
   - sc: SC-12
     evidence_type: structural
-    test_method: Verify both platform sections reference same template
-    command: "grep -c 'pr-body-template.md' .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
-    difficulty: trivial
+    test_method: Verify both platform sections reference the same template file
+    test_command: grep for template path in both GitHub MCP and GitBucket CLI sections of create-pr.md
+    difficulty: easy
     automation: full
 
   - sc: SC-13
     evidence_type: structural
     test_method: Directory does not exist
-    command: "test ! -d .opencode/skills/pr-creation-workflow/"
+    test_command: test ! -d .opencode/skills/pr-creation-workflow/
     difficulty: trivial
     automation: full
 
   - sc: SC-14
     evidence_type: structural
     test_method: File exists at target path
-    command: "test -f .opencode/skills/git-workflow-pr/reference/closing-keywords.md"
+    test_command: test -f .opencode/skills/git-workflow-pr/reference/closing-keywords.md
     difficulty: trivial
     automation: full
 
   - sc: SC-15
     evidence_type: string
-    test_method: grep for authorization check
-    command: "grep 'Verify authorization scope' .opencode/skills/git-workflow-pr/SKILL.md"
+    test_method: grep for authorization scope check in SKILL.md
+    test_command: grep -q "Verify authorization scope" .opencode/skills/git-workflow-pr/SKILL.md
     difficulty: trivial
     automation: full
 
   - sc: SC-16
     evidence_type: string
-    test_method: grep for Workflows section, absence of Trigger Dispatch Table
-    command: "grep '## Workflows' .opencode/skills/git-workflow-pr/SKILL.md && ! grep '## Trigger Dispatch Table' .opencode/skills/git-workflow-pr/SKILL.md"
+    test_method: grep for Workflows section and absence of Trigger Dispatch Table
+    test_command: grep -q "## Workflows" SKILL.md && ! grep -q "## Trigger Dispatch Table" SKILL.md
     difficulty: trivial
     automation: full
 
   - sc: SC-17
     evidence_type: string
-    test_method: grep for each workflow heading
-    command: "grep -E '### (Create PR|Prepare review|Create pair mode PR|Post-implementation|Complete workflow)' .opencode/skills/git-workflow-pr/SKILL.md"
+    test_method: grep for each of 5 workflow headings
+    test_command: grep for each workflow name in SKILL.md
     difficulty: trivial
     automation: full
 
   - sc: SC-18
     evidence_type: string
-    test_method: grep for orchestrator inline after each workflow heading
-    command: "grep -c 'orchestrator inline' .opencode/skills/git-workflow-pr/SKILL.md"
-    difficulty: trivial
+    test_method: grep for "orchestrator inline" after each workflow heading
+    test_command: grep -c "orchestrator inline" .opencode/skills/git-workflow-pr/SKILL.md
+    difficulty: easy
     automation: full
 
   - sc: SC-19
     evidence_type: string
-    test_method: grep description for absence of prohibited patterns
-    command: "grep -E 'Load via skill\\(\\) when|Also load when|User phrases:' .opencode/skills/git-workflow-pr/SKILL.md && echo 'FAIL' || echo 'PASS'"
-    difficulty: trivial
+    test_method: grep for absence of prohibited patterns in description
+    test_command: Check description field does not contain "Load via skill() when", "Also load when", or "User phrases:"
+    difficulty: easy
     automation: full
 
   - sc: SC-20
     evidence_type: string
     test_method: grep for pr-body-audit in audit SKILL.md
-    command: "grep 'pr-body-audit' .opencode/skills/audit/SKILL.md"
+    test_command: grep -q "pr-body-audit" .opencode/skills/audit/SKILL.md
     difficulty: trivial
     automation: full
 
   - sc: SC-21
     evidence_type: behavioral
     test_method: opencode run with prompt to create PR body, verify audit catches structural defects
-    command: "bash .opencode/tests-v2/with-test-home opencode run 'Create a PR body and run pr-body-audit on it'"
+    test_command: bash .opencode/tests-v2/with-test-home opencode run '<prompt>'
     difficulty: high
-    automation: partial (requires model inference)
-    notes: Behavioral test — requires clean-room sub-agent evaluation of agent output
+    automation: partial (requires AI model)
+    notes: Behavioral test requires real AI model; cannot be fully automated in CI without model access
 
-  - sc: SC-22
+  - sc: SC-22 through SC-26
     evidence_type: string
-    test_method: grep for absence of dual-auditor in file
-    command: "! grep 'dual-auditor' .opencode/guidelines/000-critical-rules.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-23
-    evidence_type: string
-    test_method: grep for absence of dual-auditor in file
-    command: "! grep 'dual-auditor' .opencode/guidelines/250-dark-prose-reference.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-24
-    evidence_type: string
-    test_method: grep for absence of dual-auditor in file
-    command: "! grep 'dual-auditor' .opencode/guidelines/255-distribution-shifting-reference.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-25
-    evidence_type: string
-    test_method: grep for absence of dual-auditor in file
-    command: "! grep 'dual-auditor' .opencode/guidelines/257-procedural-discipline-reference.md"
-    difficulty: trivial
-    automation: full
-
-  - sc: SC-26
-    evidence_type: string
-    test_method: grep for absence of dual-auditor in file
-    command: "! grep 'dual-auditor' .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+    test_method: grep for "dual-auditor" in each file — must return zero
+    test_command: grep -r "dual-auditor" .opencode/guidelines/000-critical-rules.md .opencode/guidelines/250-dark-prose-reference.md .opencode/guidelines/255-distribution-shifting-reference.md .opencode/guidelines/257-procedural-discipline-reference.md .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
     difficulty: trivial
     automation: full
 
   - sc: SC-27
     evidence_type: string
-    test_method: grep for judgment.yaml in gate section
-    command: "grep 'judgment.yaml' .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
+    test_method: grep for "judgment.yaml" in gate section of create-pr.md
+    test_command: grep -q "judgment.yaml" .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
     difficulty: trivial
     automation: full
 
   - sc: SC-28
     evidence_type: string
-    test_method: grep for DiMo Chain Attestation in Data Flow table
-    command: "grep 'DiMo Chain Attestation' .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
+    test_method: grep for "DiMo Chain Attestation" in Data Flow table
+    test_command: grep -q "DiMo Chain Attestation" .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
     difficulty: trivial
     automation: full
 
   - sc: SC-29
     evidence_type: string
-    test_method: grep for pr-creation-workflow returns zero results
-    command: "! grep -r 'pr-creation-workflow' .opencode/ --include='*.md' --include='*.yaml' --include='*.sh' --exclude-dir='.git' --exclude-dir='tests-v2/behaviors/fixtures'"
-    difficulty: medium
+    test_method: grep for "pr-creation-workflow" across .opencode/ — must return zero (except CHANGELOG.md)
+    test_command: grep -r "pr-creation-workflow" .opencode/ --include="*.md" --include="*.yaml" --include="*.sh" | grep -v CHANGELOG.md
+    difficulty: easy
     automation: full
-    notes: Exclude test fixtures that reference pr-creation-workflow as historical context
 
   - sc: SC-30
     evidence_type: string
-    test_method: grep for pr-creation-workflow in git-workflow-pr SKILL.md returns zero
-    command: "! grep 'pr-creation-workflow' .opencode/skills/git-workflow-pr/SKILL.md"
+    test_method: grep for "pr-creation-workflow" in git-workflow-pr SKILL.md — must return zero
+    test_command: grep -q "pr-creation-workflow" .opencode/skills/git-workflow-pr/SKILL.md && false || true
     difficulty: trivial
     automation: full
 
-test_coverage_summary:
+testability_summary:
   total_scs: 30
-  structural: 3 (SC-1, SC-12, SC-13, SC-14)
-  string: 26 (SC-2 through SC-11, SC-15 through SC-20, SC-22 through SC-30)
-  behavioral: 1 (SC-21)
+  trivial_to_test: 22 (SC-1 through SC-20, SC-22 through SC-28, SC-30)
+  easy_to_test: 3 (SC-12, SC-18, SC-29)
+  high_difficulty: 1 (SC-21 — behavioral)
   fully_automatable: 29
-  partially_automatable: 1 (SC-21 — requires model inference)
+  partially_automatable: 1 (SC-21)
 
-testability_concerns:
-  - sc: SC-21
-    concern: Behavioral test requires model inference — high cost, potential timeout
-    mitigation: Use scope-limited behavioral test with specific prompt; set BEHAVIOR_TIMEOUT >= 600s
-  - sc: SC-29
-    concern: grep across entire .opencode/ may match test fixture files that should be preserved
-    mitigation: Exclude tests-v2/behaviors/fixtures/ from grep; verify remaining matches are legitimate
-  - sc: SC-18
-    concern: "orchestrator inline" text must appear after each workflow heading — grep -c counts total occurrences but doesn't verify positioning
-    mitigation: Use grep with context to verify each workflow heading is followed by orchestrator inline text
+  risk_assessment:
+    - SC-21 is the only behavioral test; requires AI model access
+    - All string/structural SCs can be verified with grep and file existence checks
+    - SC-29 requires exhaustive grep across all file types in .opencode/
+    - No SC requires manual testing or developer intervention for verification
+
+  recommended_test_approach:
+    - Content-verification: Shell script that runs all grep/file-existence checks for SC-1 through SC-20, SC-22 through SC-30
+    - Behavioral: Separate test script for SC-21 using with-test-home wrapper
+    - Combined: Content-verification runs on every commit; behavioral runs on PR

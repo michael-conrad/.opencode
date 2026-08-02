@@ -1,0 +1,274 @@
+# structure.yaml — Phase Decomposition and Dependency DAG for Spec #2223
+# Generated: 2026-08-02T04:13:00Z
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+
+spec: 2223
+artifact: structure
+generated_at: 2026-08-02T04:13:00Z
+
+phases:
+  - id: Phase 1
+    name: Extract PR body template, update attestation, update gates
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+      - SC-11
+      - SC-12
+      - SC-27
+      - SC-28
+    items:
+      - item: 1
+        sc: SC-1
+        description: Extract PR body template to standalone reference file
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 2
+        sc: SC-2
+        description: Template contains Summary section
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 3
+        sc: SC-3
+        description: Template contains Outcome section
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 4
+        sc: SC-4
+        description: Template contains Verification Attestation section
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 5
+        sc: SC-5
+        description: Template contains VbC Table section
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 6
+        sc: SC-6
+        description: Template contains DiMo Chain Attestation section
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 7
+        sc: SC-7
+        description: Template contains Spec-Card-Mapped Commits section
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 8
+        sc: SC-8
+        description: Template contains closing keywords
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 9
+        sc: SC-9
+        description: DiMo Chain Attestation table uses correct columns
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 10
+        sc: SC-10
+        description: Verification Attestation references DiMo 4-role chain
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 11
+        sc: SC-11
+        description: Attestation line states no synthesis corrections needed
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 12
+        sc: SC-12
+        description: Both platform sections reference same standalone template
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 27
+        sc: SC-27
+        description: Verification-evidence-check gate references judgment.yaml
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 28
+        sc: SC-28
+        description: Data Flow table references DiMo Chain Attestation
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+
+  - id: Phase 2
+    name: Delete pr-creation-workflow skill, preserve closing-keywords.md
+    scs:
+      - SC-13
+      - SC-14
+      - SC-15
+    items:
+      - item: 13
+        sc: SC-13
+        description: Delete pr-creation-workflow skill directory
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 14
+        sc: SC-14
+        description: Preserve closing-keywords.md in git-workflow-pr/reference/
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 15
+        sc: SC-15
+        description: Authorization scope check as orchestrator inline Step 1
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+
+  - id: Phase 3
+    name: Add Workflows section to git-workflow-pr SKILL.md, fix description
+    scs:
+      - SC-16
+      - SC-17
+      - SC-18
+      - SC-19
+    items:
+      - item: 16
+        sc: SC-16
+        description: Workflows section replaces Trigger Dispatch Table
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 17
+        sc: SC-17
+        description: Workflows section contains 5 separate workflows
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 18
+        sc: SC-18
+        description: Each workflow starts with orchestrator inline auth check
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 19
+        sc: SC-19
+        description: git-workflow-pr description uses agent-intent format
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+
+  - id: Phase 4
+    name: Add pr-body-audit task to audit skill
+    scs:
+      - SC-20
+      - SC-21
+    items:
+      - item: 20
+        sc: SC-20
+        description: pr-body-audit task added to audit skill
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 21
+        sc: SC-21
+        description: pr-body-audit verifies all 11 enumerated PR body requirements
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+
+  - id: Phase 5
+    name: Update stale dual-auditor terminology across all affected files
+    scs:
+      - SC-22
+      - SC-23
+      - SC-24
+      - SC-25
+      - SC-26
+    items:
+      - item: 22
+        sc: SC-22
+        description: Update 000-critical-rules.md dual-auditor reference
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 23
+        sc: SC-23
+        description: Update 250-dark-prose-reference.md dual-auditor references
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 24
+        sc: SC-24
+        description: Update 255-distribution-shifting-reference.md dual-auditor reference
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 25
+        sc: SC-25
+        description: Update 257-procedural-discipline-reference.md dual-auditor reference
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 26
+        sc: SC-26
+        description: Update branch-cleanup.md dual-auditor reference
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+
+  - id: Phase 6
+    name: Update cross-references
+    scs:
+      - SC-29
+      - SC-30
+    items:
+      - item: 29
+        sc: SC-29
+        description: All cross-references to pr-creation-workflow updated or removed
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+      - item: 30
+        sc: SC-30
+        description: Cross-reference from git-workflow-pr SKILL.md removed
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator runs git add && git commit
+
+dependency_dag:
+  edges:
+    - from: Phase 1
+      to: Phase 2
+      reason: Template must be extracted before skill deletion can reference new structure
+    - from: Phase 1
+      to: Phase 4
+      reason: Template must exist for PR body audit to verify against
+    - from: Phase 1
+      to: Phase 5
+      reason: Terminology update follows template attestation definition
+    - from: Phase 2
+      to: Phase 3
+      reason: Authorization check must be folded in before Workflows section is finalized
+    - from: Phase 2
+      to: Phase 6
+      reason: Cross-references must be updated after skill deletion per spec ordering
+
+triplet_co_location:
+  status: PASS
+  details: All SCs have RED, GREEN, and COMMIT steps assigned to the same phase
+
+cross_phase_dependency:
+  status: PASS
+  details: No RED test depends on SC output from a later phase

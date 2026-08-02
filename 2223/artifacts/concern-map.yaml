@@ -1,94 +1,111 @@
-# Concern Map — Spec #2223
-# Generated: 2026-08-01
-# Mode: retroactive
+# concern-map.yaml — Analytical Artifact for Spec #2223
+# Generated: retroactive backfill from spec body
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+
+spec: 2223
+artifact: concern-map
+generated_at: 2026-08-02T03:17:00Z
+mode: retroactive
 
 concerns:
-  - id: C1
-    name: PR body template decoupling
-    description: Extract inline PR body template from platform-specific API calls to standalone reference file
-    phases: [1]
-    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12]
-    affected_files:
+  - id: C-1
+    name: PR body template extraction
+    description: Decouple PR body content from platform-specific API calls by extracting to standalone reference file
+    phases: [Phase 1]
+    scs: [SC-1, SC-12]
+    files:
       - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
       - .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+    risk: medium — content loss if extraction misses sections
 
-  - id: C2
-    name: Attestation modernization
-    description: Replace dual-auditor cross-validation references with DiMo 4-role chain attestation
-    phases: [1, 5]
-    scs: [SC-9, SC-10, SC-11, SC-22, SC-23, SC-24, SC-25, SC-26]
-    affected_files:
-      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+  - id: C-2
+    name: DiMo attestation update
+    description: Replace stale dual-auditor cross-validation references with DiMo 4-role chain attestation in PR body template
+    phases: [Phase 1]
+    scs: [SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
+    files:
       - .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+    risk: low — well-defined text replacement
+
+  - id: C-3
+    name: Gate and table updates
+    description: Update verification-evidence-check gate and Data Flow table in create-pr.md to reference judgment.yaml and DiMo Chain Attestation
+    phases: [Phase 1]
+    scs: [SC-27, SC-28]
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    risk: low — targeted text replacements
+
+  - id: C-4
+    name: Skill consolidation
+    description: Delete pr-creation-workflow skill, preserve closing-keywords.md, fold authorization check into git-workflow-pr
+    phases: [Phase 2]
+    scs: [SC-13, SC-14, SC-15]
+    files:
+      - .opencode/skills/pr-creation-workflow/ (delete)
+      - .opencode/skills/git-workflow-pr/reference/closing-keywords.md (move target)
+      - .opencode/skills/git-workflow-pr/SKILL.md (add auth check)
+    risk: high — irreversible deletion; must preserve closing-keywords.md before deleting
+
+  - id: C-5
+    name: Workflows section format
+    description: Replace Trigger Dispatch Table and DISPATCH_GATE with Workflows section containing 5 separate workflows, each with orchestrator inline auth check
+    phases: [Phase 3]
+    scs: [SC-16, SC-17, SC-18, SC-19]
+    files:
+      - .opencode/skills/git-workflow-pr/SKILL.md
+    risk: medium — structural rewrite of SKILL.md; must maintain backward compatibility of dispatch strings
+
+  - id: C-6
+    name: PR body audit task
+    description: Add pr-body-audit task to audit skill to verify PR body template conformance
+    phases: [Phase 4]
+    scs: [SC-20, SC-21]
+    files:
+      - .opencode/skills/audit/SKILL.md
+    risk: medium — new task file must be created and correctly referenced
+
+  - id: C-7
+    name: Terminology update
+    description: Replace all stale "dual-auditor" references with "DiMo chain" across 5 guideline/skill files
+    phases: [Phase 5]
+    scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
+    files:
       - .opencode/guidelines/000-critical-rules.md
       - .opencode/guidelines/250-dark-prose-reference.md
       - .opencode/guidelines/255-distribution-shifting-reference.md
       - .opencode/guidelines/257-procedural-discipline-reference.md
       - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    risk: low — well-defined find-and-replace; verify with grep
 
-  - id: C3
-    name: Skill consolidation
-    description: Eliminate pr-creation-workflow ceremony skill, fold authorization check into git-workflow-pr
-    phases: [2, 3]
-    scs: [SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19]
-    affected_files:
-      - .opencode/skills/pr-creation-workflow/ (delete)
-      - .opencode/skills/git-workflow-pr/SKILL.md
-      - .opencode/skills/git-workflow-pr/reference/closing-keywords.md
-
-  - id: C4
-    name: PR body audit capability
-    description: Add pr-body-audit task to audit skill for verifying PR body template conformance
-    phases: [4]
-    scs: [SC-20, SC-21]
-    affected_files:
-      - .opencode/skills/audit/SKILL.md
-
-  - id: C5
+  - id: C-8
     name: Cross-reference cleanup
     description: Update or remove all cross-references to pr-creation-workflow across the codebase
-    phases: [6]
+    phases: [Phase 6]
     scs: [SC-29, SC-30]
-    affected_files:
-      - .opencode/README.md
-      - .opencode/dispatch-table.yaml
-      - .opencode/tests-v2/test-enforcement.sh
-      - .opencode/.guidelines/registry.yaml
-      - .opencode/guidelines/010-approval-gate.md
-      - .opencode/skills/approval-gate/SKILL.md
-      - .opencode/skills/approval-gate-scope/SKILL.md
-      - .opencode/skills/git-workflow/SKILL.md
-      - .opencode/skills/git-workflow-commit/tasks/implementation.md
-      - .opencode/skills/git-workflow-pr/SKILL.md
-      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
-      - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
-      - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
-      - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
-      - .opencode/skills/requesting-code-review/tasks/prepare.md
-      - .opencode/skills/writing-plans/reference/implementation-workflow.md
-      - .opencode/tests-v2/behaviors/fixtures/issues/2211/plan.md
+    files:
+      - 20+ files across .opencode/ (see blast-radius.yaml)
+    risk: high — scattered references; easy to miss one; grep must be exhaustive
 
-  - id: C6
-    name: Verification gate updates
-    description: Update verification-evidence-check gate and Data Flow table to reference judgment.yaml instead of audit-cross-validate-*.json
-    phases: [1]
-    scs: [SC-27, SC-28]
-    affected_files:
-      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-
-concern_boundaries:
-  C1_vs_C2:
-    overlap: partial — both modify create-pr.md and the template
-    separation: C1 handles structural extraction (template as standalone file); C2 handles content changes (attestation language)
-    risk: concurrent edits to same file sections must be coordinated
-  C3_vs_C5:
-    overlap: significant — C3 deletes pr-creation-workflow, C5 updates cross-references
-    separation: C3 handles directory deletion and git-workflow-pr structural changes; C5 handles all other file cross-references
-    risk: C5 must run after C3 to avoid stale references; cross-reference updates in git-workflow-pr/SKILL.md are shared
-  C2_vs_C4:
-    overlap: none — C2 is attestation language; C4 is audit task addition
-    separation: different files, different concerns
-  C1_vs_C6:
-    overlap: both modify create-pr.md
-    separation: C1 extracts template; C6 updates gate references — different sections of same file
-    risk: sequential edits to same file must not conflict
+concern_dependencies:
+  - from: C-1
+    to: C-2
+    reason: Template must exist before attestation can be updated within it
+  - from: C-1
+    to: C-3
+    reason: Template extraction changes the source; gates must reference the new structure
+  - from: C-4
+    to: C-5
+    reason: Authorization check folded into git-workflow-pr must be in place before Workflows section is finalized
+  - from: C-5
+    to: C-8
+    reason: Cross-reference from git-workflow-pr SKILL.md to pr-creation-workflow must be removed as part of C-8
+  - from: C-6
+    to: C-1
+    reason: PR body audit task verifies template conformance; template must exist first
+  - from: C-7
+    to: C-2
+    reason: Both update terminology; C-2 is template-specific, C-7 is codebase-wide
+  - from: C-8
+    to: C-4
+    reason: Cross-references must be updated before the skill directory is deleted (otherwise broken links)

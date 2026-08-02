@@ -1,114 +1,124 @@
-# Interface Compatibility — Spec #2223
-# Generated: 2026-08-01
-# Mode: retroactive
+# interface-compatibility.yaml — Analytical Artifact for Spec #2223
+# Generated: retroactive backfill from spec body
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+
+spec: 2223
+artifact: interface-compatibility
+generated_at: 2026-08-02T03:17:00Z
+mode: retroactive
 
 interfaces:
-  - name: git-workflow-pr dispatch protocol
-    type: orchestrator-to-sub-agent
-    current: Trigger Dispatch Table + DISPATCH_GATE — orchestrator reads table, dispatches via task() with canonical string
-    target: Workflows section — orchestrator reads section, performs inline authorization check, dispatches via task()
-    compatibility: BREAKING — all consumers that reference git-workflow-pr dispatch must understand new protocol
+  - name: skill({name: "pr-creation-workflow"})
+    type: skill dispatch
+    status: removed
     consumers:
-      - git-workflow/SKILL.md (parent skill)
-      - writing-plans/reference/implementation-workflow.md (dispatch table)
-      - tests-v2/behaviors/fixtures/issues/2211/plan.md (dispatch references)
-    migration: Update all consumer references to new dispatch strings; no backward compatibility needed
+      - orchestrators that currently dispatch pr-creation-workflow
+      - approval-gate skill (cross-reference)
+      - git-workflow skill (cross-reference)
+    replacement: skill({name: "git-workflow-pr"}) with inline authorization check
+    migration_risk: high — any agent that calls skill({name: "pr-creation-workflow"}) will get skill-not-found
+    mitigation: Update all dispatch calls before deleting the skill
 
-  - name: pr-creation-workflow dispatch protocol
-    type: orchestrator-to-sub-agent
-    current: Trigger Dispatch Table with 4 tasks (pre-pr-checklist, sub-issue-collection, create, completion)
-    target: REMOVED — authorization check folded into git-workflow-pr Workflows section as orchestrator inline Step 1
-    compatibility: BREAKING — all consumers that dispatch to pr-creation-workflow must be updated
+  - name: task("execute pre-pr-checklist task from pr-creation-workflow")
+    type: task dispatch
+    status: removed
     consumers:
-      - git-workflow/SKILL.md (cross-reference)
-      - approval-gate/SKILL.md (cross-reference)
-      - approval-gate-scope/SKILL.md (cross-reference)
-      - git-workflow-commit/tasks/implementation.md (cross-reference)
-      - writing-plans/reference/implementation-workflow.md (dispatch table)
-      - tests-v2/behaviors/fixtures/issues/2211/plan.md (dispatch references)
-      - dispatch-table.yaml (routing entry)
-    migration: Remove all dispatches to pr-creation-workflow; authorization check is now orchestrator inline in git-workflow-pr
+      - orchestrators that dispatch pre-pr-checklist
+    replacement: orchestrator inline authorization_scope check
+    migration_risk: medium — no direct task() call needed; orchestrator checks scope inline
 
-  - name: PR body template sourcing
-    type: sub-agent-to-reference-file
-    current: Inline PR body template inside github_create_pull_request() call in create-pr.md
-    target: Standalone reference file at .opencode/skills/git-workflow-pr/reference/pr-body-template.md
-    compatibility: NON-BREAKING — sub-agents read template file instead of extracting from create-pr.md
+  - name: task("execute sub-issue-collection task from pr-creation-workflow")
+    type: task dispatch
+    status: removed
+    consumers:
+      - orchestrators that dispatch sub-issue-collection
+    replacement: issue-operations --task read-sub-issues
+    migration_risk: low — sub-issue collection already available via issue-operations
+
+  - name: task("execute create task from pr-creation-workflow")
+    type: task dispatch
+    status: removed
+    consumers:
+      - orchestrators that dispatch PR creation via pr-creation-workflow
+    replacement: git-workflow-pr --task pr-creation
+    migration_risk: medium — dispatch string changes; must update all callers
+
+  - name: task("execute completion task from pr-creation-workflow")
+    type: task dispatch
+    status: removed
+    consumers:
+      - orchestrators that dispatch completion via pr-creation-workflow
+    replacement: git-workflow-pr --task completion
+    migration_risk: medium — dispatch string changes
+
+  - name: task("execute closing-keywords from pr-creation-workflow")
+    type: task dispatch
+    status: removed
+    consumers:
+      - pair-pr-creation.md
+      - review-prep/report-url.md
+      - trunk-push-provenance.md
+      - create-pr.md
+      - prepare.md (requesting-code-review)
+      - pre-pr-checklist.md (pr-creation-workflow — will be deleted)
+    replacement: task("execute closing-keywords from git-workflow-pr")
+    migration_risk: medium — 6+ callers must update dispatch string
+
+  - name: github_create_pull_request() inline PR body
+    type: API call parameter
+    status: modified
     consumers:
       - create-pr.md (GitHub MCP section)
+    change: PR body content extracted to standalone file; API call references file path instead of inline content
+    migration_risk: low — API call structure unchanged; only body content sourcing changes
+
+  - name: gitbucket-api PR body parameter
+    type: API call parameter
+    status: modified
+    consumers:
       - create-pr.md (GitBucket CLI section)
-    migration: Both platform sections reference same template file path
-
-  - name: closing-keywords format
-    type: sub-agent-to-reference
-    current: "Format per pr-creation-workflow → task('execute closing-keywords from pr-creation-workflow')"
-    target: "Format per git-workflow-pr → reference/closing-keywords.md"
-    compatibility: BREAKING — all files referencing pr-creation-workflow closing-keywords must be updated
-    consumers:
-      - create-pr.md (comment reference)
-      - review-prep/report-url.md
-      - pair-pr-creation.md
-      - trunk-push-provenance.md
-      - requesting-code-review/tasks/prepare.md
-      - pr-creation-workflow/tasks/pre-pr-checklist.md (will be deleted)
-      - pr-creation-workflow/tasks/sub-issue-collection.md (will be deleted)
-    migration: Update reference string to point to git-workflow-pr/reference/closing-keywords.md
-
-  - name: verification-evidence-check gate
-    type: sub-agent-to-artifact
-    current: Checks for audit-cross-validate-*.json with consensus PASS from both auditors
-    target: Checks for judgment.yaml with overall_verdict: PASS
-    compatibility: BREAKING — artifact path and format change
-    consumers:
-      - create-pr.md Step 4.75 (gate logic)
-    migration: Update artifact path and check logic in create-pr.md
-
-  - name: Data Flow table attestation column
-    type: documentation
-    current: "Dual-Auditor Cross-Validation → audit-cross-validate-*.json"
-    target: "DiMo Chain Attestation → judgment.yaml"
-    compatibility: NON-BREAKING — documentation only
-    consumers:
-      - create-pr.md Data Flow table
-    migration: Update table row
-
-  - name: PR body attestation language
-    type: sub-agent-to-PR-body
-    current: "Dual independent auditors from different model families returned consensus PASS"
-    target: "DiMo 4-role audit chain — Arbiter accepted all Evaluator verdicts as final"
-    compatibility: NON-BREAKING — PR body content change only
-    consumers:
-      - PR body template (standalone file)
-      - create-pr.md inline template (being extracted)
-    migration: Update attestation text in template
+    change: PR body content sourced from same standalone template as GitHub MCP section
+    migration_risk: low — same template file referenced by both sections
 
   - name: audit skill Trigger Dispatch Table
-    type: orchestrator-to-sub-agent
-    current: No pr-body-audit task entry
-    target: Add pr-body-audit task entry following existing format
-    compatibility: NON-BREAKING — additive change only
+    type: dispatch table entry
+    status: added
     consumers:
-      - audit skill orchestrator (reads table to dispatch)
-    migration: Add new row to Trigger Dispatch Table
+      - orchestrators dispatching PR body audit
+    new_entry: "pr-body-audit" task
+    migration_risk: low — new entry, no existing consumers to break
 
-  - name: git-workflow-pr description field
-    type: skill-discovery
-    current: "Load via skill() when... Also load when... User phrases:..."
-    target: Agent-intent format (no prohibited patterns)
-    compatibility: NON-BREAKING — description field change only
+  - name: git-workflow-pr SKILL.md Trigger Dispatch Table
+    type: dispatch table
+    status: replaced
     consumers:
-      - skill discovery system (reads description for routing)
-    migration: Rewrite description in agent-intent format
+      - orchestrators loading git-workflow-pr skill
+    change: Trigger Dispatch Table + DISPATCH_GATE replaced with Workflows section
+    migration_risk: medium — existing dispatch strings must remain valid or be updated
 
-interface_compatibility_matrix:
-  | Interface | Breaking? | Consumers Affected | Migration Complexity |
-  |-----------|-----------|-------------------|---------------------|
-  | git-workflow-pr dispatch protocol | YES | 3 | Medium |
-  | pr-creation-workflow dispatch protocol | YES | 7 | High |
-  | PR body template sourcing | NO | 2 | Low |
-  | closing-keywords format | YES | 6 | Medium |
-  | verification-evidence-check gate | YES | 1 | Low |
-  | Data Flow table attestation column | NO | 1 | Low |
-  | PR body attestation language | NO | 2 | Low |
-  | audit skill Trigger Dispatch Table | NO | 1 | Low |
-  | git-workflow-pr description field | NO | 1 | Low |
+  - name: git-workflow-pr SKILL.md description field
+    type: skill metadata
+    status: modified
+    consumers:
+      - skill() routing (available_skills matching)
+    change: "Load via skill() when" format → agent-intent format
+    migration_risk: low — description is for human/agent routing, not programmatic
+
+compatibility_issues:
+  - issue: Orphaned cross-references after pr-creation-workflow deletion
+    severity: high
+    description: 20+ files reference pr-creation-workflow; if any are missed, agents will encounter broken links
+    affected_scs: [SC-29]
+    resolution: Exhaustive grep for "pr-creation-workflow" across .opencode/ before deletion
+
+  - issue: Skill-not-found errors for agents with cached skill lists
+    severity: medium
+    description: Agents that cached available_skills before deletion may still try to dispatch pr-creation-workflow
+    affected_scs: [SC-13]
+    resolution: Session boundary handles cache invalidation; no code change needed
+
+  - issue: closing-keywords.md dispatch string mismatch
+    severity: high
+    description: If dispatch string is updated in some files but not others, sub-agents will get wrong task reference
+    affected_scs: [SC-14, SC-29]
+    resolution: Update ALL "execute closing-keywords from pr-creation-workflow" to "execute closing-keywords from git-workflow-pr" in one pass

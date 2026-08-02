@@ -1,7 +1,7 @@
 sc_count: 12
 scs:
   - id: SC-1
-    description: approval-gate-scope/SKILL.md content merged into approval-gate/SKILL.md with all sections preserved
+    description: approval-gate-scope/SKILL.md content merged into approval-gate/SKILL.md with all 4 section groups (routing metadata, scope model, bug discovery protocol, DISPATCH_GATE protocol) present with constituent subsections
     evidence_type: semantic
     plan_item: 1
   - id: SC-2

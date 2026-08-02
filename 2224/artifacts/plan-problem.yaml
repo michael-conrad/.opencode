@@ -1,0 +1,62 @@
+# plan-problem.yaml — Planning problem for spec #2224
+# Derived from dependency-contract.yaml
+domain: verify-plan-pipeline-move
+types:
+  - name: phase
+objects:
+  - name: phase-1
+    type: phase
+  - name: phase-2
+    type: phase
+  - name: phase-3
+    type: phase
+  - name: phase-4
+    type: phase
+  - name: phase-5
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute
+    params:
+      - name: p
+        type: phase
+    preconditions: []
+    effects:
+      - completed(p)
+  - name: execute-phase-2
+    params: []
+    preconditions:
+      - completed(phase-1)
+    effects:
+      - completed(phase-2)
+  - name: execute-phase-3
+    params: []
+    preconditions:
+      - completed(phase-1)
+    effects:
+      - completed(phase-3)
+  - name: execute-phase-4
+    params: []
+    preconditions:
+      - completed(phase-1)
+    effects:
+      - completed(phase-4)
+  - name: execute-phase-5
+    params: []
+    preconditions:
+      - completed(phase-2)
+      - completed(phase-3)
+      - completed(phase-4)
+    effects:
+      - completed(phase-5)
+init: []
+goals:
+  - completed(phase-1)
+  - completed(phase-2)
+  - completed(phase-3)
+  - completed(phase-4)
+  - completed(phase-5)

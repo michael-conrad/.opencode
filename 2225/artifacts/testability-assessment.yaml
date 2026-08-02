@@ -1,0 +1,95 @@
+# Testability assessment — Spec #2225
+# Generated: backfill from spec body
+
+scs:
+  - id: SC-1
+    evidence_type: string
+    verification_method: "grep for 'reference-dependent criteria' and 'Read [Text]' in task-card-structure-standards.md"
+    test_strategy: string
+    test_file: null
+    notes: "Simple grep — no behavioral test needed for a static rule addition"
+
+  - id: SC-2
+    evidence_type: string
+    verification_method: "grep for 'Read [spec-structure-standards.md]' and 'Read [cost-model-standards.md]' in create.md"
+    test_strategy: string
+    test_file: null
+    notes: "Simple grep — verify Read [Text] calls exist in create.md"
+
+  - id: SC-3
+    evidence_type: string
+    verification_method: "grep for 'Read [spec-structure-standards.md]' in validate.md; no hardcoded section list in entry criteria or procedure"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for dynamic loading + grep for absence of hardcoded list"
+
+  - id: SC-4
+    evidence_type: string
+    verification_method: "grep for 'SHALL' and 'dark-prose-007' and 'Documentation Sources' in validate.md procedure"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for format-level check keywords"
+
+  - id: SC-5
+    evidence_type: string
+    verification_method: "grep for prohibited patterns list in validate.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for determinism check procedure"
+
+  - id: SC-6
+    evidence_type: string
+    verification_method: "grep for 'compound' or 'conjunction' or 'multiple verification' in validate.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for compound-SC detection keywords"
+
+  - id: SC-7
+    evidence_type: string
+    verification_method: "grep for 'causal chain' or 'root cause' in validate.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for causal-chain verification keywords"
+
+  - id: SC-8
+    evidence_type: string
+    verification_method: "grep for lookup table mapping evidence types to verification methods in validate.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for evidence-type-to-method lookup table"
+
+  - id: SC-9
+    evidence_type: string
+    verification_method: "grep for 'blast-radius' or 'concern-map' or 'interface-compatibility' in validate.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for artifact cross-reference keywords"
+
+  - id: SC-10
+    evidence_type: string
+    verification_method: "grep for 'tiered escalation' or 'structural diagnostic' in spec-creation SKILL.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for tiered escalation documentation"
+
+  - id: SC-11
+    evidence_type: string
+    verification_method: "grep for 'copy' and 'artifacts' in create.md exit criteria"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for artifact copy in exit criteria"
+
+  - id: SC-12
+    evidence_type: string
+    verification_method: "grep for 'analytical_artifact_dir' and 'REMEDIATION_REQUIRED' in spec-audit-investigator.md"
+    test_strategy: string
+    test_file: null
+    notes: "Grep for artifact pre-flight gate keywords"
+
+summary:
+  total_scs: 12
+  behavioral: 0
+  semantic: 0
+  string: 12
+  structural: 0
+  notes: "All SCs are string-evidence — verifiable via grep. No behavioral or semantic tests needed for this spec."

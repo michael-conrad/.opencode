@@ -1,167 +1,239 @@
-# Blast Radius Analysis — Spec #2223
-# Generated: 2026-08-01
-# Mode: retroactive
+# blast-radius.yaml — Analytical Artifact for Spec #2223
+# Generated: retroactive backfill from spec body
+# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
 
-spec_title: "[SPEC] PR body template: standalone format, DiMo attestation, skill consolidation"
-issue_number: 2223
+spec: 2223
+artifact: blast-radius
+generated_at: 2026-08-02T03:17:00Z
+mode: retroactive
 
 affected_files:
   - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
     change_type: modify
-    impact: extract inline PR body template, update attestation language, update Data Flow table, update verification-evidence-check gate
-    phases: [1, 5]
+    impact: high
+    description: Extract inline PR body template to standalone reference file; replace dual-auditor attestation with DiMo 4-role chain; update verification-evidence-check gate to reference judgment.yaml; update Data Flow table to reference DiMo Chain Attestation
+    consumers:
+      - git-workflow-pr sub-agents executing pr-creation task
+      - PR body generation pipeline
 
   - path: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
     change_type: create
-    impact: new standalone PR body template file decoupled from API calls
-    phases: [1]
+    impact: high
+    description: NEW — standalone PR body template decoupled from platform-specific API calls; contains Summary, Outcome, Verification Attestation, VbC Table, DiMo Chain Attestation, Spec-Card-Mapped Commits sections, and closing keywords
+    consumers:
+      - create-pr.md (both GitHub MCP and GitBucket CLI sections)
+      - PR body generation sub-agents
 
   - path: .opencode/skills/git-workflow-pr/reference/closing-keywords.md
     change_type: move
-    impact: preserved from pr-creation-workflow/reference/ to git-workflow-pr/reference/
-    phases: [2]
+    impact: medium
+    description: MOVED from .opencode/skills/pr-creation-workflow/reference/closing-keywords.md — preserved, not modified
+    consumers:
+      - PR body generation sub-agents
+      - closing keyword formatting
 
   - path: .opencode/skills/git-workflow-pr/SKILL.md
     change_type: modify
-    impact: replace Trigger Dispatch Table with Workflows section, fix description to agent-intent format, remove cross-ref to pr-creation-workflow
-    phases: [3, 6]
+    impact: high
+    description: Replace Trigger Dispatch Table and DISPATCH_GATE with Workflows section (5 workflows); add orchestrator inline authorization scope check; fix description to agent-intent format; remove cross-reference to pr-creation-workflow
+    consumers:
+      - orchestrator dispatching git-workflow-pr tasks
+      - skill() routing
 
   - path: .opencode/skills/pr-creation-workflow/
     change_type: delete
-    impact: entire skill directory deleted (SKILL.md + all task files)
-    phases: [2]
+    impact: high
+    description: DELETE entire directory — SKILL.md + all task files (pre-pr-checklist.md, sub-issue-collection.md, create.md, completion.md, operating-protocol.md, reference/closing-keywords.md)
+    consumers:
+      - skill() discovery (removed from available_skills)
+      - dispatch-table.yaml (removed entry)
+      - All cross-references to this skill
 
   - path: .opencode/skills/audit/SKILL.md
     change_type: modify
-    impact: add pr-body-audit task to Trigger Dispatch Table
-    phases: [4]
+    impact: medium
+    description: Add pr-body-audit task to Trigger Dispatch Table; add task entry in Tasks table
+    consumers:
+      - audit skill dispatchers
+      - PR body verification pipeline
 
   - path: .opencode/guidelines/000-critical-rules.md
     change_type: modify
-    impact: replace "dual-auditor" with "DiMo chain" (1 occurrence)
-    phases: [5]
+    impact: low
+    description: Update "dual-auditor FAIL" to "DiMo chain FAIL" (1 occurrence)
+    consumers:
+      - agent reading critical rules
 
   - path: .opencode/guidelines/250-dark-prose-reference.md
     change_type: modify
-    impact: replace "dual-auditor" with "DiMo chain" (2 occurrences)
-    phases: [5]
+    impact: low
+    description: Update "audit dual-auditor pipeline" to "audit DiMo chain pipeline" (2 occurrences)
+    consumers:
+      - agent reading dark prose reference
 
   - path: .opencode/guidelines/255-distribution-shifting-reference.md
     change_type: modify
-    impact: replace "dual-auditor" with "DiMo chain" (1 occurrence)
-    phases: [5]
+    impact: low
+    description: Update "audit dual-auditor pipeline" to "audit DiMo chain pipeline" (1 occurrence)
+    consumers:
+      - agent reading distribution shifting reference
 
   - path: .opencode/guidelines/257-procedural-discipline-reference.md
     change_type: modify
-    impact: replace "dual-auditor" with "DiMo chain" (1 occurrence)
-    phases: [5]
+    impact: low
+    description: Update "audit dual-auditor pipeline" to "audit DiMo chain pipeline" (1 occurrence)
+    consumers:
+      - agent reading procedural discipline reference
 
   - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
     change_type: modify
-    impact: replace "dual-auditor" with "DiMo chain" (1 occurrence)
-    phases: [5]
-
-cross_reference_files:
-  - path: .opencode/README.md
-    impact: references pr-creation-workflow in operations table — must be updated
-    phase: 6
-
-  - path: .opencode/CHANGELOG.md
-    impact: historical reference to pr-creation-workflow — preserved as-is (historical record)
+    impact: low
+    description: Update "dual-auditor dispatch" to "DiMo chain dispatch" (1 occurrence)
+    consumers:
+      - cleanup sub-agents
 
   - path: .opencode/dispatch-table.yaml
-    impact: references pr-creation-workflow in skill entries — must be updated
-    phase: 6
+    change_type: modify
+    impact: medium
+    description: Remove pr-creation-workflow entry from dispatch table
+    consumers:
+      - skill discovery routing
 
-  - path: .opencode/tests-v2/test-enforcement.sh
-    impact: FILE_SCENARIO_MAP entry for pr-creation-workflow — must be updated
-    phase: 6
+  - path: .opencode/README.md
+    change_type: modify
+    impact: low
+    description: Remove pr-creation-workflow from skill list
+    consumers:
+      - human readers of README
 
   - path: .opencode/.guidelines/registry.yaml
-    impact: references pr-creation-workflow SKILL.md path — must be updated
-    phase: 6
+    change_type: modify
+    impact: low
+    description: Remove pr-creation-workflow entry from registry
+    consumers:
+      - registry consumers
 
-  - path: .opencode/guidelines/010-approval-gate.md
-    impact: references pr-creation-workflow skill — must be updated
-    phase: 6
+  - path: .opencode/tests-v2/test-enforcement.sh
+    change_type: modify
+    impact: low
+    description: Remove or update pr-creation-workflow scenario mapping
+    consumers:
+      - test enforcement runner
 
   - path: .opencode/skills/approval-gate/SKILL.md
-    impact: references pr-creation-workflow in Cross-References — must be updated
-    phase: 6
+    change_type: modify
+    impact: low
+    description: Remove pr-creation-workflow from Cross-References skills list
+    consumers:
+      - approval-gate dispatchers
 
   - path: .opencode/skills/approval-gate-scope/SKILL.md
-    impact: references pr-creation-workflow in Cross-References — must be updated
-    phase: 6
+    change_type: modify
+    impact: low
+    description: Remove pr-creation-workflow from Cross-References skills list
+    consumers:
+      - approval-gate-scope dispatchers
 
   - path: .opencode/skills/git-workflow/SKILL.md
-    impact: references pr-creation-workflow in Cross-References — must be updated
-    phase: 6
-
-  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
-    impact: references pr-creation-workflow skill — must be updated
-    phase: 6
-
-  - path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
-    impact: references pr-creation-workflow in related skills — must be updated
-    phase: 6
-
-  - path: .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
-    impact: references pr-creation-workflow closing-keywords format — must be updated
-    phase: 6
-
-  - path: .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
-    impact: references pr-creation-workflow closing-keywords format — must be updated
-    phase: 6
-
-  - path: .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
-    impact: references pr-creation-workflow closing-keywords format — must be updated
-    phase: 6
-
-  - path: .opencode/skills/requesting-code-review/tasks/prepare.md
-    impact: references pr-creation-workflow closing-keywords format — must be updated
-    phase: 6
+    change_type: modify
+    impact: low
+    description: Remove pr-creation-workflow from Cross-References skills list
+    consumers:
+      - git-workflow dispatchers
 
   - path: .opencode/skills/writing-plans/reference/implementation-workflow.md
-    impact: references pr-creation-workflow in dispatch table — must be updated
-    phase: 6
+    change_type: modify
+    impact: low
+    description: Update create-pr dispatch reference from pr-creation-workflow to git-workflow-pr
+    consumers:
+      - writing-plans sub-agents
+
+  - path: .opencode/skills/requesting-code-review/tasks/prepare.md
+    change_type: modify
+    impact: low
+    description: Update closing-keywords reference from pr-creation-workflow to git-workflow-pr
+    consumers:
+      - review-prep sub-agents
+
+  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    change_type: modify
+    impact: low
+    description: Update pr-creation-workflow reference to git-workflow-pr
+    consumers:
+      - commit sub-agents
+
+  - path: .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+    change_type: modify
+    impact: low
+    description: Update closing-keywords reference from pr-creation-workflow to git-workflow-pr
+    consumers:
+      - pair-pr-creation sub-agents
+
+  - path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
+    change_type: modify
+    impact: low
+    description: Update pr-creation-workflow reference to git-workflow-pr
+    consumers:
+      - review-prep sub-agents
+
+  - path: .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+    change_type: modify
+    impact: low
+    description: Update closing-keywords reference from pr-creation-workflow to git-workflow-pr
+    consumers:
+      - report-url sub-agents
+
+  - path: .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+    change_type: modify
+    impact: low
+    description: Update closing-keywords reference from pr-creation-workflow to git-workflow-pr
+    consumers:
+      - provenance sub-agents
+
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    change_type: modify
+    impact: low
+    description: Update closing-keywords reference from pr-creation-workflow to git-workflow-pr (line 175)
+    consumers:
+      - create-pr sub-agents
+
+  - path: .opencode/guidelines/010-approval-gate.md
+    change_type: modify
+    impact: low
+    description: Update pr-creation-workflow reference in approval gate rules
+    consumers:
+      - agents reading approval gate rules
+
+  - path: .opencode/CHANGELOG.md
+    change_type: modify
+    impact: low
+    description: Historical reference — no change needed (documents past event)
+    consumers:
+      - changelog readers
 
   - path: .opencode/tests-v2/behaviors/fixtures/issues/2211/plan.md
-    impact: references pr-creation-workflow in dispatch list — must be updated
-    phase: 6
+    change_type: modify
+    impact: low
+    description: Update pr-creation-workflow references in test fixture plan
+    consumers:
+      - behavioral test fixtures
 
-  - path: .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
-    impact: self-referencing — will be deleted with directory
-    phase: 2
-
-  - path: .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
-    impact: self-referencing — will be deleted with directory
-    phase: 2
-
-  - path: .opencode/skills/pr-creation-workflow/tasks/create.md
-    impact: self-referencing — will be deleted with directory
-    phase: 2
-
-  - path: .opencode/skills/pr-creation-workflow/tasks/completion.md
-    impact: self-referencing — will be deleted with directory
-    phase: 2
-
-  - path: .opencode/skills/pr-creation-workflow/tasks/operating-protocol.md
-    impact: self-referencing — will be deleted with directory
-    phase: 2
-
-  - path: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
-    impact: will be moved to git-workflow-pr/reference/
-    phase: 2
+downstream_impact:
+  - Any agent that dispatches `skill({name: "pr-creation-workflow"})` will get a skill-not-found error after deletion
+  - Any agent that reads `pr-creation-workflow` cross-references will encounter broken links
+  - PR body generation will use standalone template instead of inline content
+  - PR body attestation will claim DiMo 4-role chain instead of dual-auditor cross-validation
+  - PR body audit will catch structural defects that previously went undetected
+  - Authorization scope check moves from a separate skill dispatch to orchestrator inline conditional
 
 risk_assessment:
-  high:
-    - Deleting pr-creation-workflow skill breaks all cross-references — must update 15+ files
-    - create-pr.md inline template extraction must preserve all 7 PR body sections
-    - git-workflow-pr SKILL.md structural rewrite (Trigger Dispatch Table → Workflows) changes orchestrator dispatch protocol
-  medium:
-    - Dual-auditor terminology changes across 5 files must be consistent
-    - closing-keywords.md move must preserve content exactly
-    - Audit skill Trigger Dispatch Table addition must follow existing format
-  low:
-    - New template file creation (no existing content to break)
-    - Description field format change (cosmetic)
+  highest_risk:
+    - Deleting pr-creation-workflow before all cross-references are updated (broken skill discovery)
+    - Template extraction missing a section that existed in the inline version (content loss)
+    - Stale dual-auditor references missed in grep (incomplete terminology update)
+    - closing-keywords.md lost during deletion (data loss)
+  mitigation:
+    - Update all cross-references before deleting the skill directory
+    - Verify template contains all required sections against spec SCs
+    - Run grep for "dual-auditor" and "pr-creation-workflow" across entire .opencode/ after changes
+    - Move closing-keywords.md before deleting the directory

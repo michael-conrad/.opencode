@@ -1,0 +1,18 @@
+spec_path: .opencode/.issues/2225/spec.md
+approval_status: approved
+sc_count: 12
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - All 9 referenced files in Documentation Sources and affected files sections exist in the codebase
+  - No missing files detected
+  - 5 phases identified from spec Traceability table
+  - All 12 SCs are string-evidence type — no behavioral or semantic tests required
+  - 4 cross-cutting concerns span multiple phases (dynamic loading, format conformance, artifact lifecycle, validate→revise loop quality)
+finding_summary: "Spec #2225 is approved with 12 SCs across 5 phases. All 7 analytical artifacts were MISSING and have been BACKFILLED from the spec body. All 9 referenced files exist in the codebase. All SCs are string-evidence type. 4 cross-cutting concerns identified. Artifact backfill complete — plan creation can proceed."
