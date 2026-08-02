@@ -1,0 +1,37 @@
+# Phase 2 — YAML Result Contract (SC-2)
+# Target: pre-work.md edge case section (~line 464-505)
+# Evidence type: structural
+
+phase: 2
+name: "YAML result contract"
+scs: [SC-2]
+items: [ITEM-2]
+skill: test-driven-development
+target: ".opencode/skills/git-workflow-branch/tasks/pre-work.md edge case section"
+depends_on: [1]
+
+steps:
+  - step: 5
+    action: RED
+    dispatch: "task(..., prompt: 'execute red task from test-driven-development')"
+    description: "Write failing test asserting no YAML result contract block exists in edge case section"
+    test: "grep 'status: already_implemented' .opencode/skills/git-workflow-branch/tasks/pre-work.md should fail (exit non-zero) — only the status enum from Phase 1 should match, not a YAML block"
+    scs: [SC-2]
+
+  - step: 6
+    action: GREEN
+    dispatch: "task(..., prompt: 'execute green task from test-driven-development')"
+    description: "Add YAML result contract block to edge case section (after 'Example Comment' section, before step 4) with status, issue, finding_summary"
+    scs: [SC-2]
+
+  - step: 7
+    action: VERIFY
+    dispatch: "task(..., prompt: 'execute verify task from verification-before-completion')"
+    description: "Verify SC-2: Read pre-work.md edge case section — confirm YAML block exists with `status: already_implemented` and fields (status, issue, finding_summary)"
+    scs: [SC-2]
+
+  - step: 8
+    action: COMMIT
+    dispatch: "(inline)"
+    description: "git add .opencode/skills/git-workflow-branch/tasks/pre-work.md && git commit -m 'Phase 2: Add YAML result contract block to edge case section'"
+    scs: [SC-2]

@@ -1,0 +1,37 @@
+# Phase 3 — Yield-Back Step (SC-3)
+# Target: pre-work.md edge case procedure (~line 503)
+# Evidence type: structural
+
+phase: 3
+name: "Yield-back step"
+scs: [SC-3]
+items: [ITEM-3]
+skill: test-driven-development
+target: ".opencode/skills/git-workflow-branch/tasks/pre-work.md edge case procedure"
+depends_on: []
+
+steps:
+  - step: 9
+    action: RED
+    dispatch: "task(..., prompt: 'execute red task from test-driven-development')"
+    description: "Write failing test asserting no yield-back step exists before HALT in edge case section"
+    test: "grep for yield-back step pattern — should fail (not yet present)"
+    scs: [SC-3]
+
+  - step: 10
+    action: GREEN
+    dispatch: "task(..., prompt: 'execute green task from test-driven-development')"
+    description: "Renumber step 4 (HALT) to step 5. Insert new step 4 before HALT: yield structured result contract with status, issue, finding_summary"
+    scs: [SC-3]
+
+  - step: 11
+    action: VERIFY
+    dispatch: "task(..., prompt: 'execute verify task from verification-before-completion')"
+    description: "Verify SC-3: Read pre-work.md edge case section — confirm yield-back step (checklist item) exists before the HALT step"
+    scs: [SC-3]
+
+  - step: 12
+    action: COMMIT
+    dispatch: "(inline)"
+    description: "git add .opencode/skills/git-workflow-branch/tasks/pre-work.md && git commit -m 'Phase 3: Add yield-back step before HALT in edge case procedure'"
+    scs: [SC-3]

@@ -1,0 +1,37 @@
+# Phase 1 — Status Enum (SC-1)
+# Target: pre-work.md yield-back section (~line 452-453)
+# Evidence type: string
+
+phase: 1
+name: "Status enum"
+scs: [SC-1]
+items: [ITEM-1]
+skill: test-driven-development
+target: ".opencode/skills/git-workflow-branch/tasks/pre-work.md yield-back section"
+depends_on: []
+
+steps:
+  - step: 1
+    action: RED
+    dispatch: "task(..., prompt: 'execute red task from test-driven-development')"
+    description: "Write failing grep test asserting status enum does NOT include already_implemented"
+    test: "grep 'status: success | failure | already_implemented' .opencode/skills/git-workflow-branch/tasks/pre-work.md should fail (exit non-zero)"
+    scs: [SC-1]
+
+  - step: 2
+    action: GREEN
+    dispatch: "task(..., prompt: 'execute green task from test-driven-development')"
+    description: "Edit pre-work.md yield-back section: change `status: success | failure` to `status: success | failure | already_implemented`"
+    scs: [SC-1]
+
+  - step: 3
+    action: VERIFY
+    dispatch: "task(..., prompt: 'execute verify task from verification-before-completion')"
+    description: "Verify SC-1: grep for `status: success | failure | already_implemented` in pre-work.md — must match"
+    scs: [SC-1]
+
+  - step: 4
+    action: COMMIT
+    dispatch: "(inline)"
+    description: "git add .opencode/skills/git-workflow-branch/tasks/pre-work.md && git commit -m 'Phase 1: Add already_implemented to yield-back contract status enum'"
+    scs: [SC-1]
