@@ -36,7 +36,6 @@ This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skil
 | "apply label" / "set approval label" | `apply-label` | `approval-gate-scope --task apply-label` | `sub-task` | {issue_number, authorization_scope} |
 | "revision revocation" / "spec revised" | `revision-revocation` | `approval-gate-scope --task revision-revocation` | `sub-task` | {spec_issue, plan_issue} |
 | "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `approval-gate-scope --task bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
-| "verify plan pipeline" / "check pipeline completeness" | `verify-plan-pipeline` | `approval-gate-scope --task verify-plan-pipeline` | `sub-task` | {issue_number} |
 | completion / workflow end | `completion` | `approval-gate-scope --task completion` | `sub-task` | {workflow_state} |
 | "release PR" / "release authorization" | `verify-authorization` | `approval-gate-scope --task verify-authorization` | `sub-task` | {issue_number, authorization_scope, is_release: true} |
 
@@ -60,7 +59,6 @@ This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skil
 | `apply-label` | `task(..., prompt: "execute apply-label from approval-gate-scope. Read \`approval-gate-scope/tasks/apply-label.md\` first")` |
 | `revision-revocation` | `task(..., prompt: "execute revision-revocation from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
 | `bug-discovery-protocol` | `task(..., prompt: "execute bug-discovery-protocol from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
-| `verify-plan-pipeline` | `task(..., prompt: "execute verify-plan-pipeline from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-plan-pipeline.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from approval-gate-scope. Read \`approval-gate-scope/tasks/completion.md\` first")` |
 
 ## DISPATCH_GATE — Orchestrator task() Prompt Protocol
