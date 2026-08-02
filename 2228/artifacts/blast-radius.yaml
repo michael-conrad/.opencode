@@ -1,0 +1,21 @@
+# Blast Radius — files/directories affected by this change
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+affected_files:
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    change_type: modify
+    sections_affected:
+      - yield-back contract (lines ~448-462)
+      - edge case section (lines ~464-505)
+    impact: Add `already_implemented` to status enum, add YAML result contract block, add yield-back step
+
+unchanged_files: []
+  # No other files are modified by this spec
+
+indirect_consumers:
+  - orchestrator routing (reads yield-back contract generically — no changes needed per spec §Not Included)
+  - approval-gate-scope verify-already-implemented task (separate concern per spec §Not Included)
+
+risk_level: low
+rationale: Single file change, additive only (no existing values removed), no behavioral enforcement tests needed per spec

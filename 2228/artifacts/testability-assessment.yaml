@@ -1,0 +1,37 @@
+# Testability Assessment — how each SC will be tested
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+sc_testability:
+  SC-1:
+    evidence_type: string
+    verification_method: Read pre-work.md yield-back section — grep for `status: success | failure | already_implemented`
+    test_type: content-verification (grep)
+    automation: grep pattern on pre-work.md
+    difficulty: trivial
+    notes: Single grep call confirms status enum includes new value
+
+  SC-2:
+    evidence_type: structural
+    verification_method: Read pre-work.md edge case section — confirm YAML block exists with `status: already_implemented`
+    test_type: content-verification (file read)
+    automation: Read pre-work.md and check for YAML block presence
+    difficulty: trivial
+    notes: Confirm YAML block structure matches spec §Requirements R3
+
+  SC-3:
+    evidence_type: structural
+    verification_method: Read pre-work.md edge case section — confirm yield-back step (checklist item) exists before the HALT step
+    test_type: content-verification (file read)
+    automation: Read pre-work.md and check checklist item ordering
+    difficulty: trivial
+    notes: Confirm yield-back step precedes HALT step in checklist
+
+behavioral_tests_required: false
+rationale: All SCs are structural/string — no behavioral enforcement tests needed per spec §Not Included. Changes are contract schema and YAML block presence, not agent behavior.
+
+test_risks:
+  - risk: grep pattern too narrow (e.g., whitespace differences)
+    mitigation: Use flexible pattern matching; verify by reading full section
+  - risk: YAML block indentation errors
+    mitigation: Verify YAML parses correctly; check indentation matches existing contract style

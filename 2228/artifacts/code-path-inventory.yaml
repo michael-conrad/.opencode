@@ -1,0 +1,42 @@
+# Code Path Inventory — code paths that will be modified
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+
+modification_points:
+  - location: yield-back contract block (~line 452-460)
+    current_content: |
+      status: success | failure
+    target_content: |
+      status: success | failure | already_implemented
+    sc: SC-1
+    item: ITEM-1
+
+  - location: edge case section (~line 464-505)
+    current_content: |
+      (no YAML result contract block exists)
+    target_content: |
+      Add YAML result contract block with:
+      ```yaml
+      status: already_implemented
+      issue: "<issue-number>"
+      finding_summary: "All proposed changes already present. No modifications needed."
+      ```
+    sc: SC-2
+    item: ITEM-2
+
+  - location: edge case section, before HALT step (~line 503)
+    current_content: |
+      - [ ] 4. **HALT after closing:**
+    target_content: |
+      - [ ] 4. **Yield result contract:**
+         - Yield structured result contract to orchestrator
+         - Include status, issue, finding_summary
+      - [ ] 5. **HALT after closing:**
+    sc: SC-3
+    item: ITEM-3
+
+unchanged_paths:
+  - orchestrator routing logic (no changes per spec §Not Included)
+  - approval-gate-scope verify-already-implemented task (separate concern)

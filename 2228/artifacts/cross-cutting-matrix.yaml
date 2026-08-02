@@ -1,0 +1,29 @@
+# Cross-Cutting Matrix — cross-cutting concerns
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+cross_cutting_concerns:
+  - concern: orchestrator contract parsing
+    impact: None — orchestrator already handles unknown status values as BLOCKED (safe degradation per spec §Edge Cases)
+    affected_scs: []
+    mitigation: No changes needed; existing generic routing handles new status value
+
+  - concern: backward compatibility
+    impact: None — `already_implemented` is additive; existing parsers continue with `success`/`failure`
+    affected_scs: [SC-1]
+    mitigation: Requirement R5 explicitly preserves existing status values
+
+  - concern: sub-agent behavior consistency
+    impact: All pre-work edge cases should yield structured contracts; currently only "already implemented" is addressed
+    affected_scs: [SC-2, SC-3]
+    mitigation: Pattern established here can be extended to future edge cases
+
+  - concern: testing and verification
+    impact: All SCs are structural/string — no behavioral enforcement tests needed per spec §Not Included
+    affected_scs: [SC-1, SC-2, SC-3]
+    mitigation: Verification via grep and file read per spec §Success Criteria
+
+no_cross_cutting_impact:
+  - approval-gate-scope (separate concern)
+  - orchestrator routing (generic, no changes needed)
+  - other task files (single file change only)

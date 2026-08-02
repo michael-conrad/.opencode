@@ -1,0 +1,48 @@
+# Analysis Summary — #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+# Generated: research phase of writing-plans
+# Source: spec.md + 7 analytical artifacts
+
+spec:
+  issue: 2228
+  title: "Add structured result contract to pre-work 'Already Implemented' edge case"
+  file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+  change_type: modify (single file, additive only)
+  risk_level: low
+
+success_criteria:
+  - id: SC-1
+    description: Yield-back contract status enum includes `already_implemented` alongside `success` and `failure`
+    evidence_type: string
+    verification: grep for `status: success | failure | already_implemented`
+    location: pre-work.md yield-back section (~line 452-453)
+
+  - id: SC-2
+    description: Edge case section contains a result contract YAML block with `status: already_implemented` and relevant fields
+    evidence_type: structural
+    verification: Read pre-work.md edge case section — confirm YAML block exists
+    location: pre-work.md edge case section (~line 464-505)
+
+  - id: SC-3
+    description: Edge case procedure includes a yield-back step before HALT that yields the result contract
+    evidence_type: structural
+    verification: Read pre-work.md edge case section — confirm yield-back step exists before HALT
+    location: pre-work.md edge case section (~line 503)
+
+items:
+  - id: ITEM-1
+    sc: SC-1
+    description: Add `already_implemented` to the yield-back contract status enum
+    location: pre-work.md yield-back section, status enum line
+
+  - id: ITEM-2
+    sc: SC-2
+    description: Add result contract YAML block to the edge case section
+    location: pre-work.md edge case section
+
+  - id: ITEM-3
+    sc: SC-3
+    description: Add yield-back step to the edge case procedure before HALT
+    location: pre-work.md edge case section, before HALT step
+
+behavioral_tests_required: false
+rationale: All SCs are structural/string — changes are contract schema and YAML block presence, not agent behavior.

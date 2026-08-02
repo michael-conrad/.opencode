@@ -1,0 +1,26 @@
+# Concern Map — concerns addressed by each SC
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+sc_concerns:
+  SC-1:
+    concern: yield-back contract completeness
+    description: The yield-back contract status enum must include `already_implemented` so the orchestrator can distinguish "already implemented" from silent failure
+    affected_component: pre-work.md yield-back section
+    evidence_type: string
+
+  SC-2:
+    concern: edge case structured output
+    description: The edge case section must contain a YAML result contract block so the sub-agent produces structured data before halting
+    affected_component: pre-work.md edge case section
+    evidence_type: structural
+
+  SC-3:
+    concern: edge case procedure completeness
+    description: The edge case procedure must include a yield-back step before HALT so the orchestrator receives the result contract
+    affected_component: pre-work.md edge case section
+    evidence_type: structural
+
+concern_dependencies:
+  - SC-1 must be implemented before SC-2 (status enum must exist before result contract references it)
+  - SC-2 and SC-3 are independent (YAML block and yield-back step can be added in any order)

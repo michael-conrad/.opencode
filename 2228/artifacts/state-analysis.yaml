@@ -1,0 +1,37 @@
+# State Analysis — state transitions
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+pre_change_state:
+  - component: pre-work.md yield-back contract
+    state: status enum limited to `success | failure`
+    behavior: Orchestrator cannot distinguish "already implemented" from silent failure
+
+  - component: pre-work.md edge case section
+    state: Procedural steps only (detect, skip branch, close issue, HALT) — no structured output
+    behavior: Sub-agent halts without yielding a result contract; orchestrator sees empty/null result
+
+post_change_state:
+  - component: pre-work.md yield-back contract
+    state: status enum includes `success | failure | already_implemented`
+    behavior: Orchestrator can parse `already_implemented` and route accordingly
+
+  - component: pre-work.md edge case section
+    state: Procedural steps include yield-back step before HALT with YAML result contract
+    behavior: Sub-agent yields structured contract before halting; orchestrator receives clear signal
+
+state_transitions:
+  - from: "orchestrator receives null/empty result from pre-work sub-agent"
+    to: "orchestrator receives `status: already_implemented` with issue and finding_summary"
+    trigger: Edge case detection in pre-work investigation
+    affected_scs: [SC-1, SC-2, SC-3]
+
+  - from: "sub-agent halts without yielding contract"
+    to: "sub-agent yields contract before HALT"
+    trigger: Yield-back step added to edge case procedure
+    affected_scs: [SC-3]
+
+no_state_change:
+  - orchestrator routing logic (unchanged — generic handler already processes result contracts)
+  - approval-gate-scope verify-already-implemented task (separate concern)
+  - Existing `success` and `failure` paths (unchanged per R5)

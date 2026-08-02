@@ -1,0 +1,27 @@
+# SC Summary — #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+# Generated: research phase of writing-plans
+
+scs:
+  - id: SC-1
+    description: Yield-back contract status enum includes `already_implemented`
+    evidence_type: string
+    phase: 1
+    item: ITEM-1
+    location: pre-work.md yield-back section (~line 452-453)
+    change: "status: success | failure" → "status: success | failure | already_implemented"
+
+  - id: SC-2
+    description: Edge case section contains a result contract YAML block
+    evidence_type: structural
+    phase: 2
+    item: ITEM-2
+    location: pre-work.md edge case section (~line 464-505)
+    change: Add YAML result contract block with status, issue, finding_summary
+
+  - id: SC-3
+    description: Edge case procedure includes a yield-back step before HALT
+    evidence_type: structural
+    phase: 3
+    item: ITEM-3
+    location: pre-work.md edge case section (~line 503)
+    change: Add yield-back step before HALT step

@@ -1,0 +1,82 @@
+# Dependency Contract — #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+schema_version: "1.0"
+issue: 2228
+
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+  phase_3_complete:
+    type: bool
+
+preconditions:
+  - "z3.BoolVal(True)"
+
+postconditions:
+  - "z3.BoolVal(True)"
+
+invariants:
+  # Phase 2 depends on Phase 1: Phase 2 cannot be complete unless Phase 1 is complete
+  - "z3.Implies(phase_2_complete, phase_1_complete)"
+  # Phase 3 is independent: no constraint needed (Phase 3 can complete without Phase 1 or Phase 2)
+  # Phase 1 is independent: no constraint needed (Phase 1 can complete without Phase 2 or Phase 3)
+
+phases:
+  - id: Phase 1
+    name: "Yield-back contract status enum"
+    scs: [SC-1]
+    depends_on: []
+    skill: test-driven-development
+    task: red → green → verify → commit-inline
+    description: "Add `already_implemented` to the yield-back contract status enum in pre-work.md yield-back section"
+
+  - id: Phase 2
+    name: "Edge case YAML result contract"
+    scs: [SC-2]
+    depends_on: [Phase 1]
+    skill: test-driven-development
+    task: red → green → verify → commit-inline
+    description: "Add YAML result contract block with `status: already_implemented` to the edge case section"
+
+  - id: Phase 3
+    name: "Edge case yield-back step"
+    scs: [SC-3]
+    depends_on: []
+    skill: test-driven-development
+    task: red → green → verify → commit-inline
+    description: "Add yield-back step to the edge case procedure before the HALT step (independent of Phase 1 and Phase 2)"
+
+post_implementation:
+  - id: post-1
+    name: "audit"
+    skill: audit
+    dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit...")'
+  - id: post-2
+    name: "z3-check"
+    skill: "(orchestrator)"
+    dispatch: '.opencode/tools/solve check --state-path ... --contract-path ...'
+  - id: post-3
+    name: "structural-checks"
+    skill: finishing-a-development-branch
+    dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'
+  - id: post-4
+    name: "pre-pr-gate"
+    skill: verification-before-completion
+    dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+  - id: post-5
+    name: "regression-check"
+    skill: test-driven-development
+    dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+  - id: post-6
+    name: "review-prep"
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr...")'
+  - id: post-7
+    name: "create-pr"
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute pr-creation from git-workflow-pr...")'
+  - id: post-8
+    name: "exec-summary"
+    skill: completion-core
+    dispatch: 'task(..., prompt: "execute completion task from completion-core")'

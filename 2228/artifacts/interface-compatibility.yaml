@@ -1,0 +1,35 @@
+# Interface Compatibility — interface changes
+# Generated: retroactive backfill from spec body
+# Spec: #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+
+interfaces:
+  - name: pre-work yield-back contract
+    type: YAML result contract
+    location: pre-work.md yield-back section
+    change: Add `already_implemented` to status enum
+    before: |
+      status: success | failure
+    after: |
+      status: success | failure | already_implemented
+    backward_compatible: true
+    consumers:
+      - orchestrator routing (generic contract handler)
+      - sub-agents reading yield-back contract spec
+    migration: None needed — additive change only
+
+  - name: pre-work edge case result contract
+    type: YAML result contract (new)
+    location: pre-work.md edge case section
+    change: New YAML block added to edge case procedure
+    schema: |
+      status: already_implemented
+      issue: "<issue-number>"
+      finding_summary: "<summary-text>"
+    consumers:
+      - orchestrator routing (receives this contract from sub-agent)
+    migration: None needed — new contract, no existing consumers to break
+
+unchanged_interfaces:
+  - approval-gate-scope verify-already-implemented task (separate concern, no interface change)
+  - orchestrator routing logic (no changes per spec §Not Included)
+  - Existing `success` and `failure` status values (unchanged per R5)

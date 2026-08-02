@@ -1,0 +1,124 @@
+# Research Artifact — #2228 — Add structured result contract to pre-work "Already Implemented" edge case
+# Generated: research phase of writing-plans
+# Source: spec.md + 7 analytical artifacts + pre-work.md source read + Z3 constraint solving
+
+phase_decomposition:
+  - id: Phase 1
+    name: "Yield-back contract status enum"
+    scs: [SC-1]
+    items: [ITEM-1]
+    skill: test-driven-development
+    task: red → green → verify → commit-inline
+    target: pre-work.md yield-back section (~line 452-453)
+    description: "Add `already_implemented` to the yield-back contract status enum"
+    evidence_type: string
+
+  - id: Phase 2
+    name: "Edge case YAML result contract"
+    scs: [SC-2]
+    items: [ITEM-2]
+    skill: test-driven-development
+    task: red → green → verify → commit-inline
+    target: pre-work.md edge case section (~line 464-505)
+    description: "Add YAML result contract block with `status: already_implemented` and fields (status, issue, finding_summary)"
+    evidence_type: structural
+
+  - id: Phase 3
+    name: "Edge case yield-back step"
+    scs: [SC-3]
+    items: [ITEM-3]
+    skill: test-driven-development
+    task: red → green → verify → commit-inline
+    target: pre-work.md edge case section (~line 503)
+    description: "Add yield-back step to the edge case procedure before the HALT step"
+    evidence_type: structural
+
+dependency_dag:
+  edges:
+    - from: Phase 1
+      to: Phase 2
+      reason: "Phase 2's YAML result contract references `status: already_implemented` which must exist in the status enum first"
+  independent:
+    - Phase 3: "Yield-back step is a procedural addition independent of the status enum and YAML block"
+    - Phase 1: "Status enum change is independent of both edge case additions"
+
+skill_task_assignments:
+  Phase 1:
+    - step: red
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      description: "Write failing grep test asserting status enum does NOT include already_implemented"
+    - step: green
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      description: "Add `already_implemented` to status enum in pre-work.md yield-back section"
+    - step: verify
+      skill: verification-before-completion
+      dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      description: "Verify SC-1: grep for `status: success | failure | already_implemented`"
+    - step: commit-inline
+      skill: "(orchestrator)"
+      dispatch: "git add .opencode/skills/git-workflow-branch/tasks/pre-work.md && git commit -m '...'"
+      description: "Commit Phase 1 changes"
+
+  Phase 2:
+    - step: red
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      description: "Write failing test asserting no YAML result contract block exists in edge case section"
+    - step: green
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      description: "Add YAML result contract block with status, issue, finding_summary to edge case section"
+    - step: verify
+      skill: verification-before-completion
+      dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      description: "Verify SC-2: confirm YAML block exists with `status: already_implemented`"
+    - step: commit-inline
+      skill: "(orchestrator)"
+      dispatch: "git add .opencode/skills/git-workflow-branch/tasks/pre-work.md && git commit -m '...'"
+      description: "Commit Phase 2 changes"
+
+  Phase 3:
+    - step: red
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      description: "Write failing test asserting no yield-back step exists before HALT in edge case section"
+    - step: green
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      description: "Add yield-back step before HALT step in edge case procedure"
+    - step: verify
+      skill: verification-before-completion
+      dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      description: "Verify SC-3: confirm yield-back step exists before HALT step"
+    - step: commit-inline
+      skill: "(orchestrator)"
+      dispatch: "git add .opencode/skills/git-workflow-branch/tasks/pre-work.md && git commit -m '...'"
+      description: "Commit Phase 3 changes"
+
+z3_results:
+  check:
+    status: SAT
+    preconditions: SAT
+    postconditions_and_invariants: SAT
+  model:
+    query: "z3.And(phase_1_complete, phase_2_complete, phase_3_complete)"
+    status: SAT
+    model:
+      phase_1_complete: true
+      phase_2_complete: true
+      phase_3_complete: true
+  prove:
+    theorem: "z3.Implies(phase_2_complete, phase_1_complete)"
+    status: VALID
+  plan_status: SOLVED_SATISFICING
+  rationale: "All three phases can complete simultaneously. Phase 2 depends on Phase 1. Phase 3 is independent. No contradictions."
+
+triplet_co_location:
+  status: PASS
+  details: "Each SC has its RED, GREEN, and COMMIT steps in the same phase. No triplet split detected."
+
+cross_phase_dependency:
+  status: PASS
+  details: "No RED test depends on SC output from a later phase. Phase 2 RED depends on Phase 1 GREEN (status enum must exist), but Phase 1 is earlier — this is a forward dependency, not a cross-phase violation."
