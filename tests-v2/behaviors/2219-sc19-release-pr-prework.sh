@@ -3,7 +3,7 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-19: Agent tasked with release PR dispatches pre-work before any submodule operations
+# SC-19: Agent tasked with release PR dispatches pre-work before any submodule operations; trunk-tip-verification is a sub-task dispatch within pre-work
 # RED phase: agent should proceed to submodule operations without dispatching pre-work
 # because the release PR pre-work gate hasn't been wired yet.
 

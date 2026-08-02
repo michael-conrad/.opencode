@@ -3,7 +3,7 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-1: orchestrator dispatches pre-work before file modification
+# SC-1: orchestrator dispatches pre-work before file modification; trunk-tip-verification is dispatched as sub-task within pre-work
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
