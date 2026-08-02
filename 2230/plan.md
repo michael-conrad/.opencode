@@ -39,12 +39,12 @@ phase_count: 6
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — Trunk-tip verification task | `git-workflow-branch` | `create-trunk-tip-verification` | `trunk-tip-verification.md` (new) | SC-1 | — |
-| 2 — Submodule divergence reference | `git-workflow-branch` | `extract-submodule-divergence` | `submodule-sync.md` (extract) | SC-2 | — |
-| 3 — Pre-work decomposition | `git-workflow-branch` | `refactor-pre-work` | `pre-work.md` (restructure) | SC-3a, SC-3b | 1, 2 |
-| 4 — Cross-reference updates | `git-workflow-branch` | `update-cross-references` | 15+ files | SC-4 | 3 |
-| 5 — Update existing tests | `test-driven-development` | `update-behavioral-tests` | 2 test files | SC-5 | 3 |
-| 6 — New behavioral test | `test-driven-development` | `add-behavioral-test` | `pre-work-decomposition.sh` (new) | SC-6 | 3 |
+| 1 — Trunk-tip verification task | `skill-creator` | `init` | `trunk-tip-verification.md` (new) | SC-1 | — |
+| 2 — Submodule divergence reference | `skill-creator` | `init` | `submodule-sync.md` (extract) | SC-2 | — |
+| 3 — Pre-work decomposition | `git-workflow-branch` | `pre-work` | `pre-work.md` (restructure) | SC-3a, SC-3b | 1, 2 |
+| 4 — Cross-reference updates | `git-workflow-branch` | `pre-work` | 15+ files | SC-4 | 3 |
+| 5 — Update existing tests | `test-driven-development` | `red` | 2 test files | SC-5 | 3 |
+| 6 — New behavioral test | `test-driven-development` | `red` | `pre-work-decomposition.sh` (new) | SC-6 | 3 |
 
 ---
 
@@ -54,8 +54,8 @@ phase_count: 6
 
 | Field | Value |
 |-------|-------|
-| Skill | `git-workflow-branch` |
-| Task | `create-trunk-tip-verification` |
+| Skill | `skill-creator` |
+| Task | `init` |
 | Target | `.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md` (new) |
 | SCs | SC-1 |
 | Depends On | — |
@@ -84,8 +84,8 @@ phase_count: 6
 
 | Field | Value |
 |-------|-------|
-| Skill | `git-workflow-branch` |
-| Task | `extract-submodule-divergence` |
+| Skill | `skill-creator` |
+| Task | `init` |
 | Target | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` (extract) |
 | SCs | SC-2 |
 | Depends On | — |
@@ -115,7 +115,7 @@ phase_count: 6
 | Field | Value |
 |-------|-------|
 | Skill | `git-workflow-branch` |
-| Task | `refactor-pre-work` |
+| Task | `pre-work` |
 | Target | `.opencode/skills/git-workflow-branch/tasks/pre-work.md` (restructure) |
 | SCs | SC-3a, SC-3b |
 | Depends On | 1, 2 |
@@ -146,7 +146,7 @@ phase_count: 6
 | Field | Value |
 |-------|-------|
 | Skill | `git-workflow-branch` |
-| Task | `update-cross-references` |
+| Task | `pre-work` |
 | Target | 15+ files with cross-references |
 | SCs | SC-4 |
 | Depends On | 3 |
@@ -176,7 +176,7 @@ phase_count: 6
 | Field | Value |
 |-------|-------|
 | Skill | `test-driven-development` |
-| Task | `update-behavioral-tests` |
+| Task | `red` |
 | Target | `.opencode/tests-v2/behaviors/trunk-tip-enforcement.sh`, `.opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh` |
 | SCs | SC-5 |
 | Depends On | 3 |
@@ -206,7 +206,7 @@ phase_count: 6
 | Field | Value |
 |-------|-------|
 | Skill | `test-driven-development` |
-| Task | `add-behavioral-test` |
+| Task | `red` |
 | Target | `.opencode/tests-v2/behaviors/pre-work-decomposition.sh` (new) |
 | SCs | SC-6 |
 | Depends On | 3 |
