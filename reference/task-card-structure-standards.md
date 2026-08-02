@@ -197,7 +197,28 @@ The discovery directive is routing metadata (which file to read), not preloading
 
 ---
 
-## 6. Cross-References
+## 7. Dynamic Loading
+
+Any task that validates against reference-dependent criteria MUST load those criteria dynamically via `Read [Text](path)` from the canonical reference document. Hardcoded inline lists that duplicate reference content are prohibited.
+
+This rule ensures that validation criteria stay synchronized with their authoritative source documents. When a reference document is updated, all tasks that validate against it automatically pick up the changes through the `Read [Text](path)` pattern — no manual synchronization needed.
+
+### Examples
+
+| Prohibited (hardcoded) | Required (dynamic) |
+|------------------------|-------------------|
+| `Required sections: Objective, Background, SCs, Requirements, Phases, Traceability` | `Read [spec-structure-standards.md](reference/spec-structure-standards.md) and load the required section inventory` |
+| `Evidence types: behavioral, semantic, string, structural` | `Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) and load the evidence type definitions` |
+
+### Enforcement
+
+- Spec-audit checks for hardcoded inline lists that duplicate reference content
+- Task reviews flag any validation step that hardcodes criteria instead of loading them dynamically
+- Violations are process-integrity defects (Tier 2 — HALT)
+
+---
+
+## 8. Cross-References
 
 - `reference/skill-card-description-standards.md` — Description field standards and persona framing
 - `reference/skill-card-schema.md` — SKILL.md frontmatter schema (binary constraints)
