@@ -65,7 +65,7 @@ The Summary section MUST be sourced from the issue ticket body that authorized t
 | **Summary** | Issue ticket body (spec/plan issue for this PR) | `issue-operations --task read-issue` on parent issue |
 | **Outcome** | Issue ticket body + implementation knowledge | Synthesized from issue body + changesets |
 | **VbC Table** | VbC verification report | `read {project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` |
-| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` |
+| **DiMo Chain Attestation** | Arbiter judgment result contract | `read {project_root}/tmp/{issue-N}/artifacts/judgment.yaml` |
 | **Tracking references** | Sub-issues from parent | `issue-operations --task read-sub-issues` on parent issue |
 
 ### Step 4.75: Verification-Evidence-Check Gate
@@ -76,7 +76,7 @@ The verification-evidence check is a gate, not a banner. A PR without evidence i
 
 1. Check `{project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` exists and contains PASS for all SCs
 2. Check `{project_root}/tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
-3. Check `{project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
+3. Check `{project_root}/tmp/{issue-N}/artifacts/judgment.yaml` exists and reports `overall_verdict: PASS` from the DiMo chain arbiter
 4. If any artifact is MISSING or reports FAIL: do NOT create a PR
 
 **Blocked State (Missing or Failing Verification Evidence):**
@@ -99,9 +99,9 @@ Status: BLOCKED
 Gate: verification-evidence-check
 Blockers:
   - [MISSING] {project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md — VbC table not found
-  - [FAIL] {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
-    SC-1: Auditor 1 PASS, Auditor 2 FAIL
-    Remediation: Re-audit SC-1 with fresh model pair
+  - [FAIL] {project_root}/tmp/{issue-N}/artifacts/judgment.yaml — DiMo chain arbiter reports FAIL
+    SC-1: Evaluator PASS, Arbiter FAIL
+    Remediation: Re-audit SC-1 with fresh DiMo chain
 remediation: "Run verification-before-completion --task verify, then audit before retrying PR creation"
 next_step: "remediate then re-audit"
 ```
