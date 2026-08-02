@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.2.0] - Unreleased
 
 ### Changed
+### Added
+
+- **Reduced approval-gate ceremony** (#2220) - Merged approval-gate-scope sub-skill into approval-gate dispatcher. Deleted 47 files across 7 subdirectories, created 3 flat task files (resolve-scope, apply-label, route), updated all cross-references. Single dispatcher entry point for all authorization operations.
+
 
 - **Implementation-workflow reference card as data catalog** (#2214) - Rewrote `skills/writing-plans/reference/implementation-workflow.md` as a pure data catalog. Removed all orchestrator-level routing sections (Persona, Worktree Mode, Mandatory Task Discipline, DISPATCH_GATE, Sub-Agent Routing, YAML frontmatter). Added 6 data tables: Pipeline Step Catalog, Trigger Dispatch Table, Per-Task Cycle, Gate Sequence, Coercion Rules, Artifact Retention. All 10 SCs verified PASS. All cross-references remain valid.
 
