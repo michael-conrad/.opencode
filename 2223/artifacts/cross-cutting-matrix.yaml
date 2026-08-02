@@ -1,0 +1,131 @@
+# Cross-Cutting Matrix — Spec #2223
+# Generated: 2026-08-01
+# Mode: retroactive
+
+phases:
+  - id: 1
+    name: Extract PR body template + update attestation + update gates
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+      - .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+
+  - id: 2
+    name: Delete pr-creation-workflow + preserve closing-keywords.md
+    scs: [SC-13, SC-14]
+    files:
+      - .opencode/skills/pr-creation-workflow/ (delete)
+      - .opencode/skills/git-workflow-pr/reference/closing-keywords.md
+
+  - id: 3
+    name: Add Workflows section to git-workflow-pr SKILL.md + fix description
+    scs: [SC-15, SC-16, SC-17, SC-18, SC-19]
+    files:
+      - .opencode/skills/git-workflow-pr/SKILL.md
+
+  - id: 4
+    name: Add pr-body-audit task to audit skill
+    scs: [SC-20, SC-21]
+    files:
+      - .opencode/skills/audit/SKILL.md
+
+  - id: 5
+    name: Update stale dual-auditor terminology
+    scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
+    files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/guidelines/250-dark-prose-reference.md
+      - .opencode/guidelines/255-distribution-shifting-reference.md
+      - .opencode/guidelines/257-procedural-discipline-reference.md
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+
+  - id: 6
+    name: Update cross-references
+    scs: [SC-29, SC-30]
+    files:
+      - .opencode/README.md
+      - .opencode/dispatch-table.yaml
+      - .opencode/tests-v2/test-enforcement.sh
+      - .opencode/.guidelines/registry.yaml
+      - .opencode/guidelines/010-approval-gate.md
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/skills/approval-gate-scope/SKILL.md
+      - .opencode/skills/git-workflow/SKILL.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/git-workflow-pr/SKILL.md
+      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+      - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+      - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+      - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+      - .opencode/skills/requesting-code-review/tasks/prepare.md
+      - .opencode/skills/writing-plans/reference/implementation-workflow.md
+      - .opencode/tests-v2/behaviors/fixtures/issues/2211/plan.md
+
+cross_cutting_concerns:
+  - concern: Attestation language consistency
+    description: All "dual-auditor" references must use identical replacement text "DiMo chain"
+    affected_phases: [1, 5]
+    affected_scs: [SC-9, SC-10, SC-11, SC-22, SC-23, SC-24, SC-25, SC-26]
+    risk: Inconsistent replacement text across 6 files (create-pr.md + 5 guideline/task files)
+    mitigation: Use grep to verify zero remaining "dual-auditor" occurrences after Phase 5
+
+  - concern: create-pr.md edit coordination
+    description: Phase 1 and Phase 5 both modify create-pr.md — template extraction and attestation updates
+    affected_phases: [1, 5]
+    affected_scs: [SC-1 through SC-12, SC-27, SC-28]
+    risk: Sequential edits to same file must not conflict; Phase 5 attestation changes in create-pr.md must be coordinated with Phase 1 template extraction
+    mitigation: Apply all create-pr.md changes in Phase 1 (template extraction + attestation + gate updates) to avoid Phase 5 re-edit
+
+  - concern: pr-creation-workflow deletion timing
+    description: Cross-references must be updated before or simultaneously with directory deletion
+    affected_phases: [2, 6]
+    affected_scs: [SC-13, SC-29, SC-30]
+    risk: Deleting directory before updating cross-references breaks grep-based verification; updating cross-references before deletion leaves dangling references
+    mitigation: Update all cross-references first (Phase 6), then delete directory (Phase 2), or coordinate as single atomic change
+
+  - concern: closing-keywords.md move integrity
+    description: File content must be preserved exactly during move
+    affected_phases: [2]
+    affected_scs: [SC-14]
+    risk: Content corruption during copy-then-delete sequence
+    mitigation: Verify checksum or content match before deleting source
+
+  - concern: git-workflow-pr SKILL.md structural rewrite
+    description: Trigger Dispatch Table → Workflows section changes orchestrator dispatch protocol
+    affected_phases: [3]
+    affected_scs: [SC-15, SC-16, SC-17, SC-18, SC-19]
+    risk: All consumers of git-workflow-pr must understand new dispatch protocol
+    mitigation: Verify all task files that reference git-workflow-pr dispatch are compatible with Workflows section format
+
+  - concern: Audit skill Trigger Dispatch Table format
+    description: New pr-body-audit task entry must follow existing table format
+    affected_phases: [4]
+    affected_scs: [SC-20]
+    risk: Format mismatch breaks automated table parsing
+    mitigation: Match existing row format exactly (User says / Context | Task | Dispatch | Context passed)
+
+dependency_chain:
+  - from_phase: 1
+    to_phase: 2
+    reason: Template must exist before pr-creation-workflow can be deleted (closing-keywords.md move depends on knowing target path)
+    type: soft
+
+  - from_phase: 2
+    to_phase: 3
+    reason: pr-creation-workflow must be deleted before git-workflow-pr can absorb its authorization check
+    type: hard
+
+  - from_phase: 3
+    to_phase: 4
+    reason: git-workflow-pr must have Workflows section before audit skill can verify PR body conformance
+    type: soft
+
+  - from_phase: 5
+    to_phase: 1
+    reason: Phase 5 attestation changes in create-pr.md should be applied in Phase 1 to avoid re-edit
+    type: coordination
+
+  - from_phase: 6
+    to_phase: 2
+    reason: Cross-references should be updated before or simultaneously with directory deletion
+    type: coordination

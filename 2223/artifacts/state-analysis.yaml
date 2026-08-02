@@ -1,0 +1,120 @@
+# State Analysis — Spec #2223
+# Generated: 2026-08-01
+# Mode: retroactive
+
+initial_state:
+  - pr-creation-workflow skill exists at .opencode/skills/pr-creation-workflow/ with SKILL.md + 5 task files + 1 reference file
+  - git-workflow-pr SKILL.md has Trigger Dispatch Table + DISPATCH_GATE section
+  - git-workflow-pr description uses "Load via skill() when... Also load when... User phrases:..." format
+  - create-pr.md has inline PR body template inside github_create_pull_request() call
+  - create-pr.md Data Flow table references "Dual-Auditor Cross-Validation" → "audit-cross-validate-*.json"
+  - create-pr.md verification-evidence-check gate checks for audit-cross-validate-*.json
+  - 5 files contain "dual-auditor" terminology (000-critical-rules.md, 250-dark-prose-reference.md ×2, 255-distribution-shifting-reference.md, 257-procedural-discipline-reference.md, branch-cleanup.md)
+  - 15+ files contain cross-references to pr-creation-workflow
+  - audit skill SKILL.md has no pr-body-audit task entry
+  - closing-keywords.md lives at pr-creation-workflow/reference/
+
+final_state:
+  - pr-creation-workflow skill directory deleted entirely
+  - closing-keywords.md moved to .opencode/skills/git-workflow-pr/reference/
+  - git-workflow-pr SKILL.md has Workflows section (5 workflows) replacing Trigger Dispatch Table + DISPATCH_GATE
+  - git-workflow-pr description uses agent-intent format
+  - create-pr.md references standalone template at .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+  - create-pr.md Data Flow table references "DiMo Chain Attestation" → "judgment.yaml"
+  - create-pr.md verification-evidence-check gate checks for judgment.yaml with overall_verdict: PASS
+  - 0 files contain "dual-auditor" terminology (all replaced with "DiMo chain")
+  - 0 files contain cross-references to pr-creation-workflow
+  - audit skill SKILL.md has pr-body-audit task entry in Trigger Dispatch Table
+  - Standalone template file exists at .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+
+state_transitions:
+  - phase: 1
+    entry_state:
+      - create-pr.md has inline template
+      - create-pr.md has stale attestation references
+      - create-pr.md has stale gate references
+      - No standalone template file exists
+    exit_state:
+      - create-pr.md references standalone template
+      - create-pr.md has DiMo attestation references
+      - create-pr.md has updated gate references
+      - Standalone template file exists at target path
+    verification: SC-1 through SC-12, SC-27, SC-28
+
+  - phase: 2
+    entry_state:
+      - pr-creation-workflow directory exists
+      - closing-keywords.md at pr-creation-workflow/reference/
+    exit_state:
+      - pr-creation-workflow directory deleted
+      - closing-keywords.md at git-workflow-pr/reference/
+    verification: SC-13, SC-14
+
+  - phase: 3
+    entry_state:
+      - git-workflow-pr SKILL.md has Trigger Dispatch Table + DISPATCH_GATE
+      - git-workflow-pr description uses old format
+    exit_state:
+      - git-workflow-pr SKILL.md has Workflows section (5 workflows)
+      - git-workflow-pr description uses agent-intent format
+    verification: SC-15, SC-16, SC-17, SC-18, SC-19
+
+  - phase: 4
+    entry_state:
+      - audit skill SKILL.md has no pr-body-audit task
+    exit_state:
+      - audit skill SKILL.md has pr-body-audit task entry
+    verification: SC-20, SC-21
+
+  - phase: 5
+    entry_state:
+      - 5 files contain "dual-auditor" (6 total occurrences)
+    exit_state:
+      - 0 files contain "dual-auditor"
+    verification: SC-22, SC-23, SC-24, SC-25, SC-26
+
+  - phase: 6
+    entry_state:
+      - 15+ files contain cross-references to pr-creation-workflow
+    exit_state:
+      - 0 files contain cross-references to pr-creation-workflow
+    verification: SC-29, SC-30
+
+dependency_graph:
+  phases:
+    - id: 1
+      depends_on: []
+      blocking: [2, 5]
+    - id: 2
+      depends_on: [1]
+      blocking: [3]
+    - id: 3
+      depends_on: [2]
+      blocking: [4]
+    - id: 4
+      depends_on: [3]
+      blocking: []
+    - id: 5
+      depends_on: [1]
+      blocking: []
+    - id: 6
+      depends_on: [2]
+      blocking: []
+
+  notes:
+    - Phase 1 must complete before Phase 2 (template must exist before pr-creation-workflow can be deleted)
+    - Phase 2 must complete before Phase 3 (skill must be deleted before git-workflow-pr absorbs its auth check)
+    - Phase 3 must complete before Phase 4 (Workflows section must exist before audit can verify PR body)
+    - Phase 5 can run in parallel with Phases 2-4 (independent file changes)
+    - Phase 6 must run after Phase 2 (cross-references depend on knowing which references to update)
+    - Phase 1 and Phase 5 both modify create-pr.md — coordinate to avoid conflicts
+
+state_invariants:
+  - invariant: "No file may contain 'dual-auditor' after Phase 5"
+    checked_by: grep for "dual-auditor" across entire .opencode/ directory
+  - invariant: "No file may contain 'pr-creation-workflow' after Phase 6"
+    checked_by: grep for "pr-creation-workflow" across entire .opencode/ directory
+  - invariant: "Standalone template must contain all 7 required sections"
+    checked_by: grep for each section header in template file
+  - invariant: "Both platform sections must reference same template file"
+    checked_by: grep for template path in create-pr.md — must appear in both GitHub and GitBucket sections
