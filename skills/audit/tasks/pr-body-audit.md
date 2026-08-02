@@ -9,26 +9,14 @@ Verify a generated PR body conforms to the standalone PR body template at `.open
 - PR body text is available (from file, variable, or API response)
 - Template file exists at `.opencode/skills/git-workflow-pr/reference/pr-body-template.md`
 
-## Audit Checklist
+## Audit Procedure
 
-Verify each of the following 11 requirements. Record PASS/FAIL per item.
+1. Read the canonical PR body template: `Read [pr-body-template.md](skills/git-workflow-pr/reference/pr-body-template.md)`
+2. From the template, extract the list of required sections (headings) and content patterns
+3. For each required section and pattern from the template, check whether the PR body under audit contains it
+4. Record PASS/FAIL per requirement
 
-### Section Presence
-
-- [ ] a. **Summary section present** — PR body contains a `**Summary:**` section
-- [ ] b. **Outcome section present** — PR body contains an `**Outcome:**` section
-- [ ] c. **Verification Attestation section present** — PR body contains a `**Verification Attestation:**` section
-- [ ] d. **VbC Table section present** — PR body contains `**Detail: VbC Table**`
-- [ ] e. **DiMo Chain Attestation section present** — PR body contains `**Detail: DiMo Chain Attestation**`
-- [ ] f. **Spec-Card-Mapped Commits section present** — PR body contains `**Detail: Spec-Card-Mapped Commits**`
-- [ ] g. **Closing keywords present** — PR body contains at least one closing keyword line (`Fixes #`, `Closes #`, `Resolves #`, or `Implements #`)
-
-### Content Correctness
-
-- [ ] h. **DiMo Chain Attestation table uses correct columns** — Table header contains: Criterion, Evidence Type, Investigator, Validator, Evaluator, Arbiter
-- [ ] i. **Attestation line references DiMo 4-role chain** — Verification Attestation line contains "DiMo 4-role audit chain" (not "Dual independent auditors")
-- [ ] j. **Attestation line states no synthesis corrections** — Attestation line contains "no synthesis corrections were needed or applied"
-- [ ] k. **Byline present in correct format** — PR body ends with `🤖 Co-authored with AI: <AgentName> (<ModelId>)` or equivalent byline format
+The template is the single source of truth for what a valid PR body must contain. Do not hardcode requirements — derive them dynamically from the template file.
 
 ## Exit Criteria
 
