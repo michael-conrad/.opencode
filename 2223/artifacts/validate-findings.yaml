@@ -1,0 +1,87 @@
+# validate-findings.yaml — Structural Validation Results for Plan #2223
+# Generated: 2026-08-02T04:29:00Z
+# Plan: PR body template: standalone format, DiMo attestation, skill consolidation
+
+spec: 2223
+artifact: validate-findings
+generated_at: 2026-08-02T04:29:00Z
+
+overall_status: PASS
+
+categories:
+  - id: 1
+    name: "Structural validation"
+    status: PASS
+    checks:
+      - name: "Phase table has all required columns"
+        status: PASS
+        detail: "Phase table has columns: Phase, Skill, Task, Target, SCs, Depends On — all required columns present"
+      - name: "Each phase has procedure section with numbered steps"
+        status: PASS
+        detail: "All 8 phases have procedure sections with numbered steps (Phase 1: steps 1-5, Phase 2: steps 1-6, Phase 3: steps 1-4, Phase 4: steps 1-5, Phase 5: steps 1-7, Phase 6: steps 1-4, Phase 7: steps 1-6, Phase 8: steps 1-4)"
+      - name: "Exit criteria section exists with SC-to-phase mapping"
+        status: PASS
+        detail: "Exit criteria section exists with C1-C13. SC-to-phase mapping is in the phase table (SCs column). C10 references 'All 30 SCs mapped to at least one phase'"
+
+  - id: 2
+    name: "Skill+task validity"
+    status: PASS
+    checks:
+      - name: "All skill+task references match valid entries in implementation-workflow reference card"
+        status: PASS
+        detail: "All 8 phases use test-driven-development with tasks red, green. Both 'red' (execute red task from test-driven-development) and 'green' (execute green task from test-driven-development) are valid entries in the implementation-workflow reference card"
+
+  - id: 3
+    name: "SC coverage"
+    status: PASS
+    checks:
+      - name: "Every SC from spec appears in at least one phase's exit criteria"
+        status: PASS
+        detail: "All 30 SCs (SC-1 through SC-30) are covered: SC-1,SC-12 in Phase 1; SC-2 through SC-11 in Phase 2; SC-27,SC-28 in Phase 3; SC-13,SC-14,SC-15 in Phase 4; SC-16,SC-17,SC-18,SC-19 in Phase 5; SC-20,SC-21 in Phase 6; SC-22 through SC-26 in Phase 7; SC-29,SC-30 in Phase 8"
+      - name: "Triplet split detection — no SC has RED/GREEN/COMMIT split across phases"
+        status: PASS
+        detail: "Each SC is fully contained within a single phase. No SC has its RED/GREEN/COMMIT steps split across phases"
+
+  - id: 4
+    name: "Concern separation"
+    status: PASS
+    checks:
+      - name: "Each phase addresses exactly one concern from concern-map artifact"
+        status: PASS
+        detail: "Phase 1→C-1 (template extraction), Phase 2→C-2 (DiMo attestation), Phase 3→C-3 (gate updates), Phase 4→C-4 (skill consolidation), Phase 5→C-5 (Workflows section), Phase 6→C-6 (PR body audit), Phase 7→C-7 (terminology update), Phase 8→C-8 (cross-reference cleanup)"
+      - name: "No two phases address the same concern"
+        status: PASS
+        detail: "Each concern maps to exactly one phase. No concern is addressed by multiple phases"
+
+  - id: 5
+    name: "DAG validation"
+    status: PASS
+    checks:
+      - name: "Dependency contract DAG has no cycles"
+        status: PASS
+        detail: "DAG edges: Phase1→Phase2, Phase1→Phase3, Phase1→Phase6, Phase2→Phase4, Phase2→Phase7, Phase4→Phase5, Phase4→Phase8. No cycles detected"
+      - name: "All phases reachable from start node"
+        status: PASS
+        detail: "Phase 1 is the start node (depends_on: []). All other phases (2-8) are reachable via transitive dependencies from Phase 1"
+      - name: "No orphan phases"
+        status: PASS
+        detail: "All 8 phases have at least one incoming or outgoing edge. Phase 1 has outgoing edges. Phases 2-8 have incoming edges"
+
+  - id: 6
+    name: "Holistic quality"
+    status: PASS
+    checks:
+      - name: "No TBD/TODO placeholders in plan body"
+        status: PASS
+        detail: "No TBD or TODO placeholders found in plan body"
+      - name: "All steps use checkbox format"
+        status: PASS
+        detail: "All 42 steps across 8 phases use `- [ ]` checkbox format"
+      - name: "Dispatch mode consistency"
+        status: PASS
+        detail: "All phases use test-driven-development with red/green tasks (clean-room dispatched steps). No inline steps mixed with dispatched steps"
+
+findings:
+  - severity: observation
+    category: 5
+    detail: "Solve output covers phases 1-6 only (plan_length: 6). Plan has 8 phases. Phases 7 and 8 extend beyond the solver-verified scope but introduce no cycles (Phase 7 depends on Phase 2, Phase 8 depends on Phase 4 — both in solver scope)"

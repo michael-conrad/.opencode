@@ -3,39 +3,51 @@ schema_version: "1.0"
 issue: 2223
 phases:
   - id: Phase 1
-    name: "Extract PR body template, update attestation, update gates"
-    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
+    name: "Extract PR body template to standalone file"
+    scs: [SC-1, SC-12]
     depends_on: []
     skill: test-driven-development
     task: full daisy-chain per SC
   - id: Phase 2
-    name: "Delete pr-creation-workflow skill, preserve closing-keywords.md"
-    scs: [SC-13, SC-14, SC-15]
+    name: "Update attestation to DiMo 4-role chain"
+    scs: [SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
     depends_on: [Phase 1]
     skill: test-driven-development
     task: full daisy-chain per SC
   - id: Phase 3
-    name: "Add Workflows section to git-workflow-pr SKILL.md, fix description"
-    scs: [SC-16, SC-17, SC-18, SC-19]
-    depends_on: [Phase 2]
+    name: "Update verification-evidence-check gate and Data Flow table"
+    scs: [SC-27, SC-28]
+    depends_on: [Phase 1]
     skill: test-driven-development
     task: full daisy-chain per SC
   - id: Phase 4
+    name: "Delete pr-creation-workflow skill, preserve closing-keywords.md"
+    scs: [SC-13, SC-14, SC-15]
+    depends_on: [Phase 2]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 5
+    name: "Add Workflows section to git-workflow-pr SKILL.md, fix description"
+    scs: [SC-16, SC-17, SC-18, SC-19]
+    depends_on: [Phase 4]
+    skill: test-driven-development
+    task: full daisy-chain per SC
+  - id: Phase 6
     name: "Add pr-body-audit task to audit skill"
     scs: [SC-20, SC-21]
     depends_on: [Phase 1]
     skill: test-driven-development
     task: full daisy-chain per SC
-  - id: Phase 5
+  - id: Phase 7
     name: "Update stale dual-auditor terminology across all affected files"
     scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
-    depends_on: [Phase 1]
+    depends_on: [Phase 2]
     skill: test-driven-development
     task: full daisy-chain per SC
-  - id: Phase 6
+  - id: Phase 8
     name: "Update cross-references"
     scs: [SC-29, SC-30]
-    depends_on: [Phase 2]
+    depends_on: [Phase 4]
     skill: test-driven-development
     task: full daisy-chain per SC
 post_implementation:

@@ -4,7 +4,7 @@ issue: 2223
 title: "PR body template: standalone format, DiMo attestation, skill consolidation"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 6
+phase_count: 8
 ---
 
 # Implementation Plan — #2223 — PR Body Template: Standalone Format, DiMo Attestation, Skill Consolidation
@@ -34,174 +34,113 @@ phase_count: 6
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — Extract PR body template, update attestation, update gates | `test-driven-development` | `red`, `green` | `pr-body-template.md`, `create-pr.md` | SC-1 through SC-12, SC-27, SC-28 | — |
-| 2 — Delete pr-creation-workflow skill, preserve closing-keywords.md | `test-driven-development` | `red`, `green` | `pr-creation-workflow/`, `closing-keywords.md` | SC-13, SC-14, SC-15 | 1 |
-| 3 — Add Workflows section to git-workflow-pr SKILL.md, fix description | `test-driven-development` | `red`, `green` | `git-workflow-pr/SKILL.md` | SC-16, SC-17, SC-18, SC-19 | 2 |
-| 4 — Add pr-body-audit task to audit skill | `test-driven-development` | `red`, `green` | `audit/SKILL.md` | SC-20, SC-21 | 1 |
-| 5 — Update stale dual-auditor terminology | `test-driven-development` | `red`, `green` | 5 files with "dual-auditor" | SC-22 through SC-26 | 1 |
-| 6 — Update cross-references | `test-driven-development` | `red`, `green` | Codebase-wide cross-refs | SC-29, SC-30 | 2 |
+| 1 — Extract PR body template to standalone file | `test-driven-development` | `red`, `green` | `pr-body-template.md`, `create-pr.md` | SC-1, SC-12 | — |
+| 2 — Update attestation to DiMo 4-role chain | `test-driven-development` | `red`, `green` | `pr-body-template.md` | SC-2 through SC-11 | 1 |
+| 3 — Update verification-evidence-check gate and Data Flow table | `test-driven-development` | `red`, `green` | `create-pr.md` | SC-27, SC-28 | 1 |
+| 4 — Delete pr-creation-workflow skill, preserve closing-keywords.md | `test-driven-development` | `red`, `green` | `pr-creation-workflow/`, `closing-keywords.md` | SC-13, SC-14, SC-15 | 2 |
+| 5 — Add Workflows section to git-workflow-pr SKILL.md, fix description | `test-driven-development` | `red`, `green` | `git-workflow-pr/SKILL.md` | SC-16, SC-17, SC-18, SC-19 | 4 |
+| 6 — Add pr-body-audit task to audit skill | `test-driven-development` | `red`, `green` | `audit/SKILL.md` | SC-20, SC-21 | 1 |
+| 7 — Update stale dual-auditor terminology | `test-driven-development` | `red`, `green` | 5 files with "dual-auditor" | SC-22 through SC-26 | 2 |
+| 8 — Update cross-references | `test-driven-development` | `red`, `green` | Codebase-wide cross-refs | SC-29, SC-30 | 4 |
 
 ---
 
 ## Phase Details
 
-### Phase 1 — Extract PR Body Template, Update Attestation, Update Gates
+### Phase 1 — Extract PR Body Template to Standalone File
 
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red`, `green` |
-| Target | `.opencode/skills/git-workflow-pr/reference/pr-body-template.md`, `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` |
-| SCs | SC-1 through SC-12, SC-27, SC-28 |
-| Depends On | — |
+- [ ] 1. Create `.opencode/skills/git-workflow-pr/reference/` directory if it does not exist.
+- [ ] 2. Extract the PR body template from `github_create_pull_request()` call in `create-pr.md` to standalone file at `.opencode/skills/git-workflow-pr/reference/pr-body-template.md`.
+- [ ] 3. Replace the inline template in `create-pr.md` with a reference to the standalone file (e.g., `Read [pr-body-template.md](reference/pr-body-template.md)`).
+- [ ] 4. Verify both platform sections (GitHub MCP, GitBucket CLI) in `create-pr.md` reference the same standalone template file.
+- [ ] 5. Verify SC-1 (file exists) and SC-12 (both sections reference same template).
 
-**Context:**
-```yaml
-template_path: ".opencode/skills/git-workflow-pr/reference/pr-body-template.md"
-create_pr_path: ".opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
-template_sections:
-  - Summary
-  - Outcome
-  - Verification Attestation
-  - "Detail: VbC Table"
-  - "Detail: DiMo Chain Attestation"
-  - "Detail: Spec-Card-Mapped Commits"
-  - closing keywords (Fixes #N / Implements #N)
-attestation_columns:
-  - Criterion
-  - Evidence Type
-  - Investigator
-  - Validator
-  - Evaluator
-  - Arbiter
-attestation_line: "The Arbiter accepted all Evaluator verdicts as final — no synthesis corrections were needed or applied"
-verification_attestation: "DiMo 4-role audit chain"
-sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
-```
+### Phase 2 — Update Attestation to DiMo 4-Role Chain
 
-### Phase 2 — Delete pr-creation-workflow Skill, Preserve closing-keywords.md
+- [ ] 1. Open `.opencode/skills/git-workflow-pr/reference/pr-body-template.md`.
+- [ ] 2. Replace "Dual-Auditor Cross-Validation" section header with "DiMo Chain Attestation".
+- [ ] 3. Replace attestation table columns from "Auditor 1 / Auditor 2" to "Criterion, Evidence Type, Investigator, Validator, Evaluator, Arbiter".
+- [ ] 4. Replace Verification Attestation line to reference "DiMo 4-role audit chain" instead of "Dual independent auditors".
+- [ ] 5. Add attestation line: "The Arbiter accepted all Evaluator verdicts as final — no synthesis corrections were needed or applied".
+- [ ] 6. Verify SC-2 through SC-11 pass.
 
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red`, `green` |
-| Target | `.opencode/skills/pr-creation-workflow/`, `.opencode/skills/git-workflow-pr/reference/closing-keywords.md` |
-| SCs | SC-13, SC-14, SC-15 |
-| Depends On | 1 |
+### Phase 3 — Update Verification-Evidence-Check Gate and Data Flow Table
 
-**Context:**
-```yaml
-delete_path: ".opencode/skills/pr-creation-workflow/"
-move_source: ".opencode/skills/pr-creation-workflow/reference/closing-keywords.md"
-move_target: ".opencode/skills/git-workflow-pr/reference/closing-keywords.md"
-sc_ids: [SC-13, SC-14, SC-15]
-```
+- [ ] 1. Open `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md`.
+- [ ] 2. Update verification-evidence-check gate to reference `judgment.yaml` with `overall_verdict: PASS` instead of `audit-cross-validate-*.json`.
+- [ ] 3. Update Data Flow table to reference "DiMo Chain Attestation → `judgment.yaml`" instead of "Dual-Auditor Cross-Validation → `audit-cross-validate-*.json`".
+- [ ] 4. Verify SC-27 and SC-28 pass.
 
-### Phase 3 — Add Workflows Section to git-workflow-pr SKILL.md, Fix Description
+### Phase 4 — Delete pr-creation-workflow Skill, Preserve closing-keywords.md
 
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red`, `green` |
-| Target | `.opencode/skills/git-workflow-pr/SKILL.md` |
-| SCs | SC-16, SC-17, SC-18, SC-19 |
-| Depends On | 2 |
+- [ ] 1. Copy `.opencode/skills/pr-creation-workflow/reference/closing-keywords.md` to `.opencode/skills/git-workflow-pr/reference/closing-keywords.md`.
+- [ ] 2. Verify the copied file matches the source content.
+- [ ] 3. Delete `.opencode/skills/pr-creation-workflow/` directory (SKILL.md + all task files).
+- [ ] 4. Verify SC-13 (directory deleted) and SC-14 (closing-keywords.md preserved at target).
+- [ ] 5. Add authorization scope check as orchestrator inline Step 1 in `git-workflow-pr` Workflows section (SC-15).
 
-**Context:**
-```yaml
-target_file: ".opencode/skills/git-workflow-pr/SKILL.md"
-workflows:
-  - "Create PR"
-  - "Prepare review"
-  - "Create pair mode PR"
-  - "Post-implementation"
-  - "Complete workflow"
-auth_check: "orchestrator inline authorization scope check (no task() call)"
-description_format: "agent-intent format — no 'Load via skill() when', 'Also load when', or 'User phrases:' patterns"
-sc_ids: [SC-16, SC-17, SC-18, SC-19]
-```
+### Phase 5 — Add Workflows Section to git-workflow-pr SKILL.md, Fix Description
 
-### Phase 4 — Add pr-body-audit Task to Audit Skill
+- [ ] 1. Open `.opencode/skills/git-workflow-pr/SKILL.md`.
+- [ ] 2. Replace `## Trigger Dispatch Table` and `## DISPATCH_GATE` sections with `## Workflows` section.
+- [ ] 3. Add 5 workflow entries: "Create PR", "Prepare review", "Create pair mode PR", "Post-implementation", "Complete workflow".
+- [ ] 4. Each workflow starts with orchestrator inline authorization scope check (no `task()` call).
+- [ ] 5. Update description field to use agent-intent format — no "Load via skill() when", "Also load when", or "User phrases:" patterns.
+- [ ] 6. Remove cross-reference to `pr-creation-workflow` from SKILL.md.
+- [ ] 7. Verify SC-16, SC-17, SC-18, SC-19 pass.
 
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red`, `green` |
-| Target | `.opencode/skills/audit/SKILL.md` |
-| SCs | SC-20, SC-21 |
-| Depends On | 1 |
+### Phase 6 — Add pr-body-audit Task to Audit Skill
 
-**Context:**
-```yaml
-target_file: ".opencode/skills/audit/SKILL.md"
-task_name: "pr-body-audit"
-verification_items:
-  - a: Summary section present
-  - b: Outcome section present
-  - c: Verification Attestation section present
-  - d: VbC Table section present
-  - e: DiMo Chain Attestation section present
-  - f: Spec-Card-Mapped Commits section present
-  - g: closing keywords present
-  - h: DiMo Chain Attestation table uses correct columns
-  - i: attestation line references DiMo 4-role chain
-  - j: attestation line states no synthesis corrections
-  - k: byline present in correct format
-sc_ids: [SC-20, SC-21]
-```
+- [ ] 1. Open `.opencode/skills/audit/SKILL.md`.
+- [ ] 2. Add `pr-body-audit` task entry to the Trigger Dispatch Table.
+- [ ] 3. Create task file at `.opencode/skills/audit/tasks/pr-body-audit.md` that verifies all 11 enumerated PR body requirements:
+  - [ ] a. Summary section present
+  - [ ] b. Outcome section present
+  - [ ] c. Verification Attestation section present
+  - [ ] d. VbC Table section present
+  - [ ] e. DiMo Chain Attestation section present
+  - [ ] f. Spec-Card-Mapped Commits section present
+  - [ ] g. Closing keywords present
+  - [ ] h. DiMo Chain Attestation table uses correct columns
+  - [ ] i. Attestation line references DiMo 4-role chain
+  - [ ] j. Attestation line states no synthesis corrections
+  - [ ] k. Byline present in correct format
+- [ ] 4. Verify SC-20 and SC-21 pass.
 
-### Phase 5 — Update Stale Dual-Auditor Terminology
+### Phase 7 — Update Stale Dual-Auditor Terminology
 
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red`, `green` |
-| Target | 5 files with "dual-auditor" references |
-| SCs | SC-22 through SC-26 |
-| Depends On | 1 |
+- [ ] 1. Open `.opencode/guidelines/000-critical-rules.md` and replace "dual-auditor" with "DiMo chain".
+- [ ] 2. Open `.opencode/guidelines/250-dark-prose-reference.md` and replace both "dual-auditor" occurrences with "DiMo chain".
+- [ ] 3. Open `.opencode/guidelines/255-distribution-shifting-reference.md` and replace "dual-auditor" with "DiMo chain".
+- [ ] 4. Open `.opencode/guidelines/257-procedural-discipline-reference.md` and replace "dual-auditor" with "DiMo chain".
+- [ ] 5. Open `.opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` and replace "dual-auditor" with "DiMo chain".
+- [ ] 6. Verify SC-22 through SC-26 pass (grep for "dual-auditor" returns zero in each file).
 
-**Context:**
-```yaml
-files:
-  - ".opencode/guidelines/000-critical-rules.md"
-  - ".opencode/guidelines/250-dark-prose-reference.md"
-  - ".opencode/guidelines/255-distribution-shifting-reference.md"
-  - ".opencode/guidelines/257-procedural-discipline-reference.md"
-  - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
-old_term: "dual-auditor"
-new_term: "DiMo chain"
-sc_ids: [SC-22, SC-23, SC-24, SC-25, SC-26]
-```
+### Phase 8 — Update Cross-References
 
-### Phase 6 — Update Cross-References
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red`, `green` |
-| Target | Codebase-wide cross-references to `pr-creation-workflow` |
-| SCs | SC-29, SC-30 |
-| Depends On | 2 |
-
-**Context:**
-```yaml
-search_term: "pr-creation-workflow"
-target_file: ".opencode/skills/git-workflow-pr/SKILL.md"
-sc_ids: [SC-29, SC-30]
-```
+- [ ] 1. Grep codebase for `pr-creation-workflow` to find all cross-references.
+- [ ] 2. For each match, update the reference or remove it.
+- [ ] 3. Verify SC-29 (grep for `pr-creation-workflow` returns zero results codebase-wide).
+- [ ] 4. Verify SC-30 (grep for `pr-creation-workflow` in `git-workflow-pr/SKILL.md` returns zero).
 
 ---
+
+## Lifecycle Events
+
+- `2026-08-02T04:30:00Z` — `plan_created` — Plan created with 8 phases, all using `test-driven-development` clean-room dispatch. Authorization scope: `for_pr`, PR strategy: `stacked`.
 
 ## Exit Criteria
 
 - [ ] C1. Plan index written to `.opencode/.issues/2223/plan.md` with frontmatter, phase table, and phase details
 - [ ] C2. Phase 1 file written to `.opencode/.issues/2223/plan-01-extract-template.md`
-- [ ] C3. Phase 2 file written to `.opencode/.issues/2223/plan-02-delete-skill.md`
-- [ ] C4. Phase 3 file written to `.opencode/.issues/2223/plan-03-workflows-section.md`
-- [ ] C5. Phase 4 file written to `.opencode/.issues/2223/plan-04-pr-body-audit.md`
-- [ ] C6. Phase 5 file written to `.opencode/.issues/2223/plan-05-terminology-update.md`
-- [ ] C7. Phase 6 file written to `.opencode/.issues/2223/plan-06-cross-references.md`
-- [ ] C8. All 30 SCs mapped to at least one phase
-- [ ] C9. No circular dependencies in the phase DAG
-- [ ] C10. Each item references exactly one SC-ID
-- [ ] C11. `spec-cleared` label applied to issue #2223
+- [ ] C3. Phase 2 file written to `.opencode/.issues/2223/plan-02-attestation-update.md`
+- [ ] C4. Phase 3 file written to `.opencode/.issues/2223/plan-03-gate-updates.md`
+- [ ] C5. Phase 4 file written to `.opencode/.issues/2223/plan-04-delete-skill.md`
+- [ ] C6. Phase 5 file written to `.opencode/.issues/2223/plan-05-workflows-section.md`
+- [ ] C7. Phase 6 file written to `.opencode/.issues/2223/plan-06-pr-body-audit.md`
+- [ ] C8. Phase 7 file written to `.opencode/.issues/2223/plan-07-terminology-update.md`
+- [ ] C9. Phase 8 file written to `.opencode/.issues/2223/plan-08-cross-references.md`
+- [ ] C10. All 30 SCs mapped to at least one phase
+- [ ] C11. No circular dependencies in the phase DAG
+- [ ] C12. Each item references exactly one SC-ID
+- [ ] C13. `spec-cleared` label applied to issue #2223

@@ -1,0 +1,19 @@
+# Solve output — Spec #2225
+# Generated: research task from writing-plans
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  model_query: SAT
+  check_preconditions: SAT
+  check_postconditions_invariants: SAT
+planner_result:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 5
+  plan:
+    - implement(phase-1)
+    - implement(phase-4)
+    - implement(phase-5)
+    - implement(phase-2)
+    - implement(phase-3)

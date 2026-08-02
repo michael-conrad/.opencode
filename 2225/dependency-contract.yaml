@@ -30,6 +30,8 @@ phases:
     name: "Add artifact pre-flight gate to spec-audit-investigator.md"
     scs: [SC-12]
     depends_on: []
+    orphan: true
+    orphan_reason: "Intentional per spec — independent safety net, no phase depends on it"
     skill: test-driven-development
     task: full daisy-chain per SC
 post_implementation:
