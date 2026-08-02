@@ -177,7 +177,7 @@ Read [pr-body-template.md](reference/pr-body-template.md) for the canonical PR b
 - **Outcome** section: What changed for stakeholders
 - **Verification Attestation**: Binary PASS language — no caveats, no justifications, no false-fail remediation language
 - **VbC Table**: ID, Criterion, Test, Result columns — Test column includes test-type annotations (structural, behavioral, semantic, string) per `080-code-standards.md` §Evidence Type Taxonomy
-- **Dual-Auditor Cross-Validation Table**: Criterion, Auditor 1, Auditor 2, Consensus columns
+- **DiMo Chain Attestation Table**: Criterion, Evidence Type, Investigator, Validator, Evaluator, Arbiter columns
 - **Spec-Card-Mapped Commits Table**: Commit, Issue, Spec Card, Description columns — maps each commit to the spec card it implements
 - `Fixes #N` or `Implements #N` annotations at bottom (informational — autoclose is inert for `<target>` merges)
 - **Cross-repo references:** When the issue is in a different repo than the PR, use `Fixes owner/repo#N` instead of `Fixes #N`

@@ -10,7 +10,7 @@
 
 ## Verification Attestation
 
-All success criteria verified PASS — exact-match against live evidence. Dual independent auditors from different model families returned consensus PASS on every criterion. No caveats. No qualifications. Every PASS is a binary exact match. This deliverable is ready for merge.
+All success criteria verified PASS — exact-match against live evidence. The DiMo 4-role audit chain (Investigator → Validator → Evaluator → Arbiter) returned consensus PASS on every criterion. No caveats. No qualifications. Every PASS is a binary exact match. The Arbiter accepted all Evaluator verdicts as final — no synthesis corrections were needed or applied. This deliverable is ready for merge.
 
 ## Detail: VbC Table
 
@@ -19,12 +19,12 @@ All success criteria verified PASS — exact-match against live evidence. Dual i
 | SC-1 | ... | structural: ... | PASS |
 | SC-2 | ... | behavioral: ... | PASS |
 
-## Detail: Dual-Auditor Cross-Validation
+## Detail: DiMo Chain Attestation
 
-| Criterion | Evidence Type | Auditor 1 | Auditor 2 | Consensus |
-|-----------|---------------|-----------|-----------|-----------|
-| SC-1 | PASS | PASS | PASS |
-| SC-2 | PASS | PASS | PASS |
+| Criterion | Evidence Type | Investigator | Validator | Evaluator | Arbiter |
+|-----------|---------------|-------------|-----------|-----------|---------|
+| SC-1 | behavioral | evidence.yaml | reasoning.yaml | PASS | PASS |
+| SC-2 | structural | evidence.yaml | reasoning.yaml | PASS | PASS |
 
 ## Detail: Spec-Card-Mapped Commits
 
