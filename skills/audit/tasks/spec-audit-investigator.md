@@ -62,6 +62,16 @@ remediation: "spec_local_dir is required for spec-audit-generator. The orchestra
 ```
 
 - [ ] 3. Verify `artifact_evidence_dir` is writable — create it if it does not exist
+- [ ] 4. Verify analytical artifact presence at `{analytical_artifact_dir}` (if provided in dispatch contract):
+  - Check that the directory exists and contains the expected artifact files (blast-radius.yaml, concern-map.yaml, interface-compatibility.yaml, testability-assessment.yaml)
+  - If the directory is missing or empty, return `REMEDIATION_REQUIRED`:
+    ```yaml
+    status: REMEDIATION_REQUIRED
+    error: MISSING_ANALYTICAL_ARTIFACTS
+    missing_dir: "{analytical_artifact_dir}"
+    remediation: "Analytical artifacts are required for spec audit. Dispatch backfill via writing-plans/tasks/backfill.md with mode: retroactive to generate missing artifacts."
+    ```
+  - If the directory exists but some expected files are missing, log warnings and continue with available artifacts
 
 ### Step 2: Load Spec Content
 

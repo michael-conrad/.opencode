@@ -171,6 +171,8 @@ git rebase origin/<target>
 
 A Summary sourced from the issue ticket through the issue-operations dispatcher is what correct attribution looks like. A free-formed summary means the reviewer cannot verify intent against the authorizing issue — the summary is an unverifiable assertion. Professional-grade PRs derive their Summary from the authorizing issue; bodies that fabricate it introduce scope the reviewer never approved.
 
+Read [pr-body-template.md](reference/pr-body-template.md) for the canonical PR body template structure. The template defines all required sections:
+
 - **Summary** section: 1-2 sentences describing stakeholder value (NOT implementation details) — sourced from issue body via `issue-operations --task read-issue`
 - **Outcome** section: What changed for stakeholders
 - **Verification Attestation**: Binary PASS language — no caveats, no justifications, no false-fail remediation language
