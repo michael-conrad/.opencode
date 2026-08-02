@@ -11,6 +11,8 @@ promoted_at: 2026-08-01T23:30:00Z
 promotion_type: retroactive_import
 last_sync: 2026-08-01T23:30:00Z
 author: michael-conrad
+approved: true
+authorization_scope: for_pr
 ---
 
 > **Full spec and artifacts: [`.opencode/.issues/2225/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2225)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.

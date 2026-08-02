@@ -11,6 +11,8 @@ promoted_at: 2026-08-02T02:04:17Z
 promotion_type: retroactive_import
 last_sync: 2026-08-02T02:37:17Z
 author: michael-conrad
+approved: true
+authorization_scope: for_pr
 ---
 
 ## Intent and Executive Summary
@@ -70,15 +72,15 @@ Standardize the PR body template as a standalone reference file decoupled from p
 
 ## Cost Frame
 
-| SC ID | Cost Frame |
-|-------|------------|
-| SC-1 through SC-12 | Low — file creation and text replacement in a single file |
-| SC-13, SC-14 | Low — directory deletion and file move |
-| SC-15 through SC-19 | Medium — structural rewrite of SKILL.md with new section format |
-| SC-20, SC-21 | Medium — new task file creation and Trigger Dispatch Table entry |
-| SC-22 through SC-26 | Low — find-and-replace across 5 files |
-| SC-27, SC-28 | Low — text replacement in create-pr.md |
-| SC-29, SC-30 | Low — grep-and-remove cross-references |
+Implementation cost is measured in defect-discovery latency, not tool-call count.
+
+- **SC-1 through SC-12**: Extracting the template and updating attestation costs ~12 file-creation and text-replacement operations — each operation is a discovery point where a stale reference or wrong column header would be caught. Skipping any SC costs a structural defect in the template that propagates to every future PR body. Correctness is the only success metric — there is no score for speed.
+- **SC-13, SC-14**: Deleting the skill directory and moving closing-keywords.md costs 2 file-system operations — each operation is a discovery point where an orphaned cross-reference would surface. Skipping either SC costs a stale directory that breaks skill discovery or a lost reference file. Correctness is the only success metric — there is no score for speed.
+- **SC-15 through SC-19**: Rewriting the SKILL.md with Workflows section costs ~5 structural edits — each edit is a discovery point where a missing workflow or wrong section format would be caught. Skipping any SC costs a broken dispatch table that silently routes to the wrong workflow. Correctness is the only success metric — there is no score for speed.
+- **SC-20, SC-21**: Creating the pr-body-audit task and Trigger Dispatch Table entry costs ~2 file operations — each operation is a discovery point where a missing section check or wrong table entry would surface. Skipping either SC costs an unverifiable PR body pipeline where structural defects go undetected. Correctness is the only success metric — there is no score for speed.
+- **SC-22 through SC-26**: Replacing stale terminology across 5 files costs ~5 find-and-replace operations — each operation is a discovery point where a missed occurrence would be caught. Skipping any SC costs a stale "dual-auditor" reference that propagates fabrication risk. Correctness is the only success metric — there is no score for speed.
+- **SC-27, SC-28**: Updating the verification-evidence-check gate and Data Flow table costs ~2 text-replacement operations — each operation is a discovery point where a wrong file reference would be caught. Skipping either SC costs a broken gate that checks a non-existent file. Correctness is the only success metric — there is no score for speed.
+- **SC-29, SC-30**: Removing cross-references to pr-creation-workflow costs ~2 grep-and-remove operations — each operation is a discovery point where a stale cross-reference would surface. Skipping either SC costs a broken link that routes agents to a deleted skill. Correctness is the only success metric — there is no score for speed.
 
 ## Enforcement Gate
 
@@ -96,16 +98,16 @@ Standardize the PR body template as a standalone reference file decoupled from p
 
 | ID | Requirement |
 |----|-------------|
-| REQ-1 | PR body template must be a standalone reference file, not embedded in an API call |
-| REQ-2 | PR body must use DiMo chain attestation, not dual-auditor cross-validation |
-| REQ-3 | Both platform invocations (GitHub MCP, GitBucket CLI) must reference the same template |
-| REQ-4 | `pr-creation-workflow` skill must be removed; its authorization check folded into `git-workflow-pr` |
-| REQ-5 | `git-workflow-pr` must use Workflows section format replacing Trigger Dispatch Table |
-| REQ-6 | `git-workflow-pr` description must use agent-intent format |
-| REQ-7 | Audit skill must have a task to verify PR body template conformance |
-| REQ-8 | All stale "dual-auditor" terminology in the 5 files that contain it must be replaced with "DiMo chain" |
-| REQ-9 | Verification-evidence-check gate must reference `judgment.yaml` not `audit-cross-validate-*.json` |
-| REQ-10 | All cross-references to `pr-creation-workflow` must be updated or removed |
+| REQ-1 | PR body template SHALL be a standalone reference file, not embedded in an API call |
+| REQ-2 | PR body SHALL use DiMo chain attestation, not dual-auditor cross-validation |
+| REQ-3 | Both platform invocations (GitHub MCP, GitBucket CLI) SHALL reference the same template |
+| REQ-4 | `pr-creation-workflow` skill SHALL be removed; its authorization check folded into `git-workflow-pr` |
+| REQ-5 | `git-workflow-pr` SHALL use Workflows section format replacing Trigger Dispatch Table |
+| REQ-6 | `git-workflow-pr` description SHALL use agent-intent format |
+| REQ-7 | Audit skill SHALL have a task to verify PR body template conformance |
+| REQ-8 | All stale "dual-auditor" terminology in the 5 files that contain it SHALL be replaced with "DiMo chain" |
+| REQ-9 | Verification-evidence-check gate SHALL reference `judgment.yaml` not `audit-cross-validate-*.json` |
+| REQ-10 | All cross-references to `pr-creation-workflow` SHALL be updated or removed |
 
 ## Success Criteria
 
@@ -131,7 +133,7 @@ Standardize the PR body template as a standalone reference file decoupled from p
 | SC-18 | Each workflow starts with orchestrator inline authorization scope check (no task() call) | string | grep for "orchestrator inline" after each workflow heading |
 | SC-19 | `git-workflow-pr` description field uses agent-intent format — no "Load via skill() when", "Also load when", or "User phrases:" patterns | string | grep description field for absence of prohibited patterns |
 | SC-20 | `pr-body-audit` task added to audit skill Trigger Dispatch Table | string | grep for "pr-body-audit" in audit SKILL.md |
-| SC-21 | `pr-body-audit` task verifies PR body has correct sections, order, sourcing rules, attestation language, and byline | behavioral | opencode run with prompt to create PR body, verify audit catches structural defects |
+| SC-21 | `pr-body-audit` task verifies: (a) Summary section present, (b) Outcome section present, (c) Verification Attestation section present, (d) VbC Table section present, (e) DiMo Chain Attestation section present, (f) Spec-Card-Mapped Commits section present, (g) closing keywords present, (h) DiMo Chain Attestation table uses correct columns, (i) attestation line references DiMo 4-role chain, (j) attestation line states no synthesis corrections, (k) byline present in correct format | behavioral | opencode run with prompt to create PR body, verify audit catches structural defects |
 | SC-22 | `000-critical-rules.md` "dual-auditor" reference updated to "DiMo chain" | string | grep for absence of "dual-auditor" in file |
 | SC-23 | `250-dark-prose-reference.md` "dual-auditor" references (2 occurrences) updated to "DiMo chain" | string | grep for absence of "dual-auditor" in file |
 | SC-24 | `255-distribution-shifting-reference.md` "dual-auditor" reference updated to "DiMo chain" | string | grep for absence of "dual-auditor" in file |
@@ -166,7 +168,7 @@ Standardize the PR body template as a standalone reference file decoupled from p
 | 18 | SC-18 | Each workflow starts with orchestrator inline auth check |
 | 19 | SC-19 | git-workflow-pr description uses agent-intent format |
 | 20 | SC-20 | pr-body-audit task added to audit skill |
-| 21 | SC-21 | pr-body-audit verifies PR body template conformance |
+| 21 | SC-21 | pr-body-audit verifies all 11 enumerated PR body requirements (a) through (k) |
 | 22 | SC-22 | Update 000-critical-rules.md dual-auditor reference |
 | 23 | SC-23 | Update 250-dark-prose-reference.md dual-auditor references |
 | 24 | SC-24 | Update 255-distribution-shifting-reference.md dual-auditor reference |
@@ -217,7 +219,7 @@ Delete the entire `.opencode/skills/pr-creation-workflow/` directory. Preserve `
 Replace Trigger Dispatch Table and DISPATCH_GATE with a Workflows section containing 5 separate workflows. Each workflow starts with orchestrator inline authorization scope check (no task() call). Fix description field to use agent-intent format. Remove cross-reference to pr-creation-workflow.
 
 ### Phase 4 [REQ-7]: Add pr-body-audit task to audit skill
-Add `pr-body-audit` task to audit skill Trigger Dispatch Table. Task verifies PR body has correct sections, order, sourcing rules, attestation language, and byline.
+Add `pr-body-audit` task to audit skill Trigger Dispatch Table. Task verifies all 11 enumerated PR body requirements: (a) Summary section, (b) Outcome section, (c) Verification Attestation section, (d) VbC Table section, (e) DiMo Chain Attestation section, (f) Spec-Card-Mapped Commits section, (g) closing keywords, (h) correct DiMo Chain Attestation table columns, (i) DiMo 4-role chain attestation line, (j) no synthesis corrections attestation line, (k) byline in correct format.
 
 ### Phase 5 [REQ-8]: Update stale dual-auditor terminology across all affected files
 Update all stale "dual-auditor" references to "DiMo chain" across: 000-critical-rules.md, 250-dark-prose-reference.md, 255-distribution-shifting-reference.md, 257-procedural-discipline-reference.md, branch-cleanup.md.
@@ -247,3 +249,4 @@ Update all cross-references to `pr-creation-workflow` skill across the codebase.
 | 2026-08-01T22:39Z | Added Objective, Requirements, Traceability, Dependencies sections; added Verification Method column to SC table; decomposed SC-2 and SC-16 into individual SCs; added formal Traceability table mapping REQ → SC → Phase | Spec validation failures: missing sections, missing Verification Method column, compound SCs, no formal traceability | michael-conrad |
 | 2026-08-01T22:42Z | Removed SC-27 (verify.md does not contain "dual-auditor"), updated REQ-8 to specify 5 files, removed verify.md from Affected Files, updated Traceability REQ-8 to SC-22 through SC-26 only, updated SC count to 30, added REQ references to phase headings | Validation failures: non-existent SC-27, missing REQ references in phase headings | michael-conrad |
 | 2026-08-01T23:01Z | Replaced ## Objective and ## Problem with ## Intent and Executive Summary (6 required fields); added ## Documentation Sources, ## Cost Frame, ## Enforcement Gate, ## Not Included, ## Items, ## Edge Cases sections; added alternatives considered and edge case discovery to preamble | Spec-audit structural completeness: 8 FAIL criteria | michael-conrad |
+| 2026-08-02T03:15Z | SC-21: replaced open-ended wording with exact 11-item enumeration (a) through (k); REQ-1 through REQ-10: replaced lowercase 'must' with uppercase 'SHALL'; Cost Frame: replaced table format with per-SC dark-prose-007 pattern sentences | Re-audit found 3 remaining FAIL criteria | michael-conrad |
