@@ -281,4 +281,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Parent skill: `approval-gate`. Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `writing-plans`, `pre-analysis`, `audit`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`, `020-go-prohibitions.md`.
+Parent skill: `approval-gate`. Skills: `git-workflow`, `git-workflow-pr`, `issue-review`, `writing-plans`, `pre-analysis`, `audit`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`, `020-go-prohibitions.md`.

@@ -127,7 +127,6 @@ FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="pipeline-scoped-halt sub-i
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="post-merge-cleanup worktree-mandate"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="post-implementation-format"
 FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure"
-FILE_SCENARIO_MAP[".opencode/skills/pr-creation-workflow/"]="pr-creation-guard"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-bypass"
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="symptom-patch"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="read-secrets-in-output"

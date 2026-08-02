@@ -20,7 +20,7 @@ load_when: sub-agent
 | 6 | Human-only merge | approval-gate-005 | GitHub branch protection |
 | 7 | Silent halt — no prompts | — | `000-critical-rules.md` |
 | 8 | Search before halt (no spec found) | — | Read [Silent Halt](000-critical-rules.md) |
-| 9 | PR requires explicit instruction (except `for_pr` scope) | critical-rules-019 | `pr-creation-workflow` skill |
+| 9 | PR requires explicit instruction (except `for_pr` scope) | critical-rules-019 | `git-workflow-pr` skill |
 | 10 | Close issues only after PR merge confirmed (verified by check-pr Phase 2) | critical-rules-013 | `git-workflow cleanup` |
 | 11 | Spec-to-Plan cascade (auto-approve faithful plan) | approval-gate-001a-cascade | `approval-gate` skill |
 | 12 | Pipeline-scoped authorization with hard HALT at boundary | approval-gate-010/011 | `approval-gate` skill |

@@ -83,7 +83,7 @@ uv run pyright src/
 
 ## Related Issues
 
-Fixes #[issue-number]  <!-- Use owner/repo#N when issue is in a different repo than the PR. Format per pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow") -->
+Fixes #[issue-number]  <!-- Use owner/repo#N when issue is in a different repo than the PR. Format per git-workflow-pr → task("execute closing-keywords from git-workflow-pr") -->
 
 ---
 Co-authored with AI: <AgentName> (<ModelId>)

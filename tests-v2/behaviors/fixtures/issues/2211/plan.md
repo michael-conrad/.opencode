@@ -2,7 +2,7 @@
 plan_schema_version: 1
 issue: 2211
 title: "Update Auditor Task Files to Reference Canonical Reference Docs"
-dispatch: [audit, verification, test-driven-development, verification-before-completion, finishing-a-development-branch, git-workflow, pr-creation-workflow, completion-core]
+dispatch: [audit, verification, test-driven-development, verification-before-completion, finishing-a-development-branch, git-workflow, git-workflow-pr, completion-core]
 ---
 
 # Plan: Update Auditor Task Files to Reference Canonical Reference Docs
@@ -23,7 +23,7 @@ dispatch: [audit, verification, test-driven-development, verification-before-com
 - `.opencode/skills/audit/tasks/plan-fidelity-evaluator.md` — update Step 3, PF-7a
 - `.opencode/skills/audit/tasks/plan-fidelity-investigator.md` — update Steps 2-5
 
-**Dispatch:** `audit` (modify task files), `verification` (verify reference doc paths), `test-driven-development` (RED/GREEN cycles), `verification-before-completion` (verify SCs), `finishing-a-development-branch` (checklist), `git-workflow` (review-prep), `pr-creation-workflow` (create PR), `completion-core` (lifecycle event)
+**Dispatch:** `audit` (modify task files), `verification` (verify reference doc paths), `test-driven-development` (RED/GREEN cycles), `verification-before-completion` (verify SCs), `finishing-a-development-branch` (checklist), `git-workflow` (review-prep), `git-workflow-pr` (create PR), `completion-core` (lifecycle event)
 
 ## Blast Radius
 
@@ -474,7 +474,7 @@ None — SC-7 is phase-specific.
   - (**clean-room**) `task(..., prompt: "execute review-prep from git-workflow. Read \`git-workflow-pr/tasks/review-prep.md\` first")`
 
 - [ ] **Create PR.** Create the pull request with the completed changes.
-  - (**clean-room**) `task(..., prompt: "execute create from pr-creation-workflow. Read \`pr-creation-workflow/tasks/create.md\` first")`
+  - (**clean-room**) `task(..., prompt: "execute create from git-workflow-pr. Read \`git-workflow-pr/tasks/pr-creation/create.md\` first")`
 
 - [ ] **Completion.** Append lifecycle event and report executive summary.
   - (**clean-room**) `task(..., prompt: "execute completion from completion-core. Read \`completion-core/tasks/completion.md\` first")`

@@ -200,7 +200,7 @@ issue_pr_workflow:
     purpose: "Post-work: squash commits, push, create PR"
     
   - trigger: "PR timing questions"
-    skill: "pr-creation-workflow"
+    skill: "git-workflow-pr"
     purpose: "PR authorization boundary, when PRs can be created"
     
   - trigger: "Before PR creation"
@@ -367,7 +367,7 @@ automatic_invocation:
     trigger: "User requests PR creation ('create a PR', 'make a PR', 'push and create PR')"
     task: "pr-creation"
     
-  - skill: "pr-creation-workflow"
+  - skill: "git-workflow-pr"
     trigger: "PR timing questions"
     note: "Documents rules, NOT automatically invoked"
 

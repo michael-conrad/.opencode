@@ -173,4 +173,4 @@ Commit when:
 - [ ] 4. **HALT** — do NOT create PR
 - [ ] 5. **WAIT** for explicit "create a PR" instruction
 
-**See:** `pr-creation-workflow` skill for complete PR workflow.
+**See:** `git-workflow-pr` skill for complete PR workflow.

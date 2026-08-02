@@ -31,7 +31,7 @@
 | `pre-pr-gate` | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` — reads all SC verdicts, BLOCKs if any FAIL | Verify all SC verdicts before PR creation |
 | `regression-check` | test-driven-development | `task(..., prompt: "execute phase-4 task from test-driven-development")` | Final regression check before PR |
 | `review-prep` | git-workflow-pr | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` | Prepare PR review context |
-| `create-pr` | pr-creation-workflow | `task(..., prompt: "execute create task from pr-creation-workflow")` | Create the pull request |
+| `create-pr` | git-workflow-pr | `task(..., prompt: "execute create task from git-workflow-pr")` | Create the pull request |
 | `exec-summary` | completion-core | `task(..., prompt: "execute completion task from completion-core")` | Generate completion executive summary |
 
 ## Per-Task Cycle
