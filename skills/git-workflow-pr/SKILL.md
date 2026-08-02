@@ -15,35 +15,35 @@ Pull request management sub-skill of git-workflow. Handles PR creation, review p
 
 ### Create PR
 
-1. **Orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope or explicit developer instruction."
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope or explicit developer instruction."
 2. Dispatch `pr-creation` task via `task()` with `{branch_name, spec_summary, is_release}`.
 3. Sub-agent reads `tasks/pr-creation/` and executes PR creation procedure.
 4. Sub-agent returns result contract with PR URL and status.
 
 ### Prepare review
 
-1. **Orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Review preparation requires `for_pr` scope."
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Review preparation requires `for_pr` scope."
 2. Dispatch `review-prep` task via `task()` with `{branch_name}`.
 3. Sub-agent reads `tasks/review-prep/` and executes review preparation.
 4. Sub-agent returns result contract with readiness status.
 
 ### Create pair mode PR
 
-1. **Orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope."
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope."
 2. Dispatch `pair-pr-creation` task via `task()` with `{branch_name}`.
 3. Sub-agent reads `tasks/pair-pr-creation/` and executes pair mode PR creation.
 4. Sub-agent returns result contract with PR URL and status.
 
 ### Post-implementation
 
-1. **Orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_implementation`. If not authorized, HALT with "Post-implementation tasks require `for_implementation` scope."
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_implementation`. If not authorized, HALT with "Post-implementation tasks require `for_implementation` scope."
 2. Dispatch `post-implementation` task via `task()` with `{branch_name}`.
 3. Sub-agent reads `tasks/post-implementation/` and executes post-implementation tasks.
 4. Sub-agent returns result contract with completion status.
 
 ### Complete workflow
 
-1. **Orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Workflow completion requires `for_pr` scope."
+1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Workflow completion requires `for_pr` scope."
 2. Dispatch `completion` task via `task()` with `{workflow_state}`.
 3. Sub-agent reads `tasks/completion/` and executes completion procedure.
 4. Sub-agent returns result contract with final status.
