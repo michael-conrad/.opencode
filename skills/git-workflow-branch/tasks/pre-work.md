@@ -469,7 +469,7 @@ This task does NOT re-check authorization. Authorization was verified by `approv
 **After completion, this task yields:**
 
 ```yaml
-status: success | failure
+status: success | failure | already_implemented
 branch: "spec/<feature-name>" | "feature/<feature-name>"
 worktree_path: ".worktrees/<sanitized-branch-name>" | null
 direct_branch: true | false
@@ -519,7 +519,19 @@ Verified all proposed changes were already implemented. No modifications needed.
 **Outcome:** Spec requirements verified complete without additional changes.
 ```
 
-- [ ] 4. **HALT after closing:**
+- [ ] 4. **Yield back with `already_implemented` status before HALT:**
+
+   ```yaml
+   status: already_implemented
+   branch: null
+   worktree_path: null
+   direct_branch: false
+   base_hash: null
+   working_tree_clean: true
+   ready_for: null
+   ```
+
+- [ ] 5. **HALT after closing:**
    - No further steps needed
    - No worktree cleanup (no worktree was created)
 
