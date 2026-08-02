@@ -1,92 +1,101 @@
 ---
 name: approval-gate
-description: "Authorization gatekeeper dispatcher that routes to approval-gate-scope sub-skill. Load via skill() when the agent needs to verify authorization scope, apply approval labels, handle spec revision revocation, or execute bug discovery protocol. Also load when checking approval state, enforcing pipeline halt boundaries, or managing spec-to-plan cascade. Authorization verification is REQUIRED before any implementation. User phrases: verify authorization, check approval, apply label, approved, go, authorization, spec revision, bug discovery"
+description: "Authorization gatekeeper that verifies authorization scope, applies approval labels, and routes to downstream skills. Load via skill() when the agent needs to verify authorization scope, apply approval labels, handle spec revision revocation, or execute bug discovery protocol. Also load when checking approval state, enforcing pipeline halt boundaries, or managing spec-to-plan cascade. Authorization verification is REQUIRED before any implementation. User phrases: verify authorization, check approval, apply label, approved, go, authorization, spec revision, bug discovery"
 license: MIT
 compatibility: opencode
 provenance: AI-generated
 ---
 
-# Skill: approval-gate (Dispatcher)
+# Skill: approval-gate
 
 ## Overview
 
-This is a **dispatcher skill** that routes to the `approval-gate-scope` sub-skill. All original trigger phrases are preserved for backward compatibility. The sub-skill handles all authorization gatekeeping operations.
+Authorization gatekeeper that handles scope verification, label management, spec-to-plan cascade, revision revocation, and bug discovery protocol. This skill is a pure dispatcher — it routes to task files and does not perform inline work. All authorization verification is delegated to clean-room sub-agents that independently read issue state and comments.
 
-## Sub-Skill
+## Worktree Mode
 
-| Sub-Skill | Purpose | Task Count |
-|-----------|---------|------------|
-| `approval-gate-scope` | Authorization scope verification, label application, revision revocation, bug discovery protocol | 22 tasks + 6 enforcement files |
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 
-| User says / Context | Task | Dispatches To | Dispatch | Context passed |
-|---------------------|------|---------------|----------|----------------|
-| "verify authorization" / "check approval" | `verify-authorization` | `approval-gate-scope --task verify-authorization` | `sub-task` | {issue_number, authorization_scope} — see Workflows section |
-| "screen issue" / "triage" | `screen-issue` | `approval-gate-scope --task screen-issue` | `sub-task` | {issue_number} |
-| "pre-implementation analysis" | `pre-implementation-analysis` | `approval-gate-scope --task pre-implementation-analysis` | `sub-task` | {issue_numbers} |
-| "verify blockers" | `verify-blockers` | `approval-gate-scope --task verify-blockers` | `sub-task` | {issue_number} |
-| "verify closed issue" | `verify-closed-issue` | `approval-gate-scope --task verify-closed-issue` | `sub-task` | {issue_number} |
-| "spec-to-plan cascade" | `spec-to-plan-cascade` | `approval-gate-scope --task spec-to-plan-cascade` | `sub-task` | {spec_issue, plan_issue} |
-| "item decomposition check" | `item-decomposition-check` | `approval-gate-scope --task item-decomposition-check` | `sub-task` | {plan_issue} |
-| "auto-dispatch" | `auto-dispatch` | `approval-gate-scope --task auto-dispatch` | `sub-task` | {authorization_scope} |
-| "verify already implemented" | `verify-already-implemented` | `approval-gate-scope --task verify-already-implemented` | `sub-task` | {issue_number} |
-| "approval cascade" / "cascade authorization" | `approval-cascade` | `approval-gate-scope --task approval-cascade` | `sub-task` | {parent_issue, sub_issues} |
-| "pipeline halt boundary" / "check halt_at" | `check-halt-boundary` | `approval-gate-scope --task check-halt-boundary` | `sub-task` | {authorization_scope, halt_at, pipeline_phase} |
-| "apply label" / "set approval label" | `apply-label` | `approval-gate-scope --task apply-label` | `sub-task` | {issue_number, authorization_scope} |
-| "revision revocation" / "spec revised" | `revision-revocation` | `approval-gate-scope --task revision-revocation` | `sub-task` | {spec_issue, plan_issue} |
-| "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `approval-gate-scope --task bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
-| completion / workflow end | `completion` | `approval-gate-scope --task completion` | `sub-task` | {workflow_state} |
-| "release PR" / "release authorization" | `verify-authorization` | `approval-gate-scope --task verify-authorization` | `sub-task` | {issue_number, authorization_scope, is_release: true} |
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify authorization" / "check approval" / "approved" / "go" | `resolve-scope` | `sub-task` | {issue_number, authorization_scope} |
+| "apply label" / "set approval label" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |
+| "route" / "auto-dispatch" / "next step" | `route` | `sub-task` | {authorization_scope, halt_at, pipeline_phase} |
+| "spec revision" / "spec revised" | `resolve-scope` | `sub-task` | {issue_number, authorization_scope, is_revision: true} |
+| "bug discovery" / "bug found during implementation" | `resolve-scope` | `sub-task` | {issue_number, bug_description} |
+| "release PR" / "release authorization" | `resolve-scope` | `sub-task` | {issue_number, authorization_scope, is_release: true} |
 
 ## Invocation
 
-`skill({name: "approval-gate"})` — call the skill, then dispatch to the sub-skill:
+`skill({name: "approval-gate"})` — call the skill, then dispatch to the task:
 
 | Task | Canonical Dispatch String |
 |------|--------------------------|
-| `verify-authorization` | `task(..., prompt: "execute verify-authorization from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
-| `screen-issue` | `task(..., prompt: "execute screen-issue from approval-gate-scope. Read \`approval-gate-scope/tasks/screen-issue.md\` first")` |
-| `pre-implementation-analysis` | `task(..., prompt: "execute pre-implementation-analysis from approval-gate-scope. Read \`approval-gate-scope/tasks/pre-implementation-analysis.md\` first")` |
-| `verify-blockers` | `task(..., prompt: "execute verify-blockers from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-blockers.md\` first")` |
-| `verify-closed-issue` | `task(..., prompt: "execute verify-closed-issue from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-closed-issue.md\` first")` |
-| `spec-to-plan-cascade` | `task(..., prompt: "execute spec-to-plan-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/spec-to-plan-cascade.md\` first")` |
-| `item-decomposition-check` | `task(..., prompt: "execute item-decomposition-check from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/item-decomposition-check.md\` first")` |
-| `auto-dispatch` | `task(..., prompt: "execute auto-dispatch from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/auto-dispatch.md\` first")` |
-| `verify-already-implemented` | `task(..., prompt: "execute verify-already-implemented from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-already-implemented.md\` first")` |
-| `approval-cascade` | `task(..., prompt: "execute approval-cascade from approval-gate-scope. Read \`approval-gate-scope/tasks/verify-authorization/gap-fill-cascade.md\` first")` |
-| `check-halt-boundary` | `task(..., prompt: "execute check-halt-boundary from approval-gate-scope. Read \`approval-gate-scope/tasks/authorization-context.md\` first")` |
-| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate-scope. Read \`approval-gate-scope/tasks/apply-label.md\` first")` |
-| `revision-revocation` | `task(..., prompt: "execute revision-revocation from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
-| `bug-discovery-protocol` | `task(..., prompt: "execute bug-discovery-protocol from approval-gate-scope. Read \`approval-gate-scope/SKILL.md\` first — see Workflows section")` |
-| `completion` | `task(..., prompt: "execute completion from approval-gate-scope. Read \`approval-gate-scope/tasks/completion.md\` first")` |
+| `resolve-scope` | `task(..., prompt: "execute resolve-scope from approval-gate. Read \`approval-gate/tasks/resolve-scope.md\` first")` |
+| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate. Read \`approval-gate/tasks/apply-label.md\` first")` |
+| `route` | `task(..., prompt: "execute route from approval-gate. Read \`approval-gate/tasks/route.md\` first")` |
 
-## DISPATCH_GATE — Orchestrator task() Prompt Protocol
+## Persona
 
-The orchestrator MUST NOT preload execution context into `task()` prompts. Every sub-agent MUST independently discover scope and produce its own result contract.
+Authorization scope gatekeeper. Verifies scope, cascade, and halt boundaries by dispatching to sub-agents that independently read issue state and comments. An orchestrator that checks authorization inline instead of dispatching to a verification sub-agent has produced a self-certification, not an independent gate — every authorization claim carries the orchestrator's cached context, and the separation between the agent seeking approval and the agent verifying it is collapsed. Professional gatekeepers dispatch to independent verifiers. Inlining means the gate was never independent.
 
-### Forbidden in task() Prompts
+## Sub-Agent Routing
 
-| Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
-| Preloaded file paths | "Read the task file then execute step 1" | "execute verify-authorization from approval-gate-scope" |
-| Preloaded step sequences | "Step 1: check scope. Step 2: apply label." | "execute verify-authorization from approval-gate-scope" |
-| Preloaded expected outcomes | "Return { authorization_status }" | Let sub-agent define its own result contract |
-| Preloaded orchestrator reasoning | "The spec was just revised so we need to..." | Pure objective, no narrative |
+All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pipeline_phase }`. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/OVERFLOW) + task-specific fields.
 
-### Dispatch Context Contract
+## Workflows
 
-Every `task()` call MUST include only:
-- `worktree.path`
-- `github.owner`
-- `github.repo`
-- `authorization_scope`
-- `halt_at`
-- `pipeline_phase`
+### Verify authorization (3-step path)
 
-Plus skill-specific fields per the Trigger Dispatch Table above.
+1. **Resolve scope** — Parse authorization text and resolve scope/halt_at
+   - Prompt: `"Read \`approval-gate/tasks/resolve-scope.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-## Skill-Specific Procedures
+2. **Apply label** — Write authorization-scope label
+   - Prompt: `"Read \`approval-gate/tasks/apply-label.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+3. **Route** — Scope-aware auto-route to next skill
+   - Prompt: `"Read \`approval-gate/tasks/route.md\` and follow its instructions. Issue: {issue_number}."`
+   - Context: `{issue_number, issues_prefix, project_root}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+## Authorization Scope Model
+
+### Scope Values
+
+| Scope | HALT After | PR Strategy |
+|-------|-----------|-------------|
+| `for_review_prep` | review-prep | none |
+| `for_spec` | spec_created | none |
+| `for_plan` | plan_created | none |
+| `for_implementation` | verification_complete | none |
+| `for_pr` | pr_created | stacked |
+| `for_release_pr` | pr_created | stacked |
+| `for_analysis` | analysis_complete | none |
+
+### Verb-Prefix Parsing Table
+
+| Phrase | Scope |
+|--------|-------|
+| "approved #N" (no qualifier) | `for_analysis` |
+| "approved #N for spec" | `for_spec` |
+| "approved #N for plan" | `for_plan` |
+| "approved #N for implementation" | `for_implementation` |
+| "approved #N to PR" / "approved #N for PR" | `for_pr` |
+| "approved #N for release PR" | `for_release_pr` |
+| "approved #N for review" | `for_review_prep` |
 
 ### Spec-to-Plan Approval Cascade (Critical)
 
@@ -129,6 +138,40 @@ When `approval-gate-006` fires (spec revision revokes plan approval):
 2. HALT the current implementation
 3. Wait for developer decision — continue with current scope or switch to bug fix
 
+## DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+The orchestrator MUST NOT preload execution context into `task()` prompts. Every sub-agent MUST independently discover scope and produce its own result contract.
+
+### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read the task file then execute step 1" | "execute resolve-scope from approval-gate" |
+| Preloaded step sequences | "Step 1: check scope. Step 2: apply label." | "execute resolve-scope from approval-gate" |
+| Preloaded expected outcomes | "Return { authorization_status }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The spec was just revised so we need to..." | Pure objective, no narrative |
+
+### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pipeline_phase`
+
+Plus skill-specific fields per the Sub-Agent Routing section above.
+
+### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- The orchestrator MUST NOT read task file content — it only receives result contracts from sub-agents
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
 ## Cross-References
 
-Sub-skills: `approval-gate-scope`. Skills: `git-workflow`, `git-workflow-pr`, `issue-review`, `writing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
+Skills: `git-workflow`, `git-workflow-pr`, `issue-review`, `writing-plans`, `pre-analysis`, `audit`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`, `020-go-prohibitions.md`.

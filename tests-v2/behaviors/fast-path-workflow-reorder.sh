@@ -3,7 +3,7 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-6: The verify-authorization fast-path workflow in approval-gate-scope/SKILL.md
+# SC-6: The verify-authorization fast-path workflow in approval-gate/SKILL.md
 # is reordered to the record-then-verify pattern:
 #   scope-auto-resolve → record-authorization → verify-recording → apply-label → auto-dispatch
 #
