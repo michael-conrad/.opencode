@@ -28,4 +28,48 @@ if [ "$CURRENT_BRANCH" = "$TRUNK_BRANCH" ]; then
   exit 1
 fi
 
+# --- Gate 2: Stale submodule pointer check ---
+# Blocks commits where a submodule's local SHA != remote trunk tip SHA.
+# This prevents committing stale submodule pointers that reference old SHAs.
+SKIP_STALE_POINTER_CHECK="${SKIP_STALE_POINTER_CHECK:-}"
+if [ -z "$SKIP_STALE_POINTER_CHECK" ] && [ -f ".gitmodules" ]; then
+  DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+  [ -z "$DEFAULT_BRANCH" ] && DEFAULT_BRANCH="main"
+
+  # Fetch latest remote trunk tip
+  git fetch origin "$DEFAULT_BRANCH" 2>/dev/null || true
+
+  SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
+  for sp in $SUBMODULE_PATHS; do
+    if [ -n "$sp" ] && [ -d "$sp" ]; then
+      # Get the SHA that would be committed (staged gitlink entry, or current HEAD)
+      STAGED_SHA=$(git diff --cached "$sp" 2>/dev/null | grep "^+Subproject commit" | awk '{print $3}' || true)
+      if [ -z "$STAGED_SHA" ]; then
+        # Not staged — check working tree
+        STAGED_SHA=$(git submodule status "$sp" 2>/dev/null | awk '{print substr($1,2)}' || true)
+      fi
+
+      if [ -n "$STAGED_SHA" ]; then
+        # Get remote trunk tip SHA for this submodule
+        REMOTE_SHA=$(git -C "$sp" rev-parse "origin/$DEFAULT_BRANCH" 2>/dev/null || true)
+        if [ -n "$REMOTE_SHA" ] && [ "$STAGED_SHA" != "$REMOTE_SHA" ]; then
+          echo ""
+          echo ""
+          echo "BLOCKED: Submodule '$sp' has a stale pointer."
+          echo "  Staged SHA: $STAGED_SHA"
+          echo "  Remote trunk tip SHA: $REMOTE_SHA"
+          echo ""
+          echo "Submodule pointer commits MUST reference the remote trunk tip SHA."
+          echo "Update the submodule pointer to the trunk tip before committing."
+          echo ""
+          echo "To update: git submodule update --remote $sp"
+          echo "To override (deliberate action only): SKIP_STALE_POINTER_CHECK=1 git commit"
+          echo ""
+          exit 1
+        fi
+      fi
+    fi
+  done
+fi
+
 exit 0

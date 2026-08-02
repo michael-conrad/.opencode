@@ -479,6 +479,15 @@ behavior_run() {
             setup_story_fixtures "$attempt_workdir"
         fi
 
+        # Per-scenario fixture setup: source fixtures/setup/<scenario-name>.sh if it exists.
+        # Test scripts create these files to set up repo state (branches, remotes, etc.)
+        # before the model runs. The file is sourced with $attempt_workdir as the workdir.
+        SCENARIO_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup/${scenario_name}.sh"
+        if [ -f "$SCENARIO_SETUP" ]; then
+            source "$SCENARIO_SETUP" "$attempt_workdir"
+            echo "  [harness] per-scenario fixtures applied: ${scenario_name}.sh"
+        fi
+
         if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
             local bare_repo="$attempt_workdir/../origin.git"
             git init --bare "$bare_repo" 2>/dev/null || true

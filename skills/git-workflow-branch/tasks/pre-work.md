@@ -105,9 +105,9 @@ git rebase origin/"$DEFAULT_BRANCH"
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-- [ ] 1. **Submodule initialization check:** Run `git submodule status` to detect git repos: `REPO_PATHS=$(git submodule status | awk '{print $2}' 2>/dev/null)`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Run `git submodule status` to detect git repos: `REPO_PATHS=$(git submodule status | awk '{print $2}' 2>/dev/null)`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Step 3 — do NOT run submodule commands inline.
 
-- [ ] 2. **Submodule currency check:** Deferred to the sub-agent task() (Steps 2.7/3.5).
+- [ ] 2. **Submodule currency check:** Deferred to the sub-agent task() (Step 3).
 - [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to a sub-agent — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
@@ -122,7 +122,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 | `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
 | Task() sub-agent for submodule ops | Step 2.5/3 | Tier 1 mandate prerequisite | Submodules detected via `git submodule status` |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by Read [Skipping Git Pre-Check](guidelines/000-critical-rules.md) | Always |
-| `git push -u origin feature/N-xyz` | Post-Step 6 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
+| `git push -u origin feature/N-xyz` | Post-Step 7 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
 **Automatic classification conditions (ALL must be true):**
 
@@ -225,29 +225,16 @@ When submodules are detected via `git submodule status`, the dispatches a sub-ag
 - [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
 - [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
-- [ ] 8. Creates feature branch in each submodule from the tagged commit:
-     - For each submodule, check if a feature branch already exists: `git branch --list feature/<issue-number>-*`
-     - If branch exists: rebase it onto the tagged commit to pick up the latest trunk changes:
-       ```bash
-       git checkout feature/<issue-number>-<slug>
-       git rebase <parent-repo>/<issue-number>
-       ```
-       This ensures the submodule branch is up-to-date with the tagged SHA that the main repo now references. Do NOT skip — a stale submodule branch recreates the pointer mismatch.
-     - If branch does not exist: create feature branch from the tagged commit:
-       ```bash
-       git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>
-       ```
-     - Push the feature branch to the submodule remote: `git push -u origin feature/<issue-number>-<slug>`
-- [ ] 9. Reports results in its result contract
 
-**The orchestrator receives a result contract containing:**
+**Submodule feature branch creation is deferred to Step 5** (after the parent repo feature branch is created and the submodule pointer is committed). The sub-agent returns a partial result contract after Step 3, and the orchestrator dispatches a second sub-agent for Step 5.
+
+**The orchestrator receives a partial result contract after Step 3:**
 
 ```yaml
 status: DONE | BLOCKED
 submodules_found: <count>
 submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
-submodule_branches_created: <list of (path, branch_name, tag_used)>
-submodule_branches_skipped: <list of (path, branch_name, reason)>
+submodule_tags_created: <list of (path, tag_name)>
 ```
 
 **If `status: BLOCKED`** (e.g., submodule checkout fails): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
@@ -315,7 +302,39 @@ git status --porcelain
 # Report any uncommitted changes
 ```
 
-### Step 5: Verify Branch Environment
+### Step 5: Create Submodule Feature Branches
+
+**Submodule feature branch creation happens AFTER the parent repo feature branch is created and the submodule pointer is committed.** The submodule branches must reference the tagged commit (created in Step 3), not trunk tip, so the submodule branch is pinned to the same SHA the parent repo pointer references.
+
+**If no submodules were detected in Step 3:** Skip this step and proceed to Step 6.
+
+**If submodules were detected:** The orchestrator dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+
+- [ ] 1. For each submodule, checks if a feature branch already exists: `git branch --list feature/<issue-number>-*`
+- [ ] 2. If branch exists: rebase it onto the tagged commit to pick up the latest trunk changes:
+     ```bash
+     git checkout feature/<issue-number>-<slug>
+     git rebase <parent-repo>/<issue-number>
+     ```
+     This ensures the submodule branch is up-to-date with the tagged SHA that the main repo now references. Do NOT skip — a stale submodule branch recreates the pointer mismatch.
+- [ ] 3. If branch does not exist: create feature branch from the tagged commit:
+     ```bash
+     git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>
+     ```
+- [ ] 4. Push the feature branch to the submodule remote: `git push -u origin feature/<issue-number>-<slug>`
+- [ ] 5. Reports results in its result contract
+
+**The orchestrator receives a result contract containing:**
+
+```yaml
+status: DONE | BLOCKED
+submodule_branches_created: <list of (path, branch_name, tag_used)>
+submodule_branches_skipped: <list of (path, branch_name, reason)>
+```
+
+**If `status: BLOCKED`:** Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
+
+### Step 6: Verify Branch Environment
 
 **Before yielding back to orchestration layer, verify:**
 
@@ -341,7 +360,7 @@ echo $WORKTREE_PATH
 
 **If ANY check fails → STOP and report.**
 
-### Step 6: Report Ready
+### Step 7: Report Ready
 
 **Direct-branch mode:**
 
@@ -555,7 +574,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 ### Verification Procedure
 
-**After Step 5 (Verify Branch Environment), run these verifications and record evidence:**
+**After Step 6 (Verify Branch Environment), run these verifications and record evidence:**
 
 ```
 1. git branch --show-current → EVIDENCE: <branch-name>

@@ -147,6 +147,35 @@ If the test prompt references a spec, plan, or any issue content (e.g., `.issues
 
 **✅ REQUIRED:** Every test that references `.issues/{N}/` paths in its prompt MUST have corresponding fixture files. The prompt path MUST use `.issues/{N}/` (the root-level path injected by fixtures), NOT `.opencode/.issues/{N}/` (the submodule path which is not injected).
 
+### Step 0b: Create Per-Scenario Fixture Scripts (for repo state setup)
+
+If the test requires specific repo state (branches, remotes, tags, stashes) before the model runs, create a per-scenario fixture script in `fixtures/setup/`. The harness sources `fixtures/setup/<scenario-name>.sh` with the workdir path as the first argument, before `behavior_run` calls `opencode run`.
+
+**Fixture creation procedure:**
+
+1. Create the fixture script: `mkdir -p .opencode/tests-v2/behaviors/fixtures/setup/`
+2. Write a script that accepts `$1` as the workdir path and sets up the required state:
+   ```bash
+   # .opencode/tests-v2/behaviors/fixtures/setup/<scenario-name>.sh
+   # Per-scenario fixture: create branches for dead-branch detection test.
+   setup_dead_branches() {
+       local wd="$1"
+       git -C "$wd" checkout -b feature/dead-branch main 2>/dev/null || true
+       echo "# pointer change" >> "$wd/.gitmodules"
+       git -C "$wd" add .gitmodules 2>/dev/null || true
+       git -C "$wd" commit -m "chore: update pointer" 2>/dev/null || true
+       git -C "$wd" checkout main 2>/dev/null || true
+   }
+   setup_dead_branches "$1"
+   ```
+3. The harness auto-injects the fixture by sourcing `fixtures/setup/<scenario-name>.sh` with the workdir path.
+
+**Shared fixture code:** Place common setup logic in `fixtures/setup/<name>-common.sh` and source it from per-scenario scripts to avoid duplication.
+
+**🚫 FORBIDDEN:** Modifying `helpers.sh` to add scenario-specific flags (`BEHAVIOR_SETUP_*`). The harness is shared infrastructure — per-scenario state belongs in `fixtures/setup/`.
+
+**✅ REQUIRED:** Every test that requires specific repo state (branches, remotes, tags) MUST have a corresponding fixture script in `fixtures/setup/`. The script name MUST match the `SCENARIO_NAME` exactly.
+
 ### Step 1: Create the Script
 
 Copy `template.sh` to a new file with a descriptive name. Set `SCENARIO_NAME` (kebab-case) and `SCENARIO_PROMPT` (the message sent to the model).
