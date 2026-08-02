@@ -63,7 +63,9 @@ Check each SC for determinism violations. Prohibited patterns (loaded from spec-
 - Missing expected values: "should match" without specifying what
 - Implicit behavior: "should work correctly" without defining "correctly"
 - Either/or ambiguity: "or", "either", "alternatively" in Required Actions
-- Hedging language: "should", "may", "preferably", "ideally", "if possible", "as appropriate", "as needed", "consider", "optionally", "if desired", "TBD", "TODO", "to be determined"
+- Hedging language: "should", "may", "preferably", "ideally", "if possible", "as appropriate", "as needed", "consider", "optionally", "if desired", "TBD", "TODO", "to be determined", "use best judgment", "if time permits", "implementor's discretion"
+- Escape hatches: "or similar", "or equivalent", "and/or", "etc.", "and so on"
+- Ambiguity markers: vague references without clear targets, unspecified thresholds, undefined terms
 
 For each SC, record which prohibited patterns are present. Flag any SC with ≥1 prohibited pattern as FAIL.
 
