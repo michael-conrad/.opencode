@@ -3,6 +3,65 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: "> GitHub Issue: https://github.com/michael-conrad/.opencode/issues/2239\n\n\
+  # [SPEC] Remove redundant check-pr task, fix cleanup processing order\n\n## Problem\
+  \ Statement\n\nThe `git-workflow-cleanup` skill has a redundant `check-pr.md` task\
+  \ file that duplicates logic already present in `cleanup.md`. The `check-pr` task\
+  \ was created as a separate entry point for \"check pr\" trigger phrases, but `cleanup.md`\
+  \ already contains all the same logic (PR scan, verify-merge, issue-closure, branch-cleanup).\
+  \ This creates confusion about which task to dispatch and increases maintenance\
+  \ surface area.\n\nAdditionally, `cleanup.md` processes the parent repo before submodules\
+  \ in Step 3 (branch-cleanup) and Step 4 (post-cleanup dev-tip verification). The\
+  \ correct order is submodules first, then parent — because submodule cleanup is\
+  \ a prerequisite for parent repo state verification.\n\n## Success Criteria\n\n\
+  | ID | Description | Evidence Type | Documentation Sources |\n|----|-------------|---------------|----------------------|\n\
+  | SC-1 | `check-pr.md` SHALL be deleted from `.opencode/skills/git-workflow-cleanup/tasks/`\
+  \ | structural | `pre-spec-inspection.yaml` |\n| SC-2 | `git-workflow-cleanup/SKILL.md`\
+  \ SHALL have no `check-pr` references in its TDT or Tasks table | structural | `pre-spec-inspection.yaml`\
+  \ |\n| SC-3 | `git-workflow/SKILL.md` SHALL have no `check-pr` references in its\
+  \ TDT, Invocation section, or Sub-Skills table; the `git-workflow-cleanup` task\
+  \ count SHALL be 3 | structural | `pre-spec-inspection.yaml` |\n| SC-4 | `cleanup.md`\
+  \ SHALL have no `check-pr` references in its \"Related tasks\" or \"Automatic Cleanup\
+  \ Detection\" sections | structural | `pre-spec-inspection.yaml` |\n| SC-5 | `cleanup.md`\
+  \ Step 3 SHALL specify submodule-first iteration order for branch-cleanup | structural\
+  \ | `cleanup.md` current state |\n| SC-6 | `cleanup.md` Step 4 SHALL list submodules\
+  \ before parent in the repo verification list | structural | `cleanup.md` current\
+  \ state |\n| SC-7 | Dispatching \"check pr\" via `opencode run` SHALL route to `git-workflow-cleanup\
+  \ --task cleanup` (not `check-pr`) | behavioral | `git-workflow/SKILL.md` TDT |\n\
+  \n### Cost-Frame Statements\n\n- **SC-1 through SC-4 (remove check-pr):** A redundant\
+  \ task file with its own TDT entry and dispatch string is a maintenance trap. Every\
+  \ future agent that encounters \"check pr\" in the TDT must decide between two tasks\
+  \ that do the same thing — and every wrong decision is a defect. Removing the duplicate\
+  \ eliminates the decision branch entirely.\n- **SC-5 through SC-6 (fix processing\
+  \ order):** Processing parent before submodules means the parent repo's state verification\
+  \ runs against stale submodule state. The parent's `git status` and branch state\
+  \ depend on submodule state — verifying parent first produces false positives. Submodules-first\
+  \ is the only correct dependency order.\n- **SC-7 (behavioral backward compatibility):**\
+  \ A structural change that breaks agent dispatch is not a complete change. The behavioral\
+  \ test proves that \"check pr\" trigger phrases still work — they just route to\
+  \ the correct task now.\n\n## Approach\n\n### Phase 1: Remove check-pr.md and update\
+  \ references\n\n1. Delete `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md`\n\
+  2. Update `git-workflow-cleanup/SKILL.md`:\n   - Remove `check-pr` row from TDT\n\
+  \   - Remove `check-pr` row from Tasks table\n3. Update `git-workflow/SKILL.md`:\n\
+  \   - Remove `check-pr` row from TDT (row 7)\n   - Remove `check-pr` row from Invocation\
+  \ section (row 7)\n   - Update Sub-Skills table: `git-workflow-cleanup` task count\
+  \ from 4 to 3\n4. Update `cleanup.md`:\n   - Remove \"Related tasks\" reference\
+  \ to check-pr\n   - Remove \"Check PR\" Workflow subsection from \"Automatic Cleanup\
+  \ Detection\"\n   - Remove \"check pr\" / \"check prs\" from \"Entry triggers\"\
+  \ (these phrases are handled by git-workflow/SKILL.md TDT routing to cleanup)\n\n\
+  ### Phase 2: Fix cleanup processing order\n\n1. Update `cleanup.md` Step 3 (branch-cleanup):\
+  \ Change iteration order to process submodules before parent\n2. Update `cleanup.md`\
+  \ Step 4 (post-cleanup dev-tip verification): Change repo list to list submodules\
+  \ before parent\n\n## Affected Files\n\n| File | Change Type | Phase |\n|------|-------------|-------|\n\
+  | `.opencode/skills/git-workflow-cleanup/tasks/check-pr.md` | DELETE | 1 |\n| `.opencode/skills/git-workflow-cleanup/SKILL.md`\
+  \ | MODIFY (TDT, Tasks table) | 1 |\n| `.opencode/skills/git-workflow/SKILL.md`\
+  \ | MODIFY (TDT, Invocation, Sub-Skills) | 1 |\n| `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md`\
+  \ | MODIFY (remove check-pr refs) | 1 |\n| `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md`\
+  \ | MODIFY (Step 3, Step 4 order) | 2 |\n\n## Dependencies\n\n- Phase 1 and Phase\
+  \ 2 are independent — either can be implemented first\n- Within Phase 1: SC-1 (delete\
+  \ file) must precede SC-2/SC-3/SC-4 (update references)\n- SC-7 (behavioral verification)\
+  \ must be last\n\n## Open Questions\n\nNone.\n\n## Out of Scope\n\n- Changes to\
+  \ `pair-cleanup` task — not affected by this spec\n- Changes to `git-workflow-cleanup`\
+  \ task file count in any other location\n- Any changes outside the `.opencode` submodule\n"
 created_at: '2026-08-03T14:15:47+00:00'
-updated_at: '2026-08-03T14:15:47+00:00'
+updated_at: '2026-08-03T14:15:59+00:00'
