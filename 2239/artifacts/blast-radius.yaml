@@ -1,0 +1,26 @@
+spec_path: .opencode/.issues/2239/spec.md
+sc_count: 8
+affected_files:
+  - path: .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    change_type: DELETE
+    phase: 1
+    scs: [SC-1]
+    exists_in_codebase: true
+  - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+    change_type: MODIFY
+    phase: 1
+    scs: [SC-2]
+    exists_in_codebase: true
+  - path: .opencode/skills/git-workflow/SKILL.md
+    change_type: MODIFY
+    phase: 1
+    scs: [SC-3a, SC-3b]
+    exists_in_codebase: true
+  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    change_type: MODIFY
+    phase: 1, 2
+    scs: [SC-5, SC-6, SC-7]
+    exists_in_codebase: true
+files_outside_scope:
+  - .opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md
+  - .opencode/skills/git-workflow/SKILL.md (task count only)

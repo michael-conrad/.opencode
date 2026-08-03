@@ -1,0 +1,35 @@
+spec_path: .opencode/.issues/2239/spec.md
+cross_cutting_concerns:
+  - concern: file-deletion
+    scs: [SC-1]
+    spans_phases: false
+    phase: 1
+  - concern: reference-removal
+    scs: [SC-2, SC-3a, SC-3b, SC-5]
+    spans_phases: false
+    phase: 1
+    notes: Multiple files updated but all within same concern (removing check-pr references)
+  - concern: processing-order
+    scs: [SC-6, SC-7]
+    spans_phases: false
+    phase: 2
+    notes: Both SCs modify the same file (cleanup.md) in different steps
+  - concern: behavioral-verification
+    scs: [SC-8]
+    spans_phases: false
+    phase: post
+    notes: Depends on all other SCs; must run last
+scs_spanning_multiple_concerns: []
+scs_spanning_multiple_files:
+  - sc: SC-5
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    concern: reference-removal
+  - sc: SC-6
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    concern: processing-order
+  - sc: SC-7
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    concern: processing-order

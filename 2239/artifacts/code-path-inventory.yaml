@@ -1,0 +1,41 @@
+spec_path: .opencode/.issues/2239/spec.md
+code_paths:
+  - sc: SC-1
+    description: Delete check-pr.md file
+    paths:
+      - .opencode/skills/git-workflow-cleanup/tasks/check-pr.md
+    operations: [file-delete]
+  - sc: SC-2
+    description: Remove check-pr from git-workflow-cleanup/SKILL.md TDT and Tasks table
+    paths:
+      - .opencode/skills/git-workflow-cleanup/SKILL.md
+    operations: [tdt-row-remove, tasks-table-row-remove]
+  - sc: SC-3a
+    description: Remove check-pr references from git-workflow/SKILL.md TDT, Invocation, Sub-Skills
+    paths:
+      - .opencode/skills/git-workflow/SKILL.md
+    operations: [tdt-row-remove, invocation-row-remove, sub-skills-ref-remove]
+  - sc: SC-3b
+    description: Update git-workflow-cleanup task count from 4 to 3 in git-workflow/SKILL.md
+    paths:
+      - .opencode/skills/git-workflow/SKILL.md
+    operations: [task-count-update]
+  - sc: SC-5
+    description: Remove check-pr references from cleanup.md Related tasks and Automatic Cleanup Detection
+    paths:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    operations: [text-removal]
+  - sc: SC-6
+    description: Fix branch-cleanup iteration order to submodules-first in cleanup.md Step 3
+    paths:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    operations: [order-change]
+  - sc: SC-7
+    description: Fix verification repo list order to submodules-first in cleanup.md Step 4
+    paths:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    operations: [order-change]
+  - sc: SC-8
+    description: Verify behavioral backward compatibility of "check pr" dispatch routing
+    paths: []
+    operations: [behavioral-test]

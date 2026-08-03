@@ -1,0 +1,12 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  model: SAT
+  check: SAT
+planner:
+  engine: tamer
+  plan_length: 3
+  actions:
+    - execute_phase(phase1)
+    - execute_phase(phase2)
+    - execute_phase(post)

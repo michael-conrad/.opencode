@@ -1,0 +1,184 @@
+spec_path: .opencode/.issues/2239/spec.md
+phases:
+  - id: 1
+    name: Remove check-pr.md and update references
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3a
+      - SC-3b
+      - SC-5
+    items:
+      - sc: SC-1
+        description: Delete check-pr.md
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - sc: SC-2
+        description: Remove check-pr from git-workflow-cleanup/SKILL.md
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - sc: SC-3a
+        description: Remove check-pr from git-workflow/SKILL.md
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - sc: SC-3b
+        description: Update task count to 3 in git-workflow/SKILL.md
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - sc: SC-5
+        description: Remove check-pr from cleanup.md
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+  - id: 2
+    name: Fix cleanup processing order
+    scs:
+      - SC-6
+      - SC-7
+    items:
+      - sc: SC-6
+        description: Fix branch-cleanup order in cleanup.md Step 3
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+      - sc: SC-7
+        description: Fix verification order in cleanup.md Step 4
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+  - id: post
+    name: Behavioral backward compatibility verification
+    scs:
+      - SC-8
+    items:
+      - sc: SC-8
+        description: Verify "check pr" routes to cleanup task
+        red:
+          skill: test-driven-development
+          task: red
+          dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+        green:
+          skill: test-driven-development
+          task: green
+          dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify:
+          skill: verification-before-completion
+          task: verify
+          dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        commit: orchestrator (git add + git commit)
+dependency_dag:
+  edges:
+    - from: SC-1
+      to: SC-2
+      reason: SC-1 (delete file) must precede SC-2 (remove references to deleted file)
+    - from: SC-1
+      to: SC-3a
+      reason: SC-1 (delete file) must precede SC-3a (remove references to deleted file)
+    - from: SC-1
+      to: SC-3b
+      reason: SC-1 (delete file) must precede SC-3b (update task count)
+    - from: SC-1
+      to: SC-5
+      reason: SC-1 (delete file) must precede SC-5 (remove references to deleted file)
+    - from: SC-1
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+    - from: SC-2
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+    - from: SC-3a
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+    - from: SC-3b
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+    - from: SC-5
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+    - from: SC-6
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+    - from: SC-7
+      to: SC-8
+      reason: SC-8 (behavioral verification) depends on all prior SCs
+  phase_edges:
+    - from: 1
+      to: post
+      reason: Phase 1 must complete before post-phase behavioral verification
+    - from: 2
+      to: post
+      reason: Phase 2 must complete before post-phase behavioral verification

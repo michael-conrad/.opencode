@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2239/spec.md
+state_transitions:
+  - sc: SC-1
+    from: check-pr.md exists on filesystem
+    to: check-pr.md deleted from filesystem
+    trigger: file deletion
+    verification: '! test -f .opencode/skills/git-workflow-cleanup/tasks/check-pr.md'
+  - sc: SC-2
+    from: git-workflow-cleanup/SKILL.md has check-pr TDT entry
+    to: git-workflow-cleanup/SKILL.md has no check-pr references
+    trigger: TDT row removal, Tasks table row removal
+    verification: grep for check-pr finds no matches
+  - sc: SC-3a
+    from: git-workflow/SKILL.md has check-pr TDT/Invocation/Sub-Skills references
+    to: git-workflow/SKILL.md has no check-pr references
+    trigger: TDT row removal, Invocation row removal, Sub-Skills ref removal
+    verification: grep for check-pr finds no matches
+  - sc: SC-3b
+    from: git-workflow/SKILL.md Sub-Skills table shows 4 tasks for git-workflow-cleanup
+    to: git-workflow/SKILL.md Sub-Skills table shows 3 tasks for git-workflow-cleanup
+    trigger: task count update
+    verification: count task entries = 3
+  - sc: SC-5
+    from: cleanup.md has check-pr references in Related tasks and Automatic Cleanup Detection
+    to: cleanup.md has no check-pr references
+    trigger: text removal
+    verification: grep for check-pr finds no matches
+  - sc: SC-6
+    from: cleanup.md Step 3 iterates parent-first for branch-cleanup
+    to: cleanup.md Step 3 iterates submodules-first for branch-cleanup
+    trigger: order change in step definition
+    verification: read Step 3, verify submodule-first
+  - sc: SC-7
+    from: cleanup.md Step 4 lists parent-first for verification
+    to: cleanup.md Step 4 lists submodules-first for verification
+    trigger: order change in step definition
+    verification: read Step 4, verify submodule-first
+  - sc: SC-8
+    from: 'check pr trigger dispatches to check-pr task (or no dispatch)'
+    to: 'check pr trigger dispatches to cleanup task'
+    trigger: TDT routing change
+    verification: opencode run with check pr trigger, inspect stderr

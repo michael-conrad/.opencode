@@ -1,0 +1,52 @@
+dependency_contract:
+  phase_order:
+    - phase: 1
+      name: Remove check-pr.md and update references
+      depends_on: []
+      scs: [SC-1, SC-2, SC-3, SC-4]
+    - phase: 2
+      name: Fix cleanup processing order
+      depends_on: []
+      scs: [SC-5, SC-6]
+    - phase: 3
+      name: Behavioral verification
+      depends_on: [1, 2]
+      scs: [SC-7]
+  intra_phase_dependencies:
+    - phase: 1
+      order:
+        - SC-1 (delete file) must precede SC-2/SC-3/SC-4 (update references)
+  notes: "Phase 1 and Phase 2 are independent. Phase 3 (behavioral) requires both Phase 1 and Phase 2 to be complete."
+
+spec_path: .opencode/.issues/2239/spec.md
+interface_boundaries:
+  - boundary: git-workflow-cleanup/SKILL.md TDT → task dispatch
+    affected_by: [SC-2]
+    compatibility: REMOVAL
+    notes: Removing check-pr TDT entry removes a dispatch path. No other TDT entries affected.
+    backward_compatible: true
+  - boundary: git-workflow/SKILL.md TDT → sub-skill dispatch
+    affected_by: [SC-3a, SC-3b]
+    compatibility: REROUTE
+    notes: "check pr" TDT entry rerouted to cleanup task. Task count updated from 4 to 3.
+    backward_compatible: true
+  - boundary: cleanup.md → git-workflow-cleanup/SKILL.md
+    affected_by: [SC-5]
+    compatibility: REMOVAL
+    notes: Removing "Related tasks" cross-reference. No functional interface change.
+    backward_compatible: true
+  - boundary: cleanup.md Step 3 → submodule/parent iteration
+    affected_by: [SC-6]
+    compatibility: ORDER_CHANGE
+    notes: Iteration order changes from parent-first to submodules-first. No API change.
+    backward_compatible: true
+  - boundary: cleanup.md Step 4 → submodule/parent verification
+    affected_by: [SC-7]
+    compatibility: ORDER_CHANGE
+    notes: List order changes from parent-first to submodules-first. No API change.
+    backward_compatible: true
+  - boundary: git-workflow/SKILL.md TDT "check pr" → git-workflow-cleanup --task cleanup
+    affected_by: [SC-8]
+    compatibility: REROUTE
+    notes: "check pr" trigger now routes to cleanup task instead of check-pr task.
+    backward_compatible: true

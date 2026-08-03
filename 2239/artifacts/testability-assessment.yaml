@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2239/spec.md
+sc_evidence_types:
+  - sc: SC-1
+    evidence_type: structural
+    verification_method: '! test -f .opencode/skills/git-workflow-cleanup/tasks/check-pr.md'
+    testability: trivial
+    notes: File existence check
+  - sc: SC-2
+    evidence_type: structural
+    verification_method: grep for 'check-pr' in .opencode/skills/git-workflow-cleanup/SKILL.md
+    testability: trivial
+    notes: String search in single file
+  - sc: SC-3a
+    evidence_type: structural
+    verification_method: grep for 'check-pr' in .opencode/skills/git-workflow/SKILL.md
+    testability: trivial
+    notes: String search in single file
+  - sc: SC-3b
+    evidence_type: structural
+    verification_method: Count task entries in git-workflow-cleanup Sub-Skills table
+    testability: trivial
+    notes: Manual count of table rows
+  - sc: SC-5
+    evidence_type: structural
+    verification_method: grep for 'check-pr' in .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    testability: trivial
+    notes: String search in single file
+  - sc: SC-6
+    evidence_type: structural
+    verification_method: Read Step 3, verify submodule-first iteration
+    testability: trivial
+    notes: Visual inspection of step text
+  - sc: SC-7
+    evidence_type: structural
+    verification_method: Read Step 4, verify submodule-first listing
+    testability: trivial
+    notes: Visual inspection of step text
+  - sc: SC-8
+    evidence_type: behavioral
+    verification_method: opencode run with 'check pr' trigger, inspect stderr for dispatch target
+    testability: moderate
+    notes: Requires opencode run with real model; may need timeout handling

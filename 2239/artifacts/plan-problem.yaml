@@ -1,0 +1,37 @@
+domain: cleanup-refactor
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: post
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+  - name: can_start
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - can_start(p)
+    effects:
+      - completed(p)
+      - not can_start(p)
+init:
+  - can_start(phase1)
+  - can_start(phase2)
+  - not can_start(post)
+goals:
+  - completed(phase1)
+  - completed(phase2)
+  - completed(post)
