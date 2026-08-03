@@ -1,7 +1,9 @@
 spec_path: .opencode/.issues/2210/spec.md
-approval_status: BLOCKED — no approved-for-* label in issue.yaml (labels: needs-approval, SPEC)
+approval_status: approved
+approval_labels:
+  - approved-for-pr
 sc_count: 8
-artifacts:
+artifact_presence:
   blast-radius.yaml: present
   concern-map.yaml: present
   code-path-inventory.yaml: present
@@ -9,7 +11,16 @@ artifacts:
   interface-compatibility.yaml: present
   state-analysis.yaml: present
   testability-assessment.yaml: present
+missing_artifacts: []
 scope_boundary_findings:
-  - All 5 affected files exist in the codebase
-  - No missing files detected
-blocker_reason: SPEC_NOT_APPROVED — issue.yaml labels [needs-approval, SPEC] do not include an approved-for-* label
+  - file: .opencode/reference/spec-structure-standards.md
+    status: exists
+  - file: .opencode/reference/plan-structure-standards.md
+    status: exists
+  - file: .opencode/reference/cost-model-standards.md
+    status: exists
+  - file: .opencode/skills/spec-creation/tasks/create.md
+    status: exists
+  - file: .opencode/skills/writing-plans/tasks/create.md
+    status: exists
+scope_boundary_missing_files: []

@@ -48,6 +48,51 @@ interfaces:
       - If reference docs change after Spec B implementation, both sides must be updated
     backward_compat: Spec B is sequential — must not start until Spec A completes
 
+dependency_contract:
+  description: "Phase ordering is sequential — each phase produces artifacts consumed by the next. No formal dependency contract between phases beyond creation-order."
+  phases:
+    - phase: 1
+      name: Create spec-structure-standards.md
+      produces:
+        - .opencode/reference/spec-structure-standards.md
+      consumed_by:
+        - phase: 3
+          description: "spec-creation/tasks/create.md reads spec-structure-standards.md"
+    - phase: 2
+      name: Create plan-structure-standards.md
+      produces:
+        - .opencode/reference/plan-structure-standards.md
+      consumed_by:
+        - phase: 4
+          description: "writing-plans/tasks/create.md reads plan-structure-standards.md"
+    - phase: 3
+      name: Update spec-creation/create.md
+      consumes:
+        - .opencode/reference/spec-structure-standards.md
+      depends_on:
+        - phase: 1
+    - phase: 4
+      name: Update writing-plans/create.md
+      consumes:
+        - .opencode/reference/plan-structure-standards.md
+      depends_on:
+        - phase: 2
+    - phase: 5
+      name: Verify no ceremony added
+      depends_on:
+        - phase: 3
+        - phase: 4
+        - phase: 6
+    - phase: 6
+      name: Create cost-model-standards.md and update producer templates
+      produces:
+        - .opencode/reference/cost-model-standards.md
+      consumed_by:
+        - phase: 6 (same phase — cost model created then referenced in same phase)
+      depends_on:
+        - phase: 3
+        - phase: 4
+
 no_new_interfaces:
   - No new pipeline steps
   - No new YAML schemas

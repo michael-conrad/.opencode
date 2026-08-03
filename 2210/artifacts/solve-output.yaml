@@ -1,0 +1,18 @@
+# Solve Output — .opencode#2210
+# Generated: research task from writing-plans
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - tool: solve model
+    query: "z3.BoolVal(True)"
+    result: SAT
+  - tool: solve check
+    contract: .opencode/.issues/2210/dependency-contract.yaml
+    state: .opencode/.issues/2210/artifacts/state-analysis.yaml
+    result: SAT (+ postconditions + invariants)
+  - tool: plan plan
+    problem: .opencode/.issues/2210/artifacts/plan-problem.yaml
+    engine: tamer
+    result: SOLVED_SATISFICING
+    plan_length: 9

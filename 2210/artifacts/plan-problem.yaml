@@ -1,0 +1,103 @@
+# Plan Problem — .opencode#2210
+# Derived from dependency-contract.yaml
+
+domain: reference-doc-creation
+types:
+  - name: phase
+  - name: artifact
+
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+  - name: p4
+    type: phase
+  - name: p5
+    type: phase
+  - name: p6
+    type: phase
+  - name: spec-structure-standards
+    type: artifact
+  - name: plan-structure-standards
+    type: artifact
+  - name: cost-model-standards
+    type: artifact
+  - name: spec-creation-create
+    type: artifact
+  - name: writing-plans-create
+    type: artifact
+
+fluents:
+  - name: artifact-exists
+    params:
+      - name: a
+        type: artifact
+  - name: phase-complete
+    params:
+      - name: p
+        type: phase
+  - name: phase-depends-on
+    params:
+      - name: p
+        type: phase
+      - name: q
+        type: phase
+  - name: phase-produces
+    params:
+      - name: p
+        type: phase
+      - name: a
+        type: artifact
+  - name: phase-consumes
+    params:
+      - name: p
+        type: phase
+      - name: a
+        type: artifact
+
+actions:
+  - name: execute-phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - not phase-complete(p)
+    effects:
+      - phase-complete(p)
+
+  - name: create-artifact
+    params:
+      - name: p
+        type: phase
+      - name: a
+        type: artifact
+    preconditions:
+      - not artifact-exists(a)
+    effects:
+      - artifact-exists(a)
+
+init:
+  - phase-depends-on(p3, p1)
+  - phase-depends-on(p4, p2)
+  - phase-depends-on(p5, p3)
+  - phase-depends-on(p5, p4)
+  - phase-depends-on(p6, p5)
+  - phase-produces(p1, spec-structure-standards)
+  - phase-produces(p2, plan-structure-standards)
+  - phase-produces(p6, cost-model-standards)
+  - phase-consumes(p3, spec-structure-standards)
+  - phase-consumes(p4, plan-structure-standards)
+
+goals:
+  - phase-complete(p1)
+  - phase-complete(p2)
+  - phase-complete(p3)
+  - phase-complete(p4)
+  - phase-complete(p5)
+  - phase-complete(p6)
+  - artifact-exists(spec-structure-standards)
+  - artifact-exists(plan-structure-standards)
+  - artifact-exists(cost-model-standards)
