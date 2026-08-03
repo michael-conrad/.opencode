@@ -415,8 +415,6 @@ Pattern: `// SPDX-FileCopyrightText:` + `// SPDX-License-Identifier:` + `// Prov
 
 ## Enforcement Test Mandate
 
-The Enforcement Test Mandate section (including Evidence Type Taxonomy, SC-to-Test Traceability, RED-Phase Ordering, Behavioral RED/GREEN gate, and Test Integrity Mandate) has been moved to the `test-driven-development` skill.
-
 Read [the Enforcement Test Mandate in test-driven-development/SKILL.md](skills/test-driven-development/SKILL.md).
 
 ## Cross-Reference Standards
