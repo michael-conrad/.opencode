@@ -30,9 +30,11 @@ Verifies that plan files exist, appends a lifecycle event to the issue body, and
 4. Append a lifecycle event to the plan file at `{issues_prefix}/{N}/plan.md`:
    - Add a `lifecycle_events` section with the current timestamp and event type `plan_created`.
    - Include the plan file path and phase count.
-5. Report the execution strategy in the finding summary:
+5. Sync the local issues directory: run `local-issues sync` to commit and push any pending changes.
+6. Report the execution strategy in the finding summary:
    - Phase count, dispatch mode summary, and recommended next pipeline step.
-6. Return the result contract.
+   - Include the plan URL and an AI byline in the chat output.
+7. Return the result contract.
 
 ## Exit Criteria
 
