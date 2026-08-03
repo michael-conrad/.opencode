@@ -1,0 +1,25 @@
+spec_path: .opencode/.issues/2232/spec.md
+approval_status: NOT_APPROVED
+approval_check_method: spec frontmatter `approved` field
+approval_finding: "Spec has no YAML frontmatter — no `approved` field present. Issue labels show `needs-approval`, not `approved-for-*`. This is a meta-spec whose purpose is to remove the frontmatter `approved` check from analyze.md (SC-1, SC-4)."
+sc_count: 4
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - file: .opencode/skills/writing-plans/tasks/analyze.md
+    status: EXISTS
+  - file: .opencode/skills/writing-plans/tasks/research.md
+    status: EXISTS
+  - scope: All .opencode/skills/*/tasks/*.md (audit)
+    status: SCOPE_DEFINED
