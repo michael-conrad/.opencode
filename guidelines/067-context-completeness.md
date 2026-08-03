@@ -12,21 +12,6 @@ load_when: sub-agent
 
 The body or description alone is NEVER sufficient context. Comments may contain critical information: authorizations, direction changes, clarifications, blockers, or bug reports.
 
-## Core Principle
-
-**Before reviewing, auditing, or taking any action on a GitHub/GitBucket resource (issue, PR, discussion), the agent MUST read ALL comments on that resource. The body/description alone is NEVER sufficient context.**
-
-## Why This Matters
-
-| What Gets Missed | Consequence |
-| -- | -- |
-| Authorization in a comment | Implementing without approval or missing approval |
-| Direction change in a comment | Implementing the wrong approach |
-| Clarification in a comment | Building on stale or incorrect understanding |
-| Bug report in a comment | Ignoring known issues |
-| PR review feedback | Repeating mistakes reviewers already flagged |
-| Scope change in a comment | Implementing beyond or outside changed scope |
-
 ## Scope of Resources
 
 | Resource | What to Read |
@@ -37,15 +22,7 @@ The body or description alone is NEVER sufficient context. Comments may contain 
 
 ## When This Applies
 
-| Action | Must Read Comments First? |
-| -- | -- |
-| Reviewing/auditing a spec | ✅ YES — always |
-| Acting on an issue (implement, revise) | ✅ YES — always |
-| Checking authorization | ✅ YES — authorization lives in comments |
-| Responding to a question | ✅ YES — may already be answered |
-| Creating sub-issues for a parent | ✅ YES — comments may define phases |
-| Post-implementation reporting | ✅ YES — new comments may have arrived |
-| Simply reading an issue for info | ❌ NO — but MUST read before any subsequent action |
+Before any action on a resource, read all comments. Exception: passive reading (no subsequent action) does not require comment reading.
 
 ## Evidence Requirement
 
@@ -54,22 +31,6 @@ When the agent reads comments before acting, it MUST show evidence:
 - **Reference specific comments**: "Saw comment by @user on 2026-04-09 approving Phase 2" not just "I read the comments"
 - **Count or summarize**: "Read 5 comments — 2 approvals, 1 clarification, 2 progress updates"
 - **Highlight relevant ones**: Call out comments that change or clarify the spec content
-
-### What COUNTS as Evidence
-
-✅ **Evidence Shown:**
-
-- Calling `github_issue_read` with `method=get_comments` and referencing the results
-- Citing specific comment content: "Comment #3 by @dev adds constraint X"
-- Summarizing: "3 comments total — 1 approval, 1 scope change, 1 progress update"
-- Quoting relevant comment text inline
-
-❌ **NOT Evidence:**
-
-- "I read the comments" without showing what was found
-- Acting on an issue without any comment reference in the response
-- Assuming comments haven't changed since last read
-- "The comments don't affect this" without showing what comments exist
 
 ## Staleness Rule
 
@@ -108,14 +69,6 @@ If comments were read in the **immediately preceding exchange** (the last assist
 
 This is consistent with the Single Exchange Window defined in `065-verification-honesty.md`.
 
-## Relationship to Other Critical Rules
-
-This guideline complements (does not replace):
-
-- **"Ignoring Issue Comments" (`000-critical-rules.md`)**: That rule requires *responding* to user comments; this requires *reading* them before acting
-- **"Verification Honesty" (`065-verification-honesty.md`)**: That rule requires actual verification instead of memory; reading comments IS verification work
-- **"Bug Discovery Does NOT Authorize" (`000-critical-rules.md`)**: Authorization often lives in comments; missing comments = missing authorization
-
 ## 🚫 FORBIDDEN
 
 - Acting on an issue after reading only the issue body
@@ -143,8 +96,5 @@ This guideline complements (does not replace):
 ### [critical-rules-012] Acting on Resources Without Reading All Comments
 Acting on a resource after reading only the body means you are working with partial context. Every unread comment is a defect vector — authorization may live in a comment, not the body. Professional engineers read ALL comments before any action — see `067-context-completeness.md`. Amateurs act on partial context and call assumptions facts.
 
-
 ### [critical-rules-012] Ignoring Issue Comments
 Acting on an issue without reading all its comments is the signature move of engineers who produce work that needs to be redone. Every unread comment is a defect waiting to surface. Professional engineers read every comment before touching a single line of code. Read [issue-operations skill](skills/issue-operations/SKILL.md) → `comment` task.
-
-
