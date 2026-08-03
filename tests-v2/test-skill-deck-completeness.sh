@@ -1,6 +1,6 @@
 #!/bin/bash
 # Skill deck completeness content-verification test.
-# Maps to SC-2 from issue #2229: skildeck lint --completeness produces findings.
+# Maps to SC-2 from issue #2229: skildeck lint produces skill-deck-completeness findings.
 #
 # Usage: bash .opencode/tests-v2/test-skilledeck-completeness.sh
 # Exit: 0 if all checks pass, 1 if any check fails
@@ -35,15 +35,15 @@ echo ""
 
 SKILDECK="$PROJECT_DIR/.opencode/tools/skildeck"
 
-# SC-2: skildeck lint --completeness --json produces non-empty output
-JSON_OUTPUT=$("$SKILDECK" lint --completeness --json 2>/dev/null || true)
+# SC-2: skildeck lint --json produces skill-deck-completeness findings
+JSON_OUTPUT=$("$SKILDECK" lint --json 2>/dev/null || true)
 
 if [ -z "$JSON_OUTPUT" ]; then
-    check_fail "SC-2: skildeck lint --completeness --json" "output is empty"
+    check_fail "SC-2: skildeck lint --json" "output is empty"
 elif ! echo "$JSON_OUTPUT" | python3 -c "import sys,json; data=json.load(sys.stdin); assert isinstance(data, list) and len(data) > 0, 'expected non-empty list'" 2>/dev/null; then
-    check_fail "SC-2: skildeck lint --completeness --json" "output is not a non-empty JSON array"
+    check_fail "SC-2: skildeck lint --json" "output is not a non-empty JSON array"
 else
-    check_pass "SC-2: skildeck lint --completeness --json produces non-empty findings"
+    check_pass "SC-2: skildeck lint --json produces non-empty findings"
 fi
 
 # Verify at least one finding is in the skill-deck-completeness category

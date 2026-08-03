@@ -585,7 +585,6 @@ def main() -> None:
     parser.add_argument("--skill", type=str, default="", help="Filter by skill name")
     parser.add_argument("--gate", type=str, default="", help="Filter by gate name")
     parser.add_argument("--scope", type=str, default="", help="Filter by scope")
-    parser.add_argument("--completeness", action="store_true", help="Check skill deck completeness: every skill dir has SKILL.md, TDT refs resolve, tasks/ dirs have SKILL.md")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     args = parser.parse_args()
 
@@ -604,9 +603,7 @@ def main() -> None:
     base_dir = scan_dir.parent if scan_dir.name == "skills" else scan_dir
     findings.extend(lint_progressive_disclosure(base_dir))
     findings.extend(lint_skill_frontmatter(base_dir))
-
-    if args.completeness:
-        findings.extend(lint_skill_deck_completeness(base_dir))
+    findings.extend(lint_skill_deck_completeness(base_dir))
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))
