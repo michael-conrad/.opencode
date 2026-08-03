@@ -108,6 +108,8 @@ Scans all open repository issues, checks each for linked merged PRs, and closes 
 
 Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
 
+**Iteration order:** Submodules MUST be processed BEFORE the parent repo. For each submodule path in `submodule_paths`, dispatch a sub-agent task to clean up its merged branches. After all submodules are complete, clean up the parent repo's branches. This ensures submodule branches are deleted before the parent repo switches context.
+
 ### Step 4: Post-Cleanup Dev-Tip Verification
 
 Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all submodule iterations are complete. This is the final verification gate — nothing runs after it.
@@ -118,21 +120,21 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
    - If output is non-empty: this is the parent repo path (we are inside a submodule)
    - If output is empty: we are in the parent repo (standalone or no superproject)
 
-- [ ] 2. **Build repo list for verification:**
+- [ ] 2. **Build repo list for verification (submodules first):**
 
    ```
    repos_to_check:
-     - repo_name: <parent or current repo name>
-       repo_path: <parent_path | current_toplevel>
      - repo_name: <submodule_1_name>
        repo_path: <parent_path>/<submodule_1_path>
      - repo_name: <submodule_2_name>
        repo_path: <parent_path>/<submodule_2_path>
      ...
+     - repo_name: <parent or current repo name>
+       repo_path: <parent_path | current_toplevel>
    ```
 
-   - Include the parent (or current) repo at index 0
-   - Append each submodule path from `submodule_paths` (resolved relative to parent repo)
+   - List each submodule path from `submodule_paths` first (resolved relative to parent repo)
+   - Include the parent (or current) repo last
 
 - [ ] 3. **For each repo in the list:**
 
@@ -221,14 +223,7 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ## Automatic Cleanup Detection
 
-**Entry triggers:** "PR merged" confirmation, "cleanup branches" request, or "check pr" / "check prs" / "check pull request" / "check pull requests" phrases.
-
-### "Check PR" Workflow
-
-- [ ] 1. List all PRs (open and merged) using `github_list_pull_requests`
-- [ ] 2. For each merged PR with local branch still existing → activate full cleanup
-- [ ] 3. For each open PR → report PR number, title, and status
-- [ ] 4. If only open PRs exist → report and HALT
+**Entry triggers:** "PR merged" confirmation, or "cleanup branches" request.
 
 ### Safety Checks Before Deletion
 

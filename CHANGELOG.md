@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.2.0] - Unreleased
 
 ### Changed
+
+- **Remove redundant check-pr task** (#2239) - Deleted `check-pr.md` from git-workflow-cleanup, removed all references from SKILL.md files and cleanup.md, fixed cleanup processing order to iterate submodules before parent repo. Added behavioral test verifying 'check pr' routes to cleanup workflow.
+
 ### Added
 
 - **Reduced approval-gate ceremony** (#2220) - Merged approval-gate-scope sub-skill into approval-gate dispatcher. Deleted 47 files across 7 subdirectories, created 3 flat task files (resolve-scope, apply-label, route), updated all cross-references. Single dispatcher entry point for all authorization operations.
