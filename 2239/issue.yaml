@@ -1,0 +1,8 @@
+title: '[SPEC] Remove redundant check-pr task, fix cleanup processing order'
+status: open
+labels:
+- needs-approval
+- spec-draft
+body: ''
+created_at: '2026-08-03T14:15:47+00:00'
+updated_at: '2026-08-03T14:15:47+00:00'
