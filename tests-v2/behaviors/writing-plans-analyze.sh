@@ -4,13 +4,16 @@
 # Provenance: AI-generated
 # Content-Verification Test: Writing-Plans Analyze Task Card
 #
-# Verifies that skills/writing-plans/tasks/analyze.md has explicit entry
-# criteria gates for SPEC_NOT_FOUND (missing spec) and SPEC_NOT_APPROVED
-# (missing approval in frontmatter), matching the spec's requirement that
-# these be Entry Criteria gates, not just Procedure steps.
+# Verifies that skills/writing-plans/tasks/analyze.md checks issue.yaml
+# labels for approved-for-* instead of spec frontmatter approved field.
 #
-# RED phase: analyze.md has SPEC_NOT_FOUND/SPEC_NOT_APPROVED in Procedure
-# but NOT as explicit Entry Criteria gates. Expected to FAIL (non-zero exit).
+# SC-1: analyze.md checks issue.yaml labels for approved-for-* instead of
+#        spec frontmatter approved field
+# SC-4: analyze.md Entry Criteria and Procedure no longer reference spec
+#        frontmatter approved field
+#
+# GREEN phase: analyze.md uses issue.yaml label-based check.
+# Expected to PASS (exit 0).
 #
 # Co-authored with AI: OpenCode (deepseek-v4-flash)
 
@@ -19,59 +22,50 @@ set -euo pipefail
 ANALYZE_MD=".opencode/skills/writing-plans/tasks/analyze.md"
 
 echo "=== RED Test: writing-plans-analyze ==="
-echo "Checking $ANALYZE_MD for entry criteria gates..."
+echo "Checking $ANALYZE_MD for label-based approval check..."
 echo ""
 
-HAS_ENTRY_SPEC_NOT_FOUND=false
-HAS_ENTRY_SPEC_NOT_APPROVED=false
-HAS_PROCEDURE_SPEC_NOT_FOUND=false
-HAS_PROCEDURE_SPEC_NOT_APPROVED=false
+HAS_OLD_FRONTMATTER_ENTRY=false
+HAS_OLD_FRONTMATTER_PROCEDURE=false
+HAS_LABEL_CHECK=false
 
-# Check 1: Entry Criteria must explicitly mention SPEC_NOT_FOUND
-if grep -q 'SPEC_NOT_FOUND' "$ANALYZE_MD" 2>/dev/null; then
-    # Check if SPEC_NOT_FOUND appears in Entry Criteria section
-    if sed -n '/^## Entry Criteria/,/^## /p' "$ANALYZE_MD" | grep -q 'SPEC_NOT_FOUND' 2>/dev/null; then
-        HAS_ENTRY_SPEC_NOT_FOUND=true
-        echo "  [FOUND] SPEC_NOT_FOUND in Entry Criteria"
-    else
-        echo "  [MISSING] SPEC_NOT_FOUND in Entry Criteria (expected RED)"
-    fi
+# Check 1 (SC-4): Entry Criteria must NOT reference spec frontmatter approved field
+# Use specific pattern to distinguish from approved-for-* label references
+if sed -n '/^## Entry Criteria/,/^## /p' "$ANALYZE_MD" | grep -qE 'frontmatter.*approved|approved.*(field|truthy)' 2>/dev/null; then
+    HAS_OLD_FRONTMATTER_ENTRY=true
+    echo "  [FOUND] frontmatter approved field in Entry Criteria (old check - expected RED)"
 else
-    echo "  [MISSING] SPEC_NOT_FOUND not found anywhere (expected RED)"
+    echo "  [OK] No frontmatter approved field in Entry Criteria"
 fi
 
-# Check 2: Entry Criteria must explicitly mention SPEC_NOT_APPROVED
-if grep -q 'SPEC_NOT_APPROVED' "$ANALYZE_MD" 2>/dev/null; then
-    # Check if SPEC_NOT_APPROVED appears in Entry Criteria section
-    if sed -n '/^## Entry Criteria/,/^## /p' "$ANALYZE_MD" | grep -q 'SPEC_NOT_APPROVED' 2>/dev/null; then
-        HAS_ENTRY_SPEC_NOT_APPROVED=true
-        echo "  [FOUND] SPEC_NOT_APPROVED in Entry Criteria"
-    else
-        echo "  [MISSING] SPEC_NOT_APPROVED in Entry Criteria (expected RED)"
-    fi
+# Check 2 (SC-4): Procedure must NOT reference spec frontmatter approved field
+# Use specific pattern to distinguish from approved-for-* label references
+if sed -n '/^## Procedure/,/^## /p' "$ANALYZE_MD" | grep -qE 'frontmatter.*approved|approved.*(field|truthy)' 2>/dev/null; then
+    HAS_OLD_FRONTMATTER_PROCEDURE=true
+    echo "  [FOUND] frontmatter approved field in Procedure (old check - expected RED)"
 else
-    echo "  [MISSING] SPEC_NOT_APPROVED not found anywhere (expected RED)"
+    echo "  [OK] No frontmatter approved field in Procedure"
 fi
 
-# Check 3: Procedure must have SPEC_NOT_FOUND (should already pass)
-if grep -q 'SPEC_NOT_FOUND' "$ANALYZE_MD" 2>/dev/null; then
-    HAS_PROCEDURE_SPEC_NOT_FOUND=true
-    echo "  [FOUND] SPEC_NOT_FOUND in file"
-fi
-
-# Check 4: Procedure must have SPEC_NOT_APPROVED (should already pass)
-if grep -q 'SPEC_NOT_APPROVED' "$ANALYZE_MD" 2>/dev/null; then
-    HAS_PROCEDURE_SPEC_NOT_APPROVED=true
-    echo "  [FOUND] SPEC_NOT_APPROVED in file"
+# Check 3 (SC-1): Must reference issue.yaml labels for approved-for-*
+if grep -q 'issue\.yaml' "$ANALYZE_MD" 2>/dev/null && grep -q 'approved-for-' "$ANALYZE_MD" 2>/dev/null; then
+    HAS_LABEL_CHECK=true
+    echo "  [FOUND] issue.yaml approved-for-* label check"
+else
+    echo "  [MISSING] issue.yaml approved-for-* label check (expected RED)"
 fi
 
 echo ""
-if $HAS_ENTRY_SPEC_NOT_FOUND && $HAS_ENTRY_SPEC_NOT_APPROVED; then
-    echo "UNEXPECTED PASS: analyze.md has both SPEC_NOT_FOUND and SPEC_NOT_APPROVED in Entry Criteria"
-    exit 0
-else
-    echo "EXPECTED FAIL: analyze.md missing entry criteria gates (RED phase confirmed)"
-    echo "  Procedure has SPEC_NOT_FOUND=$HAS_PROCEDURE_SPEC_NOT_FOUND, SPEC_NOT_APPROVED=$HAS_PROCEDURE_SPEC_NOT_APPROVED"
-    echo "  But Entry Criteria needs explicit gates per spec §Task Cards → analyze.md"
+if $HAS_OLD_FRONTMATTER_ENTRY || $HAS_OLD_FRONTMATTER_PROCEDURE; then
+    echo "EXPECTED FAIL: analyze.md still uses old spec frontmatter approved field check"
+    echo "  Entry Criteria has old check: $HAS_OLD_FRONTMATTER_ENTRY"
+    echo "  Procedure has old check: $HAS_OLD_FRONTMATTER_PROCEDURE"
+    echo "  Has new label check: $HAS_LABEL_CHECK"
     exit 1
+elif ! $HAS_LABEL_CHECK; then
+    echo "EXPECTED FAIL: analyze.md missing issue.yaml approved-for-* label check"
+    exit 1
+else
+    echo "PASS: analyze.md uses label-based check, no frontmatter approved field"
+    exit 0
 fi

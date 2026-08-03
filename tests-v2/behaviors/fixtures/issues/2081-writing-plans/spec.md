@@ -21,6 +21,6 @@ The current writing-plans skill has 3 SKILL.md files, 19 task files, 22 contract
 | SC-2 | 7 task files | structural |
 | SC-4 | Plan artifact uses routing-table format | behavioral |
 | SC-7 | analyze checks local spec.md exists | behavioral |
-| SC-8 | analyze checks spec approval from local frontmatter | behavioral |
+| SC-8 | analyze checks spec approval from issue.yaml labels | behavioral |
 | SC-9 | solve runs tools/solve and tools/plan | behavioral |
 | SC-14 | External callers updated to new dispatch strings | structural |

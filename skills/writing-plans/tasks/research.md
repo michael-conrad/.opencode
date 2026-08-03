@@ -42,8 +42,11 @@ Decompose success criteria into implementation phases, build a dependency DAG be
    - Phase list with SC assignments
    - Dependency DAG edges
    - Skill+task selection per phase
-9. Read the dependency contract from `{issues_prefix}/{N}/dependency-contract.yaml`.
-   - If missing: return BLOCKED with `DEPENDENCY_CONTRACT_NOT_FOUND`.
+9. Generate the dependency contract from the interface-compatibility artifact:
+   - Read `{issues_prefix}/{N}/artifacts/interface-compatibility.yaml`.
+   - Extract the `dependency_contract` section.
+   - Write the extracted contract to `{issues_prefix}/{N}/dependency-contract.yaml`.
+   - If `interface-compatibility.yaml` is missing or has no `dependency_contract` section: return BLOCKED with `DEPENDENCY_CONTRACT_NOT_FOUND`.
 10. Run `./.opencode/tools/solve model --contract-path {issues_prefix}/{N}/dependency-contract.yaml --query sat`.
     - If UNSAT: return BLOCKED with `UNSAT` and the solver output.
 11. Run `./.opencode/tools/solve check --contract-path {issues_prefix}/{N}/dependency-contract.yaml --state-path {issues_prefix}/{N}/artifacts/state-analysis.yaml`.
