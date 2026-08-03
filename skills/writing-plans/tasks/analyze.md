@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Verify spec exists locally, check approval from frontmatter, validate analytical artifacts exist.
+Verify spec exists locally, check approval from issue.yaml labels, validate analytical artifacts exist.
 
 ## Task Discipline
 
@@ -19,8 +19,8 @@ Verify spec exists locally, check approval from frontmatter, validate analytical
 
 - `{issues_prefix}/{N}/spec.md` must exist
   - If missing: return BLOCKED with `SPEC_NOT_FOUND` and the resolved path
-- The spec frontmatter `approved` field must be present and truthy
-  - If not approved: return BLOCKED with `SPEC_NOT_APPROVED`
+- `{issues_prefix}/{N}/issue.yaml` must exist and contain an `approved-for-*` label
+  - If missing or no `approved-for-*` label: return BLOCKED with `SPEC_NOT_APPROVED`
 - The issue number `{N}` must be provided
 - The project root and issues prefix must be set
 
@@ -28,9 +28,9 @@ Verify spec exists locally, check approval from frontmatter, validate analytical
 
 1. Verify the spec file exists at `{issues_prefix}/{N}/spec.md`.
    - If missing: return BLOCKED with `SPEC_NOT_FOUND` and the resolved path.
-2. Read the spec file and extract the frontmatter.
-   - Verify the `approved` field is present and truthy.
-   - If not approved: return BLOCKED with `SPEC_NOT_APPROVED`.
+2. Read `{issues_prefix}/{N}/issue.yaml` and check the `labels` field.
+   - Verify at least one label matches `approved-for-*`.
+   - If no `approved-for-*` label: return BLOCKED with `SPEC_NOT_APPROVED`.
 3. Read the spec body and extract the success criteria table.
    - Verify at least one SC is defined.
    - If no SCs: return BLOCKED with `NO_SUCCESS_CRITERIA`.
@@ -41,7 +41,7 @@ Verify spec exists locally, check approval from frontmatter, validate analytical
    - Verify all referenced files exist in the codebase.
    - If any file is missing: record as a finding.
 6. Write the analysis summary to `{issues_prefix}/{N}/artifacts/analysis-summary.yaml`.
-   - Include: spec path, approval status, SC count, artifact presence per artifact, scope boundary findings.
+   - Include: spec path, approval status (from issue.yaml labels), SC count, artifact presence per artifact, scope boundary findings.
 7. Return the result contract.
 
 ## Exit Criteria
