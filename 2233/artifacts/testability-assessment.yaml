@@ -1,0 +1,19 @@
+testability_assessment:
+  phase_1_syntax_documentation:
+    test_strategy: "content-verification"
+    detail: "Grep for pattern syntax keywords in docs/bash-permissions.md"
+    assertion_type: "string"
+  phase_2_example_snippet:
+    test_strategy: "content-verification"
+    detail: "Grep for opencode.jsonc code block in docs/bash-permissions.md"
+    assertion_type: "string"
+  phase_3_behavioral_test:
+    test_strategy: "behavioral"
+    detail: "opencode run with configured bash permission patterns, verify agent respects deny/ask/allow"
+    assertion_type: "behavioral"
+    test_framework: "with-test-home + helpers.sh assertions"
+    test_file: ".opencode/tests-v2/behaviors/bash-permission-enforcement.sh"
+  phase_4_merging_documentation:
+    test_strategy: "content-verification"
+    detail: "Grep for merging/override keywords in docs/bash-permissions.md"
+    assertion_type: "string"

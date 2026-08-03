@@ -1,0 +1,26 @@
+spec_path: .opencode/.issues/2232/spec.md
+code_paths:
+  - sc_id: SC-1
+    file: .opencode/skills/writing-plans/tasks/analyze.md
+    paths:
+      - Entry Criteria section: line 22-23 (frontmatter approved check)
+      - Procedure Step 2: line 31-33 (read frontmatter, verify approved field)
+      - Exit Criteria: line 49 (spec approved check)
+    change: Replace frontmatter approved check with issue.yaml labels check for approved-for-* pattern
+  - sc_id: SC-2
+    file: .opencode/skills/writing-plans/tasks/research.md
+    paths:
+      - Procedure Step 9: line 45-46 (read dependency-contract.yaml, BLOCK if missing)
+      - Procedure Steps 10-12: lines 47-52 (Z3 solve steps consuming dependency-contract.yaml)
+    change: Replace Step 9 BLOCK with generation from interface-compatibility.yaml dependency_contract section; Steps 10-12 consume generated contract
+  - sc_id: SC-3
+    file: .opencode/skills/*/tasks/*.md
+    paths:
+      - All task card files across all skills
+    change: Audit each task card for frontmatter approved fields, status markers, completion indicators in spec/plan documents
+  - sc_id: SC-4
+    file: .opencode/skills/writing-plans/tasks/analyze.md
+    paths:
+      - Entry Criteria section: line 22-23 (frontmatter approved check)
+      - Procedure Step 2: line 31-33 (read frontmatter, verify approved field)
+    change: Remove all references to spec frontmatter approved field

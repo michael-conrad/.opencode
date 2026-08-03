@@ -1,0 +1,14 @@
+# state-for-solve.yaml
+# State values for Z3 check validation
+# Derived from state-analysis.yaml
+
+variables:
+  phase_1_complete: true
+  phase_2_complete: true
+  phase_3_complete: true
+  phase_4_complete: true
+  handoff_available: true
+  completion_enhanced: true
+  cross_references_updated: true
+  skill_deleted: true
+  z3_steps_unchanged: true

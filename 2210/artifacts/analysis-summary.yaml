@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2210/spec.md
+approval_status: BLOCKED — no approved-for-* label in issue.yaml (labels: needs-approval, SPEC)
+sc_count: 8
+artifacts:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+  - All 5 affected files exist in the codebase
+  - No missing files detected
+blocker_reason: SPEC_NOT_APPROVED — issue.yaml labels [needs-approval, SPEC] do not include an approved-for-* label

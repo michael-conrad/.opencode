@@ -1,0 +1,27 @@
+blast_radius:
+  phase_1_syntax_documentation:
+    affected_components:
+      - .opencode/docs/bash-permissions.md (new file)
+    ripple_effects:
+      - None - new file, no existing consumers
+    risk: LOW
+  phase_2_example_snippet:
+    affected_components:
+      - .opencode/docs/bash-permissions.md (append)
+    ripple_effects:
+      - None - documentation only
+    risk: LOW
+  phase_3_behavioral_test:
+    affected_components:
+      - .opencode/tests-v2/behaviors/bash-permission-enforcement.sh (new file)
+      - .opencode/tests-v2/behaviors/ (directory - new file addition)
+    ripple_effects:
+      - Test runner will discover new test file
+      - CI pipeline will execute new test
+    risk: LOW - new test file, no existing tests modified
+  phase_4_merging_documentation:
+    affected_components:
+      - .opencode/docs/bash-permissions.md (append)
+    ripple_effects:
+      - None - documentation only
+    risk: LOW

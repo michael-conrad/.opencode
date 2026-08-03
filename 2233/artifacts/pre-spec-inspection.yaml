@@ -1,0 +1,32 @@
+pre_spec_inspection:
+  topic: "Bash Command Permission Patterns in opencode.jsonc"
+  affected_files:
+    - .opencode/docs/bash-permissions.md (new file - documentation target)
+    - .opencode/opencode.jsonc (reference only - no modification)
+    - .opencode/tests-v2/behaviors/bash-permission-enforcement.sh (new file - behavioral test)
+  existing_patterns:
+    - The .opencode repo has a docs/ directory with 4 files: audit-sc6959-verification.md, dispatch-audit-schema.md, model-dependency.md, secret-detection.md
+    - Behavioral tests live in .opencode/tests-v2/behaviors/ following the pattern <scenario>.sh
+    - The opencode.jsonc has NO permission field at any level (top-level or agent.build)
+    - The config schema at https://opencode.ai/config.json defines PermissionConfig with bash field supporting both flat (string) and object (glob pattern) forms
+  schema_details:
+    PermissionConfig.bash:
+      type: anyOf
+      - string (ask/allow/deny) - blanket permission
+      - object with additionalProperties of PermissionActionConfig - glob pattern mapping
+        e.g., { "git push": "ask", "grep *": "allow" }
+    PermissionObjectConfig:
+      type: object
+      additionalProperties: PermissionActionConfig
+    PermissionActionConfig:
+      type: string
+      enum: [ask, allow, deny]
+  merging_behavior:
+    - Top-level `permission` sets defaults for all agents
+    - `agent.build.permission` overrides top-level for the build agent
+    - Object-level bash permissions merge: agent.build.permission.bash glob patterns override top-level permission.bash glob patterns
+    - Flat string at either level sets blanket permission for that scope
+  no_existing_documentation:
+    - No mention of bash permission patterns in any .md file in the .opencode repo
+    - No example opencode.jsonc snippet showing bash command patterns
+    - No behavioral enforcement tests for bash permission patterns

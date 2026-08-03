@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2232/spec.md
+variables:
+  phase_1:
+    type: bool
+    description: "analyze.md frontmatter fix — SC-1, SC-4"
+  phase_2:
+    type: bool
+    description: "research.md dependency-contract generation — SC-2"
+  phase_3:
+    type: bool
+    description: "cross-skill audit for tracking-state violations — SC-3"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/writing-plans/tasks/analyze.md
+    scs:
+      - SC-1
+      - SC-4
+  phase_2:
+    files:
+      - .opencode/skills/writing-plans/tasks/research.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/skills/*/tasks/*.md
+    scs:
+      - SC-3
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: research.md changes depend on analyze.md pattern being established first
+  - from: phase_2
+    to: phase_3
+    rationale: cross-skill audit depends on the pattern established by both analyze.md and research.md fixes

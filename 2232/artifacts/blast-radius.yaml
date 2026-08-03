@@ -1,0 +1,107 @@
+spec_path: .opencode/.issues/2232/spec.md
+affected_files:
+  - path: .opencode/skills/writing-plans/tasks/analyze.md
+    status: EXISTS
+    change_type: MODIFY
+    rationale: Replace frontmatter approved check with issue.yaml labels check
+  - path: .opencode/skills/writing-plans/tasks/research.md
+    status: EXISTS
+    change_type: MODIFY
+    rationale: Replace BLOCK-if-missing dependency-contract.yaml with generate-from-artifact
+  - path: .opencode/skills/*/tasks/*.md
+    status: SCOPE_DEFINED
+    change_type: AUDIT
+    rationale: Audit all task cards for tracking-state-in-spec violations
+audit_scope:
+  - path: .opencode/skills/approval-gate/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/audit/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/brainstorming/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/completeness-gate/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/conflict-resolution/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/engineering-approach/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/finishing-a-development-branch/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/git-workflow-branch/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/git-workflow-cleanup/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/git-workflow-commit/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/git-workflow-conflict/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/git-workflow-pr/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/git-workflow/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/issue-operations-comments/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/issue-operations-core/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/issue-operations-sub-issues/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/issue-operations-sync/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/issue-operations/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/issue-review/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/mcp-tool-usage/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/multimodal-dispatch/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/plan-creation-pipeline/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/plan/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/pre-analysis/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/programming-principles/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/receiving-code-review/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/release-promoter/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/requesting-code-review/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/research/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/skill-creator/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/solve/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/spec-creation/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/sre-runbook/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/sync-guidelines/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/systematic-debugging/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/test-driven-development/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/using-git-worktrees/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/verification-before-completion/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/verification-enforcement/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/verification/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/version-manager/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/writing-plans/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/changelog-generator/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/correspondence/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/gh-cli/tasks/
+    pattern: "*.md"
+  - path: .opencode/skills/playwright-cli/tasks/
+    pattern: "*.md"

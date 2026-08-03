@@ -1,0 +1,17 @@
+interface_compatibility:
+  phase_1_syntax_documentation:
+    type: NEW
+    backward_compatible: true
+    detail: "New documentation file - no existing interfaces affected"
+  phase_2_example_snippet:
+    type: MODIFIED
+    backward_compatible: true
+    detail: "Append to existing documentation file - no interface changes"
+  phase_3_behavioral_test:
+    type: NEW
+    backward_compatible: true
+    detail: "New test file - no existing test interfaces affected"
+  phase_4_merging_documentation:
+    type: MODIFIED
+    backward_compatible: true
+    detail: "Append to existing documentation file - no interface changes"

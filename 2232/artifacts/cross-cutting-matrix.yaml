@@ -1,0 +1,20 @@
+spec_path: .opencode/.issues/2232/spec.md
+cross_cutting_scs:
+  - sc_id: SC-3
+    description: Audit all task cards across .opencode/skills/ for tracking-state-in-spec violations
+    spans_concerns:
+      - C-1 (analyze.md frontmatter fix)
+      - C-2 (research.md dependency-contract generation)
+    rationale: SC-3 is a cross-cutting audit that applies the pattern established by SC-1 and SC-2 across all skills. It spans both C-1 and C-2 because the audit checks for the same class of violations (tracking-state-in-spec) that SC-1 and SC-2 fix.
+  - sc_id: SC-4
+    description: analyze.md no longer references spec frontmatter approved field
+    spans_concerns:
+      - C-1 (analyze.md frontmatter fix)
+    rationale: SC-4 is a verification sub-criterion of C-1 — it ensures the frontmatter references are fully removed from analyze.md
+non_cross_cutting:
+  - sc_id: SC-1
+    concern: C-1
+    rationale: SC-1 is confined to analyze.md changes only
+  - sc_id: SC-2
+    concern: C-2
+    rationale: SC-2 is confined to research.md changes only

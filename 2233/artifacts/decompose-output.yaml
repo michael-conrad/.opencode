@@ -1,0 +1,36 @@
+# Decomposition of draft spec: Bash Command Permission Patterns
+# Generated: 2026-08-02T22:44:00Z
+
+items:
+  - id: ITEM-1
+    sc: SC-1
+    description: Document agent.build.permission.bash granular pattern syntax
+    dependencies: []
+    evidence_type: string + semantic
+
+  - id: ITEM-2
+    sc: SC-2
+    description: Add example opencode.jsonc snippet showing bash command patterns
+    dependencies: [ITEM-1]
+    evidence_type: string
+
+  - id: ITEM-3
+    sc: SC-3
+    description: Add behavioral enforcement test for bash command permission patterns
+    dependencies: [ITEM-1]
+    evidence_type: behavioral
+
+  - id: ITEM-4
+    sc: SC-4
+    description: Document permission merging behavior (top-level vs agent.build override)
+    dependencies: [ITEM-1]
+    evidence_type: string + semantic
+
+dependency_dag:
+  edges:
+    - from: ITEM-1
+      to: ITEM-2
+    - from: ITEM-1
+      to: ITEM-3
+    - from: ITEM-1
+      to: ITEM-4

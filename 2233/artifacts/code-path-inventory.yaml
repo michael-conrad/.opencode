@@ -1,0 +1,21 @@
+code_path_inventory:
+  phase_1_syntax_documentation:
+    code_paths_touched:
+      - path: .opencode/docs/bash-permissions.md
+        action: CREATE
+        description: "New documentation file for bash permission syntax"
+  phase_2_example_snippet:
+    code_paths_touched:
+      - path: .opencode/docs/bash-permissions.md
+        action: APPEND
+        description: "Add example opencode.jsonc snippet section"
+  phase_3_behavioral_test:
+    code_paths_touched:
+      - path: .opencode/tests-v2/behaviors/bash-permission-enforcement.sh
+        action: CREATE
+        description: "New behavioral enforcement test script"
+  phase_4_merging_documentation:
+    code_paths_touched:
+      - path: .opencode/docs/bash-permissions.md
+        action: APPEND
+        description: "Add merging behavior section"

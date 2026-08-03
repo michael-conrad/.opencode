@@ -1,0 +1,51 @@
+# problem.yaml for plan tool
+# Phase decomposition for issue 2213
+
+domain: plan-creation-consolidation
+types:
+  - name: phase
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+fluents:
+  - name: phase_complete
+    params:
+      - name: p
+        type: phase
+  - name: phase_depends_on
+    params:
+      - name: p
+        type: phase
+      - name: q
+        type: phase
+actions:
+  - name: complete_phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - not phase_complete(p)
+    effects:
+      - phase_complete(p)
+  - name: complete_phase_with_dependency
+    params:
+      - name: p
+        type: phase
+      - name: q
+        type: phase
+    preconditions:
+      - phase_complete(q)
+      - not phase_complete(p)
+    effects:
+      - phase_complete(p)
+init:
+  - phase_depends_on(phase_2, phase_1)
+  - phase_depends_on(phase_3, phase_2)
+goals:
+  - phase_complete(phase_1)
+  - phase_complete(phase_2)
+  - phase_complete(phase_3)

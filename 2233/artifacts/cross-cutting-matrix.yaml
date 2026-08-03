@@ -1,0 +1,14 @@
+cross_cutting_matrix:
+  concerns:
+    - name: Documentation consistency
+      phases_affected: [1, 2, 4]
+      description: "All documentation phases must use consistent terminology and format"
+      resolution: "Single file (.opencode/docs/bash-permissions.md) with sections"
+    - name: Test infrastructure
+      phases_affected: [3]
+      description: "Behavioral test must follow existing test patterns"
+      resolution: "Use helpers.sh assertions and with-test-home wrapper"
+    - name: Content-verification tests
+      phases_affected: [1, 2, 4]
+      description: "Each documentation phase needs a content-verification test"
+      resolution: "Add grep-based assertions to test-enforcement scenarios"

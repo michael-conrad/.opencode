@@ -1,0 +1,27 @@
+# Requirements extracted from draft spec: Bash Command Permission Patterns
+# Generated: 2026-08-02T22:44:00Z
+
+requirements:
+  - id: REQ-1
+    description: Document the agent.build.permission.bash granular pattern syntax
+    source: Draft spec SC-1
+    priority: high
+    consumer: documentation files in .opencode repo
+
+  - id: REQ-2
+    description: Provide example opencode.jsonc snippet showing bash command patterns
+    source: Draft spec SC-2
+    priority: high
+    consumer: documentation files in .opencode repo
+
+  - id: REQ-3
+    description: Add behavioral enforcement test verifying agent respects bash command permission patterns
+    source: Draft spec SC-3
+    priority: high
+    consumer: .opencode/tests-v2/behaviors/
+
+  - id: REQ-4
+    description: Document permission merging behavior (top-level vs agent.build override)
+    source: Draft spec SC-4
+    priority: medium
+    consumer: documentation files in .opencode repo

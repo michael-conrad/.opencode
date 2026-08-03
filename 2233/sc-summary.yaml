@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: SC-1
+    description: "Document the agent.build.permission.bash granular pattern syntax in the .opencode repo"
+    evidence_type: string + semantic
+    plan_item: 1
+  - id: SC-2
+    description: "Add an example opencode.jsonc snippet showing bash command patterns to the documentation"
+    evidence_type: string
+    plan_item: 2
+  - id: SC-3
+    description: "Add behavioral enforcement test verifying the agent respects bash command permission patterns"
+    evidence_type: behavioral
+    plan_item: 3
+  - id: SC-4
+    description: "Document the permission merging behavior (top-level vs agent.build override)"
+    evidence_type: string + semantic
+    plan_item: 4

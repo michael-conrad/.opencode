@@ -1,0 +1,24 @@
+state_analysis:
+  initial_state:
+    - .opencode/docs/bash-permissions.md: DOES_NOT_EXIST
+    - .opencode/tests-v2/behaviors/bash-permission-enforcement.sh: DOES_NOT_EXIST
+  phase_transitions:
+    phase_1:
+      entry: "No bash permission documentation exists"
+      action: "Create .opencode/docs/bash-permissions.md with syntax documentation"
+      exit: "Syntax documentation exists in docs/bash-permissions.md"
+    phase_2:
+      entry: "Syntax documentation exists, no example snippet"
+      action: "Append example opencode.jsonc snippet to docs/bash-permissions.md"
+      exit: "Example snippet exists in docs/bash-permissions.md"
+    phase_3:
+      entry: "No behavioral test for bash permissions"
+      action: "Create .opencode/tests-v2/behaviors/bash-permission-enforcement.sh"
+      exit: "Behavioral test exists and passes"
+    phase_4:
+      entry: "Merging behavior not documented"
+      action: "Append merging behavior section to docs/bash-permissions.md"
+      exit: "Merging behavior documented in docs/bash-permissions.md"
+  final_state:
+    - .opencode/docs/bash-permissions.md: EXISTS (syntax + example + merging)
+    - .opencode/tests-v2/behaviors/bash-permission-enforcement.sh: EXISTS

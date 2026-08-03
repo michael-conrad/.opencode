@@ -2,8 +2,7 @@ title: '[SPEC] Extract auditor criteria to reference docs — spec-structure-sta
   and plan-structure-standards'
 status: closed
 labels:
-- needs-approval
-- SPEC
+- approved-for-pr,SPEC
 body: ''
 created_at: '2026-07-31T22:25:46+00:00'
-updated_at: '2026-07-31T22:25:46+00:00'
+updated_at: '2026-08-03T04:05:48+00:00'

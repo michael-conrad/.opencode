@@ -1,0 +1,42 @@
+# dependency-contract.yaml
+# Extracted from interface-compatibility.yaml
+# Spec: .opencode/.issues/2213/spec.md
+# Date: 2026-08-02
+
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+  phase_3_complete:
+    type: bool
+  phase_4_complete:
+    type: bool
+  handoff_available:
+    type: bool
+  completion_enhanced:
+    type: bool
+  cross_references_updated:
+    type: bool
+  skill_deleted:
+    type: bool
+  z3_steps_unchanged:
+    type: bool
+
+preconditions:
+  - "z3.Implies(phase_2_complete, phase_1_complete)"
+  - "z3.Implies(phase_3_complete, phase_2_complete)"
+  - "z3.Implies(phase_4_complete, phase_3_complete)"
+  - "z3.Implies(skill_deleted, cross_references_updated)"
+  - "z3.Implies(handoff_available, phase_3_complete)"
+  - "z3.Implies(completion_enhanced, phase_3_complete)"
+
+postconditions:
+  - "z3.And(phase_1_complete, phase_2_complete, phase_3_complete, phase_4_complete)"
+  - "z3.And(cross_references_updated, skill_deleted)"
+  - "z3.And(handoff_available, completion_enhanced)"
+  - "z3.Implies(z3_steps_unchanged, phase_4_complete)"
+
+invariants:
+  - "z3.Not(z3.And(phase_1_complete, z3.Not(cross_references_updated)))"
+  - "z3.Not(z3.And(skill_deleted, z3.Not(cross_references_updated)))"

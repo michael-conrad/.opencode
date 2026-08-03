@@ -1,0 +1,24 @@
+spec_path: .opencode/.issues/2232/spec.md
+concerns:
+  - id: C-1
+    name: analyze.md frontmatter fix
+    description: Replace spec frontmatter approved check with issue.yaml labels check in analyze.md
+    scs:
+      - SC-1
+      - SC-4
+    phase: 1
+    rationale: SC-1 and SC-4 both target analyze.md — SC-1 is the implementation, SC-4 is the verification that frontmatter references are removed
+  - id: C-2
+    name: research.md dependency-contract generation
+    description: Replace BLOCK-if-missing dependency-contract.yaml with generation from interface-compatibility.yaml in research.md
+    scs:
+      - SC-2
+    phase: 2
+    rationale: SC-2 is a standalone change to research.md — no overlap with other SCs
+  - id: C-3
+    name: cross-skill audit for tracking-state violations
+    description: Audit all task cards across .opencode/skills/ for tracking-state-in-spec violations
+    scs:
+      - SC-3
+    phase: 3
+    rationale: SC-3 is a cross-cutting audit that depends on the pattern established by SC-1 and SC-2

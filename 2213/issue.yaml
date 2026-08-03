@@ -1,7 +1,9 @@
 title: '[SPEC] Consolidate plan-creation-pipeline into writing-plans'
 status: open
 labels:
-- needs-approval
+- approved-for-pr
+- spec-passed-review
+- approved-for-for_pr
 body: '## Intent and Executive Summary
 
 

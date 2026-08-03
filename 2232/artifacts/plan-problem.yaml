@@ -1,0 +1,27 @@
+domain: writing-plans-research
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+actions:
+  - name: implement_phase_1
+    preconditions:
+      - not phase_1
+    effects:
+      - phase_1
+  - name: implement_phase_2
+    preconditions:
+      - phase_1
+      - not phase_2
+    effects:
+      - phase_2
+  - name: implement_phase_3
+    preconditions:
+      - phase_2
+      - not phase_3
+    effects:
+      - phase_3
+goals:
+  - phase_1
+  - phase_2
+  - phase_3

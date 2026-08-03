@@ -1,0 +1,55 @@
+spec_path: .opencode/.issues/2232/spec.md
+phases:
+  - id: phase_1
+    name: analyze.md frontmatter fix
+    scs:
+      - SC-1
+      - SC-4
+    items:
+      - sc_id: SC-1
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator runs git add + git commit
+      - sc_id: SC-4
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator runs git add + git commit
+  - id: phase_2
+    name: research.md dependency-contract generation
+    scs:
+      - SC-2
+    items:
+      - sc_id: SC-2
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator runs git add + git commit
+  - id: phase_3
+    name: cross-skill audit for tracking-state violations
+    scs:
+      - SC-3
+    items:
+      - sc_id: SC-3
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator runs git add + git commit
+dag_edges:
+  - from: phase_1
+    to: phase_2
+    rationale: research.md changes depend on analyze.md pattern being established first
+  - from: phase_2
+    to: phase_3
+    rationale: cross-skill audit depends on the pattern established by both analyze.md and research.md fixes
+skill_task_selection:
+  phase_1:
+    skill: test-driven-development
+    task: red/green
+  phase_2:
+    skill: test-driven-development
+    task: red/green
+  phase_3:
+    skill: audit
+    task: verification-audit

@@ -1,0 +1,14 @@
+spec_path: .opencode/.issues/2232/spec.md
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  model_sat: SAT
+  check_sat: SAT
+planner_result:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 3
+  plan:
+    - implement_phase_1()
+    - implement_phase_2()
+    - implement_phase_3()

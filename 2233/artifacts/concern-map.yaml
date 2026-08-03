@@ -1,0 +1,17 @@
+concern_map:
+  phase_1_syntax_documentation:
+    concern: "Documentation - syntax reference"
+    boundary: "Covers the glob pattern syntax for bash permissions only"
+    separation: "Does not cover examples, merging, or behavioral testing"
+  phase_2_example_snippet:
+    concern: "Documentation - practical example"
+    boundary: "Covers one example opencode.jsonc snippet showing bash patterns"
+    separation: "Does not cover syntax reference or merging behavior"
+  phase_3_behavioral_test:
+    concern: "Testing - behavioral enforcement"
+    boundary: "Covers agent behavior when bash permission patterns are configured"
+    separation: "Does not cover documentation content"
+  phase_4_merging_documentation:
+    concern: "Documentation - merging semantics"
+    boundary: "Covers top-level vs agent.build permission override behavior"
+    separation: "Does not cover syntax or examples"

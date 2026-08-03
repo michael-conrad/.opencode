@@ -7,132 +7,138 @@ spec_path: ".opencode/.issues/2213/spec.md"
 issue_number: 2213
 
 phases:
-  - id: phase_1
-    description: "Update cross-references, then delete the obsolete skill"
+  - id: 1
+    name: "cross-reference-updates"
+    description: "Update all cross-references from plan-creation-pipeline to writing-plans"
     scs:
       - SC-5
-      - SC-1
-    internal_order:
-      - "SC-5 first (update cross-references before deletion to avoid broken references)"
-      - "SC-1 second (delete after references are updated)"
-    depends_on: []
+    items:
+      - sc_id: SC-5
+        description: "Update plan/SKILL.md description: replace 'plan-creation-pipeline' with 'writing-plans'"
+        evidence_type: string
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 1
+    dependency_edges: []
 
-  - id: phase_2
+  - id: 2
+    name: "deletion"
+    description: "Delete plan-creation-pipeline skill directory after cross-references are updated"
+    scs:
+      - SC-1
+    items:
+      - sc_id: SC-1
+        description: "Delete plan-creation-pipeline skill directory (SKILL.md + tasks/authorization-context.md)"
+        evidence_type: structural
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 2
+    dependency_edges:
+      - from: 2
+        to: 1
+        reason: "Deletion must happen after cross-references are updated to avoid broken references"
+
+  - id: 3
+    name: "workflow-changes"
     description: "Modify writing-plans workflow with handoff, new order, enhanced completion, and TDT updates"
     scs:
       - SC-2
       - SC-3
       - SC-6
       - SC-4
-    internal_order:
-      - "SC-2 + SC-3 + SC-6 applied atomically (all modify writing-plans/SKILL.md)"
-      - "SC-4 applied after (modifies completion.md independently)"
-    depends_on:
-      - phase_1
+    items:
+      - sc_id: SC-2
+        description: "Create handoff.md task calling approval-gate --task verify-authorization; add handoff to SKILL.md Workflows"
+        evidence_type: string + behavioral
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 3
+      - sc_id: SC-3
+        description: "Update writing-plans/SKILL.md workflow order to: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
+        evidence_type: string
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 3
+      - sc_id: SC-6
+        description: "Update writing-plans/SKILL.md Trigger Dispatch Table and Workflows section to reflect new workflow with handoff"
+        evidence_type: string
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 3
+      - sc_id: SC-4
+        description: "Enhance completion.md with local-issues sync call and chat output (exec summary + URL + AI byline)"
+        evidence_type: string + behavioral
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 3
+    dependency_edges:
+      - from: 3
+        to: 2
+        reason: "Workflow changes must happen after the old skill is deleted"
 
-  - id: phase_3
-    description: "Verify Z3 steps unchanged after all modifications"
+  - id: 4
+    name: "no-change-verification"
+    description: "Verify Z3/planning steps in research.md steps 10-12 are unchanged"
     scs:
       - SC-7
-    internal_order:
-      - "SC-7 only (verification-only, no changes)"
-    depends_on:
-      - phase_2
+    items:
+      - sc_id: SC-7
+        description: "Verify no behavioral change to solve-model, solve-check, plan-plan steps in research.md"
+        evidence_type: behavioral
+        skill: writing-plans
+        task: "execute create from writing-plans"
+        red_green_commit_phase: 4
+    dependency_edges:
+      - from: 4
+        to: 3
+        reason: "No-change verification must run after all modifications are complete"
 
 dependency_dag:
   edges:
-    - from: phase_1
-      to: phase_2
-      rationale: "Deletion of plan-creation-pipeline must complete before writing-plans workflow changes"
-    - from: phase_2
-      to: phase_3
-      rationale: "Z3 no-change verification must run after all modifications are complete"
+    - from: 1
+      to: null
+      type: root
+    - from: 2
+      to: 1
+      type: depends_on
+    - from: 3
+      to: 2
+      type: depends_on
+    - from: 4
+      to: 3
+      type: depends_on
+
+triplet_co_location:
+  status: PASS
+  details: "All SCs have RED/GREEN/COMMIT steps assigned to the same phase"
+
+cross_phase_dependency:
+  status: PASS
+  details: "No RED test depends on SC output from a later phase"
 
 skill_task_selection:
-  phase_1:
-    SC-5:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Write grep test that finds plan-creation-pipeline in plan/SKILL.md"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "Update plan/SKILL.md description field: replace plan-creation-pipeline with writing-plans"
-      commit:
-        action: orchestrator_inline
-        description: "git add .opencode/skills/plan/SKILL.md && git commit"
-    SC-1:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Write structural test: ls .opencode/skills/plan-creation-pipeline/ returns 'No such file'"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "git rm -r .opencode/skills/plan-creation-pipeline/"
-      commit:
-        action: orchestrator_inline
-        description: "git add .opencode/skills/plan-creation-pipeline/ && git commit"
-  phase_2:
-    SC-2:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Write behavioral test: opencode run verifies handoff dispatch in stderr"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "Create handoff.md, update SKILL.md Workflows to include handoff step"
-      commit:
-        action: orchestrator_inline
-        description: "git add .opencode/skills/writing-plans/ && git commit"
-    SC-3:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Write string test: grep for workflow order in SKILL.md shows old order"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "Update SKILL.md Workflows section order to: handoff -> analyze -> research -> create -> validate -> (revise loop) -> completion"
-      commit:
-        action: orchestrator_inline
-        description: "Applied atomically with SC-2 and SC-6"
-    SC-6:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Write string test: grep for handoff in TDT returns no match"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "Update SKILL.md TDT and Workflows to reflect new workflow with handoff"
-      commit:
-        action: orchestrator_inline
-        description: "Applied atomically with SC-2 and SC-3"
-    SC-4:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Write string+behavioral test: grep for local-issues sync in completion.md fails; opencode run verifies completion output"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "Modify completion.md: add local-issues sync and chat output (exec summary + URL + AI byline)"
-      commit:
-        action: orchestrator_inline
-        description: "git add .opencode/skills/writing-plans/tasks/completion.md && git commit"
-  phase_3:
-    SC-7:
-      red:
-        skill: test-driven-development
-        dispatch: "execute red task from test-driven-development"
-        description: "Capture pre-change baseline: diff research.md against committed version; behavioral test baseline"
-      green:
-        skill: test-driven-development
-        dispatch: "execute green task from test-driven-development"
-        description: "No changes needed — verification-only SC. Confirm research.md steps 10-12 are identical to baseline"
-      commit:
-        action: orchestrator_inline
-        description: "git add behavioral test artifacts && git commit"
+  per_phase:
+    - phase: 1
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+      commit: "orchestrator runs git add + git commit"
+    - phase: 2
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+      commit: "orchestrator runs git add + git commit"
+    - phase: 3
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+      commit: "orchestrator runs git add + git commit"
+    - phase: 4
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+      commit: "orchestrator runs git add + git commit"

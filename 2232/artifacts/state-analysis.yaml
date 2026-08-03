@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2232/spec.md
+state_transitions:
+  - sc_id: SC-1
+    initial_state: analyze.md has frontmatter approved check
+    final_state: analyze.md checks issue.yaml labels for approved-for-* pattern
+    transitions:
+      - action: Replace Entry Criteria frontmatter check with issue.yaml labels check
+        file: .opencode/skills/writing-plans/tasks/analyze.md
+        section: Entry Criteria
+      - action: Replace Procedure Step 2 frontmatter read with issue.yaml labels read
+        file: .opencode/skills/writing-plans/tasks/analyze.md
+        section: Procedure Step 2
+      - action: Update Exit Criteria to reflect label-based approval check
+        file: .opencode/skills/writing-plans/tasks/analyze.md
+        section: Exit Criteria
+  - sc_id: SC-2
+    initial_state: research.md BLOCKs if dependency-contract.yaml is missing
+    final_state: research.md generates dependency-contract.yaml from interface-compatibility.yaml
+    transitions:
+      - action: Replace Step 9 BLOCK with generation from interface-compatibility.yaml dependency_contract section
+        file: .opencode/skills/writing-plans/tasks/research.md
+        section: Procedure Step 9
+      - action: Ensure Steps 10-12 consume the generated dependency-contract.yaml (no change needed)
+        file: .opencode/skills/writing-plans/tasks/research.md
+        section: Procedure Steps 10-12
+  - sc_id: SC-3
+    initial_state: Unknown — task cards may contain tracking-state violations
+    final_state: All task cards audited; violations documented and fixed
+    transitions:
+      - action: Audit all .opencode/skills/*/tasks/*.md for frontmatter approved fields
+        scope: all skills
+      - action: Audit all .opencode/skills/*/tasks/*.md for status/completion markers
+        scope: all skills
+      - action: Fix any violations found
+        scope: per-violation
+  - sc_id: SC-4
+    initial_state: analyze.md references spec frontmatter approved field
+    final_state: analyze.md has zero references to spec frontmatter approved field
+    transitions:
+      - action: Remove all frontmatter references from analyze.md
+        file: .opencode/skills/writing-plans/tasks/analyze.md
+        section: all

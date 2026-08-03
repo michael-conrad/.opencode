@@ -1,0 +1,3 @@
+research_card_consultation:
+  status: NO_CARDS_FOUND
+  detail: "No research cards exist in .opencode/.issues/research-cards/. Skipping consultation."

@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2232/spec.md
+assessments:
+  - sc_id: SC-1
+    evidence_type: string
+    verification_method: grep for issue.yaml and approved-for in analyze.md; grep for frontmatter.*approved returns zero matches
+    testability: HIGH
+    rationale: String-based grep verification on a single file — deterministic, fast, no runtime dependency
+  - sc_id: SC-2
+    evidence_type: string + behavioral
+    verification_method: grep for interface-compatibility.yaml and dependency_contract in research.md; opencode run with plan-creation prompt verifies no DEPENDENCY_CONTRACT_NOT_FOUND BLOCK
+    testability: MEDIUM
+    rationale: String grep is deterministic; behavioral test requires opencode run with real model, which has infrastructure dependencies
+  - sc_id: SC-3
+    evidence_type: string
+    verification_method: grep for approved in tasks/analyze.md across all skills returns zero matches; grep for status.*completed|status.*pending|status.*in_progress in spec/plan task files returns zero matches
+    testability: HIGH
+    rationale: Cross-skill grep is deterministic but requires scanning many files — still fast and reliable
+  - sc_id: SC-4
+    evidence_type: string
+    verification_method: grep for frontmatter in analyze.md returns zero matches
+    testability: HIGH
+    rationale: Single-file grep — trivial to verify
