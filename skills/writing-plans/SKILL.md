@@ -10,7 +10,7 @@ provenance: AI-generated
 
 ## Overview
 
-Generate and validate implementation plans from approved specs. Flat architecture — no sub-skills, 6 task files. The orchestrator sequences a clean-room pipeline: ANALYZE (entry gates) → RESEARCH (scope discovery, structure, Z3 solving) → CREATE (plan writing) → VALIDATE (structural validation, holistic check) → (revise loop) → COMPLETION (lifecycle event). Each sub-agent receives only its scoped context — no preloaded reasoning, no orchestrator conclusions.
+Generate and validate implementation plans from approved specs. Flat architecture — no sub-skills, 7 task files. The orchestrator sequences a clean-room pipeline: HANDOFF (authorization verification) → ANALYZE (entry gates) → RESEARCH (scope discovery, structure, Z3 solving) → CREATE (plan writing) → VALIDATE (structural validation, holistic check) → (revise loop) → COMPLETION (lifecycle event). Each sub-agent receives only its scoped context — no preloaded reasoning, no orchestrator conclusions.
 
 ## Workflows
 
@@ -18,6 +18,7 @@ Generate and validate implementation plans from approved specs. Flat architectur
 
 | Step | Action | Context | Returns | On Failure |
 |------|--------|---------|---------|------------|
+| handoff | `task("execute handoff from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | analyze | `task("execute analyze from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | research | `task("execute research from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | create | `task("execute create from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
@@ -31,6 +32,7 @@ Generate and validate implementation plans from approved specs. Flat architectur
 
 | Step | Action | Context | Returns | On Failure |
 |------|--------|---------|---------|------------|
+| handoff | `task("execute handoff from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | revise | `task("execute revise from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | research | `task("execute research from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Return to revise step |
 | validate | `task("execute validate from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
@@ -41,6 +43,7 @@ Generate and validate implementation plans from approved specs. Flat architectur
 
 | Step | Action | Context | Returns | On Failure |
 |------|--------|---------|---------|------------|
+| handoff | `task("execute handoff from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | backfill | `task("execute backfill from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | research | `task("execute research from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
 | create | `task("execute create from writing-plans")` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
@@ -54,6 +57,7 @@ Generate and validate implementation plans from approved specs. Flat architectur
 
 | File | Purpose |
 |------|---------|
+| `tasks/handoff.md` | Verify authorization via approval-gate before plan creation pipeline begins |
 | `tasks/analyze.md` | Verify spec exists locally, check approval from issue.yaml labels, validate analytical artifacts exist |
 | `tasks/backfill.md` | Generate missing analytical artifacts from spec body when spec-creation did not produce them |
 | `tasks/research.md` | Decompose SCs into phases, build dependency DAG, select skill+task from implementation-workflow reference card Trigger Dispatch Table, run Z3 constraint solving |
@@ -69,6 +73,7 @@ Generate and validate implementation plans from approved specs. Flat architectur
 writing-plans/
   SKILL.md
   tasks/
+    handoff.md
     analyze.md
     backfill.md
     research.md
