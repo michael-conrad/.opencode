@@ -40,13 +40,13 @@
 | SC-1 | `skildeck lint` extended with structural completeness checks: every directory under `.opencode/skills/` has a `SKILL.md` (with exception mechanism for known non-skill dirs like `reference/`), every `SKILL.md`'s Trigger Dispatch Table references resolve to existent task files, every skill with a `tasks/` directory has a `SKILL.md` | `behavioral` | `opencode run` with prompt that triggers skildeck lint on a broken skill deck; assert stderr contains structural completeness findings |
 | SC-2 | Content-verification test scenario added to `test-enforcement.sh` mapping skill deck structural files to the test | `string + structural` | `grep` for new scenario in `test-enforcement.sh` + `ls` for scenario file |
 | SC-3 | Behavioral enforcement test in `behaviors/` that sends a prompt triggering the missing-skill-card investigation and verifies the agent produces investigation report and fatal HALT with escalation | `behavioral` | `bash .opencode/tests-v2/behaviors/skill-deck-completeness.sh` produces artifacts; clean-room semantic inspector verifies agent behavior |
-| SC-4 | `.opencode/AGENTS.md` updated with reference to the enforcement mechanism: Reference Documents table updated, Build/Lint/Test Commands table updated with new `skildeck lint --completeness` command | `string` | `grep` for new command and reference in `.opencode/AGENTS.md` |
+| SC-4 | `.opencode/AGENTS.md` updated with reference to the enforcement mechanism: Reference Documents table updated, Build/Lint/Test Commands table updated with new `skildeck lint` command | `string` | `grep` for new command and reference in `.opencode/AGENTS.md` |
 | SC-5 | `AGENTS.md` (root) updated with reference to the enforcement mechanism in Reference Files table | `string` | `grep` for new reference in `AGENTS.md` |
 | SC-6 | `000-critical-rules.md` updated with critical violation section: new `critical-rules-074` — "Missing skill card or task card triggers investigation + fatal HALT with escalation" | `string + behavioral` | `grep` for `critical-rules-074` + behavioral test verifies agent follows the rule |
 
 ## Requirements
 
-1. `skildeck lint` SHALL include a `--completeness` flag that runs structural completeness checks on the skill deck.
+1. `skildeck lint` SHALL run structural completeness checks on the skill deck by default.
 2. The structural completeness check SHALL verify that every directory under `.opencode/skills/` has a `SKILL.md`, excluding directories listed in a `.skilldeck-ignore` file.
 3. The structural completeness check SHALL verify that every `SKILL.md`'s Trigger Dispatch Table references resolve to existent task files under `tasks/`.
 4. The structural completeness check SHALL verify that every skill with a `tasks/` directory has a `SKILL.md`.
@@ -59,7 +59,7 @@
 
 ## Items
 
-1. Extend `skildeck lint` with `--completeness` flag and structural checks (SC-1)
+1. Extend `skildeck lint` with structural completeness checks and structural checks (SC-1)
 2. Add content-verification test scenario to `test-enforcement.sh` (SC-2)
 3. Create behavioral enforcement test in `behaviors/` (SC-3)
 4. Update `.opencode/AGENTS.md` (SC-4)
@@ -117,8 +117,6 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Routing/orchestrator skills without `tasks/`:** Three skills (approval-gate, git-workflow, issue-operations) lack `tasks/` directories — this is intentional for routing/orchestrator skills. The completeness check must not flag these as errors.
 - **Empty skill directories:** A skill directory with neither `SKILL.md` nor `tasks/` is a structural error — flagged by the check.
 - **TDT references to non-existent task files:** A `SKILL.md` whose Trigger Dispatch Table references a task file that does not exist under `tasks/` is a structural error — flagged by the check.
-- **`--completeness` flag not provided:** Without `--completeness`, skildeck lint behaves exactly as before — no structural checks run. This preserves backward compatibility.
-
 ---
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
