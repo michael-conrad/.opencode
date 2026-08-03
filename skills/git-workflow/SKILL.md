@@ -19,7 +19,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | `git-workflow-branch` | Branch creation, submodule sync, provenance, pair mode setup | 9 task files |
 | `git-workflow-commit` | Implementation commits, commit prep, pair commits | 3 task files |
 | `git-workflow-pr` | PR creation, review prep, pair PR, completion, post-implementation | 7 task files |
-| `git-workflow-cleanup` | Post-merge cleanup, PR state check, pair cleanup | 4 task files |
+| `git-workflow-cleanup` | Post-merge cleanup, PR state check, pair cleanup | 3 task files |
 | `git-workflow-conflict` | Rebase/merge conflict resolution | 1 task file |
 
 ## Trigger Dispatch Table
@@ -32,7 +32,6 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | "pr-creation" / "create PR" | `pr-creation` | `git-workflow-pr --task pr-creation` | `sub-task` | {branch_name, spec_summary} |
 | "rebase" / "rebase pending" | `rebase-pending` | `git-workflow-conflict --task rebase-pending` | `sub-task` | {branch_name} |
 | "cleanup" / "post-merge cleanup" | `cleanup` | `git-workflow-cleanup --task cleanup` | `sub-task` | {pr_merge_status} |
-| "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `git-workflow-cleanup --task check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `git-workflow-branch --task provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `git-workflow-branch --task submodule-sync` | `sub-task` | {submodule_paths} |
 | "release" / "release/v" | `pre-work` | `git-workflow-branch --task pre-work` | `sub-task` | {branch_name: release/v{semver}} |
@@ -53,7 +52,6 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | `pr-creation` | `task(..., prompt: "execute pr-creation from git-workflow-pr. Read \`git-workflow-pr/tasks/pr-creation.md\` first")` |
 | `rebase-pending` | `task(..., prompt: "execute rebase-pending from git-workflow-conflict. Read \`git-workflow-conflict/tasks/rebase-pending.md\` first")` |
 | `cleanup` | `task(..., prompt: "execute cleanup from git-workflow-cleanup. Read \`git-workflow-cleanup/tasks/cleanup.md\` first")` |
-| `check-pr` | `task(..., prompt: "execute check-pr from git-workflow-cleanup. Read \`git-workflow-cleanup/tasks/check-pr.md\` first")` |
 | `provenance` | `task(..., prompt: "execute provenance from git-workflow-branch. Read \`git-workflow-branch/tasks/provenance.md\` first")` |
 | `submodule-sync` | `task(..., prompt: "execute submodule-sync from git-workflow-branch. Read \`git-workflow-branch/tasks/submodule-sync.md\` first")` |
 | `trunk-tip-verification` | `task(..., prompt: "execute trunk-tip-verification from git-workflow-branch. Read \`git-workflow-branch/tasks/trunk-tip-verification.md\` first")` |
