@@ -1,0 +1,12 @@
+# Interface Compatibility
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+analysis: |
+  No interface boundaries are affected. The spec modifies a single guideline file
+  (.opencode/guidelines/067-context-completeness.md) with text deletions and replacements.
+  No code modules, function signatures, API contracts, or cross-file interfaces are involved.
+  The guideline is consumed by AI agents via the opencode.jsonc instructions array and
+  guideline INDEX.md — neither of which reference internal section structure.
+
+interface_boundaries: []

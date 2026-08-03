@@ -1,0 +1,30 @@
+# Dependency contract for issue 2130
+# Text-only compaction of 067-context-completeness.md
+# No dependencies, no state transitions, no interface boundaries
+
+contract_version: 1.0
+description: "Dependency contract for 067-context-completeness.md compaction"
+variables: []
+preconditions: []
+invariants: []
+postconditions: []
+theorems: []
+dependency_structure:
+  type: fan-in
+  nodes:
+    - id: 1
+      description: "Collapse Core Principle into Zero Tolerance"
+    - id: 2
+      description: "Remove Why This Matters, Examples, Relationship to Other Critical Rules"
+    - id: 3
+      description: "Replace When This Applies table with one-sentence exception"
+    - id: 4
+      description: "Verify all keep sections preserved"
+  edges:
+    - from: 1
+      to: 4
+    - from: 2
+      to: 4
+    - from: 3
+      to: 4
+  acyclic: true

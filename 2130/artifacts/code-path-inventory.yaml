@@ -1,0 +1,68 @@
+# Code Path Inventory
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+code_paths:
+  - sc: SC-1
+    file: .opencode/guidelines/067-context-completeness.md
+    sections:
+      - "## Zero Tolerance Rule"
+      - "## Core Principle"
+    operation: merge Core Principle body into Zero Tolerance section; remove Core Principle header
+    verification: grep -c 'read ALL comments' returns 1
+
+  - sc: SC-2
+    file: .opencode/guidelines/067-context-completeness.md
+    sections:
+      - "## Why This Matters"
+    operation: delete entire section (header + table + blank lines)
+    verification: grep for 'Why This Matters' returns 0
+
+  - sc: SC-3
+    file: .opencode/guidelines/067-context-completeness.md
+    sections:
+      - "## When This Applies"
+    operation: replace 8-row table with one-sentence exception
+    verification: grep -c 'passive reading' returns 1
+
+  - sc: SC-4
+    file: .opencode/guidelines/067-context-completeness.md
+    sections:
+      - "### Examples"
+    operation: delete entire subsection (header + table + blank lines)
+    verification: grep for 'Resource last read' returns 0
+
+  - sc: SC-5
+    file: .opencode/guidelines/067-context-completeness.md
+    sections:
+      - "## Relationship to Other Critical Rules"
+    operation: delete entire section (header + prose + blank lines)
+    verification: grep for 'Relationship to Other Critical Rules' returns 0
+
+  - sc: SC-6a
+    file: .opencode/guidelines/067-context-completeness.md
+    sections:
+      - "## Zero Tolerance Rule"
+      - "## Scope of Resources"
+      - "## Evidence Requirement"
+      - "## Staleness Rule"
+      - "### Significant Actions Requiring Re-Read"
+      - "### De Minimis Bound"
+      - "## Single Exchange Window"
+      - "## Related Guidelines"
+      - "## 🚫 FORBIDDEN"
+      - "## ✅ REQUIRED"
+    operation: verify no content changes via diff against original
+    verification: diff each section against original; no changes
+
+  - sc: SC-6b
+    file: .opencode/guidelines/067-context-completeness.md
+    sections: [same as SC-6a]
+    operation: verify order preserved
+    verification: grep for each section header; order matches original
+
+  - sc: SC-6c
+    file: .opencode/guidelines/067-context-completeness.md
+    sections: [same as SC-6a]
+    operation: verify heading level preserved
+    verification: grep for each section header at ## level; all at ##

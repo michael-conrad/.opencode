@@ -1,0 +1,38 @@
+# Concern Map
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+concerns:
+  - id: C1
+    name: Deduplication
+    description: Remove duplicate rule statements (Core Principle duplicates Zero Tolerance)
+    scs: [SC-1]
+    phase: 1
+    action: merge
+
+  - id: C2
+    name: Teaching Material Removal
+    description: Remove explanatory/illustrative content that does not carry enforceable rules
+    scs: [SC-2, SC-4, SC-5]
+    phase: 2
+    action: delete
+
+  - id: C3
+    name: Table Compaction
+    description: Replace verbose decision tables with concise statements
+    scs: [SC-3]
+    phase: 3
+    action: replace
+
+  - id: C4
+    name: Preservation Verification
+    description: Verify all keep sections remain unchanged in content, position, and heading level
+    scs: [SC-6a, SC-6b, SC-6c]
+    phase: 4
+    action: verify
+
+phase_boundaries:
+  phase_1: [SC-1]
+  phase_2: [SC-2, SC-4, SC-5]
+  phase_3: [SC-3]
+  phase_4: [SC-6a, SC-6b, SC-6c]

@@ -1,0 +1,12 @@
+# Cross-Cutting Matrix
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+cross_cutting_scs: []
+
+analysis: |
+  No SCs span multiple concerns. Each concern (deduplication, teaching material removal,
+  table compaction, preservation verification) maps to a distinct set of SCs with no overlap.
+  SC-1 is exclusive to deduplication. SC-2/SC-4/SC-5 are exclusive to teaching material removal.
+  SC-3 is exclusive to table compaction. SC-6a/SC-6b/SC-6c are exclusive to preservation verification.
+  All SCs operate on the same file but on disjoint sections — no edit conflicts.

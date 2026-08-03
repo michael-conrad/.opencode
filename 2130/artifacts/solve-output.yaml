@@ -1,0 +1,13 @@
+# Solve output for issue 2130
+# Text-only compaction of 067-context-completeness.md
+# No dependencies, no state transitions, no interface boundaries
+
+status: SAT
+finding_summary: "DAG is valid. 4 nodes, 3 edges, no cycles. Fan-in pattern (1→4, 2→4, 3→4). All ordering constraints satisfied."
+solver: fallback
+acyclic: true
+cycles: []
+ordering_violations: []
+phase_count: 4
+edge_count: 3
+dag_type: fan-in

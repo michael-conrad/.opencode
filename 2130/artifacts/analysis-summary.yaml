@@ -1,0 +1,23 @@
+# Analysis Summary
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+spec_path: .opencode/.issues/2130/spec.md
+sc_count: 8
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_summary:
+  affected_files: 1
+  indirectly_affected: 3
+  change_type: text_compaction
+  risk_level: low
+  sc_evidence_types:
+    - type: string
+      count: 8
+      scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6a, SC-6b, SC-6c]

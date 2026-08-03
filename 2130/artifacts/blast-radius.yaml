@@ -1,0 +1,33 @@
+# Blast Radius Analysis
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+affected_files:
+  - path: .opencode/guidelines/067-context-completeness.md
+    status: verified_exists
+    change_type: edit
+    operations:
+      - merge Core Principle into Zero Tolerance (SC-1)
+      - remove Why This Matters section (SC-2)
+      - replace When This Applies table with one-sentence exception (SC-3)
+      - remove Examples subsection (SC-4)
+      - remove Relationship to Other Critical Rules section (SC-5)
+      - preserve all keep sections unchanged (SC-6a, SC-6b, SC-6c)
+
+indirectly_affected:
+  - path: .opencode/guidelines/INDEX.md
+    status: no_change_needed
+    reason: INDEX.md references the guideline by filename, not by section structure. No section headers are being renamed.
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: no_change_needed
+    reason: critical-rules-012 entries reference 067-context-completeness.md by filename, not by section structure.
+  - path: .opencode/skills/issue-operations/SKILL.md
+    status: no_change_needed
+    reason: References the guideline by filename only.
+
+scope_summary:
+  total_affected_files: 1
+  total_indirectly_affected: 3
+  change_type: text_compaction
+  risk_level: low
+  rationale: All changes are deletions and text replacements within a single file. No code, configuration, or cross-referenced symbols are modified.

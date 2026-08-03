@@ -1,0 +1,21 @@
+# Testability Assessment
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+sc_evidence_types:
+  SC-1: string
+  SC-2: string
+  SC-3: string
+  SC-4: string
+  SC-5: string
+  SC-6a: string
+  SC-6b: string
+  SC-6c: string
+
+assessment: |
+  All SCs are string-evidence type — verified by grep/diff on the modified file.
+  No behavioral tests are required because no agent behavior changes are expected
+  (the guideline's enforceable rules are preserved; only teaching material is removed).
+  Verification method for each SC is grep for presence/absence of specific text patterns
+  or diff for content preservation. All SCs are independently verifiable with zero
+  runtime dependencies.

@@ -1,0 +1,12 @@
+# State Analysis
+# Generated: 2026-08-03
+# Spec: .opencode/.issues/2130/spec.md
+
+state_transitions: []
+
+analysis: |
+  No state transitions are required. The spec involves only text editing operations
+  (section deletion, content merge, table replacement) on a single guideline file.
+  There are no runtime state machines, database migrations, configuration toggles,
+  or conditional code paths involved. The file is consumed statically by AI agents
+  at session start — no runtime state is affected.
