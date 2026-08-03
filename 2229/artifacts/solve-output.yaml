@@ -1,0 +1,51 @@
+# Solve Output — Z3 constraint solver results
+# Spec: #2229 — Skill deck completeness validation
+
+solve_model:
+  status: SAT
+  query: "z3.And(skildeck_lint_extended, critical_rule_exists, content_test_exists, behavioral_test_exists, opencode_agents_updated, root_agents_updated)"
+  assignment:
+    skildeck_lint_extended: true
+    critical_rule_exists: true
+    content_test_exists: true
+    behavioral_test_exists: true
+    opencode_agents_updated: true
+    root_agents_updated: true
+  interpretation: All 6 state variables can be simultaneously true — the full pipeline is reachable
+
+solve_check:
+  status: SAT
+  state_path: .opencode/.issues/2229/artifacts/state-analysis.yaml
+  contract_path: .opencode/.issues/2229/dependency-contract.yaml
+  pre_state:
+    skildeck_lint_extended: false
+    critical_rule_exists: false
+    content_test_exists: false
+    behavioral_test_exists: false
+    opencode_agents_updated: false
+    root_agents_updated: false
+  post_state:
+    skildeck_lint_extended: false
+    critical_rule_exists: false
+    content_test_exists: false
+    behavioral_test_exists: false
+    opencode_agents_updated: false
+    root_agents_updated: false
+  interpretation: Pre-change state (all false) satisfies contract preconditions and invariants — no contradictions in the initial state
+
+solve_prove:
+  theorem: "z3.Implies(z3.And(skildeck_lint_extended, critical_rule_exists), behavioral_test_exists)"
+  status: INVALID
+  counterexample:
+    skildeck_lint_extended: true
+    critical_rule_exists: true
+    behavioral_test_exists: false
+  interpretation: The theorem "if skildeck lint is extended AND critical rule exists, then behavioral test exists" is INVALID — this is EXPECTED because phase_4 (behavioral test) depends on both phase_1 and phase_2 but is not automatically implied by them. The dependency DAG correctly models this: phase_4 requires both phase_1 and phase_2 as prerequisites, but the behavioral test must be explicitly created (it is not an automatic consequence).
+
+plan_status: SOLVED_SATISFICING
+notes: >
+  The dependency DAG is a DAG with no cycles. Phase 1 and Phase 2 are root phases
+  (no dependencies). Phase 3, 5, 6 depend on Phase 1. Phase 4 depends on both
+  Phase 1 and Phase 2. The critical path is Phase 1 → Phase 4 (2 levels deep)
+  or Phase 2 → Phase 4 (2 levels deep). Parallel execution is possible for
+  Phase 1+2 (roots), and Phase 3+5+6 (after Phase 1).

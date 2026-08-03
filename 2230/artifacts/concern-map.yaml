@@ -1,0 +1,74 @@
+# Concern map for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+concerns:
+  - id: sub-repo-workflow-extraction
+    description: Extract sub-repo phase operations (verify trunk tip, tag, branch) into separate task file
+    scs: [SC-1]
+    phases: [PHASE-1]
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+
+  - id: parent-repo-workflow-extraction
+    description: Extract shared submodule divergence handling into reference file
+    scs: [SC-2]
+    phases: [PHASE-2]
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+
+  - id: pre-work-decomposition
+    description: Refactor pre-work.md to delegate to sub-tasks via canonical dispatch strings, redesign result contract
+    scs: [SC-3a, SC-3b]
+    phases: [PHASE-3]
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+
+  - id: cross-reference-updates
+    description: Update cross-references across 15+ files that reference pre-work.md steps, result contracts, and dispatch strings
+    scs: [SC-4]
+    phases: [PHASE-4]
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+      - .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+      - .opencode/skills/git-workflow-branch/SKILL.md
+      - .opencode/guidelines/000-critical-rules.md
+      - (15+ additional files with cross-references)
+
+  - id: behavioral-test-updates
+    description: Update existing behavioral tests to match new task structure and dispatch patterns
+    scs: [SC-5]
+    phases: [PHASE-5]
+    files:
+      - .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+      - .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+
+  - id: new-behavioral-test
+    description: Add new behavioral test verifying decomposed pre-work dispatches sub-tasks in correct order
+    scs: [SC-6]
+    phases: [PHASE-6]
+    files:
+      - .opencode/tests-v2/behaviors/pre-work-decomposition.sh
+
+concern_dependencies:
+  - from: sub-repo-workflow-extraction
+    to: pre-work-decomposition
+    reason: trunk-tip-verification task must exist before pre-work.md can dispatch it
+
+  - from: parent-repo-workflow-extraction
+    to: pre-work-decomposition
+    reason: shared submodule divergence reference must exist before pre-work.md can reference it
+
+  - from: pre-work-decomposition
+    to: cross-reference-updates
+    reason: cross-references must match the new pre-work.md structure
+
+  - from: pre-work-decomposition
+    to: behavioral-test-updates
+    reason: behavioral tests must match the new task structure
+
+  - from: pre-work-decomposition
+    to: new-behavioral-test
+    reason: new test verifies the decomposed structure

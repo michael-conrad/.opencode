@@ -39,8 +39,8 @@ phase_count: 6
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — Trunk-tip verification task | `skill-creator` | `init` | `trunk-tip-verification.md` (new) | SC-1 | — |
-| 2 — Submodule divergence reference | `skill-creator` | `init` | `submodule-sync.md` (extract) | SC-2 | — |
+| 1 — Trunk-tip verification task | `git-workflow-branch` | `pre-work` | `trunk-tip-verification.md` (new) | SC-1 | — |
+| 2 — Submodule divergence reference | `git-workflow-branch` | `pre-work` | `submodule-sync.md` (extract) | SC-2 | — |
 | 3 — Pre-work decomposition | `git-workflow-branch` | `pre-work` | `pre-work.md` (restructure) | SC-3a, SC-3b | 1, 2 |
 | 4 — Cross-reference updates | `git-workflow-branch` | `pre-work` | 15+ files | SC-4 | 3 |
 | 5 — Update existing tests | `test-driven-development` | `red` | 2 test files | SC-5 | 3 |
@@ -54,8 +54,8 @@ phase_count: 6
 
 | Field | Value |
 |-------|-------|
-| Skill | `skill-creator` |
-| Task | `init` |
+| Skill | `git-workflow-branch` |
+| Task | `pre-work` |
 | Target | `.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md` (new) |
 | SCs | SC-1 |
 | Depends On | — |
@@ -66,6 +66,7 @@ phase_count: 6
 - Tag convention: `<parent-repo>/<issue-number>` for sub-repo tags
 - Dispatchable task file with entry/exit criteria and result contract
 - SKILL.md dispatch table entry with canonical dispatch string
+- File is created directly using editor tools (no `skill-creator --task init` — that task does not exist)
 
 - [ ] 3. **RED (**sub-agent**).** Write failing behavioral test asserting trunk-tip-verification.md task file does not exist yet and pre-work.md does not dispatch it. **→ SC-1**
 - [ ] 4. **GREEN (**sub-agent**).** Create `.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md` with 6-step gate. Add dispatch table entry to `git-workflow-branch/SKILL.md`. **→ SC-1**
@@ -84,8 +85,8 @@ phase_count: 6
 
 | Field | Value |
 |-------|-------|
-| Skill | `skill-creator` |
-| Task | `init` |
+| Skill | `git-workflow-branch` |
+| Task | `pre-work` |
 | Target | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` (extract) |
 | SCs | SC-2 |
 | Depends On | — |
@@ -96,6 +97,7 @@ phase_count: 6
 - Escalation path for unresolvable divergence (ahead AND behind)
 - Reference file (not a task) — included via reference markers, not dispatched
 - Must be usable by both pre-work.md and submodule-sync.md
+- File is created directly using editor tools (no `skill-creator --task init` — that task does not exist)
 
 - [ ] 8. **RED (**sub-agent**).** Write failing test asserting submodule divergence logic is duplicated (present in both pre-work.md and submodule-sync.md). **→ SC-2**
 - [ ] 9. **GREEN (**sub-agent**).** Extract shared submodule divergence handling into submodule-sync.md as a reference file. Add reference inclusion markers. Remove duplicated logic from pre-work.md. **→ SC-2**

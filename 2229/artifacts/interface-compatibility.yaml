@@ -1,0 +1,68 @@
+# Interface Compatibility — interface changes
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+changed_interfaces:
+  - interface: skildeck lint CLI
+    type: CLI
+    change: extend
+    description: Add --completeness flag
+    backward_compatible: true
+    details:
+      - New optional flag --completeness
+      - Without flag: behavior unchanged
+      - With flag: runs structural completeness checks
+      - Exit codes: 0 (all pass), 1 (findings reported)
+    consumers:
+      - CI pipeline (test-enforcement.sh)
+      - Developer manual invocation
+      - Behavioral test harness
+
+  - interface: skildeck lint finding format
+    type: data
+    change: extend
+    description: New finding category codes for structural completeness
+    backward_compatible: true
+    details:
+      - New category codes: MISSING_SKILL_MD, MISSING_TASK_FILE, MISSING_SKILL_MD_FOR_TASKS_DIR
+      - Existing finding format preserved
+      - New codes follow same structure (category, severity, file, message)
+    consumers:
+      - skildeck lint output parser
+      - test-enforcement.sh scenario assertions
+
+  - interface: test-enforcement.sh scenario dict
+    type: bash associative array
+    change: extend
+    description: New skill-deck-completeness scenario entry
+    backward_compatible: true
+    details:
+      - New key in scenario dict
+      - Maps to scenario file under scenarios/
+      - Follows existing dict entry format
+    consumers:
+      - test-enforcement.sh --scenario flag
+      - CI pipeline
+
+  - interface: behavioral test template
+    type: shell script
+    change: follow
+    description: New behavioral test following artifact-only generator paradigm
+    backward_compatible: true
+    details:
+      - Follows existing template at .opencode/tests-v2/behaviors/
+      - Uses behavior_run() and assert_semantic() helpers
+      - Produces manifest.yaml, session.yaml, stdout.log, stderr.log
+    consumers:
+      - CI pipeline
+      - Developer manual invocation
+
+unchanged_interfaces:
+  - interface: skildeck lint output format
+    reason: No change to existing output format; new findings use same structure
+  - interface: test-enforcement.sh CLI flags
+    reason: No new flags; existing --scenario flag handles new scenario
+  - interface: AGENTS.md format
+    reason: Table row additions only; no structural changes
+  - interface: 000-critical-rules.md format
+    reason: New section follows existing critical violation format

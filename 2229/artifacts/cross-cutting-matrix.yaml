@@ -1,0 +1,68 @@
+# Cross-Cutting Matrix — cross-cutting concerns
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+cross_cutting_concerns:
+  - concern: Backward compatibility
+    description: skildeck lint without --completeness flag must behave exactly as before
+    affected_scs:
+      - SC-1
+    mitigation: --completeness is opt-in; default behavior unchanged
+    risk: low
+
+  - concern: Exception mechanism consistency
+    description: .skilldeck-ignore must be consistently checked across all structural checks
+    affected_scs:
+      - SC-1
+    mitigation: Single load_skilldeck_ignore() function used by all checks
+    risk: low
+
+  - concern: Test isolation
+    description: Behavioral test must not depend on production skill deck state
+    affected_scs:
+      - SC-3
+    mitigation: Test creates its own broken skill deck in test home; no production files modified
+    risk: low
+
+  - concern: Documentation synchronization
+    description: Both AGENTS.md files must reference the same mechanism consistently
+    affected_scs:
+      - SC-4
+      - SC-5
+    mitigation: Same command name and description used in both files
+    risk: low
+
+  - concern: Enforcement-behavior alignment
+    description: Critical violation text and behavioral test must agree on agent response
+    affected_scs:
+      - SC-3
+      - SC-6
+    mitigation: Behavioral test verifies the exact behavior described in critical-rules-074
+    risk: medium
+    notes: Misalignment between rule text and behavioral test is a defect (see #1217)
+
+  - concern: CI gate ordering
+    description: Content-verification test must run after structural checks are implemented
+    affected_scs:
+      - SC-2
+    mitigation: Scenario maps to structural files; test fails if files don't exist
+    risk: low
+
+shared_dependencies:
+  - dependency: skildeck lint tool
+    consumed_by:
+      - SC-1 (extend)
+      - SC-2 (test scenario maps to it)
+      - SC-3 (behavioral test exercises it)
+    type: code
+
+  - dependency: .skilldeck-ignore file
+    consumed_by:
+      - SC-1 (read by skildeck lint)
+    type: config
+
+  - dependency: 000-critical-rules.md
+    consumed_by:
+      - SC-6 (modify)
+      - SC-3 (behavioral test verifies rule)
+    type: guideline

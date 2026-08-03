@@ -1,0 +1,91 @@
+# Interface compatibility analysis for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+interfaces:
+  - name: pre-work.md dispatch interface
+    type: task_file
+    change: Major restructure — from inline procedure to dispatcher
+    consumers:
+      - git-workflow-branch SKILL.md (dispatch table maps "pre-work" → git-workflow-branch --task pre-work)
+      - git-workflow SKILL.md (dispatches to git-workflow-branch)
+      - operating-protocol.md (cross-references pre-work.md steps)
+      - pre-commit-pointer-check.md (cross-references pre-work.md result contract)
+      - 15+ additional files with cross-references
+    backward_compatible: false
+    reason: All callers within same submodule, updated atomically in same PR
+    migration: Atomic update — all consumers updated in same commit
+
+  - name: trunk-tip-verification.md dispatch interface
+    type: task_file
+    change: New file — new dispatchable task
+    consumers:
+      - pre-work.md (dispatches trunk-tip-verification as sub-agent task)
+      - git-workflow-branch SKILL.md (dispatch table entry)
+    backward_compatible: true
+    reason: New interface, no existing consumers to break
+
+  - name: submodule-sync.md reference interface
+    type: reference_file
+    change: Extract shared divergence handling into reference file
+    consumers:
+      - pre-work.md (references shared logic)
+      - submodule-sync.md (references shared logic)
+    backward_compatible: false
+    reason: Logic extracted from both files into shared reference
+    migration: Both consumers updated atomically in same commit
+
+  - name: pre-work.md result contract
+    type: data_contract
+    change: Redesigned for new workflow — new format, new status values
+    consumers:
+      - pre-commit-pointer-check.md (reads result contract)
+      - operating-protocol.md (references result contract)
+      - 15+ additional files
+    backward_compatible: false
+    reason: All consumers within same submodule, updated atomically
+    migration: Atomic update — all consumers updated in same commit
+    new_fields:
+      - status: success | failure | already_implemented
+
+  - name: trunk-tip-enforcement.sh test interface
+    type: behavioral_test
+    change: Updated assertions for new task structure
+    consumers:
+      - CI pipeline (runs behavioral tests)
+    backward_compatible: false
+    reason: Test assertions must match new task structure
+    migration: Updated in same commit as task changes
+
+  - name: submodule-pointer-enforcement.sh test interface
+    type: behavioral_test
+    change: Updated assertions for new task structure
+    consumers:
+      - CI pipeline (runs behavioral tests)
+    backward_compatible: false
+    reason: Test assertions must match new task structure
+    migration: Updated in same commit as task changes
+
+  - name: pre-work-decomposition.sh test interface
+    type: behavioral_test
+    change: New behavioral test
+    consumers:
+      - CI pipeline (runs behavioral tests)
+    backward_compatible: true
+    reason: New test, no existing consumers to break
+
+interface_dependencies:
+  - from: pre-work.md dispatch interface
+    to: trunk-tip-verification.md dispatch interface
+    type: calls
+    reason: pre-work.md dispatches trunk-tip-verification as sub-agent task
+
+  - from: pre-work.md dispatch interface
+    to: submodule-sync.md reference interface
+    type: references
+    reason: pre-work.md references shared submodule divergence handling
+
+  - from: pre-work.md result contract
+    to: pre-commit-pointer-check.md
+    type: consumed_by
+    reason: pre-commit-pointer-check.md reads pre-work.md result contract

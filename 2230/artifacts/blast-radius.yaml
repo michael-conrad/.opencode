@@ -1,0 +1,75 @@
+# Blast-radius analysis for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+affected_files:
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    change: Decompose from 596-line monolithic file into dispatcher that sequences sub-tasks
+    impact: Major restructure — inline code extracted to sub-task files, dispatch table added, result contract redesigned
+    risk: high
+
+  - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    change: New file — 6-step trunk-tip verification gate extracted from pre-work.md
+    impact: New file creation
+    risk: low
+
+  - path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    change: Extract shared submodule divergence handling into reference file (not a task)
+    impact: Moderate — shared logic moved, cross-references updated
+    risk: medium
+
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+    change: Cross-reference updates only (mechanical)
+    impact: Low — mechanical cross-reference updates
+    risk: low
+
+  - path: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+    change: Cross-reference updates only (mechanical)
+    impact: Low — mechanical cross-reference updates
+    risk: low
+
+  - path: .opencode/skills/git-workflow-branch/SKILL.md
+    change: Dispatch table updated to include trunk-tip-verification task
+    impact: Low — new entry in dispatch table
+    risk: low
+
+  - path: .opencode/skills/git-workflow/SKILL.md
+    change: No dispatch table changes (pre-work mapping unchanged per Not Included section)
+    impact: None
+    risk: none
+
+  - path: .opencode/guidelines/000-critical-rules.md
+    change: Cross-reference updates only (mechanical)
+    impact: Low — mechanical cross-reference updates
+    risk: low
+
+  - path: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+    change: Update to match new task structure and dispatch patterns
+    impact: Moderate — test assertions updated for new task file structure
+    risk: medium
+
+  - path: .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+    change: Update to match new task structure and dispatch patterns
+    impact: Moderate — test assertions updated for new task file structure
+    risk: medium
+
+  - path: .opencode/tests-v2/behaviors/pre-work-decomposition.sh
+    change: New behavioral test verifying decomposed pre-work dispatches sub-tasks in correct order
+    impact: New file creation
+    risk: low
+
+  - path: .opencode/skills/git-workflow-branch/tasks/ (15+ additional files with cross-references)
+    change: Mechanical cross-reference updates to pre-work.md step numbers, result contract format, and dispatch strings
+    impact: Low — mechanical updates only
+    risk: low
+
+affected_directories:
+  - .opencode/skills/git-workflow-branch/tasks/
+  - .opencode/tests-v2/behaviors/
+
+out_of_scope:
+  - git-workflow dispatcher SKILL.md dispatch table (pre-work mapping unchanged)
+  - Behavioral test infrastructure (test helpers, harness, assertion library)
+  - Tag convention format itself
+  - Any task file outside git-workflow-branch/tasks/
+  - operating-protocol.md tag convention documentation (cross-references only)

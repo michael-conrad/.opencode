@@ -1,3 +1,7 @@
+---
+approved: true
+---
+
 ## Intent and Executive Summary
 
 - **Problem Statement:** `plan-creation-pipeline` is a separate skill that does nothing but dispatch to other skills. Its `plan-create` step is a literal passthrough to `writing-plans --task create`. Its 3 extra steps (`solve-model`, `solve-check`, `plan-plan`) already exist inside `writing-plans/tasks/research.md` as steps 10-12. The pipeline adds routing overhead, maintenance burden, and routing ambiguity (agents must choose between two skills) with zero functional benefit.

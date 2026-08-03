@@ -1,0 +1,52 @@
+# Concern Map — concerns addressed by each success criterion
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+success_criteria:
+  SC-1:
+    concern: Tooling — structural completeness validation
+    description: Extend skildeck lint with --completeness flag for structural checks
+    owner: skildeck lint tool
+    verification: opencode run with broken skill deck prompt; assert stderr findings
+
+  SC-2:
+    concern: CI — content-verification test coverage
+    description: Add skill-deck-completeness scenario to test-enforcement.sh
+    owner: test-enforcement.sh
+    verification: grep for new scenario + ls for scenario file
+
+  SC-3:
+    concern: Behavioral enforcement — agent response to missing skill cards
+    description: Behavioral test verifying agent produces investigation + fatal HALT
+    owner: behaviors/skill-deck-completeness.sh
+    verification: bash test script produces artifacts; clean-room semantic inspector
+
+  SC-4:
+    concern: Documentation — .opencode/AGENTS.md
+    description: Update Reference Documents and Build/Lint/Test Commands tables
+    owner: .opencode/AGENTS.md
+    verification: grep for new command and reference
+
+  SC-5:
+    concern: Documentation — root AGENTS.md
+    description: Update Reference Files table
+    owner: AGENTS.md (root)
+    verification: grep for new reference
+
+  SC-6:
+    concern: Enforcement — critical violation rule
+    description: Add critical-rules-074 to 000-critical-rules.md
+    owner: 000-critical-rules.md
+    verification: grep for critical-rules-074 + behavioral test
+
+concern_groups:
+  tooling:
+    - SC-1
+  testing_ci:
+    - SC-2
+    - SC-3
+  documentation:
+    - SC-4
+    - SC-5
+  enforcement:
+    - SC-6

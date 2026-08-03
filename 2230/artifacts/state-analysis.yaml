@@ -1,0 +1,160 @@
+# State analysis for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+states:
+  - id: trunk-tip-verified
+    description: Parent repo and all sub-repos are at remote tracking tip with zero pending changes
+    entry_conditions:
+      - Parent repo at remote tracking tip
+      - Zero pending changes in parent repo
+      - Parent repo remote tracking matches
+      - All submodules at trunk tip
+      - Zero pending changes in all submodules
+      - All submodules remote tracking matches
+      - Submodule pointer matches committed SHA
+    exit_conditions:
+      - BLOCKED if any verification fails
+      - Proceed to tagging if all pass
+    entry_actions:
+      - Dispatch trunk-tip-verification task
+    exit_actions:
+      - On PASS: proceed to tag creation
+      - On BLOCKED: return BLOCKED with specific failure reason
+
+  - id: tag-created
+    description: Tag created at trunk tip in sub-repo or parent repo
+    entry_conditions:
+      - trunk-tip-verified state achieved
+    exit_conditions:
+      - Tag exists at trunk tip
+      - Tag format: <parent-repo>/<issue-number> (sub-repo) or <issue-number> (parent repo)
+    entry_actions:
+      - Create annotated tag at trunk tip
+    exit_actions:
+      - Proceed to branch creation
+
+  - id: branch-created
+    description: Feature branch created from tag
+    entry_conditions:
+      - tag-created state achieved
+    exit_conditions:
+      - Feature branch exists at tag
+      - Branch is checked out
+    entry_actions:
+      - Create branch from tag
+      - Checkout branch
+    exit_actions:
+      - Proceed to next phase (sub-repo complete → parent repo, or parent repo complete → commit submodule pointers)
+
+  - id: submodule-pointers-committed
+    description: Submodule pointer updates committed in parent repo
+    entry_conditions:
+      - parent-repo branch-created state achieved
+      - Submodule changes exist
+    exit_conditions:
+      - Submodule pointer updates committed
+      - Commit includes both submodule and non-submodule changes
+    entry_actions:
+      - Commit submodule pointer updates
+    exit_actions:
+      - Pre-work complete — return success
+
+  - id: pre-work-complete
+    description: Pre-work completed successfully
+    entry_conditions:
+      - All phases complete (sub-repo phase, parent repo phase)
+      - Submodule pointers committed (if applicable)
+    exit_conditions:
+      - Return result contract with status: success
+    entry_actions:
+      - Aggregate sub-task result contracts
+    exit_actions:
+      - Return yield-back contract
+
+  - id: pre-work-blocked
+    description: Pre-work blocked at verification gate
+    entry_conditions:
+      - Trunk-tip verification failed
+      - Or submodule divergence unresolvable
+      - Or already on feature branch
+      - Or dirty working tree
+    exit_conditions:
+      - Return result contract with status: failure
+      - Include specific failure reason
+    entry_actions:
+      - Collect failure reason from sub-task
+    exit_actions:
+      - Return yield-back contract with failure status
+
+  - id: pre-work-already-implemented
+    description: Pre-work detected that work is already done
+    entry_conditions:
+      - Feature branch already exists with required changes
+      - Or trunk-tip already has required state
+    exit_conditions:
+      - Return result contract with status: already_implemented
+    entry_actions:
+      - Detect already-implemented state
+    exit_actions:
+      - Return yield-back contract with already_implemented status
+
+state_transitions:
+  - from: initial
+    to: trunk-tip-verified
+    via: dispatch trunk-tip-verification task
+    condition: All 6 verification steps pass
+
+  - from: initial
+    to: pre-work-blocked
+    via: trunk-tip-verification returns BLOCKED
+    condition: Any verification step fails
+
+  - from: trunk-tip-verified
+    to: tag-created
+    via: create annotated tag at trunk tip
+    condition: Trunk tip verified
+
+  - from: tag-created
+    to: branch-created
+    via: create branch from tag
+    condition: Tag exists
+
+  - from: branch-created (sub-repo)
+    to: trunk-tip-verified (parent repo)
+    via: sub-repo phase complete → proceed to parent repo
+    condition: Sub-repo phase complete
+
+  - from: branch-created (parent repo)
+    to: submodule-pointers-committed
+    via: commit submodule pointer updates
+    condition: Submodule changes exist
+
+  - from: branch-created (parent repo)
+    to: pre-work-complete
+    via: no submodule changes
+    condition: No submodule changes
+
+  - from: submodule-pointers-committed
+    to: pre-work-complete
+    via: all phases complete
+    condition: Submodule pointers committed
+
+  - from: any
+    to: pre-work-blocked
+    via: submodule divergence unresolvable
+    condition: Rebase fails
+
+  - from: any
+    to: pre-work-already-implemented
+    via: already-implemented detection
+    condition: Work already done
+
+edge_cases:
+  - No submodules present: Skip sub-repo phase entirely, proceed directly to parent repo trunk-tip verification → branch creation
+  - Submodule divergence unresolvable: Return BLOCKED with escalation to developer
+  - Trunk-tip verification fails on parent repo: Return BLOCKED immediately — no sub-repo operations attempted
+  - Trunk-tip verification fails on sub-repo: Return BLOCKED with specific submodule — parent repo operations not attempted
+  - Single submodule: Handled identically to multiple submodules — no special-casing
+  - Already on feature branch: Return BLOCKED (pre-work only valid from trunk tip)
+  - Dirty working tree: Trunk-tip verification fails on git status --porcelain check — return BLOCKED with dirty file list

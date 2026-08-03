@@ -1,0 +1,138 @@
+# Dependency Contract — Skill deck completeness validation
+# Spec: #2229
+
+phases:
+  phase_1:
+    name: "Tooling — Extend skildeck lint"
+    scs:
+      - SC-1
+    depends_on: []
+    preconditions:
+      - "skildeck lint tool exists at .opencode/tools/impl/skildeck/skildeck-lint"
+      - "No --completeness flag exists yet"
+    postconditions:
+      - "skildeck lint --completeness runs structural checks"
+      - "MISSING_SKILL_MD, MISSING_TASK_FILE, MISSING_SKILL_MD_FOR_TASKS_DIR finding codes exist"
+      - ".skilldeck-ignore file exists at .opencode/skills/reference/.skilldeck-ignore"
+
+  phase_2:
+    name: "Enforcement — Critical violation rule"
+    scs:
+      - SC-6
+    depends_on: []
+    preconditions:
+      - "000-critical-rules.md exists"
+      - "No critical-rules-074 section yet"
+    postconditions:
+      - "critical-rules-074 section exists in 000-critical-rules.md"
+      - "Section describes missing skill card/task card investigation + fatal HALT with escalation"
+
+  phase_3:
+    name: "CI — Content-verification test"
+    scs:
+      - SC-2
+    depends_on:
+      - phase_1
+    preconditions:
+      - "test-enforcement.sh exists"
+      - "skildeck lint --completeness is implemented (phase_1 postcondition)"
+    postconditions:
+      - "skill-deck-completeness scenario entry exists in test-enforcement.sh dict"
+      - "Scenario file exists under scenarios/"
+
+  phase_4:
+    name: "Behavioral enforcement test"
+    scs:
+      - SC-3
+    depends_on:
+      - phase_1
+      - phase_2
+    preconditions:
+      - "skildeck lint --completeness is implemented (phase_1 postcondition)"
+      - "critical-rules-074 exists (phase_2 postcondition)"
+      - "Behavioral test template exists at .opencode/tests-v2/behaviors/"
+    postconditions:
+      - "behaviors/skill-deck-completeness.sh exists"
+      - "Test produces manifest.yaml, session.yaml, stdout.log, stderr.log"
+      - "Clean-room semantic inspector can verify agent behavior"
+
+  phase_5:
+    name: "Documentation — .opencode/AGENTS.md"
+    scs:
+      - SC-4
+    depends_on:
+      - phase_1
+    preconditions:
+      - ".opencode/AGENTS.md exists"
+      - "skildeck lint --completeness is implemented (phase_1 postcondition)"
+    postconditions:
+      - "Reference Documents table has new row for skill deck completeness"
+      - "Build/Lint/Test Commands table has new row for skildeck lint --completeness"
+
+  phase_6:
+    name: "Documentation — root AGENTS.md"
+    scs:
+      - SC-5
+    depends_on:
+      - phase_1
+    preconditions:
+      - "AGENTS.md (root) exists"
+      - "skildeck lint --completeness is implemented (phase_1 postcondition)"
+    postconditions:
+      - "Reference Files table has new row for skill deck completeness"
+
+variables:
+  skildeck_lint_extended:
+    type: bool
+  critical_rule_exists:
+    type: bool
+  content_test_exists:
+    type: bool
+  behavioral_test_exists:
+    type: bool
+  opencode_agents_updated:
+    type: bool
+  root_agents_updated:
+    type: bool
+
+state_transitions:
+  - from:
+      skildeck_lint_extended: false
+    to:
+      skildeck_lint_extended: true
+    trigger: phase_1 complete
+
+  - from:
+      critical_rule_exists: false
+    to:
+      critical_rule_exists: true
+    trigger: phase_2 complete
+
+  - from:
+      skildeck_lint_extended: true
+      content_test_exists: false
+    to:
+      content_test_exists: true
+    trigger: phase_3 complete
+
+  - from:
+      skildeck_lint_extended: true
+      critical_rule_exists: true
+      behavioral_test_exists: false
+    to:
+      behavioral_test_exists: true
+    trigger: phase_4 complete
+
+  - from:
+      skildeck_lint_extended: true
+      opencode_agents_updated: false
+    to:
+      opencode_agents_updated: true
+    trigger: phase_5 complete
+
+  - from:
+      skildeck_lint_extended: true
+      root_agents_updated: false
+    to:
+      root_agents_updated: true
+    trigger: phase_6 complete

@@ -1,0 +1,81 @@
+# Code Path Inventory — code paths that will be modified
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+modified_paths:
+  - path: .opencode/tools/impl/skildeck/skildeck-lint
+    type: source
+    language: python
+    change: extend
+    description: Add --completeness flag; add structural completeness check functions
+    entry_points:
+      - main() — argparse for --completeness flag
+      - check_skill_deck_completeness() — orchestrator for structural checks
+      - check_every_dir_has_skill_md() — verifies SKILL.md per directory
+      - check_tdt_references_resolve() — verifies TDT refs point to existent task files
+      - check_tasks_dir_has_skill_md() — verifies tasks/ dirs have SKILL.md
+      - load_skilldeck_ignore() — loads .skilldeck-ignore exception list
+    new_finding_codes:
+      - MISSING_SKILL_MD
+      - MISSING_TASK_FILE
+      - MISSING_SKILL_MD_FOR_TASKS_DIR
+
+  - path: .opencode/tests-v2/test-enforcement.sh
+    type: test_config
+    language: bash
+    change: modify
+    description: Add skill-deck-completeness scenario entry
+    entry_points:
+      - scenario dict — new key-value pair for skill-deck-completeness
+      - scenario file — new .sh file under scenarios/
+
+  - path: .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+    type: test
+    language: bash
+    change: create
+    description: New behavioral enforcement test
+    entry_points:
+      - behavior_run() — sends prompt triggering missing-skill-card investigation
+      - assert_semantic() — clean-room inspector verifies agent behavior
+    template: .opencode/tests-v2/behaviors/ (existing template)
+
+  - path: .opencode/guidelines/000-critical-rules.md
+    type: guideline
+    language: markdown
+    change: modify
+    description: Add critical-rules-074 section
+    entry_points:
+      - New section under Tier 1 — "Missing skill card or task card triggers investigation + fatal HALT with escalation"
+
+  - path: .opencode/AGENTS.md
+    type: documentation
+    language: markdown
+    change: modify
+    description: Update Reference Documents and Build/Lint/Test Commands tables
+    entry_points:
+      - Reference Documents table — new row for skill deck completeness
+      - Build/Lint/Test Commands table — new row for skildeck lint --completeness
+
+  - path: AGENTS.md
+    type: documentation
+    language: markdown
+    change: modify
+    description: Update Reference Files table
+    entry_points:
+      - Reference Files table — new row for skill deck completeness
+
+  - path: .opencode/skills/reference/.skilldeck-ignore
+    type: config
+    language: text
+    change: create
+    description: Exception mechanism for non-skill directories
+    entry_points:
+      - New file listing directories intentionally not skills
+
+read_only_paths:
+  - path: .opencode/skills/ (directory listing)
+    purpose: Enumerate skill directories for completeness check
+  - path: .opencode/skills/*/SKILL.md (all skill cards)
+    purpose: Parse Trigger Dispatch Tables for task file references
+  - path: .opencode/skills/*/tasks/ (all task directories)
+    purpose: Verify task files exist for TDT references

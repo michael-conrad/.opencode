@@ -1,0 +1,105 @@
+# Code path inventory for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+code_paths:
+  - id: pre-work-dispatch
+    description: pre-work.md dispatcher that sequences sub-tasks via canonical dispatch strings
+    file: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    change_type: restructure
+    current_state: 596-line monolithic inline procedure
+    target_state: Dispatcher that calls trunk-tip-verification task, submodule-sync reference, and branch creation
+    key_elements:
+      - Dispatch table mapping trigger conditions to sub-task canonical strings
+      - Sub-repo phase dispatch (verify trunk tip → tag → branch)
+      - Parent repo phase dispatch (verify trunk tip → tag → branch → commit submodule pointers)
+      - Result contract collection and aggregation
+      - Yield-back contract with already_implemented status
+
+  - id: trunk-tip-verification
+    description: 6-step trunk-tip verification gate extracted from pre-work.md
+    file: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    change_type: new_file
+    current_state: Does not exist (logic inline in pre-work.md)
+    target_state: Separate dispatchable task file with 6-step gate
+    key_elements:
+      - Step 1: Parent repo trunk tip check
+      - Step 2: Zero pending changes check
+      - Step 3: Remote tracking match check
+      - Step 4: Submodule trunk tip check
+      - Step 5: Submodule zero pending check
+      - Step 6: Submodule remote tracking match check
+      - Step 7: Submodule pointer match check
+      - BLOCKED return on any failure
+
+  - id: submodule-divergence-handling
+    description: Shared submodule divergence handling logic (ahead/behind detection, rebase resolution, escalation)
+    file: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    change_type: extract_reference
+    current_state: Divergence logic duplicated in pre-work.md and submodule-sync.md
+    target_state: Shared reference file (not a task) referenced by both pre-work.md and submodule-sync.md
+    key_elements:
+      - Ahead/behind detection logic
+      - Rebase resolution path
+      - Escalation path for unresolvable divergence
+      - Reference inclusion markers (not dispatchable)
+
+  - id: pre-commit-pointer-check
+    description: Pre-commit submodule pointer verification
+    file: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+    change_type: cross_reference_update
+    current_state: References pre-work.md step numbers and result contract format
+    target_state: Updated references to match new pre-work.md structure
+    key_elements:
+      - Cross-references to pre-work.md dispatch strings
+      - Cross-references to pre-work.md result contract format
+
+  - id: operating-protocol
+    description: Tag convention documentation
+    file: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+    change_type: cross_reference_update
+    current_state: References pre-work.md step numbers
+    target_state: Updated references to match new pre-work.md structure
+    key_elements:
+      - Cross-references to pre-work.md steps
+
+  - id: git-workflow-branch-skill
+    description: Skill card with dispatch table
+    file: .opencode/skills/git-workflow-branch/SKILL.md
+    change_type: dispatch_table_update
+    current_state: No trunk-tip-verification entry
+    target_state: New entry for trunk-tip-verification task
+    key_elements:
+      - Dispatch table entry for trunk-tip-verification task
+      - Canonical dispatch string
+
+  - id: trunk-tip-enforcement-test
+    description: Behavioral test for trunk-tip enforcement
+    file: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+    change_type: test_update
+    current_state: Asserts against inline pre-work.md behavior
+    target_state: Asserts against new task file dispatch behavior
+    key_elements:
+      - Test assertions updated for new task structure
+      - Dispatch pattern assertions
+
+  - id: submodule-pointer-enforcement-test
+    description: Behavioral test for submodule pointer enforcement
+    file: .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+    change_type: test_update
+    current_state: Asserts against inline pre-work.md behavior
+    target_state: Asserts against new task file dispatch behavior
+    key_elements:
+      - Test assertions updated for new task structure
+      - Dispatch pattern assertions
+
+  - id: pre-work-decomposition-test
+    description: New behavioral test for decomposed pre-work
+    file: .opencode/tests-v2/behaviors/pre-work-decomposition.sh
+    change_type: new_file
+    current_state: Does not exist
+    target_state: Behavioral test verifying sub-task dispatch order
+    key_elements:
+      - Sub-repo-before-parent ordering assertion
+      - Tag-before-branch ordering assertion
+      - Dispatch string verification

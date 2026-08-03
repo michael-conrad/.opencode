@@ -1,0 +1,61 @@
+# Blast Radius — files/directories affected by this change
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+affected_files:
+  - path: .opencode/tools/impl/skildeck/skildeck-lint
+    change_type: extend
+    description: Add --completeness flag with structural completeness checks
+    risk: medium
+    notes: Extending existing tool; backward compatible (flag is opt-in)
+
+  - path: .opencode/tests-v2/test-enforcement.sh
+    change_type: modify
+    description: Add skill-deck-completeness scenario mapping
+    risk: low
+    notes: Adding one bash dict entry
+
+  - path: .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+    change_type: create
+    description: New behavioral enforcement test for missing skill card detection
+    risk: low
+    notes: Follows existing artifact-only generator template
+
+  - path: .opencode/guidelines/000-critical-rules.md
+    change_type: modify
+    description: Add critical-rules-074 section
+    risk: low
+    notes: New critical violation section; no existing content modified
+
+  - path: .opencode/AGENTS.md
+    change_type: modify
+    description: Update Reference Documents and Build/Lint/Test Commands tables
+    risk: low
+    notes: Table row additions only
+
+  - path: AGENTS.md
+    change_type: modify
+    description: Update Reference Files table
+    risk: low
+    notes: Table row addition only
+
+  - path: .opencode/skills/reference/.skilldeck-ignore
+    change_type: create
+    description: Exception mechanism for non-skill directories
+    risk: low
+    notes: New file; reference/ is the known non-skill dir
+
+unaffected_but_related:
+  - path: .opencode/skills/approval-gate/
+    reason: Routing/orchestrator skill without tasks/ — intentional, not flagged
+  - path: .opencode/skills/git-workflow/
+    reason: Routing/orchestrator skill without tasks/ — intentional, not flagged
+  - path: .opencode/skills/issue-operations/
+    reason: Routing/orchestrator skill without tasks/ — intentional, not flagged
+
+out_of_scope:
+  - Runtime agent-side validation of skill deck completeness
+  - Pre-commit hook for skill deck validation
+  - Task card content audits (beyond file existence)
+  - Cross-reference validation between skill cards
+  - Auto-remediation of missing skill cards

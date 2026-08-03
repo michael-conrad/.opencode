@@ -1,0 +1,117 @@
+# Research Artifact — writing-plans research task output
+# Spec: #2229 — Skill deck completeness validation
+
+status: DONE
+finding_summary: >
+  Decomposed 6 SCs into 6 phases. Dependency DAG: Phase 1 (skildeck lint) and Phase 2
+  (critical-rules-074) are root phases with no dependencies. Phase 3 (content-verification
+  test), Phase 5 (.opencode/AGENTS.md), and Phase 6 (root AGENTS.md) depend on Phase 1.
+  Phase 4 (behavioral test) depends on both Phase 1 and Phase 2. Z3 model query SAT —
+  all 6 state variables can be simultaneously true. Z3 check SAT — pre-change state
+  satisfies contract. Z3 prove INVALID for automatic implication (expected — behavioral
+  test requires explicit creation, not automatic consequence). All phases use
+  test-driven-development skill with RED/GREEN/verify/commit per-task cycle.
+
+artifact_path: .opencode/.issues/2229/artifacts/research.yaml
+
+phase_decomposition:
+  phase_1:
+    name: "Tooling — Extend skildeck lint"
+    scs:
+      - SC-1
+    depends_on: []
+    skill: test-driven-development
+    task: "execute red task from test-driven-development" / "execute green task from test-driven-development"
+    verify: "execute verify task from verification-before-completion"
+
+  phase_2:
+    name: "Enforcement — Critical violation rule"
+    scs:
+      - SC-6
+    depends_on: []
+    skill: test-driven-development
+    task: "execute red task from test-driven-development" / "execute green task from test-driven-development"
+    verify: "execute verify task from verification-before-completion"
+
+  phase_3:
+    name: "CI — Content-verification test"
+    scs:
+      - SC-2
+    depends_on:
+      - phase_1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development" / "execute green task from test-driven-development"
+    verify: "execute verify task from verification-before-completion"
+
+  phase_4:
+    name: "Behavioral enforcement test"
+    scs:
+      - SC-3
+    depends_on:
+      - phase_1
+      - phase_2
+    skill: test-driven-development
+    task: "execute red task from test-driven-development" / "execute green task from test-driven-development"
+    verify: "execute verify task from verification-before-completion"
+
+  phase_5:
+    name: "Documentation — .opencode/AGENTS.md"
+    scs:
+      - SC-4
+    depends_on:
+      - phase_1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development" / "execute green task from test-driven-development"
+    verify: "execute verify task from verification-before-completion"
+
+  phase_6:
+    name: "Documentation — root AGENTS.md"
+    scs:
+      - SC-5
+    depends_on:
+      - phase_1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development" / "execute green task from test-driven-development"
+    verify: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_3
+    - from: phase_1
+      to: phase_4
+    - from: phase_2
+      to: phase_4
+    - from: phase_1
+      to: phase_5
+    - from: phase_1
+      to: phase_6
+  parallelizable_groups:
+    - - phase_1
+      - phase_2
+    - - phase_3
+      - phase_5
+      - phase_6
+    - - phase_4
+
+z3_results:
+  model:
+    status: SAT
+    query: "z3.And(skildeck_lint_extended, critical_rule_exists, content_test_exists, behavioral_test_exists, opencode_agents_updated, root_agents_updated)"
+    assignment:
+      skildeck_lint_extended: true
+      critical_rule_exists: true
+      content_test_exists: true
+      behavioral_test_exists: true
+      opencode_agents_updated: true
+      root_agents_updated: true
+  check:
+    status: SAT
+    pre_state: all false
+    post_state: all false
+  prove:
+    theorem: "z3.Implies(z3.And(skildeck_lint_extended, critical_rule_exists), behavioral_test_exists)"
+    status: INVALID
+    counterexample: skildeck_lint_extended=true, critical_rule_exists=true, behavioral_test_exists=false
+    interpretation: Expected — behavioral test requires explicit creation, not automatic consequence
+  plan_status: SOLVED_SATISFICING

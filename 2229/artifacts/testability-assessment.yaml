@@ -1,0 +1,110 @@
+# Testability Assessment — how each SC will be tested
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+success_criteria:
+  SC-1:
+    evidence_type: behavioral
+    test_method: opencode run with prompt that triggers skildeck lint on a broken skill deck
+    test_location: .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+    assertion: assert_stderr_pattern_present for structural completeness findings
+    test_setup:
+      - Create temporary skill deck with known missing SKILL.md
+      - Create temporary skill deck with broken TDT reference
+      - Create temporary skill deck with tasks/ but no SKILL.md
+      - Run skildeck lint --completeness against temporary deck
+    verification: stderr contains MISSING_SKILL_MD, MISSING_TASK_FILE, MISSING_SKILL_MD_FOR_TASKS_DIR findings
+    risk: Low — deterministic tool output
+    automation: Full — behavioral test script
+
+  SC-2:
+    evidence_type: string + structural
+    test_method: grep + ls
+    test_location: Inline in test-enforcement.sh or CI
+    assertion: grep for new scenario name in test-enforcement.sh; ls for scenario file
+    test_setup: None — static file checks
+    verification: Scenario name present in dict; scenario file exists
+    risk: Low — static analysis
+    automation: Full — content-verification test
+
+  SC-3:
+    evidence_type: behavioral
+    test_method: bash .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+    test_location: .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+    assertion: assert_semantic — clean-room inspector verifies agent produces investigation report and fatal HALT with escalation
+    test_setup:
+      - Create test home with broken skill deck (missing SKILL.md)
+      - Send prompt triggering agent to investigate skill deck
+      - Capture stdout, stderr, session.yaml
+    verification: Clean-room semantic inspector judges agent behavior
+    risk: Medium — depends on model behavior; timeout possible
+    automation: Full — behavioral test script with semantic inspector
+
+  SC-4:
+    evidence_type: string
+    test_method: grep
+    test_location: Inline in CI or content-verification test
+    assertion: grep for new command (skildeck lint --completeness) and reference in .opencode/AGENTS.md
+    test_setup: None — static file check
+    verification: Both table entries present
+    risk: Low — static analysis
+    automation: Full — grep
+
+  SC-5:
+    evidence_type: string
+    test_method: grep
+    test_location: Inline in CI or content-verification test
+    assertion: grep for new reference in root AGENTS.md
+    test_setup: None — static file check
+    verification: Reference entry present
+    risk: Low — static analysis
+    automation: Full — grep
+
+  SC-6:
+    evidence_type: string + behavioral
+    test_method: grep + behavioral test
+    test_location: grep inline + .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+    assertion: grep for critical-rules-074 + behavioral test verifies agent follows rule
+    test_setup:
+      - grep: None — static file check
+      - behavioral: Same setup as SC-3
+    verification: critical-rules-074 text present; agent behavior matches rule
+    risk: Low (string) + Medium (behavioral)
+    automation: Full — grep + behavioral test script
+
+test_infrastructure:
+  - tool: skildeck lint
+    version: current
+    test_harness: Direct CLI invocation with --completeness flag
+  - tool: test-enforcement.sh
+    version: current
+    test_harness: --scenario skill-deck-completeness
+  - tool: behavior_run (helpers.sh)
+    version: current
+    test_harness: bash .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+  - tool: assert_semantic (helpers.sh)
+    version: current
+    test_harness: Clean-room AI inspector
+
+test_data:
+  - type: temporary skill deck
+    location: Test home (created by with-test-home)
+    contents:
+      - skills/valid-skill/SKILL.md (valid)
+      - skills/valid-skill/tasks/task1.md (valid)
+      - skills/missing-skill-md/ (no SKILL.md — error)
+      - skills/broken-tdt/SKILL.md (TDT references non-existent task)
+      - skills/tasks-no-skill/SKILL.md (has tasks/ but no SKILL.md — error)
+      - .skilldeck-ignore (lists reference/)
+    lifecycle: Created per test run, destroyed after
+
+test_risks:
+  - risk: Behavioral test timeout
+    impact: SC-3, SC-6 behavioral portion
+    mitigation: Increase BEHAVIOR_TIMEOUT; use scope-limited model
+  - risk: Semantic inspector model mismatch
+    impact: SC-3, SC-6 behavioral portion
+    mitigation: Use assert_semantic with appropriate model; retry on failure
+  - risk: Stale test data
+    impact: All SCs
+    mitigation: Test data created fresh per run; no cached state

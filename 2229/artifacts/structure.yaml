@@ -1,0 +1,165 @@
+# Structure Artifact — Phase decomposition, dependency DAG, skill+task selection
+# Spec: #2229 — Skill deck completeness validation
+
+phases:
+  phase_1:
+    name: "Tooling — Extend skildeck lint"
+    scs:
+      - SC-1
+    items:
+      - item: 1
+        sc: SC-1
+        description: Extend skildeck lint with --completeness flag and structural checks
+    depends_on: []
+    skill_task:
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+    per_task_cycle:
+      - step: red
+        action: Write failing test that runs skildeck lint --completeness against a broken skill deck and asserts MISSING_SKILL_MD, MISSING_TASK_FILE, MISSING_SKILL_MD_FOR_TASKS_DIR findings in stderr
+      - step: green
+        action: Implement --completeness flag, structural check functions (check_every_dir_has_skill_md, check_tdt_references_resolve, check_tasks_dir_has_skill_md, load_skilldeck_ignore), and .skilldeck-ignore file
+      - step: commit
+        action: git add .opencode/tools/impl/skildeck/skildeck-lint .opencode/skills/reference/.skilldeck-ignore && git commit -m "feat: add skildeck lint --completeness for structural skill deck validation"
+
+  phase_2:
+    name: "Enforcement — Critical violation rule"
+    scs:
+      - SC-6
+    items:
+      - item: 6
+        sc: SC-6
+        description: Add critical-rules-074 to 000-critical-rules.md
+    depends_on: []
+    skill_task:
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+    per_task_cycle:
+      - step: red
+        action: Write failing test that greps for critical-rules-074 in 000-critical-rules.md (fails because section doesn't exist yet)
+      - step: green
+        action: Add critical-rules-074 section to 000-critical-rules.md describing missing skill card/task card investigation + fatal HALT with escalation
+      - step: commit
+        action: git add .opencode/guidelines/000-critical-rules.md && git commit -m "feat: add critical-rules-074 for missing skill card detection"
+
+  phase_3:
+    name: "CI — Content-verification test"
+    scs:
+      - SC-2
+    items:
+      - item: 2
+        sc: SC-2
+        description: Add skill-deck-completeness scenario to test-enforcement.sh
+    depends_on:
+      - phase_1
+    skill_task:
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+    per_task_cycle:
+      - step: red
+        action: Write failing test that greps for skill-deck-completeness in test-enforcement.sh scenario dict (fails because entry doesn't exist yet)
+      - step: green
+        action: Add skill-deck-completeness scenario entry to test-enforcement.sh dict and create scenario file
+      - step: commit
+        action: git add .opencode/tests-v2/test-enforcement.sh .opencode/tests-v2/scenarios/skill-deck-completeness.sh && git commit -m "test: add skill-deck-completeness content-verification scenario"
+
+  phase_4:
+    name: "Behavioral enforcement test"
+    scs:
+      - SC-3
+    items:
+      - item: 3
+        sc: SC-3
+        description: Create behavioral enforcement test for missing skill card detection
+    depends_on:
+      - phase_1
+      - phase_2
+    skill_task:
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+    per_task_cycle:
+      - step: red
+        action: Write failing behavioral test that sends prompt triggering missing-skill-card investigation (fails because agent doesn't have the rule yet)
+      - step: green
+        action: Create behaviors/skill-deck-completeness.sh following artifact-only generator paradigm with behavior_run() and assert_semantic()
+      - step: commit
+        action: git add .opencode/tests-v2/behaviors/skill-deck-completeness.sh && git commit -m "test: add behavioral enforcement test for skill deck completeness"
+
+  phase_5:
+    name: "Documentation — .opencode/AGENTS.md"
+    scs:
+      - SC-4
+    items:
+      - item: 4
+        sc: SC-4
+        description: Update .opencode/AGENTS.md with references
+    depends_on:
+      - phase_1
+    skill_task:
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+    per_task_cycle:
+      - step: red
+        action: Write failing test that greps for skildeck lint --completeness in .opencode/AGENTS.md (fails because entry doesn't exist yet)
+      - step: green
+        action: Add row to Reference Documents table and row to Build/Lint/Test Commands table in .opencode/AGENTS.md
+      - step: commit
+        action: git add .opencode/AGENTS.md && git commit -m "docs: add skill deck completeness references to .opencode/AGENTS.md"
+
+  phase_6:
+    name: "Documentation — root AGENTS.md"
+    scs:
+      - SC-5
+    items:
+      - item: 5
+        sc: SC-5
+        description: Update root AGENTS.md with references
+    depends_on:
+      - phase_1
+    skill_task:
+      skill: test-driven-development
+      red_task: "execute red task from test-driven-development"
+      green_task: "execute green task from test-driven-development"
+      verify_task: "execute verify task from verification-before-completion"
+    per_task_cycle:
+      - step: red
+        action: Write failing test that greps for skill deck completeness reference in root AGENTS.md (fails because entry doesn't exist yet)
+      - step: green
+        action: Add row to Reference Files table in root AGENTS.md
+      - step: commit
+        action: git add AGENTS.md && git commit -m "docs: add skill deck completeness reference to root AGENTS.md"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_3
+      reason: Content-verification test maps to skildeck lint tool
+    - from: phase_1
+      to: phase_4
+      reason: Behavioral test exercises skildeck lint --completeness
+    - from: phase_2
+      to: phase_4
+      reason: Behavioral test verifies critical-rules-074 behavior
+    - from: phase_1
+      to: phase_5
+      reason: Documentation references skildeck lint --completeness command
+    - from: phase_1
+      to: phase_6
+      reason: Documentation references skildeck lint --completeness command
+  parallelizable:
+    - - phase_1
+      - phase_2
+    - - phase_3
+      - phase_5
+      - phase_6
+    - - phase_4

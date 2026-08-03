@@ -1,0 +1,107 @@
+# Testability assessment for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+testability_assessment:
+  sc-1:
+    evidence_type: behavioral
+    description: Sub-repo phase follows correct order (verify trunk tip → tag → branch), sub-repo before parent
+    test_method: opencode run with pre-work trigger
+    verification: Clean-room sub-agent inspects session.yaml for sub-repo-before-parent ordering and tag-before-branch sequence
+    test_file: .opencode/tests-v2/behaviors/pre-work-decomposition.sh
+    testability: high
+    notes: Requires real opencode run against AI model. Session.yaml inspection is reliable for ordering verification.
+
+  sc-2:
+    evidence_type: behavioral
+    description: Parent repo phase follows correct order (verify trunk tip → tag → branch → commit submodule pointers)
+    test_method: opencode run with pre-work trigger
+    verification: Clean-room sub-agent inspects session.yaml for parent repo ordering and tag-before-branch sequence
+    test_file: .opencode/tests-v2/behaviors/pre-work-decomposition.sh
+    testability: high
+    notes: Same test as SC-1 — both ordering assertions in one behavioral test run.
+
+  sc-3a:
+    evidence_type: behavioral
+    description: Trunk-tip verification gate returns BLOCKED when parent repo or any sub-repo is not at remote tracking tip
+    test_method: opencode run with stale-branch trigger
+    verification: Clean-room sub-agent inspects session.yaml for BLOCKED result
+    test_file: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+    testability: high
+    notes: Requires test setup with stale branch. Existing test infrastructure supports this.
+
+  sc-3b:
+    evidence_type: string
+    description: trunk-tip-verification.md task file exists as separate dispatchable task file
+    test_method: grep for trunk-tip-verification.md in pre-work.md dispatch table
+    verification: grep pattern match
+    test_file: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh (content-verification assertion)
+    testability: very_high
+    notes: Simple grep — no behavioral test needed. Can be content-verification test.
+
+  sc-4:
+    evidence_type: string
+    description: No hardcoded submodule names, branch names, or repo paths. Yield-back contract redesigned for new workflow.
+    test_method: grep for hardcoded values in pre-work.md; grep for redesigned contract format
+    verification: grep pattern match for hardcoded patterns; grep for new contract format
+    test_file: Content-verification test (no dedicated behavioral test file)
+    testability: very_high
+    notes: Two grep assertions — one for absence of hardcoded values, one for presence of redesigned contract.
+
+  sc-5:
+    evidence_type: string
+    description: Overcomplicated divergence analysis and already-implemented handler removed from pre-work.md
+    test_method: grep for removed patterns in pre-work.md
+    verification: grep pattern match — patterns must be absent
+    test_file: Content-verification test (no dedicated behavioral test file)
+    testability: very_high
+    notes: Simple grep for absence of removed patterns.
+
+  sc-6:
+    evidence_type: string
+    description: Yield-back contract includes already_implemented status alongside success and failure
+    test_method: grep for already_implemented in pre-work.md result contract
+    verification: grep pattern match
+    test_file: Content-verification test (no dedicated behavioral test file)
+    testability: very_high
+    notes: Simple grep for presence of already_implemented in result contract.
+
+test_infrastructure:
+  behavioral_test_runner: bash .opencode/tests-v2/with-test-home opencode run '<message>'
+  behavioral_test_helpers: .opencode/tests-v2/behaviors/helpers.sh
+  assertion_helpers:
+    - assert_semantic: Clean-room AI inspector for behavioral SCs
+    - assert_stderr_pattern_present: grep on stderr for tool-call strings
+    - assert_stderr_pattern_absent: grep on stderr for absent tool-call strings
+    - assert_required_pattern_present: grep for required text patterns
+    - assert_forbidden_pattern_absent: grep for forbidden text patterns
+    - assert_tool_calls_made: verify tool call count
+    - assert_skill_called: verify skill dispatch
+    - assert_no_skill_called: verify skill not dispatched
+
+test_files:
+  - file: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+    change: update
+    scs_covered: [SC-3a, SC-3b]
+    priority: high
+
+  - file: .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+    change: update
+    scs_covered: [SC-5]
+    priority: high
+
+  - file: .opencode/tests-v2/behaviors/pre-work-decomposition.sh
+    change: new
+    scs_covered: [SC-1, SC-2]
+    priority: high
+
+  - file: (content-verification)
+    change: new
+    scs_covered: [SC-4, SC-5, SC-6]
+    priority: medium
+
+evidence_type_summary:
+  behavioral: [SC-1, SC-2, SC-3a]
+  string: [SC-3b, SC-4, SC-5, SC-6]
+  semantic: []
+  structural: []

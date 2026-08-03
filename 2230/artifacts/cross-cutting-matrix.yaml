@@ -1,0 +1,63 @@
+# Cross-cutting matrix for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: retroactive mode from spec body
+# Date: 2026-08-02
+
+cross_cutting_concerns:
+  - concern: Sub-agent dispatch pattern compliance
+    description: All sub-tasks must be dispatched via canonical dispatch strings, not inline execution
+    affected_scs: [SC-1, SC-2, SC-3a, SC-3b]
+    affected_phases: [PHASE-1, PHASE-2, PHASE-3]
+    resolution: pre-work.md dispatcher uses canonical dispatch strings from SKILL.md dispatch table
+
+  - concern: Tag-before-branch ordering
+    description: Tag must be created before branch in both sub-repo and parent repo phases
+    affected_scs: [SC-1, SC-2]
+    affected_phases: [PHASE-1, PHASE-2]
+    resolution: State machine enforces tagging phase before branch creation phase
+
+  - concern: Sub-repo-before-parent ordering
+    description: All sub-repo operations must complete before any parent repo operations begin
+    affected_scs: [SC-1]
+    affected_phases: [PHASE-1]
+    resolution: pre-work.md dispatcher sequences sub-repo phase before parent repo phase
+
+  - concern: Dynamic resolution (no hardcoded values)
+    description: All submodule names, branch names, and repo paths must be resolved dynamically
+    affected_scs: [SC-4]
+    affected_phases: [PHASE-4]
+    resolution: Use $DEFAULT_BRANCH, git remote show origin, git submodule status
+
+  - concern: Result contract consistency
+    description: All sub-tasks must return consistent result contracts that pre-work.md can aggregate
+    affected_scs: [SC-3b, SC-6]
+    affected_phases: [PHASE-3, PHASE-6]
+    resolution: Standardized result contract format with success, failure, already_implemented statuses
+
+  - concern: Behavioral test coverage
+    description: All behavioral SCs must have corresponding behavioral enforcement tests
+    affected_scs: [SC-1, SC-2, SC-3a, SC-5, SC-6]
+    affected_phases: [PHASE-5, PHASE-6]
+    resolution: Update existing tests (PHASE-5), add new test (PHASE-6)
+
+  - concern: Cross-reference synchronization
+    description: 15+ files reference pre-work.md — all must be updated atomically
+    affected_scs: [SC-4]
+    affected_phases: [PHASE-4]
+    resolution: Mechanical cross-reference updates in single commit
+
+  - concern: No backward compatibility constraint
+    description: All callers are within the same submodule and updated atomically in the same PR
+    affected_scs: [SC-4]
+    affected_phases: [PHASE-4]
+    resolution: Result contract redesigned for new workflow, not preserved from old format
+
+conflicts:
+  - between: sub-repo-workflow-extraction (PHASE-1)
+    and: parent-repo-workflow-extraction (PHASE-2)
+    nature: Sequential dependency — PHASE-1 must complete before PHASE-2
+    resolution: Pipeline ordering enforced by dependency graph
+
+  - between: pre-work-decomposition (PHASE-3)
+    and: cross-reference-updates (PHASE-4)
+    nature: Sequential dependency — PHASE-3 must complete before PHASE-4
+    resolution: Pipeline ordering enforced by dependency graph

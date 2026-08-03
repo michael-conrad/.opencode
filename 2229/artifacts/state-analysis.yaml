@@ -1,0 +1,62 @@
+# State Analysis — state transitions
+# Generated: retroactive backfill from spec body
+# Spec: #2229 — Skill deck completeness validation
+
+states:
+  - state: pre-change
+    description: Current state — no structural completeness validation
+    characteristics:
+      - skildeck lint validates YAML frontmatter and progressive disclosure only
+      - No check for missing SKILL.md files
+      - No check for missing task files
+      - No check for tasks/ dirs without SKILL.md
+      - No .skilldeck-ignore exception mechanism
+      - No behavioral test for missing skill card detection
+      - No critical-rules-074 in 000-critical-rules.md
+      - AGENTS.md files lack references to completeness mechanism
+
+  - state: post-change
+    description: Target state — structural completeness validation active
+    characteristics:
+      - skildeck lint --completeness runs structural checks
+      - Every skill dir has SKILL.md (or is in .skilldeck-ignore)
+      - Every TDT reference resolves to existent task file
+      - Every tasks/ dir has SKILL.md
+      - .skilldeck-ignore file exists for non-skill dirs
+      - test-enforcement.sh has skill-deck-completeness scenario
+      - Behavioral test at behaviors/skill-deck-completeness.sh
+      - critical-rules-074 in 000-critical-rules.md
+      - AGENTS.md files reference the mechanism
+
+transitions:
+  - from: pre-change
+    to: post-change
+    trigger: Implementation of all 6 items
+    verification: All 6 SCs pass
+    rollback: Revert skildeck lint changes, remove .skilldeck-ignore, revert test files, revert documentation, revert 000-critical-rules.md
+
+  - from: pre-change
+    to: partial-skilled-lint-only
+    trigger: Only Item 1 implemented (SC-1)
+    risk: Low — skildeck lint --completeness exists but no CI gate enforces it
+    notes: Partial state — tool exists but is not tested or documented
+
+  - from: pre-change
+    to: partial-test-only
+    trigger: Only Items 2-3 implemented (SC-2, SC-3)
+    risk: Medium — tests exist but reference a tool that doesn't have the feature yet
+    notes: Tests would fail until skildeck lint is extended
+
+  - from: pre-change
+    to: partial-docs-only
+    trigger: Only Items 4-6 implemented (SC-4, SC-5, SC-6)
+    risk: Medium — documentation and enforcement exist but tool doesn't implement the feature
+    notes: Documentation references a non-existent command; critical violation references non-existent behavior
+
+state_invariants:
+  - invariant: skildeck lint without --completeness behaves identically to pre-change
+    enforced_by: --completeness is opt-in flag
+  - invariant: .skilldeck-ignore is the single exception mechanism
+    enforced_by: All structural checks call load_skilldeck_ignore()
+  - invariant: Behavioral test does not modify production files
+    enforced_by: Test creates its own skill deck in test home

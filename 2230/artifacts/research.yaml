@@ -1,0 +1,242 @@
+# Research artifact for #2230: Rewrite pre-work trunk-tip verification and submodule workflow
+# Generated: 2026-08-02
+# Source: writing-plans research task
+
+status: DONE
+
+finding_summary: |
+  Phase decomposition, dependency DAG, skill+task assignments, and Z3 verification complete.
+
+phase_decomposition:
+  - id: PHASE-1
+    scs: [SC-1]
+    description: Create trunk-tip-verification.md task file with 6-step gate
+    concern: Sub-repo workflow extraction
+    evidence_type: behavioral
+    skill: git-workflow-branch
+    task: create-trunk-tip-verification
+    dispatch_string: "execute create-trunk-tip-verification from git-workflow-branch"
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md (new)
+      - .opencode/skills/git-workflow-branch/SKILL.md (dispatch table entry)
+    provides: [trunk_tip_verification_task_exists]
+
+  - id: PHASE-2
+    scs: [SC-2]
+    description: Extract shared submodule divergence handling into reference file
+    concern: Parent repo workflow extraction
+    evidence_type: behavioral
+    skill: git-workflow-branch
+    task: extract-submodule-divergence
+    dispatch_string: "execute extract-submodule-divergence from git-workflow-branch"
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md (extract reference)
+    provides: [submodule_divergence_reference_exists]
+
+  - id: PHASE-3
+    scs: [SC-3a, SC-3b]
+    description: Refactor pre-work.md to delegate to sub-tasks via canonical dispatch strings
+    concern: Pre-work decomposition
+    evidence_type: behavioral + string
+    skill: git-workflow-branch
+    task: refactor-pre-work
+    dispatch_string: "execute refactor-pre-work from git-workflow-branch"
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md (restructure)
+    provides: [pre_work_decomposed]
+
+  - id: PHASE-4
+    scs: [SC-4]
+    description: Update cross-references across 15+ files
+    concern: Cross-reference updates
+    evidence_type: string
+    skill: git-workflow-branch
+    task: update-cross-references
+    dispatch_string: "execute update-cross-references from git-workflow-branch"
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+      - .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+      - .opencode/skills/git-workflow-branch/SKILL.md
+      - .opencode/guidelines/000-critical-rules.md
+      - (15+ additional files)
+    provides: [cross_references_updated]
+
+  - id: PHASE-5
+    scs: [SC-5]
+    description: Update existing behavioral tests
+    concern: Behavioral test updates
+    evidence_type: string
+    skill: test-driven-development
+    task: update-behavioral-tests
+    dispatch_string: "execute update-behavioral-tests from test-driven-development"
+    files:
+      - .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+      - .opencode/tests-v2/behaviors/submodule-pointer-enforcement.sh
+    provides: [existing_tests_updated]
+
+  - id: PHASE-6
+    scs: [SC-6]
+    description: Add new behavioral test for decomposed pre-work
+    concern: New behavioral test
+    evidence_type: string
+    skill: test-driven-development
+    task: add-behavioral-test
+    dispatch_string: "execute add-behavioral-test from test-driven-development"
+    files:
+      - .opencode/tests-v2/behaviors/pre-work-decomposition.sh (new)
+    provides: [new_test_added]
+
+dependency_dag:
+  nodes:
+    - id: PHASE-1
+      depends_on: []
+    - id: PHASE-2
+      depends_on: []
+    - id: PHASE-3
+      depends_on: [PHASE-1, PHASE-2]
+    - id: PHASE-4
+      depends_on: [PHASE-3]
+    - id: PHASE-5
+      depends_on: [PHASE-3]
+    - id: PHASE-6
+      depends_on: [PHASE-3]
+  edges:
+    - from: PHASE-1
+      to: PHASE-3
+      reason: trunk-tip-verification task must exist before pre-work.md can dispatch it
+    - from: PHASE-2
+      to: PHASE-3
+      reason: shared submodule divergence reference must exist before pre-work.md can reference it
+    - from: PHASE-3
+      to: PHASE-4
+      reason: cross-references must match the new pre-work.md structure
+    - from: PHASE-3
+      to: PHASE-5
+      reason: behavioral tests must match the new task structure
+    - from: PHASE-3
+      to: PHASE-6
+      reason: new test verifies the decomposed structure
+  parallel_groups:
+    - [PHASE-1, PHASE-2]
+    - [PHASE-3]
+    - [PHASE-4, PHASE-5, PHASE-6]
+
+z3_verification:
+  tool: .opencode/tools/solve
+  contract_path: tmp/2230-contract.yaml
+  state_path: tmp/2230-state.yaml
+  initial_state_check: SAT (all variables false — no contradictions)
+  post_invariants_check: SAT (all variables true — all phases reachable)
+  theorem_proof: VALID (all-phases-complete theorem holds under invariants)
+  invariants_verified:
+    - PHASE-1 and PHASE-2 must complete before PHASE-3
+    - PHASE-3 must complete before PHASE-4, PHASE-5, PHASE-6
+    - All 6 phases must complete for spec completion
+  conclusion: Phase decomposition is solvable. Dependency DAG is acyclic. Parallel execution of PHASE-1+PHASE-2 and PHASE-4+PHASE-5+PHASE-6 is valid.
+
+state_transitions:
+  - from: initial
+    to: trunk_tip_verification_task_exists
+    via: PHASE-1 complete
+  - from: initial
+    to: submodule_divergence_reference_exists
+    via: PHASE-2 complete
+  - from: [trunk_tip_verification_task_exists, submodule_divergence_reference_exists]
+    to: pre_work_decomposed
+    via: PHASE-3 complete
+  - from: pre_work_decomposed
+    to: cross_references_updated
+    via: PHASE-4 complete
+  - from: pre_work_decomposed
+    to: existing_tests_updated
+    via: PHASE-5 complete
+  - from: pre_work_decomposed
+    to: new_test_added
+    via: PHASE-6 complete
+  - from: [cross_references_updated, existing_tests_updated, new_test_added]
+    to: spec_complete
+    via: all phases complete
+
+skill_task_assignments:
+  PHASE-1:
+    skill: git-workflow-branch
+    task: create-trunk-tip-verification
+    dispatch: "execute create-trunk-tip-verification from git-workflow-branch"
+    sub_agent_context:
+      must_receive:
+        - 6-step trunk-tip verification gate specification
+        - BLOCKED return contract format
+        - Tag convention format (<parent-repo>/<issue-number> for sub-repo)
+      must_not_receive:
+        - pre-work.md dispatch table details
+        - submodule divergence handling logic
+
+  PHASE-2:
+    skill: git-workflow-branch
+    task: extract-submodule-divergence
+    dispatch: "execute extract-submodule-divergence from git-workflow-branch"
+    sub_agent_context:
+      must_receive:
+        - Ahead/behind detection logic
+        - Rebase resolution path
+        - Escalation path for unresolvable divergence
+      must_not_receive:
+        - trunk-tip-verification task details
+        - pre-work.md restructure details
+
+  PHASE-3:
+    skill: git-workflow-branch
+    task: refactor-pre-work
+    dispatch: "execute refactor-pre-work from git-workflow-branch"
+    sub_agent_context:
+      must_receive:
+        - Canonical dispatch strings for trunk-tip-verification and submodule-sync
+        - Result contract redesign requirements (already_implemented status)
+        - Sub-repo-before-parent ordering requirement
+        - Tag-before-branch ordering requirement
+      must_not_receive:
+        - Cross-reference file list (handled in PHASE-4)
+        - Behavioral test details (handled in PHASE-5, PHASE-6)
+
+  PHASE-4:
+    skill: git-workflow-branch
+    task: update-cross-references
+    dispatch: "execute update-cross-references from git-workflow-branch"
+    sub_agent_context:
+      must_receive:
+        - List of 15+ files with cross-references
+        - New pre-work.md step numbers and dispatch strings
+        - New result contract format
+      must_not_receive:
+        - Behavioral test details
+
+  PHASE-5:
+    skill: test-driven-development
+    task: update-behavioral-tests
+    dispatch: "execute update-behavioral-tests from test-driven-development"
+    sub_agent_context:
+      must_receive:
+        - New task structure and dispatch patterns
+        - Existing test file paths
+      must_not_receive:
+        - Cross-reference file list
+
+  PHASE-6:
+    skill: test-driven-development
+    task: add-behavioral-test
+    dispatch: "execute add-behavioral-test from test-driven-development"
+    sub_agent_context:
+      must_receive:
+        - SC-1 and SC-2 behavioral criteria
+        - Sub-repo-before-parent ordering assertion
+        - Tag-before-branch ordering assertion
+      must_not_receive:
+        - Cross-reference file list
+        - Existing test update details
+
+edge_cases:
+  - No submodules present: PHASE-1 handles this by skipping sub-repo phase
+  - Submodule divergence unresolvable: PHASE-2 handles escalation path
+  - Trunk-tip verification fails on parent repo: PHASE-1 returns BLOCKED immediately
+  - Already on feature branch: PHASE-1 returns BLOCKED
+  - Dirty working tree: PHASE-1 returns BLOCKED with dirty file list

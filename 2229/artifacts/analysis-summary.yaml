@@ -1,0 +1,78 @@
+# Analysis Summary — synthesized from 7 analytical artifacts
+# Spec: #2229 — Skill deck completeness validation
+
+success_criteria:
+  SC-1:
+    id: SC-1
+    description: skildeck lint extended with --completeness flag for structural checks
+    evidence_type: behavioral
+    concern: Tooling — structural completeness validation
+    affected_files:
+      - .opencode/tools/impl/skildeck/skildeck-lint
+      - .opencode/skills/reference/.skilldeck-ignore
+
+  SC-2:
+    id: SC-2
+    description: Content-verification test scenario in test-enforcement.sh
+    evidence_type: string + structural
+    concern: CI — content-verification test coverage
+    affected_files:
+      - .opencode/tests-v2/test-enforcement.sh
+
+  SC-3:
+    id: SC-3
+    description: Behavioral enforcement test for missing skill card detection
+    evidence_type: behavioral
+    concern: Behavioral enforcement — agent response to missing skill cards
+    affected_files:
+      - .opencode/tests-v2/behaviors/skill-deck-completeness.sh
+
+  SC-4:
+    id: SC-4
+    description: .opencode/AGENTS.md updated with references
+    evidence_type: string
+    concern: Documentation — .opencode/AGENTS.md
+    affected_files:
+      - .opencode/AGENTS.md
+
+  SC-5:
+    id: SC-5
+    description: Root AGENTS.md updated with references
+    evidence_type: string
+    concern: Documentation — root AGENTS.md
+    affected_files:
+      - AGENTS.md
+
+  SC-6:
+    id: SC-6
+    description: critical-rules-074 added to 000-critical-rules.md
+    evidence_type: string + behavioral
+    concern: Enforcement — critical violation rule
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+
+concern_groups:
+  tooling:
+    - SC-1
+  testing_ci:
+    - SC-2
+    - SC-3
+  documentation:
+    - SC-4
+    - SC-5
+  enforcement:
+    - SC-6
+
+dependencies:
+  SC-2:
+    depends_on:
+      - SC-1
+    reason: Content-verification test scenario maps to skildeck lint tool
+  SC-3:
+    depends_on:
+      - SC-1
+      - SC-6
+    reason: Behavioral test exercises skildeck lint and verifies critical-rules-074
+  SC-4: {}
+  SC-5: {}
+  SC-6: {}
