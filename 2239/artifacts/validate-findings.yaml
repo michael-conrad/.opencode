@@ -1,0 +1,62 @@
+overall_status: PASS
+per_category:
+  - category: 1 — Structural validation
+    checks:
+      - name: Phase table with all required columns
+        result: PASS
+        detail: Phase table has Phase, Skill, Task, Target, SCs, Depends On, Dispatch Mode columns
+      - name: Each phase has numbered steps
+        result: PASS
+        detail: All 4 phases have numbered checkbox steps in their Procedure sections
+      - name: Exit criteria section exists with SC-to-phase mapping
+        result: PASS
+        detail: Exit criteria table maps all 8 SCs (C1-C8) to phases 1-4
+    overall: PASS
+  - category: 2 — Skill+task validity
+    checks:
+      - name: All skill+task references valid
+        result: PASS
+        detail: All references (test-driven-development/red, test-driven-development/green) match valid entries in implementation-workflow.md reference card
+    overall: PASS
+  - category: 3 — SC coverage
+    checks:
+      - name: All SCs appear in exit criteria
+        result: PASS
+        detail: SC-1 through SC-8 all mapped in exit criteria table
+      - name: Triplet split detection
+        result: PASS
+        detail: No SC has RED/GREEN/COMMIT steps split across phases; each SC is in exactly one phase
+    overall: PASS
+  - category: 4 — Concern separation
+    checks:
+      - name: Each phase addresses exactly one concern
+        result: PASS
+        detail: Phase 1=file-deletion, Phase 2=reference-removal, Phase 3=processing-order, Phase 4=behavioral-verification
+      - name: No two phases share the same concern
+        result: PASS
+        detail: All 4 concerns are unique across phases
+    overall: PASS
+  - category: 5 — DAG validation
+    checks:
+      - name: No cycles in dependency contract DAG
+        result: PASS
+        detail: DAG edges: 1→2, 2→4, 3→4 — no cycles
+      - name: All phases reachable from start nodes
+        result: PASS
+        detail: Phase 1 and Phase 3 are start nodes (no deps); Phase 2 reachable from 1; Phase 4 reachable from 2 and 3
+      - name: No orphan phases
+        result: PASS
+        detail: All 4 phases have at least one incoming or outgoing edge
+    overall: PASS
+  - category: 6 — Holistic quality
+    checks:
+      - name: No TBD/TODO placeholders
+        result: PASS
+        detail: No TBD, TODO, or placeholder text found in plan body
+      - name: All steps use checkbox format
+        result: PASS
+        detail: All procedure steps use - [ ] checkbox format
+      - name: Dispatch mode consistency
+        result: PASS
+        detail: All 4 phases use clean-room dispatch; no inline steps in clean-room phases
+    overall: PASS

@@ -1,0 +1,3 @@
+status: DONE
+finding_summary: "Revised plan for #2239: split Phase 1 into two phases (delete + update references) to fix concern-separation violation, added numbered checkbox-format procedure steps to all 4 phases, completed exit criteria table covering all 8 SCs with SC-to-phase mapping, added dispatch mode annotations (all clean-room), and updated dependency contract to reflect Phase 2 depending on Phase 1."
+artifact_path: ".opencode/.issues/2239/plan.md"

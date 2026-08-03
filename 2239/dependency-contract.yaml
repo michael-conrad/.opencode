@@ -1,19 +1,23 @@
 dependency_contract:
   phase_order:
     - phase: 1
-      name: Remove check-pr.md and update references
+      name: Delete check-pr.md
       depends_on: []
-      scs: [SC-1, SC-2, SC-3a, SC-3b, SC-5]
+      scs: [SC-1]
     - phase: 2
+      name: Update references
+      depends_on: [1]
+      scs: [SC-2, SC-3a, SC-3b, SC-5]
+    - phase: 3
       name: Fix cleanup processing order
       depends_on: []
       scs: [SC-6, SC-7]
-    - phase: post
+    - phase: 4
       name: Behavioral backward compatibility verification
-      depends_on: [1, 2]
+      depends_on: [2, 3]
       scs: [SC-8]
   intra_phase_dependencies:
-    - phase: 1
+    - phase: 2
       order:
-        - SC-1 (delete file) must precede SC-2/SC-3a/SC-3b/SC-5 (update references)
-  notes: "Phase 1 and Phase 2 are independent. Post-phase (behavioral) requires both Phase 1 and Phase 2 to be complete."
+        - SC-2/SC-3a/SC-3b/SC-5 (update references) must follow SC-1 (delete file)
+  notes: "Phase 1 and Phase 3 are independent. Phase 2 depends on Phase 1. Phase 4 (behavioral) requires both Phase 2 and Phase 3 to be complete."
