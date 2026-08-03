@@ -87,7 +87,6 @@ Read [091-incremental-build.md](guidelines/091-incremental-build.md) for the per
 | `reference/skill-card-description-standards.md` | Description field as semantic router, persona framing, skill()/task() pipeline, Workflows section format |
 | `reference/task-card-structure-standards.md` | Canonical task card structure, result contract format, task card vs SKILL.md division |
 | `reference/skill-card-schema.md` | SKILL.md frontmatter binary constraints (name, description, license) |
-| `.issues/2229/` | Skill deck completeness validation — missing SKILL.md or task cards trigger investigation + fatal HALT |
 
 ## Guidelines Structure
 
