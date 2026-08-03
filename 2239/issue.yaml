@@ -1,8 +1,7 @@
 title: '[SPEC] Remove redundant check-pr task, fix cleanup processing order'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- approved-for-for_pr,spec-draft
 body: "> GitHub Issue: https://github.com/michael-conrad/.opencode/issues/2239\n\n\
   # [SPEC] Remove redundant check-pr task, fix cleanup processing order\n\n## Problem\
   \ Statement\n\nThe `git-workflow-cleanup` skill has a redundant `check-pr.md` task\
@@ -64,4 +63,4 @@ body: "> GitHub Issue: https://github.com/michael-conrad/.opencode/issues/2239\n
   \ `pair-cleanup` task — not affected by this spec\n- Changes to `git-workflow-cleanup`\
   \ task file count in any other location\n- Any changes outside the `.opencode` submodule\n"
 created_at: '2026-08-03T14:15:47+00:00'
-updated_at: '2026-08-03T14:15:59+00:00'
+updated_at: '2026-08-03T14:36:24+00:00'
