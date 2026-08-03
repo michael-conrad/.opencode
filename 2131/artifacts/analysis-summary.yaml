@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2131/spec.md
+approval_status: approved
+approved_labels:
+  - spec,approved-for-pr
+sc_count: 9
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/guidelines/080-code-standards.md
+    status: EXISTS
+  - file: .opencode/skills/test-driven-development/SKILL.md
+    status: EXISTS
+backfill_summary:
+  total_artifacts: 7
+  pre_existing: 0
+  backfilled: 7
+  scs_covered: 9
+  phases: 4 (Phase 1: generalize, Phase 2: move, Phase 3: remove, Phase 4: verify)
+  evidence_types: string+semantic (6), semantic (3)
+  affected_files: 2 (080-code-standards.md, test-driven-development/SKILL.md)
+  cross_reference_files: 1 (000-critical-rules.md)

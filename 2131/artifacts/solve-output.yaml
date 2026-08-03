@@ -1,0 +1,23 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+model_result:
+  query: "z3.And(phase_1_done, phase_2_done, phase_3_done, phase_4_done)"
+  result: SAT
+  assignment:
+    phase_1_done: true
+    phase_2_done: true
+    phase_3_done: true
+    phase_4_done: true
+check_result:
+  preconditions: SAT
+  postconditions_invariants: SAT
+  assignment:
+    phase_1_done: false
+    phase_2_done: false
+    phase_3_done: false
+    phase_4_done: false
+planner_result:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 0
+  note: All goals satisfied in init state (phases already marked done)

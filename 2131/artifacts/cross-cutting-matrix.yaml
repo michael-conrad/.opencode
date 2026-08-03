@@ -1,0 +1,41 @@
+spec: .opencode/.issues/2131/spec.md
+description: SCs that span multiple concerns or files
+cross_cutting_concerns:
+  - id: CC-1
+    description: Constraint preservation across move operations
+    scs:
+      - SC-3 (move Enforcement Test Mandate to skill card)
+      - SC-8 (normative rules preserved in destination)
+      - SC-9 (removed section's content preserved in moved section)
+    concerns_spanned:
+      - CONCERN-MOVE
+      - CONCERN-REMOVE
+    rationale: SC-3, SC-8, and SC-9 all verify that content moved or removed from 080 is preserved elsewhere. They share the same verification concern (constraint preservation) but target different source sections.
+  - id: CC-2
+    description: Semantic analysis gate for generalization
+    scs:
+      - SC-1 (generalized Parsing Logic)
+      - SC-2 (generalized Libraries & Packages)
+      - SC-7 (generalized Parsing Logic preserves constraint)
+    concerns_spanned:
+      - CONCERN-GENERALIZE
+    rationale: SC-1 and SC-2 require string + semantic evidence; SC-7 requires pure semantic evidence. All three verify that generalization did not lose specificity or constraints.
+  - id: CC-3
+    description: Cross-reference audit across files
+    scs:
+      - SC-8(c) (cross-references to 000 updated in destination)
+      - SC-9(c) (cross-references in 080 to removed sections updated)
+    concerns_spanned:
+      - CONCERN-MOVE
+      - CONCERN-REMOVE
+    rationale: Both SCs require cross-reference audits after moves/removals. SC-8(c) checks destination cross-references; SC-9(c) checks source cross-references.
+  - id: CC-4
+    description: All-or-nothing gate
+    scs:
+      - SC-1 through SC-9
+    concerns_spanned:
+      - CONCERN-GENERALIZE
+      - CONCERN-MOVE
+      - CONCERN-REMOVE
+      - CONCERN-VERIFY
+    rationale: All 9 SCs must PASS for the compaction to be complete. Partial compaction is not permitted.

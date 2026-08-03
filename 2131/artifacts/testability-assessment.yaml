@@ -1,0 +1,60 @@
+spec: .opencode/.issues/2131/spec.md
+description: Evidence type assignments and testability assessment per success criterion
+assessments:
+  SC-1:
+    evidence_type: string + semantic
+    verification_method: grep for absence of 'src/commons/parsing' + semantic analysis that generalized text preserves the constraint (pipeline rerun required on metadata-affecting changes)
+    testability: HIGH — string check is automatable via grep; semantic check requires clean-room sub-agent
+    automation_level: PARTIAL — string check is fully automatable; semantic check requires AI judgment
+  SC-2:
+    evidence_type: string + semantic
+    verification_method: grep for absence of 'ConfigurationManager' + semantic analysis that generalized text preserves the intent (use project-provided abstractions for paths)
+    testability: HIGH — string check is automatable via grep; semantic check requires clean-room sub-agent
+    automation_level: PARTIAL — string check is fully automatable; semantic check requires AI judgment
+  SC-3:
+    evidence_type: string + semantic
+    verification_method: grep for 'Enforcement Test Mandate' in test-driven-development/SKILL.md + semantic analysis that all subsections (Evidence Type Taxonomy, SC-to-Test Traceability, RED-Phase Ordering, Behavioral RED/GREEN gate) are present in the destination
+    testability: HIGH — string check is automatable via grep; semantic check requires clean-room sub-agent
+    automation_level: PARTIAL — string check is fully automatable; semantic check requires AI judgment
+  SC-4:
+    evidence_type: string + semantic
+    verification_method: grep for absence of 'Behavioral RED/GREEN as Primary Enforcement Gate' in 080 + semantic analysis that the section's normative content (behavioral tests are PRIMARY) is preserved in the moved Enforcement Test Mandate section (Phase 2 destination)
+    testability: HIGH — string check is automatable via grep; semantic check requires clean-room sub-agent
+    automation_level: PARTIAL — string check is fully automatable; semantic check requires AI judgment
+  SC-5:
+    evidence_type: string + semantic
+    verification_method: grep for 'Test Integrity Mandate' in 080 + semantic analysis that all 6 rules (No Lobotomizing, Timeout Diagnosable, Research Sub-Agents, FAIL is Hard Gate, Clean-Room Semantic Inspection, Artifact Generated is NOT PASS) are present
+    testability: HIGH — string check is automatable via grep; semantic check requires clean-room sub-agent
+    automation_level: PARTIAL — string check is fully automatable; semantic check requires AI judgment
+  SC-6:
+    evidence_type: string + semantic
+    verification_method: grep for each keep section header + semantic analysis comparing before/after content of each keep section — PASS only if every keep section's content has no content removed and no wording changed (whitespace-only differences are acceptable)
+    testability: MEDIUM — requires baseline snapshot of before-state for comparison; semantic analysis needed for content comparison
+    automation_level: PARTIAL — grep for headers is automatable; content comparison requires AI judgment
+  SC-7:
+    evidence_type: semantic
+    verification_method: Clean-room sub-agent reads before/after text and confirms: (a) the pipeline-rerun requirement is present in the generalized version, (b) the scope of "metadata-affecting changes" is not narrowed, (c) no project-specific paths leaked into the generalized version. PASS only if all three sub-checks pass.
+    testability: MEDIUM — requires clean-room sub-agent with access to both before and after text; three sub-checks provide structured evaluation
+    automation_level: FULLY_MANUAL — requires AI judgment; no automatable component
+  SC-8:
+    evidence_type: semantic
+    verification_method: Clean-room sub-agent reads source and destination and confirms: (a) every normative rule from the source section is present in the destination, (b) no rules were dropped during the move, (c) cross-references to 000 are updated to point to the correct section. PASS only if all three sub-checks pass.
+    testability: MEDIUM — requires clean-room sub-agent with access to both source and destination; three sub-checks provide structured evaluation
+    automation_level: FULLY_MANUAL — requires AI judgment; no automatable component
+  SC-9:
+    evidence_type: semantic
+    verification_method: Clean-room sub-agent reads 080 before/after and the moved Enforcement Test Mandate to confirm: (a) every normative statement from the removed section exists in the moved Enforcement Test Mandate, (b) no content was silently dropped, (c) cross-references in 080 that pointed to removed sections are updated. PASS only if all three sub-checks pass.
+    testability: MEDIUM — requires clean-room sub-agent with access to before/after 080 and destination; three sub-checks provide structured evaluation
+    automation_level: FULLY_MANUAL — requires AI judgment; no automatable component
+summary:
+  total_scs: 9
+  evidence_type_breakdown:
+    string + semantic: 6 (SC-1 through SC-6)
+    semantic: 3 (SC-7, SC-8, SC-9)
+    behavioral: 0
+  testability_breakdown:
+    HIGH: 5 (SC-1 through SC-5)
+    MEDIUM: 4 (SC-6 through SC-9)
+  automation_breakdown:
+    PARTIAL: 6 (SC-1 through SC-6)
+    FULLY_MANUAL: 3 (SC-7, SC-8, SC-9)

@@ -1,0 +1,53 @@
+variables:
+  phase_1_done:
+    type: bool
+  phase_2_done:
+    type: bool
+  phase_3_done:
+    type: bool
+  phase_4_done:
+    type: bool
+
+preconditions:
+  - z3.Implies(phase_2_done, phase_1_done)
+  - z3.Implies(phase_3_done, phase_2_done)
+  - z3.Implies(phase_4_done, phase_3_done)
+
+invariants:
+  - z3.Or(z3.Not(phase_1_done), phase_1_done)
+  - z3.Or(z3.Not(phase_2_done), phase_2_done)
+  - z3.Or(z3.Not(phase_3_done), phase_3_done)
+  - z3.Or(z3.Not(phase_4_done), phase_4_done)
+
+phases:
+  - phase: 1
+    file: plan-01-generalize.md
+    description: Generalize Parsing Logic Changes and Libraries & Packages sections
+    depends_on: []
+    provides:
+      - generalized-parsing-logic
+      - generalized-libraries-packages
+  - phase: 2
+    file: plan-02-move.md
+    description: Move Enforcement Test Mandate to test-driven-development skill card
+    depends_on:
+      - generalized-parsing-logic
+      - generalized-libraries-packages
+    provides:
+      - enforcement-test-mandate-moved
+  - phase: 3
+    file: plan-03-remove.md
+    description: Remove Behavioral RED/GREEN section; verify Test Integrity Mandate stays
+    depends_on:
+      - enforcement-test-mandate-moved
+    provides:
+      - behavioral-red-green-removed
+      - test-integrity-verified
+  - phase: 4
+    file: plan-04-verify.md
+    description: Verify all keep sections remain intact
+    depends_on:
+      - behavioral-red-green-removed
+      - test-integrity-verified
+    provides:
+      - all-keep-sections-verified

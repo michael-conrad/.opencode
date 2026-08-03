@@ -1,0 +1,23 @@
+spec: .opencode/.issues/2131/spec.md
+description: Files affected by the compaction of 080-code-standards.md
+affected_files:
+  - path: .opencode/guidelines/080-code-standards.md
+    status: EXISTS
+    role: SOURCE — sections to be generalized, moved, or removed; keep sections remain intact
+    operations:
+      - generalize: Parsing Logic Changes (project-specific paths → universal)
+      - generalize: Libraries & Packages (project-specific names → universal)
+      - move: Enforcement Test Mandate section → test-driven-development/SKILL.md
+      - remove: Behavioral RED/GREEN as Primary Enforcement Gate section
+      - keep: All keep sections (Scope, Typing, Design Principles, etc.)
+  - path: .opencode/skills/test-driven-development/SKILL.md
+    status: EXISTS
+    role: DESTINATION — receives Enforcement Test Mandate section from 080
+    operations:
+      - receive: Enforcement Test Mandate section with all normative rules
+      - merge: If existing Enforcement Test Mandate content exists, deduplicate
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: EXISTS
+    role: REFERENCE — contains cross-reference to 080's Behavioral RED/GREEN section; no content modification
+    operations:
+      - audit: Cross-references in 080 that pointed to removed sections must be updated

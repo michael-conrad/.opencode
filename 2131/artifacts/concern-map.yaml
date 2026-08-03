@@ -1,0 +1,41 @@
+spec: .opencode/.issues/2131/spec.md
+description: Concern groups decomposed from success criteria, mapped to phase boundaries
+concerns:
+  - id: CONCERN-GENERALIZE
+    name: Generalize project-specific references
+    description: Replace project-specific paths and names with universal language
+    scs:
+      - SC-1 (Parsing Logic Changes generalized)
+      - SC-2 (Libraries & Packages generalized)
+      - SC-7 (Generalized Parsing Logic preserves pipeline-rerun constraint)
+    phase: Phase 1
+    requirements:
+      - REQ-1
+  - id: CONCERN-MOVE
+    name: Move Enforcement Test Mandate to skill card
+    description: Relocate the Enforcement Test Mandate section from 080 to test-driven-development/SKILL.md
+    scs:
+      - SC-3 (Enforcement Test Mandate moved to skill card)
+      - SC-8 (Moved content preserves all normative rules)
+    phase: Phase 2
+    requirements:
+      - REQ-2
+  - id: CONCERN-REMOVE
+    name: Remove duplicated sections
+    description: Remove Behavioral RED/GREEN section from 080; verify Test Integrity Mandate stays
+    scs:
+      - SC-4 (Behavioral RED/GREEN removed from 080)
+      - SC-5 (Test Integrity Mandate remains in 080)
+      - SC-9 (Removed section's normative content preserved in moved Enforcement Test Mandate)
+    phase: Phase 3
+    requirements:
+      - REQ-3
+      - REQ-4
+  - id: CONCERN-VERIFY
+    name: Verify keep sections intact
+    description: Confirm all keep sections remain in 080 with no content removed or reworded
+    scs:
+      - SC-6 (All keep sections remain in 080 intact)
+    phase: Phase 4
+    requirements:
+      - REQ-5
