@@ -291,6 +291,31 @@ Reading source files with the intent to modify them constitutes implicit self-au
 - If scope is `for_implementation` or higher, proceed with reading and modification
 - When in doubt about intent, treat as read-only until scope is confirmed
 
+### [critical-rules-074] CRITICAL VIOLATION — Missing SKILL.md or task cards — investigation report + fatal HALT with escalation
+
+Missing skill deck files (SKILL.md or task cards) indicate a broken skill directory structure that prevents agent routing and task execution. The agent MUST NOT attempt to infer, fabricate, or proceed without the missing files.
+
+| Condition | Required Action |
+|-----------|----------------|
+| Missing `SKILL.md` in a skill directory (`skills/<name>/`) | Investigation report + fatal HALT |
+| Missing task card referenced by the skill's Trigger Dispatch Table | Investigation report + fatal HALT |
+| Missing `SKILL.md` in a `tasks/` subdirectory | Investigation report + fatal HALT |
+
+**Investigation report** MUST include: the specific file paths that are missing, the skill name, the TDT entry (if applicable), and the directory listing showing the gap.
+
+**Escalation path:** Report findings to the developer with specific file paths. Do NOT create placeholder files, do NOT infer content, do NOT proceed without the missing files. The developer must create or restore the missing files.
+
+#### 🚫 FORBIDDEN
+- Creating placeholder SKILL.md or task card files to "fix" the gap
+- Inferring or fabricating skill content from the skill name alone
+- Proceeding with implementation while skill deck files are missing
+- Silently skipping a skill whose deck is incomplete
+
+#### ✅ REQUIRED
+- On detecting a missing SKILL.md or task card: produce an investigation report with specific file paths
+- HALT with fatal escalation — report to developer
+- Wait for developer to create or restore the missing files before proceeding
+
 ### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
 Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.

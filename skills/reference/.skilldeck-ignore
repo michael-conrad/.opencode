@@ -1,0 +1,3 @@
+# .skilldeck-ignore — directories excluded from skill deck completeness checks
+# Reference directories contain shared content, not standalone skills
+reference

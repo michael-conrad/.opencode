@@ -3,7 +3,7 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-3: Agent syncs submodules before creating main repo feature branch
+# SC-3: Agent syncs submodules before creating main repo feature branch; submodule-divergence is now a reference (reference/submodule-divergence.md)
 # RED phase: agent should create the feature branch before syncing submodules
 # because pre-work.md hasn't been reordered yet.
 

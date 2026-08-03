@@ -102,13 +102,19 @@ git fetch origin "$DEFAULT_BRANCH"
 git rebase origin/"$DEFAULT_BRANCH"
 ```
 
-### Step 2.5: Proactive Repo State Verification
+### Step 2.5: Trunk-Tip Verification
 
-**Before creating any feature branch, verify repo state:**
-- [ ] 1. **Submodule initialization check:** Run `git submodule status` to detect git repos: `REPO_PATHS=$(git submodule status | awk '{print $2}' 2>/dev/null)`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Step 3 — do NOT run submodule commands inline.
+**Before creating any feature branch, verify that the parent repo and all submodules are at trunk tip with clean working trees.** Dispatch trunk-tip verification to a sub-agent:
 
-- [ ] 2. **Submodule currency check:** Deferred to the sub-agent task() (Step 3).
-- [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to a sub-agent — do NOT run `git submodule init` or `git submodule foreach` inline.
+```bash
+task(subagent_type="general", prompt: "execute trunk-tip-verification from git-workflow-branch")
+```
+
+The sub-agent independently runs the 7-step verification gate (parent repo trunk tip, zero pending changes, remote tracking match, submodule trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match).
+
+**If trunk-tip verification returns BLOCKED:** Re-task with original scoped context. If second task() also fails, report the double-failure and HALT.
+
+**If no submodules detected:** The trunk-tip verification still runs for the parent repo checks. Proceed to Step 3 for submodule work if submodules exist.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -176,51 +182,7 @@ When submodules are detected via `git submodule status`, the dispatches a sub-ag
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
 - [ ] 3. Resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` and checks out each submodule to trunk tip (`git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull origin \"$DEFAULT_BRANCH\" --ff-only"`)
    - **HALT on failure:** If `git pull --ff-only` fails (non-ff or network error), the sub-agent MUST produce a structured divergence report. Do NOT fall back to merge or rebase — `--ff-only` is a hard gate that prevents accidental divergence from trunk.
-   - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution:
-     ```bash
-     SUBMODULE_PATH="<path>"
-     DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-     AHEAD=$(git rev-list --count "origin/$DEFAULT_BRANCH..$DEFAULT_BRANCH" 2>/dev/null || echo "unknown")
-     BEHIND=$(git rev-list --count "$DEFAULT_BRANCH..origin/$DEFAULT_BRANCH" 2>/dev/null || echo "unknown")
-     echo "DIVERGENCE DETECTED: Submodule at $SUBMODULE_PATH"
-     echo "  Ahead by $AHEAD commits (local changes not on origin/$DEFAULT_BRANCH)"
-     echo "  Behind by $BEHIND commits (origin/$DEFAULT_BRANCH changes not in local $DEFAULT_BRANCH)"
-     # Autonomous resolution attempt:
-     if [ "$AHEAD" = "0" ] && [ "$BEHIND" != "0" ] && [ "$BEHIND" != "unknown" ]; then
-       # Only behind — safe to fast-forward
-       git pull origin "$DEFAULT_BRANCH"
-     elif [ "$AHEAD" != "0" ] && [ "$AHEAD" != "unknown" ] && [ "$BEHIND" = "0" ]; then
-       # Only ahead — local changes not pushed, push them
-       git push origin "$DEFAULT_BRANCH"
-     elif [ "$AHEAD" != "0" ] && [ "$BEHIND" != "0" ] && [ "$AHEAD" != "unknown" ] && [ "$BEHIND" != "unknown" ]; then
-       # Both ahead and behind — semantic analysis needed
-       # Attempt rebase first (safe for linear history)
-       if git rebase "origin/$DEFAULT_BRANCH" 2>/dev/null; then
-         echo "Autonomous rebase successful — divergence resolved."
-       else
-         echo "Autonomous rebase failed — semantic conflict detected."
-         echo "HALT: Developer consultation required — divergence cannot be auto-resolved."
-         echo "  Suggested resolution:"
-         echo "    - Review and resolve rebase conflicts manually"
-         echo "    - If local changes should be discarded: git reset --hard origin/$DEFAULT_BRANCH"
-       fi
-     else
-       echo "HALT: Developer consultation required — divergence cannot be auto-resolved."
-       echo "  Suggested resolution:"
-       echo "    - If local changes are intentional: git push origin $DEFAULT_BRANCH"
-       echo "    - If local changes should be discarded: git reset --hard origin/$DEFAULT_BRANCH"
-       echo "    - If local changes should be rebased: git rebase origin/$DEFAULT_BRANCH"
-     fi
-     ```
-   - **Result contract on divergence:**
-     ```yaml
-     status: DONE | BLOCKED
-     reason: SUBMODULE_FF_FAILURE | SUBMODULE_DIVERGENCE_RESOLVED
-     submodule_path: "<path>"
-     ahead: <N>
-     behind: <N>
-     resolution: "autonomous_push | autonomous_rebase | escalated"
-     ```
+   - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution per Read [the submodule divergence reference](reference/submodule-divergence.md).
 - [ ] 4. Logs submodule status (`git submodule status`)
 - [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
@@ -469,7 +431,7 @@ This task does NOT re-check authorization. Authorization was verified by `approv
 **After completion, this task yields:**
 
 ```yaml
-status: success | failure
+status: success | failure | already_implemented
 branch: "spec/<feature-name>" | "feature/<feature-name>"
 worktree_path: ".worktrees/<sanitized-branch-name>" | null
 direct_branch: true | false
@@ -519,7 +481,19 @@ Verified all proposed changes were already implemented. No modifications needed.
 **Outcome:** Spec requirements verified complete without additional changes.
 ```
 
-- [ ] 4. **HALT after closing:**
+- [ ] 4. **Yield back with `already_implemented` status before HALT:**
+
+   ```yaml
+   status: already_implemented
+   branch: null
+   worktree_path: null
+   direct_branch: false
+   base_hash: null
+   working_tree_clean: true
+   ready_for: null
+   ```
+
+- [ ] 5. **HALT after closing:**
    - No further steps needed
    - No worktree cleanup (no worktree was created)
 

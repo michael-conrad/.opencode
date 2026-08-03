@@ -16,7 +16,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 
 | Sub-Skill | Purpose | Task Count |
 |-----------|---------|------------|
-| `git-workflow-branch` | Branch creation, submodule sync, provenance, pair mode setup | 8 task files |
+| `git-workflow-branch` | Branch creation, submodule sync, provenance, pair mode setup | 9 task files |
 | `git-workflow-commit` | Implementation commits, commit prep, pair commits | 3 task files |
 | `git-workflow-pr` | PR creation, review prep, pair PR, completion, post-implementation | 7 task files |
 | `git-workflow-cleanup` | Post-merge cleanup, PR state check, pair cleanup | 4 task files |
@@ -37,6 +37,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | "sync submodules" / "update submodules" | `submodule-sync` | `git-workflow-branch --task submodule-sync` | `sub-task` | {submodule_paths} |
 | "release" / "release/v" | `pre-work` | `git-workflow-branch --task pre-work` | `sub-task` | {branch_name: release/v{semver}} |
 | "release PR" / "is_release" | `pr-creation` | `git-workflow-pr --task pr-creation` | `sub-task` | {branch_name, spec_summary, is_release: true} |
+| "trunk-tip-verification" / "verify trunk tip" / "check trunk" | `trunk-tip-verification` | `git-workflow-branch --task trunk-tip-verification` | `sub-task` | {branch_name} |
 | "pre-commit-pointer-check" / "check submodule pointers" | `pre-commit-pointer-check` | `git-workflow-branch --task pre-commit-pointer-check` | `sub-task` | {branch_name} |
 | completion / workflow end | `completion` | `git-workflow-pr --task completion` | `sub-task` | {workflow_state} |
 
@@ -55,6 +56,7 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 | `check-pr` | `task(..., prompt: "execute check-pr from git-workflow-cleanup. Read \`git-workflow-cleanup/tasks/check-pr.md\` first")` |
 | `provenance` | `task(..., prompt: "execute provenance from git-workflow-branch. Read \`git-workflow-branch/tasks/provenance.md\` first")` |
 | `submodule-sync` | `task(..., prompt: "execute submodule-sync from git-workflow-branch. Read \`git-workflow-branch/tasks/submodule-sync.md\` first")` |
+| `trunk-tip-verification` | `task(..., prompt: "execute trunk-tip-verification from git-workflow-branch. Read \`git-workflow-branch/tasks/trunk-tip-verification.md\` first")` |
 | `pre-commit-pointer-check` | `task(..., prompt: "execute pre-commit-pointer-check from git-workflow-branch. Read \`git-workflow-branch/tasks/pre-commit-pointer-check.md\` first")` |
 | `completion` | `task(..., prompt: "execute completion from git-workflow-pr. Read \`git-workflow-pr/tasks/completion.md\` first")` |
 

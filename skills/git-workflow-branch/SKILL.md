@@ -21,6 +21,7 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 | "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
 | "pre-commit-pointer-check" / "check submodule pointers" | `pre-commit-pointer-check` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
+| "trunk-tip-verification" / "verify trunk tip" / "check trunk" | `trunk-tip-verification` | `sub-task` | {branch_name} |
 | "operating-protocol" / "protocol" | `operating-protocol` | `sub-task` | {branch_name} |
 
 ## DISPATCH_GATE
@@ -52,6 +53,7 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 | `submodule-sync` | Sync submodules to upstream default branch |
 | `pre-commit-pointer-check` | Verify submodule pointers before commit |
 | `provenance` | Verify provenance of submodule state |
+| `trunk-tip-verification` | Verify parent repo and submodules are at trunk tip with clean working trees |
 | `operating-protocol` | Enforce operating protocol and tag conventions |
 
 ## Cross-References
@@ -60,6 +62,8 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 - Read [approval-gate skill](skills/approval-gate/SKILL.md) for authorization scope requirements
 - Read [critical-rules-005](guidelines/000-critical-rules.md) for branch creation rules
 - Read [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
+- Read [trunk-tip-verification task](tasks/trunk-tip-verification.md) for the 7-step trunk tip verification gate
+- Read [submodule-divergence reference](reference/submodule-divergence.md) for submodule divergence detection and resolution
 - Read [§1](guidelines/020-go-prohibitions.md) for `for_analysis` branch restrictions
 
 ### [critical-rules-042] Treating Branch Stacking as Optional
