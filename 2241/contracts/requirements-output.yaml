@@ -1,0 +1,173 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+
+explicit_requirements:
+  - id: REQ-1
+    description: "writing-plans/tasks/handoff.md MUST read authorization from local {issues_prefix}/{N}/issue.yaml instead of calling approval-gate --task verify-authorization (which reads remote labels)"
+    verified_by: "Read handoff.md line 25 — calls approval-gate --task verify-authorization which checks remote labels"
+    source: "SC-1"
+
+  - id: REQ-2
+    description: "approval-gate/tasks/apply-label.md MUST write approved-for-{scope} to local issue.yaml as canonical; remote write is best-effort only"
+    verified_by: "Read apply-label.md — Step 2 dispatches to issue-operations for platform-aware label management (remote only)"
+    source: "SC-2"
+
+  - id: REQ-3
+    description: "issue-operations-core/tasks/creation.md MUST write needs-approval to local issue.yaml as primary; remote write best-effort"
+    verified_by: "Read creation.md Step 3.5 — verifies needs-approval on remote issue only, no local write"
+    source: "SC-3"
+
+  - id: REQ-4
+    description: "issue-operations-core/tasks/completion.md MUST read needs-approval from local issue.yaml; remote write best-effort"
+    verified_by: "Read completion.md — checks needs-approval via issue-operations -> read-labels (remote)"
+    source: "SC-4"
+
+  - id: REQ-5
+    description: "guidelines/010-approval-gate.md MUST clarify that canonical authorization state is in local issue.yaml; remote labels are advisory"
+    verified_by: "Read 010-approval-gate.md — 'No label = no approval' references remote labels as authoritative"
+    source: "SC-5"
+
+  - id: REQ-6
+    description: "spec-creation/tasks/create.md MUST write labels to local issue.yaml as primary; remote secondary"
+    verified_by: "Read create.md Step 3 — creates remote issue with needs-approval label, no local write"
+    source: "SC-6"
+
+  - id: REQ-7
+    description: "issue-review/tasks/analyze-and-spec.md MUST write labels to local issue.yaml as primary; remote secondary"
+    verified_by: "Read analyze-and-spec.md Step 6 — creates fix spec with labels via remote API only"
+    source: "SC-7"
+
+  - id: REQ-8
+    description: "writing-plans/tasks/create.md MUST write spec-cleared to local issue.yaml as primary; remote secondary"
+    verified_by: "Read create.md Step 9 — applies spec-cleared via platform's label API (remote only)"
+    source: "SC-8"
+
+  - id: REQ-9
+    description: "issue-operations-core/tasks/read-labels.md MUST read from local issue.yaml by default; remote read only when explicitly requested"
+    verified_by: "Read read-labels.md — routes to platform sub-skill (remote API) for all label reads"
+    source: "SC-9"
+
+  - id: REQ-10
+    description: "issue-operations-core/tasks/list-issues.md MUST remove 'Authorization scope label verification' from use cases"
+    verified_by: "Read list-issues.md Step 3 — lists 'Authorization scope label verification' as a use case"
+    source: "SC-10"
+
+  - id: REQ-11
+    description: "issue-operations-core/tasks/search-issues.md MUST remove 'Authorization scope label search' from use cases"
+    verified_by: "Read search-issues.md Step 3 — lists 'Authorization scope label search' as a use case"
+    source: "SC-11"
+
+  - id: REQ-12
+    description: "issue-review/tasks/gather.md MUST read labels from local issue.yaml; remote fallback only"
+    verified_by: "Read gather.md Step 3 — reads labels via issue-operations -> read-labels (remote API)"
+    source: "SC-12"
+
+  - id: REQ-13
+    description: "audit/tasks/drift-detection-investigator.md MUST read labels from local issue.yaml; remote fallback only"
+    verified_by: "Read drift-detection-investigator.md — 'Read labels via github_issue_read(method=get_labels)' (remote API)"
+    source: "SC-13"
+
+  - id: REQ-14
+    description: "verification-before-completion/tasks/operating-protocol.md MUST read labels from local issue.yaml; remote fallback only"
+    verified_by: "Read operating-protocol.md — 'Read labels via github_issue_read(method=get_labels)' (remote API)"
+    source: "SC-14"
+
+  - id: REQ-15
+    description: "audit/tasks/drift-detection-investigator.md MUST remove 'Authorization currency' and 'Authorization author identity' rows from Metadata Verification Extension"
+    verified_by: "Read drift-detection-investigator.md lines 33-34 — has those rows"
+    source: "SC-15"
+
+  - id: REQ-16
+    description: "issue-operations-core/tasks/read-issue.md MUST remove the entire 'No Metadata Trust Exceptions' section"
+    verified_by: "Read read-issue.md lines 25-35 — has the section with 7 bullet points"
+    source: "SC-16"
+
+  - id: REQ-17
+    description: "verification-before-completion/tasks/operating-protocol.md MUST remove the entire 'No Metadata Trust Exceptions' section"
+    verified_by: "Read operating-protocol.md lines 160-170 — has the section (duplicate of read-issue.md)"
+    source: "SC-17"
+
+  - id: REQ-18
+    description: "issue-review/tasks/gather.md MUST remove scanning comments for 'approved'/'go' patterns"
+    verified_by: "Read gather.md Step 3 — 'Authorization status from comments (look for approved, go, #N approved patterns)'"
+    source: "SC-18"
+
+  - id: REQ-19
+    description: "brainstorming/tasks/enforcement.md MUST remove 'User approved design' verification row checking comments for approval"
+    verified_by: "Read enforcement.md line 139 — has 'User approved design' row checking comments"
+    source: "SC-19"
+
+  - id: REQ-20
+    description: "issue-operations-core/tasks/post-creation.md MUST remove 'approved'/'go' check in comments from Live Verification table"
+    verified_by: "Read post-creation.md line 75 — has 'Auditors run BEFORE approval' check reading comments for 'approved'/'go'"
+    source: "SC-20"
+
+  - id: REQ-21
+    description: "approval-gate/tasks/resolve-scope.md MUST parse auth from chat message only, not from issue comments"
+    verified_by: "Read resolve-scope.md line 11 — 'Parse authorization text (issue comments, user messages)'"
+    source: "SC-21"
+
+  - id: REQ-22
+    description: "approval-gate/SKILL.md MUST remove references to reading comments for authorization"
+    verified_by: "Read approval-gate/SKILL.md — 'independently read issue state and comments' (lines 13, 49)"
+    source: "SC-22"
+
+  - id: REQ-23
+    description: "gh-cli/tasks/triage-issues.md MUST remove noting authorization in comments"
+    verified_by: "Read triage-issues.md line 34 — 'If the issue body or comments contain critical information (authorization, direction changes), note it'"
+    source: "SC-23"
+
+  - id: REQ-24
+    description: "guidelines/067-context-completeness.md MUST remove 'authorization may live in a comment, not the body'"
+    verified_by: "Read 067-context-completeness.md line 97 — 'authorization may live in a comment, not the body'"
+    source: "SC-24"
+
+  - id: REQ-25
+    description: "guidelines/257-procedural-discipline-reference.md MUST remove 'Authorization verified via comment history' example"
+    verified_by: "Read 257-procedural-discipline-reference.md line 56 — has the example"
+    source: "SC-25"
+
+  - id: REQ-26
+    description: "issue-operations/platforms/gitbucket-api/SKILL.md MUST remove label replacement via comment fallback"
+    verified_by: "Read gitbucket-api/SKILL.md line 168 — 'Label replacement on re-authorization is implemented via comment fallback'"
+    source: "SC-26"
+
+  - id: REQ-27
+    description: "issue-operations/platforms/local/tasks/push-body.md MUST be removed (describes non-existent sync operation)"
+    verified_by: "Read push-body.md — describes push-body as one-direction sync from local to remote, which does not exist in current architecture"
+    source: "SC-27"
+
+implicit_requirements:
+  - id: IMP-1
+    description: "The local-issues tool must support reading labels from issue.yaml (verified: yes, via read-labels)"
+    verified_by: "Ran ./.opencode/tools/local-issues --help — read-labels subcommand exists"
+  - id: IMP-2
+    description: "The local-issues tool must support writing labels to issue.yaml (verified: yes, via update --labels)"
+    verified_by: "Ran ./.opencode/tools/local-issues --help — update subcommand with --labels flag exists"
+  - id: IMP-3
+    description: "writing-plans/tasks/analyze.md is the reference pattern for reading auth from local issue.yaml"
+    verified_by: "Read analyze.md — Step 2 reads issue.yaml labels field for approved-for-* check"
+  - id: IMP-4
+    description: "All changes must be scoped to the .opencode submodule repo (michael-conrad/.opencode)"
+    verified_by: "Session-init Repo Information: path .opencode -> owner michael-conrad, repo .opencode"
+
+constraint_requirements:
+  - id: CON-1
+    description: "Remote API label writes are best-effort only — must not block pipeline if remote write fails"
+    rationale: "GitBucket post-creation labels are broken; GitHub API can be rate-limited"
+  - id: CON-2
+    description: "Local issue.yaml is the single source of truth for authorization state"
+    rationale: "Eliminates dependency on remote API availability for authorization decisions"
+  - id: CON-3
+    description: "The spec must be filed against michael-conrad/.opencode (the .opencode submodule), not the root repo"
+    rationale: "All affected files are under .opencode/"
+
+non_requirements:
+  - id: NREQ-1
+    description: "This spec does NOT change the remote label API behavior — remote labels remain as advisory/display"
+  - id: NREQ-2
+    description: "This spec does NOT change the local-issues tool itself — only the task files that call it"
+  - id: NREQ-3
+    description: "This spec does NOT add new API endpoints or new CLI commands"
+  - id: NREQ-4
+    description: "This spec does NOT change how authorization is granted (still via 'approved'/'go' in chat) — only where it is stored and read from"

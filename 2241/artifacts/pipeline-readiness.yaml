@@ -1,0 +1,71 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+
+checks:
+  atomicity:
+    status: PASS
+    description: "Every SC maps to exactly one RED->GREEN->COMMIT cycle"
+    details:
+      - "SC-1 -> item 7: handoff.md reads from local issue.yaml"
+      - "SC-2 -> item 1: apply-label.md writes to local issue.yaml"
+      - "SC-3 -> item 2: creation.md writes needs-approval to local issue.yaml"
+      - "SC-4 -> item 3: completion.md reads from local issue.yaml"
+      - "SC-5 -> item 27: 010-approval-gate.md clarifies canonical auth"
+      - "SC-6 -> item 4: spec-creation create.md writes labels to local issue.yaml"
+      - "SC-7 -> item 5: analyze-and-spec.md writes labels to local issue.yaml"
+      - "SC-8 -> item 6: writing-plans create.md writes spec-cleared to local issue.yaml"
+      - "SC-9 -> item 8: read-labels.md reads from local issue.yaml"
+      - "SC-10 -> item 12: list-issues.md removes auth scope line"
+      - "SC-11 -> item 13: search-issues.md removes auth scope line"
+      - "SC-12 -> item 9: gather.md reads from local issue.yaml"
+      - "SC-13 -> item 10: drift-detection-investigator.md reads from local issue.yaml"
+      - "SC-14 -> item 11: operating-protocol.md reads from local issue.yaml"
+      - "SC-15 -> item 16: drift-detection-investigator.md removes auth rows"
+      - "SC-16 -> item 14: read-issue.md removes No Metadata Trust"
+      - "SC-17 -> item 15: operating-protocol.md removes No Metadata Trust"
+      - "SC-18 -> item 17: gather.md removes comment scanning"
+      - "SC-19 -> item 18: enforcement.md removes approval comment check"
+      - "SC-20 -> item 19: post-creation.md removes approved/go check"
+      - "SC-21 -> item 20: resolve-scope.md parses from chat only"
+      - "SC-22 -> item 21: approval-gate SKILL.md removes comment references"
+      - "SC-23 -> item 22: triage-issues.md removes noting auth in comments"
+      - "SC-24 -> item 23: 067-context-completeness.md removes auth in comment language"
+      - "SC-25 -> item 24: 257-procedural-discipline-reference.md removes example"
+      - "SC-26 -> item 25: gitbucket-api SKILL.md removes comment fallback"
+      - "SC-27 -> item 26: push-body.md deleted"
+
+  dependency_ordering:
+    status: PASS
+    description: "SC dependency DAG is acyclic"
+    details:
+      - "P1 (local write) has no dependencies — can run first"
+      - "P2 (local read) depends on P1 — reads must come after writes"
+      - "P3 (remove cargo-cult) depends on P1 — conceptually independent but grouped"
+      - "P4 (remove No Metadata Trust) depends on P1 — conceptually independent but grouped"
+      - "P5 (remove comment-scanning) depends on P1 — auth source must be established first"
+      - "P6 (remove dead file) has no dependencies — can run anytime"
+      - "P7 (update guideline) depends on P1 — must document the new pattern"
+
+  single_concern:
+    status: PASS
+    description: "Every SC targets one file category and one verification domain"
+    details:
+      - "All SCs target either task files (.md), guidelines (.md), or SKILL.md files"
+      - "No SC mixes task file changes with guideline changes"
+      - "No SC mixes write changes with read changes"
+
+  phase_dependency:
+    status: PASS
+    description: "Phase dependency graph is acyclic"
+    details:
+      - "P1 -> P2 -> P3 -> P4 -> P5 -> P7 (linear chain)"
+      - "P6 is independent (dead file deletion)"
+      - "No circular dependencies"
+
+  three_tier_structure:
+    status: PASS
+    description: "Multi-phase spec has pre/per-file/post structure"
+    details:
+      - "Pre: P1 (establish local write pattern)"
+      - "Per-file: P2-P6 (modify individual files)"
+      - "Post: P7 (update guideline to document the change)"

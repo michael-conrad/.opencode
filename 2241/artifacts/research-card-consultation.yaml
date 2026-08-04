@@ -1,0 +1,5 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+research_cards_checked: true
+cards_found: 0
+findings: "No research cards found matching 'local authorization', 'issue.yaml labels', or 'authorization tracking' in .issues/research-cards/"

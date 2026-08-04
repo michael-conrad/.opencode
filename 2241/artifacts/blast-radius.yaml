@@ -1,0 +1,91 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+
+phases:
+  P1:
+    description: "Core local auth write — label-writing tasks"
+    affected_components:
+      - .opencode/skills/approval-gate/tasks/apply-label.md
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+      - .opencode/skills/issue-operations-core/tasks/completion.md
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/issue-review/tasks/analyze-and-spec.md
+      - .opencode/skills/writing-plans/tasks/create.md
+    ripple_effects:
+      - "All label-writing tasks now write to local issue.yaml first"
+      - "Remote label writes become best-effort — pipeline no longer blocks on remote label failure"
+      - "GitBucket post-creation label limitation is mitigated (local issue.yaml is canonical)"
+    risk: "Low — local-issues tool already supports update --labels"
+
+  P2:
+    description: "Core local auth read — label-reading tasks"
+    affected_components:
+      - .opencode/skills/writing-plans/tasks/handoff.md
+      - .opencode/skills/issue-operations-core/tasks/read-labels.md
+      - .opencode/skills/issue-review/tasks/gather.md
+      - .opencode/skills/audit/tasks/drift-detection-investigator.md
+      - .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    ripple_effects:
+      - "All label-reading tasks now read from local issue.yaml by default"
+      - "Remote API calls for label reads become the exception, not the default"
+      - "Authorization decisions no longer depend on remote API availability"
+    risk: "Low — local-issues tool already supports read-labels; writing-plans/tasks/analyze.md is reference pattern"
+
+  P3:
+    description: "Remove cargo-cult remote auth references"
+    affected_components:
+      - .opencode/skills/issue-operations-core/tasks/list-issues.md
+      - .opencode/skills/issue-operations-core/tasks/search-issues.md
+    ripple_effects:
+      - "list-issues and search-issues no longer claim to support auth scope verification"
+      - "Agents will not attempt to use remote issue lists for auth verification"
+    risk: "None — removing documentation lines only"
+
+  P4:
+    description: "Remove 'No Metadata Trust' sections"
+    affected_components:
+      - .opencode/skills/issue-operations-core/tasks/read-issue.md
+      - .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    ripple_effects:
+      - "The 'No Metadata Trust' doctrine is removed from two files"
+      - "Labels in local issue.yaml are now trusted as canonical auth source"
+      - "The 'Labels are not self-certifying' bullet is no longer needed because local issue.yaml IS the certifying source"
+    risk: "Low — the doctrine was designed for remote API labels which are now advisory"
+
+  P5:
+    description: "Remove comment-scanning for authorization"
+    affected_components:
+      - .opencode/skills/audit/tasks/drift-detection-investigator.md
+      - .opencode/skills/issue-review/tasks/gather.md
+      - .opencode/skills/brainstorming/tasks/enforcement.md
+      - .opencode/skills/issue-operations-core/tasks/post-creation.md
+      - .opencode/skills/approval-gate/tasks/resolve-scope.md
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/skills/gh-cli/tasks/triage-issues.md
+      - .opencode/guidelines/067-context-completeness.md
+      - .opencode/guidelines/257-procedural-discipline-reference.md
+      - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+    ripple_effects:
+      - "Authorization is no longer verified by scanning issue comments"
+      - "resolve-scope reads auth from chat message only (current session)"
+      - "Comment-scanning for 'approved'/'go' is removed from all files"
+      - "GitBucket comment fallback for label replacement is removed"
+    risk: "Medium — agents must be trained to read auth from local issue.yaml instead of comments"
+
+  P6:
+    description: "Remove dead file"
+    affected_components:
+      - .opencode/skills/issue-operations/platforms/local/tasks/push-body.md
+    ripple_effects:
+      - "One file deleted"
+      - "No cross-references to this file exist in the codebase"
+    risk: "None — dead file with no consumers"
+
+  P7:
+    description: "Update guideline"
+    affected_components:
+      - .opencode/guidelines/010-approval-gate.md
+    ripple_effects:
+      - "Guideline clarifies that canonical auth is local issue.yaml"
+      - "Remote labels are advisory/display only"
+    risk: "None — documentation clarification only"

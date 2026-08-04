@@ -1,0 +1,38 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+
+concerns:
+  - name: "Local auth write"
+    phases: [P1]
+    description: "All tasks that write authorization labels must write to local issue.yaml as primary"
+    separation: "Clean — all label-writing tasks are in P1"
+
+  - name: "Local auth read"
+    phases: [P2]
+    description: "All tasks that read authorization labels must read from local issue.yaml by default"
+    separation: "Clean — all label-reading tasks are in P2"
+
+  - name: "Remove stale remote auth references"
+    phases: [P3]
+    description: "Remove documentation lines that claim remote issue lists support auth verification"
+    separation: "Clean — two files, same concern"
+
+  - name: "Remove No Metadata Trust doctrine"
+    phases: [P4]
+    description: "Remove the 'No Metadata Trust' sections that distrust labels"
+    separation: "Clean — two files with identical sections"
+
+  - name: "Remove comment-scanning for auth"
+    phases: [P5]
+    description: "Remove all references to scanning issue comments for authorization"
+    separation: "Clean — 10 files, all removing the same anti-pattern"
+
+  - name: "Remove dead file"
+    phases: [P6]
+    description: "Delete push-body.md which describes a non-existent operation"
+    separation: "Clean — single file"
+
+  - name: "Update guideline"
+    phases: [P7]
+    description: "Clarify canonical auth source in the approval-gate guideline"
+    separation: "Clean — single file"

@@ -1,0 +1,195 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+
+phases:
+  - id: P1
+    name: "Core local auth write — label-writing tasks"
+    items:
+      - item: 1
+        sc_id: SC-2
+        file: .opencode/skills/approval-gate/tasks/apply-label.md
+        change: "Write approved-for-{scope} to local issue.yaml as canonical; remote best-effort"
+        red_green_verify_commit: true
+
+      - item: 2
+        sc_id: SC-3
+        file: .opencode/skills/issue-operations-core/tasks/creation.md
+        change: "Write needs-approval to local issue.yaml as primary; remote write best-effort"
+        red_green_verify_commit: true
+
+      - item: 3
+        sc_id: SC-4
+        file: .opencode/skills/issue-operations-core/tasks/completion.md
+        change: "Read needs-approval from local issue.yaml; remote write best-effort"
+        red_green_verify_commit: true
+
+      - item: 4
+        sc_id: SC-6
+        file: .opencode/skills/spec-creation/tasks/create.md
+        change: "Write labels to local issue.yaml as primary; remote secondary"
+        red_green_verify_commit: true
+
+      - item: 5
+        sc_id: SC-7
+        file: .opencode/skills/issue-review/tasks/analyze-and-spec.md
+        change: "Write labels to local issue.yaml as primary; remote secondary"
+        red_green_verify_commit: true
+
+      - item: 6
+        sc_id: SC-8
+        file: .opencode/skills/writing-plans/tasks/create.md
+        change: "Write spec-cleared to local issue.yaml as primary; remote secondary"
+        red_green_verify_commit: true
+
+  - id: P2
+    name: "Core local auth read — label-reading tasks"
+    items:
+      - item: 7
+        sc_id: SC-1
+        file: .opencode/skills/writing-plans/tasks/handoff.md
+        change: "Read auth from local issue.yaml, not non-existent task"
+        red_green_verify_commit: true
+
+      - item: 8
+        sc_id: SC-9
+        file: .opencode/skills/issue-operations-core/tasks/read-labels.md
+        change: "Read from local issue.yaml by default; remote explicit only"
+        red_green_verify_commit: true
+
+      - item: 9
+        sc_id: SC-12
+        file: .opencode/skills/issue-review/tasks/gather.md
+        change: "Read labels from local issue.yaml; remote fallback only"
+        red_green_verify_commit: true
+
+      - item: 10
+        sc_id: SC-13
+        file: .opencode/skills/audit/tasks/drift-detection-investigator.md
+        change: "Read labels from local issue.yaml; remote fallback only"
+        red_green_verify_commit: true
+
+      - item: 11
+        sc_id: SC-14
+        file: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+        change: "Read labels from local issue.yaml; remote fallback only"
+        red_green_verify_commit: true
+
+  - id: P3
+    name: "Remove cargo-cult remote auth references"
+    items:
+      - item: 12
+        sc_id: SC-10
+        file: .opencode/skills/issue-operations-core/tasks/list-issues.md
+        change: "Remove 'Authorization scope label verification' from use cases"
+        red_green_verify_commit: true
+
+      - item: 13
+        sc_id: SC-11
+        file: .opencode/skills/issue-operations-core/tasks/search-issues.md
+        change: "Remove 'Authorization scope label search' from use cases"
+        red_green_verify_commit: true
+
+  - id: P4
+    name: "Remove 'No Metadata Trust' sections"
+    items:
+      - item: 14
+        sc_id: SC-16
+        file: .opencode/skills/issue-operations-core/tasks/read-issue.md
+        change: "Remove entire 'No Metadata Trust Exceptions' section"
+        red_green_verify_commit: true
+
+      - item: 15
+        sc_id: SC-17
+        file: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+        change: "Remove entire 'No Metadata Trust Exceptions' section"
+        red_green_verify_commit: true
+
+  - id: P5
+    name: "Remove comment-scanning for authorization"
+    items:
+      - item: 16
+        sc_id: SC-15
+        file: .opencode/skills/audit/tasks/drift-detection-investigator.md
+        change: "Remove 'Authorization currency' and 'Authorization author identity' rows from Metadata Verification Extension"
+        red_green_verify_commit: true
+
+      - item: 17
+        sc_id: SC-18
+        file: .opencode/skills/issue-review/tasks/gather.md
+        change: "Remove scanning comments for 'approved'/'go' patterns"
+        red_green_verify_commit: true
+
+      - item: 18
+        sc_id: SC-19
+        file: .opencode/skills/brainstorming/tasks/enforcement.md
+        change: "Remove 'User approved design' verification row checking comments for approval"
+        red_green_verify_commit: true
+
+      - item: 19
+        sc_id: SC-20
+        file: .opencode/skills/issue-operations-core/tasks/post-creation.md
+        change: "Remove 'approved'/'go' check in comments from Live Verification table"
+        red_green_verify_commit: true
+
+      - item: 20
+        sc_id: SC-21
+        file: .opencode/skills/approval-gate/tasks/resolve-scope.md
+        change: "Parse auth from chat message only, not from issue comments"
+        red_green_verify_commit: true
+
+      - item: 21
+        sc_id: SC-22
+        file: .opencode/skills/approval-gate/SKILL.md
+        change: "Remove references to reading comments for authorization"
+        red_green_verify_commit: true
+
+      - item: 22
+        sc_id: SC-23
+        file: .opencode/skills/gh-cli/tasks/triage-issues.md
+        change: "Remove noting authorization in comments"
+        red_green_verify_commit: true
+
+      - item: 23
+        sc_id: SC-24
+        file: .opencode/guidelines/067-context-completeness.md
+        change: "Remove 'authorization may live in a comment, not the body'"
+        red_green_verify_commit: true
+
+      - item: 24
+        sc_id: SC-25
+        file: .opencode/guidelines/257-procedural-discipline-reference.md
+        change: "Remove 'Authorization verified via comment history' example"
+        red_green_verify_commit: true
+
+      - item: 25
+        sc_id: SC-26
+        file: .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+        change: "Remove label replacement via comment fallback"
+        red_green_verify_commit: true
+
+  - id: P6
+    name: "Remove dead file"
+    items:
+      - item: 26
+        sc_id: SC-27
+        file: .opencode/skills/issue-operations/platforms/local/tasks/push-body.md
+        change: "Remove file — describes non-existent sync operation"
+        red_green_verify_commit: true
+
+  - id: P7
+    name: "Update guideline"
+    items:
+      - item: 27
+        sc_id: SC-5
+        file: .opencode/guidelines/010-approval-gate.md
+        change: "Clarify canonical auth is local issue.yaml; remote labels advisory"
+        red_green_verify_commit: true
+
+dependency_dag:
+  P1: []
+  P2: [P1]
+  P3: [P1]
+  P4: [P1]
+  P5: [P1]
+  P6: []
+  P7: [P1]

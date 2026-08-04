@@ -1,0 +1,110 @@
+sc_count: 27
+scs:
+  - id: SC-1
+    description: "writing-plans/tasks/handoff.md reads auth from local issue.yaml"
+    evidence_type: semantic
+    plan_item: 7
+  - id: SC-2
+    description: "approval-gate/tasks/apply-label.md writes to local issue.yaml as canonical"
+    evidence_type: semantic
+    plan_item: 1
+  - id: SC-3
+    description: "issue-operations-core/tasks/creation.md writes needs-approval to local issue.yaml"
+    evidence_type: semantic
+    plan_item: 2
+  - id: SC-4
+    description: "issue-operations-core/tasks/completion.md reads from local issue.yaml"
+    evidence_type: semantic
+    plan_item: 3
+  - id: SC-5
+    description: "guidelines/010-approval-gate.md clarifies canonical auth is local issue.yaml"
+    evidence_type: string
+    plan_item: 27
+  - id: SC-6
+    description: "spec-creation/tasks/create.md writes labels to local issue.yaml"
+    evidence_type: semantic
+    plan_item: 4
+  - id: SC-7
+    description: "issue-review/tasks/analyze-and-spec.md writes labels to local issue.yaml"
+    evidence_type: semantic
+    plan_item: 5
+  - id: SC-8
+    description: "writing-plans/tasks/create.md writes spec-cleared to local issue.yaml"
+    evidence_type: semantic
+    plan_item: 6
+  - id: SC-9
+    description: "issue-operations-core/tasks/read-labels.md reads from local issue.yaml by default"
+    evidence_type: semantic
+    plan_item: 8
+  - id: SC-10
+    description: "issue-operations-core/tasks/list-issues.md removes auth scope line"
+    evidence_type: string
+    plan_item: 12
+  - id: SC-11
+    description: "issue-operations-core/tasks/search-issues.md removes auth scope line"
+    evidence_type: string
+    plan_item: 13
+  - id: SC-12
+    description: "issue-review/tasks/gather.md reads from local issue.yaml"
+    evidence_type: semantic
+    plan_item: 9
+  - id: SC-13
+    description: "audit/tasks/drift-detection-investigator.md reads from local issue.yaml"
+    evidence_type: semantic
+    plan_item: 10
+  - id: SC-14
+    description: "verification-before-completion/tasks/operating-protocol.md reads from local issue.yaml"
+    evidence_type: semantic
+    plan_item: 11
+  - id: SC-15
+    description: "audit/tasks/drift-detection-investigator.md removes auth rows"
+    evidence_type: string
+    plan_item: 16
+  - id: SC-16
+    description: "issue-operations-core/tasks/read-issue.md removes No Metadata Trust"
+    evidence_type: string
+    plan_item: 14
+  - id: SC-17
+    description: "verification-before-completion/tasks/operating-protocol.md removes No Metadata Trust"
+    evidence_type: string
+    plan_item: 15
+  - id: SC-18
+    description: "issue-review/tasks/gather.md removes comment scanning"
+    evidence_type: string
+    plan_item: 17
+  - id: SC-19
+    description: "brainstorming/tasks/enforcement.md removes approval comment check"
+    evidence_type: string
+    plan_item: 18
+  - id: SC-20
+    description: "issue-operations-core/tasks/post-creation.md removes approved/go check"
+    evidence_type: string
+    plan_item: 19
+  - id: SC-21
+    description: "approval-gate/tasks/resolve-scope.md parses from chat only"
+    evidence_type: semantic
+    plan_item: 20
+  - id: SC-22
+    description: "approval-gate/SKILL.md removes comment references"
+    evidence_type: string
+    plan_item: 21
+  - id: SC-23
+    description: "gh-cli/tasks/triage-issues.md removes noting auth in comments"
+    evidence_type: string
+    plan_item: 22
+  - id: SC-24
+    description: "guidelines/067-context-completeness.md removes auth in comment language"
+    evidence_type: string
+    plan_item: 23
+  - id: SC-25
+    description: "guidelines/257-procedural-discipline-reference.md removes example"
+    evidence_type: string
+    plan_item: 24
+  - id: SC-26
+    description: "issue-operations/platforms/gitbucket-api/SKILL.md removes comment fallback"
+    evidence_type: string
+    plan_item: 25
+  - id: SC-27
+    description: "issue-operations/platforms/local/tasks/push-body.md deleted"
+    evidence_type: structural
+    plan_item: 26

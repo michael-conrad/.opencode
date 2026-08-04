@@ -1,0 +1,58 @@
+generator: spec-creation-analyze
+generated_at: "2026-08-03T15:27:00Z"
+
+phases:
+  P1:
+    code_paths:
+      - "approval-gate/tasks/apply-label.md -> Step 2: dispatch to issue-operations for label management"
+      - "issue-operations-core/tasks/creation.md -> Step 3.5: verify needs-approval on remote issue"
+      - "issue-operations-core/tasks/completion.md -> State Check Phase: check needs-approval label"
+      - "spec-creation/tasks/create.md -> Step 3: create remote issue with needs-approval label"
+      - "issue-review/tasks/analyze-and-spec.md -> Step 6: create fix spec with labels"
+      - "writing-plans/tasks/create.md -> Step 9: apply spec-cleared label"
+    change: "Each path gains a local issue.yaml write before the remote write"
+
+  P2:
+    code_paths:
+      - "writing-plans/tasks/handoff.md -> Step 2: verify authorization via approval-gate"
+      - "issue-operations-core/tasks/read-labels.md -> Step 2: dispatch to platform sub-skill"
+      - "issue-review/tasks/gather.md -> Step 3: read labels via issue-operations"
+      - "audit/tasks/drift-detection-investigator.md -> Metadata Verification Extension: read labels"
+      - "verification-before-completion/tasks/operating-protocol.md -> Metadata Verification Extension: read labels"
+    change: "Each path reads from local issue.yaml instead of remote API"
+
+  P3:
+    code_paths:
+      - "issue-operations-core/tasks/list-issues.md -> Step 3: use cases list"
+      - "issue-operations-core/tasks/search-issues.md -> Step 3: use cases list"
+    change: "Remove 'Authorization scope label verification'/'search' lines"
+
+  P4:
+    code_paths:
+      - "issue-operations-core/tasks/read-issue.md -> Metadata Verification Extension section"
+      - "verification-before-completion/tasks/operating-protocol.md -> Metadata Verification Extension section"
+    change: "Remove entire 'No Metadata Trust Exceptions' subsection"
+
+  P5:
+    code_paths:
+      - "audit/tasks/drift-detection-investigator.md -> Metadata Verification Extension table rows"
+      - "issue-review/tasks/gather.md -> Step 3: authorization status from comments"
+      - "brainstorming/tasks/enforcement.md -> Adversarial Verification table row"
+      - "issue-operations-core/tasks/post-creation.md -> Live Verification table row"
+      - "approval-gate/tasks/resolve-scope.md -> Purpose: parse authorization text"
+      - "approval-gate/SKILL.md -> Overview, Persona sections"
+      - "gh-cli/tasks/triage-issues.md -> Step 2: note authorization in comments"
+      - "guidelines/067-context-completeness.md -> critical-rules-012 section"
+      - "guidelines/257-procedural-discipline-reference.md -> Metadata-as-completion example"
+      - "issue-operations/platforms/gitbucket-api/SKILL.md -> Authorization Labels section"
+    change: "Remove comment-scanning for auth from each path"
+
+  P6:
+    code_paths:
+      - "issue-operations/platforms/local/tasks/push-body.md (entire file)"
+    change: "Delete file"
+
+  P7:
+    code_paths:
+      - "guidelines/010-approval-gate.md -> various sections"
+    change: "Clarify canonical auth is local issue.yaml"
