@@ -1,0 +1,30 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-04
+source: "Spec #2243 revised body (remote.md)"
+content:
+  description: "Test coverage assessment for the dependency-injector mandate documentation change"
+  scs:
+    - sc_id: SC-1
+      evidence_type: behavioral
+      test_type: behavioral
+      test_mechanism: "opencode run with a real-domain prompt; assert via stderr (assert_stderr_pattern_present) that an agent writing Python code dispatches to and follows the DI mandate in 080-code-standards.md"
+      verification_gate: post-implementation
+      notes: "Behavioral RED/GREEN — RED fails before the section exists, GREEN passes after. Behavioral evidence is PRIMARY; no structural substitution permitted."
+    - sc_id: SC-2
+      evidence_type: structural
+      test_type: structural
+      test_mechanism: "Read the 080-code-standards.md row in INDEX.md; assert DI trigger patterns (dependency injection, di, inject, container) present"
+      verification_gate: post-implementation
+      notes: "Structural RED/GREEN — RED fails before trigger patterns present, GREEN passes after. Structural evidence suffices."
+    - sc_id: SC-3
+      evidence_type: structural
+      test_type: structural
+      test_mechanism: "Read the DI section in 080-code-standards.md; assert carveout paths (.opencode/tools/, .opencode/scripts/, .opencode/skills/*/scripts/) documented within the section"
+      verification_gate: post-implementation
+      notes: "Structural RED/GREEN — RED fails before carveout documented, GREEN passes after. Structural evidence suffices."
+  evidence_types:
+    behavioral: 1
+    structural: 2
+  test_execution_strategy:
+    - "Behavioral SC-1 test MUST run via with-test-home wrapper (opencode run)"
+    - "Structural SC-2, SC-3 tests are read-only file assertions"

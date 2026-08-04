@@ -1,0 +1,21 @@
+artifact_name: state-analysis
+generated_at: 2026-08-04
+source: "Spec #2243 revised body (remote.md)"
+content:
+  description: "State transitions for files affected by the dependency-injector mandate documentation change"
+  transitions:
+    - entity: ".opencode/guidelines/080-code-standards.md"
+      before: "No 'Dependency Injection' section present"
+      after: "New 'Dependency Injection' section present after 'Libraries & Packages', before 'Print Statements & Output'; includes .opencode/ carveout"
+      scs:
+        - SC-1
+        - SC-3
+    - entity: ".opencode/guidelines/INDEX.md"
+      before: "080-code-standards.md row lacks DI trigger patterns"
+      after: "080-code-standards.md row includes DI trigger patterns (dependency injection, di, inject, container)"
+      scs:
+        - SC-2
+  state_transitions_required: "None beyond the two documentation file content changes"
+  no_runtime_state:
+    description: "No code paths, databases, or runtime state affected — all SCs are documentation/static-content changes"
+    affected: false

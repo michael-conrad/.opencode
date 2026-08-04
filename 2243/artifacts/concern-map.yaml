@@ -1,0 +1,26 @@
+artifact_name: concern-map
+generated_at: 2026-08-04
+source: "Spec #2243 revised body (remote.md)"
+content:
+  description: "Map of concerns to the single phase for the dependency-injector mandate documentation change"
+  phases:
+    - phase: 1
+      name: "Guideline updates (080-code-standards.md, INDEX.md)"
+      concern: "C1, C2"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+      dependencies: []
+      dispatch: "item-level (per-item TDD cycle)"
+      key_deliverables:
+        - "SC-1: 'Dependency Injection' section added to 080-code-standards.md (what DI is, why required, mandated library dependency-injector, usage patterns, carveout)"
+        - "SC-2: DI trigger patterns (dependency injection, di, inject, container) added to the 080-code-standards.md row in INDEX.md"
+        - "SC-3: .opencode/ infrastructure-tools carveout documented within the DI section (contained within SC-1)"
+  concern_to_phase_mapping:
+    "C1 (DI section in 080-code-standards.md, incl. carveout)": 1
+    "C2 (INDEX.md trigger-pattern routing)": 1
+  phase_independence:
+    description: "Single phase — no parallelization possible; all SCs delivered in Phase 1"
+    independent_phases: []
+    dependent_phase: 1

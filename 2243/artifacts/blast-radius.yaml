@@ -1,0 +1,33 @@
+artifact_name: blast-radius
+generated_at: 2026-08-04
+source: "Spec #2243 revised body (remote.md)"
+content:
+  description: "All files and directories affected by the dependency-injector mandate documentation change"
+  blast_radius: "MINIMAL — documentation-only change affecting 2 files in a single repo (michael-conrad/.opencode)"
+  affected_files:
+    - path: ".opencode/guidelines/080-code-standards.md"
+      change: "Modify — add a 'Dependency Injection' section after 'Libraries & Packages' (line 60), before 'Print Statements & Output' (line 78)"
+      status: EXISTS
+      scs:
+        - SC-1
+        - SC-3
+    - path: ".opencode/guidelines/INDEX.md"
+      change: "Modify — add DI trigger patterns to the 080-code-standards.md row"
+      status: EXISTS
+      scs:
+        - SC-2
+  carveout_paths:
+    description: "Paths explicitly exempt from the DI mandate, documented within the DI section (SC-3)"
+    paths:
+      - path: ".opencode/tools/"
+        status: EXISTS
+        note: "Standalone PEP 723 inline-script executables"
+      - path: ".opencode/scripts/"
+        status: EXISTS
+        note: "Standalone Python and bash scripts"
+      - path: ".opencode/skills/*/scripts/"
+        status: EXISTS
+        note: "Skill-specific scripts (1 directory currently matches)"
+  no_change:
+    - "No code changes, no interface changes, no state transitions, no new files, no deleted files"
+    - "All changes are additive (new section, new trigger-pattern row) with zero modification to existing content"

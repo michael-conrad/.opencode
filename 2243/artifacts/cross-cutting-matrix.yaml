@@ -1,0 +1,47 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-04
+source: "Spec #2243 revised body (remote.md)"
+content:
+  description: "Cross-cutting concerns across the single phase, mapped to SCs and verification gates"
+  cross_cutting_concerns:
+    - sc_id: SC-1
+      name: "DI mandate documented in 080-code-standards.md"
+      evidence_type: behavioral
+      verification_method: "opencode run with a real-domain prompt; assert via stderr that an agent writing Python code dispatches to and follows the DI mandate"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Add/complete the DI section covering all required elements (what/why/library/patterns/carveout)"
+      phase_1_application: "RED/GREEN: behavioral test fails before section exists, passes after"
+    - sc_id: SC-2
+      name: "DI trigger-pattern routing in INDEX.md"
+      evidence_type: structural
+      verification_method: "Read the 080-code-standards.md row in INDEX.md; assert DI trigger patterns (dependency injection, di, inject, container) present"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Append DI trigger patterns to the 080-code-standards.md row"
+      phase_1_application: "RED/GREEN: structural test fails before patterns present, passes after"
+    - sc_id: SC-3
+      name: ".opencode/ carveout documented within DI section"
+      evidence_type: structural
+      verification_method: "Read the DI section in 080-code-standards.md; assert carveout paths (.opencode/tools/, .opencode/scripts/, .opencode/skills/*/scripts/) documented"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Document the carveout paths within the DI section"
+      phase_1_application: "RED/GREEN: structural test fails before carveout documented, passes after"
+  submodule_concern:
+    description: "Affected files live in the .opencode/ submodule — requires a PR to michael-conrad/.opencode"
+    phases_affected:
+      - 1
+  documentation_consistency:
+    description: "New DI section MUST follow existing formatting, tone, and structure of 080-code-standards.md"
+    phases_affected:
+      - 1
+  cross_cutting_verification_gates:
+    - gate: post-implementation
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3

@@ -1,0 +1,35 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-04
+source: "Spec #2243 revised body (remote.md)"
+content:
+  description: "Interface boundaries and compatibility analysis for the dependency-injector mandate documentation change"
+  regression_invariants:
+    - invariant: "Existing guideline content in 080-code-standards.md MUST remain unchanged"
+      verification: "Structural check — new DI section is additive; no existing section modified"
+    - invariant: "Existing INDEX.md rows MUST remain unchanged"
+      verification: "Structural check — only the 080-code-standards.md row is appended to"
+    - invariant: "Documentation formatting/tone/structure MUST match existing conventions"
+      verification: "Manual/structural review against surrounding sections"
+  interface_boundaries:
+    guideline_index:
+      status: "COMPATIBLE"
+      description: "INDEX.md routes agents to the DI section in 080-code-standards.md via trigger patterns"
+      rationale: "DI trigger patterns in the INDEX.md row point agents to the section in 080-code-standards.md — C1 and C2 are complementary"
+      files:
+        - ".opencode/guidelines/080-code-standards.md"
+        - ".opencode/guidelines/INDEX.md"
+    di_section_placement:
+      status: "COMPATIBLE"
+      description: "DI section inserted after 'Libraries & Packages', before 'Print Statements & Output'"
+      rationale: "No existing-content modification; new section placed between two existing sections"
+      file: ".opencode/guidelines/080-code-standards.md"
+    carveout_containment:
+      status: "COMPATIBLE"
+      description: "SC-3 carveout is contained within SC-1's DI section"
+      rationale: "SC-3 does not create a separate deliverable or file — it is documented inside the DI section"
+      file: ".opencode/guidelines/080-code-standards.md"
+  external_interface_impact:
+    skill_api: "NONE"
+    task_api: "NONE"
+    code: "NONE — documentation-only change, no code interfaces affected"
+    runtime: "NONE — no state transitions"

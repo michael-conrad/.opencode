@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2243/spec.md
+spec_body_source: .opencode/.issues/2243/remote.md
+approval_status: "approved (for_pr, halt_at: pr_created)"
+sc_count: 3
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/guidelines/080-code-standards.md
+    status: EXISTS
+    role: SC-1 (DI section) + SC-3 (carveout within DI section)
+  - file: .opencode/guidelines/INDEX.md
+    status: EXISTS
+    role: SC-2 (DI trigger patterns in 080-code-standards.md row)
+  - file: .opencode/tools/
+    status: EXISTS
+    role: SC-3 carveout path
+  - file: .opencode/scripts/
+    status: EXISTS
+    role: SC-3 carveout path
+  - file: .opencode/skills/*/scripts/
+    status: EXISTS
+    role: SC-3 carveout path
+scope_all_files_exist: true
+backfill_notes:
+  - Artifacts directory was deleted (stale 4-SC versions) — all 7 artifacts regenerated from revised spec body (3-SC state)
+  - SC-3 (ButterWordCounts/AGENTS.md) removed by revision; former SC-4 renumbered to SC-3; Phase 2 deleted
+  - Single phase (Phase 1) with all 3 SCs; SC-3 contained within SC-1
+  - sc-summary.yaml verified consistent with 3-SC state (SC-1/SC-2/SC-3, plan_item 1/2/3)
+  - SC-1 behavioral (DI mandate), SC-2 structural (INDEX routing), SC-3 structural (carveout)
+  - Note: current 080-code-standards.md already contains the DI section and INDEX.md already contains the trigger patterns — this backfill documents the plan artifacts, not implementation state
