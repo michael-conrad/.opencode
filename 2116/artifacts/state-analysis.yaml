@@ -1,0 +1,48 @@
+# State Analysis — Issue 2116
+# Backfilled retroactively from spec body (issue.yaml) on 2026-08-04.
+
+spec: .opencode/.issues/2116/issue.yaml
+
+target_file: .opencode/skills/spec-creation/tasks/validate.md
+
+state_transitions:
+  - id: ST-1
+    sc: [SC-1, SC-2, SC-6]
+    name: validate.md-file-state
+    description: |
+      Transition from current state (Atomicity check present, no Decomposition
+      Criteria section) to target state (Decomposition Criteria section present
+      with 4 criteria in binary decision-tree format and cross-reference comment).
+    from_state: validate.md has Step 3.3 Compound-SC detection only
+    to_state: validate.md has Step 3.3 PLUS "Decomposition Criteria" section (SC-1, SC-2, SC-6)
+
+  - id: ST-2
+    sc: SC-7
+    name: decomposition-check-evaluation-state
+    description: |
+      Per-spec evaluation state. When validate runs, the decomposition check
+      branches on the entry condition: if spec has exactly 1 SC AND 1 affected
+      file, the check is SKIPPED (not evaluated); otherwise it is EVALUATED.
+    states:
+      - SKIPPED (1 SC AND 1 affected file)
+      - EVALUATED (otherwise)
+
+  - id: ST-3
+    sc: [SC-8, SC-9]
+    name: behavioral-fixture-outcome
+    description: |
+      Behavioral test fixture outcomes. SC-8 fixture (monolithic SC with "and")
+      → decomposition check FAILs with correct reason. SC-9 fixture (single
+      atomic SC) → decomposition check PASSes. Fixtures must exceed skip
+      threshold to force EVALUATED state.
+    states:
+      - FAIL (monolithic SC with trigger word)
+      - PASS (single atomic SC)
+
+state_consistency_notes:
+  - The skip condition (SC-7) must be implemented as the entry guard for the whole
+    Decomposition Criteria section — it governs whether any decomposition verdict
+    is produced.
+  - No persistent runtime state is introduced. validate.md is a task instruction
+    file; state transitions are about the file's instruction content and the
+    per-spec evaluation branch, not a mutable application state machine.

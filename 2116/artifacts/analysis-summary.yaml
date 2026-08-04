@@ -1,0 +1,35 @@
+# Analysis Summary — Issue 2116
+# Backfilled retroactively on 2026-08-04.
+
+spec_path: .opencode/.issues/2116/issue.yaml
+spec_file_exists: true
+spec_primary_file: .opencode/.issues/2116/issue.yaml (no spec.md present; issue body used as spec source)
+
+sc_count: 9
+
+affected_files:
+  - .opencode/skills/spec-creation/tasks/validate.md (edit — verified exists)
+  - .opencode/audit/reference/decomposition-criteria.md (reference — verified exists)
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: |
+  Single-file edit to spec-creation validate.md adding a "Decomposition Criteria"
+  section after existing validation checks. Section contains 4 spec-level criteria
+  (atomicity, single deliverable, binary verifiability, PR-gate viability) in
+  binary PASS/FAIL decision-tree format, with trigger-word/disjunctive/vague-term
+  sub-checks and a skip condition (1 SC AND 1 affected file). Cross-references
+  audit/reference/decomposition-criteria.md (Phase 1 dependency). 7 string SCs
+  verified via grep; 2 behavioral SCs verified via opencode run with assertion.
+
+notes:
+  - The spec has no spec.md file; the spec body was read from issue.yaml per the
+    dispatch context.
+  - No analytical artifacts pre-existed; all 7 were backfilled.

@@ -1,0 +1,56 @@
+# Concern Map — Issue 2116
+# Backfilled retroactively from spec body (issue.yaml) on 2026-08-04.
+
+spec: .opencode/.issues/2116/issue.yaml
+
+concerns:
+  - id: CONCERN-1
+    name: decomposition-criteria-checklist
+    description: |
+      Inline decomposition criteria checklist in spec-creation validate.md for 4
+      spec-level criteria (atomicity, single deliverable, binary verifiability,
+      PR-gate viability), with binary PASS/FAIL decision trees.
+    scs: [SC-1, SC-2, SC-6]
+
+  - id: CONCERN-2
+    name: atomicity-sub-checks
+    description: |
+      Atomicity criterion's trigger-word sub-check: and/or/comma-separated lists
+      evaluate to FAIL.
+    scs: [SC-3]
+
+  - id: CONCERN-3
+    name: binary-verifiability-sub-checks
+    description: |
+      Binary verifiability criterion's disjunctive-pattern sub-check (either/or,
+      alternatively, one of) and vague-term sub-check (should, could, ideally,
+      as appropriate) both evaluate to FAIL.
+    scs: [SC-4]
+
+  - id: CONCERN-4
+    name: pr-gate-viability
+    description: |
+      PR-gate viability criterion references the meta RED/GREEN principle.
+    scs: [SC-5]
+
+  - id: CONCERN-5
+    name: skip-condition
+    description: |
+      Decomposition check is skipped (not evaluated) when spec has exactly 1 SC
+      AND 1 affected file.
+    scs: [SC-7]
+
+  - id: CONCERN-6
+    name: behavioral-verification
+    description: |
+      Behavioral enforcement tests asserting validate returns FAIL for monolithic
+      SC containing "and" and PASS for single atomic SC.
+    scs: [SC-8, SC-9]
+
+phase_mapping:
+  note: |
+    Single-phase implementation scope. All concerns converge on the single edit
+    target .opencode/skills/spec-creation/tasks/validate.md. Concerns are ordered
+    logically (inline checklist → sub-checks → skip condition → behavioral tests)
+    but no distinct phase boundary is required by the spec.
+  phase_1_concerns: [CONCERN-1, CONCERN-2, CONCERN-3, CONCERN-4, CONCERN-5, CONCERN-6]

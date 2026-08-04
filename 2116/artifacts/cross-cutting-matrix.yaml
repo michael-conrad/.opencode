@@ -1,0 +1,59 @@
+# Cross-Cutting Matrix — Issue 2116
+# Backfilled retroactively from spec body (issue.yaml) on 2026-08-04.
+
+spec: .opencode/.issues/2116/issue.yaml
+
+target_file: .opencode/skills/spec-creation/tasks/validate.md
+
+cross_cutting_relationships:
+  - id: XC-1
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+    shared_concern: single-edit-target
+    description: |
+      All 7 string SCs target the same single edit location (new "Decomposition
+      Criteria" section in validate.md). They do not span multiple modules; they
+      co-locate in one inline checklist block. Interlocking structure: SC-1
+      defines the 4 criteria, SC-2 the binary format, SC-3/SC-4 their sub-checks,
+      SC-5 the RED/GREEN reference, SC-6 the cross-reference comment, SC-7 the
+      skip condition.
+
+  - id: XC-2
+    scs: [SC-1, SC-6]
+    shared_concern: decomposition-criteria-definition
+    description: |
+      SC-1 (inline checklist) and SC-6 (cross-reference comment) both bind the
+      inline copy to audit/reference/decomposition-criteria.md as master
+      definition source. Requires the reference file to exist (Phase 1 dependency).
+
+  - id: XC-3
+    scs: [SC-2, SC-3, SC-4]
+    shared_concern: binary-decision-tree-format
+    description: |
+      SC-2 (binary PASS/FAIL format) is the structural prerequisite for SC-3 and
+      SC-4 sub-checks. Sub-checks are expressed as branches within the binary
+      decision trees of their respective criteria.
+
+  - id: XC-4
+    scs: [SC-8, SC-9]
+    shared_concern: behavioral-evidence
+    description: |
+      SC-8 and SC-9 both require behavioral verification via opencode run with
+      assertion. They are inverse pairs: SC-8 asserts FAIL for monolithic SC,
+      SC-9 asserts PASS for atomic SC. Together they cover the decomposition
+      check's discriminator behavior.
+
+  - id: XC-5
+    scs: [SC-7, SC-8, SC-9]
+    shared_concern: skip-vs-evaluate-branch
+    description: |
+      SC-7 defines the skip condition (1 SC AND 1 affected file). SC-8/SC-9
+      behavioral tests must account for this entry condition so their spec
+      fixtures do not accidentally trigger the skip. Behavioral fixtures must
+      exceed the skip threshold (multiple SCs or multiple affected files) to
+      exercise the decomposition check.
+
+no_phase_spanning:
+  note: |
+    No SC spans multiple phases. The spec describes a single-phase implementation
+    (one edit target). Cross-cutting concerns are intra-file structural
+    dependencies, not phase-boundary crossings.
