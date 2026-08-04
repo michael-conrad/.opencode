@@ -283,3 +283,11 @@ default_provisioning: "single .opencode submodule + local platform, no origin re
 - [ ] C8. `.opencode/tests-v2/AGENTS.md` documents the mutual-exclusion rule and the new opt-in capability (SC18).
 - [ ] C9. With no opt-in flags set, default provisioning remains byte-for-byte the single-`.opencode`/`local` platform for the ~80 existing tests (no regression, SC8).
 - [ ] C10. All 18 SCs map to exactly one item each; no item covers multiple SCs; the phase DAG is acyclic and Z3-SAT validated; each of the 9 phases addresses exactly one concern (C1–C9).
+
+---
+
+## lifecycle_events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-04T18:21:00Z | `plan_created` | Plan file: `.opencode/.issues/2244/plan.md`, 9 phases |
