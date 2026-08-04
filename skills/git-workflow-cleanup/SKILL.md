@@ -1,6 +1,6 @@
 ---
 name: git-workflow-cleanup
-description: "Post-merge cleanup, PR state verification, and issue closure. Load via skill() when the agent needs to clean up after a PR merge, check PR state, or handle pair mode cleanup. Also load when verifying merge status or closing completed issues. Cleanup is REQUIRED after every merge — not optional. User phrases: cleanup after merge, check PR state, close issues, post-merge cleanup"
+description: "Clean up after a PR merge, verify PR merge status, check PR state, and close completed issues. Cleanup is REQUIRED after every merge and is the sole authorized path for closing GitHub Issues."
 license: MIT
 provenance: AI-generated
 ---
@@ -11,38 +11,32 @@ provenance: AI-generated
 
 Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR state checking, and pair mode cleanup. Enforces parent/child issue closure ordering, merged branch deletion, and behavioral evidence artifact preservation. Cleanup is triggered by "pr merged" events and "check prs" requests.
 
-## Trigger Dispatch Table
+## Mandatory Task Discipline
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "cleanup" / "post-merge cleanup" | `cleanup` | `sub-task` | {pr_merge_status, branch_name} |
-| "pair-cleanup" / "pair cleanup" | `pair-cleanup` | `sub-task` | {branch_name} |
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## DISPATCH_GATE
+## Workflows
 
-### Orchestrator Entry Criteria
+### Clean up after a PR merge
 
-1. Confirm the next action is `task()` — not inline execution
-2. Use the canonical dispatch string from the Trigger Dispatch Table verbatim
-3. Do NOT preload file paths, step sequences, expected outcomes, or orchestrator reasoning
-4. Task a clean-room sub-agent via `task(subagent_type="general")`
-5. Receive result contract (status, finding_summary, artifact_path, blocker_reason)
-6. Log in work state file — record which sub-agent was tasked and when
-7. Proceed based on result contract — route to next pipeline step
+When the agent needs to clean up after a PR merge — delete merged branches, close issues, sync trunk — or when a "pr merged" event or "check prs" request is detected.
 
-### Sub-Agent Entry Criteria
+1. **Cleanup** — Deletes merged branches, closes issues, and syncs trunk.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-cleanup/tasks/cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merge_status: {pr_merge_status}, branch_name: {branch_name}"`
+   - Context: `{pr_merge_status, branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-2. Sub-agent loads task file content independently — never from orchestrator context
-3. Sub-agent reads source files, runs analysis tools, executes tests freely
-4. Sub-agent returns only routing-significant data: status, finding_summary, artifact_path, blocker_reason
-5. Full evidence artifacts go to disk — never in the result contract
+### Clean up a pair mode branch
 
-## Tasks
+When the agent needs to clean up a pair mode branch after a merge.
 
-| Task | Description |
-|------|-------------|
-| `cleanup` | Post-merge cleanup — delete merged branches, close issues, sync trunk |
-| `pair-cleanup` | Clean up pair mode branch after merge |
+1. **Pair cleanup** — Cleans up a pair mode branch after merge.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-cleanup/tasks/pair-cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 ## Cross-References
 
@@ -100,5 +94,3 @@ See verify-already-implemented Step 6, cleanup Step 2.8.
 
 ### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
 "check prs" = cleanup trigger.
-
-

@@ -1,6 +1,6 @@
 ---
 name: git-workflow-pr
-description: "Pull request creation, review preparation, and PR lifecycle management. Every PR MUST be an authorized, intentional delivery."
+description: "Create pull requests, prepare branches for review, manage the PR lifecycle, and perform post-implementation tasks. Every PR MUST be an authorized, intentional delivery requiring `for_pr` authorization scope or explicit developer instruction."
 license: MIT
 provenance: AI-generated
 ---
@@ -11,52 +11,59 @@ provenance: AI-generated
 
 Pull request management sub-skill of git-workflow. Handles PR creation, review preparation, pair mode PR creation, post-implementation tasks, and PR lifecycle completion. Enforces stacked PR strategy — one branch, N commits, one PR. PR creation requires `for_pr` authorization scope or explicit developer instruction.
 
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
 ## Workflows
 
-### Create PR
+### Create a PR
 
-1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope or explicit developer instruction."
-2. Dispatch `pr-creation` task via `task()` with `{branch_name, spec_summary, is_release}`.
-3. Sub-agent reads `tasks/pr-creation/` and executes PR creation procedure.
-4. Sub-agent returns result contract with PR URL and status.
+When the agent needs to create a pull request, squash commits to a single commit, push the branch, and create the PR targeting `$DEFAULT_BRANCH`.
 
-### Prepare review
+1. **Pr-creation** — Creates a pull request with a structured body and compare URL.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: {branch_name}, spec_summary: {spec_summary}, is_release: {is_release}"`
+   - Context: `{branch_name, spec_summary, is_release}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
 
-1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Review preparation requires `for_pr` scope."
-2. Dispatch `review-prep` task via `task()` with `{branch_name}`.
-3. Sub-agent reads `tasks/review-prep/` and executes review preparation.
-4. Sub-agent returns result contract with readiness status.
+### Prepare for review
 
-### Create pair mode PR
+When the agent needs to generate a GitHub compare URL for developer review after implementation completes.
 
-1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "PR creation requires `for_pr` scope."
-2. Dispatch `pair-pr-creation` task via `task()` with `{branch_name}`.
-3. Sub-agent reads `tasks/pair-pr-creation/` and executes pair mode PR creation.
-4. Sub-agent returns result contract with PR URL and status.
+1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-### Post-implementation
+### Create a pair mode PR
 
-1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_implementation`. If not authorized, HALT with "Post-implementation tasks require `for_implementation` scope."
-2. Dispatch `post-implementation` task via `task()` with `{branch_name}`.
-3. Sub-agent reads `tasks/post-implementation/` and executes post-implementation tasks.
-4. Sub-agent returns result contract with completion status.
+When the agent needs to create a PR from a pair mode branch.
 
-### Complete workflow
+1. **Pair-pr-creation** — Creates a PR from a pair mode branch.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/pair-pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
 
-1. **orchestrator inline — Verify authorization scope.** Check `authorization_scope >= for_pr`. If not authorized, HALT with "Workflow completion requires `for_pr` scope."
-2. Dispatch `completion` task via `task()` with `{workflow_state}`.
-3. Sub-agent reads `tasks/completion/` and executes completion procedure.
-4. Sub-agent returns result contract with final status.
+### Perform post-implementation tasks
 
-## Tasks
+When the agent needs to push the feature branch, generate a compare URL, and report completion after implementation.
 
-| Task | Description |
-|------|-------------|
-| `pr-creation` | Create pull request with structured body and compare URL |
-| `review-prep` | Prepare branch for review — verify readiness, generate context |
-| `pair-pr-creation` | Create PR from pair mode branch |
-| `post-implementation` | Post-implementation tasks — verification, finishing checklist |
-| `completion` | PR lifecycle completion — final status, URL reporting |
+1. **Post-implementation** — Pushes the feature branch, generates a compare URL, and reports completion.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/post-implementation.md](.opencode/skills/git-workflow-pr/tasks/post-implementation.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Complete the workflow
+
+When the agent needs to run idempotent completion steps to ensure mandatory checks run regardless of where the workflow halted.
+
+1. **Completion** — Runs PR lifecycle completion, final status, and URL reporting.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: {workflow_state}"`
+   - Context: `{workflow_state}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 ## Cross-References
 

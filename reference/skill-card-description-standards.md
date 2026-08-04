@@ -181,7 +181,7 @@ Understanding the two-tool pipeline is essential for writing correct description
 - The `prompt` parameter is the **ONLY context** the subagent receives
 - The subagent MUST use its own file read tools to load `tasks/<name>.md`
 - The task tool does NOT auto-load task card files
-- The discovery directive in the prompt ("Read `<skill>/tasks/<task>.md` first") is REQUIRED because `task()` does not auto-load
+- The discovery directive in the prompt (`Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md)`) is REQUIRED because `task()` does not auto-load
 
 ### The Complete Pipeline
 
@@ -190,7 +190,7 @@ orchestrator
   → skill({name: "..."})
     → SKILL.md auto-loaded into orchestrator context
   → orchestrator reads Workflows section
-  → task(..., prompt: "Read `<skill>/tasks/<task>.md` and follow its instructions. Issue: {issue_number}.")
+  → task(..., prompt: "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}")
     → child session created
     → subagent reads tasks/<name>.md via file tools
     → subagent executes procedure
@@ -255,12 +255,12 @@ Skill cards use a **Workflows** section where each workflow is a numbered list o
 When the agent needs to produce a specification document from a problem statement.
 
 1. **Inspect codebase** — search for affected files and existing patterns
-   - Prompt: `"Read \`spec-creation/tasks/inspect.md\` and follow its instructions. Issue: {issue_number}."`
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/inspect.md](.opencode/skills/spec-creation/tasks/inspect.md). {issue_number, project_root}"`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Decompose problem** — extract requirements, decompose into SCs
-   - Prompt: `"Read \`spec-creation/tasks/decompose.md\` and follow its instructions. Issue: {issue_number}. Findings: {inspect_artifact_path}."`
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/decompose.md](.opencode/skills/spec-creation/tasks/decompose.md). {issue_number, project_root, inspect_artifact_path}"`
    - Context: `{issue_number, project_root, inspect_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason, sc_table}`
 ```
@@ -288,12 +288,12 @@ When the agent needs to produce a specification document from a problem statemen
 The base prompt MUST use natural language and MUST include the discovery directive:
 
 ```
-"Read `<skill>/tasks/<task>.md` and follow its instructions. Issue: {issue_number}."
+Dispatch a sub-agent with the prompt "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}"
 ```
 
 - **Natural language** — not coded dispatch strings like "execute X from Y"
 - **Discovery directive** — tells the subagent which file to read (required because `task()` does not auto-load task cards)
-- **Issue number** — provides context for the subagent's work
+- **Context data** — provides the context the subagent needs for its work (e.g., `{issue_number, project_root}`)
 
 ### What the Workflows Section Replaces
 

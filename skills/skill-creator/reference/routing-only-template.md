@@ -41,12 +41,12 @@ description: "<Agent task description. Describes what the agent needs to DO, not
 When the agent needs to [describe the decision context — what state the agent is in when it should pick this workflow].
 
 1. **Step name** — description of what this step accomplishes
-   - Prompt: `"Read \`skill-name/tasks/task-name.md\` and follow its instructions. Issue: {issue_number}."`
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [skill-name/tasks/task-name.md](.opencode/skills/skill-name/tasks/task-name.md). {issue_number, project_root, ...}"`
    - Context: `{issue_number, project_root, ...}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Next step name** — description
-   - Prompt: `"Read \`skill-name/tasks/next-task.md\` and follow its instructions. Issue: {issue_number}. Prior: {step1_artifact_path}."`
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [skill-name/tasks/next-task.md](.opencode/skills/skill-name/tasks/next-task.md). {issue_number, project_root, step1_artifact_path}"`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -54,7 +54,7 @@ When the agent needs to [describe the decision context — what state the agent 
 When the agent needs to [different decision context].
 
 1. **Step name** — description
-   - Prompt: `"Read \`skill-name/tasks/task-name.md\` and follow its instructions. Issue: {issue_number}."`
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [skill-name/tasks/task-name.md](.opencode/skills/skill-name/tasks/task-name.md). {issue_number, project_root}"`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -69,7 +69,7 @@ Each numbered step in a workflow is a clean-room `task()` dispatch. The sub-bull
 
 | Sub-bullet | Purpose |
 |------------|---------|
-| **Prompt** | The `prompt` parameter for `task()`. MUST include the discovery directive telling the subagent which task card to read. Format: `"Read \`<skill>/tasks/<task>.md\` and follow its instructions. Issue: {issue_number}."` |
+| **Prompt** | The `prompt` parameter for `task()`. MUST include the discovery directive telling the subagent which task card to read. Format: `Dispatch a sub-agent with the prompt "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}"` |
 | **Context** | What context to embed in the prompt body. Everything else is automatically excluded — `task()` creates a child session with zero parent context. |
 | **Returns** | What the subagent returns in its result contract. |
 

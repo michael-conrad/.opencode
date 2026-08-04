@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Branch, commit, push, and PR workflow dispatcher that routes to sub-skills. Load via skill() when creating a branch, committing, pushing, or creating a PR. Also load when handling rebase/merge conflicts, checking PR state and cleanup, or running provenance tracking. Branch-and-PR discipline is REQUIRED — always follow the workflow. User phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, cleanup, provenance"
+description: "Route branch, commit, push, and PR workflow operations to git-workflow sub-skills, including creating branches, committing, pushing, creating PRs, resolving rebase/merge conflicts, checking PR state, cleaning up after merges, and tracking provenance. Branch-and-PR discipline is REQUIRED — always follow the workflow."
 license: MIT
 compatibility: opencode
 provenance: AI-generated
@@ -10,78 +10,96 @@ provenance: AI-generated
 
 ## Overview
 
-This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger phrases are preserved for backward compatibility.
+This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger phrases are preserved for backward compatibility. Each sub-skill is loaded independently via `skill({name: "..."})` and its tasks dispatched via `task()`.
 
-## Sub-Skills
+## Mandatory Task Discipline
 
-| Sub-Skill | Purpose | Task Count |
-|-----------|---------|------------|
-| `git-workflow-branch` | Branch creation, submodule sync, provenance, pair mode setup | 9 task files |
-| `git-workflow-commit` | Implementation commits, commit prep, pair commits | 3 task files |
-| `git-workflow-pr` | PR creation, review prep, pair PR, completion, post-implementation | 7 task files |
-| `git-workflow-cleanup` | Post-merge cleanup, PR state check, pair cleanup | 3 task files |
-| `git-workflow-conflict` | Rebase/merge conflict resolution | 1 task file |
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## Trigger Dispatch Table
+## Workflows
 
-| User says / Context | Task | Dispatches To | Dispatch | Context passed |
-|---------------------|------|---------------|----------|----------------|
-| "pre-work" / "setup branch" / "sync default branch" | `pre-work` | `git-workflow-branch --task pre-work` | `sub-task` | {branch_name} |
-| "implementation" / "commit" / "save work" | `implementation` | `git-workflow-commit --task implementation` | `sub-task` | {branch_name} |
-| "review-prep" / "prepare review" | `review-prep` | `git-workflow-pr --task review-prep` | `sub-task` | {branch_name} |
-| "pr-creation" / "create PR" | `pr-creation` | `git-workflow-pr --task pr-creation` | `sub-task` | {branch_name, spec_summary} |
-| "rebase" / "rebase pending" | `rebase-pending` | `git-workflow-conflict --task rebase-pending` | `sub-task` | {branch_name} |
-| "cleanup" / "post-merge cleanup" | `cleanup` | `git-workflow-cleanup --task cleanup` | `sub-task` | {pr_merge_status} |
-| "provenance" / "provenance check" | `provenance` | `git-workflow-branch --task provenance` | `sub-task` | {submodule_path} |
-| "sync submodules" / "update submodules" | `submodule-sync` | `git-workflow-branch --task submodule-sync` | `sub-task` | {submodule_paths} |
-| "release" / "release/v" | `pre-work` | `git-workflow-branch --task pre-work` | `sub-task` | {branch_name: release/v{semver}} |
-| "release PR" / "is_release" | `pr-creation` | `git-workflow-pr --task pr-creation` | `sub-task` | {branch_name, spec_summary, is_release: true} |
-| "trunk-tip-verification" / "verify trunk tip" / "check trunk" | `trunk-tip-verification` | `git-workflow-branch --task trunk-tip-verification` | `sub-task` | {branch_name} |
-| "pre-commit-pointer-check" / "check submodule pointers" | `pre-commit-pointer-check` | `git-workflow-branch --task pre-commit-pointer-check` | `sub-task` | {branch_name} |
-| completion / workflow end | `completion` | `git-workflow-pr --task completion` | `sub-task` | {workflow_state} |
+### Set up a feature branch
 
-## Invocation
+When the agent needs to create a feature branch before implementation work, sync submodules, verify trunk tip, or set up a pair mode branch.
 
-`skill({name: "git-workflow"})` — call the skill, then dispatch to the sub-skill:
+1. **Verify trunk tip** — Verifies that parent repo and submodules are at trunk tip with clean working trees.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/trunk-tip-verification.md](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-| Task | Canonical Dispatch String |
-|------|--------------------------|
-| `pre-work` | `task(..., prompt: "execute pre-work from git-workflow-branch. Read \`git-workflow-branch/tasks/pre-work.md\` first")` |
-| `implementation` | `task(..., prompt: "execute implementation from git-workflow-commit. Read \`git-workflow-commit/tasks/implementation.md\` first")` |
-| `review-prep` | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
-| `pr-creation` | `task(..., prompt: "execute pr-creation from git-workflow-pr. Read \`git-workflow-pr/tasks/pr-creation.md\` first")` |
-| `rebase-pending` | `task(..., prompt: "execute rebase-pending from git-workflow-conflict. Read \`git-workflow-conflict/tasks/rebase-pending.md\` first")` |
-| `cleanup` | `task(..., prompt: "execute cleanup from git-workflow-cleanup. Read \`git-workflow-cleanup/tasks/cleanup.md\` first")` |
-| `provenance` | `task(..., prompt: "execute provenance from git-workflow-branch. Read \`git-workflow-branch/tasks/provenance.md\` first")` |
-| `submodule-sync` | `task(..., prompt: "execute submodule-sync from git-workflow-branch. Read \`git-workflow-branch/tasks/submodule-sync.md\` first")` |
-| `trunk-tip-verification` | `task(..., prompt: "execute trunk-tip-verification from git-workflow-branch. Read \`git-workflow-branch/tasks/trunk-tip-verification.md\` first")` |
-| `pre-commit-pointer-check` | `task(..., prompt: "execute pre-commit-pointer-check from git-workflow-branch. Read \`git-workflow-branch/tasks/pre-commit-pointer-check.md\` first")` |
-| `completion` | `task(..., prompt: "execute completion from git-workflow-pr. Read \`git-workflow-pr/tasks/completion.md\` first")` |
+2. **Submodule sync** — Syncs dirty submodule pointers to latest trunk tip.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/submodule-sync.md](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: {branch_name}, submodule_paths: {submodule_paths}"`
+   - Context: `{branch_name, submodule_paths}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-## DISPATCH_GATE — Orchestrator task() Prompt Protocol
+3. **Pre-work** — Creates the feature branch and sets up the working environment.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pre-work.md](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-The orchestrator MUST NOT preload execution context into `task()` prompts. Every sub-agent MUST independently discover scope and produce its own result contract.
+4. **Pre-commit pointer check** — Verifies submodule pointers are staged before commit.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pre-commit-pointer-check.md](.opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-### Forbidden in task() Prompts
+5. **Provenance** — Verifies provenance of submodule state.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/provenance.md](.opencode/skills/git-workflow-branch/tasks/provenance.md). submodule_path: {submodule_path}"`
+   - Context: `{submodule_path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-| Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
-| Preloaded file paths | "Read the task file then execute step 1" | "execute pre-work from git-workflow-branch" |
-| Preloaded step sequences | "Step 1: sync. Step 2: create branch." | "execute pre-work from git-workflow-branch" |
-| Preloaded expected outcomes | "Return { branch_name }" | Let sub-agent define its own result contract |
-| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+### Implement changes and commit
 
-### Dispatch Context Contract
+When the agent needs to implement changes and commit them with a structured message.
 
-Every `task()` call MUST include only:
-- `worktree.path`
-- `github.owner`
-- `github.repo`
-- `authorization_scope`
-- `halt_at`
-- `pipeline_phase`
+1. **Implementation** — Implements changes and commits with a structured message.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/implementation.md](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-Plus skill-specific fields per the Trigger Dispatch Table above.
+2. **Commit prep** — Prepares a commit message from the diff and spec context.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/commit-prep.md](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: {branch_name}, diff_summary: {diff_summary}"`
+   - Context: `{branch_name, diff_summary}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Create a PR
+
+When the agent needs to create a PR, prepare for review, or run post-implementation and completion tasks after implementation.
+
+1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+2. **Pr-creation** — Creates a pull request with a structured body and compare URL.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: {branch_name}, spec_summary: {spec_summary}, is_release: {is_release}"`
+   - Context: `{branch_name, spec_summary, is_release}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+
+3. **Completion** — Runs PR lifecycle completion, final status, and URL reporting.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: {workflow_state}"`
+   - Context: `{workflow_state}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Clean up after a PR merge
+
+When the agent needs to clean up after a PR merge — delete merged branches, close issues, sync trunk — or when a "pr merged" event or "check prs" request is detected.
+
+1. **Cleanup** — Deletes merged branches, closes issues, and syncs trunk.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-cleanup/tasks/cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merge_status: {pr_merge_status}, branch_name: {branch_name}"`
+   - Context: `{pr_merge_status, branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Resolve a rebase, merge, or cherry-pick conflict
+
+When the agent needs to resolve git conflicts during a rebase, merge, or cherry-pick operation, rebase pending PRs onto the updated default branch, or classify conflicts by tier.
+
+1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-conflict/tasks/rebase-pending.md](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 ## Cross-References
 
@@ -93,5 +111,3 @@ A halt without structured output leaves the developer guessing what happened, wh
 
 ### [critical-rules-016] Missing Progress Reports
 Halting without structured output means leaving the developer guessing what happened — and that is amateur-hour behavior. Professional engineers always produce: Summary → URL → Byline. Issue comments are for substantive information only.
-
-
