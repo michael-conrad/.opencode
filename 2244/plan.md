@@ -29,6 +29,15 @@ The phase DAG is enforced by a dependency contract validated by the Z3 solver (S
 
 ---
 
+## Pre-Implementation Steps
+
+These steps run once before any phase begins.
+
+- [ ] **P1. Coherence gate (**clean-room**).** Verify the plan is coherent with the spec: every SC in the spec is mapped to exactly one item, no item covers multiple SCs, the phase DAG is acyclic and Z3-SAT validated, and no superseding/stale spec exists. **→ all SCs**
+- [ ] **P2. Baseline check (**sub-agent**).** Verify the working tree is at trunk tip with zero pending changes, submodules synced, and no stale `tmp/.behavior-run.lock`. Confirm the target files (`with-test-home`, `helpers.sh`, `AGENTS.md`, `2242-sc6` test + fixture) exist. **→ all SCs**
+
+---
+
 ## Phase Table
 
 | Phase | Skill | Task | Target | SCs | Depends On |
