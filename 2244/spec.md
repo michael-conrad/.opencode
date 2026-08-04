@@ -16,7 +16,7 @@ The motivating test `2242-sc6-cleanup-dispatch-no-task-card-read.sh` dead-ended 
 
 ### 1.3 Approach Chosen
 
-Add an opt-in capability to the harness: a `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` flag provisions `test-submodule-1` and `test-submodule-2` as local git repos in the attempt workdir, and the existing `BEHAVIOR_NEEDS_REMOTE=1` flag wires a GitBucket instance as the test repo's `origin` remote. Both capabilities are opt-in and mutually exclusive with the existing `BEHAVIOR_SET_BARE_REMOTE=1` bare-remote flag. The env `env -i` allowlist in `with-test-home` is extended (superset only) to pass the new flags through, and `GB_*`/`GITBUCKET_PORT` are scoped so they never leak from the parent shell (SC10). Cleanup is extended so `--clean-all` removes all newly provisioned state.
+Add an opt-in capability to the harness: a `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` flag provisions `test-submodule-1` and `test-submodule-2` as local git repos in the attempt workdir, and the existing `BEHAVIOR_NEEDS_REMOTE=1` flag wires a GitBucket instance as the test repo's `origin` remote. Both capabilities are opt-in and mutually exclusive with the existing `BEHAVIOR_SET_BARE_REMOTE=1` bare-remote flag. The env `env -i` allowlist in `with-test-home` is extended (superset only) to pass the new flags through, and `GB_*`/`GITBUCKET_PORT` are scoped so they never leak from the parent shell (SC13–SC17). Cleanup is extended so `--clean-all` removes all newly provisioned state. The harness enforces a general environment-set principle: all environment variables required by tests are set within the test environment setup itself, and the `env -i` allowlist carries only the minimal infrastructure set — so no parent/production secret, credential, or platform token is ever inherited into the isolated test env (SC13–SC16).
 
 ### 1.4 Alternatives Considered & Why Discarded
 
@@ -30,7 +30,8 @@ Add an opt-in capability to the harness: a `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` f
 - **GitBucket origin wiring reuses the existing `BEHAVIOR_NEEDS_REMOTE` provisioner:** The `__ensure_gitbucket()` function already provisions GitBucket; the origin-wiring block in `behavior_run()` attaches it as `origin`. Tradeoff: reuses proven provisioning machinery, but couples this feature to GitBucket's availability in the environment.
 - **Mutual exclusion between `BEHAVIOR_NEEDS_REMOTE` and `BEHAVIOR_SET_BARE_REMOTE`:** A test MUST NOT set both because both try to configure the `origin` remote and would conflict. Contradictory config is rejected with `HARNESS_FAILURE`. Tradeoff: forces test authors to pick exactly one remote strategy, preventing ambiguous origin state.
 - **Env passthrough as a strict superset:** New fixture/remote flags are added to the `env -i` allowlist in `with-test-home`; no existing variable is removed or reordered. Tradeoff: keeps the isolation wall intact while extending reach.
-- **GB_* scoped to the test instance only:** Parent-sourced `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` are NOT passed through the `env -i` allowlist; `__ensure_gitbucket()` sets them to the provisioned test instance's generated values only when `BEHAVIOR_NEEDS_REMOTE=1`, and they are absent/empty otherwise. Tradeoff: tests that need GitBucket must opt in to provisioning, but the default path never leaks a production GitBucket credential or host into the isolated test env.
+- **Test-provisioned environment only (general env-set rule):** The test harness (with-test-home) sets every environment variable a test requires within the test environment setup (`do_setup`/`seed_model_config`/test-home provisioning) — never inheriting them from the parent/production shell. The `env -i` allowlist carries ONLY a minimal, explicitly enumerated infrastructure set (PATH, SHELL, TERM, LANG, USER, LOGNAME, GIT_CONFIG_NOSYSTEM, XDG_* into the test home, SNAP_USER_DATA/COMMON, and test-provisioned values). It MUST NOT include any parent-sourced variable carrying secrets, credentials, platform tokens, or environment-specific configuration (GB_*, GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, API keys). Tradeoff: test authors must opt in to provisioning the values they need, but the default path never leaks a production secret, credential, or environment-specific value into the isolated test env.
+- **GB_* is the concrete instance of the general env-set rule:** Parent-sourced `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` are NOT passed through the `env -i` allowlist; `__ensure_gitbucket()` sets them to the provisioned test instance's generated values only when `BEHAVIOR_NEEDS_REMOTE=1`, and they are absent/empty otherwise. Tradeoff: tests that need GitBucket must opt in to provisioning, but the default path never leaks a production GitBucket credential or host into the isolated test env.
 
 ### 1.6 User Intent / Original Prompt
 
@@ -38,10 +39,11 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 
 ## 2. Not Included
 
-- **Real GitHub / GitBucket as the default remote** — The full-environment simulation is opt-in only; the default single-`.opencode`/`local` provisioning is preserved. Rationale: SC4 no-regression gate.
+- **Real GitHub / GitBucket as the default remote** — The full-environment simulation is opt-in only; the default single-`.opencode`/`local` provisioning is preserved. Rationale: SC8 no-regression gate.
 - **Modification of the ~80 existing test scripts** — Only `2242-sc6-cleanup-dispatch-no-task-card-read.sh` is extended to set the opt-in. Rationale: existing tests are regression fixtures and must remain byte-for-byte unchanged.
 - **Provisioning more than two sibling submodules** — Only `test-submodule-1` and `test-submodule-2` are in scope. Rationale: the motivating test needs exactly two sibling repos; more would be speculative.
 - **GitHub Actions / CI integration** — The capability is scoped to the local behavioral harness only. Rationale: CI is out of scope for this spec.
+- **Relaxation of the general env-set isolation wall** — The `env -i` allowlist is not loosened to admit parent-sourced secrets, credentials, platform tokens, or environment-specific configuration beyond the minimal infrastructure set (SC13–SC16). Rationale: the isolation contract is a firm rule, not a per-test convenience.
 
 ## 3. Success Criteria
 
@@ -50,30 +52,46 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
 | SC1 | When `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` is set in the environment, `behavior_run()` in `helpers.sh` provisions `test-submodule-1` and `test-submodule-2` as local git repos (created via `git init` from fixture templates) inside the attempt workdir, in addition to the existing `.opencode` clone. When the flag is unset or absent, `behavior_run()` provisions only the existing single `.opencode` clone. | structural | `ls` the attempt workdir for `test-submodule-1` and `test-submodule-2` directories and confirm `git submodule status` lists them when the flag is set; confirm their absence when the flag is unset. | `.opencode/tests-v2/behaviors/helpers.sh` (`behavior_run()` submodule provisioning block); `.opencode/tests-v2/behaviors/fixtures/` |
-| SC2 | When `BEHAVIOR_NEEDS_REMOTE=1` is set in the environment and GitBucket is provisioned, `behavior_run()` wires the GitBucket instance as the test repo's `origin` remote, and the agent's `gh pr list` call in the isolated test env discovers merged branches and open issues without GitHub auth. | behavioral | `opencode run` with `BEHAVIOR_NEEDS_REMOTE=1`; clean-room evaluation of `session.yaml` confirms `gh pr list` returns merged-branch/issue results and the agent does not halt for missing PR context. | `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`, origin-wiring block); `.opencode/tests-v2/AGENTS.md` §12 |
-| SC3 | When both `BEHAVIOR_NEEDS_REMOTE=1` and `BEHAVIOR_SET_BARE_REMOTE=1` are set, `behavior_run()` rejects the configuration with a `HARNESS_FAILURE` exit and does not attempt ambiguous origin wiring. | behavioral | Run `behavior_run()` with both flags set; assert the `HARNESS_FAILURE` exit and that no origin-wiring is attempted. | `.opencode/tests-v2/behaviors/helpers.sh` (`BEHAVIOR_SET_BARE_REMOTE` block, mutual-exclusion rejection check) |
-| SC4 | The `env -i` allowlist in `with-test-home` passes through `BEHAVIOR_NEEDS_MULTI_SUBMODULES`, `BEHAVIOR_NEEDS_REMOTE`, and `BEHAVIOR_SET_BARE_REMOTE` as a strict superset (no existing allowlisted variable is removed), and `set-env.sh` records the new flags. The isolation check (no production state leaked) still passes after the extension. | structural | Inspect the `env -i` invocation and the allowlist block in `with-test-home` and `set-env.sh` for the three new variable names; run the isolation verification procedure. | `.opencode/tests-v2/with-test-home` (`env -i` invocation + allowlist block, `set-env.sh`); `.opencode/tests-v2/AGENTS.md` §5 (Isolation Verification Procedure) |
-| SC5 | With no opt-in flags set, a representative non-opt-in behavioral test provisions exactly one `.opencode` submodule and the `local` platform (no origin remote) — byte-for-byte identical to the current default provisioning of the ~80 existing tests. | behavioral | Run a representative non-opt-in behavioral test; clean-room evaluation of `session.yaml` confirms single-`.opencode` provisioning and no origin remote. | `.opencode/tests-v2/behaviors/helpers.sh`; `.opencode/tests-v2/with-test-home` |
-| SC6 | After a full-env provisioned run, `--clean-all` in `with-test-home` (via `do_clean_all()`) and `__kill_gitbucket()` / `__reset_gitbucket()` in `helpers.sh` remove the provisioned `test-submodule-1`/`test-submodule-2` clones, the GitBucket process, and all stale `tmp/` state, leaving no orphan clones or processes; a repeated run starts clean. | behavioral | After a provisioned run, invoke `--clean-all` and `__kill_gitbucket()`; assert no orphan GitBucket process is running and no stale `tmp/` submodule clones/state remain; then run again and confirm a clean start. | `.opencode/tests-v2/with-test-home` (`do_clean()`, `do_clean_all()`); `.opencode/tests-v2/behaviors/helpers.sh` (`__reset_gitbucket()`, `__kill_gitbucket()`) |
-| SC7 | When the full-env opt-in (`BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1`) is set for `2242-sc6-cleanup-dispatch-no-task-card-read.sh`, the test's `session.yaml` shows that merged-PR discovery (`gh pr list`) returned a merged branch and an open issue during the run. | behavioral | Run `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in; clean-room evaluation of `session.yaml` confirms `gh pr list` returned the merged branch and open issue. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`; `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh` |
-| SC8 | In the SC7 run, the git-workflow-cleanup dispatch completes and produces a result contract, and `session.yaml` shows the orchestrator never read the cleanup task card (`tasks/cleanup.md`) — no file-read tool call targets that path. | behavioral | Clean-room evaluation of the SC7 `session.yaml` confirms the cleanup dispatch produced a result contract and no task-card read of `tasks/cleanup.md` appears in the tool timeline. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` |
-| SC9 | In the SC7 run, `session.yaml` shows the agent never halted to ask the user for PR/branch context (no question-tool call or "provide PR" style halt). | behavioral | Clean-room evaluation of the SC7 `session.yaml` confirms no PR/branch-context halt or question-tool invocation. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` |
-| SC10 | `GB_*` environment variables MUST be ABSENT from the isolated test environment unless they are scoped to the provisioned test GitBucket instance. (a) When `BEHAVIOR_NEEDS_REMOTE=1` provisions GitBucket, `GB_TOKEN` and `GB_HOST` MUST be set to the test instance's own generated values (root/generated token, `http://localhost:<port>`) — never inherited from the parent env. (b) When GitBucket is NOT provisioned, `GB_TOKEN`, `GB_HOST`, and `GITBUCKET_PORT` MUST be absent/empty in the test env — the harness MUST NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT` values via the `env -i` allowlist or `set-env.sh` in `with-test-home`. | string | Inspect the `env -i` allowlist and `set-env.sh` in `with-test-home` for `GB_*` sourcing; confirm no parent-sourced `GB_*`/`GITBUCKET_PORT` values propagate when no GitBucket is provisioned, and confirm `__ensure_gitbucket()` in `helpers.sh` scopes `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` to the test instance when provisioned. | `.opencode/tests-v2/with-test-home` (`env -i` allowlist, `set-env.sh`); `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`); `.opencode/tests-v2/AGENTS.md` §5 (Isolation Verification Procedure) |
+| SC2 | When `BEHAVIOR_NEEDS_REMOTE=1` is set in the environment and GitBucket is provisioned, `behavior_run()` in `helpers.sh` wires the GitBucket instance as the test repo's `origin` remote in the attempt workdir. | structural | Inspect the `behavior_run()` origin-wiring block in `helpers.sh`; run with `BEHAVIOR_NEEDS_REMOTE=1` and confirm `git remote -v` in the attempt workdir shows the GitBucket `origin`. | `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`, origin-wiring block) |
+| SC3 | When the GitBucket origin is wired (SC2), the agent's `gh pr list` call in the isolated test env discovers merged branches and open issues without GitHub auth. | behavioral | `opencode run` with `BEHAVIOR_NEEDS_REMOTE=1`; clean-room evaluation of `session.yaml` confirms `gh pr list` returns merged-branch/issue results and the agent does not halt for missing PR context. | `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`, origin-wiring block); `.opencode/tests-v2/AGENTS.md` §12 |
+| SC4 | When both `BEHAVIOR_NEEDS_REMOTE=1` and `BEHAVIOR_SET_BARE_REMOTE=1` are set, `behavior_run()` rejects the configuration with a `HARNESS_FAILURE` exit and does not attempt ambiguous origin wiring. | behavioral | Run `behavior_run()` with both flags set; assert the `HARNESS_FAILURE` exit and that no origin-wiring is attempted. | `.opencode/tests-v2/behaviors/helpers.sh` (`BEHAVIOR_SET_BARE_REMOTE` block, mutual-exclusion rejection check) |
+| SC5 | The `env -i` allowlist in `with-test-home` passes through `BEHAVIOR_NEEDS_MULTI_SUBMODULES`, `BEHAVIOR_NEEDS_REMOTE`, and `BEHAVIOR_SET_BARE_REMOTE` as a strict superset — no existing allowlisted variable is removed or reordered. | structural | Inspect the `env -i` invocation and the allowlist block in `with-test-home` for the three new variable names; confirm all previously allowlisted variables remain. | `.opencode/tests-v2/with-test-home` (`env -i` invocation + allowlist block) |
+| SC6 | `set-env.sh` records the three new flags (`BEHAVIOR_NEEDS_MULTI_SUBMODULES`, `BEHAVIOR_NEEDS_REMOTE`, `BEHAVIOR_SET_BARE_REMOTE`) so the test env sees them as documented debugging aids. | structural | Inspect `set-env.sh` for the three new variable names. | `.opencode/tests-v2/with-test-home` (`set-env.sh`) |
+| SC7 | The isolation verification procedure (no production state leaked into the test env) still passes after the allowlist extension with the three new flags. | structural | Run the isolation verification procedure against the extended allowlist; confirm no production secret, credential, platform token, or environment-specific configuration is admitted. | `.opencode/tests-v2/with-test-home` (`env -i` invocation + allowlist block); `.opencode/tests-v2/AGENTS.md` §5 (Isolation Verification Procedure) |
+| SC8 | With no opt-in flags set, a representative non-opt-in behavioral test provisions exactly one `.opencode` submodule and the `local` platform (no origin remote) — byte-for-byte identical to the current default provisioning of the ~80 existing tests. | behavioral | Run a representative non-opt-in behavioral test; clean-room evaluation of `session.yaml` confirms single-`.opencode` provisioning and no origin remote. | `.opencode/tests-v2/behaviors/helpers.sh`; `.opencode/tests-v2/with-test-home` |
+| SC9 | After a full-env provisioned run, `--clean-all` in `with-test-home` (via `do_clean_all()`) and `__kill_gitbucket()` / `__reset_gitbucket()` in `helpers.sh` remove the provisioned `test-submodule-1`/`test-submodule-2` clones, the GitBucket process, and all stale `tmp/` state, leaving no orphan clones or processes; a repeated run starts clean. | behavioral | After a provisioned run, invoke `--clean-all` and `__kill_gitbucket()`; assert no orphan GitBucket process is running and no stale `tmp/` submodule clones/state remain; then run again and confirm a clean start. | `.opencode/tests-v2/with-test-home` (`do_clean()`, `do_clean_all()`); `.opencode/tests-v2/behaviors/helpers.sh` (`__reset_gitbucket()`, `__kill_gitbucket()`) |
+| SC10 | When the full-env opt-in (`BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1`) is set for `2242-sc6-cleanup-dispatch-no-task-card-read.sh`, the test's `session.yaml` shows that merged-PR discovery (`gh pr list`) returned a merged branch and an open issue during the run. | behavioral | Run `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in; clean-room evaluation of `session.yaml` confirms `gh pr list` returned the merged branch and open issue. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`; `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh` |
+| SC11 | In the SC10 run, the git-workflow-cleanup dispatch completes and produces a result contract, and `session.yaml` shows the orchestrator never read the cleanup task card (`tasks/cleanup.md`) — no file-read tool call targets that path. | behavioral | Clean-room evaluation of the SC10 `session.yaml` confirms the cleanup dispatch produced a result contract and no task-card read of `tasks/cleanup.md` appears in the tool timeline. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` |
+| SC12 | In the SC10 run, `session.yaml` shows the agent never halted to ask the user for PR/branch context (no question-tool call or "provide PR" style halt). | behavioral | Clean-room evaluation of the SC10 `session.yaml` confirms no PR/branch-context halt or question-tool invocation. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` |
+| SC13 | The isolated test environment SHALL be provisioned entirely by the test harness setup itself: every environment variable a test requires is set within the test environment setup (`do_setup`/`seed_model_config`/test-home provisioning), never inherited from the parent/production shell. | string | Inspect `with-test-home` (`do_setup`, `seed_model_config`) and test-home provisioning; confirm every required test value is set within the setup, not read through from the parent shell. | `.opencode/tests-v2/with-test-home` (`do_setup`, `seed_model_config`, test-home provisioning) |
+| SC14 | The `env -i` allowlist in `with-test-home` SHALL contain ONLY the minimal, explicitly enumerated infrastructure set needed to locate tools and run the binary, namely exactly: `PATH`, `SHELL`, `TERM`, `LANG`, `USER`, `LOGNAME`, `GIT_CONFIG_NOSYSTEM`, `XDG_*` pointing into the test home, `SNAP_USER_DATA`/`SNAP_USER_COMMON`, and test-provisioned values. | string | Inspect the `env -i` invocation and allowlist block in `with-test-home`; confirm the allowlist enumerates exactly this minimal infrastructure set and nothing more. | `.opencode/tests-v2/with-test-home` (`env -i` invocation + allowlist block) |
+| SC15 | The `env -i` allowlist in `with-test-home` SHALL NOT include any parent-sourced variable that carries secrets, credentials, platform tokens, or environment-specific configuration — namely none of: `GB_*`, `GITHUB_*`, `GH_*`, `NODE_ENV`, `VIRTUAL_ENV`, `CONDA_DEFAULT_ENV`, `OPENCODE_CONFIG_CONTENT`, or API keys. | string | Inspect the `env -i` invocation and allowlist block in `with-test-home`; confirm none of the enumerated secret/credential/token/env-specific variables is admitted from the parent env. | `.opencode/tests-v2/with-test-home` (`env -i` invocation + allowlist block) |
+| SC16 | Any value a test needs (GitBucket token/host, model, config) SHALL be generated/set by the test setup, never read through from the parent env. | string | Confirm `do_setup`/`seed_model_config`/test-home provisioning in `with-test-home` generate or set model, config, and (when provisioned) GitBucket token/host values rather than inheriting them. | `.opencode/tests-v2/with-test-home` (`do_setup`, `seed_model_config`, test-home provisioning) |
+| SC17 | `GB_*`/`GITBUCKET_PORT` environment variables SHALL be ABSENT from the isolated test environment unless they are scoped to the provisioned test GitBucket instance — the concrete instance of the general env-set rule in SC13–SC16. (a) When `BEHAVIOR_NEEDS_REMOTE=1` provisions GitBucket, `GB_TOKEN` and `GB_HOST` SHALL be set to the test instance's own generated values (root/generated token, `http://localhost:<port>`) — never inherited from the parent env. (b) When GitBucket is NOT provisioned, `GB_TOKEN`, `GB_HOST`, and `GITBUCKET_PORT` SHALL be absent/empty in the test env — the harness SHALL NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT` values via the `env -i` allowlist or `set-env.sh` in `with-test-home`. | string | Inspect the `env -i` allowlist and `set-env.sh` in `with-test-home` for `GB_*` sourcing; confirm no parent-sourced `GB_*`/`GITBUCKET_PORT` values propagate when no GitBucket is provisioned, and confirm `__ensure_gitbucket()` in `helpers.sh` scopes `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` to the test instance when provisioned. | `.opencode/tests-v2/with-test-home` (`env -i` allowlist, `set-env.sh`); `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`); `.opencode/tests-v2/AGENTS.md` §5 (Isolation Verification Procedure) |
+| SC18 | `.opencode/tests-v2/AGENTS.md` SHALL document the `BEHAVIOR_NEEDS_MULTI_SUBMODULES` / `BEHAVIOR_SET_BARE_REMOTE` mutual-exclusion rule and the new full-environment opt-in capability (multi-submodule fixtures and GitBucket origin wiring). | string | Inspect `.opencode/tests-v2/AGENTS.md` for a section documenting the mutual-exclusion rule and the opt-in capability. | `.opencode/tests-v2/AGENTS.md` |
 
 ### Per-SC Cost-Frame (dark-prose-007)
 
 | ID | Cost-Frame |
 |----|------------|
 | SC1 | Failing to provision fixture submodules means every remote-sensitive test inherits the dead-end halt. A test that cannot see its merged branch and open issue cannot exercise cleanup — it burns a model run to end in a question. You will accept that cost every single time you skip this. |
-| SC2 | Wiring GitBucket as origin is the difference between a workflow that completes and one that stalls at `gh pr list`. A cleanup test that halts for PR context is not a test of cleanup — it is a test of the model's willingness to ask questions. That is not the behavior under test. |
-| SC3 | Allowing both remote flags to be set simultaneously produces an ambiguous `origin` — a harness that silently picks one strategy corrupts the isolation contract. Contradictory config rejected early is a harness that fails loudly instead of failing silently. |
-| SC4 | Leaking production state through a careless allowlist extension silently corrupts every test that follows. The isolation contract is the wall between your test and your real repo. A breach here is not a flaky test — it is a data-integrity event in your working tree. |
-| SC5 | A regression in the default single-`.opencode` path breaks all ~80 existing tests at once. The opt-in design is the shield; SC5 is the proof the shield holds. Without it, you ship a change whose blast radius you have not measured. |
-| SC6 | Orphan GitBucket processes and stale clones poison every subsequent run and hold the flock. A harness that cannot clean itself is a harness that eventually stops working for reasons nobody can reproduce. Cleanup is not housekeeping — it is the precondition for a reliable next run. |
-| SC7 | The motivating test exists to prove the git-workflow cleanup dispatch completes. If merged-PR discovery still fails, the #2242 SC6/SC7 evidence is unobtainable and the whole skill-card migration is unverifiable. This SC is not optional scope — it is the point of the capability. |
-| SC8 | A cleanup dispatch that silently reads the task card defeats the entire no-task-card-read purpose of the test. If the orchestrator reads `tasks/cleanup.md`, the behavioral evidence is invalid and the migration claim is unsupported. |
-| SC9 | A run that halts to ask the user for PR/branch context is not a completed cleanup dispatch — it is a deferred question. If the agent asks instead of acting, the SC7/SC8 evidence is unobtainable and the capability has not delivered. |
-| SC10 | Passing a parent-sourced `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` into the isolated test env means every no-GitBucket test silently talks to — or authenticates as — your production GitBucket. That is not an isolation breach you can reproduce; it is a production-credential leak into a test you believed was sandboxed. When no GitBucket is provisioned the `GB_*` vars must be empty; when it is, they must belong to the test instance alone. |
+| SC2 | Wiring GitBucket as origin is the difference between a workflow that completes and one that stalls at `gh pr list`. An unwired origin leaves `gh pr list` with nothing to query — the capability silently does nothing. |
+| SC3 | A `gh pr list` that returns nothing is not proof of isolation — it is proof of nothing to discover. The discovery claim must be verified against the wired origin, not assumed from the wiring. |
+| SC4 | Allowing both remote flags to be set simultaneously produces an ambiguous `origin` — a harness that silently picks one strategy corrupts the isolation contract. Contradictory config rejected early is a harness that fails loudly instead of failing silently. |
+| SC5 | Leaking production state through a careless allowlist extension silently corrupts every test that follows. The isolation contract is the wall between your test and your real repo. A breach here is not a flaky test — it is a data-integrity event in your working tree. |
+| SC6 | A flag that is not recorded in `set-env.sh` is a flag a debugging session cannot see. Documentation-by-recording is cheap; a silent gap costs a confused test author an afternoon. |
+| SC7 | An allowlist that passes the diff but fails the isolation check has not been verified — it has been edited. The isolation procedure is the proof that the extension did not open a pipe to production. |
+| SC8 | A regression in the default single-`.opencode` path breaks all ~80 existing tests at once. The opt-in design is the shield; SC8 is the proof the shield holds. Without it, you ship a change whose blast radius you have not measured. |
+| SC9 | Orphan GitBucket processes and stale clones poison every subsequent run and hold the flock. A harness that cannot clean itself is a harness that eventually stops working for reasons nobody can reproduce. Cleanup is not housekeeping — it is the precondition for a reliable next run. |
+| SC10 | The motivating test exists to prove the git-workflow cleanup dispatch completes. If merged-PR discovery still fails, the #2242 SC6/SC7 evidence is unobtainable and the whole skill-card migration is unverifiable. This SC is not optional scope — it is the point of the capability. |
+| SC11 | A cleanup dispatch that silently reads the task card defeats the entire no-task-card-read purpose of the test. If the orchestrator reads `tasks/cleanup.md`, the behavioral evidence is invalid and the migration claim is unsupported. |
+| SC12 | A run that halts to ask the user for PR/branch context is not a completed cleanup dispatch — it is a deferred question. If the agent asks instead of acting, the SC10/SC11 evidence is unobtainable and the capability has not delivered. |
+| SC13 | A test env that does not set its own required values is not a test env at all — it is a sandbox that begs values from a production shell it has no business reading. Every value a test needs must be set by the test setup itself. |
+| SC14 | An allowlist that admits anything beyond the minimal infrastructure set is an isolation wall with a door in it. The wall holds only if the enumerated set is exhaustive — not illustrative. |
+| SC15 | A single parent-sourced credential in the allowlist silently authenticates a test you believed was sandboxed — that is a data-integrity event, not a flaky test. The exclusion must be enumerated, because "and so on" is how a credential slips through. |
+| SC16 | A required value read through from the parent is a value you did not control. If model, config, or GitBucket token comes from the parent shell, the test is exercising your environment, not the harness. |
+| SC17 | Passing a parent-sourced `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` into the isolated test env means every no-GitBucket test silently talks to — or authenticates as — your production GitBucket. That is not an isolation breach you can reproduce; it is a production-credential leak into a test you believed was sandboxed. When no GitBucket is provisioned the `GB_*` vars must be empty; when it is, they must belong to the test instance alone. This is the concrete instance of the SC13–SC16 general rule. |
+| SC18 | A mutual-exclusion rule and opt-in capability that are not documented are rules a future test author will violate by accident. Undocumented behavior is not a rule — it is a trap set for the next person. |
 
 ## 4. Requirements
 
@@ -87,7 +105,8 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 - **R-8.** When the full-env opt-in is set for `2242-sc6-cleanup-dispatch-no-task-card-read.sh`, the test SHALL complete merged-PR discovery and cleanup dispatch without the orchestrator reading any cleanup task card and without halting for PR/branch context.
 - **R-9.** `tests-v2/AGENTS.md` SHALL document the `BEHAVIOR_NEEDS_MULTI_SUBMODULES` / `BEHAVIOR_SET_BARE_REMOTE` mutual-exclusion rule and the new opt-in capability.
 - **R-10.** New fixture/remote flags MAY be added to `set-env.sh` for debugging aid, provided they are also present in the `env -i` allowlist.
-- **R-11.** The test environment SHALL NOT inherit any `GB_*` or `GITBUCKET_PORT` value from the parent shell. When `BEHAVIOR_NEEDS_REMOTE=1` provisions GitBucket, `GB_TOKEN`, `GB_HOST`, and `GITBUCKET_PORT` SHALL be set to the test instance's own generated values; when GitBucket is NOT provisioned, these variables SHALL be absent/empty in the test env. The `env -i` allowlist in `with-test-home` SHALL NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT` values.
+- **R-11.** The test harness SHALL set every environment variable a test requires within the test environment setup (`do_setup`/`seed_model_config`/test-home provisioning), and SHALL NOT inherit any required value from the parent/production shell. The `env -i` allowlist in `with-test-home` SHALL contain ONLY the minimal, explicitly enumerated infrastructure set needed to locate tools and run the binary, namely exactly `PATH`, `SHELL`, `TERM`, `LANG`, `USER`, `LOGNAME`, `GIT_CONFIG_NOSYSTEM`, `XDG_*` into the test home, `SNAP_USER_DATA`/`SNAP_USER_COMMON`, and test-provisioned values. The allowlist SHALL NOT include any parent-sourced variable that carries secrets, credentials, platform tokens, or environment-specific configuration — namely none of `GB_*`, `GITHUB_*`, `GH_*`, `NODE_ENV`, `VIRTUAL_ENV`, `CONDA_DEFAULT_ENV`, `OPENCODE_CONFIG_CONTENT`, or API keys. Any value a test needs (GitBucket token/host, model, config) SHALL be generated/set by the test setup, never read through from the parent env.
+- **R-12.** As the concrete instance of R-11, the test environment SHALL NOT inherit any `GB_*` or `GITBUCKET_PORT` value from the parent shell. When `BEHAVIOR_NEEDS_REMOTE=1` provisions GitBucket, `GB_TOKEN`, `GB_HOST`, and `GITBUCKET_PORT` SHALL be set to the test instance's own generated values; when GitBucket is NOT provisioned, these variables SHALL be absent/empty in the test env. The `env -i` allowlist in `with-test-home` SHALL NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT` values.
 
 ## 5. Items
 
@@ -98,77 +117,133 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 - verify: `ls` attempt workdir + `git submodule status`; confirm flag-on/flag-off behavior.
 - commit: `helpers.sh` + new fixture templates under `behaviors/fixtures/`.
 
-### Item 2 (SC2): GitBucket origin wiring and merged-PR discovery
+### Item 2 (SC2): GitBucket origin wiring
 
-- RED: enforcement test with `BEHAVIOR_NEEDS_REMOTE=1` fails to produce `gh pr list` output.
+- RED: enforcement test with `BEHAVIOR_NEEDS_REMOTE=1` shows no `origin` remote attached in the attempt workdir.
 - GREEN: ensure the origin-wiring block in `behavior_run()` attaches the GitBucket origin.
-- verify: `opencode run` with `BEHAVIOR_NEEDS_REMOTE=1`; clean-room `session.yaml` evaluation confirms discovery.
+- verify: run with `BEHAVIOR_NEEDS_REMOTE=1`; confirm `git remote -v` shows the GitBucket `origin`.
 - commit: `helpers.sh` origin-wiring logic.
 
-### Item 3 (SC3): Mutual-exclusion rejection
+### Item 3 (SC3): Merged-PR/issue discovery without GitHub auth
+
+- RED: `opencode run` with `BEHAVIOR_NEEDS_REMOTE=1` fails to produce `gh pr list` output or halts for missing PR context.
+- GREEN: no source change beyond SC2's origin wiring (discovery depends on the wired origin).
+- verify: `opencode run` with `BEHAVIOR_NEEDS_REMOTE=1`; clean-room `session.yaml` evaluation confirms discovery.
+- commit: verification evidence only (no source change unless SC2 is insufficient).
+
+### Item 4 (SC4): Mutual-exclusion rejection
 
 - RED: enforcement test with both `BEHAVIOR_NEEDS_REMOTE=1` and `BEHAVIOR_SET_BARE_REMOTE=1` fails to reject with `HARNESS_FAILURE`.
 - GREEN: add mutual-exclusion rejection between `BEHAVIOR_NEEDS_REMOTE` and `BEHAVIOR_SET_BARE_REMOTE` in `behavior_run()`.
 - verify: run `behavior_run()` with both flags set; assert the `HARNESS_FAILURE` exit.
 - commit: `helpers.sh` mutual-exclusion logic.
 
-### Item 4 (SC4): Env passthrough
+### Item 5 (SC5): Env passthrough — strict superset
 
-- RED: enforcement test asserts the three flags are absent from the `env -i` allowlist.
-- GREEN: extend the `env -i` allowlist in `with-test-home` and `set-env.sh` with the three flags (superset only).
-- verify: inspect `with-test-home` allowlist + `set-env.sh`; run the isolation verification procedure.
-- commit: `with-test-home` + `set-env.sh`.
+- RED: enforcement test asserts the three flags are absent from the `env -i` allowlist, or that an existing allowlisted variable is removed.
+- GREEN: extend the `env -i` allowlist in `with-test-home` with the three flags (superset only, no removals).
+- verify: inspect `with-test-home` allowlist; confirm all three flags present and no existing variable removed.
+- commit: `with-test-home`.
 
-### Item 5 (SC5): No-regression default gate
+### Item 6 (SC6): set-env.sh records new flags
+
+- RED: enforcement test asserts the three flags are absent from `set-env.sh`.
+- GREEN: add the three flags to `set-env.sh` in `with-test-home` (alongside the `env -i` allowlist addition).
+- verify: inspect `set-env.sh` for the three variable names.
+- commit: `with-test-home` (`set-env.sh`).
+
+### Item 7 (SC7): Isolation check still passes after extension
+
+- RED: isolation verification procedure fails (a production state leak is admitted) after the allowlist extension.
+- GREEN: no source change beyond SC5/SC6 if the extension is a clean superset; correct any accidental admission.
+- verify: run the isolation verification procedure against the extended allowlist; confirm no production state leaks.
+- commit: verification evidence only (no source change unless a leak is found).
+
+### Item 8 (SC8): No-regression default gate
 
 - RED: enforcement test asserts default provisioning is unchanged (single `.opencode`, `local`).
-- GREEN: no implementation change required beyond ensuring SC1/SC2/SC3/SC4 leave the default path intact.
+- GREEN: no implementation change required beyond ensuring SC1/SC2/SC3/SC4/SC5/SC6 leave the default path intact.
 - verify: run a representative non-opt-in behavioral test; clean-room `session.yaml` evaluation.
 - commit: verification evidence only (no source change unless regression found).
 
-### Item 6 (SC6): Cleanup
+### Item 9 (SC9): Cleanup
 
 - RED: enforcement test leaves orphan GitBucket process / stale clones after a provisioned run.
 - GREEN: extend `do_clean_all()` in `with-test-home` and `__kill_gitbucket()` / `__reset_gitbucket()` in `helpers.sh` to remove all provisioned submodule clones and remote state.
 - verify: after a provisioned run, invoke `--clean-all` and `__kill_gitbucket()`; assert no orphans; rerun clean.
 - commit: `with-test-home` + `helpers.sh` cleanup functions.
 
-### Item 7 (SC7): Merged-PR discovery for 2242-sc6
+### Item 10 (SC10): Merged-PR discovery for 2242-sc6
 
 - RED: `2242-sc6` test with full-env opt-in fails to show `gh pr list` discovering merged branch + open issue.
 - GREEN: extend `2242-sc6-cleanup-dispatch-no-task-card-read.sh` and its per-scenario fixture to set `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1`.
 - verify: clean-room `session.yaml` evaluation confirms merged-PR discovery.
 - commit: `2242-sc6` test + per-scenario fixture.
 
-### Item 8 (SC8): Cleanup dispatch without task-card read
+### Item 11 (SC11): Cleanup dispatch without task-card read
 
 - RED: `2242-sc6` run shows a read of `tasks/cleanup.md` in the tool timeline, or no result contract.
 - GREEN: verify the dispatch completes without the orchestrator reading the cleanup task card.
 - verify: clean-room `session.yaml` evaluation confirms no `tasks/cleanup.md` read and a result contract produced.
 - commit: no source change unless the test needs assertion strengthening.
 
-### Item 9 (SC9): No PR-context halt
+### Item 12 (SC12): No PR-context halt
 
 - RED: `2242-sc6` run shows a question-tool call or PR/branch-context halt.
 - GREEN: verify the run completes without asking the user for PR/branch context.
 - verify: clean-room `session.yaml` evaluation confirms no PR/branch-context halt.
 - commit: no source change unless the test needs assertion strengthening.
 
-### Item 10 (SC10): GB_* non-leakage from parent env
+### Item 13 (SC13): General env-set rule — test-provisioned environment only
+
+- RED: enforcement test asserts the `env -i` allowlist in `with-test-home` contains a variable not in the minimal infrastructure set, or that a required test value is inherited rather than set by the test setup.
+- GREEN: ensure `do_setup`/`seed_model_config`/test-home provisioning in `with-test-home` sets every value a test requires (model, config, GitBucket token/host when provisioned) rather than inheriting from the parent shell.
+- verify: confirm `with-test-home` (`do_setup`, `seed_model_config`) sets all required test values within the setup; run the isolation verification procedure.
+- commit: `with-test-home` (`do_setup`, `seed_model_config`).
+
+### Item 14 (SC14): env -i allowlist — minimal infrastructure set only
+
+- RED: enforcement test asserts the `env -i` allowlist in `with-test-home` contains a variable outside the minimal infrastructure set (PATH, SHELL, TERM, LANG, USER, LOGNAME, GIT_CONFIG_NOSYSTEM, XDG_* into the test home, SNAP_USER_DATA/SNAP_USER_COMMON, and test-provisioned values).
+- GREEN: refactor the `env -i` allowlist in `with-test-home` to contain ONLY the minimal, explicitly enumerated infrastructure set.
+- verify: inspect the `env -i` allowlist; confirm it enumerates exactly the minimal infrastructure set and nothing more.
+- commit: `with-test-home` (`env -i` allowlist).
+
+### Item 15 (SC15): env -i allowlist — no parent-sourced secrets
+
+- RED: enforcement test asserts the `env -i` allowlist admits a parent-sourced secret/credential/token/env-specific variable (GB_*, GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, API keys).
+- GREEN: remove any such variable from the `env -i` allowlist in `with-test-home`; ensure only test-provisioned values flow through.
+- verify: run the isolation verification procedure with a parent env carrying representative secrets/tokens/credentials; confirm none propagate.
+- commit: `with-test-home` (`env -i` allowlist).
+
+### Item 16 (SC16): Required test values generated/set by setup
+
+- RED: enforcement test asserts a required test value (model, config, GitBucket token/host) is inherited from the parent shell rather than set by the test setup.
+- GREEN: ensure `do_setup`/`seed_model_config`/test-home provisioning in `with-test-home` generate or set model, config, and (when provisioned) GitBucket token/host.
+- verify: with parent values present, confirm the test env uses test-provisioned values, not parent values.
+- commit: `with-test-home` (`do_setup`, `seed_model_config`).
+
+### Item 17 (SC17): GB_* non-leakage from parent env (concrete instance of SC13–SC16)
 
 - RED: enforcement test shows `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` values present in the test env from the parent shell when no GitBucket is provisioned (or inherited values when GitBucket IS provisioned).
 - GREEN: remove parent-sourced `GB_*`/`GITBUCKET_PORT` from the `env -i` allowlist and `set-env.sh` in `with-test-home`; ensure only `__ensure_gitbucket()` in `helpers.sh` sets these variables to the test instance's generated values when `BEHAVIOR_NEEDS_REMOTE=1`, and they are absent/empty otherwise.
 - verify: inspect the `env -i` allowlist + `set-env.sh` for parent-sourced `GB_*`; with a parent `GB_TOKEN`/`GB_HOST` set, confirm the test env has no `GB_*` when no GitBucket is provisioned and the scoped test-instance values when provisioned.
 - commit: `with-test-home` (`env -i` allowlist, `set-env.sh`) + `helpers.sh` (`__ensure_gitbucket()`).
 
+### Item 18 (SC18): AGENTS.md documentation
+
+- RED: enforcement test asserts `.opencode/tests-v2/AGENTS.md` does not document the mutual-exclusion rule or the new opt-in capability.
+- GREEN: add a section to `.opencode/tests-v2/AGENTS.md` documenting the `BEHAVIOR_NEEDS_MULTI_SUBMODULES` / `BEHAVIOR_SET_BARE_REMOTE` mutual-exclusion rule and the new full-environment opt-in capability.
+- verify: inspect `.opencode/tests-v2/AGENTS.md` for the documenting section.
+- commit: `.opencode/tests-v2/AGENTS.md`.
+
 ## 6. Dependencies
 
-- **Reference:** `.opencode` issue #2242 (SC6/SC7) — **Relationship:** this spec's SC7/SC8/SC9 enable the #2242 cleanup-dispatch test to complete; must be coordinated so the #2242 test's opt-in flags match this spec's flag names. **Status:** Pending — #2242 is the consumer.
+- **Reference:** `.opencode` issue #2242 (SC6/SC7) — **Relationship:** this spec's SC10/SC11/SC12 enable the #2242 cleanup-dispatch test to complete; must be coordinated so the #2242 test's opt-in flags match this spec's flag names. **Status:** Pending — #2242 is the consumer.
 - **Reference:** `.opencode/tests-v2/behaviors/helpers.sh` (`behavior_run()`, `__ensure_gitbucket()`, `__reset_gitbucket()`, `__kill_gitbucket()`) — **Relationship:** must be read before implementation to match existing provisioning blocks. **Status:** Satisfied (exists in current code).
-- **Reference:** `.opencode/tests-v2/with-test-home` (`do_clean()`, `do_clean_all()`, `env -i` allowlist, `set-env.sh`) — **Relationship:** must be read before extending the allowlist and cleanup; the `GB_*`/`GITBUCKET_PORT` allowlist sourcing must be corrected so parent values never propagate (SC10). **Status:** Satisfied (exists in current code).
-- **Reference:** `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`) — **Relationship:** must be verified to scope `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` to the test instance (SC10). **Status:** Satisfied (exists in current code).
-- **Reference:** `.opencode/tests-v2/AGENTS.md` §5 (Infrastructure Details / Isolation Verification Procedure) and §12 (GitBucket) — **Relationship:** must be read and updated to document the new opt-in capability and mutual-exclusion rule. **Status:** Satisfied (exists in current code).
-- **Reference:** GitBucket provisioner (JDK + GitBucket JAR under `.tools/`, `tmp/gitbucket-data`) — **Relationship:** must be provisionable in the environment for SC2/SC6 to execute. **Status:** Satisfied (`__ensure_gitbucket()` provisions it).
+- **Reference:** `.opencode/tests-v2/with-test-home` (`do_clean()`, `do_clean_all()`, `env -i` allowlist, `set-env.sh`, `do_setup`, `seed_model_config`) — **Relationship:** must be read before extending the allowlist and cleanup; the allowlist must be refactored to the minimal infrastructure set (SC14/SC15/R-11) and the `GB_*`/`GITBUCKET_PORT` allowlist sourcing must be corrected so parent values never propagate (SC17/R-12); `do_setup`/`seed_model_config` must set all required test values (SC13/SC16/R-11). **Status:** Satisfied (exists in current code).
+- **Reference:** `.opencode/tests-v2/behaviors/helpers.sh` (`__ensure_gitbucket()`) — **Relationship:** must be verified to scope `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` to the test instance (SC17/R-12). **Status:** Satisfied (exists in current code).
+- **Reference:** `.opencode/tests-v2/AGENTS.md` §5 (Infrastructure Details / Isolation Verification Procedure) and §12 (GitBucket) — **Relationship:** must be read and updated to document the new opt-in capability and mutual-exclusion rule (SC18/R-9). **Status:** Satisfied (exists in current code).
+- **Reference:** GitBucket provisioner (JDK + GitBucket JAR under `.tools/`, `tmp/gitbucket-data`) — **Relationship:** must be provisionable in the environment for SC2/SC3/SC9 to execute. **Status:** Satisfied (`__ensure_gitbucket()` provisions it).
 
 ## 7. Traceability
 
@@ -176,25 +251,27 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 |-------------|-------|----------|
 | R-1 | SC1 | 1 |
 | R-2 | SC2 | 2 |
-| R-3 | SC3 | 3 |
-| R-4 | SC4 | 4 |
-| R-5 | SC5 | 5 |
-| R-6 | SC6 | 6 |
-| R-7 | SC6 | 6 |
-| R-8 | SC7, SC8, SC9 | 7, 8, 9 |
-| R-9 | SC1, SC2, SC3 | 1, 2, 3 |
-| R-10 | SC4 | 4 |
-| R-11 | SC10 | 10 |
+| R-3 | SC4 | 4 |
+| R-4 | SC5 | 5 |
+| R-5 | SC8 | 8 |
+| R-6 | SC9 | 9 |
+| R-7 | SC9 | 9 |
+| R-8 | SC10, SC11, SC12 | 10, 11, 12 |
+| R-9 | SC18 | 18 |
+| R-10 | SC6 | 6 |
+| R-11 | SC13, SC14, SC15, SC16 | 13, 14, 15, 16 |
+| R-12 | SC17 | 17 |
 
-Dependency DAG: SC1 + SC4 + SC6 precede SC2; SC3 must be verified before SC2's wiring (mutual-exclusion rejection precedes origin wiring); SC2 precedes SC7; SC7 precedes SC8 and SC9; SC10 is verified alongside SC2's GitBucket provisioning (scoped GB_* values) and alongside the default path (absent GB_* when no GitBucket); SC5 is the final regression gate.
+Dependency DAG: SC1 + SC5 + SC9 precede SC2; SC4 must be verified before SC2's wiring (mutual-exclusion rejection precedes origin wiring); SC2 precedes SC10; SC10 precedes SC11 and SC12; SC5 (env -i passthrough), SC14 (allowlist-only-minimal) and SC15 (allowlist-no-secrets) all concern the same `env -i` allowlist block and are verified together; SC13 (env-set rule) precedes SC17 (GB_* concrete instance) and is verified alongside SC2's GitBucket provisioning (scoped GB_* values) and alongside the default path (absent GB_* when no GitBucket); SC16 (values-generated) is verified with SC13; SC18 (AGENTS.md documentation) is an independent string gate; SC8 is the final regression gate.
 
 ## 8. Documentation Sources
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
 | `helpers.sh` | code | `.opencode/tests-v2/behaviors/helpers.sh` | read — `behavior_run()`, `__ensure_gitbucket()`, `__reset_gitbucket()`, `__kill_gitbucket()`, `BEHAVIOR_SET_BARE_REMOTE` block, origin-wiring block |
-| `with-test-home` | code | `.opencode/tests-v2/with-test-home` | read — `do_clean()`, `do_clean_all()`, `env -i` invocation + allowlist block, `set-env.sh` (GB_* sourcing for SC10) |
-| `AGENTS.md` | doc | `.opencode/tests-v2/AGENTS.md` | read — §5 Infrastructure Details, §12 GitBucket |
+| `with-test-home` | code | `.opencode/tests-v2/with-test-home` | read — `do_clean()`, `do_clean_all()`, `env -i` invocation + allowlist block, `set-env.sh` (minimal-infrastructure refactor for SC14/SC15, GB_* sourcing for SC17) |
+| `with-test-home` | code | `.opencode/tests-v2/with-test-home` | read — `do_setup`, `seed_model_config`, test-home provisioning (sets required test values for SC13/SC16) |
+| `AGENTS.md` | doc | `.opencode/tests-v2/AGENTS.md` | read — §5 Infrastructure Details, §12 GitBucket; write — mutual-exclusion rule + opt-in capability documentation (SC18) |
 | `2242-sc6` test + fixture | code | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` and `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh` | read — merged-branch + open-issue fixture setup |
 
 ## 9. Enforcement Gate
@@ -209,10 +286,23 @@ Dependency DAG: SC1 + SC4 + SC6 precede SC2; SC3 must be verified before SC2's w
 - **Failure mode — GitBucket provisioning fails:** `__ensure_gitbucket()` cannot start GitBucket (JDK missing, download failure). **Expected behavior:** `behavior_run()` prints `HARNESS_FAILURE: GitBucket provisioning failed` and returns 1. **Resolution:** `__ensure_gitbucket() || { HARNESS_FAILURE; return 1; }`.
 - **Concurrency — flock lock contention:** Two tests run concurrently and contend on `tmp/.behavior-run.lock`. **Expected behavior:** the losing test waits up to the flock timeout then exits with `HARNESS_FAILURE: lock contention`. **Resolution:** existing flock guard in `behavior_run()`; cleanup of stale lock files per `tests-v2/AGENTS.md` §10.1.
 - **Concurrency — orphan GitBucket process:** A killed run leaves a GitBucket process holding `tmp/.gitbucket.pid`. **Expected behavior:** a subsequent `--clean-all` / `__kill_gitbucket()` terminates the stale process. **Resolution:** `do_clean_all()` and `__kill_gitbucket()` kill the PID and remove the pid/port files and data dir.
-- **Failure mode — parent GB_* leak into test env:** A `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` value is present in the parent shell and no GitBucket is provisioned (or the test inherits the parent value instead of the test instance's value). **Expected behavior:** the isolated test env has no `GB_*`/`GITBUCKET_PORT` from the parent; when GitBucket is provisioned, only the test instance's generated values are present (SC10). **Resolution:** `with-test-home` `env -i` allowlist and `set-env.sh` MUST NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT`; `__ensure_gitbucket()` sets them to the test instance's values only.
-- **Recovery — repeated run after full-env run:** Provisioned clones/state remain from a prior run. **Expected behavior:** SC5 cleanup leaves a clean `tmp/` so the next run provisions fresh. **Resolution:** `--clean-all` removes submodule clones, GitBucket process, and stale state.
+- **Failure mode — parent GB_* leak into test env:** A `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` value is present in the parent shell and no GitBucket is provisioned (or the test inherits the parent value instead of the test instance's value). **Expected behavior:** the isolated test env has no `GB_*`/`GITBUCKET_PORT` from the parent; when GitBucket is provisioned, only the test instance's generated values are present (SC17). **Resolution:** `with-test-home` `env -i` allowlist and `set-env.sh` MUST NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT`; `__ensure_gitbucket()` sets them to the test instance's values only.
+- **Failure mode — general parent env leak into test env:** A parent shell carries any secret, credential, platform token, or environment-specific configuration (GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, API keys) and the `env -i` allowlist admits it. **Expected behavior:** the isolated test env inherits none of these; the allowlist contains only the minimal infrastructure set, and any value a test needs is set by the test setup (SC13–SC16). **Resolution:** `with-test-home` `env -i` allowlist enumerates only the minimal infrastructure set; `do_setup`/`seed_model_config`/test-home provisioning sets required test values.
+- **Recovery — repeated run after full-env run:** Provisioned clones/state remain from a prior run. **Expected behavior:** SC9 cleanup leaves a clean `tmp/` so the next run provisions fresh. **Resolution:** `--clean-all` removes submodule clones, GitBucket process, and stale state.
 
 ## Change Control
+
+### 2026-08-04 — Revise (spec-creation revise pipeline, Atomicity/Determinism/Correctness/Traceability)
+
+- **What changed:** (1) Decomposed compound SC2 into SC2 (origin wiring, structural) + SC3 (merged-PR/issue discovery, behavioral). Decomposed compound SC4 into SC5 (env -i passthrough superset), SC6 (set-env.sh records flags), SC7 (isolation check still passes). Decomposed compound SC10 into SC13 (test-provisioned environment), SC14 (allowlist minimal infra set), SC15 (allowlist no parent secrets), SC16 (required values generated by setup). (2) Replaced the `e.g.` escape hatches inside the SC14/SC15 and R-11 SHALL-clauses with exhaustive "namely exactly ..." / "namely none of ..." enumerations to make the allowlist bounds deterministic. (3) Fixed the Documentation Sources / Dependency attribution of `do_setup` and `seed_model_config` from `helpers.sh` to `.opencode/tests-v2/with-test-home` (they are defined there, ~lines 106/135, not in `helpers.sh`). (4) Added new SC18 (AGENTS.md documentation, string) and mapped R-9 to it (previously R-9 mapped to behavior-verifying SC1/SC2/SC3). Renumbered all downstream SCs, Items, cost-frames, requirements mapping, traceability, dependencies, and the Dependency DAG to the 18-SC atomic count. Refreshed `.opencode/.issues/2244/sc-summary.yaml` to the current 18-SC count.
+- **Why:** Validation (spec-creation validate) reported four defects: Atomicity FAIL (SC2/SC4/SC10 compound), Determinism FAIL (SC10 `e.g.` escape hatch inside a "SHALL contain ONLY" clause), Correctness FAIL (`do_setup`/`seed_model_config` misattributed to `helpers.sh` instead of `with-test-home`), and Traceability FAIL (R-9 mapped to behavior-verifying SCs with no documentation SC). Each SC must be a single independently verifiable claim; SHALL clauses must be deterministic; documentation sources must match the real file; and every requirement must map to an SC that verifies it.
+- **Who authorized the change:** Pipeline-initiated revision from the spec-creation validate→revise loop.
+
+### 2026-08-04 — Revise (spec-creation revise pipeline, developer-directed general env-set hardening rule)
+
+- **What changed:** Refactored SC10 from the GB_*-specific non-leakage criterion into a general, explicit env-set principle: the test harness MUST set all environment variables required by tests within the test environment setup (`do_setup`/`seed_model_config`/test-home provisioning), never inherit them from the parent/production shell; the `env -i` allowlist MUST contain ONLY the minimal, explicitly enumerated infrastructure set (PATH, SHELL, TERM, LANG, USER, LOGNAME, GIT_CONFIG_NOSYSTEM, XDG_* into the test home, SNAP_USER_DATA/SNAP_USER_COMMON, and test-provisioned values) and MUST NOT include any parent-sourced variable carrying secrets, credentials, platform tokens, or environment-specific configuration (GB_*, GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, API keys). Added new SC11 as the concrete GB_* instance of the general rule (preserving the existing GB_* specificity). Renumbered R-11 to the general env-set SHALL and added R-12 for the GB_* instance. Added Item 10 (general env-set) and Item 11 (GB_* instance), cost-frames for both, a general parent-env edge case, and a Key Design Decision. Updated §2 Not Included (isolation wall relaxation), §6 Dependencies, §7 Traceability (R-11→SC10, R-12→SC11), §8 Documentation Sources, and the Dependency DAG. Refreshed `.opencode/.issues/2244/sc-summary.yaml` to the current 11-SC count.
+- **Why:** Developer-directed correctness/security hardening: the env-set rule must be a general, explicit principle applying to ALL environment variables — not a GB_*-specific fix. Every required value must be test-provisioned; the `env -i` allowlist carries only the minimal infrastructure set so no parent-sourced secret, credential, or platform token leaks into the isolated test env.
+- **Who authorized the change:** Developer-directed revision (revision_reason: general env-set hardening rule).
 
 ### 2026-08-04 — Revise (spec-creation revise pipeline, developer-directed GB_* non-leakage)
 

@@ -1,42 +1,74 @@
-sc_count: 10
+sc_count: 18
 scs:
   - id: "SC1"
     description: "Opt-in multi-submodule fixture provisioning (test-submodule-1/2 as local git repos)"
     evidence_type: "structural"
     plan_item: 1
   - id: "SC2"
-    description: "GitBucket origin wiring + merged-PR/branch discovery succeeds in isolated env"
-    evidence_type: "behavioral"
+    description: "GitBucket origin wiring: BEHAVIOR_NEEDS_REMOTE wires GitBucket instance as test repo origin remote"
+    evidence_type: "structural"
     plan_item: 2
   - id: "SC3"
-    description: "Mutual-exclusion rejection: both BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE set triggers HARNESS_FAILURE"
+    description: "Merged-PR/issue discovery succeeds in isolated env via gh pr list without GitHub auth (wired origin)"
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC4"
-    description: "Env passthrough of new fixture/remote flags through env -i allowlist; isolation contract holds"
-    evidence_type: "structural"
+    description: "Mutual-exclusion rejection: both BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE set triggers HARNESS_FAILURE"
+    evidence_type: "behavioral"
     plan_item: 4
   - id: "SC5"
-    description: "No-regression default: no opt-in provisions only single-.opencode + local platform"
-    evidence_type: "behavioral"
+    description: "Env passthrough of new fixture/remote flags through env -i allowlist as strict superset (no removals)"
+    evidence_type: "structural"
     plan_item: 5
   - id: "SC6"
-    description: "Cleanup: --clean-all/__kill_gitbucket removes new clones + GitBucket state; idempotent"
-    evidence_type: "behavioral"
+    description: "set-env.sh records the three new flags (BEHAVIOR_NEEDS_MULTI_SUBMODULES/NEEDS_REMOTE/SET_BARE_REMOTE)"
+    evidence_type: "structural"
     plan_item: 6
   - id: "SC7"
-    description: "Opt-in full-env simulation for 2242-sc6 test: merged-PR discovery succeeds"
-    evidence_type: "behavioral"
+    description: "Isolation check (no production state leaked) still passes after allowlist extension"
+    evidence_type: "structural"
     plan_item: 7
   - id: "SC8"
-    description: "2242-sc6 cleanup dispatch completes without task-card read"
+    description: "No-regression default: no opt-in provisions only single-.opencode + local platform"
     evidence_type: "behavioral"
     plan_item: 8
   - id: "SC9"
-    description: "2242-sc6 run never halts for PR/branch context"
+    description: "Cleanup: --clean-all/__kill_gitbucket removes new clones + GitBucket state; idempotent"
     evidence_type: "behavioral"
     plan_item: 9
   - id: "SC10"
-    description: "GB_* env vars absent in test env unless scoped to provisioned test GitBucket; no parent GB_* leakage"
-    evidence_type: "string"
+    description: "Opt-in full-env simulation for 2242-sc6 test: merged-PR discovery succeeds"
+    evidence_type: "behavioral"
     plan_item: 10
+  - id: "SC11"
+    description: "2242-sc6 cleanup dispatch completes without task-card read"
+    evidence_type: "behavioral"
+    plan_item: 11
+  - id: "SC12"
+    description: "2242-sc6 run never halts for PR/branch context"
+    evidence_type: "behavioral"
+    plan_item: 12
+  - id: "SC13"
+    description: "General env-set rule: test env provisioned by setup (do_setup/seed_model_config/test-home), not inherited"
+    evidence_type: "string"
+    plan_item: 13
+  - id: "SC14"
+    description: "env -i allowlist contains ONLY the minimal explicitly enumerated infrastructure set (exhaustive list)"
+    evidence_type: "string"
+    plan_item: 14
+  - id: "SC15"
+    description: "env -i allowlist excludes all parent-sourced secret/credential/token/env-specific variables (exhaustive list)"
+    evidence_type: "string"
+    plan_item: 15
+  - id: "SC16"
+    description: "Required test values (GitBucket token/host, model, config) generated/set by test setup, never read through from parent env"
+    evidence_type: "string"
+    plan_item: 16
+  - id: "SC17"
+    description: "GB_* env vars absent in test env unless scoped to provisioned test GitBucket; no parent GB_* leakage (concrete instance of SC13-SC16)"
+    evidence_type: "string"
+    plan_item: 17
+  - id: "SC18"
+    description: "tests-v2/AGENTS.md documents mutual-exclusion rule and new full-environment opt-in capability"
+    evidence_type: "string"
+    plan_item: 18
