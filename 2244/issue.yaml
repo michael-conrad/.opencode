@@ -3,6 +3,256 @@ status: open
 labels:
 - needs-approval
 - SPEC
-body: ''
+body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test Harness
+
+
+  > **Full spec and artifacts: [`.opencode/.issues/2244/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2244)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2244/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  The behavioral test harness in `.opencode/tests-v2/` provisions only a single `.opencode`
+  submodule in the isolated test environment and defaults to the `local` platform
+  (no remote, no GitHub auth). Tests that require real remote-PR or branch-discovery
+  behavior cannot complete because the agent''s `gh pr list` / PR-discovery calls
+  fail against a `local` platform with no origin remote, causing the model to halt
+  and ask the developer for PR/branch context instead of completing the workflow.
+
+
+  The motivating test `2242-sc6-cleanup-dispatch-no-task-card-read.sh` dead-ended
+  in exactly this way: the model loaded git-workflow-cleanup, tried `gh pr list` (which
+  fails with no GitHub remote/auth in the isolated `local`-platform test repo), and
+  asked the user for the PR/branch instead of dispatching cleanup. Correcting this
+  requires a **full-environment simulation** capability: provision optional sibling
+  submodule fixture repos and/or wire a GitBucket instance as the test repo''s `origin`
+  remote so merged-PR discovery and cleanup dispatch succeed.
+
+
+  This capability is **opt-in** — it MUST be used only when a test requires it (e.g.,
+  the #2242 SC6/SC7 cleanup-dispatch test), NOT as a universal replacement for the
+  single-`.opencode` clone. It is prerequisite infrastructure for `.opencode` issue
+  #2242 SC6/SC7.
+
+
+  ## Success Criteria
+
+
+  ### SC Table
+
+
+  | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
+
+  |----|-----------|---------------|---------------------|----------------------|
+
+  | SC1 | Opt-in multi-submodule fixture provisioning: when a new opt-in flag (e.g.
+  `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1`) is set, the harness provisions the `test-submodule-1`
+  and `test-submodule-2` fixture repos as **local git repos** (not remote clones)
+  inside the attempt workdir, in addition to the existing `.opencode` clone. When
+  the flag is absent, the default single-`.opencode` behavior is preserved. | structural
+  | RED: flag absent → no sibling submodules in workdir; GREEN: flag set → sibling
+  submodule fixture repos present. Inspect workdir `git submodule status` / repo dirs.
+  | `.opencode/tests-v2/behaviors/helpers.sh` (`behavior_run` submodule-clone block,
+  ~L429-464); `.opencode/tests-v2/behaviors/fixtures/setup/` |
+
+  | SC2 | GitBucket origin wiring in the isolated env: when `BEHAVIOR_NEEDS_REMOTE=1`
+  is set, the harness wires the GitBucket instance as the test repo''s `origin` remote
+  and PR/branch discovery (e.g. `gh pr list` against the GitBucket origin) succeeds
+  in the isolated test env without GitHub auth. This MUST reconcile with the existing
+  `BEHAVIOR_SET_BARE_REMOTE` flag (the two are mutually exclusive — a test MUST NOT
+  set both; contradictory config is rejected). | behavioral | `opencode run` with
+  `BEHAVIOR_NEEDS_REMOTE=1`; clean-room evaluation of `session.yaml` confirms PR/branch
+  discovery succeeds and the agent does NOT halt for missing PR context. | `.opencode/tests-v2/behaviors/helpers.sh`
+  (`__ensure_gitbucket`, origin-wiring ~L505-511); `.opencode/tests-v2/behaviors/helpers.sh`
+  bare-remote block ~L491-496; `.opencode/tests-v2/AGENTS.md` §12 |
+
+  | SC3 | Env passthrough: new fixture/remote flags and the GB env vars are passed
+  through the `env -i` allowlist in `with-test-home`, and the isolation contract (production
+  state not leaked) still holds after the extension. The allowlist is extended as
+  a superset only — no variable is removed. | structural | Inspect `set-env.sh` +
+  `env -i` invocation in `with-test-home` for new var passthrough; verify isolation
+  check still passes. | `.opencode/tests-v2/with-test-home` (env allowlist ~L421-443,
+  set-env.sh ~L382) |
+
+  | SC4 | No-regression default: with no opt-in flags set, a representative behavioral
+  test still provisions ONLY `.opencode` (single submodule) and `local` platform (no
+  remote) — default behavior is byte-for-byte unchanged for the ~80 existing test
+  scripts. | behavioral | Run a representative non-opt-in behavioral test; clean-room
+  evaluation confirms single-`.opencode` + local platform provisioning. | `.opencode/tests-v2/behaviors/helpers.sh`;
+  `.opencode/tests-v2/with-test-home` |
+
+  | SC5 | Cleanup: after a full-env provisioned run, `--clean-all` / `__kill_gitbucket`
+  removes all new test-submodule clones, GitBucket process, and stale state — no orphan
+  clones or processes remain, and repeated runs start clean. | behavioral | After
+  a provisioned run, call `--clean-all`/`__kill_gitbucket`; assert no orphan GitBucket
+  process, no stale `tmp/` clones/state remain. | `.opencode/tests-v2/with-test-home`
+  (do_clean/do_clean_all ~L66-104); `.opencode/tests-v2/behaviors/helpers.sh` (`__reset_gitbucket`,
+  `__kill_gitbucket`) |
+
+  | SC6 | Opt-in full-env simulation for the 2242-sc6 cleanup-dispatch test: `2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  runs with the full-env opt-in (test-submodule fixtures and/or GitBucket origin),
+  and merged-PR discovery + cleanup dispatch complete WITHOUT the orchestrator reading
+  any task card and WITHOUT halting for PR/branch context. | behavioral | Run `2242-sc6`
+  test with full-env opt-in; clean-room evaluation of `session.yaml` confirms merged-PR
+  discovery + cleanup dispatch complete, no task-card read, no PR-context halt. |
+  `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`; `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  |
+
+
+  ### Per-SC Cost-Frame (dark-prose-007)
+
+
+  | ID | Cost-Frame |
+
+  |----|------------|
+
+  | SC1 | Failing to provision fixture submodules means every remote-sensitive test
+  inherits the dead-end halt. A test that cannot see its merged branch and open issue
+  cannot exercise cleanup — it burns a model run to end in a question. You will accept
+  that cost every single time you skip this. |
+
+  | SC2 | Wiring GitBucket as origin is the difference between a workflow that completes
+  and one that stalls at `gh pr list`. A cleanup test that halts for PR context is
+  not a test of cleanup — it is a test of the model''s willingness to ask questions.
+  That is not the behavior under test. |
+
+  | SC3 | Leaking production state through a careless allowlist extension silently
+  corrupts every test that follows. The isolation contract is the wall between your
+  test and your real repo. A breach here is not a flaky test — it is a data-integrity
+  event in your working tree. |
+
+  | SC4 | A regression in the default single-`.opencode` path breaks all ~80 existing
+  tests at once. The opt-in design is the shield; SC4 is the proof the shield holds.
+  Without it, you ship a change whose blast radius you have not measured. |
+
+  | SC5 | Orphan GitBucket processes and stale clones poison every subsequent run
+  and hold the flock. A harness that cannot clean itself is a harness that eventually
+  stops working for reasons nobody can reproduce. Cleanup is not housekeeping — it
+  is the precondition for a reliable next run. |
+
+  | SC6 | The motivating test exists to prove the git-workflow cleanup dispatch completes.
+  If it still halts for PR context, the #2242 SC6/SC7 evidence is unobtainable and
+  the whole skill-card migration is unverifiable. This SC is not optional scope —
+  it is the point of the capability. |
+
+
+  ## Approach
+
+
+  1. **SC1 — Multi-submodule fixture provisioning:** Add an opt-in flag (e.g. `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1`)
+  in `helpers.sh` `behavior_run`. When set, provision `test-submodule-1` and `test-submodule-2`
+  fixture repos as **local git repos** (created/`git init` locally from fixture templates,
+  NOT `git clone` of the private GitHub repos) inside the attempt workdir, alongside
+  `.opencode`. This avoids GitHub auth in the isolated env and is deterministic. Default
+  off preserves the single-`.opencode` path.
+
+  2. **SC2 — GitBucket origin + PR discovery:** Ensure `__ensure_gitbucket()` and
+  the origin-wiring block (helpers.sh ~L505-511) make merged-PR and branch discovery
+  succeed in the isolated env. Document mutual exclusion with `BEHAVIOR_SET_BARE_REMOTE`
+  (helpers.sh ~L491-496): a test MUST NOT set both; contradictory config is rejected
+  with HARNESS_FAILURE.
+
+  3. **SC3 — Env passthrough:** Extend the `env -i` allowlist in `with-test-home`
+  (superset only) with the new fixture/remote flags. Keep new vars out of the forbidden
+  set. Update `set-env.sh`.
+
+  4. **SC4 — No-regression gate:** Verify the default path (no opt-in) provisions
+  exactly the current single-`.opencode`/`local` state via a representative behavioral
+  test.
+
+  5. **SC5 — Cleanup:** Extend `--clean-all` and `__kill_gitbucket`/`__reset_gitbucket`
+  to remove new test-submodule clones and any provisioned remote state; verify idempotent
+  clean.
+
+  6. **SC6 — Opt-in full-env for 2242-sc6:** Extend the `2242-sc6` test + its per-scenario
+  fixture to set the full-env opt-in (test-submodule fixtures + GitBucket origin)
+  so merged-PR discovery and cleanup dispatch complete.
+
+  7. **Documentation:** Update `tests-v2/AGENTS.md` §5 (single-submodule clone) and
+  §12 (GitBucket) to document the new opt-in capabilities and the `BEHAVIOR_NEEDS_MULTI_SUBMODULES`/`BEHAVIOR_SET_BARE_REMOTE`
+  mutual-exclusion rule.
+
+
+  ## Affected Files
+
+
+  - `.opencode/tests-v2/behaviors/helpers.sh` — opt-in multi-submodule provisioning,
+  GitBucket origin wiring, mutual-exclusion with `BEHAVIOR_SET_BARE_REMOTE`, cleanup
+  functions
+
+  - `.opencode/tests-v2/with-test-home` — `env -i` allowlist extension, `set-env.sh`,
+  cleanup (`--clean`, `--clean-all`)
+
+  - `.opencode/tests-v2/AGENTS.md` — harness spec §5/§12 documentation updates
+
+  - `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  — set full-env opt-in
+
+  - `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  — extend to provision full environment
+
+  - New fixture/setup files under `.opencode/tests-v2/behaviors/fixtures/` implementing
+  full-environment provisioning (test-submodule-1/2 local repo fixtures, GitBucket
+  origin wiring)
+
+
+  ## Traceability
+
+
+  | SC | Requirement / Driver |
+
+  |----|----------------------|
+
+  | SC1 | Full-env simulation needs sibling submodule fixture repos present; private
+  repos require local wiring (no GitHub auth in isolated env) |
+
+  | SC2 | Merged-PR/branch discovery must succeed; reconcile with existing `BEHAVIOR_SET_BARE_REMOTE`
+  |
+
+  | SC3 | Isolation contract (§5/§9 AGENTS.md) — new env vars must not leak prod state
+  |
+
+  | SC4 | Default single-`.opencode`/`local` behavior preserved (opt-in, not universal
+  replacement) |
+
+  | SC5 | Cleanup contract — `--clean-all`/`__kill_gitbucket` must clean new clones
+  + remote state |
+
+  | SC6 | `.opencode` #2242 SC6/SC7 — full-env simulation for cleanup-dispatch test
+  |
+
+
+  Dependency DAG: SC1 + SC3 + SC5 precede SC2; SC2 precedes SC6; SC4 is the final
+  regression gate.
+
+
+  ## Change Control
+
+
+  ### 2026-08-03 — Initial spec (stacked into #2242 PR)
+
+
+  - **What changed:** Created this spec as new infrastructure for full-environment
+  simulation in the `.opencode/tests-v2` harness, stacked into the #2242 PR (branch
+  `feature/2242-git-workflow-workflows-format`). 6 SCs / 6 items with acyclic dependency
+  DAG.
+
+  - **Design decisions:** test-submodule-1/2 wired as **local git repos** (not remote
+  clones) to avoid GitHub auth in the isolated test env; GitBucket origin wiring reconciles
+  with the existing `BEHAVIOR_SET_BARE_REMOTE` flag via mutual exclusion; all new
+  capability is opt-in ("only when needed"), NOT universal replacement.
+
+  - **Why:** The 2242-sc6 cleanup-dispatch test dead-ended because `gh pr list` fails
+  against a `local`-platform repo with no origin remote. This capability is prerequisite
+  infrastructure for #2242 SC6/SC7.
+
+  '
 created_at: '2026-08-04T03:14:31+00:00'
-updated_at: '2026-08-04T03:14:31+00:00'
+updated_at: '2026-08-04T03:14:40+00:00'
