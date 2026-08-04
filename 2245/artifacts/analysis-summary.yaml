@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2245/spec.md
+issue_number: 2245
+repo: .opencode
+approval_status: approved
+approval_labels:
+  - approved-for-pr
+sc_count: 8
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
+  - SC-8
+artifact_presence:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+scope_boundary_findings:
+  - path: tests-v2/behaviors/helpers.sh
+    exists: true
+  - path: tests-v2/behaviors/2230-sc1-trunk-tip-dispatch.sh
+    exists: true
+  - path: tests-v2/AGENTS.md
+    exists: true
+  - path: skills/test-driven-development/SKILL.md
+    exists: true
+  - path: skills/verification-before-completion/tasks/verify.md
+    exists: true
+findings:
+  - type: missing-artifacts
+    detail: All 7 analytical artifacts are absent from .opencode/.issues/2245/artifacts/. Backfill required before plan creation.
+  - type: note
+    detail: Issue body exec summary lists 6 SCs; authoritative spec.md defines 8 SCs (SC-1..SC-8) matching sc-summary.yaml. Analysis uses spec.md as source of truth.
+  - type: scope
+    detail: All 5 referenced scope-boundary files exist in the codebase.
