@@ -1,26 +1,42 @@
-sc_count: 6
+sc_count: 10
 scs:
   - id: "SC1"
     description: "Opt-in multi-submodule fixture provisioning (test-submodule-1/2 as local git repos)"
     evidence_type: "structural"
     plan_item: 1
   - id: "SC2"
-    description: "GitBucket origin wiring + PR/branch discovery succeeds in isolated env; reconciles with BEHAVIOR_SET_BARE_REMOTE"
+    description: "GitBucket origin wiring + merged-PR/branch discovery succeeds in isolated env"
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC3"
-    description: "Env passthrough of new fixture/remote flags through env -i allowlist; isolation contract holds"
-    evidence_type: "structural"
+    description: "Mutual-exclusion rejection: both BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE set triggers HARNESS_FAILURE"
+    evidence_type: "behavioral"
     plan_item: 3
   - id: "SC4"
-    description: "No-regression default: no opt-in provisions only single-.opencode + local platform"
-    evidence_type: "behavioral"
+    description: "Env passthrough of new fixture/remote flags through env -i allowlist; isolation contract holds"
+    evidence_type: "structural"
     plan_item: 4
   - id: "SC5"
-    description: "Cleanup: --clean-all/__kill_gitbucket removes new clones + GitBucket state; idempotent"
+    description: "No-regression default: no opt-in provisions only single-.opencode + local platform"
     evidence_type: "behavioral"
     plan_item: 5
   - id: "SC6"
-    description: "Opt-in full-env simulation for 2242-sc6 cleanup-dispatch test completes without task-card read or PR-context halt"
+    description: "Cleanup: --clean-all/__kill_gitbucket removes new clones + GitBucket state; idempotent"
     evidence_type: "behavioral"
     plan_item: 6
+  - id: "SC7"
+    description: "Opt-in full-env simulation for 2242-sc6 test: merged-PR discovery succeeds"
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC8"
+    description: "2242-sc6 cleanup dispatch completes without task-card read"
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC9"
+    description: "2242-sc6 run never halts for PR/branch context"
+    evidence_type: "behavioral"
+    plan_item: 9
+  - id: "SC10"
+    description: "GB_* env vars absent in test env unless scoped to provisioned test GitBucket; no parent GB_* leakage"
+    evidence_type: "string"
+    plan_item: 10

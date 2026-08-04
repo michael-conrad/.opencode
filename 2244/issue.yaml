@@ -73,13 +73,22 @@ body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test
   (`__ensure_gitbucket`, origin-wiring ~L505-511); `.opencode/tests-v2/behaviors/helpers.sh`
   bare-remote block ~L491-496; `.opencode/tests-v2/AGENTS.md` §12 |
 
-  | SC3 | Env passthrough: new fixture/remote flags and the GB env vars are passed
-  through the `env -i` allowlist in `with-test-home`, and the isolation contract (production
-  state not leaked) still holds after the extension. The allowlist is extended as
-  a superset only — no variable is removed. | structural | Inspect `set-env.sh` +
-  `env -i` invocation in `with-test-home` for new var passthrough; verify isolation
-  check still passes. | `.opencode/tests-v2/with-test-home` (env allowlist ~L421-443,
-  set-env.sh ~L382) |
+  | SC4 | Env passthrough: new fixture/remote flags are passed through the `env -i`
+  allowlist in `with-test-home` as a strict superset, and the isolation contract (production
+  state not leaked) still holds after the extension. No variable is removed. | structural
+  | Inspect `set-env.sh` + `env -i` invocation in `with-test-home` for the new flags;
+  verify isolation check still passes. | `.opencode/tests-v2/with-test-home` (env
+  allowlist, set-env.sh) |
+
+  | SC10 | GB_* environment variables are ABSENT from the isolated test environment
+  unless scoped to the provisioned test GitBucket instance. When `BEHAVIOR_NEEDS_REMOTE=1`
+  provisions GitBucket, `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` are set to the test instance''s
+  own generated values; when no GitBucket is provisioned they are absent/empty. Parent-sourced
+  `GB_*` values are NEVER passed through the `env -i` allowlist. | string | Inspect
+  the `env -i` allowlist and `set-env.sh` in `with-test-home` for `GB_*` sourcing;
+  confirm `__ensure_gitbucket()` in `helpers.sh` scopes `GB_*` to the test instance.
+  | `.opencode/tests-v2/with-test-home`; `.opencode/tests-v2/behaviors/helpers.sh`
+  (`__ensure_gitbucket`) |
 
   | SC4 | No-regression default: with no opt-in flags set, a representative behavioral
   test still provisions ONLY `.opencode` (single submodule) and `local` platform (no
