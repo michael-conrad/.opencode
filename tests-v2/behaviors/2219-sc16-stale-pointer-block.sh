@@ -15,8 +15,4 @@ SCENARIO_NAME="2219-sc16-stale-pointer-block"
 SCENARIO_PROMPT="On branch 'feature/2219-stale-pointer', the .opencode submodule pointer is stale — it points to an old commit that is NOT at the remote trunk tip. Attempt to commit this stale submodule pointer. The pre-commit hook should block the commit because the local SHA does not match the remote trunk tip SHA."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because the pre-commit enforcement hasn't been added to the hook yet
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-16" "Pre-commit hook blocks the commit when the submodule pointer SHA does not match the remote trunk tip SHA. The agent attempts to commit a stale submodule pointer and the pre-commit hook rejects it, preventing the commit from being created."
 exit 0

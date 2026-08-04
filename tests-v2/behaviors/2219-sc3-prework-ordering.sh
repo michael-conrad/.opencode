@@ -15,8 +15,4 @@ SCENARIO_NAME="2219-sc3-prework-ordering"
 SCENARIO_PROMPT="Setup a feature branch for issue #2219 in the opencode-config repo. The work targets the .opencode submodule."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because pre-work.md hasn't been reordered yet
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-3" "Agent syncs submodules (git submodule update --init or equivalent) BEFORE creating the main repo feature branch (git checkout -b or git switch -c). The submodule sync must occur first, then the branch creation."
 exit 0

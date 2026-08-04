@@ -16,8 +16,4 @@ SCENARIO_NAME="2219-sc10-non-pointer-guard"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-real-changes' which has real code changes (src/test.txt modified) plus submodule pointer changes. Do NOT delete this branch — it has real code changes."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with the non-pointer guard
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-10" "Agent does NOT delete branches with real code changes. When a branch has non-submodule file changes (real code), the agent preserves the branch and does not delete it, recognizing that the branch has substantive content beyond pointer updates."
 exit 0

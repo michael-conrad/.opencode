@@ -15,8 +15,4 @@ SCENARIO_NAME="skill-deck-completeness"
 SCENARIO_PROMPT="Load the foo-bar skill from the skill deck and dispatch its task."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
-
-# Evaluate with assert_semantic
-# SC-3: Agent produces investigation report + fatal HALT when missing SKILL.md
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-3" "Agent discovers that the foo-bar skill directory is missing a SKILL.md file, produces an investigation report documenting the missing card, and halts with escalation. The agent does NOT attempt to continue working or fabricate the missing SKILL.md content."
 exit 0

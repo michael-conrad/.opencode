@@ -267,9 +267,17 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 **The existing behavioral test infrastructure in `.opencode/tests-v2/behaviors/` is the verified mechanism for behavioral SC verification.** Do NOT recreate test infrastructure from scratch.
 
 - **Entry point:** `bash .opencode/tests-v2/behaviors/<scenario>.sh` — each scenario script sources `helpers.sh` and calls `behavior_run()` which wraps `with-test-home` for XDG state isolation
-- **Assertion helpers** in `helpers.sh`: `assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`, `assert_semantic`
+- **Assertion helpers** in `helpers.sh`: `assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`
 - **`with-test-home`** is baked into `behavior_run()` — no manual XDG isolation setup needed
 - **Test output** goes to `./tmp/` — captured by `behavior_run()` automatically
+- **Behavioral evidence evaluation:** the orchestrator dispatches a
+  clean-room sub-agent to read `session.yaml` (the SQLite DB export —
+  the PRIMARY evidence source) and judge whether the agent's tool calls
+  and decisions satisfy the SC criterion. This sub-agent receives only
+  the artifact path and the SC criterion — no orchestrator context, no
+  expected outcomes, no cached results. Read
+  [Two-SC Pattern: Artifact Generation + Clean-Room
+  Evaluation](.opencode/tests-v2/AGENTS.md)
 
 **🚫 FORBIDDEN:**
 - Running bare `opencode run` without `with-test-home` wrapper — causes SQLite session conflicts with desktop app
