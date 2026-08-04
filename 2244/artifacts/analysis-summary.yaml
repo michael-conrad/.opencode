@@ -1,0 +1,59 @@
+spec_path: .opencode/.issues/2244/spec.md
+spec_body_source: .opencode/.issues/2244/issue.yaml
+spec_title: "[SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test Harness"
+approval_status: approved
+approval_labels:
+  - approved-for-pr
+success_criteria_count: 18
+success_criteria_ids:
+  - SC1
+  - SC2
+  - SC3
+  - SC4
+  - SC5
+  - SC6
+  - SC7
+  - SC8
+  - SC9
+  - SC10
+  - SC11
+  - SC12
+  - SC13
+  - SC14
+  - SC15
+  - SC16
+  - SC17
+  - SC18
+artifacts:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    repo: michael-conrad/.opencode
+    action: modify
+    present: true
+  - path: .opencode/tests-v2/with-test-home
+    repo: michael-conrad/.opencode
+    action: modify
+    present: true
+  - path: .opencode/tests-v2/AGENTS.md
+    repo: michael-conrad/.opencode
+    action: modify
+    present: true
+  - path: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+    repo: michael-conrad/.opencode
+    action: modify
+    present: true
+  - path: .opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+    repo: michael-conrad/.opencode
+    action: modify
+    present: true
+missing_artifacts: 7
+notes:
+  - "Local issue.yaml was stale (needs-approval); reconciled to GitHub authoritative state (approved-for-pr, spec-draft)."
+  - "All 7 analytical artifacts are missing; backfill task will be required before plan creation."
