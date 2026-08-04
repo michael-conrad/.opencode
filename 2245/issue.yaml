@@ -4,7 +4,22 @@ status: open
 labels:
 - needs-approval
 - SPEC
-body: '# SPEC — Remove `assert_semantic()` and inline opencode-run evaluation; orchestrator-dispatched
+body: '> **Full spec and artifacts: [`.opencode/.issues/2245/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2245)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2245/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+  >
+
+  > **Issue:** [#2245](https://github.com/michael-conrad/.opencode/issues/2245)
+
+
+
+  # SPEC — Remove `assert_semantic()` and inline opencode-run evaluation; orchestrator-dispatched
   clean-room sub-agent evaluation
 
 
@@ -254,20 +269,51 @@ body: '# SPEC — Remove `assert_semantic()` and inline opencode-run evaluation;
   - commit: Commit the AGENTS.md contract.
 
 
-  ### Item 4 (SC-4, SC-5, SC-6): Update active enforcement documentation
+  ### Item 4 (SC-4): Update `tests-v2/AGENTS.md`
 
 
-  - RED: grep `assert_semantic` in `tests-v2/AGENTS.md`, `skills/test-driven-development/SKILL.md`,
-  `skills/verification-before-completion/tasks/verify.md` — present.
+  - RED: grep `assert_semantic` in `tests-v2/AGENTS.md` — present.
 
-  - GREEN: Remove `assert_semantic` references from all three docs; reflect clean-room
-  sub-agent evaluation; preserve behavioral evidence taxonomy, no-lobotomizing mandate,
-  cross-model validation gate, and behavioral-test-run instructions.
+  - GREEN: Remove `assert_semantic` references from `tests-v2/AGENTS.md`; reflect
+  clean-room sub-agent evaluation; preserve the artifact-only mandate, `session.yaml`-primary
+  rule, two-SC pattern, and exit-0 semantics.
 
-  - verify: grep `assert_semantic` returns empty across all three docs; key behavioral
-  guidance intact.
+  - verify: grep `assert_semantic` in `tests-v2/AGENTS.md` returns empty; two-SC section
+  and mandate text intact.
 
-  - commit: Commit the three doc updates.
+  - commit: Commit the `tests-v2/AGENTS.md` update.
+
+
+  ### Item 5 (SC-5): Update `skills/test-driven-development/SKILL.md`
+
+
+  - RED: grep `assert_semantic` in `skills/test-driven-development/SKILL.md` — present.
+
+  - GREEN: Remove `assert_semantic` references from `skills/test-driven-development/SKILL.md`;
+  describe clean-room sub-agent evaluation (reading `session.yaml`) as the behavioral
+  evidence mechanism; preserve the evidence-type taxonomy and no-lobotomizing mandate.
+
+  - verify: grep `assert_semantic` in `skills/test-driven-development/SKILL.md` returns
+  empty; behavioral assertion guidance present.
+
+  - commit: Commit the TDD SKILL.md update.
+
+
+  ### Item 6 (SC-6): Update `skills/verification-before-completion/tasks/verify.md`
+
+
+  - RED: grep `assert_semantic` in `skills/verification-before-completion/tasks/verify.md`
+  — present.
+
+  - GREEN: Remove the `assert_semantic` reference from the assertion-helper list in
+  `skills/verification-before-completion/tasks/verify.md`; reference orchestrator-dispatched
+  clean-room sub-agent evaluation; preserve the cross-model validation gate and behavioral-test-run
+  instructions.
+
+  - verify: grep `assert_semantic` in `skills/verification-before-completion/tasks/verify.md`
+  returns empty; behavioral run instructions intact.
+
+  - commit: Commit the verify.md update.
 
 
   ## 6. Dependencies
@@ -405,6 +451,20 @@ body: '# SPEC — Remove `assert_semantic()` and inline opencode-run evaluation;
   behavior:** No conflict — they are independent files. **Resolution:** SC-4/SC-5/SC-6
   are mutually independent; applied as separate commits.
 
+
+  ## 12. Change Control
+
+
+  | Date | Changed | Why | Authorized By |
+
+  |------|---------|-----|---------------|
+
+  | 2026-08-04 | Decomposed Item 4 (SC-4, SC-5, SC-6) into three separate per-SC items:
+  Item 4 (SC-4), Item 5 (SC-5), Item 6 (SC-6) | Validation FAILED: single item covered
+  three distinct files (three SCs), violating spec-structure-standards §5 (no item
+  may cover multiple SCs) and 091-incremental-build per-SC decomposition | Validation
+  finding (spec-creation pipeline) |
+
   '
 created_at: '2026-08-04T04:50:57+00:00'
-updated_at: '2026-08-04T04:54:11+00:00'
+updated_at: '2026-08-04T04:59:07+00:00'

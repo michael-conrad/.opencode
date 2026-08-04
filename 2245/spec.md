@@ -95,12 +95,26 @@ Issue 2245 topic: "Remove assert_semantic() and call sites; replace inline openc
 - verify: grep confirms contract text present and coherent.
 - commit: Commit the AGENTS.md contract.
 
-### Item 4 (SC-4, SC-5, SC-6): Update active enforcement documentation
+### Item 4 (SC-4): Update `tests-v2/AGENTS.md`
 
-- RED: grep `assert_semantic` in `tests-v2/AGENTS.md`, `skills/test-driven-development/SKILL.md`, `skills/verification-before-completion/tasks/verify.md` — present.
-- GREEN: Remove `assert_semantic` references from all three docs; reflect clean-room sub-agent evaluation; preserve behavioral evidence taxonomy, no-lobotomizing mandate, cross-model validation gate, and behavioral-test-run instructions.
-- verify: grep `assert_semantic` returns empty across all three docs; key behavioral guidance intact.
-- commit: Commit the three doc updates.
+- RED: grep `assert_semantic` in `tests-v2/AGENTS.md` — present.
+- GREEN: Remove `assert_semantic` references from `tests-v2/AGENTS.md`; reflect clean-room sub-agent evaluation; preserve the artifact-only mandate, `session.yaml`-primary rule, two-SC pattern, and exit-0 semantics.
+- verify: grep `assert_semantic` in `tests-v2/AGENTS.md` returns empty; two-SC section and mandate text intact.
+- commit: Commit the `tests-v2/AGENTS.md` update.
+
+### Item 5 (SC-5): Update `skills/test-driven-development/SKILL.md`
+
+- RED: grep `assert_semantic` in `skills/test-driven-development/SKILL.md` — present.
+- GREEN: Remove `assert_semantic` references from `skills/test-driven-development/SKILL.md`; describe clean-room sub-agent evaluation (reading `session.yaml`) as the behavioral evidence mechanism; preserve the evidence-type taxonomy and no-lobotomizing mandate.
+- verify: grep `assert_semantic` in `skills/test-driven-development/SKILL.md` returns empty; behavioral assertion guidance present.
+- commit: Commit the TDD SKILL.md update.
+
+### Item 6 (SC-6): Update `skills/verification-before-completion/tasks/verify.md`
+
+- RED: grep `assert_semantic` in `skills/verification-before-completion/tasks/verify.md` — present.
+- GREEN: Remove the `assert_semantic` reference from the assertion-helper list in `skills/verification-before-completion/tasks/verify.md`; reference orchestrator-dispatched clean-room sub-agent evaluation; preserve the cross-model validation gate and behavioral-test-run instructions.
+- verify: grep `assert_semantic` in `skills/verification-before-completion/tasks/verify.md` returns empty; behavioral run instructions intact.
+- commit: Commit the verify.md update.
 
 ## 6. Dependencies
 
@@ -153,3 +167,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** Doc purge removes behavioral assertion guidance along with `assert_semantic` references. **Expected behavior:** Behavioral evidence taxonomy and no-lobotomizing mandate are preserved. **Resolution:** SC-5/SC-6 invariants require the clean-room evaluation description to replace, not delete, the behavioral assertion guidance.
 - **Condition:** Historical `.issues/` files still reference `assert_semantic` after implementation. **Expected behavior:** They are archival records; not modified. **Resolution:** R-9 explicitly excludes them from scope.
 - **Condition:** Two doc updates (SC-5, SC-6) are applied concurrently. **Expected behavior:** No conflict — they are independent files. **Resolution:** SC-4/SC-5/SC-6 are mutually independent; applied as separate commits.
+
+## 12. Change Control
+
+| Date | Changed | Why | Authorized By |
+|------|---------|-----|---------------|
+| 2026-08-04 | Decomposed Item 4 (SC-4, SC-5, SC-6) into three separate per-SC items: Item 4 (SC-4), Item 5 (SC-5), Item 6 (SC-6) | Validation FAILED: single item covered three distinct files (three SCs), violating spec-structure-standards §5 (no item may cover multiple SCs) and 091-incremental-build per-SC decomposition | Validation finding (spec-creation pipeline) |
