@@ -1,0 +1,114 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+artifact: code-path-inventory
+generated: 2026-08-04
+scope: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+
+code_paths:
+  - sc: SC1
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    symbol: behavior_run()
+    code_path: "submodule provisioning block -> BEHAVIOR_NEEDS_MULTI_SUBMODULES branch -> git init test-submodule-1/test-submodule-2 in attempt workdir"
+    description: Conditional multi-submodule fixture provisioning; default path provisions single .opencode clone only.
+
+  - sc: SC2
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    symbol: behavior_run() origin-wiring block + __ensure_gitbucket()
+    code_path: "BEHAVIOR_NEEDS_REMOTE=1 -> __ensure_gitbucket() -> attach GitBucket as origin in attempt workdir"
+    description: Wire provisioned GitBucket instance as the test repo origin remote.
+
+  - sc: SC3
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    symbol: gh pr list in isolated env
+    code_path: "agent -> gh pr list -> discovers merged branches/open issues against wired GitBucket origin (no GitHub auth)"
+    description: Behavioral; depends on SC2 origin wiring.
+
+  - sc: SC4
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    symbol: behavior_run() mutual-exclusion check
+    code_path: "BEHAVIOR_NEEDS_REMOTE=1 && BEHAVIOR_SET_BARE_REMOTE=1 -> HARNESS_FAILURE exit, no origin wiring"
+    description: Reject contradictory remote config before either wiring block.
+
+  - sc: SC5
+    file: .opencode/tests-v2/with-test-home
+    symbol: env -i allowlist block
+    code_path: "env -i invocation -> allowlist -> BEHAVIOR_NEEDS_MULTI_SUBMODULES, BEHAVIOR_NEEDS_REMOTE, BEHAVIOR_SET_BARE_REMOTE passed as strict superset"
+    description: Extend allowlist (superset only, no removals/reorder).
+
+  - sc: SC6
+    file: .opencode/tests-v2/with-test-home
+    symbol: set-env.sh
+    code_path: "set-env.sh -> records the three new flags as debugging aids"
+    description: Record the three new flag names in set-env.sh.
+
+  - sc: SC7
+    file: .opencode/tests-v2/with-test-home
+    symbol: isolation verification procedure
+    code_path: "allowlist extension -> run isolation verification -> confirm no production state leak admitted"
+    description: Verify isolation wall holds after extension.
+
+  - sc: SC8
+    file: .opencode/tests-v2/behaviors/helpers.sh
+    symbol: default provisioning path
+    code_path: "no opt-in flags -> single .opencode submodule + local platform, no origin remote"
+    description: No-regression gate; default path byte-for-byte unchanged.
+
+  - sc: SC9
+    file: .opencode/tests-v2/with-test-home + .opencode/tests-v2/behaviors/helpers.sh
+    symbol: do_clean_all() / __kill_gitbucket() / __reset_gitbucket()
+    code_path: "--clean-all -> do_clean_all() -> remove submodule clones, GitBucket process, stale tmp/ -> clean next run"
+    description: Cleanup of all provisioned full-env state.
+
+  - sc: SC10
+    file: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh + fixtures/setup variant
+    symbol: test run env
+    code_path: "full-env opt-in (multi-submodules + remote) -> session.yaml shows gh pr list returned merged branch + open issue"
+    description: Set full-env opt-in for the 2242-sc6 test.
+
+  - sc: SC11
+    file: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+    symbol: session.yaml tool timeline
+    code_path: "git-workflow-cleanup dispatch -> result contract produced; no file-read of tasks/cleanup.md"
+    description: Cleanup dispatch completes without reading cleanup task card.
+
+  - sc: SC12
+    file: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+    symbol: session.yaml tool timeline
+    code_path: "no question-tool call or 'provide PR' style halt in tool timeline"
+    description: Agent never halts asking for PR/branch context.
+
+  - sc: SC13
+    file: .opencode/tests-v2/with-test-home
+    symbol: do_setup / seed_model_config / test-home provisioning
+    code_path: "harness setup -> set every required test value within setup, never inherit from parent shell"
+    description: General env-set rule; all required values test-provisioned.
+
+  - sc: SC14
+    file: .opencode/tests-v2/with-test-home
+    symbol: env -i allowlist block
+    code_path: "allowlist -> ONLY minimal infra set (PATH, SHELL, TERM, LANG, USER, LOGNAME, GIT_CONFIG_NOSYSTEM, XDG_*, SNAP_*, test-provisioned values)"
+    description: Allowlist refactor to exhaustive minimal set.
+
+  - sc: SC15
+    file: .opencode/tests-v2/with-test-home
+    symbol: env -i allowlist block
+    code_path: "allowlist -> exclude GB_*, GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, API keys"
+    description: No parent-sourced secret/credential/token in allowlist.
+
+  - sc: SC16
+    file: .opencode/tests-v2/with-test-home
+    symbol: do_setup / seed_model_config / test-home provisioning
+    code_path: "setup -> generate/set model, config, GitBucket token/host (when provisioned); never read through from parent"
+    description: Required test values generated/set by setup.
+
+  - sc: SC17
+    file: .opencode/tests-v2/with-test-home + .opencode/tests-v2/behaviors/helpers.sh
+    symbol: env -i allowlist / set-env.sh / __ensure_gitbucket()
+    code_path: "GB_* absent/empty when no GitBucket; scoped to test instance (root/generated token, localhost:port) when BEHAVIOR_NEEDS_REMOTE=1"
+    description: Concrete instance of SC13-SC16 for GB_* variables.
+
+  - sc: SC18
+    file: .opencode/tests-v2/AGENTS.md
+    symbol: new documentation section
+    code_path: "AGENTS.md -> section documenting mutual-exclusion rule + full-env opt-in capability"
+    description: Document mutual-exclusion rule and opt-in capability.

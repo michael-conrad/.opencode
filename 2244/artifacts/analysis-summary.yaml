@@ -25,13 +25,13 @@ success_criteria_ids:
   - SC17
   - SC18
 artifacts:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
 scope_boundary_findings:
   - path: .opencode/tests-v2/behaviors/helpers.sh
     repo: michael-conrad/.opencode
@@ -53,7 +53,14 @@ scope_boundary_findings:
     repo: michael-conrad/.opencode
     action: modify
     present: true
-missing_artifacts: 7
+  - path: .opencode/tests-v2/behaviors/fixtures/
+    repo: michael-conrad/.opencode
+    action: add
+    present: false
+    note: New fixture template dir for test-submodule-1/test-submodule-2 (SC1)
+missing_artifacts: 0
+backfilled_artifacts: 7
 notes:
-  - "Local issue.yaml was stale (needs-approval); reconciled to GitHub authoritative state (approved-for-pr, spec-draft)."
-  - "All 7 analytical artifacts are missing; backfill task will be required before plan creation."
+  - "All 7 analytical artifacts backfilled from spec body (SC table, Items, Requirements, Dependencies, Traceability)."
+  - "Affected files verified present in codebase; new fixtures/ dir noted as add."
+  - "Concern mapping derived from spec phase numbering; 18 SCs mapped to 9 concern groups."

@@ -1,0 +1,56 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+artifact: cross-cutting-matrix
+generated: 2026-08-04
+scope: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+
+cross_cutting_concerns:
+  - concern: env -i allowlist block in with-test-home
+    concern_id: C4
+    spans_concerns: [C4, C5]
+    scs_involved: [SC5, SC6, SC7, SC14, SC15, SC17]
+    files: [.opencode/tests-v2/with-test-home]
+    coordination_note: SC5 (superset passthrough), SC14 (minimal set only), SC15 (no parent secrets), SC17 (GB_* non-leak) all touch the same allowlist block; verified together. SC13/SC16 share the env-set rule with SC17.
+
+  - concern: behavior_run() in helpers.sh
+    concern_id: C1
+    spans_concerns: [C1, C2, C3, C6, C7]
+    scs_involved: [SC1, SC2, SC3, SC4, SC8, SC9]
+    files: [.opencode/tests-v2/behaviors/helpers.sh]
+    coordination_note: Provisioning, origin wiring, mutual-exclusion rejection, default path, and cleanup all live in or reference behavior_run()/helpers.sh. SC8 no-regression gate depends on SC1/SC2/SC3/SC4 not altering the default path.
+
+  - concern: 2242-sc6 test run verification
+    concern_id: C8
+    spans_concerns: [C1, C2, C8]
+    scs_involved: [SC1, SC2, SC3, SC10, SC11, SC12]
+    files: [.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh, .opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh]
+    coordination_note: SC10 requires SC1 (multi-submodules) + SC2 (origin) provisioning; SC11/SC12 depend on SC10 run. Flag names must match between 2242 test and this spec.
+
+  - concern: GB_* scoping
+    concern_id: C5
+    spans_concerns: [C2, C5]
+    scs_involved: [SC2, SC13, SC16, SC17]
+    files: [.opencode/tests-v2/with-test-home, .opencode/tests-v2/behaviors/helpers.sh]
+    coordination_note: SC17 requires __ensure_gitbucket() (helpers.sh) to set scoped GB_* values while with-test-home allowlist/set-env.sh must not source parent GB_*.
+
+multi_concern_scs:
+  SC5: [with-test-home allowlist]
+  SC7: [with-test-home allowlist]
+  SC9: [with-test-home do_clean_all, helpers.sh kill/reset gitbucket]
+  SC14: [with-test-home allowlist]
+  SC15: [with-test-home allowlist]
+  SC17: [with-test-home allowlist + set-env.sh, helpers.sh __ensure_gitbucket]
+
+single_concern_scs:
+  SC1: [C1]
+  SC2: [C2]
+  SC3: [C2]
+  SC4: [C3]
+  SC6: [C4]
+  SC8: [C6]
+  SC10: [C8]
+  SC11: [C8]
+  SC12: [C8]
+  SC13: [C5]
+  SC16: [C5]
+  SC18: [C9]

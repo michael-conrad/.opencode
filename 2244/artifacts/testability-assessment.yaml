@@ -1,0 +1,67 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+artifact: testability-assessment
+generated: 2026-08-04
+scope: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+
+sc_evidence_types:
+  SC1: structural
+  SC2: structural
+  SC3: behavioral
+  SC4: behavioral
+  SC5: structural
+  SC6: structural
+  SC7: structural
+  SC8: behavioral
+  SC9: behavioral
+  SC10: behavioral
+  SC11: behavioral
+  SC12: behavioral
+  SC13: string
+  SC14: string
+  SC15: string
+  SC16: string
+  SC17: string
+  SC18: string
+
+behavioral_scs:
+  - SC3
+  - SC4
+  - SC8
+  - SC9
+  - SC10
+  - SC11
+  - SC12
+
+structural_scs:
+  - SC1
+  - SC2
+  - SC5
+  - SC6
+  - SC7
+
+string_scs:
+  - SC13
+  - SC14
+  - SC15
+  - SC16
+  - SC17
+  - SC18
+
+evidence_requirements:
+  structural:
+    method: Inspect filesystem / config blocks / git submodule status / git remote -v / allowlist inspection
+    scs: [SC1, SC2, SC5, SC6, SC7]
+  behavioral:
+    method: opencode run in isolated env via with-test-home; clean-room evaluation of session.yaml for gh pr list output, tool timeline, question-tool absence, result contracts
+    scs: [SC3, SC4, SC8, SC9, SC10, SC11, SC12]
+  string:
+    method: Inspect with-test-home (do_setup, seed_model_config, env -i allowlist, set-env.sh) and AGENTS.md for exact enumeration / absence of forbidden vars
+    scs: [SC13, SC14, SC15, SC16, SC17, SC18]
+
+testability_notes:
+  - SC3/SC8/SC9/SC10/SC11/SC12 require opencode run against real models in clean-room isolation; behavioral evidence from session.yaml stderr is primary.
+  - SC4 is behavioral but executes behavior_run() directly (mutual-exclusion rejection) — assert HARNESS_FAILURE exit.
+  - SC13-SC17 are string/structural inspects of with-test-home and helpers.sh — deterministic, no model required.
+  - SC7/SC8/SC13/SC16 use the isolation verification procedure in AGENTS.md §5.
+  - All behavioral tests must run via `bash .opencode/tests-v2/with-test-home opencode run '<message>'` per test framework mandate.

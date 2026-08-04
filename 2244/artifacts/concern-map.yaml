@@ -1,0 +1,88 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+artifact: concern-map
+generated: 2026-08-04
+scope: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+
+concerns:
+  - id: C1
+    name: Multi-submodule fixture provisioning
+    description: Provision test-submodule-1/test-submodule-2 as local git repos when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1
+    phase_boundary: Phase 1
+    scs: [SC1]
+    primary_file: .opencode/tests-v2/behaviors/helpers.sh
+
+  - id: C2
+    name: GitBucket origin wiring
+    description: Wire GitBucket instance as test repo origin remote when BEHAVIOR_NEEDS_REMOTE=1; enables gh pr list discovery
+    phase_boundary: Phase 2
+    scs: [SC2, SC3]
+    primary_file: .opencode/tests-v2/behaviors/helpers.sh
+
+  - id: C3
+    name: Remote strategy mutual exclusion
+    description: Reject config with both BEHAVIOR_NEEDS_REMOTE=1 and BEHAVIOR_SET_BARE_REMOTE=1 (HARNESS_FAILURE)
+    phase_boundary: Phase 4
+    scs: [SC4]
+    primary_file: .opencode/tests-v2/behaviors/helpers.sh
+
+  - id: C4
+    name: env -i allowlist extension
+    description: Pass through three new flags as strict superset; refactor allowlist to minimal infra set only; no parent secrets
+    phase_boundary: Phase 5/6/7
+    scs: [SC5, SC6, SC7, SC14, SC15]
+    primary_file: .opencode/tests-v2/with-test-home
+
+  - id: C5
+    name: Test-provisioned environment rule
+    description: Every required test value set by harness setup, never inherited from parent shell; GB_* scoped to test instance
+    phase_boundary: Phase 13/14/15/16/17
+    scs: [SC13, SC16, SC17]
+    primary_file: .opencode/tests-v2/with-test-home
+
+  - id: C6
+    name: No-regression default gate
+    description: Default single-.opencode/local provisioning byte-for-byte unchanged
+    phase_boundary: Phase 8
+    scs: [SC8]
+    primary_file: .opencode/tests-v2/behaviors/helpers.sh
+
+  - id: C7
+    name: Cleanup
+    description: --clean-all, __kill_gitbucket, __reset_gitbucket remove provisioned state and stale tmp
+    phase_boundary: Phase 9
+    scs: [SC9]
+    primary_file: .opencode/tests-v2/with-test-home
+
+  - id: C8
+    name: 2242-sc6 cleanup-dispatch verification
+    description: Full-env opt-in enables merged-PR discovery and cleanup dispatch without task-card read or PR-context halt
+    phase_boundary: Phase 10/11/12
+    scs: [SC10, SC11, SC12]
+    primary_file: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+
+  - id: C9
+    name: Documentation
+    description: AGENTS.md documents mutual-exclusion rule and full-env opt-in capability
+    phase_boundary: Phase 18
+    scs: [SC18]
+    primary_file: .opencode/tests-v2/AGENTS.md
+
+phase_mapping:
+  Phase 1: [SC1]
+  Phase 2: [SC2, SC3]
+  Phase 4: [SC4]
+  Phase 5: [SC5]
+  Phase 6: [SC6]
+  Phase 7: [SC7]
+  Phase 8: [SC8]
+  Phase 9: [SC9]
+  Phase 10: [SC10]
+  Phase 11: [SC11]
+  Phase 12: [SC12]
+  Phase 13: [SC13]
+  Phase 14: [SC14]
+  Phase 15: [SC15]
+  Phase 16: [SC16]
+  Phase 17: [SC17]
+  Phase 18: [SC18]

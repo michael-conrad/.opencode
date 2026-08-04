@@ -1,0 +1,55 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+artifact: interface-compatibility
+generated: 2026-08-04
+scope: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+
+module_boundaries:
+  - from: behavior_run() [helpers.sh]
+    to: env -i allowlist + set-env.sh [with-test-home]
+    interaction: behavior_run reads BEHAVIOR_* flags passed through the env -i allowlist; flags must reach the isolated env.
+    scs: [SC1, SC2, SC4, SC5, SC6]
+    compatibility_verified: true
+    note: Superset passthrough required; flag names must match across both files (SC5/SC6).
+
+  - from: behavior_run() origin-wiring block [helpers.sh]
+    to: __ensure_gitbucket() [helpers.sh]
+    interaction: __ensure_gitbucket provisions GitBucket; origin-wiring block attaches it as origin.
+    scs: [SC2, SC3]
+    compatibility_verified: true
+    note: Reuses proven provisioning machinery (spec §1.5).
+
+  - from: with-test-home (do_clean_all, env -i allowlist)
+    to: helpers.sh (__kill_gitbucket, __reset_gitbucket, behavior_run cleanup)
+    interaction: --clean-all must remove all provisioned state (submodule clones, GitBucket process, stale tmp).
+    scs: [SC9]
+    compatibility_verified: true
+    note: Cleanup functions must be consistent; no orphan processes/clones.
+
+  - from: test harness setup (do_setup/seed_model_config) [with-test-home]
+    to: isolated test env
+    interaction: All required test values (model, config, GitBucket token/host when provisioned) generated/set by setup, never inherited.
+    scs: [SC13, SC16, SC17]
+    compatibility_verified: true
+    note: GB_* scoped to test instance; absent/empty when no GitBucket (SC17).
+
+  - from: 2242-sc6 test script + per-scenario fixture
+    to: behavior_run provisioning
+    interaction: test sets BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 + BEHAVIOR_NEEDS_REMOTE=1 to opt into full-env simulation.
+    scs: [SC10, SC11, SC12]
+    compatibility_verified: true
+    note: Flag names must match this spec's flag names (spec §6 dependency on #2242).
+
+interface_risks:
+  - risk: Flag name mismatch between 2242-sc6 test and this spec's provisioning flags
+    severity: high
+    mitigation: Coordinate flag names; verify SC10 run uses the exact flag names from SC5/SC6.
+    scs: [SC10]
+  - risk: Allowlist refactor (SC14/SC15) removes a variable relied on by behavior_run
+    severity: high
+    mitigation: SC8 no-regression gate + isolation verification procedure (SC7); strict superset rule (SC5).
+    scs: [SC5, SC7, SC8, SC14, SC15]
+  - risk: Parent GB_* values leak through allowlist/set-env.sh despite scoping in __ensure_gitbucket
+    severity: critical
+    mitigation: SC17 string gate confirms no parent-sourced GB_* propagate; __ensure_gitbucket sets scoped values only.
+    scs: [SC17]
