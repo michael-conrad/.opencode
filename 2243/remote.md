@@ -7,22 +7,20 @@ source: github
 
 ## Problem Statement
 
-Python projects in the Butter mono-repo have no standardized dependency injection approach. ButterWordCounts uses manual parameter-passing — `config` and `secrets` objects threaded through call chains via Click context (`ctx.obj['config']`, `ctx.obj['secrets']`). As the codebase grows, this leads to tightly coupled code, difficult testing, and inconsistent patterns across projects. Without a mandated DI framework, each project reinvents its own wiring approach.
+Python projects have no standardized dependency injection approach. Developers use manual parameter-passing — `config` and `secrets` objects threaded through call chains via Click context (`ctx.obj['config']`, `ctx.obj['secrets']`). As codebases grow, this leads to tightly coupled code, difficult testing, and inconsistent patterns across projects. Without a mandated DI framework, each project reinvents its own wiring approach.
 
 ## Success Criteria
 
 | ID | Description | Evidence Type | Documentation Sources | Cost Frame |
 |----|-------------|---------------|----------------------|------------|
-| SC-1 | A "Dependency Injection" section SHALL be added to `.opencode/guidelines/080-code-standards.md` covering: what DI is, why it is required, the mandated library (`dependency-injector`), usage patterns, and the carveout for `.opencode/` infrastructure tools | behavioral | `.opencode/guidelines/080-code-standards.md` | Every project that reinvents its own wiring instead of using a standard DI framework produces code that is harder to test, harder to refactor, and harder for new engineers to understand. The cost of standardizing now is one section in a guidelines file. The cost of not standardizing is cumulative coupling across every Python project in the mono-repo. |
+| SC-1 | A "Dependency Injection" section SHALL be added to `.opencode/guidelines/080-code-standards.md` covering: what DI is, why it is required, the mandated library (`dependency-injector`), usage patterns, and the carveout for `.opencode/` infrastructure tools | behavioral | `.opencode/guidelines/080-code-standards.md` | Every project that reinvents its own wiring instead of using a standard DI framework produces code that is harder to test, harder to refactor, and harder for new engineers to understand. The cost of standardizing now is one section in a guidelines file. The cost of not standardizing is cumulative coupling across every Python project that adopts these standards. |
 | SC-2 | `.opencode/guidelines/INDEX.md` SHALL be updated to include DI-related trigger patterns (`dependency injection`, `di`, `inject`, `container`) in the `080-code-standards.md` row | structural | `.opencode/guidelines/INDEX.md` | An INDEX.md that does not route agents to the DI section when they encounter DI-related patterns means the section might as well not exist. The trigger patterns are the delivery mechanism — without them, the mandate is invisible to the agents that need to follow it. |
-| SC-3 | `ButterWordCounts/AGENTS.md` MAY be updated to mention the DI mandate (optional) | structural | `ButterWordCounts/AGENTS.md` | Optional — the ButterWordCounts AGENTS.md is a secondary reference. Missing it means agents working on ButterWordCounts may not see the mandate until they open the guidelines directly. |
-| SC-4 | The carveout for `.opencode/` infrastructure tools SHALL be documented within the DI section (contained within SC-1) | structural | `.opencode/guidelines/080-code-standards.md` | A mandate without carveouts is a mandate that gets ignored when it does not fit. Explicitly exempting small self-contained scripts prevents the DI requirement from becoming a nuisance that erodes compliance for the cases where it actually matters. |
+| SC-3 | The carveout for `.opencode/` infrastructure tools SHALL be documented within the DI section (contained within SC-1) | structural | `.opencode/guidelines/080-code-standards.md` | A mandate without carveouts is a mandate that gets ignored when it does not fit. Explicitly exempting small self-contained scripts prevents the DI requirement from becoming a nuisance that erodes compliance for the cases where it actually matters. |
 
 ## Approach
 
 1. Add a new "Dependency Injection" section to `.opencode/guidelines/080-code-standards.md` after the "Libraries & Packages" section, before "Print Statements & Output"
 2. Update the `080-code-standards.md` row in `.opencode/guidelines/INDEX.md` to add DI-related trigger patterns
-3. Optionally update `ButterWordCounts/AGENTS.md` to reference the DI mandate
 
 ### Library Choice: dependency-injector
 
@@ -54,22 +52,25 @@ These are small self-contained scripts where DI adds no value and would increase
 |------|--------|------|
 | `.opencode/guidelines/080-code-standards.md` | Modify — add DI section | michael-conrad/.opencode |
 | `.opencode/guidelines/INDEX.md` | Modify — add trigger patterns | michael-conrad/.opencode |
-| `ButterWordCounts/AGENTS.md` | Modify — add DI mention (optional) | NewSRX-Tech-LLC/Butter |
 
 ## Phases
 
 | Phase | Scope | Repo | Depends On |
 |-------|-------|------|------------|
 | 1 | Guideline updates (080-code-standards.md, INDEX.md) | michael-conrad/.opencode | None |
-| 2 | Butter root repo AGENTS.md update (optional) | NewSRX-Tech-LLC/Butter | Phase 1 |
 
 ## Blast Radius
 
-MINIMAL — documentation-only change affecting 2-3 files across 2 repos. No code changes, no interface changes, no state transitions. All changes are additive (new sections, new rows) with zero modification to existing content.
+MINIMAL — documentation-only change affecting 2 files in a single repo. No code changes, no interface changes, no state transitions. All changes are additive (new section, new row) with zero modification to existing content.
 
 ## Cross-Cutting Concerns
 
-- **Submodule workflow:** Phase 1 modifies files in the `.opencode/` submodule — requires a separate PR to `michael-conrad/.opencode`, then a submodule pointer update in the Butter root
-- **Multi-repo coordination:** Phase 1 and Phase 2 are in different repos — independent PRs with no ordering dependency
+- **Submodule workflow:** Affected files live in the `.opencode/` submodule — requires a PR to `michael-conrad/.opencode`
 - **AI agent behavior:** New guideline section will affect how AI agents write Python code — a behavioral enforcement test SHALL be included
 - **Documentation consistency:** New section MUST follow existing formatting, tone, and structure of `080-code-standards.md`
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-04 | Removed SC-3 (optional `ButterWordCounts/AGENTS.md` DI mention) and its dependent Phase 2; renumbered SC-4 → SC-3; removed all Butter/NewSRX references; made Problem Statement repo-agnostic | SC-3 referenced the non-existent `NewSRX-Tech-LLC/Butter` repo (`ButterWordCounts/AGENTS.md`), making it structurally unimplementable | Issue revision (spec-creation revise) |

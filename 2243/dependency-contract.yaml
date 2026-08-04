@@ -1,16 +1,9 @@
 description: "Cross-phase dependency ordering for the dependency-injector mandate documentation"
 dependency_order:
   - phase: 1
-    scs: ["SC-1", "SC-2", "SC-4"]
+    scs: ["SC-1", "SC-2", "SC-3"]
     requires: []
-    description: "Guideline updates (080-code-standards.md, INDEX.md) — add DI section covering what DI is, why required, mandated library (dependency-injector), usage patterns, and .opencode/ carveout (SC-1); add DI trigger patterns to the 080-code-standards.md row in INDEX.md (SC-2); carveout documented within the DI section, contained within SC-1 (SC-4)"
-    spec_lines: ["remote.md:16 (SC-1)", "remote.md:17 (SC-2)", "remote.md:19 (SC-4)", "remote.md:23-25 (Approach steps 1-2)", "remote.md:63 (Phase 1 row, Depends On: None)"]
-  - phase: 2
-    scs: ["SC-3"]
-    requires: ["phase-1"]
-    description: "Butter root repo AGENTS.md update (optional) — ButterWordCounts/AGENTS.md MAY mention the DI mandate"
-    spec_lines: ["remote.md:18 (SC-3)", "remote.md:25 (Approach step 3)", "remote.md:64 (Phase 2 row, Depends On: Phase 1)"]
+    description: "Guideline updates (080-code-standards.md, INDEX.md) — add DI section covering what DI is, why required, mandated library (dependency-injector), usage patterns, and .opencode/ carveout (SC-1); add DI trigger patterns to the 080-code-standards.md row in INDEX.md (SC-2); carveout documented within the DI section, contained within SC-1 (SC-3)"
+    spec_lines: ["remote.md:16 (SC-1)", "remote.md:17 (SC-2)", "remote.md:18 (SC-3)", "remote.md:22-23 (Approach steps 1-2)", "remote.md:60 (Phase 1 row, Depends On: None)"]
 invariants:
-  - "Phase 1 MUST precede Phase 2 — the Butter root repo AGENTS.md mention (Phase 2) depends on the guideline mandate existing (Phase 1)"
-  - "SC-4 is contained within SC-1 — the .opencode/ carveout is documented within the DI section, not as a separate deliverable"
-  - "SC-3 is optional (MAY) — Phase 2 may be skipped without blocking Phase 1 completion"
+  - "SC-3 is contained within SC-1 — the .opencode/ carveout is documented within the DI section, not as a separate deliverable"
