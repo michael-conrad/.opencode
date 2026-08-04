@@ -107,6 +107,7 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 - **R-10.** New fixture/remote flags MAY be added to `set-env.sh` for debugging aid, provided they are also present in the `env -i` allowlist.
 - **R-11.** The test harness SHALL set every environment variable a test requires within the test environment setup (`do_setup`/`seed_model_config`/test-home provisioning), and SHALL NOT inherit any required value from the parent/production shell. The `env -i` allowlist in `with-test-home` SHALL contain ONLY the minimal, explicitly enumerated infrastructure set needed to locate tools and run the binary, namely exactly `PATH`, `SHELL`, `TERM`, `LANG`, `USER`, `LOGNAME`, `GIT_CONFIG_NOSYSTEM`, `XDG_*` into the test home, `SNAP_USER_DATA`/`SNAP_USER_COMMON`, and test-provisioned values. The allowlist SHALL NOT include any parent-sourced variable that carries secrets, credentials, platform tokens, or environment-specific configuration — namely none of `GB_*`, `GITHUB_*`, `GH_*`, `NODE_ENV`, `VIRTUAL_ENV`, `CONDA_DEFAULT_ENV`, `OPENCODE_CONFIG_CONTENT`, or API keys. Any value a test needs (GitBucket token/host, model, config) SHALL be generated/set by the test setup, never read through from the parent env.
 - **R-12.** As the concrete instance of R-11, the test environment SHALL NOT inherit any `GB_*` or `GITBUCKET_PORT` value from the parent shell. When `BEHAVIOR_NEEDS_REMOTE=1` provisions GitBucket, `GB_TOKEN`, `GB_HOST`, and `GITBUCKET_PORT` SHALL be set to the test instance's own generated values; when GitBucket is NOT provisioned, these variables SHALL be absent/empty in the test env. The `env -i` allowlist in `with-test-home` SHALL NOT pass through parent-sourced `GB_*`/`GITBUCKET_PORT` values.
+- **R-13.** When the GitBucket origin is wired (R-2), the test SHALL be able to discover merged branches and open issues via `gh pr list` in the isolated test environment without GitHub auth, and the agent SHALL NOT halt for missing PR/branch context.
 
 ## 5. Items
 
@@ -252,11 +253,12 @@ The `.opencode` #2242 SC6/SC7 cleanup-dispatch behavioral test (`.opencode/tests
 | R-1 | SC1 | 1 |
 | R-2 | SC2 | 2 |
 | R-3 | SC4 | 4 |
-| R-4 | SC5 | 5 |
+| R-4 | SC5, SC7 | 5, 7 |
 | R-5 | SC8 | 8 |
 | R-6 | SC9 | 9 |
 | R-7 | SC9 | 9 |
 | R-8 | SC10, SC11, SC12 | 10, 11, 12 |
+| R-13 | SC3 | 3 |
 | R-9 | SC18 | 18 |
 | R-10 | SC6 | 6 |
 | R-11 | SC13, SC14, SC15, SC16 | 13, 14, 15, 16 |
@@ -291,6 +293,12 @@ Dependency DAG: SC1 + SC5 + SC9 precede SC2; SC4 must be verified before SC2's w
 - **Recovery — repeated run after full-env run:** Provisioned clones/state remain from a prior run. **Expected behavior:** SC9 cleanup leaves a clean `tmp/` so the next run provisions fresh. **Resolution:** `--clean-all` removes submodule clones, GitBucket process, and stale state.
 
 ## Change Control
+
+### 2026-08-04 — Revise (spec-creation revise pipeline, Traceability)
+
+- **What changed:** Completed the §7 Traceability table. Added SC3 (merged-PR/issue discovery, behavioral) mapping to a new requirement R-13, and added SC7 (isolation check passes after extension, structural) mapping to R-4. Added R-13 to §4 Requirements ("When the GitBucket origin is wired, the test SHALL be able to discover merged branches and open issues via `gh pr list` without GitHub auth, and SHALL NOT halt for missing PR/branch context"). Every SC now maps to ≥1 requirement and every requirement maps to ≥1 SC.
+- **Why:** Validation (spec-creation validate) reported Traceability FAIL — SC3 and SC7 were orphan SCs: present in the SC table, Items, cost-frames, and Dependency DAG but absent from the §7 Traceability table. SC3 maps to the general discovery requirement R-13 (R-8 is narrowly scoped to the 2242 test); SC7 verifies R-4's "SHALL NOT add any production-secret variable" clause.
+- **Who authorized the change:** Pipeline-initiated revision from the spec-creation validate→revise loop.
 
 ### 2026-08-04 — Revise (spec-creation revise pipeline, Atomicity/Determinism/Correctness/Traceability)
 
