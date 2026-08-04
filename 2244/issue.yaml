@@ -1,8 +1,8 @@
 title: '[SPEC] Full-environment simulation support in opencode test harness'
 status: open
 labels:
-- needs-approval
-- SPEC
+- approved-for-pr
+- spec-draft
 body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test Harness
 
 
@@ -82,12 +82,12 @@ body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test
 
   | SC10 | GB_* environment variables are ABSENT from the isolated test environment
   unless scoped to the provisioned test GitBucket instance. When `BEHAVIOR_NEEDS_REMOTE=1`
-  provisions GitBucket, `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` are set to the test instance''s
-  own generated values; when no GitBucket is provisioned they are absent/empty. Parent-sourced
-  `GB_*` values are NEVER passed through the `env -i` allowlist. | string | Inspect
-  the `env -i` allowlist and `set-env.sh` in `with-test-home` for `GB_*` sourcing;
-  confirm `__ensure_gitbucket()` in `helpers.sh` scopes `GB_*` to the test instance.
-  | `.opencode/tests-v2/with-test-home`; `.opencode/tests-v2/behaviors/helpers.sh`
+  provisions GitBucket, `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` are set to the test
+  instance''s own generated values; when no GitBucket is provisioned they are absent/empty.
+  Parent-sourced `GB_*` values are NEVER passed through the `env -i` allowlist. |
+  string | Inspect the `env -i` allowlist and `set-env.sh` in `with-test-home` for
+  `GB_*` sourcing; confirm `__ensure_gitbucket()` in `helpers.sh` scopes `GB_*` to
+  the test instance. | `.opencode/tests-v2/with-test-home`; `.opencode/tests-v2/behaviors/helpers.sh`
   (`__ensure_gitbucket`) |
 
   | SC4 | No-regression default: with no opt-in flags set, a representative behavioral
@@ -264,4 +264,4 @@ body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test
 
   '
 created_at: '2026-08-04T03:14:31+00:00'
-updated_at: '2026-08-04T03:14:40+00:00'
+updated_at: '2026-08-04T17:48:18+00:00'
