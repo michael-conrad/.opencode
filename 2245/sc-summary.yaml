@@ -9,11 +9,11 @@ scs:
     evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-3"
-    description: "Each converted behavior script preserves behavior_run invocation args and the mandatory cross-reference header"
+    description: "Each converted behavior script preserves its pre-conversion contract"
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-4"
-    description: "Each converted behavior script exits 0 unconditionally as an artifact-only generator, producing an artifact directory with session.yaml present"
+    description: "Each converted behavior script exits 0 unconditionally as an artifact-only generator"
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-5"
