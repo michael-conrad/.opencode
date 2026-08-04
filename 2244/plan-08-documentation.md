@@ -1,15 +1,16 @@
-# Phase 8 — Documentation
+# Phase 8 — Documentation (Concern C9)
 
-**Concern:** Document the `BEHAVIOR_NEEDS_MULTI_SUBMODULES` / `BEHAVIOR_SET_BARE_REMOTE` mutual-exclusion rule and the new full-environment opt-in capability.
+**Concern:** C9 — documentation of mutual-exclusion + full-env opt-in. Document the `BEHAVIOR_NEEDS_MULTI_SUBMODULES` / `BEHAVIOR_SET_BARE_REMOTE` mutual-exclusion rule and the new full-environment opt-in capability.
 
 **Files:**
 - `.opencode/tests-v2/AGENTS.md` (§5 Infrastructure Details, §12 GitBucket)
 
 **SCs:** SC18
 
-**Dependencies:** None
+**Dependencies:** Phase 4
 
 **Entry Conditions:**
+- Phase 4 complete: the mutual-exclusion rule is implemented; VbC passed.
 - `tests-v2/AGENTS.md` §5 and §12 read to understand current documentation.
 
 **Exit Conditions:**
@@ -29,6 +30,4 @@
 
 - [ ] 40. **VbC (**clean-room**).** Verify SC18: `.opencode/tests-v2/AGENTS.md` documents the mutual-exclusion rule and the full-env opt-in capability. **→ SC18**
 
-**Concern transition:** Leaving documentation → entering final no-regression default gate.
-
----
+**Concern transition:** Leaving C9 (documentation) → entering C6 (final no-regression default gate).

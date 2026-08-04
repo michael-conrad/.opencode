@@ -18,7 +18,7 @@ phase_count: 9
 - GitBucket origin wiring (`BEHAVIOR_NEEDS_REMOTE=1`) attaches the provisioned GitBucket instance as the test repo's `origin` remote, enabling `gh pr list` discovery without GitHub auth.
 - A strict env-set hardening (`SC13–SC17`) keeps the `env -i` allowlist at exactly the minimal infrastructure set and prevents any parent-sourced `GB_*`/secret/credential/token from leaking into the isolated test env.
 
-The phase DAG is enforced by a dependency contract validated by the Z3 solver (SAT, 9-phase linear order: 1 → 3 → 2 → 4 → 6 → 5 → 7 → 8 → 9). Each SC gets its own RED → GREEN → verify → commit cycle; no item covers more than one SC.
+The phase DAG is enforced by a dependency contract validated by the Z3 solver. Each SC gets its own RED → GREEN → verify → commit cycle; no item covers more than one SC. Each of the 9 phases addresses exactly one concern (C1–C9), so no concern straddles phases and no two phases share a concern.
 
 **Files (sub-folder references):**
 - `.opencode/tests-v2/behaviors/helpers.sh` (`behavior_run()`, `__ensure_gitbucket()`, `__reset_gitbucket()`, `__kill_gitbucket()`, `BEHAVIOR_SET_BARE_REMOTE` block, origin-wiring block)
@@ -40,36 +40,38 @@ These steps run once before any phase begins.
 
 ## Phase Table
 
-| Phase | Skill | Task | Target | SCs | Depends On |
-|-------|-------|------|--------|-----|------------|
-| 1 — env isolation foundation | `test-driven-development` | `red` | `.opencode/tests-v2/with-test-home` (env -i allowlist, set-env.sh, do_setup, seed_model_config) | SC5, SC6, SC13, SC14, SC15, SC16 | — |
-| 2 — GB scoping | `test-driven-development` | `red` | `.opencode/tests-v2/with-test-home` (allowlist/set-env.sh) + `helpers.sh` (`__ensure_gitbucket` scoping) | SC17 | 1 |
-| 3 — provisioning, cleanup, rejection | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run provisioning/cleanup) + `with-test-home` (do_clean_all) | SC1, SC4, SC9 | 1 |
-| 4 — GitBucket origin wiring | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run origin-wiring + __ensure_gitbucket) | SC2 | 1, 2, 3 |
-| 5 — merged-PR discovery | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (gh pr list in isolated env) | SC3 | 4 |
-| 6 — 2242-sc6 full-env opt-in | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` + fixture setup variant | SC10 | 4 |
-| 7 — 2242-sc6 verification | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` (session.yaml tool timeline) | SC11, SC12 | 6 |
-| 8 — documentation | `test-driven-development` | `red` | `.opencode/tests-v2/AGENTS.md` (mutual-exclusion + full-env opt-in docs) | SC18 | — |
-| 9 — no-regression default gate | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (default provisioning path) + `with-test-home` | SC8 | 1, 3, 4 |
+| Phase | Concern | Skill | Task | Target | SCs | Depends On |
+|-------|---------|-------|------|--------|-----|------------|
+| 1 — allowlist extension + isolation | C4 | `test-driven-development` | `red` | `.opencode/tests-v2/with-test-home` (env -i allowlist, set-env.sh) | SC5, SC6, SC7, SC14, SC15 | — |
+| 2 — test-provisioned env rule + GB scoping | C5 | `test-driven-development` | `red` | `.opencode/tests-v2/with-test-home` (do_setup/seed_model_config, GB_* scoping) + `helpers.sh` (`__ensure_gitbucket` scoping) | SC13, SC16, SC17 | 1 |
+| 3 — multi-submodule provisioning | C1 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run multi-submodule provisioning) | SC1 | 1 |
+| 4 — remote-strategy mutual exclusion | C3 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run mutual-exclusion rejection) | SC4 | 1 |
+| 5 — cleanup | C7 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (`__kill_gitbucket`, `__reset_gitbucket`) + `with-test-home` (do_clean_all) | SC9 | 3, 4 |
+| 6 — GitBucket origin wiring + discovery | C2 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run origin-wiring + gh pr list) | SC2, SC3 | 2, 3, 4 |
+| 7 — 2242-sc6 full-env opt-in + verification | C8 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` + fixture setup variant | SC10, SC11, SC12 | 6 |
+| 8 — documentation | C9 | `test-driven-development` | `red` | `.opencode/tests-v2/AGENTS.md` (mutual-exclusion + full-env opt-in docs) | SC18 | 4 |
+| 9 — no-regression default gate | C6 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (default provisioning path) + `with-test-home` | SC8 | 1, 3, 4, 6 |
 
 ---
 
 ## Phase Details
 
-### Phase 1 — Env Isolation Foundation
+### Phase 1 — Allowlist Extension + Isolation (Concern C4)
 
 | Field | Value |
 |-------|-------|
+| Concern | C4 — env -i allowlist extension + isolation |
 | Skill | `test-driven-development` |
 | Task | `red` |
-| Target | `.opencode/tests-v2/with-test-home` (env -i allowlist, set-env.sh, do_setup, seed_model_config) |
-| SCs | SC5, SC6, SC13, SC14, SC15, SC16 |
+| Target | `.opencode/tests-v2/with-test-home` (env -i allowlist, set-env.sh) |
+| SCs | SC5, SC6, SC7, SC14, SC15 |
 | Depends On | — |
 
 **Context:**
 ```yaml
+concern: C4
 target: .opencode/tests-v2/with-test-home
-scs: [SC5, SC6, SC13, SC14, SC15, SC16]
+scs: [SC5, SC6, SC7, SC14, SC15]
 allowlist_flags_to_add:
   - BEHAVIOR_NEEDS_MULTI_SUBMODULES
   - BEHAVIOR_NEEDS_REMOTE
@@ -97,152 +99,169 @@ forbidden_parent_vars:
   - API keys
 ```
 
-### Phase 2 — GB Scoping
+### Phase 2 — Test-Provisioned Env Rule + GB Scoping (Concern C5)
 
 | Field | Value |
 |-------|-------|
+| Concern | C5 — test-provisioned environment rule + GB_* scoping |
 | Skill | `test-driven-development` |
 | Task | `red` |
-| Target | `.opencode/tests-v2/with-test-home` (allowlist/set-env.sh) + `helpers.sh` (`__ensure_gitbucket` scoping) |
-| SCs | SC17 |
+| Target | `.opencode/tests-v2/with-test-home` (do_setup/seed_model_config, GB_* scoping) + `helpers.sh` (`__ensure_gitbucket` scoping) |
+| SCs | SC13, SC16, SC17 |
 | Depends On | 1 |
 
 **Context:**
 ```yaml
+concern: C5
 target:
   - .opencode/tests-v2/with-test-home
   - .opencode/tests-v2/behaviors/helpers.sh
-scs: [SC17]
+scs: [SC13, SC16, SC17]
 gb_vars: [GB_TOKEN, GB_HOST, GITBUCKET_PORT]
 scoping_rule: "parent GB_*/GITBUCKET_PORT never inherited; set to test instance generated values only when BEHAVIOR_NEEDS_REMOTE=1"
+env_set_rule: "every required test value set by do_setup/seed_model_config/test-home provisioning, never inherited from parent shell"
 ```
 
-### Phase 3 — Provisioning, Cleanup, Rejection
+### Phase 3 — Multi-Submodule Provisioning (Concern C1)
 
 | Field | Value |
 |-------|-------|
+| Concern | C1 — multi-submodule fixture provisioning |
 | Skill | `test-driven-development` |
 | Task | `red` |
-| Target | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run provisioning/cleanup) + `with-test-home` (do_clean_all) |
-| SCs | SC1, SC4, SC9 |
+| Target | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run multi-submodule provisioning) |
+| SCs | SC1 |
 | Depends On | 1 |
 
 **Context:**
 ```yaml
-target:
-  - .opencode/tests-v2/behaviors/helpers.sh
-  - .opencode/tests-v2/with-test-home
-scs: [SC1, SC4, SC9]
+concern: C1
+target: .opencode/tests-v2/behaviors/helpers.sh
+scs: [SC1]
 multi_submodule_flag: BEHAVIOR_NEEDS_MULTI_SUBMODULES
 fixture_repos: [test-submodule-1, test-submodule-2]
+```
+
+### Phase 4 — Remote-Strategy Mutual Exclusion (Concern C3)
+
+| Field | Value |
+|-------|-------|
+| Concern | C3 — remote strategy mutual exclusion |
+| Skill | `test-driven-development` |
+| Task | `red` |
+| Target | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run mutual-exclusion rejection) |
+| SCs | SC4 |
+| Depends On | 1 |
+
+**Context:**
+```yaml
+concern: C3
+target: .opencode/tests-v2/behaviors/helpers.sh
+scs: [SC4]
 mutual_exclusion: [BEHAVIOR_NEEDS_REMOTE, BEHAVIOR_SET_BARE_REMOTE]
 harness_failure_exit: HARNESS_FAILURE
 ```
 
-### Phase 4 — GitBucket Origin Wiring
+### Phase 5 — Cleanup (Concern C7)
 
 | Field | Value |
 |-------|-------|
+| Concern | C7 — cleanup of provisioned state |
 | Skill | `test-driven-development` |
 | Task | `red` |
-| Target | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run origin-wiring + __ensure_gitbucket) |
-| SCs | SC2 |
-| Depends On | 1, 2, 3 |
+| Target | `.opencode/tests-v2/behaviors/helpers.sh` (`__kill_gitbucket`, `__reset_gitbucket`) + `with-test-home` (do_clean_all) |
+| SCs | SC9 |
+| Depends On | 3, 4 |
 
 **Context:**
 ```yaml
+concern: C7
+target:
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/with-test-home
+scs: [SC9]
+cleanup_commands: ["--clean-all", "__kill_gitbucket", "__reset_gitbucket"]
+```
+
+### Phase 6 — GitBucket Origin Wiring + Discovery (Concern C2)
+
+| Field | Value |
+|-------|-------|
+| Concern | C2 — GitBucket origin wiring + merged-PR discovery |
+| Skill | `test-driven-development` |
+| Task | `red` |
+| Target | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run origin-wiring + gh pr list) |
+| SCs | SC2, SC3 |
+| Depends On | 2, 3, 4 |
+
+**Context:**
+```yaml
+concern: C2
 target: .opencode/tests-v2/behaviors/helpers.sh
-scs: [SC2]
+scs: [SC2, SC3]
 remote_flag: BEHAVIOR_NEEDS_REMOTE
 origin_remote: origin
-```
-
-### Phase 5 — Merged-PR Discovery
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red` |
-| Target | `.opencode/tests-v2/behaviors/helpers.sh` (gh pr list in isolated env) |
-| SCs | SC3 |
-| Depends On | 4 |
-
-**Context:**
-```yaml
-target: .opencode/tests-v2/behaviors/helpers.sh
-scs: [SC3]
 discovery_command: gh pr list
-remote_flag: BEHAVIOR_NEEDS_REMOTE
 ```
 
-### Phase 6 — 2242-sc6 Full-Env Opt-In
+### Phase 7 — 2242-sc6 Full-Env Opt-In + Verification (Concern C8)
 
 | Field | Value |
 |-------|-------|
+| Concern | C8 — 2242-sc6 full-env opt-in + cleanup-dispatch verification |
 | Skill | `test-driven-development` |
 | Task | `red` |
 | Target | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` + fixture setup variant |
-| SCs | SC10 |
-| Depends On | 4 |
-
-**Context:**
-```yaml
-target:
-  - .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
-  - .opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh
-scs: [SC10]
-opt_in_flags:
-  BEHAVIOR_NEEDS_MULTI_SUBMODULES: "1"
-  BEHAVIOR_NEEDS_REMOTE: "1"
-```
-
-### Phase 7 — 2242-sc6 Verification
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red` |
-| Target | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` (session.yaml tool timeline) |
-| SCs | SC11, SC12 |
+| SCs | SC10, SC11, SC12 |
 | Depends On | 6 |
 
 **Context:**
 ```yaml
-target: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
-scs: [SC11, SC12]
+concern: C8
+target:
+  - .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+  - .opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+scs: [SC10, SC11, SC12]
+opt_in_flags:
+  BEHAVIOR_NEEDS_MULTI_SUBMODULES: "1"
+  BEHAVIOR_NEEDS_REMOTE: "1"
 forbidden_tool_timeline: ["read tasks/cleanup.md", "question-tool call", "PR/branch-context halt"]
 ```
 
-### Phase 8 — Documentation
+### Phase 8 — Documentation (Concern C9)
 
 | Field | Value |
 |-------|-------|
+| Concern | C9 — documentation of mutual-exclusion + full-env opt-in |
 | Skill | `test-driven-development` |
 | Task | `red` |
 | Target | `.opencode/tests-v2/AGENTS.md` (mutual-exclusion + full-env opt-in docs) |
 | SCs | SC18 |
-| Depends On | — |
+| Depends On | 4 |
 
 **Context:**
 ```yaml
+concern: C9
 target: .opencode/tests-v2/AGENTS.md
 scs: [SC18]
 mutual_exclusion_rule: "BEHAVIOR_NEEDS_MULTI_SUBMODULES / BEHAVIOR_SET_BARE_REMOTE"
 sections: ["§5 Infrastructure Details", "§12 GitBucket"]
 ```
 
-### Phase 9 — No-Regression Default Gate
+### Phase 9 — No-Regression Default Gate (Concern C6)
 
 | Field | Value |
 |-------|-------|
+| Concern | C6 — no-regression default gate |
 | Skill | `test-driven-development` |
 | Task | `red` |
 | Target | `.opencode/tests-v2/behaviors/helpers.sh` (default provisioning path) + `with-test-home` |
 | SCs | SC8 |
-| Depends On | 1, 3, 4 |
+| Depends On | 1, 3, 4, 6 |
 
 **Context:**
 ```yaml
+concern: C6
 target:
   - .opencode/tests-v2/behaviors/helpers.sh
   - .opencode/tests-v2/with-test-home
@@ -254,13 +273,13 @@ default_provisioning: "single .opencode submodule + local platform, no origin re
 
 ## Exit Criteria
 
-- [ ] C1. `env -i` allowlist in `with-test-home` passes through the three new flags (`BEHAVIOR_NEEDS_MULTI_SUBMODULES`, `BEHAVIOR_NEEDS_REMOTE`, `BEHAVIOR_SET_BARE_REMOTE`) as a strict superset with no removals, and `set-env.sh` records them.
-- [ ] C2. `env -i` allowlist contains ONLY the minimal explicitly enumerated infrastructure set and excludes all parent-sourced secret/credential/token/env-specific variables; every required test value is generated/set by `do_setup`/`seed_model_config`/test-home provisioning.
-- [ ] C3. `GB_*`/`GITBUCKET_PORT` are absent from the test env unless scoped to the provisioned test GitBucket instance; no parent `GB_*` leaks through.
-- [ ] C4. `behavior_run()` provisions `test-submodule-1`/`test-submodule-2` when `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1`, wires GitBucket `origin` when `BEHAVIOR_NEEDS_REMOTE=1`, and rejects both-remote-flags with `HARNESS_FAILURE`.
-- [ ] C5. `gh pr list` in the isolated env (wired origin) discovers merged branches/open issues without GitHub auth and the agent does not halt for PR/branch context.
-- [ ] C6. `--clean-all`/`__kill_gitbucket`/`__reset_gitbucket` remove all provisioned clones and GitBucket state, leaving no orphans; a repeated run starts clean.
-- [ ] C7. `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in completes merged-PR discovery and cleanup dispatch without reading a cleanup task card and without halting for PR/branch context.
-- [ ] C8. `.opencode/tests-v2/AGENTS.md` documents the mutual-exclusion rule and the new opt-in capability.
-- [ ] C9. With no opt-in flags set, default provisioning remains byte-for-byte the single-`.opencode`/`local` platform for the ~80 existing tests (no regression).
-- [ ] C10. All 18 SCs map to exactly one item each; no item covers multiple SCs; the phase DAG is acyclic and Z3-SAT validated.
+- [ ] C1. `env -i` allowlist in `with-test-home` passes through the three new flags (`BEHAVIOR_NEEDS_MULTI_SUBMODULES`, `BEHAVIOR_NEEDS_REMOTE`, `BEHAVIOR_SET_BARE_REMOTE`) as a strict superset with no removals, and `set-env.sh` records them (SC5, SC6). The isolation verification procedure still passes after the extension (SC7). The allowlist contains ONLY the minimal explicitly enumerated infrastructure set (SC14) and excludes all parent-sourced secret/credential/token/env-specific variables (SC15).
+- [ ] C2. Every required test value is set by `do_setup`/`seed_model_config`/test-home provisioning, never inherited from the parent shell (SC13, SC16); `GB_*`/`GITBUCKET_PORT` are absent from the test env unless scoped to the provisioned test GitBucket instance (SC17).
+- [ ] C3. `behavior_run()` provisions `test-submodule-1`/`test-submodule-2` when `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1`, and not when unset (SC1).
+- [ ] C4. Both `BEHAVIOR_NEEDS_REMOTE=1` and `BEHAVIOR_SET_BARE_REMOTE=1` together exit with `HARNESS_FAILURE` and do not attempt origin wiring (SC4).
+- [ ] C5. `--clean-all`/`__kill_gitbucket`/`__reset_gitbucket` remove all provisioned clones and GitBucket state, leaving no orphans; a repeated run starts clean (SC9).
+- [ ] C6. With `BEHAVIOR_NEEDS_REMOTE=1` and GitBucket provisioned, `git remote -v` in the attempt workdir shows the GitBucket `origin` (SC2), and `gh pr list` in the isolated env discovers merged branches/open issues without GitHub auth and the agent does not halt for PR/branch context (SC3).
+- [ ] C7. `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in completes merged-PR discovery (SC10) and cleanup dispatch without reading a cleanup task card (SC11) and without halting for PR/branch context (SC12).
+- [ ] C8. `.opencode/tests-v2/AGENTS.md` documents the mutual-exclusion rule and the new opt-in capability (SC18).
+- [ ] C9. With no opt-in flags set, default provisioning remains byte-for-byte the single-`.opencode`/`local` platform for the ~80 existing tests (no regression, SC8).
+- [ ] C10. All 18 SCs map to exactly one item each; no item covers multiple SCs; the phase DAG is acyclic and Z3-SAT validated; each of the 9 phases addresses exactly one concern (C1–C9).

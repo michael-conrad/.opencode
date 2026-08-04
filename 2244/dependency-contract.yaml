@@ -3,100 +3,108 @@ description: "Cross-phase dependency ordering for full-environment simulation su
 variables:
   phase_1:
     type: bool
-    description: "Env isolation foundation — SC5, SC6, SC13, SC14, SC15, SC16"
+    description: "C4 env -i allowlist extension + isolation check — SC5, SC6, SC7, SC14, SC15"
   phase_2:
     type: bool
-    description: "GB_* scoping concrete instance of env-set rule — SC17"
+    description: "C5 test-provisioned environment rule + GB_* scoping — SC13, SC16, SC17"
   phase_3:
     type: bool
-    description: "Provisioning + cleanup + rejection primitives — SC1, SC4, SC9"
+    description: "C1 multi-submodule fixture provisioning — SC1"
   phase_4:
     type: bool
-    description: "GitBucket origin wiring — SC2"
+    description: "C3 remote strategy mutual exclusion — SC4"
   phase_5:
     type: bool
-    description: "Merged-PR/issue discovery in isolated env — SC3"
+    description: "C7 cleanup of provisioned state — SC9"
   phase_6:
     type: bool
-    description: "Opt-in full-env simulation for 2242-sc6 test — SC10"
+    description: "C2 GitBucket origin wiring + merged-PR discovery — SC2, SC3"
   phase_7:
     type: bool
-    description: "2242-sc6 verification — SC11, SC12"
+    description: "C8 2242-sc6 full-env opt-in + cleanup-dispatch verification — SC10, SC11, SC12"
   phase_8:
     type: bool
-    description: "Independent string gate — SC18 documentation"
+    description: "C9 documentation of mutual-exclusion + full-env opt-in — SC18"
   phase_9:
     type: bool
-    description: "Final no-regression default gate — SC8"
+    description: "C6 final no-regression default gate — SC8"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
   - "z3.Implies(phase_3, phase_1)"
   - "z3.Implies(phase_4, phase_1)"
-  - "z3.Implies(phase_4, phase_2)"
-  - "z3.Implies(phase_4, phase_3)"
+  - "z3.Implies(phase_5, phase_3)"
   - "z3.Implies(phase_5, phase_4)"
+  - "z3.Implies(phase_6, phase_2)"
+  - "z3.Implies(phase_6, phase_3)"
   - "z3.Implies(phase_6, phase_4)"
   - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_8, phase_4)"
   - "z3.Implies(phase_9, phase_1)"
   - "z3.Implies(phase_9, phase_3)"
   - "z3.Implies(phase_9, phase_4)"
+  - "z3.Implies(phase_9, phase_6)"
 invariants:
-  - "z3.Implies(phase_4, phase_3)"
-  - "z3.Implies(phase_4, phase_2)"
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
   - "z3.Implies(phase_4, phase_1)"
+  - "z3.Implies(phase_5, phase_3)"
   - "z3.Implies(phase_5, phase_4)"
+  - "z3.Implies(phase_6, phase_2)"
+  - "z3.Implies(phase_6, phase_3)"
   - "z3.Implies(phase_6, phase_4)"
   - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_8, phase_4)"
   - "z3.Implies(phase_9, phase_1)"
   - "z3.Implies(phase_9, phase_3)"
   - "z3.Implies(phase_9, phase_4)"
+  - "z3.Implies(phase_9, phase_6)"
 postconditions: []
 phases:
   phase_1:
     files:
       - tests-v2/with-test-home (env -i allowlist, set-env.sh)
-      - tests-v2/with-test-home (do_setup/seed_model_config)
     scs:
       - SC5
       - SC6
-      - SC13
+      - SC7
       - SC14
       - SC15
-      - SC16
   phase_2:
     files:
-      - tests-v2/with-test-home (allowlist/set-env.sh)
+      - tests-v2/with-test-home (do_setup/seed_model_config, GB_* scoping)
       - tests-v2/behaviors/helpers.sh (__ensure_gitbucket scoping)
     scs:
+      - SC13
+      - SC16
       - SC17
   phase_3:
     files:
-      - tests-v2/behaviors/helpers.sh (behavior_run provisioning/cleanup)
-      - tests-v2/with-test-home (do_clean_all)
+      - tests-v2/behaviors/helpers.sh (behavior_run multi-submodule provisioning)
     scs:
       - SC1
-      - SC4
-      - SC9
   phase_4:
     files:
-      - tests-v2/behaviors/helpers.sh (behavior_run origin-wiring + __ensure_gitbucket)
+      - tests-v2/behaviors/helpers.sh (behavior_run mutual-exclusion rejection)
     scs:
-      - SC2
+      - SC4
   phase_5:
     files:
-      - tests-v2/behaviors/helpers.sh (gh pr list in isolated env)
+      - tests-v2/behaviors/helpers.sh (__kill_gitbucket, __reset_gitbucket)
+      - tests-v2/with-test-home (do_clean_all)
     scs:
-      - SC3
+      - SC9
   phase_6:
+    files:
+      - tests-v2/behaviors/helpers.sh (behavior_run origin-wiring + gh pr list)
+    scs:
+      - SC2
+      - SC3
+  phase_7:
     files:
       - tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
       - tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh
     scs:
       - SC10
-  phase_7:
-    files:
-      - tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh (session.yaml tool timeline)
-    scs:
       - SC11
       - SC12
   phase_8:
@@ -113,34 +121,43 @@ phases:
 edges:
   - from: phase_1
     to: phase_2
-    rationale: SC13 general env-set rule precedes SC17 GB_* concrete instance
+    rationale: C5 env-set rule and GB_* scoping build on the allowlist extended in C4
   - from: phase_1
     to: phase_3
-    rationale: SC1/SC4/SC9 provisioning/cleanup/rejection primitives build on env isolation foundation
+    rationale: C1 multi-submodule provisioning requires the BEHAVIOR_NEEDS_MULTI_SUBMODULES flag passed through the C4 allowlist
   - from: phase_1
     to: phase_4
-    rationale: SC2 flags pass through env -i allowlist (SC5); SC13 verified with GitBucket provisioning
-  - from: phase_2
-    to: phase_4
-    rationale: SC2 origin wiring requires scoped GB_* values from SC17
+    rationale: C4 mutual-exclusion rejection requires both remote flags passed through the C4 allowlist
   - from: phase_3
-    to: phase_4
-    rationale: SC2 requires SC1 fixtures + SC4 rejection + SC9 cleanup primitives
+    to: phase_5
+    rationale: C7 cleanup removes the C1-provisioned fixture clones
   - from: phase_4
     to: phase_5
-    rationale: SC3 merged-PR discovery depends on SC2 wired origin
+    rationale: C7 cleanup must account for the C4 mutual-exclusion-rejected partial state
+  - from: phase_2
+    to: phase_6
+    rationale: C2 origin wiring requires the scoped GB_* values from C5/SC17
+  - from: phase_3
+    to: phase_6
+    rationale: C2 origin wiring requires the C1 fixture repos
   - from: phase_4
     to: phase_6
-    rationale: SC10 full-env opt-in requires SC2 wired origin
+    rationale: C2 origin wiring must respect the C4 mutual-exclusion rejection
   - from: phase_6
     to: phase_7
-    rationale: SC11/SC12 verified during SC10 run
+    rationale: C8 2242-sc6 full-env opt-in requires the C2 wired origin and discovery
+  - from: phase_4
+    to: phase_8
+    rationale: C9 documentation covers the C4 mutual-exclusion rule, so must follow it
   - from: phase_1
     to: phase_9
-    rationale: SC8 default path unchanged after SC5 allowlist extension
+    rationale: C6 default path unchanged after C4 allowlist extension
   - from: phase_3
     to: phase_9
-    rationale: SC8 default path unchanged after SC1/SC4 provisioning
+    rationale: C6 default path unchanged after C1 provisioning
   - from: phase_4
     to: phase_9
-    rationale: SC8 final regression gate after SC2 origin wiring
+    rationale: C6 default path unchanged after C4 mutual-exclusion rejection
+  - from: phase_6
+    to: phase_9
+    rationale: C6 final regression gate after C2 origin wiring

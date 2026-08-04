@@ -49,19 +49,20 @@ actions:
     params: []
     preconditions:
       - completed(phase-1)
-      - completed(phase-2)
-      - completed(phase-3)
     effects:
       - completed(phase-4)
   - name: execute-phase-5
     params: []
     preconditions:
+      - completed(phase-3)
       - completed(phase-4)
     effects:
       - completed(phase-5)
   - name: execute-phase-6
     params: []
     preconditions:
+      - completed(phase-2)
+      - completed(phase-3)
       - completed(phase-4)
     effects:
       - completed(phase-6)
@@ -73,7 +74,8 @@ actions:
       - completed(phase-7)
   - name: execute-phase-8
     params: []
-    preconditions: []
+    preconditions:
+      - completed(phase-4)
     effects:
       - completed(phase-8)
   - name: execute-phase-9
@@ -82,6 +84,7 @@ actions:
       - completed(phase-1)
       - completed(phase-3)
       - completed(phase-4)
+      - completed(phase-6)
     effects:
       - completed(phase-9)
 init: []

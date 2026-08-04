@@ -13,7 +13,7 @@ checks:
       phase_3: True
       phase_4: True
       phase_5: False
-      phase_6: False
+      phase_6: True
       phase_7: False
       phase_8: False
       phase_9: True
@@ -29,10 +29,10 @@ checks:
     plan:
       - execute-phase-1()
       - execute-phase-3()
-      - execute-phase-2()
       - execute-phase-4()
-      - execute-phase-6()
+      - execute-phase-2()
       - execute-phase-5()
-      - execute-phase-7()
+      - execute-phase-6()
       - execute-phase-8()
+      - execute-phase-7()
       - execute-phase-9()

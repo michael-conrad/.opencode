@@ -195,3 +195,11 @@ Phase 2 completes the optional Butter root reference. Plan is complete.
 - [ ] 33. **review-prep** (**sub-agent**). Dispatch `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare PR review context.
 - [ ] 34. **create-pr** (**sub-agent**). Dispatch `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request for the guideline changes. Include the `.opencode/` submodule pointer update alongside the guideline changes in the same commit if the pointer is dirty.
 - [ ] 35. **exec-summary** (**sub-agent**). Dispatch `task(..., prompt: "execute completion task from completion-core")`. Generate the completion executive summary and append lifecycle event.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Notes |
+|-----------|-------|-------|
+| 2026-08-04T18:20:36Z | `plan_created` | Plan created at `.opencode/.issues/2243/plan.md`; 2 phases

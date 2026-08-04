@@ -8,11 +8,11 @@ goals: 9
 plan length: 9
 - execute-phase-1()
 - execute-phase-3()
-- execute-phase-2()
 - execute-phase-4()
-- execute-phase-6()
+- execute-phase-2()
 - execute-phase-5()
-- execute-phase-7()
+- execute-phase-6()
 - execute-phase-8()
+- execute-phase-7()
 - execute-phase-9()
 plan_length: 9
