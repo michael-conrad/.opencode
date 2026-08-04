@@ -1,0 +1,64 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md (§3 Success Criteria, §5 Items, §2 Not Included)"
+content:
+  description: "Interface boundaries and backward compatibility analysis for the assert_semantic removal"
+  regression_invariants:
+    - invariant: "behavior_run() generation behavior is preserved for all 12 converted scripts"
+      verification: "SC-3 behavioral test — behavior_run invocation arguments unchanged (name, prompt, model, workdir, agent)"
+    - invariant: "The mandatory cross-reference header is preserved in all 12 converted scripts"
+      verification: "SC-3 behavioral test — header intact"
+    - invariant: "behavior_run() generation logic, artifact directory structure, and __export_sqlite_to_yaml() are unchanged"
+      verification: "Structural — helpers.sh generation functions untouched (only assert_semantic() removed)"
+    - invariant: "Each converted script exits 0 unconditionally as an artifact-only generator"
+      verification: "SC-4 behavioral test — exit 0, artifact dir produced, session.yaml written"
+  interface_boundaries:
+    assert_semantic_function:
+      status: "REMOVED"
+      description: "assert_semantic() in helpers.sh deleted (SC-1). No callers remain because all 12 call sites removed first (Phase 1 before Phase 2)."
+      rationale: "Inline in-script evaluation violates the artifact-only paradigm; evaluation relocated to orchestrator-dispatched clean-room sub-agents"
+      dependent_scripts:
+        - "All 12 converted scripts (previously called assert_semantic after behavior_run)"
+    behavior_run_api:
+      status: "UNCHANGED"
+      description: "behavior_run() signature and behavior preserved; scripts still call behavior_run then exit 0"
+      rationale: "Generation mechanism preserved — only the evaluation mechanism changes (R-6)"
+      consumers:
+        - "All 12 converted scripts + all other artifact-only behavior scripts"
+    session_yaml_evidence:
+      status: "UNCHANGED"
+      description: "session.yaml remains PRIMARY evaluation evidence source (SQLite DB export)"
+      rationale: "Preserves existing mandate — clean-room sub-agent reads session.yaml"
+    orchestrator_dispatch_interface:
+      status: "NEW"
+      description: "Orchestrator-dispatched clean-room sub-agent evaluation contract documented in tests-v2/AGENTS.md (SC-5)"
+      inputs:
+        - "artifact directory path"
+        - "SC criterion"
+        - "github.owner, github.repo"
+      outputs:
+        - "PASS or FAIL verdict"
+        - "one-sentence justification"
+      isolation:
+        - "MUST NOT receive orchestrator reasoning, expected outcomes, or cached results (R-8, clean-room discipline)"
+    tdd_skill_behavioral_guidance:
+      status: "RELOCATED"
+      description: "skills/test-driven-development/SKILL.md behavioral assertion guidance relocated from assert_semantic to clean-room sub-agent evaluation (SC-7)"
+      rationale: "Evidence-type taxonomy and no-lobotomizing mandate preserved — guidance replaced, not deleted"
+    verify_md_assertion_helper_list:
+      status: "UPDATED"
+      description: "skills/verification-before-completion/tasks/verify.md assertion-helper list removes assert_semantic; references clean-room evaluation (SC-8)"
+      rationale: "Cross-model validation gate and behavioral-test-run instructions preserved"
+    docs_not_modified:
+      status: "OUT_OF_SCOPE"
+      description: "Historical/archival .issues/ files and fixture content referencing assert_semantic are explicitly out of scope (R-9, R-10)"
+      rationale: "Records of completed work / test input data — MUST NOT be modified"
+    other_files:
+      status: "UNCHANGED"
+      description: "test-enforcement.sh, with-test-home, session-to-timeline not affected (per §2 Not Included)"
+      rationale: "Separate frameworks/tools; no assert_semantic coupling"
+  external_interface_impact:
+    evaluation_api: "NONE for scripts — inline assert_semantic removed; evaluation handled by orchestrator task() dispatch"
+    generation_api: "NONE — behavior_run unchanged"
+    behavioral_evidence: "PRIMARY source remains session.yaml"
+    user_facing: "NONE — no user-facing API changes"

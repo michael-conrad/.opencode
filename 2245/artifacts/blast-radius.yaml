@@ -1,0 +1,49 @@
+artifact_name: blast-radius
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md"
+content:
+  description: "Files and directories affected by the assert_semantic removal and clean-room evaluation refactor"
+  primary_modified_files:
+    - path: ".opencode/tests-v2/behaviors/helpers.sh"
+      change: "Remove the assert_semantic() function definition (lines spanning the function block starting at def). This is the only assertion helper; deletion is SC-1."
+    - path: ".opencode/tests-v2/AGENTS.md"
+      change: "Document orchestrator-dispatched clean-room sub-agent evaluation contract; explicitly name assert_semantic as FORBIDDEN in the assertion-helper list (SC-5, SC-6)."
+    - path: ".opencode/skills/test-driven-development/SKILL.md"
+      change: "Remove all assert_semantic references; describe clean-room sub-agent evaluation (reading session.yaml) as behavioral evidence mechanism (SC-7)."
+    - path: ".opencode/skills/verification-before-completion/tasks/verify.md"
+      change: "Remove assert_semantic reference from assertion-helper list; reference clean-room sub-agent evaluation (SC-8)."
+  converted_behavior_scripts:
+    count: 12
+    description: "Converted to artifact-only generators — remove inline assert_semantic call and its '# Evaluate with assert_semantic' comment, preserve behavior_run args, header, and exit 0 (SC-2, SC-3, SC-4)."
+    scripts:
+      - "tests-v2/behaviors/2219-sc10-non-pointer-guard.sh"
+      - "tests-v2/behaviors/2219-sc11-existing-cleanup.sh"
+      - "tests-v2/behaviors/2219-sc15-decline-submodule-pr.sh"
+      - "tests-v2/behaviors/2219-sc16-stale-pointer-block.sh"
+      - "tests-v2/behaviors/2219-sc19-release-pr-prework.sh"
+      - "tests-v2/behaviors/2219-sc3-prework-ordering.sh"
+      - "tests-v2/behaviors/2219-sc6-dead-branch-detection.sh"
+      - "tests-v2/behaviors/2219-sc7-submodule-pr-verification.sh"
+      - "tests-v2/behaviors/2219-sc8-dead-branch-deletion.sh"
+      - "tests-v2/behaviors/2219-sc9-dirty-pointer.sh"
+      - "tests-v2/behaviors/2239-sc8-check-pr-routing.sh"
+      - "tests-v2/behaviors/skill-deck-completeness.sh"
+  reference_model:
+    - path: "tests-v2/behaviors/2230-sc1-trunk-tip-dispatch.sh"
+      change: "Canonical artifact-only target — reference model for the 12 conversions (behavior_run + exit 0, no inline evaluation). NOT modified."
+  explicitly_out_of_scope:
+    - path: ".opencode/.issues/ (historical/archival)"
+      change: "R-9 non-requirement — dozens of completed plan/spec/artifact files reference assert_semantic; MUST NOT be modified."
+    - path: ".opencode/tests-v2/behaviors/fixtures/issues/2230/plan.md"
+      change: "R-10 non-requirement — fixture test input data referencing assert_semantic; update optional and non-blocking."
+    - path: ".opencode/tests-v2/test-enforcement.sh"
+      change: "Not affected — content-verification framework greps files, not assert_semantic."
+    - path: ".opencode/tests-v2/with-test-home"
+      change: "Not affected — XDG isolation harness."
+    - path: ".opencode/tools/session-to-timeline"
+      change: "Not affected — separate tool."
+  total_file_count:
+    modified: 4
+    converted: 12
+    deleted: 0
+    total_affected: 16

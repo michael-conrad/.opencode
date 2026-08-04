@@ -1,0 +1,68 @@
+artifact_name: concern-map
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md (§3 Success Criteria, §5 Items, §6 Dependencies)"
+content:
+  description: "Concern-to-phase mapping for the assert_semantic removal (dependency ordering: script conversion precedes function removal)"
+  phases:
+    - phase: 1
+      name: "Convert 12 behavior scripts to artifact-only generators"
+      concern: "Remove inline assert_semantic calls and comments from 12 call-site scripts; preserve behavior_run args, header, and exit-0 semantics"
+      scs:
+        - SC-2
+        - SC-3
+        - SC-4
+      dependencies: []
+      dispatch: "per-SC items (Items 1-3)"
+      key_deliverables:
+        - "12 scripts stripped of inline assert_semantic call and '# Evaluate with assert_semantic' comment"
+        - "behavior_run invocation arguments preserved"
+        - "mandatory cross-reference header intact"
+        - "each script exits 0 unconditionally, produces artifact dir with session.yaml"
+    - phase: 2
+      name: "Remove assert_semantic() from helpers.sh"
+      concern: "Delete the assert_semantic() function definition; verify sourcing integrity"
+      scs:
+        - SC-1
+      dependencies:
+        - "Phase 1 (all 12 call sites removed before function deletion per dependency-ordering constraint)"
+      dispatch: "Item 4"
+      key_deliverables:
+        - "assert_semantic() function block absent from helpers.sh"
+        - "bash -c 'source helpers.sh' succeeds with no undefined-function references"
+    - phase: 3
+      name: "Document clean-room sub-agent evaluation contract"
+      concern: "Replace inline evaluation mechanism with documented orchestrator-dispatched clean-room sub-agent evaluation"
+      scs:
+        - SC-5
+      dependencies:
+        - "Phase 2 (function removed)"
+      dispatch: "Item 5"
+      key_deliverables:
+        - "tests-v2/AGENTS.md documents contract: sub-agent receives only artifact dir + SC criterion + github.owner/github.repo"
+        - "session.yaml documented as PRIMARY evidence source"
+        - "PASS/FAIL + one-sentence justification return contract"
+    - phase: 4
+      name: "Explicitly forbid assert_semantic in tests-v2/AGENTS.md and update TDD + verify docs"
+      concern: "Update three active enforcement docs to remove stale assert_semantic references and reflect clean-room evaluation"
+      scs:
+        - SC-6
+        - SC-7
+        - SC-8
+      dependencies:
+        - "Phase 3 (contract documented)"
+      dispatch: "Items 6-8 (one item per SC)"
+      key_deliverables:
+        - "tests-v2/AGENTS.md assertion-helper list explicitly names assert_semantic as FORBIDDEN"
+        - "skills/test-driven-development/SKILL.md has zero assert_semantic references; clean-room evaluation described"
+        - "skills/verification-before-completion/tasks/verify.md has zero assert_semantic references; clean-room evaluation referenced"
+        - "evidence-type taxonomy and no-lobotomizing mandate preserved"
+  concern_to_phase_mapping:
+    "Script conversion to artifact-only generators": 1
+    "assert_semantic() function removal from helpers.sh": 2
+    "Clean-room sub-agent evaluation contract documentation": 3
+    "Enforcement doc updates (AGENTS.md, TDD SKILL.md, verify.md)": 4
+  phase_independence:
+    description: "Phases 1-4 are strictly sequential due to dependency-ordering constraint (SC-2/SC-3/SC-4 before SC-1); Phase 3 before Phase 4"
+    independent_phases: []
+    prerequisite_phase: 1
+    dependent_phase: 4

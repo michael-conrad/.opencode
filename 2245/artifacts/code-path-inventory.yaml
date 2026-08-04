@@ -1,0 +1,56 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md (§3 Success Criteria, §5 Items, §8 Documentation Sources)"
+content:
+  description: "Code paths implied by each SC in the assert_semantic removal"
+  per_sc_code_paths:
+    SC-1:
+      path: ".opencode/tests-v2/behaviors/helpers.sh"
+      action: "Remove assert_semantic() function definition (the only assertion helper)"
+      evidence: "grep helpers.sh for assert_semantic returns empty; bash -c 'source helpers.sh' succeeds"
+    SC-2:
+      path: "12 behavior scripts under tests-v2/behaviors/"
+      action: "Remove inline assert_semantic call and its '# Evaluate with assert_semantic' comment"
+      evidence: "grep each script for assert_semantic returns empty"
+    SC-3:
+      path: "12 behavior scripts under tests-v2/behaviors/"
+      action: "Preserve behavior_run invocation arguments and mandatory cross-reference header"
+      evidence: "Run each script; behavior_run args unchanged, header intact"
+    SC-4:
+      path: "12 behavior scripts under tests-v2/behaviors/"
+      action: "Each script exits 0 unconditionally as artifact-only generator producing artifact dir with session.yaml"
+      evidence: "Run each script; exit 0, artifact directory present, session.yaml written"
+    SC-5:
+      path: ".opencode/tests-v2/AGENTS.md"
+      action: "Document clean-room sub-agent evaluation contract (artifact dir + SC criterion + owner/repo in; session.yaml PRIMARY; PASS/FAIL + justification out)"
+      evidence: "grep AGENTS.md for two-SC pattern and clean-room isolation constraints"
+    SC-6:
+      path: ".opencode/tests-v2/AGENTS.md"
+      action: "Explicitly name assert_semantic as FORBIDDEN in assertion-helper list"
+      evidence: "grep AGENTS.md for forbidden-helper list returns match explicitly naming assert_semantic"
+    SC-7:
+      path: ".opencode/skills/test-driven-development/SKILL.md"
+      action: "Remove assert_semantic references (8 present); describe clean-room sub-agent evaluation as behavioral evidence mechanism"
+      evidence: "grep SKILL.md for assert_semantic returns empty; behavioral assertion guidance present"
+    SC-8:
+      path: ".opencode/skills/verification-before-completion/tasks/verify.md"
+      action: "Remove assert_semantic reference from assertion-helper list; reference clean-room sub-agent evaluation"
+      evidence: "grep verify.md for assert_semantic returns empty; behavioral run instructions intact"
+  source_files_consulted:
+    - path: ".opencode/tests-v2/behaviors/helpers.sh"
+      purpose: "assert_semantic() function definition (the inline opencode run evaluation block)"
+    - path: "12 call-site behavior scripts under tests-v2/behaviors/"
+      purpose: "inline assert_semantic call and comment"
+    - path: ".opencode/tests-v2/behaviors/2230-sc1-trunk-tip-dispatch.sh"
+      purpose: "canonical artifact-only target (behavior_run + exit 0)"
+    - path: ".opencode/tests-v2/AGENTS.md"
+      purpose: "artifact-only paradigm §1, session.yaml-primary §2/§6a, two-SC pattern"
+    - path: ".opencode/skills/test-driven-development/SKILL.md"
+      purpose: "behavioral assertion guidance (8 assert_semantic references)"
+    - path: ".opencode/skills/verification-before-completion/tasks/verify.md"
+      purpose: "assertion-helper list (contains assert_semantic reference)"
+  dependency_ordering:
+    SC-2/SC-3/SC-4: "Phase 1 — script conversion before function removal (set -euo pipefail breaks sourcing if function removed first)"
+    SC-1: "Phase 2 — function removal only after all 12 call sites removed"
+    SC-5: "Phase 3 — contract documentation"
+    SC-6/SC-7/SC-8: "Phase 4 — enforcement doc updates (mutually independent files)"

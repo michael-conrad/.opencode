@@ -1,0 +1,52 @@
+artifact_name: state-analysis
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md (§3 Success Criteria, §5 Items)"
+content:
+  description: "State transitions for files affected by the assert_semantic removal"
+  transitions:
+    - entity: "tests-v2/behaviors/helpers.sh"
+      before: "Contains assert_semantic() function definition (the only assertion helper); performs inline opencode run evaluation"
+      after: "assert_semantic() function block absent; helpers.sh sources cleanly; generation functions (behavior_run, __export_sqlite_to_yaml) unchanged"
+      phase: 2
+    - entity: "12 call-site behavior scripts under tests-v2/behaviors/"
+      before: "Call behavior_run then inline assert_semantic + '# Evaluate with assert_semantic' comment"
+      after: "Call behavior_run then exit 0 (artifact-only generators); no assert_semantic call or comment; behavior_run args and mandatory header preserved"
+      phase: 1
+    - entity: "tests-v2/behaviors/2230-sc1-trunk-tip-dispatch.sh"
+      before: "Canonical artifact-only target (behavior_run + exit 0, no inline evaluation)"
+      after: "Unchanged — used as reference model, not modified"
+      phase: 1
+    - entity: "tests-v2/AGENTS.md"
+      before: "Already has zero assert_semantic references and documents §6a two-SC pattern"
+      after: "Documents clean-room sub-agent evaluation contract (SC-5); explicitly names assert_semantic as FORBIDDEN in assertion-helper list (SC-6)"
+      phase: 3
+      phase_4: "Additional enforcement doc update per SC-6"
+    - entity: "skills/test-driven-development/SKILL.md"
+      before: "Contains 8 assert_semantic references"
+      after: "Zero assert_semantic references; describes clean-room sub-agent evaluation (reading session.yaml) as behavioral evidence mechanism; evidence-type taxonomy and no-lobotomizing mandate preserved"
+      phase: 4
+    - entity: "skills/verification-before-completion/tasks/verify.md"
+      before: "assertion-helper list contains an assert_semantic reference"
+      after: "Zero assert_semantic references; references orchestrator-dispatched clean-room sub-agent evaluation; cross-model validation gate and behavioral-test-run instructions preserved"
+      phase: 4
+    - entity: "Historical/archival .issues/ files and fixture content"
+      before: "Reference assert_semantic"
+      after: "Unchanged — explicitly out of scope (R-9, R-10)"
+      phase: none
+  dependency_constraints:
+    - "SC-2/SC-3/SC-4 (Phase 1) MUST precede SC-1 (Phase 2): removing the function while scripts still call it breaks sourcing under set -euo pipefail"
+    - "SC-5 (Phase 3) documents the contract that replaces inline evaluation"
+    - "SC-6/SC-7/SC-8 (Phase 4) are mutually independent files, applied as separate commits"
+  checkpoint_tags:
+    - tag: "feature/2245-remove-assert-semantic/checkpoint/phase-1-main"
+      phase: 1
+      description: "After 12 behavior scripts converted to artifact-only generators"
+    - tag: "feature/2245-remove-assert-semantic/checkpoint/phase-2-main"
+      phase: 2
+      description: "After assert_semantic() removed from helpers.sh"
+    - tag: "feature/2245-remove-assert-semantic/checkpoint/phase-3-main"
+      phase: 3
+      description: "After clean-room sub-agent evaluation contract documented in AGENTS.md"
+    - tag: "feature/2245-remove-assert-semantic/checkpoint/phase-4-main"
+      phase: 4
+      description: "After three enforcement docs updated (AGENTS.md, TDD SKILL.md, verify.md)"

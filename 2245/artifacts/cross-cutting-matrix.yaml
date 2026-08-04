@@ -1,0 +1,81 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md (§3 Success Criteria, §5 Items)"
+content:
+  description: "Cross-cutting concerns spanning multiple SCs in the assert_semantic removal"
+  cross_cutting_concerns:
+    - sc_id: SC-2
+      name: "Inline assert_semantic call/comment removal from 12 scripts"
+      evidence_type: behavioral
+      verification_method: "Run each converted script via bash; grep each script for assert_semantic returns empty"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Re-remove any residual assert_semantic call or comment"
+    - sc_id: SC-3
+      name: "Preserve behavior_run args and mandatory cross-reference header across all 12 conversions"
+      evidence_type: behavioral
+      verification_method: "Run each converted script; behavior_run args unchanged, mandatory header intact"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Restore any regressed behavior_run arg or header dropped during conversion"
+    - sc_id: SC-4
+      name: "Exit-0 artifact-only generation across all 12 conversions"
+      evidence_type: behavioral
+      verification_method: "Run each converted script; exit 0, artifact dir produced, session.yaml written"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Restore any regressed unconditional exit 0"
+    - sc_id: SC-1
+      name: "assert_semantic() function removal with sourcing integrity"
+      evidence_type: structural
+      verification_method: "grep helpers.sh for assert_semantic empty; bash -c 'source helpers.sh' succeeds"
+      phases_affected:
+        - 2
+      verification_gate: post-implementation
+      remediation: "Verify no script still calls removed function (enforced by Phase 1→Phase 2 dependency)"
+    - sc_id: SC-5
+      name: "Clean-room sub-agent evaluation contract (artifact dir + SC criterion + owner/repo; session.yaml PRIMARY; PASS/FAIL + justification)"
+      evidence_type: string
+      verification_method: "grep tests-v2/AGENTS.md for two-SC pattern and clean-room isolation constraints"
+      phases_affected:
+        - 3
+      verification_gate: post-implementation
+      remediation: "Complete the documented contract text in AGENTS.md"
+    - sc_id: SC-6
+      name: "assert_semantic explicitly named FORBIDDEN in AGENTS.md assertion-helper list"
+      evidence_type: string
+      verification_method: "grep AGENTS.md for forbidden-helper list returns a match explicitly naming assert_semantic"
+      phases_affected:
+        - 4
+      verification_gate: post-implementation
+      remediation: "Add assert_semantic to the forbidden-helper list, explicitly marked FORBIDDEN"
+    - sc_id: SC-7
+      name: "Remove all assert_semantic references from TDD SKILL.md; describe clean-room evaluation; preserve evidence taxonomy and no-lobotomizing mandate"
+      evidence_type: string
+      verification_method: "grep SKILL.md for assert_semantic empty; behavioral assertion guidance present"
+      phases_affected:
+        - 4
+      verification_gate: post-implementation
+      remediation: "Remove assert_semantic references; replace with clean-room evaluation description without deleting behavioral assertion guidance"
+    - sc_id: SC-8
+      name: "Remove assert_semantic reference from verify.md assertion-helper list; reference clean-room evaluation; preserve cross-model validation gate"
+      evidence_type: string
+      verification_method: "grep verify.md for assert_semantic empty; behavioral run instructions intact"
+      phases_affected:
+        - 4
+      verification_gate: post-implementation
+      remediation: "Remove assert_semantic reference from assertion-helper list; add clean-room evaluation reference preserving behavioral-run instructions"
+  cross_cutting_verification_gates:
+    - gate: post-implementation
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8

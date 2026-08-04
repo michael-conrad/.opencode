@@ -1,0 +1,72 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md (§3 Success Criteria, §5 Items)"
+content:
+  description: "Test coverage and evidence-type assessment for the assert_semantic removal"
+  per_sc_testability:
+    SC-1:
+      evidence_type: structural
+      description: "assert_semantic() function block absent from helpers.sh"
+      verification:
+        - "grep helpers.sh for assert_semantic returns empty"
+        - "bash -c 'source .opencode/tests-v2/behaviors/helpers.sh' succeeds with no undefined-function references"
+      testable: "Structural grep + sourcing check — deterministic, no model required"
+    SC-2:
+      evidence_type: behavioral
+      description: "All 12 scripts remove inline assert_semantic call and its '# Evaluate with assert_semantic' comment"
+      verification:
+        - "Run each converted script via bash .opencode/tests-v2/behaviors/<scenario>.sh"
+        - "grep each script for assert_semantic token returns empty (call and comment removed)"
+      testable: "Behavioral — script run + grep. Note: evaluation of the behavioral signal itself is by orchestrator-dispatched clean-room sub-agent reading session.yaml per the two-SC pattern"
+    SC-3:
+      evidence_type: behavioral
+      description: "Each converted script preserves its pre-conversion contract (behavior_run args + mandatory header)"
+      verification:
+        - "Run each converted script via bash"
+        - "assert behavior_run invocation arguments unchanged and mandatory cross-reference header intact"
+      testable: "Behavioral — script run + structural comparison of behavior_run args and header"
+    SC-4:
+      evidence_type: behavioral
+      description: "Each converted script exits 0 unconditionally as artifact-only generator"
+      verification:
+        - "Run each converted script via bash"
+        - "assert process exits 0, produces artifact directory, writes session.yaml into it"
+      testable: "Behavioral — exit-code check + artifact dir + session.yaml presence"
+    SC-5:
+      evidence_type: string
+      description: "Clean-room sub-agent evaluation contract documented in tests-v2/AGENTS.md"
+      verification:
+        - "grep tests-v2/AGENTS.md for the two-SC pattern and clean-room isolation constraints"
+        - "contract text present and coherent (artifact dir + SC criterion + github.owner/repo in; session.yaml PRIMARY; PASS/FAIL + justification out)"
+      testable: "String — grep/read of AGENTS.md"
+    SC-6:
+      evidence_type: string
+      description: "tests-v2/AGENTS.md explicitly names assert_semantic as FORBIDDEN in assertion-helper list"
+      verification:
+        - "grep tests-v2/AGENTS.md for forbidden-helper list returns match explicitly naming assert_semantic as forbidden"
+        - "two-SC section and mandate text intact"
+      testable: "String — grep of AGENTS.md"
+    SC-7:
+      evidence_type: string
+      description: "skills/test-driven-development/SKILL.md has no assert_semantic references; describes clean-room sub-agent evaluation as behavioral evidence mechanism"
+      verification:
+        - "grep skills/test-driven-development/SKILL.md for assert_semantic returns empty"
+        - "behavioral assertion guidance present; evidence-type taxonomy and no-lobotomizing mandate preserved"
+      testable: "String — grep of SKILL.md"
+    SC-8:
+      evidence_type: string
+      description: "skills/verification-before-completion/tasks/verify.md has no assert_semantic reference; references clean-room sub-agent evaluation"
+      verification:
+        - "grep skills/verification-before-completion/tasks/verify.md for assert_semantic returns empty"
+        - "behavioral run instructions intact; cross-model validation gate preserved"
+      testable: "String — grep of verify.md"
+  evidence_type_taxonomy:
+    behavioral: 4
+    string: 4
+    structural: 0
+    total_scs: 8
+  clean_room_evaluation_note:
+    description: "SC-2/SC-3/SC-4 are declared behavioral in the spec. Per the artifact-only paradigm, the scripts only generate artifacts (behavior_run + exit 0). Evaluation of whether the agent's actions satisfy the SC criterion is performed by an orchestrator-dispatched clean-room sub-agent reading session.yaml (the PRIMARY evidence source), not by the scripts themselves."
+  dependency_ordering_verification:
+    - "SC-2/SC-3/SC-4 run before SC-1 to avoid set -euo pipefail sourcing break"
+    - "SC-6/SC-7/SC-8 mutually independent files, separate commits"
