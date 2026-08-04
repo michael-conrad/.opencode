@@ -62,6 +62,7 @@ All scripts exit 0 unconditionally after artifact generation. The exit code sign
 | Pattern | Why Prohibited | Correct Pattern |
 |---------|----------------|-----------------|
 | `assert_*` function calls | Script conflates generation with evaluation | Script runs `behavior_run`, exits 0 |
+| `assert_semantic` | FORBIDDEN — script conflates generation with evaluation | Script runs `behavior_run`, exits 0 |
 | `OVERALL_RESULT` variable | Script tracks internal pass/fail | Script has zero pass/fail tracking |
 | `exit $OVERALL_RESULT` | Non-zero exit signals evaluation FAIL | `exit 0` unconditionally |
 | Inline grep/pattern checks | Script evaluates output | Script generates artifacts for evaluation |
@@ -72,7 +73,7 @@ All scripts exit 0 unconditionally after artifact generation. The exit code sign
 
 `stdout.log` contains only agent prose (chat output). `stderr.log` contains only the `TEST_HOME=<path>` marker for DB discovery. Neither is a reliable source for tool dispatch verification.
 
-**Assertion helpers that grep stderr or stdout (`assert_stderr_pattern_present`, `assert_required_pattern_present`, `assert_forbidden_pattern_absent`, `assert_tool_calls_made`, `assert_skill_called`, `assert_no_skill_called`) are FORBIDDEN for behavioral SC evaluation.** They operate on the wrong data source. All behavioral evaluation MUST use `session.yaml` via clean-room sub-agent inspection.
+**Assertion helpers that grep stderr or stdout (`assert_semantic`, `assert_stderr_pattern_present`, `assert_required_pattern_present`, `assert_forbidden_pattern_absent`, `assert_tool_calls_made`, `assert_skill_called`, `assert_no_skill_called`) are FORBIDDEN for behavioral SC evaluation.** They operate on the wrong data source. All behavioral evaluation MUST use `session.yaml` via clean-room sub-agent inspection.
 
 The `session-to-timeline` tool at `.opencode/tools/session-to-timeline` processes `session.yaml` into a condensed timeline of tool calls for evaluation. Use this for structured analysis of agent actions.
 
@@ -119,7 +120,7 @@ Every `behavior_run` invocation produces an artifact directory at:
 
 `stdout.log` contains only the agent's prose response (what it wrote to chat). It is NOT a reliable source for tool dispatch verification — tool calls are recorded in the SQLite `event` table, not in stdout. `stderr.log` contains only the `TEST_HOME=<path>` marker used to discover the SQLite DB path.
 
-**Assertion helpers that grep stderr or stdout (`assert_stderr_pattern_present`, `assert_required_pattern_present`, etc.) are FORBIDDEN for behavioral SC evaluation.** They operate on the wrong data source. All behavioral evaluation MUST use `session.yaml` (the SQLite DB export) via clean-room sub-agent inspection.
+**Assertion helpers that grep stderr or stdout (`assert_semantic`, `assert_stderr_pattern_present`, `assert_required_pattern_present`, etc.) are FORBIDDEN for behavioral SC evaluation.** They operate on the wrong data source. All behavioral evaluation MUST use `session.yaml` (the SQLite DB export) via clean-room sub-agent inspection.
 
 ### `session.yaml` Export Mechanism
 
@@ -461,7 +462,7 @@ exit 0
 **SC-N+1 (clean-room evaluation):**
 ```bash
 # Evaluation script or task dispatch
-task(..., prompt: "Read session.yaml from {artifact_path}. Evaluate whether the agent's tool calls and decisions satisfy SC-N+1: {criterion}. Return PASS/FAIL with evidence.")
+task(..., prompt: "Read session.yaml from {artifact_path}. Evaluate whether the agent's tool calls and decisions satisfy SC-N+1: {criterion}. Return PASS/FAIL with a one-sentence justification.")
 ```
 
 The evaluation sub-agent receives ONLY:

@@ -16,8 +16,4 @@ SCENARIO_NAME="2219-sc7-submodule-pr-verification"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-sub-pointer-only' with only submodule pointer changes. The submodule PR #2219 is merged. Verify the submodule PR merge status via the platform API before deleting the parent branch."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with submodule PR verification
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-7" "Agent verifies submodule PR merge status via platform API before deleting parent branch. The agent queries the platform API (GitHub or GitBucket) to check if the submodule PR is merged before proceeding with branch deletion."
 exit 0

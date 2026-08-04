@@ -16,10 +16,4 @@ SCENARIO_NAME="2219-sc11-existing-cleanup"
 SCENARIO_PROMPT="Check PRs. There are merged branches that need cleanup. Run the standard cleanup workflow."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because the existing cleanup behavior is the baseline — the test
-# verifies that the new dead-branch detection doesn't break existing cleanup, but in RED
-# phase the new code doesn't exist yet so the assertion about "continues to work" is unmet
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-11" "Existing merged-branch cleanup continues to work unchanged. The agent runs the standard Phase 5 cleanup workflow for merged branches: switching to trunk, deleting merged branches, pruning references, and producing a clean final state. The dead-branch detection addition does not break this existing behavior."
 exit 0

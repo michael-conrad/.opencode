@@ -15,8 +15,4 @@ SCENARIO_NAME="2239-sc8-check-pr-routing"
 SCENARIO_PROMPT="check pr"
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
-
-# Evaluate with assert_semantic
-# SC-8: Agent routes "check pr" to git-workflow-cleanup --task cleanup
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-8" "When the user says 'check pr', the agent dispatches git-workflow-cleanup --task cleanup (or equivalent cleanup workflow). The agent does NOT look for a non-existent 'check-pr' task. The agent routes to the cleanup workflow which handles PR state checking, merged branch cleanup, and issue closure."
 exit 0

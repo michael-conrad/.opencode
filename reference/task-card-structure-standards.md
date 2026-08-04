@@ -174,7 +174,7 @@ Full evidence goes to disk at the `artifact_path`. The result contract carries o
 When the orchestrator dispatches a sub-agent via `task()`, the prompt MUST include a discovery directive telling the sub-agent which task card to read:
 
 ```
-"Read `<skill>/tasks/<task>.md` and follow its instructions. Issue: {issue_number}."
+Dispatch a sub-agent with the prompt "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}"
 ```
 
 This is required because `task()` does NOT auto-load task card files. The sub-agent must use its own file read tools to load the task card.

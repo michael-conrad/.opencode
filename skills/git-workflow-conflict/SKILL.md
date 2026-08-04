@@ -1,6 +1,6 @@
 ---
 name: git-workflow-conflict
-description: "Git conflict resolution during rebase, merge, or cherry-pick operations. Load via skill() when the agent needs to resolve git conflicts during rebase, merge, or cherry-pick operations. Conflict resolution MUST analyze intent before applying changes. User phrases: resolve conflict, rebase conflict, merge conflict, cherry-pick conflict"
+description: "Resolve git conflicts during rebase, merge, or cherry-pick operations, analyzing intent before applying changes. Conflict resolution MUST analyze intent before applying changes."
 license: MIT
 provenance: AI-generated
 ---
@@ -11,38 +11,23 @@ provenance: AI-generated
 
 Conflict resolution sub-skill of git-workflow. Handles rebase-pending conflict resolution during rebase, merge, or cherry-pick operations. Delegates intent analysis and tier classification to the `conflict-resolution` skill. Enforces the three-tier conflict model: Trivial (auto-resolve), Textual (note), Intent (HALT).
 
-## Trigger Dispatch Table
+## Mandatory Task Discipline
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "rebase" / "rebase pending" / "rebase conflict" | `rebase-pending` | `sub-task` | {branch_name, worktree.path} |
-| "merge conflict" / "resolve conflict" | `rebase-pending` | `sub-task` | {branch_name, worktree.path} |
-| "cherry-pick conflict" | `rebase-pending` | `sub-task` | {branch_name, worktree.path} |
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## DISPATCH_GATE
+## Workflows
 
-### Orchestrator Entry Criteria
+### Resolve a rebase, merge, or cherry-pick conflict
 
-1. Confirm the next action is `task()` — not inline execution
-2. Use the canonical dispatch string from the Trigger Dispatch Table verbatim
-3. Do NOT preload file paths, step sequences, expected outcomes, or orchestrator reasoning
-4. Task a clean-room sub-agent via `task(subagent_type="general")`
-5. Receive result contract (status, finding_summary, artifact_path, blocker_reason)
-6. Log in work state file — record which sub-agent was tasked and when
-7. Proceed based on result contract — route to next pipeline step
+When the agent needs to resolve git conflicts during a rebase, merge, or cherry-pick operation, rebase pending PRs onto the updated default branch, or classify conflicts by tier.
 
-### Sub-Agent Entry Criteria
-
-2. Sub-agent loads task file content independently — never from orchestrator context
-3. Sub-agent reads source files, runs analysis tools, executes tests freely
-4. Sub-agent returns only routing-significant data: status, finding_summary, artifact_path, blocker_reason
-5. Full evidence artifacts go to disk — never in the result contract
-
-## Tasks
-
-| Task | Description |
-|------|-------------|
-| `rebase-pending` | Resolve rebase/merge/cherry-pick conflicts — classify tier, apply resolution |
+1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-conflict/tasks/rebase-pending.md](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: {branch_name}, worktree.path: {worktree.path}"`
+   - Context: `{branch_name, worktree.path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 ## Cross-References
 

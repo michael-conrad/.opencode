@@ -16,8 +16,4 @@ SCENARIO_NAME="2219-sc6-dead-branch-detection"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-sub-pointer-only'. The only difference from main is a submodule pointer change in .opencode. Run the cleanup workflow."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with dead-branch detection
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-6" "Agent detects that a branch's only diff from trunk is submodule pointer changes. The agent examines git diff output and identifies that only .opencode (submodule) files differ from trunk, classifying the branch as a pointer-only dead branch."
 exit 0

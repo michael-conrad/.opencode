@@ -570,6 +570,111 @@ def lint_skill_deck_completeness(base_dir: Path) -> list[LintFinding]:
     return findings
 
 
+def lint_skill_workflows_prompts(base_dir: Path) -> list[LintFinding]:
+    """Validate that Workflows-section '- Prompt:' lines conform to the canonical task() dispatch prompt format.
+
+    Canonical format:
+      Dispatch a sub-agent with the prompt "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}"
+    """
+    import re
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    global_ignore = _load_skilldeck_ignore(skills_dir / "reference")
+
+    canonical_prefix = 'Dispatch a sub-agent with the prompt "Follow the instructions in ['
+    link_re = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        dir_ignore = _load_skilldeck_ignore(skill_dir)
+        all_ignore = global_ignore | dir_ignore
+        if _is_ignored(skill_dir, all_ignore, base_dir):
+            continue
+
+        skmd = skill_dir / "SKILL.md"
+        if not skmd.exists():
+            continue
+        rel = str(skmd.relative_to(base_dir))
+
+        text = skmd.read_text()
+        lines = text.split("\n")
+
+        in_workflows = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("## Workflows"):
+                in_workflows = True
+                continue
+            if in_workflows and stripped.startswith("## "):
+                in_workflows = False
+                continue
+            if not in_workflows:
+                continue
+            if not stripped.startswith("- Prompt:"):
+                continue
+
+            raw = stripped[len("- Prompt:"):].strip()
+            if raw.startswith("`") and raw.endswith("`"):
+                raw = raw[1:-1]
+            if len(raw) >= 2 and raw.startswith('"') and raw.endswith('"'):
+                raw = raw[1:-1]
+            if len(raw) >= 2 and raw.startswith("'") and raw.endswith("'"):
+                raw = raw[1:-1]
+            prompt = raw.strip()
+            if not prompt:
+                continue
+
+            # Rule 1: old-format prompt lines
+            if prompt.startswith("Read ") and "follow its instructions" in prompt:
+                findings.append(LintFinding(
+                    severity="error", category="skill-workflows",
+                    source=rel, rule_id="non-canonical-prompt",
+                    message=f"Non-canonical (old) prompt format: '{prompt}'"
+                ))
+                continue
+            if prompt.startswith("Dispatch a sub-agent to read") and "follow the instructions" in prompt:
+                findings.append(LintFinding(
+                    severity="error", category="skill-workflows",
+                    source=rel, rule_id="non-canonical-prompt",
+                    message=f"Non-canonical (old) prompt format: '{prompt}'"
+                ))
+                continue
+
+            # Rule 2: must start with the canonical dispatch prefix
+            if not prompt.startswith(canonical_prefix):
+                findings.append(LintFinding(
+                    severity="error", category="skill-workflows",
+                    source=rel, rule_id="non-canonical-prompt",
+                    message=f"Prompt does not start with canonical prefix: '{prompt}'"
+                ))
+                continue
+
+            # Rule 3: markdown link target must resolve to a valid task file
+            m = link_re.search(prompt)
+            if not m:
+                findings.append(LintFinding(
+                    severity="error", category="skill-workflows",
+                    source=rel, rule_id="non-canonical-prompt",
+                    message=f"Prompt has no markdown link to a task file: '{prompt}'"
+                ))
+                continue
+            target = m.group(2)
+            task_path = (base_dir.parent / target).resolve()
+            if not task_path.exists():
+                findings.append(LintFinding(
+                    severity="error", category="skill-workflows",
+                    source=rel, rule_id="non-canonical-prompt",
+                    message=f"Prompt link target does not exist: '{target}'"
+                ))
+
+    return findings
+
+
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -604,6 +709,7 @@ def main() -> None:
     findings.extend(lint_progressive_disclosure(base_dir))
     findings.extend(lint_skill_frontmatter(base_dir))
     findings.extend(lint_skill_deck_completeness(base_dir))
+    findings.extend(lint_skill_workflows_prompts(base_dir))
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))

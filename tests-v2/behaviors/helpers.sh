@@ -312,10 +312,10 @@ __export_sqlite_to_yaml() {
     # Search stdout first, then stderr — TEST_HOME= is emitted to stderr by with-test-home.
     local test_home=""
     if [ -n "$stdout_file" ] && [ -f "$stdout_file" ]; then
-        test_home=$(grep '^TEST_HOME=' "$stdout_file" | head -1 | sed 's/^TEST_HOME=//')
+        test_home=$(grep '^TEST_HOME=' "$stdout_file" | head -1 | sed 's/^TEST_HOME=//' || true)
     fi
     if [ -z "$test_home" ] && [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
-        test_home=$(grep '^TEST_HOME=' "$stderr_file" | head -1 | sed 's/^TEST_HOME=//')
+        test_home=$(grep '^TEST_HOME=' "$stderr_file" | head -1 | sed 's/^TEST_HOME=//' || true)
     fi
     if [ -n "$test_home" ]; then
         local candidate="$test_home/.local/share/opencode/opencode.db"
@@ -648,61 +648,4 @@ behavior_run_pool() {
 
     export BEHAVIOR_POOL_OUTPUTS BEHAVIOR_POOL_STDERRS
     return $((1 - any_success))
-}
-
-assert_semantic() {
-    local artifact_dir="$1"
-    local sc_id="$2"
-    local description="$3"
-    local model="${4:-$DEFAULT_TEST_MODEL}"
-
-    local stdout_file="$artifact_dir/stdout.log"
-    local stderr_file="$artifact_dir/stderr.log"
-    local session_file="$artifact_dir/session.yaml"
-    local timeline_file="$artifact_dir/timeline.yaml"
-
-    if [ ! -f "$stdout_file" ] || [ ! -f "$stderr_file" ]; then
-        echo "  FAIL: $sc_id — artifact files not found in $artifact_dir" >&2
-        return 1
-    fi
-
-    local stdout_content
-    stdout_content=$(cat "$stdout_file")
-    local stderr_content
-    stderr_content=$(cat "$stderr_file")
-
-    local structured_data=""
-    if [ -f "$session_file" ]; then
-        structured_data="${structured_data}
-SESSION.YAML (structured tool call data):
-$(cat "$session_file")"
-    fi
-    if [ -f "$timeline_file" ]; then
-        structured_data="${structured_data}
-TIMELINE.YAML (condensed tool call timeline):
-$(cat "$timeline_file")"
-    fi
-
-    local inspector_prompt="You are a clean-room semantic inspector. Evaluate the following agent output and determine if the agent's actions and decisions satisfy this criterion:
-
-CRITERION: $description
-
-STDOUT (agent prose):
-$stdout_content
-
-STDERR (tool dispatch trace):
-$stderr_content
-${structured_data}
-
-Respond with exactly one word: PASS or FAIL. Then on a new line, provide a one-sentence justification."
-
-    local inspector_output
-    inspector_output=$("${OPENCODE_CMD[@]}" run "$inspector_prompt" --model "$model" 2>/dev/null || true)
-
-    if echo "$inspector_output" | grep -q '^PASS'; then
-        return 0
-    fi
-    echo "  FAIL: $sc_id — semantic inspector returned FAIL" >&2
-    echo "  Inspector output: $inspector_output" >&2
-    return 1
 }

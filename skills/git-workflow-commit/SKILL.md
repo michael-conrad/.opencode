@@ -1,6 +1,6 @@
 ---
 name: git-workflow-commit
-description: "Change implementation and commit preparation. Load via skill() when the agent needs to commit changes or prepare commit messages. Also load when implementing changes and committing them, or handling pair mode commits. Commits MUST be atomic and well-described. User phrases: commit changes, prepare commit, implement and commit, pair mode commit"
+description: "Implement changes and prepare atomic, well-described commits including commit message preparation and pair mode commits. Commits MUST be atomic and well-described; single-issue branches produce exactly one squash commit."
 license: MIT
 provenance: AI-generated
 ---
@@ -11,40 +11,41 @@ provenance: AI-generated
 
 Commit management sub-skill of git-workflow. Handles implementation commits, commit message preparation, and pair mode commits. Enforces squash-on-PR-only discipline — single-issue branches produce exactly one commit. All commits require a feature branch; direct commits to protected branches are blocked.
 
-## Trigger Dispatch Table
+## Mandatory Task Discipline
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "implementation" / "commit" / "save work" | `implementation` | `sub-task` | {branch_name, worktree.path} |
-| "commit-prep" / "prepare commit" / "write message" | `commit-prep` | `sub-task` | {branch_name, diff_summary} |
-| "pair-commit" / "pair save" / "WIP commit" | `pair-commit` | `sub-task` | {branch_name} |
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## DISPATCH_GATE
+## Workflows
 
-### Orchestrator Entry Criteria
+### Implement changes and commit
 
-1. Confirm the next action is `task()` — not inline execution
-2. Use the canonical dispatch string from the Trigger Dispatch Table verbatim
-3. Do NOT preload file paths, step sequences, expected outcomes, or orchestrator reasoning
-4. Task a clean-room sub-agent via `task(subagent_type="general")`
-5. Receive result contract (status, finding_summary, artifact_path, blocker_reason)
-6. Log in work state file — record which sub-agent was tasked and when
-7. Proceed based on result contract — route to next pipeline step
+When the agent needs to implement changes and commit them with a structured message during the implementation phase.
 
-### Sub-Agent Entry Criteria
+1. **Implementation** — Implements changes and commits with a structured message.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/implementation.md](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: {branch_name}, worktree.path: {worktree.path}"`
+   - Context: `{branch_name, worktree.path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-2. Sub-agent loads task file content independently — never from orchestrator context
-3. Sub-agent reads source files, runs analysis tools, executes tests freely
-4. Sub-agent returns only routing-significant data: status, finding_summary, artifact_path, blocker_reason
-5. Full evidence artifacts go to disk — never in the result contract
+### Prepare a commit message
 
-## Tasks
+When the agent needs to prepare a commit message from the diff and spec context (read-only analysis, no commit executed).
 
-| Task | Description |
-|------|-------------|
-| `implementation` | Implement changes and commit with structured message |
-| `commit-prep` | Prepare commit message from diff and spec context |
-| `pair-commit` | WIP commit for pair mode with developer attribution |
+1. **Commit prep** — Prepares a commit message from the diff and spec context.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/commit-prep.md](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: {branch_name}, diff_summary: {diff_summary}"`
+   - Context: `{branch_name, diff_summary}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+
+### Make a pair mode commit
+
+When the agent needs to make a WIP commit in pair mode with developer attribution.
+
+1. **Pair commit** — Makes a WIP commit in pair mode with developer attribution.
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/pair-commit.md](.opencode/skills/git-workflow-commit/tasks/pair-commit.md). branch_name: {branch_name}"`
+   - Context: `{branch_name}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 ## Cross-References
 

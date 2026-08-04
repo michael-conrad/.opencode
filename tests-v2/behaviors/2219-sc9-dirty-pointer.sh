@@ -16,8 +16,4 @@ SCENARIO_NAME="2219-sc9-dirty-pointer"
 SCENARIO_PROMPT="Check PRs. I'm on branch 'feature/2219-sub-pointer-only' with only submodule pointer changes. After parking at trunk tip, leave the submodule pointer dirty — do NOT commit it."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"
-
-# Evaluate with assert_semantic
-# RED phase: expect FAIL because check-pr.md Phase 5 hasn't been updated with dirty pointer preservation
-assert_semantic "$BEHAVIOR_ARTIFACT_DIR" "SC-9" "Agent leaves submodule pointer dirty after trunk parking. The agent does NOT commit the dirty submodule pointer. The working tree has a modified .opencode entry in git status but the agent does not stage or commit it."
 exit 0
