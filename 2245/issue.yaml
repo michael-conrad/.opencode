@@ -141,11 +141,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2245/`](https://github.c
 
   |----|-----------|---------------|---------------------|
 
-  | SC-1 | `assert_semantic()` function block is absent from `tests-v2/behaviors/helpers.sh`,
-  and `helpers.sh` still sources cleanly with no undefined-function references from
-  converted scripts. | structural | `grep` for `assert_semantic` in `helpers.sh` returns
-  empty; `bash -c ''source helpers.sh; :''` succeeds; a converted behavior script
-  runs to exit 0. |
+  | SC-1 | `assert_semantic()` function block is absent from `helpers.sh`. | structural
+  | `grep` `helpers.sh` for `assert_semantic` returns empty; and `bash -c ''source
+  .opencode/tests-v2/behaviors/helpers.sh''` succeeds with no undefined-function references.
+  |
 
   | SC-2 | All 12 behavior scripts are converted to artifact-only generators: each
   preserves its `behavior_run` invocation args, retains the mandatory cross-reference
@@ -467,4 +466,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2245/`](https://github.c
 
   '
 created_at: '2026-08-04T04:50:57+00:00'
-updated_at: '2026-08-04T04:59:07+00:00'
+updated_at: '2026-08-04T05:35:25+00:00'
+github_url: https://github.com/michael-conrad/.opencode

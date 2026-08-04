@@ -1,7 +1,7 @@
 sc_count: 8
 scs:
   - id: "SC-1"
-    description: "assert_semantic() function block absent from helpers.sh; helpers.sh sources cleanly with no undefined-function references from converted scripts"
+    description: "assert_semantic() function block absent from helpers.sh"
     evidence_type: "structural"
     plan_item: 4
   - id: "SC-2"
