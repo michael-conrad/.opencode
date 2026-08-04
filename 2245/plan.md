@@ -1,5 +1,10 @@
 ---
 plan_schema_version: 1
+lifecycle_events:
+  - timestamp: "2026-08-04T06:14:33Z"
+    event: plan_created
+    plan_path: .opencode/.issues/2245/plan.md
+    phase_count: 4
 issue: 2245
 title: "Remove assert_semantic() and call sites; orchestrator-dispatched clean-room sub-agent evaluation"
 dispatch:
