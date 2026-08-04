@@ -1,0 +1,27 @@
+domain: phase-execution
+types:
+  - name: phase
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_phase_1
+    preconditions: []
+    effects:
+      - completed(phase_1)
+  - name: execute_phase_2
+    preconditions:
+      - completed(phase_1)
+    effects:
+      - completed(phase_2)
+init: []
+goals:
+  - completed(phase_1)
+  - completed(phase_2)

@@ -1,0 +1,9 @@
+actions:
+- name: execute_phase_1
+  parameters: []
+- name: execute_phase_2
+  parameters: []
+domain: phase-execution
+engine: tamer
+plan_length: 2
+status: SOLVED_SATISFICING

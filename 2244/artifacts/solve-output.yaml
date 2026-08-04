@@ -1,0 +1,38 @@
+# Solve Output — .opencode#2244
+# Generated: research task from writing-plans
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - tool: solve model
+    query: "phase_9 == True"
+    result: SAT
+    assignment:
+      phase_1: True
+      phase_2: True
+      phase_3: True
+      phase_4: True
+      phase_5: False
+      phase_6: False
+      phase_7: False
+      phase_8: False
+      phase_9: True
+  - tool: solve check
+    contract: .opencode/.issues/2244/dependency-contract.yaml
+    state: .opencode/.issues/2244/artifacts/state-analysis.yaml
+    result: SAT (+ postconditions + invariants)
+  - tool: plan plan
+    problem: .opencode/.issues/2244/artifacts/plan-problem.yaml
+    engine: tamer
+    result: SOLVED_SATISFICING
+    plan_length: 9
+    plan:
+      - execute-phase-1()
+      - execute-phase-3()
+      - execute-phase-2()
+      - execute-phase-4()
+      - execute-phase-6()
+      - execute-phase-5()
+      - execute-phase-7()
+      - execute-phase-8()
+      - execute-phase-9()

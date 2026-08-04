@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2243/spec.md
+state_transitions:
+  - sc: SC-1
+    required_transitions: none
+    note: Documentation-only change; no runtime state transitions.
+  - sc: SC-2
+    required_transitions: none
+    note: Static INDEX.md row update; no runtime state transitions.
+  - sc: SC-3
+    required_transitions: none
+    note: Optional documentation mention; no runtime state transitions.
+  - sc: SC-4
+    required_transitions: none
+    note: Carveout documentation; no runtime state transitions.
+state_analysis_summary: No state transitions required. All SCs are documentation/static-content changes. No code paths, databases, or runtime state are affected.

@@ -11,13 +11,13 @@ success_criteria_ids:
   - SC-3
   - SC-4
 artifacts:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
 scope_boundary_findings:
   - path: .opencode/guidelines/080-code-standards.md
     repo: michael-conrad/.opencode
@@ -33,6 +33,9 @@ scope_boundary_findings:
     present: false
     finding: File not present in current repo (opencode-config). SC-3 is optional and targets a different repository (NewSRX-Tech-LLC/Butter) not checked out here.
 missing_artifacts: 7
+backfilled_artifacts: 7
 notes:
   - "Spec body is stored in remote.md (retroactive_import); spec.md contains only frontmatter."
-  - "All 7 analytical artifacts are missing; backfill task will be required before plan creation."
+  - "All 7 analytical artifacts were missing and have been backfilled from the spec body."
+  - "SC-3 (ButterWordCounts/AGENTS.md) targets NewSRX-Tech-LLC/Butter which is not checked out here; noted as optional/missing in blast-radius."
+  - "Backfill completed 2026-08-04."

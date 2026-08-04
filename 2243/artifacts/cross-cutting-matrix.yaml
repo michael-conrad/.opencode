@@ -1,0 +1,23 @@
+spec_path: .opencode/.issues/2243/spec.md
+matrix:
+  - criterion: SC-1
+    concerns: [C1]
+    spans_multiple: false
+    note: DI section content confined to 080-code-standards.md
+  - criterion: SC-2
+    concerns: [C2]
+    spans_multiple: false
+    note: INDEX.md routing row, separate file
+  - criterion: SC-3
+    concerns: [C3]
+    spans_multiple: false
+    note: Optional Butter root repo file, separate repo
+  - criterion: SC-4
+    concerns: [C1]
+    spans_multiple: false
+    note: Carveout documented within SC-1 section (contained within SC-1)
+cross_cutting_summary:
+  - Submodule workflow: Phase 1 files live in .opencode/ submodule, requires separate PR to michael-conrad/.opencode then pointer update in Butter root.
+  - Multi-repo coordination: Phase 1 (.opencode) and Phase 2 (Butter root) are independent PRs with no ordering dependency.
+  - AI agent behavior: New guideline section affects how agents write Python code; a behavioral enforcement test SHALL be included.
+  - Documentation consistency: New section MUST follow existing formatting, tone, and structure of 080-code-standards.md.

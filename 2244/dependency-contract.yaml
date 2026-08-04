@@ -1,0 +1,146 @@
+spec_path: .opencode/.issues/2244/spec.md
+description: "Cross-phase dependency ordering for full-environment simulation support (env -i allowlist hardening + multi-submodule fixtures + GitBucket origin wiring)"
+variables:
+  phase_1:
+    type: bool
+    description: "Env isolation foundation — SC5, SC6, SC13, SC14, SC15, SC16"
+  phase_2:
+    type: bool
+    description: "GB_* scoping concrete instance of env-set rule — SC17"
+  phase_3:
+    type: bool
+    description: "Provisioning + cleanup + rejection primitives — SC1, SC4, SC9"
+  phase_4:
+    type: bool
+    description: "GitBucket origin wiring — SC2"
+  phase_5:
+    type: bool
+    description: "Merged-PR/issue discovery in isolated env — SC3"
+  phase_6:
+    type: bool
+    description: "Opt-in full-env simulation for 2242-sc6 test — SC10"
+  phase_7:
+    type: bool
+    description: "2242-sc6 verification — SC11, SC12"
+  phase_8:
+    type: bool
+    description: "Independent string gate — SC18 documentation"
+  phase_9:
+    type: bool
+    description: "Final no-regression default gate — SC8"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_4, phase_1)"
+  - "z3.Implies(phase_4, phase_2)"
+  - "z3.Implies(phase_4, phase_3)"
+  - "z3.Implies(phase_5, phase_4)"
+  - "z3.Implies(phase_6, phase_4)"
+  - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_9, phase_1)"
+  - "z3.Implies(phase_9, phase_3)"
+  - "z3.Implies(phase_9, phase_4)"
+invariants:
+  - "z3.Implies(phase_4, phase_3)"
+  - "z3.Implies(phase_4, phase_2)"
+  - "z3.Implies(phase_4, phase_1)"
+  - "z3.Implies(phase_5, phase_4)"
+  - "z3.Implies(phase_6, phase_4)"
+  - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_9, phase_1)"
+  - "z3.Implies(phase_9, phase_3)"
+  - "z3.Implies(phase_9, phase_4)"
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - tests-v2/with-test-home (env -i allowlist, set-env.sh)
+      - tests-v2/with-test-home (do_setup/seed_model_config)
+    scs:
+      - SC5
+      - SC6
+      - SC13
+      - SC14
+      - SC15
+      - SC16
+  phase_2:
+    files:
+      - tests-v2/with-test-home (allowlist/set-env.sh)
+      - tests-v2/behaviors/helpers.sh (__ensure_gitbucket scoping)
+    scs:
+      - SC17
+  phase_3:
+    files:
+      - tests-v2/behaviors/helpers.sh (behavior_run provisioning/cleanup)
+      - tests-v2/with-test-home (do_clean_all)
+    scs:
+      - SC1
+      - SC4
+      - SC9
+  phase_4:
+    files:
+      - tests-v2/behaviors/helpers.sh (behavior_run origin-wiring + __ensure_gitbucket)
+    scs:
+      - SC2
+  phase_5:
+    files:
+      - tests-v2/behaviors/helpers.sh (gh pr list in isolated env)
+    scs:
+      - SC3
+  phase_6:
+    files:
+      - tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+      - tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+    scs:
+      - SC10
+  phase_7:
+    files:
+      - tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh (session.yaml tool timeline)
+    scs:
+      - SC11
+      - SC12
+  phase_8:
+    files:
+      - tests-v2/AGENTS.md
+    scs:
+      - SC18
+  phase_9:
+    files:
+      - tests-v2/behaviors/helpers.sh (default provisioning path)
+      - tests-v2/with-test-home
+    scs:
+      - SC8
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: SC13 general env-set rule precedes SC17 GB_* concrete instance
+  - from: phase_1
+    to: phase_3
+    rationale: SC1/SC4/SC9 provisioning/cleanup/rejection primitives build on env isolation foundation
+  - from: phase_1
+    to: phase_4
+    rationale: SC2 flags pass through env -i allowlist (SC5); SC13 verified with GitBucket provisioning
+  - from: phase_2
+    to: phase_4
+    rationale: SC2 origin wiring requires scoped GB_* values from SC17
+  - from: phase_3
+    to: phase_4
+    rationale: SC2 requires SC1 fixtures + SC4 rejection + SC9 cleanup primitives
+  - from: phase_4
+    to: phase_5
+    rationale: SC3 merged-PR discovery depends on SC2 wired origin
+  - from: phase_4
+    to: phase_6
+    rationale: SC10 full-env opt-in requires SC2 wired origin
+  - from: phase_6
+    to: phase_7
+    rationale: SC11/SC12 verified during SC10 run
+  - from: phase_1
+    to: phase_9
+    rationale: SC8 default path unchanged after SC5 allowlist extension
+  - from: phase_3
+    to: phase_9
+    rationale: SC8 default path unchanged after SC1/SC4 provisioning
+  - from: phase_4
+    to: phase_9
+    rationale: SC8 final regression gate after SC2 origin wiring

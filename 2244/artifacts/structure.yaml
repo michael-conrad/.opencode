@@ -1,0 +1,96 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+artifact: structure
+generated: 2026-08-04
+scope: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+
+phases:
+  - id: 1
+    name: env-isolation-foundation
+    scs: [SC5, SC6, SC13, SC14, SC15, SC16]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/with-test-home (env -i allowlist, set-env.sh, do_setup/seed_model_config)
+    depends_on: []
+  - id: 2
+    name: gb-scoping
+    scs: [SC17]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/with-test-home (allowlist/set-env.sh) + helpers.sh (__ensure_gitbucket scoping)
+    depends_on: [1]
+  - id: 3
+    name: provisioning-cleanup-rejection
+    scs: [SC1, SC4, SC9]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/behaviors/helpers.sh (behavior_run provisioning/cleanup) + with-test-home (do_clean_all)
+    depends_on: [1]
+  - id: 4
+    name: gitbucket-origin-wiring
+    scs: [SC2]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/behaviors/helpers.sh (behavior_run origin-wiring + __ensure_gitbucket)
+    depends_on: [1, 2, 3]
+  - id: 5
+    name: merged-pr-discovery
+    scs: [SC3]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/behaviors/helpers.sh (gh pr list in isolated env)
+    depends_on: [4]
+  - id: 6
+    name: 2242-sc6-full-env-optin
+    scs: [SC10]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh + fixtures/setup variant
+    depends_on: [4]
+  - id: 7
+    name: 2242-sc6-verification
+    scs: [SC11, SC12]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh (session.yaml tool timeline)
+    depends_on: [6]
+  - id: 8
+    name: documentation
+    scs: [SC18]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/AGENTS.md (mutual-exclusion + full-env opt-in docs)
+    depends_on: []
+  - id: 9
+    name: no-regression-default-gate
+    scs: [SC8]
+    skill: test-driven-development
+    task: red
+    target: .opencode/tests-v2/behaviors/helpers.sh (default provisioning path) + with-test-home
+    depends_on: [1, 3, 4]
+
+dependency_dag_edges:
+  - {from: 1, to: 2, rationale: "SC13 general env-set rule precedes SC17 GB_* concrete instance"}
+  - {from: 1, to: 3, rationale: "SC1/SC4/SC9 provisioning/cleanup/rejection build on env isolation foundation"}
+  - {from: 1, to: 4, rationale: "SC2 flags pass through env -i allowlist (SC5); SC13 verified with GitBucket provisioning"}
+  - {from: 2, to: 4, rationale: "SC2 origin wiring requires scoped GB_* values from SC17"}
+  - {from: 3, to: 4, rationale: "SC2 requires SC1 fixtures + SC4 rejection + SC9 cleanup primitives"}
+  - {from: 4, to: 5, rationale: "SC3 merged-PR discovery depends on SC2 wired origin"}
+  - {from: 4, to: 6, rationale: "SC10 full-env opt-in requires SC2 wired origin"}
+  - {from: 6, to: 7, rationale: "SC11/SC12 verified during SC10 run"}
+  - {from: 1, to: 9, rationale: "SC8 default path unchanged after SC5 allowlist extension"}
+  - {from: 3, to: 9, rationale: "SC8 default path unchanged after SC1/SC4 provisioning"}
+  - {from: 4, to: 9, rationale: "SC8 final regression gate after SC2 origin wiring"}
+
+triplet_co_location:
+  status: PASS
+  notes:
+    - "Each SC's RED/GREEN/COMMIT steps assigned to a single phase; no SC split across phases."
+    - "Phase 1 groups SC5/SC14/SC15 (same env -i allowlist block, verified together per spec §6), SC13/SC16 (env-set rule + value generation), and SC6 (set-env.sh flag recording)."
+
+cross_phase_dependency:
+  status: PASS
+  notes:
+    - "No RED test in phase X depends on SC-M output from a later phase Y (Y > X)."
+    - "Phase 4 (SC2) depends only on phases 1/2/3 — all earlier."
+    - "Phase 9 (SC8) depends only on phases 1/3/4 — all earlier."

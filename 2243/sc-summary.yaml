@@ -1,0 +1,20 @@
+spec_path: .opencode/.issues/2243/spec.md
+spec_body_source: .opencode/.issues/2243/remote.md
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "A 'Dependency Injection' section SHALL be added to .opencode/guidelines/080-code-standards.md covering what DI is, why it is required, the mandated library (dependency-injector), usage patterns, and the carveout for .opencode/ infrastructure tools"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: ".opencode/guidelines/INDEX.md SHALL be updated to include DI-related trigger patterns (dependency injection, di, inject, container) in the 080-code-standards.md row"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "ButterWordCounts/AGENTS.md MAY be updated to mention the DI mandate (optional)"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The carveout for .opencode/ infrastructure tools SHALL be documented within the DI section (contained within SC-1)"
+    evidence_type: "structural"
+    plan_item: 4
