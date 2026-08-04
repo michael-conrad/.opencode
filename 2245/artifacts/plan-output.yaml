@@ -1,0 +1,13 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: assert-semantic-removal
+objects: 4
+fluents: 1
+actions: 4
+goals: 4
+plan length: 4
+- execute-phase-1()
+- execute-phase-2()
+- execute-phase-3()
+- execute-phase-4()
+plan_length: 4

@@ -1,0 +1,68 @@
+artifact_name: structure
+generated_at: 2026-08-04
+source: "Spec #2245 spec.md, analysis-summary.yaml, sc-summary.yaml, interface-compatibility.yaml, state-analysis.yaml"
+issue_number: 2245
+description: "Phase decomposition, dependency DAG, and skill+task selection for the assert_semantic removal"
+phases:
+  - phase: 1
+    name: "Convert 12 behavior scripts to artifact-only generators"
+    concern: "Remove inline assert_semantic calls and comments from 12 call-site scripts; preserve behavior_run args, header, and exit-0 semantics"
+    scs: ["SC-2", "SC-3", "SC-4"]
+    dependencies: []
+    items:
+      - sc: "SC-2"
+        plan_item: 1
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-3"
+        plan_item: 2
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-4"
+        plan_item: 3
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 2
+    name: "Remove assert_semantic() from helpers.sh"
+    concern: "Delete the assert_semantic() function definition; verify sourcing integrity"
+    scs: ["SC-1"]
+    dependencies: ["phase-1"]
+    items:
+      - sc: "SC-1"
+        plan_item: 4
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 3
+    name: "Document clean-room sub-agent evaluation contract"
+    concern: "Replace inline evaluation mechanism with documented orchestrator-dispatched clean-room sub-agent evaluation"
+    scs: ["SC-5"]
+    dependencies: ["phase-2"]
+    items:
+      - sc: "SC-5"
+        plan_item: 5
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 4
+    name: "Explicitly forbid assert_semantic and update TDD + verify docs"
+    concern: "Update three active enforcement docs to remove stale assert_semantic references and reflect clean-room evaluation"
+    scs: ["SC-6", "SC-7", "SC-8"]
+    dependencies: ["phase-3"]
+    items:
+      - sc: "SC-6"
+        plan_item: 6
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-7"
+        plan_item: 7
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-8"
+        plan_item: 8
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+dependency_dag:
+  edges:
+    - from: "phase-1"
+      to: "phase-2"
+      reason: "SC-2/SC-3/SC-4 call sites removed before SC-1 function deletion (no dangling references)"
+    - from: "phase-2"
+      to: "phase-3"
+      reason: "Clean-room contract documents replacement for removed inline evaluation"
+    - from: "phase-3"
+      to: "phase-4"
+      reason: "Enforcement docs reference clean-room contract that must be documented first"
+  verification:
+    triplet_co_location: "PASS - each SC has RED/GREEN/COMMIT assigned to the same phase"
+    cross_phase_dependency: "PASS - no RED test depends on SC output from a later phase"

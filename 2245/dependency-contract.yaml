@@ -1,0 +1,57 @@
+spec_path: .opencode/.issues/2245/spec.md
+variables:
+  phase_1:
+    type: bool
+    description: "Convert 12 behavior scripts to artifact-only generators — SC-2, SC-3, SC-4"
+  phase_2:
+    type: bool
+    description: "Remove assert_semantic() from helpers.sh — SC-1"
+  phase_3:
+    type: bool
+    description: "Document clean-room sub-agent evaluation contract in tests-v2/AGENTS.md — SC-5"
+  phase_4:
+    type: bool
+    description: "Forbid assert_semantic in AGENTS.md, purge from TDD SKILL.md and verify.md — SC-6, SC-7, SC-8"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+  - "z3.Implies(phase_4, phase_3)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - tests-v2/behaviors/*.sh (12 call-site scripts)
+    scs:
+      - SC-2
+      - SC-3
+      - SC-4
+  phase_2:
+    files:
+      - tests-v2/behaviors/helpers.sh
+    scs:
+      - SC-1
+  phase_3:
+    files:
+      - tests-v2/AGENTS.md
+    scs:
+      - SC-5
+  phase_4:
+    files:
+      - tests-v2/AGENTS.md
+      - skills/test-driven-development/SKILL.md
+      - skills/verification-before-completion/tasks/verify.md
+    scs:
+      - SC-6
+      - SC-7
+      - SC-8
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: assert_semantic call sites removed before function definition deleted (no dangling references)
+  - from: phase_2
+    to: phase_3
+    rationale: clean-room contract documents the replacement for removed inline evaluation
+  - from: phase_3
+    to: phase_4
+    rationale: enforcement docs reference clean-room contract that must be documented first

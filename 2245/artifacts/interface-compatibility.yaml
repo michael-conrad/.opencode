@@ -62,3 +62,27 @@ content:
     generation_api: "NONE — behavior_run unchanged"
     behavioral_evidence: "PRIMARY source remains session.yaml"
     user_facing: "NONE — no user-facing API changes"
+  dependency_contract:
+    description: "Cross-phase dependency ordering for the assert_semantic removal"
+    dependency_order:
+      - phase: 1
+        scs: ["SC-2", "SC-3", "SC-4"]
+        requires: []
+        description: "Convert all 12 behavior scripts to artifact-only generators (remove assert_semantic call + comment; preserve behavior_run args, header, exit-0, session.yaml)"
+      - phase: 2
+        scs: ["SC-1"]
+        requires: ["phase-1"]
+        description: "Remove assert_semantic() function block from helpers.sh (no callers remain after Phase 1)"
+      - phase: 3
+        scs: ["SC-5"]
+        requires: ["phase-2"]
+        description: "Document the orchestrator-dispatched clean-room sub-agent evaluation contract in tests-v2/AGENTS.md"
+      - phase: 4
+        scs: ["SC-6", "SC-7", "SC-8"]
+        requires: ["phase-3"]
+        description: "Update enforcement docs: name assert_semantic FORBIDDEN in AGENTS.md, purge from TDD SKILL.md and verify.md"
+    invariants:
+      - "Phase 1 MUST precede Phase 2 — assert_semantic call sites must be removed before the function definition is deleted (no dangling references)"
+      - "Phase 3 MUST precede Phase 4 — the clean-room contract must be documented before enforcement docs reference it"
+      - "behavior_run() API MUST remain unchanged across all phases (regression invariant)"
+      - "session.yaml remains PRIMARY evaluation evidence source across all phases"
