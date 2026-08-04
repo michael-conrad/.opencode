@@ -2,8 +2,7 @@ title: '[SPEC] Remove assert_semantic() and call sites; replace inline opencode-
   evaluation with orchestrator-dispatched clean-room sub-agent evaluation'
 status: open
 labels:
-- needs-approval
-- SPEC
+- SPEC,approved-for-pr
 body: '> **Full spec and artifacts: [`.opencode/.issues/2245/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2245)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -466,5 +465,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2245/`](https://github.c
 
   '
 created_at: '2026-08-04T04:50:57+00:00'
-updated_at: '2026-08-04T05:35:25+00:00'
+updated_at: '2026-08-04T05:46:16+00:00'
 github_url: https://github.com/michael-conrad/.opencode
