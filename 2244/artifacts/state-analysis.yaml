@@ -1,0 +1,61 @@
+# State Analysis — Issue 2444
+
+## Test-Environment State Machine (current)
+
+```
+[clean] --behavior_run--> [workdir created + .opencode cloned]
+    [.opencode cloned] --(BEHAVIOR_NEEDS_REMOTE=1)--> [GitBucket provisioned]
+        [GitBucket provisioned] --(origin wired on attempt workdir)--> [origin set]
+            [origin set] --(with-test-home run)--> [model session produced]
+                [model session] --(artifacts written)--> [artifacts]
+    [any state] --(--clean/--clean-all / __kill_gitbucket)--> [clean]
+```
+
+## Target State Machine (new)
+
+```
+[clean]
+  │  behavior_run(...)  [default: no opt-in]
+  ▼
+[workdir + single .opencode clone]            <── SC4 invariant (unchanged default)
+  │  new opt-in flag (multi-submodule) set
+  ▼
+[workdir + .opencode + test-submodule-1/2 fixtures]   <── SC1
+  │  BEHAVIOR_NEEDS_REMOTE=1
+  ▼
+[GitBucket provisioned, wired as origin]       <── SC2
+  │  (PR/branch discovery succeeds here)
+  ▼
+[model session → artifacts]                    <── SC6
+  │  --clean-all / __kill_gitbucket
+  ▼
+[clean]                                        <── SC5
+
+Guard: SC1→SC2 transition requires workdir committed (origin push). 
+Guard: SC1 and SC3 must be true before SC2 (dependency order).
+Guard: SC2 verified before SC6 (2242-sc6 opt-in consumes SC2).
+```
+
+## State Transitions Per Phase
+
+| Phase (SC) | From | Event | To | Invariant |
+|-----------|------|-------|-----|-----------|
+| SC1 | workdir + .opencode | opt-in flag → add test-submodule fixtures | workdir + multi-submodule | default off; single-.opencode preserved |
+| SC2 | workdir + multi-submodule | BEHAVIOR_NEEDS_REMOTE=1 → __ensure_gitbucket + origin wire | workdir + GitBucket origin | origin only added when flag set; no conflict with bare-remote |
+| SC3 | with-test-home setup | new env vars passthrough into env -i | isolated env with GB + fixture vars | allowlist is superset only; no prod leak |
+| SC4 | any | no opt-in set | single-.opencode / local platform (unchanged) | regression gate: default behavior identical |
+| SC5 | GitBucket + multi-submodule provisioned | `--clean-all` / `__kill_gitbucket` | clean (clones + GitBucket state removed) | no orphan processes / stale state |
+| SC6 | 2242-sc6 test | set opt-in + BEHAVIOR_NEEDS_REMOTE | full-env cleanup run completes | merged-PR discovery succeeds; no halt |
+
+## Idempotency & Termination
+
+- `__ensure_gitbucket` idempotent (skips if running) — retained.
+- `__reset_gitbucket` kills + deletes data dir + re-starts fresh — retained for clean-between-tests.
+- New fixture-submodule provisioning must be idempotent: if submodule already present, skip re-add (pattern mirrors existing `git submodule add` guard at helpers.sh 459-461).
+- Cleanup must be idempotent: `--clean-all` removes all test-home-* and GitBucket state even if partially provisioned.
+
+## Failure-State Recovery
+
+- FM2 (private repo auth): provisioning must fail fast with a clear HARNESS_FAILURE, not a silent partial clone → recovery = fix fixture wiring / auth, `--clean-all`.
+- FM3 (origin conflict with bare-remote): mutually exclusive flags → test must set one; recovery = reject contradictory config.
+- FM4 (env leak): isolation check in with-test-home fails → HARNESS_FAILURE, do NOT proceed (existing behavior preserved).

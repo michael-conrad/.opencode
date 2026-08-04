@@ -1,0 +1,50 @@
+# Pre-Spec Inspection — Issue 2244 (new spec)
+# Topic: Full-environment simulation support in .opencode/tests-v2/
+# Repo: michael-conrad/.opencode
+# Stacked into: #2242 PR (feature/2242-git-workflow-workflows-format)
+
+## Scope & Repo Resolution
+
+The change lives in `.opencode/tests-v2/`, which is the `.opencode` submodule repo
+(owner michael-conrad, repo .opencode). Per the Issues Path Resolution rule, the spec
+issue MUST be filed in `michael-conrad/.opencode` — NOT the root opencode-config repo.
+The root repo only holds the submodule pointer.
+
+Next available issue number: 2244 (highest existing in .opencode is 2243).
+PR #2242 in .opencode is the stacked-PR target; current branch is
+feature/2242-git-workflow-workflows-format.
+
+## Affected Framework Files (verified present)
+
+| File | Role | Existing support |
+|------|------|------------------|
+| `.opencode/tests-v2/behaviors/helpers.sh` | `behavior_run()`, `__ensure_gitbucket()`, `__reset_gitbucket()`, `__kill_gitbucket()`, single `.opencode` submodule clone, `BEHAVIOR_NEEDS_REMOTE` opt-in | GitBucket provisioning exists (SC1-SC6); submodule clone provisions ONLY `.opencode` |
+| `.opencode/tests-v2/with-test-home` | Test-home isolation, submodule clone (both `do_setup` and run-path), `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` env passthrough | GB env passthrough exists; single `.opencode` clone; `TEST_WORKDIR` move-in path |
+| `.opencode/tests-v2/AGENTS.md` | Harness spec | §12 documents GitBucket container; §5 documents single-submodule clone |
+| `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` | Motivating test | Calls `behavior_run` WITHOUT `BEHAVIOR_NEEDS_REMOTE`; no full env |
+| `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh` | Per-scenario fixture | Sets up local merged branch + open `.issues/2242/` but NO remote; no test-submodule fixtures |
+| `.opencode/tests-v2/behaviors/fixtures/issues/2242/` | Fixture issue content (plan.md, spec.md) | Exists |
+
+## Verified External Fixture Repos (live gh API evidence)
+
+| Repo | Default branch | Private | Contents | Verified |
+|------|----------------|---------|----------|----------|
+| michael-conrad/test-submodule-1 | dev | true | file.txt on dev; branches dev, feature/clean-test, feature/conflict-test, feature/stale-test | gh api repos/.../branches + contents |
+| michael-conrad/test-submodule-2 | main | true | empty | gh api: "This repository is empty." (404 on contents) |
+
+## Existing Conventions
+
+- `BEHAVIOR_*` env-var opt-in flags: `BEHAVIOR_NEEDS_REMOTE`, `BEHAVIOR_FIXTURE_ISSUES`, `BEHAVIOR_SET_BARE_REMOTE`, `BEHAVIOR_SETUP_STALE_WORKTREE`, `BEHAVIOR_SUBMODULE_COMMIT`, `BEHAVIOR_MODEL`, `BEHAVIOR_PHASE`, `BEHAVIOR_HARNESS_VERSION`
+- GitBucket env vars: `BEHAVIOR_NEEDS_REMOTE`, `GITBUCKET_PORT`, `GB_TOKEN`, `GB_HOST`
+- Per-scenario fixtures auto-sourced from `fixtures/setup/<scenario-name>.sh` with `$1` = workdir
+- Fixture issues auto-injected from `fixtures/issues/{N}/` via `setup_fixture_issues()`
+- Submodule clone pattern duplicated in both `helpers.sh` (behavior_run) and `with-test-home` (do_setup + run path) — 3 near-identical clone blocks
+- Isolation contract in with-test-home: `env -i` allowlist + test-home XDG; `GB_TOKEN`/`GB_HOST`/`GITBUCKET_PORT` already passthrough
+
+## Key Constraints / Risk
+
+- **Isolation contract (§9 of AGENTS.md):** "DO NOT change isolation requirements without an approved spec." Adding test-submodule clones + GitBucket-as-origin touches isolation.
+- **Opt-in mandate from problem statement:** full-env simulation used ONLY when a test requires it, not as universal replacement for the `.opencode` clone.
+- **Cleanup contract:** `__kill_gitbucket` / `--clean-all` must clean the new test-submodule clones and any provisioned remote.
+- **Fixture-repo authentication:** test-submodule-1/2 are PRIVATE. The harness test env has no GitHub auth (local platform). Provisioning must either wire the test-submodule repos as local git repos (not remote clones) OR configure auth — this is a design decision the spec must resolve.
+- **GitBucket is a private local HTTP instance** already reachable in test env via `GB_HOST`/`GITBUCKET_PORT` passthrough — it IS the simulated remote platform; no GitHub auth needed for it.

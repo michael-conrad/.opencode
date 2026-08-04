@@ -1,0 +1,44 @@
+# Testability Assessment — Issue 2444
+
+## Test Strategy Per Phase
+
+| Phase (SC) | Evidence type | Test strategy | Test method |
+|-----------|---------------|---------------|-------------|
+| SC1 | structural | Behavioral + structural | Structural: assert opt-in flag provisions test-submodule fixtures (git submodule presence in workdir). RED: flag absent → no fixtures. GREEN: flag set → fixtures added. |
+| SC2 | behavioral | Behavioral | `opencode run` in isolated env with `BEHAVIOR_NEEDS_REMOTE=1`; evaluate via session.yaml that PR/branch discovery (e.g. `gh pr list` equivalent or GitBucket origin) succeeds and the agent does NOT halt for missing PR context. |
+| SC3 | structural | Structural | Inspect `set-env.sh` + `env -i` invocation in with-test-home for new var passthrough; verify isolation check still passes. |
+| SC4 | behavioral | Behavioral | Run a representative non-opt-in behavioral test; assert it still provisions ONLY `.opencode` (single submodule) and `local` platform (no remote) — no regression. |
+| SC5 | behavioral | Behavioral | After a provisioned run, call `--clean-all`/`__kill_gitbucket`; assert no orphan GitBucket process, no stale `tmp/` clones/state remain; repeated runs start clean. |
+| SC6 | behavioral | Behavioral | Run `2242-sc6` test with full-env opt-in; evaluate session.yaml: merged-PR discovery + cleanup dispatch complete WITHOUT orchestrator reading task card, and WITHOUT halting for PR/branch context. |
+
+## Testability Concerns
+
+- **Clean-room evaluation (mandatory):** SC2/SC4/SC5/SC6 are behavioral → require a clean-room sub-agent reading `session.yaml` (the SQLite export), NOT grep/stdout assertion (AGENTS.md §1/§6a; EVIDENCE_TYPE_MISMATCH prohibition in 080-code-standards.md).
+- **Two-SC pattern:** Each behavioral SC should be split into (a) artifact generation via behavioral test script, (b) clean-room evaluation of session.yaml — per AGENTS.md §6a.
+- **Bash-tool timeout:** Behavioral tests require timeout >= 600s (600000ms). No GNU `timeout`.
+- **Flakiness:** GitBucket provisioning downloads JDK + WAR on first call (network). Tests must tolerate warm-cache vs cold-cache timing. Isolation + model-speed flakiness handled via existing retry + `__export_sqlite_to_yaml` stderr fallback.
+- **Private-repo fixture testability:** If test-submodules are wired as local git repos (design decision), the behavioral test does NOT depend on GitHub network/auth — more deterministic. This is the preferred path for testability.
+
+## Test Fixture Needs
+
+| Phase | Fixture needed |
+|-------|----------------|
+| SC1 | A fixture/setup script creating the test-submodule-1/2 local repo structure (file.txt on dev; empty main) |
+| SC2 | GitBucket provisioning (reused `__ensure_gitbucket`); a merged branch + open issue on the GitBucket origin for PR/branch discovery |
+| SC3 | Standard with-test-home setup; assert env passthrough + isolation |
+| SC4 | Representative non-opt-in behavioral test (existing suite) |
+| SC5 | A provisioned state, then cleanup assertions |
+| SC6 | 2242-sc6 fixture extended: merged branch + open issue, plus GitBucket origin so cleanup can discover/close |
+
+## Testability Gate
+
+- Every SC must have a RED phase (fails pre-change) and GREEN phase (passes post-change).
+- Structural SCs (SC1, SC3) can be verified via file/submodule presence + config inspection.
+- Behavioral SCs (SC2, SC4, SC5, SC6) MUST use `opencode run` against real model + clean-room session.yaml evaluation — no structural substitution (080-code-standards.md behavioral-substitution prohibition).
+- Clean-room evaluation receives ONLY artifact path + SC criterion — no orchestrator expected outcomes.
+
+## Risks to Test Execution
+
+- GitBucket cold-start network fetch (JDK/WAR) can time out → must provision outside the model-run critical path (already done: `__ensure_gitbucket` runs before behavior_run loop, line 417).
+- Model speed flakiness on the cleanup workflow → use faster model or simplify prompt per §10.5; do not burn compute on identical failing config.
+- Stale `flock` lock after killed runs → `rm -f tmp/.behavior-run.lock` per §10.1.

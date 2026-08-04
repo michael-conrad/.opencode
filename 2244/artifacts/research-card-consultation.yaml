@@ -1,0 +1,36 @@
+# Research Card Consultation — Issue 2244
+
+## Consultation Result
+
+Globbed `.issues/research-cards/*.md` in the `.opencode` repo and grepped frontmatter
+against the spec topic (full-environment simulation, multi-submodule provisioning,
+GitBucket remote platform in the behavioral test harness).
+
+## Cards Reviewed
+
+| Card | Confidence | Relevant? | Findings incorporated |
+|------|-----------|-----------|----------------------|
+| `multi-feature-branch-main-with-submodules.md` | 0.7 | Partial | Submodule handling, branch naming; but topic is developer workflow against main, NOT test-harness provisioning. Provides branch-naming context for fixture test-submodule branches (feature/clean-test, feature/stale-test). |
+| `create-md-remote-format-defect.md` | - | No | Remote issue body formatting |
+| `cross-reference-form-comparison.md` | - | No | Read-link cross-reference |
+| `local-issues-discover-repos-worktree-filter.md` | - | No | .issues worktree filtering |
+| `plan-fidelity-auditor-authoritative-sources.md` | - | No | Plan audit |
+| `plan-fidelity-sc-coverage-gate.md` | - | No | Plan fidelity |
+| `pre-response-gate-skill-description-design.md` | - | No | Skill description |
+| `searxng-mcp-search-alternatives.md` | - | No | Search tooling |
+| `spec-creation-state.md` | - | No | Spec pipeline state |
+| `spec-writing-ai-agents-opencode-skill-architecture.md` | - | No | Skill architecture |
+| `wiki-operations-agent-tools-survey.md` | - | No | Wiki tooling |
+
+## Verdict
+
+No research card directly covers behavioral test-harness full-environment simulation
+or multi-submodule provisioning. The nearest card (`multi-feature-branch-main-with-
+submodules`, confidence 0.7) concerns developer branch workflow, not the test harness.
+It contributes only indirect context on submodule branch naming.
+
+**Gap:** No cached research card addresses the specific design question of how to
+provision private fixture submodule repos (test-submodule-1/2) and/or a GitBucket
+remote platform into the isolated test env. This is a novel concern. The create task
+must resolve the private-repo-authentication design decision (local git repo wiring
+vs. remote clone with auth) — no cached findings are available.

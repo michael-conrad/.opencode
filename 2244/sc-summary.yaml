@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC1"
+    description: "Opt-in multi-submodule fixture provisioning (test-submodule-1/2 as local git repos)"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC2"
+    description: "GitBucket origin wiring + PR/branch discovery succeeds in isolated env; reconciles with BEHAVIOR_SET_BARE_REMOTE"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC3"
+    description: "Env passthrough of new fixture/remote flags through env -i allowlist; isolation contract holds"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC4"
+    description: "No-regression default: no opt-in provisions only single-.opencode + local platform"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC5"
+    description: "Cleanup: --clean-all/__kill_gitbucket removes new clones + GitBucket state; idempotent"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC6"
+    description: "Opt-in full-env simulation for 2242-sc6 cleanup-dispatch test completes without task-card read or PR-context halt"
+    evidence_type: "behavioral"
+    plan_item: 6

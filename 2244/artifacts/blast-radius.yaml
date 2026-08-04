@@ -1,0 +1,38 @@
+# Blast Radius — Issue 2244
+
+## Primary Affected Components
+
+| Phase | File(s) | Change | Ripple |
+|-------|---------|--------|--------|
+| 1 (SC1) | `tests-v2/behaviors/helpers.sh` | Add opt-in multi-submodule fixture provisioning (test-submodule-1/2) | All behavioral tests that source helpers.sh (shared infra). Non-opt-in tests unaffected at runtime but share the file. |
+| 2 (SC2) | `helpers.sh`, `tests-v2/behaviors/fixtures/setup/` | Ensure GitBucket origin wired + PR discovery works in isolated env | `BEHAVIOR_NEEDS_REMOTE=1` consumers; conflicts with `BEHAVIOR_SET_BARE_REMOTE` path (helpers.sh 491-511). |
+| 3 (SC3) | `with-test-home` | Passthrough GB env + new fixture flags into env -i | Isolation contract (§5, §9); set-env.sh; smoke tests. |
+| 4 (SC4) | `helpers.sh`, `with-test-home` | No-regression gate (default single-.opencode) | All ~80 existing behavioral test scripts. |
+| 5 (SC5) | `helpers.sh`, `with-test-home` | Cleanup of new clones + GitBucket state | `--clean`, `--clean-all`, `__kill_gitbucket`, CI hygiene. |
+| 6 (SC6) | `2242-sc6` test + fixture | Opt-in full-env simulation | The motivating cleanup-dispatch test; #2242 SC6/SC7 evidence. |
+
+## Ripple Effects Beyond Framework
+
+| Component | Impact | Blast level |
+|-----------|--------|-------------|
+| Existing behavioral tests | Shared `helpers.sh` — any default-behavior change could silently alter all tests | HIGH (mitigated by opt-in default) |
+| Isolation contract (AGENTS.md §5/§9) | New env vars + clone logic | MEDIUM |
+| .opencode PR #2242 | SC6/SC7 consume this capability for the cleanup test | DIRECT — this spec is prerequisite infrastructure |
+| Root opencode-config | Only submodule pointer bumps when .opencode PR merges | LOW (pointer only) |
+| GitBucket provisioning | Reused/refactored; risk of regression to existing `BEHAVIOR_NEEDS_REMOTE` | MEDIUM |
+
+## Risk Matrix
+
+| Risk | Severity | Likelihood | Mitigation |
+|------|----------|-----------|------------|
+| Default behavior regression (all tests break) | High | Low (opt-in default) | SC4 no-regression behavioral gate |
+| Private fixture repo auth in isolated env | High | Medium | Wire test-submodules as local git repos OR document auth; design decision in create |
+| Origin-wiring conflict with bare-remote tests | Medium | Medium | Reconcile helpers.sh origin-add vs bare-remote branch |
+| Isolation leak via new env passthrough | High | Low | Keep new vars out of forbidden set; extend allowlist deliberately |
+| Cleanup leaves orphan clones/processes | Medium | Medium | Extend `--clean-all` + `__kill_gitbucket`; SC5 gate |
+
+## Out-of-Scope (no blast)
+
+- git-workflow skill-card conversion (is #2242's own scope)
+- DEFAULT_TEST_MODEL (default-model.sh) — untouched
+- Other skill decks, guidelines, plugins

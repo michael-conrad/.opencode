@@ -1,0 +1,69 @@
+# Pipeline Readiness Gate — Issue 2444
+
+## 1. Atomicity — Every SC maps to exactly one RED→GREEN→COMMIT cycle
+
+| SC | Item | Atomic? |
+|----|------|---------|
+| SC1 | Submodule fixture provisioning | Yes — one RED/GREEN/commit |
+| SC2 | GitBucket origin + PR discovery | Yes — one RED/GREEN/commit |
+| SC3 | Env passthrough | Yes — one RED/GREEN/commit |
+| SC4 | No-regression default | Yes — one RED/GREEN/commit |
+| SC5 | Cleanup | Yes — one RED/GREEN/commit |
+| SC6 | 2242-sc6 full-env opt-in | Yes — one RED/GREEN/commit |
+
+PASS — each SC is a single independently verifiable claim with its own cycle.
+
+## 2. Dependency ordering — SC dependency DAG is acyclic
+
+```
+SC1 ─┐
+SC3 ─┼─> SC2 ─> SC6
+SC5 ─┘        SC4 (final gate)
+```
+Acyclic. SC1+SC3 precede SC2; SC2 precedes SC6; SC4 gates all; SC5 orthogonal-before-SC6.
+
+## 3. Single concern — every SC targets one file category + one verification domain
+
+| SC | File category | Verification domain |
+|----|---------------|---------------------|
+| SC1 | helpers.sh (submodule provisioning) | structural |
+| SC2 | helpers.sh + fixtures (remote platform) | behavioral |
+| SC3 | with-test-home (env isolation) | structural |
+| SC4 | helpers.sh + with-test-home (default path) | behavioral |
+| SC5 | helpers.sh + with-test-home (cleanup) | behavioral |
+| SC6 | 2242-sc6 test + fixture (opt-in) | behavioral |
+
+PASS — no SC spans multiple file categories or verification domains.
+
+## 4. Phase dependency — phase dependency graph is acyclic
+
+```
+P1(SC1) → P2(SC2) → P6(SC6)
+P3(SC3) → P2(SC2)
+P5(SC5) ─────────→ P6(SC6)
+P4(SC4) = final gate (after P6)
+```
+Acyclic. No cycles among phases.
+
+## 5. Three-tier structure — multi-phase specs have pre/per-file/post structure
+
+This spec is a SINGLE-AREA framework change (tests-v2/), not a multi-area feature.
+However, it is multi-phase (6 SCs). The pre/per-file/post interpretation:
+- **Pre:** SC3 (env isolation plumbing) + SC5 (cleanup) — infrastructure preconditions
+- **Per-file:** SC1 (helpers.sh provisioning) + SC2 (remote origin) — the core change
+- **Post:** SC4 (no-regression) + SC6 (2242-sc6 opt-in) — verification/consumption
+
+PASS — the multi-phase structure is coherent and layered.
+
+## Gate Verdict
+
+PASS — all 5 pipeline-readiness criteria satisfied. The analysis is ready for the
+create task to assemble the spec, write the remote issue (michael-conrad/.opencode#2244),
+and write the local spec.
+
+## Exit Criteria Confirmation
+
+- [x] All 7 analytical artifacts written to `{project_root}/tmp/2244/artifacts/`
+- [x] Requirements extracted and verified against codebase (live gh API + file reads)
+- [x] Pipeline readiness gate passed
+- [x] No spec content written, no remote issue created, no holistic check run (create/validate tasks handle those)
