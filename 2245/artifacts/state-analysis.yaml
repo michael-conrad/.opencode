@@ -1,0 +1,44 @@
+states:
+  generate:
+    name: GENERATE
+    phase: SC-2 (script conversion)
+    description: "Behavior script runs behavior_run -> produces artifact dir (manifest.yaml, session.yaml, stdout.log, stderr.log, exit_code) -> exits 0."
+    invariant: "No evaluation in this state. Artifacts are raw generation."
+  evaluate_inline:
+    name: EVALUATE_INLINE (CURRENT - being removed)
+    phase: pre-change
+    description: "assert_semantic runs inline opencode run with clean-room inspector prompt on stdout/stderr."
+    invariant: "Conflates generation with evaluation; evaluation cannot be independently verified; uses stdout/stderr not session.yaml."
+    transition_to: "REMOVED - replaced by EVALUATE_DISPATCHED."
+  evaluate_dispatched:
+    name: EVALUATE_DISPATCHED (TARGET)
+    phase: SC-3 (contract)
+    description: "Orchestrator dispatches a clean-room sub-agent via task() with {artifact_dir, sc_criterion, github.owner, github.repo}. Sub-agent reads session.yaml and returns PASS/FAIL + justification."
+    invariant: "Sub-agent receives no orchestrator reasoning, expected outcomes, or cached results. session.yaml is PRIMARY evidence."
+    transition_from: "GENERATE (artifacts must exist)."
+  evaluate_complete:
+    name: EVALUATE_COMPLETE
+    phase: verification (downstream)
+    description: "PASS/FAIL + justification produced by clean-room sub-agent, consumed by verification-before-completion."
+    invariant: "Cross-model validation gate applies (both local and cloud model runs)."
+transitions:
+  - from: GENERATE
+    to: EVALUATE_DISPATCHED
+    guard: "Artifacts exist (session.yaml present, exit_code 0). Orchestrator dispatches clean-room sub-agent."
+  - from: EVALUATE_INLINE
+    to: REMOVED
+    guard: "assert_semantic function and 12 call sites removed (SC-1, SC-2). No inline evaluation path remains."
+  - from: EVALUATE_DISPATCHED
+    to: EVALUATE_COMPLETE
+    guard: "Clean-room sub-agent returns PASS/FAIL verdict."
+pre_conditions:
+  - "SC-2 done before SC-1: no script references assert_semantic when function is removed."
+  - "Behavior scripts exit 0 unconditionally (generation signal)."
+  - "Evaluation contract documented (SC-3) before docs reference it (SC-4/5/6)."
+post_conditions:
+  - "No inline assert_semantic evaluation path exists anywhere in tests-v2."
+  - "All behavioral SC evaluation is orchestrator-dispatched clean-room sub-agent evaluation reading session.yaml."
+  - "Active enforcement docs (AGENTS.md, TDD SKILL.md, verify.md) contain no assert_semantic references."
+acyclic_check:
+  result: PASS
+  detail: "The transition DAG is acyclic: GENERATE -> EVALUATE_DISPATCHED -> EVALUATE_COMPLETE, with EVALUATE_INLINE -> REMOVED as a terminal deprecation. No circular transitions."

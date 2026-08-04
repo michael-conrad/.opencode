@@ -1,0 +1,75 @@
+concerns:
+  clean_room_discipline:
+    name: Clean-room discipline (no inline evaluation; sub-agent isolation)
+    applies_to:
+      - SC-1: "function removal is a pure deletion, not evaluation — no inline work."
+      - SC-2: "script conversion removes inline evaluation (assert_semantic does its own opencode run). Orchestrator must not inline the conversion in violation of clean-room; conversion is a mechanical edit."
+      - SC-3: "evaluation contract mandates sub-agent receives only artifact path + criterion."
+      - SC-4/5/6: "docs describe clean-room evaluation."
+    enforcement:
+      - "AGENTS.md section 6a: evaluation sub-agent receives ONLY artifact dir path, SC criterion, github.owner/repo."
+      - "critical-rules-034/043/048: orchestrator must not inline work; must dispatch via task()."
+  session_yaml_primary:
+    name: session.yaml as PRIMARY evaluation evidence
+    applies_to:
+      - SC-3: "contract documents session.yaml as primary source."
+      - SC-4: "AGENTS.md sections 1/2 already mandate session.yaml primary; must be preserved."
+      - SC-5/6: "behavioral evidence taxonomy references session.yaml-based evaluation."
+    enforcement:
+      - "AGENTS.md section 1: 'All behavioral SC evaluation MUST use session.yaml via clean-room sub-agent inspection.'"
+  no_test_lobotomization:
+    name: No test lobotomization (Test Integrity Mandate)
+    applies_to:
+      - SC-2: "converting scripts to artifact-only must NOT weaken the behavioral signal — evaluation is relocated to orchestrator-dispatched sub-agent, not dropped."
+      - SC-1: "removing assert_semantic must not be used as a rationalization to eliminate behavioral verification for affected SCs (2219, 2239, skill-deck)."
+    enforcement:
+      - "TDD SKILL.md Test Integrity Mandate Rule 1: removing assert_semantic because 'the inspector times out' is prohibited. Here removal is a deliberate architectural migration to orchestrator-dispatched clean-room evaluation, with evaluation responsibility preserved."
+  exit_code_semantics:
+    name: Exit code semantics (artifact-only exit 0)
+    applies_to:
+      - SC-2: "each converted script exits 0 unconditionally (generation signal, not PASS)."
+    enforcement:
+      - "AGENTS.md section 1 MANDATORY: Exit Code Is Always 0."
+  doc_coherence:
+    name: Documentation coherence (assert_semantic fully purged from active docs)
+    applies_to:
+      - SC-4/5/6: "all three active enforcement docs must not reference assert_semantic."
+    enforcement:
+      - "grep-based string verification post-change."
+matrix:
+  - concern: clean_room_discipline
+    sc1: X
+    sc2: X
+    sc3: X
+    sc4: X
+    sc5: X
+    sc6: X
+  - concern: session_yaml_primary
+    sc1: null
+    sc2: null
+    sc3: X
+    sc4: X
+    sc5: X
+    sc6: X
+  - concern: no_test_lobotomization
+    sc1: X
+    sc2: X
+    sc3: null
+    sc4: null
+    sc5: X
+    sc6: null
+  - concern: exit_code_semantics
+    sc1: null
+    sc2: X
+    sc3: null
+    sc4: null
+    sc5: null
+    sc6: null
+  - concern: doc_coherence
+    sc1: null
+    sc2: null
+    sc3: X
+    sc4: X
+    sc5: X
+    sc6: X
+summary: "The dominant cross-cutting concern is clean-room discipline: this spec replaces inline evaluation with orchestrator-dispatched clean-room sub-agent evaluation. Every SC must uphold the clean-room isolation contract and preserve the behavioral verification signal (no lobotomization). session.yaml-primary and doc coherence are secondary concerns spanning the doc and contract SCs."

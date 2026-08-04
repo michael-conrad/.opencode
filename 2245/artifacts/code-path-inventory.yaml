@@ -1,0 +1,29 @@
+code_paths:
+  sc2_convert_scripts:
+    phase: SC-2
+    paths:
+      - "tests-v2/behaviors/<scenario>.sh -> source helpers.sh -> behavior_run -> with-test-home opencode run -> artifact dir -> exit 0"
+    detail: "12 scripts. The assert_semantic call (currently after behavior_run) is removed. The behavior_run -> artifact generation -> exit 0 path is UNCHANGED."
+    invocation: "bash .opencode/tests-v2/behaviors/<scenario>.sh"
+  sc1_remove_function:
+    phase: SC-1
+    paths:
+      - "helpers.sh sourced by all behavior scripts. assert_semantic() function block (653-706) deleted."
+    detail: "After SC-2, no script references assert_semantic, so the function is dead code. Removing it has no runtime call path."
+  sc3_evaluation_contract:
+    phase: SC-3
+    paths:
+      - "tests-v2/AGENTS.md section 6a two-SC pattern (documentation; no runtime code path)."
+    detail: "Documents the orchestrator-dispatched clean-room sub-agent evaluation path: artifact dir -> sub-agent task() -> session.yaml read -> PASS/FAIL."
+  sc4_sc5_sc6_docs:
+    phase: SC-4/SC-5/SC-6
+    paths:
+      - "skills/test-driven-development/SKILL.md (behavioral assertion guidance)."
+      - "skills/verification-before-completion/tasks/verify.md (behavioral test run instructions)."
+    detail: "Documentation only; no runtime code path."
+  not_touched:
+    - "tests-v2/test-enforcement.sh -> content-verification (grep on files)."
+    - "tests-v2/with-test-home (XDG isolation harness)."
+    - ".opencode/tools/session-to-timeline (session.yaml -> timeline)."
+    - "behavior_run() generation logic and __export_sqlite_to_yaml()."
+  critical_path: "SC-2 -> SC-1: scripts must stop calling assert_semantic before the function is removed. All other paths are independent. Evaluation path (SC-3/4/5/6) is documentation-only."

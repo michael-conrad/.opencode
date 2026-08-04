@@ -1,0 +1,55 @@
+# Concern map for issue 2245
+
+## Concern Boundaries
+
+concern_1_script_conversion:
+  name: Behavior script artifact-only conversion
+  phase: SC-2
+  concerns_in_scope:
+    - "Remove inline assert_semantic call + '# Evaluate with assert_semantic' comment from 12 scripts."
+    - "Preserve behavior_run invocation (args, model, workdir, agent)."
+    - "Preserve mandatory cross-reference header."
+    - "Preserve unconditional exit 0."
+  concerns_out_of_scope:
+    - "Modifying behavior_run() generation logic."
+    - "Changing artifact directory structure or session.yaml export."
+    - "Rewriting scenario prompts."
+  separation: "One concern — generation. Evaluation is deliberately excluded (moved to orchestrator)."
+
+concern_2_function_removal:
+  name: helpers.sh assert_semantic() removal
+  phase: SC-1
+  concerns_in_scope:
+    - "Delete assert_semantic() function block (lines 653-706)."
+  concerns_out_of_scope:
+    - "Altering any other helpers.sh function (behavior_run, __export_sqlite_to_yaml, etc.)."
+    - "Removing the clean-room inspector prompt concept wholesale — evaluation moves to orchestrator."
+  separation: "Pure deletion of the inline-evaluation function; no other helper touched."
+
+concern_3_evaluation_contract:
+  name: Orchestrator-dispatched clean-room sub-agent evaluation contract
+  phase: SC-3
+  concerns_in_scope:
+    - "Document: sub-agent receives artifact dir + SC criterion (+ github.owner/repo)."
+    - "Document: sub-agent reads session.yaml as PRIMARY source."
+    - "Document: no orchestrator reasoning/expected outcomes/cached results."
+    - "Document: returns PASS/FAIL + one-sentence justification."
+  concerns_out_of_scope:
+    - "Implementing the actual task() dispatch tooling (that is the orchestrator's runtime behavior)."
+  separation: "Documentation of the contract — clean separation from implementation."
+
+concern_4_doc_updates:
+  name: Active enforcement documentation updates
+  phase: SC-4/SC-5/SC-6
+  concerns_in_scope:
+    - "AGENTS.md: remove assert_semantic; align paradigm with two-SC clean-room evaluation."
+    - "TDD SKILL.md: replace assert_semantic-primary guidance with clean-room sub-agent evaluation."
+    - "verify.md: remove assert_semantic from assertion-helper list; reference clean-room evaluation."
+  concerns_out_of_scope:
+    - "Historical .issues/ archival files."
+    - "Fixture content edits (optional)."
+  separation: "Each doc is one concern; docs updated independently."
+
+## Concern Separation Summary
+
+Four distinct concerns (script conversion, function removal, evaluation contract, doc updates), each mapped to a single phase/SC. No concern overlaps another: generation (SC-2) is separated from evaluation (SC-3/contract), function removal (SC-1) is a pure deletion, and doc updates (SC-4/5/6) are informational. The framework's two-SC pattern already encodes the generation/evaluation separation this spec formalizes.

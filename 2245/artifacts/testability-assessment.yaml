@@ -1,0 +1,50 @@
+strategy:
+  sc2_convert_scripts:
+    phase: SC-2
+    evidence_type: "behavioral (run converted scripts) + string (grep no assert_semantic)"
+    method:
+      - "Run each converted script via `bash .opencode/tests-v2/behaviors/<scenario>.sh` and verify: (a) exit code 0, (b) artifact directory produced with session.yaml present, (c) no 'assert_semantic' token in the script."
+      - "Behavioral evidence = agent actions via session.yaml when the downstream clean-room evaluation sub-agent evaluates the SC. For the conversion SC itself, the script-run outcome (exit 0 + artifacts) is the observable behavior."
+    assertion:
+      - "grep -q assert_semantic must return empty (script-level)."
+      - "Run script -> exit 0, session.yaml exists."
+    notes: "Cross-model: artifact generation uses the model pool / DEFAULT_TEST_MODEL; clean-room evaluation is the orchestrator's dispatch. The conversion SC is verified by running the script and checking artifacts + absence of the call."
+  sc1_remove_function:
+    phase: SC-1
+    evidence_type: "string (grep) + structural (sourcing integrity)"
+    method:
+      - "grep 'assert_semantic' in helpers.sh must be absent."
+      - "Source helpers.sh in a clean shell (`bash -c 'source helpers.sh; :'`) must succeed with no undefined references."
+      - "Run one converted behavior script -> sources helpers.sh without error."
+    assertion:
+      - "grep returns nothing; sourcing succeeds; a converted script runs to exit 0."
+  sc3_evaluation_contract:
+    phase: SC-3
+    evidence_type: "string (doc content) / structural"
+    method:
+      - "grep AGENTS.md for the two-SC pattern and clean-room isolation constraints (artifact dir + criterion only; no expected outcomes)."
+    assertion:
+      - "Contract text present and coherent."
+  sc4_sc5_sc6_docs:
+    phase: SC-4/SC-5/SC-6
+    evidence_type: "string (grep absence) + structural (coherence)"
+    method:
+      - "grep 'assert_semantic' in AGENTS.md, TDD SKILL.md, verify.md must all be absent."
+      - "Verify no-lobotomizing / behavioral-evidence-taxonomy / session.yaml-primary guidance preserved."
+    assertion:
+      - "grep returns nothing across all three docs; key behavioral guidance intact."
+evidence_type_taxonomy:
+  - sc: SC-1
+    declared: string/structural
+    testability: "grep absence + sourcing integrity — appropriate, function removal is structural."
+  - sc: SC-2
+    declared: behavioral (run scripts)
+    testability: "Running converted scripts to verify exit 0 + artifacts + no inline eval is the observable behavior; downstream clean-room evaluation covers the SC criteria those scripts were built for."
+  - sc: SC-3
+    declared: string
+    testability: "doc contract presence."
+  - sc: SC-4/5/6
+    declared: string
+    testability: "grep absence across docs."
+key_finding: "SC-2 (script conversion) must NOT lobotomize the behavioral signal for the SCs those 12 scenarios were originally built to verify (2219-sc*, 2239-sc8, skill-deck). The conversion moves evaluation OUT of the script and INTO the orchestrator-dispatched clean-room sub-agent. Verification of the conversion SC itself is: script runs to exit 0 with artifacts produced and no assert_semantic token. The behavioral SCs those scenarios serve are then verified by the clean-room evaluation sub-agent reading session.yaml — which is the same evidence source assert_semantic should have used but didn't (it used stdout/stderr)."
+conclusion: "All SCs are testable. Behavioral, string, and structural evidence types are appropriate for the respective SCs. No evidence-type mismatch: function removal (SC-1) is structural, script conversion (SC-2) is behavioral run verification, evaluation contract (SC-3) and doc updates (SC-4/5/6) are string/structural. The clean-room evaluation sub-agent (downstream) provides behavioral evidence for the underlying SC criteria."

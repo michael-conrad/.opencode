@@ -1,0 +1,70 @@
+topic: "Remove assert_semantic() and inline opencode-run evaluation; orchestrator-dispatched clean-room sub-agent evaluation; update docs."
+per_sc: "Each SC maps to exactly one RED/GREEN/verify/commit cycle."
+items:
+  - sc_id: SC-1
+    title: "Remove assert_semantic() definition from helpers.sh"
+    problem: "helpers.sh still defines assert_semantic() which performs inline opencode-run evaluation — the anti-pattern the artifact-only paradigm forbids."
+    interface_input: "tests-v2/behaviors/helpers.sh (assert_semantic function block lines 653-706)"
+    interface_output: "helpers.sh with assert_semantic() removed; no other function references it"
+    invariant: "No behavior script references assert_semantic after SC-2 conversion; script sourcing still works."
+    failure_mode: "Removal leaves dangling references in non-converted scripts -> broken sourcing."
+    verification: "behavioral/structural: grep confirms function absent; behavior scripts source helpers.sh without error."
+  - sc_id: SC-2
+    title: "Convert 12 behavior scripts to artifact-only generators (remove assert_semantic call sites)"
+    problem: "12 scripts call assert_semantic inline after behavior_run, conflating generation with evaluation."
+    interface_input: "12 behavior .sh scripts"
+    interface_output: "12 scripts each calling behavior_run then exit 0, with '# Evaluate with assert_semantic' comment removed"
+    invariant: "Each converted script preserves its behavior_run invocation args (model/workdir/agent); each exits 0; mandatory header retained."
+    failure_mode: "Removal drops required behavior_run args, changing generation; script exits non-zero."
+    verification: "behavioral: run each converted script -> produces artifacts, exits 0; grep confirms no assert_semantic call."
+  - sc_id: SC-3
+    title: "Establish orchestrator-dispatched clean-room sub-agent evaluation contract (documented)"
+    problem: "Inline assert_semantic evaluation is being removed; a documented contract for the replacement (orchestrator-dispatched clean-room sub-agent reading session.yaml) is required."
+    interface_input: "AGENTS.md section 6a two-SC pattern; critical-rules clean-room discipline"
+    interface_output: "Documented evaluation contract: sub-agent receives artifact dir + SC criterion (+ owner/repo), reads session.yaml, returns PASS/FAIL + evidence"
+    invariant: "Sub-agent receives NO orchestrator reasoning/expected outcomes/cached results."
+    failure_mode: "Contract undocumented or permits context contamination."
+    verification: "behavioral/docs: contract text present in AGENTS.md; clean-room constraints stated."
+  - sc_id: SC-4
+    title: "Update tests-v2/AGENTS.md to remove assert_semantic and document the two-SC clean-room evaluation pattern"
+    problem: "AGENTS.md section 1 lists forbidden helpers but the eval paradigm must reflect orchestrator-dispatched clean-room sub-agent evaluation, not inline assert_semantic."
+    interface_input: "tests-v2/AGENTS.md"
+    interface_output: "AGENTS.md updated: assert_semantic removed, two-SC clean-room evaluation documented, no stale helper references"
+    invariant: "Paradigm, artifact-only mandate, session.yaml-primary rule, and two-SC pattern remain coherent."
+    failure_mode: "Stale references to assert_semantic remain; doc contradicts the artifact-only mandate."
+    verification: "string/structural: grep confirms no assert_semantic in AGENTS.md; two-SC section intact."
+  - sc_id: SC-5
+    title: "Update skills/test-driven-development/SKILL.md behavioral assertion documentation"
+    problem: "TDD SKILL.md lists assert_semantic as PRIMARY behavioral assertion; must reflect clean-room sub-agent evaluation."
+    interface_input: "skills/test-driven-development/SKILL.md (lines referencing assert_semantic)"
+    interface_output: "TDD SKILL.md updated to describe clean-room sub-agent evaluation (session.yaml) as the behavioral evidence mechanism; assert_semantic removed"
+    invariant: "Behavioral evidence taxonomy (behavioral/string/structural) and no-lobotomizing mandate preserved."
+    failure_mode: "Removal weakens behavioral SC guidance or contradicts AGENTS.md."
+    verification: "string: grep confirms assert_semantic removed from TDD SKILL.md; behavioral assertion guidance present."
+  - sc_id: SC-6
+    title: "Update skills/verification-before-completion/tasks/verify.md assertion-helper reference"
+    problem: "verify.md lists assert_semantic among assertion helpers; must reflect clean-room sub-agent evaluation."
+    interface_input: "skills/verification-before-completion/tasks/verify.md (line ~270)"
+    interface_output: "verify.md updated to reference orchestrator-dispatched clean-room sub-agent evaluation; assert_semantic removed from helper list"
+    invariant: "Cross-model validation gate and behavioral-test-run instructions preserved."
+    failure_mode: "Stale assert_semantic reference remains; instruction to 'use assertion helpers' contradicts removal."
+    verification: "string: grep confirms assert_semantic removed from verify.md; behavioral run instructions intact."
+dependency_edges:
+  - "SC-2 (convert scripts) BEFORE SC-1 (remove function)."
+  - "SC-3 (contract) BEFORE SC-4/SC-5/SC-6 (docs)."
+  - "SC-4, SC-5, SC-6 mutually independent."
+dependency_dag:
+  - from: SC-2
+    to: SC-1
+    reason: "Removing the function while scripts still call it breaks sourcing."
+  - from: SC-3
+    to: SC-4
+    reason: "Docs must reference a defined contract."
+  - from: SC-3
+    to: SC-5
+    reason: "Docs must reference a defined contract."
+  - from: SC-3
+    to: SC-6
+    reason: "Docs must reference a defined contract."
+atomicity: "Each SC is a single concern. SC-1: one function removal. SC-2: one concern (convert 12 scripts) atomic as a single RED/GREEN/COMMIT cycle because all 12 follow the identical conversion; verifiable as a group (may be decomposed per-script in plan, but SC-level unit is the conversion class). SC-3: one contract documentation unit. SC-4/5/6: each one doc update."
+failure_modes_invariants: "Each item declares its interface (input/output), invariant, failure mode, and verification method. All items are independently verifiable claims."

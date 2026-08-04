@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "assert_semantic() function block absent from helpers.sh; helpers.sh sources cleanly with no undefined-function references from converted scripts"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-2"
+    description: "All 12 behavior scripts converted to artifact-only generators preserving behavior_run args, header, exit 0; assert_semantic call removed"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-3"
+    description: "Orchestrator-dispatched clean-room sub-agent evaluation contract documented in tests-v2/AGENTS.md"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "tests-v2/AGENTS.md has no assert_semantic references; reflects two-SC clean-room evaluation pattern"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "skills/test-driven-development/SKILL.md has no assert_semantic references; describes clean-room sub-agent evaluation as behavioral evidence mechanism"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-6"
+    description: "skills/verification-before-completion/tasks/verify.md has no assert_semantic reference; references clean-room sub-agent evaluation"
+    evidence_type: "string"
+    plan_item: 4
