@@ -43,12 +43,12 @@
 | SC-15 | `audit/tasks/drift-detection-investigator.md` SHALL remove "Authorization currency" and "Authorization author identity" rows from Metadata Verification Extension | string | grep for "Authorization currency" and "Authorization author identity" in drift-detection-investigator.md — SHALL return no matches |
 | SC-16 | `issue-operations-core/tasks/read-issue.md` SHALL remove the entire "No Metadata Trust Exceptions" section | string | grep for "No Metadata Trust" in read-issue.md — SHALL return no matches |
 | SC-17 | `verification-before-completion/tasks/operating-protocol.md` SHALL remove the entire "No Metadata Trust Exceptions" section | string | grep for "No Metadata Trust" in operating-protocol.md — SHALL return no matches |
-| SC-18 | `issue-review/tasks/gather.md` SHALL remove scanning comments for "approved"/"go" patterns | string | grep for comment-scanning patterns in gather.md — SHALL return no matches |
+| SC-18 | `issue-review/tasks/gather.md` SHALL remove scanning comments for "approved"/"go" patterns | string | grep for "approved" and "go" in gather.md — SHALL return no matches |
 | SC-19 | `brainstorming/tasks/enforcement.md` SHALL remove "User approved design" verification row checking comments for approval | string | grep for "User approved design" in enforcement.md — SHALL return no matches |
-| SC-20 | `issue-operations-core/tasks/post-creation.md` SHALL remove "approved"/"go" check in comments from Live Verification table | string | grep for "approved" or "go" in post-creation.md Live Verification section — SHALL return no matches for comment-scanning patterns |
+| SC-20 | `issue-operations-core/tasks/post-creation.md` SHALL remove "approved"/"go" check in comments from Live Verification table | string | grep for "comment-scanning" in post-creation.md Live Verification section — SHALL return no matches |
 | SC-21 | `approval-gate/tasks/resolve-scope.md` SHALL parse auth from chat message only, not from issue comments | semantic | Clean-room sub-agent reads resolve-scope.md and evaluates whether auth is parsed from chat only |
-| SC-22 | `approval-gate/SKILL.md` SHALL remove references to reading comments for authorization | string | grep for "comments" in approval-gate/SKILL.md — SHALL return no matches for auth-related comment references |
-| SC-23 | `gh-cli/tasks/triage-issues.md` SHALL remove noting authorization in comments | string | grep for "authorization" in triage-issues.md — SHALL return no matches for comment-scanning patterns |
+| SC-22 | `approval-gate/SKILL.md` SHALL remove references to reading comments for authorization | string | grep for "authorization.*comment" in approval-gate/SKILL.md — SHALL return no matches |
+| SC-23 | `gh-cli/tasks/triage-issues.md` SHALL remove noting authorization in comments | string | grep for "authorization" in triage-issues.md — SHALL return no matches |
 | SC-24 | `guidelines/067-context-completeness.md` SHALL remove "authorization may live in a comment, not the body" | string | grep for "authorization" in 067-context-completeness.md — SHALL return no matches for comment-scanning language |
 | SC-25 | `guidelines/257-procedural-discipline-reference.md` SHALL remove "Authorization verified via comment history" example | string | grep for "Authorization verified" in 257-procedural-discipline-reference.md — SHALL return no matches |
 | SC-26 | `issue-operations/platforms/gitbucket-api/SKILL.md` SHALL remove label replacement via comment fallback | string | grep for "comment fallback" in gitbucket-api/SKILL.md — SHALL return no matches |
@@ -184,7 +184,7 @@ R-9. The approval-gate guideline SHALL document that canonical authorization sta
 
 - RED: grep for comment-scanning patterns in gather.md — SHALL match before change
 - GREEN: Remove scanning comments for "approved"/"go" patterns
-- verify: grep for comment-scanning patterns in gather.md — SHALL return no matches
+- verify: grep for "approved" and "go" in gather.md — SHALL return no matches
 - commit: `gather.md`
 
 ### Item 18 (SC-19): `enforcement.md` — remove approval comment check
@@ -198,7 +198,7 @@ R-9. The approval-gate guideline SHALL document that canonical authorization sta
 
 - RED: grep for comment-scanning patterns in post-creation.md — SHALL match before change
 - GREEN: Remove "approved"/"go" check in comments from Live Verification table
-- verify: grep for comment-scanning patterns in post-creation.md — SHALL return no matches
+- verify: grep for "comment-scanning" in post-creation.md Live Verification section — SHALL return no matches
 - commit: `post-creation.md`
 
 ### Item 20 (SC-21): `resolve-scope.md` — parse from chat only
@@ -212,14 +212,14 @@ R-9. The approval-gate guideline SHALL document that canonical authorization sta
 
 - RED: grep for auth-related comment references in approval-gate/SKILL.md — SHALL match before change
 - GREEN: Remove references to reading comments for authorization
-- verify: grep for auth-related comment references in approval-gate/SKILL.md — SHALL return no matches
+- verify: grep for "authorization.*comment" in approval-gate/SKILL.md — SHALL return no matches
 - commit: `approval-gate/SKILL.md`
 
 ### Item 22 (SC-23): `triage-issues.md` — remove noting auth in comments
 
 - RED: grep for "authorization" in triage-issues.md — SHALL match before change
 - GREEN: Remove noting authorization in comments
-- verify: grep for "authorization" in triage-issues.md — SHALL return no matches for comment-scanning patterns
+- verify: grep for "authorization" in triage-issues.md — SHALL return no matches
 - commit: `triage-issues.md`
 
 ### Item 23 (SC-24): `067-context-completeness.md` — remove auth in comment language
@@ -337,6 +337,12 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Issue has both local and remote labels that differ | Local issue.yaml is authoritative | Remote labels are advisory/display only |
 
 ---
+
+## Change Control
+
+| Date | Revision | Reason | Authorized By |
+|------|----------|--------|---------------|
+| 2026-08-04 | SC-18/SC-20/SC-22/SC-23 verification-method determinism revision | Spec-audit found 3 SC-DET determinism failures (undefined, non-deterministic grep patterns) | Spec-audit |
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
