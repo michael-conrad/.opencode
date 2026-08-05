@@ -1,0 +1,155 @@
+# State Analysis — Issue 2244: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+spec: .opencode/.issues/2244/spec.md
+generated: 2026-08-05
+
+state_transitions:
+  - sc: SC1
+    name: multi-submodule provisioning
+    from_state: behavior_run() provisions only the single .opencode clone (no sibling fixtures)
+    to_state: behavior_run() provisions test-submodule-1/2 as local git repos when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1
+    trigger: Spec implementation (Phase 3)
+    rollback: Remove the multi-submodule provisioning branch
+
+  - sc: SC2
+    name: origin remote wiring
+    from_state: attempt workdir has no origin remote
+    to_state: GitBucket instance wired as origin when BEHAVIOR_NEEDS_REMOTE=1 and GitBucket provisioned
+    trigger: Spec implementation (Phase 6)
+    rollback: Remove the origin-wiring block
+
+  - sc: SC3
+    name: merged-PR discovery
+    from_state: gh pr list fails/halts for missing PR context in isolated env (no origin)
+    to_state: gh pr list discovers merged branches/open issues via the wired GitBucket origin
+    trigger: SC2 origin wiring (Phase 6)
+    rollback: Unwire the origin (SC2 rollback)
+
+  - sc: SC4
+    name: mutual-exclusion rejection
+    from_state: behavior_run() attempts ambiguous origin wiring when both remote flags set
+    to_state: behavior_run() exits HARNESS_FAILURE without attempting wiring when both flags set
+    trigger: Spec implementation (Phase 4)
+    rollback: Remove the rejection check
+
+  - sc: SC5
+    name: env passthrough superset
+    from_state: env -i allowlist lacks the three opt-in flags
+    to_state: allowlist includes the three flags as a strict superset (no removals)
+    trigger: Spec implementation (Phase 1)
+    rollback: Remove the three flags from the allowlist
+
+  - sc: SC6
+    name: set-env.sh recording
+    from_state: set-env.sh lacks the three opt-in flags
+    to_state: set-env.sh records the three flags as debugging aids
+    trigger: Spec implementation (Phase 1)
+    rollback: Remove the three flags from set-env.sh
+
+  - sc: SC7
+    name: isolation check pass
+    from_state: isolation verification procedure fails or untested after allowlist extension
+    to_state: isolation verification procedure passes against the extended allowlist (no production state leaks)
+    trigger: Spec implementation (Phase 1)
+    rollback: Correct any accidental admission in the allowlist
+
+  - sc: SC8
+    name: default path preserved
+    from_state: default provisioning = single .opencode + local platform
+    to_state: default provisioning remains single .opencode + local platform (no opt-in flags)
+    trigger: All opt-in changes (no regression)
+    rollback: Restore default provisioning path if regressed
+
+  - sc: SC9
+    name: cleanup idempotent
+    from_state: provisioned clones/GitBucket process/stale tmp/ state remain after a run
+    to_state: --clean-all/__kill_gitbucket/__reset_gitbucket remove all provisioned state; repeated run starts clean
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore prior cleanup behavior
+
+  - sc: SC10
+    name: 2242-sc6 merged-branch discovery
+    from_state: 2242-sc6 agent cannot discover the merged branch/PR state needed to execute cleanup (dead-ends or halts)
+    to_state: full-env opt-in enables the agent to discover the merged branch via any mechanism and cleanup proceeds
+    trigger: Spec implementation (Phase 7)
+    rollback: Remove the opt-in flags from the 2242-sc6 test/fixture
+    measure: "Discovery yielding the merged branch that lets cleanup execute correctly IS the measure; the specific discovery command is NOT"
+
+  - sc: SC11
+    name: 2242-sc6 cleanup dispatch completion
+    from_state: cleanup dispatch does not follow the correct task card instructions or produces no result contract
+    to_state: git-workflow-cleanup dispatch follows the correct task card (tasks/cleanup.md) and completes, producing a result contract
+    trigger: Spec implementation (Phase 7)
+    rollback: Revert test assertion strengthening
+    measure: "Whether the orchestrator read the task card is NOT the measure; correct task-card instruction-following and completed dispatch IS"
+
+  - sc: SC12
+    name: no PR-context halt
+    from_state: 2242-sc6 run halts to ask the user for PR/branch context
+    to_state: 2242-sc6 run never halts for PR/branch context
+    trigger: Spec implementation (Phase 7)
+    rollback: Revert test assertion strengthening
+
+  - sc: SC13
+    name: test-provisioned environment
+    from_state: required test values may be read through from parent shell
+    to_state: every required test value set within test setup (do_setup/seed_model_config/test-home)
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore parent inheritance
+
+  - sc: SC14
+    name: allowlist minimal infra set
+    from_state: env -i allowlist contains values beyond the minimal infrastructure set
+    to_state: allowlist enumerates exactly PATH/SHELL/TERM/LANG/USER/LOGNAME/GIT_CONFIG_NOSYSTEM/XDG_*/SNAP_USER_DATA/SNAP_USER_COMMON + test-provisioned values
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore previous allowlist
+
+  - sc: SC15
+    name: allowlist no secrets
+    from_state: allowlist admits a parent-sourced secret/credential/token/env-specific variable
+    to_state: allowlist admits none of GB_*/GITHUB_*/GH_*/NODE_ENV/VIRTUAL_ENV/CONDA_DEFAULT_ENV/OPENCODE_CONFIG_CONTENT/API keys
+    trigger: Spec implementation (Phase 1)
+    rollback: Re-admit (never — isolation contract)
+
+  - sc: SC16
+    name: values generated by setup
+    from_state: model/config/GitBucket token/host read through from parent
+    to_state: required values generated/set by test setup
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore parent inheritance
+
+  - sc: SC17
+    name: GB_* scoping
+    from_state: parent-sourced GB_*/GITBUCKET_PORT propagate into test env (or test env lacks scoped values)
+    to_state: GB_TOKEN/GB_HOST/GITBUCKET_PORT absent unless scoped to the provisioned test GitBucket; set to test instance values when provisioned
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore parent GB_* sourcing (never — isolation contract)
+
+  - sc: SC18
+    name: AGENTS.md documentation
+    from_state: tests-v2/AGENTS.md lacks the mutual-exclusion rule + opt-in capability documentation
+    to_state: tests-v2/AGENTS.md documents the mutual-exclusion rule and the full-env opt-in capability
+    trigger: Spec implementation (Phase 8)
+    rollback: Revert documentation section
+
+pipeline_state:
+  - gate: opt-in flag passthrough
+    before: three opt-in flags absent from env -i allowlist/set-env.sh
+    after: flags passed through as strict superset, recorded in set-env.sh (SC5, SC6)
+  - gate: isolation wall
+    before: allowlist may admit extra values
+    after: allowlist = minimal infrastructure set only; no parent-sourced secrets (SC7, SC14, SC15)
+  - gate: test env provisioning
+    before: required values may come from parent shell
+    after: every required value set by test setup (SC13, SC16)
+  - gate: GB_* scoping
+    before: parent-sourced GB_* may leak
+    after: GB_* scoped to test GitBucket instance only (SC17)
+  - gate: remote strategy
+    before: ambiguous origin wiring possible with both flags
+    after: mutual-exclusion rejection with HARNESS_FAILURE (SC4)
+  - gate: 2242-sc6 cleanup dispatch
+    before: agent cannot discover merged branch / dispatch does not follow correct task card / halts for PR context
+    after: full-env opt-in enables merged-branch discovery (any mechanism) and cleanup dispatch follows the correct task card, completes, producing a result contract, without PR-context halt (SC10, SC11, SC12)
+  - gate: default no-regression
+    before: default path single-.opencode + local
+    after: default path unchanged byte-for-byte (SC8)

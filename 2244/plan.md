@@ -225,7 +225,9 @@ scs: [SC10, SC11, SC12]
 opt_in_flags:
   BEHAVIOR_NEEDS_MULTI_SUBMODULES: "1"
   BEHAVIOR_NEEDS_REMOTE: "1"
-forbidden_tool_timeline: ["read tasks/cleanup.md", "question-tool call", "PR/branch-context halt"]
+forbidden_tool_timeline: ["question-tool call", "PR/branch-context halt"]
+measure_rule: "Discovery yielding the merged branch that lets cleanup execute correctly IS the measure (any discovery mechanism); the specific discovery command is NOT. Whether the orchestrator read the task card is NOT the measure; correct task-card instruction-following and completed dispatch IS."
+sc11_measure: "git-workflow-cleanup dispatch follows the correct task card (tasks/cleanup.md) instructions and completes, producing a result contract"
 ```
 
 ### Phase 8 — Documentation (Concern C9)
@@ -279,7 +281,7 @@ default_provisioning: "single .opencode submodule + local platform, no origin re
 - [ ] C4. Both `BEHAVIOR_NEEDS_REMOTE=1` and `BEHAVIOR_SET_BARE_REMOTE=1` together exit with `HARNESS_FAILURE` and do not attempt origin wiring (SC4).
 - [ ] C5. `--clean-all`/`__kill_gitbucket`/`__reset_gitbucket` remove all provisioned clones and GitBucket state, leaving no orphans; a repeated run starts clean (SC9).
 - [ ] C6. With `BEHAVIOR_NEEDS_REMOTE=1` and GitBucket provisioned, `git remote -v` in the attempt workdir shows the GitBucket `origin` (SC2), and `gh pr list` in the isolated env discovers merged branches/open issues without GitHub auth and the agent does not halt for PR/branch context (SC3).
-- [ ] C7. `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in completes merged-PR discovery (SC10) and cleanup dispatch without reading a cleanup task card (SC11) and without halting for PR/branch context (SC12).
+- [ ] C7. `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in completes merged-PR discovery — the full-env opt-in enables the agent to discover the merged branch/PR state needed to execute cleanup (via any discovery mechanism; the specific command is NOT the measure) (SC10) — and the cleanup dispatch follows the correct task card (`tasks/cleanup.md`) instructions and completes, producing a result contract (SC11), and without halting for PR/branch context (SC12).
 - [ ] C8. `.opencode/tests-v2/AGENTS.md` documents the mutual-exclusion rule and the new opt-in capability (SC18).
 - [ ] C9. With no opt-in flags set, default provisioning remains byte-for-byte the single-`.opencode`/`local` platform for the ~80 existing tests (no regression, SC8).
 - [ ] C10. All 18 SCs map to exactly one item each; no item covers multiple SCs; the phase DAG is acyclic and Z3-SAT validated; each of the 9 phases addresses exactly one concern (C1–C9).

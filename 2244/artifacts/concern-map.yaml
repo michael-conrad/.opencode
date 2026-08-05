@@ -1,0 +1,146 @@
+# Concern Map — Issue 2244: Full-Environment Simulation Support in .opencode/tests-v2 Test Harness
+spec: .opencode/.issues/2244/spec.md
+generated: 2026-08-05
+
+concerns:
+  - id: C4
+    name: Allowlist extension + isolation
+    description: Extend the env -i allowlist with the three opt-in flags as a strict superset, record them in set-env.sh, keep the isolation check passing, and keep the allowlist at exactly the minimal infrastructure set with no parent-sourced secrets
+    scs:
+      - SC5 (env -i passthrough strict superset)
+      - SC6 (set-env.sh records flags)
+      - SC7 (isolation check still passes)
+      - SC14 (allowlist contains ONLY minimal infrastructure set)
+      - SC15 (allowlist excludes parent-sourced secrets)
+    phases:
+      - 1
+    affected_files:
+      - .opencode/tests-v2/with-test-home (env -i allowlist, set-env.sh)
+
+  - id: C5
+    name: Test-provisioned env rule + GB scoping
+    description: Every required test value is set by the test setup (do_setup/seed_model_config/test-home provisioning), never inherited from the parent shell; GB_*/GITBUCKET_PORT are scoped to the provisioned test GitBucket instance only
+    scs:
+      - SC13 (general env-set rule — test-provisioned environment only)
+      - SC16 (required values generated/set by setup)
+      - SC17 (GB_* scoping; no parent GB_* leakage)
+    phases:
+      - 2
+    affected_files:
+      - .opencode/tests-v2/with-test-home (do_setup/seed_model_config, GB_* scoping)
+      - .opencode/tests-v2/behaviors/helpers.sh (__ensure_gitbucket scoping)
+
+  - id: C1
+    name: Multi-submodule provisioning
+    description: Provision test-submodule-1/test-submodule-2 as local git repos in the attempt workdir when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1, and not when unset
+    scs:
+      - SC1 (multi-submodule fixture provisioning)
+    phases:
+      - 3
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh (behavior_run multi-submodule provisioning)
+      - .opencode/tests-v2/behaviors/fixtures/
+
+  - id: C3
+    name: Remote-strategy mutual exclusion
+    description: Reject configuration where both BEHAVIOR_NEEDS_REMOTE=1 and BEHAVIOR_SET_BARE_REMOTE=1 are set, with a HARNESS_FAILURE exit, without attempting ambiguous origin wiring
+    scs:
+      - SC4 (mutual-exclusion rejection)
+    phases:
+      - 4
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh (behavior_run mutual-exclusion rejection)
+
+  - id: C7
+    name: Cleanup of provisioned state
+    description: --clean-all/__kill_gitbucket/__reset_gitbucket remove all provisioned submodule clones, GitBucket process, and stale tmp/ state so a repeated run starts clean
+    scs:
+      - SC9 (cleanup — idempotent, no orphans)
+    phases:
+      - 5
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh (__kill_gitbucket, __reset_gitbucket)
+      - .opencode/tests-v2/with-test-home (do_clean_all)
+
+  - id: C2
+    name: GitBucket origin wiring + merged-PR discovery
+    description: Wire the provisioned GitBucket instance as the test repo's origin remote when BEHAVIOR_NEEDS_REMOTE=1, enabling merged-branch/issue discovery in the isolated env without GitHub auth and without halting for PR context
+    scs:
+      - SC2 (GitBucket origin wiring)
+      - SC3 (merged-PR/issue discovery succeeds)
+    phases:
+      - 6
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh (behavior_run origin-wiring, __ensure_gitbucket)
+
+  - id: C8
+    name: 2242-sc6 full-env opt-in + verification
+    description: Set the full-env opt-in on the 2242-sc6 cleanup-dispatch test so the agent can discover the merged branch/PR state needed to execute cleanup (any discovery mechanism), the cleanup dispatch follows the correct task card and completes producing a result contract, and the run never halts for PR/branch context
+    scs:
+      - SC10 (full-env opt-in enables merged-branch discovery + cleanup proceeds; specific command NOT the measure)
+      - SC11 (cleanup dispatch follows correct task card + completes with result contract; orchestrator read/no-read NOT the measure)
+      - SC12 (no PR-context halt)
+    phases:
+      - 7
+    affected_files:
+      - .opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+      - .opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh
+
+  - id: C9
+    name: Documentation of mutual-exclusion + full-env opt-in
+    description: Document the BEHAVIOR_NEEDS_MULTI_SUBMODULES/BEHAVIOR_SET_BARE_REMOTE mutual-exclusion rule and the full-environment opt-in capability in tests-v2/AGENTS.md
+    scs:
+      - SC18 (AGENTS.md documentation)
+    phases:
+      - 8
+    affected_files:
+      - .opencode/tests-v2/AGENTS.md
+
+  - id: C6
+    name: No-regression default gate
+    description: With no opt-in flags, default provisioning remains byte-for-byte the single-.opencode/local platform for the ~80 existing tests
+    scs:
+      - SC8 (no-regression default gate)
+    phases:
+      - 9
+    affected_files:
+      - .opencode/tests-v2/behaviors/helpers.sh (default provisioning path)
+      - .opencode/tests-v2/with-test-home
+
+phase_boundaries:
+  phase_1:
+    concerns: [C4]
+    scs: [SC5, SC6, SC7, SC14, SC15]
+    description: env -i allowlist extension + isolation
+  phase_2:
+    concerns: [C5]
+    scs: [SC13, SC16, SC17]
+    description: test-provisioned environment rule + GB_* scoping
+  phase_3:
+    concerns: [C1]
+    scs: [SC1]
+    description: multi-submodule fixture provisioning
+  phase_4:
+    concerns: [C3]
+    scs: [SC4]
+    description: remote-strategy mutual exclusion
+  phase_5:
+    concerns: [C7]
+    scs: [SC9]
+    description: cleanup of provisioned state
+  phase_6:
+    concerns: [C2]
+    scs: [SC2, SC3]
+    description: GitBucket origin wiring + merged-PR discovery
+  phase_7:
+    concerns: [C8]
+    scs: [SC10, SC11, SC12]
+    description: 2242-sc6 full-env opt-in + verification (correct-execution SCs)
+  phase_8:
+    concerns: [C9]
+    scs: [SC18]
+    description: documentation of mutual-exclusion + full-env opt-in
+  phase_9:
+    concerns: [C6]
+    scs: [SC8]
+    description: no-regression default gate
