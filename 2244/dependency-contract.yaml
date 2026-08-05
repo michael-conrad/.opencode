@@ -22,6 +22,9 @@ variables:
   phase_7:
     type: bool
     description: "C8 2242-sc6 full-env opt-in + cleanup-dispatch verification — SC10, SC11, SC12"
+  phase_10:
+    type: bool
+    description: "C10 executor GB_* suite + gb config.toml seeding — SC19, SC20"
   phase_8:
     type: bool
     description: "C9 documentation of mutual-exclusion + full-env opt-in — SC18"
@@ -38,6 +41,7 @@ preconditions:
   - "z3.Implies(phase_6, phase_3)"
   - "z3.Implies(phase_6, phase_4)"
   - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_7, phase_10)"
   - "z3.Implies(phase_8, phase_4)"
   - "z3.Implies(phase_9, phase_1)"
   - "z3.Implies(phase_9, phase_3)"
@@ -53,6 +57,7 @@ invariants:
   - "z3.Implies(phase_6, phase_3)"
   - "z3.Implies(phase_6, phase_4)"
   - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_7, phase_10)"
   - "z3.Implies(phase_8, phase_4)"
   - "z3.Implies(phase_9, phase_1)"
   - "z3.Implies(phase_9, phase_3)"
@@ -107,6 +112,13 @@ phases:
       - SC10
       - SC11
       - SC12
+  phase_10:
+    files:
+      - tests-v2/with-test-home (GB_ENV_ARGS, env -i invocation, do_setup gb config.toml seeding)
+      - tests-v2/behaviors/helpers.sh (__ensure_gitbucket GB_REPO/GB_PROTOCOL export)
+    scs:
+      - SC19
+      - SC20
   phase_8:
     files:
       - tests-v2/AGENTS.md
@@ -146,6 +158,9 @@ edges:
   - from: phase_6
     to: phase_7
     rationale: C8 2242-sc6 full-env opt-in requires the C2 wired origin and discovery
+  - from: phase_10
+    to: phase_7
+    rationale: C8 2242-sc6 cleanup-dispatch verification requires the executor to authenticate gb (C10 SC19 full GB_* suite + SC20 seeded gb config.toml) so discovery succeeds
   - from: phase_4
     to: phase_8
     rationale: C9 documentation covers the C4 mutual-exclusion rule, so must follow it

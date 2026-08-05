@@ -1,4 +1,4 @@
-sc_count: 18
+sc_count: 20
 scs:
   - id: "SC1"
     description: "Opt-in multi-submodule fixture provisioning (test-submodule-1/2 as local git repos)"
@@ -72,3 +72,11 @@ scs:
     description: "tests-v2/AGENTS.md documents mutual-exclusion rule and new full-environment opt-in capability"
     evidence_type: "string"
     plan_item: 18
+  - id: "SC19"
+    description: "When BEHAVIOR_NEEDS_REMOTE=1, with-test-home propagates the full GB_* env suite (GB_TOKEN, GB_HOST, GITBUCKET_PORT, GB_REPO, GB_PROTOCOL) into the isolated test env via GB_ENV_ARGS, scoped to the provisioned test GitBucket"
+    evidence_type: "structural"
+    plan_item: 19
+  - id: "SC20"
+    description: "When BEHAVIOR_NEEDS_REMOTE=1, test home seeds pre-fabricated gb config.toml at $TEST_HOME/.config/gb/config.toml with default_host and host token matching the provisioned test GitBucket"
+    evidence_type: "structural"
+    plan_item: 20
