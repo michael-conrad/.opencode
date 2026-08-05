@@ -1,0 +1,59 @@
+# Structure Artifact — No Model/GPU Outguessing (Issue .opencode#2248)
+# Generated: 2026-08-05
+
+description: "Phase decomposition, dependency DAG, and skill+task selection for the no-outguess model/GPU enforcement rule"
+
+phases:
+  - phase: 1
+    concern: "Document the no-outguess mandate in tests-v2/AGENTS.md"
+    scs: ["SC-3"]
+    items:
+      - item_id: 1
+        sc_id: "SC-3"
+        evidence_type: "string"
+        description: "tests-v2/AGENTS.md documents that the agent MUST NOT outguess model/GPU selection; model selection is DEFAULT_TEST_MODEL only"
+    requires: []
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "(orchestrator) git add <files> && git commit -m \"<message>\""
+
+  - phase: 2
+    concern: "Add three behavioral enforcement test scenarios verifying agents follow the documented mandate"
+    scs: ["SC-1", "SC-2", "SC-4"]
+    items:
+      - item_id: 2
+        sc_id: "SC-1"
+        evidence_type: "behavioral"
+        description: "Agent uses the harness's DEFAULT_TEST_MODEL during behavioral testing; does not substitute based on VRAM/GPU/ollama-probe hw assessment"
+      - item_id: 3
+        sc_id: "SC-2"
+        evidence_type: "behavioral"
+        description: "On test failure/timeout, agent follows the documented §10 remediation path rather than diagnosing VRAM and switching models"
+      - item_id: 4
+        sc_id: "SC-4"
+        evidence_type: "behavioral"
+        description: "Spec reinforces §10.4 model-excuse prohibition; model/GPU handling is the harness's job, never the agent's outguessing"
+    requires: ["phase-1"]
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      post-regression: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "(orchestrator) git add <files> && git commit -m \"<message>\""
+
+dependency_dag:
+  nodes: ["phase-1", "phase-2"]
+  edges:
+    - from: "phase-1"
+      to: "phase-2"
+      reason: "SC-3 (AGENTS.md mandate) must be documented before SC-1/SC-2/SC-4 behavioral tests can verify agents follow it"
+
+triplet_co_location:
+  status: "PASS"
+  notes: "Each SC's RED/GREEN/COMMIT steps are all assigned to the same phase (SC-3 → phase-1; SC-1/SC-2/SC-4 → phase-2)"
+
+cross_phase_dependency:
+  status: "PASS"
+  notes: "Phase-2 RED tests for SC-1/SC-2/SC-4 depend on SC-3 output from phase-1 (Y < X), a valid forward dependency; no RED depends on output from a later phase"

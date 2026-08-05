@@ -1,0 +1,46 @@
+# Solve Output — No Model/GPU Outguessing (Issue .opencode#2248)
+# Generated: 2026-08-05
+# Method: solve skill fallback task (manual structural validation)
+# Rationale: dependency-contract.yaml is prose-based (description/dependency_order/string invariants),
+# not the Z3 contract schema (variables/preconditions/invariants). The solve tool parses invariant
+# strings as Z3 expressions and fails on prose (e.g., em-dash U+2014). Per prior issues (#2244),
+# the solve/plan steps are resolved to their INTENT: verify the phase DAG is acyclic and satisfiable,
+# and produce a valid topological plan.
+
+solve_status: "SAT"
+plan_status: "SOLVED_SATISFICING"
+
+checks:
+  - check: "acyclic"
+    result: "SAT"
+    detail: "ACYCLIC: 2 nodes, 1 edge, no cycles found"
+    method: "fallback — DFS with visited/in_stack tracking"
+  - check: "ordering"
+    result: "SAT"
+    detail: "ORDERING VALID: 1 constraint satisfied (phase-1 precedes phase-2)"
+    method: "fallback — dependency ordering verification"
+  - check: "chain"
+    result: "SAT"
+    detail: "CHAIN VALID: 2 items, dependency phase-1 -> phase-2 present"
+    method: "fallback — dependency chain verification"
+
+dag:
+  nodes: ["phase-1", "phase-2"]
+  edges:
+    - from: "phase-1"
+      to: "phase-2"
+      reason: "SC-3 (AGENTS.md mandate) must be documented before SC-1/SC-2/SC-4 behavioral tests can verify agents follow it"
+  acyclic: true
+
+topological_plan:
+  - order: 1
+    phase: "phase-1"
+    scs: ["SC-3"]
+    requires: []
+  - order: 2
+    phase: "phase-2"
+    scs: ["SC-1", "SC-2", "SC-4"]
+    requires: ["phase-1"]
+
+planner_result: "SOLVED_SATISFICING"
+planner_note: "Simple 2-phase acyclic ordering; topological order is phase-1 -> phase-2. No Z3/planner machine consumption required — structural validation confirms satisfiability."
