@@ -39,11 +39,11 @@
 
 These steps run once after the last phase completes.
 
-- [ ] 46. **Structural checks (**sub-agent**).** Run the finishing checklist from finishing-a-development-branch (lint, typecheck, format). No behavioral/structural evidence substitution. **→ all SCs**
-- [ ] 47. **Audit (**clean-room**).** Run the adversarial audit (verification-audit DiMo investigator → validator → evaluator → arbiter in sequence) on the deliverable. **→ all SCs**
-- [ ] 48. **Z3 check (**inline**).** Run `.opencode/tools/solve check` with the dependency contract and state path to re-confirm the phase ordering is satisfiable. **→ all SCs**
-- [ ] 49. **Pre-PR gate (**sub-agent**).** Verify all SC verdicts read PASS; any FAIL or DONE_WITH_CONCERNS coerced to FAIL blocks PR creation. **→ all SCs**
-- [ ] 50. **Regression check (**sub-agent**).** Run the final regression check (TDD phase-4). **→ all SCs**
-- [ ] 51. **Review-prep (**sub-agent**).** Prepare PR review context (git-workflow-pr review-prep). **→ all SCs**
-- [ ] 52. **Create PR (**sub-agent**).** Create the pull request (git-workflow-pr create). **→ all SCs**
-- [ ] 53. **Exec summary (**sub-agent**).** Generate the completion executive summary (completion-core). **→ all SCs**
+- [ ] 51. **Structural checks (**sub-agent**).** Run the finishing checklist from finishing-a-development-branch (lint, typecheck, format). No behavioral/structural evidence substitution. **→ all SCs**
+- [ ] 52. **Audit (**clean-room**).** Run the adversarial audit (verification-audit DiMo investigator → validator → evaluator → arbiter in sequence) on the deliverable. **→ all SCs**
+- [ ] 53. **Z3 check (**inline**).** Run `.opencode/tools/solve check` with the dependency contract and state path to re-confirm the phase ordering is satisfiable. **→ all SCs**
+- [ ] 54. **Pre-PR gate (**sub-agent**).** Verify all SC verdicts read PASS; any FAIL or DONE_WITH_CONCERNS coerced to FAIL blocks PR creation. **→ all SCs**
+- [ ] 55. **Regression check (**sub-agent**).** Run the final regression check (TDD phase-4). **→ all SCs**
+- [ ] 56. **Review-prep (**sub-agent**).** Prepare PR review context (git-workflow-pr review-prep). **→ all SCs**
+- [ ] 57. **Create PR (**sub-agent**).** Create the pull request (git-workflow-pr create). **→ all SCs**
+- [ ] 58. **Exec summary (**sub-agent**).** Generate the completion executive summary (completion-core). **→ all SCs**

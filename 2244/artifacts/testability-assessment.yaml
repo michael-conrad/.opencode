@@ -1,0 +1,191 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-05
+source: "Spec #2244 spec.md (§3 Success Criteria, §5 Items), sc-summary.yaml, structure.yaml"
+content:
+  description: "Test coverage and evidence-type assessment for the full-environment simulation support. Revised to 20 SCs (added SC19/SC20; corrected SC17 scoping semantics)."
+  per_sc_testability:
+    SC1:
+      evidence_type: structural
+      description: "behavior_run provisions test-submodule-1/2 as local git repos when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1, not when unset"
+      verification:
+        - "ls the attempt workdir for test-submodule-1/2 directories"
+        - "git submodule status lists them when the flag is set, absent when unset"
+      testable: "Structural — ls + git submodule status, deterministic, no model required"
+    SC2:
+      evidence_type: structural
+      description: "behavior_run wires GitBucket instance as test repo origin remote when BEHAVIOR_NEEDS_REMOTE=1 and GitBucket provisioned"
+      verification:
+        - "run with BEHAVIOR_NEEDS_REMOTE=1 and confirm git remote -v in attempt workdir shows GitBucket origin"
+      testable: "Structural — git remote -v inspection"
+    SC3:
+      evidence_type: behavioral
+      description: "gh pr list discovers merged branches/open issues in isolated env without GitHub auth"
+      verification:
+        - "opencode run with BEHAVIOR_NEEDS_REMOTE=1"
+        - "clean-room evaluation of session.yaml confirms gh pr list returns results and no PR-context halt"
+      testable: "Behavioral — opencode run + clean-room session.yaml evaluation"
+    SC4:
+      evidence_type: behavioral
+      description: "both BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE set triggers HARNESS_FAILURE, no origin wiring"
+      verification:
+        - "run behavior_run with both flags; assert HARNESS_FAILURE exit and no origin-wiring attempted"
+      testable: "Behavioral — HARNESS_FAILURE exit code + wiring check"
+    SC5:
+      evidence_type: structural
+      description: "env -i allowlist passes three new opt-in flags as strict superset (no removals)"
+      verification:
+        - "inspect env -i allowlist block in with-test-home for the three new variable names"
+        - "confirm all previously allowlisted variables remain"
+      testable: "Structural — inspect with-test-home allowlist"
+    SC6:
+      evidence_type: structural
+      description: "set-env.sh records the three new flags"
+      verification:
+        - "inspect set-env.sh for the three new variable names"
+      testable: "Structural — inspect set-env.sh"
+    SC7:
+      evidence_type: structural
+      description: "isolation verification procedure still passes after allowlist extension"
+      verification:
+        - "run the isolation verification procedure against the extended allowlist"
+        - "confirm no production secret/credential/platform token/env-specific value admitted"
+      testable: "Structural — run isolation verification procedure"
+    SC8:
+      evidence_type: behavioral
+      description: "no-regression default: no opt-in provisions exactly one .opencode submodule + local platform"
+      verification:
+        - "run a representative non-opt-in behavioral test"
+        - "clean-room session.yaml evaluation confirms single-.opencode provisioning and no origin remote"
+      testable: "Behavioral — opencode run + clean-room session.yaml evaluation"
+    SC9:
+      evidence_type: behavioral
+      description: "cleanup removes all new clones + GitBucket state; idempotent"
+      verification:
+        - "after provisioned run, invoke --clean-all and __kill_gitbucket"
+        - "assert no orphan GitBucket process and no stale tmp/ state; rerun confirms clean start"
+      testable: "Behavioral — cleanup invocation + orphan/state check + clean rerun"
+    SC10:
+      evidence_type: behavioral
+      description: "full-env opt-in enables merged-branch/PR discovery (any mechanism) for 2242-sc6 and cleanup proceeds"
+      verification:
+        - "run 2242-sc6 with full-env opt-in"
+        - "clean-room session.yaml evaluation confirms merged-branch discovery (by whatever mechanism) enabled cleanup to proceed"
+      testable: "Behavioral — opencode run + clean-room session.yaml evaluation"
+    SC11:
+      evidence_type: behavioral
+      description: "2242-sc6 cleanup dispatch follows correct task card (tasks/cleanup.md) and completes, producing a result contract"
+      verification:
+        - "clean-room evaluation of SC10 session.yaml confirms cleanup dispatch produced a result contract per correct task card"
+      testable: "Behavioral — clean-room session.yaml evaluation"
+    SC12:
+      evidence_type: behavioral
+      description: "2242-sc6 run never halts for PR/branch context"
+      verification:
+        - "clean-room evaluation of SC10 session.yaml confirms no PR/branch-context halt or question-tool invocation"
+      testable: "Behavioral — clean-room session.yaml evaluation"
+    SC13:
+      evidence_type: string
+      description: "test env provisioned entirely by harness setup, never inherited from parent"
+      verification:
+        - "inspect with-test-home (do_setup, seed_model_config, test-home provisioning)"
+        - "confirm every required test value set within setup, not read through from parent"
+      testable: "String — inspect with-test-home setup regions"
+    SC14:
+      evidence_type: string
+      description: "env -i allowlist contains ONLY the minimal explicitly enumerated infrastructure set"
+      verification:
+        - "inspect env -i allowlist block in with-test-home"
+        - "confirm it enumerates exactly the minimal infrastructure set and nothing more"
+      testable: "String — inspect env -i allowlist"
+    SC15:
+      evidence_type: string
+      description: "env -i allowlist excludes all parent-sourced secret/credential/token/env-specific variables"
+      verification:
+        - "inspect env -i allowlist block in with-test-home"
+        - "confirm none of GB_*/GITHUB_*/GH_*/NODE_ENV/VIRTUAL_ENV/CONDA_DEFAULT_ENV/OPENCODE_CONFIG_CONTENT/API keys admitted"
+      testable: "String — inspect env -i allowlist"
+    SC16:
+      evidence_type: string
+      description: "required test values (GitBucket token/host, model, config) generated/set by setup, not read through from parent"
+      verification:
+        - "confirm do_setup/seed_model_config/test-home provisioning generate/set model, config, GitBucket token/host"
+      testable: "String — inspect setup regions"
+    SC17:
+      evidence_type: string
+      description: "test-env constants (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) always set to harness constants; GB_TOKEN scoped to provisioned test instance only when BEHAVIOR_NEEDS_REMOTE=1; no parent GB_* leakage (concrete instance of SC13-SC16)"
+      verification:
+        - "inspect env -i allowlist, GB_ENV_ARGS, set-env.sh for GB_* sourcing"
+        - "with parent GB_TOKEN/GB_HOST set, confirm test env has harness test-env constants and no parent-sourced value, GB_TOKEN scoped only when provisioned"
+      testable: "String — inspect GB_* sourcing + parent-env leak test"
+    SC18:
+      evidence_type: string
+      description: "tests-v2/AGENTS.md documents mutual-exclusion rule and new full-env opt-in capability"
+      verification:
+        - "inspect tests-v2/AGENTS.md for the documenting section"
+      testable: "String — inspect AGENTS.md"
+    SC19:
+      evidence_type: structural
+      description: "with-test-home propagates the full GB_* env suite (GB_TOKEN, GB_HOST, GITBUCKET_PORT, GB_REPO, GB_PROTOCOL) via GB_ENV_ARGS; test-env constants always set, GB_TOKEN scoped to provisioned test GitBucket only when BEHAVIOR_NEEDS_REMOTE=1"
+      verification:
+        - "inspect GB_ENV_ARGS array and env -i invocation in with-test-home for all five variable names"
+        - "confirm the four test-env constants are always set to harness constants and GB_TOKEN populated only when BEHAVIOR_NEEDS_REMOTE=1 from provisioned test instance"
+      testable: "Structural — inspect GB_ENV_ARGS + env -i invocation"
+    SC20:
+      evidence_type: structural
+      description: "test home seeds pre-fabricated gb config.toml at $TEST_HOME/.config/gb/config.toml with default_host constant + host token matching provisioned test GitBucket; gb authenticates without gb auth login"
+      verification:
+        - "inspect do_setup/test-home provisioning in with-test-home for the gb config.toml seeding block"
+        - "run with BEHAVIOR_NEEDS_REMOTE=1 and confirm $TEST_HOME/.config/gb/config.toml exists with harness default_host + test instance token"
+      testable: "Structural — inspect seeding block + file existence/content check"
+  evidence_type_taxonomy:
+    behavioral: 8
+    string: 7
+    structural: 5
+    total_scs: 20
+  sc_coverage:
+    description: "All 20 SCs map to exactly one plan item each (Items 1-20); no item covers multiple SCs"
+    sc_to_item:
+      - sc: "SC1"
+        item: 1
+      - sc: "SC2"
+        item: 2
+      - sc: "SC3"
+        item: 3
+      - sc: "SC4"
+        item: 4
+      - sc: "SC5"
+        item: 5
+      - sc: "SC6"
+        item: 6
+      - sc: "SC7"
+        item: 7
+      - sc: "SC8"
+        item: 8
+      - sc: "SC9"
+        item: 9
+      - sc: "SC10"
+        item: 10
+      - sc: "SC11"
+        item: 11
+      - sc: "SC12"
+        item: 12
+      - sc: "SC13"
+        item: 13
+      - sc: "SC14"
+        item: 14
+      - sc: "SC15"
+        item: 15
+      - sc: "SC16"
+        item: 16
+      - sc: "SC17"
+        item: 17
+      - sc: "SC18"
+        item: 18
+      - sc: "SC19"
+        item: 19
+      - sc: "SC20"
+        item: 20
+  dependency_ordering_verification:
+    - "SC19/SC20 (Phase 10) precede SC10/SC11 (Phase 7) — the executor cannot authenticate gb without the full GB_* suite and the seeded gb config.toml"
+    - "SC17 (Phase 2) corrected: test-env constants always set, GB_TOKEN provisioned-scoped; precedes SC19/SC20 (Phase 10) which build on it"
+    - "SC2/SC3/SC4 mutually exclusive remote strategies precede origin wiring (SC2) and behavioral discovery (SC3/SC10)"

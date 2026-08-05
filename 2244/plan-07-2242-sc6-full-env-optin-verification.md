@@ -8,10 +8,11 @@
 
 **SCs:** SC10, SC11, SC12
 
-**Dependencies:** Phase 6
+**Dependencies:** Phase 6, Phase 10
 
 **Entry Conditions:**
 - Phase 6 complete: GitBucket origin wiring + discovery in place; VbC passed.
+- Phase 10 complete: full `GB_*` env suite propagated (`GB_ENV_ARGS`) and pre-fabricated `gb` config.toml seeded at `$TEST_HOME/.config/gb/config.toml` so the executor can authenticate `gb` without `gb auth login`; VbC passed.
 - The 2242-sc6 test and its per-scenario fixture read.
 
 **Exit Conditions:**

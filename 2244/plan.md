@@ -4,7 +4,7 @@ issue: 2244
 title: "Full-environment simulation support in .opencode/tests-v2 test harness"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 9
+phase_count: 10
 ---
 
 # Implementation Plan — #2244 — Full-Environment Simulation Support in `.opencode/tests-v2` Test Harness
@@ -17,8 +17,9 @@ phase_count: 9
 - Multi-submodule fixture provisioning (`BEHAVIOR_NEEDS_MULTI_SUBMODULES=1`) creates `test-submodule-1`/`test-submodule-2` as local git repos in the attempt workdir.
 - GitBucket origin wiring (`BEHAVIOR_NEEDS_REMOTE=1`) attaches the provisioned GitBucket instance as the test repo's `origin` remote, enabling `gh pr list` discovery without GitHub auth.
 - A strict env-set hardening (`SC13–SC17`) keeps the `env -i` allowlist at exactly the minimal infrastructure set and prevents any parent-sourced `GB_*`/secret/credential/token from leaking into the isolated test env.
+- Executor authentication (`SC19–SC20`): the full `GB_*` env suite is propagated to the isolated env via `GB_ENV_ARGS` (test-env constants always set, `GB_TOKEN` scoped to the provisioned test instance), and the test home seeds a pre-fabricated `gb` config.toml at `$TEST_HOME/.config/gb/config.toml` so `gb` authenticates deterministically without `gb auth login`. These are prerequisites for the behavioral discovery SCs (SC10/SC11), which the executor cannot authenticate without them.
 
-The phase DAG is enforced by a dependency contract validated by the Z3 solver. Each SC gets its own RED → GREEN → verify → commit cycle; no item covers more than one SC. Each of the 9 phases addresses exactly one concern (C1–C9), so no concern straddles phases and no two phases share a concern.
+The phase DAG is enforced by a dependency contract validated by the Z3 solver. Each SC gets its own RED → GREEN → verify → commit cycle; no item covers more than one SC. Each of the 10 phases addresses exactly one concern (C1–C10), so no concern straddles phases and no two phases share a concern.
 
 **Files (sub-folder references):**
 - `.opencode/tests-v2/behaviors/helpers.sh` (`behavior_run()`, `__ensure_gitbucket()`, `__reset_gitbucket()`, `__kill_gitbucket()`, `BEHAVIOR_SET_BARE_REMOTE` block, origin-wiring block)
@@ -48,9 +49,10 @@ These steps run once before any phase begins.
 | 4 — remote-strategy mutual exclusion | C3 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run mutual-exclusion rejection) | SC4 | 1 |
 | 5 — cleanup | C7 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (`__kill_gitbucket`, `__reset_gitbucket`) + `with-test-home` (do_clean_all) | SC9 | 3, 4 |
 | 6 — GitBucket origin wiring + discovery | C2 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (behavior_run origin-wiring + gh pr list) | SC2, SC3 | 2, 3, 4 |
-| 7 — 2242-sc6 full-env opt-in + verification | C8 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` + fixture setup variant | SC10, SC11, SC12 | 6 |
+| 7 — 2242-sc6 full-env opt-in + verification | C8 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` + fixture setup variant | SC10, SC11, SC12 | 6, 10 |
 | 8 — documentation | C9 | `test-driven-development` | `red` | `.opencode/tests-v2/AGENTS.md` (mutual-exclusion + full-env opt-in docs) | SC18 | 4 |
 | 9 — no-regression default gate | C6 | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/helpers.sh` (default provisioning path) + `with-test-home` | SC8 | 1, 3, 4, 6 |
+| 10 — executor GB_* suite + gb config.toml seeding | C10 | `test-driven-development` | `red` | `.opencode/tests-v2/with-test-home` (GB_ENV_ARGS, env -i invocation, do_setup gb config.toml seeding) + `helpers.sh` (`__ensure_gitbucket` GB_REPO/GB_PROTOCOL export) | SC19, SC20 | 2 |
 
 ---
 
@@ -117,8 +119,8 @@ target:
   - .opencode/tests-v2/with-test-home
   - .opencode/tests-v2/behaviors/helpers.sh
 scs: [SC13, SC16, SC17]
-gb_vars: [GB_TOKEN, GB_HOST, GITBUCKET_PORT]
-scoping_rule: "parent GB_*/GITBUCKET_PORT never inherited; set to test instance generated values only when BEHAVIOR_NEEDS_REMOTE=1"
+gb_vars: [GB_TOKEN, GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT]
+scoping_rule: "parent GB_*/GITBUCKET_PORT never inherited; test-env constants (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) always set to harness constants; GB_TOKEN set only when BEHAVIOR_NEEDS_REMOTE=1 to the test instance's generated value"
 env_set_rule: "every required test value set by do_setup/seed_model_config/test-home provisioning, never inherited from parent shell"
 ```
 
@@ -213,7 +215,7 @@ discovery_command: gh pr list
 | Task | `red` |
 | Target | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh` + fixture setup variant |
 | SCs | SC10, SC11, SC12 |
-| Depends On | 6 |
+| Depends On | 6, 10 |
 
 **Context:**
 ```yaml
@@ -271,6 +273,31 @@ scs: [SC8]
 default_provisioning: "single .opencode submodule + local platform, no origin remote"
 ```
 
+### Phase 10 — Executor GB_* Suite + gb Config.toml Seeding (Concern C10)
+
+| Field | Value |
+|-------|-------|
+| Concern | C10 — executor full GB_* suite (test-env constants always + GB_TOKEN scoped) + gb config.toml seeding |
+| Skill | `test-driven-development` |
+| Task | `red` |
+| Target | `.opencode/tests-v2/with-test-home` (GB_ENV_ARGS, env -i invocation, do_setup gb config.toml seeding) + `helpers.sh` (`__ensure_gitbucket` GB_REPO/GB_PROTOCOL export + token scoping) |
+| SCs | SC19, SC20 |
+| Depends On | 2 |
+
+**Context:**
+```yaml
+concern: C10
+target:
+  - .opencode/tests-v2/with-test-home
+  - .opencode/tests-v2/behaviors/helpers.sh
+scs: [SC19, SC20]
+gb_full_suite: [GB_TOKEN, GB_HOST, GITBUCKET_PORT, GB_REPO, GB_PROTOCOL]
+test_env_constants: [GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT]
+scoping_rule: "test-env constants always set to harness constants; GB_TOKEN scoped to provisioned test instance only when BEHAVIOR_NEEDS_REMOTE=1; no parent-sourced value"
+gb_config_path: "$TEST_HOME/.config/gb/config.toml"
+gb_default_host_constant: "harness test-env default_host"
+```
+
 ---
 
 ## Exit Criteria
@@ -284,7 +311,8 @@ default_provisioning: "single .opencode submodule + local platform, no origin re
 - [ ] C7. `2242-sc6-cleanup-dispatch-no-task-card-read.sh` with the full-env opt-in completes merged-PR discovery — the full-env opt-in enables the agent to discover the merged branch/PR state needed to execute cleanup (via any discovery mechanism; the specific command is NOT the measure) (SC10) — and the cleanup dispatch follows the correct task card (`tasks/cleanup.md`) instructions and completes, producing a result contract (SC11), and without halting for PR/branch context (SC12).
 - [ ] C8. `.opencode/tests-v2/AGENTS.md` documents the mutual-exclusion rule and the new opt-in capability (SC18).
 - [ ] C9. With no opt-in flags set, default provisioning remains byte-for-byte the single-`.opencode`/`local` platform for the ~80 existing tests (no regression, SC8).
-- [ ] C10. All 18 SCs map to exactly one item each; no item covers multiple SCs; the phase DAG is acyclic and Z3-SAT validated; each of the 9 phases addresses exactly one concern (C1–C9).
+- [ ] C10. When `BEHAVIOR_NEEDS_REMOTE=1` provisions a test GitBucket, `with-test-home` propagates the full `GB_*` env suite (`GB_TOKEN`, `GB_HOST`, `GITBUCKET_PORT`, `GB_REPO`, `GB_PROTOCOL`) into the isolated test env via `GB_ENV_ARGS` — the test-env constants (`GB_HOST`, `GB_REPO`, `GB_PROTOCOL`, `GITBUCKET_PORT`) are always set to the harness's constants, `GB_TOKEN` is scoped to the provisioned test instance only when `BEHAVIOR_NEEDS_REMOTE=1`, and no value is sourced from the parent env (SC19); and the test home seeds a pre-fabricated `gb` config.toml at `$TEST_HOME/.config/gb/config.toml` with the harness's `default_host` constant and the host token only when GitBucket is provisioned, so `gb` authenticates without `gb auth login` (SC20).
+- [ ] C11. All 20 SCs map to exactly one item each; no item covers multiple SCs; the phase DAG is acyclic and Z3-SAT validated; each of the 10 phases addresses exactly one concern (C1–C10).
 
 ---
 
@@ -293,3 +321,4 @@ default_provisioning: "single .opencode submodule + local platform, no origin re
 | Timestamp | Event | Details |
 |-----------|-------|---------|
 | 2026-08-04T18:21:00Z | `plan_created` | Plan file: `.opencode/.issues/2244/plan.md`, 9 phases |
+| 2026-08-05T17:38:00Z | `plan_revised` | Plan file: `.opencode/.issues/2244/plan.md`, 10 phases — added Phase 10 (C10, SC19/SC20 executor GB_* suite + gb config.toml seeding) as a prerequisite of Phase 7; corrected SC17 semantics to test-env constants always set + GB_TOKEN provisioned-scoped; 20-SC coverage |

@@ -1,0 +1,180 @@
+artifact_name: structure
+generated_at: 2026-08-05
+source: "Spec #2244 spec.md (§3 Success Criteria, §5 Items, §6 Dependencies), sc-summary.yaml, dependency-contract.yaml"
+issue_number: 2244
+description: "Phase decomposition, dependency DAG, and skill+task selection for the full-environment simulation support (env -i allowlist hardening + multi-submodule fixtures + GitBucket origin wiring + executor GB_* suite + gb config.toml seeding). Revised to 20 SCs (added SC19/SC20; corrected SC17 scoping semantics)."
+phases:
+  - phase: 1
+    name: "Allowlist Extension + Isolation"
+    concern: "env -i allowlist extension + isolation — three opt-in flags passed through as strict superset; set-env.sh records them; minimal infra set only; no parent-sourced secrets"
+    scs: ["SC5", "SC6", "SC7", "SC14", "SC15"]
+    dependencies: []
+    items:
+      - sc: "SC5"
+        plan_item: 5
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC6"
+        plan_item: 6
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC7"
+        plan_item: 7
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC14"
+        plan_item: 14
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC15"
+        plan_item: 15
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 2
+    name: "Test-Provisioned Env Rule + GB Scoping"
+    concern: "test-provisioned environment rule + GB_* scoping — every required test value set by setup (SC13/SC16); test-env constants always set to harness constants; GB_TOKEN provisioned-scoped only when BEHAVIOR_NEEDS_REMOTE=1; no parent leakage (SC17 corrected)"
+    scs: ["SC13", "SC16", "SC17"]
+    dependencies: ["phase-1"]
+    items:
+      - sc: "SC13"
+        plan_item: 13
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC16"
+        plan_item: 16
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC17"
+        plan_item: 17
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 3
+    name: "Multi-Submodule Provisioning"
+    concern: "multi-submodule fixture provisioning — behavior_run provisions test-submodule-1/2 as local git repos when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1"
+    scs: ["SC1"]
+    dependencies: ["phase-1"]
+    items:
+      - sc: "SC1"
+        plan_item: 1
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 4
+    name: "Remote-Strategy Mutual Exclusion"
+    concern: "remote strategy mutual exclusion — both BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE set triggers HARNESS_FAILURE"
+    scs: ["SC4"]
+    dependencies: ["phase-1"]
+    items:
+      - sc: "SC4"
+        plan_item: 4
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 5
+    name: "Cleanup"
+    concern: "cleanup of provisioned state — --clean-all/__kill_gitbucket/__reset_gitbucket remove provisioned submodule clones + GitBucket state; idempotent"
+    scs: ["SC9"]
+    dependencies: ["phase-3", "phase-4"]
+    items:
+      - sc: "SC9"
+        plan_item: 9
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 6
+    name: "GitBucket Origin Wiring + Discovery"
+    concern: "GitBucket origin wiring + merged-PR discovery — behavior_run attaches GitBucket origin; gh pr list discovers merged branches without GitHub auth"
+    scs: ["SC2", "SC3"]
+    dependencies: ["phase-2", "phase-3", "phase-4"]
+    items:
+      - sc: "SC2"
+        plan_item: 2
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC3"
+        plan_item: 3
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 7
+    name: "2242-sc6 Full-Env Opt-In + Verification"
+    concern: "2242-sc6 full-env opt-in + cleanup-dispatch verification — merged-branch discovery (any mechanism), correct task-card dispatch, no PR-context halt"
+    scs: ["SC10", "SC11", "SC12"]
+    dependencies: ["phase-6", "phase-10"]
+    items:
+      - sc: "SC10"
+        plan_item: 10
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC11"
+        plan_item: 11
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC12"
+        plan_item: 12
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 8
+    name: "Documentation"
+    concern: "documentation of mutual-exclusion + full-env opt-in capability in tests-v2/AGENTS.md"
+    scs: ["SC18"]
+    dependencies: ["phase-4"]
+    items:
+      - sc: "SC18"
+        plan_item: 18
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 9
+    name: "No-Regression Default Gate"
+    concern: "no-regression default gate — default path (no opt-in) provisions single .opencode + local platform, byte-for-byte unchanged"
+    scs: ["SC8"]
+    dependencies: ["phase-1", "phase-3", "phase-4", "phase-6"]
+    items:
+      - sc: "SC8"
+        plan_item: 8
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 10
+    name: "Executor GB_* Suite + gb Config.toml Seeding"
+    concern: "executor full GB_* suite (test-env constants always + GB_TOKEN scoped via GB_ENV_ARGS) + pre-fabricated gb config.toml seeding at $TEST_HOME/.config/gb/config.toml; prerequisite for behavioral discovery SCs"
+    scs: ["SC19", "SC20"]
+    dependencies: ["phase-2"]
+    items:
+      - sc: "SC19"
+        plan_item: 19
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC20"
+        plan_item: 20
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+dependency_dag:
+  edges:
+    - from: "phase-1"
+      to: "phase-2"
+      reason: "SC13/SC16/SC17 env-set rule and GB_* scoping build on the allowlist extended in C4"
+    - from: "phase-1"
+      to: "phase-3"
+      reason: "SC1 provisioning requires the BEHAVIOR_NEEDS_MULTI_SUBMODULES flag passed through the C4 allowlist"
+    - from: "phase-1"
+      to: "phase-4"
+      reason: "SC4 mutual-exclusion rejection requires both remote flags passed through the C4 allowlist"
+    - from: "phase-3"
+      to: "phase-5"
+      reason: "SC9 cleanup removes the C1-provisioned fixture clones"
+    - from: "phase-4"
+      to: "phase-5"
+      reason: "SC9 cleanup must account for the C4 mutual-exclusion-rejected partial state"
+    - from: "phase-2"
+      to: "phase-6"
+      reason: "SC2/SC3 origin wiring requires the test-env constants and scoped GB_TOKEN from C5/SC17"
+    - from: "phase-3"
+      to: "phase-6"
+      reason: "SC2/SC3 origin wiring requires the C1 fixture repos"
+    - from: "phase-4"
+      to: "phase-6"
+      reason: "SC2/SC3 origin wiring must respect the C4 mutual-exclusion rejection"
+    - from: "phase-6"
+      to: "phase-7"
+      reason: "SC10/SC11/SC12 2242-sc6 full-env opt-in requires the C2 wired origin and discovery"
+    - from: "phase-10"
+      to: "phase-7"
+      reason: "SC10/SC11 behavioral discovery requires the executor to authenticate gb — SC19 full GB_* suite with test-env constants + scoped GB_TOKEN and SC20 seeded gb config.toml — so discovery succeeds"
+    - from: "phase-4"
+      to: "phase-8"
+      reason: "SC18 documentation covers the C4 mutual-exclusion rule, so must follow it"
+    - from: "phase-1"
+      to: "phase-9"
+      reason: "SC8 default path unchanged after C4 allowlist extension"
+    - from: "phase-3"
+      to: "phase-9"
+      reason: "SC8 default path unchanged after C1 provisioning"
+    - from: "phase-4"
+      to: "phase-9"
+      reason: "SC8 default path unchanged after C4 mutual-exclusion rejection"
+    - from: "phase-6"
+      to: "phase-9"
+      reason: "SC8 final regression gate after C2 origin wiring"
+    - from: "phase-2"
+      to: "phase-10"
+      reason: "SC19/SC20 executor GB_* suite + gb config.toml seeding build on the C5 test-env constants and GB_TOKEN scoping"
+  verification:
+    triplet_co_location: "PASS - each SC has RED/GREEN/COMMIT assigned to the same phase"
+    cross_phase_dependency: "PASS - no RED test depends on SC output from a later phase"
+    sc_coverage: "PASS - all 20 SCs map to exactly one item each (SC1-SC20, Items 1-20)"
