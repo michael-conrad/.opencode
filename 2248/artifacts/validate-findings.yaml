@@ -1,0 +1,77 @@
+# Validation Findings — No Model/GPU Outguessing (Issue .opencode#2248)
+# Generated: 2026-08-05
+# Task: writing-plans validate (re-run after revise)
+# Status: PASS
+
+overall_status: "PASS"
+
+categories:
+  - category: "1 — Structural validation"
+    status: "PASS"
+    checks:
+      - check: "phase_table_required_columns"
+        result: "PASS"
+        detail: "Phase table (plan.md) contains all required columns: Phase, Concern, Skill, Task, Target, SCs, Depends On."
+      - check: "phase_procedure_numbered_steps"
+        result: "PASS"
+        detail: "Each of the four Phase Detail sections has a Procedure section with numbered checkbox steps enumerating the RED → GREEN → verify → commit per-item cycle from the implementation-workflow reference card. Phase 1 steps 1-4 (SC-3), Phase 2 steps 5-8 (SC-1), Phase 3 steps 9-12 (SC-2), Phase 4 steps 13-16 (SC-4)."
+      - check: "exit_criteria_sc_phase_mapping"
+        result: "PASS"
+        detail: "Exit Criteria section exists: C1 maps SC-3, C2 maps SC-1, C3 maps SC-2, C4 maps SC-4, C5 confirms SC-to-item mapping and one-concern-per-phase."
+
+  - category: "2 — Skill+task validity"
+    status: "PASS"
+    checks:
+      - check: "skill_task_references_valid"
+        result: "PASS"
+        detail: "All four phases reference skill `test-driven-development` task `red`. `red` is a valid entry (owning skill test-driven-development) in the implementation-workflow reference card."
+
+  - category: "3 — SC coverage"
+    status: "PASS"
+    checks:
+      - check: "sc_coverage"
+        result: "PASS"
+        detail: "All four spec SCs are covered: SC-3 in C1, SC-1 in C2, SC-2 in C3, SC-4 in C4. No SC is uncovered."
+      - check: "triplet_split_detection"
+        result: "PASS"
+        detail: "No SC has RED/GREEN/COMMIT steps split across phases. SC-3 is confined to phase-1; SC-1 confined to phase-2; SC-2 confined to phase-3; SC-4 confined to phase-4 (structure.yaml triplet_co_location status PASS)."
+
+  - category: "4 — Concern separation"
+    status: "PASS"
+    checks:
+      - check: "one_concern_per_phase"
+        result: "PASS"
+        detail: "Each phase addresses exactly one concern from the concern-map: phase-1 addresses C1 (document mandate, SC-3); phase-2 addresses C2 (test-time model usage, SC-1); phase-3 addresses C3 (failure-path remediation, SC-2); phase-4 addresses C4 (excuse fabrication, SC-4). The concern-map defines four distinct concerns and states 'SC-1, SC-2, SC-4 are three distinct behavioral facets... No concern overlaps' — now reflected by one concern per phase."
+      - check: "no_two_phases_same_concern"
+        result: "PASS"
+        detail: "Each phase addresses a distinct concern (C1, C2, C3, C4); no concern is repeated across phases."
+
+  - category: "5 — DAG validation"
+    status: "PASS"
+    checks:
+      - check: "acyclic"
+        result: "PASS"
+        detail: "DAG is phase-1 -> phase-2, phase-1 -> phase-3, phase-1 -> phase-4 with no cycles (solve-output.yaml acyclic SAT)."
+      - check: "all_phases_reachable"
+        result: "PASS"
+        detail: "phase-1 has no requires (start node); phase-2, phase-3, phase-4 each require phase-1. All reachable."
+      - check: "no_orphan_phases"
+        result: "PASS"
+        detail: "phase-1 has outgoing edges; phase-2/3/4 each have an incoming edge; no orphans."
+
+  - category: "6 — Holistic quality"
+    status: "PASS"
+    checks:
+      - check: "no_tbd_todo_placeholders"
+        result: "PASS"
+        detail: "No TBD/TODO placeholders found in plan.md."
+      - check: "checkbox_steps"
+        result: "PASS"
+        detail: "Pre-implementation steps (P1, P2), all procedure steps (1-16), post-implementation steps (17-24), and Exit Criteria (C1-C5) use checkbox format."
+      - check: "dispatch_mode_consistency"
+        result: "PASS"
+        detail: "No inline/dispatched inconsistency identified; dispatched steps use (**sub-agent**)/(**clean-room**) and commit steps use (**inline**), consistent with the per-task cycle."
+
+findings: []
+
+blocker_reason: "None — all 6 validation categories PASS after revision."

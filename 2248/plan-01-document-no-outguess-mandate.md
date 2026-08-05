@@ -24,12 +24,8 @@
 
 - [ ] 2. **GREEN (**sub-agent**).** Add the mandate text to `tests-v2/AGENTS.md` §9 (Default Model) and §10.4 (Fabricated Model Excuses), or a new §10.6, stating the agent MUST NOT outguess model/GPU selection; the harness/ollama handles it; model selection is `DEFAULT_TEST_MODEL` only; probing VRAM to justify an override and hand-selecting overrides are violations; the §10 remediation path applies on failure/timeout. Do not modify `default-model.sh`. **→ SC-3**
 
-- [ ] 3. **GREEN doublecheck (**clean-room**).** Inspect the added §9/§10.4 (or §10.6) mandate text; confirm it is coherent, present, and does not contradict Mandate #5's default-model-not-changed rule. **→ SC-3**
+- [ ] 3. **Verify (**clean-room**).** `grep` `tests-v2/AGENTS.md` for the no-outguess mandate string now returns a match; inspect the added §9/§10.4 (or §10.6) mandate text; confirm it is coherent, present, and does not contradict Mandate #5's default-model-not-changed rule. **→ SC-3**
 
-- [ ] 4. **Checkpoint commit (**inline**).** Commit the AGENTS.md mandate (foundational — SC-1/SC-2/SC-4 depend on it). (No co-author trailer — added at squash time.)
+- [ ] 4. **Commit (**inline**).** Stage `tests-v2/AGENTS.md` and commit the mandate as one atomic slice. (No co-author trailer — added at squash time.) **→ SC-3**
 
-#### Phase 1 VbC
-
-- [ ] 5. **VbC (**clean-room**).** `grep` `tests-v2/AGENTS.md` for the no-outguess mandate string returns a match; text present and coherent; `default-model.sh` byte-for-byte unchanged; mandate consistent with Mandate #5. **→ SC-3**
-
-**Concern transition:** Leaving C1 (document mandate) → entering C2 (behavioral enforcement tests). Phase 2 depends on Phase 1's documented mandate — the behavioral scenarios must reference the mandate so the agent can comply.
+**Concern transition:** Leaving C1 (document mandate) → entering C2 (test-time model usage behavioral test). Phase 2 depends on Phase 1's documented mandate — the SC-1 scenario must reference the mandate so the agent can comply.

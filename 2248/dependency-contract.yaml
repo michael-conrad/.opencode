@@ -6,14 +6,27 @@ description: "Cross-phase dependency ordering for the no-outguess model/GPU enfo
 dependency_order:
   - phase: 1
     scs: ["SC-3"]
+    concern: "C1 — document the no-outguess mandate"
     requires: []
     description: "Document the no-outguess mandate in tests-v2/AGENTS.md (Item 1) — the foundational doc change; the rule must be documented before it can be followed and verified behaviorally (spec §3 SC-3, §5 Item 1, §6 Key Design Decisions)"
   - phase: 2
-    scs: ["SC-1", "SC-2", "SC-4"]
+    scs: ["SC-1"]
+    concern: "C2 — test-time model usage"
     requires: ["phase-1"]
-    description: "Add three behavioral enforcement test scenarios (Item 2 SC-1 test-time model usage, Item 3 SC-2 failure-path remediation, Item 4 SC-4 excuse-fabrication reinforcement) that verify agents follow the documented mandate (spec §5 Items 2-4)"
+    description: "Add SC-1 behavioral enforcement test scenario (Item 2 test-time model usage) that verifies the agent uses DEFAULT_TEST_MODEL during test and does not substitute based on VRAM/GPU/ollama-probe hw (spec §5 Item 2)"
+  - phase: 3
+    scs: ["SC-2"]
+    concern: "C3 — failure-path remediation"
+    requires: ["phase-1"]
+    description: "Add SC-2 behavioral enforcement test scenario (Item 3 failure-path remediation) that verifies the agent follows the §10 remediation path on failure/timeout and does not switch models (spec §5 Item 3)"
+  - phase: 4
+    scs: ["SC-4"]
+    concern: "C4 — excuse-fabrication reinforcement"
+    requires: ["phase-1"]
+    description: "Add SC-4 behavioral enforcement test scenario (Item 4 excuse-fabrication reinforcement) that verifies the agent reinforces §10.4 prohibition and does not fabricate model excuses (spec §5 Item 4)"
 invariants:
-  - "Phase 1 MUST precede Phase 2 — SC-3 (the AGENTS.md mandate) must be documented before SC-1/SC-2/SC-4 behavioral tests can verify agents follow it (spec §6 Key Design Decisions: 'SC-3 is the foundational doc change; SC-1/SC-2/SC-4 depend on it')"
+  - "Phase 1 MUST precede Phases 2, 3, 4 — SC-3 (the AGENTS.md mandate) must be documented before SC-1/SC-2/SC-4 behavioral tests can verify agents follow it (spec §6 Key Design Decisions: 'SC-3 is the foundational doc change; SC-1/SC-2/SC-4 depend on it')"
+  - "Phases 2, 3, 4 depend ONLY on Phase 1 — SC-1/SC-2/SC-4 are independent behavioral facets and do not depend on each other"
   - "default-model.sh MUST remain unchanged across all phases — it is the single source of truth and is already correct (spec R-5, §2 Not Included)"
   - "The new mandate MUST be consistent with (not contradict) the existing Mandate #5 grep-based default-model enforcement (spec R-6)"
   - "Behavioral tests for SC-1/SC-2/SC-4 MUST use the Two-SC pattern (artifact generation + clean-room session.yaml evaluation) per §6a (spec R-7)"
