@@ -1,0 +1,36 @@
+# Testability Assessment — No Model/GPU Outguessing (Issue .opencode#2246)
+# Generated: 2026-08-05
+
+## Test Strategy Per Item
+
+| Item | SC | Evidence Type | Test Strategy | Test Artifact |
+|------|----|--------------|---------------|---------------|
+| ITEM-3 | SC-3 | string/structural | Content check (grep for mandate text in AGENTS.md) | grep result / content-verification |
+| ITEM-1 | SC-1 | behavioral | Two-SC pattern: SC-1a run behavior test (artifact gen); SC-1b clean-room sub-agent evaluates session.yaml | session.yaml + verdict |
+| ITEM-2 | SC-2 | behavioral | Two-SC pattern: failure-path scenario; clean-room evaluates §10 diagnostics in session.yaml | session.yaml + verdict |
+| ITEM-4 | SC-4 | behavioral | Two-SC pattern: excuse-reinforcement scenario; clean-room evaluates §10.4 compliance | session.yaml + verdict |
+
+## Behavioral Testability
+
+| Requirement | Feasibility |
+|-------------|-------------|
+| Observe `ollama-probe hw` tool calls | session.yaml records bash tool calls (AGENTS.md §2) — FEASIBLE |
+| Observe model override env selection | session.yaml records reasoning text + tool dispatch — FEASIBLE |
+| Observe §10 remediation diagnostics | session.yaml records agent's diagnostic tool calls — FEASIBLE |
+| Distinguish DEFAULT_TEST_MODEL from override | manifest.yaml records `model`; session.yaml records tool calls — FEASIBLE |
+| Real-domain (non-interview) prompt | Must engineer a prompt that triggers natural model-selection behavior without asking "what would you do" (§11) — CHALLENGING but feasible |
+
+## Mixed-Test Plan
+- SC-3: string/structural (grep).
+- SC-1/2/4: behavioral (artifact generation + clean-room session.yaml evaluation).
+- This is the "mixed" testability category — one structural SC + three behavioral SCs.
+
+## Risk: Behavioral Prompt Engineering
+The hardest part is constructing a real-domain prompt that:
+1. Triggers natural model-selection/outguess behavior, AND
+2. Is not a prose-recall interview (§11 hard-fail).
+
+Mitigation: the #2244 implementation already produced evidence of the outguess behavior from real-domain prompts (SC6 cleanup-dispatch scenario). Reuse a similar real-domain scenario where the agent is expected to run a behavioral test and is tempted to outguess.
+
+## Test Environment
+All behavioral runs via `with-test-home` with bash-tool timeout >= 600000ms (Constraint C3/C4).

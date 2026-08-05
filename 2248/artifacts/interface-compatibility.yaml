@@ -1,0 +1,21 @@
+# Interface Compatibility — No Model/GPU Outguessing (Issue .opencode#2246)
+# Generated: 2026-08-05
+
+## Interface Compatibility Analysis
+
+| Interface | Status | Backward Compatible | Breaking | Internal Only |
+|-----------|--------|--------------------|----------|---------------|
+| `default-model.sh` `DEFAULT_TEST_MODEL` | UNCHANGED | Yes | No | Yes |
+| `with-test-home` (isolation runner) | UNCHANGED | Yes | No | Yes |
+| `helpers.sh` `behavior_run()` | UNCHANGED | Yes | No | Yes |
+| `seed_model_config()` model interpolation | UNCHANGED | Yes | No | Yes |
+| `test-enforcement.sh` mandate grep | UNCHANGED | Yes | No | Yes |
+| `.opencode/tests-v2/AGENTS.md` §9/§10 | MODIFIED (adds mandate text) | Yes | No | Yes |
+| New behavioral scenario scripts | NEW | Yes | No | Yes |
+
+## Analysis
+- **No interface signature changes.** `DEFAULT_TEST_MODEL` remains the single source of truth; the harness consumes it exactly as before.
+- The only MODIFIED interface is the AGENTS.md documentation (additive text, backward compatible).
+- NEW artifacts are behavioral test scripts that consume existing harness interfaces (`behavior_run`, `with-test-home`, `DEFAULT_TEST_MODEL`).
+- No existing caller is broken; no new interface contract is introduced.
+- The spec itself is an agent-behavior enforcement rule, not an infrastructure change — hence all harness interfaces remain unchanged.

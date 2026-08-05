@@ -1,0 +1,29 @@
+# Cross-Cutting Matrix — No Model/GPU Outguessing (Issue .opencode#2246)
+# Generated: 2026-08-05
+
+## Cross-Cutting Concerns
+
+| Concern | Affects Items | Handling |
+|---------|---------------|----------|
+| Harness isolation (`with-test-home` mandatory) | ITEM-1, ITEM-2, ITEM-4 | All behavioral runs go through `with-test-home`. Constraint C4. |
+| Bash tool timeout >= 600s | ITEM-1, ITEM-2, ITEM-4 | Constraint C3. All behavioral test invocations pass timeout=600000+. |
+| `session.yaml` as PRIMARY evidence | ITEM-1, ITEM-2, ITEM-4 | Two-SC pattern (§6a): artifact generation + clean-room session.yaml evaluation. Constraint C2. |
+| Real-domain (non-interview) prompts | ITEM-1, ITEM-2, ITEM-4 | §11 Prompt Construction Mandate. IR5. |
+| No GNU `timeout` in scripts | ITEM-1, ITEM-2, ITEM-4 | Constraint C3. |
+| Fixture issues if prompt references issue content | ITEM-1, ITEM-2, ITEM-4 | AGENTS.md §3 Step 0. |
+| Triple co-application (250/255/257) | ITEM-3 | AGENTS.md §8 — new mandate is AI-agent-facing text. |
+
+## Matrix
+
+| Concern | ITEM-1 | ITEM-2 | ITEM-3 | ITEM-4 |
+|---------|--------|--------|--------|--------|
+| Isolation | X | X | — | X |
+| Timeout >= 600s | X | X | — | X |
+| session.yaml primary | X | X | — | X |
+| Real-domain prompt | X | X | — | X |
+| No GNU timeout | X | X | — | X |
+| Fixtures (if refs issue) | opt | opt | — | opt |
+| Triple co-application | — | — | X | — |
+
+## Consistency Requirement
+The behavioral test prompts (ITEM-1/2/4) MUST reference the documented mandate (ITEM-3) so the agent can comply. The mandate text must be committed (ITEM-3) before behavioral GREEN runs.

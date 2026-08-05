@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "Agent uses the harness's DEFAULT_TEST_MODEL during behavioral testing; does not substitute based on VRAM/GPU/ollama-probe hw assessment"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-2"
+    description: "On test failure/timeout, agent follows the documented §10 remediation path rather than diagnosing VRAM and switching models"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-3"
+    description: "tests-v2/AGENTS.md documents that the agent MUST NOT outguess model/GPU selection; model selection is DEFAULT_TEST_MODEL only"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-4"
+    description: "Spec reinforces §10.4 model-excuse prohibition; model/GPU handling is the harness's job, never the agent's outguessing"
+    evidence_type: "behavioral"
+    plan_item: 4

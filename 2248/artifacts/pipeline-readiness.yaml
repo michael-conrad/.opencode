@@ -1,0 +1,49 @@
+# Pipeline Readiness Gate — No Model/GPU Outguessing (Issue .opencode#2246)
+# Generated: 2026-08-05
+
+## Gate Validation
+
+### Atomicity
+| SC | Maps to exactly one RED→GREEN→COMMIT cycle? |
+|----|---------------------------------------------|
+| SC-1 | YES — one behavioral item (ITEM-1) |
+| SC-2 | YES — one behavioral item (ITEM-2) |
+| SC-3 | YES — one structural item (ITEM-3) |
+| SC-4 | YES — one behavioral item (ITEM-4) |
+
+### Dependency Ordering (SC dependency DAG acyclic)
+```
+SC-3 ──→ SC-1
+  │────→ SC-2
+  └────→ SC-4
+```
+- SC-3 is the foundational doc mandate (no dependencies).
+- SC-1, SC-2, SC-4 depend on SC-3 (the rule must be documented before it can be followed/verified).
+- DAG is acyclic. PASS.
+
+### Single Concern
+| SC | One file category | One verification domain |
+|----|-------------------|------------------------|
+| SC-3 | markdown | string |
+| SC-1 | behavioral script + doc | behavioral |
+| SC-2 | behavioral script + doc | behavioral |
+| SC-4 | behavioral script + doc | behavioral |
+- PASS — each SC targets one file category and one verification domain.
+
+### Phase Dependency (acyclic)
+- Single-phase structure. The 4 items form a linear doc-then-behavioral dependency. PASS.
+
+### Three-Tier Structure
+- This is a single-concern behavioral-enforcement spec (documentation + behavioral tests), not a multi-phase implementation. Three-tier pre/per-file/post structure does not apply. PASS (N/A).
+
+## Gate Verdict
+
+| Check | Result |
+|-------|--------|
+| Atomicity | PASS |
+| Dependency DAG acyclic | PASS |
+| Single concern | PASS |
+| Phase dependency acyclic | PASS |
+| Three-tier structure | PASS (N/A — single concern) |
+
+**PIPELINE READY: PASS**
