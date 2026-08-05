@@ -37,11 +37,11 @@ scs:
     evidence_type: "behavioral"
     plan_item: 9
   - id: "SC10"
-    description: "Opt-in full-env simulation for 2242-sc6 test: merged-PR discovery succeeds"
+    description: "Opt-in full-env simulation for 2242-sc6 test: full-env opt-in enables merged-branch discovery (any mechanism) and cleanup proceeds"
     evidence_type: "behavioral"
     plan_item: 10
   - id: "SC11"
-    description: "2242-sc6 cleanup dispatch completes without task-card read"
+    description: "2242-sc6 cleanup dispatch follows the correct task card (tasks/cleanup.md) and completes, producing a result contract"
     evidence_type: "behavioral"
     plan_item: 11
   - id: "SC12"

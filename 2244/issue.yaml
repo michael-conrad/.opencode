@@ -105,13 +105,26 @@ body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test
   (do_clean/do_clean_all ~L66-104); `.opencode/tests-v2/behaviors/helpers.sh` (`__reset_gitbucket`,
   `__kill_gitbucket`) |
 
-  | SC6 | Opt-in full-env simulation for the 2242-sc6 cleanup-dispatch test: `2242-sc6-cleanup-dispatch-no-task-card-read.sh`
-  runs with the full-env opt-in (test-submodule fixtures and/or GitBucket origin),
-  and merged-PR discovery + cleanup dispatch complete WITHOUT the orchestrator reading
-  any task card and WITHOUT halting for PR/branch context. | behavioral | Run `2242-sc6`
-  test with full-env opt-in; clean-room evaluation of `session.yaml` confirms merged-PR
-  discovery + cleanup dispatch complete, no task-card read, no PR-context halt. |
+  | SC10 | Opt-in full-env simulation for the 2242-sc6 cleanup-dispatch test: `2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  runs with the full-env opt-in (`BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` + `BEHAVIOR_NEEDS_REMOTE=1`),
+  and the full-env opt-in enables the agent to discover the merged branch/PR state needed
+  to execute cleanup (via any discovery mechanism the agent uses — git primitives, `gb pull-request list`,
+  `gh pr list`, or any other), and cleanup proceeds. The specific discovery command is NOT the measure;
+  discovery yielding the merged branch that lets cleanup execute correctly IS the measure. | behavioral
+  | Run `2242-sc6` test with the full-env opt-in; clean-room evaluation of `session.yaml` confirms
+  the agent discovered the merged branch (by whatever discovery mechanism it used) and cleanup executed. |
   `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`; `.opencode/tests-v2/behaviors/fixtures/setup/2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  |
+  | SC11 | In the SC10 run, the git-workflow-cleanup dispatch follows the instructions in the correct task card
+  (`tasks/cleanup.md`) and completes, producing a result contract. Whether the orchestrator read or did not
+  read the task card itself is NOT the measure — what matters is that the correct task card's instructions
+  were followed and the cleanup dispatch completed correctly. | behavioral | Clean-room evaluation of the
+  SC10 `session.yaml` confirms the cleanup dispatch produced a result contract by following the correct
+  task card (`tasks/cleanup.md`) instructions. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`
+  |
+  | SC12 | In the SC10 run, `session.yaml` shows the agent never halted to ask the user for PR/branch context
+  (no question-tool call or "provide PR" style halt). | behavioral | Clean-room evaluation of the SC10
+  `session.yaml` confirms no PR/branch-context halt or question-tool invocation. | `.opencode/tests-v2/behaviors/2242-sc6-cleanup-dispatch-no-task-card-read.sh`
   |
 
 
@@ -244,6 +257,28 @@ body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test
 
   ## Change Control
 
+
+  ### 2026-08-05 — Revise (spec-creation revise pipeline, developer-directed correct-execution SCs)
+
+
+  - **What changed:** Revised SC10 and SC11 to measure correct task execution rather
+  than literal tool-call mechanics. SC10 no longer measures the literal `gh pr list`
+  command; it now measures whether the full-env opt-in enables the agent to discover
+  the merged branch/PR state needed to execute cleanup (via any discovery mechanism
+  the agent uses) and that cleanup proceeds. SC11 no longer measures whether the
+  orchestrator read or did not read `tasks/cleanup.md`; it now measures whether the
+  git-workflow-cleanup dispatch followed the correct task card's instructions and
+  completed correctly, producing a result contract. SC12 (no PR-context halt) unchanged.
+  Both evidence types remain behavioral.
+
+  - **Why:** Developer-directed revision: SC10 and SC11 defined success by literal
+  tool-call mechanics rather than by correct task execution. The measure of success
+  is whether the task was executed correctly — the correct task card's instructions
+  were followed and the cleanup completed — not whether a specific command (`gh pr list`)
+  or read/no-read pattern occurred.
+
+  - **Who authorized the change:** Developer-directed revision (revision_reason:
+  correct-execution SC10/SC11).
 
   ### 2026-08-03 — Initial spec (stacked into #2242 PR)
 
