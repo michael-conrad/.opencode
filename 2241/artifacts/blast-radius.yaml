@@ -1,0 +1,194 @@
+# Blast Radius — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-04
+
+affected_files:
+  # P1 — local write primary
+  - path: .opencode/skills/approval-gate/tasks/apply-label.md
+    changes:
+      - Write approved-for-{scope} to local issue.yaml as canonical; remote best-effort
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/issue-operations-core/tasks/creation.md
+    changes:
+      - Write needs-approval to local issue.yaml as primary; remote best-effort
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/issue-operations-core/tasks/completion.md
+    changes:
+      - Read needs-approval from local issue.yaml; remote write best-effort
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/spec-creation/tasks/create.md
+    changes:
+      - Write labels to local issue.yaml as primary; remote secondary
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/issue-review/tasks/analyze-and-spec.md
+    changes:
+      - Write labels to local issue.yaml as primary; remote secondary
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/writing-plans/tasks/create.md
+    changes:
+      - Write spec-cleared to local issue.yaml as primary; remote secondary
+    risk: medium
+    exists: true
+
+  # P2 — local read default
+  - path: .opencode/skills/writing-plans/tasks/handoff.md
+    changes:
+      - Read authorization from local issue.yaml instead of approval-gate --task verify-authorization
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/issue-operations-core/tasks/read-labels.md
+    changes:
+      - Read from local issue.yaml by default; remote only when explicitly requested
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/issue-review/tasks/gather.md
+    changes:
+      - Read labels from local issue.yaml; remote fallback only
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/audit/tasks/drift-detection-investigator.md
+    changes:
+      - Read labels from local issue.yaml; remote fallback only
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    changes:
+      - Read labels from local issue.yaml; remote fallback only
+    risk: medium
+    exists: true
+
+  # P3 — cargo-cult removal
+  - path: .opencode/skills/issue-operations-core/tasks/list-issues.md
+    changes:
+      - Remove "Authorization scope label verification" use case
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/issue-operations-core/tasks/search-issues.md
+    changes:
+      - Remove "Authorization scope label search" use case
+    risk: low
+    exists: true
+
+  # P4 — No Metadata Trust removal
+  - path: .opencode/skills/issue-operations-core/tasks/read-issue.md
+    changes:
+      - Remove entire "No Metadata Trust Exceptions" section
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    changes:
+      - Remove entire "No Metadata Trust Exceptions" section
+    risk: low
+    exists: true
+
+  # P5 — comment-scanning removal
+  - path: .opencode/skills/audit/tasks/drift-detection-investigator.md
+    changes:
+      - Remove "Authorization currency" and "Authorization author identity" rows
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/issue-review/tasks/gather.md
+    changes:
+      - Remove scanning comments for "approved"/"go" patterns
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/brainstorming/tasks/enforcement.md
+    changes:
+      - Remove "User approved design" verification row checking comments
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/issue-operations-core/tasks/post-creation.md
+    changes:
+      - Remove "approved"/"go" check in comments from Live Verification table
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/approval-gate/tasks/resolve-scope.md
+    changes:
+      - Parse auth from chat message only, not from issue comments
+    risk: medium
+    exists: true
+
+  - path: .opencode/skills/approval-gate/SKILL.md
+    changes:
+      - Remove references to reading comments for authorization
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/gh-cli/tasks/triage-issues.md
+    changes:
+      - Remove noting authorization in comments
+    risk: low
+    exists: true
+
+  - path: .opencode/guidelines/067-context-completeness.md
+    changes:
+      - Remove "authorization may live in a comment, not the body"
+    risk: low
+    exists: true
+
+  - path: .opencode/guidelines/257-procedural-discipline-reference.md
+    changes:
+      - Remove "Authorization verified via comment history" example
+    risk: low
+    exists: true
+
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+    changes:
+      - Remove label replacement via comment fallback
+    risk: low
+    exists: true
+
+  # P6 — dead file deletion
+  - path: .opencode/skills/issue-operations/platforms/local/tasks/push-body.md
+    changes:
+      - DELETE file (describes non-existent sync operation)
+    risk: low
+    exists: true
+
+  # P7 — guideline update
+  - path: .opencode/guidelines/010-approval-gate.md
+    changes:
+      - Clarify canonical auth state is local issue.yaml; remote labels advisory
+    risk: low
+    exists: true
+
+unchanged_downstreams:
+  - .opencode/tools/local-issues (tool itself unchanged — only task files that call it)
+  - .opencode/skills/issue-operations/SKILL.md
+  - .opencode/skills/issue-operations-core/SKILL.md
+  - .opencode/skills/issue-operations-sub-issues/SKILL.md
+  - .opencode/skills/issue-operations-sync/SKILL.md
+  - .opencode/skills/issue-operations-comments/SKILL.md
+  - .opencode/skills/writing-plans/SKILL.md
+  - .opencode/skills/writing-plans/tasks/analyze.md (reference pattern — unchanged)
+  - .opencode/skills/spec-creation/SKILL.md
+  - .opencode/skills/brainstorming/SKILL.md
+  - .opencode/skills/audit/SKILL.md
+  - .opencode/skills/verification-before-completion/SKILL.md
+
+risk_summary:
+  - Medium: 11 label read/write task files — changes to canonical source affect authorization decisions across the pipeline
+  - Low: Cargo-cult and doctrine text removals — string-only, no behavioral logic change
+  - Low: Comment-scanning removals — eliminates fragile auth fallback; auth now parsed from chat only
+  - Low: push-body.md deletion — dead file, no consumers
+  - Low: Guideline update — documentation clarity only

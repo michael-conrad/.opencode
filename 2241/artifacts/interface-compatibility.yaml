@@ -1,0 +1,80 @@
+# Interface Compatibility — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-04
+
+interfaces:
+  - interface: task files → local issue.yaml (local-issues tool)
+    direction: Task writes/reads authorization labels via local-issues read-labels / update --labels
+    change: Canonical label source switches from remote API to local issue.yaml
+    consumers:
+      - writing-plans/handoff.md
+      - approval-gate/apply-label.md
+      - issue-operations-core/creation.md, completion.md, read-labels.md
+      - spec-creation/create.md
+      - issue-review/gather.md, analyze-and-spec.md
+      - audit/drift-detection-investigator.md
+      - verification-before-completion/operating-protocol.md
+      - writing-plans/create.md
+    compatibility: BACKWARD-COMPATIBLE — local-issues tool already supports read-labels and update --labels; spec §6 Dependencies verifies these subcommands exist
+    mitigation: None needed — tool capability confirmed
+
+  - interface: handoff.md → approval-gate --task verify-authorization
+    direction: handoff previously delegated auth verification to approval-gate subcommand (remote label read)
+    change: handoff now reads auth directly from local issue.yaml; approval-gate verify-authorization no longer called
+    consumers:
+      - writing-plans pipeline orchestrator (reads handoff.md procedure)
+    compatibility: BREAKING — the verify-authorization subcommand call is removed from handoff's procedure; any orchestrator relying on handoff invoking it will no longer get that call. Mitigated because handoff's purpose (verify auth before plan creation) is preserved via local read.
+    mitigation: handoff retains auth verification intent; only the mechanism changes (local read instead of subcommand dispatch)
+
+  - interface: approval-gate/SKILL.md → agent auth instructions
+    direction: Agent reads approval-gate SKILL.md to learn how to determine authorization
+    change: Remove references to reading comments for authorization; auth parsed from chat only (resolve-scope)
+    consumers:
+      - orchestrators and sub-agents reading approval-gate skill card
+    compatibility: BACKWARD-COMPATIBLE — auth determination semantics unchanged (chat "approved"/"go"); only comment-scanning references removed
+
+  - interface: resolve-scope.md → auth parsing
+    direction: Agent parses authorization scope from messages to determine halt_at
+    change: Parse auth from chat message only; not from issue comments
+    consumers:
+      - approval-gate pipeline (resolve-scope determines authorization scope)
+    compatibility: BACKWARD-COMPATIBLE — verb-prefix parsing table unchanged; only the message source narrowed to chat
+
+  - interface: issue.yaml labels field → authorization state
+    direction: Auth state read from local issue.yaml labels field; absence of labels = needs-approval
+    change: Local issue.yaml becomes canonical; remote labels advisory/display only
+    consumers:
+      - All label-reading task files listed in CONCERN_LOCAL_READ
+    compatibility: BACKWARD-COMPATIBLE — labels field already exists in issue.yaml format (spec §6 Dependencies verified)
+    mitigation: None needed — format unchanged
+
+  - interface: gitbucket-api/SKILL.md → label replacement
+    direction: GitBucket label replacement previously used comment fallback
+    change: Remove label replacement via comment fallback
+    consumers:
+      - issue-operations routing to GitBucket platform
+    compatibility: BACKWARD-COMPATIBLE — removes a fragile fallback; local issue.yaml now covers label state
+    mitigation: Local issue.yaml provides the canonical label record, so comment fallback is unnecessary
+
+  - interface: No Metadata Trust doctrine → agent metadata verification
+    direction: read-issue.md and operating-protocol.md instructed agents not to trust metadata
+    change: Remove the "No Metadata Trust" doctrine sections; local issue.yaml is now the certifying source
+    consumers:
+      - agents reading issues (read-issue.md)
+      - agents performing verification-before-completion (operating-protocol.md)
+    compatibility: BACKWARD-COMPATIBLE — the doctrine was a workaround for unreliable remote labels; local canonical source removes the need
+    mitigation: Local issue.yaml is authoritative, so distrust of metadata is obsolete
+
+summary:
+  breaking_changes:
+    - handoff.md no longer calls approval-gate --task verify-authorization (auth verification mechanism changes, intent preserved)
+  backward_compatible:
+    - local-issues tool interface (subcommands confirmed)
+    - resolve-scope chat-only parsing (table unchanged)
+    - issue.yaml labels field (format unchanged)
+    - gitbucket-api comment fallback removal
+    - No Metadata Trust doctrine removal
+    - approval-gate SKILL.md comment reference removal
+  mitigation:
+    - handoff auth verification intent preserved via direct local read
+    - All other changes are additive removals or mechanism swaps with preserved semantics

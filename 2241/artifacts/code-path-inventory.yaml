@@ -1,0 +1,201 @@
+# Code Path Inventory — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-04
+
+code_paths:
+  - sc: SC-1
+    description: handoff.md reads auth from local issue.yaml instead of approval-gate --task verify-authorization
+    file: .opencode/skills/writing-plans/tasks/handoff.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads handoff.md and evaluates whether auth is read from local issue.yaml
+    code_path: writing-plans pipeline → handoff → auth read from local issue.yaml (no remote API dependency)
+
+  - sc: SC-2
+    description: apply-label.md writes approved-for-{scope} to local issue.yaml as canonical
+    file: .opencode/skills/approval-gate/tasks/apply-label.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads apply-label.md and evaluates whether local write is primary
+    code_path: approval-gate → apply-label → local issue.yaml write (canonical) → remote best-effort
+
+  - sc: SC-3
+    description: creation.md writes needs-approval to local issue.yaml as primary
+    file: .opencode/skills/issue-operations-core/tasks/creation.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads creation.md and evaluates whether local write is primary
+    code_path: issue-operations-core → creation → local issue.yaml write (primary) → remote best-effort
+
+  - sc: SC-4
+    description: completion.md reads needs-approval from local issue.yaml
+    file: .opencode/skills/issue-operations-core/tasks/completion.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads completion.md and evaluates whether local read is primary
+    code_path: issue-operations-core → completion → local issue.yaml read (primary) → remote write best-effort
+
+  - sc: SC-5
+    description: 010-approval-gate.md clarifies canonical auth is local issue.yaml
+    file: .opencode/guidelines/010-approval-gate.md
+    evidence_type: string
+    verification: grep for "canonical" or "local issue.yaml" in 010-approval-gate.md
+    code_path: guideline → agent reads canonical auth source → local issue.yaml
+
+  - sc: SC-6
+    description: spec-creation/create.md writes labels to local issue.yaml as primary
+    file: .opencode/skills/spec-creation/tasks/create.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads create.md and evaluates whether local write is primary
+    code_path: spec-creation → create → local issue.yaml write (primary) → remote secondary
+
+  - sc: SC-7
+    description: issue-review/analyze-and-spec.md writes labels to local issue.yaml as primary
+    file: .opencode/skills/issue-review/tasks/analyze-and-spec.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads analyze-and-spec.md and evaluates whether local write is primary
+    code_path: issue-review → analyze-and-spec → local issue.yaml write (primary) → remote secondary
+
+  - sc: SC-8
+    description: writing-plans/create.md writes spec-cleared to local issue.yaml as primary
+    file: .opencode/skills/writing-plans/tasks/create.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads create.md and evaluates whether local write is primary
+    code_path: writing-plans → create → local issue.yaml write (primary) → remote secondary
+
+  - sc: SC-9
+    description: read-labels.md reads from local issue.yaml by default
+    file: .opencode/skills/issue-operations-core/tasks/read-labels.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads read-labels.md and evaluates whether local read is default
+    code_path: issue-operations-core → read-labels → local issue.yaml read (default) → remote explicit only
+
+  - sc: SC-10
+    description: list-issues.md removes Authorization scope label verification use case
+    file: .opencode/skills/issue-operations-core/tasks/list-issues.md
+    evidence_type: string
+    verification: grep for "Authorization scope label" in list-issues.md SHALL return no matches
+    code_path: issue-operations-core → list-issues → use cases (no remote auth label verification)
+
+  - sc: SC-11
+    description: search-issues.md removes Authorization scope label search use case
+    file: .opencode/skills/issue-operations-core/tasks/search-issues.md
+    evidence_type: string
+    verification: grep for "Authorization scope label" in search-issues.md SHALL return no matches
+    code_path: issue-operations-core → search-issues → use cases (no remote auth label search)
+
+  - sc: SC-12
+    description: gather.md reads labels from local issue.yaml
+    file: .opencode/skills/issue-review/tasks/gather.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads gather.md and evaluates whether local read is primary
+    code_path: issue-review → gather → local issue.yaml read (primary) → remote fallback only
+
+  - sc: SC-13
+    description: drift-detection-investigator.md reads labels from local issue.yaml
+    file: .opencode/skills/audit/tasks/drift-detection-investigator.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads drift-detection-investigator.md and evaluates whether local read is primary
+    code_path: audit → drift-detection → local issue.yaml read (primary) → remote fallback only
+
+  - sc: SC-14
+    description: operating-protocol.md reads labels from local issue.yaml
+    file: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads operating-protocol.md and evaluates whether local read is primary
+    code_path: verification-before-completion → operating-protocol → local issue.yaml read (primary) → remote fallback only
+
+  - sc: SC-15
+    description: drift-detection-investigator.md removes Authorization currency and author identity rows
+    file: .opencode/skills/audit/tasks/drift-detection-investigator.md
+    evidence_type: string
+    verification: grep for "Authorization currency" and "Authorization author identity" SHALL return no matches
+    code_path: audit → drift-detection → Metadata Verification Extension (rows removed)
+
+  - sc: SC-16
+    description: read-issue.md removes entire No Metadata Trust Exceptions section
+    file: .opencode/skills/issue-operations-core/tasks/read-issue.md
+    evidence_type: string
+    verification: grep for "No Metadata Trust" in read-issue.md SHALL return no matches
+    code_path: issue-operations-core → read-issue → No Metadata Trust section (removed)
+
+  - sc: SC-17
+    description: operating-protocol.md removes entire No Metadata Trust Exceptions section
+    file: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+    evidence_type: string
+    verification: grep for "No Metadata Trust" in operating-protocol.md SHALL return no matches
+    code_path: verification-before-completion → operating-protocol → No Metadata Trust section (removed)
+
+  - sc: SC-18
+    description: gather.md removes scanning comments for approved/go patterns
+    file: .opencode/skills/issue-review/tasks/gather.md
+    evidence_type: string
+    verification: grep for "approved" and "go" in gather.md SHALL return no matches
+    code_path: issue-review → gather → comment scan (removed)
+
+  - sc: SC-19
+    description: enforcement.md removes User approved design verification row
+    file: .opencode/skills/brainstorming/tasks/enforcement.md
+    evidence_type: string
+    verification: grep for "User approved design" in enforcement.md SHALL return no matches
+    code_path: brainstorming → enforcement → comment approval check (removed)
+
+  - sc: SC-20
+    description: post-creation.md removes approved/go check in comments from Live Verification table
+    file: .opencode/skills/issue-operations-core/tasks/post-creation.md
+    evidence_type: string
+    verification: grep for "comment-scanning" in post-creation.md Live Verification section SHALL return no matches
+    code_path: issue-operations-core → post-creation → Live Verification (comment scan removed)
+
+  - sc: SC-21
+    description: resolve-scope.md parses auth from chat message only
+    file: .opencode/skills/approval-gate/tasks/resolve-scope.md
+    evidence_type: semantic
+    verification: Clean-room sub-agent reads resolve-scope.md and evaluates whether auth is parsed from chat only
+    code_path: approval-gate → resolve-scope → parse auth from chat (verb-prefix table) → not from comments
+
+  - sc: SC-22
+    description: approval-gate/SKILL.md removes references to reading comments for authorization
+    file: .opencode/skills/approval-gate/SKILL.md
+    evidence_type: string
+    verification: grep for "authorization.*comment" in approval-gate/SKILL.md SHALL return no matches
+    code_path: approval-gate → SKILL.md → comment references (removed)
+
+  - sc: SC-23
+    description: triage-issues.md removes noting authorization in comments
+    file: .opencode/skills/gh-cli/tasks/triage-issues.md
+    evidence_type: string
+    verification: grep for "authorization" in triage-issues.md SHALL return no matches
+    code_path: gh-cli → triage-issues → comment auth noting (removed)
+
+  - sc: SC-24
+    description: 067-context-completeness.md removes authorization in comment language
+    file: .opencode/guidelines/067-context-completeness.md
+    evidence_type: string
+    verification: grep for "authorization" in 067-context-completeness.md SHALL return no matches for comment-scanning language
+    code_path: guideline → agent context completeness → comment-scanning language (removed)
+
+  - sc: SC-25
+    description: 257-procedural-discipline-reference.md removes Authorization verified via comment history example
+    file: .opencode/guidelines/257-procedural-discipline-reference.md
+    evidence_type: string
+    verification: grep for "Authorization verified" in 257-procedural-discipline-reference.md SHALL return no matches
+    code_path: guideline → procedural discipline → comment history example (removed)
+
+  - sc: SC-26
+    description: gitbucket-api/SKILL.md removes label replacement via comment fallback
+    file: .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+    evidence_type: string
+    verification: grep for "comment fallback" in gitbucket-api/SKILL.md SHALL return no matches
+    code_path: issue-operations → gitbucket-api → comment fallback (removed)
+
+  - sc: SC-27
+    description: push-body.md deleted
+    file: .opencode/skills/issue-operations/platforms/local/tasks/push-body.md
+    evidence_type: structural
+    verification: File SHALL NOT exist at the path
+    code_path: issue-operations → local platform → push-body.md (dead file removed)
+
+cross_references:
+  - artifact_path: .opencode/skills/writing-plans/tasks/analyze.md
+    relationship: Reference pattern for reading auth from local issue.yaml (per spec §5 Key Design Decision 5)
+  - artifact_path: .opencode/tools/local-issues
+    relationship: Tool providing read-labels and update --labels subcommands consumed by changed task files
+  - artifact_path: .opencode/.issues/*/issue.yaml
+    relationship: Canonical local label storage format with labels field

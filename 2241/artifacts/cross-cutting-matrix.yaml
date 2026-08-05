@@ -1,0 +1,173 @@
+# Cross-Cutting Matrix — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-04
+
+matrix:
+  - sc: SC-1
+    concerns: [CONCERN_LOCAL_READ]
+    cross_cutting: false
+    rationale: Single task file handoff.md; single local-read concern
+    phases: [2]
+
+  - sc: SC-2
+    concerns: [CONCERN_LOCAL_WRITE]
+    cross_cutting: false
+    rationale: Single task file apply-label.md; single local-write concern
+    phases: [1]
+
+  - sc: SC-3
+    concerns: [CONCERN_LOCAL_WRITE]
+    cross_cutting: false
+    rationale: Single task file creation.md; single local-write concern
+    phases: [1]
+
+  - sc: SC-4
+    concerns: [CONCERN_LOCAL_WRITE]
+    cross_cutting: false
+    rationale: Single task file completion.md; local-read primary within local-first write concern
+    phases: [1]
+
+  - sc: SC-5
+    concerns: [CONCERN_GUIDELINE]
+    cross_cutting: false
+    rationale: Single guideline file 010-approval-gate.md; documentation update only
+    phases: [7]
+
+  - sc: SC-6
+    concerns: [CONCERN_LOCAL_WRITE]
+    cross_cutting: false
+    rationale: Single task file spec-creation/create.md; single local-write concern
+    phases: [1]
+
+  - sc: SC-7
+    concerns: [CONCERN_LOCAL_WRITE]
+    cross_cutting: false
+    rationale: Single task file analyze-and-spec.md; single local-write concern
+    phases: [1]
+
+  - sc: SC-8
+    concerns: [CONCERN_LOCAL_WRITE]
+    cross_cutting: false
+    rationale: Single task file writing-plans/create.md; single local-write concern
+    phases: [1]
+
+  - sc: SC-9
+    concerns: [CONCERN_LOCAL_READ]
+    cross_cutting: false
+    rationale: Single task file read-labels.md; single local-read concern
+    phases: [2]
+
+  - sc: SC-10
+    concerns: [CONCERN_CARGO_CULT]
+    cross_cutting: false
+    rationale: Single task file list-issues.md; single removal concern
+    phases: [3]
+
+  - sc: SC-11
+    concerns: [CONCERN_CARGO_CULT]
+    cross_cutting: false
+    rationale: Single task file search-issues.md; single removal concern
+    phases: [3]
+
+  - sc: SC-12
+    concerns: [CONCERN_LOCAL_READ]
+    cross_cutting: false
+    rationale: Single task file gather.md local-read change; comment-scan removal is a separate SC (SC-18) on same file
+    phases: [2]
+
+  - sc: SC-13
+    concerns: [CONCERN_LOCAL_READ]
+    cross_cutting: false
+    rationale: Single task file drift-detection-investigator.md local-read change; row removal is SC-15
+    phases: [2]
+
+  - sc: SC-14
+    concerns: [CONCERN_LOCAL_READ]
+    cross_cutting: false
+    rationale: Single task file operating-protocol.md local-read change; doctrine removal is SC-17
+    phases: [2]
+
+  - sc: SC-15
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single task file drift-detection-investigator.md row removal
+    phases: [5]
+
+  - sc: SC-16
+    concerns: [CONCERN_DOCTRINE]
+    cross_cutting: false
+    rationale: Single task file read-issue.md; single doctrine-removal concern
+    phases: [4]
+
+  - sc: SC-17
+    concerns: [CONCERN_DOCTRINE]
+    cross_cutting: false
+    rationale: Single task file operating-protocol.md; single doctrine-removal concern
+    phases: [4]
+
+  - sc: SC-18
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: true
+    rationale: gather.md comment-scan removal is on the same file as SC-12 (local-read change); file is shared across P2 and P5
+    phases: [5]
+    cross_files:
+      - .opencode/skills/issue-review/tasks/gather.md (SC-12 and SC-18 both modify this file)
+
+  - sc: SC-19
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single task file enforcement.md; single comment-check removal
+    phases: [5]
+
+  - sc: SC-20
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single task file post-creation.md; single comment-check removal
+    phases: [5]
+
+  - sc: SC-21
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single task file resolve-scope.md; chat-only auth parsing
+    phases: [5]
+
+  - sc: SC-22
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single skill file approval-gate/SKILL.md; comment reference removal
+    phases: [5]
+
+  - sc: SC-23
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single task file triage-issues.md; comment auth noting removal
+    phases: [5]
+
+  - sc: SC-24
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single guideline file 067-context-completeness.md; comment language removal
+    phases: [5]
+
+  - sc: SC-25
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single guideline file 257-procedural-discipline-reference.md; example removal
+    phases: [5]
+
+  - sc: SC-26
+    concerns: [CONCERN_COMMENT_SCAN]
+    cross_cutting: false
+    rationale: Single skill file gitbucket-api/SKILL.md; comment fallback removal
+    phases: [5]
+
+  - sc: SC-27
+    concerns: [CONCERN_DEAD_FILE]
+    cross_cutting: false
+    rationale: Single dead file deletion; no consumers
+    phases: [6]
+
+summary:
+  independent_scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-26, SC-27]
+  cross_cutting_scs: [SC-18]
+  note: SC-18 is cross-cutting only in that gather.md is shared with SC-12 (local-read change). No SC spans multiple distinct concern categories. Each file is primarily owned by a single concern; drift-detection-investigator.md and operating-protocol.md each carry two SCs (read + removal) but those are separable edits.

@@ -1,0 +1,45 @@
+spec_path: .opencode/.issues/2241/spec.md
+approval_status: APPROVED
+approval_detail: "issue.yaml labels indicate approved-for-plan scope"
+sc_count: 27
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
+  - SC-8
+  - SC-9
+  - SC-10
+  - SC-11
+  - SC-12
+  - SC-13
+  - SC-14
+  - SC-15
+  - SC-16
+  - SC-17
+  - SC-18
+  - SC-19
+  - SC-20
+  - SC-21
+  - SC-22
+  - SC-23
+  - SC-24
+  - SC-25
+  - SC-26
+  - SC-27
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+artifact_note: "All 7 analytical artifacts regenerated from current spec body after SC-18/SC-20/SC-22/SC-23 verification methods were made deterministic. Artifacts were previously deleted and required retroactive backfill."
+scope_boundary_findings:
+  - All 27 affected files verified to exist in the codebase (.opencode/skills/, .opencode/guidelines/)
+scope_note: "Scope is entirely within the .opencode submodule — task files (skills/*/tasks/), skill cards (SKILL.md), and guidelines (guidelines/*.md). No root-repo files affected. push-body.md exists and is targeted for deletion (SC-27)."
+blocker: false

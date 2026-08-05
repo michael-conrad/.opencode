@@ -1,0 +1,210 @@
+# State Analysis — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-04
+
+state_transitions:
+  - sc: SC-1
+    name: handoff local auth read
+    from_state: handoff.md delegates auth verification to approval-gate --task verify-authorization (reads remote labels)
+    to_state: handoff.md reads authorization from local issue.yaml directly
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore approval-gate --task verify-authorization call in handoff.md
+
+  - sc: SC-2
+    name: apply-label local write
+    from_state: apply-label.md writes approved-for-{scope} to remote API labels as canonical
+    to_state: apply-label.md writes approved-for-{scope} to local issue.yaml as canonical; remote best-effort
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore remote-primary write in apply-label.md
+
+  - sc: SC-3
+    name: creation local write
+    from_state: creation.md writes needs-approval to remote labels as primary
+    to_state: creation.md writes needs-approval to local issue.yaml as primary; remote best-effort
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore remote-primary write in creation.md
+
+  - sc: SC-4
+    name: completion local read
+    from_state: completion.md reads needs-approval from remote labels
+    to_state: completion.md reads needs-approval from local issue.yaml; remote write best-effort
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore remote-read behavior in completion.md
+
+  - sc: SC-5
+    name: guideline canonical documentation
+    from_state: 010-approval-gate.md does not state the canonical auth source
+    to_state: 010-approval-gate.md clarifies canonical auth state is local issue.yaml; remote labels advisory
+    trigger: Spec implementation (Phase 7)
+    rollback: Revert guideline text
+
+  - sc: SC-6
+    name: spec-creation local write
+    from_state: spec-creation/create.md writes labels to remote as primary
+    to_state: spec-creation/create.md writes labels to local issue.yaml as primary; remote secondary
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore remote-primary write in create.md
+
+  - sc: SC-7
+    name: analyze-and-spec local write
+    from_state: issue-review/analyze-and-spec.md writes labels to remote as primary
+    to_state: issue-review/analyze-and-spec.md writes labels to local issue.yaml as primary; remote secondary
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore remote-primary write in analyze-and-spec.md
+
+  - sc: SC-8
+    name: writing-plans create local write
+    from_state: writing-plans/create.md writes spec-cleared to remote as primary
+    to_state: writing-plans/create.md writes spec-cleared to local issue.yaml as primary; remote secondary
+    trigger: Spec implementation (Phase 1)
+    rollback: Restore remote-primary write in writing-plans/create.md
+
+  - sc: SC-9
+    name: read-labels local default
+    from_state: read-labels.md reads labels from remote API by default
+    to_state: read-labels.md reads labels from local issue.yaml by default; remote only when explicitly requested
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore remote-default read in read-labels.md
+
+  - sc: SC-10
+    name: list-issues cargo-cult removal
+    from_state: list-issues.md lists "Authorization scope label verification" as a use case
+    to_state: list-issues.md no longer contains "Authorization scope label verification"
+    trigger: Spec implementation (Phase 3)
+    rollback: Re-add removed line
+
+  - sc: SC-11
+    name: search-issues cargo-cult removal
+    from_state: search-issues.md lists "Authorization scope label search" as a use case
+    to_state: search-issues.md no longer contains "Authorization scope label search"
+    trigger: Spec implementation (Phase 3)
+    rollback: Re-add removed line
+
+  - sc: SC-12
+    name: gather local read
+    from_state: issue-review/gather.md reads labels from remote API
+    to_state: issue-review/gather.md reads labels from local issue.yaml; remote fallback only
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore remote-primary read in gather.md
+
+  - sc: SC-13
+    name: drift-detection local read
+    from_state: audit/drift-detection-investigator.md reads labels from remote API
+    to_state: audit/drift-detection-investigator.md reads labels from local issue.yaml; remote fallback only
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore remote-primary read in drift-detection-investigator.md
+
+  - sc: SC-14
+    name: operating-protocol local read
+    from_state: verification-before-completion/operating-protocol.md reads labels from remote API
+    to_state: verification-before-completion/operating-protocol.md reads labels from local issue.yaml; remote fallback only
+    trigger: Spec implementation (Phase 2)
+    rollback: Restore remote-primary read in operating-protocol.md
+
+  - sc: SC-15
+    name: drift-detection auth rows removed
+    from_state: drift-detection-investigator.md contains Authorization currency and Authorization author identity rows
+    to_state: drift-detection-investigator.md no longer contains those rows
+    trigger: Spec implementation (Phase 5)
+    rollback: Re-add removed rows
+
+  - sc: SC-16
+    name: read-issue doctrine removed
+    from_state: read-issue.md contains No Metadata Trust Exceptions section
+    to_state: read-issue.md no longer contains No Metadata Trust Exceptions section
+    trigger: Spec implementation (Phase 4)
+    rollback: Restore removed section
+
+  - sc: SC-17
+    name: operating-protocol doctrine removed
+    from_state: operating-protocol.md contains No Metadata Trust Exceptions section
+    to_state: operating-protocol.md no longer contains No Metadata Trust Exceptions section
+    trigger: Spec implementation (Phase 4)
+    rollback: Restore removed section
+
+  - sc: SC-18
+    name: gather comment scan removed
+    from_state: gather.md scans comments for "approved"/"go" patterns
+    to_state: gather.md no longer scans comments for "approved"/"go"
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore comment-scanning logic
+
+  - sc: SC-19
+    name: enforcement approval check removed
+    from_state: brainstorming/enforcement.md checks comments for User approved design
+    to_state: enforcement.md no longer checks comments for User approved design
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore verification row
+
+  - sc: SC-20
+    name: post-creation comment check removed
+    from_state: post-creation.md Live Verification table checks comments for approved/go
+    to_state: post-creation.md Live Verification table no longer checks comments
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore check row
+
+  - sc: SC-21
+    name: resolve-scope chat-only parsing
+    from_state: resolve-scope.md parses auth from issue comments
+    to_state: resolve-scope.md parses auth from chat message only
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore comment parsing in resolve-scope.md
+
+  - sc: SC-22
+    name: approval-gate comment references removed
+    from_state: approval-gate/SKILL.md references reading comments for authorization
+    to_state: approval-gate/SKILL.md no longer references reading comments for authorization
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore comment references
+
+  - sc: SC-23
+    name: triage comment auth noting removed
+    from_state: triage-issues.md notes authorization found in comments
+    to_state: triage-issues.md no longer notes authorization in comments
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore noting behavior
+
+  - sc: SC-24
+    name: context-completeness comment language removed
+    from_state: 067-context-completeness.md says authorization may live in a comment
+    to_state: 067-context-completeness.md no longer says authorization may live in a comment
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore removed language
+
+  - sc: SC-25
+    name: procedural-discipline example removed
+    from_state: 257-procedural-discipline-reference.md includes Authorization verified via comment history example
+    to_state: 257-procedural-discipline-reference.md no longer includes that example
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore example
+
+  - sc: SC-26
+    name: gitbucket comment fallback removed
+    from_state: gitbucket-api/SKILL.md uses label replacement via comment fallback
+    to_state: gitbucket-api/SKILL.md no longer uses comment fallback
+    trigger: Spec implementation (Phase 5)
+    rollback: Restore comment fallback
+
+  - sc: SC-27
+    name: push-body.md deleted
+    from_state: push-body.md exists at issue-operations/platforms/local/tasks/
+    to_state: push-body.md no longer exists
+    trigger: Spec implementation (Phase 6)
+    rollback: Restore file from git history
+
+pipeline_state:
+  - gate: authorization verification (plan creation)
+    before: handoff delegates to approval-gate verify-authorization reading remote labels
+    after: handoff reads local issue.yaml directly; no remote dependency
+  - gate: authorization label writes
+    before: All auth label writes target remote API as primary; remote failures block or drop state
+    after: All auth label writes target local issue.yaml as primary; remote best-effort
+  - gate: authorization label reads
+    before: All auth label reads target remote API by default; remote failures block auth decisions
+    after: All auth label reads target local issue.yaml by default; remote fallback only
+  - gate: authorization scope resolution
+    before: resolve-scope.md may parse auth from issue comments
+    after: resolve-scope.md parses auth from chat message only (verb-prefix table)
+  - gate: metadata trust
+    before: read-issue.md and operating-protocol.md contain No Metadata Trust doctrine (workaround for unreliable remote)
+    after: Doctrine removed; local issue.yaml is the certifying source
