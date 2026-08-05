@@ -65,7 +65,7 @@ scs:
     evidence_type: "string"
     plan_item: 16
   - id: "SC17"
-    description: "GB_* env vars absent in test env unless scoped to provisioned test GitBucket; no parent GB_* leakage (concrete instance of SC13-SC16)"
+    description: "GB_* test-env constants (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) always set to harness constants; GB_TOKEN scoped to provisioned test GitBucket only when BEHAVIOR_NEEDS_REMOTE=1; no parent GB_* leakage (concrete instance of SC13-SC16)"
     evidence_type: "string"
     plan_item: 17
   - id: "SC18"
@@ -73,10 +73,10 @@ scs:
     evidence_type: "string"
     plan_item: 18
   - id: "SC19"
-    description: "When BEHAVIOR_NEEDS_REMOTE=1, with-test-home propagates the full GB_* env suite (GB_TOKEN, GB_HOST, GITBUCKET_PORT, GB_REPO, GB_PROTOCOL) into the isolated test env via GB_ENV_ARGS, scoped to the provisioned test GitBucket"
+    description: "When BEHAVIOR_NEEDS_REMOTE=1, with-test-home propagates the full GB_* env suite (GB_TOKEN, GB_HOST, GITBUCKET_PORT, GB_REPO, GB_PROTOCOL) via GB_ENV_ARGS; test-env constants always set, GB_TOKEN scoped to provisioned test GitBucket"
     evidence_type: "structural"
     plan_item: 19
   - id: "SC20"
-    description: "When BEHAVIOR_NEEDS_REMOTE=1, test home seeds pre-fabricated gb config.toml at $TEST_HOME/.config/gb/config.toml with default_host and host token matching the provisioned test GitBucket"
+    description: "When BEHAVIOR_NEEDS_REMOTE=1, test home seeds pre-fabricated gb config.toml at $TEST_HOME/.config/gb/config.toml with default_host constant and host token matching the provisioned test GitBucket"
     evidence_type: "structural"
     plan_item: 20

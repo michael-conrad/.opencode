@@ -6,7 +6,7 @@ variables:
     description: "C4 env -i allowlist extension + isolation check — SC5, SC6, SC7, SC14, SC15"
   phase_2:
     type: bool
-    description: "C5 test-provisioned environment rule + GB_* scoping — SC13, SC16, SC17"
+    description: "C5 test-provisioned environment rule + GB_* test-env constants + GB_TOKEN scoping — SC13, SC16, SC17"
   phase_3:
     type: bool
     description: "C1 multi-submodule fixture provisioning — SC1"
@@ -24,7 +24,7 @@ variables:
     description: "C8 2242-sc6 full-env opt-in + cleanup-dispatch verification — SC10, SC11, SC12"
   phase_10:
     type: bool
-    description: "C10 executor GB_* suite + gb config.toml seeding — SC19, SC20"
+    description: "C10 executor full GB_* suite (test-env constants always + GB_TOKEN scoped) + gb config.toml seeding — SC19, SC20"
   phase_8:
     type: bool
     description: "C9 documentation of mutual-exclusion + full-env opt-in — SC18"
@@ -76,8 +76,8 @@ phases:
       - SC15
   phase_2:
     files:
-      - tests-v2/with-test-home (do_setup/seed_model_config, GB_* scoping)
-      - tests-v2/behaviors/helpers.sh (__ensure_gitbucket scoping)
+      - tests-v2/with-test-home (do_setup/seed_model_config, GB_* test-env constants + GB_TOKEN scoping)
+      - tests-v2/behaviors/helpers.sh (__ensure_gitbucket token scoping)
     scs:
       - SC13
       - SC16
@@ -115,7 +115,7 @@ phases:
   phase_10:
     files:
       - tests-v2/with-test-home (GB_ENV_ARGS, env -i invocation, do_setup gb config.toml seeding)
-      - tests-v2/behaviors/helpers.sh (__ensure_gitbucket GB_REPO/GB_PROTOCOL export)
+      - tests-v2/behaviors/helpers.sh (__ensure_gitbucket GB_REPO/GB_PROTOCOL export + token scoping)
     scs:
       - SC19
       - SC20
@@ -148,7 +148,7 @@ edges:
     rationale: C7 cleanup must account for the C4 mutual-exclusion-rejected partial state
   - from: phase_2
     to: phase_6
-    rationale: C2 origin wiring requires the scoped GB_* values from C5/SC17
+    rationale: C2 origin wiring requires the test-env constants and the scoped GB_TOKEN from C5/SC17
   - from: phase_3
     to: phase_6
     rationale: C2 origin wiring requires the C1 fixture repos
@@ -160,7 +160,7 @@ edges:
     rationale: C8 2242-sc6 full-env opt-in requires the C2 wired origin and discovery
   - from: phase_10
     to: phase_7
-    rationale: C8 2242-sc6 cleanup-dispatch verification requires the executor to authenticate gb (C10 SC19 full GB_* suite + SC20 seeded gb config.toml) so discovery succeeds
+    rationale: C8 2242-sc6 cleanup-dispatch verification requires the executor to authenticate gb (C10 SC19 full GB_* suite with test-env constants + scoped GB_TOKEN + SC20 seeded gb config.toml) so discovery succeeds
   - from: phase_4
     to: phase_8
     rationale: C9 documentation covers the C4 mutual-exclusion rule, so must follow it
