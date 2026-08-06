@@ -1,7 +1,7 @@
 sc_count: 4
 scs:
   - id: "SC-1"
-    description: "Agent uses the harness's DEFAULT_TEST_MODEL during behavioral testing; does not substitute based on VRAM/GPU/ollama-probe hw assessment"
+    description: "When asked to run a behavioral test, the agent SHALL use the harness's DEFAULT_TEST_MODEL (from default-model.sh) and SHALL NOT override it, and SHALL NOT probe GPU VRAM / run ollama-probe hw / nvidia-smi to justify substituting a different model. The measure is the absence of the outguess behavior (no DEFAULT_TEST_MODEL= override, no VRAM-probe-justified model substitution), NOT completion of the nested test."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-2"

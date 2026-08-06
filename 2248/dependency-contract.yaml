@@ -13,7 +13,7 @@ dependency_order:
     scs: ["SC-1"]
     concern: "C2 — test-time model usage"
     requires: ["phase-1"]
-    description: "Add SC-1 behavioral enforcement test scenario (Item 2 test-time model usage) that verifies the agent uses DEFAULT_TEST_MODEL during test and does not substitute based on VRAM/GPU/ollama-probe hw (spec §5 Item 2)"
+    description: "Add SC-1 behavioral enforcement test scenario (Item 2 test-time model usage) that verifies the ABSENCE of the outguess behavior — the agent uses DEFAULT_TEST_MODEL during test and does not override it or probe VRAM/GPU/ollama-probe hw/nvidia-smi to justify a substitution; the measure is the absence of the outguess behavior, NOT completion of the nested test (spec §5 Item 2)"
   - phase: 3
     scs: ["SC-2"]
     concern: "C3 — failure-path remediation"
