@@ -55,13 +55,13 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
   (2) a curated per-language framework table in three advisory tiers (Clear standard
   / Contested / Non-idiomatic and guidance-only), (3) selection guidance driven by
   code analysis and spec requirements rather than a fixed pin, with combinations allowed
-  when code analysis or spec requirements identify multiple viable approaches for
-  the same language, and (4) an explicit HTML/CSS exclusion (markup and styling are
-  not programming languages). Update the `080-code-standards.md` row in `INDEX.md`
-  to add DI-related trigger patterns. Add a behavioral enforcement test (Two-SC pattern)
-  verifying agents apply the DI mandate across languages. This is a superset of #2243''s
-  Python mandate, not a replacement — Python remains in the "Clear standard" tier
-  with `dependency-injector`. Sequenced after #2243 merges to avoid contradiction.
+  when the framework table documents two or more idiomatic DI options for the same
+  language, and (4) an explicit HTML/CSS exclusion (markup and styling are not programming
+  languages). Update the `080-code-standards.md` row in `INDEX.md` to add DI-related
+  trigger patterns. Add a behavioral enforcement test (Two-SC pattern) verifying agents
+  apply the DI mandate across languages. This is a superset of #2243''s Python mandate,
+  not a replacement — Python remains in the "Clear standard" tier with `dependency-injector`.
+  Sequenced after #2243 merges to avoid contradiction.
 
 
   ### Alternatives Considered & Why Discarded
@@ -179,9 +179,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   | SC-3 | The generic section SHALL include selection guidance stating that framework
   choice is driven by code analysis and spec requirements, not a fixed pin, and that
-  combinations of DI approaches are allowed when code analysis or spec requirements
-  identify multiple viable approaches for the same language. | behavioral | Run the
-  SC-3 behavior scenario via `with-test-home`; clean-room sub-agent reads `session.yaml`
+  combinations of DI approaches are allowed when the framework table documents two
+  or more idiomatic DI options for the same language. | behavioral | Run the SC-3
+  behavior scenario via `with-test-home`; clean-room sub-agent reads `session.yaml`
   and verifies the agent selected a DI approach based on code/spec context rather
   than a fixed pin. |
 
@@ -228,8 +228,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   - R-3. The generic section SHALL include selection guidance: framework choice is
   driven by code analysis and spec requirements, not a fixed pin; combinations of
-  DI approaches SHALL be allowed when code analysis or spec requirements identify
-  multiple viable approaches for the same language.
+  DI approaches SHALL be allowed when the framework table documents two or more idiomatic
+  DI options for the same language.
 
   - R-4. The generic section SHALL explicitly exclude HTML/CSS, stating that markup
   and styling are not programming languages and DI guidance does not apply.
@@ -446,6 +446,32 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
   (Spring, M.E.DI, Koin, MacWire, get_it, tsyringe, etc.) | verification of framework
   names and idiomatic status during analysis |
 
+  | Java — Spring / Dagger | web | Spring: https://github.com/spring-projects/spring-framework
+  (60,165 stars); Dagger: https://github.com/google/dagger (17,705 stars) | live web
+  fetch via GitHub API during analysis; adoption metrics + source URLs captured in
+  `tmp/di-framework-research-20260805.md` |
+
+  | Kotlin — Koin / Hilt | web | Koin: https://github.com/InsertKoinIO/koin (10,009
+  stars); Hilt: https://github.com/google/dagger (part of google/dagger monorepo)
+  | live web fetch via GitHub API; adoption metrics + source URLs captured in `tmp/di-framework-research-20260805.md`
+  |
+
+  | Scala — MacWire / Guice / ZIO | web | MacWire: https://github.com/softwaremill/macwire
+  (1,314 stars); Guice: https://github.com/google/guice (12,730 stars); ZIO: https://github.com/zio/zio
+  (4,402 stars) | live web fetch via GitHub API; adoption metrics + source URLs captured
+  in `tmp/di-framework-research-20260805.md` |
+
+  | Dart/Flutter — get_it / provider / Riverpod | web | get_it: https://pub.dev/packages/get_it
+  (1,829,183 dl/30d); provider: https://pub.dev/packages/provider (1,072,817 dl/30d);
+  Riverpod: https://pub.dev/packages/flutter_riverpod (2,656,054 dl/30d) | live web
+  fetch via pub.dev package registry API; adoption metrics + source URLs captured
+  in `tmp/di-framework-research-20260805.md` |
+
+  | TypeScript — tsyringe / InversifyJS | web | tsyringe: https://www.npmjs.com/package/tsyringe
+  (10,236,744 weekly dl); InversifyJS: https://www.npmjs.com/package/inversify (2,666,499
+  weekly dl) | live web fetch via npm registry API; adoption metrics + source URLs
+  captured in `tmp/di-framework-research-20260805.md` |
+
 
   ## 9. Enforcement Gate
 
@@ -514,11 +540,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
   **Expected behavior:** The #2243 carveout applies. **Resolution:** The carveout
   is preserved unchanged by this spec (Not Included).
 
-  - **Condition:** A language has multiple viable DI approaches (contested tier).
-  **Expected behavior:** The agent chooses based on code analysis and spec requirements,
-  and may combine approaches when code analysis or spec requirements identify multiple
-  viable approaches for the same language. **Resolution:** SC-3/R-3 permit context-driven
-  selection and combinations.
+  - **Condition:** The framework table documents two or more idiomatic DI options
+  for the same language (contested tier). **Expected behavior:** The agent chooses
+  based on code analysis and spec requirements, and may combine approaches when the
+  framework table documents two or more idiomatic DI options for that language. **Resolution:**
+  SC-3/R-3 permit context-driven selection and combinations under the countable two-or-more
+  threshold.
 
   - **Condition:** A behavioral test times out (bash-tool default 120s). **Expected
   behavior:** The agent follows §10.2/§10.5 remediation. **Resolution:** Behavioral
@@ -548,9 +575,29 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
   which is a FAIL per the determinism check (any SC with ≥1 prohibited pattern is
   FAIL) | Spec-creation revise task |
 
+  | 2026-08-05 | SC-3 determinism fix (round 2): replaced soft term "multiple viable
+  approaches" (no countable definition) with the countable condition "two or more
+  idiomatic DI options documented in the framework table for the same language". Propagated
+  the sharpened threshold to the Approach Chosen summary, R-3, and the §11 contested-tier
+  edge case. Design intent preserved: framework choice remains driven by code analysis
+  and spec requirements, not a fixed pin; combinations allowed under the two-or-more
+  threshold. | DiMo spec audit Finding 1 (SC-3 determinism, SC-9/SC-DET FAIL): the
+  criterion''s soft term "multiple viable approaches" had no concrete countable definition,
+  so two clean-room auditors could reach different verdicts | Spec-audit DiMo chain
+  remediation |
+
+  | 2026-08-05 | SC-RESEARCH provenance fix: added per-framework source URLs and live-verification
+  evidence (GitHub API / pub.dev / npm registry metrics + official docs URLs) to the
+  §8 Documentation Sources table for the five framework-tier claims (Spring/Dagger,
+  Koin/Hilt, MacWire/Guice/ZIO, get_it/provider/Riverpod, tsyringe/InversifyJS). |
+  DiMo spec audit Finding 2 (research_adequacy.evidence_provenance FAIL): five framework-tier
+  claims lacked live tool-call provenance in Documentation Sources | Spec-audit DiMo
+  chain remediation |
+
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash:0731)
 
   '
 created_at: '2026-08-06T02:32:44+00:00'
-updated_at: '2026-08-06T02:39:19+00:00'
+updated_at: '2026-08-06T03:00:05+00:00'
+github_url: michael-conrad/.opencode
