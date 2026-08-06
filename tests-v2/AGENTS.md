@@ -33,6 +33,7 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 10. [Testing Lessons Learned — Failure Patterns and Remediation](#10-testing-lessons-learned--failure-patterns-and-remediation)
 11. [Prompt Construction Mandate](#11-prompt-construction-mandate)
 12. [Self-Contained GitBucket Container for Remote API Tests](#12-self-contained-gitbucket-container-for-remote-api-tests)
+13. [Remote-Strategy Flags and Full-Environment Simulation](#13-remote-strategy-flags-and-full-environment-simulation)
 
 ---
 
@@ -637,6 +638,14 @@ When a behavioral test times out (bash tool kills the script), follow this proce
    # Re-run with timeout=900000 (900 seconds) in the bash tool
    ```
 
+### 10.6 No-Outguess Mandate — Agent MUST NOT Outguess Model/GPU Selection
+
+**The agent MUST NOT outguess model/GPU selection during behavioral testing — the harness and ollama handle model/GPU selection, not the agent.** The agent MUST NOT probe GPU VRAM via `ollama-probe hw` to justify a model override, and MUST NOT hand-pick a model to substitute for the harness's selection.
+
+**`DEFAULT_TEST_MODEL` (from `default-model.sh`) is the single source of truth** for which model runs a behavioral test. The agent MUST use `DEFAULT_TEST_MODEL` without substitution — it is the only model the agent uses during behavioral testing. The no-outguess mandate means the agent does not outguess `DEFAULT_TEST_MODEL` by switching models.
+
+**On failure or timeout, the agent follows the §10 remediation path** — stale-lock cleanup (§10.1), bash-tool timeout handling (§10.2), stderr fallback (§10.3), the §10.4 fabricated-model-excuse prohibition, and post-timeout recovery (§10.5). The agent MUST NOT diagnose "model too big" or "VRAM insufficient" and switch models as an alternative to the §10 remediation path. Model-switching on failure/timeout is forbidden — the remediation path is the only valid response.
+
 ## 11. Prompt Construction Mandate
 
 Behavioral test prompts MUST trigger natural agent behavior — they MUST NOT interview the agent about what it *would* do.
@@ -735,3 +744,42 @@ __reset_gitbucket  # kills process, deletes data dir, re-starts
 ```
 
 The `--clean-all` flag in `with-test-home` kills the GitBucket process and removes data dirs but preserves `.tools/` cache for reuse across sessions.
+
+---
+
+## 13. Remote-Strategy Flags and Full-Environment Simulation
+
+The harness exposes several opt-in flags that configure a test's remote/submodule environment. All three are exported into the isolated test environment by `with-test-home` and consumed by `behavior_run()` in `behaviors/helpers.sh`.
+
+| Flag | Purpose |
+|------|---------|
+| `BEHAVIOR_NEEDS_REMOTE` | Opt-in (set to `1`) to provision a self-contained GitBucket instance and wire its test repo as the test project's `origin` remote. See §12. |
+| `BEHAVIOR_SET_BARE_REMOTE` | Opt-in (set to `1`) to create a local bare repository and wire it as the test project's `origin` remote. |
+| `BEHAVIOR_NEEDS_MULTI_SUBMODULES` | Opt-in (set to `1`) to provision `test-submodule-1` and `test-submodule-2` as local git repos (sibling submodules) inside the attempt workdir. |
+
+### Remote-Strategy Mutual-Exclusion Rule
+
+**`BEHAVIOR_NEEDS_REMOTE` and `BEHAVIOR_SET_BARE_REMOTE` are mutually exclusive remote strategies.** Both flags configure the test project's `origin` remote — `BEHAVIOR_NEEDS_REMOTE` wires the GitBucket test repo as origin, while `BEHAVIOR_SET_BARE_REMOTE` wires a local bare repository as origin. Setting both simultaneously would wire an ambiguous origin.
+
+`behavior_run()` rejects this contradictory configuration **before** either the GitBucket provisioning block or the bare-remote wiring block runs:
+
+```bash
+if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
+    echo "HARNESS_FAILURE: mutual-exclusion violation — BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE are mutually exclusive (both set)" >&2
+    return 1
+fi
+```
+
+A test that sets both flags FAILS with `HARNESS_FAILURE: mutual-exclusion violation` — the run is rejected before any provisioning or model dispatch occurs. A test MUST set at most one of `BEHAVIOR_NEEDS_REMOTE` and `BEHAVIOR_SET_BARE_REMOTE`.
+
+### `BEHAVIOR_NEEDS_MULTI_SUBMODULES` — Multi-Submodule Fixture Opt-In
+
+Set `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` to provision `test-submodule-1` and `test-submodule-2` as local git repositories inside the attempt workdir. Each is initialized with `git init`, populated from its fixture template under `behaviors/fixtures/submodules/` (falling back to an empty commit if no template exists), and committed with an `init submodule fixture` commit.
+
+This opt-in provides sibling submodules for tests that must discover or interact with multiple submodules. The flag-off path provisions only the single `.opencode` clone, preserving the default provisioning.
+
+### Full-Environment Simulation Opt-In
+
+Combining `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1` enables **full-environment simulation**: the test workdir is provisioned with multi-submodule fixtures (sibling `test-submodule-1`/`test-submodule-2` repos) AND a wired GitBucket origin (test repo set as the project's `origin` remote with `GITBUCKET_PORT`/`GB_TOKEN` scoped into the isolated environment).
+
+This is the recommended configuration for remote-dependent tests that also need multi-submodule context, such as `2242-sc6`. Because full-environment simulation uses `BEHAVIOR_NEEDS_REMOTE` (not `BEHAVIOR_SET_BARE_REMOTE`), it does not trigger the mutual-exclusion rejection.
