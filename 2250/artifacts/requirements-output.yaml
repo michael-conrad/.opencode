@@ -1,0 +1,62 @@
+# Requirements extraction — issue 2250
+
+## Explicit requirements
+
+- REQ-1: Remediate broken relative reference/ paths in spec-creation and writing-plans task
+  cards that resolve to non-existent files.
+- REQ-2: Resolve the contracts/ vs artifacts/ path mismatch in spec-creation tasks/analyze.md.
+- REQ-3: Remove or repurpose orphaned/stale reference docs: sc-table-columns.md,
+  plan-artifact-format.md.
+- REQ-4: Migrate the legacy audit SKILL.md structure to the flat Workflows-style structure.
+- REQ-5: Align result-contract schema to finding_summary (remove summary:) and add FAIL to the
+  status enum.
+- REQ-6: Replace stale task references (verify-authorization, sc-summary.yaml) with current
+  artifacts-based equivalents (analysis-summary.yaml).
+- REQ-7: Reconcile divergent plan/spec structure specs.
+
+## Implicit requirements
+
+- REQ-8: Align the skill set with the direction of change: flat Workflows SKILL.md cards,
+  consolidated .opencode/reference/ standards, artifacts/-based analytical artifacts,
+  finding_summary result contracts, role-split audit tasks.
+- REQ-9: Preserve the role-split DiMo 4-role audit task decomposition (do not collapse into
+  monolithic tasks) — the change is structural migration, not role simplification.
+
+## Constraint requirements
+
+- REQ-10: SKILL.md frontmatter must satisfy skill-card-schema.md binary constraints
+  (name, description, license, provenance).
+- REQ-11: Reference standards live in consolidated .opencode/reference/ (not per-skill
+  reference/ dirs), per the direction of change.
+- REQ-12: Sub-agent result contracts MUST carry exactly status, finding_summary, artifact_path
+  (+ blocker_reason/remediation_* conditionally) per task-card-structure-standards.md.
+
+## Non-requirements
+
+- NON-REQ-1: No change to spec-creation's 4-task pipeline topology (analyze/create/validate/revise).
+- NON-REQ-2: No collapse of audit DiMo role chains into single files.
+- NON-REQ-3: No change to the consolidated reference standards themselves unless the audit
+  finds an internal inconsistency requiring remediation.
+- NON-REQ-4: No behavioral-enforcement-test work — this spec remediates skill-card/task-card
+  structure only (structural/string SCs expected).
+
+## Verification notes (live, in-repo)
+
+- reference/spec-structure-standards.md, plan-structure-standards.md, cost-model-standards.md,
+  skill-card-description-standards.md, skill-card-schema.md, task-card-structure-standards.md
+  exist in .opencode/reference/ (verified via ls).
+- reference/sc-table-columns.md and reference/plan-artifact-format.md do NOT exist (verified via ls
+  of .opencode/reference/).
+- skills/spec-creation/reference/sc-table-columns.md exists and has zero consumers
+  (verified via grep -rln sc-table-columns across .opencode --include=*.md: no result).
+- skills/writing-plans/reference/plan-artifact-format.md exists; only listed in
+  writing-plans/SKILL.md file-structure block, not consumed by any task (verified via grep).
+- skills/approval-gate/tasks/verify-authorization.md does NOT exist (verified via ls);
+  approval-gate uses apply-label.md / resolve-scope.md / route.md and a Workflows section.
+- skills/writing-plans/tasks/handoff.md and skills/audit/tasks/completion.md reference
+  `approval-gate --task verify-authorization` (verified via grep).
+- sc-summary.yaml is written by spec-creation/tasks/create.md and read by
+  writing-plans/tasks/research.md; writing-plans/tasks/analyze.md writes analysis-summary.yaml
+  (verified via grep).
+- Audit sub-agent contracts use `summary:` (e.g., spec-audit-investigator.md:454); canonical
+  contract requires `finding_summary` (verified via grep and task-card-structure-standards.md).

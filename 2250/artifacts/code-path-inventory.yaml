@@ -1,84 +1,26 @@
-code_path_inventory:
-  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
-  issue_number: "TBD"
-  generated: "2026-08-05"
-  analysis: >
-    Inventory of code paths (agent-facing files) touched by each phase. No runtime code changes.
-  phases:
-    phase_1:
-      name: "Audit skill card consistency"
-      code_paths_touched:
-        - path: skills/audit/SKILL.md
-          scs: [SC-1, SC-5, SC-12]
-          touched_sections: ["Trigger Dispatch Table", "Tasks table", "Mandatory Task Discipline item 5"]
-        - path: skills/audit/tasks/plan-fidelity-arbiter.md
-          scs: [SC-2]
-          touched_sections: ["Cross-References"]
-        - path: skills/audit/tasks/plan-fidelity-evaluator.md
-          scs: [SC-2, SC-13]
-          touched_sections: ["Cross-References", "Evaluation criteria (PF-1, PLAN_INCOMPLETE/PLAN_OVERSCOPED/PLAN_DRIFT)", "auto-fix resolution table"]
-        - path: skills/audit/tasks/plan-fidelity-validator.md
-          scs: [SC-2]
-          touched_sections: ["Cross-References"]
-        - path: skills/audit/tasks/plan-fidelity-investigator.md
-          scs: [SC-2, SC-4, SC-10]
-          touched_sections: ["Cross-References", "Read reference targets", "evidence example (plan-phase-1 -> plan-01-)"]
-        - path: skills/audit/tasks/spec-audit-investigator.md
-          scs: [SC-2, SC-4]
-          touched_sections: ["Cross-References", "Read reference targets"]
-        - path: skills/audit/tasks/spec-audit-validator.md
-          scs: [SC-2]
-          touched_sections: ["Cross-References"]
-        - path: skills/audit/tasks/spec-audit-evaluator.md
-          scs: [SC-4]
-          touched_sections: ["Read reference targets"]
-        - path: skills/audit/tasks/verification-audit-investigator.md
-          scs: [SC-2]
-          touched_sections: ["Cross-References"]
-        - path: skills/audit/tasks/verification-audit-validator.md
-          scs: [SC-2]
-          touched_sections: ["Cross-References"]
-        - path: skills/audit/tasks/test-quality-audit-arbiter.md
-          scs: [SC-2]
-          touched_sections: ["Cross-References"]
-        - path: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
-          scs: [SC-19]
-          touched_sections: ["audit block (~lines 30-40)", "dispatch steps", "result contract schema"]
-        - path: reference/holistic-dimensions.yaml
-          scs: [SC-9]
-          touched_sections: ["cross-reference entries (lines 98-114)"]
+# Code path inventory — issue 2250
 
-    phase_2:
-      name: "Plan writer (writing-plans) consistency"
-      code_paths_touched:
-        - path: skills/writing-plans/SKILL.md
-          scs: [SC-7, SC-16]
-          touched_sections: ["Overview (task count line 13)", "File Structure (reference listing line 88)"]
-        - path: skills/writing-plans/tasks/create.md
-          scs: [SC-3]
-          touched_sections: ["plan frontmatter build (lines 40,42,62,63)"]
-        - path: skills/writing-plans/tasks/research.md
-          scs: [SC-6]
-          touched_sections: ["step 12 plan invocation (line 54)"]
-        - path: skills/writing-plans/tasks/completion.md
-          scs: [SC-11]
-          touched_sections: ["Purpose (line 5)", "Exit Criteria (line 42)"]
-        - path: skills/writing-plans/tasks/verify-plan-pipeline.md
-          scs: [SC-17]
-          touched_sections: ["audit artifact naming check (line 25)"]
-        - path: skills/writing-plans/contracts/
-          scs: [SC-8]
-          touched_sections: ["add handoff-input/output.yaml, research-input/output.yaml, verify-plan-pipeline-input/output.yaml; remove self-review-input/output.yaml, structure-input/output.yaml"]
-        - path: skills/writing-plans/reference/plan-artifact-format.md
-          scs: [SC-16]
-          touched_sections: ["whole file (deprecate/delete/reduce to pointer)"]
+## Code paths touched by each item
 
-    phase_3:
-      name: "Plan CLI card consistency"
-      code_paths_touched:
-        - path: skills/plan/SKILL.md
-          scs: [SC-14, SC-15, SC-18]
-          touched_sections: ["description (line 3)", "Overview (line 12)", "Cross-References (line 120)", "File Structure"]
-        - path: skills/plan/tasks/discover.md
-          scs: [SC-18]
-          touched_sections: ["new file"]
+| Item | Files | Nature of touch |
+|------|-------|-----------------|
+| ITEM-1 | skills/spec-creation/tasks/create.md, tasks/validate.md | Rewrite relative reference/ refs to consolidated reference/ paths |
+| ITEM-2 | skills/spec-creation/tasks/analyze.md | Consolidate contract/output writes to artifacts/ |
+| ITEM-3 | skills/spec-creation/reference/sc-table-columns.md | Delete orphan OR merge content into reference/spec-structure-standards.md SC-table section |
+| ITEM-4 | skills/writing-plans/tasks/create.md, SKILL.md, reference/plan-artifact-format.md | Rewrite reference paths; reconcile/remove plan-artifact-format.md |
+| ITEM-5 | skills/audit/SKILL.md | Migrate TDT/Invocation/DISPATCH_GATE sections to Workflows section |
+| ITEM-6 | skills/audit/tasks/*.md (spec-audit-*, content-audit-*, drift-detection-*, etc.) | Replace summary: with finding_summary: in result-contract blocks; add FAIL to status enum |
+| ITEM-7 | writing-plans/tasks/handoff.md, spec-creation/tasks/create.md, writing-plans/tasks/research.md, audit/tasks/completion.md | Replace verify-authorization ref; sc-summary.yaml -> analysis-summary.yaml |
+| ITEM-8 | reference/spec-structure-standards.md, reference/plan-structure-standards.md | Reconcile section/column definitions for consistency |
+
+## Entry points (callers)
+
+- spec-creation pipeline: SKILL.md Workflows -> tasks/analyze.md -> create.md -> validate.md -> revise.md
+- writing-plans pipeline: SKILL.md Workflows -> handoff -> analyze -> research -> create -> validate -> completion
+- audit: SKILL.md TDT/Workflows -> per-role task files (investigator/validator/evaluator/arbiter)
+
+## No dead code introduced
+
+Each edited path is consumed by the respective pipeline (spec-creation, writing-plans, audit).
+Deleting sc-table-columns.md / plan-artifact-format.md is safe because neither has a consumer
+(verified by grep).

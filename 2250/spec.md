@@ -2,256 +2,177 @@
 >
 > **Local artifacts:** `.opencode/.issues/2250/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-# SPEC — Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation
+# SPEC — Remediate spec-writer and spec-audit skill card set inconsistencies
 
 ## 1. Intent and Executive Summary
 
 ### Problem Statement
 
-A history-grounded read-only audit of the plan writer (`writing-plans`, `plan`) and plan audit (`audit`) skill card sets identified 19 internal-consistency findings (F1–F19). Each finding is a drift between what a skill card declares (its description, task listing, cross-references, dispatch contracts, and schema sources) and the actual on-disk reality of its task files, contracts, and reference documents. These drifts cause agents to dispatch nonexistent tasks, resolve cross-references to wrong or deleted files, and consume conflicting schema sources — producing defective plans and audits.
+A read-only audit of the spec-writer and spec-audit skill card sets (`spec-creation`, `writing-plans`, `audit`) and the consolidated reference standards (`.opencode/reference/`) identified 8 internal-consistency defects. Each defect is a drift between what a skill card or task card declares (its reference paths, artifact locations, result-contract schema, task references, and structure) and the actual on-disk reality of its task files, contracts, and reference documents. These drifts cause agents to resolve cross-references to non-existent files, write analytical artifacts to inconsistent locations, return result contracts the orchestrator cannot parse, and dispatch nonexistent tasks — producing defective specs, plans, and audits.
 
 ### Root Cause / Motivation
 
-The skill cards accumulated stale content as the underlying task files, contracts, and reference documents were migrated, renamed, or deleted (git history refs `fc9372a4`, `5c74146e`, `b80aba25`, `2106acbc` confirm deleted files and migrations). The cards were not kept in sync with those migrations. Because agent-facing text is consumed as routing instructions, each drift is a defect vector: a card that advertises a nonexistent task, points at a deleted file, or mandates an unimplemented artifact causes agents to route blind. These defects must be resolved now because they compound — every plan written or audited through the affected cards inherits the inconsistency.
+The skill cards accumulated stale content as the underlying task files, contracts, and reference documents were migrated to a consolidated `.opencode/reference/` location and a flat Workflows-style SKILL.md structure. The cards were not kept in sync with those migrations. Because agent-facing text is consumed as routing instructions, each drift is a defect vector: a card that points at a deleted file, mandates an unimplemented artifact, or returns a contract field the orchestrator does not read causes agents to route blind. These defects must be resolved now because they compound — every spec written or audited through the affected cards inherits the inconsistency.
 
 ### Approach Chosen
 
-Apply exactly ONE prescriptive resolution per finding (F1–F19), each mapped one-to-one to a success criterion (SC-1–SC-19). The changes are confined to agent-facing skill/reference files (markdown/yaml) in `.opencode/` — no `src/` code changes. The work is decomposed into three concern-coherent phases: (1) audit skill card consistency, (2) plan writer (writing-plans) consistency, (3) plan CLI card consistency.
+Apply exactly ONE prescriptive resolution per defect, each mapped one-to-one to a success criterion (SC-1–SC-8). The changes are confined to agent-facing skill/reference files (markdown/yaml) in `.opencode/` — no `src/` code changes. The work is decomposed into three concern-coherent phases: (1) reference-path and artifact-path remediation in `spec-creation`, (2) reference-path and stale-reference remediation in `writing-plans`, (3) structural migration and contract alignment in `audit`, followed by structure-standard reconciliation.
 
 ### Alternatives Considered & Why Discarded
 
-- **Full rewrite of the skill cards** — discarded: the cards are largely correct; only 19 discrete drifts exist. A rewrite risks introducing new inconsistencies and loses the audit's precision.
+- **Full rewrite of the skill cards** — discarded: the cards are largely correct; only 8 discrete drifts exist. A rewrite risks introducing new inconsistencies and loses the audit's precision.
 - **Deferring to a future consolidation** — discarded: the drifts actively misroute agents today; deferral compounds the defect cost.
-- **Single monolithic fix commit** — discarded: violates per-SC TDD decomposition; each finding is independently verifiable and must be implemented as its own RED/GREEN/commit cycle.
+- **Single monolithic fix commit** — discarded: violates per-SC TDD decomposition; each defect is independently verifiable and must be implemented as its own RED/GREEN/commit cycle.
 
 ### Key Design Decisions
 
-- **Single canonical schema source:** `reference/plan-structure-standards.md` (with `plan_schema_version: 1` as integer) is adopted as the single source of truth for plan structure; the conflicting `writing-plans/reference/plan-artifact-format.md` (string `'1.0'`) is deprecated. This eliminates the schema conflict (F16).
-- **DiMo 4-role chain is the sole audit dispatch mechanism:** no `cross-validate` task exists and the Arbiter role performs consensus. F1 removes all `cross-validate` references; F19 aligns `branch-cleanup.md` to the existing `closure-verification` DiMo chain.
-- **Dispatch contract 2-field invariant:** audit dispatch contracts carry exactly `{spec_local_dir, artifact_evidence_dir}` and no `audit_phase` field. F12 aligns the TDT field name; F19 removes `audit_phase`.
-- **Read-Link Cross-Reference Rule compliance:** all agent-facing `Read [Text](path)` targets must resolve to existing canonical files under `.opencode/reference/`, not skill-local `reference/` or deleted monoliths.
+- **Consolidated `.opencode/reference/` as single source of truth:** all agent-facing `Read [Text](path)` targets resolve to existing canonical files under `.opencode/reference/`, not skill-local `reference/` dirs. This eliminates the broken relative-path defects (SC-1, SC-4).
+- **`artifacts/` as the uniform analytical-artifact location:** `spec-creation/tasks/analyze.md` writes all outputs to `artifacts/`, eliminating the `contracts/` vs `artifacts/` mismatch (SC-2).
+- **Flat Workflows-style SKILL.md structure:** the legacy `audit` SKILL.md TDT/Invocation/DISPATCH_GATE structure is migrated to a Workflows section while preserving the role-split DiMo 4-role dispatch (SC-5).
+- **`finding_summary` result-contract schema:** audit sub-agent contracts use `finding_summary` (not `summary`) and the status enum includes `FAIL` (SC-6).
+- **Current task references:** stale `approval-gate --task verify-authorization` and `sc-summary.yaml` references are replaced with current equivalents (SC-7).
+- **Reconciled plan/spec structure standards:** `reference/spec-structure-standards.md` and `reference/plan-structure-standards.md` are reconciled non-substantively for consistency (SC-8).
 
 ### User Intent / Original Prompt
 
-The user requested execution of the `create` task from `spec-creation`, producing a consistency-fix spec covering 19 audit findings (F1–F19) about the plan writer (`writing-plans`, `plan`) and plan audit (`audit`) skill card sets, each with ONE prescriptive resolution, based on the analysis artifacts produced by the completed `analyze` step.
+The user requested execution of the `create` task from `spec-creation`, producing a remediation spec covering 8 internal-consistency defects in the spec-writer and spec-audit skill card sets (`spec-creation`, `writing-plans`, `audit`) and associated reference docs, based on the analysis artifacts produced by the completed `analyze` step.
 
 ## 2. Not Included
 
-- **Runtime code changes** — Rationale: all findings concern agent-facing skill/reference files; no `src/` code is modified.
-- **Behavioral changes to the audit verdict semantics beyond F13** — Rationale: only the plan-fidelity evaluator's dual-plan model is corrected to single-plan; other audit verdict logic is out of scope.
-- **New audit capabilities** — Rationale: the spec only restores consistency; it does not add new audit checks.
-- **Changes to `reference/plan-structure-standards.md` content** — Rationale: it is adopted as the canonical single source and is unchanged; only the conflicting `plan-artifact-format.md` is deprecated.
+- **Runtime code changes** — Rationale: all defects concern agent-facing skill/reference files; no `src/` code is modified.
+- **Change to spec-creation's 4-task pipeline topology** — Rationale: the analyze/create/validate/revise pipeline is unchanged; only its reference paths and artifact locations are corrected.
+- **Collapse of audit DiMo role chains** — Rationale: the change is a structural migration, not role simplification; the 4-role dispatch is preserved.
+- **Change to the consolidated reference standards content** — Rationale: the reference standards are the canonical target; only internal inconsistencies between them are reconciled (SC-8), not re-defined.
+- **Behavioral-enforcement-test work** — Rationale: this spec remediates skill-card/task-card structure only; structural/string SCs are expected.
 
 ## 3. Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `skills/audit/SKILL.md` contains no `cross-validate` references in the Trigger Dispatch Table, Tasks table, or Mandatory Task Discipline item 5; the Arbiter role remains the sole consensus authority | behavioral | `opencode run` behavior test dispatching a plan-fidelity audit asserts stderr shows Investigator→Validator→Evaluator→Arbiter chain with NO `cross-validate` dispatch; plus grep `skills/audit/SKILL.md` for `cross-validate` returns zero |
-| SC-2 | No audit role file references the deleted monolithic task files (`tasks/plan-fidelity.md`, `tasks/spec-audit.md`, `tasks/verification-audit.md`, `tasks/test-quality-audit.md`) | string | grep `skills/audit/tasks/` for those four deleted paths returns zero matches |
-| SC-3 | `skills/writing-plans/tasks/create.md` `Read [..](reference/...)` targets resolve to existing canonical `.opencode/reference/` files | string | grep `create.md` for `Read [.*](reference/` returns only `.opencode/reference/` targets that resolve to existing files |
-| SC-4 | Audit role files' `Read [..](reference/...)` targets resolve to existing canonical `.opencode/reference/` files | string | grep `skills/audit/tasks/{plan-fidelity,spec-audit}-{investigator,evaluator}.md` for `Read [.*](reference/` returns only `.opencode/reference/` targets that resolve to existing files |
-| SC-5 | `skills/audit/SKILL.md` Mandatory Task Discipline item 5 uses conditional "if provided, collect evidence" language with no hard artifact mandate | string | Read `skills/audit/SKILL.md` item 5; assert conditional language, no hard artifact mandate |
-| SC-6 | `skills/writing-plans/tasks/research.md` step 12 uses `./.opencode/tools/plan plan --problem <path> > plan-output.yaml` (no `--contract-path`/`--output`) | string | Read `research.md` step 12; assert it matches the canonical plan invocation form |
-| SC-7 | `skills/writing-plans/SKILL.md` claims "9 task files" and the File Structure lists 9 task entries | string | Read `writing-plans/SKILL.md` line 13; assert "9 task files"; count File Structure task entries = 9 |
-| SC-8 | `skills/writing-plans/contracts/` is symmetric with the 9-task file structure: `handoff-*`, `research-*`, `verify-plan-pipeline-*` contracts present; orphan `self-review-*` and `structure-*` contracts absent; `solve-output.yaml` kept | string | glob `writing-plans/contracts/`; assert the required contracts present/absent per criterion |
-| SC-9 | `reference/holistic-dimensions.yaml` cross-references point to role files (`spec-audit-investigator.md`, `plan-fidelity-investigator.md`) and contain no "Step 0 pre-flight gate" references | string | Read `reference/holistic-dimensions.yaml` lines 98–114; assert refs point to role files, no "Step 0 pre-flight gate", role-file paths resolve |
-| SC-10 | `skills/audit/tasks/plan-fidelity-investigator.md` example uses canonical `plan-01-{slug}.md` naming (no `plan-phase-1.md`) | string | grep `plan-fidelity-investigator.md` for `plan-phase-` returns zero; `plan-01-` used |
-| SC-11 | `skills/writing-plans/tasks/completion.md` Purpose and Exit Criteria reference "plan file at plan.md", not "issue body" | string | Read `completion.md` lines 5, 42; assert both reference "plan file at plan.md" |
-| SC-12 | `skills/audit/SKILL.md` plan-fidelity TDT context uses `spec_local_dir` (no `plan_local_dir`) | string | grep `skills/audit/SKILL.md` for `plan_local_dir` returns zero; plan-fidelity TDT uses `spec_local_dir` |
-| SC-13 | `skills/audit/tasks/plan-fidelity-evaluator.md` uses the single-plan (plan-vs-spec) model, not the dual-plan (clean-room vs existing) model | behavioral | `opencode run` behavior test runs plan-fidelity on a single plan and asserts the evaluator produces a verdict from single-plan evidence; plus grep `plan-fidelity-evaluator.md` for `clean-room`/`PLAN_INCOMPLETE`/`PLAN_OVERSCOPED`/`PLAN_DRIFT` returns zero |
-| SC-14 | `skills/plan/SKILL.md` description contains a single `writing-plans` clause (no duplicate) | string | Read `plan/SKILL.md` line 3; assert single `writing-plans` clause |
-| SC-15 | `skills/plan/SKILL.md` contains no `executing-plans` cross-reference | string | grep `plan/SKILL.md` for `executing-plans` returns zero |
-| SC-16 | `writing-plans/reference/plan-artifact-format.md` is deprecated (deleted or reduced to a pointer to `reference/plan-structure-standards.md`); `reference/plan-structure-standards.md` is the single source | string | Read `writing-plans/SKILL.md` File Structure; `plan-artifact-format.md` absent; `plan-artifact-format.md` deleted or reduced to pointer |
-| SC-17 | `skills/writing-plans/tasks/verify-plan-pipeline.md` checks for `plan-fidelity` and `concern-separation` output naming (not `audit-fidelity`/`audit-concern`) | string | grep `verify-plan-pipeline.md` for `audit-fidelity`/`audit-concern` returns zero; `plan-fidelity`/`concern-separation` used |
-| SC-18 | `skills/plan/tasks/discover.md` exists, documents the `discover` subcommand, and is referenced in `plan/SKILL.md` File Structure | string | `file-exists skills/plan/tasks/discover.md`; read it and assert it documents the `discover` subcommand; `plan/SKILL.md` File Structure lists `discover.md` |
-| SC-19 | `skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` dispatches the closure-verification DiMo chain (Investigator→Validator→Evaluator→Arbiter) with a 2-field contract `{spec_local_dir, artifact_evidence_dir}` and no `audit_phase`/`resolve-models`/`cross-validate` | behavioral | `opencode run` behavior test triggers post-merge closure and asserts `branch-cleanup.md` dispatches the closure-verification DiMo chain with 2-field contract and no `audit_phase`/`resolve-models`/`cross-validate`; plus grep `branch-cleanup.md` for those three terms returns zero |
+| SC-1 | `spec-creation` task cards (`create.md`, `validate.md`) resolve all relative `reference/` paths to existing consolidated `.opencode/reference/` files | structural | grep `skills/spec-creation/tasks/{create,validate}.md` for `Read [.*](reference/` returns only `.opencode/reference/` targets that resolve to existing files |
+| SC-2 | `spec-creation/tasks/analyze.md` writes all outputs to consistent `artifacts/` paths; no `contracts/` path remains | structural | grep `skills/spec-creation/tasks/analyze.md` for `contracts/` returns zero; all output writes under `artifacts/` |
+| SC-3 | orphaned `sc-table-columns.md` removed or repurposed; `spec-creation/reference/` no longer holds stale content | structural | grep across `.opencode` for `sc-table-columns` returns zero consumers; `skills/spec-creation/reference/sc-table-columns.md` absent or merged into `reference/spec-structure-standards.md` |
+| SC-4 | `writing-plans` task cards resolve all relative `reference/` paths; `plan-artifact-format.md` reconciled (stale or removed) | structural | grep `skills/writing-plans/tasks/create.md` for `Read [.*](reference/` returns only `.opencode/reference/` targets that resolve; `plan-artifact-format.md` removed from `writing-plans/SKILL.md` file structure and deleted or reduced to a pointer |
+| SC-5 | `audit/SKILL.md` migrated to flat Workflows structure (replaces TDT/Invocation/DISPATCH_GATE) while preserving role-split DiMo dispatch | structural | read `skills/audit/SKILL.md`; assert a Workflows section exists, TDT/Invocation/DISPATCH_GATE sections are replaced, and role-chain dispatch strings are preserved |
+| SC-6 | audit sub-agent result contracts use `finding_summary` (not `summary`); status enum includes `FAIL` | structural | grep `skills/audit/tasks/` for `summary:` in result-contract blocks returns zero; `finding_summary:` present; status enum includes `FAIL` |
+| SC-7 | stale task refs replaced: `verify-authorization` -> current approval-gate task; `sc-summary.yaml` -> `analysis-summary.yaml` | structural | grep `skills/writing-plans/tasks/{handoff,research}.md`, `skills/spec-creation/tasks/create.md`, `skills/audit/tasks/completion.md` for `verify-authorization` and `sc-summary` returns zero; current approval-gate task and `analysis-summary.yaml` used |
+| SC-8 | plan/spec structure standards reconciled (spec Items/SC table consistent with plan phase decomposition; single source of truth in `reference/`) | structural | cross-check `reference/spec-structure-standards.md` and `reference/plan-structure-standards.md` for consistent section/column definitions; no divergent structure specs remain |
 
 ## 4. Requirements
 
-- R-1. The audit skill card (`skills/audit/SKILL.md`) SHALL contain no references to the nonexistent `cross-validate` task.
-- R-2. Audit role files SHALL NOT reference deleted monolithic task files.
-- R-3. All agent-facing `Read [Text](path)` cross-references in the affected skill cards SHALL resolve to existing canonical files under `.opencode/reference/`.
-- R-4. The plan writer skill card (`skills/writing-plans/SKILL.md`) SHALL accurately state its task count and file structure.
-- R-5. The writing-plans contracts directory SHALL be symmetric with the task file structure.
-- R-6. `reference/plan-structure-standards.md` SHALL be the single canonical source for plan structure; conflicting schema sources SHALL be deprecated.
-- R-7. The plan skill card (`skills/plan/SKILL.md`) SHALL accurately describe its tasks and SHALL NOT reference nonexistent skills.
-- R-8. The post-merge closure audit dispatch in `branch-cleanup.md` SHALL use the closure-verification DiMo chain with a 2-field contract and no `audit_phase`.
-- R-9. Each finding (F1–F19) SHALL be resolved by exactly one prescriptive change mapped to exactly one SC.
+- R-1. All agent-facing `Read [Text](path)` cross-references in the affected skill cards SHALL resolve to existing canonical files under `.opencode/reference/`.
+- R-2. `spec-creation/tasks/analyze.md` SHALL write all analytical-artifact outputs to a single `artifacts/` location.
+- R-3. Orphaned or stale reference documents (`sc-table-columns.md`, `plan-artifact-format.md`) SHALL be removed or repurposed so no dead file remains.
+- R-4. The `audit` skill card SHALL use the flat Workflows-style structure and SHALL preserve the role-split DiMo dispatch.
+- R-5. Audit sub-agent result contracts SHALL use the `finding_summary` field and SHALL include `FAIL` in the status enum.
+- R-6. Stale task references (`verify-authorization`, `sc-summary.yaml`) SHALL be replaced with current equivalents.
+- R-7. The plan/spec structure standards SHALL be reconciled so a single source of truth exists in `reference/`.
+- R-8. Each defect SHALL be resolved by exactly one prescriptive change mapped to exactly one SC.
 
 ## 5. Items
 
-### Item 1 (SC-1): Remove `cross-validate` references from audit skill card
+### Item 1 (SC-1): Fix spec-creation reference paths
 
-- RED: behavioral test asserts agent does NOT dispatch `cross-validate` (currently fails — `cross-validate` referenced)
-- GREEN: remove `cross-validate` rows from TDT, Tasks table, and Mandatory Task Discipline item 5 in `skills/audit/SKILL.md`
-- verify: `opencode run` behavior test + grep for `cross-validate` returns zero
-- commit: `skills/audit/SKILL.md`
-
-### Item 2 (SC-2): Remove stale monolithic task-file references from audit role files
-
-- RED: grep for deleted monolithic paths returns matches
-- GREEN: remove `tasks/plan-fidelity.md`, `tasks/spec-audit.md`, `tasks/verification-audit.md`, `tasks/test-quality-audit.md` references from audit role files
-- verify: grep returns zero matches
-- commit: affected `skills/audit/tasks/*` role files
-
-### Item 3 (SC-3): Fix `create.md` reference paths
-
-- RED: grep `create.md` for `Read [.*](reference/` returns non-canonical targets
-- GREEN: fix `Read [..](reference/...)` targets in `skills/writing-plans/tasks/create.md` to `.opencode/reference/`
+- RED: grep `create.md`/`validate.md` for `Read [.*](reference/` returns non-canonical targets
+- GREEN: fix `Read [..](reference/...)` targets in `skills/spec-creation/tasks/create.md` and `validate.md` to `.opencode/reference/`
 - verify: grep returns only `.opencode/reference/` targets that resolve
-- commit: `skills/writing-plans/tasks/create.md`
+- commit: `skills/spec-creation/tasks/create.md`, `skills/spec-creation/tasks/validate.md`
 
-### Item 4 (SC-4): Fix audit role file reference paths
+### Item 2 (SC-2): Consolidate analyze.md artifact paths
 
-- RED: grep audit role files for `Read [.*](reference/` returns non-canonical targets
-- GREEN: fix `Read [..](reference/...)` targets in `plan-fidelity`/`spec-audit` investigator/evaluator role files to `.opencode/reference/`
-- verify: grep returns only `.opencode/reference/` targets that resolve
-- commit: affected `skills/audit/tasks/*` role files
+- RED: `analyze.md` writes to `contracts/` (requirements, decompose) and `artifacts/` (inspection, artifacts)
+- GREEN: consolidate all output writes in `skills/spec-creation/tasks/analyze.md` to `artifacts/`
+- verify: grep for `contracts/` returns zero; all outputs under `artifacts/`
+- commit: `skills/spec-creation/tasks/analyze.md`
 
-### Item 5 (SC-5): Soften Mandatory Task Discipline item 5
+### Item 3 (SC-3): Remove or repurpose sc-table-columns.md
 
-- RED: item 5 contains hard artifact mandate
-- GREEN: rewrite item 5 to conditional "if provided, collect evidence" form
-- verify: read item 5, assert conditional language
+- RED: `skills/spec-creation/reference/sc-table-columns.md` present with zero consumers
+- GREEN: delete the orphan OR merge its content into `reference/spec-structure-standards.md` SC-table section
+- verify: grep for `sc-table-columns` returns zero consumers; file absent or merged
+- commit: `skills/spec-creation/reference/sc-table-columns.md` (and `reference/spec-structure-standards.md` if merged)
+
+### Item 4 (SC-4): Fix writing-plans reference paths and reconcile plan-artifact-format.md
+
+- RED: `create.md` `Read [.*](reference/` targets non-canonical; `plan-artifact-format.md` stale in file structure
+- GREEN: fix `Read [..](reference/...)` targets in `skills/writing-plans/tasks/create.md` to `.opencode/reference/`; remove `plan-artifact-format.md` from `writing-plans/SKILL.md` file structure and delete or reduce it to a pointer
+- verify: grep returns only `.opencode/reference/` targets that resolve; `plan-artifact-format.md` absent from file structure and reconciled
+- commit: `skills/writing-plans/tasks/create.md`, `skills/writing-plans/SKILL.md`, `skills/writing-plans/reference/plan-artifact-format.md`
+
+### Item 5 (SC-5): Migrate audit SKILL.md to Workflows structure
+
+- RED: `audit/SKILL.md` has legacy TDT/Invocation/DISPATCH_GATE sections
+- GREEN: migrate `skills/audit/SKILL.md` to a flat Workflows section, replacing TDT/Invocation/DISPATCH_GATE, while preserving role-split DiMo dispatch strings
+- verify: read `audit/SKILL.md`; assert Workflows section present, legacy sections replaced, role-chain dispatch preserved
 - commit: `skills/audit/SKILL.md`
 
-### Item 6 (SC-6): Fix `research.md` plan invocation
+### Item 6 (SC-6): Align audit result-contract schema
 
-- RED: `research.md` step 12 uses `--contract-path`/`--output`
-- GREEN: change step 12 to `./.opencode/tools/plan plan --problem <path> > plan-output.yaml`
-- verify: read step 12, assert canonical form
-- commit: `skills/writing-plans/tasks/research.md`
+- RED: audit task contracts use `summary:`; status enum lacks `FAIL`
+- GREEN: replace `summary:` with `finding_summary:` in result-contract blocks across `skills/audit/tasks/*`; add `FAIL` to the status enum
+- verify: grep for `summary:` in result-contract blocks returns zero; `finding_summary:` present; status enum includes `FAIL`
+- commit: affected `skills/audit/tasks/*` files
 
-### Item 7 (SC-7): Correct writing-plans task count
+### Item 7 (SC-7): Replace stale task references
 
-- RED: `writing-plans/SKILL.md` claims "7 task files"
-- GREEN: change to "9 task files"
-- verify: read line 13, assert "9 task files"; count File Structure entries = 9
-- commit: `skills/writing-plans/SKILL.md`
+- RED: `handoff.md`/`completion.md` reference `approval-gate --task verify-authorization`; `research.md`/`create.md` use `sc-summary.yaml`
+- GREEN: replace `verify-authorization` with the current approval-gate task; replace `sc-summary.yaml` with `analysis-summary.yaml` (consistent with `writing-plans/tasks/analyze.md`)
+- verify: grep for `verify-authorization` and `sc-summary` returns zero; current task and `analysis-summary.yaml` used
+- commit: `skills/writing-plans/tasks/handoff.md`, `skills/writing-plans/tasks/research.md`, `skills/spec-creation/tasks/create.md`, `skills/audit/tasks/completion.md`
 
-### Item 8 (SC-8): Rebalance writing-plans contracts
+### Item 8 (SC-8): Reconcile plan/spec structure standards
 
-- RED: contracts dir has orphan `self-review-*`/`structure-*`, missing `handoff-*`/`research-*`/`verify-plan-pipeline-*`
-- GREEN: add `handoff-input/output.yaml`, `research-input/output.yaml`, `verify-plan-pipeline-input/output.yaml`; remove `self-review-input/output.yaml`, `structure-input/output.yaml`; keep `solve-output.yaml`
-- verify: glob contracts dir, assert symmetry
-- commit: `skills/writing-plans/contracts/`
-
-### Item 9 (SC-9): Fix holistic-dimensions cross-references
-
-- RED: `holistic-dimensions.yaml` refs point to deleted monoliths and "Step 0 pre-flight gate"
-- GREEN: point refs to role files (`spec-audit-investigator.md`, `plan-fidelity-investigator.md`); remove "Step 0 pre-flight gate" refs
-- verify: read lines 98–114, assert role-file refs and no Step 0 refs
-- commit: `reference/holistic-dimensions.yaml`
-
-### Item 10 (SC-10): Align plan-fidelity-investigator example naming
-
-- RED: example uses `plan-phase-1.md`
-- GREEN: change to `plan-01-{slug}.md`
-- verify: grep for `plan-phase-` returns zero; `plan-01-` used
-- commit: `skills/audit/tasks/plan-fidelity-investigator.md`
-
-### Item 11 (SC-11): Align completion.md lifecycle target
-
-- RED: Purpose/Exit say "issue body"
-- GREEN: change Purpose and Exit Criteria to "plan file at plan.md"
-- verify: read lines 5, 42, assert "plan file at plan.md"
-- commit: `skills/writing-plans/tasks/completion.md`
-
-### Item 12 (SC-12): Align TDT field name
-
-- RED: `audit/SKILL.md` TDT uses `plan_local_dir`
-- GREEN: change to `spec_local_dir`
-- verify: grep for `plan_local_dir` returns zero
-- commit: `skills/audit/SKILL.md`
-
-### Item 13 (SC-13): Rewrite plan-fidelity-evaluator to single-plan model
-
-- RED: behavioral test asserts evaluator uses dual-plan model (currently fails)
-- GREEN: rewrite `plan-fidelity-evaluator.md` to single-plan (plan-vs-spec) model; remove `clean-room`/`PLAN_INCOMPLETE`/`PLAN_OVERSCOPED`/`PLAN_DRIFT` verdicts and "Add phase from clean-room" auto-fix
-- verify: `opencode run` behavior test + grep for removed terms returns zero
-- commit: `skills/audit/tasks/plan-fidelity-evaluator.md`
-
-### Item 14 (SC-14): Remove duplicate clause in plan description
-
-- RED: `plan/SKILL.md` description has duplicated `writing-plans` clause
-- GREEN: remove the duplicate clause
-- verify: read line 3, assert single clause
-- commit: `skills/plan/SKILL.md`
-
-### Item 15 (SC-15): Remove dead executing-plans reference
-
-- RED: `plan/SKILL.md` references `executing-plans`
-- GREEN: delete the reference
-- verify: grep for `executing-plans` returns zero
-- commit: `skills/plan/SKILL.md`
-
-### Item 16 (SC-16): Deprecate plan-artifact-format.md
-
-- RED: `plan-artifact-format.md` present and referenced in File Structure
-- GREEN: deprecate `plan-artifact-format.md` (delete or reduce to pointer to `reference/plan-structure-standards.md`); remove from `writing-plans/SKILL.md` File Structure
-- verify: read File Structure, assert `plan-artifact-format.md` absent; file deleted or reduced to pointer
-- commit: `skills/writing-plans/reference/plan-artifact-format.md`, `skills/writing-plans/SKILL.md`
-
-### Item 17 (SC-17): Fix verify-plan-pipeline audit naming
-
-- RED: `verify-plan-pipeline.md` checks for `audit-fidelity`/`audit-concern`
-- GREEN: change to `plan-fidelity`/`concern-separation`
-- verify: grep for `audit-fidelity`/`audit-concern` returns zero
-- commit: `skills/writing-plans/tasks/verify-plan-pipeline.md`
-
-### Item 18 (SC-18): Add discover.md task
-
-- RED: `plan/tasks/discover.md` does not exist
-- GREEN: create `skills/plan/tasks/discover.md` documenting the `discover` subcommand; reference it in `plan/SKILL.md` File Structure
-- verify: `file-exists skills/plan/tasks/discover.md`; read it; assert File Structure lists it
-- commit: `skills/plan/tasks/discover.md`, `skills/plan/SKILL.md`
-
-### Item 19 (SC-19): Rewrite branch-cleanup audit dispatch
-
-- RED: behavioral test asserts `branch-cleanup.md` dispatches `resolve-models`/`audit_phase`/separate `cross-validate` (currently fails)
-- GREEN: rewrite the audit block to dispatch the closure-verification DiMo chain (Investigator→Validator→Evaluator→Arbiter) with 2-field contract `{spec_local_dir, artifact_evidence_dir}`, no `audit_phase`
-- verify: `opencode run` behavior test + grep for `resolve-models`/`audit_phase`/`cross-validate` returns zero
-- commit: `skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md`
+- RED: `reference/spec-structure-standards.md` and `reference/plan-structure-standards.md` divergent
+- GREEN: reconcile the two standards non-substantively for consistent section/column definitions; single source of truth in `reference/`
+- verify: cross-check both standards for consistent section/column definitions; no divergent structure specs remain
+- commit: `reference/spec-structure-standards.md`, `reference/plan-structure-standards.md`
 
 ## 6. Dependencies
 
-- **Reference:** `reference/plan-structure-standards.md` — Relationship: adopted as the single canonical plan-structure source (SC-16); consumed by SC-3, SC-4 reference-path fixes. Status: satisfied (file exists, unchanged).
-- **Reference:** `reference/cost-model-standards.md` — Relationship: read by `create.md` and plan-fidelity tasks; reference-path fixes (SC-3, SC-4) must preserve these targets. Status: satisfied.
-- **Reference:** `reference/spec-structure-standards.md` — Relationship: read by spec-audit tasks; reference-path fixes (SC-4) must preserve these targets. Status: satisfied.
-- **Reference:** `skills/audit/tasks/closure-verification/` — Relationship: the existing closure-verification DiMo chain that SC-19 aligns `branch-cleanup.md` to. Status: satisfied (implementation exists).
-- **Reference:** `reference/holistic-dimensions.yaml` — Relationship: cross-reference targets corrected by SC-9. Status: satisfied.
+- **Reference:** `reference/spec-structure-standards.md` — Relationship: canonical spec structure; consumed by SC-1 reference-path fixes and SC-8 reconciliation. Status: satisfied (file exists, unchanged).
+- **Reference:** `reference/plan-structure-standards.md` — Relationship: canonical plan structure; consumed by SC-4 reference-path fixes and SC-8 reconciliation. Status: satisfied.
+- **Reference:** `reference/cost-model-standards.md` — Relationship: read by `create.md`; reference-path fixes (SC-1, SC-4) must preserve these targets. Status: satisfied.
+- **Reference:** `reference/skill-card-description-standards.md` — Relationship: defines the Workflows section that replaces TDT/Invocation/DISPATCH_GATE; consumed by SC-5 migration. Status: satisfied.
+- **Reference:** `reference/task-card-structure-standards.md` — Relationship: defines the `finding_summary` result-contract schema; consumed by SC-6 alignment. Status: satisfied.
+- **Reference:** `reference/skill-card-schema.md` — Relationship: defines SKILL.md frontmatter binary constraints; consumed by SC-5 migration. Status: satisfied.
+- **Reference:** `skills/approval-gate/tasks/` — Relationship: current approval-gate task deck (apply-label, resolve-scope, route) that replaces the nonexistent `verify-authorization`; consumed by SC-7. Status: satisfied.
 
 ## 7. Traceability
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1 | Phase 1 |
+| R-1 | SC-1, SC-4 | Phase 1, Phase 2 |
 | R-2 | SC-2 | Phase 1 |
-| R-3 | SC-3, SC-4, SC-9 | Phase 2, Phase 1 |
-| R-4 | SC-7 | Phase 2 |
-| R-5 | SC-8 | Phase 2 |
-| R-6 | SC-16 | Phase 2 |
-| R-7 | SC-14, SC-15, SC-18 | Phase 3 |
-| R-8 | SC-19 | Phase 1 |
-| R-9 | SC-1 … SC-19 | Phase 1, Phase 2, Phase 3 |
+| R-3 | SC-3, SC-4 | Phase 1, Phase 2 |
+| R-4 | SC-5 | Phase 3 |
+| R-5 | SC-6 | Phase 3 |
+| R-6 | SC-7 | Phase 2, Phase 3 |
+| R-7 | SC-8 | Phase 3 |
+| R-8 | SC-1 … SC-8 | Phase 1, Phase 2, Phase 3 |
 
 ## 8. Documentation Sources
 
 | Source | Type | Location | Verification |
 |--------|------|----------|--------------|
-| `skills/audit/SKILL.md` | code | `.opencode/skills/audit/SKILL.md` | read/grep |
-| `skills/audit/tasks/*` role files | code | `.opencode/skills/audit/tasks/` | read/grep |
+| `skills/spec-creation/tasks/create.md` | code | `.opencode/skills/spec-creation/tasks/create.md` | read/grep |
+| `skills/spec-creation/tasks/validate.md` | code | `.opencode/skills/spec-creation/tasks/validate.md` | read/grep |
+| `skills/spec-creation/tasks/analyze.md` | code | `.opencode/skills/spec-creation/tasks/analyze.md` | read/grep |
+| `skills/spec-creation/reference/sc-table-columns.md` | code | `.opencode/skills/spec-creation/reference/` | read/grep |
+| `skills/writing-plans/tasks/create.md` | code | `.opencode/skills/writing-plans/tasks/create.md` | read/grep |
+| `skills/writing-plans/tasks/handoff.md` | code | `.opencode/skills/writing-plans/tasks/handoff.md` | read/grep |
+| `skills/writing-plans/tasks/research.md` | code | `.opencode/skills/writing-plans/tasks/research.md` | read/grep |
 | `skills/writing-plans/SKILL.md` | code | `.opencode/skills/writing-plans/SKILL.md` | read/grep |
-| `skills/writing-plans/tasks/*` | code | `.opencode/skills/writing-plans/tasks/` | read/grep |
-| `skills/writing-plans/contracts/` | code | `.opencode/skills/writing-plans/contracts/` | glob |
 | `skills/writing-plans/reference/plan-artifact-format.md` | code | `.opencode/skills/writing-plans/reference/` | read |
-| `skills/plan/SKILL.md` | code | `.opencode/skills/plan/SKILL.md` | read/grep |
-| `skills/plan/tasks/discover.md` | code | `.opencode/skills/plan/tasks/` | file-exists/read |
-| `skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md` | code | `.opencode/skills/git-workflow-cleanup/tasks/cleanup/` | read/grep |
-| `reference/plan-structure-standards.md` | code | `.opencode/reference/plan-structure-standards.md` | read |
-| `reference/holistic-dimensions.yaml` | code | `.opencode/reference/holistic-dimensions.yaml` | read |
-| `reference/cost-model-standards.md` | code | `.opencode/reference/cost-model-standards.md` | read |
+| `skills/audit/SKILL.md` | code | `.opencode/skills/audit/SKILL.md` | read/grep |
+| `skills/audit/tasks/*` | code | `.opencode/skills/audit/tasks/` | read/grep |
+| `skills/audit/tasks/completion.md` | code | `.opencode/skills/audit/tasks/completion.md` | read/grep |
 | `reference/spec-structure-standards.md` | code | `.opencode/reference/spec-structure-standards.md` | read |
+| `reference/plan-structure-standards.md` | code | `.opencode/reference/plan-structure-standards.md` | read |
+| `reference/cost-model-standards.md` | code | `.opencode/reference/cost-model-standards.md` | read |
+| `reference/skill-card-description-standards.md` | code | `.opencode/reference/skill-card-description-standards.md` | read |
+| `reference/task-card-structure-standards.md` | code | `.opencode/reference/task-card-structure-standards.md` | read |
+| `reference/skill-card-schema.md` | code | `.opencode/reference/skill-card-schema.md` | read |
+| `skills/approval-gate/tasks/` | code | `.opencode/skills/approval-gate/tasks/` | ls |
 
 ## 9. Enforcement Gate
 
@@ -261,33 +182,30 @@ The user requested execution of the `create` task from `spec-creation`, producin
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Running the behavioral test costs minutes of execution time. Skipping means the nonexistent `cross-validate` dispatch ships and agents route blind to a task that does not exist.
-- SC-2: Verifying the deleted-file references are gone costs one grep. Skipping means agents resolve cross-references to files deleted in `5c74146e`.
-- SC-3: Verifying `create.md` reference targets resolve costs one grep. Skipping means the plan writer reads the wrong reference directory.
-- SC-4: Verifying audit role reference targets resolve costs one grep. Skipping means audit role files read the wrong reference directory.
-- SC-5: Verifying item 5 is conditional costs one read. Skipping means agents are mandated to produce artifacts no investigator implements.
-- SC-6: Verifying the plan invocation form costs one read. Skipping means the plan writer invokes the CLI with nonexistent flags.
-- SC-7: Verifying the task count costs one read. Skipping means the card advertises 7 tasks when 9 exist.
-- SC-8: Verifying contract symmetry costs one glob. Skipping means the pipeline validates against orphan or missing contracts.
-- SC-9: Verifying holistic-dimensions refs costs one read. Skipping means the holistic check points at deleted monoliths.
-- SC-10: Verifying the example naming costs one grep. Skipping means the investigator produces non-canonical plan filenames.
-- SC-11: Verifying the lifecycle target costs one read. Skipping means completion appends to the wrong artifact.
-- SC-12: Verifying the TDT field name costs one grep. Skipping means the dispatch contract field mismatches the role files.
-- SC-13: Running the behavioral test costs minutes of execution time. Skipping means the evaluator uses a stale dual-plan model that produces wrong verdicts.
-- SC-14: Verifying the description clause costs one read. Skipping means the card description is duplicated and confusing.
-- SC-15: Verifying the dead reference is gone costs one grep. Skipping means agents route to a nonexistent skill.
-- SC-16: Verifying the schema deprecation costs one read. Skipping means two conflicting plan-schema sources remain.
-- SC-17: Verifying the audit naming costs one grep. Skipping means the pipeline checks for nonexistent audit artifacts.
-- SC-18: Verifying the discover task exists costs one file-exists. Skipping means the card advertises a subcommand with no task.
-- SC-19: Running the behavioral test costs minutes of execution time. Skipping means the post-merge closure dispatches a nonexistent task with a forbidden field.
+- SC-1: Verifying the reference targets resolve costs one grep. Skipping means the spec writer reads the wrong reference directory and produces structurally wrong specs.
+- SC-2: Verifying the artifact paths are uniform costs one grep. Skipping means analytical artifacts land in two locations and downstream consumers read the wrong one.
+- SC-3: Verifying the orphan is gone costs one grep. Skipping means a dead reference doc remains and agents resolve to stale content.
+- SC-4: Verifying the reference targets resolve costs one grep. Skipping means the plan writer reads the wrong reference directory and produces structurally wrong plans.
+- SC-5: Verifying the Workflows migration costs one read. Skipping means the audit card keeps a legacy structure that misroutes orchestrator dispatch.
+- SC-6: Verifying the contract schema costs one grep. Skipping means the orchestrator cannot parse audit result contracts and routing fails.
+- SC-7: Verifying the stale refs are gone costs one grep. Skipping means agents dispatch a nonexistent task and read a divergent artifact.
+- SC-8: Verifying the structure reconciliation costs one cross-check. Skipping means two divergent structure specs remain and producers/auditors disagree.
 
 ## 11. Edge Cases
 
-- **Input boundaries:** Empty or missing reference files — Expected: `Read [Text](path)` targets must resolve to existing files; if a target file is absent, the fix must point to the correct existing canonical file. Resolution: SC-3, SC-4, SC-9 verify target resolution.
-- **State transitions:** Schema source transition — Expected: after SC-16, `plan-structure-standards.md` is the single source; `plan-artifact-format.md` is deprecated. Resolution: SC-16 verification asserts the deprecation.
-- **Failure modes:** A contract removal (SC-8) could break pipeline artifact validation if a consumer expects the orphan contract. Resolution: verify no task reads orphan contracts before removal; SC-8 verified by contract/task symmetry check.
-- **Concurrency:** Phase 1 (audit) and Phase 2 (writing-plans) share canonical reference targets; Phase 3 (plan CLI) is independent. Resolution: phase ordering keeps Phase 1 and Phase 2 sequential; Phase 3 independent.
-- **Recovery:** If a behavioral test (SC-1, SC-13, SC-19) cannot execute, the SC is FAIL per the functional/behavioral test substitution prohibition. Resolution: remediate and re-run; no structural substitute.
+- **Input boundaries:** Empty or missing reference files — Expected: `Read [Text](path)` targets must resolve to existing files; if a target file is absent, the fix must point to the correct existing canonical file. Resolution: SC-1, SC-4 verify target resolution.
+- **State transitions:** Reference-source transition — Expected: after SC-1/SC-4, all reference targets point to consolidated `.opencode/reference/`; skill-local `reference/` dirs no longer hold canonical content. Resolution: SC-1, SC-4 verification asserts the transition.
+- **Failure modes:** A reference-doc removal (SC-3, SC-4) could break a consumer if a task reads the orphan. Resolution: verify no task reads the orphan before removal; SC-3, SC-4 verified by consumer grep.
+- **Concurrency:** Phase 1 (spec-creation) and Phase 2 (writing-plans) share consolidated reference targets; Phase 3 (audit + structure reconciliation) is sequential. Resolution: phase ordering keeps Phase 1 and Phase 2 sequential; Phase 3 depends on reference consolidation.
+- **Recovery:** If a structural verification (SC-1–SC-8) cannot execute, the SC is FAIL per the functional/behavioral test substitution prohibition. Resolution: remediate and re-run; no structural substitute.
+
+---
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-05 | Initial spec creation from analysis artifacts | Assemble remediation spec for 8 skill-card-set consistency defects | spec-creation create gate |
 
 ---
 

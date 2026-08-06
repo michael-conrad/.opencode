@@ -1,0 +1,34 @@
+# Problem decomposition — issue 2250
+
+Each SC maps to exactly one implementation item with its own RED/GREEN/verify/commit cycle.
+
+## SC-D (proposed) → Items
+
+| SC-ID | Description | Evidence | Item |
+|-------|-------------|----------|------|
+| SC-1 | spec-creation task cards resolve all relative reference/ paths to consolidated .opencode/reference/ files | structural | ITEM-1 |
+| SC-2 | spec-creation analyze.md writes all outputs to consistent artifacts/ paths (no contracts/ mismatch) | structural | ITEM-2 |
+| SC-3 | orphaned sc-table-columns.md removed or repurposed; spec-creation reference/ dir no longer holds stale content | structural | ITEM-3 |
+| SC-4 | writing-plans task cards resolve all relative reference/ paths; plan-artifact-format.md reconciled (stale or removed) | structural | ITEM-4 |
+| SC-5 | audit SKILL.md migrated to flat Workflows structure (replaces TDT/Invocation/DISPATCH_GATE) while preserving role-split DiMo dispatch | structural | ITEM-5 |
+| SC-6 | audit sub-agent result contracts use finding_summary (not summary); status enum includes FAIL | structural | ITEM-6 |
+| SC-7 | stale task refs replaced: verify-authorization -> current approval-gate task; sc-summary.yaml -> analysis-summary.yaml (consistent with writing-plans analyze.md) | structural | ITEM-7 |
+| SC-8 | plan/spec structure standards reconciled (spec Items/SC table consistent with plan phase decomposition; single source of truth in reference/) | structural | ITEM-8 |
+
+## Item granularity
+
+Each item is a single independently verifiable claim. No item spans multiple SCs.
+One RED/GREEN/verify/commit cycle per item.
+
+## Dependency DAG (acyclic)
+
+- ITEM-1 depends on: ITEM-3 (reference consolidation first)
+- ITEM-2 depends on: none
+- ITEM-3 depends on: none
+- ITEM-4 depends on: ITEM-3 (shared reference-dir reconciliation)
+- ITEM-5 depends on: none
+- ITEM-6 depends on: ITEM-5 (structural migration then contract alignment)
+- ITEM-7 depends on: none
+- ITEM-8 depends on: ITEM-3, ITEM-4 (structure reconciliation grounded in consolidated reference)
+
+DAG is acyclic. No circular dependencies.

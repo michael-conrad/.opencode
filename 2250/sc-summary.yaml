@@ -1,78 +1,34 @@
-sc_count: 19
+sc_count: 8
 scs:
   - id: "SC-1"
-    description: "Remove cross-validate references from audit skill card"
-    evidence_type: "behavioral"
+    description: "spec-creation task cards resolve all relative reference/ paths to consolidated .opencode/reference/ files"
+    evidence_type: "structural"
     plan_item: 1
   - id: "SC-2"
-    description: "Remove stale monolithic task-file references from audit role files"
-    evidence_type: "string"
+    description: "spec-creation analyze.md writes all outputs to consistent artifacts/ paths (no contracts/ mismatch)"
+    evidence_type: "structural"
     plan_item: 2
   - id: "SC-3"
-    description: "Fix create.md reference paths"
-    evidence_type: "string"
+    description: "orphaned sc-table-columns.md removed or repurposed; spec-creation reference/ dir no longer holds stale content"
+    evidence_type: "structural"
     plan_item: 3
   - id: "SC-4"
-    description: "Fix audit role file reference paths"
-    evidence_type: "string"
+    description: "writing-plans task cards resolve all relative reference/ paths; plan-artifact-format.md reconciled (stale or removed)"
+    evidence_type: "structural"
     plan_item: 4
   - id: "SC-5"
-    description: "Soften Mandatory Task Discipline item 5"
-    evidence_type: "string"
+    description: "audit SKILL.md migrated to flat Workflows structure (replaces TDT/Invocation/DISPATCH_GATE) while preserving role-split DiMo dispatch"
+    evidence_type: "structural"
     plan_item: 5
   - id: "SC-6"
-    description: "Fix research.md plan invocation"
-    evidence_type: "string"
+    description: "audit sub-agent result contracts use finding_summary (not summary); status enum includes FAIL"
+    evidence_type: "structural"
     plan_item: 6
   - id: "SC-7"
-    description: "Correct writing-plans task count"
-    evidence_type: "string"
+    description: "stale task refs replaced: verify-authorization -> current approval-gate task; sc-summary.yaml -> analysis-summary.yaml"
+    evidence_type: "structural"
     plan_item: 7
   - id: "SC-8"
-    description: "Rebalance writing-plans contracts"
-    evidence_type: "string"
+    description: "plan/spec structure standards reconciled (spec Items/SC table consistent with plan phase decomposition; single source of truth in reference/)"
+    evidence_type: "structural"
     plan_item: 8
-  - id: "SC-9"
-    description: "Fix holistic-dimensions cross-references"
-    evidence_type: "string"
-    plan_item: 9
-  - id: "SC-10"
-    description: "Align plan-fidelity-investigator example naming"
-    evidence_type: "string"
-    plan_item: 10
-  - id: "SC-11"
-    description: "Align completion.md lifecycle target"
-    evidence_type: "string"
-    plan_item: 11
-  - id: "SC-12"
-    description: "Align TDT field name"
-    evidence_type: "string"
-    plan_item: 12
-  - id: "SC-13"
-    description: "Rewrite plan-fidelity-evaluator to single-plan model"
-    evidence_type: "behavioral"
-    plan_item: 13
-  - id: "SC-14"
-    description: "Remove duplicate clause in plan description"
-    evidence_type: "string"
-    plan_item: 14
-  - id: "SC-15"
-    description: "Remove dead executing-plans reference"
-    evidence_type: "string"
-    plan_item: 15
-  - id: "SC-16"
-    description: "Deprecate plan-artifact-format.md"
-    evidence_type: "string"
-    plan_item: 16
-  - id: "SC-17"
-    description: "Fix verify-plan-pipeline audit naming"
-    evidence_type: "string"
-    plan_item: 17
-  - id: "SC-18"
-    description: "Add discover.md task"
-    evidence_type: "string"
-    plan_item: 18
-  - id: "SC-19"
-    description: "Rewrite branch-cleanup audit dispatch"
-    evidence_type: "behavioral"
-    plan_item: 19

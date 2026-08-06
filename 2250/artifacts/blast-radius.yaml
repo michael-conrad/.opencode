@@ -1,60 +1,25 @@
-blast_radius:
-  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
-  issue_number: "TBD"
-  generated: "2026-08-05"
-  analysis: >
-    All changes are confined to .opencode agent-facing skill/reference files. No src/ code changes.
-    Blast radius per phase:
-  phases:
-    phase_1:
-      name: "Audit skill card consistency"
-      affected_components:
-        - skills/audit/SKILL.md (TDT, Tasks table, Mandatory Task Discipline item 5)
-        - skills/audit/tasks/plan-fidelity-arbiter.md, plan-fidelity-evaluator.md, plan-fidelity-validator.md, plan-fidelity-investigator.md
-        - skills/audit/tasks/spec-audit-investigator.md, spec-audit-validator.md, spec-audit-evaluator.md
-        - skills/audit/tasks/verification-audit-investigator.md, verification-audit-validator.md
-        - skills/audit/tasks/test-quality-audit-arbiter.md
-        - skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
-        - reference/holistic-dimensions.yaml
-      ripple_effects:
-        - "Removing cross-validate from audit/SKILL.md means no downstream consumer can dispatch cross-validate (already nonexistent task) — pure removal, no new callsite broken"
-        - "TDT plan_local_dir -> spec_local_dir makes audit/SKILL.md consistent with role files that already use spec_local_dir — no behavioral change, just field-name alignment"
-        - "F2 stale Main-task-file reference deletions are documentation-only; the referenced files were deleted in 5c74146e so no live callsite is broken"
-        - "branch-cleanup.md rewrite aligns the post-merge closure audit with the current closure-verification DiMo chain already implemented in skills/audit/tasks/closure-verification/"
-      risk: LOW
-      risk_rationale: >
-        Mostly documentation/consistency edits. The branch-cleanup.md dispatch rewrite changes the
-        actual post-merge audit dispatch path (behavioral). SC-19 marked behavioral.
+# Blast radius — issue 2250
 
-    phase_2:
-      name: "Plan writer (writing-plans) consistency"
-      affected_components:
-        - skills/writing-plans/SKILL.md (task count, file listing)
-        - skills/writing-plans/tasks/create.md (reference paths)
-        - skills/writing-plans/tasks/research.md (plan invocation)
-        - skills/writing-plans/tasks/completion.md (Purpose/Exit)
-        - skills/writing-plans/tasks/verify-plan-pipeline.md (audit naming)
-        - skills/writing-plans/contracts/ (add handoff/research/verify-plan-pipeline; remove self-review/structure)
-        - skills/writing-plans/reference/plan-artifact-format.md (deprecate)
-        - reference/plan-structure-standards.md (adopted as single source; unchanged)
-      ripple_effects:
-        - "Contract additions/removals affect writing-plans pipeline artifact validation; verify-plan-pipeline task reads contracts"
-        - "Deprecating plan-artifact-format.md removes a conflicting schema source; downstream plan consumers now have single source (plan-structure-standards.md)"
-        - "create.md/research.md path fixes ensure Read [..] targets resolve to existing canonical files"
-      risk: MEDIUM
-      risk_rationale: >
-        Contract lifecycle changes (SC-8) could break pipeline artifact validation if a consumer
-        expects self-review/structure contracts. Verify no task reads orphan contracts before removal.
-        SC-8 verified by contract/task symmetry check.
+## Per-item affected components and ripple effects
 
-    phase_3:
-      name: "Plan CLI card consistency"
-      affected_components:
-        - skills/plan/SKILL.md (description duplicate, executing-plans ref, file structure)
-        - skills/plan/tasks/discover.md (new)
-      ripple_effects:
-        - "Adding discover.md makes the plan skill card consistent with the CLI's discover subcommand"
-        - "Deleting executing-plans ref removes a dead cross-reference to a nonexistent skill"
-      risk: LOW
-      risk_rationale: >
-        Pure documentation additions/removals in the plan skill card. No code path changed.
+| Item | Directly affected | Ripple (consumers) |
+|------|-------------------|--------------------|
+| ITEM-1 (reference paths in spec-creation) | spec-creation/tasks/create.md, validate.md | spec-creation pipeline (analyze/create/validate/revise), writing-plans downstream |
+| ITEM-2 (artifacts/ vs contracts/ consistency) | spec-creation/tasks/analyze.md | create.md artifact copy step, auditors reading artifacts/ |
+| ITEM-3 (sc-table-columns.md) | spec-creation/reference/ dir | none (file is orphaned) — low blast radius |
+| ITEM-4 (writing-plans reference paths, plan-artifact-format) | writing-plans/tasks/create.md, reference/plan-artifact-format.md, SKILL.md file-structure | writing-plans pipeline, plan-audit |
+| ITEM-5 (audit SKILL.md Workflows migration) | skills/audit/SKILL.md | all audit task dispatch, orchestrator routing |
+| ITEM-6 (result contract finding_summary + FAIL enum) | all audit/tasks/*.md contract blocks | orchestrator contract parsing across all audit chains |
+| ITEM-7 (stale task refs) | writing-plans/tasks/handoff.md, spec-creation/tasks/create.md, writing-plans/tasks/research.md, audit/tasks/completion.md | plan authorization gate, research mapping, spec creation |
+| ITEM-8 (plan/spec structure reconciliation) | reference/spec-structure-standards.md, reference/plan-structure-standards.md | spec-creation, writing-plans, audit, plan-fidelity |
+
+## Highest-risk items
+
+- ITEM-5 and ITEM-6 touch the audit skill with the largest task surface (40+ files).
+- ITEM-8 touches consolidated reference standards consumed by three skill sets — must be
+  non-substantive consistency reconciliation, not a re-definition.
+
+## Out of scope (no ripple)
+
+- spec-creation 4-task pipeline topology — unchanged.
+- audit DiMo role chains — preserved.
