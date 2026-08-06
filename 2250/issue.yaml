@@ -82,8 +82,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   (SC-3, SC-4).
 
   - **`reference/plan-structure-standards.md` as the single plan-schema source:**
-  the conflicting `writing-plans/reference/plan-artifact-format.md` is deprecated
-  so one canonical schema (integer `plan_schema_version`) governs plan structure (SC-16).
+  the conflicting `writing-plans/reference/plan-artifact-format.md` is deleted so
+  one canonical schema (integer `plan_schema_version`) governs plan structure (SC-16).
 
   - **DiMo 4-role chain as the sole audit dispatch mechanism:** no `cross-validate`
   task exists and the Arbiter role performs consensus; stale `cross-validate` references
@@ -97,7 +97,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   against the spec, not a stale clean-room-vs-existing dual-plan comparison (SC-13).
 
   - **Task/contract symmetry:** every `writing-plans` task file has a corresponding
-  contract and vice versa (SC-7, SC-8).
+  contract and vice versa (SC-7, SC-8a, SC-8b, SC-8c).
 
   - **Skill card description accuracy:** skill card descriptions/overviews accurately
   reflect available tasks (SC-14, SC-15, SC-18).
@@ -134,7 +134,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
 
   - **Change to the canonical `reference/plan-structure-standards.md` schema** — Rationale:
   it is the single source of truth and is unchanged; only the conflicting `plan-artifact-format.md`
-  is deprecated.
+  is deleted.
 
   - **Change to the plan CLI `discover` subcommand implementation** — Rationale: only
   the missing task documentation is added, not the CLI behavior.
@@ -188,11 +188,16 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   9 task files | string | read `skills/writing-plans/SKILL.md` Overview; assert "9
   task files" and count 9 task entries in the File Structure |
 
-  | SC-8 | `writing-plans/contracts/` is symmetric with the 9-task file structure:
-  handoff, research, verify-plan-pipeline contracts present; orphan self-review and
-  structure contracts absent; solve-output.yaml kept | string | glob `skills/writing-plans/contracts/`;
-  assert `handoff-*`, `research-*`, `verify-plan-pipeline-*` present; `self-review-*`,
-  `structure-*` absent; `solve-output.yaml` present |
+  | SC-8a | `writing-plans/contracts/` contains the handoff, research, and verify-plan-pipeline
+  contracts | string | glob `skills/writing-plans/contracts/`; assert `handoff-*`,
+  `research-*`, `verify-plan-pipeline-*` present |
+
+  | SC-8b | `writing-plans/contracts/` contains no orphan self-review or structure
+  contracts | string | glob `skills/writing-plans/contracts/`; assert `self-review-*`,
+  `structure-*` absent |
+
+  | SC-8c | `writing-plans/contracts/` keeps `solve-output.yaml` | string | glob `skills/writing-plans/contracts/`;
+  assert `solve-output.yaml` present |
 
   | SC-9 | `reference/holistic-dimensions.yaml` cross-references point to role files
   (`spec-audit-investigator.md`, `plan-fidelity-investigator.md`) and contain no references
@@ -230,12 +235,11 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   skill | string | grep `skills/plan/SKILL.md` for `executing-plans` returns zero
   matches |
 
-  | SC-16 | `writing-plans/reference/plan-artifact-format.md` is deprecated (removed
-  from `writing-plans/SKILL.md` File Structure and deleted or reduced to a pointer);
-  `reference/plan-structure-standards.md` is the single plan-schema source | string
-  | read `skills/writing-plans/SKILL.md` File Structure; assert `plan-artifact-format.md`
-  absent; assert the file is deleted or reduced to a pointer to `reference/plan-structure-standards.md`
-  |
+  | SC-16 | `writing-plans/reference/plan-artifact-format.md` is deleted (removed
+  from `writing-plans/SKILL.md` File Structure and the file itself deleted); `reference/plan-structure-standards.md`
+  is the single plan-schema source | string | read `skills/writing-plans/SKILL.md`
+  File Structure; assert `plan-artifact-format.md` absent; assert the file `skills/writing-plans/reference/plan-artifact-format.md`
+  does not exist |
 
   | SC-17 | `writing-plans/tasks/verify-plan-pipeline.md` checks for `plan-fidelity`
   and `concern-separation` output naming, not `audit-fidelity` and `audit-concern`
@@ -276,7 +280,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   artifact_evidence_dir}` and SHALL NOT carry an `audit_phase` field.
 
   - R-6. `reference/plan-structure-standards.md` SHALL be the single plan-schema source;
-  `writing-plans/reference/plan-artifact-format.md` SHALL be deprecated.
+  `writing-plans/reference/plan-artifact-format.md` SHALL be deleted.
 
   - R-7. The `writing-plans` skill card SHALL accurately claim its task count and
   SHALL maintain task/contract symmetry.
@@ -286,6 +290,26 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
 
   - R-9. Each finding SHALL be resolved by exactly one prescriptive change mapped
   to exactly one SC.
+
+  - R-10. The `audit` skill card Mandatory Task Discipline item 5 SHALL use conditional
+  evidence-collection language ("if provided, collect evidence") and SHALL NOT mandate
+  a hard artifact requirement.
+
+  - R-11. `writing-plans/tasks/research.md` step 12 SHALL invoke the plan CLI with
+  `--problem` and stdout redirect, and SHALL NOT use `--contract-path`/`--output`.
+
+  - R-12. `reference/holistic-dimensions.yaml` cross-references SHALL point to role
+  files and SHALL NOT reference deleted monolithic files or nonexistent "Step 0 pre-flight
+  gate" sections.
+
+  - R-13. `plan-fidelity-investigator.md` evidence examples SHALL use canonical `plan-01-{slug}.md`
+  naming and SHALL NOT use `plan-phase-1.md`.
+
+  - R-14. `writing-plans/tasks/completion.md` Purpose and Exit Criteria SHALL reference
+  the plan file at `plan.md`, not the issue body.
+
+  - R-15. `writing-plans/tasks/verify-plan-pipeline.md` SHALL check for `plan-fidelity`
+  and `concern-separation` output naming, and SHALL NOT check for `audit-fidelity`/`audit-concern`.
 
 
   ## 5. Items
@@ -388,16 +412,16 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   - commit: `skills/writing-plans/SKILL.md`
 
 
-  ### Item 8 (SC-8): Align writing-plans contracts with tasks
+  ### Item 8 (SC-8a, SC-8b, SC-8c): Align writing-plans contracts with tasks
 
 
   - RED: `writing-plans/contracts/` has orphan self-review/structure contracts and
   is missing handoff/research/verify-plan-pipeline contracts
 
-  - GREEN: add handoff, research, verify-plan-pipeline contracts; remove orphan self-review
-  and structure contracts; keep solve-output.yaml
+  - GREEN: add handoff, research, verify-plan-pipeline contracts (SC-8a); remove orphan
+  self-review and structure contracts (SC-8b); keep solve-output.yaml (SC-8c)
 
-  - verify: glob contracts; assert symmetry with the 9-task structure
+  - verify: glob contracts; assert each of the three atomic SCs independently
 
   - commit: affected `skills/writing-plans/contracts/*` files
 
@@ -494,17 +518,17 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   - commit: `skills/plan/SKILL.md`
 
 
-  ### Item 16 (SC-16): Deprecate plan-artifact-format.md
+  ### Item 16 (SC-16): Delete plan-artifact-format.md
 
 
   - RED: conflicting plan-schema sources exist (`plan-artifact-format.md` string `''1.0''`
   vs `plan-structure-standards.md` integer `1`)
 
   - GREEN: remove `plan-artifact-format.md` from `writing-plans/SKILL.md` File Structure
-  and delete or reduce it to a pointer to `reference/plan-structure-standards.md`
+  and delete the file `skills/writing-plans/reference/plan-artifact-format.md`
 
-  - verify: read File Structure; assert `plan-artifact-format.md` absent and file
-  deleted or reduced to pointer
+  - verify: read File Structure; assert `plan-artifact-format.md` absent and the file
+  does not exist
 
   - commit: `skills/writing-plans/SKILL.md`, `skills/writing-plans/reference/plan-artifact-format.md`
 
@@ -598,11 +622,23 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
 
   | R-6 | SC-16 | Phase 2 |
 
-  | R-7 | SC-7, SC-8 | Phase 2 |
+  | R-7 | SC-7, SC-8a, SC-8b, SC-8c | Phase 2 |
 
   | R-8 | SC-14, SC-15, SC-18 | Phase 3 |
 
   | R-9 | SC-1 … SC-19 | Phase 1, Phase 2, Phase 3 |
+
+  | R-10 | SC-5 | Phase 1 |
+
+  | R-11 | SC-6 | Phase 2 |
+
+  | R-12 | SC-9 | Phase 1 |
+
+  | R-13 | SC-10 | Phase 1 |
+
+  | R-14 | SC-11 | Phase 2 |
+
+  | R-15 | SC-17 | Phase 2 |
 
 
   ## 8. Documentation Sources
@@ -706,8 +742,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   - SC-7: Verifying the task count costs one read. Skipping means the card claims
   7 tasks when 9 exist, misrouting dispatch.
 
-  - SC-8: Verifying contract symmetry costs one glob. Skipping means pipeline artifact
-  validation reads missing contracts or orphan contracts.
+  - SC-8a/SC-8b/SC-8c: Verifying contract symmetry costs one glob per atomic SC. Skipping
+  means pipeline artifact validation reads missing contracts or orphan contracts.
 
   - SC-9: Verifying the holistic-dimensions refs costs one read. Skipping means cross-references
   point to deleted files.
@@ -730,8 +766,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   - SC-15: Verifying the dead reference removal costs one grep. Skipping means agents
   resolve to a nonexistent skill.
 
-  - SC-16: Verifying the schema single-source costs one read. Skipping means two conflicting
-  plan-schema sources remain and producers/auditors disagree.
+  - SC-16: Verifying the schema single-source costs one read plus a file-exists check.
+  Skipping means two conflicting plan-schema sources remain and producers/auditors
+  disagree.
 
   - SC-17: Verifying the audit naming costs one grep. Skipping means the pipeline
   validator checks for the wrong artifact names.
@@ -759,7 +796,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
 
   - **Failure modes:** A reference-doc removal (SC-16) could break a consumer if a
   task reads the deprecated file. Resolution: verify no task reads the deprecated
-  file before removal; SC-16 verified by File Structure and pointer check.
+  file before removal; SC-16 verified by File Structure and file-exists check.
 
   - **Concurrency:** Phase 1 (audit) and Phase 2 (writing-plans) share canonical reference
   targets; Phase 3 (plan CLI) is independent. Resolution: phase ordering keeps Phase
@@ -789,6 +826,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
   8 SCs); the intended scope is plan-writer/plan-audit with 19 internal-consistency
   findings | spec-creation revise gate |
 
+  | 2026-08-05 | Validation-findings revision: decomposed SC-8 into atomic SC-8a/SC-8b/SC-8c
+  (one verification target each); made SC-16 single-valued (delete, not "deleted OR
+  reduced to a pointer"); added dedicated requirements R-10–R-15 for SC-5/6/9/10/11/17
+  to resolve umbrella-only traceability | spec-creation validate gate findings (atomicity,
+  determinism, traceability) | spec-creation revise gate |
+
 
   ---
 
@@ -804,6 +847,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
 
   '
 created_at: '2026-08-06T03:08:46+00:00'
-updated_at: '2026-08-06T03:21:14+00:00'
+updated_at: '2026-08-06T03:29:49+00:00'
 github_url: michael-conrad/.opencode
 remote_url: git@github.com:michael-conrad/.opencode.git
