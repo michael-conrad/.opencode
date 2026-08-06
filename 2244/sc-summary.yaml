@@ -41,7 +41,7 @@ scs:
     evidence_type: "behavioral"
     plan_item: 10
   - id: "SC11"
-    description: "2242-sc6 cleanup dispatch follows the correct task card (tasks/cleanup.md) and completes, producing a result contract"
+    description: "2242-sc6 cleanup dispatch is correctly routed to the tasks/cleanup.md task card and the executor follows its instructions to verify the merged PR and discover the merged branch; the measure is correct routing + instruction-following, NOT terminal completion within a single timeout window"
     evidence_type: "behavioral"
     plan_item: 11
   - id: "SC12"

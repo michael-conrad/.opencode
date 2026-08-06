@@ -321,6 +321,12 @@ Dependency DAG: SC1 + SC5 + SC9 precede SC2; SC4 must be verified before SC2's w
 
 ## Change Control
 
+### 2026-08-05 — Revise (spec-creation revise pipeline, developer-directed narrow SC11 to routing + instruction-following)
+
+- **What changed:** Narrowed SC11 to measure correct routing + instruction-following rather than terminal completion within a single timeout window. SC11 criterion and verification method now read: "The git-workflow-cleanup cleanup dispatch is correctly routed to the `tasks/cleanup.md` task card and the executor follows its instructions to verify the merged PR and discover the merged branch. The measure is correct routing + instruction-following (executor reads the correct task card and acts on its steps), NOT terminal completion within a single timeout window." Updated R-8, Item 11, the SC11 cost-frame, the §10 edge cases (added a wrong-`gb`-subcommand / session-truncation edge case), and the dependency-contract phase_7 description. SC11 evidence type remains behavioral.
+- **Why:** Developer-directed revision (revision_reason: narrow SC11 to routing + instruction-following). Root-cause research: the cleanup executor routed correctly (read `tasks/cleanup.md`, `verify-merge.md`, discovered the merged branch) but hit `gb pull-request` (wrong subcommand → unrecognized) and the session truncated before a result contract. The "completes producing a result contract within one session" component was too broad/fragile.
+- **Who authorized the change:** Developer-directed revision (revision_reason: narrow SC11 to routing + instruction-following).
+
 ### 2026-08-05 — Revise (spec-creation revise pipeline, developer-directed GB_* scoping semantics)
 
 - **What changed:** Corrected the GB_* scoping semantics across SC17, SC19, SC20, R-12, R-14, R-15, Item 17/19/20, cost-frames, Dependencies, the §7 Dependency DAG, Documentation Sources, and the §10 edge cases. The corrected model: the test-env-specific `GB_*` values (`GB_HOST`, `GB_REPO`, `GB_PROTOCOL`, `GITBUCKET_PORT`) are **test-env constants** that the harness ALWAYS sets in the isolated test environment — regardless of whether a test GitBucket is running. Only `GB_TOKEN` (the secret credential) is set when and only when the harness provisioned a test GitBucket (`BEHAVIOR_NEEDS_REMOTE=1`); it is absent/empty otherwise. No parent-sourced `GB_*`/`GITBUCKET_PORT` value ever leaks into the isolated test env. The `gb` config.toml fixture (SC20/R-15) seeds the harness's `default_host` constant always, with the host token present only when GitBucket is provisioned.
