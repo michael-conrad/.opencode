@@ -2,7 +2,7 @@ labels:
 - needs-approval
 github_url: '2254'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
-updated_at: '2026-08-06T05:16:15+00:00'
+updated_at: '2026-08-06T05:22:50+00:00'
 body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2254/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -146,11 +146,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   | SC-6 | Every audit role-card frontmatter `name:` field and `# Task:` heading SHALL
   match its filename (Investigator/Validator/Evaluator/Arbiter), with zero `-generator`/`-knowledge-supporter`/`-path-provider`
   mismatches. The authoritative on-disk count of defective role-card files is 40:
-  28 flat role files in tasks/ (23 with stale pre-rename role names — generator/knowledge-supporter/path-provider
-  — plus 5 with empty `name` field: concern-separation-investigator, concern-separation-validator,
-  plan-fidelity-investigator, plan-fidelity-validator, behavioral-sc-evaluator) and
-  12 subdirectory role files (closure-verification/*, coherence-extraction/*, spec-summary/*
-  — 4 each) all with empty `name` field. Note: SC-11 removes behavioral-sc-evaluator.md;
+  28 flat role files in tasks/ (24 with stale pre-rename role names — generator/knowledge-supporter/path-provider
+  — plus 4 with empty `name` field: concern-separation-investigator, concern-separation-validator,
+  plan-fidelity-investigator, behavioral-sc-evaluator) and 12 subdirectory role files
+  (closure-verification/*, coherence-extraction/*, spec-summary/* — 4 each) all with
+  empty `name` field. Note: plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter`
+  (stale, not empty), and is counted in the 24 stale. Note: SC-11 removes behavioral-sc-evaluator.md;
   after its removal the flat-file mismatch count is 27. | string | for each audit/tasks/*-role.md,
   verify frontmatter name == basename |
 
@@ -328,7 +329,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
 
   - RED: for each audit/tasks/*-role.md, assert frontmatter name == basename — fails
-  on 40 mismatches (28 flat: 23 stale pre-rename role names + 5 empty `name` field;
+  on 40 mismatches (28 flat: 24 stale pre-rename role names + 4 empty `name` field;
   12 subdirectory: all empty `name` field)
 
   - GREEN: Repair 40 role-card frontmatter name fields and `# Task:` headings to match
@@ -679,6 +680,17 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   on-disk count of role-card files with a defective frontmatter `name` field is 40.
   The breakdown lets the implementor verify the count. | spec-creation validation
   pipeline |
+
+  | 2026-08-06 | SC-6 and Item 6 flat-file breakdown corrected from 23 stale + 5 empty
+  = 28 flat to 24 stale + 4 empty = 28 flat. The 4 EMPTY flat files are exactly concern-separation-investigator,
+  concern-separation-validator, plan-fidelity-investigator, behavioral-sc-evaluator.
+  The 24 STALE flat files carry pre-rename role names (generator/knowledge-supporter/path-provider)
+  in their frontmatter `name`. plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter`
+  (STALE, not empty). SC-6''s goal (zero mismatches) and the aggregate total (40)
+  are unchanged. | Validation finding (correctness, dimension 4): the previous breakdown
+  mislabeled plan-fidelity-validator.md as empty; it is stale. Live on-disk verification
+  of all 28 flat role files'' frontmatter confirms 24 stale + 4 empty. | spec-creation
+  validation pipeline |
 
 
   ---
