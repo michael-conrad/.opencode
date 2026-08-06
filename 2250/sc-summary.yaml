@@ -1,34 +1,78 @@
-sc_count: 8
+sc_count: 19
 scs:
   - id: "SC-1"
-    description: "spec-creation task cards resolve all relative reference/ paths to consolidated .opencode/reference/ files"
-    evidence_type: "structural"
+    description: "audit/SKILL.md contains no cross-validate references in the Trigger Dispatch Table, Tasks table, or Mandatory Task Discipline item 5; the Arbiter role remains the sole consensus authority"
+    evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "spec-creation analyze.md writes all outputs to consistent artifacts/ paths (no contracts/ mismatch)"
-    evidence_type: "structural"
+    description: "audit role files contain no stale cross-references to deleted monolithic task files (plan-fidelity.md, spec-audit.md, verification-audit.md, test-quality-audit.md)"
+    evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
-    description: "orphaned sc-table-columns.md removed or repurposed; spec-creation reference/ dir no longer holds stale content"
-    evidence_type: "structural"
+    description: "writing-plans/tasks/create.md resolves all relative Read [Text](reference/...) targets to existing canonical .opencode/reference/ files"
+    evidence_type: "string"
     plan_item: 3
   - id: "SC-4"
-    description: "writing-plans task cards resolve all relative reference/ paths; plan-artifact-format.md reconciled (stale or removed)"
-    evidence_type: "structural"
+    description: "audit role files (plan-fidelity-*, spec-audit-*) resolve all relative Read [Text](reference/...) targets to existing canonical .opencode/reference/ files"
+    evidence_type: "string"
     plan_item: 4
   - id: "SC-5"
-    description: "audit SKILL.md migrated to flat Workflows structure (replaces TDT/Invocation/DISPATCH_GATE) while preserving role-split DiMo dispatch"
-    evidence_type: "structural"
+    description: "audit/SKILL.md Mandatory Task Discipline item 5 uses conditional evidence-collection language with no hard artifact mandate"
+    evidence_type: "string"
     plan_item: 5
   - id: "SC-6"
-    description: "audit sub-agent result contracts use finding_summary (not summary); status enum includes FAIL"
-    evidence_type: "structural"
+    description: "writing-plans/tasks/research.md step 12 invokes the plan CLI with --problem and stdout redirect, not --contract-path/--output"
+    evidence_type: "string"
     plan_item: 6
   - id: "SC-7"
-    description: "stale task refs replaced: verify-authorization -> current approval-gate task; sc-summary.yaml -> analysis-summary.yaml"
-    evidence_type: "structural"
+    description: "writing-plans/SKILL.md claims 9 task files and its File Structure lists 9 task files"
+    evidence_type: "string"
     plan_item: 7
   - id: "SC-8"
-    description: "plan/spec structure standards reconciled (spec Items/SC table consistent with plan phase decomposition; single source of truth in reference/)"
-    evidence_type: "structural"
+    description: "writing-plans/contracts/ is symmetric with the 9-task file structure: handoff, research, verify-plan-pipeline contracts present; orphan self-review and structure contracts absent; solve-output.yaml kept"
+    evidence_type: "string"
     plan_item: 8
+  - id: "SC-9"
+    description: "reference/holistic-dimensions.yaml cross-references point to role files and contain no references to deleted monolithic files or nonexistent Step 0 pre-flight gate sections"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "plan-fidelity-investigator.md evidence example uses canonical plan-01-{slug}.md naming, not plan-phase-1.md"
+    evidence_type: "string"
+    plan_item: 10
+  - id: "SC-11"
+    description: "writing-plans/tasks/completion.md Purpose and Exit Criteria reference the plan file at plan.md, not the issue body"
+    evidence_type: "string"
+    plan_item: 11
+  - id: "SC-12"
+    description: "audit/SKILL.md plan-fidelity TDT context uses spec_local_dir, not plan_local_dir, consistent with role files"
+    evidence_type: "string"
+    plan_item: 12
+  - id: "SC-13"
+    description: "plan-fidelity-evaluator.md uses a single-plan (plan-vs-spec) evaluation model with no stale dual-plan (clean-room vs existing) constructs"
+    evidence_type: "behavioral"
+    plan_item: 13
+  - id: "SC-14"
+    description: "plan/SKILL.md description contains a single writing-plans clause with no duplication"
+    evidence_type: "string"
+    plan_item: 14
+  - id: "SC-15"
+    description: "plan/SKILL.md contains no reference to the nonexistent executing-plans skill"
+    evidence_type: "string"
+    plan_item: 15
+  - id: "SC-16"
+    description: "writing-plans/reference/plan-artifact-format.md is deprecated (removed from writing-plans/SKILL.md File Structure and deleted or reduced to a pointer); reference/plan-structure-standards.md is the single plan-schema source"
+    evidence_type: "string"
+    plan_item: 16
+  - id: "SC-17"
+    description: "writing-plans/tasks/verify-plan-pipeline.md checks for plan-fidelity and concern-separation output naming, not audit-fidelity and audit-concern"
+    evidence_type: "string"
+    plan_item: 17
+  - id: "SC-18"
+    description: "skills/plan/tasks/discover.md exists, documents the discover subcommand, and is referenced in plan/SKILL.md File Structure"
+    evidence_type: "string"
+    plan_item: 18
+  - id: "SC-19"
+    description: "git-workflow-cleanup/tasks/cleanup/branch-cleanup.md audit block dispatches the closure-verification DiMo chain with a 2-field contract {spec_local_dir, artifact_evidence_dir} and no resolve-models, audit_phase, or separate cross-validate dispatch"
+    evidence_type: "behavioral"
+    plan_item: 19
