@@ -1,0 +1,14 @@
+research_card_consultation:
+  issue: 2249
+  searched_dirs:
+    - .opencode/.issues/research-cards/
+    - .issues/research-cards/
+  search_terms:
+    - dependency
+    - di mandate
+    - injection
+  findings:
+    - No research card exists with confidence >= 0.7 matching the multi-language DI mandate topic.
+    - The grep matches for "dependency" in existing cards (spec-creation-state.md, multi-feature-branch-main-with-submodules.md, create-md-remote-format-defect.md, thinking-block-verification-checkpoint.md, authorization-session-vs-workflow-state.md, writing-plans-flattening.md) are incidental references to dependency ordering/contracts in spec-creation and plan-writing contexts — NOT DI-mandate research.
+    - No cached findings to incorporate. The design decisions are fully documented in the brainstorming handoff contract at tmp/2243-followup/artifacts/preliminary/handoff.yaml.
+  conclusion: No research card consultation applicable. Proceeding with requirements extraction from the handoff contract and parent spec.
