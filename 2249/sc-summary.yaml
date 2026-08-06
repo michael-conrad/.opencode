@@ -1,0 +1,32 @@
+spec_path: .opencode/.issues/2249/spec.md
+spec_body_source: .opencode/.issues/2249/spec.md
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "A generic 'Dependency Injection (generic mandate)' section added to .opencode/guidelines/080-code-standards.md stating the generic principle: approach problem solving and unit tests from the point of view of having an available DI approach of some worth, and use it rather than hand-rolling manual wiring. Enforceable rule is 'use a DI approach,' not 'use framework X.'"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Curated per-language framework table, explicitly advisory, three tiers: Clear standard (Python dependency-injector, C#/.NET built-in M.E.DI, Java Spring/Dagger for GWT, Angular/Vue/Svelte built-in); Contested (Kotlin Koin/Hilt, Scala MacWire/Guice/ZIO, Dart/Flutter get_it/provider/Riverpod, TypeScript tsyringe/InversifyJS); Non-idiomatic and guidance-only (Go, Rust, C++, Swift, Ruby, React Context/hooks, Web Components)."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Selection guidance: framework choice driven by code analysis and spec requirements, not a fixed pin; combinations allowed when warranted."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Explicit HTML/CSS exclusion — markup and styling are not programming languages; DI guidance does not apply."
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "INDEX.md updated with DI trigger patterns (dependency injection, di, inject, container) in the 080-code-standards.md row."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Behavioral enforcement test added under tests-v2/behaviors/ dispatching a real-domain prompt via opencode run, producing session.yaml."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Clean-room sub-agent evaluates session.yaml confirming DI-mandate compliance across one Clear-standard and one Contested/Non-idiomatic language, plus the HTML/CSS exclusion."
+    evidence_type: "behavioral"
+    plan_item: 7

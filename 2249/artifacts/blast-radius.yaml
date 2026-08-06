@@ -1,0 +1,25 @@
+blast_radius:
+  issue: 2249
+  severity: MINIMAL
+  change_type: documentation-only, agent-facing guidance
+  affected_components:
+    - component: .opencode/guidelines/080-code-standards.md
+      action: modify (additive)
+      ripple: none (no code, interface, or state change)
+    - component: .opencode/guidelines/INDEX.md
+      action: modify (additive)
+      ripple: none
+    - component: .opencode/tests-v2/behaviors/ (new behavioral test)
+      action: add
+      ripple: none
+  primary_blast_radius:
+    - AI agents that read 080-code-standards.md as a Tier 1 instruction file. The new mandate changes how agents approach problem solving and unit tests in any supported language. This is the intended behavioral effect.
+  indirect_blast_radius:
+    - INDEX.md routing: agents encountering DI-related patterns route to the DI section.
+    - Behavioral enforcement test verifies agents follow the DI mandate.
+  non_affected:
+    - No source code, interfaces, state, or runtime tooling behavior.
+    - No changes to .opencode/tools/, .opencode/scripts/, or skill task files.
+    - The existing Python-specific DI section from #2243 is preserved.
+  sequencing_dependency:
+    - Sequenced after #2243 merges to avoid contradiction with the Python-specific mandate.

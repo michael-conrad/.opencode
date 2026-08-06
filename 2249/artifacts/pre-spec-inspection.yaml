@@ -1,0 +1,36 @@
+pre_spec_inspection:
+  issue: 2249
+  project_root: /home/muksihs/git/opencode-config
+  repo: michael-conrad/.opencode
+  change_type: documentation-only, agent-facing guidance
+  affected_files:
+    - path: .opencode/guidelines/080-code-standards.md
+      action: modify (additive)
+      repo: michael-conrad/.opencode
+      detail: Insert a generic multi-language DI mandate section after the existing "Libraries & Packages" section (line ~68) and before "Print Statements & Output" (line ~70). No existing content modified.
+    - path: .opencode/guidelines/INDEX.md
+      action: modify (additive)
+      repo: michael-conrad/.opencode
+      detail: Add DI-related trigger patterns (dependency injection, di, inject, container) to the 080-code-standards.md row (line 22). Existing trigger patterns preserved.
+  existing_patterns:
+    - 080-code-standards.md uses numbered lists starting at 1, stable-anchor cross-references, Mandatory Triple Co-Application, and no hardcoded identity values.
+    - The file already contains an "Enforcement Test Mandate" section (line 416) requiring behavioral enforcement tests for guideline changes.
+    - The file already contains critical-rules-BEH-EV (line 543) requiring behavioral evidence for runtime-behavioral changes.
+    - INDEX.md row for 080-code-standards.md currently has trigger patterns: "code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity".
+  parent_spec:
+    number: 2243
+    title: "[SPEC] Add dependency-injector mandate to Python coding standards"
+    status: open
+    labels: [approved-for-pr]
+    summary: Adds a Python-specific dependency-injector DI section to 080-code-standards.md and DI trigger patterns to INDEX.md. SC-1 (behavioral), SC-2 (structural), SC-3 (structural carveout).
+    relationship: This follow-up generalizes #2243's Python mandate to a generic multi-language DI mandate. It is a superset, not a replacement. Python remains in the "Clear standard" tier with dependency-injector.
+  sequencing:
+    - This spec is sequenced AFTER #2243 merges to avoid contradiction with the Python-specific mandate.
+  dependencies:
+    - .opencode/guidelines/080-code-standards.md (target)
+    - .opencode/guidelines/INDEX.md (target)
+    - .opencode/tests-v2/behaviors/ (behavioral enforcement test location)
+  non_affected:
+    - No source code, interfaces, state, or runtime tooling changes.
+    - No changes to .opencode/tools/, .opencode/scripts/, or skill task files.
+    - The existing Python-specific DI section from #2243 is preserved.
