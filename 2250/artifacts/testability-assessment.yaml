@@ -1,29 +1,94 @@
-# Testability assessment — issue 2250
+testability_assessment:
+  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
+  issue_number: "TBD"
+  generated: "2026-08-05"
+  analysis: >
+    Test strategy per SC. Most SCs are string-level consistency checks (grep/read assertions) —
+    they verify documentation content that does not affect runtime behavior. Three SCs (SC-1, SC-13,
+    SC-19) affect agent runtime behavior and require behavioral tests via `opencode run`.
+  phases:
+    phase_1:
+      name: "Audit skill card consistency"
+      test_strategies:
+        - sc: SC-1
+          type: behavioral
+          method: >
+            `opencode run` behavior test: dispatch a plan-fidelity audit and assert stderr shows
+            Investigator->Validator->Evaluator->Arbiter chain with NO cross-validate dispatch; Arbiter
+            produces final consensus. Plus string check: grep audit/SKILL.md for cross-validate = zero.
+        - sc: SC-2
+          type: string
+          method: "grep audit/tasks/ for 'tasks/plan-fidelity.md', 'tasks/spec-audit.md', 'tasks/verification-audit.md', 'tasks/test-quality-audit.md' returns zero matches"
+        - sc: SC-4
+          type: string
+          method: "grep audit/tasks/{plan-fidelity,spec-audit}-{investigator,evaluator}.md for 'Read [.*](reference/' returns only .opencode/reference/ targets that resolve to existing files"
+        - sc: SC-5
+          type: string
+          method: "Read audit/SKILL.md item 5; assert conditional 'if provided, collect evidence' language, no hard artifact mandate"
+        - sc: SC-9
+          type: string
+          method: "Read reference/holistic-dimensions.yaml lines 98-114; assert refs point to role files and no 'Step 0 pre-flight gate'; role-file paths resolve"
+        - sc: SC-10
+          type: string
+          method: "grep plan-fidelity-investigator.md for 'plan-phase-'; zero matches; 'plan-01-' used"
+        - sc: SC-12
+          type: string
+          method: "grep audit/SKILL.md for 'plan_local_dir'; zero matches; plan-fidelity TDT uses spec_local_dir"
+        - sc: SC-13
+          type: behavioral
+          method: >
+            `opencode run` behavior test: run plan-fidelity audit on a single plan (plan-vs-spec) and
+            assert the evaluator produces verdict from single-plan evidence, not clean-room comparison.
+            Plus string check: grep plan-fidelity-evaluator.md for clean-room/PLAN_INCOMPLETE/PLAN_OVERSCOPED/PLAN_DRIFT = zero.
+        - sc: SC-19
+          type: behavioral
+          method: >
+            `opencode run` behavior test: trigger post-merge closure and assert branch-cleanup.md
+            dispatches closure-verification DiMo chain (Investigator->Validator->Evaluator->Arbiter)
+            with 2-field contract and no audit_phase/resolve-models/cross-validate. Plus string check:
+            grep branch-cleanup.md for 'resolve-models'/'audit_phase'/'cross-validate' = zero.
 
-## Test strategy per item
+    phase_2:
+      name: "Plan writer (writing-plans) consistency"
+      test_strategies:
+        - sc: SC-3
+          type: string
+          method: "grep create.md for 'Read [.*](reference/' returns only .opencode/reference/ targets that resolve to existing files"
+        - sc: SC-6
+          type: string
+          method: "Read research.md step 12; assert matches './.opencode/tools/plan plan --problem <path> > plan-output.yaml'"
+        - sc: SC-7
+          type: string
+          method: "Read writing-plans/SKILL.md line 13; assert '9 task files'; count File Structure task entries = 9"
+        - sc: SC-8
+          type: string
+          method: "glob writing-plans/contracts/; assert handoff-*, research-*, verify-plan-pipeline-* present; self-review-*, structure-* absent; solve-output.yaml present"
+        - sc: SC-11
+          type: string
+          method: "Read completion.md lines 5, 42; assert both reference 'plan file at plan.md', not 'issue body'"
+        - sc: SC-16
+          type: string
+          method: "Read writing-plans/SKILL.md File Structure; plan-artifact-format.md absent; plan-artifact-format.md deleted or reduced to pointer to reference/plan-structure-standards.md"
+        - sc: SC-17
+          type: string
+          method: "grep verify-plan-pipeline.md for 'audit-fidelity'/'audit-concern' = zero; assert 'plan-fidelity'/'concern-separation' used"
 
-| Item | Strategy | Evidence type | Verification method |
-|------|----------|---------------|---------------------|
-| ITEM-1 | structural | structural | Grep/verify each reference/ ref in spec-creation task cards resolves to an existing consolidated .opencode/reference/ file |
-| ITEM-2 | string | string | Grep analyze.md: no contracts/ path remains; all outputs under artifacts/ |
-| ITEM-3 | string | string | Grep sc-table-columns.md absent; spec-creation/reference/ no longer contains orphan content |
-| ITEM-4 | structural | structural | Grep writing-plans task reference paths resolve to existing .opencode/reference/ files |
-| ITEM-5 | string | string | Grep writing-plans/SKILL.md for plan-artifact-format returns zero; file absent from skills/writing-plans/reference/ |
-| ITEM-6 | structural | structural | Verify audit SKILL.md has Workflows section; TDT/Invocation/DISPATCH_GATE replaced; role-chain dispatch preserved |
-| ITEM-7 | string | string | Grep audit task contract blocks use finding_summary: (not summary:); status enum includes FAIL |
-| ITEM-8 | string | string | Grep verify-authorization absent; replaced with current approval-gate task |
-| ITEM-9 | string | string | Grep sc-summary.yaml absent; replaced with analysis-summary.yaml |
-| ITEM-10 | structural | structural | Cross-check spec-structure-standards.md and plan-structure-standards.md for consistent section/column definitions |
+    phase_3:
+      name: "Plan CLI card consistency"
+      test_strategies:
+        - sc: SC-14
+          type: string
+          method: "Read plan/SKILL.md line 3; assert single 'writing-plans' clause"
+        - sc: SC-15
+          type: string
+          method: "grep plan/SKILL.md for 'executing-plans'; zero matches"
+        - sc: SC-18
+          type: string
+          method: "file-exists skills/plan/tasks/discover.md; read it and assert it documents the discover subcommand; plan/SKILL.md File Structure lists discover.md"
 
-## Behavioral-test consideration
-
-The skill-card-structure remediation changes agent-facing routing text. Per
-critical-rules-BEH-EV, structural changes to routing text are structural in nature BUT where the
-change alters agent dispatch behavior, behavioral evidence (opencode run against stderr) may be
-required. Default SCs declared structural/string; any SC that changes a dispatch string that alters
-runtime routing MUST be uplifted to behavioral per the classification gate.
-
-## Feasibility
-
-All items verifiable via grep/file-existence/structural cross-checks against the in-repo
-skill deck and consolidated reference docs. No external test infra required. No synthetic data.
+  behavioral_test_notes:
+    - "SC-1, SC-13, SC-19 are classified behavioral because they affect agent runtime behavior (dispatch decisions, verdict model). Must be tested via `opencode run` with stderr assertion — prose recall is NOT accepted."
+    - "All other SCs are string-level consistency checks (no runtime behavior change)."
+  test_framework:
+    - "Behavioral tests via bash .opencode/tests-v2/with-test-home opencode run '<message>'"
+    - "String checks via grep/read/glob assertions"

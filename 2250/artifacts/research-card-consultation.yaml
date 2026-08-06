@@ -1,34 +1,36 @@
-# Research card consultation — issue 2250
-
-## Procedure
-
-Globbed .opencode/.issues/research-cards/*.md and grepped frontmatter for questions
-matching the skill-set consistency / skill-card structure audit topic.
-
-## Result
-
-No active research card found with confidence >= 0.7 for the topic
-"skill card set internal-consistency remediation" (spec-creation/writing-plans/audit alignment
-to Workflows + consolidated reference + finding_summary contracts + artifacts-based artifacts).
-
-## Cached-findings skip rationale
-
-- The skill-card-description-standards.md, task-card-structure-standards.md, and
-  skill-card-schema.md in .opencode/reference/ already encode the canonical target structure
-  and are themselves authoritative source-of-truth documents (live, in-repo).
-- No separate research dispatch is warranted; the target standard is defined by in-repo reference
-  docs. Findings derived directly from the inspected files.
-
-## Incorporated source documents
-
-| Document | Role |
-|----------|------|
-| reference/skill-card-description-standards.md | Workflows section replaces legacy three-section structure |
-| reference/task-card-structure-standards.md | result contract requires finding_summary |
-| reference/spec-structure-standards.md | canonical spec structure |
-| reference/plan-structure-standards.md | canonical plan structure |
-
-## Gap
-
-- Audit SKILL.md and audit task files have not yet been reconciled against these reference
-  standards; that reconciliation is the remediation target of this spec.
+research_card_consultation:
+  glob_scope: ".issues/research-cards/*.md"
+  consultation_date: "2026-08-05"
+  cards_reviewed:
+    - plan-fidelity-auditor-authoritative-sources.md
+    - plan-fidelity-sc-coverage-gate.md
+    - spec-creation-state.md
+    - plan-fidelity-sc-coverage-gate.md
+  cards_applicable:
+    - card: plan-fidelity-auditor-authoritative-sources.md
+      confidence: 1.0
+      relevance: >
+        Defines the three valid dispatch indicators used by plan-fidelity auditor PF-DISPATCH-MODE.
+        Directly relevant to F4 (reference path fixes in plan-fidelity-investigator/evaluator) —
+        these reference targets must resolve to the canonical dispatch-indicator definitions.
+      incorporated: >
+        The canonical dispatch-indicator semantics (inline/sub-agent/clean-room) are consumed by
+        plan-fidelity-evaluator.md lines 108-110 (PF-DISPATCH-MODE, PF-DISPATCH-DEFECTS) via
+        reference/plan-structure-standards.md §Dispatch Indicators. F4 path fixes must preserve
+        these Read targets pointing at the canonical .opencode/reference/plan-structure-standards.md.
+    - card: plan-fidelity-sc-coverage-gate.md
+      confidence: 1.0
+      relevance: >
+        Documents the direct SC-to-plan coverage gate (PF-3) and the migration from monolithic
+        plan-fidelity.md to role files. Directly relevant to F2 (deleting stale tasks/plan-fidelity.md
+        references) and F13 (single-plan vs dual-plan model).
+      incorporated: >
+        Confirms tasks/plan-fidelity.md was the legacy monolithic target; F2 removes stale
+        references to it. Confirms PF-3 coverage semantics live in role files, not a monolithic file.
+  cards_not_applicable:
+    - "create-md-remote-format-defect.md, cross-reference-form-comparison.md, local-issues-discover-repos-worktree-filter.md, multi-feature-branch-main-with-submodules.md, pre-response-gate-skill-description-design.md, searxng-mcp-search-alternatives.md, spec-writing-ai-agents-opencode-skill-architecture.md, wiki-operations-agent-tools-survey.md — topics unrelated to plan writer / plan audit skill card consistency audit"
+  no_matching_card_for: >
+    No research card specifically documents the writing-plans/plan/audit skill-card internal
+    consistency audit described by F1-F19. The two plan-fidelity cards provide supporting context
+    (dispatch indicators, SC-coverage gate, monolithic-to-role migration) but not the audit itself.
+    No new research dispatch required — the audit source material is self-contained.

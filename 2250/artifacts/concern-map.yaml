@@ -1,19 +1,43 @@
-# Concern map — issue 2250
+concern_map:
+  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
+  issue_number: "TBD"
+  generated: "2026-08-05"
+  analysis: >
+    Three distinct concern domains, mapped to three phases. Each phase groups SCs of one concern
+    boundary. No phase mixes concerns across domains.
+  phases:
+    phase_1:
+      name: "Audit skill card consistency"
+      concern_boundary: >
+        Consistency of the audit skill card and its DiMo role files: cross-validate removal,
+        role-file reference correctness, single-plan fidelity model, TDT field alignment,
+        artifact-mandate softening, closure-verification dispatch correctness.
+      separation_rationale: >
+        All SC-1/2/4/5/9/10/12/13/19 modify audit-facing files (skills/audit, branch-cleanup.md,
+        reference/holistic-dimensions.yaml). They form a coherent audit-domain consistency fix.
+      scs: [SC-1, SC-2, SC-4, SC-5, SC-9, SC-10, SC-12, SC-13, SC-19]
 
-## Concern boundaries per item
+    phase_2:
+      name: "Plan writer (writing-plans) consistency"
+      concern_boundary: >
+        Consistency of the writing-plans skill card, its tasks, contracts, and canonical schema:
+        task count, contract symmetry, reference paths, plan invocation form, completion lifecycle
+        target, verify-plan-pipeline naming, plan-artifact-format deprecation.
+      separation_rationale: >
+        All SC-3/6/7/8/11/16/17 modify writing-plans-facing files (skills/writing-plans/*,
+        reference/plan-structure-standards.md adoption). Coherent plan-writer consistency fix.
+      scs: [SC-3, SC-6, SC-7, SC-8, SC-11, SC-16, SC-17]
 
-| Concern | Item(s) | Files | Separation rationale |
-|---------|---------|-------|----------------------|
-| Reference path correctness | ITEM-1, ITEM-4 | spec-creation + writing-plans task cards | Single concern: relative reference/ resolution to consolidated .opencode/reference/ |
-| Artifact path consistency | ITEM-2 | spec-creation/tasks/analyze.md | Single concern: contracts/ vs artifacts/ uniformity |
-| Stale/orphaned reference cleanup | ITEM-3 | spec-creation/reference/ | Single concern: remove or repurpose orphaned sc-table-columns.md |
-| SKILL.md structural migration | ITEM-5 | skills/audit/SKILL.md | Single concern: legacy TDT/Invocation/DISPATCH_GATE -> Workflows |
-| Result-contract schema alignment | ITEM-6 | all audit/tasks/*.md | Single concern: finding_summary + FAIL enum |
-| Stale task reference remediation | ITEM-7 | handoff.md, create.md, research.md, completion.md | Single concern: verify-authorization and sc-summary.yaml replacement |
-| Structure-standard reconciliation | ITEM-8 | reference/spec-structure-standards.md, plan-structure-standards.md | Single concern: plan/spec structure consistency |
+    phase_3:
+      name: "Plan CLI card consistency"
+      concern_boundary: >
+        Consistency of the plan skill card and its CLI subcommand task coverage: description
+        cleanup, dead reference removal, discover task addition.
+      separation_rationale: >
+        SC-14/15/18 modify skills/plan/SKILL.md and add skills/plan/tasks/discover.md. Coherent
+        plan-CLI-card consistency fix, independent of audit and writing-plans domains.
+      scs: [SC-14, SC-15, SC-18]
 
-## Concern isolation guarantee
-
-Each item targets exactly one file category (skill card OR task card OR reference doc) and one
-verification domain (structural). No item mixes skill-card structural changes with task-card
-contract changes.
+  cross_phase_dependencies:
+    - "SC-4 (audit reference paths) and SC-9 (holistic-dimensions role refs) both depend on the canonical reference/plan-structure-standards.md being the authoritative target — established by SC-16 (single source) in phase 2"
+    - "Phase ordering: phase 1 (audit) and phase 2 (writing-plans) are independent in execution but share canonical reference targets; phase 3 (plan CLI) is fully independent"

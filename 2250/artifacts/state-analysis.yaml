@@ -1,27 +1,95 @@
-# State analysis — issue 2250
+state_analysis:
+  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
+  issue_number: "TBD"
+  generated: "2026-08-05"
+  analysis: >
+    These are documentation/consistency edits to agent-facing skill files. There is no runtime
+    state machine. The relevant 'state' is the consistency state of each skill card: does the card
+    accurately describe its tasks, references, and dispatch contracts? The transition is from an
+    INCONSISTENT to CONSISTENT state per finding.
+  state_model:
+    initial_state: "INCONSISTENT — each finding F1-F19 represents a drift between the skill card's declared content and its actual task/reference/contract reality"
+    transition_trigger: "Approved spec implementation applying the ONE prescriptive resolution per finding"
+    terminal_state: "CONSISTENT — skill cards' descriptions, task listings, cross-references, dispatch contracts, and schema sources accurately reflect the on-disk reality"
 
-## State machine transitions per item
+  per_finding_state_transitions:
+    - finding: F1
+      from: "cross-validate referenced in audit/SKILL.md TDT/Tasks/item5 but no cross-validate task exists"
+      to: "no cross-validate references; Arbiter remains the sole consensus authority"
+      sc: SC-1
+    - finding: F2
+      from: "audit role files reference deleted monolithic task files (plan-fidelity.md, spec-audit.md, verification-audit.md, test-quality-audit.md)"
+      to: "stale Main-task-file cross-references removed; role files reference only existing role files"
+      sc: SC-2
+    - finding: F3
+      from: "create.md Read [..](reference/...) targets resolve to wrong dir (writing-plans/reference/)"
+      to: "create.md Read targets resolve to .opencode/reference/ canonical files"
+      sc: SC-3
+    - finding: F4
+      from: "audit role files Read [..](reference/...) targets resolve to wrong dir"
+      to: "audit role files Read targets resolve to .opencode/reference/ canonical files"
+      sc: SC-4
+    - finding: F5
+      from: "Mandatory Task Discipline item 5 mandates hard artifact requirements no investigator implements"
+      to: "item 5 softened to conditional 'if provided, collect evidence' form"
+      sc: SC-5
+    - finding: F6
+      from: "research.md step 12 uses plan --contract-path/--output (CLI takes only --problem)"
+      to: "research.md step 12 uses plan --problem <path> > plan-output.yaml"
+      sc: SC-6
+    - finding: F7
+      from: "writing-plans/SKILL.md claims '7 task files' but File Structure lists 9"
+      to: "writing-plans/SKILL.md claims '9 task files'"
+      sc: SC-7
+    - finding: F8
+      from: "writing-plans/contracts/ has orphan self-review/structure contracts; missing handoff/research/verify-plan-pipeline contracts"
+      to: "contracts/ symmetric with 9-task file structure; handoff/research/verify-plan-pipeline present; self-review/structure removed; solve-output.yaml kept"
+      sc: SC-8
+    - finding: F9
+      from: "holistic-dimensions.yaml cross-refs point to deleted monoliths and nonexistent 'Step 0 pre-flight gate'"
+      to: "holistic-dimensions.yaml cross-refs point to role files (spec-audit-investigator.md, plan-fidelity-investigator.md); Step 0 refs removed"
+      sc: SC-9
+    - finding: F10
+      from: "plan-fidelity-investigator.md example uses plan-phase-1.md (non-canonical)"
+      to: "plan-fidelity-investigator.md example uses plan-01-{slug}.md (canonical)"
+      sc: SC-10
+    - finding: F11
+      from: "completion.md Purpose/Exit say 'issue body' but Step 4 appends to plan file at plan.md"
+      to: "completion.md Purpose/Exit say 'plan file at plan.md'"
+      sc: SC-11
+    - finding: F12
+      from: "audit/SKILL.md TDT plan-fidelity context uses plan_local_dir; role files use spec_local_dir"
+      to: "audit/SKILL.md TDT uses spec_local_dir (consistent with role files and line 128 mandate)"
+      sc: SC-12
+    - finding: F13
+      from: "plan-fidelity-evaluator.md uses stale dual-plan (clean-room vs existing) model"
+      to: "plan-fidelity-evaluator.md uses single-plan (plan-vs-spec) model consistent with investigator"
+      sc: SC-13
+    - finding: F14
+      from: "plan/SKILL.md description has duplicated 'and writing-plans' clause"
+      to: "plan/SKILL.md description has single clause"
+      sc: SC-14
+    - finding: F15
+      from: "plan/SKILL.md cross-refs nonexistent executing-plans skill"
+      to: "plan/SKILL.md no executing-plans reference"
+      sc: SC-15
+    - finding: F16
+      from: "conflicting plan schema sources (plan-artifact-format.md '1.0' vs plan-structure-standards.md int 1)"
+      to: "plan-artifact-format.md deprecated; plan-structure-standards.md single source"
+      sc: SC-16
+    - finding: F17
+      from: "verify-plan-pipeline.md checks for 'audit-fidelity and audit-concern' naming"
+      to: "verify-plan-pipeline.md checks for 'plan-fidelity and concern-separation' naming"
+      sc: SC-17
+    - finding: F18
+      from: "plan skill advertises discover subcommand but no discover.md task exists"
+      to: "plan/tasks/discover.md added and referenced in SKILL.md"
+      sc: SC-18
+    - finding: F19
+      from: "branch-cleanup.md dispatches resolve-models + audit_phase + separate cross-validate"
+      to: "branch-cleanup.md dispatches closure-verification DiMo chain with 2-field contract, no audit_phase"
+      sc: SC-19
 
-| Item | From state | Transition | To state |
-|------|-----------|-----------|----------|
-| ITEM-1 | spec-creation task cards have broken reference/ paths | Rewrite paths to consolidated reference/ | reference paths resolve to existing consolidated files |
-| ITEM-2 | analyze.md writes to contracts/ (req, decompose) and artifacts/ (inspection, artifacts) | Consolidate all outputs to artifacts/ | analyze.md writes uniformly to artifacts/ |
-| ITEM-3 | sc-table-columns.md present in spec-creation/reference/, zero consumers | Delete OR merge into reference/spec-structure-standards.md | orphan removed; no dead file remains |
-| ITEM-4 | writing-plans reference paths broken; plan-artifact-format.md stale | Rewrite paths; reconcile/remove plan-artifact-format.md | reference paths resolve; no stale reference doc |
-| ITEM-5 | audit SKILL.md in legacy TDT/Invocation/DISPATCH_GATE structure | Migrate to flat Workflows section | audit SKILL.md is Workflows-style; role chains preserved |
-| ITEM-6 | audit task contracts use summary:; enum lacks FAIL | Replace summary: with finding_summary:; add FAIL | contracts use finding_summary; status enum includes FAIL |
-| ITEM-7 | handoff.md/completion.md reference nonexistent verify-authorization; research.md/create.md use sc-summary.yaml | Replace with current approval-gate task + analysis-summary.yaml | no stale task/file references remain |
-| ITEM-8 | reference/spec-structure-standards.md and plan-structure-standards.md divergent | Reconcile non-substantively | plan/spec structure specs consistent |
-
-## Invariants preserved
-
-- spec-creation 4-task pipeline topology (analyze/create/validate/revise) — unchanged.
-- writing-plans 7-task pipeline topology — unchanged.
-- audit DiMo 4-role chain dispatch — preserved across migration.
-
-## Failure modes
-
-- If reference consolidation (ITEM-3) is not done first, ITEM-1/ITEM-4 rewrites target a path
-  that still does not exist. Dependency DAG encodes this ordering.
-- If audit SKILL.md migration (ITEM-5) breaks dispatch strings, orchestrator routing fails.
-  Mitigation: preserve canonical dispatch strings and role-chain contract paths.
+  terminal_state_verification:
+    - "Each SC's verification method in decompose-output.yaml asserts the terminal state (grep-based string checks or behavioral checks)"
+    - "Behavioral SCs (SC-1, SC-13, SC-19) verified via `opencode run` behavior tests observing agent dispatch/verdict behavior"

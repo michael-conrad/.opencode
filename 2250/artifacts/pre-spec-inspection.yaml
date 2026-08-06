@@ -1,47 +1,183 @@
-# Pre-spec inspection — skill card set internal-consistency audit (issue 2250)
+pre_spec_inspection:
+  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
+  repo: "michael-conrad/.opencode (github.com)"
+  project_root: "/home/muksihs/git/opencode-config/.opencode"
+  inspection_date: "2026-08-05"
+  methodology: >
+    History-grounded read-only audit. All 19 findings (F1-F19) verified against live filesystem
+    state via read/grep/bash. Git history refs (fc9372a4, 5c74146e, b80aba25, 2106acbc) confirmed
+    deleted files and migrations referenced by findings.
 
-## Scope of inspection
+  affected_skill_dirs:
+    - skills/writing-plans/          # SKILL.md, tasks/, contracts/, reference/
+    - skills/plan/                    # SKILL.md, tasks/
+    - skills/audit/                   # SKILL.md, tasks/ (DiMo role files)
+    - skills/git-workflow-cleanup/tasks/cleanup/   # branch-cleanup.md
+    - reference/                      # plan-structure-standards.md, holistic-dimensions.yaml, cost-model-standards.md
 
-Repo: .opencode submodule. Inspected skill card sets spec-creation, writing-plans, audit
-plus consolidated .opencode/reference/ standards and approval-gate task deck.
+  key_file_inventory:
+    # F6
+    - path: skills/writing-plans/tasks/research.md
+      line: 54
+      defect: "step 12 uses --contract-path/--output; CLI takes only --problem + stdout redirect"
+      evidence: "grep showed line 54: plan plan --contract-path {...} --output {...}"
+    - path: skills/plan/tasks/plan.md
+      line: 47
+      correct_form: "./.opencode/tools/plan plan --problem <path> > plan-output.yaml"
 
-## Affected files (skill cards and task cards)
+    # F3
+    - path: skills/writing-plans/tasks/create.md
+      lines: [40, 42, 62, 63]
+      defect: "Read [..](reference/...) resolves to writing-plans/reference/ (wrong dir)"
+      correct_target: ".opencode/reference/..."
 
-| Path | Current state |
-|------|---------------|
-| skills/spec-creation/SKILL.md | Flat, Workflows-style. Pipeline: analyze -> create -> validate -> (revise->validate)* |
-| skills/spec-creation/tasks/analyze.md | Writes to tmp/{N}/artifacts/ and tmp/{N}/contracts/ (mixed paths) |
-| skills/spec-creation/tasks/create.md | references reference/spec-structure-standards.md, reference/cost-model-standards.md; writes sc-summary.yaml |
-| skills/spec-creation/tasks/validate.md | references reference/spec-structure-standards.md; validates 11 dimensions |
-| skills/spec-creation/tasks/revise.md | deletes .issues/{N}/artifacts/ |
-| skills/spec-creation/reference/sc-table-columns.md | orphaned — no file references it |
-| skills/writing-plans/SKILL.md | Flat, Workflows-style. 7 task files + contracts/ + reference/ |
-| skills/writing-plans/tasks/handoff.md | references approval-gate --task verify-authorization (nonexistent task) |
-| skills/writing-plans/tasks/create.md | references reference/plan-structure-standards.md, reference/cost-model-standards.md |
-| skills/writing-plans/tasks/research.md | reads sc-summary.yaml |
-| skills/writing-plans/tasks/analyze.md | writes analysis-summary.yaml |
-| skills/writing-plans/reference/plan-artifact-format.md | stale — referenced only by SKILL.md file-structure block |
-| skills/audit/SKILL.md | legacy structure (TDT, Invocation, DISPATCH_GATE, DiMo chains) not migrated to Workflows |
-| skills/audit/tasks/*.md (40+ files) | role-split DiMo chain; contract uses summary: not finding_summary: |
+    # F4
+    - path: skills/audit/tasks/plan-fidelity-investigator.md
+      lines: [60, 91]
+      defect: "Read [..](reference/...) broken relative targets"
+    - path: skills/audit/tasks/plan-fidelity-evaluator.md
+      lines: [106, 107, 108, 109, 110, 111]
+      defect: "Read [..](reference/...) broken relative targets"
+    - path: skills/audit/tasks/spec-audit-investigator.md
+      lines: [106]
+      defect: "Read [..](reference/...) broken relative target"
+    - path: skills/audit/tasks/spec-audit-evaluator.md
+      lines: [231, 242, 264, 268, 272, 276, 280]
+      defect: "Read [..](reference/...) broken relative targets"
+      correct_target: ".opencode/reference/..."
 
-## Consolidated reference standards (direction of change)
+    # F1
+    - path: skills/audit/SKILL.md
+      defect: "cross-validate referenced in TDT (line 79, 102), Tasks table, Mandatory Task Discipline item 5; no cross-validate*.md task exists"
+      evidence: "git log confirms cross-validate* deleted in fc9372a4; Arbiter DiMo role already does consensus"
 
-| Path | Role |
-|------|------|
-| reference/spec-structure-standards.md | spec section inventory, SC table columns, evidence taxonomy |
-| reference/plan-structure-standards.md | plan frontmatter, index, phase sections |
-| reference/cost-model-standards.md | per-SC/per-phase cost frame (dark-prose-007) |
-| reference/skill-card-schema.md | SKILL.md frontmatter binary constraints |
-| reference/skill-card-description-standards.md | Workflows section replaces TDT + Invocation + DISPATCH_GATE |
-| reference/task-card-structure-standards.md | result contract requires finding_summary |
+    # F19
+    - path: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+      lines: [30, 40]
+      defect: "dispatches resolve-models (no such task), passes audit_phase: post_merge (forbidden), calls cross-validate as separate dispatch"
+      correct_form: "dispatch closure-verification DiMo chain (Investigator->Validator->Evaluator->Arbiter) with 2-field contract {spec_local_dir, artifact_evidence_dir}, no audit_phase"
 
-## Confirmed defects
+    # F2
+    - path: skills/audit/tasks/plan-fidelity-arbiter.md
+      line: 254
+      defect: "references tasks/plan-fidelity.md as 'Main task file' — file deleted in 5c74146e"
+    - path: skills/audit/tasks/plan-fidelity-evaluator.md
+      line: 352
+      defect: "references tasks/plan-fidelity.md as 'Main task file'"
+    - path: skills/audit/tasks/plan-fidelity-validator.md
+      line: 298
+      defect: "references tasks/plan-fidelity.md as 'Evaluator role'"
+    - path: skills/audit/tasks/plan-fidelity-investigator.md
+      line: 291
+      defect: "references tasks/plan-fidelity.md as 'Evaluator role'"
+    - path: skills/audit/tasks/spec-audit-arbiter.md
+      line: 414
+      defect: "no stale Main task file ref (verified clean)"
+    - path: skills/audit/tasks/spec-audit-investigator.md
+      line: 487
+      defect: "references tasks/spec-audit.md as 'Evaluator role'"
+    - path: skills/audit/tasks/spec-audit-validator.md
+      line: 645
+      defect: "references tasks/spec-audit.md as 'Evaluator role'"
+    - path: skills/audit/tasks/verification-audit-investigator.md
+      line: 178
+      defect: "references tasks/verification-audit.md as 'Evaluator role'"
+    - path: skills/audit/tasks/verification-audit-validator.md
+      line: 296
+      defect: "references tasks/verification-audit.md as 'Evaluator role'"
+    - path: skills/audit/tasks/test-quality-audit-arbiter.md
+      line: 386
+      defect: "references tasks/test-quality-audit.md as 'Main task file'"
 
-1. Broken relative reference/ paths (see code-path-inventory)
-2. contracts/ vs artifacts/ path mismatch in spec-creation analyze.md (Steps 3-4 vs 5)
-3. Orphaned sc-table-columns.md (no consumer)
-4. Stale plan-artifact-format.md (only SKILL.md file-structure lists it; no task reads it)
-5. Legacy audit SKILL.md not migrated to Workflows
-6. Contract enum lacks FAIL; sub-agent contracts use summary: not finding_summary:
-7. Stale task refs: approval-gate verify-authorization; sc-summary.yaml (divergent from analysis-summary.yaml)
-8. Divergent plan/spec structure (spec Items/SC-table vs plan phase files; sc-summary vs analysis-summary)
+    # F16
+    - path: reference/plan-structure-standards.md
+      frontmatter: "plan_schema_version: 1 (int), dispatch: [...]"
+      status: "canonical (Read by create.md and plan-fidelity tasks)"
+    - path: skills/writing-plans/reference/plan-artifact-format.md
+      frontmatter: "plan_schema_version: '1.0' (string), authorization_scope, pr_strategy, phase_count"
+      status: "conflicting; only referenced in SKILL.md file listing (line 88) + archived issue plans"
+      resolution: "deprecate plan-artifact-format.md; adopt plan-structure-standards.md as single source"
+
+    # F13
+    - path: skills/audit/tasks/plan-fidelity-evaluator.md
+      lines: [99, 102, 232, 249, 307]
+      defect: "stale dual-plan 'clean-room vs existing' model; investigator collects evidence from single plan"
+      resolution: "rewrite to single-plan (plan-vs-spec) model"
+
+    # F12
+    - path: skills/audit/SKILL.md
+      line: 71
+      defect: "TDT passes plan_local_dir for plan-fidelity; line 128 + role files mandate spec_local_dir"
+
+    # F5
+    - path: skills/audit/SKILL.md
+      line: 32
+      defect: "Mandatory Task Discipline item 5 claims hard artifact requirements no investigator implements"
+      resolution: "soften to conditional 'if provided, collect evidence' form (matches coherence-maintenance-investigator.md line 309 pattern)"
+
+    # F18
+    - path: skills/plan/SKILL.md
+      lines: [3, 12]
+      defect: "description + Overview advertise 'discovering action schemas' / discover subcommand; no discover.md task exists"
+      resolution: "ADD discover.md task (all other subcommands ground/pddl/validate/state/plan have one)"
+
+    # F15
+    - path: skills/plan/SKILL.md
+      line: 120
+      defect: "references executing-plans skill which does not exist"
+      resolution: "DELETE the reference"
+
+    # F14
+    - path: skills/plan/SKILL.md
+      line: 3
+      defect: "duplicated clause 'and writing-plans (implementation plans from specs) and writing-plans (implementation plans from specs)'"
+      resolution: "DELETE the duplicate clause"
+
+    # F9
+    - path: reference/holistic-dimensions.yaml
+      lines: [98, 114]
+      defect: "cross-references deleted audit/tasks/spec-audit.md and audit/tasks/plan-fidelity.md + 'Step 0 pre-flight gate' sections in create.md/revise.md (nonexistent)"
+      resolution: "point to role files (spec-audit-investigator.md, plan-fidelity-investigator.md); remove 'Step 0 pre-flight gate' refs"
+
+    # F7
+    - path: skills/writing-plans/SKILL.md
+      line: 13
+      defect: "says '7 task files'; File Structure lists 9 (handoff, verify-plan-pipeline added)"
+      resolution: "change to '9 task files'"
+
+    # F8
+    - path: skills/writing-plans/contracts/
+      defect: "orphan contracts self-review, structure; missing contracts for handoff, research, verify-plan-pipeline"
+      resolution: "add contracts for handoff, research, verify-plan-pipeline; remove orphan self-review and structure contracts (keep solve-output.yaml)"
+
+    # F10
+    - path: skills/audit/tasks/plan-fidelity-investigator.md
+      line: 98
+      defect: "example uses plan-phase-1.md naming; canonical is plan-01-{slug}.md"
+      resolution: "align example"
+
+    # F11
+    - path: skills/writing-plans/tasks/completion.md
+      lines: [5, 42]
+      defect: "Purpose + Exit Criteria say 'issue body'; Step 4 appends to plan file at plan.md"
+      resolution: "align Purpose/Exit to 'plan file at plan.md'"
+
+    # F17
+    - path: skills/writing-plans/tasks/verify-plan-pipeline.md
+      line: 25
+      defect: "checks for 'audit-fidelity and audit-concern' output naming; actual tasks are plan-fidelity and concern-separation"
+      resolution: "update naming"
+
+  existing_patterns_and_conventions:
+    - "DiMo role chain: Investigator -> Validator -> Evaluator -> Arbiter, each a separate task file in tasks/<role>/ or tasks/<audit>-<role>.md"
+    - "Dispatch contracts carry exactly 2 fields: spec_local_dir and artifact_evidence_dir. No audit_phase field."
+    - "Read [Text](path) cross-reference pattern is MANDATORY for agent-facing text (per .opencode/AGENTS.md Read-Link Cross-Reference Rule)"
+    - "Canonical reference docs live at .opencode/reference/ (root of repo), not skill-local reference/"
+    - "plan_schema_version in canonical plan-structure-standards.md is integer 1"
+
+  dependencies_and_callers:
+    - "create.md reads reference/plan-structure-standards.md and reference/cost-model-standards.md (must resolve to .opencode/reference/)"
+    - "plan-fidelity investigator/evaluator read reference/plan-structure-standards.md, reference/cost-model-standards.md"
+    - "spec-audit investigator/evaluator read reference/spec-structure-standards.md, reference/cost-model-standards.md"
+    - "branch-cleanup.md dispatches audit closure-verification chain after PR merge"
+    - "verify-plan-pipeline.md validates writing-plans pipeline artifacts"
