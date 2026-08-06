@@ -6,12 +6,18 @@ authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 7
 dispatch:
-  - test-driven-development
-  - verification-before-completion
-  - audit
-  - finishing-a-development-branch
-  - git-workflow-pr
-  - completion-core
+  - phase_1: test-driven-development:red
+  - phase_2: test-driven-development:red
+  - phase_3: test-driven-development:red
+  - phase_4: test-driven-development:red
+  - phase_5: test-driven-development:red
+  - phase_6: test-driven-development:red
+  - phase_7: test-driven-development:red
+  - post: finishing-a-development-branch:checklist
+  - post: audit:verification-audit
+  - post: git-workflow-pr:review-prep
+  - post: git-workflow-pr:create
+  - post: completion-core:completion
 ---
 
 # Implementation Plan — #2241 — Local issue.yaml as Canonical Authorization Source
