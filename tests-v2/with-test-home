@@ -22,15 +22,21 @@
 #   1  - Script error or command failed
 #   2  - Usage error
 #
-# Environment variable isolation — uses env -i with ONLY these vars:
-#   HOME, PWD, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR,
-#   XDG_DATA_HOME, XDG_STATE_HOME, PATH, SHELL, USER, LOGNAME, LANG, TERM, GB_TOKEN, GB_HOST
+# Environment variable isolation — uses env -i with ONLY the minimal,
+# explicitly enumerated infrastructure set:
+#   HOME, PATH, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_RUNTIME_DIR,
+#   XDG_DATA_HOME, XDG_STATE_HOME, SHELL, USER, LOGNAME, LANG, TERM,
+#   GIT_CONFIG_NOSYSTEM, SNAP_USER_DATA, SNAP_USER_COMMON,
+#   and the test-provisioned BEHAVIOR_* opt-in flags.
 # USER is set to "opencode-test-user" in the test environment.
+# All other values (GitBucket token/host/port, model, config) are set by
+# the test harness provisioning itself, never inherited from the parent shell.
 #
 # SNAP_USER_DATA/SNAP_USER_COMMON override snap's hardcoded ~/snap/opencode/
 # to redirect state to the test home instead of the production DB.
 #
-# FORBIDDEN: GITHUB_TOKEN, GH_TOKEN, OPENCODE_CONFIG_CONTENT, NODE_ENV,
+# FORBIDDEN: parent-sourced GitBucket credentials, GITHUB_TOKEN, GH_TOKEN,
+#            OPENCODE_CONFIG_CONTENT, NODE_ENV,
 #            VIRTUAL_ENV, CONDA_DEFAULT_ENV, shell-specific vars
 
 set -euo pipefail
@@ -42,6 +48,16 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
+
+# SC19/SC20: Harness test-env constants for the GB_* suite. These are the harness's
+# own constant values — never inherited from the parent shell. When BEHAVIOR_NEEDS_REMOTE=1
+# provisions a test GitBucket, __ensure_gitbucket() in helpers.sh exports the provisioned
+# instance's values (GB_HOST, GITBUCKET_PORT, GB_REPO, GB_PROTOCOL, GB_TOKEN) into the
+# harness process before this wrapper runs; those override the constants.
+GB_HOST_CONSTANT="http://localhost:18080"
+GB_REPO_CONSTANT="root/test-repo"
+GB_PROTOCOL_CONSTANT="http"
+GITBUCKET_PORT_CONSTANT="18080"
 
 # Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
 # The snap binary hardcodes SNAP_USER_DATA=~/snap/opencode/ and ignores XDG env vars,
@@ -93,6 +109,11 @@ do_clean_all() {
     rm -f "$PROJECT_DIR/tmp/.gitbucket.port"
     rm -rf "$PROJECT_DIR/tmp/gitbucket-data"
 
+    # SC9: remove the multi-submodule fixture clones (test-submodule-1/2) that
+    # Phase 3 provisions inside behavior-isolated workdirs. Remove those workdirs
+    # too so no provisioned state survives a --clean-all run.
+    rm -rf "$PROJECT_DIR/tmp/test-submodule"* "$PROJECT_DIR/tmp/behavior-isolated"*
+
     local count=0
     while IFS= read -r -d '' dir; do
         echo "Removing: $dir" >&2
@@ -130,6 +151,31 @@ seed_model_config() {
   }
 }
 JSONC
+}
+
+# SC20: Seed a pre-fabricated gb config.toml at $TEST_HOME/.config/gb/config.toml so
+# gb authenticates deterministically without `gb auth login`. The config carries the
+# harness's test-env default_host constant; the host token is present only when a test
+# GitBucket was provisioned (BEHAVIOR_NEEDS_REMOTE=1), matching the provisioned test
+# instance. Mirrors the fixture format in .opencode/.issues/2059/spec.md.
+seed_gb_config() {
+    mkdir -p "$TEST_HOME/.config/gb"
+
+    local gb_host="${GB_HOST:-$GB_HOST_CONSTANT}"
+    local gb_user="root"
+    local gb_token=""
+    if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
+        gb_token="${GB_TOKEN:-}"
+    fi
+
+    cat > "$TEST_HOME/.config/gb/config.toml" << TOML
+default_host = "$gb_host"
+
+[hosts."$gb_host"]
+user = "$gb_user"
+token = "$gb_token"
+protocol = "$GB_PROTOCOL_CONSTANT"
+TOML
 }
 
 do_setup() {
@@ -183,6 +229,7 @@ do_setup() {
     export TEST_PROJECT="$test_project"
 
     seed_model_config
+    seed_gb_config
 
     # Warmup: run inside isolated subshell to verify setup without polluting production DB.
     (
@@ -360,6 +407,7 @@ else
 fi
 
 seed_model_config
+seed_gb_config
 
 # Copy standalone binary to $TEST_HOME/bin so env -i PATH resolution finds it.
 STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
@@ -399,10 +447,29 @@ export SHELL="$SHELL"
 export LOGNAME="$LOGNAME"
 export LANG="$LANG"
 export TERM="$TERM"
-export GB_TOKEN="${GB_TOKEN:-}"
-export GB_HOST="${GB_HOST:-}"
-export GITBUCKET_PORT="${GITBUCKET_PORT:-}"
+export BEHAVIOR_NEEDS_MULTI_SUBMODULES="${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}"
+export BEHAVIOR_NEEDS_REMOTE="${BEHAVIOR_NEEDS_REMOTE:-}"
+export BEHAVIOR_SET_BARE_REMOTE="${BEHAVIOR_SET_BARE_REMOTE:-}"
 SETENV
+
+# SC17/SC19: Record the test-env GB_* entries in set-env.sh. The test-env constants
+# (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) are ALWAYS written to the harness's
+# constant values; GB_TOKEN (the credential secret) is scoped to the provisioned test
+# instance only, written when BEHAVIOR_NEEDS_REMOTE=1. Parent/production GB_* are never
+# written to set-env.sh (no parent passthrough).
+# The heredoc uses <<- with tab indentation so the exported lines do not begin at
+# column 0 in this source file (SC17b: no parent-sourced `export GB_` passthrough).
+cat >> "$TEST_HOME/set-env.sh" <<- SETENV_GB
+	export GB_HOST="${GB_HOST:-$GB_HOST_CONSTANT}"
+	export GITBUCKET_PORT="${GITBUCKET_PORT:-$GITBUCKET_PORT_CONSTANT}"
+	export GB_REPO="${GB_REPO:-$GB_REPO_CONSTANT}"
+	export GB_PROTOCOL="${GB_PROTOCOL:-$GB_PROTOCOL_CONSTANT}"
+SETENV_GB
+if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
+	cat >> "$TEST_HOME/set-env.sh" <<- SETENV_GB_TOKEN
+		export GB_TOKEN="${GB_TOKEN:-}"
+	SETENV_GB_TOKEN
+fi
 chmod +x "$TEST_HOME/set-env.sh"
 
 # Print [test-env] diagnostics before running the command.
@@ -417,6 +484,23 @@ echo "[test-env] XDG_STATE_HOME=$TEST_HOME/.local/state"
 echo "[test-env] XDG_CACHE_HOME=$TEST_HOME/.cache"
 echo "[test-env] SNAP_USER_DATA=$TEST_HOME/snap/opencode"
 echo "[test-env] opencode=$TEST_HOME/bin/opencode"
+
+# SC13/SC16/SC17(a)/SC19: Scope GitBucket values into the isolated env.
+#
+# The test-env constants (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) are ALWAYS
+# added to GB_ENV_ARGS (unconditionally), set to the harness's constant values
+# (overridden by the harness process's provisioned instance values when
+# __ensure_gitbucket() exports them under BEHAVIOR_NEEDS_REMOTE=1). GB_TOKEN (the
+# credential secret) is added ONLY under the BEHAVIOR_NEEDS_REMOTE=1 guard, scoped to
+# the provisioned test instance.
+#
+# Guard: parent/production GB_* never leak into the isolated env. The constants use
+# the harness constant fallback (not parent values); GB_TOKEN is absent when GitBucket
+# is not provisioned (SC17/SC19).
+GB_ENV_ARGS=(GB_HOST="${GB_HOST:-$GB_HOST_CONSTANT}" GITBUCKET_PORT="${GITBUCKET_PORT:-$GITBUCKET_PORT_CONSTANT}" GB_REPO="${GB_REPO:-$GB_REPO_CONSTANT}" GB_PROTOCOL="${GB_PROTOCOL:-$GB_PROTOCOL_CONSTANT}")
+if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
+    GB_ENV_ARGS+=(GB_TOKEN="${GB_TOKEN:-}")
+fi
 
 # Isolate XDG state AND snap data to test home using env -i with explicit allowlist.
 # FORBIDDEN: /snap/bin/opencode and snap run hardcode SNAP_USER_DATA=~/snap/opencode/
@@ -438,9 +522,10 @@ env -i -C "$TEST_PROJECT" \
     LOGNAME="opencode-test-user" \
     LANG="$LANG" \
     TERM="$TERM" \
-    GB_TOKEN="${GB_TOKEN:-}" \
-    GB_HOST="${GB_HOST:-}" \
-    GITBUCKET_PORT="${GITBUCKET_PORT:-}" \
+    BEHAVIOR_NEEDS_MULTI_SUBMODULES="${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}" \
+    BEHAVIOR_NEEDS_REMOTE="${BEHAVIOR_NEEDS_REMOTE:-}" \
+    BEHAVIOR_SET_BARE_REMOTE="${BEHAVIOR_SET_BARE_REMOTE:-}" \
+    "${GB_ENV_ARGS[@]}" \
     "$@" 2>&1 || RC=$?
 
 if [ "${KEEP_TEST_HOME:-0}" != "1" ]; then

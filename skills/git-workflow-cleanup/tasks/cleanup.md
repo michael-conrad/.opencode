@@ -28,7 +28,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Working tree clean
-- Submodule dev restored via sub-agent task()
+- Submodule dev restored inline by the cleanup executor (no nested `task()` dispatch)
 
 ## Procedure
 
@@ -106,9 +106,9 @@ Scans all open repository issues, checks each for linked merged PRs, and closes 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks sub-agent via task() for each submodule, verifies clean state.
+Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, syncs submodules, verifies clean state.
 
-**Iteration order:** Submodules MUST be processed BEFORE the parent repo. For each submodule path in `submodule_paths`, dispatch a sub-agent task to clean up its merged branches. After all submodules are complete, clean up the parent repo's branches. This ensures submodule branches are deleted before the parent repo switches context.
+**Iteration order:** Submodules MUST be processed BEFORE the parent repo. The cleanup executor performs the submodule work inline (it IS the dispatched executor — it MUST NOT re-dispatch itself via `task()`, as a sub-agent's `task` tool is denied). For each submodule path in `submodule_paths`, the executor checks out `$DEFAULT_BRANCH`, pulls `--ff-only`, deletes its merged branches, and moves on. After all submodules are complete, the executor cleans up the parent repo's branches. This ensures submodule branches are deleted before the parent repo switches context.
 
 ### Step 4: Post-Cleanup Dev-Tip Verification
 

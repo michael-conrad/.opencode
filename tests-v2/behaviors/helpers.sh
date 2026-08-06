@@ -169,6 +169,11 @@ __ensure_gitbucket() {
     echo "$port" > "$port_file"
     export GITBUCKET_PORT="$port"
     export GB_HOST="http://localhost:$port"
+    # SC19: export the test-env constants GB_REPO and GB_PROTOCOL for the provisioned
+    # test instance, alongside GB_HOST/GITBUCKET_PORT/GB_TOKEN, so the full GB_* suite
+    # reaches the isolated executor. These are the harness's test-env constants.
+    export GB_REPO="root/test-repo"
+    export GB_PROTOCOL="http"
     echo "  [gitbucket] started on port $port (PID $gb_pid)" >&2
 
     # Wait for HTTP readiness
@@ -252,6 +257,7 @@ __reset_gitbucket() {
 __kill_gitbucket() {
     # Kill GitBucket process without restarting (for --clean-all)
     local pid_file="${GITBUCKET_PID_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.pid}"
+    local data_dir="${GITBUCKET_DATA_DIR:-$PARENT_REPO_DIR/tmp/gitbucket-data}"
     if [ -f "$pid_file" ]; then
         local pid
         pid=$(cat "$pid_file" 2>/dev/null || true)
@@ -263,6 +269,13 @@ __kill_gitbucket() {
         rm -f "$pid_file"
     fi
     rm -f "$PARENT_REPO_DIR/tmp/.gitbucket.port"
+    # SC9: remove the GitBucket data dir so --clean-all leaves no provisioned state.
+    rm -rf "$GITBUCKET_DATA_DIR"
+    # SC9: remove behavior-isolated workdirs, which may hold the multi-submodule
+    # fixture clones (test-submodule-1, test-submodule-2) provisioned by Phase 3.
+    if [ -d "$PARENT_REPO_DIR/tmp/behavior-isolated" ]; then
+        rm -rf "$PARENT_REPO_DIR/tmp/behavior-isolated"*
+    fi
     unset GITBUCKET_PORT
 }
 
@@ -413,6 +426,15 @@ behavior_run() {
         return 1
     }
 
+    # SC4: Remote-strategy mutual exclusion — BEHAVIOR_NEEDS_REMOTE and
+    # BEHAVIOR_SET_BARE_REMOTE are mutually exclusive remote strategies. Setting both
+    # simultaneously would wire an ambiguous origin; reject the configuration before
+    # either the GitBucket provisioning or bare-remote wiring block runs.
+    if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
+        echo "HARNESS_FAILURE: mutual-exclusion violation — BEHAVIOR_NEEDS_REMOTE and BEHAVIOR_SET_BARE_REMOTE are mutually exclusive (both set)" >&2
+        return 1
+    fi
+
     # SC-8: Provision GitBucket if test needs remote API
     if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
         echo "  [harness] BEHAVIOR_NEEDS_REMOTE=1 — provisioning GitBucket..." >&2
@@ -486,6 +508,30 @@ behavior_run() {
         if [ -f "$SCENARIO_SETUP" ]; then
             source "$SCENARIO_SETUP" "$attempt_workdir"
             echo "  [harness] per-scenario fixtures applied: ${scenario_name}.sh"
+        fi
+
+        # SC1: Multi-submodule fixture provisioning — opt-in via
+        # BEHAVIOR_NEEDS_MULTI_SUBMODULES=1. Provisions test-submodule-1 and
+        # test-submodule-2 as local git repos (from fixture templates under
+        # behaviors/fixtures/submodules, falling back to an empty commit) inside
+        # the attempt workdir so remote-sensitive tests have sibling submodules to
+        # discover. Kept strictly inside the guard — the flag-off path provisions
+        # only the single .opencode clone, preserving the default provisioning.
+        if [ "${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-0}" = "1" ]; then
+            local fixture_base="$(dirname "${BASH_SOURCE[0]}")/fixtures/submodules"
+            local submodule_index
+            for submodule_index in 1 2; do
+                local submodule_dir="$attempt_workdir/test-submodule-${submodule_index}"
+                git init -q "$submodule_dir" 2>/dev/null || true
+                if [ -d "$fixture_base/test-submodule-${submodule_index}" ]; then
+                    cp -r "$fixture_base/test-submodule-${submodule_index}/." "$submodule_dir/" 2>/dev/null || true
+                fi
+                git -C "$submodule_dir" config user.email "test@test.dev" 2>/dev/null || true
+                git -C "$submodule_dir" config user.name "Test" 2>/dev/null || true
+                git -C "$submodule_dir" add -A 2>/dev/null || true
+                git -C "$submodule_dir" commit -q --allow-empty -m "init submodule fixture" 2>/dev/null || true
+            done
+            echo "  [harness] multi-submodule fixtures provisioned (test-submodule-1, test-submodule-2)" >&2
         fi
 
         if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then

@@ -191,19 +191,38 @@ SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
-#### Orchestrator Dispatching: Submodule Trunk Restore Sub-Agent
+#### Executor Performing Submodule Trunk Restore Inline
 
-For each submodule path, the dispatches a clean-room sub-agent via `task(subagent_type="general")`. The sub-agent resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`, checks out `"$DEFAULT_BRANCH"`, and runs `git pull origin "$DEFAULT_BRANCH" --ff-only`. The main task does NOT perform these operations inline.
+The cleanup executor IS the dispatched sub-agent (its `task` tool is denied by its permission config — it MUST NOT re-dispatch itself). For each submodule path, the executor performs the trunk restore directly inline: resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`, checks out `"$DEFAULT_BRANCH"`, and runs `git pull origin "$DEFAULT_BRANCH" --ff-only`.
 
-**must_receive / must_not_receive:**
+**Per-submodule inline steps:**
 
-| Element | Value |
-|---------|-------|
-| `must_receive` | `submodule_path` (path to the submodule), `parent_repo_path` (absolute path to parent repo) |
-| `must_not_receive` | Orchestrator reasoning, expected outcomes, cached git state, pre-determined branch names, content verification results, tag data, or any information about branches to delete |
-| `inline_fallback` | FORBIDDEN — re-task() clean-room on failure |
+1. Resolve trunk branch and sync the submodule (fast-forward only):
+   ```bash
+   DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+   git -C "$SUBMODULE_PATH" checkout "$DEFAULT_BRANCH"
+   git -C "$SUBMODULE_PATH" pull origin "$DEFAULT_BRANCH" --ff-only
+   ```
 
-**Result contract schema:**
+2. **Divergence handling (MANDATORY — do NOT stall with an empty result):** If `git pull --ff-only` fails because the submodule's local `$DEFAULT_BRANCH` has diverged from `origin/$DEFAULT_BRANCH`, do NOT block silently and do NOT force-reset history. Reconcile to a defined completion:
+   ```bash
+   LOCAL_HASH=$(git -C "$SUBMODULE_PATH" rev-parse "$DEFAULT_BRANCH")
+   REMOTE_HASH=$(git -C "$SUBMODULE_PATH" rev-parse "origin/$DEFAULT_BRANCH")
+   echo "Submodule $SUBMODULE_PATH diverged — local $LOCAL_HASH, origin/$DEFAULT_BRANCH $REMOTE_HASH"
+   # Reconcile to the committed/remote pointer: hard-reset to origin/$DEFAULT_BRANCH
+   git -C "$SUBMODULE_PATH" reset --hard "origin/$DEFAULT_BRANCH"
+   ```
+   The reset is authorized as part of the cleanup pipeline scope (fast-forward-only pull failed; resetting to `origin/$DEFAULT_BRANCH` is the only way to reconcile). If the reset also fails (e.g., dirty submodule working tree), record the divergence in the result contract's `blocker_reason`/`finding_summary` and continue — never return an empty result.
+
+3. **Verify submodule is on trunk (post-sync check):**
+   ```bash
+   DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+   git -C "$SUBMODULE_PATH" branch --show-current
+   git -C "$SUBMODULE_PATH" log --oneline -1 "origin/$DEFAULT_BRANCH"
+   git -C "$SUBMODULE_PATH" log --oneline -1 "$DEFAULT_BRANCH"
+   ```
+
+**Result contract (per submodule, included in the executor's overall result):**
 
 ```yaml
 status: DONE | BLOCKED
@@ -216,9 +235,9 @@ evidence:
 blocked_reason: <if BLOCKED, explanation of divergence>
 ```
 
-**After the orchestrator receives DONE from the sub-agent for a submodule, proceed with cleanup operations:**
+**After the executor has synced each submodule inline (per the result contract above), proceed with cleanup operations:**
 
-2. **Verify submodule is on trunk (post-task() check):**
+2. **Verify submodule is on trunk (post-sync check):**
 
 3. **Find merged branches:**
    ```bash
@@ -442,9 +461,20 @@ git branch -vv          # Should show minimal branches
 
 **`.issues/<N>/` Persistence:** The `.issues/<issue_number>/` directory MUST NOT be deleted. It persists permanently in the working tree on the trunk as immutable history. After merge, the feature branch's `.issues/<N>/` content lands on the trunk via the merge. Do NOT add cleanup steps that remove or archive these directories.
 
-### Step 6: Succinct Confirmation
+### Step 6: Succinct Confirmation + Result Contract
 
-**The `cleanup` task is THE END of the PR workflow. It MUST produce a one-line succinct confirmation and then HALT.**
+**The `cleanup` task is THE END of the PR workflow. It MUST produce a one-line succinct confirmation, a structured result contract, and then HALT.**
+
+**The executor MUST return a structured result contract on completion — never an empty result. This is mandatory: an empty `<task_result></task_result>` stalls the caller.**
+
+```yaml
+status: DONE | BLOCKED
+finding_summary: "PR #<number> merged. Branch `<branch-name>` deleted. Submodule(s) synced: <count>. Cleanup complete."
+artifact_path: "{project_root}/tmp/{issue-N}/cleanup-result-{timestamp}.yaml"
+blocker_reason: <if BLOCKED, divergence or unresolved condition>
+```
+
+Plus the one-line succinct confirmation in the chat output:
 
 ```
 PR #<number> merged. Branch `<branch-name>` deleted. Cleanup complete.
