@@ -1,0 +1,108 @@
+spec_path: .opencode/.issues/2244/spec.md
+scs:
+  - id: SC1
+    evidence_type: structural
+    verification_method: "ls the attempt workdir for test-submodule-1 and test-submodule-2 directories and confirm git submodule status lists them when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1; confirm their absence when the flag is unset."
+    testable: true
+    test_type: cli_command
+  - id: SC2
+    evidence_type: structural
+    verification_method: "Inspect the behavior_run() origin-wiring block in helpers.sh; run with BEHAVIOR_NEEDS_REMOTE=1 and confirm git remote -v in the attempt workdir shows the GitBucket origin."
+    testable: true
+    test_type: cli_command
+  - id: SC3
+    evidence_type: behavioral
+    verification_method: "opencode run with BEHAVIOR_NEEDS_REMOTE=1; clean-room evaluation of session.yaml confirms gh pr list returns merged-branch/issue results and the agent does not halt for missing PR context."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC4
+    evidence_type: behavioral
+    verification_method: "Run behavior_run() with both BEHAVIOR_NEEDS_REMOTE=1 and BEHAVIOR_SET_BARE_REMOTE=1; assert the HARNESS_FAILURE exit and that no origin-wiring is attempted."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC5
+    evidence_type: structural
+    verification_method: "Inspect the env -i invocation and the allowlist block in with-test-home for the three new variable names; confirm all previously allowlisted variables remain."
+    testable: true
+    test_type: static_analysis
+  - id: SC6
+    evidence_type: structural
+    verification_method: "Inspect set-env.sh for the three new variable names."
+    testable: true
+    test_type: static_analysis
+  - id: SC7
+    evidence_type: structural
+    verification_method: "Run the isolation verification procedure against the extended allowlist; confirm no production secret, credential, platform token, or environment-specific configuration is admitted."
+    testable: true
+    test_type: static_analysis
+  - id: SC8
+    evidence_type: behavioral
+    verification_method: "Run a representative non-opt-in behavioral test; clean-room evaluation of session.yaml confirms single-.opencode provisioning and no origin remote."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC9
+    evidence_type: behavioral
+    verification_method: "After a provisioned run, invoke --clean-all and __kill_gitbucket(); assert no orphan GitBucket process is running and no stale tmp/ submodule clones/state remain; then run again and confirm a clean start."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC10
+    evidence_type: behavioral
+    verification_method: "Run 2242-sc6-cleanup-dispatch-no-task-card-read.sh with the full-env opt-in; clean-room evaluation of session.yaml confirms the agent discovered the merged branch (by whatever discovery mechanism it used) and cleanup executed against it. Discovery yielding the merged branch IS the measure; the specific discovery command is NOT."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC11
+    evidence_type: behavioral
+    verification_method: "Clean-room evaluation of the SC10 session.yaml confirms the cleanup dispatch was routed to the tasks/cleanup.md task card and the executor followed its instructions to verify the merged PR and discover the merged branch. The measure is correct routing + instruction-following, NOT terminal completion within a single timeout window."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC12
+    evidence_type: behavioral
+    verification_method: "Clean-room evaluation of the SC10 session.yaml confirms no PR/branch-context halt or question-tool invocation."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC13
+    evidence_type: string
+    verification_method: "Inspect with-test-home (do_setup, seed_model_config) and test-home provisioning; confirm every required test value is set within the setup, not read through from the parent shell."
+    testable: true
+    test_type: grep
+  - id: SC14
+    evidence_type: string
+    verification_method: "Inspect the env -i invocation and allowlist block in with-test-home; confirm the allowlist enumerates exactly the minimal infrastructure set (PATH, SHELL, TERM, LANG, USER, LOGNAME, GIT_CONFIG_NOSYSTEM, XDG_*, SNAP_USER_DATA/SNAP_USER_COMMON, test-provisioned values) and nothing more."
+    testable: true
+    test_type: grep
+  - id: SC15
+    evidence_type: string
+    verification_method: "Inspect the env -i invocation and allowlist block in with-test-home; confirm none of GB_*, GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, or API keys is admitted from the parent env."
+    testable: true
+    test_type: grep
+  - id: SC16
+    evidence_type: string
+    verification_method: "Confirm do_setup/seed_model_config/test-home provisioning in with-test-home generate or set model, config, and (when provisioned) GitBucket token/host values rather than inheriting them."
+    testable: true
+    test_type: grep
+  - id: SC17
+    evidence_type: string
+    verification_method: "Inspect the env -i allowlist, GB_ENV_ARGS, and set-env.sh in with-test-home for GB_* sourcing; confirm the test-env constants (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) are always set to the harness's constants and GB_TOKEN is scoped to the test instance only when BEHAVIOR_NEEDS_REMOTE=1; confirm no parent-sourced GB_*/GITBUCKET_PORT values propagate."
+    testable: true
+    test_type: grep
+  - id: SC18
+    evidence_type: string
+    verification_method: "Inspect .opencode/tests-v2/AGENTS.md for a section documenting the mutual-exclusion rule and the opt-in capability."
+    testable: true
+    test_type: grep
+  - id: SC19
+    evidence_type: structural
+    verification_method: "Inspect the GB_ENV_ARGS array and the env -i invocation in with-test-home for all five variable names; confirm the four test-env constants are always set to the harness's constants and GB_TOKEN is populated only when BEHAVIOR_NEEDS_REMOTE=1 from the provisioned test instance (not the parent env)."
+    testable: true
+    test_type: static_analysis
+  - id: SC20
+    evidence_type: structural
+    verification_method: "Inspect do_setup/test-home provisioning in with-test-home for the gb config.toml seeding block writing $TEST_HOME/.config/gb/config.toml with the test instance's default_host and token."
+    testable: true
+    test_type: static_analysis
+platform_testing_notes:
+  - "Behavioral SCs (SC3, SC4, SC8, SC9, SC10, SC11, SC12) require opencode run via with-test-home wrapper per AGENTS.md; bash tool timeout >= 600s."
+  - "SC10/SC11/SC12 use the full-env opt-in (BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 and BEHAVIOR_NEEDS_REMOTE=1) on the 2242-sc6 test; session.yaml (SQLite DB export) is the PRIMARY evidence source."
+  - "SC11 measure is correct routing to tasks/cleanup.md + instruction-following (executor reads the correct task card and acts on its steps to verify the merged PR and discover the merged branch), NOT terminal completion within a single timeout window."
+  - "Structural SCs (SC1, SC2, SC5, SC6, SC7, SC19, SC20) are static inspection / cli_command checks; string SCs (SC13-SC18) are grep-based."
+  - "SC19/SC20 are prerequisites for SC10/SC11 — the executor cannot authenticate gb to discover merged PRs until the full GB_* env suite reaches it and the test home carries a seeded gb config."

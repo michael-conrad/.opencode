@@ -1,0 +1,329 @@
+spec_path: .opencode/.issues/2244/spec.md
+issue_number: 2244
+phases:
+  - id: 1
+    name: Allowlist Extension + Isolation
+    description: Extend the env -i allowlist with the three new flags (BEHAVIOR_NEEDS_MULTI_SUBMODULES, BEHAVIOR_NEEDS_REMOTE, BEHAVIOR_SET_BARE_REMOTE) as a strict superset, record them in set-env.sh, and confirm isolation still passes (SC5, SC6, SC7, SC14, SC15).
+    scs:
+      - SC5
+      - SC6
+      - SC7
+      - SC14
+      - SC15
+    items:
+      - id: item-5
+        sc: SC5
+        description: Pass the three new flags through the env -i allowlist as a strict superset (no removals)
+        evidence_type: structural
+        red: "env -i allowlist does not pass through the three new flags"
+        green: "add the three new variable names to the env -i allowlist; confirm all previously allowlisted variables remain"
+        commit: "with-test-home allowlist extension"
+      - id: item-6
+        sc: SC6
+        description: Record the three new flags in set-env.sh
+        evidence_type: structural
+        red: "set-env.sh does not record the three new flags"
+        green: "add the three new variable names to set-env.sh"
+        commit: "set-env.sh update"
+      - id: item-7
+        sc: SC7
+        description: Isolation verification still passes after allowlist extension
+        evidence_type: structural
+        red: "isolation verification fails after allowlist extension"
+        green: "confirm no production secret/credential/token/env-specific config is admitted"
+        commit: "isolation verification evidence"
+      - id: item-14
+        sc: SC14
+        description: env -i allowlist contains ONLY the minimal explicitly enumerated infrastructure set
+        evidence_type: string
+        red: "allowlist contains more than the minimal infrastructure set"
+        green: "confirm the allowlist enumerates exactly the minimal set (PATH, SHELL, TERM, LANG, USER, LOGNAME, GIT_CONFIG_NOSYSTEM, XDG_*, SNAP_USER_DATA/SNAP_USER_COMMON, test-provisioned values)"
+        commit: "allowlist minimal-set verification"
+      - id: item-15
+        sc: SC15
+        description: env -i allowlist excludes all parent-sourced secret/credential/token/env-specific variables
+        evidence_type: string
+        red: "allowlist admits a parent-sourced secret/credential/token variable"
+        green: "confirm none of GB_*, GITHUB_*, GH_*, NODE_ENV, VIRTUAL_ENV, CONDA_DEFAULT_ENV, OPENCODE_CONFIG_CONTENT, or API keys is admitted"
+        commit: "allowlist no-secrets verification"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 2
+    name: Test-Provisioned Env Rule + GB Scoping
+    description: Enforce the general env-set rule (test env provisioned by setup, not inherited) and the GB_* scoping instance (SC13, SC16, SC17).
+    scs:
+      - SC13
+      - SC16
+      - SC17
+    items:
+      - id: item-13
+        sc: SC13
+        description: General env-set rule — test env provisioned by setup (do_setup/seed_model_config/test-home), not inherited
+        evidence_type: string
+        red: "a required test value is inherited from the parent shell"
+        green: "confirm every required test value is set within the setup, not read through from the parent shell"
+        commit: "env-set rule verification"
+      - id: item-16
+        sc: SC16
+        description: Required test values (GitBucket token/host, model, config) generated/set by test setup
+        evidence_type: string
+        red: "a required test value is read through from the parent env"
+        green: "confirm do_setup/seed_model_config/test-home provisioning generate or set model, config, and (when provisioned) GitBucket token/host values"
+        commit: "values-generated verification"
+      - id: item-17
+        sc: SC17
+        description: GB_* test-env constants always set to harness constants; GB_TOKEN scoped to provisioned test GitBucket only when BEHAVIOR_NEEDS_REMOTE=1; no parent GB_* leakage
+        evidence_type: string
+        red: "GB_* test-env constants not always set, or GB_TOKEN leaks from parent env"
+        green: "confirm test-env constants (GB_HOST, GB_REPO, GB_PROTOCOL, GITBUCKET_PORT) always set to harness constants and GB_TOKEN scoped to test instance only when BEHAVIOR_NEEDS_REMOTE=1; no parent-sourced GB_* propagates"
+        commit: "GB_* scoping verification"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 3
+    name: Multi-Submodule Provisioning
+    description: Provision test-submodule-1/2 as local git repos when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 (SC1).
+    scs:
+      - SC1
+    items:
+      - id: item-1
+        sc: SC1
+        description: behavior_run() provisions test-submodule-1/2 when BEHAVIOR_NEEDS_MULTI_SUBMODULES=1, and not when unset
+        evidence_type: structural
+        red: "behavior_run() does not provision test-submodule-1/2 when the flag is set"
+        green: "add multi-submodule provisioning block to behavior_run(); confirm git submodule status lists them when set and their absence when unset"
+        commit: "helpers.sh multi-submodule provisioning"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 4
+    name: Remote-Strategy Mutual Exclusion
+    description: Reject both BEHAVIOR_NEEDS_REMOTE=1 and BEHAVIOR_SET_BARE_REMOTE=1 with HARNESS_FAILURE (SC4).
+    scs:
+      - SC4
+    items:
+      - id: item-4
+        sc: SC4
+        description: behavior_run() rejects both remote flags with HARNESS_FAILURE and does not attempt ambiguous origin wiring
+        evidence_type: behavioral
+        red: "behavior_run() does not reject both remote flags set together"
+        green: "add mutual-exclusion rejection check; assert HARNESS_FAILURE exit and no origin-wiring attempted"
+        commit: "helpers.sh mutual-exclusion rejection"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 5
+    name: Cleanup
+    description: --clean-all/__kill_gitbucket/__reset_gitbucket remove provisioned clones + GitBucket state; idempotent (SC9).
+    scs:
+      - SC9
+    items:
+      - id: item-9
+        sc: SC9
+        description: Cleanup removes provisioned submodule clones, GitBucket process, and stale tmp/ state; repeated run starts clean
+        evidence_type: behavioral
+        red: "cleanup leaves orphan clones/processes or stale tmp/ state"
+        green: "add cleanup functions; assert no orphan GitBucket process and no stale tmp/ submodule clones/state remain; repeated run starts clean"
+        commit: "with-test-home + helpers.sh cleanup functions"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 6
+    name: GitBucket Origin Wiring + Discovery
+    description: Wire GitBucket as origin and enable merged-PR/issue discovery via gh pr list without GitHub auth (SC2, SC3).
+    scs:
+      - SC2
+      - SC3
+    items:
+      - id: item-2
+        sc: SC2
+        description: behavior_run() wires GitBucket instance as test repo origin remote when BEHAVIOR_NEEDS_REMOTE=1
+        evidence_type: structural
+        red: "behavior_run() does not wire GitBucket origin when BEHAVIOR_NEEDS_REMOTE=1"
+        green: "add origin-wiring block; confirm git remote -v shows the GitBucket origin"
+        commit: "helpers.sh origin-wiring"
+      - id: item-3
+        sc: SC3
+        description: gh pr list in isolated env discovers merged branches/open issues without GitHub auth
+        evidence_type: behavioral
+        red: "gh pr list returns nothing or the agent halts for missing PR context"
+        green: "confirm gh pr list returns merged-branch/issue results and the agent does not halt for missing PR context"
+        commit: "origin-wiring + discovery behavioral test"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 7
+    name: 2242-sc6 Full-Env Opt-In + Verification
+    description: Set the full-env opt-in on the 2242-sc6 test so the agent can discover the merged branch/PR state needed to execute cleanup (SC10), the cleanup dispatch is correctly routed to the tasks/cleanup.md task card and the executor follows its instructions to verify the merged PR and discover the merged branch (SC11), without halting for PR/branch context (SC12). The SC11 measure is correct routing + instruction-following, NOT terminal completion within a single timeout window.
+    scs:
+      - SC10
+      - SC11
+      - SC12
+    items:
+      - id: item-10
+        sc: SC10
+        description: Full-env opt-in enables merged-branch discovery (any mechanism) and cleanup proceeds
+        evidence_type: behavioral
+        red: "2242-sc6 test with full-env opt-in fails to enable the agent to discover the merged branch and does not proceed to cleanup"
+        green: "extend 2242-sc6 test + fixture to set BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 and BEHAVIOR_NEEDS_REMOTE=1"
+        commit: "2242-sc6 test + per-scenario fixture"
+      - id: item-11
+        sc: SC11
+        description: Cleanup dispatch correctly routed to tasks/cleanup.md + executor follows its instructions to verify the merged PR and discover the merged branch
+        evidence_type: behavioral
+        red: "2242-sc6 run shows the cleanup dispatch is not routed to the correct task card (tasks/cleanup.md) or the executor does not follow its instructions to verify the merged PR and discover the merged branch"
+        green: "verify the dispatch is routed to the correct task card (tasks/cleanup.md) and the executor follows its instructions to verify the merged PR and discover the merged branch"
+        commit: "2242-sc6 test + per-scenario fixture"
+      - id: item-12
+        sc: SC12
+        description: 2242-sc6 run never halts for PR/branch context
+        evidence_type: behavioral
+        red: "2242-sc6 run halts to ask the user for PR/branch context"
+        green: "confirm no question-tool call or PR/branch-context halt in the tool timeline"
+        commit: "2242-sc6 test + per-scenario fixture"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 8
+    name: Documentation
+    description: Document the mutual-exclusion rule and the new full-env opt-in capability in tests-v2/AGENTS.md (SC18).
+    scs:
+      - SC18
+    items:
+      - id: item-18
+        sc: SC18
+        description: tests-v2/AGENTS.md documents the mutual-exclusion rule and the full-env opt-in capability
+        evidence_type: string
+        red: "tests-v2/AGENTS.md does not document the mutual-exclusion rule or the opt-in capability"
+        green: "add a section documenting the mutual-exclusion rule and the opt-in capability"
+        commit: "AGENTS.md documentation"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 9
+    name: No-Regression Default Gate
+    description: With no opt-in flags set, default provisioning remains byte-for-byte the single-.opencode/local platform (SC8).
+    scs:
+      - SC8
+    items:
+      - id: item-8
+        sc: SC8
+        description: No-regression default — no opt-in provisions only single-.opencode + local platform
+        evidence_type: behavioral
+        red: "a non-opt-in test provisions more than single-.opencode or adds an origin remote"
+        green: "confirm a representative non-opt-in test provisions exactly one .opencode submodule and the local platform (no origin remote)"
+        commit: "no-regression default gate verification"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 10
+    name: Executor GB_* Suite + gb Config.toml Seeding
+    description: Propagate the full GB_* env suite via GB_ENV_ARGS and seed a pre-fabricated gb config.toml so the executor authenticates gb deterministically (SC19, SC20).
+    scs:
+      - SC19
+      - SC20
+    items:
+      - id: item-19
+        sc: SC19
+        description: When BEHAVIOR_NEEDS_REMOTE=1, with-test-home propagates the full GB_* env suite via GB_ENV_ARGS; test-env constants always set, GB_TOKEN scoped to provisioned test GitBucket
+        evidence_type: structural
+        red: "GB_ENV_ARGS does not propagate the full GB_* suite, or GB_TOKEN leaks from parent env"
+        green: "extend GB_ENV_ARGS/__ensure_gitbucket to the full GB_* suite; confirm the four test-env constants always set and GB_TOKEN populated only when BEHAVIOR_NEEDS_REMOTE=1 from the provisioned test instance"
+        commit: "with-test-home GB_ENV_ARGS + helpers.sh GB_* export"
+      - id: item-20
+        sc: SC20
+        description: When BEHAVIOR_NEEDS_REMOTE=1, test home seeds pre-fabricated gb config.toml at $TEST_HOME/.config/gb/config.toml with default_host constant and host token
+        evidence_type: structural
+        red: "test home does not seed a gb config.toml, or seeds a parent-sourced token"
+        green: "add do_setup/test-home gb config.toml seeding block writing $TEST_HOME/.config/gb/config.toml with the test instance's default_host and token"
+        commit: "with-test-home gb config.toml seeding"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "The env -i allowlist must be extended (Phase 1) before the GB_* scoping rule can be enforced (Phase 2)"
+    - from: 1
+      to: 3
+      reason: "The env -i allowlist must pass through BEHAVIOR_NEEDS_MULTI_SUBMODULES (Phase 1) before multi-submodule provisioning can be exercised (Phase 3)"
+    - from: 1
+      to: 4
+      reason: "The env -i allowlist must pass through BEHAVIOR_NEEDS_REMOTE/BEHAVIOR_SET_BARE_REMOTE (Phase 1) before mutual-exclusion rejection can be exercised (Phase 4)"
+    - from: 3
+      to: 5
+      reason: "Multi-submodule provisioning (Phase 3) creates the clones that cleanup (Phase 5) must remove"
+    - from: 4
+      to: 5
+      reason: "Mutual-exclusion rejection (Phase 4) can leave partial state that cleanup (Phase 5) must account for"
+    - from: 2
+      to: 6
+      reason: "GB_* scoping (Phase 2) must be in place before GitBucket origin wiring + discovery (Phase 6)"
+    - from: 3
+      to: 6
+      reason: "Multi-submodule provisioning (Phase 3) is a prerequisite for the full-env simulation used in origin wiring (Phase 6)"
+    - from: 4
+      to: 6
+      reason: "Mutual-exclusion rejection (Phase 4) precedes origin wiring (Phase 6) — the rejection check runs before wiring"
+    - from: 6
+      to: 7
+      reason: "GitBucket origin wiring + discovery (Phase 6) precedes the 2242-sc6 full-env opt-in verification (Phase 7)"
+    - from: 10
+      to: 7
+      reason: "The executor cannot authenticate gb to discover merged PRs until the full GB_* env suite reaches it (SC19) and the test home carries a seeded gb config (SC20) — Phase 10 precedes Phase 7"
+    - from: 4
+      to: 8
+      reason: "The mutual-exclusion rule must be implemented (Phase 4) before it can be documented (Phase 8)"
+    - from: 1
+      to: 9
+      reason: "The allowlist extension (Phase 1) must not regress the default provisioning path (Phase 9)"
+    - from: 3
+      to: 9
+      reason: "Multi-submodule provisioning (Phase 3) must not change the default (no-opt-in) provisioning path (Phase 9)"
+    - from: 4
+      to: 9
+      reason: "Mutual-exclusion rejection (Phase 4) must not change the default (no-opt-in) provisioning path (Phase 9)"
+    - from: 6
+      to: 9
+      reason: "Origin wiring (Phase 6) must not change the default (no-opt-in) provisioning path (Phase 9)"
+    - from: 2
+      to: 10
+      reason: "GB_* scoping (Phase 2) is the basis for the full GB_* suite propagation (Phase 10)"
+triplet_integrity:
+  status: PASS
+  notes: "All SCs have RED, GREEN, and COMMIT steps in the same phase. No triplet splits detected."
+cross_phase_dependency:
+  status: PASS
+  notes: "No RED test depends on uncommitted SC output from another phase. Phase 7 RED tests are behavioral (opencode run) and depend on Phase 6 and Phase 10 output, both committed before Phase 7 runs."
