@@ -47,7 +47,7 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | SC-4 | audit/SKILL.md SHALL NOT contain Trigger Dispatch Table, Tasks, or Invocation sections. | string | grep audit/SKILL.md for absence of TDT/Invocation/Tasks sections |
 | SC-5 | audit/SKILL.md SHALL use the canonical dispatch prompt format `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task() dispatches. | string | grep audit/SKILL.md for presence of canonical format |
 | SC-6 | audit/SKILL.md SHALL NOT contain deprecated `execute <task-name> DiMo <role> from audit` dispatch strings. | string | grep audit/SKILL.md for absence of `execute .* DiMo .* from audit` |
-| SC-7 | audit/SKILL.md description frontmatter SHALL be in canonical agent-intent format (no `Load via skill() when`, `Also load when`, `User phrases:` meta-instructions). | string | read audit/SKILL.md frontmatter and verify format |
+| SC-7 | audit/SKILL.md description frontmatter SHALL be in canonical agent-intent format (no `Load via skill() when`, `Also load when`, `User phrases:` meta-instructions). | semantic | sub-agent reads audit/SKILL.md frontmatter and verifies canonical agent-intent format via analytical judgment |
 | SC-8 | Every audit role-card frontmatter `name:` field SHALL match its filename (Investigator/Validator/Evaluator/Arbiter), with zero `-generator`/`-knowledge-supporter`/`-path-provider` mismatches. The authoritative on-disk count of defective role-card files is 40: 28 flat role files in tasks/ (24 with stale pre-rename role names — generator/knowledge-supporter/path-provider — plus 4 with empty `name` field: concern-separation-investigator, concern-separation-validator, plan-fidelity-investigator, behavioral-sc-evaluator) and 12 subdirectory role files (closure-verification/*, coherence-extraction/*, spec-summary/* — 4 each) all with empty `name` field. Note: plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter` (stale, not empty), and is counted in the 24 stale. Note: SC-14 removes behavioral-sc-evaluator.md; after its removal the flat-file mismatch count is 27. | string | for each audit/tasks/*-role.md, verify frontmatter name == basename |
 | SC-9 | Every audit role-card `# Task:` heading SHALL match its filename (Investigator/Validator/Evaluator/Arbiter). | string | for each audit/tasks/*-role.md, verify `# Task:` heading == basename |
 | SC-10 | Broken cross-references to non-existent monolithic role-task files (tasks/spec-audit.md, tasks/plan-fidelity.md) SHALL be repointed to the actual role-split files, including in reference/holistic-dimensions.yaml. | string | grep audit/tasks and reference/holistic-dimensions.yaml for absence of monolithic refs and presence of role-split refs |
@@ -56,7 +56,7 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | SC-13 | audit/tasks/completion.md SHALL route to the actual 3-step verify-authorization workflow and SHALL NOT reference the dangling `approval-gate --task verify-authorization`. | string | grep audit/tasks/completion.md for correct routing and absence of dangling reference |
 | SC-14 | The redundant audit/tasks/behavioral-sc-evaluator.md SHALL be removed. | string | verify audit/tasks/behavioral-sc-evaluator.md is absent |
 | SC-15 | Evidence-type taxonomy citations in spec-creation validate and audit role cards SHALL point at the single canonical reference document, loaded dynamically. | string | grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation |
-| SC-16 | A missing evidence-type declaration in reference/spec-structure-standards.md SHALL be a hard FAIL routed to the remediation workflow, not a default-to-string/warn/backwards-compat tier. | string | read reference/spec-structure-standards.md and verify missing-type rule is hard FAIL |
+| SC-16 | A missing evidence-type declaration in reference/spec-structure-standards.md SHALL be a hard FAIL routed to the remediation workflow, not a default-to-string/warn/backwards-compat tier. | semantic | sub-agent reads reference/spec-structure-standards.md and verifies the missing-type rule is hard FAIL via analytical judgment |
 | SC-17 | spec-creation/tasks/analyze.md SHALL BLOCK on an unbound/placeholder issue number and SHALL use remote-stub-first when a remote API is available. | behavioral | opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK |
 | SC-18 | spec-creation/tasks/validate.md SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than a hardcoded divergent list. | string | grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml |
 
@@ -126,9 +126,9 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 ### Item 7 (SC-7): Rewrite audit description
 
-- RED: read audit/SKILL.md frontmatter asserts canonical agent-intent format — fails on current content
+- RED: sub-agent reads audit/SKILL.md frontmatter and asserts canonical agent-intent format via analytical judgment — fails on current content
 - GREEN: Rewrite description to canonical agent-intent format
-- verify: read frontmatter
+- verify: sub-agent read + analytical judgment
 - commit: audit/SKILL.md
 
 ### Item 8 (SC-8): Repair role-card frontmatter names
@@ -189,9 +189,9 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 ### Item 16 (SC-16): Missing evidence type is hard FAIL
 
-- RED: read reference/spec-structure-standards.md asserts missing-type rule is hard FAIL — fails on current content
+- RED: sub-agent reads reference/spec-structure-standards.md and asserts the missing-type rule is hard FAIL via analytical judgment — fails on current content
 - GREEN: Change missing evidence-type declaration from default-to-string to hard FAIL routed to remediation
-- verify: read reference doc
+- verify: sub-agent read + analytical judgment
 - commit: reference/spec-structure-standards.md
 
 ### Item 17 (SC-17): Issue anchoring precondition
@@ -218,10 +218,10 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1, SC-5 | Phase 1, Phase 2 |
+| R-1 | SC-1, SC-5, SC-6 | Phase 1, Phase 2 |
 | R-2 | SC-3, SC-4 | Phase 2 |
 | R-3 | SC-2 | Phase 1 |
-| R-4 | SC-8 | Phase 2 |
+| R-4 | SC-8, SC-9 | Phase 2 |
 | R-5 | SC-10 | Phase 2, Phase 3 |
 | R-6 | SC-11 | Phase 3 |
 | R-7 | SC-12 | Phase 2 |
@@ -266,7 +266,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-4: Verifying the TDT/Invocation/Tasks removal costs one grep search. Skipping means the deprecated routing surface persists alongside the new Workflows section.
 - SC-5: Verifying the audit dispatch format (positive) costs one grep search. Skipping means agents keep using deprecated DiMo dispatch strings.
 - SC-6: Verifying the audit dispatch format (negative) costs one grep search. Skipping means deprecated DiMo dispatch strings persist.
-- SC-7: Verifying the description format costs one read. Skipping means the audit card keeps a deprecated description that misroutes skill selection.
+- SC-7: Verifying the description format costs one semantic sub-agent read. Skipping means the audit card keeps a deprecated description that misroutes skill selection.
 - SC-8: Verifying role-card frontmatter names costs a per-file frontmatter check. Skipping means 40 name-vs-filename mismatches persist (28 flat + 12 subdirectory) and break skill-card validation.
 - SC-9: Verifying role-card Task headings costs a per-file heading check. Skipping means `# Task:` headings diverge from filenames and misroute task execution.
 - SC-10: Verifying cross-reference repoints costs one grep search. Skipping means agents resolve to non-existent monolithic task files.
@@ -275,7 +275,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-13: Verifying completion routing costs one grep search. Skipping means completion routes to a dangling verify-authorization reference.
 - SC-14: Verifying the evaluator removal costs a file-absence check. Skipping means a redundant file with zero consumers persists.
 - SC-15: Verifying taxonomy citations costs one grep search. Skipping means validate and audit read the taxonomy from a redirect source instead of the canonical one.
-- SC-16: Verifying the missing-type rule costs one read. Skipping means a missing evidence-type declaration silently defaults to string and masks a defect.
+- SC-16: Verifying the missing-type rule costs one semantic sub-agent read. Skipping means a missing evidence-type declaration silently defaults to string and masks a defect.
 - SC-17: Running the behavioral test costs minutes of execution time. Skipping means the analyze task accepts an unbound issue number and produces a spec anchored to a placeholder — a defect that ships to the issues-data branch and costs 1000× more to fix.
 - SC-18: Verifying dynamic dimension loading costs one grep search. Skipping means validate evaluates a spec against a divergent 11-dimension set than the auditor uses.
 
@@ -297,6 +297,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 39 to 40; SC-6 criterion and Cost Frame SC-6 reference updated to the verified on-disk count and breakdown (28 flat: 23 stale pre-rename role names + 5 empty `name` field; 12 subdirectory: all empty `name` field). SC-6 goal (zero mismatches) unchanged. | Validation finding (correctness, dimension 4): the previous revision set the count to 39, but the authoritative on-disk count of role-card files with a defective frontmatter `name` field is 40. The breakdown lets the implementor verify the count. | spec-creation validation pipeline |
 | 2026-08-06 | SC-6 and Item 6 flat-file breakdown corrected from 23 stale + 5 empty = 28 flat to 24 stale + 4 empty = 28 flat. The 4 EMPTY flat files are exactly concern-separation-investigator, concern-separation-validator, plan-fidelity-investigator, behavioral-sc-evaluator. The 24 STALE flat files carry pre-rename role names (generator/knowledge-supporter/path-provider) in their frontmatter `name`. plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter` (STALE, not empty). SC-6's goal (zero mismatches) and the aggregate total (40) are unchanged. | Validation finding (correctness, dimension 4): the previous breakdown mislabeled plan-fidelity-validator.md as empty; it is stale. Live on-disk verification of all 28 flat role files' frontmatter confirms 24 stale + 4 empty. | spec-creation validation pipeline |
 | 2026-08-06 | Compound SCs decomposed into atomic SCs per validate.md Step 3.3. SC-3 split into SC-3 (Workflows present) + SC-4 (TDT/Invocation/Tasks absent). SC-4 split into SC-5 (canonical dispatch present) + SC-6 (deprecated DiMo strings absent). SC-6 split into SC-8 (frontmatter name matches filename) + SC-9 (`# Task:` heading matches filename). All SCs renumbered to 18; Requirements→SC mapping, traceability table, Item list (RED/GREEN), sc-summary.yaml plan_item numbering, Cost Frame, and Edge Cases references updated to remain consistent. Evidence types unchanged (string/structural; behavioral only for the issue-anchoring SC-17). | Validation finding (atomicity, compound-SC check): SC-3, SC-4, and SC-6 each bundled multiple independently verifiable claims joined by "and" (positive + negative assertions, or name-field + heading assertions). Each compound SC must be decomposed into single independently verifiable atomic SCs. | spec-creation validation pipeline |
+| 2026-08-06 | Traceability table corrected: SC-6 (deprecated DiMo strings absent — the negative counterpart of SC-5) mapped to R-1; SC-9 (`# Task:` heading matches filename — the heading counterpart of SC-8) mapped to R-4. | Validation finding (traceability): SC-6 and SC-9 were absent from the specific requirement rows (R-1..R-14) and covered only by the catch-all R-15/R-17. Each SC must map to the specific requirement it implements. | spec-creation validation pipeline |
+| 2026-08-06 | Evidence types for SC-7 and SC-16 corrected from `string` to `semantic`. Verification methods rewritten to specify sub-agent read + analytical judgment. sc-summary.yaml, Items 7 and 16, and Cost Frame SC-7/SC-16 updated to stay consistent. | Validation finding (EVIDENCE_TYPE_MISMATCH): SC-7 and SC-16 declared evidence type `string` but their verification methods are "read the file and verify format/rule via analytical judgment" — which is `semantic` (sub-agent read + judgment), not `string` (grep/pattern match) per the taxonomy. Option (a) applied: evidence type corrected to match the actual verification method. | spec-creation validation pipeline |
 
 ---
 

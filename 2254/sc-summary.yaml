@@ -26,7 +26,7 @@ scs:
     plan_item: 6
   - id: "SC-7"
     description: "audit/SKILL.md description in canonical agent-intent format"
-    evidence_type: "string"
+    evidence_type: "semantic"
     plan_item: 7
   - id: "SC-8"
     description: "audit role-card frontmatter name matches filename"
@@ -62,7 +62,7 @@ scs:
     plan_item: 15
   - id: "SC-16"
     description: "missing evidence-type declaration is hard FAIL routed to remediation"
-    evidence_type: "string"
+    evidence_type: "semantic"
     plan_item: 16
   - id: "SC-17"
     description: "analyze task BLOCKs on unbound/placeholder issue number, remote-stub-first"
