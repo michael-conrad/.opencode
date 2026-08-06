@@ -1,37 +1,278 @@
-> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2254/
+> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2254/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/2254/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-## Problem
+## 1. Intent and Executive Summary
 
-A history-grounded read-only audit of the spec-writer and spec-audit skill card sets (`spec-creation`, `audit`) and the consolidated reference standards (`.opencode/reference/`) identified internal-consistency drifts between what each card declares (dispatch format, structural sections, role naming, task references, evidence-type taxonomy source, validation criteria) and the actual on-disk reality. These drifts cause agents to dispatch tasks using a deprecated prompt format the reference docs forbid, resolve cross-references to non-existent task files, read the evidence-type taxonomy from a redirect source instead of the canonical one, evaluate a spec against a different 11-dimension set than the auditor uses, and route to tasks whose cards do not exist. Root cause: both skill sets retain content from before several migrations (flat-architecture refactor, DiMo 4-role audit dispatch, Workflows-section format, consolidated `.opencode/reference/` location). Because agent-facing text is consumed as routing instructions, each drift is a defect vector.
+### Problem Statement
 
-## Scope
+A history-grounded read-only audit of the spec-writer and spec-audit skill card sets (`spec-creation`, `audit`) and the consolidated reference standards (`.opencode/reference/`) identified internal-consistency drifts between what each card declares (dispatch format, structural sections, role naming, task references, evidence-type taxonomy source, validation criteria) and the actual on-disk reality. These drifts cause agents to dispatch tasks using a deprecated prompt format the reference docs forbid, resolve cross-references to non-existent task files, read the evidence-type taxonomy from a redirect source instead of the canonical one, evaluate a spec against a different 11-dimension set than the auditor uses, and route to tasks whose cards do not exist.
 
-- Apply exactly ONE prescriptive resolution per finding, each mapped one-to-one to a success criterion
-- Changes confined to agent-facing skill/reference markdown files in `.opencode/` (skills/spec-creation, skills/audit, reference/)
-- All changes are string/structural conformance; behavioral SCs apply only where the change affects runtime dispatch behavior
-- Canonical dispatch prompt format: `Follow the instructions in [<skill>/tasks/<task>.md](...)` — no `execute X from Y` coded strings
-- Workflows-only structure: audit SKILL.md converts TDT/Invocation/Tasks table to Workflows section; spec-creation removes redundant Task Files table
-- Common evidence-type taxonomy: one canonical reference document as single source; validate task and audit load it dynamically
-- Issue-number anchoring precondition: spec-creation analyze BLOCKs on unbound/placeholder issue number; remote-stub-first when remote API available
-- Anti-bifurcation mandate: no bifurcated/backwards-compat paths in agent-facing instructions
+### Root Cause / Motivation
 
-**Out of scope:**
-- No `src/` code changes
-- No changes to non-agent-facing documentation
-- No behavioral test suite changes beyond what the SCs require
+Both skill sets retain content from before several migrations: the flat-architecture refactor, the DiMo 4-role audit dispatch, the Workflows-section format, and the consolidated `.opencode/reference/` location. Because agent-facing text is consumed as routing instructions, each drift is a defect vector — an agent that follows a deprecated dispatch string, a dangling cross-reference, or a divergent dimension list produces defective work that must be re-done. The drifts must be resolved now because they compound: every spec created or audited through the drifted cards inherits the defect.
 
-## Approach
+### Approach Chosen
 
-Consolidate the evidence-type taxonomy into one canonical reference document and make both the spec-creation validate task and the audit skill load it dynamically. Convert the audit SKILL.md from Trigger Dispatch Table + Invocation + Tasks table to a Workflows section with 4 DiMo steps. Remove the redundant Task Files table from spec-creation. Repair role-card frontmatter name fields to match filenames (Investigator/Validator/Evaluator/Arbiter). Repoint broken cross-references to monolithic role-task files to role-split files. Update stale reference-doc task names (inspect/decompose/write/check/file) to actual (analyze/create/validate/revise). Flatten three subdirectory audit tasks to flat role files and remove stub index files. Correct completion task routing and repoint dangling approval-gate `--task verify-authorization`. Rewrite the audit description to canonical agent-intent format. Remove redundant behavioral-sc-evaluator.md. Point taxonomy citations at the canonical reference. Missing evidence-type declaration becomes a hard FAIL routed to the remediation workflow (no warn/default/backwards-compat tier).
+Apply exactly ONE prescriptive resolution per finding, each mapped one-to-one to a success criterion. Consolidate the evidence-type taxonomy into one canonical reference document and make both the spec-creation validate task and the audit skill load it dynamically. Convert the audit SKILL.md from Trigger Dispatch Table + Invocation + Tasks table to a Workflows section with 4 DiMo steps. Remove the redundant Task Files table from spec-creation. Repair role-card frontmatter name fields to match filenames. Repoint broken cross-references to role-split files. Update stale reference-doc task names. Flatten three subdirectory audit tasks to flat role files and remove stub index files. Correct completion task routing and repoint the dangling approval-gate reference. Rewrite the audit description to canonical agent-intent format. Remove the redundant behavioral-sc-evaluator.md. Point taxonomy citations at the canonical reference. Make a missing evidence-type declaration a hard FAIL.
 
-## Impact
+### Alternatives Considered & Why Discarded
 
-- **Risk 1: Behavioral SCs misclassified** — Mitigation: behavioral SCs applied only where the change affects runtime dispatch behavior, per the evidence-type classification gate
-- **Risk 2: Cross-references repointed to wrong files** — Mitigation: each repoint verified against actual on-disk task files during implementation
-- **Risk 3: Taxonomy consolidation breaks existing consumers** — Mitigation: single canonical reference loaded dynamically by both validate and audit; missing declaration is a hard FAIL routed to remediation
+- **Leave the drifts in place and rely on agent judgment to route correctly.** Discarded: agent-facing text is consumed as routing instructions, not advisory prose. An agent cannot reliably compensate for a deprecated dispatch string or a dangling cross-reference; the drift is a guaranteed defect vector, not a cosmetic inconsistency.
+- **Introduce backwards-compatible dual paths (accept both old and new formats).** Discarded: the anti-bifurcation mandate forbids dual-format agent-facing instructions. A backwards-compat path leaves the deprecated format live, so agents continue to follow it and the defect persists.
 
-Key dependencies: `.opencode/reference/` consolidated standards, spec-creation and audit skill decks, DiMo 4-role audit dispatch.
+### Key Design Decisions
 
-Call to action: Approve this spec to authorize the analyze/create pipeline to finalize success criteria and produce the authoritative spec and artifacts on the issues-data branch.
+- **Single canonical evidence-type taxonomy** in one reference document, loaded dynamically by both spec-creation validate and audit. Tradeoff: a single source of truth requires all consumers to be updated in scope, but eliminates the redirect-source and divergent-list defects.
+- **Workflows-only structure** for audit SKILL.md. Tradeoff: converting TDT/Invocation/Tasks to a Workflows section changes the routing surface, but aligns with the canonical skill-card format and removes the deprecated dispatch strings.
+- **Missing evidence-type declaration is a hard FAIL** routed to the remediation workflow. Tradeoff: stricter validation may surface more spec defects, but eliminates the default-to-string escape hatch that masks missing declarations.
 
-🤖 OpenCode (ollama-cloud/deepseek-v4-flash:0731) created
+### User Intent / Original Prompt
+
+A history-grounded read-only audit of the spec-writer and spec-audit skill card sets and the consolidated reference standards, identifying internal-consistency drifts and prescribing one resolution per finding.
+
+## 2. Not Included
+
+- **`src/` code changes** — All affected files are agent-facing markdown in `.opencode/`; no runtime code changes.
+- **Non-agent-facing documentation** — Changes confined to skill cards, task cards, and reference standards consumed by agents.
+- **Behavioral test suite changes beyond what the SCs require** — The single behavioral SC (issue anchoring) requires its own behavioral test; no other test-suite changes are in scope.
+
+## 3. Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | spec-creation/SKILL.md SHALL use the canonical dispatch prompt format `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task() dispatches, with zero occurrences of the deprecated `execute X from Y` coded strings. | string | grep spec-creation/SKILL.md for absence of `execute .* from` and presence of canonical format |
+| SC-2 | spec-creation/SKILL.md SHALL NOT contain a `## Task Files` table. | string | grep spec-creation/SKILL.md for absence of `## Task Files` |
+| SC-3 | audit/SKILL.md SHALL use a single Workflows section with 4 DiMo steps (Investigator, Validator, Evaluator, Arbiter) and SHALL NOT contain Trigger Dispatch Table, Tasks, or Invocation sections. | string | grep audit/SKILL.md for Workflows section and absence of TDT/Invocation/Tasks sections |
+| SC-4 | audit/SKILL.md SHALL use the canonical dispatch prompt format and SHALL NOT contain deprecated `execute <task-name> DiMo <role> from audit` dispatch strings. | string | grep audit/SKILL.md for absence of `execute .* DiMo .* from audit` and presence of canonical format |
+| SC-5 | audit/SKILL.md description frontmatter SHALL be in canonical agent-intent format (no `Load via skill() when`, `Also load when`, `User phrases:` meta-instructions). | string | read audit/SKILL.md frontmatter and verify format |
+| SC-6 | Every audit role-card frontmatter `name:` field and `# Task:` heading SHALL match its filename (Investigator/Validator/Evaluator/Arbiter), with zero `-generator`/`-knowledge-supporter`/`-path-provider` mismatches. The authoritative on-disk count of defective role-card files is 40: 28 flat role files in tasks/ (23 with stale pre-rename role names — generator/knowledge-supporter/path-provider — plus 5 with empty `name` field: concern-separation-investigator, concern-separation-validator, plan-fidelity-investigator, plan-fidelity-validator, behavioral-sc-evaluator) and 12 subdirectory role files (closure-verification/*, coherence-extraction/*, spec-summary/* — 4 each) all with empty `name` field. Note: SC-11 removes behavioral-sc-evaluator.md; after its removal the flat-file mismatch count is 27. | string | for each audit/tasks/*-role.md, verify frontmatter name == basename |
+| SC-7 | Broken cross-references to non-existent monolithic role-task files (tasks/spec-audit.md, tasks/plan-fidelity.md) SHALL be repointed to the actual role-split files, including in reference/holistic-dimensions.yaml. | string | grep audit/tasks and reference/holistic-dimensions.yaml for absence of monolithic refs and presence of role-split refs |
+| SC-8 | Stale reference-doc task names (inspect/decompose/write/check/file) in reference/skill-card-description-standards.md SHALL be updated to actual task names (analyze/create/validate/revise). | string | grep reference/skill-card-description-standards.md for absence of stale names and presence of actual names |
+| SC-9 | The three subdirectory audit tasks (closure-verification/, coherence-extraction/, spec-summary/) SHALL be flattened to flat role files and their stub index files (closure-verification.md, coherence-extraction.md, spec-summary.md) SHALL be removed. | string | verify the three subdirectories are flat files and stub files are absent |
+| SC-10 | audit/tasks/completion.md SHALL route to the actual 3-step verify-authorization workflow and SHALL NOT reference the dangling `approval-gate --task verify-authorization`. | string | grep audit/tasks/completion.md for correct routing and absence of dangling reference |
+| SC-11 | The redundant audit/tasks/behavioral-sc-evaluator.md SHALL be removed. | string | verify audit/tasks/behavioral-sc-evaluator.md is absent |
+| SC-12 | Evidence-type taxonomy citations in spec-creation validate and audit role cards SHALL point at the single canonical reference document, loaded dynamically. | string | grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation |
+| SC-13 | A missing evidence-type declaration in reference/spec-structure-standards.md SHALL be a hard FAIL routed to the remediation workflow, not a default-to-string/warn/backwards-compat tier. | string | read reference/spec-structure-standards.md and verify missing-type rule is hard FAIL |
+| SC-14 | spec-creation/tasks/analyze.md SHALL BLOCK on an unbound/placeholder issue number and SHALL use remote-stub-first when a remote API is available. | behavioral | opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK |
+| SC-15 | spec-creation/tasks/validate.md SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than a hardcoded divergent list. | string | grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml |
+
+## 4. Requirements
+
+- R-1. The spec-creation and audit SKILL.md files SHALL use the canonical dispatch prompt format `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task() dispatches.
+- R-2. The audit SKILL.md SHALL convert the Trigger Dispatch Table, Invocation, and Tasks sections into a single Workflows section with 4 DiMo steps (Investigator, Validator, Evaluator, Arbiter).
+- R-3. The spec-creation SKILL.md SHALL remove the redundant Task Files table.
+- R-4. Audit role-card frontmatter `name:` fields SHALL match their filenames (Investigator/Validator/Evaluator/Arbiter).
+- R-5. Broken cross-references to non-existent monolithic role-task files SHALL be repointed to the actual role-split files.
+- R-6. Stale reference-doc task names (inspect/decompose/write/check/file) SHALL be updated to actual task names (analyze/create/validate/revise).
+- R-7. The three subdirectory audit tasks (closure-verification, coherence-extraction, spec-summary) SHALL be flattened to flat role files and their stub index files removed.
+- R-8. Completion task routing SHALL be corrected and the dangling approval-gate `--task verify-authorization` reference repointed to the actual 3-step verify-authorization workflow.
+- R-9. The audit SKILL.md description SHALL be rewritten to canonical agent-intent format.
+- R-10. The redundant behavioral-sc-evaluator.md SHALL be removed.
+- R-11. Evidence-type taxonomy citations SHALL point at the single canonical reference document, loaded dynamically by both validate and audit.
+- R-12. A missing evidence-type declaration SHALL be a hard FAIL routed to the remediation workflow, not a warn/default/backwards-compat tier.
+- R-13. The spec-creation analyze task SHALL BLOCK on an unbound/placeholder issue number and use remote-stub-first when a remote API is available.
+- R-14. The validate task SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than hardcoding a divergent list.
+- R-15. No `src/` code changes; all changes SHALL be confined to agent-facing skill/reference markdown files.
+- R-16. Behavioral SCs SHALL apply only where the change affects runtime dispatch behavior; string/structural elsewhere.
+- R-17. No bifurcated/backwards-compat paths SHALL be introduced in agent-facing instructions (anti-bifurcation mandate).
+
+## 5. Items
+
+### Item 1 (SC-1): Convert spec-creation dispatch format
+
+- RED: grep spec-creation/SKILL.md asserts absence of `execute .* from` and presence of canonical format — fails on current content
+- GREEN: Convert 6 `execute X from Y` dispatch prompts to `Follow the instructions in [<skill>/tasks/<task>.md](...)`
+- verify: grep conformance
+- commit: spec-creation/SKILL.md
+
+### Item 2 (SC-2): Remove Task Files table
+
+- RED: grep spec-creation/SKILL.md asserts absence of `## Task Files` — fails on current content
+- GREEN: Remove the redundant `## Task Files` table
+- verify: grep conformance
+- commit: spec-creation/SKILL.md
+
+### Item 3 (SC-3): Convert audit to Workflows structure
+
+- RED: grep audit/SKILL.md asserts Workflows section present and TDT/Invocation/Tasks absent — fails on current content
+- GREEN: Convert TDT + Tasks + Invocation + DiMo Role Chain to a single Workflows section with 4 DiMo steps
+- verify: grep conformance
+- commit: audit/SKILL.md
+
+### Item 4 (SC-4): Convert audit dispatch format
+
+- RED: grep audit/SKILL.md asserts absence of `execute .* DiMo .* from audit` — fails on current content
+- GREEN: Replace deprecated DiMo dispatch strings with canonical format
+- verify: grep conformance
+- commit: audit/SKILL.md
+
+### Item 5 (SC-5): Rewrite audit description
+
+- RED: read audit/SKILL.md frontmatter asserts canonical agent-intent format — fails on current content
+- GREEN: Rewrite description to canonical agent-intent format
+- verify: read frontmatter
+- commit: audit/SKILL.md
+
+### Item 6 (SC-6): Repair role-card names
+
+- RED: for each audit/tasks/*-role.md, assert frontmatter name == basename — fails on 40 mismatches (28 flat: 23 stale pre-rename role names + 5 empty `name` field; 12 subdirectory: all empty `name` field)
+- GREEN: Repair 40 role-card frontmatter name fields and `# Task:` headings to match filenames (28 flat + 12 subdirectory)
+- verify: per-file frontmatter check
+- commit: audit/tasks/*-role.md
+
+### Item 7 (SC-7): Repoint cross-references
+
+- RED: grep audit/tasks and reference/holistic-dimensions.yaml asserts absence of monolithic refs — fails on current content
+- GREEN: Repoint spec-audit.md/plan-fidelity.md refs to role-split files, including holistic-dimensions.yaml
+- verify: grep conformance
+- commit: audit/tasks, reference/holistic-dimensions.yaml
+
+### Item 8 (SC-8): Update reference task names
+
+- RED: grep reference/skill-card-description-standards.md asserts absence of stale names — fails on current content
+- GREEN: Update inspect/decompose/write/check/file to analyze/create/validate/revise
+- verify: grep conformance
+- commit: reference/skill-card-description-standards.md
+
+### Item 9 (SC-9): Flatten subdirectory tasks
+
+- RED: verify closure-verification/, coherence-extraction/, spec-summary/ are flat files and stub files absent — fails on current content
+- GREEN: Flatten three subdirectories to flat role files and remove stub index files
+- verify: file structure check
+- commit: audit/tasks
+
+### Item 10 (SC-10): Correct completion routing
+
+- RED: grep audit/tasks/completion.md asserts correct routing and absence of dangling reference — fails on current content
+- GREEN: Repoint verify-authorization to the actual 3-step workflow
+- verify: grep conformance
+- commit: audit/tasks/completion.md
+
+### Item 11 (SC-11): Remove redundant evaluator
+
+- RED: verify audit/tasks/behavioral-sc-evaluator.md is absent — fails on current content
+- GREEN: Remove behavioral-sc-evaluator.md
+- verify: file absence check
+- commit: audit/tasks
+
+### Item 12 (SC-12): Consolidate taxonomy citations
+
+- RED: grep spec-creation/tasks/validate.md and audit role cards asserts canonical reference citation — fails on current content
+- GREEN: Point taxonomy citations at the single canonical reference, loaded dynamically
+- verify: grep conformance
+- commit: reference/, spec-creation/tasks/validate.md, audit role cards
+
+### Item 13 (SC-13): Missing evidence type is hard FAIL
+
+- RED: read reference/spec-structure-standards.md asserts missing-type rule is hard FAIL — fails on current content
+- GREEN: Change missing evidence-type declaration from default-to-string to hard FAIL routed to remediation
+- verify: read reference doc
+- commit: reference/spec-structure-standards.md
+
+### Item 14 (SC-14): Issue anchoring precondition
+
+- RED: opencode run (with-test-home) dispatches analyze with unbound/placeholder issue_number and asserts BLOCK — fails on current content
+- GREEN: Add analyze task BLOCK on unbound/placeholder issue number and remote-stub-first behavior
+- verify: behavioral test via opencode run
+- commit: spec-creation/tasks/analyze.md
+
+### Item 15 (SC-15): Dynamic dimension loading
+
+- RED: grep spec-creation/tasks/validate.md asserts dynamic load of reference/holistic-dimensions.yaml — fails on current content
+- GREEN: Make validate load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml
+- verify: grep conformance
+- commit: spec-creation/tasks/validate.md
+
+## 6. Dependencies
+
+- **Reference: `.opencode/reference/` consolidated standards** — Relationship: the canonical evidence-type taxonomy and holistic-dimensions.yaml must be resolved before the dynamic-loading SCs (SC-12, SC-15) can be verified. Status: satisfied (files exist on disk).
+- **Reference: DiMo 4-role audit dispatch** — Relationship: the audit Workflows structure (SC-3) and role-card naming (SC-6) depend on the DiMo role model. Status: satisfied.
+- **Reference: skill-card-description-standards.md §7** — Relationship: defines the Workflows-only structure and canonical description format that SC-3 and SC-5 conform to. Status: satisfied.
+
+## 7. Traceability
+
+| Requirement | SC(s) | Phase(s) |
+|-------------|-------|----------|
+| R-1 | SC-1, SC-4 | Phase 1, Phase 2 |
+| R-2 | SC-3 | Phase 2 |
+| R-3 | SC-2 | Phase 1 |
+| R-4 | SC-6 | Phase 2 |
+| R-5 | SC-7 | Phase 2, Phase 3 |
+| R-6 | SC-8 | Phase 3 |
+| R-7 | SC-9 | Phase 2 |
+| R-8 | SC-10 | Phase 4 |
+| R-9 | SC-5 | Phase 2 |
+| R-10 | SC-11 | Phase 2 |
+| R-11 | SC-12 | Phase 3 |
+| R-12 | SC-13 | Phase 3 |
+| R-13 | SC-14 | Phase 1 |
+| R-14 | SC-15 | Phase 1 |
+| R-15 | SC-1..SC-15 | All |
+| R-16 | SC-14 | Phase 1 |
+| R-17 | SC-1..SC-15 | All |
+
+## 8. Documentation Sources
+
+| Source | Type | Location | Verification |
+|--------|------|----------|-------------|
+| spec-creation/SKILL.md | code | `.opencode/skills/spec-creation/SKILL.md` | read + grep during analysis |
+| audit/SKILL.md | code | `.opencode/skills/audit/SKILL.md` | read + grep during analysis |
+| spec-creation/tasks/analyze.md | code | `.opencode/skills/spec-creation/tasks/analyze.md` | read during analysis |
+| spec-creation/tasks/validate.md | code | `.opencode/skills/spec-creation/tasks/validate.md` | read during analysis |
+| audit/tasks/*-role.md | code | `.opencode/skills/audit/tasks/*-role.md` | read during analysis |
+| audit/tasks/completion.md | code | `.opencode/skills/audit/tasks/completion.md` | read during analysis |
+| reference/spec-structure-standards.md | doc | `.opencode/reference/spec-structure-standards.md` | read during analysis |
+| reference/holistic-dimensions.yaml | config | `.opencode/reference/holistic-dimensions.yaml` | read during analysis |
+| reference/skill-card-description-standards.md | doc | `.opencode/reference/skill-card-description-standards.md` | read during analysis |
+| reference/task-card-structure-standards.md | doc | `.opencode/reference/task-card-structure-standards.md` | read during analysis |
+| reference/cost-model-standards.md | doc | `.opencode/reference/cost-model-standards.md` | read during analysis |
+
+## 9. Enforcement Gate
+
+> **Enforcement gate:** All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.
+
+## 10. Cost Frame
+
+Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
+
+- SC-1: Verifying the dispatch format costs one grep search. Skipping means agents keep dispatching with a deprecated format the reference docs forbid, and every downstream task inherits the routing defect.
+- SC-2: Verifying the Task Files table removal costs one grep search. Skipping means the redundant table persists and duplicates the Workflows task references.
+- SC-3: Verifying the Workflows structure costs one grep search. Skipping means audit dispatches keep routing through the deprecated TDT/Invocation/Tasks surface.
+- SC-4: Verifying the audit dispatch format costs one grep search. Skipping means agents keep using deprecated DiMo dispatch strings.
+- SC-5: Verifying the description format costs one read. Skipping means the audit card keeps a deprecated description that misroutes skill selection.
+- SC-6: Verifying role-card names costs a per-file frontmatter check. Skipping means 40 name-vs-filename mismatches persist (28 flat + 12 subdirectory) and break skill-card validation.
+- SC-7: Verifying cross-reference repoints costs one grep search. Skipping means agents resolve to non-existent monolithic task files.
+- SC-8: Verifying reference task names costs one grep search. Skipping means reference docs keep pointing at non-existent inspect/decompose/write/check/file tasks.
+- SC-9: Verifying the flattening costs a file-structure check. Skipping means subdirectory tasks and stub index files persist.
+- SC-10: Verifying completion routing costs one grep search. Skipping means completion routes to a dangling verify-authorization reference.
+- SC-11: Verifying the evaluator removal costs a file-absence check. Skipping means a redundant file with zero consumers persists.
+- SC-12: Verifying taxonomy citations costs one grep search. Skipping means validate and audit read the taxonomy from a redirect source instead of the canonical one.
+- SC-13: Verifying the missing-type rule costs one read. Skipping means a missing evidence-type declaration silently defaults to string and masks a defect.
+- SC-14: Running the behavioral test costs minutes of execution time. Skipping means the analyze task accepts an unbound issue number and produces a spec anchored to a placeholder — a defect that ships to the issues-data branch and costs 1000× more to fix.
+- SC-15: Verifying dynamic dimension loading costs one grep search. Skipping means validate evaluates a spec against a divergent 11-dimension set than the auditor uses.
+
+## 11. Edge Cases
+
+- **Condition: A role-card filename does not match any of the four role names (Investigator/Validator/Evaluator/Arbiter).** Expected behavior: the name field is repaired to match the filename per SC-6. Resolution: the role-split file set is fixed; no new role names are introduced.
+- **Condition: A cross-reference target file is genuinely absent (not just renamed).** Expected behavior: the reference is repointed to the actual role-split file per SC-7. Resolution: each repoint is verified against actual on-disk task files during implementation.
+- **Condition: The canonical evidence-type taxonomy location changes after consolidation.** Expected behavior: both validate and audit load it dynamically per SC-12, so no hardcoded path breaks. Resolution: dynamic loading keeps consumers in sync.
+- **Condition: An analyze dispatch receives an unbound/placeholder issue number.** Expected behavior: the analyze task BLOCKs per SC-14. Resolution: the orchestrator must provide a bound issue number or create a remote stub first.
+- **Condition: A spec omits an evidence-type declaration.** Expected behavior: validation is a hard FAIL routed to the remediation workflow per SC-13. Resolution: the spec is revised to declare an evidence type; no default-to-string escape hatch.
+- **Condition: A downstream skill hardcodes the deprecated dispatch string.** Expected behavior: the deprecated format is removed outright per SC-1/SC-4 (anti-bifurcation). Resolution: downstream consumers are updated in scope; no backwards-compat path is retained.
+- **Condition: The behavioral SC-14 test cannot execute (model unavailable).** Expected behavior: the SC is reported FAIL per the functional/behavioral test substitution prohibition. Resolution: remediation-first protocol applies before any escalation.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 24 to 39; Cost Frame SC-6 reference updated to match. SC-6 goal (zero mismatches) unchanged. | Validation finding (correctness, dimension 4): live on-disk count is 39 role-card files (27 flat + 12 subdirectory), not 24. The prior count would cause the implementor to search for 24 mismatches and miss 15. | spec-creation validation pipeline |
+| 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 39 to 40; SC-6 criterion and Cost Frame SC-6 reference updated to the verified on-disk count and breakdown (28 flat: 23 stale pre-rename role names + 5 empty `name` field; 12 subdirectory: all empty `name` field). SC-6 goal (zero mismatches) unchanged. | Validation finding (correctness, dimension 4): the previous revision set the count to 39, but the authoritative on-disk count of role-card files with a defective frontmatter `name` field is 40. The breakdown lets the implementor verify the count. | spec-creation validation pipeline |
+
+---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
+Co-authored with AI: OpenCode (deepseek-v4-flash)

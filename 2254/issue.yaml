@@ -2,7 +2,7 @@ labels:
 - needs-approval
 github_url: '2254'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
-updated_at: '2026-08-06T05:06:33+00:00'
+updated_at: '2026-08-06T05:16:15+00:00'
 body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2254/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -145,8 +145,14 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
   | SC-6 | Every audit role-card frontmatter `name:` field and `# Task:` heading SHALL
   match its filename (Investigator/Validator/Evaluator/Arbiter), with zero `-generator`/`-knowledge-supporter`/`-path-provider`
-  mismatches. | string | for each audit/tasks/*-role.md, verify frontmatter name ==
-  basename |
+  mismatches. The authoritative on-disk count of defective role-card files is 40:
+  28 flat role files in tasks/ (23 with stale pre-rename role names — generator/knowledge-supporter/path-provider
+  — plus 5 with empty `name` field: concern-separation-investigator, concern-separation-validator,
+  plan-fidelity-investigator, plan-fidelity-validator, behavioral-sc-evaluator) and
+  12 subdirectory role files (closure-verification/*, coherence-extraction/*, spec-summary/*
+  — 4 each) all with empty `name` field. Note: SC-11 removes behavioral-sc-evaluator.md;
+  after its removal the flat-file mismatch count is 27. | string | for each audit/tasks/*-role.md,
+  verify frontmatter name == basename |
 
   | SC-7 | Broken cross-references to non-existent monolithic role-task files (tasks/spec-audit.md,
   tasks/plan-fidelity.md) SHALL be repointed to the actual role-split files, including
@@ -322,10 +328,11 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
 
   - RED: for each audit/tasks/*-role.md, assert frontmatter name == basename — fails
-  on 24 mismatches
+  on 40 mismatches (28 flat: 23 stale pre-rename role names + 5 empty `name` field;
+  12 subdirectory: all empty `name` field)
 
-  - GREEN: Repair 24 role-card frontmatter name fields and `# Task:` headings to match
-  filenames
+  - GREEN: Repair 40 role-card frontmatter name fields and `# Task:` headings to match
+  filenames (28 flat + 12 subdirectory)
 
   - verify: per-file frontmatter check
 
@@ -583,7 +590,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   card keeps a deprecated description that misroutes skill selection.
 
   - SC-6: Verifying role-card names costs a per-file frontmatter check. Skipping means
-  24 name-vs-filename mismatches persist and break skill-card validation.
+  40 name-vs-filename mismatches persist (28 flat + 12 subdirectory) and break skill-card
+  validation.
 
   - SC-7: Verifying cross-reference repoints costs one grep search. Skipping means
   agents resolve to non-existent monolithic task files.
@@ -648,6 +656,29 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   - **Condition: The behavioral SC-14 test cannot execute (model unavailable).** Expected
   behavior: the SC is reported FAIL per the functional/behavioral test substitution
   prohibition. Resolution: remediation-first protocol applies before any escalation.
+
+
+  ## 12. Change Control
+
+
+  | Date | Change | Reason | Authorized By |
+
+  |------|--------|--------|---------------|
+
+  | 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 24 to 39; Cost
+  Frame SC-6 reference updated to match. SC-6 goal (zero mismatches) unchanged. |
+  Validation finding (correctness, dimension 4): live on-disk count is 39 role-card
+  files (27 flat + 12 subdirectory), not 24. The prior count would cause the implementor
+  to search for 24 mismatches and miss 15. | spec-creation validation pipeline |
+
+  | 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 39 to 40; SC-6
+  criterion and Cost Frame SC-6 reference updated to the verified on-disk count and
+  breakdown (28 flat: 23 stale pre-rename role names + 5 empty `name` field; 12 subdirectory:
+  all empty `name` field). SC-6 goal (zero mismatches) unchanged. | Validation finding
+  (correctness, dimension 4): the previous revision set the count to 39, but the authoritative
+  on-disk count of role-card files with a defective frontmatter `name` field is 40.
+  The breakdown lets the implementor verify the count. | spec-creation validation
+  pipeline |
 
 
   ---
