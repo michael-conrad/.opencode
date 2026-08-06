@@ -1,0 +1,47 @@
+# Code Path Inventory — Issue #2256 Plan Skill Card Remediation
+# Code paths touched by each phase.
+
+phases:
+  - phase: 1
+    name: "P1 — Plan-Structure Authority Resolution"
+    code_paths:
+      - ".opencode/reference/plan-structure-standards.md (reconciled single authority)"
+      - ".opencode/skills/writing-plans/reference/plan-artifact-format.md (reconciled into plan-structure-standards.md)"
+    consumers:
+      - "writing-plans/tasks/create.md (reads plan-structure-standards.md)"
+      - "plan-fidelity tasks (read plan-structure-standards.md)"
+  - phase: 2
+    name: "P4 — Runtime-Broken Z3/Planner Invocations"
+    code_paths:
+      - ".opencode/skills/writing-plans/tasks/research.md (Steps 10-12 tool invocations, BLOCK gate)"
+    consumers:
+      - "writing-plans pipeline research step"
+      - ".opencode/tools/solve (model, check subcommands)"
+      - ".opencode/tools/plan (plan subcommand)"
+  - phase: 3
+    name: "P3 — Plan/Solve Scope Collision"
+    code_paths:
+      - ".opencode/skills/plan/SKILL.md (description, state/fallback tasks)"
+      - ".opencode/skills/solve/SKILL.md (description, state/fallback tasks)"
+    consumers:
+      - "Agent skill dispatch routing (description field as semantic router)"
+  - phase: 4
+    name: "P5 — Phantom Clean-Room Basis Removal"
+    code_paths:
+      - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md (PF-1, discrepancy classification, bidirectional findings)"
+      - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md (cross-references)"
+      - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md (cross-references)"
+      - ".opencode/skills/audit/tasks/plan-fidelity-validator.md (cross-references)"
+    consumers:
+      - "plan-fidelity audit chain (Investigator → Validator → Evaluator → Arbiter)"
+  - phase: 5
+    name: "P6 — Writing-Plans Internal Inconsistencies"
+    code_paths:
+      - ".opencode/skills/writing-plans/SKILL.md (task count, cycle terminology, verify-plan-pipeline wiring)"
+      - ".opencode/skills/writing-plans/tasks/create.md (YAML code block, cycle terminology)"
+      - ".opencode/skills/writing-plans/tasks/completion.md (lifecycle target)"
+      - ".opencode/skills/writing-plans/tasks/handoff.md (auth gating)"
+      - ".opencode/skills/writing-plans/tasks/research.md (sc-summary path)"
+      - ".opencode/skills/writing-plans/contracts/*-output.yaml (blocker_reason symmetry)"
+    consumers:
+      - "writing-plans pipeline (all task files and contract templates)"

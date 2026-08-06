@@ -1,0 +1,39 @@
+# Testability Assessment — Issue #2256 Plan Skill Card Remediation
+# Test strategy per phase (unit, integration, behavioral, mixed).
+
+phases:
+  - phase: 1
+    name: "P1 — Plan-Structure Authority Resolution"
+    test_strategy: structural
+    evidence_type: structural
+    test_method: "File inspection — verify plan-structure-standards.md is the single authority, dispatch field removed, plan_schema_version is string"
+    behavioral_test: false
+    rationale: "Documentation/reference reconciliation — verifiable by structural inspection"
+  - phase: 2
+    name: "P4 — Runtime-Broken Z3/Planner Invocations"
+    test_strategy: behavioral
+    evidence_type: behavioral
+    test_method: "Behavioral enforcement test — dispatch a real-domain prompt via opencode run, inspect stderr for correct tool invocations (solve model with valid query, solve check with real state file, plan plan with --problem) and BLOCK gate behavior"
+    behavioral_test: true
+    rationale: "Runtime tool invocations — must verify actual agent behavior, not static text"
+  - phase: 3
+    name: "P3 — Plan/Solve Scope Collision"
+    test_strategy: structural
+    evidence_type: structural
+    test_method: "File inspection — verify plan and solve descriptions no longer share scope language; state/fallback ownership clarified"
+    behavioral_test: false
+    rationale: "Skill card description changes — verifiable by structural inspection"
+  - phase: 4
+    name: "P5 — Phantom Clean-Room Basis Removal"
+    test_strategy: structural
+    evidence_type: structural
+    test_method: "File inspection — verify plan-fidelity tasks use single-plan model, no phantom clean-room references, no missing plan-fidelity.md reference"
+    behavioral_test: false
+    rationale: "Task file reference cleanup — verifiable by structural inspection"
+  - phase: 5
+    name: "P6 — Writing-Plans Internal Inconsistencies"
+    test_strategy: mixed
+    evidence_type: mixed
+    test_method: "Structural inspection for most items (task count, terminology, YAML blocks, contract symmetry, wiring, lifecycle target, sc-summary path, auth gate); behavioral test for verify-plan-pipeline wiring if it affects runtime routing"
+    behavioral_test: false
+    rationale: "Mostly documentation consistency fixes — structural inspection suffices; verify-plan-pipeline wiring may warrant behavioral verification"

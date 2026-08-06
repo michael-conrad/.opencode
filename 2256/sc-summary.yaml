@@ -1,0 +1,74 @@
+sc_count: 18
+scs:
+  - id: "SC-1"
+    description: "plan-structure-standards.md is the single canonical plan-structure authority"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "dispatch field removed from plan frontmatter in plan-structure-standards.md"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "plan_schema_version is a string type in plan-structure-standards.md"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "solve model invocation in research.md uses a valid Z3 query expression"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "solve check invocation in research.md uses a real solve state file"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "plan plan invocation in research.md uses the --problem flag"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "research.md has a BLOCK-on-incomplete-spec gate with diagnose-to-remediate-to-escalate"
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "plan and solve skill descriptions no longer share scope language"
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-9"
+    description: "state/fallback tasks have a single owning skill between plan and solve"
+    evidence_type: "structural"
+    plan_item: 9
+  - id: "SC-10"
+    description: "plan-fidelity tasks use single-plan model with no phantom clean-room basis"
+    evidence_type: "structural"
+    plan_item: 10
+  - id: "SC-11"
+    description: "writing-plans/SKILL.md task count matches the actual task file count"
+    evidence_type: "structural"
+    plan_item: 11
+  - id: "SC-12"
+    description: "writing-plans cycle terminology is consistent with plan-structure-standards.md"
+    evidence_type: "structural"
+    plan_item: 12
+  - id: "SC-13"
+    description: "create.md body contains no JSON/YAML code blocks"
+    evidence_type: "structural"
+    plan_item: 13
+  - id: "SC-14"
+    description: "output contract templates include blocker_reason field"
+    evidence_type: "structural"
+    plan_item: 14
+  - id: "SC-15"
+    description: "verify-plan-pipeline is wired into the writing-plans workflow"
+    evidence_type: "structural"
+    plan_item: 15
+  - id: "SC-16"
+    description: "completion.md references a consistent lifecycle target"
+    evidence_type: "structural"
+    plan_item: 16
+  - id: "SC-17"
+    description: "research.md sc-summary.yaml path matches spec-creation write path"
+    evidence_type: "structural"
+    plan_item: 17
+  - id: "SC-18"
+    description: "handoff.md references an existing approval-gate task"
+    evidence_type: "structural"
+    plan_item: 18

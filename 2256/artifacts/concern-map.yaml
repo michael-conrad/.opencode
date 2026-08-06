@@ -1,0 +1,34 @@
+# Concern Map — Issue #2256 Plan Skill Card Remediation
+# Concern boundaries and separation per phase.
+
+phases:
+  - phase: 1
+    name: "P1 — Plan-Structure Authority Resolution"
+    concern: "Single canonical authority for plan structure"
+    separation: "Resolves the split between plan-structure-standards.md and plan-artifact-format.md"
+    scs: [SC-1, SC-2, SC-3]
+  - phase: 2
+    name: "P4 — Runtime-Broken Z3/Planner Invocations"
+    concern: "Correct runtime tool invocations in the research step"
+    separation: "Fixes solve model/check and plan plan invocations; adds BLOCK gate"
+    scs: [SC-4, SC-5, SC-6, SC-7]
+  - phase: 3
+    name: "P3 — Plan/Solve Scope Collision"
+    concern: "Distinct skill scope boundaries for plan and solve"
+    separation: "Resolves description scope collision and state/fallback ownership"
+    scs: [SC-8, SC-9]
+  - phase: 4
+    name: "P5 — Phantom Clean-Room Basis Removal"
+    concern: "Single-plan model for plan-fidelity audit"
+    separation: "Removes phantom clean-room plan basis from plan-fidelity chain"
+    scs: [SC-10]
+  - phase: 5
+    name: "P6 — Writing-Plans Internal Inconsistencies"
+    concern: "Internal consistency of writing-plans skill files"
+    separation: "Fixes task count, cycle terminology, YAML blocks, contract symmetry, verify-plan-pipeline wiring, completion lifecycle, sc-summary path, auth gating"
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-18]
+
+concern_separation_check:
+  - "Each phase addresses exactly one concern"
+  - "No two phases address the same concern"
+  - "P1 (authority), P4 (runtime invocations), P3 (scope), P5 (single-plan), P6 (internal consistency) are distinct concerns"

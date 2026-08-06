@@ -1,0 +1,231 @@
+# Problem Decomposition — Issue #2256 Plan Skill Card Remediation
+# Each SC maps to exactly one implementation item with its own RED/GREEN/verify/commit cycle.
+
+decomposition:
+  - item: 1
+    sc_id: SC-1
+    concern: "P1 — plan-structure authority resolution"
+    description: "Resolve plan-structure-standards.md vs plan-artifact-format.md to plan-structure-standards.md as the single canonical plan-structure authority"
+    interface:
+      inputs: ["plan-structure-standards.md", "plan-artifact-format.md"]
+      outputs: ["plan-structure-standards.md (reconciled single authority)"]
+      invariants: ["plan-structure-standards.md remains the referenced authority for create.md and plan-fidelity tasks"]
+      failure_modes: ["plan-artifact-format.md content lost", "authority split persists"]
+    verification_domain: structural
+  - item: 2
+    sc_id: SC-2
+    concern: "P1 — dispatch field removal"
+    description: "Remove the dispatch: field from plan frontmatter in plan-structure-standards.md"
+    interface:
+      inputs: ["plan-structure-standards.md"]
+      outputs: ["plan-structure-standards.md (no dispatch field)"]
+      invariants: ["No plan frontmatter declares dispatch: [<skill-names>]"]
+      failure_modes: ["dispatch field persists"]
+    verification_domain: structural
+  - item: 3
+    sc_id: SC-3
+    concern: "P1 — plan_schema_version string alignment"
+    description: "String plan_schema_version (align integer `1` with string `\"1.0\"`)"
+    interface:
+      inputs: ["plan-structure-standards.md"]
+      outputs: ["plan-structure-standards.md (string plan_schema_version)"]
+      invariants: ["plan_schema_version is a string type"]
+      failure_modes: ["integer/string mismatch persists"]
+    verification_domain: structural
+  - item: 4
+    sc_id: SC-4
+    concern: "P4 — solve model invocation fix"
+    description: "Fix runtime-broken `solve model --query sat` invocation in research.md Step 10"
+    interface:
+      inputs: ["writing-plans/tasks/research.md"]
+      outputs: ["research.md (valid solve model invocation)"]
+      invariants: ["solve model invocation uses a valid Z3 query expression"]
+      failure_modes: ["invocation still passes 'sat' as query"]
+    verification_domain: behavioral
+  - item: 5
+    sc_id: SC-5
+    concern: "P4 — solve check invocation fix"
+    description: "Fix runtime-broken `solve check --state-path state-analysis.yaml` invocation in research.md Step 11"
+    interface:
+      inputs: ["writing-plans/tasks/research.md"]
+      outputs: ["research.md (valid solve check invocation with real state file)"]
+      invariants: ["solve check uses a real solve state file, not an analytical artifact"]
+      failure_modes: ["invocation still points at state-analysis.yaml"]
+    verification_domain: behavioral
+  - item: 6
+    sc_id: SC-6
+    concern: "P4 — plan plan invocation fix"
+    description: "Fix runtime-broken `plan plan --contract-path/--output` invocation in research.md Step 12"
+    interface:
+      inputs: ["writing-plans/tasks/research.md"]
+      outputs: ["research.md (valid plan plan invocation with --problem)"]
+      invariants: ["plan plan invocation uses --problem flag, not --contract-path/--output"]
+      failure_modes: ["invocation still uses --contract-path/--output"]
+    verification_domain: behavioral
+  - item: 7
+    sc_id: SC-7
+    concern: "P4 — BLOCK-on-incomplete-spec gate"
+    description: "Add BLOCK-on-incomplete-spec gate with diagnose→remediate→escalate to research.md"
+    interface:
+      inputs: ["writing-plans/tasks/research.md"]
+      outputs: ["research.md (BLOCK gate with diagnose→remediate→escalate)"]
+      invariants: ["research.md blocks on incomplete spec before Z3/planner invocation"]
+      failure_modes: ["gate absent", "no escalate path"]
+    verification_domain: behavioral
+  - item: 8
+    sc_id: SC-8
+    concern: "P3 — plan/solve scope collision resolution"
+    description: "Resolve plan/solve scope collision in skill descriptions"
+    interface:
+      inputs: ["plan/SKILL.md", "solve/SKILL.md"]
+      outputs: ["plan/SKILL.md (plan-scoped description)", "solve/SKILL.md (solve-scoped description)"]
+      invariants: ["plan and solve descriptions no longer share 'validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering'"]
+      failure_modes: ["scope collision persists"]
+    verification_domain: structural
+  - item: 9
+    sc_id: SC-9
+    concern: "P3 — state/fallback ownership"
+    description: "Clarify state/fallback ownership between plan and solve skills"
+    interface:
+      inputs: ["plan/SKILL.md", "solve/SKILL.md"]
+      outputs: ["plan/SKILL.md (state/fallback ownership clarified)", "solve/SKILL.md (state/fallback ownership clarified)"]
+      invariants: ["each state/fallback task has a single owning skill"]
+      failure_modes: ["ownership ambiguity persists"]
+    verification_domain: structural
+  - item: 10
+    sc_id: SC-10
+    concern: "P5 — phantom clean-room basis removal"
+    description: "Remove phantom clean-room plan basis from plan-fidelity — adopt single-plan model"
+    interface:
+      inputs: ["plan-fidelity-evaluator.md", "plan-fidelity-arbiter.md", "plan-fidelity-investigator.md", "plan-fidelity-validator.md"]
+      outputs: ["plan-fidelity tasks (single-plan model, no clean-room basis)"]
+      invariants: ["plan-fidelity criteria reference the single plan, not a phantom clean-room plan"]
+      failure_modes: ["clean-room references persist", "plan-fidelity.md main task file reference persists"]
+    verification_domain: structural
+  - item: 11
+    sc_id: SC-11
+    concern: "P6 — task count claim fix"
+    description: "Fix writing-plans task count claim (7 vs actual 9 task files)"
+    interface:
+      inputs: ["writing-plans/SKILL.md"]
+      outputs: ["writing-plans/SKILL.md (correct task count)"]
+      invariants: ["SKILL.md task count matches actual task file count"]
+      failure_modes: ["count claim remains 7"]
+    verification_domain: structural
+  - item: 12
+    sc_id: SC-12
+    concern: "P6 — per-item/per-task cycle terminology"
+    description: "Fix per-item vs per-task cycle terminology inconsistency"
+    interface:
+      inputs: ["writing-plans/SKILL.md", "writing-plans/tasks/create.md"]
+      outputs: ["writing-plans files (consistent cycle terminology)"]
+      invariants: ["cycle terminology consistent with plan-structure-standards.md and 091-incremental-build.md"]
+      failure_modes: ["terminology inconsistency persists"]
+    verification_domain: structural
+  - item: 13
+    sc_id: SC-13
+    concern: "P6 — YAML code block in create.md"
+    description: "Fix YAML code block in create.md body (prohibited by its own rule)"
+    interface:
+      inputs: ["writing-plans/tasks/create.md"]
+      outputs: ["create.md (no YAML code block in body)"]
+      invariants: ["create.md body contains no JSON/YAML code blocks"]
+      failure_modes: ["YAML code block persists"]
+    verification_domain: structural
+  - item: 14
+    sc_id: SC-14
+    concern: "P6 — contract symmetry"
+    description: "Fix contract symmetry — add blocker_reason to output contract templates"
+    interface:
+      inputs: ["writing-plans/contracts/*-output.yaml"]
+      outputs: ["output contract templates (with blocker_reason)"]
+      invariants: ["output contract templates include blocker_reason field matching task result contracts"]
+      failure_modes: ["blocker_reason missing from templates"]
+    verification_domain: structural
+  - item: 15
+    sc_id: SC-15
+    concern: "P6 — verify-plan-pipeline wiring"
+    description: "Wire verify-plan-pipeline into the writing-plans workflow"
+    interface:
+      inputs: ["writing-plans/SKILL.md"]
+      outputs: ["writing-plans/SKILL.md (verify-plan-pipeline wired into workflow)"]
+      invariants: ["verify-plan-pipeline appears in a workflow sequence"]
+      failure_modes: ["verify-plan-pipeline remains unwired"]
+    verification_domain: structural
+  - item: 16
+    sc_id: SC-16
+    concern: "P6 — completion lifecycle target"
+    description: "Fix completion lifecycle target inconsistency (issue body vs plan file)"
+    interface:
+      inputs: ["writing-plans/tasks/completion.md"]
+      outputs: ["completion.md (consistent lifecycle target)"]
+      invariants: ["completion.md purpose, step, and exit criteria reference the same lifecycle target"]
+      failure_modes: ["target inconsistency persists"]
+    verification_domain: structural
+  - item: 17
+    sc_id: SC-17
+    concern: "P6 — sc-summary.yaml path resolution"
+    description: "Fix sc-summary.yaml path resolution in research.md"
+    interface:
+      inputs: ["writing-plans/tasks/research.md"]
+      outputs: ["research.md (correct sc-summary.yaml path)"]
+      invariants: ["research.md sc-summary.yaml path matches spec-creation write path"]
+      failure_modes: ["path resolution inconsistency persists"]
+    verification_domain: structural
+  - item: 18
+    sc_id: SC-18
+    concern: "P6 — auth gating"
+    description: "Fix auth gating — approval-gate verify-authorization task does not exist"
+    interface:
+      inputs: ["writing-plans/tasks/handoff.md"]
+      outputs: ["handoff.md (valid auth gate reference)"]
+      invariants: ["handoff.md references an existing approval-gate task"]
+      failure_modes: ["verify-authorization reference persists"]
+    verification_domain: structural
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "SC-2 (dispatch removal) depends on SC-1 (authority resolution) — dispatch field lives in the reconciled authority"
+    - from: 1
+      to: 3
+      reason: "SC-3 (schema version string) depends on SC-1 (authority resolution) — schema version lives in the reconciled authority"
+    - from: 4
+      to: 5
+      reason: "SC-5 (solve check) and SC-4 (solve model) both fix solve invocations in research.md — independent but same file"
+    - from: 4
+      to: 6
+      reason: "SC-6 (plan plan) and SC-4 (solve model) both fix tool invocations in research.md"
+    - from: 7
+      to: 4
+      reason: "SC-7 (BLOCK gate) depends on SC-4/5/6 (invocation fixes) — gate wraps the corrected invocations"
+    - from: 8
+      to: 9
+      reason: "SC-9 (state/fallback ownership) depends on SC-8 (scope resolution) — ownership is part of scope"
+    - from: 10
+      to: 1
+      reason: "SC-10 (plan-fidelity single-plan) depends on SC-1 (authority resolution) — plan-fidelity reads the reconciled authority"
+    - from: 11
+      to: 12
+      reason: "SC-12 (cycle terminology) and SC-11 (task count) both edit writing-plans/SKILL.md"
+    - from: 12
+      to: 13
+      reason: "SC-13 (create.md YAML) and SC-12 (terminology) both edit create.md"
+    - from: 14
+      to: 11
+      reason: "SC-14 (contract symmetry) is independent of SKILL.md edits but grouped in P6"
+    - from: 15
+      to: 11
+      reason: "SC-15 (verify-plan-pipeline wiring) edits writing-plans/SKILL.md"
+    - from: 16
+      to: 11
+      reason: "SC-16 (completion lifecycle) is a P6 writing-plans fix"
+    - from: 17
+      to: 4
+      reason: "SC-17 (sc-summary path) and SC-4/5/6/7 all edit research.md"
+    - from: 18
+      to: 11
+      reason: "SC-18 (auth gating) is a P6 writing-plans fix"
+
+acyclic: true

@@ -1,0 +1,59 @@
+# Blast Radius — Issue #2256 Plan Skill Card Remediation
+# Affected components and ripple effects per phase.
+
+phases:
+  - phase: 1
+    name: "P1 — Plan-Structure Authority Resolution"
+    affected_components:
+      - .opencode/reference/plan-structure-standards.md
+      - .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    ripple_effects:
+      - "writing-plans/tasks/create.md reads plan-structure-standards.md (authority source)"
+      - "plan-fidelity tasks read plan-structure-standards.md (authority source)"
+      - "Any plan artifact that references plan-artifact-format.md must be reconciled"
+    blast_radius: LOW
+    rationale: "Two reference docs reconciled into one; consumers already read plan-structure-standards.md"
+  - phase: 2
+    name: "P4 — Runtime-Broken Z3/Planner Invocations"
+    affected_components:
+      - .opencode/skills/writing-plans/tasks/research.md
+    ripple_effects:
+      - "writing-plans pipeline research step (Z3 solving, planner invocation)"
+      - "Any plan created via writing-plans that relied on the broken invocations"
+    blast_radius: MEDIUM
+    rationale: "Fixes runtime-broken tool invocations; affects the research step of every plan creation"
+  - phase: 3
+    name: "P3 — Plan/Solve Scope Collision"
+    affected_components:
+      - .opencode/skills/plan/SKILL.md
+      - .opencode/skills/solve/SKILL.md
+    ripple_effects:
+      - "Skill dispatch routing (description field is the semantic router)"
+      - "Agents selecting plan vs solve skill"
+    blast_radius: MEDIUM
+    rationale: "Description field changes affect agent-intent dispatch routing"
+  - phase: 4
+    name: "P5 — Phantom Clean-Room Basis Removal"
+    affected_components:
+      - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+      - .opencode/skills/audit/tasks/plan-fidelity-arbiter.md
+      - .opencode/skills/audit/tasks/plan-fidelity-investigator.md
+      - .opencode/skills/audit/tasks/plan-fidelity-validator.md
+    ripple_effects:
+      - "plan-fidelity audit chain (Investigator → Validator → Evaluator → Arbiter)"
+      - "Any audit that relied on clean-room plan comparison"
+    blast_radius: MEDIUM
+    rationale: "Removes phantom clean-room basis; affects the plan-fidelity audit chain"
+  - phase: 5
+    name: "P6 — Writing-Plans Internal Inconsistencies"
+    affected_components:
+      - .opencode/skills/writing-plans/SKILL.md
+      - .opencode/skills/writing-plans/tasks/create.md
+      - .opencode/skills/writing-plans/tasks/completion.md
+      - .opencode/skills/writing-plans/tasks/handoff.md
+      - .opencode/skills/writing-plans/tasks/research.md
+      - .opencode/skills/writing-plans/contracts/*-output.yaml
+    ripple_effects:
+      - "writing-plans pipeline (task count, cycle terminology, contract symmetry, verify-plan-pipeline wiring, completion lifecycle, sc-summary path, auth gating)"
+    blast_radius: MEDIUM
+    rationale: "Multiple internal consistency fixes across writing-plans skill files"

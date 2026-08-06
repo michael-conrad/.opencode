@@ -1,0 +1,118 @@
+# Requirements Extraction — Issue #2256 Plan Skill Card Remediation
+# Verified against actual codebase via file reads, grep, and tool interface inspection.
+
+explicit_requirements:
+  - id: REQ-P1-1
+    text: "Resolve plan-structure-standards.md vs plan-artifact-format.md to plan-structure-standards.md as the single canonical plan-structure authority"
+    verified: true
+    evidence: "plan-structure-standards.md is referenced by writing-plans/tasks/create.md and plan-fidelity tasks via Read [Text](path); plan-artifact-format.md self-declares 'single source of truth' (line 7) creating a competing authority"
+  - id: REQ-P1-2
+    text: "Remove the dispatch: field from plan frontmatter in plan-structure-standards.md"
+    verified: true
+    evidence: "plan-structure-standards.md line 20 declares `dispatch: [<skill-names>]` in Plan Frontmatter; plan-artifact-format.md frontmatter (lines 57-63) does NOT include dispatch — inconsistency"
+  - id: REQ-P1-3
+    text: "String plan_schema_version (align plan-structure-standards.md integer `1` with plan-artifact-format.md string `\"1.0\"`)"
+    verified: true
+    evidence: "plan-structure-standards.md line 17 declares `plan_schema_version: 1` (integer); plan-artifact-format.md lines 21/57/166 declare `plan_schema_version: \"1.0\"` (string)"
+  - id: REQ-P4-1
+    text: "Fix runtime-broken `solve model --query sat` invocation in writing-plans/tasks/research.md Step 10"
+    verified: true
+    evidence: "solve tool model subcommand requires --query to be a valid Z3 Boolean expression (solve tool lines 435-437); 'sat' is not a valid query expression"
+  - id: REQ-P4-2
+    text: "Fix runtime-broken `solve check --state-path state-analysis.yaml` invocation in research.md Step 11"
+    verified: true
+    evidence: "solve check requires a state YAML file with variable assignments; state-analysis.yaml is an analytical artifact (state transitions), not a solve state file; no solve state file is ever created by any pipeline step"
+  - id: REQ-P4-3
+    text: "Fix runtime-broken `plan plan --contract-path/--output` invocation in research.md Step 12"
+    verified: true
+    evidence: "plan tool 'plan' subcommand requires --problem (not --contract-path) and has no --output flag (plan tool lines 948-954); invocation is entirely broken"
+  - id: REQ-P4-4
+    text: "Add BLOCK-on-incomplete-spec gate with diagnose→remediate→escalate to research.md"
+    verified: true
+    evidence: "research.md has no gate that blocks when the spec/artifacts are incomplete; the analyze task (analyze.md) checks artifact presence but research.md does not re-verify before Z3/planner invocation"
+  - id: REQ-P3-1
+    text: "Resolve plan/solve scope collision in skill descriptions"
+    verified: true
+    evidence: "plan/SKILL.md and solve/SKILL.md both include 'validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering' in their descriptions"
+  - id: REQ-P3-2
+    text: "Clarify state/fallback ownership between plan and solve skills"
+    verified: true
+    evidence: "Both plan/SKILL.md and solve/SKILL.md have state and fallback tasks with overlapping ownership"
+  - id: REQ-P5-1
+    text: "Remove phantom clean-room plan basis from plan-fidelity — adopt single-plan model"
+    verified: true
+    evidence: "plan-fidelity-evaluator.md PF-1 references 'clean-room' plan that is never generated; discrepancy classification and bidirectional findings reference clean-room; plan-fidelity.md main task file does not exist"
+  - id: REQ-P6-1
+    text: "Fix writing-plans task count claim (7 vs actual 9 task files)"
+    verified: true
+    evidence: "writing-plans/SKILL.md line 13 claims '7 task files'; actual task file count is 9 (handoff, analyze, backfill, research, create, validate, revise, verify-plan-pipeline, completion)"
+  - id: REQ-P6-2
+    text: "Fix per-item vs per-task cycle terminology inconsistency"
+    verified: true
+    evidence: "writing-plans/SKILL.md and create.md use 'per-task cycle'; plan-structure-standards.md and 091-incremental-build.md use 'per-item TDD cycle'"
+  - id: REQ-P6-3
+    text: "Fix YAML code block in create.md body (prohibited by its own rule)"
+    verified: true
+    evidence: "create.md line 80 prohibits 'no JSON/YAML code blocks in the body' but lines 86-91 contain a YAML code block in the Result Contract section"
+  - id: REQ-P6-4
+    text: "Fix contract symmetry — add blocker_reason to output contract templates"
+    verified: true
+    evidence: "All 9 output contract templates lack blocker_reason; task result contracts (analyze.md, research.md, create.md, etc.) all declare blocker_reason field"
+  - id: REQ-P6-5
+    text: "Wire verify-plan-pipeline into the writing-plans workflow"
+    verified: true
+    evidence: "verify-plan-pipeline.md is listed in task cards table (line 67) and file structure (line 83) but NOT wired into any workflow sequence in SKILL.md"
+  - id: REQ-P6-6
+    text: "Fix completion lifecycle target inconsistency (issue body vs plan file)"
+    verified: true
+    evidence: "completion.md purpose (line 5) and exit criteria (line 42) say 'issue body'; Step 4 (line 30) says 'plan file'"
+  - id: REQ-P6-7
+    text: "Fix sc-summary.yaml path resolution in research.md"
+    verified: true
+    evidence: "research.md Step 5 reads `sc-summary.yaml`; spec-creation writes it to {project_root}/{path}/.issues/{issue_number}/sc-summary.yaml — path resolution inconsistency"
+  - id: REQ-P6-8
+    text: "Fix auth gating — approval-gate verify-authorization task does not exist"
+    verified: true
+    evidence: "handoff.md references `approval-gate --task verify-authorization` (lines 5, 24) but approval-gate tasks are apply-label, resolve-scope, route — no verify-authorization task exists"
+
+implicit_requirements:
+  - id: REQ-IMP-1
+    text: "All plan-related skill cards and reference docs must remain internally consistent after remediation"
+    verified: true
+    evidence: "P6 scope explicitly targets writing-plans internal inconsistencies"
+  - id: REQ-IMP-2
+    text: "Plan-fidelity audit criteria must reference authoritative sources dynamically, not hard-code values"
+    verified: true
+    evidence: "Research card plan-fidelity-auditor-authoritative-sources.md (confidence 1.0) documents this requirement"
+  - id: REQ-IMP-3
+    text: "Z3/planner tool invocations must match the actual CLI interfaces of tools/solve and tools/plan"
+    verified: true
+    evidence: "P4 scope targets runtime-broken invocations; verified against tool argparse definitions"
+
+constraint_requirements:
+  - id: REQ-CON-1
+    text: "Changes are confined to .opencode/ skill cards, task files, reference docs, and contract templates"
+    verified: true
+    evidence: "All affected files are under .opencode/ (repo: michael-conrad/.opencode)"
+  - id: REQ-CON-2
+    text: "No changes to tools/solve or tools/plan CLI interfaces — only the task file invocations are fixed"
+    verified: true
+    evidence: "P4 scope is remediation of task file invocations, not tool interface changes"
+  - id: REQ-CON-3
+    text: "plan-structure-standards.md becomes the single authority; plan-artifact-format.md content is reconciled into it or removed"
+    verified: true
+    evidence: "P1 scope: resolve to plan-structure-standards.md as single authority"
+
+non_requirements:
+  - id: REQ-NON-1
+    text: "No changes to the unified-planning or Z3 solver implementations"
+    verified: true
+    evidence: "Scope is skill card/task/reference remediation, not tool internals"
+  - id: REQ-NON-2
+    text: "No changes to spec-creation skill (except sc-summary.yaml path consistency if needed)"
+    verified: true
+    evidence: "P6 sc-summary.yaml path is a writing-plans research.md issue, not a spec-creation change"
+  - id: REQ-NON-3
+    text: "No new runtime features — this is a documentation/skill-card remediation spec"
+    verified: true
+    evidence: "All P1-P6 items are consistency, correctness, and authority-resolution fixes"
