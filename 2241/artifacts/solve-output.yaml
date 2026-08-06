@@ -1,0 +1,52 @@
+# Solve Output — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-06
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+checks:
+  - name: model
+    tool: ./.opencode/tools/solve model
+    contract: .opencode/.issues/2241/dependency-contract.yaml
+    query: "z3.And(phase_1, phase_2, phase_3, phase_4, phase_5, phase_6, phase_7)"
+    result: SAT
+    assignment:
+      phase_1: true
+      phase_2: true
+      phase_3: true
+      phase_4: true
+      phase_5: true
+      phase_6: true
+      phase_7: true
+  - name: check
+    tool: ./.opencode/tools/solve check
+    contract: .opencode/.issues/2241/dependency-contract.yaml
+    state: .opencode/.issues/2241/artifacts/state-analysis.yaml
+    result: SAT
+    note: "All phase variables False in initial state; preconditions + postconditions + invariants satisfiable"
+  - name: plan
+    tool: ./.opencode/tools/plan plan
+    problem: tmp/2241-problem.yaml
+    result: SOLVED_SATISFICING
+    plan_length: 7
+    plan:
+      - do_phase_3
+      - do_phase_1
+      - do_phase_6
+      - do_phase_2
+      - do_phase_7
+      - do_phase_5
+      - do_phase_4
+
+planner_result:
+  status: SOLVED_SATISFICING
+  plan_length: 7
+  actions:
+    - do_phase_3
+    - do_phase_1
+    - do_phase_6
+    - do_phase_2
+    - do_phase_7
+    - do_phase_5
+    - do_phase_4

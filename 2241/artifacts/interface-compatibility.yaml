@@ -78,3 +78,132 @@ summary:
   mitigation:
     - handoff auth verification intent preserved via direct local read
     - All other changes are additive removals or mechanism swaps with preserved semantics
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Local-first label writes — SC-2, SC-3, SC-4, SC-6, SC-7, SC-8"
+    phase_2:
+      type: bool
+      description: "Local-first label reads — SC-1, SC-9, SC-12, SC-13, SC-14"
+    phase_3:
+      type: bool
+      description: "Remove cargo-cult remote auth from list/search — SC-10, SC-11"
+    phase_4:
+      type: bool
+      description: "Remove No Metadata Trust doctrine — SC-16, SC-17"
+    phase_5:
+      type: bool
+      description: "Remove comment-scanning for authorization — SC-15, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-26"
+    phase_6:
+      type: bool
+      description: "Delete dead push-body.md — SC-27"
+    phase_7:
+      type: bool
+      description: "Update approval-gate guideline canonical source — SC-5"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_4, phase_2)"
+    - "z3.Implies(phase_5, phase_2)"
+    - "z3.Implies(phase_7, phase_1)"
+    - "z3.Implies(phase_7, phase_2)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/approval-gate/tasks/apply-label.md
+        - .opencode/skills/issue-operations-core/tasks/creation.md
+        - .opencode/skills/issue-operations-core/tasks/completion.md
+        - .opencode/skills/spec-creation/tasks/create.md
+        - .opencode/skills/issue-review/tasks/analyze-and-spec.md
+        - .opencode/skills/writing-plans/tasks/create.md
+      scs:
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-6
+        - SC-7
+        - SC-8
+    phase_2:
+      files:
+        - .opencode/skills/writing-plans/tasks/handoff.md
+        - .opencode/skills/issue-operations-core/tasks/read-labels.md
+        - .opencode/skills/issue-review/tasks/gather.md
+        - .opencode/skills/audit/tasks/drift-detection-investigator.md
+        - .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+      scs:
+        - SC-1
+        - SC-9
+        - SC-12
+        - SC-13
+        - SC-14
+    phase_3:
+      files:
+        - .opencode/skills/issue-operations-core/tasks/list-issues.md
+        - .opencode/skills/issue-operations-core/tasks/search-issues.md
+      scs:
+        - SC-10
+        - SC-11
+    phase_4:
+      files:
+        - .opencode/skills/issue-operations-core/tasks/read-issue.md
+        - .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+      scs:
+        - SC-16
+        - SC-17
+    phase_5:
+      files:
+        - .opencode/skills/audit/tasks/drift-detection-investigator.md
+        - .opencode/skills/issue-review/tasks/gather.md
+        - .opencode/skills/brainstorming/tasks/enforcement.md
+        - .opencode/skills/issue-operations-core/tasks/post-creation.md
+        - .opencode/skills/approval-gate/tasks/resolve-scope.md
+        - .opencode/skills/approval-gate/SKILL.md
+        - .opencode/skills/gh-cli/tasks/triage-issues.md
+        - .opencode/guidelines/067-context-completeness.md
+        - .opencode/guidelines/257-procedural-discipline-reference.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+      scs:
+        - SC-15
+        - SC-18
+        - SC-19
+        - SC-20
+        - SC-21
+        - SC-22
+        - SC-23
+        - SC-24
+        - SC-25
+        - SC-26
+    phase_6:
+      files:
+        - .opencode/skills/issue-operations/platforms/local/tasks/push-body.md
+      scs:
+        - SC-27
+    phase_7:
+      files:
+        - .opencode/guidelines/010-approval-gate.md
+      scs:
+        - SC-5
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Local-first label reads (Phase 2) depend on local-first label writes (Phase 1) establishing local issue.yaml as the canonical label source"
+    - from: phase_2
+      to: phase_4
+      rationale: "No Metadata Trust doctrine removal (Phase 4) touches operating-protocol.md, which is also modified by Phase 2 SC-14; sequence to avoid same-file edit conflict"
+    - from: phase_2
+      to: phase_5
+      rationale: "Comment-scan removal (Phase 5) touches gather.md (SC-18), drift-detection-investigator.md (SC-15), and operating-protocol.md (SC-17) — files also modified in Phase 2 (SC-12, SC-13, SC-14); sequence to avoid same-file edit conflicts"
+    - from: phase_1
+      to: phase_7
+      rationale: "Approval-gate guideline (Phase 7) documents local issue.yaml as canonical, which requires the local-first write primaries (Phase 1) to be established"
+    - from: phase_2
+      to: phase_7
+      rationale: "Approval-gate guideline (Phase 7) also depends on local-first read primaries (Phase 2) being established"
+  notes:
+    - "Phase 3 (cargo-cult removal) and Phase 6 (dead file deletion) are independent — no inbound or outbound dependencies."
+    - "Phase 4 depends on Phase 2 only via shared operating-protocol.md; read-issue.md (SC-16) has no Phase 2 overlap."
+    - "Phase 5 is sequenced after Phase 2 (shared files). It may also follow Phase 4 where operating-protocol.md SC-17 precedes SC-15's edit on the same file."
+    - "Phase 7 (guideline) is documentation-only and sequenced after the primary local-first phases 1 and 2."

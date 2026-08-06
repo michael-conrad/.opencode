@@ -1,6 +1,6 @@
 spec_path: .opencode/.issues/2241/spec.md
 approval_status: APPROVED
-approval_detail: "issue.yaml labels indicate approved-for-plan scope"
+approval_detail: "Remote GitHub API issue #2241 carries approved-for-pr label (verified via gh issue view 2241). Local issue.yaml is stale (shows needs-approval) — remote is authoritative per session note."
 sc_count: 27
 sc_ids:
   - SC-1
@@ -31,15 +31,16 @@ sc_ids:
   - SC-26
   - SC-27
 artifact_presence:
-  blast-radius.yaml: BACKFILLED
-  concern-map.yaml: BACKFILLED
-  code-path-inventory.yaml: BACKFILLED
-  cross-cutting-matrix.yaml: BACKFILLED
-  interface-compatibility.yaml: BACKFILLED
-  state-analysis.yaml: BACKFILLED
-  testability-assessment.yaml: BACKFILLED
-artifact_note: "All 7 analytical artifacts regenerated from current spec body after SC-18/SC-20/SC-22/SC-23 verification methods were made deterministic. Artifacts were previously deleted and required retroactive backfill."
+  blast-radius.yaml: PRESENT
+  concern-map.yaml: PRESENT
+  code-path-inventory.yaml: PRESENT
+  cross-cutting-matrix.yaml: PRESENT
+  interface-compatibility.yaml: PRESENT
+  state-analysis.yaml: PRESENT
+  testability-assessment.yaml: PRESENT
+artifact_note: "All 7 analytical artifacts present in .opencode/.issues/2241/artifacts/. Previously regenerated from current spec body after SC-18/SC-20/SC-22/SC-23 verification methods were made deterministic."
 scope_boundary_findings:
-  - All 27 affected files verified to exist in the codebase (.opencode/skills/, .opencode/guidelines/)
-scope_note: "Scope is entirely within the .opencode submodule — task files (skills/*/tasks/), skill cards (SKILL.md), and guidelines (guidelines/*.md). No root-repo files affected. push-body.md exists and is targeted for deletion (SC-27)."
+  - "All 27 affected files verified to exist in the codebase (.opencode/skills/, .opencode/guidelines/)"
+  - "push-body.md exists at .opencode/skills/issue-operations/platforms/local/tasks/push-body.md and is targeted for deletion (SC-27)"
+scope_note: "Scope is entirely within the .opencode submodule — task files (skills/*/tasks/), skill cards (SKILL.md), and guidelines (guidelines/*.md). No root-repo files affected."
 blocker: false

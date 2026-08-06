@@ -1,0 +1,124 @@
+# Structure — Issue 2241: Local issue.yaml is canonical source for authorization tracking
+spec: .opencode/.issues/2241/spec.md
+generated: 2026-08-06
+
+phases:
+  - id: phase_1
+    name: "Local-first label writes"
+    scs:
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-6
+      - SC-7
+      - SC-8
+    skill: test-driven-development
+    task: red
+    target: "approval-gate/apply-label.md, issue-operations-core/creation.md, completion.md, spec-creation/create.md, issue-review/analyze-and-spec.md, writing-plans/create.md"
+    depends_on: []
+
+  - id: phase_2
+    name: "Local-first label reads"
+    scs:
+      - SC-1
+      - SC-9
+      - SC-12
+      - SC-13
+      - SC-14
+    skill: test-driven-development
+    task: red
+    target: "writing-plans/handoff.md, issue-operations-core/read-labels.md, issue-review/gather.md, audit/drift-detection-investigator.md, verification-before-completion/operating-protocol.md"
+    depends_on:
+      - phase_1
+
+  - id: phase_3
+    name: "Remove cargo-cult remote auth from list/search"
+    scs:
+      - SC-10
+      - SC-11
+    skill: test-driven-development
+    task: red
+    target: "issue-operations-core/list-issues.md, search-issues.md"
+    depends_on: []
+
+  - id: phase_4
+    name: "Remove No Metadata Trust doctrine"
+    scs:
+      - SC-16
+      - SC-17
+    skill: test-driven-development
+    task: red
+    target: "issue-operations-core/read-issue.md, verification-before-completion/operating-protocol.md"
+    depends_on:
+      - phase_2
+
+  - id: phase_5
+    name: "Remove comment-scanning for authorization"
+    scs:
+      - SC-15
+      - SC-18
+      - SC-19
+      - SC-20
+      - SC-21
+      - SC-22
+      - SC-23
+      - SC-24
+      - SC-25
+      - SC-26
+    skill: test-driven-development
+    task: red
+    target: "audit/drift-detection-investigator.md, issue-review/gather.md, brainstorming/enforcement.md, issue-operations-core/post-creation.md, approval-gate/resolve-scope.md, approval-gate/SKILL.md, gh-cli/triage-issues.md, guidelines/067-context-completeness.md, guidelines/257-procedural-discipline-reference.md, gitbucket-api/SKILL.md"
+    depends_on:
+      - phase_2
+
+  - id: phase_6
+    name: "Delete dead push-body.md"
+    scs:
+      - SC-27
+    skill: test-driven-development
+    task: red
+    target: "issue-operations/platforms/local/tasks/push-body.md (deleted)"
+    depends_on: []
+
+  - id: phase_7
+    name: "Update approval-gate guideline canonical source"
+    scs:
+      - SC-5
+    skill: test-driven-development
+    task: red
+    target: "guidelines/010-approval-gate.md"
+    depends_on:
+      - phase_1
+      - phase_2
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Local-first label reads (Phase 2) depend on local-first label writes (Phase 1) establishing local issue.yaml as the canonical label source"
+    - from: phase_2
+      to: phase_4
+      rationale: "No Metadata Trust doctrine removal (Phase 4) touches operating-protocol.md, also modified by Phase 2 SC-14; sequence to avoid same-file edit conflict"
+    - from: phase_2
+      to: phase_5
+      rationale: "Comment-scan removal (Phase 5) touches gather.md, drift-detection-investigator.md, operating-protocol.md — files also modified in Phase 2; sequence to avoid same-file edit conflicts"
+    - from: phase_1
+      to: phase_7
+      rationale: "Approval-gate guideline (Phase 7) documents local issue.yaml as canonical, requires local-first write primaries (Phase 1) established"
+    - from: phase_2
+      to: phase_7
+      rationale: "Approval-gate guideline (Phase 7) also depends on local-first read primaries (Phase 2) established"
+  independent:
+    - phase_3
+    - phase_6
+
+skill_task_selection:
+  per_sc_cycle: "Each SC maps to one item with its own RED/GREEN/verify/commit cycle per implementation-workflow reference card"
+  red: "test-driven-development --task red"
+  green: "test-driven-development --task green"
+  verify: "verification-before-completion --task verify"
+  commit: "orchestrator inline git add + commit"
+  evidence_types:
+    semantic: "behavioral enforcement test via opencode run"
+    string: "structural/string assertion"
+    structural: "file-existence assertion"
