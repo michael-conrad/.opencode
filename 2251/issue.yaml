@@ -2,7 +2,8 @@ title: '[SPEC] Remediate spec-creation Documentation-Sources column drift and an
   line-number references'
 status: open
 labels:
-- SPEC,needs-approval
+- SPEC
+- needs-approval
 body: '# SPEC — Remediate spec-creation Documentation-Sources column drift and analytical-artifact
   line-number references
 
@@ -379,5 +380,5 @@ body: '# SPEC — Remediate spec-creation Documentation-Sources column drift and
 
   '
 created_at: '2026-08-06T03:31:15+00:00'
-updated_at: '2026-08-06T03:31:28+00:00'
+updated_at: '2026-08-06T03:31:45+00:00'
 github_url: michael-conrad/.opencode
