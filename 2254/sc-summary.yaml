@@ -1,4 +1,4 @@
-sc_count: 15
+sc_count: 18
 scs:
   - id: "SC-1"
     description: "spec-creation/SKILL.md uses canonical dispatch prompt format, zero deprecated execute X from Y strings"
@@ -9,54 +9,66 @@ scs:
     evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
-    description: "audit/SKILL.md uses single Workflows section with 4 DiMo steps, no TDT/Invocation/Tasks"
+    description: "audit/SKILL.md uses single Workflows section with 4 DiMo steps"
     evidence_type: "string"
     plan_item: 3
   - id: "SC-4"
-    description: "audit/SKILL.md uses canonical dispatch format, no deprecated DiMo dispatch strings"
+    description: "audit/SKILL.md has no TDT/Invocation/Tasks sections"
     evidence_type: "string"
     plan_item: 4
   - id: "SC-5"
-    description: "audit/SKILL.md description in canonical agent-intent format"
+    description: "audit/SKILL.md uses canonical dispatch format"
     evidence_type: "string"
     plan_item: 5
   - id: "SC-6"
-    description: "audit role-card frontmatter name and Task heading match filename"
+    description: "audit/SKILL.md has no deprecated DiMo dispatch strings"
     evidence_type: "string"
     plan_item: 6
   - id: "SC-7"
-    description: "broken cross-references repointed to role-split files, including holistic-dimensions.yaml"
+    description: "audit/SKILL.md description in canonical agent-intent format"
     evidence_type: "string"
     plan_item: 7
   - id: "SC-8"
-    description: "stale reference-doc task names updated to analyze/create/validate/revise"
+    description: "audit role-card frontmatter name matches filename"
     evidence_type: "string"
     plan_item: 8
   - id: "SC-9"
-    description: "three subdirectory audit tasks flattened to flat role files, stub index files removed"
+    description: "audit role-card Task heading matches filename"
     evidence_type: "string"
     plan_item: 9
   - id: "SC-10"
-    description: "completion task routing corrected, dangling verify-authorization repointed"
+    description: "broken cross-references repointed to role-split files, including holistic-dimensions.yaml"
     evidence_type: "string"
     plan_item: 10
   - id: "SC-11"
-    description: "redundant behavioral-sc-evaluator.md removed"
+    description: "stale reference-doc task names updated to analyze/create/validate/revise"
     evidence_type: "string"
     plan_item: 11
   - id: "SC-12"
-    description: "evidence-type taxonomy citations point at single canonical reference, loaded dynamically"
+    description: "three subdirectory audit tasks flattened to flat role files, stub index files removed"
     evidence_type: "string"
     plan_item: 12
   - id: "SC-13"
-    description: "missing evidence-type declaration is hard FAIL routed to remediation"
+    description: "completion task routing corrected, dangling verify-authorization repointed"
     evidence_type: "string"
     plan_item: 13
   - id: "SC-14"
-    description: "analyze task BLOCKs on unbound/placeholder issue number, remote-stub-first"
-    evidence_type: "behavioral"
+    description: "redundant behavioral-sc-evaluator.md removed"
+    evidence_type: "string"
     plan_item: 14
   - id: "SC-15"
-    description: "validate task loads 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml"
+    description: "evidence-type taxonomy citations point at single canonical reference, loaded dynamically"
     evidence_type: "string"
     plan_item: 15
+  - id: "SC-16"
+    description: "missing evidence-type declaration is hard FAIL routed to remediation"
+    evidence_type: "string"
+    plan_item: 16
+  - id: "SC-17"
+    description: "analyze task BLOCKs on unbound/placeholder issue number, remote-stub-first"
+    evidence_type: "behavioral"
+    plan_item: 17
+  - id: "SC-18"
+    description: "validate task loads 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml"
+    evidence_type: "string"
+    plan_item: 18

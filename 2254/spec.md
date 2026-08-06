@@ -43,19 +43,22 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 |----|-----------|---------------|---------------------|
 | SC-1 | spec-creation/SKILL.md SHALL use the canonical dispatch prompt format `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task() dispatches, with zero occurrences of the deprecated `execute X from Y` coded strings. | string | grep spec-creation/SKILL.md for absence of `execute .* from` and presence of canonical format |
 | SC-2 | spec-creation/SKILL.md SHALL NOT contain a `## Task Files` table. | string | grep spec-creation/SKILL.md for absence of `## Task Files` |
-| SC-3 | audit/SKILL.md SHALL use a single Workflows section with 4 DiMo steps (Investigator, Validator, Evaluator, Arbiter) and SHALL NOT contain Trigger Dispatch Table, Tasks, or Invocation sections. | string | grep audit/SKILL.md for Workflows section and absence of TDT/Invocation/Tasks sections |
-| SC-4 | audit/SKILL.md SHALL use the canonical dispatch prompt format and SHALL NOT contain deprecated `execute <task-name> DiMo <role> from audit` dispatch strings. | string | grep audit/SKILL.md for absence of `execute .* DiMo .* from audit` and presence of canonical format |
-| SC-5 | audit/SKILL.md description frontmatter SHALL be in canonical agent-intent format (no `Load via skill() when`, `Also load when`, `User phrases:` meta-instructions). | string | read audit/SKILL.md frontmatter and verify format |
-| SC-6 | Every audit role-card frontmatter `name:` field and `# Task:` heading SHALL match its filename (Investigator/Validator/Evaluator/Arbiter), with zero `-generator`/`-knowledge-supporter`/`-path-provider` mismatches. The authoritative on-disk count of defective role-card files is 40: 28 flat role files in tasks/ (24 with stale pre-rename role names — generator/knowledge-supporter/path-provider — plus 4 with empty `name` field: concern-separation-investigator, concern-separation-validator, plan-fidelity-investigator, behavioral-sc-evaluator) and 12 subdirectory role files (closure-verification/*, coherence-extraction/*, spec-summary/* — 4 each) all with empty `name` field. Note: plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter` (stale, not empty), and is counted in the 24 stale. Note: SC-11 removes behavioral-sc-evaluator.md; after its removal the flat-file mismatch count is 27. | string | for each audit/tasks/*-role.md, verify frontmatter name == basename |
-| SC-7 | Broken cross-references to non-existent monolithic role-task files (tasks/spec-audit.md, tasks/plan-fidelity.md) SHALL be repointed to the actual role-split files, including in reference/holistic-dimensions.yaml. | string | grep audit/tasks and reference/holistic-dimensions.yaml for absence of monolithic refs and presence of role-split refs |
-| SC-8 | Stale reference-doc task names (inspect/decompose/write/check/file) in reference/skill-card-description-standards.md SHALL be updated to actual task names (analyze/create/validate/revise). | string | grep reference/skill-card-description-standards.md for absence of stale names and presence of actual names |
-| SC-9 | The three subdirectory audit tasks (closure-verification/, coherence-extraction/, spec-summary/) SHALL be flattened to flat role files and their stub index files (closure-verification.md, coherence-extraction.md, spec-summary.md) SHALL be removed. | string | verify the three subdirectories are flat files and stub files are absent |
-| SC-10 | audit/tasks/completion.md SHALL route to the actual 3-step verify-authorization workflow and SHALL NOT reference the dangling `approval-gate --task verify-authorization`. | string | grep audit/tasks/completion.md for correct routing and absence of dangling reference |
-| SC-11 | The redundant audit/tasks/behavioral-sc-evaluator.md SHALL be removed. | string | verify audit/tasks/behavioral-sc-evaluator.md is absent |
-| SC-12 | Evidence-type taxonomy citations in spec-creation validate and audit role cards SHALL point at the single canonical reference document, loaded dynamically. | string | grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation |
-| SC-13 | A missing evidence-type declaration in reference/spec-structure-standards.md SHALL be a hard FAIL routed to the remediation workflow, not a default-to-string/warn/backwards-compat tier. | string | read reference/spec-structure-standards.md and verify missing-type rule is hard FAIL |
-| SC-14 | spec-creation/tasks/analyze.md SHALL BLOCK on an unbound/placeholder issue number and SHALL use remote-stub-first when a remote API is available. | behavioral | opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK |
-| SC-15 | spec-creation/tasks/validate.md SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than a hardcoded divergent list. | string | grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml |
+| SC-3 | audit/SKILL.md SHALL use a single Workflows section with 4 DiMo steps (Investigator, Validator, Evaluator, Arbiter). | string | grep audit/SKILL.md for Workflows section |
+| SC-4 | audit/SKILL.md SHALL NOT contain Trigger Dispatch Table, Tasks, or Invocation sections. | string | grep audit/SKILL.md for absence of TDT/Invocation/Tasks sections |
+| SC-5 | audit/SKILL.md SHALL use the canonical dispatch prompt format `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task() dispatches. | string | grep audit/SKILL.md for presence of canonical format |
+| SC-6 | audit/SKILL.md SHALL NOT contain deprecated `execute <task-name> DiMo <role> from audit` dispatch strings. | string | grep audit/SKILL.md for absence of `execute .* DiMo .* from audit` |
+| SC-7 | audit/SKILL.md description frontmatter SHALL be in canonical agent-intent format (no `Load via skill() when`, `Also load when`, `User phrases:` meta-instructions). | string | read audit/SKILL.md frontmatter and verify format |
+| SC-8 | Every audit role-card frontmatter `name:` field SHALL match its filename (Investigator/Validator/Evaluator/Arbiter), with zero `-generator`/`-knowledge-supporter`/`-path-provider` mismatches. The authoritative on-disk count of defective role-card files is 40: 28 flat role files in tasks/ (24 with stale pre-rename role names — generator/knowledge-supporter/path-provider — plus 4 with empty `name` field: concern-separation-investigator, concern-separation-validator, plan-fidelity-investigator, behavioral-sc-evaluator) and 12 subdirectory role files (closure-verification/*, coherence-extraction/*, spec-summary/* — 4 each) all with empty `name` field. Note: plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter` (stale, not empty), and is counted in the 24 stale. Note: SC-14 removes behavioral-sc-evaluator.md; after its removal the flat-file mismatch count is 27. | string | for each audit/tasks/*-role.md, verify frontmatter name == basename |
+| SC-9 | Every audit role-card `# Task:` heading SHALL match its filename (Investigator/Validator/Evaluator/Arbiter). | string | for each audit/tasks/*-role.md, verify `# Task:` heading == basename |
+| SC-10 | Broken cross-references to non-existent monolithic role-task files (tasks/spec-audit.md, tasks/plan-fidelity.md) SHALL be repointed to the actual role-split files, including in reference/holistic-dimensions.yaml. | string | grep audit/tasks and reference/holistic-dimensions.yaml for absence of monolithic refs and presence of role-split refs |
+| SC-11 | Stale reference-doc task names (inspect/decompose/write/check/file) in reference/skill-card-description-standards.md SHALL be updated to actual task names (analyze/create/validate/revise). | string | grep reference/skill-card-description-standards.md for absence of stale names and presence of actual names |
+| SC-12 | The three subdirectory audit tasks (closure-verification/, coherence-extraction/, spec-summary/) SHALL be flattened to flat role files and their stub index files (closure-verification.md, coherence-extraction.md, spec-summary.md) SHALL be removed. | string | verify the three subdirectories are flat files and stub files are absent |
+| SC-13 | audit/tasks/completion.md SHALL route to the actual 3-step verify-authorization workflow and SHALL NOT reference the dangling `approval-gate --task verify-authorization`. | string | grep audit/tasks/completion.md for correct routing and absence of dangling reference |
+| SC-14 | The redundant audit/tasks/behavioral-sc-evaluator.md SHALL be removed. | string | verify audit/tasks/behavioral-sc-evaluator.md is absent |
+| SC-15 | Evidence-type taxonomy citations in spec-creation validate and audit role cards SHALL point at the single canonical reference document, loaded dynamically. | string | grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation |
+| SC-16 | A missing evidence-type declaration in reference/spec-structure-standards.md SHALL be a hard FAIL routed to the remediation workflow, not a default-to-string/warn/backwards-compat tier. | string | read reference/spec-structure-standards.md and verify missing-type rule is hard FAIL |
+| SC-17 | spec-creation/tasks/analyze.md SHALL BLOCK on an unbound/placeholder issue number and SHALL use remote-stub-first when a remote API is available. | behavioral | opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK |
+| SC-18 | spec-creation/tasks/validate.md SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than a hardcoded divergent list. | string | grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml |
 
 ## 4. Requirements
 
@@ -95,89 +98,110 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 ### Item 3 (SC-3): Convert audit to Workflows structure
 
-- RED: grep audit/SKILL.md asserts Workflows section present and TDT/Invocation/Tasks absent — fails on current content
+- RED: grep audit/SKILL.md asserts Workflows section present — fails on current content
 - GREEN: Convert TDT + Tasks + Invocation + DiMo Role Chain to a single Workflows section with 4 DiMo steps
 - verify: grep conformance
 - commit: audit/SKILL.md
 
-### Item 4 (SC-4): Convert audit dispatch format
+### Item 4 (SC-4): Remove audit TDT/Invocation/Tasks sections
 
-- RED: grep audit/SKILL.md asserts absence of `execute .* DiMo .* from audit` — fails on current content
+- RED: grep audit/SKILL.md asserts TDT/Invocation/Tasks absent — fails on current content
+- GREEN: Remove the Trigger Dispatch Table, Invocation, and Tasks sections from audit/SKILL.md
+- verify: grep conformance
+- commit: audit/SKILL.md
+
+### Item 5 (SC-5): Convert audit dispatch format (positive)
+
+- RED: grep audit/SKILL.md asserts canonical dispatch format present — fails on current content
 - GREEN: Replace deprecated DiMo dispatch strings with canonical format
 - verify: grep conformance
 - commit: audit/SKILL.md
 
-### Item 5 (SC-5): Rewrite audit description
+### Item 6 (SC-6): Remove deprecated audit dispatch strings (negative)
+
+- RED: grep audit/SKILL.md asserts absence of `execute .* DiMo .* from audit` — fails on current content
+- GREEN: Ensure no deprecated DiMo dispatch strings remain
+- verify: grep conformance
+- commit: audit/SKILL.md
+
+### Item 7 (SC-7): Rewrite audit description
 
 - RED: read audit/SKILL.md frontmatter asserts canonical agent-intent format — fails on current content
 - GREEN: Rewrite description to canonical agent-intent format
 - verify: read frontmatter
 - commit: audit/SKILL.md
 
-### Item 6 (SC-6): Repair role-card names
+### Item 8 (SC-8): Repair role-card frontmatter names
 
 - RED: for each audit/tasks/*-role.md, assert frontmatter name == basename — fails on 40 mismatches (28 flat: 24 stale pre-rename role names + 4 empty `name` field; 12 subdirectory: all empty `name` field)
-- GREEN: Repair 40 role-card frontmatter name fields and `# Task:` headings to match filenames (28 flat + 12 subdirectory)
+- GREEN: Repair 40 role-card frontmatter name fields to match filenames (28 flat + 12 subdirectory)
 - verify: per-file frontmatter check
 - commit: audit/tasks/*-role.md
 
-### Item 7 (SC-7): Repoint cross-references
+### Item 9 (SC-9): Repair role-card Task headings
+
+- RED: for each audit/tasks/*-role.md, assert `# Task:` heading == basename — fails on current content
+- GREEN: Repair `# Task:` headings to match filenames
+- verify: per-file heading check
+- commit: audit/tasks/*-role.md
+
+### Item 10 (SC-10): Repoint cross-references
 
 - RED: grep audit/tasks and reference/holistic-dimensions.yaml asserts absence of monolithic refs — fails on current content
 - GREEN: Repoint spec-audit.md/plan-fidelity.md refs to role-split files, including holistic-dimensions.yaml
 - verify: grep conformance
 - commit: audit/tasks, reference/holistic-dimensions.yaml
 
-### Item 8 (SC-8): Update reference task names
+### Item 11 (SC-11): Update reference task names
 
 - RED: grep reference/skill-card-description-standards.md asserts absence of stale names — fails on current content
 - GREEN: Update inspect/decompose/write/check/file to analyze/create/validate/revise
 - verify: grep conformance
 - commit: reference/skill-card-description-standards.md
 
-### Item 9 (SC-9): Flatten subdirectory tasks
+### Item 12 (SC-12): Flatten subdirectory tasks
 
 - RED: verify closure-verification/, coherence-extraction/, spec-summary/ are flat files and stub files absent — fails on current content
 - GREEN: Flatten three subdirectories to flat role files and remove stub index files
 - verify: file structure check
 - commit: audit/tasks
 
-### Item 10 (SC-10): Correct completion routing
+### Item 13 (SC-13): Correct completion routing
 
 - RED: grep audit/tasks/completion.md asserts correct routing and absence of dangling reference — fails on current content
 - GREEN: Repoint verify-authorization to the actual 3-step workflow
 - verify: grep conformance
 - commit: audit/tasks/completion.md
 
-### Item 11 (SC-11): Remove redundant evaluator
+### Item 14 (SC-14): Remove redundant evaluator
 
 - RED: verify audit/tasks/behavioral-sc-evaluator.md is absent — fails on current content
 - GREEN: Remove behavioral-sc-evaluator.md
 - verify: file absence check
 - commit: audit/tasks
 
-### Item 12 (SC-12): Consolidate taxonomy citations
+### Item 15 (SC-15): Consolidate taxonomy citations
 
 - RED: grep spec-creation/tasks/validate.md and audit role cards asserts canonical reference citation — fails on current content
 - GREEN: Point taxonomy citations at the single canonical reference, loaded dynamically
 - verify: grep conformance
 - commit: reference/, spec-creation/tasks/validate.md, audit role cards
 
-### Item 13 (SC-13): Missing evidence type is hard FAIL
+### Item 16 (SC-16): Missing evidence type is hard FAIL
 
 - RED: read reference/spec-structure-standards.md asserts missing-type rule is hard FAIL — fails on current content
 - GREEN: Change missing evidence-type declaration from default-to-string to hard FAIL routed to remediation
 - verify: read reference doc
 - commit: reference/spec-structure-standards.md
 
-### Item 14 (SC-14): Issue anchoring precondition
+### Item 17 (SC-17): Issue anchoring precondition
 
 - RED: opencode run (with-test-home) dispatches analyze with unbound/placeholder issue_number and asserts BLOCK — fails on current content
 - GREEN: Add analyze task BLOCK on unbound/placeholder issue number and remote-stub-first behavior
 - verify: behavioral test via opencode run
 - commit: spec-creation/tasks/analyze.md
 
-### Item 15 (SC-15): Dynamic dimension loading
+### Item 18 (SC-18): Dynamic dimension loading
 
 - RED: grep spec-creation/tasks/validate.md asserts dynamic load of reference/holistic-dimensions.yaml — fails on current content
 - GREEN: Make validate load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml
@@ -186,31 +210,31 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 ## 6. Dependencies
 
-- **Reference: `.opencode/reference/` consolidated standards** — Relationship: the canonical evidence-type taxonomy and holistic-dimensions.yaml must be resolved before the dynamic-loading SCs (SC-12, SC-15) can be verified. Status: satisfied (files exist on disk).
-- **Reference: DiMo 4-role audit dispatch** — Relationship: the audit Workflows structure (SC-3) and role-card naming (SC-6) depend on the DiMo role model. Status: satisfied.
-- **Reference: skill-card-description-standards.md §7** — Relationship: defines the Workflows-only structure and canonical description format that SC-3 and SC-5 conform to. Status: satisfied.
+- **Reference: `.opencode/reference/` consolidated standards** — Relationship: the canonical evidence-type taxonomy and holistic-dimensions.yaml must be resolved before the dynamic-loading SCs (SC-15, SC-18) can be verified. Status: satisfied (files exist on disk).
+- **Reference: DiMo 4-role audit dispatch** — Relationship: the audit Workflows structure (SC-3) and role-card naming (SC-8, SC-9) depend on the DiMo role model. Status: satisfied.
+- **Reference: skill-card-description-standards.md §7** — Relationship: defines the Workflows-only structure and canonical description format that SC-3 and SC-7 conform to. Status: satisfied.
 
 ## 7. Traceability
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1, SC-4 | Phase 1, Phase 2 |
-| R-2 | SC-3 | Phase 2 |
+| R-1 | SC-1, SC-5 | Phase 1, Phase 2 |
+| R-2 | SC-3, SC-4 | Phase 2 |
 | R-3 | SC-2 | Phase 1 |
-| R-4 | SC-6 | Phase 2 |
-| R-5 | SC-7 | Phase 2, Phase 3 |
-| R-6 | SC-8 | Phase 3 |
-| R-7 | SC-9 | Phase 2 |
-| R-8 | SC-10 | Phase 4 |
-| R-9 | SC-5 | Phase 2 |
-| R-10 | SC-11 | Phase 2 |
-| R-11 | SC-12 | Phase 3 |
-| R-12 | SC-13 | Phase 3 |
-| R-13 | SC-14 | Phase 1 |
-| R-14 | SC-15 | Phase 1 |
-| R-15 | SC-1..SC-15 | All |
-| R-16 | SC-14 | Phase 1 |
-| R-17 | SC-1..SC-15 | All |
+| R-4 | SC-8 | Phase 2 |
+| R-5 | SC-10 | Phase 2, Phase 3 |
+| R-6 | SC-11 | Phase 3 |
+| R-7 | SC-12 | Phase 2 |
+| R-8 | SC-13 | Phase 4 |
+| R-9 | SC-7 | Phase 2 |
+| R-10 | SC-14 | Phase 2 |
+| R-11 | SC-15 | Phase 3 |
+| R-12 | SC-16 | Phase 3 |
+| R-13 | SC-17 | Phase 1 |
+| R-14 | SC-18 | Phase 1 |
+| R-15 | SC-1..SC-18 | All |
+| R-16 | SC-17 | Phase 1 |
+| R-17 | SC-1..SC-18 | All |
 
 ## 8. Documentation Sources
 
@@ -239,28 +263,31 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-1: Verifying the dispatch format costs one grep search. Skipping means agents keep dispatching with a deprecated format the reference docs forbid, and every downstream task inherits the routing defect.
 - SC-2: Verifying the Task Files table removal costs one grep search. Skipping means the redundant table persists and duplicates the Workflows task references.
 - SC-3: Verifying the Workflows structure costs one grep search. Skipping means audit dispatches keep routing through the deprecated TDT/Invocation/Tasks surface.
-- SC-4: Verifying the audit dispatch format costs one grep search. Skipping means agents keep using deprecated DiMo dispatch strings.
-- SC-5: Verifying the description format costs one read. Skipping means the audit card keeps a deprecated description that misroutes skill selection.
-- SC-6: Verifying role-card names costs a per-file frontmatter check. Skipping means 40 name-vs-filename mismatches persist (28 flat + 12 subdirectory) and break skill-card validation.
-- SC-7: Verifying cross-reference repoints costs one grep search. Skipping means agents resolve to non-existent monolithic task files.
-- SC-8: Verifying reference task names costs one grep search. Skipping means reference docs keep pointing at non-existent inspect/decompose/write/check/file tasks.
-- SC-9: Verifying the flattening costs a file-structure check. Skipping means subdirectory tasks and stub index files persist.
-- SC-10: Verifying completion routing costs one grep search. Skipping means completion routes to a dangling verify-authorization reference.
-- SC-11: Verifying the evaluator removal costs a file-absence check. Skipping means a redundant file with zero consumers persists.
-- SC-12: Verifying taxonomy citations costs one grep search. Skipping means validate and audit read the taxonomy from a redirect source instead of the canonical one.
-- SC-13: Verifying the missing-type rule costs one read. Skipping means a missing evidence-type declaration silently defaults to string and masks a defect.
-- SC-14: Running the behavioral test costs minutes of execution time. Skipping means the analyze task accepts an unbound issue number and produces a spec anchored to a placeholder — a defect that ships to the issues-data branch and costs 1000× more to fix.
-- SC-15: Verifying dynamic dimension loading costs one grep search. Skipping means validate evaluates a spec against a divergent 11-dimension set than the auditor uses.
+- SC-4: Verifying the TDT/Invocation/Tasks removal costs one grep search. Skipping means the deprecated routing surface persists alongside the new Workflows section.
+- SC-5: Verifying the audit dispatch format (positive) costs one grep search. Skipping means agents keep using deprecated DiMo dispatch strings.
+- SC-6: Verifying the audit dispatch format (negative) costs one grep search. Skipping means deprecated DiMo dispatch strings persist.
+- SC-7: Verifying the description format costs one read. Skipping means the audit card keeps a deprecated description that misroutes skill selection.
+- SC-8: Verifying role-card frontmatter names costs a per-file frontmatter check. Skipping means 40 name-vs-filename mismatches persist (28 flat + 12 subdirectory) and break skill-card validation.
+- SC-9: Verifying role-card Task headings costs a per-file heading check. Skipping means `# Task:` headings diverge from filenames and misroute task execution.
+- SC-10: Verifying cross-reference repoints costs one grep search. Skipping means agents resolve to non-existent monolithic task files.
+- SC-11: Verifying reference task names costs one grep search. Skipping means reference docs keep pointing at non-existent inspect/decompose/write/check/file tasks.
+- SC-12: Verifying the flattening costs a file-structure check. Skipping means subdirectory tasks and stub index files persist.
+- SC-13: Verifying completion routing costs one grep search. Skipping means completion routes to a dangling verify-authorization reference.
+- SC-14: Verifying the evaluator removal costs a file-absence check. Skipping means a redundant file with zero consumers persists.
+- SC-15: Verifying taxonomy citations costs one grep search. Skipping means validate and audit read the taxonomy from a redirect source instead of the canonical one.
+- SC-16: Verifying the missing-type rule costs one read. Skipping means a missing evidence-type declaration silently defaults to string and masks a defect.
+- SC-17: Running the behavioral test costs minutes of execution time. Skipping means the analyze task accepts an unbound issue number and produces a spec anchored to a placeholder — a defect that ships to the issues-data branch and costs 1000× more to fix.
+- SC-18: Verifying dynamic dimension loading costs one grep search. Skipping means validate evaluates a spec against a divergent 11-dimension set than the auditor uses.
 
 ## 11. Edge Cases
 
-- **Condition: A role-card filename does not match any of the four role names (Investigator/Validator/Evaluator/Arbiter).** Expected behavior: the name field is repaired to match the filename per SC-6. Resolution: the role-split file set is fixed; no new role names are introduced.
-- **Condition: A cross-reference target file is genuinely absent (not just renamed).** Expected behavior: the reference is repointed to the actual role-split file per SC-7. Resolution: each repoint is verified against actual on-disk task files during implementation.
-- **Condition: The canonical evidence-type taxonomy location changes after consolidation.** Expected behavior: both validate and audit load it dynamically per SC-12, so no hardcoded path breaks. Resolution: dynamic loading keeps consumers in sync.
-- **Condition: An analyze dispatch receives an unbound/placeholder issue number.** Expected behavior: the analyze task BLOCKs per SC-14. Resolution: the orchestrator must provide a bound issue number or create a remote stub first.
-- **Condition: A spec omits an evidence-type declaration.** Expected behavior: validation is a hard FAIL routed to the remediation workflow per SC-13. Resolution: the spec is revised to declare an evidence type; no default-to-string escape hatch.
-- **Condition: A downstream skill hardcodes the deprecated dispatch string.** Expected behavior: the deprecated format is removed outright per SC-1/SC-4 (anti-bifurcation). Resolution: downstream consumers are updated in scope; no backwards-compat path is retained.
-- **Condition: The behavioral SC-14 test cannot execute (model unavailable).** Expected behavior: the SC is reported FAIL per the functional/behavioral test substitution prohibition. Resolution: remediation-first protocol applies before any escalation.
+- **Condition: A role-card filename does not match any of the four role names (Investigator/Validator/Evaluator/Arbiter).** Expected behavior: the name field and `# Task:` heading are repaired to match the filename per SC-8/SC-9. Resolution: the role-split file set is fixed; no new role names are introduced.
+- **Condition: A cross-reference target file is genuinely absent (not just renamed).** Expected behavior: the reference is repointed to the actual role-split file per SC-10. Resolution: each repoint is verified against actual on-disk task files during implementation.
+- **Condition: The canonical evidence-type taxonomy location changes after consolidation.** Expected behavior: both validate and audit load it dynamically per SC-15, so no hardcoded path breaks. Resolution: dynamic loading keeps consumers in sync.
+- **Condition: An analyze dispatch receives an unbound/placeholder issue number.** Expected behavior: the analyze task BLOCKs per SC-17. Resolution: the orchestrator must provide a bound issue number or create a remote stub first.
+- **Condition: A spec omits an evidence-type declaration.** Expected behavior: validation is a hard FAIL routed to the remediation workflow per SC-16. Resolution: the spec is revised to declare an evidence type; no default-to-string escape hatch.
+- **Condition: A downstream skill hardcodes the deprecated dispatch string.** Expected behavior: the deprecated format is removed outright per SC-1/SC-5/SC-6 (anti-bifurcation). Resolution: downstream consumers are updated in scope; no backwards-compat path is retained.
+- **Condition: The behavioral SC-17 test cannot execute (model unavailable).** Expected behavior: the SC is reported FAIL per the functional/behavioral test substitution prohibition. Resolution: remediation-first protocol applies before any escalation.
 
 ## 12. Change Control
 
@@ -269,6 +296,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 24 to 39; Cost Frame SC-6 reference updated to match. SC-6 goal (zero mismatches) unchanged. | Validation finding (correctness, dimension 4): live on-disk count is 39 role-card files (27 flat + 12 subdirectory), not 24. The prior count would cause the implementor to search for 24 mismatches and miss 15. | spec-creation validation pipeline |
 | 2026-08-06 | Item 6 (SC-6) RED/GREEN mismatch count corrected from 39 to 40; SC-6 criterion and Cost Frame SC-6 reference updated to the verified on-disk count and breakdown (28 flat: 23 stale pre-rename role names + 5 empty `name` field; 12 subdirectory: all empty `name` field). SC-6 goal (zero mismatches) unchanged. | Validation finding (correctness, dimension 4): the previous revision set the count to 39, but the authoritative on-disk count of role-card files with a defective frontmatter `name` field is 40. The breakdown lets the implementor verify the count. | spec-creation validation pipeline |
 | 2026-08-06 | SC-6 and Item 6 flat-file breakdown corrected from 23 stale + 5 empty = 28 flat to 24 stale + 4 empty = 28 flat. The 4 EMPTY flat files are exactly concern-separation-investigator, concern-separation-validator, plan-fidelity-investigator, behavioral-sc-evaluator. The 24 STALE flat files carry pre-rename role names (generator/knowledge-supporter/path-provider) in their frontmatter `name`. plan-fidelity-validator.md carries `name: plan-fidelity-knowledge-supporter` (STALE, not empty). SC-6's goal (zero mismatches) and the aggregate total (40) are unchanged. | Validation finding (correctness, dimension 4): the previous breakdown mislabeled plan-fidelity-validator.md as empty; it is stale. Live on-disk verification of all 28 flat role files' frontmatter confirms 24 stale + 4 empty. | spec-creation validation pipeline |
+| 2026-08-06 | Compound SCs decomposed into atomic SCs per validate.md Step 3.3. SC-3 split into SC-3 (Workflows present) + SC-4 (TDT/Invocation/Tasks absent). SC-4 split into SC-5 (canonical dispatch present) + SC-6 (deprecated DiMo strings absent). SC-6 split into SC-8 (frontmatter name matches filename) + SC-9 (`# Task:` heading matches filename). All SCs renumbered to 18; Requirements→SC mapping, traceability table, Item list (RED/GREEN), sc-summary.yaml plan_item numbering, Cost Frame, and Edge Cases references updated to remain consistent. Evidence types unchanged (string/structural; behavioral only for the issue-anchoring SC-17). | Validation finding (atomicity, compound-SC check): SC-3, SC-4, and SC-6 each bundled multiple independently verifiable claims joined by "and" (positive + negative assertions, or name-field + heading assertions). Each compound SC must be decomposed into single independently verifiable atomic SCs. | spec-creation validation pipeline |
 
 ---
 
