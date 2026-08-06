@@ -1,0 +1,38 @@
+# State Analysis — issue .opencode#2251
+
+state_analysis:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  states:
+    - id: S0
+      name: "Initial (defective)"
+      description: "skills/spec-creation/ has 3 stale 'Documentation Sources column' occurrences; #2250 analytical artifacts have line-number references; both artifact copies are byte-identical (defective)."
+    - id: S1
+      name: "Phase 1 complete (SC-1, SC-2)"
+      description: "validate.md and create.md reference the §8 Documentation Sources section; no 'Documentation Sources column' wording remains."
+      files: ["skills/spec-creation/tasks/validate.md", "skills/spec-creation/tasks/create.md"]
+    - id: S2
+      name: "Phase 2 complete (SC-3..SC-6)"
+      description: "All 5 #2250 analytical artifacts use stable anchors in both copies; no line-number references remain."
+      files: [".issues/2250/artifacts/*.yaml", "tmp/TBD/artifacts/*.yaml"]
+    - id: S3
+      name: "Final (verified, SC-7)"
+      description: "Both artifact copies verified byte-identical via diff -r; all SCs PASS."
+  transitions:
+    - from: S0
+      to: S1
+      action: "Edit validate.md (1 occurrence) and create.md (2 occurrences) to reference §8 Documentation Sources section."
+      gate: "grep 'Documentation Sources column' in skills/spec-creation/ returns zero"
+    - from: S0
+      to: S2
+      action: "Edit 5 artifacts in both copies: replace line numbers with stable anchors; convert pre-spec-inspection line:/lines: keys to section:/sections:."
+      gate: "grep line:/lines:/line N in both artifact copies returns zero"
+    - from: S2
+      to: S3
+      action: "Run diff -r on the two artifact copies; confirm byte-identity."
+      gate: "diff -r .issues/2250/artifacts/ tmp/TBD/artifacts/ returns no differences"
+  invariants:
+    - "reference/spec-structure-standards.md remains the authoritative source and is unchanged."
+    - "spec #2250 body (spec.md) is unchanged."
+    - "The two artifact copies remain byte-identical throughout remediation."
+    - "No changes to skills/writing-plans/, skills/plan/, or skills/audit/ (spec #2250 scope)."

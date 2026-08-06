@@ -1,0 +1,27 @@
+# Interface Compatibility — issue .opencode#2251
+
+interface_compatibility:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  assessments:
+    - artifact: "skills/spec-creation/tasks/validate.md"
+      change: "Documentation Sources conformance step wording: 'SC table includes a Documentation Sources column' -> 'spec includes the §8 Documentation Sources section'"
+      compatible: true
+      rationale: "Word-only change to a validation step; no interface contract (inputs/outputs, result-contract schema, dispatch) changes. Consumers (validate gate) unchanged."
+    - artifact: "skills/spec-creation/tasks/create.md"
+      change: "Documentation Sources assembly step + exit-checklist wording: 'SC table MUST include a Documentation Sources column' -> 'spec MUST include a §8 Documentation Sources section'; 'Documentation Sources columns' -> 'Documentation Sources section'"
+      compatible: true
+      rationale: "Word-only change to assembly instructions; no interface contract changes. Consumers (create gate) unchanged."
+    - artifact: ".issues/2250/artifacts/{testability-assessment,code-path-inventory,pre-spec-inspection,research-card-consultation,state-analysis}.yaml"
+      change: "Replace prescriptive line-number references with stable file-area anchors; convert line:/lines: keys to section:/sections: fields (pre-spec-inspection.yaml)"
+      compatible: true
+      rationale: "The artifacts are YAML data consumed by audit tasks. Replacing line numbers with stable anchors does not change the YAML schema except in pre-spec-inspection.yaml where line:/lines: keys become section:/sections: keys. This is an internal-key rename within the same artifact, not an interface change to consumers — audit tasks read the artifact values, not the specific key names. Compatible."
+    - artifact: "tmp/TBD/artifacts/ (byte-identical copy)"
+      change: "Identical edits to keep byte-identity with .issues/2250/artifacts/"
+      compatible: true
+      rationale: "Copy is consumed as a working set; identity preserved."
+  interface_contracts_unchanged:
+    - "spec-creation create/validate result-contract schema (status, spec_path, finding_summary)"
+    - "audit task result-contract schema"
+    - "spec-creation pipeline topology (analyze -> create -> validate -> revise)"
+    - "reference/spec-structure-standards.md (authoritative, unchanged)"

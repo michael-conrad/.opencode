@@ -1,0 +1,33 @@
+# Code Path Inventory — issue .opencode#2251
+
+code_path_inventory:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  entry_points:
+    - id: E-1
+      name: "spec-creation spec assembly"
+      description: "spec-creation create gate assembles the spec body. The stale 'Documentation Sources column' instruction (create.md line 50) directs SC-table column assembly that violates the canonical reference."
+      touched_sections:
+        - "skills/spec-creation/tasks/create.md — Step 2 (plan frontmatter/body build)"
+        - "skills/spec-creation/tasks/create.md — format-level exit-criteria checklist (line 116)"
+      consumers: ["spec-creation create gate", "downstream spec SC tables"]
+    - id: E-2
+      name: "spec-creation spec validation"
+      description: "spec-creation validate gate runs the holistic self-check and structural validation. The stale conformance step (validate.md line 54) checks for an SC-table Documentation Sources column that the canonical reference does not define."
+      touched_sections:
+        - "skills/spec-creation/tasks/validate.md — Documentation Sources conformance step"
+      consumers: ["spec-creation validate gate"]
+    - id: E-3
+      name: "spec #2250 audit artifact consumption"
+      description: "Audit tasks and spec #2250 implementation verification read the analytical artifacts. Line-number references in verification methods target shifting lines, producing non-deterministic results."
+      touched_sections:
+        - ".issues/2250/artifacts/testability-assessment.yaml"
+        - ".issues/2250/artifacts/code-path-inventory.yaml"
+        - ".issues/2250/artifacts/pre-spec-inspection.yaml"
+        - ".issues/2250/artifacts/research-card-consultation.yaml"
+        - ".issues/2250/artifacts/state-analysis.yaml"
+        - "tmp/TBD/artifacts/ (byte-identical copies)"
+      consumers: ["audit verification-audit", "audit plan-fidelity", "spec #2250 implementation"]
+  data_flow:
+    - "create.md/validate.md (stale column wording) -> assembled/validated specs (wrong SC-table structure)"
+    - ".issues/2250/artifacts + tmp/TBD/artifacts (line numbers) -> audit verification (non-deterministic anchors)"

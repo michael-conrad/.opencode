@@ -1,0 +1,36 @@
+# Testability Assessment — issue .opencode#2251
+
+testability_assessment:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  summary: "All SCs are structural/string consistency checks. No behavioral tests required — the changes alter static agent-facing text and artifact content, not runtime dispatch behavior."
+  scs:
+    - id: SC-1
+      evidence_type: structural
+      method: "grep skills/spec-creation/tasks/validate.md for 'Documentation Sources column' returns zero; conformance step references §8 Documentation Sources section"
+      testable: true
+    - id: SC-2
+      evidence_type: structural
+      method: "grep skills/spec-creation/tasks/create.md for 'Documentation Sources column' returns zero; assembly step + exit checklist reference §8 Documentation Sources section"
+      testable: true
+    - id: SC-3
+      evidence_type: string
+      method: "grep both copies of testability-assessment.yaml for 'line ' / 'lines ' returns zero; verification methods use stable anchors (cross_reference.audit_gates, Overview, Purpose and Exit Criteria, description)"
+      testable: true
+    - id: SC-4
+      evidence_type: string
+      method: "grep both copies of code-path-inventory.yaml for 'line' / 'lines' returns zero; touched-section values use stable anchors"
+      testable: true
+    - id: SC-5
+      evidence_type: string
+      method: "grep both copies of pre-spec-inspection.yaml for 'line:' / 'lines:' keys and 'line N' patterns returns zero; affected-file entries use section:/sections: fields"
+      testable: true
+    - id: SC-6
+      evidence_type: string
+      method: "grep both copies of research-card-consultation.yaml and state-analysis.yaml for 'line' / 'lines' returns zero"
+      testable: true
+    - id: SC-7
+      evidence_type: string
+      method: "diff -r .issues/2250/artifacts/ tmp/TBD/artifacts/ returns no differences"
+      testable: true
+  non_behavioral_rationale: "No SC changes runtime dispatch, tool selection, or agent decision behavior — all are static text/artifact edits. Hence no opencode run behavior tests."

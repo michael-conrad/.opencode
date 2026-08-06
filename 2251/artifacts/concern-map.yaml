@@ -1,0 +1,23 @@
+# Concern Map — issue .opencode#2251
+
+concern_map:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  concerns:
+    - id: C-1
+      name: "spec-creation Documentation-Sources column drift"
+      scs: [SC-1, SC-2]
+      phase: 1
+      description: "Three stale text occurrences in skills/spec-creation/ instruct an SC-table 'Documentation Sources column' that contradicts the canonical reference/spec-structure-standards.md (exactly 4 SC columns; Documentation Sources is a separate §8 section)."
+      resolution: "Replace 'Documentation Sources column(s)' wording with §8 Documentation Sources section references in validate.md (1 occurrence) and create.md (2 occurrences)."
+    - id: C-2
+      name: "analytical-artifact line-number references"
+      scs: [SC-3, SC-4, SC-5, SC-6, SC-7]
+      phase: 2
+      description: "The #2250 analytical artifacts (testability-assessment, code-path-inventory, pre-spec-inspection, research-card-consultation, state-analysis) embed prescriptive line numbers, violating reference/spec-structure-standards.md §Prohibited Content Patterns. Both artifact copies (.issues/2250/artifacts/ and tmp/TBD/artifacts/) must be fixed identically."
+      resolution: "Replace each line-number reference with a stable file-area anchor; convert pre-spec-inspection line:/lines: keys to section:/sections: fields; keep both copies byte-identical."
+  phase_sc_mapping:
+    - phase: 1
+      scs: [SC-1, SC-2]
+    - phase: 2
+      scs: [SC-3, SC-4, SC-5, SC-6, SC-7]

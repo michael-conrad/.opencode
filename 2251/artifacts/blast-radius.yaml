@@ -1,0 +1,52 @@
+# Blast Radius — issue .opencode#2251
+
+blast_radius:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  scope: "Remediate spec-creation Documentation-Sources column drift and analytical-artifact line-number references"
+  phases:
+    - phase: 1
+      name: "spec-creation Documentation-Sources column drift"
+      scs: [SC-1, SC-2]
+      affected_files:
+        - path: "skills/spec-creation/tasks/validate.md"
+          impact: "line 54 conformance step references 'Documentation Sources column'; must reference the §8 section"
+        - path: "skills/spec-creation/tasks/create.md"
+          impact: "line 50 assembly step and line 116 exit-checklist reference 'Documentation Sources column(s)'; must reference the §8 section"
+      consumers:
+        - "spec-creation validate gate (assembled spec validation)"
+        - "spec-creation create gate (spec body assembly)"
+        - "downstream specs assembled via spec-creation"
+    - phase: 2
+      name: "analytical-artifact line-number references"
+      scs: [SC-3, SC-4, SC-5, SC-6, SC-7]
+      affected_files:
+        - path: ".issues/2250/artifacts/testability-assessment.yaml"
+          impact: "lines 30, 62, 68, 81 embed line numbers; replace with stable anchors"
+        - path: "tmp/TBD/artifacts/testability-assessment.yaml"
+          impact: "byte-identical copy; must be fixed identically"
+        - path: ".issues/2250/artifacts/code-path-inventory.yaml"
+          impact: "lines 46, 49, 56, 59, 62, 65, 68, 81 embed line numbers"
+        - path: "tmp/TBD/artifacts/code-path-inventory.yaml"
+          impact: "byte-identical copy"
+        - path: ".issues/2250/artifacts/pre-spec-inspection.yaml"
+          impact: "line:/lines: keys + embedded line numbers in evidence/defect/resolution text"
+        - path: "tmp/TBD/artifacts/pre-spec-inspection.yaml"
+          impact: "byte-identical copy"
+        - path: ".issues/2250/artifacts/research-card-consultation.yaml"
+          impact: "line 18 embeds line numbers"
+        - path: "tmp/TBD/artifacts/research-card-consultation.yaml"
+          impact: "byte-identical copy"
+        - path: ".issues/2250/artifacts/state-analysis.yaml"
+          impact: "line 62 references 'line 128 mandate'"
+        - path: "tmp/TBD/artifacts/state-analysis.yaml"
+          impact: "byte-identical copy"
+      consumers:
+        - "audit tasks (verification-audit, plan-fidelity) read analytical artifacts"
+        - "spec #2250 implementation verification"
+  unaffected:
+    - "skills/writing-plans/ (spec #2250 scope)"
+    - "skills/plan/ (spec #2250 scope)"
+    - "skills/audit/ (spec #2250 scope)"
+    - "reference/spec-structure-standards.md (authoritative, unchanged)"
+    - ".issues/2250/spec.md (already uses stable anchors)"

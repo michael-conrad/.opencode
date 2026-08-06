@@ -1,0 +1,26 @@
+# Cross-Cutting Matrix — issue .opencode#2251
+
+cross_cutting_matrix:
+  repo: "michael-conrad/.opencode (github.com)"
+  issue_number: 2251
+  concerns:
+    - C-1: "spec-creation Documentation-Sources column drift (SC-1, SC-2)"
+    - C-2: "analytical-artifact line-number references (SC-3..SC-7)"
+  dimensions:
+    - dimension: "reference consistency"
+      C-1: "validate.md/create.md must align to canonical reference/spec-structure-standards.md §8 section"
+      C-2: "artifacts must align to reference/spec-structure-standards.md §Prohibited Content Patterns (no line numbers)"
+      shared: "Both concerns are consistency-drift against reference/spec-structure-standards.md; no code changes."
+    - dimension: "artifact identity"
+      C-1: "n/a — no artifacts involved"
+      C-2: "SC-7 requires .issues/2250/artifacts/ and tmp/TBD/artifacts/ remain byte-identical; every edit applied to both copies"
+      shared: "C-2 introduces a cross-location identity constraint; C-1 does not."
+    - dimension: "verification method"
+      C-1: "grep for 'Documentation Sources column' returns zero"
+      C-2: "grep for line:/lines:/line N returns zero; diff -r returns no differences"
+      shared: "All SCs are structural/string checks — no behavioral tests."
+    - dimension: "phase ordering"
+      C-1: "Phase 1 (SC-1, SC-2) independent"
+      C-2: "Phase 2 (SC-3..SC-7) independent"
+      shared: "Phase 1 and Phase 2 are independent; no cross-phase dependency."
+  conflict_check: "No concern conflicts. C-1 touches skills/spec-creation/ only; C-2 touches #2250 artifacts only. Disjoint file sets."
