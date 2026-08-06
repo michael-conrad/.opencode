@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2248/spec.md
+scs:
+  - id: SC-1
+    evidence_type: behavioral
+    verification_method: "Run the SC-1 behavior scenario via with-test-home; clean-room sub-agent reads session.yaml and verifies the ABSENCE of the outguess behavior — no DEFAULT_TEST_MODEL= override, no ollama-probe hw / nvidia-smi VRAM-probe-justified model substitution. The measure is the absence of the outguess behavior, NOT completion of a nested test."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-2
+    evidence_type: behavioral
+    verification_method: "Run the SC-2 failure-path behavior scenario via with-test-home; clean-room sub-agent reads session.yaml and verifies the agent's diagnostic tool calls follow the §10 remediation path with no ollama-probe hw + 'model too big' + model switch."
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-3
+    evidence_type: string
+    verification_method: "grep tests-v2/AGENTS.md for the no-outguess mandate string returns a match; text present and coherent."
+    testable: true
+    test_type: grep
+  - id: SC-4
+    evidence_type: behavioral
+    verification_method: "Run the SC-4 behavior scenario via with-test-home; clean-room sub-agent reads session.yaml and verifies the agent follows the §10.4 remediation-first protocol and does not fabricate a model-unavailability excuse."
+    testable: true
+    test_type: behavioral_opencode_run
+platform_testing_notes:
+  - "SC-1, SC-2, SC-4 behavioral tests require opencode run via with-test-home wrapper per AGENTS.md; bash tool timeout >= 600s."
+  - "SC-1 measure is the ABSENCE of the outguess behavior (no DEFAULT_TEST_MODEL= override, no VRAM-probe-justified model substitution), NOT completion of a nested test — the prompt must not require the agent to run a nested 35B scenario to completion."
+  - "SC-3 is a string gate (grep of tests-v2/AGENTS.md) — no model run needed."
+  - "All behavioral SCs use the Two-SC pattern (artifact generation + clean-room session.yaml evaluation) per §6a; session.yaml (SQLite DB export) is the PRIMARY evidence source."
