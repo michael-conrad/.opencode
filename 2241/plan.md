@@ -224,3 +224,11 @@ dispatch:
 - [ ] C7. `push-body.md` no longer exists at `issue-operations/platforms/local/tasks/`. **SC-27**
 - [ ] C8. `010-approval-gate.md` clarifies canonical auth is local `issue.yaml`; remote labels advisory. **SC-5**
 - [ ] C9. All SCs verified; no verification FAIL; phase DAG acyclic; Z3 SAT. **All SCs**
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-06T16:38:00Z | `plan_created` | Plan file: `.opencode/.issues/2241/plan.md`; phase count: 7 |
