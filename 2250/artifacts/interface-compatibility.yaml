@@ -1,0 +1,92 @@
+interface_compatibility:
+  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
+  issue_number: "TBD"
+  generated: "2026-08-05"
+  analysis: >
+    These changes modify agent-facing skill/reference files (markdown/yaml), not runtime code.
+    'Interfaces' here = the cross-reference and dispatch contracts between skill files.
+  interfaces:
+    - interface: "audit/SKILL.md -> audit/tasks/* dispatch table"
+      classification: MODIFIED (internal only)
+      backward_compatible: true
+      changes:
+        - "SC-1: remove cross-validate rows from TDT/Tasks/item 5 (cross-validate was a dead reference — no task file exists, so removal is safe)"
+        - "SC-5: soften item 5 artifact mandates to conditional form"
+        - "SC-12: TDT plan-fidelity context plan_local_dir -> spec_local_dir (aligns with role files already using spec_local_dir)"
+      breaking: false
+
+    - interface: "branch-cleanup.md -> audit closure-verification dispatch"
+      classification: MODIFIED (internal only)
+      backward_compatible: false
+      breaking_reason: >
+        SC-19 changes the actual post-merge audit dispatch: replaces resolve-models + separate
+        cross-validate with the standard closure-verification DiMo chain. This is a behavioral
+        change to the dispatch path. It aligns branch-cleanup with the closure-verification
+        implementation that already exists in skills/audit/tasks/closure-verification/.
+      changes:
+        - "Dispatch closure-verification Investigator->Validator->Evaluator->Arbiter chain"
+        - "2-field contract {spec_local_dir, artifact_evidence_dir}; remove audit_phase"
+
+    - interface: "audit role files -> reference/plan-structure-standards.md, reference/spec-structure-standards.md, reference/cost-model-standards.md"
+      classification: MODIFIED (internal only)
+      backward_compatible: true
+      changes:
+        - "SC-3, SC-4: fix broken relative reference/ paths to .opencode/reference/ (targets unchanged, only path resolved)"
+        - "SC-9: holistic-dimensions.yaml cross-refs point to role files instead of deleted monoliths"
+      breaking: false
+
+    - interface: "plan-fidelity-evaluator.md evaluation model"
+      classification: MODIFIED (internal only)
+      backward_compatible: false
+      breaking_reason: >
+        SC-13 replaces the dual-plan (clean-room vs existing) model with a single-plan
+        (plan-vs-spec) model. This is a semantic change to how plan-fidelity evaluates — the
+        evaluator now evaluates one plan against the spec rather than comparing clean-room vs
+        existing. It matches the investigator's single-plan evidence collection.
+      changes:
+        - "Remove PF-1 'All phases in clean-room appear in existing'"
+        - "Remove PLAN_INCOMPLETE/PLAN_OVERSCOPED/PLAN_DRIFT verdicts"
+        - "Remove 'Add phase from clean-room' auto-fix"
+      breaking: false
+      note: "Semantic change in task-doc evaluation model (behavioral evidence type for SC-13)"
+
+    - interface: "writing-plans/contracts/ set"
+      classification: MODIFIED (internal only)
+      backward_compatible: false
+      breaking_reason: >
+        SC-8 removes orphan self-review and structure contracts and adds handoff, research,
+        verify-plan-pipeline contracts. Pipeline artifact validation (verify-plan-pipeline task)
+        must recognize the new/removed contracts. Keeping solve-output.yaml (research step 13
+        writes solve-status/plan-status).
+      changes:
+        - "Add handoff-input/output.yaml, research-input/output.yaml, verify-plan-pipeline-input/output.yaml"
+        - "Remove self-review-input/output.yaml, structure-input/output.yaml"
+      breaking: false
+
+    - interface: "writing-plans -> plan artifact schema (plan-artifact-format.md vs plan-structure-standards.md)"
+      classification: REMOVED (one source) / MODIFIED (other source)
+      backward_compatible: true
+      changes:
+        - "SC-16: deprecate writing-plans/reference/plan-artifact-format.md (delete or reduce to pointer); reference/plan-structure-standards.md (plan_schema_version: int 1) is single source"
+      breaking: false
+      note: >
+        plan-structure-standards.md is UNCHANGED; only the conflicting plan-artifact-format.md is
+        deprecated. Downstream plan consumers (writing-plans create.md, plan-fidelity tasks) already
+        read plan-structure-standards.md, so no consumer breaks.
+
+    - interface: "plan/SKILL.md description + File Structure"
+      classification: MODIFIED (internal only)
+      backward_compatible: true
+      changes:
+        - "SC-14: remove duplicate clause in description"
+        - "SC-15: remove executing-plans cross-reference (dead skill)"
+        - "SC-18: add discover.md task + reference in File Structure"
+      breaking: false
+
+    - interface: "writing-plans/SKILL.md task-count claim + File Structure"
+      classification: MODIFIED (internal only)
+      backward_compatible: true
+      changes:
+        - "SC-7: '7 task files' -> '9 task files'"
+        - "SC-16: remove plan-artifact-format.md from file listing"
+      breaking: false

@@ -1,0 +1,80 @@
+cross_cutting_matrix:
+  spec_title: "Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation"
+  issue_number: "TBD"
+  generated: "2026-08-05"
+  analysis: >
+    Cross-cutting concerns that span multiple SCs/phases.
+  concerns:
+    - concern: "Read-Link Cross-Reference Rule compliance"
+      description: >
+        All agent-facing text MUST use the Read [Text](path) pattern and resolve to existing
+        canonical files (.opencode/reference/...). F3, F4 fix broken relative reference/ targets;
+        F9 fixes holistic-dimensions cross-references; F2 deletes dead monolithic file refs.
+      scs: [SC-3, SC-4, SC-9, SC-2]
+      phases: [phase_2, phase_1]
+      enforcement: "grep for 'Read [.*](reference/' (relative, non-.opencode) must return zero; grep for deleted monolithic file paths must return zero"
+
+    - concern: "Single canonical schema source"
+      description: >
+        reference/plan-structure-standards.md (plan_schema_version: int 1) is the single source
+        of truth for plan structure. plan-artifact-format.md (string '1.0') is deprecated to
+        eliminate schema conflict (F16).
+      scs: [SC-16, SC-3, SC-4]
+      phases: [phase_2, phase_1]
+
+    - concern: "DiMo 4-role chain is the sole audit dispatch mechanism"
+      description: >
+        No cross-validate task exists and the Arbiter role performs consensus. F1 removes
+        cross-validate references; F19 removes resolve-models + separate cross-validate dispatch
+        in branch-cleanup, aligning to closure-verification DiMo chain.
+      scs: [SC-1, SC-19]
+      phases: [phase_1]
+
+    - concern: "Dispatch contract 2-field invariant"
+      description: >
+        Audit dispatch contracts carry exactly {spec_local_dir, artifact_evidence_dir} and no
+        audit_phase. F12 aligns TDT (plan_local_dir -> spec_local_dir); F19 removes audit_phase.
+      scs: [SC-12, SC-19]
+      phases: [phase_1]
+
+    - concern: "Task/contract symmetry in writing-plans pipeline"
+      description: >
+        Every writing-plans task file should have a corresponding contract and vice versa.
+        F7/F8 ensure the task-count claim and contract set match the actual 9-task file structure.
+      scs: [SC-7, SC-8]
+      phases: [phase_2]
+
+    - concern: "Skill card description accuracy"
+      description: >
+        Skill card descriptions/overviews must accurately reflect available tasks. F14 removes
+        duplicate clause; F15 removes dead executing-plans ref; F18 adds discover task to match
+        advertised discover subcommand.
+      scs: [SC-14, SC-15, SC-18]
+      phases: [phase_3]
+
+  matrix:
+    concern_vs_phase:
+      - concern: "Read-Link Rule compliance"
+        phase_1: true
+        phase_2: true
+        phase_3: false
+      - concern: "Single canonical schema source"
+        phase_1: true
+        phase_2: true
+        phase_3: false
+      - concern: "DiMo 4-role chain sole dispatch"
+        phase_1: true
+        phase_2: false
+        phase_3: false
+      - concern: "Dispatch contract 2-field invariant"
+        phase_1: true
+        phase_2: false
+        phase_3: false
+      - concern: "Task/contract symmetry"
+        phase_1: false
+        phase_2: true
+        phase_3: false
+      - concern: "Skill card description accuracy"
+        phase_1: false
+        phase_2: false
+        phase_3: true

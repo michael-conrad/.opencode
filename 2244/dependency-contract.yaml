@@ -21,7 +21,7 @@ variables:
     description: "C2 GitBucket origin wiring + merged-PR discovery — SC2, SC3"
   phase_7:
     type: bool
-    description: "C8 2242-sc6 full-env opt-in + cleanup-dispatch verification — SC10, SC11, SC12"
+    description: "C8 2242-sc6 full-env opt-in + cleanup-dispatch verification — SC10, SC11, SC12 (SC11 measures correct routing to tasks/cleanup.md + instruction-following to verify the merged PR and discover the merged branch, NOT terminal completion within a single timeout window)"
   phase_10:
     type: bool
     description: "C10 executor full GB_* suite (test-env constants always + GB_TOKEN scoped) + gb config.toml seeding — SC19, SC20"
