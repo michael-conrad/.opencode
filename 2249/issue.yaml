@@ -55,9 +55,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
   (2) a curated per-language framework table in three advisory tiers (Clear standard
   / Contested / Non-idiomatic and guidance-only), (3) selection guidance driven by
   code analysis and spec requirements rather than a fixed pin, with combinations allowed
-  when warranted, and (4) an explicit HTML/CSS exclusion (markup and styling are not
-  programming languages). Update the `080-code-standards.md` row in `INDEX.md` to
-  add DI-related trigger patterns. Add a behavioral enforcement test (Two-SC pattern)
+  when code analysis or spec requirements identify multiple viable approaches for
+  the same language, and (4) an explicit HTML/CSS exclusion (markup and styling are
+  not programming languages). Update the `080-code-standards.md` row in `INDEX.md`
+  to add DI-related trigger patterns. Add a behavioral enforcement test (Two-SC pattern)
   verifying agents apply the DI mandate across languages. This is a superset of #2243''s
   Python mandate, not a replacement — Python remains in the "Clear standard" tier
   with `dependency-injector`. Sequenced after #2243 merges to avoid contradiction.
@@ -178,7 +179,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   | SC-3 | The generic section SHALL include selection guidance stating that framework
   choice is driven by code analysis and spec requirements, not a fixed pin, and that
-  combinations of DI approaches are allowed when warranted. | behavioral | Run the
+  combinations of DI approaches are allowed when code analysis or spec requirements
+  identify multiple viable approaches for the same language. | behavioral | Run the
   SC-3 behavior scenario via `with-test-home`; clean-room sub-agent reads `session.yaml`
   and verifies the agent selected a DI approach based on code/spec context rather
   than a fixed pin. |
@@ -226,7 +228,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   - R-3. The generic section SHALL include selection guidance: framework choice is
   driven by code analysis and spec requirements, not a fixed pin; combinations of
-  DI approaches SHALL be allowed when warranted.
+  DI approaches SHALL be allowed when code analysis or spec requirements identify
+  multiple viable approaches for the same language.
 
   - R-4. The generic section SHALL explicitly exclude HTML/CSS, stating that markup
   and styling are not programming languages and DI guidance does not apply.
@@ -513,7 +516,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   - **Condition:** A language has multiple viable DI approaches (contested tier).
   **Expected behavior:** The agent chooses based on code analysis and spec requirements,
-  and may combine approaches when warranted. **Resolution:** SC-3/R-3 permit context-driven
+  and may combine approaches when code analysis or spec requirements identify multiple
+  viable approaches for the same language. **Resolution:** SC-3/R-3 permit context-driven
   selection and combinations.
 
   - **Condition:** A behavioral test times out (bash-tool default 120s). **Expected
@@ -533,9 +537,20 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
   pipeline: assemble the generic multi-language DI mandate spec from the requirements/decomposition/artifacts
   | Spec-creation create task |
 
+  | 2026-08-05 | SC-3 determinism fix: replaced hedging phrase "combinations of DI
+  approaches are allowed when warranted" with a concrete thresholded condition "combinations
+  of DI approaches are allowed when code analysis or spec requirements identify multiple
+  viable approaches for the same language". Propagated the same fix to the Approach
+  Chosen summary, R-3, and the §11 contested-tier edge case. Design intent preserved:
+  framework choice remains driven by code analysis and spec requirements, not a fixed
+  pin; combinations allowed when justified. | Validate step determinism check: SC-3
+  criterion contained the hedged pattern "when warranted" with no concrete threshold,
+  which is a FAIL per the determinism check (any SC with ≥1 prohibited pattern is
+  FAIL) | Spec-creation revise task |
+
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash:0731)
 
   '
 created_at: '2026-08-06T02:32:44+00:00'
-updated_at: '2026-08-06T02:33:03+00:00'
+updated_at: '2026-08-06T02:39:19+00:00'
