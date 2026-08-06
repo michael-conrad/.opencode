@@ -19,7 +19,7 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `067-context-completeness.md` | 1 | comment, context completeness, read all, all comments | Issue/PR review |
 | `070-environment.md` | 2 | environment, testing, temp, pytest, uv run | Test execution |
 | `075-docs-verification.md` | 1 | documentation, docs, live doc, API doc, verify doc | Documentation claims |
-| `080-code-standards.md` | 1 | code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity | Code writing |
+| `080-code-standards.md` | 1 | code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity, dependency injection, di, inject, container | Code writing |
 | `085-project-local-tools.md` | 2 | tool, local tool, isolated, project-local, .tools, .node | Tool installation |
 | `086-http-requests.md` | 2 | HTTP, request, header, User-Agent | HTTP client code |
 | `087-no-backward-compat.md` | 2 | backward compat, refactor, deprecate, breaking change | Refactoring |

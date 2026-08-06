@@ -67,6 +67,14 @@ The following project-specific code structure rules are enforced in this reposit
 - All DB/system ops use existing project libraries. Direct data file manipulation prohibited unless instructed.
 - Use project-provided abstractions for all data file paths — never hardcode or assume data file locations.
 
+## Dependency Injection
+
+- **What DI is**: Dependency Injection (DI) is the pattern of supplying a component's dependencies from outside (via a container or explicit wiring) rather than having the component construct them itself. A service receives its collaborators as constructor or setter inputs instead of instantiating them internally.
+- **Why it is required**: DI decouples a class from its dependencies, making it easy to test (swap real collaborators for fakes), refactor, and reason about. Components that construct their own dependencies are tightly coupled, hard to test in isolation, and resist change. DI is required so services remain easy to test and refactor.
+- **Mandated library**: Use `dependency-injector` for all dependency wiring. Do not hand-roll DI containers, use ad-hoc module-level singletons, or wire dependencies through arbitrary parameter passing. Structure wiring through an `Injector`/`Container` from `dependency-injector`, with providers declared for each dependency.
+- **Usage patterns**: Declare a container class that registers each dependency as a provider (e.g., `ConfigProvider`, `SecretsProvider`) and wires them into the service and its callers. Services declare their dependencies in their constructor; the container supplies them at composition time. Follow the container-first pattern — define the wiring graph once in the container and let the container resolve dependencies for all consumers.
+- **Carveout for `.opencode/` infrastructure tools**: The DI mandate applies to application/service code only. It does NOT apply to infrastructure tooling under `.opencode/`. Scripts and tools in `.opencode/tools/`, `.opencode/scripts/`, and `.opencode/skills/*/scripts/` are exempt — they may use simple, direct wiring appropriate to their scope.
+
 ## Print Statements & Output
 
 - **NO narration/signal prints**: Never add print statements that narrate code changes, signal feature updates, or announce implementation details. Print statements are for data output and user-facing information only.
