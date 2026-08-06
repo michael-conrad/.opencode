@@ -1,0 +1,96 @@
+spec_path: .opencode/.issues/2248/spec.md
+issue_number: 2248
+phases:
+  - id: 1
+    name: Document No-Outguess Mandate
+    description: Document the no-outguess model/GPU mandate in tests-v2/AGENTS.md (SC-3) — the foundational doc change; the rule must be documented before it can be followed and verified behaviorally.
+    scs:
+      - SC-3
+    items:
+      - id: item-1
+        sc: SC-3
+        description: Add the no-outguess mandate text to tests-v2/AGENTS.md §9 (Default Model) and §10.4 (or new §10.6)
+        evidence_type: string
+        red: "grep tests-v2/AGENTS.md for the no-outguess mandate string returns zero matches"
+        green: "add the mandate text to tests-v2/AGENTS.md §9/§10.4 (or §10.6); do not modify default-model.sh"
+        commit: "AGENTS.md mandate (foundational — SC-1/SC-2/SC-4 depend on it)"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 2
+    name: Test-Time Model Usage Behavioral Test
+    description: Add the SC-1 behavioral enforcement test scenario (Item 2 test-time model usage) that verifies the ABSENCE of the outguess behavior — the agent uses DEFAULT_TEST_MODEL during test and does not override it or probe VRAM/GPU/ollama-probe hw/nvidia-smi to justify a substitution; the measure is the absence of the outguess behavior, NOT completion of a nested test.
+    scs:
+      - SC-1
+    items:
+      - id: item-2
+        sc: SC-1
+        description: Behavioral scenario 2248-sc1-no-outguess-model.sh verifying the agent uses DEFAULT_TEST_MODEL and does not outguess model/GPU selection
+        evidence_type: behavioral
+        red: "Run the SC-1 scenario before the rule is documented; clean-room session shows the agent hand-selecting a model override (defect present)"
+        green: "After the rule is documented, the SC-1 scenario runs via with-test-home and the agent uses DEFAULT_TEST_MODEL with no model substitution"
+        commit: "SC-1 rule + test together as one atomic slice"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 3
+    name: Failure-Path Remediation Behavioral Test
+    description: Add the SC-2 behavioral enforcement test scenario (Item 3 failure-path remediation) that verifies the agent follows the §10 remediation path on failure/timeout and does not switch models.
+    scs:
+      - SC-2
+    items:
+      - id: item-3
+        sc: SC-2
+        description: Behavioral scenario 2248-sc2-no-outguess-failure-path.sh verifying the agent follows the §10 remediation path on failure/timeout
+        evidence_type: behavioral
+        red: "Run the SC-2 failure-path scenario before the rule is documented; clean-room session shows the agent outguessing on failure (probes VRAM, diagnoses 'model too big', switches model)"
+        green: "After the rule is documented, the SC-2 scenario shows the agent following the §10 remediation path (stale-lock check, timeout check, stderr TEST_HOME, manual SQLite export)"
+        commit: "SC-2 rule + test together as one atomic slice"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+  - id: 4
+    name: Excuse-Fabrication Reinforcement Behavioral Test
+    description: Add the SC-4 behavioral enforcement test scenario (Item 4 excuse-fabrication reinforcement) that verifies the agent reinforces §10.4 prohibition and does not fabricate model excuses.
+    scs:
+      - SC-4
+    items:
+      - id: item-4
+        sc: SC-4
+        description: Behavioral scenario 2248-sc4-no-fabricated-excuse.sh reinforcing §10.4 model-excuse prohibition
+        evidence_type: behavioral
+        red: "Run the SC-4 scenario before the rule is reinforced; clean-room session shows the agent fabricating a model-unavailability excuse"
+        green: "After reinforcement, the SC-4 scenario shows the agent following the §10.4 remediation-first protocol without fabricating an excuse"
+        commit: "SC-4 rule + test together as one atomic slice"
+    skill_task_selection:
+      red_phase: "test-driven-development --task red"
+      green_phase: "test-driven-development --task green"
+      verify: "verification-before-completion --task verify"
+      completion: "verification-before-completion --task completion"
+      structural_checks: "finishing-a-development-branch --task checklist"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "SC-3 (the AGENTS.md mandate) must be documented (Phase 1) before the SC-1 behavioral test can verify agents follow it"
+    - from: 1
+      to: 3
+      reason: "SC-3 (the AGENTS.md mandate) must be documented (Phase 1) before the SC-2 behavioral test can verify agents follow it"
+    - from: 1
+      to: 4
+      reason: "SC-3 (the AGENTS.md mandate) must be documented (Phase 1) before the SC-4 behavioral test can verify agents follow it"
+triplet_integrity:
+  status: PASS
+  notes: "All SCs have RED, GREEN, and COMMIT steps in the same phase. No triplet splits detected."
+cross_phase_dependency:
+  status: PASS
+  notes: "No RED test depends on uncommitted SC output from another phase. Phases 2-4 RED tests are behavioral (opencode run) and depend only on Phase 1's documented mandate, which is committed before they run."
