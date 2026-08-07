@@ -1,0 +1,9 @@
+issue_number: 2249
+title: 'Bug: analyze-and-spec crashes when issue has no reproduction steps'
+state: open
+labels:
+- bug
+created_at: '2026-08-07T04:00:00Z'
+updated_at: '2026-08-07T04:00:00Z'
+owner: michael-conrad
+repo: .opencode
