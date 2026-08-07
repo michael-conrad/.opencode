@@ -25,7 +25,7 @@ The verification honesty principle extends to metadata claims in specs, plans, a
 | Metadata Category | What to Verify | How to Verify |
 |-------------------|----------------|---------------|
 | STATUS marker | Compare STATUS value against actual content maturity | Analyze content against maturity criteria (brainstorm/draft/detailed/complete); update STATUS if mismatch |
-| Label | Verify label claims match actual issue state | Read labels via `github_issue_read(method=get_labels)`; compare against authorization state |
+| Label | Verify label claims match actual issue state | Read labels from local `{issues_prefix}/{N}/issue.yaml` as primary via `local-issues read-labels --number <N>`; remote API read (`github_issue_read(method=get_labels)` or `gitbucket-api get-labels`) only as fallback when the local file is unavailable |
 | Comments/body claims | Verify factual claims in issue body against live state | Re-read issue comments; verify claims against current data |
 | Cross-references | Verify `#N` references point to existing, matching content | Call `github_issue_read(method=get, issue_number=N)` for each reference |
 | Code references | Verify file paths, function names, and code references exist | Use `srclight_search_symbols`, `glob`, or `srclight_get_signature` |
