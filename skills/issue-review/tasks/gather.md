@@ -52,7 +52,6 @@ issue-operations -> read-labels <!-- Remote fallback ONLY when local issue.yaml 
 Extract:
 - `needs-approval` label presence
 - Any categorization labels (enhancement, bug, architecture, etc.)
-- Authorization status from comments (look for "approved", "go", `#N approved` patterns)
 
 ### Step 4: Detect Sub-issues
 
@@ -84,14 +83,12 @@ From all gathered data, extract prose descriptions of:
    - Revisions or spec changes noted
    - Blockers reported
    - Audit findings (check local audit artifacts at `.issues/{N}/audit/*.yaml` for existing verdicts)
-   - Authorization comments ("approved", "go")
 
 - [ ] 3. **Last audit timestamp:**
    - Most recent `.yaml` file timestamp in `.issues/{N}/audit/`
    - Used by `just-review` path to assess staleness
 
 - [ ] 4. **Authorization status:**
-   - Explicit approval comments found (quote them)
    - `needs-approval` label present or absent
 
 - [ ] 5. **Spec structure signals:**
@@ -113,7 +110,7 @@ Prose description of gathered data — no structured schema required. The agent 
 
 ## Output Format
 
-Prose summary of all gathered data, organized by the five categories above. Include comment count and specific authorization evidence for audit trail.
+Prose summary of all gathered data, organized by the five categories above. Include comment count for audit trail.
 
 ## Edge Cases
 
