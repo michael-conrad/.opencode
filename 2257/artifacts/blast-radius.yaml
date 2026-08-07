@@ -1,0 +1,26 @@
+# Blast radius — issue #2257
+# Affected components and ripple effects per phase
+
+## Phase 1: Live GitBucket instance provisioning & empirical label-ops probes
+affected:
+  - .opencode/tests-v2/behaviors/helpers.sh (read/execute __ensure_gitbucket — reused, NOT modified unless a defect found)
+  - .opencode/tests-v2/behaviors/<new label-ops test script>.sh (NEW artifact-only generator, if created)
+  - tmp/gitbucket-data/ (ephemeral GitBucket data — gitignored, not tracked)
+  - .tools/jdk/, .tools/gitbucket/ (cached tooling — gitignored)
+ripple:
+  - No production/skill file modified in P1. Pure empirical discovery.
+
+## Phase 2: Skill card documentation updates
+affected:
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+ripple:
+  - Downstream consumers of these cards: approval-gate authorization flow (approved-for-* label handling),
+    spec lifecycle label transitions, issue-operations router (which routes GitBucket ops here when platform=gitbucket).
+  - #2241 already made local issue.yaml canonical for authorization -> remote label write defects are advisory-only.
+    Therefore doc corrections in P2 do NOT change authorization semantics; they only correct the recorded remote-label capability.
+
+## Cross-repo
+  - All affected files live in the .opencode submodule. A submodule pointer update accompanies any parent-repo change.

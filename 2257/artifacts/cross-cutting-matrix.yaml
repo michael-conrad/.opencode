@@ -1,0 +1,11 @@
+# Cross-cutting matrix — issue #2257
+# Cross-cutting concerns matrix
+
+| Concern | Phase 1 (empirical) | Phase 2 (docs) |
+|---------|---------------------|-----------------|
+| Test isolation (with-test-home / harness) | HIGH — all gb REST probes must target the isolated instance; no production leak | N/A |
+| gb CLI version (>= 0.6.1) | HIGH — version check enforced at entry; probe must use 0.6.1 | N/A |
+| .opencode submodule discipline | MEDIUM — test infra lives in submodule; pointer update needed for parent changes | HIGH — all edited files in submodule |
+| #2241 local-canonical doctrine | MEDIUM — remote label reads are fallback-only; not blocking authorization | MEDIUM — docs must not re-introduce remote as canonical |
+| Determinism / clean-room | HIGH — readback via get_issue after every write; no self-deception | HIGH — verification methods must be deterministic greps |
+| Evidence attribution | HIGH — every capability claim backed by live test output | HIGH — doc updates must cite the verified workflow |

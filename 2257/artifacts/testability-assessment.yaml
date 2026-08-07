@@ -1,0 +1,28 @@
+# Testability assessment — issue #2257
+# Test strategy per phase
+
+## Phase 1: empirical label-ops probes
+test_strategy: behavioral + integration (live GitBucket instance)
+how:
+  - Run the sanctioned harness (__ensure_gitbucket) to provision a reachable, authed instance with a test repo.
+  - Execute gb REST probes for issue-level label mutation (POST/PUT/DELETE /issues/{number}/labels via `gb api` with {"labels":[...]}).
+  - Execute gb repo-level label CRUD (label list/create/view/edit/delete).
+  - Readback via get_issue / label list after each write to confirm actual state (no self-deception).
+verification:
+  - Clean-room sub-agent evaluates the live test output (session.yaml / captured gb output) against the capability criteria.
+  - Any `opencode run` must route through `bash .opencode/tests-v2/with-test-home opencode run ...`; bash tool timeout >= 600000ms.
+  - __reset_gitbucket between scenarios for clean state.
+pass_definition:
+  - Issue-level POST/PUT/DELETE either confirmed to apply labels (WORKING) or confirmed to return empty/no-op (BROKEN), with readback evidence.
+  - Repo-level label CRUD confirmed WORKING.
+
+## Phase 2: documentation corrections
+test_strategy: string / semantic (content verification)
+how:
+  - Deterministic grep checks per card asserting the corrected operation status (e.g., add/replace/remove/remove-all now WORKING or still BROKEN, matched to verified truth).
+  - Clean-room sub-agent reads each updated card and confirms it reflects the Phase-1 verified workflow and correct issue-level vs repo-level split.
+pass_definition:
+  - Each grep returns the expected corrected status; no stale BROKEN claim contradicts verified truth.
+
+## Mixed-strategy note
+  - Phase 1 = behavioral/integration. Phase 2 = string/semantic. Both required; neither substitutes for the other.

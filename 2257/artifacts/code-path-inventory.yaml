@@ -1,0 +1,21 @@
+# Code path inventory — issue #2257
+# Code paths touched by each phase
+
+## Phase 1: empirical probes
+paths:
+  - .opencode/tests-v2/behaviors/helpers.sh -> __ensure_gitbucket() -> java -jar gitbucket.war --port=0 --gitbucket.home=tmp/gitbucket-data
+    -> token generation -> test-repo creation -> origin wiring
+  - gb CLI: gb auth status, gb repo view O/R, gb issue create/view, gb api <labels-endpoint>
+  - (optional) new behavioral test script under .opencode/tests-v2/behaviors/ -> behavior_run -> with-test-home
+invariants:
+  - Test MUST route through with-test-home for any `opencode run`; bash tool timeout >= 600000ms for behavioral runs.
+  - __reset_gitbucket between scenarios for clean state.
+
+## Phase 2: documentation edits
+paths (read+edit; no execution):
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+invariants:
+  - Cards use Read[Text](path) cross-reference pattern; description field semantic-routing constraints (skill-card schema).

@@ -1,0 +1,21 @@
+# Concern map — issue #2257
+# Concern boundaries and separation per phase
+
+## Phase 1: Empirical discovery (concern: establish ground truth)
+concerns:
+  - Instance provisioning: spin up a reachable, authed, test-repo-bearing GitBucket instance (harness).
+  - Issue-level label mutation probe: does POST/PUT/DELETE /issues/{number}/labels actually apply labels?
+  - Repo-level label CRUD probe: do gb label list/create/view/edit/delete work?
+  - Readback: confirm label state via get_issue after each write (no self-deception).
+boundary:
+  - Phase 1 touches ONLY test infrastructure + ephemeral data. ZERO production/skill file edits.
+
+## Phase 2: Documentation correction (concern: propagate verified truth)
+concerns:
+  - label-operations.md: correct add/replace/remove/remove-all + repo-level section.
+  - SKILL.md: correct capability manifest "Post-creation labels" row + any label rows.
+  - issue-operations.md / mcp-operations.md: correct downstream label claims.
+boundary:
+  - Phase 2 touches ONLY the four skill-card files. No test-infrastructure changes.
+separation:
+  - Phase 1 = behavior (empirical), Phase 2 = docs (string/semantic). Cleanly separated; no overlap.

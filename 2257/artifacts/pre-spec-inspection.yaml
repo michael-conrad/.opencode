@@ -1,0 +1,59 @@
+# Pre-spec inspection — issue #2257
+# GitBucket label mutation operations are documented as BROKEN; determine actual workflow
+# via a local GitBucket test instance, then update skill cards.
+repo: .opencode (submodule) — all affected files live under .opencode/
+
+## Affected Files (Markdown skill cards / shell helpers — srclight coverage N/A)
+
+affected_files:
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+  - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+
+## Evidence: current BROKEN documentation
+
+label-operations.md (label-operations.md:18-56):
+  - POST /repos/{owner}/{repo}/issues/{number}/labels documented BROKEN: "returns HTTP 200 with an empty array but does NOT add labels"
+  - PUT  /repos/{owner}/{repo}/issues/{number}/labels documented BROKEN: "returns HTTP 200 with an empty array but does NOT set labels"
+  - Remove Specific Label / Remove All Labels documented BROKEN: "No gb command for post-creation label removal"
+  - Workaround: add labels during issue creation via `gb issue create --label`
+
+SKILL.md capability manifest (SKILL.md:44-45):
+  - "Post-creation labels" → ❌ "Returns empty array — labels NOT added"
+
+issue-operations.md (issue-operations.md:109-124):
+  - "CRITICAL: Post-creation label APIs are BROKEN in GitBucket"
+  - Workaround: "Delete and recreate the issue if labels need to change"
+
+mcp-operations.md (mcp-operations.md:115-125):
+  - "Labels Can ONLY Be Set During Creation"
+  - "gb issue edit supports --add-label/--remove-label but GitBucket REST may not apply them"
+
+## Evidence: prior live-test record (API-DEFICIENCIES.md, GitBucket v4.42.1, 2026-04-06)
+
+Evidence file: tmp/test-project-20260714-104006-48065/.opencode/skills/issue-operations/platforms/gitbucket-api/API-DEFICIENCIES.md
+  - POST /issues/{number}/labels → 200, response [] , "Issue actually has 0 labels" (labels NOT added)
+  - PUT  /issues/{number}/labels → 200, response [] (labels NOT set)
+  - Labels auto-created during issue creation WORKS
+  - Recommendation: use create_issue(labels=[...]); verify via get_issue()
+
+## Contradiction prompting this spec (from dispatch context)
+
+- Despite the documented-BROKEN record, a `gb api` REST call with {"labels":[...]} reportedly WORKED reliably.
+- OpenAPI v4.42.1 reference (openapi-v4.42.1.json) documents ONLY repo-level label endpoints
+  (/repos/{owner}/{repo}/labels GET/POST) — NO issue-level /issues/{number}/labels sub-resource paths exist in the bundled spec (total 23 paths, zero issue sub-resource paths).
+- Therefore the actual label-ops workflow (issue-level vs repo-level; POST/PUT/DELETE behavior) is UNCONFIRMED and requires a live local GitBucket instance test.
+
+## Infrastructure available for the test
+
+- Self-contained GitBucket test harness: .opencode/tests-v2/behaviors/helpers.sh __ensure_gitbucket() (provisions JDK to .tools/jdk/, GitBucket WAR to .tools/gitbucket/gitbucket.war, starts on --port=0, generates token, creates test-repo)
+- Opt-in flag BEHAVIOR_NEEDS_REMOTE=1 (tests-v2/AGENTS.md §12)
+- gb CLI v0.6.1 present; gb label subcommands (list/view/create/edit/delete); gb issue create -l/--label; gb issue edit --add-label/--remove-label flags EXIST
+- Prior specs: #2165 (provision GitBucket for remote API tests), #2161 (verify needs-approval label on remote), #2241 (local issue.yaml canonical; remote labels advisory/best-effort)
+- A live GitBucket instance (pid present) was observed but port unverified/not reachable from this shell — the spec must rely on the harness to spin up a fresh, verified instance.
+
+## Dependency/caller note
+
+- label-operations.md is referenced by SKILL.md "Tasks" table and Sub-Agent Tasks table (trigger: "When GitBucket label CRUD is needed")
+- The label BROKEN status is consumed by approval-gate authorization flow (approved-for-* labels), spec lifecycle labels, and 2241's "remote best-effort" doctrine — but note #2241 made local issue.yaml canonical, so remote label write defects are now advisory-only (not blocking). This reduces blast radius.

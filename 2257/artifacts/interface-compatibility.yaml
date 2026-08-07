@@ -1,0 +1,22 @@
+# Interface compatibility — issue #2257
+# Interface compatibility analysis per phase
+
+## Phase 1: empirical probes
+interfaces:
+  - gb CLI <-> GitBucket REST API (POST/PUT/DELETE /repos/{owner}/{repo}/issues/{number}/labels)
+    - classification: READ/PROBE (no persistent change); behavior UNCONFIRMED until tested
+    - backward compatible: N/A (probe only, no interface change)
+  - helpers.sh __ensure_gitbucket() <-> harness
+    - classification: UNCHANGED (reused as-is; modified only if a harness defect is found)
+    - backward compatible: YES
+  - new behavioral test script <-> with-test-home
+    - classification: NEW (only if a behavioral test is created)
+    - internal only: YES
+
+## Phase 2: documentation edits
+interfaces:
+  - label-operations.md / SKILL.md / issue-operations.md / mcp-operations.md <-> downstream consumers
+    - classification: MODIFIED (documentation content only)
+    - backward compatible: YES (no API surface change; only recorded capability truth corrected)
+    - breaking: NO
+    - internal only: YES

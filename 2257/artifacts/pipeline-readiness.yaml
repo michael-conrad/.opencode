@@ -1,0 +1,25 @@
+# Pipeline readiness gate — issue #2257
+
+## Atomicity
+- Every SC maps to exactly one RED/GREEN/COMMIT cycle (item-01..item-07, one SC each). ✅
+- No item covers multiple SCs. ✅
+
+## Dependency ordering (SC dependency DAG)
+- item-01 (provision instance) is the sole root dependency.
+- item-02 (issue-level probe) depends on item-01.
+- item-03 (repo-level probe) depends on item-01.
+- item-04 (separation synthesis) depends on item-02 + item-03.
+- item-05 (label-operations.md), item-06 (SKILL.md), item-07 (issue/mcp-operations.md) each depend on item-04.
+- DAG is acyclic: 01 -> {02,03} -> 04 -> {05,06,07}. ✅
+
+## Single concern
+- Each item targets one file category (skill-card md) or one behavioral probe, one verification domain. ✅
+
+## Phase dependency
+- Phase graph acyclic: Phase 1 (empirical, items 01-04) precedes Phase 2 (docs, items 05-07). ✅
+
+## Three-tier structure
+- Multi-phase spec has pre (Phase 1 empirical discovery) / per-file (Phase 2 per-card doc updates) / post (final verification) structure. ✅
+
+## Verdict
+- PASS. Pipeline is ready for spec-creation create step.

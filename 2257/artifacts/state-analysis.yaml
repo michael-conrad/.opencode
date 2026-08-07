@@ -1,0 +1,27 @@
+# State analysis — issue #2257
+# State machine transitions per phase
+
+## Phase 1 state machine (empirical determination)
+
+states:
+  - UNKNOWN (current): label-ops truth unconfirmed; docs say BROKEN, anecdote says works.
+  - PROVISIONING: harness spinning up GitBucket instance.
+  - TESTED: gb probes against live instance produced empirical results.
+  - VERIFIED: label-ops truth established with get_issue readback confirmation.
+
+transitions:
+  - UNKNOWN -> PROVISIONING : dispatch __ensure_gitbucket (item-01)
+  - PROVISIONING -> TESTED : gb issue-level + repo-level label probes run (items 02, 03)
+  - TESTED -> VERIFIED : readback confirms actual label state (get_issue after each write)
+
+## Phase 2 state machine (documentation propagation)
+
+states:
+  - VERIFIED (from Phase 1): ground truth known.
+  - SEPARATED: issue-level vs repo-level capability split synthesized (item-04).
+  - DOCUMENTED: label-operations.md / SKILL.md / issue-operations.md / mcp-operations.md updated (items 05-07).
+
+transitions:
+  - VERIFIED -> SEPARATED : synthesize capability split
+  - SEPARATED -> DOCUMENTED : apply corrections to the four skill-card files
+  - DOCUMENTED -> DONE : deterministic grep verification passes on each card

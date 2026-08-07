@@ -1,0 +1,30 @@
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "Sanctioned GitBucket harness provisions a reachable, authenticated instance with a test repository"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Issue-level label mutation behavior empirically determined (WORKING or BROKEN) with get_issue readback evidence"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Repo-level label CRUD (gb label list/create/view/edit/delete) confirmed WORKING"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Correct issue-level vs repo-level capability split synthesized from SC-2 + SC-3 results"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "label-operations.md updated to verified workflow, removing false BROKEN claims"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "SKILL.md capability manifest Post-creation labels row corrected to verified workflow"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Downstream references in issue-operations.md and mcp-operations.md corrected to verified workflow"
+    evidence_type: "string"
+    plan_item: 7
