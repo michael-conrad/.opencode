@@ -19,14 +19,16 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
 
 - [ ] 1. **Issue created:** Check if the issue already exists
    - Search by title or check recent issue list
-- [ ] 2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
+- [ ] 2. **Labels applied:** Check if `needs-approval` label is present in the local `{issues_prefix}/{N}/issue.yaml` labels array (via `./.opencode/tools/local-issues read-labels --number N`) as the PRIMARY canonical source. Remote label read is best-effort/secondary and NEVER blocks the pipeline.
 - [ ] 3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
 - [ ] 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `{project_root}/tmp/` files)
 
 ## Skill-Specific Completion
 
-- [ ] 1. **Apply `needs-approval` label** (if not already present, routed via `issue-operations → read-labels`):
-    - If label not present, add it via `issue-operations → update-issue`
+- [ ] 1. **Apply `needs-approval` label** (if not already present):
+    - **PRIMARY (MANDATORY):** Read the `needs-approval` label from the local `{issues_prefix}/{N}/issue.yaml` labels array via `./.opencode/tools/local-issues read-labels --number N`. This is the primary canonical source for the label.
+    - If label not present in local `issue.yaml`, add it via `./.opencode/tools/local-issues update {N} --labels needs-approval` (local canonical write).
+    - **SECONDARY (best-effort, non-blocking):** Remote label write via `issue-operations → update-issue` is best-effort only. If the remote API fails to persist the label, the pipeline MUST NOT block — the local `issue.yaml` remains canonical.
 - [ ] 2. **Invoke spec-auditor** (if not already run):
     - Check session records or `{project_root}/tmp/` files for auditor results
     - If missing: invoke spec-auditor
@@ -75,7 +77,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | Claim | Verification Action | Tool Call (routed) | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Issue was created" | Verify issue exists | `issue-operations → read-issue` → verify | MISSING-ELEMENT |
-| "`needs-approval` label applied" | Verify label present | `issue-operations → read-labels` → verify | MISSING-ELEMENT |
+| "`needs-approval` label applied" | Verify label present in local `issue.yaml` (primary canonical) | `./.opencode/tools/local-issues read-labels --number N` → verify label present | MISSING-ELEMENT |
 | "Sub-issues created" | Verify sub-issues exist | `issue-operations → read-sub-issues` → verify | MISSING-ELEMENT |
 | "Auditor was invoked" | Check for auditor results | Session records or `{project_root}/tmp/` files | VERIFICATION-GAP |
 
@@ -86,7 +88,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | Issue not found | MISSING-ELEMENT | FAIL | HALT — creation may have failed |
-| Label missing | MISSING-ELEMENT | auto-fix | Add label immediately |
+| Label missing from local issue.yaml | MISSING-ELEMENT | auto-fix | Add label immediately via `local-issues update --labels needs-approval` |
 | Sub-issues missing (multi-task) | MISSING-ELEMENT | FAIL | Create sub-issues if multi-task spec |
 | Auditor not invoked | VERIFICATION-GAP | FAIL | Invoke spec-auditor |
 
