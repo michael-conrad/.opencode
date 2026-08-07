@@ -148,7 +148,7 @@ Action: [proceed | HALT]
 
 #### Step 2.0: Platform Check
 
-Determine creation order based on `github.platform`:
+Determine creation order based on `github.platform`. **In ALL flows, the `needs-approval` label is recorded in the local `issue.yaml` labels array via `local-issues update --labels` as the PRIMARY canonical source. Remote label writes are best-effort/secondary and NEVER block the pipeline.**
 
 | `github.platform` | Creation Order                  |
 | ----------------- | ------------------------------- |
@@ -169,13 +169,15 @@ Determine creation order based on `github.platform`:
    **GitBucket:**
    Route to `platforms/gitbucket-api/` sub-skill via task(). Pass issue parameters (title, body, labels). The platform sub-skill handles the `gitbucket-api` call.
 
-   **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
+   **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work. Treat this as best-effort — the local `issue.yaml` is the canonical label source.
 
 - [ ] 1. **Extract remote issue number** from API response `number` field
 
 - [ ] 1. **Create local `.issues/{remote-number}/`** — the remote number IS the local directory name (no local counter needed)
 
 - [ ] 1. Write spec body to `.issues/{remote-number}/spec.md` (preserving YAML frontmatter)
+
+- [ ] 1. **Record `needs-approval` in local `issue.yaml` as PRIMARY CANONICAL (MANDATORY):** Write the `needs-approval` label into the local `{issues_prefix}/{remote-number}/issue.yaml` labels array via `./.opencode/tools/local-issues update {remote-number} --labels needs-approval`. This is the primary canonical source for the label — it MUST be written regardless of remote API success.
 
 - [ ] 1. Record remote metadata in YAML frontmatter:
 
@@ -187,6 +189,8 @@ Determine creation order based on `github.platform`:
 
 - [ ] 1. **Counter advancement:** Read `.counter`. If `counter <= remote_number`, write `remote_number + 1` to `.counter` to prevent future local-first issues from colliding with this remote number.
 
+- [ ] 1. **Remote label write is best-effort/secondary:** If the remote API fails to persist `needs-approval` (e.g., GitBucket label limitation, API error), the pipeline MUST NOT block — the local `issue.yaml` remains the canonical source. Report the remote label gap as a known limitation and proceed.
+
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
 #### Step 2.2: Local-First Flow (when `github.platform == local`)
@@ -196,6 +200,8 @@ Determine creation order based on `github.platform`:
 Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "<title>", labels: ["needs-approval"]}`
 
 Then write the spec body to `.issues/{N}/spec.md` (preserving YAML frontmatter).
+
+**Record `needs-approval` in local `issue.yaml` as PRIMARY CANONICAL (MANDATORY):** Write the `needs-approval` label into the local `{issues_prefix}/{N}/issue.yaml` labels array via `./.opencode/tools/local-issues update {N} --labels needs-approval`. This is the primary canonical source for the label.
 
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
@@ -225,33 +231,41 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 
 **No separate comment needed.** The byline is part of the issue body content, not a standalone comment.
 
-### Step 3.5: Verify `needs-approval` Label on Remote Issue
+### Step 3.5: Verify `needs-approval` Label
 
-**MANDATORY post-creation check.** The `needs-approval` label MUST exist on the remote issue after creation. If the label was not applied during creation (e.g., API did not persist it), the agent MUST remediate immediately.
+**The PRIMARY canonical verification is the local `issue.yaml`.** The `needs-approval` label MUST be present in the local `{issues_prefix}/{N}/issue.yaml` labels array (written in Step 2 via `local-issues update --labels`). Remote label verification is best-effort/secondary and NEVER blocks the pipeline.
+
+#### Step 3.5a: Verify Local `issue.yaml` (PRIMARY — MANDATORY)
+
+- [ ] 1. **Read local labels:** `./.opencode/tools/local-issues read-labels --number N` — confirm `needs-approval` is in the labels list
+- [ ] 1. **If `needs-approval` is missing:** remediate immediately via `./.opencode/tools/local-issues update N --labels needs-approval`
+- [ ] 1. **Re-read labels** to confirm the label is present
+- [ ] 1. **If remediation fails:** HALT and report the label application failure
+
+#### Step 3.5b: Verify Remote `needs-approval` (SECONDARY — Best-Effort, Non-Blocking)
+
+For `github`/`gitbucket` platforms, verify the remote label as best-effort. A missing remote label is a known limitation, NOT a pipeline blocker — the local `issue.yaml` remains canonical.
 
 - [ ] 1. **Read remote issue labels** via the platform sub-skill:
    - **GitHub:** `issue-operations → read-labels` (routes to `github_issue_read(method="get_labels")`)
    - **GitBucket:** `issue-operations → read-labels` (routes to `gb issue list --labels`)
-- [ ] 1. **Check if `needs-approval` is in the labels list**
 - [ ] 1. **If `needs-approval` is present:** proceed to Step 4
-- [ ] 1. **If `needs-approval` is missing:** remediate immediately:
+- [ ] 1. **If `needs-approval` is missing:** remediate if possible:
    - **GitHub:** `github_issue_write(method="add_labels", issue_number=<N>, labels=["needs-approval"])`
-   - **GitBucket:** Labels can ONLY be set during creation — post-creation label changes do not work. Report the missing label as a known limitation.
-- [ ] 1. **Re-read labels** after remediation to confirm the label was applied
-- [ ] 1. **If remediation fails:** HALT and report the label application failure
+   - **GitBucket:** Labels can ONLY be set during creation — post-creation label changes do not work. Report the missing label as a known limitation. **Do NOT block the pipeline** — the local `issue.yaml` is canonical.
 
 **Evidence artifact (MANDATORY):**
 
 ```
 Check: Post-creation label verification for #<N>
-Tool: issue-operations → read-labels
-Labels found: [list of labels]
-needs-approval present: [yes|no]
-Remediation: [none|applied|failed]
+Tool: local-issues read-labels (primary) / issue-operations → read-labels (secondary)
+Local issue.yaml needs-approval present: [yes|no]
+Remote needs-approval present: [yes|no|n/a]
+Remote remediation: [none|applied|failed|n/a]
 Result: [PASS|FAIL]
 ```
 
-**Note (GitBucket):** Labels can ONLY be set during creation via the `labels` parameter. Post-creation label changes do not work on GitBucket. If the label was not applied during creation, report the limitation — do not attempt remediation.
+**Note (GitBucket):** Labels can ONLY be set during creation via the `labels` parameter. Post-creation label changes do not work on GitBucket. If the label was not applied during creation, report the limitation — do not block the pipeline and do not attempt remediation.
 
 ### Step 4: Report Issue Created
 
@@ -262,12 +276,14 @@ Report based on creation flow:
 ```
 Created remote issue #MMM at <html_url>
 Local mirror: .issues/{N}/spec.md
+needs-approval recorded in local issue.yaml (primary canonical)
 ```
 
 **Local-first flow (local platform only):**
 
 ```
 Created local issue #NNN at `.issues/{N}/spec.md`
+needs-approval recorded in local issue.yaml (primary canonical)
 ```
 
 ### Step 4.5: Developer Review Signal
@@ -356,7 +372,7 @@ Before proceeding, verify ALL:
 - Step 0.5 dedup evidence present OR Step 0.75 runtime search fallback completed
 - Pre-creation validation passed
 - Title follows proper format
-- `needs-approval` label applied
+- `needs-approval` recorded in local `issue.yaml` (primary canonical — via `local-issues update --labels`)
 - Creation byline in body footer
 
 **If ANY check fails → HALT and report.**
@@ -379,7 +395,8 @@ Before proceeding, verify ALL:
 | "No conflicting spec exists"     | Search for overlapping issues        | `issue-operations → search-issues` → verify                                                        | CONFLICTING            |
 | "Title follows format"           | Verify title prefix                  | Check `[SPEC]`, `[SPEC-FIX]`, `[SPEC-ENHANCEMENT]`, `[Task:` prefix                                | STRUCTURE-VIOLATION    |
 | "Issue was created"              | Verify API response                  | Check `number` field in creation response                                                          | MISSING-ELEMENT        |
-| "`needs-approval` label applied" | Verify label on created issue        | `issue-operations → read-labels` → verify label                                                    | MISSING-ELEMENT        |
+| "`needs-approval` in local issue.yaml" | Verify label in local canonical source | `local-issues read-labels --number N` → verify label present | MISSING-ELEMENT        |
+| "`needs-approval` label applied" | Verify label on remote issue (secondary, best-effort)        | `issue-operations → read-labels` → verify label (non-blocking)                                                    | MISSING-ELEMENT        |
 | "Byline in body"                 | Verify byline present                | Check issue body for `🤖` marker                                                                   | STRUCTURE-VIOLATION    |
 
 **Evidence artifact:** Pre-creation result, creation API response, post-creation label check.
@@ -394,5 +411,6 @@ Before proceeding, verify ALL:
 | Conflicting spec found                   | CONFLICTING         | FAIL | HALT — report conflict                                                                           |
 | Wrong title format                       | STRUCTURE-VIOLATION | auto-fix        | Correct title before creation                                                                    |
 | Creation API failed                      | MISSING-ELEMENT     | FAIL | HALT — retry or report error                                                                     |
-| Label missing post-creation              | MISSING-ELEMENT     | auto-fix        | Add label immediately                                                                            |
+| Label missing from local issue.yaml      | MISSING-ELEMENT     | auto-fix        | Add label immediately via `local-issues update --labels needs-approval`                           |
+| Label missing on remote issue            | MISSING-ELEMENT     | non-blocking     | Best-effort remediation; local issue.yaml is canonical — do not block the pipeline                |
 | Byline missing                           | STRUCTURE-VIOLATION | auto-fix        | Add byline to body                                                                               |
