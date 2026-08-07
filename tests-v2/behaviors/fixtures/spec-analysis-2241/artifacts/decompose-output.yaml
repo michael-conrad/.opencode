@@ -1,0 +1,4 @@
+phases:
+- id: 1
+  scs:
+  - SC-1

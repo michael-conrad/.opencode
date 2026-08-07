@@ -6,7 +6,7 @@ PRODUCTION
 
 ## Purpose
 
-Read analysis artifacts from disk, assemble the full spec document, create a remote issue stub (when remote API available), write the full spec to the remote issue body, and write the local spec to the correct `.issues/{N}/` path. This task does NOT perform analysis steps or verification steps.
+Read analysis artifacts from disk, assemble the full spec document, create a remote issue stub (when remote API available), write the full spec to the remote issue body, and write the local spec to the correct `.issues/{N}/` path. The `needs-approval` and `spec-draft` labels are written to the local `{issues_prefix}/{N}/issue.yaml` labels array as the **primary canonical source**; remote label writes are best-effort/secondary and MUST NEVER block the pipeline. This task does NOT perform analysis steps or verification steps.
 
 ## Entry Criteria
 
@@ -73,12 +73,21 @@ When a remote API is available (github.platform is not `local`):
 
 When no remote API is available (local-only mode), use the local issue number directly.
 
-### Step 3.1: Apply `spec-draft` label
+### Step 3.1: Record labels in local `issue.yaml` as PRIMARY CANONICAL (MANDATORY)
 
-When a remote API is available, apply the `spec-draft` label to the newly created issue to mark it as a draft spec:
+The `needs-approval` and `spec-draft` labels MUST be written to the local `{issues_prefix}/{N}/issue.yaml` labels array via `./.opencode/tools/local-issues update <repo>#<N> --labels needs-approval,spec-draft`. This is the **primary canonical source** for the label state — it MUST be written regardless of remote API success.
+
+1. Write `needs-approval` and `spec-draft` to the local `issue.yaml` labels array via `local-issues update --labels`
+2. If this local write fails: return BLOCKED with `LOCAL_LABEL_WRITE_FAILED` — the pipeline MUST NOT proceed without the canonical local record
+3. Verify the local canonical write by reading back the labels array via `./.opencode/tools/local-issues read-labels --number <repo>#<N>`
+
+### Step 3.2: Apply `spec-draft` label to remote (SECONDARY — best-effort, never blocking)
+
+When a remote API is available, apply the `spec-draft` label to the newly created issue to mark it as a draft spec. This is best-effort/secondary only — if the remote write fails, log the failure and continue; it MUST NOT block the pipeline. The local `issue.yaml` remains the canonical source.
 
 1. Use the platform's label API to add `spec-draft` to the issue
 2. The `spec-draft` label indicates the spec is in draft state and has not yet been reviewed
+3. If the remote label write fails (e.g., GitBucket label limitation, API error), report the gap as a known limitation and proceed — the local `issue.yaml` is canonical
 
 ### Step 4: Write full spec to remote issue body
 
@@ -115,6 +124,8 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 - [ ] Spec assembled with all required sections
 - [ ] Format-level rules applied (SHALL language, dark-prose-007, SC determinism, Documentation Sources columns)
 - [ ] Remote issue created (when API available) with `[SPEC]` prefix and `needs-approval` label
+- [ ] `needs-approval` and `spec-draft` labels recorded in local `{issues_prefix}/{N}/issue.yaml` labels array as primary canonical source (REQUIRED — via `local-issues update --labels`)
+- [ ] Remote `spec-draft` label write attempted best-effort; remote failure does not block completion
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
 - [ ] Analytical artifacts copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
