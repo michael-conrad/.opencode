@@ -18,11 +18,18 @@
 # issue.yaml labels array as the primary canonical source. The session.yaml
 # (SQLite DB export) is the PRIMARY evidence source.
 #
-# RED STATE: completion.md currently reads `needs-approval` via
-# `issue-operations -> read-labels`, which reads the REMOTE API label as primary.
-# A clean-room sub-agent evaluating session.yaml will observe the agent reads
-# `needs-approval` from the remote (read-labels) rather than from the local
-# issue.yaml — so this SC FAILS.
+# RED STATE: completion.md's State Check Phase Step 2 reads `needs-approval` via
+# `issue-operations -> read-labels`, which routes to the platform sub-skill. On
+# the gitbucket/github platforms, read-labels reads the REMOTE API label as
+# primary. A clean-room sub-agent evaluating session.yaml will observe the agent
+# reads `needs-approval` from the remote API (gitbucket-api get-labels) rather
+# than from the local issue.yaml — so this SC FAILS.
+#
+# A gitbucket origin is wired (BEHAVIOR_NEEDS_REMOTE=1) so the completion
+# routes through read-labels on the gitbucket platform — the path that reads
+# `needs-approval` from remote as primary. On the default `local` platform,
+# read-labels routes to local read.md which reads issue.yaml, and the test
+# would not be RED.
 #
 # PROMPT CONSTRUCTION:
 # Real-domain task: run the completion workflow for issue #2241 and verify its
@@ -38,6 +45,11 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2241-sc4-completion-local-read"
 SCENARIO_PROMPT="Run the completion workflow for issue #2241. As part of the state check phase, verify whether the needs-approval label is present to determine the issue's authorization state before completing the workflow."
+
+# SC-4 RED: wire a GitBucket origin so completion's read-labels routes through
+# the gitbucket platform, the path that reads needs-approval from remote as
+# primary (the RED state).
+BEHAVIOR_NEEDS_REMOTE=1
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 echo "SC-4: completion reads needs-approval from local issue.yaml as primary canonical source"
