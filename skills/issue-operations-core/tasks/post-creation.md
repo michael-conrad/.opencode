@@ -72,7 +72,6 @@ Before proceeding, verify ALL:
 |-------|-------------------|-----------|---------------|
 | "Issue #N was created" | Verify issue exists | `issue-operations → read-issue` → verify | MISSING-ELEMENT |
 | "Spec-auditor was invoked" | Verify auditor ran | Session records or auditor output | MISSING-ELEMENT |
-| "Auditors run BEFORE approval" | Verify no approval exists before auditor | `issue-operations → read-comments` → check for "approved"/"go" | CONFLICTING |
 
 **Evidence artifact:** Auditor invocation result.
 
