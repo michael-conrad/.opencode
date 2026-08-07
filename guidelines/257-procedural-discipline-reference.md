@@ -52,8 +52,8 @@ Writing procedural discipline as if checking a box is the same as verifying beha
 
 | Anti-Pattern           | Example (FORBIDDEN)                  | Correct Replacement                                                                                                          |
 | ---------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Checkbox substitution  | "✓ verified: read comments"          | "Comments read — authorization status determined from live API response: \[evidence\]"                                       |
-| Metadata-as-completion | "Label changed to approved-for-spec" | "Authorization verified via comment history — three approval comments from MEMBER accounts, most recent after last revision" |
+| Checkbox substitution  | "✓ verified: read comments"          | "Authorization parsed from chat message per verb-prefix table — evidence: \[authorization phrase\]"                          |
+| Metadata-as-completion | "Label changed to approved-for-spec" | "Authorization parsed from chat message per verb-prefix table — evidence: \[authorization phrase\]"                          |
 | Status-as-evidence     | "STATUS updated to COMPLETE"         | "All success criteria verified PASS against live system — STATUS reflects verified state, not self-declaration"              |
 
 **Rule:** "Verified by \[tool call\] — \[evidence\]" is correct verification. "✓ done" is compliance theater.
