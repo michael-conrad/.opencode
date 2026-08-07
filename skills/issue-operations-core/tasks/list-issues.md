@@ -52,7 +52,6 @@ Route to `platforms/local/tasks/list.md` via task(). Pass: `{status: "open", lab
 
 Return the issue list to the calling task. Used for:
 - Dedup checks in `pre-creation` task
-- Authorization scope label verification
 - Spec/plan overlap detection
 
 ## Common Issues
