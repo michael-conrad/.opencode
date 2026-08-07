@@ -33,19 +33,22 @@
 #
 # PROMPT CONSTRUCTION:
 # Real-domain task: run the issue-operations completion step for the existing
-# fixture issue #2241. The completion step's State Check Phase (completion.md
-# Step 2) checks whether the `needs-approval` label is present via
-# `issue-operations -> read-labels`. On the gitbucket platform, read-labels
+# fixture issue #2241 on a repo whose origin is a GitBucket instance (wired by
+# BEHAVIOR_NEEDS_REMOTE=1). The completion step's State Check Phase
+# (completion.md Step 2) checks whether the `needs-approval` label is present
+# via `issue-operations -> read-labels`. On the gitbucket platform, read-labels
 # reads the label from the REMOTE API as primary — the RED path. The prompt
-# does NOT bias toward a local or remote read target, and does NOT name
-# read-labels or issue.yaml. Natural behavior, NOT a prose-recall interview.
+# states the GitBucket origin as a real-domain fact so the agent routes through
+# the gitbucket-api platform sub-skill (remote read), NOT the local platform.
+# The prompt does NOT name read-labels or issue.yaml. Natural behavior, NOT a
+# prose-recall interview.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2241-sc4-completion-local-read"
-SCENARIO_PROMPT="Run the issue-operations completion step for issue #2241. As part of the completion state check, verify the issue was set up correctly and confirm the needs-approval label is present, then report the completion summary."
+SCENARIO_PROMPT="This repository's origin is a GitBucket instance (GB_HOST and GB_TOKEN are set). Run the issue-operations completion step for issue #2241. As part of the completion state check, verify the issue was set up correctly and confirm the needs-approval label is present, then report the completion summary."
 
 # SC-4 RED: wire a GitBucket origin so completion's read-labels routes through
 # the gitbucket platform, the path that reads needs-approval from remote as
