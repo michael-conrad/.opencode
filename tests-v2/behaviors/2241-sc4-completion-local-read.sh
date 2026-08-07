@@ -32,19 +32,21 @@
 # would not be RED.
 #
 # PROMPT CONSTRUCTION:
-# Real-domain task: run the completion workflow for issue #2241 and verify its
-# authorization state by checking the `needs-approval` label. This triggers the
-# completion path (issue-operations-core -> completion.md) which follows the
-# State Check Phase -> read-labels flow. The prompt does NOT bias toward a local
-# or remote read target — the agent must detect the canonical source. Natural
-# behavior, NOT a prose-recall interview.
+# Real-domain task: create a new issue and then run the issue-operations
+# completion step. The completion step's State Check Phase (completion.md
+# Step 2) checks whether the `needs-approval` label is present via
+# `issue-operations -> read-labels`. Chaining creation -> completion through
+# `issue-operations` forces dispatch to completion.md's read-labels step (remote
+# primary on the gitbucket platform) — the RED path. The prompt does NOT bias
+# toward a local or remote read target, and does NOT name read-labels or
+# issue.yaml. Natural behavior, NOT a prose-recall interview.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2241-sc4-completion-local-read"
-SCENARIO_PROMPT="Run the completion workflow for issue #2241. As part of the state check phase, verify whether the needs-approval label is present to determine the issue's authorization state before completing the workflow."
+SCENARIO_PROMPT="Create a new issue titled 'SC-4 completion test' following the issue creation workflow. After the issue is created, run the issue-operations completion step to finish the workflow: verify the issue was set up correctly, confirm the needs-approval label is present as part of the completion state check, and report the completion summary."
 
 # SC-4 RED: wire a GitBucket origin so completion's read-labels routes through
 # the gitbucket platform, the path that reads needs-approval from remote as
