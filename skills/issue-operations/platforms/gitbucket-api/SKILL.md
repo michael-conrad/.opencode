@@ -165,7 +165,7 @@ GitBucket API supports labels via creation only (post-creation label mutation is
 | `approved-for-review` | Code review only |
 | `approved-for-review-prep` | Default authorization |
 
-`needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization is implemented via comment fallback (remove old label via comment, apply new on next creation cycle).
+`needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval.
 
 ## Spec Lifecycle Labels
 
