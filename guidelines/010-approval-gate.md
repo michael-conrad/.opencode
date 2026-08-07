@@ -89,6 +89,8 @@ Authorization scope determines what the agent is authorized to do between approv
 | `halt_at` from previous scope | Continuation scope when resuming |
 | Default (no scope) | `for_analysis` — HALT after analysis_complete |
 
+> **Canonical authorization state is local.** The canonical source of the `approved-for-*` authorization label for an issue is the local `{issues_prefix}/{N}/issue.yaml` `labels` field. Remote API labels are advisory/display only — the local record is authoritative for authorization scope determination.
+
 ### Authorization Scope Model (CRITICAL)
 
 Defines where the pipeline halts after a given authorization scope and the PR strategy.
