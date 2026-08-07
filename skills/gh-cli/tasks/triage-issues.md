@@ -31,7 +31,6 @@ Lists, inspects, edits, comments on, and optionally closes GitHub issues using `
    - If the list is empty, return DONE with `finding_summary: "No matching issues found"`.
 2. For each issue that requires deeper inspection, run `gh issue view <number> --repo <owner/repo> --json title,body,state,labels,assignees,comments,createdAt,updatedAt`.
    - Read the full issue body and all comments to gather context.
-   - If the issue body or comments contain critical information (authorization, direction changes), note it in the findings.
 3. Edit the issue if label or assignee changes are needed:
    - `gh issue edit <number> --repo <owner/repo> --add-label "<label>" --remove-label "<label>" --add-assignee "<user>" --remove-assignee "<user>"`
    - Verify the edit by running `gh issue view <number> --repo <owner/repo> --json labels,assignees`.
