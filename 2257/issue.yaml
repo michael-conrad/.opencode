@@ -1,8 +1,7 @@
 title: '[SPEC] Fix GitBucket label operation documentation (local test instance validation)'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- approved-for-for_pr
 body: ''
 created_at: '2026-08-07T16:18:50+00:00'
-updated_at: '2026-08-07T16:19:27+00:00'
+updated_at: '2026-08-08T15:57:56+00:00'
