@@ -46,7 +46,7 @@ if [ -z "$SKIP_STALE_POINTER_CHECK" ] && [ -f ".gitmodules" ]; then
       STAGED_SHA=$(git diff --cached "$sp" 2>/dev/null | grep "^+Subproject commit" | awk '{print $3}' || true)
       if [ -z "$STAGED_SHA" ]; then
         # Not staged — check working tree
-        STAGED_SHA=$(git submodule status "$sp" 2>/dev/null | awk '{print substr($1,2)}' || true)
+        STAGED_SHA=$(git submodule status "$sp" 2>/dev/null | awk '{s=$1; if (s ~ /^[+U-]/) s=substr(s,2); print s}' || true)
       fi
 
       if [ -n "$STAGED_SHA" ]; then
