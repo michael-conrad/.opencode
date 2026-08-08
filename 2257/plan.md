@@ -124,3 +124,11 @@ Detailed step-by-step execution for each phase is in the split phase files:
 - [ ] **Review-prep (**sub-agent**).** Run `execute review-prep from git-workflow-pr`.
 - [ ] **Create PR (**sub-agent**).** Run `execute create task from git-workflow-pr`; include the `.opencode` submodule pointer update alongside the change.
 - [ ] **Exec summary (**sub-agent**).** Run `execute completion task from completion-core`.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-08T16:19:43Z | `plan_created` | Plan file: `.opencode/.issues/2257/plan.md`; phase count: 2
