@@ -48,8 +48,8 @@
 | SC-20 | `issue-operations-core/tasks/post-creation.md` SHALL remove "approved"/"go" check in comments from Live Verification table | string | grep for "comment-scanning" in post-creation.md — SHALL return no matches |
 | SC-21 | `approval-gate/tasks/resolve-scope.md` SHALL parse auth from chat message only, not from issue comments | semantic | Clean-room sub-agent reads resolve-scope.md and evaluates whether auth is parsed from chat only |
 | SC-22 | `approval-gate/SKILL.md` SHALL remove references to reading comments for authorization | string | grep for "authorization may live in a comment" in approval-gate/SKILL.md — SHALL return no matches |
-| SC-23 | `gh-cli/tasks/triage-issues.md` SHALL remove noting authorization in comments | string | grep -w authorization in triage-issues.md — SHALL return no matches |
-| SC-24 | `guidelines/067-context-completeness.md` SHALL remove "authorization may live in a comment, not the body" | string | grep for "authorization" in 067-context-completeness.md — SHALL return no matches for comment-scanning language |
+| SC-23 | `gh-cli/tasks/triage-issues.md` SHALL remove noting authorization in comments | string | grep for "note it in the findings" in triage-issues.md — SHALL return no matches |
+| SC-24 | `guidelines/067-context-completeness.md` SHALL remove "authorization may live in a comment, not the body" | string | grep for "authorization may live in a comment" in 067-context-completeness.md — SHALL return no matches |
 | SC-25 | `guidelines/257-procedural-discipline-reference.md` SHALL remove "Authorization verified via comment history" example | string | grep for "Authorization verified" in 257-procedural-discipline-reference.md — SHALL return no matches |
 | SC-26 | `issue-operations/platforms/gitbucket-api/SKILL.md` SHALL remove label replacement via comment fallback | string | grep for "comment fallback" in gitbucket-api/SKILL.md — SHALL return no matches |
 | SC-27 | `issue-operations/platforms/local/tasks/push-body.md` SHALL be removed (describes non-existent sync operation) | structural | File SHALL NOT exist at `.opencode/skills/issue-operations/platforms/local/tasks/push-body.md` |
@@ -217,16 +217,16 @@ R-9. The approval-gate guideline SHALL document that canonical authorization sta
 
 ### Item 22 (SC-23): `triage-issues.md` — remove noting auth in comments
 
-- RED: grep for "authorization" in triage-issues.md — SHALL match before change
+- RED: grep for "note it in the findings" in triage-issues.md — SHALL match before change
 - GREEN: Remove noting authorization in comments
-- verify: grep -w authorization in triage-issues.md — SHALL return no matches
+- verify: grep for "note it in the findings" in triage-issues.md — SHALL return no matches
 - commit: `triage-issues.md`
 
 ### Item 23 (SC-24): `067-context-completeness.md` — remove auth in comment language
 
-- RED: grep for "authorization" in 067-context-completeness.md — SHALL match before change
+- RED: grep for "authorization may live in a comment" in 067-context-completeness.md — SHALL match before change
 - GREEN: Remove "authorization may live in a comment, not the body"
-- verify: grep for "authorization" in 067-context-completeness.md — SHALL return no matches for comment-scanning language
+- verify: grep for "authorization may live in a comment" in 067-context-completeness.md — SHALL return no matches
 - commit: `067-context-completeness.md`
 
 ### Item 24 (SC-25): `257-procedural-discipline-reference.md` — remove example
@@ -344,6 +344,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |------|----------|--------|---------------|
 | 2026-08-04 | SC-18/SC-20/SC-22/SC-23 verification-method determinism revision | Spec-audit found 3 SC-DET determinism failures (undefined, non-deterministic grep patterns) | Spec-audit |
 | 2026-08-04 | SC-18/SC-20/SC-22/SC-23 verification-method determinism revision (round 2) | Re-audit found the round-1 methods were present but still non-deterministic (bare substring over-matching, prose-scoped anchors, line-scoped `.*`). Revised each to a fully-specified, unambiguous grep/check executable identically by any auditor: SC-18 `grep -w approved`/`grep -w go`; SC-20 literal `comment-scanning` anywhere in post-creation.md; SC-22 literal `authorization may live in a comment`; SC-23 `grep -w authorization`. Evidence types and SC scope/semantics unchanged. | Spec-audit |
+| 2026-08-08 | SC-23/SC-24 verification-method precision revision | Verification-audit Arbiter downgraded SC-23/SC-24 to FAIL (VERDICT_VALIDATION_CONFLICT): both methods over-matched legitimately preserved content. SC-23 was `grep -w authorization` in triage-issues.md, which over-matches the retained closure-authorization gate line ("issue closure requires authorization"); revised to the literal comment-scanning string `note it in the findings`. SC-24 was grep for `authorization` in 067-context-completeness.md scoped to comment-scanning language, which was imprecise against retained context-completeness language; revised to the exact literal `authorization may live in a comment`. SC scope, semantics, and evidence types (`string`) unchanged — non-substantive verification-method wording only, per approval-gate (does not revoke plan approval). | Verification-audit Arbiter |
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->

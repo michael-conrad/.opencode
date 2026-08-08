@@ -133,7 +133,7 @@ SC-18 is cross-cutting: `gather.md` is shared with SC-12 (Phase 2 local-read cha
   - Clean up `tmp/2241/artifacts/pipeline-red-*` before running
 - [ ] 92. **GREEN (**sub-agent**).** Remove the noting of authorization in comments from `triage-issues.md`. **→ SC-23**
   - Dispatch via `task(..., prompt: "execute green task from test-driven-development")`
-- [ ] 93. **Verify (**clean-room**).** Run `grep -w authorization` against `triage-issues.md` — SHALL return no matches. **→ SC-23**
+- [ ] 93. **Verify (**clean-room**).** Grep `triage-issues.md` for "note it in the findings" — SHALL return no matches. **→ SC-23**
   - Dispatch via `task(..., prompt: "execute verify task from verification-before-completion")`
 - [ ] 94. **Checkpoint commit (**inline**).** Commit `triage-issues.md`. **→ SC-23**
 
@@ -142,7 +142,7 @@ SC-18 is cross-cutting: `gather.md` is shared with SC-12 (Phase 2 local-read cha
   - Clean up `tmp/2241/artifacts/pipeline-red-*` before running
 - [ ] 96. **GREEN (**sub-agent**).** Remove the "authorization may live in a comment, not the body" language from `067-context-completeness.md`. **→ SC-24**
   - Dispatch via `task(..., prompt: "execute green task from test-driven-development")`
-- [ ] 97. **Verify (**clean-room**).** Grep `067-context-completeness.md` for "authorization" — SHALL return no matches for comment-scanning language. **→ SC-24**
+- [ ] 97. **Verify (**clean-room**).** Grep `067-context-completeness.md` for "authorization may live in a comment" — SHALL return no matches. **→ SC-24**
   - Dispatch via `task(..., prompt: "execute verify task from verification-before-completion")`
 - [ ] 98. **Checkpoint commit (**inline**).** Commit `067-context-completeness.md`. **→ SC-24**
 
