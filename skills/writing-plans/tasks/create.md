@@ -65,13 +65,18 @@ The per-task cycle steps are discovered at runtime by reading the implementation
    - No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001), no JSON/YAML code blocks in the body.
    - English text only — the plan is read by the orchestrator, not parsed.
 
-9. **Apply `spec-cleared` label.** Use the platform's label API to add `spec-cleared` to the spec issue identified by `{N}`. The `spec-cleared` label indicates the spec has been freshness-checked and is ready for plan creation.
+9. **Apply `spec-cleared` label — local `issue.yaml` is PRIMARY CANONICAL.**
+   - **PRIMARY — write to local canonical source:** Write `spec-cleared` to the local `{issues_prefix}/{N}/issue.yaml` labels array via `./.opencode/tools/local-issues update <repo>#<N> --labels spec-cleared`. This is the **primary canonical source** for the label state — it MUST be written regardless of remote API success. If this write fails, return BLOCKED with `LOCAL_LABEL_WRITE_FAILED` — the pipeline MUST NOT proceed without the canonical local record.
+   - **SECONDARY — best-effort remote write (never blocking):** When a remote API is available, apply the `spec-cleared` label to the spec issue via the platform's label API. This is best-effort/secondary only — if the remote write fails, log the failure and continue; it MUST NOT block the pipeline. The local `issue.yaml` remains the canonical source.
+   - The `spec-cleared` label indicates the spec has been freshness-checked and is ready for plan creation.
 
 10. **Return the result contract.**
 
 ## Exit Criteria
 
 - The plan has been written to `{issues_prefix}/{N}/plan.md`
+- `spec-cleared` is present in the local `{issues_prefix}/{N}/issue.yaml` labels array (canonical — REQUIRED)
+- Remote `spec-cleared` label write attempted best-effort; remote failure does not block completion
 - The plan frontmatter contains `dispatch:` array with skill+task refs per phase
 - Every task in every phase enumerates every step from the implementation-workflow reference card per-task cycle
 - All SCs are mapped to at least one phase

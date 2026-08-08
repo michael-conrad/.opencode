@@ -49,7 +49,6 @@ Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<search-q
 
 Return search results to the calling task. Used for:
 - Title dedup checks in `pre-creation` Step 0.5
-- Authorization scope label search
 - Spec/plan overlap detection per `130-authority-source.md`
 
 ## Common Issues

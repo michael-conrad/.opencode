@@ -37,14 +37,21 @@ Record comment count for evidence. Note: per `067-context-completeness.md`, ALL 
 
 ### Step 3: Read Labels and Authorization Status
 
+Read labels from the local canonical source `{issues_prefix}/{N}/issue.yaml` as PRIMARY. Remote API read is FALLBACK ONLY — used only when the local `issue.yaml` is missing or unreadable.
+
 ```
-issue-operations -> read-labels <!-- Routes through issue-operations per SPEC #683 -->
+./.opencode/tools/local-issues read-labels --number <N> <!-- Local issue.yaml is the canonical label source per SPEC #2241 -->
+```
+
+Extract the `labels` array from the returned YAML. If the local `issue.yaml` is missing or unreadable, fall back to the remote read:
+
+```
+issue-operations -> read-labels <!-- Remote fallback ONLY when local issue.yaml is missing/unreadable -->
 ```
 
 Extract:
 - `needs-approval` label presence
 - Any categorization labels (enhancement, bug, architecture, etc.)
-- Authorization status from comments (look for "approved", "go", `#N approved` patterns)
 
 ### Step 4: Detect Sub-issues
 
@@ -76,14 +83,12 @@ From all gathered data, extract prose descriptions of:
    - Revisions or spec changes noted
    - Blockers reported
    - Audit findings (check local audit artifacts at `.issues/{N}/audit/*.yaml` for existing verdicts)
-   - Authorization comments ("approved", "go")
 
 - [ ] 3. **Last audit timestamp:**
    - Most recent `.yaml` file timestamp in `.issues/{N}/audit/`
    - Used by `just-review` path to assess staleness
 
 - [ ] 4. **Authorization status:**
-   - Explicit approval comments found (quote them)
    - `needs-approval` label present or absent
 
 - [ ] 5. **Spec structure signals:**
@@ -105,7 +110,7 @@ Prose description of gathered data — no structured schema required. The agent 
 
 ## Output Format
 
-Prose summary of all gathered data, organized by the five categories above. Include comment count and specific authorization evidence for audit trail.
+Prose summary of all gathered data, organized by the five categories above. Include comment count for audit trail.
 
 ## Edge Cases
 
@@ -126,7 +131,7 @@ Prose summary of all gathered data, organized by the five categories above. Incl
 | "Issue has N comments" | Re-count via `get_comments` response | `issue-operations -> read-comments` → count items | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 | "Authorization comment exists" | Verify comment author is developer, not bot/agent | `issue-operations -> read-comments` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
 | "Sub-issues exist" | Verify sub-issues are accessible and not 404 | `issue-operations -> read-sub-issues` → check each child exists | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
-| "`needs-approval` label present/absent" | Verify label list matches claimed state | `issue-operations -> read-labels` → check label array | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "`needs-approval` label present/absent" | Verify label list matches claimed state | `./.opencode/tools/local-issues read-labels --number N` → check label array (local `issue.yaml` primary; remote fallback only) | STRUCTURE-VIOLATION |
 | "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues` + `issue-operations -> read-issue` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 | "Last audit timestamp" | Verify comment containing audit pattern actually exists | `issue-operations -> read-comments` → search for audit patterns | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 

@@ -10,7 +10,7 @@ provenance: AI-generated
 
 ## Overview
 
-Authorization gatekeeper that handles scope verification, label management, spec-to-plan cascade, revision revocation, and bug discovery protocol. This skill is a pure dispatcher — it routes to task files and does not perform inline work. All authorization verification is delegated to clean-room sub-agents that independently read issue state and comments.
+Authorization gatekeeper that handles scope verification, label management, spec-to-plan cascade, revision revocation, and bug discovery protocol. This skill is a pure dispatcher — it routes to task files and does not perform inline work. All authorization verification is delegated to clean-room sub-agents that independently read issue state.
 
 ## Worktree Mode
 
@@ -46,7 +46,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Persona
 
-Authorization scope gatekeeper. Verifies scope, cascade, and halt boundaries by dispatching to sub-agents that independently read issue state and comments. An orchestrator that checks authorization inline instead of dispatching to a verification sub-agent has produced a self-certification, not an independent gate — every authorization claim carries the orchestrator's cached context, and the separation between the agent seeking approval and the agent verifying it is collapsed. Professional gatekeepers dispatch to independent verifiers. Inlining means the gate was never independent.
+Authorization scope gatekeeper. Verifies scope, cascade, and halt boundaries by dispatching to sub-agents that independently read issue state. An orchestrator that checks authorization inline instead of dispatching to a verification sub-agent has produced a self-certification, not an independent gate — every authorization claim carries the orchestrator's cached context, and the separation between the agent seeking approval and the agent verifying it is collapsed. Professional gatekeepers dispatch to independent verifiers. Inlining means the gate was never independent.
 
 ## Sub-Agent Routing
 

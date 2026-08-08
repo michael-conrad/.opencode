@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Verifies authorization via `approval-gate --task verify-authorization` before the plan creation pipeline begins. This is the entry gate that ensures only authorized plan creation proceeds.
+Verifies authorization by reading the `approved-for-*` label from the local `{issues_prefix}/{N}/issue.yaml` record via `local-issues read-labels` before the plan creation pipeline begins. This is the entry gate that ensures only authorized plan creation proceeds. The local `issue.yaml` is the canonical source for authorization labels — not the remote API.
 
 ## Task Discipline
 
@@ -21,8 +21,8 @@ Verifies authorization via `approval-gate --task verify-authorization` before th
 
 1. Verify the spec exists at `{issues_prefix}/{N}/spec.md`.
    - If missing: return BLOCKED with `SPEC_NOT_FOUND`.
-2. Verify authorization via `approval-gate --task verify-authorization`:
-   - Check that the issue has an `approved-for-*` label matching the required scope.
+2. Read the authorization label from the local `issue.yaml` record via `local-issues read-labels --number {N}`:
+   - Check that the returned `labels` array contains an `approved-for-*` label matching the required scope.
    - If no `approved-for-*` label: return BLOCKED with `SPEC_NOT_APPROVED`.
 3. Report the authorization status in the finding summary.
 4. Return the result contract.
@@ -30,7 +30,7 @@ Verifies authorization via `approval-gate --task verify-authorization` before th
 ## Exit Criteria
 
 - The spec has been verified to exist
-- Authorization has been verified via approval-gate
+- Authorization has been read from the local `issue.yaml` via `local-issues read-labels`
 - The authorization status has been reported in the finding summary
 
 ## Result Contract

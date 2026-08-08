@@ -146,12 +146,21 @@ issue-operations -> creation/update (github_issue_write( <!-- Routes through iss
 )
 ```
 
-### Step 6.1: Apply `spec-draft` label
+### Step 6.1: Record labels in local `issue.yaml` as PRIMARY CANONICAL (MANDATORY)
 
-After the fix spec sub-issue is created, apply the `spec-draft` label to mark it as a draft spec:
+The `spec-draft` label MUST be written to the local `{issues_prefix}/{N}/issue.yaml` labels array via `./.opencode/tools/local-issues update <repo>#<N> --labels spec-draft`. This is the **primary canonical source** for the label state — it MUST be written regardless of remote API success.
 
-1. Use the platform's label API to add `spec-draft` to the newly created fix spec issue
+1. Write `spec-draft` to the local `issue.yaml` labels array via `local-issues update --labels`
+2. If this local write fails: return BLOCKED with `LOCAL_LABEL_WRITE_FAILED` — the pipeline MUST NOT proceed without the canonical local record
+3. Verify the local canonical write by reading back the labels array via `./.opencode/tools/local-issues read-labels --number <repo>#<N>`
+
+### Step 6.2: Apply `spec-draft` label to remote (SECONDARY — best-effort, never blocking)
+
+When a remote API is available, apply the `spec-draft` label to the newly created fix spec issue to mark it as a draft spec. This is best-effort/secondary only — if the remote write fails, log the failure and continue; it MUST NOT block the pipeline. The local `issue.yaml` remains the canonical source.
+
+1. Use the platform's label API to add `spec-draft` to the issue
 2. The `spec-draft` label indicates the spec is in draft state and has not yet been reviewed
+3. If the remote label write fails (e.g., GitBucket label limitation, API error), report the gap as a known limitation and proceed — the local `issue.yaml` is canonical
 
 ### Step 7: Link Fix Spec to Bug Report
 
