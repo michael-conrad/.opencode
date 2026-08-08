@@ -115,3 +115,11 @@ evidence_type: behavioral
 - [ ] 17. **Review prep (**sub-agent**).** Dispatch `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare PR review context. **→ SC-1**
 - [ ] 18. **Create PR (**sub-agent**).** Dispatch `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request. **→ SC-1**
 - [ ] 19. **Exec summary (**sub-agent**).** Dispatch `task(..., prompt: "execute completion task from completion-core")`. Generate the completion executive summary. **→ SC-1**
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Plan Path | Phase Count |
+|-----------|-------|-----------|-------------|
+| 2026-08-08T16:19:00Z | `plan_created` | `.opencode/.issues/2258/plan.md` | 1 |

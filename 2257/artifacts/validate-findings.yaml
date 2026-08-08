@@ -1,0 +1,73 @@
+# Validation findings — issue #2257
+# Structural validation of plan.md against 6 check categories
+
+overall_status: PASS
+
+categories:
+  category_1_structural:
+    status: PASS
+    checks:
+      - name: phase_table_columns
+        status: PASS
+        detail: "plan.md:28-31 phase table has all required columns (Phase, Skill, Task, Target, SCs, Depends On)"
+      - name: phase_procedure_numbered_steps
+        status: PASS
+        detail: "Phase 1 (plan-01) steps 1-23; Phase 2 (plan-02) steps 24-39, all numbered"
+      - name: exit_criteria_sc_mapping
+        status: PASS
+        detail: "plan.md:104-113 Exit Criteria C1-C8 map to SC-1..SC-7"
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - name: skill_task_references_valid
+        status: PASS
+        detail: "All references match implementation-workflow.md: test-driven-development (red/green/phase-0/phase-4), verification-before-completion (verify), finishing-a-development-branch (checklist), audit (verification-audit), git-workflow-pr (review-prep/create), completion-core (completion)"
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - name: all_scs_covered
+        status: PASS
+        detail: "SC-1..SC-4 in Phase 1 exit criteria (C1-C4); SC-5..SC-7 in Phase 2 exit criteria (C5-C7)"
+      - name: triplet_split_detection
+        status: PASS
+        detail: "No SC has RED/GREEN/COMMIT split across phases. SC-1: steps 3/4/7; SC-2: 8/9/12; SC-3: 13/14/17; SC-4: 18/19/22; SC-5: 24/25/28; SC-6: 29/30/33; SC-7: 34/35/38 — all within same phase"
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - name: one_concern_per_phase
+        status: PASS
+        detail: "Phase 1 = empirical discovery (establish ground truth); Phase 2 = documentation correction (propagate verified truth)"
+      - name: no_shared_concern
+        status: PASS
+        detail: "No two phases address the same concern; concern-map.yaml separation confirmed"
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - name: no_cycles
+        status: PASS
+        detail: "dependency-contract.yaml single edge phase_1 -> phase_2; no cycles"
+      - name: all_phases_reachable
+        status: PASS
+        detail: "phase_1 is start node; phase_2 reachable via edge"
+      - name: no_orphan_phases
+        status: PASS
+        detail: "phase_1 has outgoing edge; phase_2 has incoming edge"
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - name: no_tbd_todo_placeholders
+        status: PASS
+        detail: "No TBD/TODO placeholders in plan body"
+      - name: checkbox_format
+        status: PASS
+        detail: "All steps use - [ ] checkbox format"
+      - name: dispatch_mode_consistency
+        status: PASS
+        detail: "Clean-room phases use sub-agent dispatch for RED/GREEN/verify/post-regression; inline commit steps match reference card commit-inline (orchestrator action)"
+
+findings: []
