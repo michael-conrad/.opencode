@@ -232,3 +232,4 @@ dispatch:
 | Timestamp | Event | Details |
 |-----------|-------|---------|
 | 2026-08-06T16:38:00Z | `plan_created` | Plan file: `.opencode/.issues/2241/plan.md`; phase count: 7 |
+| 2026-08-08T15:40:24Z | `pr_created` | PR #2259 created: https://github.com/michael-conrad/.opencode/pull/2259 |
