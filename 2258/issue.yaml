@@ -1,0 +1,8 @@
+title: '[SPEC-FIX] Pre-commit hook Gate 2 false-positives on clean submodules — awk
+  substr drops leading hex char'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-08-08T15:58:55+00:00'
+updated_at: '2026-08-08T15:58:55+00:00'
