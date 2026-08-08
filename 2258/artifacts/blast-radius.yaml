@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2258/spec.md
+affected_files:
+- path: .opencode/hooks/pre-commit
+  exists: true
+  line: 49
+  change: Replace buggy fallback SHA extraction `awk '{print substr($1,2)}'` with a locale-independent full-40-char-SHA extraction.
+  blast_radius: single-line change confined to Gate 2 fallback path; no other hook gates, skills, plugins, or issue-tracking files touched.
+  propagation: hook auto-installed to .git/hooks/pre-commit by session-enforcement.ts; fix propagates on re-install.
+- path: .opencode/hooks/pre-commit (line 46 primary staged-gitlink path)
+  exists: true
+  change: none (REQ-4 — must remain unchanged)
+  blast_radius: none
+scope_boundary:
+  in_scope:
+  - .opencode/hooks/pre-commit line 49 only
+  out_of_scope:
+  - stale-pointer gate removal/relaxation
+  - primary staged-gitlink path (line 46)
+  - any other hook gate, skill, plugin, or issue-tracking file

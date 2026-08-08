@@ -1,5 +1,7 @@
 # Interface compatibility — issue #2257
 # Interface compatibility analysis per phase
+spec: .opencode/.issues/2257/spec.md
+generated: 2026-08-08
 
 ## Phase 1: empirical probes
 interfaces:
@@ -20,3 +22,43 @@ interfaces:
     - backward compatible: YES (no API surface change; only recorded capability truth corrected)
     - breaking: NO
     - internal only: YES
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Empirical probes — SC-1, SC-2, SC-3, SC-4"
+    phase_2:
+      type: bool
+      description: "Documentation edits — SC-5, SC-6, SC-7"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/tests-v2/behaviors/helpers.sh
+        - .opencode/tests-v2/behaviors/<new behavioral test script>
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+    phase_2:
+      files:
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+      scs:
+        - SC-5
+        - SC-6
+        - SC-7
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Documentation edits (Phase 2) correct the four skill cards to the verified workflow, which requires the empirical probe results (Phase 1) establishing the verified issue-level vs repo-level capability truth first"
+  notes:
+    - "Phase 2 is documentation-only and strictly sequenced after Phase 1's behavioral probes; its SC-5/6/7 grep assertions depend on the verified truth synthesized in Phase 1 SC-2/3/4."
+    - "Phase 1 and Phase 2 touch disjoint file sets — no same-file edit conflicts; the dependency is informational (SC-4 synthesis feeds SC-5/6/7), not file-overlap driven."

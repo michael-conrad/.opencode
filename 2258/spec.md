@@ -1,0 +1,85 @@
+# [SPEC-FIX] Pre-commit hook Gate 2 false-positives on clean submodules — awk substr drops leading hex char
+
+## Objective
+
+Correct the fallback SHA-extraction in the git pre-commit hook's Gate 2 (stale submodule pointer check) so it yields the full 40-character SHA for BOTH clean and dirty submodules, eliminating the false BLOCK that currently fires on every commit in any repository using this hook. The stale-pointer gate itself SHALL remain intact — only the SHA extraction is corrected.
+
+## Background
+
+The git pre-commit hook at `.opencode/hooks/pre-commit` Gate 2 (stale submodule pointer check, lines 31-73) has a SHA-extraction bug that falsely blocks EVERY commit in any repo using this hook, regardless of whether the commit touches any submodule.
+
+The fallback path (line 49) runs:
+
+```bash
+STAGED_SHA=$(git submodule status "$sp" 2>/dev/null | awk '{print substr($1,2)}' || true)
+```
+
+For a CLEAN submodule the status line is ` faaaedcce... ArticleHtmlFix (...)`; in awk the leading space is a field separator so `$1`=`faaaedcce...`, and `substr($1,2)` strips the first real hex char `f` → produces `aaaedcce...` (39 chars), which never equals the 40-char remote tip → false BLOCK on every commit. For a DIRTY submodule (`+faaaedcce...`), `$1`=`+faaaedcce...` and `substr($1,2)`=`faaaedcce...` (correct).
+
+The primary staged-gitlink path (line 46) is correct and must stay.
+
+**CRITICAL — the naive `sed 's/^[+-U]//'` is DEFECTIVE and MUST NOT be used:** On GNU sed 4.9, `sed 's/^[+-U]//'` parses `[+-U]` as the character range `+..U`, which also strips lowercase hex chars including `f` — producing the SAME 39-char false-positive. This was verified live. The spec and plan MUST use a locale-independent extraction form.
+
+## Not Included
+
+- Removing or relaxing the stale-pointer gate itself (the gate SHALL continue to block genuinely stale submodule pointers).
+
+- Changing the primary staged-gitlink extraction path (line 46).
+
+- Modifying any other hook gate, skill, plugin, or issue-tracking file.
+
+- Any change outside `.opencode/hooks/pre-commit` line 49.
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
+|----|-----------|---------------|---------------------|----------------------|
+| SC-1 | The pre-commit hook's Gate 2 SHALL correctly extract the full 40-char SHA for a CLEAN submodule (not strip the leading hex char), so that a commit with all-clean submodule pointers is not falsely blocked by the stale-pointer check. | behavioral | Execute the Gate 2 fallback SHA extraction against a real clean submodule (e.g., `ArticleHtmlFix`) and assert it yields the full 40-char SHA equal to the true gitlink SHA from `git ls-tree HEAD`; assert the naive `awk '{print substr($1,2)}'` and `sed 's/^[+-U]//'` both produce the 39-char truncated value that the fix eliminates. | `.opencode/hooks/pre-commit` line 49 (source of truth); live `git submodule status` output |
+
+**Cost frame (dark-prose-007):** A false BLOCK on every commit is not a nuisance — it is a silent tax on every developer in every repository that installs this hook. Each blocked commit forces a manual `SKIP_STALE_POINTER_CHECK=1` override, which is exactly the override the gate exists to prevent. The override becomes the norm, the gate becomes decoration, and the genuinely stale pointer that the gate was built to catch sails through unguarded. Fixing the extraction is not optional polish; it is the difference between a gate that protects and a gate that trains developers to bypass it. A fix that merely swaps one 39-char false-positive for another (the `sed 's/^[+-U]//'` range bug) is not a fix — it is the same defect wearing a different command, and it will be rejected.
+
+## Requirements
+
+1. **REQ-1 (Full-SHA Extraction):** The fallback SHA extraction in Gate 2 (line 49) SHALL yield the full 40-character hex SHA for BOTH clean (space-prefixed) and dirty (`+`/`-`/`U`-prefixed) submodule status lines.
+
+2. **REQ-2 (Prefix-Only Strip):** The extraction SHALL strip only a status prefix (`+`, `-`, or `U`) when present, and SHALL NOT strip any hex character.
+
+3. **REQ-3 (Locale Independence):** The extraction SHALL be locale-independent — it SHALL NOT rely on a specific `LANG`/`LC_ALL` value, because the hook runs on developer machines with varying locales. The `sed 's/^[+-U]//'` form is locale-dependent (range vs. set on GNU sed 4.9) and is FORBIDDEN.
+
+4. **REQ-4 (Gate Integrity):** The fix SHALL NOT weaken or remove the stale-pointer gate. The comparison logic (lines 52-70) and the primary staged-gitlink path (line 46) SHALL remain unchanged.
+
+5. **REQ-5 (Non-Empty SHA):** The extraction SHALL NOT emit an empty `STAGED_SHA` for a clean, current submodule (which would silently disable the gate).
+
+## Phases
+
+### Phase 1: Fix Gate 2 fallback SHA extraction
+
+**Files:** `.opencode/hooks/pre-commit` (line 49 only)
+
+**REQs:** REQ-1, REQ-2, REQ-3, REQ-4, REQ-5
+
+Replace the buggy fallback extraction at line 49 with a locale-independent full-SHA extraction. One of the following verified-working forms SHALL be used (choose one and specify it exactly in the plan's SC verification):
+
+- `git submodule status "$sp" 2>/dev/null | grep -oE '[0-9a-f]{40}'`
+
+- `git submodule status "$sp" 2>/dev/null | awk '{print $1}' | sed 's/^[+U-]//'` (dash LAST → literal set, verified correct)
+
+- `git submodule status "$sp" 2>/dev/null | awk '{s=$1; if (s ~ /^[+U-]/) s=substr(s,2); print s}'` (explicit awk first-char test)
+
+The `sed 's/^[+-U]//'` form (dash between `+` and `U`) is DEFECTIVE and MUST NOT be used.
+
+## Dependencies
+
+- **Prerequisite:** `.opencode/hooks/pre-commit` exists (verified) and is auto-installed to `.git/hooks/pre-commit` by `session-enforcement.ts`; the fix propagates on re-install.
+
+- **No external dependencies** — the change is a single localized line in one file within the `.opencode` submodule.
+
+## Traceability
+
+| Requirement | SCs | Phase |
+|-------------|-----|-------|
+| REQ-1 (Full-SHA Extraction) | SC-1 | Phase 1 |
+| REQ-2 (Prefix-Only Strip) | SC-1 | Phase 1 |
+| REQ-3 (Locale Independence) | SC-1 | Phase 1 |
+| REQ-4 (Gate Integrity) | SC-1 | Phase 1 |
+| REQ-5 (Non-Empty SHA) | SC-1 | Phase 1 |

@@ -1,0 +1,39 @@
+# Structure artifact — issue #2258
+# Phase decomposition, dependency DAG, skill+task selection
+
+phases:
+  - id: phase_1
+    name: "Gate 2 fallback SHA extraction fix"
+    concern: "Correct the fallback SHA extraction so it yields the full 40-char SHA for both clean and dirty submodules, eliminating false BLOCKs"
+    scs:
+      - SC-1
+    items:
+      - SC-1: item-01 (replace buggy fallback extraction at pre-commit line 49 with a locale-independent full-40-char-SHA form)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges: []
+
+triplet_colocation:
+  status: VERIFIED
+  notes: "SC-1 has RED/GREEN/COMMIT steps all assigned to a single phase (phase_1). No split triplets."
+
+cross_phase_dependency:
+  status: VERIFIED
+  notes: "Single phase — no RED test depends on output committed in a later phase. No forward RED dependency."
+
+skill_task_selection:
+  - phase: phase_1
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-1"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"

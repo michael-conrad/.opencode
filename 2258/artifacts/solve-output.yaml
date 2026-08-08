@@ -1,0 +1,27 @@
+# Solve output — issue #2258
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2258/dependency-contract.yaml --query phase_1"
+  status: SAT
+  assignment:
+    phase_1: true
+  interpretation: "Goal state (Phase 1 complete) is satisfiable under the contract. Single phase with no cross-phase dependencies."
+
+solve_check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2258/dependency-contract.yaml --state-path .opencode/.issues/2258/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+  interpretation: "Initial state analysis (phase_1=false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2258/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 1
+  plan:
+    - run_p1
+  interpretation: "Planner produced a 1-step plan run_p1, satisfying the single-phase goal done(p1). No cross-phase ordering constraints."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING

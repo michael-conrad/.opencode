@@ -1,0 +1,11 @@
+spec_path: .opencode/.issues/2258/spec.md
+states:
+- id: S1
+  sc: SC-1
+  name: Submodule status line prefix state
+  description: The `git submodule status` output line for a submodule carries a leading status prefix that determines extraction behavior.
+  transitions:
+  - clean: line is space-prefixed (` faaaedcce...`); awk `$1`=`faaaedcce...`; buggy `substr($1,2)` strips first hex char → 39-char false-positive.
+  - dirty: line is `+`/`-`/`U`-prefixed (`+faaaedcce...`); awk `$1`=`+faaaedcce...`; `substr($1,2)` yields correct 40-char SHA.
+  required_behavior: Extraction SHALL strip only a status prefix (`+`/`-`/`U`) when present and SHALL NOT strip any hex character (REQ-2), yielding the full 40-char SHA in both states (REQ-1).
+summary: Two submodule states (clean, dirty) drive the extraction branch. The fix must handle both identically, producing the full 40-char SHA.

@@ -1,0 +1,10 @@
+spec_path: .opencode/.issues/2258/spec.md
+testability:
+- sc: SC-1
+  evidence_type: behavioral
+  verification_method: Execute the Gate 2 fallback SHA extraction against a real clean submodule (e.g., ArticleHtmlFix) and assert it yields the full 40-char SHA equal to the true gitlink SHA from `git ls-tree HEAD`; assert the naive `awk '{print substr($1,2)}'` and `sed 's/^[+-U]//'` both produce the 39-char truncated value that the fix eliminates.
+  documentation_sources:
+  - .opencode/hooks/pre-commit line 49 (source of truth)
+  - live `git submodule status` output
+  testability_notes: Behavioral — requires executing the extraction against a real clean submodule and comparing against `git ls-tree HEAD`. The negative assertions (awk/sed produce 39-char) verify the defect is eliminated.
+summary: Single SC, single behavioral evidence type. Testable by live execution against a real clean submodule.

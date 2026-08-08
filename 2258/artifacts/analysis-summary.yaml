@@ -1,0 +1,30 @@
+spec_path: .opencode/.issues/2258/spec.md
+approval_status: approved
+approval_label: approved-for-for_pr
+sc_count: 1
+sc_ids:
+- SC-1
+artifact_presence:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_boundary_findings:
+- file: .opencode/hooks/pre-commit
+  exists: true
+  note: Affected file exists; line 49 contains the buggy fallback extraction `awk '{print substr($1,2)}'` matching the spec's described defect.
+- file: .opencode/hooks/pre-commit (line 46 primary path)
+  exists: true
+  note: Primary staged-gitlink path present and correct; must remain unchanged per REQ-4.
+missing_artifacts: []
+backfill_actions:
+- blast-radius.yaml: backfilled from spec affected-files + live file verification
+- concern-map.yaml: backfilled from SC-1 → single concern C1 → Phase 1
+- code-path-inventory.yaml: backfilled from SC-1 code paths (P1 fallback, P2 primary, P3 comparison)
+- cross-cutting-matrix.yaml: backfilled — no cross-cutting SCs
+- interface-compatibility.yaml: backfilled from STAGED_SHA output contract + locale independence
+- state-analysis.yaml: backfilled from clean/dirty submodule prefix states
+- testability-assessment.yaml: backfilled from SC-1 behavioral evidence type

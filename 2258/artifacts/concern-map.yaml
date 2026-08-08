@@ -1,0 +1,17 @@
+spec_path: .opencode/.issues/2258/spec.md
+concerns:
+- id: C1
+  name: Gate 2 fallback SHA extraction correctness
+  description: Correct the fallback SHA extraction so it yields the full 40-char SHA for both clean and dirty submodules, eliminating false BLOCKs.
+  scs:
+  - SC-1
+  phase: Phase 1
+  reqs:
+  - REQ-1
+  - REQ-2
+  - REQ-3
+  - REQ-4
+  - REQ-5
+phase_boundary_map:
+  Phase 1: C1
+notes: Single concern, single phase — the spec is a localized one-line fix with no cross-concern decomposition.

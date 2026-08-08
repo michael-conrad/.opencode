@@ -1,0 +1,7 @@
+spec_path: .opencode/.issues/2258/spec.md
+cross_cutting:
+- sc: SC-1
+  concerns_spanned:
+  - C1
+  notes: SC-1 maps to a single concern (C1) and a single phase (Phase 1). No SC spans multiple concerns or phases.
+summary: No cross-cutting SCs. The spec is a single-concern, single-phase, single-line fix.

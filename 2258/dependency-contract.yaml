@@ -1,0 +1,21 @@
+# Dependency contract — issue #2258
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Gate 2 fallback SHA extraction fix — SC-1"
+preconditions:
+  - "z3.Implies(phase_1, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/hooks/pre-commit
+    scs:
+      - SC-1
+edges: []
+notes:
+  - "Single phase (Phase 1) with no cross-phase dependencies. The only interface contract is the fallback SHA extraction in Gate 2 (pre-commit line 49), which produces STAGED_SHA consumed by the unchanged comparison logic downstream (lines 52-70)."
+  - "The fix is confined to a single localized line change in .opencode/hooks/pre-commit; the primary staged-gitlink path (line 46) and comparison logic (lines 52-70) remain unchanged (REQ-4)."

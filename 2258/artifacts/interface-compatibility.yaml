@@ -1,0 +1,35 @@
+spec_path: .opencode/.issues/2258/spec.md
+interfaces:
+- id: I1
+  name: Gate 2 fallback extraction output contract
+  boundary: STAGED_SHA variable consumed by the stale-pointer comparison logic (lines 52-70).
+  contract: STAGED_SHA MUST be the full 40-character hex SHA for both clean and dirty submodules, and MUST NOT be empty for a clean current submodule (REQ-5).
+  compatibility: The replacement extraction form SHALL produce the same 40-char SHA as the true gitlink SHA from `git ls-tree HEAD`. The primary staged-gitlink path (line 46) and comparison logic (lines 52-70) are unchanged, so no interface break.
+- id: I2
+  name: Locale independence
+  boundary: Extraction runs on developer machines with varying LANG/LC_ALL.
+  contract: Extraction SHALL NOT rely on a specific locale (REQ-3). The `sed 's/^[+-U]//'` form is locale-dependent (range vs set on GNU sed 4.9) and FORBIDDEN.
+  compatibility: Use grep -oE '[0-9a-f]{40}' or awk with explicit first-char test or awk+sed with dash-last literal set — all locale-independent.
+summary: No interface incompatibility. The fix is confined to the extraction producing the STAGED_SHA consumed downstream; downstream consumers are unchanged.
+dependency_contract:
+  phase_count: 1
+  phases:
+  - phase: Phase 1
+    dependencies:
+      cross_phase: none
+    interface_contract:
+      name: Gate 2 fallback SHA extraction (pre-commit line 49)
+      scope: Single localized line change in .opencode/hooks/pre-commit
+      contract: |
+        The fallback extraction MUST yield the full 40-character hex SHA for both
+        clean (space-prefixed) and dirty (+/-/U-prefixed) submodule status lines,
+        stripping only the status prefix and never a hex character (REQ-1, REQ-2).
+        It MUST be locale-independent (REQ-3), MUST NOT emit an empty STAGED_SHA
+        for a clean current submodule (REQ-5), and MUST NOT weaken the stale-pointer
+        gate or the primary staged-gitlink path (REQ-4).
+      downstream_consumers:
+      - STAGED_SHA comparison logic (pre-commit lines 52-70)
+  cross_phase_dependencies: []
+  summary: Single phase (Phase 1) with no cross-phase dependencies. The only interface
+    contract is the fallback SHA extraction in Gate 2, which produces STAGED_SHA consumed
+    by the unchanged comparison logic downstream.

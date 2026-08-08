@@ -1,0 +1,75 @@
+# Structure artifact — issue #2257
+# Phase decomposition, dependency DAG, skill+task selection
+
+phases:
+  - id: phase_1
+    name: "empirical probes"
+    concern: "establish ground truth for issue-level vs repo-level label-ops capability"
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+    items:
+      - SC-1: item-01 (provision reachable authed instance + test repo via __ensure_gitbucket)
+      - SC-2: item-02 (issue-level label mutation probe + get_issue readback)
+      - SC-3: item-03 (repo-level label CRUD probe)
+      - SC-4: item-04 (synthesize issue-level vs repo-level capability split from SC-2 + SC-3)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_2
+    name: "documentation edits"
+    concern: "propagate verified truth to the four skill-card files"
+    scs:
+      - SC-5
+      - SC-6
+      - SC-7
+    items:
+      - SC-5: item-05 (label-operations.md corrected to verified workflow)
+      - SC-6: item-06 (SKILL.md capability manifest Post-creation labels row corrected)
+      - SC-7: item-07 (issue-operations.md + mcp-operations.md downstream references corrected)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Documentation edits (Phase 2) correct the four skill cards to the verified workflow, which requires the empirical probe results (Phase 1) establishing the verified issue-level vs repo-level capability truth first"
+
+triplet_colocation:
+  status: VERIFIED
+  notes: "All SC-1..7 have RED/GREEN/COMMIT steps assigned to a single phase (SC-1..4 -> phase_1, SC-5..7 -> phase_2). No split triplets."
+
+cross_phase_dependency:
+  status: VERIFIED
+  notes: "No RED test in phase_1 depends on output committed in phase_2. Phase_2 RED (SC-5/6/7 grep assertions) depends on verified truth synthesized in phase_1 SC-4, which is committed within phase_1 — no forward RED dependency."
+
+skill_task_selection:
+  - phase: phase_1
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-1..4"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_2
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-5..7"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"

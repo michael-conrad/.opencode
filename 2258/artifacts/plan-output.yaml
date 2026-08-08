@@ -1,0 +1,7 @@
+actions:
+- name: run_p1
+  parameters: []
+domain: gate2-sha-extraction-plan
+engine: tamer
+plan_length: 1
+status: SOLVED_SATISFICING

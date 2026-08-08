@@ -1,0 +1,30 @@
+# Solve output — issue #2257
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2257/dependency-contract.yaml --query z3.And(phase_1, phase_2)"
+  status: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+  interpretation: "Goal state (both phases complete) is satisfiable under precondition Implies(phase_2, phase_1)."
+
+solve_check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2257/dependency-contract.yaml --state-path .opencode/.issues/2257/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+    phase_2: false
+  interpretation: "Initial state analysis (phase_1=phase_2=false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2257/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  plan:
+    - run_p1
+    - run_p2
+  interpretation: "Planner produced a 2-step sequential plan run_p1 -> run_p2, enforcing the phase_2-after-phase_1 dependency. Grounding fixed from initial 0-length plan by removing negation in init (closed-world assumption defaults all fluents false)."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
