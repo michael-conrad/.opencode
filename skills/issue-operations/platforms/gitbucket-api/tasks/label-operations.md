@@ -15,45 +15,55 @@ fi
 
 ## Add Labels to Issue
 
-**⚠️ BROKEN: Returns empty array `[]`, labels are NOT added**
+**✅ WORKING: issue-level label mutation via `gb api` passthrough**
 
-The GitBucket API endpoint `POST /repos/{owner}/{repo}/issues/{number}/labels` returns HTTP 200 with an empty array but does NOT add labels to the issue.
+The GitBucket API endpoint `POST /repos/{owner}/{repo}/issues/{number}/labels` applies labels to the issue. Use `gb api` passthrough with a JSON body containing the `labels` array.
 
-**Workaround:** Add labels during issue creation with `gb issue create --label`.
-
-### CLI (Only Option)
+### CLI
 
 ```bash
-# ❌ BROKEN: gb issue edit --add-label may not apply via REST
-
-# ✅ WORKAROUND: Add labels during issue creation
-gb issue create -t "Bug report" -R org/project --body "Description" --label bug,enhancement
+# ✅ WORKING: Add labels to an existing issue via gb api passthrough
+echo '{"labels":["bug"]}' | gb api "repos/org/project/issues/14/labels" -R org/project -X POST -i -
 ```
 
 ## Replace All Labels
 
-**⚠️ BROKEN: Returns empty array `[]`, labels are NOT set**
+**✅ WORKING: issue-level label mutation via `gb api` passthrough**
 
-The GitBucket API endpoint `PUT /repos/{owner}/{repo}/issues/{number}/labels` returns HTTP 200 with an empty array but does NOT set labels on the issue.
+The GitBucket API endpoint `PUT /repos/{owner}/{repo}/issues/{number}/labels` replaces all labels on the issue. Use `gb api` passthrough with a JSON body containing the `labels` array.
 
-**Workaround:** Add labels during issue creation with `gb issue create --label`.
-
-### CLI (Only Option)
+### CLI
 
 ```bash
-# ❌ BROKEN: No gb command for label replacement
-
-# ✅ WORKAROUND: Add labels during issue creation
-gb issue create -t "Bug report" -R org/project --body "Description" --label priority,review
+# ✅ WORKING: Replace all labels on an existing issue via gb api passthrough
+echo '{"labels":["priority","review"]}' | gb api "repos/org/project/issues/14/labels" -R org/project -X PUT -i -
 ```
 
 ## Remove Specific Label
 
-**⚠️ BROKEN: No gb command for post-creation label removal.**
+**✅ WORKING: issue-level label mutation via `gb api` passthrough**
+
+The GitBucket API endpoint `DELETE /repos/{owner}/{repo}/issues/{number}/labels/{name}` removes a specific label from the issue. Use `gb api` passthrough.
+
+### CLI
+
+```bash
+# ✅ WORKING: Remove a specific label from an existing issue via gb api passthrough
+gb api "repos/org/project/issues/14/labels/bug" -R org/project -X DELETE -i -
+```
 
 ## Remove All Labels
 
-**⚠️ BROKEN: No gb command for post-creation label removal.**
+**✅ WORKING: issue-level label mutation via `gb api` passthrough**
+
+The GitBucket API endpoint `DELETE /repos/{owner}/{repo}/issues/{number}/labels` removes all labels from the issue. Use `gb api` passthrough.
+
+### CLI
+
+```bash
+# ✅ WORKING: Remove all labels from an existing issue via gb api passthrough
+gb api "repos/org/project/issues/14/labels" -R org/project -X DELETE -i -
+```
 
 ## Repository Labels
 
@@ -91,10 +101,10 @@ gb label delete bug --yes -R org/project
 
 | Operation | gb Command | Status |
 |-----------|------------|--------|
-| Add labels | N/A | ⚠️ BROKEN (returns `[]`) |
-| Replace labels | N/A | ⚠️ BROKEN (returns `[]`) |
-| Remove label | N/A | ⚠️ BROKEN |
-| Remove all labels | N/A | ⚠️ BROKEN |
+| Add labels | `gb api "repos/O/R/issues/{number}/labels" -X POST` | ✅ WORKING |
+| Replace labels | `gb api "repos/O/R/issues/{number}/labels" -X PUT` | ✅ WORKING |
+| Remove label | `gb api "repos/O/R/issues/{number}/labels/{name}" -X DELETE` | ✅ WORKING |
+| Remove all labels | `gb api "repos/O/R/issues/{number}/labels" -X DELETE` | ✅ WORKING |
 | List labels | `gb label list -R O/R` | ✅ |
 | Create label | `gb label create <name> --color <hex> -R O/R` | ✅ |
 | View label | `gb label view <name> -R O/R` | ✅ |
