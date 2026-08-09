@@ -3,9 +3,9 @@ title: '[SPEC] Authorization tracking: local issue.yaml is canonical source, not
   API labels'
 state: open
 labels:
-- '[SPEC],spec-draft,approved-for-pr,spec-cleared'
+- approved-for-pr
 created_at: '2026-08-03T15:31:00Z'
-updated_at: '2026-08-06T20:25:25+00:00'
+updated_at: '2026-08-09T17:53:45+00:00'
 owner: michael-conrad
 repo: .opencode
 html_url: https://github.com/michael-conrad/.opencode/issues/2241
