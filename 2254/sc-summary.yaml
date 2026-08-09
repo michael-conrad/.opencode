@@ -1,4 +1,4 @@
-sc_count: 18
+sc_count: 22
 scs:
   - id: "SC-1"
     description: "spec-creation/SKILL.md uses canonical dispatch prompt format, zero deprecated execute X from Y strings"
@@ -65,10 +65,26 @@ scs:
     evidence_type: "semantic"
     plan_item: 16
   - id: "SC-17"
-    description: "analyze task BLOCKs on unbound/placeholder issue number, remote-stub-first"
+    description: "analyze task BLOCKs on unbound/placeholder issue number"
     evidence_type: "behavioral"
     plan_item: 17
   - id: "SC-18"
     description: "validate task loads 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml"
     evidence_type: "string"
     plan_item: 18
+  - id: "SC-19"
+    description: "create task routes remote issue body to canonical exec-summary body format (Spec Reference Blockquote, Problem, Scope, Approach, Impact)"
+    evidence_type: "string"
+    plan_item: 19
+  - id: "SC-20"
+    description: "create task includes forward-reference Spec Reference Blockquote / issues-data link in remote issue body"
+    evidence_type: "string"
+    plan_item: 20
+  - id: "SC-21"
+    description: "post-push reconciliation sequenced after issue-operations/platforms/local/tasks/push-artifacts.md"
+    evidence_type: "string"
+    plan_item: 21
+  - id: "SC-22"
+    description: "revise task regenerates exec-summary remote issue body on revision"
+    evidence_type: "string"
+    plan_item: 22

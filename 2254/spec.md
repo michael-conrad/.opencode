@@ -57,8 +57,12 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | SC-14 | The redundant audit/tasks/behavioral-sc-evaluator.md SHALL be removed. | string | verify audit/tasks/behavioral-sc-evaluator.md is absent |
 | SC-15 | Evidence-type taxonomy citations in spec-creation validate and audit role cards SHALL point at the single canonical reference document, loaded dynamically. | string | grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation |
 | SC-16 | A missing evidence-type declaration in reference/spec-structure-standards.md SHALL be a hard FAIL routed to the remediation workflow, not a default-to-string/warn/backwards-compat tier. | semantic | sub-agent reads reference/spec-structure-standards.md and verifies the missing-type rule is hard FAIL via analytical judgment |
-| SC-17 | spec-creation/tasks/analyze.md SHALL BLOCK on an unbound/placeholder issue number and SHALL use remote-stub-first when a remote API is available. | behavioral | opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK |
+| SC-17 | spec-creation/tasks/analyze.md SHALL BLOCK on an unbound/placeholder issue number. Remote-stub-first issue-number binding is NOT analyze.md's responsibility — it is handled upstream by issue-operations-core creation and by create.md. | behavioral | opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK |
 | SC-18 | spec-creation/tasks/validate.md SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than a hardcoded divergent list. | string | grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml |
+| SC-19 | spec-creation/tasks/create.md SHALL route the remote issue body to the canonical exec-summary body format (Spec Reference Blockquote, Problem, Scope, Approach, Impact) defined in issue-operations-core/tasks/creation.md Step 5. | string | grep spec-creation/tasks/create.md for a reference to the canonical exec-summary body format / creation.md Step 5 |
+| SC-20 | spec-creation/tasks/create.md SHALL include the forward-reference Spec Reference Blockquote link in the remote issue body, pointing to the issues-data branch URL. | string | grep spec-creation/tasks/create.md for the forward-reference Spec Reference Blockquote / issues-data link |
+| SC-21 | The create task SHALL sequence the post-push reconciliation of the Spec Reference Blockquote / artifact URL after issue-operations/platforms/local/tasks/push-artifacts.md runs. | string | grep spec-creation/tasks/create.md for the post-push reconciliation sequenced after push-artifacts.md |
+| SC-22 | spec-creation/tasks/revise.md SHALL regenerate the exec-summary remote issue body when the spec is revised. | string | grep spec-creation/tasks/revise.md for exec-summary body regeneration on revision |
 
 ## 4. Requirements
 
@@ -74,8 +78,12 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - R-10. The redundant behavioral-sc-evaluator.md SHALL be removed.
 - R-11. Evidence-type taxonomy citations SHALL point at the single canonical reference document, loaded dynamically by both validate and audit.
 - R-12. A missing evidence-type declaration SHALL be a hard FAIL routed to the remediation workflow, not a warn/default/backwards-compat tier.
-- R-13. The spec-creation analyze task SHALL BLOCK on an unbound/placeholder issue number and use remote-stub-first when a remote API is available.
+- R-13. The spec-creation analyze task SHALL BLOCK on an unbound/placeholder issue number.
 - R-14. The validate task SHALL load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml rather than hardcoding a divergent list.
+- R-18. The spec-creation create task SHALL route the remote issue body to the canonical exec-summary body format defined in issue-operations-core/tasks/creation.md Step 5 (Spec Reference Blockquote, Problem, Scope, Approach, Impact).
+- R-19. The spec-creation create task SHALL include the forward-reference Spec Reference Blockquote link in the remote issue body pointing to the issues-data branch URL.
+- R-20. The post-push reconciliation of the Spec Reference Blockquote / artifact URL SHALL be sequenced after issue-operations/platforms/local/tasks/push-artifacts.md.
+- R-21. The spec-creation revise task SHALL regenerate the exec-summary remote issue body when the spec is revised.
 - R-15. No `src/` code changes; all changes SHALL be confined to agent-facing skill/reference markdown files.
 - R-16. Behavioral SCs SHALL apply only where the change affects runtime dispatch behavior; string/structural elsewhere.
 - R-17. No bifurcated/backwards-compat paths SHALL be introduced in agent-facing instructions (anti-bifurcation mandate).
@@ -194,10 +202,10 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - verify: sub-agent read + analytical judgment
 - commit: reference/spec-structure-standards.md
 
-### Item 17 (SC-17): Issue anchoring precondition
+### Item 17 (SC-17): Analyze issue-number anchoring precondition
 
 - RED: opencode run (with-test-home) dispatches analyze with unbound/placeholder issue_number and asserts BLOCK — fails on current content
-- GREEN: Add analyze task BLOCK on unbound/placeholder issue number and remote-stub-first behavior
+- GREEN: Add analyze task BLOCK on unbound/placeholder issue number only
 - verify: behavioral test via opencode run
 - commit: spec-creation/tasks/analyze.md
 
@@ -207,6 +215,34 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - GREEN: Make validate load the 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml
 - verify: grep conformance
 - commit: spec-creation/tasks/validate.md
+
+### Item 19 (SC-19): Create routes exec-summary body format
+
+- RED: grep spec-creation/tasks/create.md asserts a reference to the canonical exec-summary body format (creation.md Step 5) — fails on current content
+- GREEN: Route create.md remote issue body to the canonical exec-summary body format (Spec Reference Blockquote, Problem, Scope, Approach, Impact)
+- verify: grep conformance
+- commit: spec-creation/tasks/create.md
+
+### Item 20 (SC-20): Create includes forward-reference blockquote
+
+- RED: grep spec-creation/tasks/create.md asserts presence of the forward-reference Spec Reference Blockquote / issues-data link — fails on current content
+- GREEN: Add the forward-reference Spec Reference Blockquote link (issues-data branch URL) to the remote issue body
+- verify: grep conformance
+- commit: spec-creation/tasks/create.md
+
+### Item 21 (SC-21): Sequence post-push reconciliation
+
+- RED: grep spec-creation/tasks/create.md asserts the post-push reconciliation sequenced after push-artifacts.md — fails on current content
+- GREEN: Sequence the post-push reconciliation of the Spec Reference Blockquote / artifact URL after issue-operations/platforms/local/tasks/push-artifacts.md
+- verify: grep conformance
+- commit: spec-creation/tasks/create.md
+
+### Item 22 (SC-22): Revise regenerates exec-summary body
+
+- RED: grep spec-creation/tasks/revise.md asserts exec-summary body regeneration — fails on current content
+- GREEN: Regenerate the exec-summary remote issue body on revision
+- verify: grep conformance
+- commit: spec-creation/tasks/revise.md
 
 ## 6. Dependencies
 
@@ -232,9 +268,13 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | R-12 | SC-16 | Phase 3 |
 | R-13 | SC-17 | Phase 1 |
 | R-14 | SC-18 | Phase 1 |
-| R-15 | SC-1..SC-18 | All |
+| R-15 | SC-1..SC-22 | All |
 | R-16 | SC-17 | Phase 1 |
-| R-17 | SC-1..SC-18 | All |
+| R-17 | SC-1..SC-22 | All |
+| R-18 | SC-19 | Phase 1 |
+| R-19 | SC-20 | Phase 1 |
+| R-20 | SC-21 | Phase 1 |
+| R-21 | SC-22 | Phase 5 |
 
 ## 8. Documentation Sources
 
@@ -278,16 +318,23 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-16: Verifying the missing-type rule costs one semantic sub-agent read. Skipping means a missing evidence-type declaration silently defaults to string and masks a defect.
 - SC-17: Running the behavioral test costs minutes of execution time. Skipping means the analyze task accepts an unbound issue number and produces a spec anchored to a placeholder — a defect that ships to the issues-data branch and costs 1000× more to fix.
 - SC-18: Verifying dynamic dimension loading costs one grep search. Skipping means validate evaluates a spec against a divergent 11-dimension set than the auditor uses.
+- SC-19: Verifying the create exec-summary body routing costs one grep search. Skipping means the remote issue body drifts from the canonical exec-summary format and stakeholders lose a consistent body contract.
+- SC-20: Verifying the forward-reference blockquote costs one grep search. Skipping means the remote issue body lacks the issues-data forward reference and consumers cannot locate the authoritative spec.
+- SC-21: Verifying the post-push reconciliation sequencing costs one grep search. Skipping means the artifact URL in the remote body is stale or unverified after push.
+- SC-22: Verifying the revise exec-summary regeneration costs one grep search. Skipping means a revised spec ships a stale remote exec-summary body that contradicts the authoritative local spec.
 
 ## 11. Edge Cases
 
 - **Condition: A role-card filename does not match any of the four role names (Investigator/Validator/Evaluator/Arbiter).** Expected behavior: the name field and `# Task:` heading are repaired to match the filename per SC-8/SC-9. Resolution: the role-split file set is fixed; no new role names are introduced.
 - **Condition: A cross-reference target file is genuinely absent (not just renamed).** Expected behavior: the reference is repointed to the actual role-split file per SC-10. Resolution: each repoint is verified against actual on-disk task files during implementation.
 - **Condition: The canonical evidence-type taxonomy location changes after consolidation.** Expected behavior: both validate and audit load it dynamically per SC-15, so no hardcoded path breaks. Resolution: dynamic loading keeps consumers in sync.
-- **Condition: An analyze dispatch receives an unbound/placeholder issue number.** Expected behavior: the analyze task BLOCKs per SC-17. Resolution: the orchestrator must provide a bound issue number or create a remote stub first.
+- **Condition: An analyze dispatch receives an unbound/placeholder issue number.** Expected behavior: the analyze task BLOCKs per SC-17. Resolution: the orchestrator must provide a bound issue number; issue-number binding happens upstream via issue-operations-core creation and create.md remote-stub-first, not in analyze.md.
 - **Condition: A spec omits an evidence-type declaration.** Expected behavior: validation is a hard FAIL routed to the remediation workflow per SC-16. Resolution: the spec is revised to declare an evidence type; no default-to-string escape hatch.
 - **Condition: A downstream skill hardcodes the deprecated dispatch string.** Expected behavior: the deprecated format is removed outright per SC-1/SC-5/SC-6 (anti-bifurcation). Resolution: downstream consumers are updated in scope; no backwards-compat path is retained.
 - **Condition: The behavioral SC-17 test cannot execute (model unavailable).** Expected behavior: the SC is reported FAIL per the functional/behavioral test substitution prohibition. Resolution: remediation-first protocol applies before any escalation.
+- **Condition: The remote issue body exec-summary format drifts from issue-operations-core creation.md Step 5.** Expected behavior: create.md routes to the canonical format per SC-19. Resolution: create.md references the canonical format rather than duplicating it.
+- **Condition: A revised spec changes the exec-summary content (Problem/Scope/Approach/Impact).** Expected behavior: revise.md regenerates the remote body per SC-22. Resolution: revision always refreshes the remote exec-summary body to match the authoritative local spec.
+- **Condition: The push-artifacts.md reconciliation has not run before the remote body is finalized.** Expected behavior: the post-push reconciliation is sequenced after push-artifacts.md per SC-21. Resolution: create.md orders the reconciliation step after the push so the forward-reference URL is accurate.
 
 ## 12. Change Control
 
@@ -299,6 +346,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-06 | Compound SCs decomposed into atomic SCs per validate.md Step 3.3. SC-3 split into SC-3 (Workflows present) + SC-4 (TDT/Invocation/Tasks absent). SC-4 split into SC-5 (canonical dispatch present) + SC-6 (deprecated DiMo strings absent). SC-6 split into SC-8 (frontmatter name matches filename) + SC-9 (`# Task:` heading matches filename). All SCs renumbered to 18; Requirements→SC mapping, traceability table, Item list (RED/GREEN), sc-summary.yaml plan_item numbering, Cost Frame, and Edge Cases references updated to remain consistent. Evidence types unchanged (string/structural; behavioral only for the issue-anchoring SC-17). | Validation finding (atomicity, compound-SC check): SC-3, SC-4, and SC-6 each bundled multiple independently verifiable claims joined by "and" (positive + negative assertions, or name-field + heading assertions). Each compound SC must be decomposed into single independently verifiable atomic SCs. | spec-creation validation pipeline |
 | 2026-08-06 | Traceability table corrected: SC-6 (deprecated DiMo strings absent — the negative counterpart of SC-5) mapped to R-1; SC-9 (`# Task:` heading matches filename — the heading counterpart of SC-8) mapped to R-4. | Validation finding (traceability): SC-6 and SC-9 were absent from the specific requirement rows (R-1..R-14) and covered only by the catch-all R-15/R-17. Each SC must map to the specific requirement it implements. | spec-creation validation pipeline |
 | 2026-08-06 | Evidence types for SC-7 and SC-16 corrected from `string` to `semantic`. Verification methods rewritten to specify sub-agent read + analytical judgment. sc-summary.yaml, Items 7 and 16, and Cost Frame SC-7/SC-16 updated to stay consistent. | Validation finding (EVIDENCE_TYPE_MISMATCH): SC-7 and SC-16 declared evidence type `string` but their verification methods are "read the file and verify format/rule via analytical judgment" — which is `semantic` (sub-agent read + judgment), not `string` (grep/pattern match) per the taxonomy. Option (a) applied: evidence type corrected to match the actual verification method. | spec-creation validation pipeline |
+| 2026-08-09 | Re-scoped SC-17 to analyze.md-only (BLOCK on unbound issue number). Removed remote-stub-first from SC-17, R-13, Item 17, and the SC-17 edge case: issue-number binding is handled upstream by issue-operations-core creation and create.md, not analyze.md. Added SC-19 (create routes exec-summary body format per creation.md Step 5), SC-20 (create includes forward-reference blockquote / issues-data link), SC-21 (post-push reconciliation sequenced after push-artifacts.md), SC-22 (revise regenerates exec-summary body). Added R-18..R-21, Items 19-22, Cost Frame SC-19..SC-22, and edge cases. Updated Traceability (R-18..R-21; catch-all R-15/R-17 now SC-1..SC-22), sc-summary.yaml plan_item numbering to 22. | Revision request: SC-17 bundled two distinct concerns across two task files (analyze.md BLOCK on unbound issue number, and create.md remote-stub-first + exec-summary remote body). These must be split because remote-stub-first is not analyze.md's job — the issue number is bound upstream by issue-operations-core creation (runs before analyze.md). The exec-summary body format already exists in issue-operations-core/tasks/creation.md Step 5. The post-push reconciliation is sequenced after issue-operations/platforms/local/tasks/push-artifacts.md. | developer (revision request) |
 
 ---
 
