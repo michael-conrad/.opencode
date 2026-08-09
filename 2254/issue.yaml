@@ -2,8 +2,8 @@ labels:
 - needs-approval
 github_url: https://github.com/michael-conrad/.opencode/issues/2254
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
-updated_at: '2026-08-09T21:36:13+00:00'
-body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2254/)**
+updated_at: '2026-08-09T21:43:18+00:00'
+body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.opencode/.issues/2254/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
 
@@ -41,6 +41,14 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   task cards, no broken cross-references, no deprecated dispatch strings.
 
 
+  A further revision adds the dependency prerequisite: the two reference docs that
+  define these formats — skill-card-description-standards.md §7 (Workflows) and task-card-structure-standards.md
+  (Procedure) — still define the OLD plain numbered-list format, so they must be updated
+  to the new numbered-checkbox format (with the execution-mode indicator, the clean-room
+  unit mandate, and the dispatch-contract completeness requirement) BEFORE the skill
+  cards can conform and BEFORE the linter can enforce it.
+
+
   ## Scope
 
 
@@ -57,6 +65,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
   - Convert task card Procedure sections to numbered checkbox lists; split fat task
   cards whose procedures would require internal sub-agent dispatch
+
+
+  - Update the two reference docs that define these formats — skill-card-description-standards.md
+  §7 (Workflows) and task-card-structure-standards.md (Procedure) — to the numbered-checkbox
+  format with the execution-mode indicator, the clean-room unit mandate, and the dispatch-contract
+  completeness requirement
 
 
   - Verify dispatch-contract completeness so every workflow Context sub-bullet supplies
@@ -109,15 +123,18 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   redundant behavioral-sc-evaluator.md. Make a missing evidence-type declaration a
   hard FAIL. For the expanded scope: convert both Workflows sections to numbered-checkbox
   format with execution-mode sub-bullets, convert task card Procedures to numbered-checkbox
-  format and split fat task cards, verify dispatch-contract completeness, extend the
-  skildeck linter to enforce the new format rules, verify markdown links, and make
-  workflows explicitly orchestrator step-by-step. For the functional end-to-end scope:
-  add behavioral SCs that run the remediated spec-creation pipeline (analyze → create
-  → validate) and the audit DiMo 4-role chain (investigator → validator → evaluator
-  → arbiter) end-to-end against a fixture in a shared test home with a test gitbucket
-  instance, asserting correct output. Evidence types: linter changes and the functional
-  end-to-end tests are behavioral; format checks are string; task-card clean-room
-  and dispatch-contract completeness are semantic.
+  format and split fat task cards, update the two reference docs (skill-card-description-standards.md
+  §7, task-card-structure-standards.md) to the new numbered-checkbox format with the
+  execution-mode indicator, the clean-room unit mandate, and the dispatch-contract
+  completeness requirement, verify dispatch-contract completeness, extend the skildeck
+  linter to enforce the new format rules, verify markdown links, and make workflows
+  explicitly orchestrator step-by-step. For the functional end-to-end scope: add behavioral
+  SCs that run the remediated spec-creation pipeline (analyze → create → validate)
+  and the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter)
+  end-to-end against a fixture in a shared test home with a test gitbucket instance,
+  asserting correct output. Evidence types: linter changes and the functional end-to-end
+  tests are behavioral; format checks (including the reference-doc updates SC-34,
+  SC-35) are string; task-card clean-room and dispatch-contract completeness are semantic.
 
 
   ## Impact
@@ -138,19 +155,26 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   (SC-28)
 
 
+  - **Reference docs keep defining the old format** — mitigated by SC-34/SC-35 updating
+  skill-card-description-standards.md §7 and task-card-structure-standards.md to the
+  new numbered-checkbox format before the skill cards and linter conform
+
+
   - **Remediated skills well-formed but not proven to work** — mitigated by functional
   end-to-end behavioral tests (SC-31, SC-32) running the spec-creation pipeline and
   audit DiMo chain against a fixture in a shared test home with a test gitbucket instance
 
 
-  **Key dependencies:** `.opencode/reference/` consolidated standards, DiMo 4-role
-  audit dispatch, skill-card-description-standards.md §7, task-card-structure-standards.md,
-  the skildeck linter, and the `with-test-home` + GitBucket test infrastructure.
+  **Key dependencies:** `.opencode/reference/` consolidated standards (now remediation
+  targets in scope for the format update), DiMo 4-role audit dispatch, skill-card-description-standards.md
+  §7, task-card-structure-standards.md, the skildeck linter, and the `with-test-home`
+  + GitBucket test infrastructure.
 
 
   **Call to action:** Review and approve the expanded spec for total remediation of
   the spec-writer and spec-auditor skills plus the consolidated reference standards,
-  including functional end-to-end verification of the remediated skills.
+  including the reference-doc format updates and functional end-to-end verification
+  of the remediated skills.
 
 
   ---
@@ -158,7 +182,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
   <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 
+
   <!-- SPDX-License-Identifier: MIT -->
+
 
   <!-- Provenance: AI-generated -->
 
