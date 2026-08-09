@@ -10,11 +10,15 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 A subsequent brainstorming session expanded the remediation scope beyond drift repair to a total remediation of the spec-writer and spec-auditor skills plus the consolidated `.opencode/reference/` standards. The expanded scope adds six new requirement areas: (1) a canonical numbered-checkbox Workflows format for both main skill cards with explicit execution-mode sub-bullets; (2) a numbered-checkbox task-card Procedure format designed for non-task-capable sub-agents, requiring fat task cards to be split; (3) dispatch-contract completeness so every workflow Context sub-bullet supplies every parameter a task card needs; (4) linter enforcement of the new format rules via the skildeck linter; (5) markdown link verification across the two skills and reference docs; and (6) workflow clarity so the orchestrator knows step-by-step what to do and whether each step is inline or dispatched.
 
+A further revision adds functional end-to-end verification. The drift-repair and format SCs (SC-1..SC-30) prove the remediated cards are well-formed on disk, but they do not prove the remediated skills actually work when dispatched. The goal is a working set of spec skills. New behavioral SCs (SC-31..SC-33) run the remediated spec-creation pipeline and the audit DiMo 4-role chain end-to-end against a fixture in a shared test home with a test gitbucket instance, asserting correct output — no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings. These tests build incrementally: later tests reuse the state created by earlier ones in the same shared test home.
+
 ### Root Cause / Motivation
 
 Both skill sets retain content from before several migrations: the flat-architecture refactor, the DiMo 4-role audit dispatch, the Workflows-section format, and the consolidated `.opencode/reference/` location. Because agent-facing text is consumed as routing instructions, each drift is a defect vector — an agent that follows a deprecated dispatch string, a dangling cross-reference, or a divergent dimension list produces defective work that must be re-done. The drifts must be resolved now because they compound: every spec created or audited through the drifted cards inherits the defect.
 
 The expanded requirements address a second class of defect: format and contract gaps that are not drift but absence. The main skill cards do not use a numbered-checkbox Workflows format with execution-mode sub-bullets, so the orchestrator cannot tell at a glance whether a step is inline or dispatched. Task cards are not uniformly formatted as numbered checkbox lists and some fat task cards would require internal sub-agent dispatch — which sub-agents cannot perform because `task: deny` is hardcoded. Workflow Context sub-bullets do not reliably supply every parameter a task card's Dispatch Contract and Entry Criteria require, so a dispatched sub-agent searches for, guesses, or fabricates missing parameters. The skildeck linter does not enforce any of these format rules, so the defects recur silently. Markdown links are not verified to resolve to real targets with correct relative paths and the `Read [Text](path)` wording.
+
+The functional end-to-end requirement addresses a third class of defect: well-formedness without proof of function. A card set can be internally consistent and still fail when dispatched — a workflow that routes to the wrong task, a task card that is missing, a cross-reference that resolves to a file that does not exist, or a dispatch string the reference docs forbid. Only running the remediated skills end-to-end against a fixture proves they work. The shared test home with a test gitbucket instance provides the isolation and the remote API needed to run these pipelines for real.
 
 ### Approach Chosen
 
@@ -22,12 +26,16 @@ Apply exactly ONE prescriptive resolution per finding, each mapped one-to-one to
 
 For the expanded scope: convert both main skill card Workflows sections to numbered checkbox lists with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch). Convert task card Procedure sections to numbered checkbox lists and split any fat task card whose procedure would require internal sub-agent dispatch into multiple task cards, adjusting the SKILL.md workflow to dispatch each split task card as a separate step. Verify dispatch-contract completeness so every workflow Context sub-bullet supplies every parameter in the task card's Dispatch Contract and Entry Criteria. Extend the skildeck linter to enforce the new format rules. Verify all markdown links in the two skills and reference docs resolve to real targets with correct relative paths and the `Read [Text](path)` wording. Make the workflows explicitly orchestrator step-by-step with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit.
 
+For the functional end-to-end scope: add behavioral SCs that run the remediated skills end-to-end. SC-31 dispatches the full spec-creation pipeline (analyze → create → validate) against a fixture problem in the shared test home and asserts a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings. SC-32 dispatches the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) against a fixture spec in the shared test home and asserts a valid verdict with each role dispatching to the correct split task card with a complete dispatch contract. SC-33 requires the spec-creation and audit behavioral tests to share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion. All three use the shared `with-test-home` infrastructure with the gitbucket instance.
+
 ### Alternatives Considered & Why Discarded
 
 - **Leave the drifts in place and rely on agent judgment to route correctly.** Discarded: agent-facing text is consumed as routing instructions, not advisory prose. An agent cannot reliably compensate for a deprecated dispatch string or a dangling cross-reference; the drift is a guaranteed defect vector, not a cosmetic inconsistency.
 - **Introduce backwards-compatible dual paths (accept both old and new formats).** Discarded: the anti-bifurcation mandate forbids dual-format agent-facing instructions. A backwards-compat path leaves the deprecated format live, so agents continue to follow it and the defect persists.
 - **Document the new format rules in reference docs only, without linter enforcement.** Discarded: documentation without enforcement is decoration. The format rules must be enforced by the skildeck linter so the defects cannot recur silently. This is why the linter extension is in scope.
 - **Keep fat task cards and rely on the sub-agent to "do the work" despite `task: deny`.** Discarded: sub-agents have `task: deny` hardcoded and cannot call `skill()`. A task card whose procedure requires internal sub-agent dispatch is unexecutable by its consumer. Fat task cards must be split into multiple task cards dispatched as separate workflow steps.
+- **Verify the remediated skills only by static well-formedness checks (grep, link resolution, structural validation).** Discarded: static checks prove the cards are well-formed on disk, not that they work when dispatched. A workflow can be internally consistent and still mis-route, reference a missing task card, or use a deprecated dispatch string. Only running the remediated skills end-to-end against a fixture proves they work. This is why the functional behavioral SCs (SC-31..SC-33) are in scope.
+- **Run each behavioral test in a fresh, isolated test home with no shared state.** Discarded: the functional tests build incrementally — later tests reuse the state created by earlier ones (the spec created by SC-31 is the fixture audited by SC-32). A shared test home with a test project and test gitbucket instance provides the isolation and the remote API needed for this incremental build-up. This is why SC-33 mandates the shared test home.
 
 ### Key Design Decisions
 
@@ -37,16 +45,18 @@ For the expanded scope: convert both main skill card Workflows sections to numbe
 - **Numbered-checkbox Workflows format with execution-mode sub-bullets** for both main skill cards. Tradeoff: the format is more verbose than a plain numbered list, but the execution-mode sub-bullet makes the inline-vs-dispatch decision explicit and the numbered checkbox list is the canonical checklist format the reference docs already mandate for pipeline gates.
 - **Task-card clean-room unit** — task cards are designed for non-task-capable sub-agents; any procedure requiring internal dispatch is split. Tradeoff: splitting fat task cards increases the number of task cards and workflow steps, but guarantees each task card is executable by its consumer.
 - **Linter enforcement of the format rules** via the skildeck linter. Tradeoff: extending the linter changes runtime behavior and requires behavioral evidence, but is the only way to prevent silent recurrence of the format defects.
+- **Functional end-to-end behavioral verification** of the remediated skills. Tradeoff: running the full spec-creation pipeline and the audit DiMo chain end-to-end costs minutes of execution time per test, but is the only way to prove the remediated skills actually work when dispatched — not just that they are well-formed. This is the difference between a working set of spec skills and a well-formed set of spec cards.
+- **Shared test home with a test project and test gitbucket instance** for the functional behavioral tests. Tradeoff: sharing state between tests couples them (later tests depend on earlier ones), but enables incremental build-up where the spec created by SC-31 becomes the fixture audited by SC-32, and provides the remote API needed for remote-stub/issue-creation tests. The `with-test-home` infrastructure and the `BEHAVIOR_NEEDS_REMOTE` gitbucket provisioning already provide this shared, isolated environment.
 
 ### User Intent / Original Prompt
 
-A history-grounded read-only audit of the spec-writer and spec-audit skill card sets and the consolidated reference standards, identifying internal-consistency drifts and prescribing one resolution per finding. Expanded by a brainstorming session into a total remediation of the spec-writer (spec-creation) and spec-auditor (audit) skills plus the consolidated `.opencode/reference/` standards, incorporating the six new requirement areas (workflow format, task-card format, dispatch-contract completeness, linter enforcement, markdown link verification, workflow clarity).
+A history-grounded read-only audit of the spec-writer and spec-audit skill card sets and the consolidated reference standards, identifying internal-consistency drifts and prescribing one resolution per finding. Expanded by a brainstorming session into a total remediation of the spec-writer (spec-creation) and spec-auditor (audit) skills plus the consolidated `.opencode/reference/` standards, incorporating the six new requirement areas (workflow format, task-card format, dispatch-contract completeness, linter enforcement, markdown link verification, workflow clarity). Further expanded by a revision request to add mandatory functional behavioral SCs that run the remediated skills end-to-end against a fixture in a shared test home with a test gitbucket instance, proving the skills work — not just that they are well-formed.
 
 ## 2. Not Included
 
 - **Application `src/` code changes** — All affected files are agent-facing markdown in `.opencode/` plus the skildeck linter under `.opencode/tools/impl/skildeck/`; no application `src/` runtime code changes.
 - **Non-agent-facing documentation** — Changes confined to skill cards, task cards, reference standards, and the skildeck linter consumed by agents.
-- **Behavioral test suite changes beyond what the SCs require** — The behavioral SCs (issue anchoring, linter enforcement) require their own behavioral tests; no other test-suite changes are in scope.
+- **Behavioral test suite changes beyond what the SCs require** — The behavioral SCs (issue anchoring, linter enforcement, functional end-to-end spec-creation and audit) require their own behavioral tests; no other test-suite changes are in scope.
 - **Other skills' Workflows/task-card formats** — The numbered-checkbox format and clean-room split apply to the two main skill cards (spec-creation, audit) and their task cards in scope; other skills are not reformatted in this spec.
 
 ## 3. Success Criteria
@@ -83,6 +93,9 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | SC-28 | The skildeck linter (.opencode/tools/impl/skildeck/) SHALL be extended to enforce the new format rules: numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness. | behavioral | opencode run (with-test-home): run skildeck lint against a fixture violating each new rule and assert the linter flags it |
 | SC-29 | All markdown links in spec-creation/SKILL.md, audit/SKILL.md, and the reference docs SHALL resolve to real targets, use correct relative paths, and be worded per the `Read [Text](path)` cross-reference pattern. | string | verify all markdown links in the two skills and reference docs resolve and follow the `Read [Text](path)` pattern |
 | SC-30 | The workflows in spec-creation/SKILL.md and audit/SKILL.md SHALL clearly indicate they are for the orchestrator to follow step-by-step, with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit. | string | grep the two SKILL.md files for orchestrator-step framing and execution-mode sub-bullets |
+| SC-31 | Dispatching the full spec-creation pipeline (analyze → create → validate) against a fixture problem in the shared test home SHALL produce a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings. | behavioral | opencode run (with-test-home): dispatch the remediated spec-creation pipeline end-to-end against the test gitbucket instance and assert correct output |
+| SC-32 | Dispatching the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) against a fixture spec in the shared test home SHALL produce a valid verdict, with each role dispatching to the correct split task card with a complete dispatch contract. | behavioral | opencode run (with-test-home): dispatch the remediated audit chain end-to-end and assert correct output |
+| SC-33 | The spec-creation and audit behavioral tests SHALL share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion. | behavioral | verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance |
 
 ## 4. Requirements
 
@@ -113,6 +126,9 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - R-25. The skildeck linter (.opencode/tools/impl/skildeck/) SHALL be extended to enforce the new format rules: numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness.
 - R-26. All markdown links in the two skills and reference docs SHALL be correct: resolve to real targets, use correct relative paths, and be worded per the `Read [Text](path)` cross-reference pattern.
 - R-27. The workflows in the main skill cards SHALL clearly indicate they are for the orchestrator to follow step-by-step, with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit.
+- R-28. The spec-creation behavioral test SHALL dispatch the full spec-creation pipeline (analyze → create → validate) end-to-end against a fixture problem in the shared test home and assert correct output (a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings).
+- R-29. The audit behavioral test SHALL dispatch the DiMo 4-role chain (investigator → validator → evaluator → arbiter) end-to-end against a fixture spec in the shared test home and assert a valid verdict with each role dispatching to the correct split task card with a complete dispatch contract.
+- R-30. The spec-creation and audit behavioral tests SHALL share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion.
 
 ## 5. Items
 
@@ -326,6 +342,27 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - verify: grep conformance
 - commit: spec-creation/SKILL.md, audit/SKILL.md
 
+### Item 31 (SC-31): Functional end-to-end spec-creation pipeline
+
+- RED: opencode run (with-test-home) dispatches the remediated spec-creation pipeline (analyze → create → validate) end-to-end against a fixture problem in the shared test home and asserts correct output — fails on current content (the pipeline mis-routes, references missing task cards, or uses deprecated dispatch strings)
+- GREEN: Ensure the remediated spec-creation pipeline dispatches end-to-end against the test gitbucket instance and produces a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings
+- verify: behavioral test via opencode run (with-test-home) against the test gitbucket instance
+- commit: spec-creation/SKILL.md, spec-creation/tasks, behavioral test script
+
+### Item 32 (SC-32): Functional end-to-end audit DiMo chain
+
+- RED: opencode run (with-test-home) dispatches the remediated audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) end-to-end against a fixture spec in the shared test home and asserts correct output — fails on current content (roles mis-route, dispatch to missing task cards, or carry incomplete dispatch contracts)
+- GREEN: Ensure the remediated audit chain dispatches end-to-end and produces a valid verdict, with each role dispatching to the correct split task card with a complete dispatch contract
+- verify: behavioral test via opencode run (with-test-home)
+- commit: audit/SKILL.md, audit/tasks, behavioral test script
+
+### Item 33 (SC-33): Shared test home with gitbucket instance
+
+- RED: verify the spec-creation and audit behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance, sequenced incrementally — fails on current content (no shared test home / gitbucket instance)
+- GREEN: Ensure the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion
+- verify: behavioral test setup check (shared with-test-home infrastructure with the gitbucket instance)
+- commit: behavioral test scripts, fixtures
+
 ## 6. Dependencies
 
 - **Reference: `.opencode/reference/` consolidated standards** — Relationship: the canonical evidence-type taxonomy and holistic-dimensions.yaml must be resolved before the dynamic-loading SCs (SC-15, SC-18) can be verified. Status: satisfied (files exist on disk).
@@ -333,6 +370,7 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - **Reference: skill-card-description-standards.md §7** — Relationship: defines the Workflows-only structure and canonical description format that SC-3 and SC-7 conform to. Status: satisfied.
 - **Reference: task-card-structure-standards.md** — Relationship: defines the task-card clean-room unit (no internal dispatch) and numbered Procedure format that SC-25 and SC-26 conform to. Status: satisfied.
 - **Tool: skildeck linter (`.opencode/tools/impl/skildeck/`)** — Relationship: the linter must be extended to enforce the new format rules (SC-28). Status: satisfied (linter exists on disk).
+- **Infrastructure: `with-test-home` + GitBucket instance** — Relationship: the functional behavioral SCs (SC-31, SC-32, SC-33) depend on the shared test home with a test project and the test gitbucket instance provisioned by `BEHAVIOR_NEEDS_REMOTE`. Status: satisfied (`.opencode/tests-v2/with-test-home` and `__ensure_gitbucket` in `behaviors/helpers.sh` exist).
 
 ## 7. Traceability
 
@@ -352,9 +390,9 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | R-12 | SC-16 | Phase 3 |
 | R-13 | SC-17 | Phase 1 |
 | R-14 | SC-18 | Phase 1 |
-| R-15 | SC-1..SC-30 | All |
-| R-16 | SC-17, SC-28 | Phase 1, Phase 6 |
-| R-17 | SC-1..SC-30 | All |
+| R-15 | SC-1..SC-33 | All |
+| R-16 | SC-17, SC-28, SC-31, SC-32, SC-33 | Phase 1, Phase 6, Phase 7 |
+| R-17 | SC-1..SC-33 | All |
 | R-18 | SC-19 | Phase 1 |
 | R-19 | SC-20 | Phase 1 |
 | R-20 | SC-21 | Phase 1 |
@@ -365,6 +403,9 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | R-25 | SC-28 | Phase 6 |
 | R-26 | SC-29 | Phase 6 |
 | R-27 | SC-30 | Phase 6 |
+| R-28 | SC-31 | Phase 7 |
+| R-29 | SC-32 | Phase 7 |
+| R-30 | SC-33 | Phase 7 |
 
 ## 8. Documentation Sources
 
@@ -382,6 +423,8 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | reference/task-card-structure-standards.md | doc | `.opencode/reference/task-card-structure-standards.md` | read during analysis |
 | reference/cost-model-standards.md | doc | `.opencode/reference/cost-model-standards.md` | read during analysis |
 | skildeck linter | code | `.opencode/tools/impl/skildeck/` | read during analysis |
+| with-test-home | infra | `.opencode/tests-v2/with-test-home` | read during analysis |
+| behaviors/helpers.sh | infra | `.opencode/tests-v2/behaviors/helpers.sh` | read during analysis |
 
 ## 9. Enforcement Gate
 
@@ -421,6 +464,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-28: Running the linter behavioral test costs minutes of execution time. Skipping means the format rules are documented but not enforced, so the defects recur silently on every future skill-card edit.
 - SC-29: Verifying markdown links costs a link-resolution check. Skipping means dangling links and misworded cross-references persist, and agents fail to load referenced content.
 - SC-30: Verifying workflow clarity costs one grep search. Skipping means the orchestrator cannot tell whether a step is inline or dispatched, and the inline-vs-dispatch decision is left to guesswork.
+- SC-31: Running the functional spec-creation pipeline behavioral test costs minutes of execution time. Skipping means the remediated spec-creation pipeline is never proven to work end-to-end — a mis-routing, a missing task card, a broken cross-reference, or a deprecated dispatch string ships undetected and every spec created through the pipeline inherits the defect.
+- SC-32: Running the functional audit DiMo chain behavioral test costs minutes of execution time. Skipping means the remediated audit chain is never proven to work end-to-end — a role mis-routing to a missing task card or carrying an incomplete dispatch contract ships undetected and every audit verdict inherits the defect.
+- SC-33: Verifying the shared test home with the gitbucket instance costs a behavioral test setup check. Skipping means the functional tests run in isolation without shared state, so the incremental build-up (the spec created by SC-31 becomes the fixture audited by SC-32) is lost and the remote API for remote-stub/issue-creation tests is unavailable.
 
 ## 11. Edge Cases
 
@@ -439,6 +485,10 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition: The skildeck linter flags a format violation in a skill card.** Expected behavior: the linter enforces the new format rules per SC-28. Resolution: the violation is fixed before the skill card is accepted; the linter prevents silent recurrence.
 - **Condition: A markdown link in a skill or reference doc resolves to a non-existent target or uses a wrong relative path.** Expected behavior: the link is corrected to resolve to a real target with the correct relative path and `Read [Text](path)` wording per SC-29. Resolution: all links are verified during implementation.
 - **Condition: A workflow step is ambiguous about whether it is inline or dispatched.** Expected behavior: the execution-mode sub-bullet makes the inline-vs-dispatch decision explicit per SC-30. Resolution: every workflow step carries an execution-mode indicator.
+- **Condition: The functional spec-creation pipeline (SC-31) mis-routes, references a missing task card, or uses a deprecated dispatch string when dispatched end-to-end.** Expected behavior: the behavioral test asserts correct output and FAILs on any of these defects. Resolution: the drift-repair and format SCs (SC-1..SC-30) are implemented first; SC-31 verifies the remediated pipeline works end-to-end.
+- **Condition: The functional audit DiMo chain (SC-32) mis-routes a role to a missing task card or carries an incomplete dispatch contract.** Expected behavior: the behavioral test asserts a valid verdict and FAILs on any of these defects. Resolution: the role-card and dispatch-contract SCs (SC-8, SC-9, SC-26, SC-27) are implemented first; SC-32 verifies the remediated chain works end-to-end.
+- **Condition: The spec-creation and audit behavioral tests do not share a common test home with a test project and test gitbucket instance.** Expected behavior: SC-33 requires the shared with-test-home infrastructure with the gitbucket instance. Resolution: the tests are sequenced so later tests build upon the state created by earlier tests in an incremental fashion; the gitbucket instance provides the remote API for remote-stub/issue-creation tests.
+- **Condition: The functional behavioral tests (SC-31, SC-32) cannot execute (model unavailable, gitbucket provisioning failure).** Expected behavior: the SCs are reported FAIL per the functional/behavioral test substitution prohibition. Resolution: remediation-first protocol applies before any escalation.
 
 ## 12. Change Control
 
@@ -452,6 +502,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-06 | Evidence types for SC-7 and SC-16 corrected from `string` to `semantic`. Verification methods rewritten to specify sub-agent read + analytical judgment. sc-summary.yaml, Items 7 and 16, and Cost Frame SC-7/SC-16 updated to stay consistent. | Validation finding (EVIDENCE_TYPE_MISMATCH): SC-7 and SC-16 declared evidence type `string` but their verification methods are "read the file and verify format/rule via analytical judgment" — which is `semantic` (sub-agent read + judgment), not `string` (grep/pattern match) per the taxonomy. Option (a) applied: evidence type corrected to match the actual verification method. | spec-creation validation pipeline |
 | 2026-08-09 | Re-scoped SC-17 to analyze.md-only (BLOCK on unbound issue number). Removed remote-stub-first from SC-17, R-13, Item 17, and the SC-17 edge case: issue-number binding is handled upstream by issue-operations-core creation and create.md, not analyze.md. Added SC-19 (create routes exec-summary body format per creation.md Step 5), SC-20 (create includes forward-reference blockquote / issues-data link), SC-21 (post-push reconciliation sequenced after push-artifacts.md), SC-22 (revise regenerates exec-summary body). Added R-18..R-21, Items 19-22, Cost Frame SC-19..SC-22, and edge cases. Updated Traceability (R-18..R-21; catch-all R-15/R-17 now SC-1..SC-22), sc-summary.yaml plan_item numbering to 22. | Revision request: SC-17 bundled two distinct concerns across two task files (analyze.md BLOCK on unbound issue number, and create.md remote-stub-first + exec-summary remote body). These must be split because remote-stub-first is not analyze.md's job — the issue number is bound upstream by issue-operations-core creation (runs before analyze.md). The exec-summary body format already exists in issue-operations-core/tasks/creation.md Step 5. The post-push reconciliation is sequenced after issue-operations/platforms/local/tasks/push-artifacts.md. | developer (revision request) |
 | 2026-08-09 | Expanded the spec scope to total remediation of the spec-writer (spec-creation) and spec-auditor (audit) skills plus the consolidated `.opencode/reference/` standards. Added SC-23..SC-30, R-22..R-27, Items 23-30, Cost Frame SC-23..SC-30, and edge cases. Re-scoped R-15 to permit `.opencode/tools/impl/skildeck/` changes while still excluding application `src/` code. Updated Problem Statement, Approach Chosen, Key Design Decisions, Not Included, Dependencies, Traceability (R-22..R-27; catch-all R-15/R-17 now SC-1..SC-30), and sc-summary.yaml plan_item numbering to 30. Evidence types: linter changes (SC-28) are behavioral; format checks (SC-23, SC-24, SC-25, SC-29, SC-30) are string; task-card clean-room (SC-26) and dispatch-contract completeness (SC-27) are semantic. | Revision request (brainstorming session): incorporate six new requirement areas — (1) numbered-checkbox Workflows format with execution-mode sub-bullets for both main skill cards; (2) numbered-checkbox task-card Procedure format designed for non-task-capable sub-agents, with fat task cards split; (3) dispatch-contract completeness so every workflow Context sub-bullet supplies every parameter a task card needs; (4) linter enforcement of the new format rules via the skildeck linter; (5) markdown link verification across the two skills and reference docs; (6) workflow clarity so the orchestrator knows step-by-step what to do and whether each step is inline or dispatched. | developer (revision request) |
+| 2026-08-09 | Added mandatory functional behavioral SCs SC-31..SC-33, R-28..R-30, Items 31-33, Cost Frame SC-31..SC-33, and edge cases. Updated Problem Statement (functional end-to-end verification paragraph), Approach Chosen, Key Design Decisions, Not Included, Dependencies (with-test-home + GitBucket instance), Traceability (R-28..R-30; catch-all R-15/R-17 now SC-1..SC-33; R-16 extended to SC-31..SC-33), and sc-summary.yaml plan_item numbering to 33. Evidence types: all three new SCs are behavioral. | Revision request: the current spec has only two narrow behavioral SCs (SC-17 analyze BLOCK on unbound issue number, SC-28 skildeck linter enforcement). The spec lacks behavioral SCs that run the remediated skills end-to-end to prove they actually work — not just that they are well-formed. The goal is a working set of spec skills. Add functional behavioral SCs for spec-creation and audit that run the remediated skills end-to-end against a fixture and assert correct output (no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings). The behavioral tests SHALL use a common test home with a test project and a test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion. | developer (revision request) |
 
 ---
 

@@ -1,4 +1,4 @@
-sc_count: 30
+sc_count: 33
 scs:
   - id: "SC-1"
     description: "spec-creation/SKILL.md uses canonical dispatch prompt format, zero deprecated execute X from Y strings"
@@ -120,3 +120,15 @@ scs:
     description: "workflows in the two main skill cards clearly indicate orchestrator step-by-step execution with explicit execution-mode sub-bullets"
     evidence_type: "string"
     plan_item: 30
+  - id: "SC-31"
+    description: "dispatching the full spec-creation pipeline (analyze → create → validate) against a fixture problem in the shared test home produces a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings"
+    evidence_type: "behavioral"
+    plan_item: 31
+  - id: "SC-32"
+    description: "dispatching the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) against a fixture spec in the shared test home produces a valid verdict, with each role dispatching to the correct split task card with a complete dispatch contract"
+    evidence_type: "behavioral"
+    plan_item: 32
+  - id: "SC-33"
+    description: "the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion"
+    evidence_type: "behavioral"
+    plan_item: 33

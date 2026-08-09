@@ -2,7 +2,7 @@ labels:
 - needs-approval
 github_url: https://github.com/michael-conrad/.opencode/issues/2254
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
-updated_at: '2026-08-09T19:05:11+00:00'
+updated_at: '2026-08-09T21:36:13+00:00'
 body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2254/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -32,41 +32,66 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   through the drifted cards inherits the defect.
 
 
+  A further revision adds mandatory functional end-to-end verification. The drift-repair
+  and format SCs prove the remediated cards are well-formed on disk, but they do not
+  prove the remediated skills actually work when dispatched. The goal is a working
+  set of spec skills. New behavioral SCs run the remediated spec-creation pipeline
+  and the audit DiMo 4-role chain end-to-end against a fixture in a shared test home
+  with a test gitbucket instance, asserting correct output — no mis-routing, no missing
+  task cards, no broken cross-references, no deprecated dispatch strings.
+
+
   ## Scope
 
 
   **In scope:**
 
+
   - Repair all internal-consistency drifts in `spec-creation` and `audit` skill cards
   and the consolidated `.opencode/reference/` standards
+
 
   - Convert both main skill card Workflows sections to numbered checkbox lists with
   sub-bullets for prompt string, parameters/context, and execution-mode indicator
 
+
   - Convert task card Procedure sections to numbered checkbox lists; split fat task
   cards whose procedures would require internal sub-agent dispatch
+
 
   - Verify dispatch-contract completeness so every workflow Context sub-bullet supplies
   every parameter a task card needs
 
+
   - Extend the skildeck linter (`.opencode/tools/impl/skildeck/`) to enforce the new
   format rules
 
+
   - Verify all markdown links in the two skills and reference docs resolve to real
   targets with correct relative paths and `Read [Text](path)` wording
+
 
   - Make workflows explicitly orchestrator step-by-step with explicit inline-vs-dispatch
   decisions
 
 
+  - Add functional behavioral SCs that run the remediated spec-creation pipeline and
+  audit DiMo 4-role chain end-to-end against a fixture in a shared test home with
+  a test gitbucket instance, proving the skills work
+
+
   **Out of scope:**
+
 
   - Application `src/` code changes (excluded; only agent-facing markdown and the
   skildeck linter are in scope)
 
+
   - Non-agent-facing documentation
 
+
   - Behavioral test suite changes beyond what the SCs require
+
 
   - Reformatting other skills'' Workflows/task-card formats
 
@@ -86,9 +111,13 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   format with execution-mode sub-bullets, convert task card Procedures to numbered-checkbox
   format and split fat task cards, verify dispatch-contract completeness, extend the
   skildeck linter to enforce the new format rules, verify markdown links, and make
-  workflows explicitly orchestrator step-by-step. Evidence types: linter changes are
-  behavioral; format checks are string; task-card clean-room and dispatch-contract
-  completeness are semantic.
+  workflows explicitly orchestrator step-by-step. For the functional end-to-end scope:
+  add behavioral SCs that run the remediated spec-creation pipeline (analyze → create
+  → validate) and the audit DiMo 4-role chain (investigator → validator → evaluator
+  → arbiter) end-to-end against a fixture in a shared test home with a test gitbucket
+  instance, asserting correct output. Evidence types: linter changes and the functional
+  end-to-end tests are behavioral; format checks are string; task-card clean-room
+  and dispatch-contract completeness are semantic.
 
 
   ## Impact
@@ -96,23 +125,32 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
   **Top risks:**
 
+
   - **Linter extension changes runtime behavior** — mitigated by behavioral evidence
   (opencode run against a violating fixture)
 
+
   - **Fat task cards remain unexecutable by sub-agents** — mitigated by the clean-room
   split (SC-26) and dispatch-contract completeness (SC-27)
+
 
   - **Format rules documented but not enforced** — mitigated by skildeck linter enforcement
   (SC-28)
 
 
+  - **Remediated skills well-formed but not proven to work** — mitigated by functional
+  end-to-end behavioral tests (SC-31, SC-32) running the spec-creation pipeline and
+  audit DiMo chain against a fixture in a shared test home with a test gitbucket instance
+
+
   **Key dependencies:** `.opencode/reference/` consolidated standards, DiMo 4-role
   audit dispatch, skill-card-description-standards.md §7, task-card-structure-standards.md,
-  and the skildeck linter.
+  the skildeck linter, and the `with-test-home` + GitBucket test infrastructure.
 
 
   **Call to action:** Review and approve the expanded spec for total remediation of
-  the spec-writer and spec-auditor skills plus the consolidated reference standards.
+  the spec-writer and spec-auditor skills plus the consolidated reference standards,
+  including functional end-to-end verification of the remediated skills.
 
 
   ---
