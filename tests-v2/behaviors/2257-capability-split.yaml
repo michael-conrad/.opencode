@@ -1,0 +1,10 @@
+# Capability split: issue-level vs repo-level label operations
+# Synthesized from verified empirical results (SC-2 + SC-3) against a live
+# self-contained GitBucket instance provisioned via __ensure_gitbucket.
+#
+# SC-2 (issue-level label mutation): POST/PUT/DELETE on
+#   /repos/{owner}/{repo}/issues/{number}/labels apply labels with
+#   `gb issue view` readback evidence.
+# SC-3 (repo-level label CRUD): gb label list/create/view/edit/delete all succeed.
+issue_level_label_mutation: WORKING
+repo_level_label_crud: WORKING

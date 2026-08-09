@@ -112,16 +112,22 @@ gb issue create -t "Test" -R org/project
 # Error: 422 Unprocessable Entity - Check request body format
 ```
 
-## Label Operations (Labels Can ONLY Be Set During Creation)
+## Label Operations (Post-Creation Label Mutation Works)
 
-GitBucket does **not** support adding labels after issue creation. Use `--label` during creation:
+GitBucket supports adding and changing labels after issue creation via `gb` subcommands or `gb api` passthrough:
 
 ```bash
 # ✅ WORKS: Set labels during issue creation
 gb issue create -t "Bug report" -R org/project --body "Description" --label bug,enhancement
 
-# ❌ BROKEN: Cannot change labels after creation
-# gb issue edit supports --add-label/--remove-label but GitBucket REST may not apply them
+# ✅ WORKS: Add labels after creation
+gb issue edit <number> -R org/project --add-label urgent
+
+# ✅ WORKS: Remove labels after creation
+gb issue edit <number> -R org/project --remove-label bug
+
+# ✅ WORKS: Replace labels after creation via gb api passthrough
+gb api "repos/org/project/issues/<number>/labels" -X PUT --input '{"labels":["bug"]}' -R org/project
 ```
 
 ## Admin Operations

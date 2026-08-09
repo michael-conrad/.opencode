@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **GitBucket label operation documentation corrected** (#2257) - Empirically validated the GitBucket label-operation workflow against a live local instance and corrected the four `gitbucket-api` skill-card files (`label-operations.md`, `SKILL.md` capability manifest, `issue-operations.md`, `mcp-operations.md`) to the verified truth. Issue-level label mutation and repo-level label CRUD both confirmed WORKING via `gb api` passthrough, removing false BROKEN claims. Added SC-1..7 behavioral tests.
+
 - **Reduced approval-gate ceremony** (#2220) - Merged approval-gate-scope sub-skill into approval-gate dispatcher. Deleted 47 files across 7 subdirectories, created 3 flat task files (resolve-scope, apply-label, route), updated all cross-references. Single dispatcher entry point for all authorization operations.
 
 

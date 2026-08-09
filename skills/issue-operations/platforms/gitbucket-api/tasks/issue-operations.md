@@ -108,20 +108,21 @@ gb issue close 14 -R org/project
 
 ### Workflow 4: Batch Label Operations
 
-**⚠️ CRITICAL: Post-creation label APIs are BROKEN in GitBucket.**
+**✅ WORKING: Post-creation label mutation works in GitBucket.**
 
-- `gb issue edit --add-label` may not apply labels via REST
-- Labels can ONLY be reliably set during `gb issue create --label`
+- `gb issue edit --add-label`/`--remove-label` apply labels via REST
+- For operations not covered by `gb issue` subcommands, use `gb api` passthrough on `/repos/{owner}/{repo}/issues/{number}/labels`
 
 ```bash
 # ✅ WORKS: Set labels during issue creation
 gb issue create -t "Bug report" -R org/project --body "Description" --label bug,priority:high,needs-review
 
-# ❌ BROKEN: Cannot change labels after creation
-# gb issue edit --add-label may not work depending on GitBucket version
-```
+# ✅ WORKS: Add labels after creation
+gb issue edit <number> -R org/project --add-label urgent,priority:high
 
-**Workaround:** Delete and recreate the issue if labels need to change.
+# ✅ WORKS: Replace labels after creation via gb api passthrough
+gb api "repos/org/project/issues/<number>/labels" -X PUT --input '{"labels":["bug","needs-review"]}' -R org/project
+```
 
 ### Workflow 5: Find and Close Duplicate Issues
 
@@ -190,10 +191,10 @@ gb issue create -t "Test" -R org/project --label "invalid label!"
 | Reopen issue | `gb issue reopen <N> -R O/R` | ✅ |
 | List issues | `gb issue list -R O/R [--state ...]` | ✅ |
 | Add comment | `gb issue comment <N> -b "<body>" -R O/R` | ✅ |
-| Add labels | N/A | ❌ BROKEN (post-creation) |
-| Replace labels | N/A | ❌ BROKEN (post-creation) |
-| Remove label | N/A | ❌ BROKEN (post-creation) |
-| Remove all labels | N/A | ❌ BROKEN (post-creation) |
+| Add labels | `gb issue edit <N> --add-label <l> -R O/R` or `gb api` passthrough | ✅ WORKING (gb api passthrough) |
+| Replace labels | `gb api "repos/O/R/issues/<N>/labels" -X PUT` | ✅ WORKING (gb api passthrough) |
+| Remove label | `gb issue edit <N> --remove-label <l> -R O/R` | ✅ WORKING (gb api passthrough) |
+| Remove all labels | `gb api "repos/O/R/issues/<N>/labels" -X DELETE` | ✅ WORKING (gb api passthrough) |
 
 ## Source Code
 
