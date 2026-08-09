@@ -1,4 +1,4 @@
-sc_count: 22
+sc_count: 30
 scs:
   - id: "SC-1"
     description: "spec-creation/SKILL.md uses canonical dispatch prompt format, zero deprecated execute X from Y strings"
@@ -88,3 +88,35 @@ scs:
     description: "revise task regenerates exec-summary remote issue body on revision"
     evidence_type: "string"
     plan_item: 22
+  - id: "SC-23"
+    description: "spec-creation/SKILL.md Workflows section uses numbered checkbox lists with sub-bullets for prompt string, parameters/context, and execution-mode indicator"
+    evidence_type: "string"
+    plan_item: 23
+  - id: "SC-24"
+    description: "audit/SKILL.md Workflows section uses numbered checkbox lists with sub-bullets for prompt string, parameters/context, and execution-mode indicator"
+    evidence_type: "string"
+    plan_item: 24
+  - id: "SC-25"
+    description: "every task card Procedure section in spec-creation and audit uses numbered checkbox lists"
+    evidence_type: "string"
+    plan_item: 25
+  - id: "SC-26"
+    description: "no task card procedure requires internal sub-agent dispatch; fat task cards split into multiple task cards dispatched as separate workflow steps"
+    evidence_type: "semantic"
+    plan_item: 26
+  - id: "SC-27"
+    description: "for every task card, the SKILL.md workflow Context sub-bullet supplies every parameter in the task card's Dispatch Contract and Entry Criteria"
+    evidence_type: "semantic"
+    plan_item: 27
+  - id: "SC-28"
+    description: "skildeck linter extended to enforce numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness"
+    evidence_type: "behavioral"
+    plan_item: 28
+  - id: "SC-29"
+    description: "all markdown links in the two skills and reference docs resolve to real targets, use correct relative paths, and follow the Read [Text](path) pattern"
+    evidence_type: "string"
+    plan_item: 29
+  - id: "SC-30"
+    description: "workflows in the two main skill cards clearly indicate orchestrator step-by-step execution with explicit execution-mode sub-bullets"
+    evidence_type: "string"
+    plan_item: 30

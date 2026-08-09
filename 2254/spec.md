@@ -8,34 +8,46 @@
 
 A history-grounded read-only audit of the spec-writer and spec-audit skill card sets (`spec-creation`, `audit`) and the consolidated reference standards (`.opencode/reference/`) identified internal-consistency drifts between what each card declares (dispatch format, structural sections, role naming, task references, evidence-type taxonomy source, validation criteria) and the actual on-disk reality. These drifts cause agents to dispatch tasks using a deprecated prompt format the reference docs forbid, resolve cross-references to non-existent task files, read the evidence-type taxonomy from a redirect source instead of the canonical one, evaluate a spec against a different 11-dimension set than the auditor uses, and route to tasks whose cards do not exist.
 
+A subsequent brainstorming session expanded the remediation scope beyond drift repair to a total remediation of the spec-writer and spec-auditor skills plus the consolidated `.opencode/reference/` standards. The expanded scope adds six new requirement areas: (1) a canonical numbered-checkbox Workflows format for both main skill cards with explicit execution-mode sub-bullets; (2) a numbered-checkbox task-card Procedure format designed for non-task-capable sub-agents, requiring fat task cards to be split; (3) dispatch-contract completeness so every workflow Context sub-bullet supplies every parameter a task card needs; (4) linter enforcement of the new format rules via the skildeck linter; (5) markdown link verification across the two skills and reference docs; and (6) workflow clarity so the orchestrator knows step-by-step what to do and whether each step is inline or dispatched.
+
 ### Root Cause / Motivation
 
 Both skill sets retain content from before several migrations: the flat-architecture refactor, the DiMo 4-role audit dispatch, the Workflows-section format, and the consolidated `.opencode/reference/` location. Because agent-facing text is consumed as routing instructions, each drift is a defect vector — an agent that follows a deprecated dispatch string, a dangling cross-reference, or a divergent dimension list produces defective work that must be re-done. The drifts must be resolved now because they compound: every spec created or audited through the drifted cards inherits the defect.
+
+The expanded requirements address a second class of defect: format and contract gaps that are not drift but absence. The main skill cards do not use a numbered-checkbox Workflows format with execution-mode sub-bullets, so the orchestrator cannot tell at a glance whether a step is inline or dispatched. Task cards are not uniformly formatted as numbered checkbox lists and some fat task cards would require internal sub-agent dispatch — which sub-agents cannot perform because `task: deny` is hardcoded. Workflow Context sub-bullets do not reliably supply every parameter a task card's Dispatch Contract and Entry Criteria require, so a dispatched sub-agent searches for, guesses, or fabricates missing parameters. The skildeck linter does not enforce any of these format rules, so the defects recur silently. Markdown links are not verified to resolve to real targets with correct relative paths and the `Read [Text](path)` wording.
 
 ### Approach Chosen
 
 Apply exactly ONE prescriptive resolution per finding, each mapped one-to-one to a success criterion. Consolidate the evidence-type taxonomy into one canonical reference document and make both the spec-creation validate task and the audit skill load it dynamically. Convert the audit SKILL.md from Trigger Dispatch Table + Invocation + Tasks table to a Workflows section with 4 DiMo steps. Remove the redundant Task Files table from spec-creation. Repair role-card frontmatter name fields to match filenames. Repoint broken cross-references to role-split files. Update stale reference-doc task names. Flatten three subdirectory audit tasks to flat role files and remove stub index files. Correct completion task routing and repoint the dangling approval-gate reference. Rewrite the audit description to canonical agent-intent format. Remove the redundant behavioral-sc-evaluator.md. Point taxonomy citations at the canonical reference. Make a missing evidence-type declaration a hard FAIL.
 
+For the expanded scope: convert both main skill card Workflows sections to numbered checkbox lists with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch). Convert task card Procedure sections to numbered checkbox lists and split any fat task card whose procedure would require internal sub-agent dispatch into multiple task cards, adjusting the SKILL.md workflow to dispatch each split task card as a separate step. Verify dispatch-contract completeness so every workflow Context sub-bullet supplies every parameter in the task card's Dispatch Contract and Entry Criteria. Extend the skildeck linter to enforce the new format rules. Verify all markdown links in the two skills and reference docs resolve to real targets with correct relative paths and the `Read [Text](path)` wording. Make the workflows explicitly orchestrator step-by-step with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit.
+
 ### Alternatives Considered & Why Discarded
 
 - **Leave the drifts in place and rely on agent judgment to route correctly.** Discarded: agent-facing text is consumed as routing instructions, not advisory prose. An agent cannot reliably compensate for a deprecated dispatch string or a dangling cross-reference; the drift is a guaranteed defect vector, not a cosmetic inconsistency.
 - **Introduce backwards-compatible dual paths (accept both old and new formats).** Discarded: the anti-bifurcation mandate forbids dual-format agent-facing instructions. A backwards-compat path leaves the deprecated format live, so agents continue to follow it and the defect persists.
+- **Document the new format rules in reference docs only, without linter enforcement.** Discarded: documentation without enforcement is decoration. The format rules must be enforced by the skildeck linter so the defects cannot recur silently. This is why the linter extension is in scope.
+- **Keep fat task cards and rely on the sub-agent to "do the work" despite `task: deny`.** Discarded: sub-agents have `task: deny` hardcoded and cannot call `skill()`. A task card whose procedure requires internal sub-agent dispatch is unexecutable by its consumer. Fat task cards must be split into multiple task cards dispatched as separate workflow steps.
 
 ### Key Design Decisions
 
 - **Single canonical evidence-type taxonomy** in one reference document, loaded dynamically by both spec-creation validate and audit. Tradeoff: a single source of truth requires all consumers to be updated in scope, but eliminates the redirect-source and divergent-list defects.
 - **Workflows-only structure** for audit SKILL.md. Tradeoff: converting TDT/Invocation/Tasks to a Workflows section changes the routing surface, but aligns with the canonical skill-card format and removes the deprecated dispatch strings.
 - **Missing evidence-type declaration is a hard FAIL** routed to the remediation workflow. Tradeoff: stricter validation may surface more spec defects, but eliminates the default-to-string escape hatch that masks missing declarations.
+- **Numbered-checkbox Workflows format with execution-mode sub-bullets** for both main skill cards. Tradeoff: the format is more verbose than a plain numbered list, but the execution-mode sub-bullet makes the inline-vs-dispatch decision explicit and the numbered checkbox list is the canonical checklist format the reference docs already mandate for pipeline gates.
+- **Task-card clean-room unit** — task cards are designed for non-task-capable sub-agents; any procedure requiring internal dispatch is split. Tradeoff: splitting fat task cards increases the number of task cards and workflow steps, but guarantees each task card is executable by its consumer.
+- **Linter enforcement of the format rules** via the skildeck linter. Tradeoff: extending the linter changes runtime behavior and requires behavioral evidence, but is the only way to prevent silent recurrence of the format defects.
 
 ### User Intent / Original Prompt
 
-A history-grounded read-only audit of the spec-writer and spec-audit skill card sets and the consolidated reference standards, identifying internal-consistency drifts and prescribing one resolution per finding.
+A history-grounded read-only audit of the spec-writer and spec-audit skill card sets and the consolidated reference standards, identifying internal-consistency drifts and prescribing one resolution per finding. Expanded by a brainstorming session into a total remediation of the spec-writer (spec-creation) and spec-auditor (audit) skills plus the consolidated `.opencode/reference/` standards, incorporating the six new requirement areas (workflow format, task-card format, dispatch-contract completeness, linter enforcement, markdown link verification, workflow clarity).
 
 ## 2. Not Included
 
-- **`src/` code changes** — All affected files are agent-facing markdown in `.opencode/`; no runtime code changes.
-- **Non-agent-facing documentation** — Changes confined to skill cards, task cards, and reference standards consumed by agents.
-- **Behavioral test suite changes beyond what the SCs require** — The single behavioral SC (issue anchoring) requires its own behavioral test; no other test-suite changes are in scope.
+- **Application `src/` code changes** — All affected files are agent-facing markdown in `.opencode/` plus the skildeck linter under `.opencode/tools/impl/skildeck/`; no application `src/` runtime code changes.
+- **Non-agent-facing documentation** — Changes confined to skill cards, task cards, reference standards, and the skildeck linter consumed by agents.
+- **Behavioral test suite changes beyond what the SCs require** — The behavioral SCs (issue anchoring, linter enforcement) require their own behavioral tests; no other test-suite changes are in scope.
+- **Other skills' Workflows/task-card formats** — The numbered-checkbox format and clean-room split apply to the two main skill cards (spec-creation, audit) and their task cards in scope; other skills are not reformatted in this spec.
 
 ## 3. Success Criteria
 
@@ -63,6 +75,14 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | SC-20 | spec-creation/tasks/create.md SHALL include the forward-reference Spec Reference Blockquote link in the remote issue body, pointing to the issues-data branch URL. | string | grep spec-creation/tasks/create.md for the forward-reference Spec Reference Blockquote / issues-data link |
 | SC-21 | The create task SHALL sequence the post-push reconciliation of the Spec Reference Blockquote / artifact URL after issue-operations/platforms/local/tasks/push-artifacts.md runs. | string | grep spec-creation/tasks/create.md for the post-push reconciliation sequenced after push-artifacts.md |
 | SC-22 | spec-creation/tasks/revise.md SHALL regenerate the exec-summary remote issue body when the spec is revised. | string | grep spec-creation/tasks/revise.md for exec-summary body regeneration on revision |
+| SC-23 | spec-creation/SKILL.md Workflows section SHALL use numbered checkbox lists (`- [ ] N.`) with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch). | string | grep spec-creation/SKILL.md for numbered checkbox workflow steps and execution-mode sub-bullets |
+| SC-24 | audit/SKILL.md Workflows section SHALL use numbered checkbox lists (`- [ ] N.`) with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch). | string | grep audit/SKILL.md for numbered checkbox workflow steps and execution-mode sub-bullets |
+| SC-25 | Every task card Procedure section in spec-creation and audit SHALL use numbered checkbox lists (`- [ ] N.`). | string | grep all task cards in spec-creation and audit for numbered checkbox procedure steps |
+| SC-26 | No task card procedure in spec-creation or audit SHALL require internal sub-agent dispatch; any task card whose procedure would require internal dispatch SHALL be split into multiple task cards, and the SKILL.md workflow SHALL dispatch each split task card as a separate step. | semantic | sub-agent reads all task cards in spec-creation and audit and verifies no procedure requires internal dispatch via analytical judgment |
+| SC-27 | For every task card in spec-creation and audit, the SKILL.md workflow Context sub-bullet that dispatches it SHALL supply every parameter in the task card's Dispatch Contract and Entry Criteria. | semantic | sub-agent cross-references each task card's Dispatch Contract/Entry Criteria against the SKILL.md workflow Context sub-bullet via analytical judgment |
+| SC-28 | The skildeck linter (.opencode/tools/impl/skildeck/) SHALL be extended to enforce the new format rules: numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness. | behavioral | opencode run (with-test-home): run skildeck lint against a fixture violating each new rule and assert the linter flags it |
+| SC-29 | All markdown links in spec-creation/SKILL.md, audit/SKILL.md, and the reference docs SHALL resolve to real targets, use correct relative paths, and be worded per the `Read [Text](path)` cross-reference pattern. | string | verify all markdown links in the two skills and reference docs resolve and follow the `Read [Text](path)` pattern |
+| SC-30 | The workflows in spec-creation/SKILL.md and audit/SKILL.md SHALL clearly indicate they are for the orchestrator to follow step-by-step, with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit. | string | grep the two SKILL.md files for orchestrator-step framing and execution-mode sub-bullets |
 
 ## 4. Requirements
 
@@ -84,9 +104,15 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - R-19. The spec-creation create task SHALL include the forward-reference Spec Reference Blockquote link in the remote issue body pointing to the issues-data branch URL.
 - R-20. The post-push reconciliation of the Spec Reference Blockquote / artifact URL SHALL be sequenced after issue-operations/platforms/local/tasks/push-artifacts.md.
 - R-21. The spec-creation revise task SHALL regenerate the exec-summary remote issue body when the spec is revised.
-- R-15. No `src/` code changes; all changes SHALL be confined to agent-facing skill/reference markdown files.
+- R-15. No application `src/` code changes; changes SHALL be confined to agent-facing skill/reference markdown files and the skildeck linter under `.opencode/tools/impl/skildeck/`. Application `src/` code remains excluded.
 - R-16. Behavioral SCs SHALL apply only where the change affects runtime dispatch behavior; string/structural elsewhere.
 - R-17. No bifurcated/backwards-compat paths SHALL be introduced in agent-facing instructions (anti-bifurcation mandate).
+- R-22. The main skill card Workflows sections (spec-creation/SKILL.md and audit/SKILL.md) SHALL use numbered checkbox lists (`- [ ] N.`) with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch).
+- R-23. Task card Procedure sections SHALL use numbered checkbox lists (`- [ ] N.`). Task cards SHALL be designed for non-task-capable sub-agents; a task card whose procedure would require internal sub-agent dispatch SHALL be split into multiple task cards, and the SKILL.md workflow SHALL dispatch each split task card as a separate step.
+- R-24. For every task card, the SKILL.md workflow Context sub-bullet that dispatches it SHALL supply every parameter in the task card's Dispatch Contract and Entry Criteria.
+- R-25. The skildeck linter (.opencode/tools/impl/skildeck/) SHALL be extended to enforce the new format rules: numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness.
+- R-26. All markdown links in the two skills and reference docs SHALL be correct: resolve to real targets, use correct relative paths, and be worded per the `Read [Text](path)` cross-reference pattern.
+- R-27. The workflows in the main skill cards SHALL clearly indicate they are for the orchestrator to follow step-by-step, with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit.
 
 ## 5. Items
 
@@ -244,11 +270,69 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 - verify: grep conformance
 - commit: spec-creation/tasks/revise.md
 
+### Item 23 (SC-23): Convert spec-creation Workflows to numbered-checkbox format
+
+- RED: grep spec-creation/SKILL.md asserts numbered checkbox workflow steps and execution-mode sub-bullets — fails on current content
+- GREEN: Convert the spec-creation Workflows section to numbered checkbox lists with sub-bullets for prompt string, parameters/context, and execution-mode indicator
+- verify: grep conformance
+- commit: spec-creation/SKILL.md
+
+### Item 24 (SC-24): Convert audit Workflows to numbered-checkbox format
+
+- RED: grep audit/SKILL.md asserts numbered checkbox workflow steps and execution-mode sub-bullets — fails on current content
+- GREEN: Convert the audit Workflows section to numbered checkbox lists with sub-bullets for prompt string, parameters/context, and execution-mode indicator
+- verify: grep conformance
+- commit: audit/SKILL.md
+
+### Item 25 (SC-25): Convert task card Procedures to numbered-checkbox format
+
+- RED: grep all task cards in spec-creation and audit asserts numbered checkbox procedure steps — fails on current content
+- GREEN: Convert every task card Procedure section to numbered checkbox lists
+- verify: grep conformance
+- commit: spec-creation/tasks, audit/tasks
+
+### Item 26 (SC-26): Split fat task cards for clean-room unit
+
+- RED: sub-agent reads all task cards in spec-creation and audit and asserts no procedure requires internal dispatch via analytical judgment — fails on current content
+- GREEN: Split any task card whose procedure would require internal sub-agent dispatch into multiple task cards; adjust the SKILL.md workflow to dispatch each split task card as a separate step
+- verify: sub-agent read + analytical judgment
+- commit: spec-creation/tasks, audit/tasks, spec-creation/SKILL.md, audit/SKILL.md
+
+### Item 27 (SC-27): Verify dispatch-contract completeness
+
+- RED: sub-agent cross-references each task card's Dispatch Contract/Entry Criteria against the SKILL.md workflow Context sub-bullet and asserts completeness via analytical judgment — fails on current content
+- GREEN: Ensure every workflow Context sub-bullet supplies every parameter in the task card's Dispatch Contract and Entry Criteria
+- verify: sub-agent read + analytical judgment
+- commit: spec-creation/SKILL.md, audit/SKILL.md, spec-creation/tasks, audit/tasks
+
+### Item 28 (SC-28): Extend skildeck linter for format rules
+
+- RED: opencode run (with-test-home) runs skildeck lint against a fixture violating each new rule and asserts the linter flags it — fails on current content
+- GREEN: Extend the skildeck linter to enforce numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness
+- verify: behavioral test via opencode run
+- commit: .opencode/tools/impl/skildeck/
+
+### Item 29 (SC-29): Verify markdown links
+
+- RED: verify all markdown links in the two skills and reference docs resolve and follow the `Read [Text](path)` pattern — fails on current content
+- GREEN: Fix all markdown links to resolve to real targets, use correct relative paths, and follow the `Read [Text](path)` wording
+- verify: link resolution check
+- commit: spec-creation/SKILL.md, audit/SKILL.md, reference/
+
+### Item 30 (SC-30): Make workflows orchestrator-step explicit
+
+- RED: grep the two SKILL.md files asserts orchestrator-step framing and execution-mode sub-bullets — fails on current content
+- GREEN: Make the workflows clearly indicate they are for the orchestrator to follow step-by-step, with the execution-mode sub-bullet making the inline-vs-dispatch decision explicit
+- verify: grep conformance
+- commit: spec-creation/SKILL.md, audit/SKILL.md
+
 ## 6. Dependencies
 
 - **Reference: `.opencode/reference/` consolidated standards** — Relationship: the canonical evidence-type taxonomy and holistic-dimensions.yaml must be resolved before the dynamic-loading SCs (SC-15, SC-18) can be verified. Status: satisfied (files exist on disk).
 - **Reference: DiMo 4-role audit dispatch** — Relationship: the audit Workflows structure (SC-3) and role-card naming (SC-8, SC-9) depend on the DiMo role model. Status: satisfied.
 - **Reference: skill-card-description-standards.md §7** — Relationship: defines the Workflows-only structure and canonical description format that SC-3 and SC-7 conform to. Status: satisfied.
+- **Reference: task-card-structure-standards.md** — Relationship: defines the task-card clean-room unit (no internal dispatch) and numbered Procedure format that SC-25 and SC-26 conform to. Status: satisfied.
+- **Tool: skildeck linter (`.opencode/tools/impl/skildeck/`)** — Relationship: the linter must be extended to enforce the new format rules (SC-28). Status: satisfied (linter exists on disk).
 
 ## 7. Traceability
 
@@ -268,13 +352,19 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | R-12 | SC-16 | Phase 3 |
 | R-13 | SC-17 | Phase 1 |
 | R-14 | SC-18 | Phase 1 |
-| R-15 | SC-1..SC-22 | All |
-| R-16 | SC-17 | Phase 1 |
-| R-17 | SC-1..SC-22 | All |
+| R-15 | SC-1..SC-30 | All |
+| R-16 | SC-17, SC-28 | Phase 1, Phase 6 |
+| R-17 | SC-1..SC-30 | All |
 | R-18 | SC-19 | Phase 1 |
 | R-19 | SC-20 | Phase 1 |
 | R-20 | SC-21 | Phase 1 |
 | R-21 | SC-22 | Phase 5 |
+| R-22 | SC-23, SC-24, SC-30 | Phase 6 |
+| R-23 | SC-25, SC-26 | Phase 6 |
+| R-24 | SC-27 | Phase 6 |
+| R-25 | SC-28 | Phase 6 |
+| R-26 | SC-29 | Phase 6 |
+| R-27 | SC-30 | Phase 6 |
 
 ## 8. Documentation Sources
 
@@ -291,6 +381,7 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | reference/skill-card-description-standards.md | doc | `.opencode/reference/skill-card-description-standards.md` | read during analysis |
 | reference/task-card-structure-standards.md | doc | `.opencode/reference/task-card-structure-standards.md` | read during analysis |
 | reference/cost-model-standards.md | doc | `.opencode/reference/cost-model-standards.md` | read during analysis |
+| skildeck linter | code | `.opencode/tools/impl/skildeck/` | read during analysis |
 
 ## 9. Enforcement Gate
 
@@ -322,6 +413,14 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-20: Verifying the forward-reference blockquote costs one grep search. Skipping means the remote issue body lacks the issues-data forward reference and consumers cannot locate the authoritative spec.
 - SC-21: Verifying the post-push reconciliation sequencing costs one grep search. Skipping means the artifact URL in the remote body is stale or unverified after push.
 - SC-22: Verifying the revise exec-summary regeneration costs one grep search. Skipping means a revised spec ships a stale remote exec-summary body that contradicts the authoritative local spec.
+- SC-23: Verifying the spec-creation Workflows numbered-checkbox format costs one grep search. Skipping means the orchestrator cannot tell at a glance whether each workflow step is inline or dispatched, and the format drifts from the canonical checklist format.
+- SC-24: Verifying the audit Workflows numbered-checkbox format costs one grep search. Skipping means the audit workflow steps lack the execution-mode sub-bullet and the orchestrator cannot distinguish inline from dispatched steps.
+- SC-25: Verifying the task-card numbered-checkbox Procedure format costs one grep search. Skipping means task cards keep a non-canonical procedure format that diverges from the reference standard.
+- SC-26: Verifying the task-card clean-room unit costs one semantic sub-agent read. Skipping means a fat task card whose procedure requires internal sub-agent dispatch remains unexecutable by its consumer (sub-agents have `task: deny`), producing a guaranteed defect on every dispatch.
+- SC-27: Verifying dispatch-contract completeness costs one semantic sub-agent read. Skipping means a dispatched sub-agent searches for, guesses, or fabricates parameters it was not given — a defect that propagates into every downstream deliverable.
+- SC-28: Running the linter behavioral test costs minutes of execution time. Skipping means the format rules are documented but not enforced, so the defects recur silently on every future skill-card edit.
+- SC-29: Verifying markdown links costs a link-resolution check. Skipping means dangling links and misworded cross-references persist, and agents fail to load referenced content.
+- SC-30: Verifying workflow clarity costs one grep search. Skipping means the orchestrator cannot tell whether a step is inline or dispatched, and the inline-vs-dispatch decision is left to guesswork.
 
 ## 11. Edge Cases
 
@@ -335,6 +434,11 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition: The remote issue body exec-summary format drifts from issue-operations-core creation.md Step 5.** Expected behavior: create.md routes to the canonical format per SC-19. Resolution: create.md references the canonical format rather than duplicating it.
 - **Condition: A revised spec changes the exec-summary content (Problem/Scope/Approach/Impact).** Expected behavior: revise.md regenerates the remote body per SC-22. Resolution: revision always refreshes the remote exec-summary body to match the authoritative local spec.
 - **Condition: The push-artifacts.md reconciliation has not run before the remote body is finalized.** Expected behavior: the post-push reconciliation is sequenced after push-artifacts.md per SC-21. Resolution: create.md orders the reconciliation step after the push so the forward-reference URL is accurate.
+- **Condition: A task card's procedure would require internal sub-agent dispatch.** Expected behavior: the task card is split into multiple task cards and the SKILL.md workflow dispatches each split task card as a separate step per SC-26. Resolution: no task card requires internal dispatch; sub-agents have `task: deny` hardcoded and cannot call `skill()`.
+- **Condition: A workflow Context sub-bullet omits a parameter the task card's Dispatch Contract or Entry Criteria requires.** Expected behavior: the Context sub-bullet is completed to supply every required parameter per SC-27. Resolution: dispatch-contract completeness is verified for every task card; a dispatched sub-agent never searches for, guesses, or fabricates a parameter.
+- **Condition: The skildeck linter flags a format violation in a skill card.** Expected behavior: the linter enforces the new format rules per SC-28. Resolution: the violation is fixed before the skill card is accepted; the linter prevents silent recurrence.
+- **Condition: A markdown link in a skill or reference doc resolves to a non-existent target or uses a wrong relative path.** Expected behavior: the link is corrected to resolve to a real target with the correct relative path and `Read [Text](path)` wording per SC-29. Resolution: all links are verified during implementation.
+- **Condition: A workflow step is ambiguous about whether it is inline or dispatched.** Expected behavior: the execution-mode sub-bullet makes the inline-vs-dispatch decision explicit per SC-30. Resolution: every workflow step carries an execution-mode indicator.
 
 ## 12. Change Control
 
@@ -347,6 +451,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-06 | Traceability table corrected: SC-6 (deprecated DiMo strings absent — the negative counterpart of SC-5) mapped to R-1; SC-9 (`# Task:` heading matches filename — the heading counterpart of SC-8) mapped to R-4. | Validation finding (traceability): SC-6 and SC-9 were absent from the specific requirement rows (R-1..R-14) and covered only by the catch-all R-15/R-17. Each SC must map to the specific requirement it implements. | spec-creation validation pipeline |
 | 2026-08-06 | Evidence types for SC-7 and SC-16 corrected from `string` to `semantic`. Verification methods rewritten to specify sub-agent read + analytical judgment. sc-summary.yaml, Items 7 and 16, and Cost Frame SC-7/SC-16 updated to stay consistent. | Validation finding (EVIDENCE_TYPE_MISMATCH): SC-7 and SC-16 declared evidence type `string` but their verification methods are "read the file and verify format/rule via analytical judgment" — which is `semantic` (sub-agent read + judgment), not `string` (grep/pattern match) per the taxonomy. Option (a) applied: evidence type corrected to match the actual verification method. | spec-creation validation pipeline |
 | 2026-08-09 | Re-scoped SC-17 to analyze.md-only (BLOCK on unbound issue number). Removed remote-stub-first from SC-17, R-13, Item 17, and the SC-17 edge case: issue-number binding is handled upstream by issue-operations-core creation and create.md, not analyze.md. Added SC-19 (create routes exec-summary body format per creation.md Step 5), SC-20 (create includes forward-reference blockquote / issues-data link), SC-21 (post-push reconciliation sequenced after push-artifacts.md), SC-22 (revise regenerates exec-summary body). Added R-18..R-21, Items 19-22, Cost Frame SC-19..SC-22, and edge cases. Updated Traceability (R-18..R-21; catch-all R-15/R-17 now SC-1..SC-22), sc-summary.yaml plan_item numbering to 22. | Revision request: SC-17 bundled two distinct concerns across two task files (analyze.md BLOCK on unbound issue number, and create.md remote-stub-first + exec-summary remote body). These must be split because remote-stub-first is not analyze.md's job — the issue number is bound upstream by issue-operations-core creation (runs before analyze.md). The exec-summary body format already exists in issue-operations-core/tasks/creation.md Step 5. The post-push reconciliation is sequenced after issue-operations/platforms/local/tasks/push-artifacts.md. | developer (revision request) |
+| 2026-08-09 | Expanded the spec scope to total remediation of the spec-writer (spec-creation) and spec-auditor (audit) skills plus the consolidated `.opencode/reference/` standards. Added SC-23..SC-30, R-22..R-27, Items 23-30, Cost Frame SC-23..SC-30, and edge cases. Re-scoped R-15 to permit `.opencode/tools/impl/skildeck/` changes while still excluding application `src/` code. Updated Problem Statement, Approach Chosen, Key Design Decisions, Not Included, Dependencies, Traceability (R-22..R-27; catch-all R-15/R-17 now SC-1..SC-30), and sc-summary.yaml plan_item numbering to 30. Evidence types: linter changes (SC-28) are behavioral; format checks (SC-23, SC-24, SC-25, SC-29, SC-30) are string; task-card clean-room (SC-26) and dispatch-contract completeness (SC-27) are semantic. | Revision request (brainstorming session): incorporate six new requirement areas — (1) numbered-checkbox Workflows format with execution-mode sub-bullets for both main skill cards; (2) numbered-checkbox task-card Procedure format designed for non-task-capable sub-agents, with fat task cards split; (3) dispatch-contract completeness so every workflow Context sub-bullet supplies every parameter a task card needs; (4) linter enforcement of the new format rules via the skildeck linter; (5) markdown link verification across the two skills and reference docs; (6) workflow clarity so the orchestrator knows step-by-step what to do and whether each step is inline or dispatched. | developer (revision request) |
 
 ---
 
