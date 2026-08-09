@@ -42,7 +42,7 @@ See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check
 | Search issues | ❌ | No API — use iterative listing + client-side filter |
 | Search PRs | ❌ | No API — use iterative listing + client-side filter |
 | Labels on creation | ✅ | `gb issue create --label l1,l2` |
-| Post-creation labels | ❌ | Returns empty array — labels NOT added |
+| Post-creation labels | ✅ WORKING | `gb api` passthrough on `/repos/{owner}/{repo}/issues/{number}/labels` |
 | List labels | ✅ | `gb label list -R O/R` |
 | Create label | ✅ | `gb label create <name> --color <hex> -R O/R` |
 | View label | ✅ | `gb label view <name> -R O/R` |
@@ -73,7 +73,7 @@ See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check
 | Task | Purpose |
 |------|---------|
 | `issue-operations` | Issue CRUD patterns, create/update/list workarounds |
-| `label-operations` | Label CRUD, auto-creation, post-creation limitations |
+| `label-operations` | Label CRUD, auto-creation, post-creation label mutation via `gb api` passthrough |
 | `error-recovery` | Error handling, retry logic, credential failures |
 | `mcp-operations` | gb command reference, tool selection, error classification |
 | `repository-operations` | Repository CRUD, branch operations |
@@ -153,7 +153,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Authorization Labels (Platform-Supported)
 
-GitBucket API supports labels via creation only (post-creation label mutation is broken). The eight `approved-for-*` labels are:
+GitBucket API supports labels via creation and post-creation mutation through `gb api` passthrough on `/repos/{owner}/{repo}/issues/{number}/labels`. The eight `approved-for-*` labels are:
 
 | Label | Purpose |
 | `approved-for-spec` | Authorization through spec creation |
@@ -235,7 +235,7 @@ All `list` endpoints return arrays, NOT objects. Use `--json --no-pager` flags f
 - [ ] 3. Verify `gb --version` >= 0.6.1
 - [ ] 4. Use `gb` CLI for all API operations
 - [ ] 5. Use explicit `-R owner/repo` flags (not auto-resolution from git remote)
-- [ ] 6. Add labels ONLY during `gb issue create --label`
+- [ ] 6. Add labels during `gb issue create --label` or post-creation via `gb api` passthrough on `/repos/{owner}/{repo}/issues/{number}/labels`
 - [ ] 7. Use `gb issue close` for closing issues
 - [ ] 8. Use comment-based linking for sub-issues
 - [ ] 9. Use iterative listing for search operations

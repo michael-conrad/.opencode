@@ -87,6 +87,32 @@ __ensure_gitbucket() {
         port=$(cat "$port_file" 2>/dev/null || echo "")
         if [ -n "$port" ]; then
             export GITBUCKET_PORT="$port"
+            export GB_HOST="http://localhost:$port"
+            export GB_REPO="root/test-repo"
+            export GB_PROTOCOL="http"
+            # Re-authenticate gb CLI against the running instance so the full
+            # GB_* set (including GB_TOKEN) is available on the idempotent path.
+            # The token is read from the account page; fall back to root:root if
+            # token generation fails so gb auth login still succeeds.
+            local token=""
+            local cookie_jar
+            cookie_jar=$(mktemp)
+            curl -s -c "$cookie_jar" -X POST "http://localhost:$port/signin" \
+                -H "Content-Type: application/x-www-form-urlencoded" \
+                --data-urlencode "userName=root" \
+                --data-urlencode "password=root" \
+                --data-urlencode "hash=" -o /dev/null 2>/dev/null || true
+            curl -s -b "$cookie_jar" -X POST "http://localhost:$port/root/_personalToken" \
+                -H "Content-Type: application/x-www-form-urlencoded" \
+                --data-urlencode "note=test-token" -o /dev/null 2>/dev/null || true
+            token=$(curl -s -b "$cookie_jar" "http://localhost:$port/root/_application" 2>/dev/null | grep -oE '[0-9a-f]{40}' | head -1 || true)
+            rm -f "$cookie_jar"
+            if [ -z "$token" ]; then
+                export GB_TOKEN="root"
+            else
+                export GB_TOKEN="$token"
+            fi
+            gb auth login -H "$GB_HOST" -t "$GB_TOKEN" --protocol "$GB_PROTOCOL" >/dev/null 2>&1 || true
             return 0
         fi
     fi
@@ -193,13 +219,29 @@ __ensure_gitbucket() {
         return 1
     fi
 
-    # SC-4: Generate admin token
-    local token
-    token=$(curl -s -X POST "http://localhost:$port/api/v3/tokens" -H "Content-Type: application/json" -d '{"name":"test-token","permissions":["repo","issue"]}' 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || true)
-    if [ -z "$token" ]; then
-        # GitBucket admin default: root/root
-        token=$(curl -s -u root:root -X POST "http://localhost:$port/api/v3/tokens" -H "Content-Type: application/json" -d '{"name":"test-token","permissions":["repo","issue"]}' 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || true)
-    fi
+    # SC-4: Generate admin token.
+    # GitBucket 4.46.1 exposes NO REST token endpoint — POST /api/v3/tokens
+    # returns {"message":"Not Found"} — so the token must be generated through
+    # the web form: sign in as root/root to obtain a session cookie, then POST
+    # /:userName/_personalToken and read the generated token back from the
+    # account page. A real token is required because `gb auth login` rejects
+    # the raw password with HTTP 401.
+    local token=""
+    local cookie_jar
+    cookie_jar=$(mktemp)
+    # Sign in to obtain a session cookie (GitBucket default admin: root/root).
+    curl -s -c "$cookie_jar" -X POST "http://localhost:$port/signin" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "userName=root" \
+        --data-urlencode "password=root" \
+        --data-urlencode "hash=" -o /dev/null 2>/dev/null || true
+    # Generate a personal access token via the web form.
+    curl -s -b "$cookie_jar" -X POST "http://localhost:$port/root/_personalToken" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "note=test-token" -o /dev/null 2>/dev/null || true
+    # Read the generated token back from the account page.
+    token=$(curl -s -b "$cookie_jar" "http://localhost:$port/root/_application" 2>/dev/null | grep -oE '[0-9a-f]{40}' | head -1 || true)
+    rm -f "$cookie_jar"
     if [ -z "$token" ]; then
         echo "  [gitbucket] WARNING: could not generate admin token — using default root:root" >&2
         export GB_TOKEN="root"
@@ -207,6 +249,13 @@ __ensure_gitbucket() {
         export GB_TOKEN="$token"
         echo "  [gitbucket] admin token generated" >&2
     fi
+
+    # SC-1: Authenticate the gb CLI against the provisioned instance so that
+    # `gb auth status` succeeds and `gb repo view` is authorized. Without this
+    # login the CLI reports not-authenticated even though the instance is up.
+    gb auth login -H "$GB_HOST" -t "$GB_TOKEN" --protocol "$GB_PROTOCOL" >/dev/null 2>&1 || {
+        echo "  [gitbucket] WARNING: gb auth login failed" >&2
+    }
 
     # SC-5: Create test repo via API (no gb config needed — curl with basic auth)
     curl -s -u root:root -X POST "http://localhost:$port/api/v3/user/repos" \

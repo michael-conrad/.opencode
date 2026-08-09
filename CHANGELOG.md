@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Fix pre-commit Gate 2 SHA extraction for clean submodules** (#2258) - Replaced the buggy `awk '{print substr($1,2)}'` fallback in `hooks/pre-commit` Gate 2 with an explicit awk first-char test that strips only a status prefix (`+`/`-`/`U`) and never a hex character. Eliminates the false BLOCK on every commit caused by a 39-char SHA never matching the 40-char remote tip. Added behavioral test `test-2258-sc1-clean-submodule-sha.sh`.
+
 - **Remove redundant check-pr task** (#2239) - Deleted `check-pr.md` from git-workflow-cleanup, removed all references from SKILL.md files and cleanup.md, fixed cleanup processing order to iterate submodules before parent repo. Added behavioral test verifying 'check pr' routes to cleanup workflow.
 
 - **git-workflow skill cards to Workflows format** (#2242) - Reformat 6 git-workflow SKILL.md cards from TDT+DISPATCH_GATE to the canonical Workflows section format. Replaced coded dispatch strings with the canonical task() dispatch prompt (sub-agent reads the task card and follows its instructions; the orchestrator dispatches via task()). Added full-environment GitBucket simulation for the cleanup-dispatch behavioral test and a skilldeck-lint non-canonical-prompt rule. Updated reference docs to the new prompt format.
@@ -15,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Clean-room sub-agent evaluation for behavioral tests** (#2245) - Removed `assert_semantic()` and inline `opencode run` evaluation from behavioral test helpers and 12 behavior scripts. Replaced with orchestrator-dispatched clean-room sub-agent evaluation that reads `session.yaml` as PRIMARY evidence. Converted scripts are now artifact-only generators (exit 0) producing artifact dirs with `session.yaml`. Documented the evaluation contract in `tests-v2/AGENTS.md` (assert_semantic FORBIDDEN), `test-driven-development/SKILL.md`, and `verification-before-completion/tasks/verify.md`.
 
 ### Added
+
+- **GitBucket label operation documentation corrected** (#2257) - Empirically validated the GitBucket label-operation workflow against a live local instance and corrected the four `gitbucket-api` skill-card files (`label-operations.md`, `SKILL.md` capability manifest, `issue-operations.md`, `mcp-operations.md`) to the verified truth. Issue-level label mutation and repo-level label CRUD both confirmed WORKING via `gb api` passthrough, removing false BROKEN claims. Added SC-1..7 behavioral tests.
 
 - **Reduced approval-gate ceremony** (#2220) - Merged approval-gate-scope sub-skill into approval-gate dispatcher. Deleted 47 files across 7 subdirectories, created 3 flat task files (resolve-scope, apply-label, route), updated all cross-references. Single dispatcher entry point for all authorization operations.
 
