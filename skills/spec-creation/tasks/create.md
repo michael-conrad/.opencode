@@ -140,6 +140,16 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 > **Local artifacts:** `{issues_prefix}{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
 
+### Step 7: Sequence post-push reconciliation after push-artifacts
+
+After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operations/platforms/local/tasks/push-artifacts.md) runs and returns the `artifact_url`, sequence the post-push reconciliation of the Spec Reference Blockquote / artifact URL:
+
+1. Dispatch `push-artifacts` via `task(..., prompt: "execute push-artifacts task from issue-operations-core")` to push the `.issues/{N}/` spec artifacts to the `issues-data` branch and obtain the returned `artifact_url`.
+2. Reconcile the Spec Reference Blockquote / artifact URL in the remote issue body against the `artifact_url` returned by push-artifacts:
+   - Verify the blockquote's `tree/issues-data/{N}/` link resolves to the same URL as the returned `artifact_url`.
+   - If the blockquote URL differs from the returned `artifact_url`, call `issue-operations → update-issue` to amend the remote issue body with the corrected Spec Reference Blockquote / artifact URL.
+3. Confirm the reconciled Spec Reference Blockquote / artifact URL is present and correct in the remote issue body before completing.
+
 ## Exit Criteria
 
 - [ ] Spec assembled with all required sections
