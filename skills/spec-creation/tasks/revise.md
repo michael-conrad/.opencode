@@ -42,9 +42,9 @@ Append a change control entry to the spec documenting:
 - Why it was changed (which validation finding or revision reason)
 - Who authorized the change
 
-### Step 5: Write revised spec to remote issue body
+### Step 5: Regenerate exec-summary remote issue body
 
-When a remote API is available, update the remote issue body with the revised spec content.
+When a remote API is available, regenerate the exec-summary remote issue body from the revised spec. Route the regenerated body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5, so the remote body reflects the revised spec content (Spec Reference Blockquote, Problem, Scope, Approach, Impact). Do NOT leave a stale exec-summary body that contradicts the authoritative local spec.
 
 ### Step 6: Write revised local spec
 
@@ -58,7 +58,7 @@ Delete all files in `{project_root}/{path}/.issues/{N}/artifacts/` to ensure sta
 
 - [ ] All validation findings addressed (or documented as won't-fix with justification)
 - [ ] Change control entry appended
-- [ ] Remote issue body updated (when API available)
+- [ ] Exec-summary remote issue body regenerated from the revised spec (when API available)
 - [ ] Local spec updated at `{spec_path}`
 - [ ] Stale analytical artifacts deleted from `{project_root}/{path}/.issues/{N}/artifacts/`
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
