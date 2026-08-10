@@ -11,8 +11,16 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 ## Entry Criteria
 
 - [ ] `issue_number` and `project_root` received in dispatch context
+- [ ] `issue_number` is a bound, real issue number — NOT an unbound/placeholder value (e.g., `N`, `TBD`, `0`, a literal placeholder token, or a number with no corresponding issue record)
 - [ ] No preloaded analysis, orchestrator reasoning, or expected outcomes in the prompt
 - [ ] Codebase is indexed (srclight available)
+
+## BLOCK Precondition
+
+**If `issue_number` is unbound or a placeholder** (a literal placeholder token such as `N`/`TBD`, a non-numeric value, `0`, or a number with no corresponding issue record in the project), the analyze task MUST BLOCK immediately. It MUST NOT proceed with pre-spec inspection, requirements extraction, decomposition, or artifact generation.
+
+- **BLOCK reason:** `UNBOUND_ISSUE_NUMBER` — the analyze task cannot anchor its analysis to a real issue. Issue-number binding is NOT analyze.md's responsibility; it is handled upstream by issue-operations-core creation and by create.md remote-stub-first. The orchestrator MUST provide a bound issue number before dispatching analyze.
+- **Result contract:** return `status: BLOCKED` with `blocker_reason` explaining that the issue number is unbound/placeholder and must be bound upstream before analyze can run.
 
 ## Procedure
 
