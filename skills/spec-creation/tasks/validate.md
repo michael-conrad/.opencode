@@ -25,23 +25,9 @@ Read [spec-structure-standards.md](reference/spec-structure-standards.md) and lo
 
 ### Step 2: Run 11-dimension holistic self-check
 
-Evaluate the spec against all 11 holistic dimensions:
+Evaluate the spec against all 11 holistic dimensions. The 11 dimensions are NOT hardcoded here — they are loaded dynamically from `reference/holistic-dimensions.yaml`, the single source of truth.
 
-| # | Dimension | What to Check |
-|---|-----------|---------------|
-| 1 | **Completeness** | All required sections present (loaded dynamically from spec-structure-standards.md) |
-| 2 | **Clarity** | Each SC is unambiguous, testable, and has a single interpretation |
-| 3 | **Consistency** | No internal contradictions between sections, SCs, and requirements |
-| 4 | **Correctness** | All factual claims verified against codebase (file paths, function names, config values) |
-| 5 | **Feasibility** | Each SC is achievable with available tools and within project constraints |
-| 6 | **Testability** | Each SC has a clear verification method matching its evidence type |
-| 7 | **Traceability** | Every requirement maps to ≥1 SC, every SC maps to ≥1 phase, every phase maps to ≥1 requirement |
-| 8 | **Atomicity** | Every SC is a single independently verifiable claim (no compound SCs) |
-| 9 | **Evidence type correctness** | Each SC's evidence type matches its verification method per the Evidence Type Taxonomy |
-| 10 | **Scope fidelity** | Spec does not exceed or contradict the problem statement and requirements |
-| 11 | **Clean-room compliance** | No task file contains task() or skill() calls; sub-agent context is scoped per spec |
-
-For each dimension, produce a PASS or FAIL verdict with a brief justification.
+Read [holistic-dimensions.yaml](reference/holistic-dimensions.yaml) and load the `spec_dimensions` list. The dimension names, evaluation questions, and checks are taken from that reference document, not from a local list. When a dimension changes, update the reference file — this task always reflects it.
 
 ### Step 3: Run structural validation
 
