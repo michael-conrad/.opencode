@@ -19,40 +19,40 @@ Revise an existing spec based on validation findings or revision requests. Updat
 
 ### Step 1: Read current spec
 
-Read the full spec from `{spec_path}`.
+- [ ] 1.1. Read the full spec from `{spec_path}`.
 
 ### Step 2: Read validation findings
 
-Read the validation findings or revision reason to understand what needs to change. If validation findings are provided, each finding includes the check name, FAIL result, and justification.
+- [ ] 2.1. Read the validation findings or revision reason to understand what needs to change. If validation findings are provided, each finding includes the check name, FAIL result, and justification.
 
 ### Step 3: Apply revisions
 
-For each validation finding or revision request:
+- [ ] 3.1. For each validation finding or revision request:
 
-1. Identify the spec section(s) that need revision
-2. Apply the fix (correct SC wording, add missing sections, fix evidence types, update traceability, etc.)
-3. Do NOT change the spec's scope, requirements, or success criteria beyond what the findings require
+  1. Identify the spec section(s) that need revision
+  2. Apply the fix (correct SC wording, add missing sections, fix evidence types, update traceability, etc.)
+  3. Do NOT change the spec's scope, requirements, or success criteria beyond what the findings require
 
 ### Step 4: Update change control
 
-Append a change control entry to the spec documenting:
+- [ ] 4.1. Append a change control entry to the spec documenting:
 
-- Date of revision
-- What was changed
-- Why it was changed (which validation finding or revision reason)
-- Who authorized the change
+  - Date of revision
+  - What was changed
+  - Why it was changed (which validation finding or revision reason)
+  - Who authorized the change
 
 ### Step 5: Regenerate exec-summary remote issue body
 
-When a remote API is available, regenerate the exec-summary remote issue body from the revised spec. Route the regenerated body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5, so the remote body reflects the revised spec content (Spec Reference Blockquote, Problem, Scope, Approach, Impact). Do NOT leave a stale exec-summary body that contradicts the authoritative local spec.
+- [ ] 5.1. When a remote API is available, regenerate the exec-summary remote issue body from the revised spec. Route the regenerated body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5, so the remote body reflects the revised spec content (Spec Reference Blockquote, Problem, Scope, Approach, Impact). Do NOT leave a stale exec-summary body that contradicts the authoritative local spec.
 
 ### Step 6: Write revised local spec
 
-Write the revised spec to the local path at `{spec_path}`.
+- [ ] 6.1. Write the revised spec to the local path at `{spec_path}`.
 
 ### Step 7: Delete stale analytical artifacts
 
-Delete all files in `{project_root}/{path}/.issues/{N}/artifacts/` to ensure stale artifacts from the previous spec version do not accumulate. Use `rm -rf {project_root}/{path}/.issues/{N}/artifacts/` to remove the entire artifacts directory.
+- [ ] 7.1. Delete all files in `{project_root}/{path}/.issues/{N}/artifacts/` to ensure stale artifacts from the previous spec version do not accumulate. Use `rm -rf {project_root}/{path}/.issues/{N}/artifacts/` to remove the entire artifacts directory.
 
 ## Exit Criteria
 

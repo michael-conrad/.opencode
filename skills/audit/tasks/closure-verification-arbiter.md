@@ -27,37 +27,32 @@ You are the Arbiter. You read the Evaluator's verdict and provide resolution pat
 
 ## Procedure
 
-### Step 1: Read Verdict
+- [ ] 1. **Read Verdict** — Read `verdict.yaml` from `./tmp/{issue-N}/artifacts/closure-verification/verdict.yaml`.
 
-Read `verdict.yaml` from `./tmp/{issue-N}/artifacts/closure-verification/verdict.yaml`.
+- [ ] 2. **Classify Gaps** —
 
-### Step 2: Classify Gaps
+    | Gap Type | Severity | Classification |
+    |---------|----------|----------------|
+    | ISSUE_NOT_CLOSED | HIGH | Spec issue still open |
+    | CRITERIA_UNVERIFIED | MEDIUM | Success criteria missing evidence |
+    | MISSING_CLOSING_COMMIT | LOW | Commit doesn't reference spec |
+    | OPEN_BLOCKERS | HIGH | Blocking issues remain |
+    | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-| Gap Type | Severity | Classification |
-|---------|----------|----------------|
-| ISSUE_NOT_CLOSED | HIGH | Spec issue still open |
-| CRITERIA_UNVERIFIED | MEDIUM | Success criteria missing evidence |
-| MISSING_CLOSING_COMMIT | LOW | Commit doesn't reference spec |
-| OPEN_BLOCKERS | HIGH | Blocking issues remain |
-| FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
+- [ ] 3. **Generate Recommendations** — For each FAIL criterion, provide a resolution path:
 
-### Step 3: Generate Recommendations
+  - What needs to be done
+  - Who should do it
+  - Priority
 
-For each FAIL criterion, provide a resolution path:
-- What needs to be done
-- Who should do it
-- Priority
+- [ ] 4. **Write Final Artifact** — Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`.
 
-### Step 4: Write Final Artifact
+- [ ] 5. **Return Frugal Result Contract** —
 
-Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`.
-
-### Step 5: Return Frugal Result Contract
-
-```yaml
-status: DONE | FAIL
-artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-PASS-{timestamp}.yaml"
-summary: "N criteria evaluated. X PASS, Y FAIL."
-all_criteria_pass: false
-remediation_required: true
-```
+    ```yaml
+    status: DONE | FAIL
+    artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-PASS-{timestamp}.yaml"
+    summary: "N criteria evaluated. X PASS, Y FAIL."
+    all_criteria_pass: false
+    remediation_required: true
+    ```

@@ -33,36 +33,26 @@ You are the Evaluator. You are decisive and binary. Every criterion gets a PASS 
 
 ## Procedure
 
-### Step 1: Read Reasoning
+- [ ] 1. **Read Reasoning** — Read `reasoning.yaml` from `./tmp/{issue-N}/artifacts/spec-summary/reasoning.yaml`.
 
-Read `reasoning.yaml` from `./tmp/{issue-N}/artifacts/spec-summary/reasoning.yaml`.
+- [ ] 2. **Build Evaluation Criteria** —
 
-### Step 2: Build Evaluation Criteria
+    | Criterion ID | Description | Expected Result |
+    |--------------|-------------|-----------------|
+    | SS-1 | PR title matches spec title | Same or equivalent title |
+    | SS-2 | PR body describes success criteria | All SC documented |
+    | SS-3 | PR files match spec requirements | All specified files present |
+    | SS-4 | PR scope matches spec scope | No extra/missing changes |
+    | SS-5 | Spec issue linked from PR | Issue reference in body |
+    | SS-6 | Closing keywords present | "Fixes/Closes/Resolves/Implements #<issue>" in commit/PR |
 
-| Criterion ID | Description | Expected Result |
-|--------------|-------------|-----------------|
-| SS-1 | PR title matches spec title | Same or equivalent title |
-| SS-2 | PR body describes success criteria | All SC documented |
-| SS-3 | PR files match spec requirements | All specified files present |
-| SS-4 | PR scope matches spec scope | No extra/missing changes |
-| SS-5 | Spec issue linked from PR | Issue reference in body |
-| SS-6 | Closing keywords present | "Fixes/Closes/Resolves/Implements #<issue>" in commit/PR |
+- [ ] 3. **Evaluate Each Criterion** — Compare PR content to spec requirements. Produce PASS or FAIL per criterion.
 
-### Step 3: Evaluate Each Criterion
+- [ ] 4. **Verify Closing Keywords** — Check for `Fixes`, `Closes`, `Resolves`, `Implements` in PR body and commits. Verify cross-repo references use `owner/repo#N` format (not bare `#N`).
 
-Compare PR content to spec requirements. Produce PASS or FAIL per criterion.
+- [ ] 5. **Check Spec Issue Status** — If closing keywords present, verify spec issue will be auto-closed.
 
-### Step 4: Verify Closing Keywords
-
-Check for `Fixes`, `Closes`, `Resolves`, `Implements` in PR body and commits. Verify cross-repo references use `owner/repo#N` format (not bare `#N`).
-
-### Step 5: Check Spec Issue Status
-
-If closing keywords present, verify spec issue will be auto-closed.
-
-### Step 6: Write Verdict Artifact
-
-Write `verdict.yaml` to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`.
+- [ ] 6. **Write Verdict Artifact** — Write `verdict.yaml` to `./tmp/{issue-N}/artifacts/spec-summary/verdict.yaml`.
 
 ## Output
 

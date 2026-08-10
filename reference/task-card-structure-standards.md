@@ -79,23 +79,38 @@ If any entry criterion is not met, the sub-agent returns BLOCKED with the unmet 
 
 ### Procedure
 
-Numbered steps the sub-agent executes. Second person imperative — direct commands.
+Numbered-checkbox steps the sub-agent executes. Second person imperative — direct commands. The Procedure is a **numbered-checkbox list** (`- [ ] N.`), not a plain numbered list.
 
 ```markdown
 ## Procedure
 
-1. Read the spec body from the artifact path.
-2. Extract all success criteria from the spec body.
-3. For each SC, identify the evidence type and verification method.
-4. Write the SC table to the spec body.
-5. Return the result contract.
+- [ ] 1. Read the spec body from the artifact path.
+- [ ] 2. Extract all success criteria from the spec body.
+- [ ] 3. For each SC, identify the evidence type and verification method.
+- [ ] 4. Write the SC table to the spec body.
+- [ ] 5. Return the result contract.
 ```
 
 Rules:
-- Each step is a single action — if a step has sub-steps, use a nested numbered list
+- Each step is a single action — if a step has sub-steps, use a nested numbered-checkbox list
 - Steps are sequential — the sub-agent executes them in order
 - If a step fails, the sub-agent returns BLOCKED with the failure reason
 - Do not include orchestrator-level instructions (no `task()` calls, no `skill()` calls)
+
+#### Clean-Room Unit Mandate
+
+Task cards are the execution unit for **non-task-capable sub-agents**. A sub-agent dispatched via `task()` cannot call `task()` or `skill()` itself — it executes the single task card it was dispatched to read. Therefore:
+
+- **A task-card Procedure MUST NOT require internal sub-agent dispatch.** A procedure that would require the sub-agent to dispatch further sub-agents (`task()` calls, `skill()` calls, or any orchestrator-level routing) MUST be split into multiple task cards, each dispatched as a separate workflow step by the orchestrator.
+- The sub-agent executes one clean-room unit — one task card — and returns its result contract. It does not orchestrate downstream work.
+
+#### Dispatch-Contract Completeness Requirement
+
+A task card declares the parameters it requires in its Dispatch Contract and Entry Criteria. For the sub-agent to execute, the orchestrator MUST supply **every** required parameter.
+
+- The workflow's **Context** sub-bullet MUST supply every parameter named in the task card's **Dispatch Contract** and **Entry Criteria**.
+- A workflow that omits a required parameter from its Context is a dispatch-contract completeness defect — the sub-agent would fabricate or guess the missing value.
+- When a task card is dispatched, the orchestrator MUST verify its Context sub-bullet is complete against the task card's Dispatch Contract and Entry Criteria before issuing the `task()` call.
 
 ### Exit Criteria
 

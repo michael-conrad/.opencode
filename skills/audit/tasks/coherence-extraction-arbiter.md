@@ -27,26 +27,21 @@ You are the Arbiter. You read the Evaluator's verdict and provide resolution pat
 
 ## Procedure
 
-### Step 1: Read Verdict
+- [ ] 1. **Read Verdict** — Read `verdict.yaml` from `./tmp/{issue-N}/artifacts/coherence-extraction/verdict.yaml`.
 
-Read `verdict.yaml` from `./tmp/{issue-N}/artifacts/coherence-extraction/verdict.yaml`.
+- [ ] 2. **Generate Recommendations** — For each FAIL criterion, provide a resolution path:
 
-### Step 2: Generate Recommendations
+  - What needs to be done
+  - Which guideline or skill needs updating
+  - Priority
 
-For each FAIL criterion, provide a resolution path:
-- What needs to be done
-- Which guideline or skill needs updating
-- Priority
+- [ ] 3. **Write Final Artifact** — Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-coherence-extraction-{STATUS}-{timestamp}.yaml`.
 
-### Step 3: Write Final Artifact
+- [ ] 4. **Return Frugal Result Contract** —
 
-Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-coherence-extraction-{STATUS}-{timestamp}.yaml`.
-
-### Step 4: Return Frugal Result Contract
-
-```yaml
-status: DONE | FAIL
-artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-coherence-extraction-PASS-{timestamp}.yaml"
-summary: "Coherence extraction complete. X guidelines, Y skills, Z rules."
-remediation_required: true
-```
+    ```yaml
+    status: DONE | FAIL
+    artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-coherence-extraction-PASS-{timestamp}.yaml"
+    summary: "Coherence extraction complete. X guidelines, Y skills, Z rules."
+    remediation_required: true
+    ```

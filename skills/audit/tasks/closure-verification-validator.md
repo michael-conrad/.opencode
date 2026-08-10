@@ -27,24 +27,20 @@ You are the Validator. You validate evidence against source data. You read `evid
 
 ## Procedure
 
-### Step 1: Read Evidence
+- [ ] 1. **Read Evidence** — Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/closure-verification/evidence.yaml`.
 
-Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/closure-verification/evidence.yaml`.
+- [ ] 2. **Validate Each Evidence Item** — For each evidence item:
 
-### Step 2: Validate Each Evidence Item
+  - Check accuracy against source data (PR API, issue API)
+  - Check completeness (all required fields present)
+  - Check relevance (evidence relates to closure criteria)
 
-For each evidence item:
-- Check accuracy against source data (PR API, issue API)
-- Check completeness (all required fields present)
-- Check relevance (evidence relates to closure criteria)
+- [ ] 3. **Write Reasoning Artifact** — Write validated evidence to `./tmp/{issue-N}/artifacts/closure-verification/reasoning.yaml` with:
 
-### Step 3: Write Reasoning Artifact
-
-Write validated evidence to `./tmp/{issue-N}/artifacts/closure-verification/reasoning.yaml` with:
-- Validated evidence items
-- Accuracy assessment per item
-- Completeness assessment
-- Relevance assessment
+  - Validated evidence items
+  - Accuracy assessment per item
+  - Completeness assessment
+  - Relevance assessment
 
 ## Output
 
