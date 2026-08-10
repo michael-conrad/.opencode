@@ -15,7 +15,9 @@ spec: "Remediate spec-creation and audit skill cards plus reference standards â€
 | create exec-summary body | Route remote issue body to canonical exec-summary format + forward-reference blockquote | spec-creation/tasks/create.md | Canonical body format + issues-data link | Create dispatch |
 | post-push reconciliation | Sequence reconciliation after push-artifacts | spec-creation pipeline | Sequenced | Post-push |
 | revise exec-summary regeneration | Regenerate remote exec-summary body on revision | spec-creation/tasks/revise.md | Regenerated | Revise dispatch |
+| issues-data URL root-cause | Fix erroneous `.issues/` path prefix in issues-data blockquote URL template at the source | issue-operations-core/tasks/creation.md Step 5 | `tree/issues-data/N/` with `{{SPEC_PATH}}` = `N/` | Root-cause fix (SC-37) |
 | audit workflow structure | Single Workflows section with 4 DiMo steps; remove TDT/Invocation/Tasks | audit/SKILL.md | Workflows-only | Skill-card validation |
+| audit description rewrite | Rewrite audit description frontmatter to canonical agent-intent format | audit/SKILL.md | Canonical agent-intent format | Skill-card validation |
 | audit dispatch format | Canonical dispatch format; no deprecated DiMo strings | audit/SKILL.md | Corrected | Dispatch gate (routing) |
 | audit role-card naming | Frontmatter name + Task heading match filename | audit/tasks/*-role.md | Repaired | Skill-card validation |
 | audit cross-reference repoints | Repoint broken refs to role-split files | audit tasks + reference | Repointed | Cross-reference verification |
@@ -44,4 +46,5 @@ spec: "Remediate spec-creation and audit skill cards plus reference standards â€
 | Drift repair vs format conformance | Format SCs (SC-23..SC-31) separated in Phase 6 from drift SCs |
 | Functional verification vs format/structural | Behavioral SCs (SC-32..SC-34) in Phase 7 |
 | Reference-doc format dependency | SC-35/SC-36 (Phase 6) are dependency prerequisites for SC-23/SC-24/SC-25/SC-28 |
-| Root-cause fix | SC-37 (Phase 1) prevents issues-data URL recurrence |
+| Root-cause fix | SC-37 (Phase 7) prevents issues-data URL recurrence |
+| Audit description rewrite | SC-7 (Phase 9) is a distinct semantic concern from audit workflow structure (SC-3/SC-4, Phase 8) |
