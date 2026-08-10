@@ -1,0 +1,50 @@
+issue_number: 2263
+artifact: pipeline-readiness
+date: 2026-08-10
+
+## Pipeline Readiness Gate
+
+### Atomicity
+- [x] Every SC maps to exactly one RED→GREEN→COMMIT cycle.
+  - SC-1 → Item 1 (020 re-scope)
+  - SC-2 → Item 2 (carve-out replacement)
+  - SC-3 → Item 3 (mechanism re-justification)
+  - SC-4 → Item 4 (000-critical-rules.md alignment)
+  - SC-5 → Item 5 (skill card alignment)
+  - SC-6 → Item 6 (contradiction elimination)
+  - SC-7 → Item 7 (delegation preservation)
+- [x] No item covers multiple SCs. Each item is a single independently verifiable claim.
+
+### Dependency Ordering
+- [x] SC dependency DAG is acyclic.
+  - SC-1 → SC-2 (re-scope precedes carve-out replacement — same file)
+  - SC-1 → SC-3 (re-scope grounds re-justification)
+  - SC-1 → SC-4 (000 aligns with re-scoped 020)
+  - SC-1 → SC-5 (skill cards align with re-scoped 020)
+  - SC-1..SC-5 → SC-6 (contradiction elimination depends on all file updates)
+  - SC-1..SC-5 → SC-7 (delegation preservation verified after all updates)
+  - Acyclic: yes. No cycles.
+
+### Single Concern
+- [x] Every SC targets one file category and one verification domain.
+  - SC-1, SC-2, SC-3: 020-go-prohibitions.md (structural)
+  - SC-4: 000-critical-rules.md (structural)
+  - SC-5: 36 skill cards (structural)
+  - SC-6: all affected files (behavioral)
+  - SC-7: all affected files (structural)
+- [x] No SC spans multiple file categories with different verification domains.
+
+### Phase Dependency
+- [x] Phase dependency graph is acyclic.
+  - Phase 1 (SC-1) → Phase 2 (SC-2) → Phase 3 (SC-3) → Phase 4 (SC-4) → Phase 5 (SC-5) → Phase 6 (SC-6) → Phase 7 (SC-7)
+  - Linear, acyclic.
+
+### Three-Tier Structure
+- [x] Multi-phase spec has pre/per-file/post structure.
+  - Pre: Phase 1-2 (020-go-prohibitions.md rule + carve-out) — the core principle change.
+  - Per-file: Phase 3 (020 §1.1), Phase 4 (000-critical-rules.md), Phase 5 (36 skill cards) — per-file alignment.
+  - Post: Phase 6 (contradiction elimination — cross-file verification), Phase 7 (delegation preservation — verification-only).
+
+### Gate Verdict
+- [x] PASS — all pipeline readiness checks satisfied.
+- The spec is ready for the create task.

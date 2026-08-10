@@ -1,0 +1,41 @@
+issue_number: 2263
+artifact: testability-assessment
+date: 2026-08-10
+
+## Testability Assessment
+
+### Per-Phase Test Strategy
+
+| Phase | SC | Test Type | Test Strategy |
+|-------|-----|-----------|---------------|
+| 1 | SC-1 | Structural | grep 020-go-prohibitions.md: assert no "NEVER performs inline work" absolute remains; assert allocation-by-context-cost language present (large/disposable → sub-agent; small/necessary → orchestrator). |
+| 2 | SC-2 | Structural | grep 020-go-prohibitions.md: assert the false carve-out phrase ("NOT 'inline work' or 'reading a file'") is absent; assert truthful context-economy justification present. |
+| 3 | SC-3 | Structural | grep 020-go-prohibitions.md §1.1: assert result-contract frugality, DISPATCH_GATE no-preloaded-context, clean-room sub-agents are re-expressed under context-economy; assert substance unchanged. |
+| 4 | SC-4 | Structural | grep 000-critical-rules.md: assert critical-rules-XXX re-justified under context-economy; assert category-error prohibition intact; assert no false "not a file" claim. |
+| 5 | SC-5 | Structural | grep all 36 DISPATCH_GATE skill cards: assert consistent context-economy justification; assert no-preloaded-context substance unchanged. |
+| 6 | SC-6 | Behavioral | Run a skill-load scenario via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert the orchestrator can load a skill and dispatch without triggering a contradiction. Behavioral evidence required because this SC tests runtime agent behavior (skill dispatch decisions). |
+| 7 | SC-7 | Structural | grep affected files: assert delegation mechanism unchanged; assert cost-blind vs context-cost distinction explicit. |
+
+### Testability Rationale
+
+- **Structural tests (SC-1, SC-2, SC-3, SC-4, SC-5, SC-7):** These SCs verify documentation/instruction-model content — the presence/absence of specific rule text and justifications. Structural (grep/string) evidence is appropriate because the change is to instruction-model text, not runtime behavior. The evidence type is `string`/`structural`.
+- **Behavioral test (SC-6):** This SC verifies the contradiction is eliminated at runtime — that the orchestrator can load a skill and dispatch without reconciling contradictory signals. This is a runtime-behavioral change (agent dispatch decisions), so behavioral evidence via `opencode run` is required. Per the evidence-type classification gate, a change that affects runtime agent behavior must be uplifted to behavioral evidence.
+
+### Testability Constraints
+
+- **Behavioral test isolation:** Must run via `with-test-home` (mandatory per AGENTS.md). No direct `opencode run`.
+- **Behavioral test scope:** Scope-limited (single scenario) per the scope-limited behavioral testing mandate. The scenario is "skill load + dispatch without contradiction."
+- **Behavioral test timeout:** Requires >=600s timeout (35B model inference).
+- **Stale lock files:** Run `rm -f tmp/.behavior-run.lock` before re-running.
+
+### Testability Risks
+
+| Risk | Mitigation |
+|------|-----------|
+| SC-6 behavioral test is expensive (opencode run) | Scope-limited single scenario; required because the SC tests runtime behavior |
+| Structural tests may miss a residual contradiction | SC-6 behavioral test is the cross-check |
+| Behavioral test may be flaky (model variance) | Use stderr-based assertions (assert_stderr_pattern_present/absent) per behavioral test conventions |
+| Cost-blind vs context-cost distinction hard to verify structurally | SC-7 grep for explicit distinction language |
+
+### Overall Assessment
+- The spec is highly testable. 6 of 7 SCs are structural (documentation content verification). 1 SC (SC-6) is behavioral (runtime contradiction elimination). The behavioral SC is the critical cross-check that the fix actually resolves the no-compliant-path problem.

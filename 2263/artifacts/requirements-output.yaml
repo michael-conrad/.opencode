@@ -1,0 +1,45 @@
+issue_number: 2263
+extraction_date: 2026-08-10
+
+## Requirements
+
+### Explicit Requirements (stated directly in spec)
+
+- REQ-1: Re-scope the "orchestrator never performs inline work" rule from role-purity to an allocation-by-context-cost model. Work is allocated by context cost (large/disposable → sub-agent; small/necessary → orchestrator), not by role.
+  - Verified: 020-go-prohibitions.md line 205 states the absolute role-purity rule; §1.1 lines 84-137 already frame the split in context terms. The re-scope replaces the absolute with the context-cost allocation principle.
+- REQ-2: Replace the false carve-out ("reading a SKILL.md is not reading a file") with a truthful, defensible justification grounded in context economy.
+  - Verified: 020-go-prohibitions.md line 207 contains the false carve-out. The truthful justification is: skill() auto-loads SKILL.md into the orchestrator's context; the routing metadata is small, necessary, and already present; sub-agents cannot load skills (mechanism necessity). Research card spec-writing-ai-agents confirms skill() auto-loads and sub-agents lack skill().
+- REQ-3: Re-justify result-contract frugality, the DISPATCH_GATE no-preloaded-context rule, and clean-room sub-agents under the same context-economy rationale.
+  - Verified: §1.1 lines 98, 126-137 (result contract frugality); DISPATCH_GATE sections in 36 skill cards (no-preloaded-context); clean-room sub-agent discipline throughout. These are re-expressed as consequences of protecting the orchestrator's context resource.
+- REQ-4: Update affected files: .opencode/guidelines/020-go-prohibitions.md, .opencode/guidelines/000-critical-rules.md, and the skill cards' DISPATCH_GATE sections.
+  - Verified: All three file categories exist and contain the inline-work/carve-out language (see pre-spec-inspection.yaml).
+- REQ-5: Preserve the delegation mechanism (task(), skill(), clean-room sub-agents) exactly as-is; no change to which tasks are delegated vs inline.
+  - Verified: The spec's out-of-scope section explicitly excludes changes to the delegation mechanism and to which tasks are delegated vs inline. This is a documentation/instruction-model fix.
+
+### Implicit Requirements (inferred from context)
+
+- REQ-6: Eliminate the self-contradiction so there is a compliant path for the orchestrator on every skill load. The spec's problem statement requires that the agent no longer reconcile three contradictory signals.
+  - Verified: The contradiction is between 020 line 205 (never inline), skill cards' inline designations (spec-creation lines 69/84, brainstorming lines 32/36), and the DISPATCH_GATE orchestrator-reads-inline requirement. The fix must make these consistent.
+- REQ-7: Distinguish "cost-blind" (verification/execution cost — never skip a tool call) from "context-cost" (orchestrator's persistent context resource). 020 line 217 "Cost-blind universal" must not be read as contradicting the context-economy model.
+  - Verified: 020 line 217 exists. The two cost dimensions are different; the fix must explicitly separate them to avoid a new contradiction.
+- REQ-8: Preserve enforcement of actual inline work (file edits, analysis, verification) — the re-scope must not be read as loosening the prohibition on orchestrator doing large/disposable work inline.
+  - Verified: The spec's Impact section states the allocation model explicitly retains clean-room sub-agent dispatch for all large/disposable work; only small routing-necessary reads are assigned to the orchestrator.
+
+### Constraint Requirements (boundary conditions)
+
+- REQ-9: Both 020-go-prohibitions.md and 000-critical-rules.md are Tier 1 files. Changes must not conflict with other open specs touching these files (#1406, #1204, #1010).
+  - Verified: #1406 (orchestrator bypass enforcement), #1204 (rule → SC conversion), #1010 (checklist dispatch architecture) all reference the inline-work rule. The fix must align with these, not contradict them.
+- REQ-10: The carve-out must be deleted, not merely reworded. The spec's Approach states "The carve-out is deleted."
+  - Verified: 020 line 207 is the carve-out to delete.
+- REQ-11: The DISPATCH_GATE no-preloaded-context requirement's substance is unchanged — only its justification changes.
+  - Verified: Spec out-of-scope section explicitly states this.
+
+### Non-Requirements (explicitly excluded)
+
+- REQ-N1: No change to the actual delegation mechanism (task(), skill(), clean-room sub-agents).
+- REQ-N2: No change to which tasks are delegated vs inline — documentation/instruction-model fix only, not a behavioral pipeline change.
+- REQ-N3: No change to the DISPATCH_GATE no-preloaded-context requirement's substance — only its justification.
+
+## Verification Evidence
+- All requirements verified against live file contents in the .opencode submodule (grep + read tool calls) on 2026-08-10.
+- Research card spec-writing-ai-agents-opencode-skill-architecture.md (confidence 0.90) confirms the skill()/task() mechanism asymmetry that grounds the truthful justification.

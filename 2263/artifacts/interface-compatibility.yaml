@@ -1,0 +1,33 @@
+issue_number: 2263
+artifact: interface-compatibility
+date: 2026-08-10
+
+## Interface Compatibility Analysis
+
+### Interfaces Affected
+
+| Interface | Type | Change | Compatibility |
+|-----------|------|--------|---------------|
+| 020-go-prohibitions.md "never inline" rule | Instruction-model interface (agent-facing) | Modified: role-purity absolute → allocation-by-context-cost | Backward compatible — the delegation mechanism and which-tasks-are-delegated are unchanged; only the framing changes |
+| 020-go-prohibitions.md carve-out (line 207) | Instruction-model interface | Removed: false carve-out deleted, replaced with truthful justification | Backward compatible — the SKILL.md routing read still happens; only the justification changes |
+| 020-go-prohibitions.md §1.1 result-contract frugality | Instruction-model interface | Modified: re-expressed under context-economy | Backward compatible — substance unchanged, justification re-framed |
+| 000-critical-rules.md critical-rules-XXX | Instruction-model interface | Modified: re-justified under context-economy | Backward compatible — category-error prohibition preserved |
+| 36 skill cards' DISPATCH_GATE sections | Instruction-model interface | Modified: Orchestrator Entry Criteria re-justified | Backward compatible — no-preloaded-context substance unchanged |
+| task() delegation mechanism | Behavioral interface | Unchanged | N/A — explicitly out of scope |
+| skill() mechanism | Behavioral interface | Unchanged | N/A — explicitly out of scope |
+| clean-room sub-agent dispatch | Behavioral interface | Unchanged | N/A — explicitly out of scope |
+| Task cards (tasks/<name>.md) | Sub-agent-facing interface | Unchanged | N/A — not touched |
+
+### Compatibility Classification
+- **Unchanged:** task(), skill(), clean-room sub-agents, task cards, pipeline behavior.
+- **Modified (backward compatible):** 020-go-prohibitions.md (rule + carve-out + §1.1), 000-critical-rules.md (critical-rules-XXX), 36 skill cards (DISPATCH_GATE).
+- **New:** None.
+- **Removed:** The false carve-out (line 207) — replaced, not removed from the framework's capability.
+
+### Breaking Change Analysis
+- No breaking changes. The fix is a documentation/instruction-model change. The delegation mechanism, which-tasks-are-delegated, and the no-preloaded-context substance are all preserved.
+- The only "removal" is the false carve-out prose, which is replaced by a truthful justification — the underlying behavior (orchestrator reads SKILL.md routing metadata) is unchanged.
+
+### Internal-Only Interfaces
+- All affected interfaces are internal to the .opencode framework (agent-facing instruction-model). No external/public API is affected.
+- The behavioral enforcement tests (tests-v2/behaviors/) that assert the "never inline" absolute are internal test interfaces — they must be updated to assert the context-economy model (SC-6).

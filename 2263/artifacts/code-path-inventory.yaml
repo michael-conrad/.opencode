@@ -1,0 +1,47 @@
+issue_number: 2263
+artifact: code-path-inventory
+date: 2026-08-10
+
+## Code Path Inventory
+
+### Phase 1 — Re-scope 020-go-prohibitions.md (SC-1)
+- File: .opencode/guidelines/020-go-prohibitions.md
+- Path: line 205 (the "never inline" absolute) → replaced with allocation-by-context-cost model.
+- Path: §1.1 Orchestrator Context Discipline (lines 84-137) — the existing context-economy framing that grounds the re-scope.
+- Path: line 217 "Cost-blind universal" — add explicit distinction from context-cost.
+- Path: lines 213, 422-425 "Orchestrator inline work detected → HALT" — verify consistency (still applies to large/disposable inline work).
+
+### Phase 2 — Delete carve-out (SC-2)
+- File: .opencode/guidelines/020-go-prohibitions.md
+- Path: line 207 (the false carve-out) → deleted, replaced with truthful justification.
+- Path: lines 209-212 Skill Card / Task Card table — preserved (correct as-is).
+
+### Phase 3 — Re-justify mechanisms (SC-3)
+- File: .opencode/guidelines/020-go-prohibitions.md
+- Path: §1.1 lines 98, 126-137 (result contract frugality) → re-expressed under context-economy.
+- Path: DISPATCH_GATE no-preloaded-context (referenced across 36 skill cards) → re-justified.
+
+### Phase 4 — Update 000-critical-rules.md (SC-4)
+- File: .opencode/guidelines/000-critical-rules.md
+- Path: lines 172-206 (critical-rules-XXX "Dispatching SKILL.md to sub-agents — category error") → re-justified under context-economy; remove false carve-out language.
+- Path: lines 178-181 (Skill Card / Task Card table) — preserved.
+- Path: line 321 (Tier 2 definition) — verify "inline work" reference remains consistent.
+
+### Phase 5 — Update skill cards (SC-5)
+- Files: 36 skill cards with DISPATCH_GATE sections (approval-gate, brainstorming, changelog-generator, completeness-gate, completion-core, conflict-resolution, correspondence, engineering-approach, finishing-a-development-branch, issue-operations-comments, issue-operations-core, issue-operations, issue-operations-sub-issues, issue-operations-sync, issue-review, mcp-tool-usage, multimodal-dispatch, plan, playwright-cli, pre-analysis, programming-principles, receiving-code-review, release-promoter, requesting-code-review, research, skill-creator, solve, spec-creation, sre-runbook, sync-guidelines, systematic-debugging, test-driven-development, using-git-worktrees, verification, verification-before-completion, verification-enforcement).
+- Path: each card's "DISPATCH_GATE" and "Orchestrator Entry Criteria" sections → re-justified under context-economy.
+
+### Phase 6 — Contradiction elimination (SC-6)
+- Files: all affected files (020, 000, 36 skill cards).
+- Path: cross-file consistency check — no file contains both the "never inline" absolute and inline-designated tasks without reconciliation.
+- Path: behavioral enforcement tests in tests-v2/behaviors/ that assert the "never inline" absolute (if any) — must be updated to assert the context-economy model.
+
+### Phase 7 — Delegation preservation (SC-7)
+- Files: none modified (verification only).
+- Path: verify delegation mechanism (task(), skill(), clean-room sub-agents) unchanged; verify cost-blind vs context-cost distinction explicit.
+
+## Code Paths NOT Touched
+- Task cards (tasks/<name>.md) — sub-agent-facing, unaffected.
+- Delegation mechanism implementation — unchanged.
+- Pipeline behavior — unchanged.
+- .opencode/tools/ scripts — unchanged.

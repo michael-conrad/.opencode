@@ -1,0 +1,30 @@
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "Re-scope 020-go-prohibitions.md inline-work rule to allocation-by-context-cost"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Delete false carve-out and replace with truthful context-economy justification"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Re-justify result-contract frugality, DISPATCH_GATE no-preloaded-context, clean-room sub-agents under context-economy"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Re-justify 000-critical-rules.md critical-rules-XXX under context-economy, preserving category-error prohibition"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Re-justify 36 skill cards' DISPATCH_GATE Orchestrator Entry Criteria under context-economy"
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Eliminate self-contradiction so orchestrator can load skill and dispatch without contradiction"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Preserve delegation mechanism exactly and distinguish cost-blind from context-cost"
+    evidence_type: "structural"
+    plan_item: 7

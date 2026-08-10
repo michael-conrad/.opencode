@@ -1,0 +1,50 @@
+issue_number: 2263
+artifact: state-analysis
+date: 2026-08-10
+
+## State Machine Analysis
+
+### State Model: Orchestrator Instruction-Model State
+
+The affected files define the orchestrator's instruction-model state — the set of rules the orchestrator follows when deciding whether to perform work inline or dispatch to a sub-agent.
+
+### States
+
+| State | Description | Current (pre-fix) | Target (post-fix) |
+|-------|-------------|-------------------|-------------------|
+| S0: Role-purity | Orchestrator NEVER performs inline work (absolute) | ACTIVE (020 line 205) | REMOVED |
+| S1: Carve-out | Reading SKILL.md routing metadata is "NOT inline work / NOT reading a file" | ACTIVE (020 line 207) | REMOVED (replaced) |
+| S2: Context-economy | Work allocated by context cost (large/disposable → sub-agent; small/necessary → orchestrator) | PARTIAL (§1.1 lines 84-137) | ACTIVE (unified principle) |
+| S3: Contradiction | Orchestrator must reconcile three contradictory signals on every skill load | ACTIVE (no compliant path) | REMOVED (compliant path exists) |
+
+### Transitions
+
+| From | To | Trigger | Phase |
+|------|-----|---------|-------|
+| S0 (role-purity) | S2 (context-economy) | Re-scope 020 line 205 | Phase 1 (SC-1) |
+| S1 (carve-out) | S2 (context-economy justification) | Delete carve-out, add truthful justification | Phase 2 (SC-2) |
+| S0+S1 (contradictory) | S2 (unified) | All file updates consistent | Phase 6 (SC-6) |
+| S3 (contradiction) | S2 (compliant path) | Cross-file consistency verified | Phase 6 (SC-6) |
+
+### Invariants (must hold in all states)
+
+- INV-1: The delegation mechanism (task(), skill(), clean-room sub-agents) is unchanged.
+- INV-2: Which tasks are delegated vs inline is unchanged.
+- INV-3: The no-preloaded-context requirement's substance is unchanged.
+- INV-4: Large/disposable work (file analysis, verification, composition) is still delegated to sub-agents.
+- INV-5: The category-error prohibition (dispatching SKILL.md to sub-agents) is preserved.
+- INV-6: "Cost-blind" (verification cost) is distinct from "context-cost" (orchestrator context resource).
+
+### Failure Modes
+
+| Failure Mode | State | Detection | Recovery |
+|--------------|-------|-----------|----------|
+| Re-scope reads as loosening inline-work prohibition | S2 | Behavioral test asserts large/disposable work still delegated | Re-tighten SC-1 language |
+| Carve-out replacement reintroduces a category error | S2 | Structural grep for false "not a file" claim | Fix SC-2 justification |
+| 000-critical-rules.md diverges from 020 | S2 | Cross-file consistency check (SC-6) | Align SC-4 |
+| Skill cards diverge from 020 | S2 | Cross-file consistency check (SC-6) | Align SC-5 |
+| Cost-blind vs context-cost conflated | S2 | Structural check (SC-7) | Add explicit distinction |
+| Residual contradiction remains | S3 | Behavioral test (SC-6) | Fix remaining file |
+
+### State Machine Acyclicity
+- The transition graph is acyclic: S0→S2, S1→S2, S3→S2. All paths converge on S2 (context-economy), the single target state. No cycles.

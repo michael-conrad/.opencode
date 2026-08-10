@@ -1,0 +1,32 @@
+issue_number: 2263
+artifact: cross-cutting-matrix
+date: 2026-08-10
+
+## Cross-Cutting Concerns Matrix
+
+| Cross-cutting concern | SC-1 (020 re-scope) | SC-2 (carve-out) | SC-3 (re-justify) | SC-4 (000 align) | SC-5 (skill cards) | SC-6 (contradiction) | SC-7 (delegation) |
+|----------------------|---------------------|------------------|--------------------|--------------------|--------------------|----------------------|-------------------|
+| Context-economy rationale | PRIMARY | PRIMARY | PRIMARY | PRIMARY | PRIMARY | CHECK | CHECK |
+| Delegation mechanism preservation | GUARD | GUARD | GUARD | GUARD | GUARD | CHECK | PRIMARY |
+| Cost-blind vs context-cost distinction | REQUIRED | — | REQUIRED | — | — | CHECK | PRIMARY |
+| No false "not a file" claim | — | PRIMARY | — | REQUIRED | — | CHECK | — |
+| No-preloaded-context substance | — | — | GUARD | — | GUARD | CHECK | — |
+| Tier 1 file discipline (020, 000) | PRIMARY | PRIMARY | PRIMARY | PRIMARY | — | — | — |
+| Cross-file consistency | — | — | — | REQUIRED | REQUIRED | PRIMARY | — |
+| Enforcement of actual inline work | GUARD | — | — | — | — | CHECK | GUARD |
+
+## Legend
+- PRIMARY: the concern is the main deliverable of this SC.
+- REQUIRED: the concern must be satisfied for this SC to pass.
+- GUARD: the concern must NOT be violated by this SC (negative constraint).
+- CHECK: the concern is verified as part of this SC.
+
+## Analysis
+- **Context-economy rationale** is the single cross-cutting thread across all SCs — it is the unifying principle of the fix.
+- **Delegation mechanism preservation** is a guard on every file-modifying SC — the re-scope must not change which tasks are delegated vs inline.
+- **Cost-blind vs context-cost distinction** is required in SC-1 and SC-3 (020-go-prohibitions.md) because line 217 "Cost-blind universal" could otherwise be read as contradicting the context-economy model.
+- **No false "not a file" claim** is primary in SC-2 (carve-out deletion) and required in SC-4 (000-critical-rules.md must not reintroduce it).
+- **No-preloaded-context substance** is guarded in SC-3 and SC-5 — only the justification changes, not the requirement.
+- **Tier 1 file discipline** applies to SC-1 through SC-4 (020 and 000 are Tier 1 files).
+- **Cross-file consistency** is required in SC-4 and SC-5 (must align with the re-scoped 020) and primary in SC-6 (contradiction elimination).
+- **Enforcement of actual inline work** is guarded in SC-1 and SC-7 — the re-scope must not be read as loosening the prohibition on orchestrator doing large/disposable work inline.

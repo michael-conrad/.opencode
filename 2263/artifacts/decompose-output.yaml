@@ -1,0 +1,84 @@
+issue_number: 2263
+decomposition_date: 2026-08-10
+
+## Decomposition Model
+
+The problem decomposes into discrete, independently verifiable units, each mapping to exactly one SC. Each item is a documentation/instruction-model change with its own RED/GREEN/verify/commit cycle. The delegation mechanism is preserved exactly — no behavioral pipeline change.
+
+## Items
+
+### Item 1 — Re-scope 020-go-prohibitions.md to allocation-by-context-cost
+- SC-ID: SC-1
+- Concern: Replace the role-purity absolute ("orchestrator NEVER performs inline work", line 205) with the allocation-by-context-cost model (large/disposable → sub-agent; small/necessary → orchestrator).
+- Input: 020-go-prohibitions.md line 205 + §1.1 context-economy framing (lines 84-137).
+- Output: Re-scoped rule text grounded in context economy.
+- Invariant: The delegation mechanism (task(), skill(), clean-room sub-agents) unchanged; large/disposable work still delegated.
+- Failure mode: Re-scope reads as loosening the inline-work prohibition → regression toward orchestrator inline work.
+- Verification: Structural — grep 020-go-prohibitions.md for the re-scoped rule; confirm no "NEVER performs inline work" absolute remains; confirm context-cost allocation language present.
+
+### Item 2 — Delete the false carve-out and replace with truthful justification
+- SC-ID: SC-2
+- Concern: Delete line 207 ("reading a SKILL.md is NOT 'inline work' or 'reading a file'") and replace with a truthful, defensible justification grounded in context economy.
+- Input: 020-go-prohibitions.md line 207; research card spec-writing-ai-agents (skill() auto-loads SKILL.md; sub-agents lack skill()).
+- Output: Truthful justification: the orchestrator reads SKILL.md routing metadata because skill() already injected it into the orchestrator's context, the metadata is small/necessary, and sub-agents cannot load skills (mechanism necessity).
+- Invariant: No false "a SKILL.md is not a file" claim remains.
+- Failure mode: Justification still contains a category error or rationalization-training language.
+- Verification: Structural — grep for the deleted carve-out phrase; confirm truthful justification present.
+
+### Item 3 — Re-justify result-contract frugality, DISPATCH_GATE no-preloaded-context, clean-room sub-agents under context-economy
+- SC-ID: SC-3
+- Concern: Re-express §1.1 result-contract frugality (lines 98, 126-137), the DISPATCH_GATE no-preloaded-context rule, and clean-room sub-agent discipline as direct consequences of protecting the orchestrator's context resource.
+- Input: 020-go-prohibitions.md §1.1; DISPATCH_GATE sections in 36 skill cards.
+- Output: Consistent context-economy rationale across all three mechanisms.
+- Invariant: The substance of each mechanism is unchanged — only the justification.
+- Failure mode: Justification changes the substance of a mechanism.
+- Verification: Structural — confirm the three mechanisms retain their substance with context-economy justification.
+
+### Item 4 — Update 000-critical-rules.md critical-rules-XXX
+- SC-ID: SC-4
+- Concern: Update the "Dispatching SKILL.md to sub-agents — category error" rule (lines 172-206) to use the context-economy justification; remove any carve-out language that asserts reading a SKILL.md is not reading a file.
+- Input: 000-critical-rules.md lines 172-206.
+- Output: Consistent context-economy justification; no false carve-out.
+- Invariant: The category-error prohibition (dispatching SKILL.md to sub-agents) is preserved.
+- Failure mode: Weakening the category-error prohibition.
+- Verification: Structural — grep 000-critical-rules.md for the updated rule; confirm category-error prohibition intact.
+
+### Item 5 — Update skill cards' DISPATCH_GATE sections
+- SC-ID: SC-5
+- Concern: Re-justify the DISPATCH_GATE "Orchestrator Entry Criteria" (orchestrator reads Trigger Dispatch Table + Invocation in own context) under the context-economy rationale across all 36 DISPATCH_GATE skill cards.
+- Input: 36 skill cards with DISPATCH_GATE sections.
+- Output: Consistent context-economy justification in each card's DISPATCH_GATE section.
+- Invariant: The no-preloaded-context requirement's substance unchanged; the orchestrator still reads routing metadata inline.
+- Failure mode: Inconsistent justification across cards; or substance change to no-preloaded-context.
+- Verification: Structural — grep all DISPATCH_GATE skill cards for consistent context-economy justification.
+
+### Item 6 — Eliminate the self-contradiction (no-compliant-path)
+- SC-ID: SC-6
+- Concern: Verify the self-contradiction is eliminated — no file contains both the "never inline" absolute and inline-designated tasks without reconciliation under the context-economy model.
+- Input: All affected files (020, 000, skill cards).
+- Output: A compliant path exists for the orchestrator on every skill load.
+- Invariant: The contradiction is resolved, not merely hidden.
+- Failure mode: A residual contradiction remains in some file.
+- Verification: Behavioral — run a skill-load scenario via opencode run; assert the orchestrator can load a skill and dispatch without triggering a contradiction. (Behavioral evidence required because this SC tests runtime agent behavior.)
+
+### Item 7 — Preserve delegation mechanism and distinguish cost dimensions
+- SC-ID: SC-7
+- Concern: Verify the delegation mechanism is preserved exactly (no change to which tasks are delegated vs inline) and that "cost-blind" (verification cost) is explicitly distinguished from "context-cost" (orchestrator context resource).
+- Input: 020-go-prohibitions.md line 217 (cost-blind); spec out-of-scope.
+- Output: Explicit distinction between the two cost dimensions; delegation mechanism unchanged.
+- Invariant: No behavioral change to the pipeline.
+- Failure mode: The re-scope is read as changing which tasks are delegated vs inline.
+- Verification: Structural — confirm delegation mechanism unchanged; confirm cost-blind vs context-cost distinction explicit.
+
+## Dependency DAG
+- Item 1 → Item 2 (re-scope must precede carve-out replacement — same file, coherent edit)
+- Item 1 → Item 3 (re-scope grounds the re-justification)
+- Item 1 → Item 4 (000-critical-rules.md must align with the re-scoped 020)
+- Item 1 → Item 5 (skill cards must align with the re-scoped 020)
+- Items 1-5 → Item 6 (contradiction elimination depends on all file updates)
+- Items 1-5 → Item 7 (delegation preservation verified after all updates)
+- Acyclic: yes.
+
+## Atomicity
+- Each item maps to exactly one SC and one RED/GREEN/verify/commit cycle.
+- No item covers multiple SCs.

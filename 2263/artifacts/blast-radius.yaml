@@ -1,0 +1,46 @@
+issue_number: 2263
+artifact: blast-radius
+date: 2026-08-10
+
+## Blast Radius
+
+### Phase 1 — Re-scope 020-go-prohibitions.md (SC-1)
+- Direct: 020-go-prohibitions.md line 205 (the "never inline" absolute).
+- Ripple: §1.1 Orchestrator Context Discipline (lines 84-137) — the re-scope must be consistent with the existing context-economy framing.
+- Ripple: Line 217 "Cost-blind universal" — must be explicitly distinguished from context-cost to avoid a new contradiction.
+- Ripple: Lines 213, 422-425 "Orchestrator inline work detected → HALT" — must remain consistent (still applies to large/disposable inline work).
+- Ripple: All downstream consumers of the "never inline" rule: 000-critical-rules.md, skill cards, AGENTS.md, prompts/default.txt.
+
+### Phase 2 — Delete carve-out (SC-2)
+- Direct: 020-go-prohibitions.md line 207.
+- Ripple: Lines 209-212 Skill Card / Task Card table — the table itself is correct; only the carve-out prose above it changes.
+- Ripple: 000-critical-rules.md lines 178-181 (duplicate Skill Card / Task Card table) — must stay consistent.
+
+### Phase 3 — Re-justify mechanisms (SC-3)
+- Direct: 020-go-prohibitions.md §1.1 (result contract frugality lines 98, 126-137).
+- Ripple: DISPATCH_GATE sections in 36 skill cards (no-preloaded-context).
+- Ripple: Clean-room sub-agent discipline throughout the framework.
+
+### Phase 4 — Update 000-critical-rules.md (SC-4)
+- Direct: 000-critical-rules.md lines 172-206 (critical-rules-XXX).
+- Ripple: Line 321 (Tier 2 definition mentions "inline work").
+- Ripple: Any guideline/skill referencing critical-rules-XXX.
+
+### Phase 5 — Update skill cards (SC-5)
+- Direct: 36 skill cards with DISPATCH_GATE sections.
+- Ripple: Each card's "Orchestrator Entry Criteria" and "DISPATCH_GATE" sections.
+- Ripple: No change to task cards (tasks/<name>.md) — they are sub-agent-facing and unaffected.
+
+### Phase 6 — Contradiction elimination (SC-6)
+- Direct: All affected files.
+- Ripple: Behavioral enforcement tests that assert the "never inline" absolute (if any exist in tests-v2/behaviors/).
+
+### Phase 7 — Delegation preservation (SC-7)
+- Direct: No file change — verification only.
+- Ripple: None (verification-only).
+
+## Ripple Risk Summary
+- Highest ripple: 020-go-prohibitions.md (Tier 1, referenced by many downstream files).
+- Medium ripple: 000-critical-rules.md (Tier 1, critical-rules-XXX referenced by skill cards).
+- Low ripple: 36 skill cards (each DISPATCH_GATE section is self-contained; no cross-card dependency).
+- No ripple: task cards, delegation mechanism, pipeline behavior.

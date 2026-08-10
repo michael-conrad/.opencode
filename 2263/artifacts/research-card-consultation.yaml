@@ -1,0 +1,38 @@
+issue_number: 2263
+consultation_date: 2026-08-10
+
+## Research Cards Consulted
+
+### 1. .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+- confidence: 0.90, status: active
+- **Relevant findings:**
+  - Finding 7/8: skill() auto-loads SKILL.md into the calling agent's context; task() does NOT auto-load task cards. The orchestrator reading a loaded SKILL.md's routing section is consuming metadata skill() already injected — not a sub-agent-delegable file read.
+  - Finding 10: Skill Card (SKILL.md) → Orchestrator; Task Card (tasks/<name>.md) → Sub-agent. Two distinct consumers.
+  - Finding 16: task() has no skill/task_card parameter; sub-agent must discover task card via its own tools.
+  - Finding 17-19: The Invocation section is the dispatch contract; the orchestrator reads it to determine the canonical dispatch string.
+  - "Why Dispatching SKILL.md to a Sub-Agent Is a Category Error": sub-agents lack skill() and task() tools (task: deny). The orchestrator MUST read SKILL.md routing metadata itself because sub-agents cannot.
+- **Applicability:** Directly supports the context-economy justification. The orchestrator reading SKILL.md routing metadata is not "inline work" in the delegation sense — it is the only mechanism by which the orchestrator can learn the dispatch contract, because sub-agents cannot load skills. The carve-out's error is not that it allows the read; it is that it falsely claims "a SKILL.md is not a file." The truthful justification is context economy + mechanism necessity.
+
+### 2. .issues/research-cards/writing-plans-skill-contradiction.md
+- confidence: 0.95, status: resolved
+- **Relevant findings:** Documents a prior instance of the same class of contradiction (writing-plans "Programmatic Invocation" inline vs DISPATCH_GATE dispatch). Root cause was stale inline-execution language. This confirms the framework has a recurring pattern of inline-vs-dispatch contradictions in skill cards.
+- **Applicability:** Confirms the contradiction class is real and recurring. The fix (re-scoping to context-economy) addresses the systemic root cause rather than patching individual skill cards.
+
+### 3. .opencode/.issues/research-cards/pre-response-gate-skill-description-design.md
+- confidence: 0.9
+- **Relevant findings:** Finding 5: "Point 4 (sub-agent dispatch) is architecturally a different concern" — pipeline orchestration vs skill dispatch. The orchestrator-routes-does-not-do principle is about pipeline architecture.
+- **Applicability:** Supports separating the "orchestrator routes" principle (which is about large/disposable work) from the skill-dispatch routing-metadata read (which is small/necessary). Aligns with the allocation-by-context-cost model.
+
+### 4. .issues/research-cards/writing-plans-flattening.md
+- confidence: 0.9, status: active
+- **Relevant findings:** Finding 7: "Execution Strategy Selection — subagent-driven (recommended, fresh subagent per task, better isolation) vs inline execution (batch with checkpoints, faster for simple plans)." BSWEN source explicitly frames inline vs sub-agent as a cost/context tradeoff, not a role-purity absolute.
+- **Applicability:** Industry research frames inline-vs-dispatch as a context/cost allocation decision, validating the spec's allocation-by-context-cost model.
+
+## Cards Checked and Found Not Directly Applicable
+- audit-skill-dimo-role-chain-defects.md, self-attribution-bias-independent-verification.md, plan-fidelity-auditor-authoritative-sources.md — concern sub-agent verification independence, not orchestrator inline-work allocation.
+
+## Conclusion
+The research cards provide strong support for the context-economy re-scoping:
+1. The orchestrator MUST read SKILL.md routing metadata inline because sub-agents cannot load skills (mechanism necessity).
+2. Industry research frames inline-vs-dispatch as a context/cost allocation decision, not a role-purity absolute.
+3. The contradiction class is recurring and systemic, warranting a principled fix rather than per-card patches.

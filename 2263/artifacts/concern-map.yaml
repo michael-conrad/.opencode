@@ -1,0 +1,35 @@
+issue_number: 2263
+artifact: concern-map
+date: 2026-08-10
+
+## Concern Map
+
+### Concern Boundaries
+
+| Concern | Files | Phase | Separation |
+|---------|-------|-------|------------|
+| Inline-work rule re-scoping | 020-go-prohibitions.md | 1 | The core rule change — role-purity → context-cost allocation |
+| Carve-out replacement | 020-go-prohibitions.md | 2 | Truthful justification for the SKILL.md routing read |
+| Mechanism re-justification | 020-go-prohibitions.md §1.1 | 3 | Result-contract frugality, DISPATCH_GATE, clean-room under context-economy |
+| Critical-rules alignment | 000-critical-rules.md | 4 | critical-rules-XXX category-error rule aligned to context-economy |
+| Skill card alignment | 36 skill cards | 5 | DISPATCH_GATE Orchestrator Entry Criteria re-justified |
+| Contradiction elimination | All affected files | 6 | Cross-file consistency check |
+| Delegation preservation | (verification only) | 7 | No behavioral change to pipeline |
+
+### Concern Separation Analysis
+
+- **Concern 1 (rule re-scoping) vs Concern 2 (carve-out replacement):** Same file, but distinct edits. Concern 1 replaces the absolute rule; Concern 2 replaces the carve-out prose. They are separable edits but must be coherent (Item 1 → Item 2 dependency). Kept as separate SCs because they are independently verifiable claims.
+- **Concern 3 (mechanism re-justification) vs Concern 1 (rule re-scoping):** Concern 3 re-expresses existing mechanisms under the new rationale; Concern 1 changes the rule itself. Distinct concerns — one is the principle, the other is the application.
+- **Concern 4 (000-critical-rules.md) vs Concern 1 (020-go-prohibitions.md):** Different Tier 1 files. Concern 4 aligns the category-error rule; Concern 1 re-scopes the inline-work rule. Both must be consistent but are separate files/edits.
+- **Concern 5 (skill cards) vs Concern 4 (000-critical-rules.md):** Skill cards' DISPATCH_GATE sections must align with the re-scoped critical-rules-XXX. Cross-file consistency required.
+- **Concern 6 (contradiction elimination) vs Concerns 1-5:** Concern 6 is a cross-cutting verification that all file updates are consistent. It depends on all prior concerns.
+- **Concern 7 (delegation preservation):** Verification-only concern; no file change. Guards against the re-scope being read as a behavioral change.
+
+### Single-Concern Verification
+- Each SC targets one file category and one verification domain:
+  - SC-1, SC-2, SC-3: 020-go-prohibitions.md (structural)
+  - SC-4: 000-critical-rules.md (structural)
+  - SC-5: 36 skill cards (structural)
+  - SC-6: all affected files (behavioral — tests runtime agent behavior)
+  - SC-7: all affected files (structural — delegation preservation)
+- No SC spans multiple file categories with different verification domains.

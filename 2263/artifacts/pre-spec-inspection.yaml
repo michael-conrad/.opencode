@@ -1,0 +1,68 @@
+issue_number: 2263
+repo: michael-conrad/.opencode
+inspection_date: 2026-08-10
+scope: analysis-only (no file modification)
+
+## Affected Files
+
+### 1. .opencode/guidelines/020-go-prohibitions.md (Tier 1)
+- Line 205: "The orchestrator NEVER performs inline work." — absolute role-purity prohibition. ALL file reads/edits/writes/analysis/verification/decision-making MUST be delegated to clean-room sub-agents. Zero inline file operations permitted.
+- Line 207: EXCEPTION carve-out — "Reading a loaded SKILL.md's Trigger Dispatch Table and Invocation section in the orchestrator's own context is NOT 'inline work' or 'reading a file.'" — asserts a SKILL.md is not a file (category error).
+- Lines 209-212: Skill Card / Task Card table (Artifact, File, Consumer, Content, Action).
+- Lines 213, 422-425: "Orchestrator inline work detected → HALT" — restart from checkpoint tag.
+- Lines 84-137: §1.1 Orchestrator Context Discipline — the three mandates (orchestrator context lean, sub-agent context generosity, result contract frugality). This is the existing context-economy framing that the fix re-scopes toward.
+- Line 217: "Cost-blind universal" — sub-agent task() and tool calls are near-zero cost. NOTE: this is a potential tension with the context-economy model; the fix must reconcile "cost-blind" (verification cost) with "context-cost allocation" (context resource). These are different cost dimensions.
+
+### 2. .opencode/guidelines/000-critical-rules.md (Tier 1)
+- Lines 172-206: critical-rules-XXX "Dispatching SKILL.md to sub-agents — category error." Contains the Skill Card / Task Card table (lines 178-181) and the instruction "Read the Trigger Dispatch Table and Invocation section in the orchestrator's own context" (lines 197, 185). This is the same carve-out pattern — the orchestrator reads SKILL.md inline.
+- Line 321: Tier 2 definition mentions "inline work" as a quality defect.
+
+### 3. Skill cards with DISPATCH_GATE sections (36 files)
+- approval-gate, brainstorming, changelog-generator, completeness-gate, completion-core, conflict-resolution, correspondence, engineering-approach, finishing-a-development-branch, issue-operations-comments, issue-operations-core, issue-operations, issue-operations-sub-issues, issue-operations-sync, issue-review, mcp-tool-usage, multimodal-dispatch, plan, playwright-cli, pre-analysis, programming-principles, receiving-code-review, release-promoter, requesting-code-review, research, skill-creator, solve, spec-creation, sre-runbook, sync-guidelines, systematic-debugging, test-driven-development, using-git-worktrees, verification, verification-before-completion, verification-enforcement.
+- Each contains "Orchestrator Entry Criteria" instructing the orchestrator to read the Trigger Dispatch Table and Invocation in its own context (inline), and "DISPATCH_GATE" no-preloaded-context protocol.
+- These are the "inline-designated tasks" that contradict the "never inline" absolute.
+
+### 4. spec-creation/SKILL.md (representative inline-designated skill)
+- Line 17: "The orchestrator does NOT perform inline work."
+- Line 25: "Each step is a clean-room task() dispatch (or an inline orchestrator action where marked)."
+- Lines 69, 84: "Execution mode: inline" for the "report spec ready" steps.
+- Contradiction: line 17 says no inline work, but lines 69/84 designate inline steps.
+
+### 5. brainstorming/SKILL.md (representative inline-designated skill)
+- Line 32, 36: Trigger Dispatch Table marks `explore` task as `inline` dispatch.
+- Line 80: "No inline work."
+
+### 6. git-workflow-cleanup/SKILL.md
+- Line 31: "Executor note" — the cleanup executor performs work directly (inline) and MUST NOT re-dispatch itself. This is an inline-designated execution.
+
+## Key Findings
+
+### Finding 1: The contradiction is real and structural
+The "orchestrator NEVER performs inline work" absolute (020 line 205) directly contradicts:
+- Skill cards' `Execution mode: inline` designations (spec-creation lines 69/84, brainstorming lines 32/36)
+- The DISPATCH_GATE "Orchestrator Entry Criteria" that requires the orchestrator to read SKILL.md routing sections in its own context (all 36 DISPATCH_GATE skills)
+- critical-rules-XXX in 000-critical-rules.md (lines 197, 185) requiring orchestrator to read SKILL.md inline
+
+### Finding 2: The carve-out is a category error
+Line 207 asserts reading a SKILL.md is "NOT 'inline work' or 'reading a file.'" A SKILL.md IS a file. This is a false distinction that teaches rationalization — the exact behavior critical-rules-006 flags as a bypass signature.
+
+### Finding 3: The context-economy framing already exists
+§1.1 (lines 84-137) already frames the orchestrator/sub-agent split in context terms: "Orchestrator context: Holds routing metadata only" (line 94), "Sub-agent context: Disposable" (line 96). The fix re-scopes the "never inline" absolute to this existing context-economy rationale rather than introducing a new concept.
+
+### Finding 4: The skill() mechanism is the authoritative justification
+Per research card spec-writing-ai-agents-opencode-skill-architecture.md (confidence 0.90): skill() auto-loads SKILL.md into the calling agent's context; task() does NOT auto-load task cards. The orchestrator reading a loaded SKILL.md's routing section is not "reading a file" in the sub-agent-delegation sense — it is consuming routing metadata that skill() already injected. The truthful justification is context economy: the routing metadata is small, necessary, and already in the orchestrator's context; delegating it to a sub-agent would be wasteful and impossible (sub-agents lack skill()).
+
+### Finding 5: Overlapping/dependent specs
+- #1406: Orchestrator bypass enforcement — relies on the "never inline" rule for enforcement. The fix must not weaken enforcement of actual inline work (file edits, analysis).
+- #1204: Convert self-policing "agent MUST" rules to dispatch-table SCs — the re-scoped rule becomes a candidate for semantic verification.
+- #1010: Checklist Dispatch Architecture — orchestrator as blind dispatcher. The context-economy model must align with the blind-dispatch principle.
+- These are dependencies, not conflicts — the fix preserves the delegation mechanism exactly.
+
+### Finding 6: "Cost-blind" vs "context-cost" tension
+020 line 217 "Cost-blind universal" says sub-agent task() and tool calls are near-zero cost. The context-economy model allocates by context cost. These are different dimensions: "cost-blind" refers to verification/execution cost (never skip a tool call to save resources); "context-cost" refers to the orchestrator's persistent context resource. The fix must explicitly distinguish these to avoid a perceived contradiction.
+
+## Verification Method
+- grep of 020-go-prohibitions.md, 000-critical-rules.md for inline-work/carve-out patterns
+- grep of all skills/*/SKILL.md for DISPATCH_GATE, inline, Orchestrator Entry Criteria
+- Read of spec-creation/SKILL.md, brainstorming/SKILL.md, git-workflow/SKILL.md, git-workflow-cleanup/SKILL.md, approval-gate/SKILL.md
+- Research card consultation (see research-card-consultation.yaml)
