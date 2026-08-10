@@ -1,162 +1,559 @@
 # Dependency Contract — Issue #2254
 # Generated: 2026-08-10
 # Provenance: AI-generated
-# Extracted from interface-compatibility.yaml dependency_contract section
+# Revised: 2026-08-10 (concern-separation restructure to 29 phases)
 
 variables:
   phase_1:
     type: bool
-    description: "spec-creation dispatch + task precondition fixes — SC-1, SC-2, SC-17, SC-18, SC-19, SC-20, SC-21, SC-37"
+    description: "spec-creation dispatch format — SC-1"
   phase_2:
     type: bool
-    description: "audit skill structure + role cards — SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-12, SC-14"
+    description: "spec-creation task routing — SC-2"
   phase_3:
     type: bool
-    description: "cross-references + taxonomy — SC-10, SC-11, SC-15, SC-16"
+    description: "analyze issue anchoring — SC-17"
   phase_4:
     type: bool
-    description: "completion routing — SC-13"
+    description: "dynamic dimension loading — SC-18"
   phase_5:
     type: bool
-    description: "revise exec-summary regeneration — SC-22"
+    description: "create exec-summary body — SC-19, SC-20"
   phase_6:
     type: bool
-    description: "format conformance + linter + links — SC-23, SC-24, SC-25, SC-26, SC-27, SC-28, SC-29a, SC-29b, SC-29c, SC-31, SC-35, SC-36"
+    description: "post-push reconciliation — SC-21"
   phase_7:
     type: bool
-    description: "functional end-to-end verification — SC-32, SC-33, SC-34"
+    description: "issues-data URL root-cause — SC-37"
+  phase_8:
+    type: bool
+    description: "audit workflow structure — SC-3, SC-4"
+  phase_9:
+    type: bool
+    description: "audit description rewrite — SC-7"
+  phase_10:
+    type: bool
+    description: "audit dispatch format — SC-5, SC-6"
+  phase_11:
+    type: bool
+    description: "audit role-card naming — SC-8, SC-9"
+  phase_12:
+    type: bool
+    description: "audit flattening — SC-12"
+  phase_13:
+    type: bool
+    description: "redundant evaluator removal — SC-14"
+  phase_14:
+    type: bool
+    description: "audit cross-reference repoints — SC-10"
+  phase_15:
+    type: bool
+    description: "reference task names — SC-11"
+  phase_16:
+    type: bool
+    description: "taxonomy source consolidation — SC-15"
+  phase_17:
+    type: bool
+    description: "missing-type rule — SC-16"
+  phase_18:
+    type: bool
+    description: "completion routing — SC-13"
+  phase_19:
+    type: bool
+    description: "revise exec-summary regeneration — SC-22"
+  phase_20:
+    type: bool
+    description: "numbered-checkbox Workflows format — SC-23, SC-24, SC-35"
+  phase_21:
+    type: bool
+    description: "numbered-checkbox task-card Procedure — SC-25, SC-36"
+  phase_22:
+    type: bool
+    description: "fat task-card splitting — SC-26"
+  phase_23:
+    type: bool
+    description: "dispatch-contract completeness — SC-27"
+  phase_24:
+    type: bool
+    description: "linter enforcement — SC-28"
+  phase_25:
+    type: bool
+    description: "markdown link correctness — SC-29a, SC-29b, SC-29c"
+  phase_26:
+    type: bool
+    description: "workflow clarity — SC-31"
+  phase_27:
+    type: bool
+    description: "functional spec-creation pipeline — SC-32"
+  phase_28:
+    type: bool
+    description: "functional audit DiMo chain — SC-33"
+  phase_29:
+    type: bool
+    description: "shared test home + gitbucket — SC-34"
 preconditions:
-  - "z3.Implies(phase_3, phase_2)"
-  - "z3.Implies(phase_4, phase_2)"
-  - "z3.Implies(phase_5, phase_1)"
-  - "z3.Implies(phase_6, phase_1)"
-  - "z3.Implies(phase_6, phase_2)"
-  - "z3.Implies(phase_7, phase_1)"
-  - "z3.Implies(phase_7, phase_2)"
-  - "z3.Implies(phase_7, phase_3)"
-  - "z3.Implies(phase_7, phase_4)"
-  - "z3.Implies(phase_7, phase_5)"
-  - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_6, phase_5)"
+  - "z3.Implies(phase_10, phase_8)"
+  - "z3.Implies(phase_11, phase_8)"
+  - "z3.Implies(phase_12, phase_8)"
+  - "z3.Implies(phase_13, phase_8)"
+  - "z3.Implies(phase_14, phase_11)"
+  - "z3.Implies(phase_14, phase_12)"
+  - "z3.Implies(phase_15, phase_8)"
+  - "z3.Implies(phase_16, phase_4)"
+  - "z3.Implies(phase_16, phase_8)"
+  - "z3.Implies(phase_17, phase_3)"
+  - "z3.Implies(phase_18, phase_8)"
+  - "z3.Implies(phase_19, phase_5)"
+  - "z3.Implies(phase_20, phase_1)"
+  - "z3.Implies(phase_20, phase_2)"
+  - "z3.Implies(phase_20, phase_8)"
+  - "z3.Implies(phase_20, phase_9)"
+  - "z3.Implies(phase_20, phase_10)"
+  - "z3.Implies(phase_21, phase_3)"
+  - "z3.Implies(phase_21, phase_4)"
+  - "z3.Implies(phase_21, phase_5)"
+  - "z3.Implies(phase_21, phase_6)"
+  - "z3.Implies(phase_21, phase_11)"
+  - "z3.Implies(phase_21, phase_12)"
+  - "z3.Implies(phase_21, phase_14)"
+  - "z3.Implies(phase_22, phase_21)"
+  - "z3.Implies(phase_23, phase_20)"
+  - "z3.Implies(phase_23, phase_21)"
+  - "z3.Implies(phase_24, phase_20)"
+  - "z3.Implies(phase_24, phase_21)"
+  - "z3.Implies(phase_24, phase_22)"
+  - "z3.Implies(phase_24, phase_23)"
+  - "z3.Implies(phase_25, phase_20)"
+  - "z3.Implies(phase_25, phase_21)"
+  - "z3.Implies(phase_26, phase_20)"
+  - "z3.Implies(phase_27, phase_1)"
+  - "z3.Implies(phase_27, phase_2)"
+  - "z3.Implies(phase_27, phase_3)"
+  - "z3.Implies(phase_27, phase_4)"
+  - "z3.Implies(phase_27, phase_5)"
+  - "z3.Implies(phase_27, phase_6)"
+  - "z3.Implies(phase_27, phase_7)"
+  - "z3.Implies(phase_27, phase_19)"
+  - "z3.Implies(phase_27, phase_20)"
+  - "z3.Implies(phase_27, phase_21)"
+  - "z3.Implies(phase_27, phase_22)"
+  - "z3.Implies(phase_27, phase_23)"
+  - "z3.Implies(phase_27, phase_24)"
+  - "z3.Implies(phase_27, phase_25)"
+  - "z3.Implies(phase_27, phase_26)"
+  - "z3.Implies(phase_27, phase_29)"
+  - "z3.Implies(phase_28, phase_8)"
+  - "z3.Implies(phase_28, phase_9)"
+  - "z3.Implies(phase_28, phase_10)"
+  - "z3.Implies(phase_28, phase_11)"
+  - "z3.Implies(phase_28, phase_12)"
+  - "z3.Implies(phase_28, phase_13)"
+  - "z3.Implies(phase_28, phase_14)"
+  - "z3.Implies(phase_28, phase_15)"
+  - "z3.Implies(phase_28, phase_16)"
+  - "z3.Implies(phase_28, phase_17)"
+  - "z3.Implies(phase_28, phase_18)"
+  - "z3.Implies(phase_28, phase_20)"
+  - "z3.Implies(phase_28, phase_21)"
+  - "z3.Implies(phase_28, phase_22)"
+  - "z3.Implies(phase_28, phase_23)"
+  - "z3.Implies(phase_28, phase_24)"
+  - "z3.Implies(phase_28, phase_25)"
+  - "z3.Implies(phase_28, phase_26)"
+  - "z3.Implies(phase_28, phase_29)"
 invariants: []
 postconditions: []
 phases:
   phase_1:
     files:
       - .opencode/skills/spec-creation/SKILL.md
-      - .opencode/skills/spec-creation/tasks/analyze.md
-      - .opencode/skills/spec-creation/tasks/validate.md
-      - .opencode/skills/spec-creation/tasks/create.md
-      - .opencode/skills/issue-operations-core/tasks/creation.md
     scs:
       - SC-1
-      - SC-2
-      - SC-17
-      - SC-18
-      - SC-19
-      - SC-20
-      - SC-21
-      - SC-37
   phase_2:
     files:
+      - .opencode/skills/spec-creation/SKILL.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/skills/spec-creation/tasks/analyze.md
+    scs:
+      - SC-17
+  phase_4:
+    files:
+      - .opencode/skills/spec-creation/tasks/validate.md
+    scs:
+      - SC-18
+  phase_5:
+    files:
+      - .opencode/skills/spec-creation/tasks/create.md
+    scs:
+      - SC-19
+      - SC-20
+  phase_6:
+    files:
+      - .opencode/skills/spec-creation/tasks/create.md
+    scs:
+      - SC-21
+  phase_7:
+    files:
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+    scs:
+      - SC-37
+  phase_8:
+    files:
       - .opencode/skills/audit/SKILL.md
-      - .opencode/skills/audit/tasks/*-role.md
-      - .opencode/skills/audit/tasks/behavioral-sc-evaluator.md
     scs:
       - SC-3
       - SC-4
+  phase_9:
+    files:
+      - .opencode/skills/audit/SKILL.md
+    scs:
+      - SC-7
+  phase_10:
+    files:
+      - .opencode/skills/audit/SKILL.md
+    scs:
       - SC-5
       - SC-6
-      - SC-7
-      - SC-8
-      - SC-9
-      - SC-12
-      - SC-14
-  phase_3:
+  phase_11:
     files:
       - .opencode/skills/audit/tasks/*-role.md
-      - .opencode/reference/spec-structure-standards.md
-      - .opencode/skills/spec-creation/tasks/analyze.md
+    scs:
+      - SC-8
+      - SC-9
+  phase_12:
+    files:
+      - .opencode/skills/audit/tasks/
+    scs:
+      - SC-12
+  phase_13:
+    files:
+      - .opencode/skills/audit/tasks/behavioral-sc-evaluator.md
+    scs:
+      - SC-14
+  phase_14:
+    files:
+      - .opencode/skills/audit/tasks/*-role.md
+      - .opencode/reference/holistic-dimensions.yaml
     scs:
       - SC-10
+  phase_15:
+    files:
+      - .opencode/reference/spec-structure-standards.md
+    scs:
       - SC-11
+  phase_16:
+    files:
+      - .opencode/skills/spec-creation/tasks/validate.md
+      - .opencode/skills/audit/tasks/*-role.md
+      - .opencode/reference/cost-model-standards.md
+    scs:
       - SC-15
+  phase_17:
+    files:
+      - .opencode/skills/spec-creation/tasks/analyze.md
+      - .opencode/reference/spec-structure-standards.md
+    scs:
       - SC-16
-  phase_4:
+  phase_18:
     files:
       - .opencode/skills/audit/tasks/completion.md
     scs:
       - SC-13
-  phase_5:
+  phase_19:
     files:
       - .opencode/skills/spec-creation/tasks/revise.md
     scs:
       - SC-22
-  phase_6:
+  phase_20:
     files:
       - .opencode/reference/skill-card-description-standards.md
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/audit/SKILL.md
+    scs:
+      - SC-23
+      - SC-24
+      - SC-35
+  phase_21:
+    files:
       - .opencode/reference/task-card-structure-standards.md
+      - .opencode/skills/spec-creation/tasks/*.md
+      - .opencode/skills/audit/tasks/*.md
+    scs:
+      - SC-25
+      - SC-36
+  phase_22:
+    files:
+      - .opencode/skills/spec-creation/tasks/*.md
+      - .opencode/skills/audit/tasks/*.md
+    scs:
+      - SC-26
+  phase_23:
+    files:
       - .opencode/skills/spec-creation/SKILL.md
       - .opencode/skills/audit/SKILL.md
       - .opencode/skills/spec-creation/tasks/*.md
       - .opencode/skills/audit/tasks/*.md
+    scs:
+      - SC-27
+  phase_24:
+    files:
       - .opencode/tools/impl/skildeck/
     scs:
-      - SC-23
-      - SC-24
-      - SC-25
-      - SC-26
-      - SC-27
       - SC-28
+  phase_25:
+    files:
+      - .opencode/skills/spec-creation/
+      - .opencode/skills/audit/
+      - .opencode/reference/
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+    scs:
       - SC-29a
       - SC-29b
       - SC-29c
+  phase_26:
+    files:
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/audit/SKILL.md
+    scs:
       - SC-31
-      - SC-35
-      - SC-36
-  phase_7:
+  phase_27:
+    files:
+      - .opencode/tests-v2/behaviors/<new spec-creation behavioral test>
+    scs:
+      - SC-32
+  phase_28:
+    files:
+      - .opencode/tests-v2/behaviors/<new audit DiMo behavioral test>
+    scs:
+      - SC-33
+  phase_29:
     files:
       - .opencode/tests-v2/with-test-home
       - .opencode/tests-v2/behaviors/helpers.sh
-      - .opencode/tests-v2/behaviors/<new behavioral test scripts>
     scs:
-      - SC-32
-      - SC-33
       - SC-34
 edges:
-  - from: phase_2
-    to: phase_3
-    rationale: "Cross-reference repoints (Phase 3) target the role-split task cards and reference task names established by the audit role-card restructuring (Phase 2)"
-  - from: phase_2
-    to: phase_4
-    rationale: "Completion routing (Phase 4) corrects the audit completion task, which depends on the audit role-card surface restructured in Phase 2"
   - from: phase_1
-    to: phase_5
-    rationale: "Revise exec-summary regeneration (Phase 5) reuses the canonical exec-summary body format established by the create task in Phase 1"
-  - from: phase_1
-    to: phase_6
-    rationale: "Format conformance (Phase 6) converts the spec-creation SKILL.md and task cards to numbered-checkbox, building on the Phase 1 dispatch/task restructure"
-  - from: phase_2
-    to: phase_6
-    rationale: "Format conformance (Phase 6) converts the audit SKILL.md and role task cards to numbered-checkbox, building on the Phase 2 audit restructure"
-  - from: phase_1
-    to: phase_7
-    rationale: "Functional end-to-end verification (Phase 7) exercises the spec-creation pipeline, which requires the Phase 1 dispatch and task fixes"
-  - from: phase_2
-    to: phase_7
-    rationale: "Functional end-to-end verification (Phase 7) exercises the audit DiMo chain, which requires the Phase 2 audit restructure"
-  - from: phase_3
-    to: phase_7
-    rationale: "Functional verification (Phase 7) depends on the cross-reference and taxonomy corrections from Phase 3"
-  - from: phase_4
-    to: phase_7
-    rationale: "Functional verification (Phase 7) depends on the completion routing correction from Phase 4"
+    to: phase_2
+    rationale: "Task routing (Phase 2) removes the Task Files table from the spec-creation SKILL.md whose dispatch format was corrected in Phase 1"
   - from: phase_5
-    to: phase_7
-    rationale: "Functional verification (Phase 7) depends on the revise exec-summary regeneration from Phase 5"
+    to: phase_6
+    rationale: "Post-push reconciliation (Phase 6) sequences after the create exec-summary body (Phase 5) which establishes the canonical body format"
+  - from: phase_8
+    to: phase_10
+    rationale: "Audit dispatch format (Phase 10) converts the dispatch strings in the audit SKILL.md whose workflow structure was established in Phase 8"
+  - from: phase_8
+    to: phase_11
+    rationale: "Audit role-card naming (Phase 11) repairs role-card names/headings on the audit task surface restructured in Phase 8"
+  - from: phase_8
+    to: phase_12
+    rationale: "Audit flattening (Phase 12) flattens subdirectory task sets on the audit task surface restructured in Phase 8"
+  - from: phase_8
+    to: phase_13
+    rationale: "Redundant evaluator removal (Phase 13) removes a file on the audit task surface restructured in Phase 8"
+  - from: phase_11
+    to: phase_14
+    rationale: "Cross-reference repoints (Phase 14) target the role-split task cards whose names/headings were repaired in Phase 11"
+  - from: phase_12
+    to: phase_14
+    rationale: "Cross-reference repoints (Phase 14) target the flattened role files produced in Phase 12"
+  - from: phase_8
+    to: phase_15
+    rationale: "Reference task names (Phase 15) update reference-doc names to match the audit task surface restructured in Phase 8"
+  - from: phase_4
+    to: phase_16
+    rationale: "Taxonomy consolidation (Phase 16) reuses the dynamic loading pattern established for validate.md in Phase 4"
+  - from: phase_8
+    to: phase_16
+    rationale: "Taxonomy consolidation (Phase 16) repoints audit role-card citations on the surface restructured in Phase 8"
+  - from: phase_3
+    to: phase_17
+    rationale: "Missing-type rule (Phase 17) adds a hard FAIL to analyze.md whose issue anchoring was added in Phase 3"
+  - from: phase_8
+    to: phase_18
+    rationale: "Completion routing (Phase 18) corrects the audit completion task, which depends on the audit role-card surface restructured in Phase 8"
+  - from: phase_5
+    to: phase_19
+    rationale: "Revise exec-summary regeneration (Phase 19) reuses the canonical exec-summary body format established by the create task in Phase 5"
+  - from: phase_1
+    to: phase_20
+    rationale: "Numbered-checkbox Workflows (Phase 20) converts the spec-creation SKILL.md dispatch format corrected in Phase 1"
+  - from: phase_2
+    to: phase_20
+    rationale: "Numbered-checkbox Workflows (Phase 20) converts the spec-creation SKILL.md whose Task Files table was removed in Phase 2"
+  - from: phase_8
+    to: phase_20
+    rationale: "Numbered-checkbox Workflows (Phase 20) converts the audit SKILL.md workflow structure established in Phase 8"
+  - from: phase_9
+    to: phase_20
+    rationale: "Numbered-checkbox Workflows (Phase 20) converts the audit SKILL.md whose description was rewritten in Phase 9"
+  - from: phase_10
+    to: phase_20
+    rationale: "Numbered-checkbox Workflows (Phase 20) converts the audit SKILL.md dispatch format corrected in Phase 10"
+  - from: phase_3
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts analyze.md whose anchoring was added in Phase 3"
+  - from: phase_4
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts validate.md whose dynamic loading was added in Phase 4"
+  - from: phase_5
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts create.md whose exec-summary body was established in Phase 5"
   - from: phase_6
-    to: phase_7
-    rationale: "Functional verification (Phase 7) depends on the format conformance, linter, and link corrections from Phase 6"
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts create.md whose reconciliation was sequenced in Phase 6"
+  - from: phase_11
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts the role cards whose names/headings were repaired in Phase 11"
+  - from: phase_12
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts the flattened role files produced in Phase 12"
+  - from: phase_14
+    to: phase_21
+    rationale: "Numbered-checkbox task-card Procedure (Phase 21) converts the role cards whose cross-references were repointed in Phase 14"
+  - from: phase_21
+    to: phase_22
+    rationale: "Fat task-card splitting (Phase 22) splits cards whose Procedures were converted to numbered-checkbox in Phase 21"
+  - from: phase_20
+    to: phase_23
+    rationale: "Dispatch-contract completeness (Phase 23) verifies workflow Context against the numbered-checkbox Workflows of Phase 20"
+  - from: phase_21
+    to: phase_23
+    rationale: "Dispatch-contract completeness (Phase 23) verifies task-card parameters against the numbered-checkbox Procedures of Phase 21"
+  - from: phase_20
+    to: phase_24
+    rationale: "Linter enforcement (Phase 24) enforces the numbered-checkbox workflow format established in Phase 20"
+  - from: phase_21
+    to: phase_24
+    rationale: "Linter enforcement (Phase 24) enforces the numbered-checkbox task-card format established in Phase 21"
+  - from: phase_22
+    to: phase_24
+    rationale: "Linter enforcement (Phase 24) enforces the clean-room unit mandate established by the splitting in Phase 22"
+  - from: phase_23
+    to: phase_24
+    rationale: "Linter enforcement (Phase 24) enforces the dispatch-contract completeness verified in Phase 23"
+  - from: phase_20
+    to: phase_25
+    rationale: "Markdown link correctness (Phase 25) verifies links in the Workflows sections converted in Phase 20"
+  - from: phase_21
+    to: phase_25
+    rationale: "Markdown link correctness (Phase 25) verifies links in the task-card Procedures converted in Phase 21"
+  - from: phase_20
+    to: phase_26
+    rationale: "Workflow clarity (Phase 26) makes the numbered-checkbox Workflows of Phase 20 explicitly orchestrator step-by-step"
+  - from: phase_1
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the dispatch format corrected in Phase 1"
+  - from: phase_2
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the task routing corrected in Phase 2"
+  - from: phase_3
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the analyze anchoring added in Phase 3"
+  - from: phase_4
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the dynamic dimension loading added in Phase 4"
+  - from: phase_5
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the create exec-summary body established in Phase 5"
+  - from: phase_6
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the post-push reconciliation sequenced in Phase 6"
+  - from: phase_7
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the issues-data URL fix from Phase 7"
+  - from: phase_19
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the revise regeneration added in Phase 19"
+  - from: phase_20
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the numbered-checkbox Workflows of Phase 20"
+  - from: phase_21
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the numbered-checkbox task-card Procedures of Phase 21"
+  - from: phase_22
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the split task cards of Phase 22"
+  - from: phase_23
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the dispatch-contract completeness of Phase 23"
+  - from: phase_24
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the linter enforcement of Phase 24"
+  - from: phase_25
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the markdown link correctness of Phase 25"
+  - from: phase_26
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) exercises the workflow clarity of Phase 26"
+  - from: phase_29
+    to: phase_27
+    rationale: "Functional spec-creation pipeline (Phase 27) runs in the shared test home provisioned in Phase 29"
+  - from: phase_8
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the audit workflow structure of Phase 8"
+  - from: phase_9
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the audit description rewrite of Phase 9"
+  - from: phase_10
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the audit dispatch format of Phase 10"
+  - from: phase_11
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the role-card naming of Phase 11"
+  - from: phase_12
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the flattened role files of Phase 12"
+  - from: phase_13
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the evaluator removal of Phase 13"
+  - from: phase_14
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the cross-reference repoints of Phase 14"
+  - from: phase_15
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the reference task names of Phase 15"
+  - from: phase_16
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the taxonomy consolidation of Phase 16"
+  - from: phase_17
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the missing-type rule of Phase 17"
+  - from: phase_18
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the completion routing of Phase 18"
+  - from: phase_20
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the numbered-checkbox Workflows of Phase 20"
+  - from: phase_21
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the numbered-checkbox task-card Procedures of Phase 21"
+  - from: phase_22
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the split task cards of Phase 22"
+  - from: phase_23
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the dispatch-contract completeness of Phase 23"
+  - from: phase_24
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the linter enforcement of Phase 24"
+  - from: phase_25
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the markdown link correctness of Phase 25"
+  - from: phase_26
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) exercises the workflow clarity of Phase 26"
+  - from: phase_29
+    to: phase_28
+    rationale: "Functional audit DiMo chain (Phase 28) runs in the shared test home provisioned in Phase 29"
 notes:
-  - "Phase 7 (functional end-to-end verification) is the terminal phase and depends on all six prior phases; it runs the spec-creation pipeline and audit DiMo chain against a fixture in a shared test home with a test gitbucket instance."
-  - "Phase 6 (format conformance) depends on both Phase 1 (spec-creation) and Phase 2 (audit) because it converts both skills' SKILL.md and task cards to the numbered-checkbox format."
-  - "Phases 1 and 2 are independent root phases with disjoint file sets (spec-creation vs audit) — no same-file edit conflicts between them."
+  - "Phase 27 (functional spec-creation pipeline) and Phase 28 (functional audit DiMo chain) are terminal phases depending on all prior phases in their respective concern groups plus the shared test home (Phase 29)."
+  - "Phase 20 (numbered-checkbox Workflows) depends on both spec-creation (Phases 1, 2) and audit (Phases 8, 9, 10) because it converts both skills' SKILL.md Workflows."
+  - "Phase 21 (numbered-checkbox task-card Procedure) depends on the spec-creation task cards (Phases 3, 4, 5, 6) and the audit role cards (Phases 11, 12, 14)."
+  - "Phases 1-7 (spec-creation concerns) and Phases 8-13 (audit concerns) are independent root groups with disjoint file sets — no same-file edit conflicts between them."
+  - "Each phase addresses exactly one concern from the concern-map artifact, satisfying the one-concern-per-phase rule."
