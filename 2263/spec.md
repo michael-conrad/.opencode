@@ -1,0 +1,33 @@
+> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2263/
+
+## Problem
+
+The `.opencode` framework hardwires a self-contradictory instruction set for the orchestrator. The rule "The orchestrator NEVER performs inline work" (020-go-prohibitions.md §1.1, 000-critical-rules.md) is stated as an absolute, yet the skill cards themselves designate orchestrator-owned inline work (tasks marked `inline` in Trigger Dispatch Tables, operating protocols, persona). The framework patches this contradiction with a carve-out asserting that reading a loaded SKILL.md's Trigger Dispatch Table and Invocation section in the orchestrator's own context is NOT "inline work" or "reading a file" — a category error, since a SKILL.md IS a file. This carve-out teaches the agent to rationalize, which the framework elsewhere flags as a bypass signature (critical-rules-006). The result: every session, every skill load, the agent must reconcile three contradictory signals and is pushed toward the exact behavior the framework calls a CRITICAL VIOLATION. There is no compliant path.
+
+## Scope
+
+- Re-scope the "orchestrator never performs inline work" rule from role-purity to an **allocation-by-context-cost** model: work is allocated by context cost (large/disposable → sub-agent; small/necessary → orchestrator), not by role.
+- Replace the false carve-out ("reading a SKILL.md is not reading a file") with a truthful, defensible justification grounded in context economy.
+- Re-justify result-contract frugality, the DISPATCH_GATE no-preloaded-context rule, and clean-room sub-agents under the same context-economy rationale.
+- Update affected files: `.opencode/guidelines/020-go-prohibitions.md`, `.opencode/guidelines/000-critical-rules.md`, and the skill cards' DISPATCH_GATE sections.
+- Preserve the delegation mechanism (task(), skill(), clean-room sub-agents) exactly as-is; no change to which tasks are delegated vs inline.
+
+**Out of scope:**
+
+- No change to the actual delegation mechanism (task(), skill(), clean-room sub-agents).
+- No change to which tasks are delegated vs inline — this is a documentation/instruction-model fix, not a behavioral change to the pipeline.
+- No change to the DISPATCH_GATE no-preloaded-context requirement's substance — only its justification.
+
+## Approach
+
+Replace the role-purity enforcement model with a delegation-integrity principle grounded in context economy. The orchestrator's context is the persistent, high-value resource; sub-agent context is disposable. Work should therefore be allocated by context cost: work that requires large or disposable context (file analysis, verification, composition) goes to a sub-agent, while work that is small, necessary, and routing-relevant stays in the orchestrator's own context. This reframing removes the contradiction between the "never inline" absolute and the skill cards' designated inline work by grounding both in a single coherent principle. The carve-out is deleted, and the rules it attempted to patch (result-contract frugality, DISPATCH_GATE no-preloaded-context, clean-room sub-agents) are re-expressed as direct consequences of protecting the orchestrator's context resource.
+
+## Impact
+
+- **Risk:** Re-scoping may be read as loosening the inline-work prohibition, enabling a regression toward orchestrator inline work. *Mitigation:* The allocation model explicitly retains clean-room sub-agent dispatch for all large/disposable work; only small routing-necessary reads are assigned to the orchestrator.
+- **Risk:** Touching 020-go-prohibitions.md and 000-critical-rules.md (both Tier 1) may conflict with other open specs modifying the same files. *Mitigation:* Verify superseding/overlapping specs before implementation per the authority-source protocol.
+- **Risk:** The documentation-only nature may be challenged as "no real change." *Mitigation:* SCs verify that every affected file's inline-work rule and the carve-out are consistent with the new model, and that the self-contradiction is eliminated.
+- **Dependencies:** Alignment with open specs touching orchestrator enforcement (#1406, #1204, #1010) to avoid conflicting instruction models.
+- **Call to action:** Approve this spec to eliminate a known no-compliant-path contradiction and replace rationalization-training with a defensible context-economy principle.
+
+🤖 OpenCode (ollama-cloud/deepseek-v4-flash) created
