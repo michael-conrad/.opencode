@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards. Load via skill() when the agent needs to audit specs, plans, code, or generated content. Also load when verifying spec fidelity, checking plan coherence, detecting drift, cross-validating verification results, or auditing factual claims. Also load when a deliverable was modified in response to audit findings and needs independent re-verification. Audits are not optional — dispatch is MANDATORY. User phrases: audit spec, audit plan, audit code, verify fidelity, check coherence, detect drift, cross-validate"
+description: "Adversarial auditor that verifies specs, plans, code, and generated content against standards, including spec fidelity, plan coherence, drift detection, cross-validation of verification results, and independent re-verification of deliverables modified in response to audit findings. Audits are not optional — dispatch is MANDATORY."
 license: MIT
 compatibility: opencode
 ---
