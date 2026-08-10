@@ -113,7 +113,7 @@ Audit findings from spec-auditor are internal agent guidance — equivalent to l
 
 
 ### [critical-rules-016] Auditor Skills Enforcement
-Professional engineers subject every deliverable to independent audit — amateurs ship unverified work. Read [audit skill](skills/audit/SKILL.md). Binary PASS/FAIL classification (auto-fix as remediation action only).
+Professional engineers subject every deliverable to independent audit — amateurs ship unverified work. Read [audit skill](.opencode/skills/audit/SKILL.md). Binary PASS/FAIL classification (auto-fix as remediation action only).
 
 
 ### [critical-rules-046] Mechanical-Only Audit Without Semantic and Conflict Exploration
