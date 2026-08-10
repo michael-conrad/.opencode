@@ -368,14 +368,29 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# SC-34: When BEHAVIOR_SHARED_HOME=1, reuse a persistent shared test home so
+# multiple behavior_run invocations (spec-creation, then audit) build incrementally
+# on the same test project + test gitbucket instance. The shared home survives
+# between invocations and is only removed by --clean-all. TEST_WORKDIR holds the
+# shared project directory that is moved into (or reused as) the shared home's project.
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-TEST_HOME="$TMP_DIR/test-home-$TIMESTAMP"
+if [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ]; then
+    TEST_HOME="$TMP_DIR/test-home-shared"
+    KEEP_TEST_HOME=1
+else
+    TEST_HOME="$TMP_DIR/test-home-$TIMESTAMP"
+fi
 mkdir -p "$TEST_HOME"
 
 # If TEST_WORKDIR is set, use it as the project directory (behavior_run pre-setup).
 if [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR" ]; then
-    mv "$TEST_WORKDIR" "$TEST_HOME/project"
-    TEST_PROJECT="$TEST_HOME/project"
+    if [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ] && [ -d "$TEST_HOME/project" ]; then
+        # Shared home already has a project (earlier invocation) — build on it.
+        TEST_PROJECT="$TEST_HOME/project"
+    else
+        mv "$TEST_WORKDIR" "$TEST_HOME/project"
+        TEST_PROJECT="$TEST_HOME/project"
+    fi
 else
     TEST_PROJECT="$TEST_HOME/project"
     mkdir -p "$TEST_PROJECT"
