@@ -1,0 +1,79 @@
+# Validation Findings — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+# Task: writing-plans validate
+# Re-validated: 2026-08-10 (concern-map regenerated to include issues-data URL root-cause and audit description rewrite)
+
+issue: 2254
+overall_status: PASS
+
+categories:
+  category_1_structural:
+    status: PASS
+    checks:
+      - name: "phase table with all required columns"
+        result: PASS
+        detail: "Phase Table (plan.md lines 69-99) has columns Phase, Name, Concern, SCs, Depends On, Dispatch. All 29 phases present."
+      - name: "each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "Each of the 29 phases (Phase Details, lines 105-605) has a Procedure section with numbered checkbox steps (`- [ ] 1.`, `- [ ] 2.`, etc.)."
+      - name: "exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria section (lines 611-640) has C1-C30 checkboxes with explicit SC-to-phase mapping (e.g., 'C1. (SC-1, Phase 1)')."
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - name: "skill+task references valid per implementation-workflow reference card"
+        result: PASS
+        detail: "All 29 phases dispatch skill `test-driven-development` task `red`, which matches the reference card entry `red` under test-driven-development (implementation-workflow.md line 18). No invalid skill+task references found."
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - name: "every SC from spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "All 38 SCs (SC-1..SC-37 with SC-29a/b/c) appear in the Phase Table SCs column: P1(SC-1), P2(SC-2), P3(SC-17), P4(SC-18), P5(SC-19,20), P6(SC-21), P7(SC-37), P8(SC-3,4), P9(SC-7), P10(SC-5,6), P11(SC-8,9), P12(SC-12), P13(SC-14), P14(SC-10), P15(SC-11), P16(SC-15), P17(SC-16), P18(SC-13), P19(SC-22), P20(SC-23,24,35), P21(SC-25,36), P22(SC-26), P23(SC-27), P24(SC-28), P25(SC-29a,29b,29c), P26(SC-31), P27(SC-32), P28(SC-33), P29(SC-34). No SC uncovered."
+      - name: "triplet split detection (RED/GREEN/COMMIT in same phase)"
+        result: PASS
+        detail: "Each SC appears in exactly one phase, so its RED/GREEN/COMMIT steps are all in the same phase. No TRIPLET_SPLIT detected."
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - name: "each phase addresses exactly one concern from concern-map"
+        result: PASS
+        detail: "All 29 phases address a concern present in the regenerated concern-map artifact. The concern-map now lists 29 concerns including the two previously missing: 'issues-data URL root-cause' (Phase 7, SC-37) and 'audit description rewrite' (Phase 9, SC-7). Each phase's concern name matches a concern-map entry exactly."
+      - name: "no two phases address the same concern"
+        result: PASS
+        detail: "No two phases address the identical concern. Each of the 29 phases has a unique concern name."
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - name: "dependency contract DAG has no cycles"
+        result: PASS
+        detail: "All 11 implication preconditions point from a higher-numbered phase to a lower-numbered phase (or to root phase_29 for phase_27/phase_28). No cycles. Consistent with solve-output.yaml SAT status."
+      - name: "all phases reachable from start node"
+        result: PASS
+        detail: "Roots (no incoming edges): phase_1, phase_3, phase_4, phase_5, phase_7, phase_8, phase_9, phase_29. All other phases reachable via the dependency chain (e.g., phase_2 via phase_1, phase_20 via phase_1/2/8/9/10, phase_27/28 via their full dependency sets). All 29 phases reachable."
+      - name: "no orphan phases"
+        result: PASS
+        detail: "Every phase has at least one incoming or outgoing edge. Roots have outgoing edges; all others have incoming edges. No orphans."
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - name: "no TBD/TODO placeholders in plan body"
+        result: PASS
+        detail: "No TBD/TODO placeholders found in plan.md body."
+      - name: "all steps use checkbox format"
+        result: PASS
+        detail: "All 29 phase Procedure sections use numbered checkbox format (`- [ ] N.`). Exit Criteria also uses checkboxes."
+      - name: "dispatch mode consistency"
+        result: PASS
+        detail: "All phases dispatch `test-driven-development` (clean-room). No inline phases with dispatched steps and no clean-room phases with inline steps detected."
+
+findings: []
+
+summary: "All 6 categories PASS after regenerating the concern-map artifact to include the two previously missing concerns ('issues-data URL root-cause' for Phase 7/SC-37 and 'audit description rewrite' for Phase 9/SC-7). The concern-map now lists 29 concerns matching the 29 phases, with no duplicates and no missing entries. Overall status PASS."
