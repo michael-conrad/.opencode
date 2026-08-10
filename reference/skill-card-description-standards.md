@@ -235,7 +235,7 @@ The opencode skill system has exactly one abstraction: **SKILL.md with YAML fron
 
 | Pattern | When | Example |
 |---------|------|---------|
-| **Single skill, multiple task cards** | The tasks are steps in a single workflow that the orchestrator sequences | `spec-creation` with tasks: inspect, decompose, write, check, file |
+| **Single skill, multiple task cards** | The tasks are steps in a single workflow that the orchestrator sequences | `spec-creation` with tasks: analyze, create, validate, revise |
 | **Multiple independent skills** | Each skill handles a different concern, loaded independently by the orchestrator | `git-workflow-branch`, `git-workflow-commit`, `git-workflow-pr` — each is a separate concern |
 
 The current codebase has 20+ co-located skill directories that appear as independent entries in `<available_skills>`. This is not a bug — it is how the opencode skill system works. Each directory with a SKILL.md is an independent skill.
@@ -254,15 +254,25 @@ Skill cards use a **Workflows** section where each workflow is a numbered list o
 ### Create a spec
 When the agent needs to produce a specification document from a problem statement.
 
-1. **Inspect codebase** — search for affected files and existing patterns
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/inspect.md](.opencode/skills/spec-creation/tasks/inspect.md). {issue_number, project_root}"`
+1. **Analyze codebase** — search for affected files and existing patterns
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md). {issue_number, project_root}"`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
-2. **Decompose problem** — extract requirements, decompose into SCs
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/decompose.md](.opencode/skills/spec-creation/tasks/decompose.md). {issue_number, project_root, inspect_artifact_path}"`
-   - Context: `{issue_number, project_root, inspect_artifact_path}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, sc_table}`
+2. **Create spec** — assemble the spec document from the analysis artifacts
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md). {issue_number, project_root, analysis_artifact_path}"`
+   - Context: `{issue_number, project_root, analysis_artifact_path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, spec_path}`
+
+3. **Validate spec** — run the holistic self-check and structural validation
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). {issue_number, project_root, spec_path}"`
+   - Context: `{issue_number, project_root, spec_path}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, verdict}`
+
+4. **Revise spec** — revise the spec based on validation findings
+   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). {issue_number, project_root, spec_path, validation_findings}"`
+   - Context: `{issue_number, project_root, spec_path, validation_findings}`
+   - Returns: `{status, finding_summary, artifact_path, blocker_reason, spec_path}`
 ```
 
 ### Sub-Bullet Semantics
