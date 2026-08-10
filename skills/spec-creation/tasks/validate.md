@@ -77,18 +77,13 @@ Flag any orphan SCs or orphan root causes as FAIL.
 
 #### Step 3.5: Evidence-type-to-method cross-check
 
-Verify each SC's evidence type matches its verification method using the lookup table:
+Verify each SC's evidence type matches its verification method. The evidence-type taxonomy is NOT hardcoded here — it is loaded dynamically from the single canonical reference.
 
-| Evidence Type | Required Verification Method |
-|---------------|----------------------------|
-| `behavioral` | Test execution (`opencode run`, `pytest`, `bash test.sh`) |
-| `semantic` | Sub-agent read + analytical judgment |
-| `string` | `grep`, pattern matching |
-| `structural` | `ls`, `wc`, file existence |
+Read [cost-model-standards.md](reference/cost-model-standards.md) and load the evidence-type taxonomy (the "Tiered Cost Table by Evidence Type" section lists the four valid types). When the canonical taxonomy changes, update the reference file — this task always reflects it.
 
 For each SC, verify:
-1. The declared evidence type is one of the four valid types
-2. The verification method matches the evidence type per the lookup table
+1. The declared evidence type is one of the valid types in the canonical reference
+2. The verification method matches the evidence type per the canonical reference
 3. The verification method is specific enough to produce a PASS/FAIL verdict
 
 Flag any mismatch as FAIL with `EVIDENCE_TYPE_MISMATCH` classification.

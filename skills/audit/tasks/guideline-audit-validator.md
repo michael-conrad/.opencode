@@ -850,6 +850,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit.md` — Evaluator role (consumes this task's reasoning.yaml)
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - `065-verification-honesty.md` — live verification requirement
-- `080-code-standards.md` — enforcement test mandate and evidence type taxonomy
+- `080-code-standards.md` — enforcement test mandate
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

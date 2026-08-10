@@ -566,7 +566,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/test-quality-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/test-quality-audit.md` — Evaluator role (consumes reasoning.yaml produced by this task)
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy and enforcement matrix
 - Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
 - Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)
 - `verification-before-completion/SKILL.md` — VbC artifact format

@@ -176,7 +176,7 @@ summary: "Evidence collected: {sc_count} SCs extracted, {behavioral_sc_count} be
 ## Cross-References
 
 - `tasks/verification-audit.md` — Evaluator role (reads evidence.yaml, writes verdict.yaml)
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy and enforcement matrix
 - Read [implementation-workflow reference card](skills/writing-plans/reference/implementation-workflow.md) — Trigger Dispatch Table (dispatches verification-audit)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate
 
