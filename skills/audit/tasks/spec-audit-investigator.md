@@ -484,7 +484,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/spec-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
+- `tasks/spec-audit-evaluator.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
 - Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
 

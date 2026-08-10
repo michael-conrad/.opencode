@@ -295,7 +295,7 @@ summary: "Evidence collected: {N} SCs, {M} plan steps, {K} phases. {X} structura
 
 ## Cross-References
 
-- `tasks/plan-fidelity.md` — Evaluator role (consumes this Investigator's `evidence.yaml`)
+- `tasks/plan-fidelity-evaluator.md` — Evaluator role (consumes this Investigator's `evidence.yaml`)
 - `tasks/coherence-extraction-investigator.md` — Investigator role reference pattern
 - `audit/SKILL.md` — chain dispatch
 - `writing-plans` skill — clean-room plan generation
