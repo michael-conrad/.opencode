@@ -3,7 +3,7 @@ labels:
 github_url: https://github.com/michael-conrad/.opencode/issues/2254
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
 updated_at: '2026-08-09T21:43:18+00:00'
-body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.opencode/.issues/2254/)**
+body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2254)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
 
@@ -133,8 +133,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   and the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter)
   end-to-end against a fixture in a shared test home with a test gitbucket instance,
   asserting correct output. Evidence types: linter changes and the functional end-to-end
-  tests are behavioral; format checks (including the reference-doc updates SC-34,
-  SC-35) are string; task-card clean-room and dispatch-contract completeness are semantic.
+  tests are behavioral; format checks (including the reference-doc updates SC-35,
+  SC-36) are string; task-card clean-room and dispatch-contract completeness are semantic.
 
 
   ## Impact
@@ -155,13 +155,13 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   (SC-28)
 
 
-  - **Reference docs keep defining the old format** — mitigated by SC-34/SC-35 updating
+  - **Reference docs keep defining the old format** — mitigated by SC-35/SC-36 updating
   skill-card-description-standards.md §7 and task-card-structure-standards.md to the
   new numbered-checkbox format before the skill cards and linter conform
 
 
   - **Remediated skills well-formed but not proven to work** — mitigated by functional
-  end-to-end behavioral tests (SC-31, SC-32) running the spec-creation pipeline and
+  end-to-end behavioral tests (SC-32, SC-33) running the spec-creation pipeline and
   audit DiMo chain against a fixture in a shared test home with a test gitbucket instance
 
 
