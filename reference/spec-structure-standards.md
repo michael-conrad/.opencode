@@ -171,7 +171,7 @@ Each edge case MUST include:
 **EVIDENCE_TYPE_MISMATCH rules:**
 - Declared type `behavioral` with only structural evidence → FAIL
 - Declared type `semantic` with only string evidence → FAIL
-- Default to `string` if no evidence type declared
+- A missing evidence-type declaration is a hard FAIL routed to the remediation workflow — it MUST NOT default to `string`, warn, or fall back to a backwards-compat tier
 
 ## Prohibited Content Patterns
 
