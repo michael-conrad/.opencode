@@ -1,0 +1,31 @@
+
+=== SC-29a/b/c — markdown link correctness (Spec .opencode#2254, Phase 25) ===
+
+Project root: /home/muksihs/git/opencode-config
+
+  PASS: SC-29a: target file exists (.opencode/skills/spec-creation/SKILL.md)
+  PASS: SC-29a: target file exists (.opencode/skills/audit/SKILL.md)
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/skills/audit/SKILL.md:116: [audit skill](.opencode/skills/audit/SKILL.md))
+  PASS: SC-29a: target file exists (.opencode/reference/skill-card-description-standards.md)
+  PASS: SC-29a: target file exists (.opencode/reference/task-card-structure-standards.md)
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/reference/task-card-structure-standards.md:225: [spec-structure-standards.md](.opencode/reference/spec-structure-standards.md))
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/reference/task-card-structure-standards.md:226: [Evidence Type Taxonomy](.opencode/guidelines/080-code-standards.md))
+  PASS: SC-29a: target file exists (.opencode/reference/spec-structure-standards.md)
+  PASS: SC-29a: target file exists (.opencode/reference/plan-structure-standards.md)
+  PASS: SC-29a: target file exists (.opencode/reference/cost-model-standards.md)
+  PASS: SC-29a: target file exists (.opencode/reference/skill-card-schema.md)
+  PASS: SC-29a: target file exists (.opencode/skills/issue-operations-core/tasks/creation.md)
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/skills/issue-operations-core/tasks/creation.md:215: [URL Sourcing](.opencode/guidelines/000-critical-rules.md))
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/skills/issue-operations-core/tasks/creation.md:337: [Channel-Routing Table](.opencode/guidelines/000-critical-rules.md))
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/skills/issue-operations-core/tasks/creation.md:337: [Audience Separation](.opencode/guidelines/000-critical-rules.md))
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/skills/issue-operations-core/tasks/creation.md:385: [planning-status-tracking §10](.opencode/guidelines/141-planning-status-tracking.md))
+  PASS: SC-29a/b/c: link resolves with correct relative path and Read wording (.opencode/skills/issue-operations-core/tasks/creation.md:389: [verification-honesty guidelines](.opencode/guidelines/065-verification-honesty.md))
+
+=== Results ===
+PASSED: 17
+FAILED: 0
+
+SC-29a/b/c is GREEN — every markdown link in the target files resolves to a real
+target, uses the correct '.opencode/'-prefixed relative path, and is worded per the
+Read [Text](path) cross-reference pattern.
+
