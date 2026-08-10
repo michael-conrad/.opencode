@@ -71,22 +71,22 @@ The orchestrator dispatches each audit as a 4-step DiMo chain — one `task()` c
 ### Run an audit
 
 - [ ] 1. **Investigator** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-investigator.md](.opencode/skills/audit/tasks/<task>-investigator.md)")`
-  - **Context passed:** `{spec_local_dir, artifact_evidence_dir, issue_number, github.owner, github.repo}`
+  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
   - **Returns:** `{status, artifact_path, finding_summary}` — writes `evidence.yaml` with raw evidence and initial findings
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 2. **Validator** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-validator.md](.opencode/skills/audit/tasks/<task>-validator.md)")`
-  - **Context passed:** `{spec_local_dir, artifact_evidence_dir, issue_number, github.owner, github.repo}`
+  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
   - **Returns:** `{status, artifact_path, finding_summary}` — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 3. **Evaluator** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-evaluator.md](.opencode/skills/audit/tasks/<task>-evaluator.md)")`
-  - **Context passed:** `{spec_local_dir, artifact_evidence_dir, issue_number, github.owner, github.repo}`
+  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
   - **Returns:** `{status, artifact_path, finding_summary}` — reads `evidence.yaml` + `reasoning.yaml`, writes `verdict.yaml` with per-criterion PASS/FAIL
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 4. **Arbiter** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-arbiter.md](.opencode/skills/audit/tasks/<task>-arbiter.md)")`
-  - **Context passed:** `{spec_local_dir, artifact_evidence_dir, issue_number, github.owner, github.repo}`
+  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
   - **Returns:** `{status, artifact_path, finding_summary}` — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`
   - **Execution mode:** sub-agent dispatch
 
