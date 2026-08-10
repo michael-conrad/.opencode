@@ -93,6 +93,27 @@ When a remote API is available, apply the `spec-draft` label to the newly create
 
 When a remote API is available, write the full assembled spec to the remote issue body using the platform's update API.
 
+Route the remote issue body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5. The remote issue body MUST contain the following sections in order:
+
+- [ ] 1. **Spec Reference Blockquote** (mandatory — top of body, before all other content) — the forward-reference link pointing to the issues-data branch URL:
+
+   ```
+   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/.issues/N/
+   ```
+
+   - `{{REMOTE_BROWSER_URL}}` from session-init (platform-agnostic — use `github.html_url` or `gitbucket.html_url` as appropriate)
+   - `{{OWNER}}` / `{{REPO}}` from session-init, verified against the target issue's repository
+   - `{{SPEC_BRANCH}}` always `issues-data`
+   - `{{SPEC_PATH}}` always `.issues/N/` (where N is the created issue number)
+   - All links MUST be full resolved URLs — no platform shortcuts (`#NNN`, relative paths)
+
+- [ ] 1. **Problem** (mandatory) — What problem this solves, why now, BLUF (Bottom Line Up Front) format. 1-3 sentences.
+- [ ] 1. **Scope** (mandatory) — 3-5 bullets describing what is in-scope, followed by an explicit `**Out of scope:**` list describing what is NOT covered.
+- [ ] 1. **Approach** (mandatory) — High-level solution description, 3-5 sentences. Focus on architectural choices and rationale, not implementation details.
+- [ ] 1. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
+
+**Post-creation enforcement:** Run this check after the remote issue body is written. If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to Step 5 until all 5 sections are verified present.
+
 ### Step 5: Write local spec
 
 Write the full spec to the correct local path:
