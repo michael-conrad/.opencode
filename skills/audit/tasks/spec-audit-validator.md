@@ -1,5 +1,5 @@
 ---
-name: spec-audit-knowledge-supporter
+name: spec-audit-validator
 description: "Validator role for the spec-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: spec-audit-knowledge-supporter
+# Task: spec-audit-validator
 
 ## Purpose
 
@@ -642,8 +642,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/spec-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
-- `tasks/spec-audit.md` — Evaluator role (consumes this task's reasoning.yaml)
+- `tasks/spec-audit-evaluator.md` — Evaluator role (consumes this task's reasoning.yaml)
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

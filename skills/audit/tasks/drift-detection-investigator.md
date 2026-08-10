@@ -1,5 +1,5 @@
 ---
-name: drift-detection-generator
+name: drift-detection-investigator
 description: "Investigator role for the drift-detection chain. Collects raw evidence about documentation-code drift by reading spec requirements and scanning code implementation. Writes evidence.yaml with initial findings. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: drift-detection-generator
+# Task: drift-detection-investigator
 
 ## Purpose
 

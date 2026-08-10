@@ -1,4 +1,11 @@
-# Task: coherence-extraction/knowledge-supporter
+---
+name: coherence-extraction-validator
+description: "Validate coherence evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of extracted rules and behaviors."
+license: MIT
+compatibility: opencode
+---
+
+# Task: coherence-extraction-validator
 
 ## Purpose
 
@@ -20,20 +27,15 @@ You are the Validator. You validate evidence against source data. You read `evid
 
 ## Procedure
 
-### Step 1: Read Evidence
+- [ ] 1. **Read Evidence** — Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/coherence-extraction/evidence.yaml`.
 
-Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/coherence-extraction/evidence.yaml`.
+- [ ] 2. **Validate Each Evidence Item** — For each evidence item:
 
-### Step 2: Validate Each Evidence Item
+  - Check accuracy against source guideline/skill files
+  - Check completeness (all rules and behaviors extracted)
+  - Check relevance (evidence relates to coherence criteria)
 
-For each evidence item:
-- Check accuracy against source guideline/skill files
-- Check completeness (all rules and behaviors extracted)
-- Check relevance (evidence relates to coherence criteria)
-
-### Step 3: Write Reasoning Artifact
-
-Write validated evidence to `./tmp/{issue-N}/artifacts/coherence-extraction/reasoning.yaml`.
+- [ ] 3. **Write Reasoning Artifact** — Write validated evidence to `./tmp/{issue-N}/artifacts/coherence-extraction/reasoning.yaml`.
 
 ## Output
 

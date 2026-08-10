@@ -1,8 +1,15 @@
+---
+name: concern-separation-investigator
+description: "Collect raw evidence about concern boundaries and scope isolation from spec and plan files. Reads phase structure, extracts symbols, traces dependencies, and records findings without evaluation. Writes `evidence.yaml` as the sole output artifact."
+license: MIT
+compatibility: opencode
+---
+
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: concern-separation-generator
+# Task: concern-separation-investigator
 
 ## Purpose
 

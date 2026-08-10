@@ -1,5 +1,5 @@
 ---
-name: plan-fidelity-path-provider
+name: plan-fidelity-arbiter
 description: "Arbiter role for the plan-fidelity chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: plan-fidelity-path-provider
+# Task: plan-fidelity-arbiter
 
 ## Purpose
 
@@ -251,8 +251,7 @@ remediation_required: true | false
 - `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
 - `tasks/plan-fidelity-validator.md` — Validator role (produces `reasoning.yaml` consumed by this task)
 - `tasks/plan-fidelity-evaluator.md` — Evaluator role (produces `verdict.yaml` consumed by this task)
-- `tasks/plan-fidelity.md` — Main task file (orchestrator-level plan-fidelity audit)
-- `audit/SKILL.md` — chain dispatch (Investigator → Validator → Evaluator → Arbiter)
+- `audit/SKILL.md` — orchestrator-level plan-fidelity audit dispatch (chain: Investigator → Validator → Evaluator → Arbiter)
 - `writing-plans` skill — clean-room plan generation
 - `guidelines/000-critical-rules.md` — critical-rules-020 (soft-passing prohibition), critical-rules-hard-fail, critical-rules-034 (inline work prohibition)
 - `guidelines/065-verification-honesty.md` — hard failure discipline, self-consistency gate

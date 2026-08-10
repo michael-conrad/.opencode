@@ -1,5 +1,5 @@
 ---
-name: guideline-audit-path-provider
+name: guideline-audit-arbiter
 description: "Arbiter role for the guideline-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: guideline-audit-path-provider
+# Task: guideline-audit-arbiter
 
 ## Purpose
 
@@ -533,6 +533,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
-- `080-code-standards.md` — enforcement test mandate and evidence type taxonomy
+- `080-code-standards.md` — enforcement test mandate
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

@@ -96,8 +96,8 @@ plan_dimensions:
 
 cross_reference:
   audit_gates:
-    - file: ".opencode/skills/audit/tasks/spec-audit.md"
-      section: "Step 2 holistic gate"
+    - file: ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
+      section: "Step 4 holistic gate"
       dimensions: "spec 1-11"
       last_verified: null
     - file: ".opencode/skills/writing-plans/tasks/create.md"
@@ -108,7 +108,7 @@ cross_reference:
       section: "Step 0 pre-flight gate"
       dimensions: "spec 1-11"
       last_verified: null
-    - file: ".opencode/skills/audit/tasks/plan-fidelity.md"
+    - file: ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
       section: "Step 0 pre-flight gate"
       dimensions: "plan 1-11"
       last_verified: null

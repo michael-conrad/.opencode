@@ -1,5 +1,5 @@
 ---
-name: guideline-audit-generator
+name: guideline-audit-investigator
 description: "Investigator role for the guideline-audit chain. Reads guideline files and collects raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: guideline-audit-generator
+# Task: guideline-audit-investigator
 
 ## Purpose
 
@@ -531,6 +531,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — guideline standards and critical rule definitions
 - Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live verification requirement
-- Read [080-code-standards.md](guidelines/080-code-standards.md) — enforcement test mandate and evidence type taxonomy
+- Read [080-code-standards.md](guidelines/080-code-standards.md) — enforcement test mandate
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

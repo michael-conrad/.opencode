@@ -497,17 +497,29 @@ behavior_run() {
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
-        # Create a fresh workdir per attempt — with-test-home moves it into the test home.
+        # SC-34: In shared-home mode, reuse the persistent shared project so the
+        # second (audit) test builds incrementally on the state created by the first
+        # (spec-creation) test. The shared home lives at tmp/test-home-shared.
         local attempt_workdir
-        attempt_workdir=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
-        git init -q "$attempt_workdir"
-        git -C "$attempt_workdir" config user.email "test@test.dev"
-        git -C "$attempt_workdir" config user.name "Test"
+        local shared_project="$PARENT_REPO_DIR/tmp/test-home-shared/project"
+        if [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ] && [ -d "$shared_project" ]; then
+            attempt_workdir="$shared_project"
+            echo "  [harness] reusing shared test home project $shared_project (incremental)" >&2
+        else
+            # Create a fresh workdir per attempt — with-test-home moves it into the test home.
+            attempt_workdir=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
+            git init -q "$attempt_workdir"
+            git -C "$attempt_workdir" config user.email "test@test.dev"
+            git -C "$attempt_workdir" config user.name "Test"
+        fi
 
-        git clone -q "$submodule_remote_url" "$attempt_workdir/.opencode" 2>/dev/null || {
-            echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
-            exit 1
-        }
+        # In shared-home reuse, the .opencode clone already exists — skip cloning.
+        if [ ! -d "$attempt_workdir/.opencode/.git" ]; then
+            git clone -q "$submodule_remote_url" "$attempt_workdir/.opencode" 2>/dev/null || {
+                echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
+                exit 1
+            }
+        fi
 
         # Pin to local submodule commit so test agent sees feature branch changes.
         # Mirrors the pattern in with-test-home --setup (lines 153-159).

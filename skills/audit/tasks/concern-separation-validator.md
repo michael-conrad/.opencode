@@ -1,8 +1,15 @@
+---
+name: concern-separation-validator
+description: "Validate every evidence item in the Investigator's `evidence.yaml` against live source data. Reads the Investigator's raw evidence, cross-checks each claim against spec files, plan files, and srclight symbol data, and writes `reasoning.yaml` with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
+license: MIT
+compatibility: opencode
+---
+
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: concern-separation-knowledge-supporter
+# Task: concern-separation-validator
 
 ## Purpose
 

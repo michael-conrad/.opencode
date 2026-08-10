@@ -1,5 +1,5 @@
 ---
-name: plan-fidelity-knowledge-supporter
+name: plan-fidelity-validator
 description: "Validator role for the plan-fidelity chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: plan-fidelity-knowledge-supporter
+# Task: plan-fidelity-validator
 
 ## Purpose
 
@@ -295,7 +295,7 @@ summary: "Evidence validated: {validated_count}/{total_items} items confirmed. {
 ## Cross-References
 
 - `tasks/plan-fidelity-investigator.md` — Investigator role (produces `evidence.yaml` consumed by this task)
-- `tasks/plan-fidelity.md` — Evaluator role (consumes this task's `reasoning.yaml`)
+- `tasks/plan-fidelity-evaluator.md` — Evaluator role (consumes this task's `reasoning.yaml`)
 - `audit/SKILL.md` — chain dispatch (Investigator → Validator → Evaluator → Arbiter)
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)
 

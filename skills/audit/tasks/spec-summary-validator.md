@@ -1,4 +1,11 @@
-# Task: spec-summary/knowledge-supporter
+---
+name: spec-summary-validator
+description: "Validate evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of each evidence item."
+license: MIT
+compatibility: opencode
+---
+
+# Task: spec-summary-validator
 
 ## Purpose
 
@@ -20,20 +27,15 @@ You are the Validator. You validate evidence against source data. You read `evid
 
 ## Procedure
 
-### Step 1: Read Evidence
+- [ ] 1. **Read Evidence** — Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/spec-summary/evidence.yaml`.
 
-Read `evidence.yaml` from `./tmp/{issue-N}/artifacts/spec-summary/evidence.yaml`.
+- [ ] 2. **Validate Each Evidence Item** — For each evidence item:
 
-### Step 2: Validate Each Evidence Item
+  - Check accuracy against source data (PR API, spec files)
+  - Check completeness (all required fields present)
+  - Check relevance (evidence relates to PR/spec consistency criteria)
 
-For each evidence item:
-- Check accuracy against source data (PR API, spec files)
-- Check completeness (all required fields present)
-- Check relevance (evidence relates to PR/spec consistency criteria)
-
-### Step 3: Write Reasoning Artifact
-
-Write validated evidence to `./tmp/{issue-N}/artifacts/spec-summary/reasoning.yaml`.
+- [ ] 3. **Write Reasoning Artifact** — Write validated evidence to `./tmp/{issue-N}/artifacts/spec-summary/reasoning.yaml`.
 
 ## Output
 

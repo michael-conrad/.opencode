@@ -1,5 +1,5 @@
 ---
-name: guideline-audit-knowledge-supporter
+name: guideline-audit-validator
 description: "Validator role for the guideline-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: guideline-audit-knowledge-supporter
+# Task: guideline-audit-validator
 
 ## Purpose
 
@@ -850,6 +850,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit.md` — Evaluator role (consumes this task's reasoning.yaml)
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - `065-verification-honesty.md` — live verification requirement
-- `080-code-standards.md` — enforcement test mandate and evidence type taxonomy
+- `080-code-standards.md` — enforcement test mandate
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

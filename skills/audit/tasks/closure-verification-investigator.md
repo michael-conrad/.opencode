@@ -1,4 +1,11 @@
-# Task: closure-verification/generator
+---
+name: closure-verification-investigator
+description: "Generate initial closure verification analysis. Fetches the merged PR, identifies the linked spec issue, loads spec files, and produces the initial evidence artifact."
+license: MIT
+compatibility: opencode
+---
+
+# Task: closure-verification-investigator
 
 ## Purpose
 

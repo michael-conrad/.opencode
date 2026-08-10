@@ -1,5 +1,5 @@
 ---
-name: test-quality-audit-path-provider
+name: test-quality-audit-arbiter
 description: "Arbiter role for the test-quality-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: test-quality-audit-path-provider
+# Task: test-quality-audit-arbiter
 
 ## Purpose
 
@@ -384,7 +384,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/test-quality-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/test-quality-audit.md` — Main task file (orchestrator-level test-quality-audit)
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 - Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
 - Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)
 - Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable

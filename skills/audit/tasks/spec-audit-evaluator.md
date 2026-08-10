@@ -261,7 +261,7 @@ Read [spec-structure-standards.md](reference/spec-structure-standards.md). For e
 
 #### Step 5d: Evaluate SC-EVIDENCE-TYPE
 
-Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Evidence Type Taxonomy and verify each SC's evidence matches the minimum acceptable method.
+Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy — and verify each SC's evidence matches the minimum acceptable method.
 
 #### Step 5e: Evaluate SC-TRACKING-LANG
 
@@ -713,7 +713,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/spec-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/spec-audit-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
 - `.opencode/reference/holistic-dimensions.yaml` — 11 holistic dimensions definitions
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 - Read [critical-rules-BEH-EV](guidelines/000-critical-rules.md) — runtime-behavioral evidence classification gate
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 

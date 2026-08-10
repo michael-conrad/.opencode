@@ -1,5 +1,5 @@
 ---
-name: coherence-maintenance-path-provider
+name: coherence-maintenance-arbiter
 description: "Arbiter role for the coherence-maintenance chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: coherence-maintenance-path-provider
+# Task: coherence-maintenance-arbiter
 
 ## Purpose
 
@@ -483,7 +483,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `tasks/coherence-maintenance-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/coherence-maintenance-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/coherence-maintenance-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
-- `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Investigator)
+- `tasks/coherence-extraction-investigator.md` — baseline generation (prerequisite for the Investigator)
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

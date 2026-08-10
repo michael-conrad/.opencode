@@ -58,7 +58,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: approval-gate --task verify-authorization
+CONTINUE: approval-gate 3-step verify-authorization workflow (resolve-scope -> apply-label -> route)
 HALT
 ```
 

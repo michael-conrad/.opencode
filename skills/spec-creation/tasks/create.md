@@ -93,6 +93,27 @@ When a remote API is available, apply the `spec-draft` label to the newly create
 
 When a remote API is available, write the full assembled spec to the remote issue body using the platform's update API.
 
+Route the remote issue body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5. The remote issue body MUST contain the following sections in order:
+
+- [ ] 1. **Spec Reference Blockquote** (mandatory — top of body, before all other content) — the forward-reference link pointing to the issues-data branch URL:
+
+   ```
+   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/.issues/N/
+   ```
+
+   - `{{REMOTE_BROWSER_URL}}` from session-init (platform-agnostic — use `github.html_url` or `gitbucket.html_url` as appropriate)
+   - `{{OWNER}}` / `{{REPO}}` from session-init, verified against the target issue's repository
+   - `{{SPEC_BRANCH}}` always `issues-data`
+   - `{{SPEC_PATH}}` always `.issues/N/` (where N is the created issue number)
+   - All links MUST be full resolved URLs — no platform shortcuts (`#NNN`, relative paths)
+
+- [ ] 1. **Problem** (mandatory) — What problem this solves, why now, BLUF (Bottom Line Up Front) format. 1-3 sentences.
+- [ ] 1. **Scope** (mandatory) — 3-5 bullets describing what is in-scope, followed by an explicit `**Out of scope:**` list describing what is NOT covered.
+- [ ] 1. **Approach** (mandatory) — High-level solution description, 3-5 sentences. Focus on architectural choices and rationale, not implementation details.
+- [ ] 1. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
+
+**Post-creation enforcement:** Run this check after the remote issue body is written. If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to Step 5 until all 5 sections are verified present.
+
 ### Step 5: Write local spec
 
 Write the full spec to the correct local path:
@@ -119,6 +140,13 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 > **Local artifacts:** `{issues_prefix}{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
 
+### Step 7: Hand off post-push reconciliation to the reconcile-push task
+
+After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operations/platforms/local/tasks/push-artifacts.md) runs and returns the `artifact_url`, the post-push reconciliation of the Spec Reference Blockquote / artifact URL is performed by the separate `reconcile-push` task card. This task does NOT dispatch `push-artifacts` or `reconcile-push` internally — the orchestrator dispatches each as a separate workflow step.
+
+1. Record the `artifact_url` returned by `push-artifacts` in the result contract for the orchestrator to pass to the `reconcile-push` step.
+2. Do NOT call `task()` or `skill()` from within this task — sub-agents cannot dispatch sub-agents. The orchestrator sequences the `reconcile-push` step after this task completes.
+
 ## Exit Criteria
 
 - [ ] Spec assembled with all required sections
@@ -129,6 +157,8 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
 - [ ] Analytical artifacts copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
+- [ ] `artifact_url` from `push-artifacts` recorded in the result contract for the `reconcile-push` step
+- [ ] No internal sub-agent dispatch performed — this task executes its steps directly
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
 - [ ] No verification steps performed (no holistic check or structural validation)
 
@@ -138,6 +168,7 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 status: DONE | BLOCKED
 spec_path: "{project_root}/.issues/{issue_number}/spec.md"
 issue_url: "https://github.com/{owner}/{repo}/issues/{issue_number}"
+artifact_url: "https://github.com/{owner}/{repo}/tree/issues-data/{issue_number}/"
 finding_summary: "Brief summary of spec structure, sections, and key decisions"
 blocker_reason: "If BLOCKED: why the spec could not be created"
 ```

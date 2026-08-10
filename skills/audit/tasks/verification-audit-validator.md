@@ -1,5 +1,5 @@
 ---
-name: verification-audit-knowledge-supporter
+name: verification-audit-validator
 description: "Validator role for the verification-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: verification-audit-knowledge-supporter
+# Task: verification-audit-validator
 
 ## Purpose
 
@@ -294,7 +294,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/verification-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
 - `tasks/verification-audit.md` — Evaluator role (consumes reasoning.yaml produced by this task)
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations and enforcement matrix
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy and enforcement matrix
 - Read [implementation-workflow reference card](skills/writing-plans/reference/implementation-workflow.md) — Trigger Dispatch Table (dispatches verification-audit)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — behavioral evidence mandate
 

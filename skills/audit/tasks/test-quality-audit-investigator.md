@@ -1,5 +1,5 @@
 ---
-name: test-quality-audit-generator
+name: test-quality-audit-investigator
 description: "Investigator role for the test-quality-audit chain. Collects raw evidence from test files, spec SCs, git history, and VbC artifacts. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: test-quality-audit-generator
+# Task: test-quality-audit-investigator
 
 ## Purpose
 
@@ -417,7 +417,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/test-quality-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
-- Read [Evidence Type Taxonomy](guidelines/080-code-standards.md) — evidence type declarations
+- Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 - Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
 - Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)
 - `verification-before-completion/SKILL.md` — VbC artifact format
