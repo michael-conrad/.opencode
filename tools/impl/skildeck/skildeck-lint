@@ -675,6 +675,238 @@ def lint_skill_workflows_prompts(base_dir: Path) -> list[LintFinding]:
     return findings
 
 
+def lint_skill_card_format_rules(base_dir: Path) -> list[LintFinding]:
+    """Enforce the #2254 skill-card format rules (SC-28).
+
+    Rules:
+      R1 numbered-checkbox workflow format — workflow steps MUST use `- [ ] N.`
+         markers, not plain numbered lists (`N.` / `N.`).
+      R2 execution-mode sub-bullet — every workflow step MUST carry an
+         `Execution mode:` sub-bullet (inline or sub-agent dispatch).
+      R3 task-card clean-room unit — task-card Procedure MUST NOT contain
+         internal sub-agent dispatch (`task(...)` / `skill({`) calls.
+      R4 dispatch-contract completeness — every workflow Context sub-bullet MUST
+         supply every parameter named in the dispatched task card's Entry
+         Criteria.
+      R5 markdown link correctness — every markdown link in a workflow step's
+         prompt MUST resolve to an existing file.
+    """
+    import re
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    global_ignore = _load_skilldeck_ignore(skills_dir / "reference")
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        dir_ignore = _load_skilldeck_ignore(skill_dir)
+        all_ignore = global_ignore | dir_ignore
+        if _is_ignored(skill_dir, all_ignore, base_dir):
+            continue
+
+        skmd = skill_dir / "SKILL.md"
+        if not skmd.exists():
+            continue
+        rel = str(skmd.relative_to(base_dir))
+        text = skmd.read_text()
+        lines = text.split("\n")
+
+        # --- R1 / R2 / R5: Workflows section checks -----------------------
+        in_workflows = False
+        current_step_num = None
+        step_has_execution_mode = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("## Workflows"):
+                in_workflows = True
+                continue
+            if in_workflows and stripped.startswith("## "):
+                in_workflows = False
+                continue
+            if not in_workflows:
+                continue
+
+            # R2: detect end of a workflow step — flush pending step state when a
+            # new step or non-sub-bullet line begins.
+            checkbox_step = re.match(r"^- \[ \] ([0-9]+(?:\.[0-9]+)?)\.", stripped)
+            # A plain numbered list is only a workflow dispatch step if it looks
+            # like a dispatch (contains 'Dispatch', 'task(', or a markdown link).
+            # Plain prose numbered lists (principles, remediation steps) are NOT
+            # workflow steps and must not be flagged.
+            plain_step = re.match(r"^([0-9]+)\.\s+\*\*", stripped)
+            is_dispatch_like = any(k in stripped for k in ("Dispatch", "task(", "skill(", "](.", "]./"))
+            if checkbox_step:
+                if current_step_num is not None and not step_has_execution_mode:
+                    findings.append(LintFinding(
+                        severity="error", category="skill-format",
+                        source=rel, rule_id="execution-mode-missing",
+                        message=f"Workflow step {current_step_num} has no 'Execution mode:' sub-bullet"
+                    ))
+                current_step_num = checkbox_step.group(1)
+                step_has_execution_mode = False
+            elif plain_step and is_dispatch_like:
+                # R1: plain numbered dispatch list is forbidden in Workflows.
+                findings.append(LintFinding(
+                    severity="error", category="skill-format",
+                    source=rel, rule_id="workflow-not-checkbox",
+                    message=f"Workflow step '{plain_step.group(1)}.' uses a plain numbered list; must use '- [ ] {plain_step.group(1)}.'"
+                ))
+            elif stripped.startswith("- ") and "Execution mode:" in stripped:
+                step_has_execution_mode = True
+            # R5: markdown dispatch links must resolve. Only check lines that are
+            # dispatch step headers or dispatch sub-bullets (carry 'Dispatch' or
+            # 'prompt:'). Prose cross-reference links (e.g., "Read [audit
+            # skill](skills/audit/SKILL.md)" in critical-rules sections) are not
+            # dispatch targets and must not be flagged. Template placeholders
+            # (<...>) and context placeholders ({...}) are not literal paths.
+            if ("Dispatch" in stripped or "prompt:" in stripped.lower()) \
+                    and "<" not in stripped and "{" not in stripped:
+                link_re = re.compile(r"\]\(([^)]+)\)")
+                for m in link_re.finditer(stripped):
+                    target = m.group(1)
+                    if target.startswith("http://") or target.startswith("https://"):
+                        continue
+                    if not target.endswith(".md"):
+                        continue
+                    link_path = (base_dir.parent / target).resolve()
+                    if not link_path.exists():
+                        findings.append(LintFinding(
+                            severity="error", category="skill-format",
+                            source=rel, rule_id="markdown-link-broken",
+                            message=f"Workflow markdown link target does not exist: '{target}'"
+                        ))
+        if current_step_num is not None and not step_has_execution_mode:
+            findings.append(LintFinding(
+                severity="error", category="skill-format",
+                source=rel, rule_id="execution-mode-missing",
+                message=f"Workflow step {current_step_num} has no 'Execution mode:' sub-bullet"
+            ))
+
+        # --- R3: task-card clean-room unit --------------------------------
+        tasks_dir = skill_dir / "tasks"
+        if tasks_dir.exists() and tasks_dir.is_dir():
+            for task_file in sorted(tasks_dir.glob("*.md")):
+                ttext = task_file.read_text()
+                # Find the Procedure section.
+                proc_match = re.search(r"^## Procedure\s*$(.*?)(?=^## |\Z)", ttext, re.MULTILINE | re.DOTALL)
+                proc_body = proc_match.group(1) if proc_match else ""
+                # Match actual invocation patterns only, not prose mentions:
+                #   `task(..., prompt: ...)`, `task({name: ...})`, `task(subagent_type=...)`
+                #   `skill({name: ...})`, `skill(name=...)`
+                # Exclude negative/prohibition mentions like "Do NOT call task()"
+                # and quoted strings like "'Load via skill() when'".
+                internal_dispatch_re = re.compile(r"\b(task\(|skill\(\s*\{)")
+                for proc_line in proc_body.splitlines():
+                    if "NOT call" in proc_line or "not call" in proc_line:
+                        continue
+                    if "'" in proc_line:
+                        continue
+                    if internal_dispatch_re.search(proc_line):
+                        findings.append(LintFinding(
+                            severity="error", category="skill-format",
+                            source=f"{rel}/tasks/{task_file.name}", rule_id="task-card-internal-dispatch",
+                            message="Task-card Procedure contains an internal sub-agent dispatch (task()/skill({) — violates the clean-room unit"
+                        ))
+                        break
+
+        # --- R4: dispatch-contract completeness ---------------------------
+        # For each workflow step that dispatches a task card, the step's
+        # 'Context passed:' sub-bullet must supply every parameter named in the
+        # dispatched task card's Entry Criteria.
+        in_workflows = False
+        step_context = None
+        step_dispatch_target = None
+        current_step = None
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("## Workflows"):
+                in_workflows = True
+                continue
+            if in_workflows and stripped.startswith("## "):
+                in_workflows = False
+                continue
+            if not in_workflows:
+                continue
+            if re.match(r"^- \[ \] [0-9]", stripped):
+                # Flush previous step's completeness check.
+                findings.extend(
+                    _check_dispatch_contract(rel, current_step, step_context, step_dispatch_target, skill_dir)
+                )
+                current_step = stripped
+                step_context = None
+                step_dispatch_target = None
+                # The step header carries the dispatch prompt with the task-card
+                # link — capture it here as the dispatch target.
+                m = re.search(r"\]\(([^)]+)\)", stripped)
+                if m:
+                    step_dispatch_target = m.group(1)
+                continue
+            if "Context passed:" in stripped:
+                m = re.search(r"\{([^}]*)\}", stripped)
+                if m:
+                    step_context = set(p.strip() for p in m.group(1).split(",") if p.strip())
+                continue
+            if "prompt:" in stripped.lower() or "Prompt" in stripped:
+                m = re.search(r"\]\(([^)]+)\)", stripped)
+                if m:
+                    step_dispatch_target = m.group(1)
+                continue
+        findings.extend(
+            _check_dispatch_contract(rel, current_step, step_context, step_dispatch_target, skill_dir)
+        )
+
+    return findings
+
+
+def _check_dispatch_contract(
+    rel: str,
+    step_label: str | None,
+    step_context: set[str] | None,
+    dispatch_target: str | None,
+    skill_dir: Path,
+) -> list[LintFinding]:
+    """Verify a workflow step's Context supplies every Entry Criteria parameter
+    of the task card it dispatches (R4)."""
+    import re
+    if not step_label or not dispatch_target or step_context is None:
+        return []
+    task_path = (skill_dir / "tasks" / Path(dispatch_target).name).resolve()
+    if not task_path.exists():
+        task_path = (Path(rel).parent.parent / dispatch_target).resolve()
+    if not task_path.exists():
+        task_path = Path("/").joinpath(*dispatch_target.split("/")).resolve()
+        if not task_path.exists():
+            return []
+    ttext = task_path.read_text()
+    ec_match = re.search(r"^## Entry Criteria\s*$(.*?)(?=^## |\Z)", ttext, re.MULTILINE | re.DOTALL)
+    if not ec_match:
+        return []
+    ec_body = ec_match.group(1)
+    findings: list[LintFinding] = []
+    # Only backtick-quoted identifier-like tokens (snake_case / dotted) are
+    # dispatch-contract parameters. Path templates ({...}/...), prose mentions
+    # (push-artifacts), and free text are not parameters.
+    param_re = re.compile(r"`([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)*)`")
+    for line in ec_body.splitlines():
+        m = param_re.search(line)
+        if not m:
+            continue
+        param = m.group(1)
+        param = param.split(".")[0]
+        if param in step_context:
+            continue
+        findings.append(LintFinding(
+            severity="error", category="skill-format",
+            source=rel, rule_id="dispatch-contract-incomplete",
+            message=f"Workflow step '{step_label}' Context omits required parameter '{param}' required by {task_path.name}"
+        ))
+    return findings
+
+
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -710,6 +942,7 @@ def main() -> None:
     findings.extend(lint_skill_frontmatter(base_dir))
     findings.extend(lint_skill_deck_completeness(base_dir))
     findings.extend(lint_skill_workflows_prompts(base_dir))
+    findings.extend(lint_skill_card_format_rules(base_dir))
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))
