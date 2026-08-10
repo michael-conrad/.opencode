@@ -31,8 +31,14 @@ analyze → create → validate → (revise → validate)* → done
 
 - [ ] 2. **create** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md)")`
   - **Context passed:** `{issue_number, analysis_artifact_path}`
-  - **Returns:** `{status, spec_path, issue_url, finding_summary}`
+  - **Returns:** `{status, spec_path, issue_url, artifact_url, finding_summary}`
   - **Execution mode:** sub-agent dispatch
+
+- [ ] 2.1. **reconcile-push** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/reconcile-push.md](.opencode/skills/spec-creation/tasks/reconcile-push.md)")`
+  - **Context passed:** `{issue_number, artifact_url}`
+  - **Returns:** `{status, issue_url, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+  - Runs after `create` returns the `artifact_url` from `push-artifacts`; reconciles the Spec Reference Blockquote / artifact URL in the remote issue body.
 
 - [ ] 3. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
   - **Context passed:** `{issue_number, spec_path}`

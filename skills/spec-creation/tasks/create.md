@@ -140,15 +140,12 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 > **Local artifacts:** `{issues_prefix}{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
 
-### Step 7: Sequence post-push reconciliation after push-artifacts
+### Step 7: Hand off post-push reconciliation to the reconcile-push task
 
-After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operations/platforms/local/tasks/push-artifacts.md) runs and returns the `artifact_url`, sequence the post-push reconciliation of the Spec Reference Blockquote / artifact URL:
+After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operations/platforms/local/tasks/push-artifacts.md) runs and returns the `artifact_url`, the post-push reconciliation of the Spec Reference Blockquote / artifact URL is performed by the separate `reconcile-push` task card. This task does NOT dispatch `push-artifacts` or `reconcile-push` internally — the orchestrator dispatches each as a separate workflow step.
 
-1. Dispatch `push-artifacts` via `task(..., prompt: "execute push-artifacts task from issue-operations-core")` to push the `.issues/{N}/` spec artifacts to the `issues-data` branch and obtain the returned `artifact_url`.
-2. Reconcile the Spec Reference Blockquote / artifact URL in the remote issue body against the `artifact_url` returned by push-artifacts:
-   - Verify the blockquote's `tree/issues-data/{N}/` link resolves to the same URL as the returned `artifact_url`.
-   - If the blockquote URL differs from the returned `artifact_url`, call `issue-operations → update-issue` to amend the remote issue body with the corrected Spec Reference Blockquote / artifact URL.
-3. Confirm the reconciled Spec Reference Blockquote / artifact URL is present and correct in the remote issue body before completing.
+1. Record the `artifact_url` returned by `push-artifacts` in the result contract for the orchestrator to pass to the `reconcile-push` step.
+2. Do NOT call `task()` or `skill()` from within this task — sub-agents cannot dispatch sub-agents. The orchestrator sequences the `reconcile-push` step after this task completes.
 
 ## Exit Criteria
 
@@ -160,6 +157,8 @@ After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operation
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
 - [ ] Analytical artifacts copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
+- [ ] `artifact_url` from `push-artifacts` recorded in the result contract for the `reconcile-push` step
+- [ ] No internal sub-agent dispatch performed — this task executes its steps directly
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
 - [ ] No verification steps performed (no holistic check or structural validation)
 
@@ -169,6 +168,7 @@ After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operation
 status: DONE | BLOCKED
 spec_path: "{project_root}/.issues/{issue_number}/spec.md"
 issue_url: "https://github.com/{owner}/{repo}/issues/{issue_number}"
+artifact_url: "https://github.com/{owner}/{repo}/tree/issues-data/{issue_number}/"
 finding_summary: "Brief summary of spec structure, sections, and key decisions"
 blocker_reason: "If BLOCKED: why the spec could not be created"
 ```
