@@ -1,0 +1,162 @@
+# Dependency Contract — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+# Extracted from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "spec-creation dispatch + task precondition fixes — SC-1, SC-2, SC-17, SC-18, SC-19, SC-20, SC-21, SC-37"
+  phase_2:
+    type: bool
+    description: "audit skill structure + role cards — SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-12, SC-14"
+  phase_3:
+    type: bool
+    description: "cross-references + taxonomy — SC-10, SC-11, SC-15, SC-16"
+  phase_4:
+    type: bool
+    description: "completion routing — SC-13"
+  phase_5:
+    type: bool
+    description: "revise exec-summary regeneration — SC-22"
+  phase_6:
+    type: bool
+    description: "format conformance + linter + links — SC-23, SC-24, SC-25, SC-26, SC-27, SC-28, SC-29a, SC-29b, SC-29c, SC-31, SC-35, SC-36"
+  phase_7:
+    type: bool
+    description: "functional end-to-end verification — SC-32, SC-33, SC-34"
+preconditions:
+  - "z3.Implies(phase_3, phase_2)"
+  - "z3.Implies(phase_4, phase_2)"
+  - "z3.Implies(phase_5, phase_1)"
+  - "z3.Implies(phase_6, phase_1)"
+  - "z3.Implies(phase_6, phase_2)"
+  - "z3.Implies(phase_7, phase_1)"
+  - "z3.Implies(phase_7, phase_2)"
+  - "z3.Implies(phase_7, phase_3)"
+  - "z3.Implies(phase_7, phase_4)"
+  - "z3.Implies(phase_7, phase_5)"
+  - "z3.Implies(phase_7, phase_6)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/spec-creation/tasks/analyze.md
+      - .opencode/skills/spec-creation/tasks/validate.md
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+    scs:
+      - SC-1
+      - SC-2
+      - SC-17
+      - SC-18
+      - SC-19
+      - SC-20
+      - SC-21
+      - SC-37
+  phase_2:
+    files:
+      - .opencode/skills/audit/SKILL.md
+      - .opencode/skills/audit/tasks/*-role.md
+      - .opencode/skills/audit/tasks/behavioral-sc-evaluator.md
+    scs:
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-12
+      - SC-14
+  phase_3:
+    files:
+      - .opencode/skills/audit/tasks/*-role.md
+      - .opencode/reference/spec-structure-standards.md
+      - .opencode/skills/spec-creation/tasks/analyze.md
+    scs:
+      - SC-10
+      - SC-11
+      - SC-15
+      - SC-16
+  phase_4:
+    files:
+      - .opencode/skills/audit/tasks/completion.md
+    scs:
+      - SC-13
+  phase_5:
+    files:
+      - .opencode/skills/spec-creation/tasks/revise.md
+    scs:
+      - SC-22
+  phase_6:
+    files:
+      - .opencode/reference/skill-card-description-standards.md
+      - .opencode/reference/task-card-structure-standards.md
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/audit/SKILL.md
+      - .opencode/skills/spec-creation/tasks/*.md
+      - .opencode/skills/audit/tasks/*.md
+      - .opencode/tools/impl/skildeck/
+    scs:
+      - SC-23
+      - SC-24
+      - SC-25
+      - SC-26
+      - SC-27
+      - SC-28
+      - SC-29a
+      - SC-29b
+      - SC-29c
+      - SC-31
+      - SC-35
+      - SC-36
+  phase_7:
+    files:
+      - .opencode/tests-v2/with-test-home
+      - .opencode/tests-v2/behaviors/helpers.sh
+      - .opencode/tests-v2/behaviors/<new behavioral test scripts>
+    scs:
+      - SC-32
+      - SC-33
+      - SC-34
+edges:
+  - from: phase_2
+    to: phase_3
+    rationale: "Cross-reference repoints (Phase 3) target the role-split task cards and reference task names established by the audit role-card restructuring (Phase 2)"
+  - from: phase_2
+    to: phase_4
+    rationale: "Completion routing (Phase 4) corrects the audit completion task, which depends on the audit role-card surface restructured in Phase 2"
+  - from: phase_1
+    to: phase_5
+    rationale: "Revise exec-summary regeneration (Phase 5) reuses the canonical exec-summary body format established by the create task in Phase 1"
+  - from: phase_1
+    to: phase_6
+    rationale: "Format conformance (Phase 6) converts the spec-creation SKILL.md and task cards to numbered-checkbox, building on the Phase 1 dispatch/task restructure"
+  - from: phase_2
+    to: phase_6
+    rationale: "Format conformance (Phase 6) converts the audit SKILL.md and role task cards to numbered-checkbox, building on the Phase 2 audit restructure"
+  - from: phase_1
+    to: phase_7
+    rationale: "Functional end-to-end verification (Phase 7) exercises the spec-creation pipeline, which requires the Phase 1 dispatch and task fixes"
+  - from: phase_2
+    to: phase_7
+    rationale: "Functional end-to-end verification (Phase 7) exercises the audit DiMo chain, which requires the Phase 2 audit restructure"
+  - from: phase_3
+    to: phase_7
+    rationale: "Functional verification (Phase 7) depends on the cross-reference and taxonomy corrections from Phase 3"
+  - from: phase_4
+    to: phase_7
+    rationale: "Functional verification (Phase 7) depends on the completion routing correction from Phase 4"
+  - from: phase_5
+    to: phase_7
+    rationale: "Functional verification (Phase 7) depends on the revise exec-summary regeneration from Phase 5"
+  - from: phase_6
+    to: phase_7
+    rationale: "Functional verification (Phase 7) depends on the format conformance, linter, and link corrections from Phase 6"
+notes:
+  - "Phase 7 (functional end-to-end verification) is the terminal phase and depends on all six prior phases; it runs the spec-creation pipeline and audit DiMo chain against a fixture in a shared test home with a test gitbucket instance."
+  - "Phase 6 (format conformance) depends on both Phase 1 (spec-creation) and Phase 2 (audit) because it converts both skills' SKILL.md and task cards to the numbered-checkbox format."
+  - "Phases 1 and 2 are independent root phases with disjoint file sets (spec-creation vs audit) — no same-file edit conflicts between them."
