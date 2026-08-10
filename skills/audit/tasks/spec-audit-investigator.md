@@ -1,5 +1,5 @@
 ---
-name: spec-audit-generator
+name: spec-audit-investigator
 description: "Investigator role for the spec-audit chain. Collects raw evidence about spec structure, determinism, and live documentation sources. Writes evidence.yaml with initial findings. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: spec-audit-generator
+# Task: spec-audit-investigator
 
 ## Purpose
 

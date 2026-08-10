@@ -1,5 +1,5 @@
 ---
-name: plan-fidelity-knowledge-supporter
+name: plan-fidelity-validator
 description: "Validator role for the plan-fidelity chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: plan-fidelity-knowledge-supporter
+# Task: plan-fidelity-validator
 
 ## Purpose
 

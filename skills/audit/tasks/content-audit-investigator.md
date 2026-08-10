@@ -1,5 +1,5 @@
 ---
-name: content-audit-generator
+name: content-audit-investigator
 description: "Investigator role for the content-audit chain. Reads generated content and source data, collects raw evidence about factual claims. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: content-audit-generator
+# Task: content-audit-investigator
 
 ## Purpose
 

@@ -1,5 +1,5 @@
 ---
-name: concern-separation-path-provider
+name: concern-separation-arbiter
 description: "Arbiter role for the concern-separation chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: concern-separation-path-provider
+# Task: concern-separation-arbiter
 
 ## Purpose
 

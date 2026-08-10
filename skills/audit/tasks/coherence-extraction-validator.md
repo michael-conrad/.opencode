@@ -1,4 +1,11 @@
-# Task: coherence-extraction/knowledge-supporter
+---
+name: coherence-extraction-validator
+description: "Validate coherence evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of extracted rules and behaviors."
+license: MIT
+compatibility: opencode
+---
+
+# Task: coherence-extraction-validator
 
 ## Purpose
 

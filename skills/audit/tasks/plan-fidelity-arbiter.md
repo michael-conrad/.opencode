@@ -1,5 +1,5 @@
 ---
-name: plan-fidelity-path-provider
+name: plan-fidelity-arbiter
 description: "Arbiter role for the plan-fidelity chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: plan-fidelity-path-provider
+# Task: plan-fidelity-arbiter
 
 ## Purpose
 

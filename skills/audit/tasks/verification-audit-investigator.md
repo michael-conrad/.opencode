@@ -1,5 +1,5 @@
 ---
-name: verification-audit-generator
+name: verification-audit-investigator
 description: "Investigator role for the verification-audit chain. Collects raw evidence from spec SCs and behavioral evidence artifacts. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: verification-audit-generator
+# Task: verification-audit-investigator
 
 ## Purpose
 

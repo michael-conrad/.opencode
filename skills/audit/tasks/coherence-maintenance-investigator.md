@@ -1,5 +1,5 @@
 ---
-name: coherence-maintenance-generator
+name: coherence-maintenance-investigator
 description: "Investigator role for the coherence-maintenance chain. Reads the codebase and collects raw evidence about codebase coherence after changes. Writes evidence.yaml with baseline data, current state, and raw diff data. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: coherence-maintenance-generator
+# Task: coherence-maintenance-investigator
 
 ## Purpose
 

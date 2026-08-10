@@ -1,5 +1,5 @@
 ---
-name: guideline-audit-knowledge-supporter
+name: guideline-audit-validator
 description: "Validator role for the guideline-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: guideline-audit-knowledge-supporter
+# Task: guideline-audit-validator
 
 ## Purpose
 

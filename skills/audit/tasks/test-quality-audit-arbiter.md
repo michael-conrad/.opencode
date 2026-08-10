@@ -1,5 +1,5 @@
 ---
-name: test-quality-audit-path-provider
+name: test-quality-audit-arbiter
 description: "Arbiter role for the test-quality-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: test-quality-audit-path-provider
+# Task: test-quality-audit-arbiter
 
 ## Purpose
 

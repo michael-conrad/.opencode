@@ -1,5 +1,5 @@
 ---
-name: content-audit-knowledge-supporter
+name: content-audit-validator
 description: "Validator role for the content-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: content-audit-knowledge-supporter
+# Task: content-audit-validator
 
 ## Purpose
 

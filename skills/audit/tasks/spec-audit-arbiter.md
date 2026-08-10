@@ -1,5 +1,5 @@
 ---
-name: spec-audit-path-provider
+name: spec-audit-arbiter
 description: "Arbiter role for the spec-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: spec-audit-path-provider
+# Task: spec-audit-arbiter
 
 ## Purpose
 

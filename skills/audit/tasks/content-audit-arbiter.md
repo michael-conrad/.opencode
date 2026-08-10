@@ -1,5 +1,5 @@
 ---
-name: content-audit-path-provider
+name: content-audit-arbiter
 description: "Arbiter role for the content-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: content-audit-path-provider
+# Task: content-audit-arbiter
 
 ## Purpose
 

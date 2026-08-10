@@ -1,5 +1,5 @@
 ---
-name: guideline-audit-generator
+name: guideline-audit-investigator
 description: "Investigator role for the guideline-audit chain. Reads guideline files and collects raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: guideline-audit-generator
+# Task: guideline-audit-investigator
 
 ## Purpose
 

@@ -1,4 +1,11 @@
-# Task: closure-verification/evaluator
+---
+name: closure-verification-evaluator
+description: "Evaluate closure evidence against criteria. Reads `reasoning.yaml` (Validator), evaluates each criterion, and writes `verdict.yaml`."
+license: MIT
+compatibility: opencode
+---
+
+# Task: closure-verification-evaluator
 
 ## Purpose
 

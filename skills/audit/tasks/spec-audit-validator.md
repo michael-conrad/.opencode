@@ -1,5 +1,5 @@
 ---
-name: spec-audit-knowledge-supporter
+name: spec-audit-validator
 description: "Validator role for the spec-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: spec-audit-knowledge-supporter
+# Task: spec-audit-validator
 
 ## Purpose
 

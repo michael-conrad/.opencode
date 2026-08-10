@@ -1,3 +1,10 @@
+---
+name: behavioral-sc-evaluator
+description: "Clean-room evaluation of behavioral test artifacts. Reads behavioral test execution output and renders binary PASS/FAIL verdicts per success criterion. This is a clean-room sub-agent — it receives ONLY the artifact directory path and evaluates the output cold, without any orchestrator context or preloaded expectations."
+license: MIT
+compatibility: opencode
+---
+
 # Task: behavioral-sc-evaluator
 
 ## Purpose

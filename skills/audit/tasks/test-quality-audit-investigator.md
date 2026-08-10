@@ -1,5 +1,5 @@
 ---
-name: test-quality-audit-generator
+name: test-quality-audit-investigator
 description: "Investigator role for the test-quality-audit chain. Collects raw evidence from test files, spec SCs, git history, and VbC artifacts. Writes evidence.yaml — does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: test-quality-audit-generator
+# Task: test-quality-audit-investigator
 
 ## Purpose
 

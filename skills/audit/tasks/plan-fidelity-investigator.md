@@ -1,8 +1,15 @@
+---
+name: plan-fidelity-investigator
+description: "Collect raw evidence about how faithfully the plan implements the spec. Reads the spec and plan files, extracts structural and content-level data, and writes `evidence.yaml` with raw evidence and initial findings. Does NOT evaluate or judge — that is the Evaluator's role."
+license: MIT
+compatibility: opencode
+---
+
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: plan-fidelity-generator
+# Task: plan-fidelity-investigator
 
 ## Purpose
 

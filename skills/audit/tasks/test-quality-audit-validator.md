@@ -1,5 +1,5 @@
 ---
-name: test-quality-audit-knowledge-supporter
+name: test-quality-audit-validator
 description: "Validator role for the test-quality-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
 license: MIT
 compatibility: opencode
@@ -9,7 +9,7 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: test-quality-audit-knowledge-supporter
+# Task: test-quality-audit-validator
 
 ## Purpose
 

@@ -1,4 +1,11 @@
-# Task: coherence-extraction/evaluator
+---
+name: coherence-extraction-evaluator
+description: "Evaluate coherence metrics against criteria. Reads `reasoning.yaml` (Validator), computes coherence metrics, runs Z3 solve check, evaluates prose vs evidence type mismatches, and writes `verdict.yaml`."
+license: MIT
+compatibility: opencode
+---
+
+# Task: coherence-extraction-evaluator
 
 ## Purpose
 
