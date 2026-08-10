@@ -314,13 +314,13 @@ The body must contain the following 6 sections in order:
 - [ ] 1. **Spec Reference Blockquote** (mandatory — top of body, before all other content):
 
    ```
-   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/.issues/N/
+   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/N/
    ```
 
    - `{{REMOTE_BROWSER_URL}}` from session-init (platform-agnostic — use `github.html_url` or `gitbucket.html_url` as appropriate)
    - `{{OWNER}}` / `{{REPO}}` from session-init, verified against target issue's repository
    - `{{SPEC_BRANCH}}` always `issues-data`
-   - `{{SPEC_PATH}}` always `.issues/N/` (where N is the created issue number)
+   - `{{SPEC_PATH}}` always `N/` (where N is the created issue number)
    - **Repo-awareness guard:** Confirm owner/repo from session-init matches the target issue's repository. If the issue resides in a submodule/sub-folder repo (different owner/repo from root), use that repo's owner/repo. Do NOT route a cross-repo URL with the wrong owner/repo pair.
    - All links MUST be full resolved URLs — no platform shortcuts (`#NNN`, relative paths)
 
