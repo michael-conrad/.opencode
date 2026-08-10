@@ -16,6 +16,13 @@
 #     `.opencode/skills/skildeck-violation/tasks/missing.md` which does not
 #     exist.
 #
+# NOTE: The workflow steps use `- [ ] N.` checkbox markers (so the R2
+# execution-mode and R4 dispatch-contract checks fire) but omit the
+# `Execution mode:` sub-bullet and the `project_root`/`analysis_artifact_path`
+# context parameters. A separate plain-numbered step (step 3) triggers R1, and
+# the broken `missing.md` link triggers R5. This ensures the fixture exercises
+# all five SC-28 linter rules.
+#
 # The fixture script runs with $1 = the attempt workdir (a git repo with a
 # .opencode submodule checkout).
 
@@ -41,11 +48,15 @@ compatibility: opencode
 
 ### Run a task
 
-1. **analyze** — Dispatch `task(..., prompt: "Follow the instructions in [skildeck-violation/tasks/analyze.md](.opencode/skills/skildeck-violation/tasks/analyze.md)")`
+1. **plain** — Dispatch `task(..., prompt: "Follow the instructions in [skildeck-violation/tasks/missing.md](.opencode/skills/skildeck-violation/tasks/missing.md)")`
   - **Context passed:** `{issue_number}`
   - **Returns:** `{status, finding_summary}`
 
-2. **create** — Dispatch `task(..., prompt: "Follow the instructions in [skildeck-violation/tasks/create.md](.opencode/skills/skildeck-violation/tasks/create.md)")`
+- [ ] 2. **analyze** — Dispatch `task(..., prompt: "Follow the instructions in [skildeck-violation/tasks/analyze.md](.opencode/skills/skildeck-violation/tasks/analyze.md)")`
+  - **Context passed:** `{issue_number}`
+  - **Returns:** `{status, finding_summary}`
+
+- [ ] 3. **create** — Dispatch `task(..., prompt: "Follow the instructions in [skildeck-violation/tasks/create.md](.opencode/skills/skildeck-violation/tasks/create.md)")`
   - **Context passed:** `{issue_number}`
   - **Returns:** `{status, finding_summary}`
 SKILLEOF
