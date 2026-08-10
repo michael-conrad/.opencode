@@ -1,0 +1,47 @@
+# Interface Compatibility — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+
+spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
+
+## Interfaces
+
+| Interface | Consumer | Change | Compatible? |
+|-----------|----------|--------|-------------|
+| spec-creation/SKILL.md Workflows | Orchestrator dispatch | Canonical prompt format, numbered-checkbox, execution-mode sub-bullets | ✅ Yes — same tasks, corrected format |
+| spec-creation/tasks/analyze.md | Spec-creation sub-agent | Issue-number BLOCK precondition; numbered-checkbox Procedure | ✅ Yes — stricter precondition, same interface |
+| spec-creation/tasks/create.md | Spec-creation sub-agent | Canonical exec-summary body; forward-reference blockquote | ✅ Yes — additive body contract |
+| spec-creation/tasks/validate.md | Spec-creation sub-agent | Dynamic 11-dimension loading; numbered-checkbox | ✅ Yes — same validation, dynamic source |
+| spec-creation/tasks/revise.md | Spec-creation sub-agent | Regenerate exec-summary body on revision | ✅ Yes — same revision flow |
+| audit/SKILL.md Workflows | Orchestrator dispatch | Single Workflows section; 4 DiMo steps; canonical dispatch | ⚠️ Breaking — removes TDT/Invocation/Tasks surface; consumers must use new surface |
+| audit/tasks/*-role.md | Audit DiMo role sub-agents | Renamed role cards (flat), repaired frontmatter/headings, split fat cards | ⚠️ Breaking — role task cards renamed/relocated; dispatch strings change |
+| audit/tasks/completion.md | Audit completion | Corrected routing; repointed verify-authorization | ✅ Yes — fixed dangling reference |
+| reference/skill-card-description-standards.md §7 | skill-card authors, linter | Workflows → numbered-checkbox with execution-mode | ⚠️ Breaking — format change; cards must conform |
+| reference/task-card-structure-standards.md | task-card authors, linter | Procedure → numbered-checkbox; clean-room + dispatch-contract mandates | ⚠️ Breaking — format change; cards must conform |
+| issue-operations-core/tasks/creation.md | Issue creation | Corrected issues-data URL template | ✅ Yes — bug fix, corrects broken output |
+| .opencode/tools/impl/skildeck/ | Skill-card/task-card validation | New format enforcement rules | ✅ Yes — additive checks |
+
+## Backward Compatibility
+
+| Change | Backward Compatible? | Migration Needed? |
+|--------|---------------------|-------------------|
+| spec-creation dispatch format | ✅ Yes — same tasks, corrected strings | No |
+| spec-creation task-card changes | ✅ Yes — same task identities | No |
+| audit Workflows-only surface | ⚠️ Breaking — TDT/Invocation/Tasks removed | Yes — dispatch consumers use new Workflows surface |
+| audit role-card renaming/flattening | ⚠️ Breaking — role task cards renamed, subdirectory sets flattened | Yes — dispatch strings and references updated |
+| reference format definitions | ⚠️ Breaking — Workflows/Procedure format changes | Yes — cards + linter updated to new format |
+| issue-operations-core URL template | ✅ Yes — bug fix | No |
+| skildeck linter extension | ✅ Yes — additive checks | No |
+
+## Consumer Verification
+
+| Consumer | Verifies via |
+|----------|-------------|
+| Orchestrator dispatch (spec-creation) | SC-1, SC-2, SC-23, SC-31 (string) |
+| Spec-creation sub-agent tasks | SC-17 (behavioral), SC-19..SC-22, SC-25 (string), SC-26, SC-27 (semantic) |
+| Orchestrator dispatch (audit) | SC-3, SC-4, SC-5, SC-6 (string), SC-7 (semantic), SC-24 (string) |
+| Audit DiMo role sub-agents | SC-8, SC-9, SC-10, SC-12, SC-13, SC-14 (string), SC-33 (behavioral) |
+| Skill-card/task-card authors + linter | SC-28 (behavioral), SC-35, SC-36 (string) |
+| Issue creation | SC-37 (string) |
+| Link consumers | SC-29a, SC-29b, SC-29c (string) |
+| Functional pipeline/chain | SC-32, SC-33, SC-34 (behavioral) |

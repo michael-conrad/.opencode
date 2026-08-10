@@ -1,0 +1,72 @@
+# Code Path Inventory — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+
+spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
+
+## Code Paths Affected
+
+### Path 1: spec-creation dispatch surface
+- **Files**: `.opencode/skills/spec-creation/SKILL.md`
+- **Trigger**: Orchestrator dispatches spec-creation tasks
+- **Change**: Canonical dispatch prompt format; remove Task Files table; convert Workflows to numbered-checkbox format with execution-mode sub-bullets; explicit orchestrator step-by-step
+- **Behavioral impact**: Tasks dispatch with canonical prompt format; deprecated strings removed; workflow steps explicitly inline-vs-dispatched
+- **Verification**: SC-1, SC-2 (string), SC-23 (string), SC-31 (string)
+
+### Path 2: spec-creation task cards (analyze, create, validate, revise)
+- **Files**: `.opencode/skills/spec-creation/tasks/{analyze,create,validate,revise}.md`
+- **Trigger**: Spec-creation pipeline dispatch of each task
+- **Change**: analyze blocks on unbound issue number; create routes exec-summary body + forward-reference blockquote; post-push reconciliation sequenced; revise regenerates body; all Procedures to numbered-checkbox format
+- **Behavioral impact**: Analyze rejects placeholder issue numbers; remote bodies conform to canonical exec-summary format; revised specs ship fresh bodies
+- **Verification**: SC-17 (behavioral), SC-19, SC-20, SC-21, SC-22 (string), SC-25 (string), SC-26 (semantic), SC-27 (semantic)
+
+### Path 3: audit dispatch surface
+- **Files**: `.opencode/skills/audit/SKILL.md`
+- **Trigger**: Orchestrator dispatches audit DiMo chain
+- **Change**: Single Workflows section with 4 DiMo steps; remove TDT/Invocation/Tasks sections; canonical dispatch format; rewrite description; convert Workflows to numbered-checkbox format
+- **Behavioral impact**: Audit dispatches through Workflows-only surface; roles dispatch via canonical strings; description routes skill selection correctly
+- **Verification**: SC-3, SC-4, SC-5, SC-6 (string), SC-7 (semantic), SC-24 (string), SC-31 (string)
+
+### Path 4: audit role task cards
+- **Files**: `.opencode/skills/audit/tasks/*-role.md`, `completion.md`, removed `behavioral-sc-evaluator.md`, removed subdirectory sets + stub indexes
+- **Trigger**: Audit DiMo 4-role chain dispatch
+- **Change**: Repair frontmatter names and Task headings; repoint cross-references; flatten subdirectory tasks; correct completion routing; remove redundant evaluator; split fat task cards; numbered-checkbox Procedures
+- **Behavioral impact**: Roles dispatch to correctly-named split task cards; completion routes correctly; no dangling verify-authorization
+- **Verification**: SC-8, SC-9, SC-10, SC-12, SC-13, SC-14 (string), SC-25 (string), SC-26 (semantic), SC-33 (behavioral)
+
+### Path 5: reference standards and taxonomy
+- **Files**: `.opencode/reference/spec-structure-standards.md`, `holistic-dimensions.yaml`, `skill-card-description-standards.md`, `task-card-structure-standards.md`, `cost-model-standards.md`
+- **Trigger**: Skill-card conformance, linter enforcement, taxonomy/dimension resolution
+- **Change**: Update stale task names; consolidate taxonomy citations to single canonical reference; update Workflows/Procedure format definitions to numbered-checkbox with execution-mode indicator, clean-room unit mandate, dispatch-contract completeness
+- **Behavioral impact**: Cards conform to reference format; linter has canonical rules to enforce; validate/audit read taxonomy and dimensions from canonical source
+- **Verification**: SC-11, SC-15, SC-18 (string), SC-35, SC-36 (string)
+
+### Path 6: issue-operations-core creation
+- **Files**: `.opencode/skills/issue-operations-core/tasks/creation.md`
+- **Trigger**: Issue creation generating issues-data blockquote URL
+- **Change**: Correct `.issues/` path prefix; `{{SPEC_PATH}}` = `N/` (not `.issues/N/`)
+- **Behavioral impact**: New specs get correct `tree/issues-data/N/` URL; broken URL cannot regenerate
+- **Verification**: SC-37 (string), SC-29a/29b/29c (string — verified target)
+
+### Path 7: skildeck linter
+- **Files**: `.opencode/tools/impl/skildeck/`
+- **Trigger**: Skill-card and task-card format validation
+- **Change**: Enforce numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, markdown link correctness
+- **Behavioral impact**: Format defects are flagged by linter, not just documented
+- **Verification**: SC-28 (behavioral)
+
+### Path 8: functional behavioral test harness
+- **Files**: `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/behaviors/helpers.sh`, behavioral test scripts + fixtures
+- **Trigger**: Functional end-to-end verification (spec-creation pipeline and audit DiMo chain)
+- **Change**: Shared test home with test project + test gitbucket instance; incremental sequencing; new behavioral test scripts
+- **Behavioral impact**: Proven working skills, not just well-formed
+- **Verification**: SC-32, SC-33, SC-34 (behavioral)
+
+## Unaffected Paths
+
+| Path | Why Unaffected |
+|------|----------------|
+| Application `src/` code | Excluded from scope (R-15) |
+| Other skills / guidelines | No content changes |
+| Test infrastructure beyond behavioral | Existing tests unchanged |
+| Git workflow | No changes |

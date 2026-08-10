@@ -1,0 +1,48 @@
+# Blast Radius Analysis — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+
+spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
+
+## Affected Files
+
+| File | Change Type | Impact |
+|------|-------------|--------|
+| `.opencode/skills/spec-creation/SKILL.md` | Restructure | Canonical dispatch prompt format, remove Task Files table, convert Workflows to numbered-checkbox format with execution-mode sub-bullets, explicit orchestrator step-by-step |
+| `.opencode/skills/audit/SKILL.md` | Restructure | Single Workflows section with 4 DiMo steps, remove TDT/Invocation/Tasks sections, canonical dispatch format, numbered-checkbox format, rewritten description |
+| `.opencode/skills/spec-creation/tasks/analyze.md` | Edit | Issue-number anchoring precondition (BLOCK on unbound/placeholder), numbered-checkbox Procedure format |
+| `.opencode/skills/spec-creation/tasks/validate.md` | Edit | Load 11 holistic dimensions dynamically, numbered-checkbox Procedure format |
+| `.opencode/skills/spec-creation/tasks/create.md` | Edit | Route remote issue body to canonical exec-summary body format, forward-reference blockquote, numbered-checkbox Procedure format |
+| `.opencode/skills/spec-creation/tasks/revise.md` | Edit | Regenerate exec-summary remote issue body on revision, numbered-checkbox Procedure format |
+| `.opencode/skills/audit/tasks/*-role.md` | Restructure | Repair frontmatter names and Task headings, repoint cross-references, flatten subdirectory tasks, numbered-checkbox Procedure format |
+| `.opencode/skills/audit/tasks/completion.md` | Edit | Correct completion routing, repoint dangling verify-authorization |
+| `.opencode/skills/audit/tasks/behavioral-sc-evaluator.md` | Remove | Redundant file with zero consumers |
+| `.opencode/skills/issue-operations-core/tasks/creation.md` | Bug fix | Correct `.issues/` path prefix in issues-data URL template (SC-37) |
+| `.opencode/reference/spec-structure-standards.md` | Edit | Update stale task names to analyze/create/validate/revise |
+| `.opencode/reference/holistic-dimensions.yaml` | Cross-reference target | Dynamic loading source for validate and audit |
+| `.opencode/reference/skill-card-description-standards.md` | Edit | §7 Workflows → numbered-checkbox format with execution-mode indicator (SC-35) |
+| `.opencode/reference/task-card-structure-standards.md` | Edit | Procedure → numbered-checkbox format, clean-room unit mandate, dispatch-contract completeness (SC-36) |
+| `.opencode/reference/cost-model-standards.md` | Cross-reference target | Evidence-type taxonomy canonical reference |
+| `.opencode/tools/impl/skildeck/` | Edit | Extend linter for numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, markdown link correctness |
+| `.opencode/tests-v2/with-test-home` | Infrastructure | Shared test home for functional behavioral tests |
+| `.opencode/tests-v2/behaviors/helpers.sh` | Infrastructure | __ensure_gitbucket for test gitbucket instance |
+
+## Affected Systems
+
+| System | Impact | Severity |
+|--------|--------|----------|
+| spec-creation dispatch | Canonical dispatch format; removed deprecated execute X from Y strings | Medium — routing correctness |
+| audit DiMo chain dispatch | Single Workflows section; 4-role chain; role-split task cards; canonical dispatch format | Medium — routing correctness |
+| Reference standards | Workflows/Procedure formats updated to numbered-checkbox; taxonomy and dimension sources consolidated | Medium — conformance baseline |
+| skildeck linter | New format enforcement rules | Low — advisory enforcement |
+| Issue creation | issues-data URL template root-cause fix | Low — prevents recurring broken URLs |
+| Functional test suite | New end-to-end behavioral tests (SC-32, SC-33, SC-34) | Low — additive |
+
+## Unaffected Systems
+
+| System | Why Unaffected |
+|--------|----------------|
+| Application `src/` code | Explicitly excluded from scope (R-15 permits only `.opencode/` changes) |
+| Other skills | No content changes outside spec-creation, audit, and issue-operations-core |
+| Other guidelines | No content changes |
+| Git workflow / issue operations (non-creation) | No changes |

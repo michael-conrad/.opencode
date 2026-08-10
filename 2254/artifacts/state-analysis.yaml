@@ -1,0 +1,126 @@
+# State Analysis — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+
+spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
+
+## State Transitions
+
+### spec-creation dispatch surface
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Deprecated execute X from Y strings; Task Files table present; plain numbered-list Workflows | As-is | SC-1, SC-2, SC-23, SC-31 implemented |
+| REMEDIATED | Canonical dispatch format; no Task Files table; numbered-checkbox Workflows with execution-mode sub-bullets; explicit orchestrator steps | Phase 1/6 complete | Stable |
+
+### analyze task issue anchoring
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Accepts unbound/placeholder issue number | As-is | SC-17 implemented |
+| ANCHORED | BLOCKs on unbound/placeholder issue number | SC-17 implemented | Stable |
+
+### create task exec-summary body
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Non-canonical remote body, no forward-reference blockquote | As-is | SC-19, SC-20 implemented |
+| CANONICAL | Exec-summary body format (Spec Reference Blockquote, Problem, Scope, Approach, Impact) + issues-data forward-reference | SC-19, SC-20 implemented | Stable |
+
+### audit dispatch surface
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | TDT/Invocation/Tasks sections; deprecated DiMo dispatch strings; divergent description | As-is | SC-3..SC-7 implemented |
+| WORKFLOWS-ONLY | Single Workflows section with 4 DiMo steps; canonical dispatch; canonical description | SC-3..SC-7 implemented | Stable |
+
+### audit role task cards
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Mismatched frontmatter/headings; subdirectory task sets; dangling refs; redundant evaluator | As-is | SC-8..SC-14 implemented |
+| FLAT | Flat role files with matching names/headings; repointed refs; removed redundant evaluator; correct completion routing | SC-8..SC-14 implemented | Stable |
+
+### task-card format and clean-room unit
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Plain numbered-list Procedures; some fat task cards requiring internal dispatch | As-is | SC-25, SC-26, SC-36 implemented |
+| NUMBERED-CHECKBOX | Numbered-checkbox Procedures; no fat task cards; dispatch-contract complete | SC-25..SC-27, SC-36 implemented | Stable |
+
+### taxonomy/dimension source
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Citations to redirect source; hardcoded dimension set | As-is | SC-15, SC-18 implemented |
+| CANONICAL | Single canonical taxonomy reference; dynamic 11-dimension loading | SC-15, SC-18 implemented | Stable |
+
+### linter enforcement
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Linter does not enforce new format rules | As-is | SC-28 implemented |
+| ENFORCING | Linter enforces numbered-checkbox workflow, execution-mode, clean-room, dispatch-contract, markdown links | SC-28 implemented | Stable |
+
+### functional verification
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Skills well-formed but not proven to work end-to-end | As-is | SC-32..SC-34 implemented |
+| VERIFIED | spec-creation pipeline and audit DiMo chain run end-to-end against fixture in shared test home with gitbucket | SC-32..SC-34 implemented | Stable |
+
+### issues-data URL template
+
+| State | Description | Entry Condition | Exit Condition |
+|-------|-------------|-----------------|----------------|
+| CURRENT | Erroneous `.issues/N/` path prefix; broken URL regenerates | As-is | SC-37 implemented |
+| FIXED | `tree/issues-data/N/` with `{{SPEC_PATH}}` = `N/`; no `.issues/` prefix | SC-37 implemented | Stable |
+
+## Dependency Order
+
+```
+Reference doc format updates (SC-35, SC-36)
+  └── Skill-card Workflows/task-card conformance (SC-23, SC-24, SC-25, SC-26, SC-27)
+        └── Linter enforcement (SC-28)
+Drift repair (SC-1..SC-22)
+  └── issue-operations-core URL fix (SC-37) — root-cause, prevents recurrence
+Functional behavioral tests (SC-32, SC-33, SC-34)
+  └── shared test home + gitbucket (SC-34 prerequisite)
+```
+
+## Invariant Checks
+
+| Invariant | Check | Verifying SC |
+|-----------|-------|-------------|
+| No deprecated execute X from Y strings in spec-creation | grep spec-creation/SKILL.md | SC-1 |
+| No Task Files table in spec-creation | grep spec-creation/SKILL.md | SC-2 |
+| audit has single Workflows section with 4 DiMo steps | grep audit/SKILL.md | SC-3 |
+| No TDT/Invocation/Tasks in audit | grep audit/SKILL.md | SC-4 |
+| Canonical dispatch format in audit | grep audit/SKILL.md | SC-5, SC-6 |
+| Canonical description in audit | semantic sub-agent read | SC-7 |
+| Role-card name/heading match filename | per-file frontmatter/heading check | SC-8, SC-9 |
+| Cross-references repointed to role-split files | grep | SC-10 |
+| Reference task names updated | grep | SC-11 |
+| Subdirectory tasks flattened, stub indexes removed | file-structure check | SC-12 |
+| Completion routing corrected | grep | SC-13 |
+| behavioral-sc-evaluator.md removed | file-absence check | SC-14 |
+| Taxonomy citations at single canonical source | grep | SC-15 |
+| Missing type is hard FAIL | semantic sub-agent read | SC-16 |
+| analyze BLOCKs on unbound issue number | behavioral test (opencode run) | SC-17 |
+| 11 dimensions loaded dynamically | grep | SC-18 |
+| create routes canonical exec-summary body | grep | SC-19, SC-20 |
+| Post-push reconciliation sequenced | grep | SC-21 |
+| revise regenerates exec-summary body | grep | SC-22 |
+| Numbered-checkbox Workflows format in both SKILL.md | grep + linter | SC-23, SC-24 |
+| Numbered-checkbox Procedure in all task cards | grep + linter | SC-25 |
+| No fat task cards | semantic read + linter | SC-26 |
+| Dispatch contracts complete | semantic read | SC-27 |
+| Linter enforces all format rules | behavioral test (opencode run) | SC-28 |
+| Markdown links resolve, correct paths, Read [Text](path) | link-resolution check | SC-29a, SC-29b, SC-29c |
+| Workflows explicit orchestrator steps | grep | SC-31 |
+| Full spec-creation pipeline works end-to-end | behavioral test (opencode run) | SC-32 |
+| Audit DiMo chain works end-to-end | behavioral test (opencode run) | SC-33 |
+| Shared test home + gitbucket, incremental | behavioral setup check | SC-34 |
+| Reference doc Workflows numbered-checkbox spec | grep reference doc | SC-35 |
+| Reference doc Procedure numbered-checkbox + mandates | grep reference doc | SC-36 |
+| issues-data URL template has no `.issues/` prefix | grep creation.md | SC-37 |

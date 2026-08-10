@@ -1,0 +1,47 @@
+# Concern Map — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+
+spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
+
+## Concerns
+
+| Concern | Description | Location (current) | Location (proposed) | Enforcement Point |
+|---------|-------------|-------------------|---------------------|-------------------|
+| spec-creation dispatch format | Canonical dispatch prompt format, no deprecated execute X from Y strings | spec-creation/SKILL.md | Same — corrected | Dispatch gate (routing) |
+| spec-creation task routing | Remove redundant Task Files table | spec-creation/SKILL.md | Removed | Skill-card validation |
+| analyze issue anchoring | BLOCK on unbound/placeholder issue number | spec-creation/tasks/analyze.md | Precondition added | Analyze dispatch |
+| dynamic dimension loading | Load 11 holistic dimensions dynamically | spec-creation/tasks/validate.md | Dynamic from reference/holistic-dimensions.yaml | Validate dispatch |
+| create exec-summary body | Route remote issue body to canonical exec-summary format + forward-reference blockquote | spec-creation/tasks/create.md | Canonical body format + issues-data link | Create dispatch |
+| post-push reconciliation | Sequence reconciliation after push-artifacts | spec-creation pipeline | Sequenced | Post-push |
+| revise exec-summary regeneration | Regenerate remote exec-summary body on revision | spec-creation/tasks/revise.md | Regenerated | Revise dispatch |
+| audit workflow structure | Single Workflows section with 4 DiMo steps; remove TDT/Invocation/Tasks | audit/SKILL.md | Workflows-only | Skill-card validation |
+| audit dispatch format | Canonical dispatch format; no deprecated DiMo strings | audit/SKILL.md | Corrected | Dispatch gate (routing) |
+| audit role-card naming | Frontmatter name + Task heading match filename | audit/tasks/*-role.md | Repaired | Skill-card validation |
+| audit cross-reference repoints | Repoint broken refs to role-split files | audit tasks + reference | Repointed | Cross-reference verification |
+| audit flattening | Flatten 3 subdirectory task sets to flat role files; remove stub index files | audit/tasks/ | Flattened | File-structure check |
+| completion routing | Correct completion task routing; repoint dangling verify-authorization | audit/tasks/completion.md | Corrected | Completion dispatch |
+| redundant evaluator removal | Remove behavioral-sc-evaluator.md | audit/tasks/behavioral-sc-evaluator.md | Removed | File-absence check |
+| taxonomy source consolidation | Evidence-type taxonomy citations point at single canonical reference, loaded dynamically | validate, audit, reference | Consolidated | Taxonomy resolution |
+| missing-type rule | Missing evidence-type declaration is hard FAIL | spec-creation/tasks/analyze.md | Hard FAIL routed to remediation | Analyze/validate |
+| reference task names | Update stale reference-doc task names to analyze/create/validate/revise | reference/spec-structure-standards.md | Updated | Cross-reference verification |
+| numbered-checkbox Workflows format | Numbered checkbox lists with sub-bullets for prompt, params, execution-mode | skill-card-description-standards.md §7, spec-creation/audit SKILL.md | Numbered-checkbox | Skill-card format validation + linter |
+| numbered-checkbox task-card Procedure | Numbered checkbox lists; clean-room unit; dispatch-contract completeness | task-card-structure-standards.md, task cards | Numbered-checkbox | Task-card format validation + linter |
+| fat task-card splitting | No task-card procedure requires internal sub-agent dispatch | spec-creation/audit task cards | Split | Clean-room unit validation |
+| dispatch-contract completeness | Workflow Context supplies every task-card parameter | workflow Context + task cards | Verified complete | Semantic validation |
+| linter enforcement | skildeck linter enforces all new format rules | .opencode/tools/impl/skildeck/ | Extended | Linter run |
+| markdown link correctness | Links resolve to real targets, correct relative paths, Read [Text](path) wording | two skills + reference docs + issue-operations-core | Verified | Link-resolution check |
+| workflow clarity | Orchestrator step-by-step execution with explicit inline-vs-dispatch decisions | two main SKILL.md Workflows | Explicit | Workflow readability |
+| functional spec-creation pipeline | Full pipeline runs end-to-end against fixture in shared test home | behavioral tests | Added | Behavioral test (opencode run) |
+| functional audit DiMo chain | 4-role chain dispatches correctly end-to-end | behavioral tests | Added | Behavioral test (opencode run) |
+| shared test home + gitbucket | Shared test home with test project + test gitbucket instance, incremental sequencing | with-test-home + helpers.sh | Provisioned | Behavioral test setup |
+
+## Concern Separation
+
+| Separation | Status |
+|------------|--------|
+| spec-creation vs audit skill remediation | Distinct phases (Phase 1/3/4/5 vs Phase 2) |
+| Drift repair vs format conformance | Format SCs (SC-23..SC-31) separated in Phase 6 from drift SCs |
+| Functional verification vs format/structural | Behavioral SCs (SC-32..SC-34) in Phase 7 |
+| Reference-doc format dependency | SC-35/SC-36 (Phase 6) are dependency prerequisites for SC-23/SC-24/SC-25/SC-28 |
+| Root-cause fix | SC-37 (Phase 1) prevents issues-data URL recurrence |

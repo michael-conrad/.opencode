@@ -1,0 +1,33 @@
+# Cross-Cutting Matrix — Issue #2254
+# Generated: 2026-08-10
+# Provenance: AI-generated
+
+spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
+
+## Cross-Cutting Concerns
+
+| Concern | Affected Files | SC Coverage | Risk |
+|---------|---------------|-------------|------|
+| Canonical dispatch format | spec-creation/SKILL.md, audit/SKILL.md | SC-1, SC-5, SC-6 | RISK-1 (deprecated strings persist) |
+| Numbered-checkbox Workflows format | skill-card-description-standards.md, spec-creation/SKILL.md, audit/SKILL.md | SC-23, SC-24, SC-31, SC-35 | RISK-2 (cards conform to format reference forbids) |
+| Numbered-checkbox task-card Procedure + clean-room unit | task-card-structure-standards.md, all spec-creation/audit task cards | SC-25, SC-26, SC-36 | RISK-3 (fat task cards unexecutable) |
+| Dispatch-contract completeness | workflow Context, task cards | SC-27 | RISK-4 (sub-agent fabricates parameters) |
+| Linter enforcement | skildeck linter, both SKILL.md, task cards, reference docs | SC-28 | RISK-5 (format defects recur silently) |
+| Markdown link correctness | both skills, reference docs, issue-operations-core | SC-29a, SC-29b, SC-29c | RISK-6 (dangling links) |
+| Evidence-type taxonomy source | validate, audit, reference docs | SC-15, SC-18 | RISK-7 (redirect source) |
+| Functional verification | with-test-home, helpers.sh, behavioral tests | SC-32, SC-33, SC-34 | RISK-8 (skills well-formed but broken) |
+| issues-data URL template | issue-operations-core/tasks/creation.md | SC-37, SC-29a/29b/29c | RISK-9 (broken URL recurrence) |
+
+## Interaction Matrix
+
+| | Dispatch format | Workflows format | Task-card format | Dispatch-contract | Linter | Markdown links | Taxonomy | Functional | URL template |
+|---|---|---|---|---|---|---|---|---|---|
+| Dispatch format | — | Shared SKILL.md | Independent | Independent | Enforced | Independent | Independent | Verified end-to-end | Independent |
+| Workflows format | Shared SKILL.md | — | Reference-defined | Independent | Enforced | Independent | Independent | Verified | Independent |
+| Task-card format | Independent | Reference-defined | — | Contract-supplied | Enforced | Independent | Independent | Verified | Independent |
+| Dispatch-contract | Independent | Independent | Contract-supplied | — | Enforced | Independent | Independent | Verified | Independent |
+| Linter | Enforces | Enforces | Enforces | Enforces | — | Enforces links | Independent | Independent | Independent |
+| Markdown links | Independent | Independent | Independent | Independent | Enforced | — | Independent | Verified | SC-37 target |
+| Taxonomy | Independent | Independent | Independent | Independent | Independent | Independent | — | Verified | Independent |
+| Functional | Verifies | Verifies | Verifies | Verifies | Independent | Verifies | Verifies | — | Independent |
+| URL template | Independent | Independent | Independent | Independent | Independent | SC-29a/b/c target | Independent | Independent | — |
