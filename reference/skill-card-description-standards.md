@@ -246,7 +246,7 @@ The current codebase has 20+ co-located skill directories that appear as indepen
 
 ### Structure
 
-Skill cards use a **Workflows** section where each workflow is a numbered list of clean-room `task()` dispatch steps. Each step has sub-bullets for the dispatch parameters:
+Skill cards use a **Workflows** section where each workflow is a **numbered-checkbox list** (`- [ ] N.`) of clean-room `task()` dispatch steps. Each step has sub-bullets for the dispatch parameters and an execution-mode indicator:
 
 ```markdown
 ## Workflows
@@ -254,25 +254,29 @@ Skill cards use a **Workflows** section where each workflow is a numbered list o
 ### Create a spec
 When the agent needs to produce a specification document from a problem statement.
 
-1. **Analyze codebase** — search for affected files and existing patterns
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md). {issue_number, project_root}"`
-   - Context: `{issue_number, project_root}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Analyze codebase** — search for affected files and existing patterns
+  - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md). {issue_number, project_root}"`
+  - Context: `{issue_number, project_root}`
+  - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+  - Execution mode: sub-agent dispatch
 
-2. **Create spec** — assemble the spec document from the analysis artifacts
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md). {issue_number, project_root, analysis_artifact_path}"`
-   - Context: `{issue_number, project_root, analysis_artifact_path}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, spec_path}`
+- [ ] 2. **Create spec** — assemble the spec document from the analysis artifacts
+  - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md). {issue_number, project_root, analysis_artifact_path}"`
+  - Context: `{issue_number, project_root, analysis_artifact_path}`
+  - Returns: `{status, finding_summary, artifact_path, blocker_reason, spec_path}`
+  - Execution mode: sub-agent dispatch
 
-3. **Validate spec** — run the holistic self-check and structural validation
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). {issue_number, project_root, spec_path}"`
-   - Context: `{issue_number, project_root, spec_path}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, verdict}`
+- [ ] 3. **Validate spec** — run the holistic self-check and structural validation
+  - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). {issue_number, project_root, spec_path}"`
+  - Context: `{issue_number, project_root, spec_path}`
+  - Returns: `{status, finding_summary, artifact_path, blocker_reason, verdict}`
+  - Execution mode: sub-agent dispatch
 
-4. **Revise spec** — revise the spec based on validation findings
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). {issue_number, project_root, spec_path, validation_findings}"`
-   - Context: `{issue_number, project_root, spec_path, validation_findings}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, spec_path}`
+- [ ] 4. **Revise spec** — revise the spec based on validation findings
+  - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). {issue_number, project_root, spec_path, validation_findings}"`
+  - Context: `{issue_number, project_root, spec_path, validation_findings}`
+  - Returns: `{status, finding_summary, artifact_path, blocker_reason, spec_path}`
+  - Execution mode: sub-agent dispatch
 ```
 
 ### Sub-Bullet Semantics
@@ -282,11 +286,15 @@ When the agent needs to produce a specification document from a problem statemen
 | **Prompt** | The `prompt` parameter for `task()`. MUST include the discovery directive telling the subagent which task card to read. |
 | **Context** | What context to embed in the prompt body. Everything else is automatically excluded — `task()` creates a child session with zero parent context. |
 | **Returns** | What the subagent returns in its result contract. |
+| **Execution mode** | Whether the step is `sub-agent dispatch` (clean-room `task()`) or `inline` (executed in the orchestrator context). Makes the inline-vs-dispatch decision explicit. |
 
 ### Rules
 
+- Workflows MUST use numbered-checkbox lists (`- [ ] N.`) — the canonical checklist format. Plain numbered lists (`1.`) are forbidden
+- Every workflow step MUST carry sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator
+- The **Execution mode** sub-bullet MUST be present on every step: `sub-agent dispatch` (clean-room `task()`) or `inline` (orchestrator context). Steps that are never dispatched still list the prompt/context/returns they would carry
 - The `description` parameter for `task()` is derived from the step name (3-5 words)
-- The `subagent_type` defaults to `general`. Annotate in the step name when non-default: `1. **Inspect codebase (explore)**`
+- The `subagent_type` defaults to `general`. Annotate in the step name when non-default: `- [ ] 1. **Inspect codebase (explore)**`
 - No Context Exclude sub-bullet — `task()` excludes everything by default
 - The orchestrator waits for each result contract before dispatching the next step
 - If any step returns BLOCKED, the workflow halts and reports the blocker

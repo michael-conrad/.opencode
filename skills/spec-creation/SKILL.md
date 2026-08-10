@@ -24,22 +24,26 @@ analyze → create → validate → (revise → validate)* → done
 
 ### Create a new spec
 
-1. **analyze** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md)")`
-   - **Context passed:** `{issue_number, project_root}`
-   - **Returns:** `{status, analysis_artifact_path, finding_summary}`
+- [ ] 1. **analyze** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md)")`
+  - **Context passed:** `{issue_number, project_root}`
+  - **Returns:** `{status, analysis_artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
-2. **create** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md)")`
-   - **Context passed:** `{issue_number, analysis_artifact_path}`
-   - **Returns:** `{status, spec_path, issue_url, finding_summary}`
+- [ ] 2. **create** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md)")`
+  - **Context passed:** `{issue_number, analysis_artifact_path}`
+  - **Returns:** `{status, spec_path, issue_url, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
-3. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
-   - **Context passed:** `{issue_number, spec_path}`
-   - **Returns:** `{status, verdicts: [{check_name, result}], finding_summary}`
+- [ ] 3. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
+  - **Context passed:** `{issue_number, spec_path}`
+  - **Returns:** `{status, verdicts: [{check_name, result}], finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
-4. **If validate returns FAIL:** Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)")`
-   - **Context passed:** `{issue_number, spec_path, validation_findings}`
-   - **Returns:** `{status, spec_path, finding_summary}`
-   - Then return to step 3 (validate)
+- [ ] 4. **If validate returns FAIL:** Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)")`
+  - **Context passed:** `{issue_number, spec_path, validation_findings}`
+  - **Returns:** `{status, spec_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+  - Then return to step 3 (validate)
 
 #### Tiered Escalation (validate→revise loop)
 
@@ -53,19 +57,23 @@ The validate→revise loop uses a 3-tier escalation when validation continues to
 
 The tier counter resets when validate returns PASS (successful exit from the loop).
 
-5. **If validate returns PASS:** Spec is ready for approval. Report spec_path and issue_url.
+- [ ] 5. **If validate returns PASS:** Spec is ready for approval. Report spec_path and issue_url.
+  - **Execution mode:** inline
 
 ### Revise an existing spec
 
-1. **revise** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)")`
-   - **Context passed:** `{issue_number, spec_path, revision_reason}`
-   - **Returns:** `{status, spec_path, finding_summary}`
+- [ ] 1. **revise** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)")`
+  - **Context passed:** `{issue_number, spec_path, revision_reason}`
+  - **Returns:** `{status, spec_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
-2. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
-   - **Context passed:** `{issue_number, spec_path}`
-   - **Returns:** `{status, verdicts, finding_summary}`
+- [ ] 2. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
+  - **Context passed:** `{issue_number, spec_path}`
+  - **Returns:** `{status, verdicts, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
-3. If validate returns FAIL, return to step 1 (with tiered escalation per the Tiered Escalation section above). If PASS, spec is ready.
+- [ ] 3. If validate returns FAIL, return to step 1 (with tiered escalation per the Tiered Escalation section above). If PASS, spec is ready.
+  - **Execution mode:** inline
 
 ## Cross-References
 
