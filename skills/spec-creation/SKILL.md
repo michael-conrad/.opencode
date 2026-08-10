@@ -67,15 +67,6 @@ The tier counter resets when validate returns PASS (successful exit from the loo
 
 3. If validate returns FAIL, return to step 1 (with tiered escalation per the Tiered Escalation section above). If PASS, spec is ready.
 
-## Task Files
-
-| File | Category | Purpose |
-|------|----------|---------|
-| `tasks/analyze.md` | ANALYSIS | Pre-spec inspection, requirements extraction, decomposition, analytical artifacts |
-| `tasks/create.md` | PRODUCTION | Assemble spec, create remote issue, write local spec |
-| `tasks/validate.md` | VERIFICATION | Holistic self-check (11 dimensions), structural validation |
-| `tasks/revise.md` | PRODUCTION | Spec revision with change control tracking |
-
 ## Cross-References
 
 Skills: `brainstorming` (upstream handoff), `writing-plans` (downstream consumer), `audit` (spec-audit), `approval-gate`. Guidelines: `000-critical-rules.md` (clean-room discipline), `080-code-standards.md` (evidence type taxonomy).
