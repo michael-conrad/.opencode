@@ -1,4 +1,4 @@
-sc_count: 35
+sc_count: 38
 scs:
   - id: "SC-1"
     description: "spec-creation/SKILL.md uses canonical dispatch prompt format, zero deprecated execute X from Y strings"
@@ -112,31 +112,43 @@ scs:
     description: "skildeck linter extended to enforce numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, and markdown link correctness"
     evidence_type: "behavioral"
     plan_item: 28
-  - id: "SC-29"
-    description: "all markdown links in the two skills and reference docs resolve to real targets, use correct relative paths, and follow the Read [Text](path) pattern"
+  - id: "SC-29a"
+    description: "all markdown links in the two skills and reference docs resolve to real targets"
     evidence_type: "string"
     plan_item: 29
-  - id: "SC-30"
+  - id: "SC-29b"
+    description: "all markdown links in the two skills and reference docs use correct relative paths"
+    evidence_type: "string"
+    plan_item: 29
+  - id: "SC-29c"
+    description: "all markdown links in the two skills and reference docs follow the Read [Text](path) wording"
+    evidence_type: "string"
+    plan_item: 29
+  - id: "SC-31"
     description: "workflows in the two main skill cards clearly indicate orchestrator step-by-step execution with explicit execution-mode sub-bullets"
     evidence_type: "string"
-    plan_item: 30
-  - id: "SC-31"
-    description: "dispatching the full spec-creation pipeline (analyze → create → validate) against a fixture problem in the shared test home produces a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings"
-    evidence_type: "behavioral"
     plan_item: 31
   - id: "SC-32"
-    description: "dispatching the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) against a fixture spec in the shared test home produces a valid verdict, with each role dispatching to the correct split task card with a complete dispatch contract"
+    description: "dispatching the full spec-creation pipeline (analyze → create → validate) against a fixture problem in the shared test home produces a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings"
     evidence_type: "behavioral"
     plan_item: 32
   - id: "SC-33"
-    description: "the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion"
+    description: "dispatching the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) against a fixture spec in the shared test home produces a valid verdict, with each role dispatching to the correct split task card with a complete dispatch contract"
     evidence_type: "behavioral"
     plan_item: 33
   - id: "SC-34"
-    description: "reference/skill-card-description-standards.md specifies the Workflows section as numbered-checkbox lists with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch), replacing the current plain numbered-list format"
-    evidence_type: "string"
+    description: "the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion"
+    evidence_type: "behavioral"
     plan_item: 34
   - id: "SC-35"
-    description: "reference/task-card-structure-standards.md specifies the task-card Procedure as numbered-checkbox lists and states the clean-room unit mandate (task cards are for non-task-capable sub-agents; a procedure requiring internal sub-agent dispatch MUST be split) and the dispatch-contract completeness requirement (the workflow Context must supply every parameter in the task card's Dispatch Contract and Entry Criteria)"
+    description: "reference/skill-card-description-standards.md specifies the Workflows section as numbered-checkbox lists with sub-bullets for the prompt string, the passed parameters/context, and an execution-mode indicator (inline vs sub-agent dispatch), replacing the current plain numbered-list format"
     evidence_type: "string"
     plan_item: 35
+  - id: "SC-36"
+    description: "reference/task-card-structure-standards.md specifies the task-card Procedure as numbered-checkbox lists and states the clean-room unit mandate (task cards are for non-task-capable sub-agents; a procedure requiring internal sub-agent dispatch MUST be split) and the dispatch-contract completeness requirement (the workflow Context must supply every parameter in the task card's Dispatch Contract and Entry Criteria)"
+    evidence_type: "string"
+    plan_item: 36
+  - id: "SC-37"
+    description: "issue-operations-core/tasks/creation.md Step 5 uses the correct issues-data blockquote URL without the .issues/ path prefix (tree/issues-data/N/), with {{SPEC_PATH}} = N/ (not .issues/N/)"
+    evidence_type: "string"
+    plan_item: 37
