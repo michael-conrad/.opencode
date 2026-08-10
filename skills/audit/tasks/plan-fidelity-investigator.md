@@ -289,7 +289,7 @@ summary: "Evidence collected: {N} SCs, {M} plan steps, {K} phases. {X} structura
 ## Cross-References
 
 - `tasks/plan-fidelity.md` — Evaluator role (consumes this Investigator's `evidence.yaml`)
-- `tasks/coherence-extraction.md` — Investigator role reference pattern
+- `tasks/coherence-extraction-investigator.md` — Investigator role reference pattern
 - `audit/SKILL.md` — chain dispatch
 - `writing-plans` skill — clean-room plan generation
 - `000-critical-rules.md` — critical-rules-034 (inline work prohibition)

@@ -437,7 +437,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/coherence-maintenance-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/coherence-maintenance-validator.md` — upstream reasoning role role (produces the reasoning.yaml consumed by this task)
-- `tasks/coherence-extraction.md` — baseline generation (prerequisite for the Investigator)
+- `tasks/coherence-extraction-investigator.md` — baseline generation (prerequisite for the Investigator)
 - `000-critical-rules.md` — coherence maintenance requirement
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
