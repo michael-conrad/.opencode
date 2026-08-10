@@ -22,6 +22,8 @@ analyze → create → validate → (revise → validate)* → done
 
 ## Workflows
 
+The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an inline orchestrator action where marked). The `Execution mode` sub-bullet on every step makes the inline-vs-dispatch decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()`; `inline` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
+
 ### Create a new spec
 
 - [ ] 1. **analyze** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md)")`

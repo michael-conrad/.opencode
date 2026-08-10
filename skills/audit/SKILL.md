@@ -62,6 +62,8 @@ When any audit produces a FAIL verdict, the following remediation procedure MUST
 
 ## Workflows
 
+The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an inline orchestrator action where marked). The `Execution mode` sub-bullet on every step makes the inline-vs-dispatch decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()`; `inline` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
+
 The orchestrator dispatches each audit as a 4-step DiMo chain — one `task()` call per role, in sequence (Investigator → Validator → Evaluator → Arbiter). Each role is a clean-room sub-agent dispatched via `task(subagent_type="general")`. The orchestrator reads the task cards it dispatches via the `Read [Text](path)` pattern; it does NOT execute audit analysis inline.
 
 **DISPATCH GATE — Inline execution is FORBIDDEN.** Every audit role MUST be dispatched to a clean-room sub-agent via `task()`. Reading a role task file and executing its steps inline in the orchestrator context means every quality gate in that role was silently bypassed.
