@@ -235,14 +235,14 @@ These steps run once before any phase. Global sequential numbering across all ph
 
 These steps run once after the last phase.
 
-- [ ] 39. **Audit (**sub-agent**).** Execute verification-audit DiMo investigator from `audit`, followed by validator, evaluator, arbiter in sequence. **→ post-gate**
-- [ ] 40. **Z3 check (**inline**).** Run `.opencode/tools/solve check` against the state and contract paths. **→ post-gate**
-- [ ] 41. **Structural checks (**sub-agent**).** Execute checklist task from `finishing-a-development-branch`. **→ post-gate**
-- [ ] 42. **Pre-PR gate (**sub-agent**).** Execute verify task from `verification-before-completion`; BLOCK if any SC verdict FAILs. **→ post-gate**
-- [ ] 43. **Regression check (**sub-agent**).** Execute phase-4 task from `test-driven-development` for final regression. **→ post-gate**
-- [ ] 44. **Review prep (**sub-agent**).** Execute review-prep from `git-workflow-pr`. **→ post-gate**
-- [ ] 45. **Create PR (**sub-agent**).** Execute create task from `git-workflow-pr`. **→ post-gate**
-- [ ] 46. **Executive summary (**sub-agent**).** Execute completion task from `completion-core`. **→ post-gate**
+- [ ] 44. **Audit (**sub-agent**).** Execute verification-audit DiMo investigator from `audit`, followed by validator, evaluator, arbiter in sequence. **→ post-gate**
+- [ ] 45. **Z3 check (**inline**).** Run `.opencode/tools/solve check` against the state and contract paths. **→ post-gate**
+- [ ] 46. **Structural checks (**sub-agent**).** Execute checklist task from `finishing-a-development-branch`. **→ post-gate**
+- [ ] 47. **Pre-PR gate (**sub-agent**).** Execute verify task from `verification-before-completion`; BLOCK if any SC verdict FAILs. **→ post-gate**
+- [ ] 48. **Regression check (**sub-agent**).** Execute phase-4 task from `test-driven-development` for final regression. **→ post-gate**
+- [ ] 49. **Review prep (**sub-agent**).** Execute review-prep from `git-workflow-pr`. **→ post-gate**
+- [ ] 50. **Create PR (**sub-agent**).** Execute create task from `git-workflow-pr`. **→ post-gate**
+- [ ] 51. **Executive summary (**sub-agent**).** Execute completion task from `completion-core`. **→ post-gate**
 
 ---
 

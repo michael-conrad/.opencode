@@ -15,6 +15,7 @@ date: 2026-08-10
 | Skill card alignment | 36 skill cards | 5 | DISPATCH_GATE Orchestrator Entry Criteria re-justified |
 | Contradiction elimination | All affected files | 6 | Cross-file consistency check |
 | Delegation preservation | (verification only) | 7 | No behavioral change to pipeline |
+| Defective cross-model gate removal | verification-before-completion/tasks/verify.md | 8 | Single-model verification contract replaces CROSS_MODEL_GAP cross-model mandate |
 
 ### Concern Separation Analysis
 
@@ -24,6 +25,7 @@ date: 2026-08-10
 - **Concern 5 (skill cards) vs Concern 4 (000-critical-rules.md):** Skill cards' DISPATCH_GATE sections must align with the re-scoped critical-rules-XXX. Cross-file consistency required.
 - **Concern 6 (contradiction elimination) vs Concerns 1-5:** Concern 6 is a cross-cutting verification that all file updates are consistent. It depends on all prior concerns.
 - **Concern 7 (delegation preservation):** Verification-only concern; no file change. Guards against the re-scope being read as a behavioral change.
+- **Concern 8 (defective cross-model gate removal) vs Concerns 1-7:** Concern 8 targets a different file (`verification-before-completion/tasks/verify.md` §4.5), independent of the context-economy re-scoping of Concerns 1-7. It removes a defective validation mandate rather than re-scoping inline-work rules. Runs after all context-economy phases (7->8 dependency) because it is a distinct, independent file edit.
 
 ### Single-Concern Verification
 - Each SC targets one file category and one verification domain:
@@ -32,4 +34,5 @@ date: 2026-08-10
   - SC-5: 36 skill cards (structural)
   - SC-6: all affected files (behavioral — tests runtime agent behavior)
   - SC-7: all affected files (structural — delegation preservation)
+  - SC-8: verification-before-completion/tasks/verify.md (string — grep §4.5 for CROSS_MODEL_GAP and Spec #262)
 - No SC spans multiple file categories with different verification domains.
