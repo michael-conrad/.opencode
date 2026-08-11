@@ -1,0 +1,8 @@
+title: '[BUG] Regression — agent created multiple concurrent PRs for one for_pr scope
+  instead of a single stacked PR'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-08-11T18:22:58+00:00'
+updated_at: '2026-08-11T18:22:58+00:00'
