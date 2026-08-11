@@ -1,4 +1,4 @@
-> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/N/
+> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2270/
 
 ## Problem
 
