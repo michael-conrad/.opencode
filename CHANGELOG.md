@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Generic multi-language dependency-injection mandate** (#2249) - Added a generic "Dependency Injection (generic mandate)" section to `080-code-standards.md` stating the principle "use a DI approach," not "use framework X." Includes a curated per-language framework table in three advisory tiers (Clear standard / Contested / Non-idiomatic and guidance-only), selection guidance driven by code analysis and spec requirements (combinations allowed when multiple viable approaches exist), and an explicit HTML/CSS exclusion. Updated the `080-code-standards.md` row in `INDEX.md` with DI trigger patterns. Added behavioral enforcement tests (`2249-sc6-generic-di-mandate.sh`, `2249-sc7-contested-ts-di.sh`, `2249-sc7-html-css-exclusion.sh`) verifying DI-mandate compliance across languages. Superset of the #2243 Python-specific mandate.
+
 - **GitBucket label operation documentation corrected** (#2257) - Empirically validated the GitBucket label-operation workflow against a live local instance and corrected the four `gitbucket-api` skill-card files (`label-operations.md`, `SKILL.md` capability manifest, `issue-operations.md`, `mcp-operations.md`) to the verified truth. Issue-level label mutation and repo-level label CRUD both confirmed WORKING via `gb api` passthrough, removing false BROKEN claims. Added SC-1..7 behavioral tests.
 
 - **Reduced approval-gate ceremony** (#2220) - Merged approval-gate-scope sub-skill into approval-gate dispatcher. Deleted 47 files across 7 subdirectories, created 3 flat task files (resolve-scope, apply-label, route), updated all cross-references. Single dispatcher entry point for all authorization operations.
