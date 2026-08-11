@@ -2,7 +2,9 @@ title: '[SPEC] Generalize the dependency-injection mandate to a generic multi-la
   DI approach'
 status: open
 labels:
+- SPEC
 - approved-for-for_pr
+- spec-cleared
 body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2249)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -598,5 +600,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   '
 created_at: '2026-08-06T02:32:44+00:00'
-updated_at: '2026-08-11T16:42:32+00:00'
+updated_at: '2026-08-11T16:42:45+00:00'
 github_url: michael-conrad/.opencode
