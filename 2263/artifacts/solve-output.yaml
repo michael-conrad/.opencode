@@ -1,8 +1,8 @@
 # Solve output — issue #2263
-# Z3 + planner verification results from research task
+# Z3 + planner verification results from research task (8-phase contract)
 
 solve_model:
-  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2263/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3, phase_4, phase_5, phase_6, phase_7)"
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2263/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3, phase_4, phase_5, phase_6, phase_7, phase_8)"
   status: SAT
   assignment:
     phase_1: true
@@ -12,7 +12,8 @@ solve_model:
     phase_5: true
     phase_6: true
     phase_7: true
-  interpretation: "Goal state (all 7 phases complete) is satisfiable under the phase dependency preconditions (phase_n requires its predecessor phases)."
+    phase_8: true
+  interpretation: "Goal state (all 8 phases complete) is satisfiable under the phase dependency preconditions (phase_n requires its predecessor phases). Phase 8 requires phase 7 via z3.Implies(phase_8, phase_7)."
 
 solve_check:
   command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2263/dependency-contract.yaml --state-path .opencode/.issues/2263/artifacts/solver-state.yaml"
@@ -25,21 +26,23 @@ solve_check:
     phase_5: false
     phase_6: false
     phase_7: false
-  interpretation: "Initial state analysis (all phase variables false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+    phase_8: false
+  interpretation: "Initial state analysis (all 8 phase variables false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
 
 planner:
   command: "./.opencode/tools/plan plan --problem .opencode/.issues/2263/artifacts/problem.yaml"
   status: SOLVED_SATISFICING
-  plan_length: 7
+  plan_length: 8
   plan:
     - implement_phase_1()
-    - implement_phase_3()
     - implement_phase_2()
+    - implement_phase_3()
     - implement_phase_4()
     - implement_phase_5()
     - implement_phase_6()
     - implement_phase_7()
-  interpretation: "Planner produced a 7-step plan implementing all phases. Order 1 -> 3 -> 2 -> 4 -> 5 -> 6 -> 7 respects the dependency DAG (phase_2 and phase_3 each depend only on phase_1; phase_4 requires phases 1,2,3; phase_5 requires 4; phase_6 requires 5; phase_7 requires 6)."
+    - implement_phase_8()
+  interpretation: "Planner produced an 8-step plan implementing all phases. Order 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 respects the dependency DAG (phase_2 and phase_3 each depend only on phase_1; phase_4 requires phases 1,2,3; phase_5 requires 4; phase_6 requires 5; phase_7 requires 6; phase_8 requires 7)."
 
 solve_status: SAT
 plan_status: SOLVED_SATISFICING

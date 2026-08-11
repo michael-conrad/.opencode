@@ -4,7 +4,7 @@ date: 2026-08-10
 
 ## Phase Decomposition
 
-Each phase maps SCs to items with per-SC RED/GREEN/verify/commit cycles. SC-1 through SC-5 and SC-7 are structural documentation edits; SC-6 is behavioral (runtime contradiction elimination). All SCs are single-item, single-phase.
+Each phase maps SCs to items with per-SC RED/GREEN/verify/commit cycles. SC-1 through SC-5, SC-7, and SC-8 are structural documentation edits; SC-6 is behavioral (runtime contradiction elimination). All SCs are single-item, single-phase.
 
 | Phase | SC(s) | Item(s) | Concern | File(s) |
 |-------|-------|---------|---------|---------|
@@ -15,6 +15,7 @@ Each phase maps SCs to items with per-SC RED/GREEN/verify/commit cycles. SC-1 th
 | 5 | SC-5 | item-5 | Re-justify 36 skill cards' DISPATCH_GATE Orchestrator Entry Criteria | 36 skill cards |
 | 6 | SC-6 | item-6 | Eliminate self-contradiction (behavioral cross-file check) | all affected files |
 | 7 | SC-7 | item-7 | Preserve delegation mechanism and distinguish cost-blind from context-cost | all affected files |
+| 8 | SC-8 | item-8 | Remove defective CROSS_MODEL_GAP cross-model gate, replace with single-model verification | verify.md §4.5 |
 
 ## Dependency DAG
 
@@ -29,6 +30,7 @@ Each phase maps SCs to items with per-SC RED/GREEN/verify/commit cycles. SC-1 th
 | 5 | Re-justify 36 skill cards' DISPATCH_GATE |
 | 6 | Eliminate self-contradiction (behavioral check) |
 | 7 | Preserve delegation mechanism / distinguish cost-blind from context-cost |
+| 8 | Remove defective cross-model gate (verify.md §4.5) |
 
 ### Edges
 
@@ -40,6 +42,7 @@ Each phase maps SCs to items with per-SC RED/GREEN/verify/commit cycles. SC-1 th
 | 4 | 5 | Skill card DISPATCH_GATE aligns to re-scoped critical-rules-XXX |
 | 1, 2, 3, 4, 5 | 6 | Contradiction check runs over all file updates |
 | 1, 2, 3, 4, 5, 6 | 7 | Delegation preservation guard runs after all file updates |
+| 7 | 8 | Cross-model gate removal is an independent file edit (verify.md §4.5) that runs after all context-economy phases complete |
 
 ### Acyclicity
 DAG is acyclic — strictly forward-dependency, no cycles.
@@ -78,6 +81,10 @@ Per the implementation-workflow reference card. Each item uses the RED-GREEN dai
 | 7 | SC-7 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
 | 7 | SC-7 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
 | 7 | SC-7 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 8 | SC-8 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 8 | SC-8 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 8 | SC-8 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 8 | SC-8 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
 
 ### Post-implementation gates (after all items)
 
@@ -104,6 +111,7 @@ Each SC's RED, GREEN, verify, and commit steps are all assigned to the same phas
 - Phase 5 (SC-5): RED depends on SC-4 output already committed in Phase 4 (Y=4 < X=5). PASS.
 - Phase 6 (SC-6): RED depends on SC-1..5 output already committed in Phases 1-5 (Y<X). PASS.
 - Phase 7 (SC-7): RED depends on SC-1..6 output already committed in Phases 1-6 (Y<X). PASS.
+- Phase 8 (SC-8): RED depends on SC-7 output already committed in Phase 7 (Y=7 < X=8). PASS.
 - No RED test depends on SC output from a later phase. PASS.
 
 ## Item-to-SC Mapping
@@ -117,3 +125,4 @@ Each SC's RED, GREEN, verify, and commit steps are all assigned to the same phas
 | item-5 | SC-5 | Phase 5 | Phase 5 | Phase 5 | Phase 5 |
 | item-6 | SC-6 | Phase 6 | Phase 6 | Phase 6 | Phase 6 |
 | item-7 | SC-7 | Phase 7 | Phase 7 | Phase 7 | Phase 7 |
+| item-8 | SC-8 | Phase 8 | Phase 8 | Phase 8 | Phase 8 |

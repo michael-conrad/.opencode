@@ -9,9 +9,9 @@ category_1_structural:
     - check: "Phase table has all required columns"
       result: PASS
       detail: >-
-        plan.md §3.3 phase table (rows 1-7) uses columns: Phase, Skill, Task, Target,
-        SCs, Depends On. All six canonical columns present. Each row maps a phase to a
-        valid skill+task dispatch (test-driven-development red/green/phase-4/verify,
+        plan.md phase table uses columns: Phase, Skill, Task, Target, SCs, Depends On.
+        All six canonical columns present. Each row maps a phase to a valid
+        skill+task dispatch (test-driven-development red/green/phase-4/verify,
         verification-before-completion verify).
     - check: "Each phase has a procedure section with numbered steps"
       result: PASS
@@ -100,8 +100,10 @@ category_6_holistic_quality:
     - check: "All steps use checkbox format"
       result: PASS
       detail: >-
-        All step lines use '- [ ]' checkbox prefix (steps 3-38 plus global pre/post
-        steps). No non-checkbox procedure steps found.
+        All step lines use '- [ ]' checkbox prefix. plan.md contains 17 checkbox
+        steps (global pre/post plus exit criteria); each phase file contains its
+        numbered checkbox steps (plan-01: 6, plan-02..07: 5 each), covering steps
+        3-38. No non-checkbox procedure steps found.
     - check: "Dispatch mode consistency (inline phases have no dispatched steps; clean-room phases have no inline steps)"
       result: PASS
       detail: >-

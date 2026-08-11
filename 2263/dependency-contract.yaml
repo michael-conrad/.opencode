@@ -25,6 +25,9 @@ variables:
   phase_7:
     type: bool
     description: "Preserve delegation mechanism / distinguish cost-blind from context-cost — SC-7"
+  phase_8:
+    type: bool
+    description: "Remove defective CROSS_MODEL_GAP cross-model gate from verify.md §4.5 — SC-8"
 
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
@@ -35,6 +38,7 @@ preconditions:
   - "z3.Implies(phase_5, phase_4)"
   - "z3.Implies(phase_6, phase_5)"
   - "z3.Implies(phase_7, phase_6)"
+  - "z3.Implies(phase_8, phase_7)"
 
 invariants: []
 postconditions: []
@@ -75,6 +79,11 @@ phases:
       - all affected files (verification-only)
     scs:
       - SC-7
+  phase_8:
+    files:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+    scs:
+      - SC-8
 
 edges:
   - from: phase_1
@@ -101,6 +110,9 @@ edges:
   - from: phase_6
     to: phase_7
     rationale: "Delegation preservation guard runs after all file updates"
+  - from: phase_7
+    to: phase_8
+    rationale: "Cross-model gate removal is an independent file edit (verify.md §4.5) that runs after all context-economy phases complete"
 
 notes:
   - "Phases 1-3 edit the same file (020-go-prohibitions.md); SC-1 must precede SC-2 and SC-3 for edit coherence."
@@ -108,3 +120,4 @@ notes:
   - "Phase 5 (skill cards) aligns DISPATCH_GATE sections to the re-scoped critical-rules-XXX from Phase 4."
   - "Phase 6 is the behavioral cross-file contradiction check over all prior phases."
   - "Phase 7 is a verification-only guard (delegation preservation) that runs after all file updates."
+  - "Phase 8 removes the defective CROSS_MODEL_GAP gate from verify.md §4.5 and replaces it with single-model verification consistent with DEFAULT_TEST_MODEL; independent target file, runs after all prior phases."

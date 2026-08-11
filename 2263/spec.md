@@ -28,13 +28,14 @@
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | The absolute "orchestrator NEVER performs inline work" is replaced in `.opencode/guidelines/020-go-prohibitions.md` with the allocation-by-context-cost model (large/disposable → sub-agent; small/necessary → orchestrator). | structural | grep `020-go-prohibitions.md`: assert no "NEVER performs inline work" absolute remains; assert allocation-by-context-cost language present. |
-| SC-2 | The false carve-out phrase ("reading a SKILL.md is NOT 'inline work' or 'reading a file'") is deleted from `.opencode/guidelines/020-go-prohibitions.md` and replaced with a truthful context-economy justification (skill() auto-loads SKILL.md; routing metadata is small/necessary; sub-agents cannot load skills). | structural | grep `020-go-prohibitions.md`: assert the false carve-out phrase is absent; assert the truthful context-economy justification present. |
-| SC-3 | Result-contract frugality, the DISPATCH_GATE no-preloaded-context rule, and clean-room sub-agent discipline in `.opencode/guidelines/020-go-prohibitions.md` §1.1 are re-expressed as direct consequences of protecting the orchestrator's context resource, with their substance unchanged. | structural | grep `020-go-prohibitions.md` §1.1: assert the three mechanisms are re-expressed under context-economy; assert substance unchanged. |
-| SC-4 | The critical-rules-XXX "Dispatching SKILL.md to sub-agents — category error" rule in `.opencode/guidelines/000-critical-rules.md` is re-justified under context-economy, the category-error prohibition is preserved, and no false "not a file" claim remains. | structural | grep `000-critical-rules.md`: assert critical-rules-XXX re-justified; assert category-error prohibition intact; assert no false "not a file" claim. |
-| SC-5 | All 36 DISPATCH_GATE skill cards' "Orchestrator Entry Criteria" sections re-justify the orchestrator reading Trigger Dispatch Table + Invocation in its own context under the context-economy rationale, with the no-preloaded-context substance unchanged. | structural | grep all DISPATCH_GATE skill cards: assert consistent context-economy justification; assert no-preloaded-context substance unchanged. |
+| SC-1 | The absolute "orchestrator NEVER performs inline work" is replaced in `.opencode/guidelines/020-go-prohibitions.md` with the allocation-by-context-cost model (large/disposable → sub-agent; small/necessary → orchestrator). | string | grep `020-go-prohibitions.md`: assert no "NEVER performs inline work" absolute remains; assert allocation-by-context-cost language present. |
+| SC-2 | The false carve-out phrase ("reading a SKILL.md is NOT 'inline work' or 'reading a file'") is deleted from `.opencode/guidelines/020-go-prohibitions.md` and replaced with a truthful context-economy justification (skill() auto-loads SKILL.md; routing metadata is small/necessary; sub-agents cannot load skills). | string | grep `020-go-prohibitions.md`: assert the false carve-out phrase is absent; assert the truthful context-economy justification present. |
+| SC-3 | Result-contract frugality, the DISPATCH_GATE no-preloaded-context rule, and clean-room sub-agent discipline in `.opencode/guidelines/020-go-prohibitions.md` §1.1 are re-expressed as direct consequences of protecting the orchestrator's context resource, with their substance unchanged. | string | grep `020-go-prohibitions.md` §1.1: assert the three mechanisms are re-expressed under context-economy; assert substance unchanged. |
+| SC-4 | The critical-rules-XXX "Dispatching SKILL.md to sub-agents — category error" rule in `.opencode/guidelines/000-critical-rules.md` is re-justified under context-economy, the category-error prohibition is preserved, and no false "not a file" claim remains. | string | grep `000-critical-rules.md`: assert critical-rules-XXX re-justified; assert category-error prohibition intact; assert no false "not a file" claim. |
+| SC-5 | All 36 DISPATCH_GATE skill cards' "Orchestrator Entry Criteria" sections re-justify the orchestrator reading Trigger Dispatch Table + Invocation in its own context under the context-economy rationale, with the no-preloaded-context substance unchanged. | string | grep all DISPATCH_GATE skill cards: assert consistent context-economy justification; assert no-preloaded-context substance unchanged. |
 | SC-6 | The self-contradiction is eliminated — no affected file contains both the "never inline" absolute and inline-designated tasks without reconciliation under the context-economy model; the orchestrator can load a skill and dispatch without reconciling contradictory signals. | behavioral | Run a skill-load scenario via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert the orchestrator loads a skill and dispatches without triggering a contradiction. |
-| SC-7 | The delegation mechanism (task(), skill(), clean-room sub-agents) is preserved exactly (no change to which tasks are delegated vs inline) and "cost-blind" (verification cost) is explicitly distinguished from "context-cost" (orchestrator context resource). | structural | grep affected files: assert delegation mechanism unchanged; assert cost-blind vs context-cost distinction explicit. |
+| SC-7 | The delegation mechanism (task(), skill(), clean-room sub-agents) is preserved exactly (no change to which tasks are delegated vs inline) and "cost-blind" (verification cost) is explicitly distinguished from "context-cost" (orchestrator context resource). | string | grep affected files: assert delegation mechanism unchanged; assert cost-blind vs context-cost distinction explicit. |
+| SC-8 | The defective CROSS_MODEL_GAP cross-model validation requirement is removed from `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5, replaced with a single-model verification model consistent with the framework's DEFAULT_TEST_MODEL contract. The false Spec #262 authority line is removed. No residual mandate requires multi-model/cloud cross-verification runs. | string | grep `verification-before-completion/tasks/verify.md` §4.5: assert CROSS_MODEL_GAP cross-model requirement absent; assert single-model verification consistent with DEFAULT_TEST_MODEL present; assert Spec #262 authority line absent. |
 
 ## 4. Requirements
 
@@ -46,6 +47,7 @@
 - R-6. The self-contradiction SHALL be eliminated so a compliant path exists for the orchestrator on every skill load.
 - R-7. The delegation mechanism SHALL remain unchanged, and "cost-blind" (verification cost) SHALL be explicitly distinguished from "context-cost" (orchestrator context resource).
 - R-8. The enforcement of actual inline work (file edits, analysis, verification of large/disposable work) SHALL be preserved — the re-scope SHALL NOT be read as loosening the prohibition on orchestrator doing large/disposable work inline.
+- R-9. The cross-model validation requirement in `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 SHALL be removed and replaced with a single-model verification model consistent with the framework's DEFAULT_TEST_MODEL contract; the false Spec #262 authority line SHALL be removed; no residual mandate SHALL require multi-model/cloud cross-verification runs.
 
 ## 5. Items
 
@@ -100,6 +102,13 @@ Each item maps to exactly one SC and follows a RED → GREEN → verify → comm
 - verify: grep affected files: delegation mechanism unchanged; cost-blind vs context-cost distinction explicit.
 - commit: Any documentation clarifying the cost-dimension distinction.
 
+### Item 8 (SC-8): Remove defective cross-model validation requirement from verify.md §4.5
+
+- RED: Enforcement test asserts the CROSS_MODEL_GAP cross-model validation requirement is present in `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 (fails because the removal doesn't exist yet).
+- GREEN: Remove the CROSS_MODEL_GAP cross-model validation requirement from `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 and replace it with a single-model verification model consistent with the framework's DEFAULT_TEST_MODEL contract; remove the false Spec #262 authority line.
+- verify: grep `verification-before-completion/tasks/verify.md` §4.5: CROSS_MODEL_GAP cross-model requirement absent; single-model verification consistent with DEFAULT_TEST_MODEL present; Spec #262 authority line absent.
+- commit: The §4.5 replacement and authority-line removal in `verification-before-completion/tasks/verify.md`.
+
 ## 6. Dependencies
 
 - **Reference:** `.opencode/reference/spec-structure-standards.md`, `.opencode/reference/cost-model-standards.md` — **Relationship:** The spec body must conform to these canonical standards during assembly; read before implementation. **Status:** Satisfied.
@@ -108,6 +117,7 @@ Each item maps to exactly one SC and follows a RED → GREEN → verify → comm
 - **Reference:** 36 skill cards with DISPATCH_GATE sections — **Relationship:** Their "Orchestrator Entry Criteria" must be re-justified consistently; Item 5. **Status:** Satisfied.
 - **Reference:** Open specs #1406, #1204, #1010 — **Relationship:** Alignment with specs touching orchestrator enforcement to avoid conflicting instruction models; must be verified before implementation per authority-source protocol. **Status:** Pending (verify at implementation).
 - **Reference:** `.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md` (confidence 0.90) — **Relationship:** Grounds the mechanism-necessity justification (skill() auto-loads SKILL.md; sub-agents lack skill()). **Status:** Satisfied.
+- **Reference:** `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 — **Relationship:** The defective CROSS_MODEL_GAP cross-model validation requirement is removed and replaced with a single-model verification model consistent with the DEFAULT_TEST_MODEL contract; Item 8. **Status:** Satisfied.
 
 ## 7. Traceability
 
@@ -121,6 +131,7 @@ Each item maps to exactly one SC and follows a RED → GREEN → verify → comm
 | R-6 | SC-6 | Phase 6 |
 | R-7 | SC-7 | Phase 7 |
 | R-8 | SC-1, SC-7 | Phase 1, Phase 7 |
+| R-9 | SC-8 | Phase 8 |
 
 ## 8. Documentation Sources
 
@@ -134,6 +145,8 @@ Each item maps to exactly one SC and follows a RED → GREEN → verify → comm
 | git-workflow-cleanup/SKILL.md executor note | code | `.opencode/skills/git-workflow-cleanup/SKILL.md` | read (verified 2026-08-10) |
 | skill architecture research | doc | `.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md` | read (confidence 0.90, status active) |
 | prior contradiction research | doc | `.issues/research-cards/writing-plans-skill-contradiction.md` | read (confidence 0.95, status resolved) |
+| verification-before-completion/tasks/verify.md §4.5 cross-model gate | code | `.opencode/skills/verification-before-completion/tasks/verify.md` | grep + read (verified 2026-08-10) |
+| tests-v2 default model contract | code | `.opencode/tests-v2/default-model.sh`, `.opencode/tests-v2/AGENTS.md` §10.6 | read (verified 2026-08-10) |
 
 ## 9. Enforcement Gate
 
@@ -150,6 +163,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-5:** Verifying the skill card alignment costs a grep across 36 cards. Skipping means the DISPATCH_GATE sections diverge from the re-scoped rule, recreating the contradiction at the point of dispatch.
 - **SC-6:** Running the behavioral test costs minutes of execution time. Skipping means a residual contradiction ships, and the orchestrator is pushed toward rationalization in production — the behavioral defect this spec exists to prevent.
 - **SC-7:** Verifying delegation preservation costs one grep. Skipping means the re-scope could be read as changing which tasks are delegated, a behavioral regression that breaks the pipeline's integrity.
+- **SC-8:** Verifying the §4.5 removal costs one grep of `verify.md` §4.5. Skipping means the defective CROSS_MODEL_GAP requirement survives, mandating an impossible two-model cloud run that contradicts the framework's single-model DEFAULT_TEST_MODEL contract and blocks legitimate verification.
 
 ## 11. Edge Cases
 
@@ -160,6 +174,14 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** "Cost-blind" (verification cost) is conflated with "context-cost" (orchestrator context resource). **Expected behavior:** The two cost dimensions are explicitly distinguished. **Resolution:** SC-1/SC-3 add the explicit distinction; SC-7 verifies it.
 - **Condition:** A behavioral enforcement test in `tests-v2/behaviors/` asserts the "never inline" absolute. **Expected behavior:** The test is updated to assert the context-economy model. **Resolution:** SC-6 includes updating such tests to assert the new model.
 - **Condition:** The behavioral test (SC-6) is expensive/flaky. **Expected behavior:** Scope-limited single scenario, stderr-based assertions, `with-test-home` isolation, >=600s timeout. **Resolution:** Per the scope-limited behavioral testing mandate and behavioral test conventions.
+- **Condition:** A residual multi-model/cloud cross-verification mandate remains in `verify.md` or elsewhere. **Expected behavior:** No residual mandate requires multi-model/cloud runs. **Resolution:** SC-8 (grep §4.5 for CROSS_MODEL_GAP and Spec #262) catches the divergence; fix the inconsistent text.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorizer |
+|------|--------|--------|------------|
+| 2026-08-10 | Added SC-8: removed defective CROSS_MODEL_GAP cross-model validation requirement from `verify.md` §4.5, replaced with single-model verification consistent with DEFAULT_TEST_MODEL contract; removed false Spec #262 authority line. Added R-9, Item 8, Dependencies/Documentation Sources references, Traceability row, Cost Frame and Edge Case entries. | Implementation discovered §4.5 mandates impossible two-model cloud runs contradicting the framework's single canonical model (DEFAULT_TEST_MODEL) per the No-Outguess Mandate; Spec #262 does not exist. | Spec revision (implementation-discovered defect) |
+| 2026-08-10 | Corrected Evidence Type from structural to string for SC-1, SC-2, SC-3, SC-4, SC-5, SC-7, SC-8 to match their grep verification methods (declaration-only; no SC criterion text, requirement, or scope changed). SC-6 remains behavioral. Updated sc-summary.yaml sc types accordingly. | Dimension 5 Testability validation finding: seven SCs declared structural but their verification methods are grep pattern matches (string evidence per TDD taxonomy). | Spec revision (validation finding) |
 
 ---
 

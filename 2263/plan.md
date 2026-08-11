@@ -4,7 +4,7 @@ issue: 2263
 title: "Re-scope orchestrator inline-work rule to allocation-by-context-cost model"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 7
+phase_count: 8
 ---
 
 # Implementation Plan — #2263 — Re-scope orchestrator inline-work rule to allocation-by-context-cost
@@ -20,6 +20,7 @@ phase_count: 7
 - `.opencode/guidelines/000-critical-rules.md`
 - 36 skill cards under `.opencode/skills/` with DISPATCH_GATE sections
 - Behavioral enforcement tests under `.opencode/tests-v2/behaviors/` that assert the "never inline" absolute (updated to assert the context-economy model)
+- `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 (SC-8)
 
 ---
 
@@ -29,6 +30,7 @@ phase_count: 7
 - **000-critical-rules.md (Tier 1)** — critical-rules-XXX re-justification; must stay consistent with the re-scoped 020.
 - **36 skill cards** — DISPATCH_GATE Orchestrator Entry Criteria re-justification; each card self-contained.
 - **Behavioral enforcement tests** — tests asserting the "never inline" absolute must be updated.
+- **`verification-before-completion/tasks/verify.md` §4.5** — defective CROSS_MODEL_GAP cross-model validation requirement removed, replaced with single-model verification consistent with DEFAULT_TEST_MODEL; false Spec #262 authority line removed (SC-8).
 - **No ripple:** task cards, delegation mechanism, pipeline behavior, `.opencode/tools/` scripts.
 
 ---
@@ -56,6 +58,7 @@ phase_count: 7
 | 5 — Re-justify 36 skill cards | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | 36 DISPATCH_GATE skill cards | SC-5 | 4 |
 | 6 — Eliminate self-contradiction | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | All affected files | SC-6 | 1, 2, 3, 4, 5 |
 | 7 — Preserve delegation / distinguish costs | `verification-before-completion` | `verify` | All affected files (verification only) | SC-7 | 1, 2, 3, 4, 5, 6 |
+| 8 — Remove defective cross-model gate (verify.md §4.5) | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 | SC-8 | 1, 2, 3, 4, 5, 6, 7 |
 
 ---
 
@@ -197,6 +200,26 @@ guards:
 sc_ids: [SC-7]
 ```
 
+### Phase 8 — Remove defective cross-model gate (verify.md §4.5)
+
+| Field | Value |
+|-------|-------|
+| Skill | `test-driven-development` / `verification-before-completion` |
+| Task | `red` / `green` / `phase-4` / `verify` |
+| Target | `.opencode/skills/verification-before-completion/tasks/verify.md` §4.5 |
+| SCs | SC-8 |
+| Depends On | 1, 2, 3, 4, 5, 6, 7 |
+
+**Context:**
+```yaml
+target_file: .opencode/skills/verification-before-completion/tasks/verify.md
+section: "§4.5"
+change: "remove CROSS_MODEL_GAP cross-model validation requirement; replace with single-model verification consistent with DEFAULT_TEST_MODEL contract; remove false Spec #262 authority line"
+guards:
+  - "no residual multi-model/cloud cross-verification mandate"
+sc_ids: [SC-8]
+```
+
 ---
 
 ## Global Pre-Implementation Steps
@@ -232,6 +255,7 @@ These steps run once after the last phase.
 - [ ] C5. All 36 DISPATCH_GATE skill cards re-justify Orchestrator Entry Criteria under context-economy with no-preloaded-context substance unchanged (SC-5).
 - [ ] C6. The self-contradiction is eliminated — a skill-load scenario runs without the orchestrator reconciling contradictory signals (SC-6, behavioral).
 - [ ] C7. The delegation mechanism is unchanged and cost-blind is explicitly distinguished from context-cost (SC-7).
+- [ ] C8. The CROSS_MODEL_GAP cross-model validation requirement is removed from `verification-before-completion/tasks/verify.md` §4.5, replaced with single-model verification consistent with the DEFAULT_TEST_MODEL contract; the false Spec #262 authority line is removed; no residual multi-model/cloud cross-verification mandate remains (SC-8, string).
 
 ---
 
@@ -244,3 +268,4 @@ These steps run once after the last phase.
 | Timestamp | Event | Details |
 |-----------|-------|---------|
 | 2026-08-10T20:40:13-0400 | `plan_created` | Plan file `.opencode/.issues/2263/plan.md`, 7 phases |
+| 2026-08-10T23:31:00-0400 | `plan_revised` | Plan file `.opencode/.issues/2263/plan.md`, added Phase 8 for SC-8, phase_count 7 → 8 |

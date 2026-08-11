@@ -1,5 +1,5 @@
 # Planning problem — issue #2263
-# 7-phase dependency chain derived from dependency-contract.yaml
+# 8-phase dependency chain derived from dependency-contract.yaml
 domain: issue-2263-context-economy
 objects: []
 fluents:
@@ -10,6 +10,7 @@ fluents:
   - name: phase_5_complete
   - name: phase_6_complete
   - name: phase_7_complete
+  - name: phase_8_complete
 actions:
   - name: implement_phase_1
     preconditions: []
@@ -47,6 +48,11 @@ actions:
       - phase_6_complete
     effects:
       - phase_7_complete
+  - name: implement_phase_8
+    preconditions:
+      - phase_7_complete
+    effects:
+      - phase_8_complete
 init: []
 goals:
   - phase_1_complete
@@ -56,3 +62,4 @@ goals:
   - phase_5_complete
   - phase_6_complete
   - phase_7_complete
+  - phase_8_complete

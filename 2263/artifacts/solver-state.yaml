@@ -1,5 +1,6 @@
 # Solver state — issue #2263
-# Initial state: all phase variables false (no phase complete), closed-world assumption.
+# Initial state: all 8 phase variables false (no phase complete), closed-world assumption.
+timestamp: '2026-08-11T03:37:03.972258+00:00'
 variables:
   phase_1: false
   phase_2: false
@@ -8,3 +9,4 @@ variables:
   phase_5: false
   phase_6: false
   phase_7: false
+  phase_8: false
