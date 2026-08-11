@@ -1,0 +1,10 @@
+# Solver state — issue #2263
+# Initial state: all phase variables false (no phase complete), closed-world assumption.
+variables:
+  phase_1: false
+  phase_2: false
+  phase_3: false
+  phase_4: false
+  phase_5: false
+  phase_6: false
+  phase_7: false

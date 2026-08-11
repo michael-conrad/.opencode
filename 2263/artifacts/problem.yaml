@@ -1,0 +1,58 @@
+# Planning problem — issue #2263
+# 7-phase dependency chain derived from dependency-contract.yaml
+domain: issue-2263-context-economy
+objects: []
+fluents:
+  - name: phase_1_complete
+  - name: phase_2_complete
+  - name: phase_3_complete
+  - name: phase_4_complete
+  - name: phase_5_complete
+  - name: phase_6_complete
+  - name: phase_7_complete
+actions:
+  - name: implement_phase_1
+    preconditions: []
+    effects:
+      - phase_1_complete
+  - name: implement_phase_2
+    preconditions:
+      - phase_1_complete
+    effects:
+      - phase_2_complete
+  - name: implement_phase_3
+    preconditions:
+      - phase_1_complete
+    effects:
+      - phase_3_complete
+  - name: implement_phase_4
+    preconditions:
+      - phase_1_complete
+      - phase_2_complete
+      - phase_3_complete
+    effects:
+      - phase_4_complete
+  - name: implement_phase_5
+    preconditions:
+      - phase_4_complete
+    effects:
+      - phase_5_complete
+  - name: implement_phase_6
+    preconditions:
+      - phase_5_complete
+    effects:
+      - phase_6_complete
+  - name: implement_phase_7
+    preconditions:
+      - phase_6_complete
+    effects:
+      - phase_7_complete
+init: []
+goals:
+  - phase_1_complete
+  - phase_2_complete
+  - phase_3_complete
+  - phase_4_complete
+  - phase_5_complete
+  - phase_6_complete
+  - phase_7_complete

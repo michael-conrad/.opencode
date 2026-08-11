@@ -1,0 +1,110 @@
+# Dependency Contract — Issue 2263: Re-scope inline-work rule to context-economy
+# Extracted from artifacts/interface-compatibility.yaml dependency_contract section
+spec: .opencode/.issues/2263/spec.md
+generated: 2026-08-10
+
+variables:
+  phase_1:
+    type: bool
+    description: "Re-scope 020-go-prohibitions.md inline-work rule — SC-1"
+  phase_2:
+    type: bool
+    description: "Delete false carve-out, replace with truthful justification — SC-2"
+  phase_3:
+    type: bool
+    description: "Re-justify mechanisms under context-economy — SC-3"
+  phase_4:
+    type: bool
+    description: "Re-justify 000-critical-rules critical-rules-XXX — SC-4"
+  phase_5:
+    type: bool
+    description: "Re-justify 36 skill cards' DISPATCH_GATE — SC-5"
+  phase_6:
+    type: bool
+    description: "Eliminate self-contradiction (behavioral check) — SC-6"
+  phase_7:
+    type: bool
+    description: "Preserve delegation mechanism / distinguish cost-blind from context-cost — SC-7"
+
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_4, phase_1)"
+  - "z3.Implies(phase_4, phase_2)"
+  - "z3.Implies(phase_4, phase_3)"
+  - "z3.Implies(phase_5, phase_4)"
+  - "z3.Implies(phase_6, phase_5)"
+  - "z3.Implies(phase_7, phase_6)"
+
+invariants: []
+postconditions: []
+
+phases:
+  phase_1:
+    files:
+      - .opencode/guidelines/020-go-prohibitions.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/guidelines/020-go-prohibitions.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/guidelines/020-go-prohibitions.md
+    scs:
+      - SC-3
+  phase_4:
+    files:
+      - .opencode/guidelines/000-critical-rules.md
+    scs:
+      - SC-4
+  phase_5:
+    files:
+      - .opencode/skills/*/SKILL.md (36 DISPATCH_GATE cards)
+    scs:
+      - SC-5
+  phase_6:
+    files:
+      - all affected files (cross-file consistency)
+    scs:
+      - SC-6
+  phase_7:
+    files:
+      - all affected files (verification-only)
+    scs:
+      - SC-7
+
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Carve-out replacement builds on the re-scoped rule (same-file edit coherence)"
+  - from: phase_1
+    to: phase_3
+    rationale: "Mechanism re-justification builds on the re-scoped rule"
+  - from: phase_1
+    to: phase_4
+    rationale: "000-critical-rules re-justification requires re-scoped 020"
+  - from: phase_2
+    to: phase_4
+    rationale: "000-critical-rules re-justification requires carve-out replacement"
+  - from: phase_3
+    to: phase_4
+    rationale: "000-critical-rules re-justification requires mechanism re-justification"
+  - from: phase_4
+    to: phase_5
+    rationale: "Skill card DISPATCH_GATE aligns to re-scoped critical-rules-XXX"
+  - from: phase_5
+    to: phase_6
+    rationale: "Contradiction check runs over all file updates"
+  - from: phase_6
+    to: phase_7
+    rationale: "Delegation preservation guard runs after all file updates"
+
+notes:
+  - "Phases 1-3 edit the same file (020-go-prohibitions.md); SC-1 must precede SC-2 and SC-3 for edit coherence."
+  - "Phase 4 (000-critical-rules.md) requires the re-scoped 020 (Phases 1-3)."
+  - "Phase 5 (skill cards) aligns DISPATCH_GATE sections to the re-scoped critical-rules-XXX from Phase 4."
+  - "Phase 6 is the behavioral cross-file contradiction check over all prior phases."
+  - "Phase 7 is a verification-only guard (delegation preservation) that runs after all file updates."

@@ -1,0 +1,119 @@
+issue_number: 2263
+artifact: structure
+date: 2026-08-10
+
+## Phase Decomposition
+
+Each phase maps SCs to items with per-SC RED/GREEN/verify/commit cycles. SC-1 through SC-5 and SC-7 are structural documentation edits; SC-6 is behavioral (runtime contradiction elimination). All SCs are single-item, single-phase.
+
+| Phase | SC(s) | Item(s) | Concern | File(s) |
+|-------|-------|---------|---------|---------|
+| 1 | SC-1 | item-1 | Re-scope inline-work rule to allocation-by-context-cost | 020-go-prohibitions.md |
+| 2 | SC-2 | item-2 | Delete false carve-out, replace with truthful context-economy justification | 020-go-prohibitions.md |
+| 3 | SC-3 | item-3 | Re-justify result-contract frugality, DISPATCH_GATE no-preloaded-context, clean-room under context-economy | 020-go-prohibitions.md §1.1 |
+| 4 | SC-4 | item-4 | Re-justify 000-critical-rules.md critical-rules-XXX under context-economy | 000-critical-rules.md |
+| 5 | SC-5 | item-5 | Re-justify 36 skill cards' DISPATCH_GATE Orchestrator Entry Criteria | 36 skill cards |
+| 6 | SC-6 | item-6 | Eliminate self-contradiction (behavioral cross-file check) | all affected files |
+| 7 | SC-7 | item-7 | Preserve delegation mechanism and distinguish cost-blind from context-cost | all affected files |
+
+## Dependency DAG
+
+### Nodes
+
+| Phase | Name |
+|-------|------|
+| 1 | Re-scope 020 inline-work rule |
+| 2 | Delete false carve-out |
+| 3 | Re-justify mechanisms (result-contract, DISPATCH_GATE, clean-room) |
+| 4 | Re-justify 000-critical-rules critical-rules-XXX |
+| 5 | Re-justify 36 skill cards' DISPATCH_GATE |
+| 6 | Eliminate self-contradiction (behavioral check) |
+| 7 | Preserve delegation mechanism / distinguish cost-blind from context-cost |
+
+### Edges
+
+| From | To | Rationale |
+|------|----|-----------|
+| 1 | 2 | Carve-out replacement builds on the re-scoped rule (same file edit coherence) |
+| 1 | 3 | Mechanism re-justification builds on the re-scoped rule |
+| 1, 2, 3 | 4 | 000-critical-rules re-justification requires re-scoped 020 |
+| 4 | 5 | Skill card DISPATCH_GATE aligns to re-scoped critical-rules-XXX |
+| 1, 2, 3, 4, 5 | 6 | Contradiction check runs over all file updates |
+| 1, 2, 3, 4, 5, 6 | 7 | Delegation preservation guard runs after all file updates |
+
+### Acyclicity
+DAG is acyclic — strictly forward-dependency, no cycles.
+
+## Skill + Task Selection per Phase
+
+Per the implementation-workflow reference card. Each item uses the RED-GREEN daisy-chain (test-driven-development → red/green), verify (verification-before-completion → verify), commit-inline (orchestrator), followed by post-implementation gates.
+
+| Phase | SC | Step | Owning Skill | Canonical Dispatch String |
+|-------|-----|------|--------------|---------------------------|
+| 1 | SC-1 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 1 | SC-1 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 1 | SC-1 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 1 | SC-1 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 2 | SC-2 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 2 | SC-2 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 2 | SC-2 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 2 | SC-2 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 3 | SC-3 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 3 | SC-3 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 3 | SC-3 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 3 | SC-3 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 4 | SC-4 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 4 | SC-4 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 4 | SC-4 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 4 | SC-4 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 5 | SC-5 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 5 | SC-5 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 5 | SC-5 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 5 | SC-5 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 6 | SC-6 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` (behavioral via with-test-home) |
+| 6 | SC-6 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 6 | SC-6 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 6 | SC-6 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+| 7 | SC-7 | red | test-driven-development | `task(..., prompt: "execute red task from test-driven-development")` |
+| 7 | SC-7 | green | test-driven-development | `task(..., prompt: "execute green task from test-driven-development")` |
+| 7 | SC-7 | verify | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| 7 | SC-7 | commit-inline | (orchestrator) | Orchestrator runs `git add <files> && git commit` directly |
+
+### Post-implementation gates (after all items)
+
+| Step | Owning Skill | Canonical Dispatch String |
+|------|--------------|---------------------------|
+| z3-check | (orchestrator) | `.opencode/tools/solve check --state-path ... --contract-path ...` |
+| audit | audit | `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` |
+| structural-checks | finishing-a-development-branch | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
+| pre-pr-gate | verification-before-completion | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| review-prep | git-workflow-pr | `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")` |
+| create-pr | git-workflow-pr | `task(..., prompt: "execute create task from git-workflow-pr")` |
+| exec-summary | completion-core | `task(..., prompt: "execute completion task from completion-core")` |
+
+## Triplet Co-location Verification
+
+Each SC's RED, GREEN, verify, and commit steps are all assigned to the same phase (see table). No SC has steps split across phases. PASS.
+
+## Cross-Phase Dependency Verification
+
+- Phase 1 (SC-1): depends on no prior SC output — no RED dependency on later phases. PASS.
+- Phase 2 (SC-2): RED depends on SC-1 output already committed in Phase 1 (Y=1 < X=2). PASS.
+- Phase 3 (SC-3): RED depends on SC-1 output already committed in Phase 1 (Y=1 < X=3). PASS.
+- Phase 4 (SC-4): RED depends on SC-1/2/3 output already committed in Phases 1-3 (Y<X). PASS.
+- Phase 5 (SC-5): RED depends on SC-4 output already committed in Phase 4 (Y=4 < X=5). PASS.
+- Phase 6 (SC-6): RED depends on SC-1..5 output already committed in Phases 1-5 (Y<X). PASS.
+- Phase 7 (SC-7): RED depends on SC-1..6 output already committed in Phases 1-6 (Y<X). PASS.
+- No RED test depends on SC output from a later phase. PASS.
+
+## Item-to-SC Mapping
+
+| Item | SC | RED | GREEN | verify | commit |
+|------|----|-----|-------|--------|--------|
+| item-1 | SC-1 | Phase 1 | Phase 1 | Phase 1 | Phase 1 |
+| item-2 | SC-2 | Phase 2 | Phase 2 | Phase 2 | Phase 2 |
+| item-3 | SC-3 | Phase 3 | Phase 3 | Phase 3 | Phase 3 |
+| item-4 | SC-4 | Phase 4 | Phase 4 | Phase 4 | Phase 4 |
+| item-5 | SC-5 | Phase 5 | Phase 5 | Phase 5 | Phase 5 |
+| item-6 | SC-6 | Phase 6 | Phase 6 | Phase 6 | Phase 6 |
+| item-7 | SC-7 | Phase 7 | Phase 7 | Phase 7 | Phase 7 |
