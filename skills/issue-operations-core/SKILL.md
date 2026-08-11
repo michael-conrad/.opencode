@@ -93,6 +93,8 @@ The orchestrator MUST NOT preload execution context into `task()` prompts. Every
 
 ### Orchestrator Entry Criteria
 
+Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
+
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST use the exact `task(..., prompt: "...")` string from the table — NOT write a custom prompt with preloaded context.
 
 ## Cross-References

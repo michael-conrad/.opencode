@@ -99,6 +99,8 @@ The orchestrator and sub-agents have different context management patterns. Thes
 
 ### The Three Mandates
 
+The orchestrator's persistent context is a bounded, shared resource: it is carried across every step of the pipeline and every sub-agent dispatch. Each of the three mandates below is a direct consequence of protecting that context resource — the mechanisms exist because wasting orchestrator context degrades every downstream routing decision.
+
 #### 1. Orchestrator Context Lean
 
 The orchestrator holds ONLY routing metadata:
@@ -202,9 +204,9 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   4. If candidates found: present all candidates with URLs, offer user a choice to select one or create a new spec
   5. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   6. Only after search+presentation: HALT, but the halt message now includes the search results
-- **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY tasks sub-agents via task(), receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
+- **The orchestrator allocates work by context cost.** Large or disposable work — full file reads, file edits, file writes, analysis, verification, and composition — MUST be delegated to clean-room sub-agents, whose context is disposable. Small, necessary, routing-relevant work that the orchestrator must hold — reading routing metadata, receiving result contracts, routing to the next pipeline step — is performed by the orchestrator in its own context. This is an allocation-by-context-cost model: large/disposable → sub-agent; small/necessary → orchestrator. It does not loosen the prohibition on the orchestrator doing large/disposable work inline. This context-cost dimension is distinct from the cost-blind dimension (verification/execution cost — never skip a tool call): cost-blind governs whether a sub-agent task or tool call is executed at all, while context-cost governs which of those tasks run in the orchestrator's own bounded context versus a disposable sub-agent context. Both are NON-WAIVABLE — the re-scope changes only the framing of the inline-work rule, never which tasks are delegated vs inline.
 
-EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispatch Table and Invocation section in the orchestrator's own context is NOT "inline work" or "reading a file." It is routing metadata consumption — the orchestrator must read these sections to determine which task card to dispatch and what canonical dispatch string to use. The orchestrator dispatches the task card (`tasks/<name>.md`), not the skill card (SKILL.md), to the sub-agent.
+EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispatch Table and Invocation section in the orchestrator's own context is the small, necessary, routing-relevant work that the allocation-by-context-cost model assigns to the orchestrator. `skill()` auto-loads the SKILL.md into the orchestrator's context — the routing metadata is already present and small; sub-agents cannot call `skill()` or load skills themselves, so the orchestrator must read these sections to determine which task card to dispatch and what canonical dispatch string to use. The orchestrator dispatches the task card (`tasks/<name>.md`), not the skill card (SKILL.md), to the sub-agent.
 
 | Artifact | File | Consumer | Content | Action |
 |----------|------|----------|---------|--------|

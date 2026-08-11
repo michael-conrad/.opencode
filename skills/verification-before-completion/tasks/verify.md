@@ -244,23 +244,17 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 - If all verified → Allow completion claim
 - If any unverified → HALT and require evidence
 
-### 4.5. Cross-Model Validation Gate (MANDATORY)
+### 4.5. Single-Model Validation Contract (MANDATORY)
 
-**When behavioral testing is part of the spec's verification scope, single-model evidence is insufficient.** The orchestrator MUST verify that both local and cloud model runs exist:
+**Behavioral testing runs under the framework's single canonical model.** The test framework defines exactly one model — `DEFAULT_TEST_MODEL` in `.opencode/tests-v2/default-model.sh` (the single source of truth per the No-Outguess Mandate in `.opencode/tests-v2/AGENTS.md` §10.6). `seed_model_config()` registers only that one model, and the agent MUST use `DEFAULT_TEST_MODEL` without substitution. There is no second model for cross-validation, and no cloud-model run is required or possible within the framework.
 
-- [ ] 1. Check evidence artifacts for both `model: <local>` and `model: <cloud>` entries
-- [ ] 2. If only single-model evidence is present: flag as `CROSS_MODEL_GAP`
+- [ ] 1. Confirm the behavioral SC evidence was produced by a run of the behavioral test script through `behavior_run` (via `with-test-home`) using `DEFAULT_TEST_MODEL`
+- [ ] 2. If the behavioral evidence is missing or the run did not use the canonical model: flag as `BEHAVIORAL_EVIDENCE_GAP`
    - HALT completion claim
-   - Re-task verification against the missing model
-- [ ] 3. Cross-model result comparison:
-   - Both pass: cross-validation confirmed (PASS)
-   - Only one passes: **brittleness detected** — instructions are model-biased. Flag as `BRITTLENESS_DETECTED` with remediation required
-   - Both fail: instructions broken — HALT and require fix
-- [ ] 4. If both model runs produce evidence: proceed to step 4
+   - Re-task the behavioral test against `DEFAULT_TEST_MODEL`
+- [ ] 3. If the behavioral evidence exists and used the canonical model: proceed to step 4
 
-**🚫 FORBIDDEN:** Accepting single-model results as cross-model-validated; treating `PASS` from one model as equivalent to cross-model verification.
-
-**AUTHORITY:** Read [Model-Aware Clean-Room task()](guidelines/000-critical-rules.md), Spec #262
+**🚫 FORBIDDEN:** Treating grep, string, or file-existence evidence as behavioral evidence for a behavioral SC; substituting structural evidence for the required `opencode run` execution.
 
 ### How to Run Behavioral Tests for SC Verification
 
