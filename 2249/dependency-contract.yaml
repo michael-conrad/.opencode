@@ -1,0 +1,106 @@
+# Dependency Contract — Issue 2249: Generalize the dependency-injection mandate to a generic multi-language DI approach
+# Extracted from artifacts/interface-compatibility.yaml dependency_contract section
+spec: .opencode/.issues/2249/spec.md
+generated: 2026-08-11
+
+variables:
+  phase_1:
+    type: bool
+    description: "Generic DI principle section — SC-1"
+  phase_2:
+    type: bool
+    description: "Curated three-tier framework table — SC-2"
+  phase_3:
+    type: bool
+    description: "Selection guidance (code/spec-driven, not fixed pin) — SC-3"
+  phase_4:
+    type: bool
+    description: "HTML/CSS exclusion — SC-4"
+  phase_5:
+    type: bool
+    description: "INDEX.md DI trigger patterns — SC-5"
+  phase_6:
+    type: bool
+    description: "Behavioral enforcement test artifact generation (session.yaml) — SC-6"
+  phase_7:
+    type: bool
+    description: "Clean-room session.yaml evaluation confirming DI-mandate compliance — SC-7"
+
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+  - "z3.Implies(phase_4, phase_1)"
+  - "z3.Implies(phase_5, phase_4)"
+  - "z3.Implies(phase_6, phase_5)"
+  - "z3.Implies(phase_7, phase_6)"
+
+invariants: []
+postconditions: []
+
+phases:
+  phase_1:
+    files:
+      - .opencode/guidelines/080-code-standards.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/guidelines/080-code-standards.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/guidelines/080-code-standards.md
+    scs:
+      - SC-3
+  phase_4:
+    files:
+      - .opencode/guidelines/080-code-standards.md
+    scs:
+      - SC-4
+  phase_5:
+    files:
+      - .opencode/guidelines/INDEX.md
+    scs:
+      - SC-5
+  phase_6:
+    files:
+      - .opencode/tests-v2/behaviors/ (new behavioral enforcement test)
+    scs:
+      - SC-6
+  phase_7:
+    files:
+      - .opencode/tests-v2/behaviors/ (clean-room session.yaml evaluation)
+    scs:
+      - SC-7
+
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "The framework table lives in the same new section; the section's generic principle must be documented first."
+  - from: phase_1
+    to: phase_3
+    rationale: "Selection guidance references the generic principle in the same section."
+  - from: phase_2
+    to: phase_3
+    rationale: "Selection guidance references the curated framework table."
+  - from: phase_1
+    to: phase_4
+    rationale: "The HTML/CSS exclusion is part of the same new section."
+  - from: phase_4
+    to: phase_5
+    rationale: "INDEX.md triggers route to a fully documented section (principle + table + guidance + exclusion)."
+  - from: phase_5
+    to: phase_6
+    rationale: "The behavioral test verifies the fully-documented mandate; the test runs after the doc and routing exist."
+  - from: phase_6
+    to: phase_7
+    rationale: "Clean-room evaluation reads the session.yaml artifact produced by SC-6."
+
+notes:
+  - "Phases 1-4 edit the same new section of 080-code-standards.md; SC-1 must precede SC-2/SC-3/SC-4 for edit coherence and content dependency."
+  - "SC-2 depends on SC-1 and SC-3 depends on SC-1 and SC-2; the section's content builds in dependency order."
+  - "SC-5 (INDEX.md triggers) routes agents to the section only after the section is fully documented (all of SC-1..SC-4)."
+  - "SC-6 (behavioral test artifact generation) runs only after the doc + routing exist so the scenario observes the mandate in effect."
+  - "SC-7 (clean-room session.yaml evaluation) reads the artifact produced by SC-6; no session.yaml exists before SC-6."

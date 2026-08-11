@@ -1,0 +1,45 @@
+# Solve output — issue #2249
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2249/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3, phase_4, phase_5, phase_6, phase_7)"
+  status: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+    phase_3: true
+    phase_4: true
+    phase_5: true
+    phase_6: true
+    phase_7: true
+  interpretation: "Goal state (all 7 phases complete) is satisfiable under the precondition dependency chain (phase_2/3/4 -> phase_1, phase_3 -> phase_2, phase_5 -> phase_4, phase_6 -> phase_5, phase_7 -> phase_6)."
+
+solve_check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2249/dependency-contract.yaml --state-path .opencode/.issues/2249/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+    phase_2: false
+    phase_3: false
+    phase_4: false
+    phase_5: false
+    phase_6: false
+    phase_7: false
+  interpretation: "Initial state analysis (all phases false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2249/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 7
+  plan:
+    - run_p1
+    - run_p4
+    - run_p5
+    - run_p2
+    - run_p6
+    - run_p3
+    - run_p7
+  interpretation: "Planner produced a 7-step sequential plan enforcing all dependency edges. run_p1 precedes run_p2/run_p3/run_p4; run_p2 precedes run_p3; run_p4 precedes run_p5; run_p5 precedes run_p6; run_p6 precedes run_p7. Grounding fixed by removing negation in init (closed-world assumption defaults all fluents false)."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING

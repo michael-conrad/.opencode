@@ -1,0 +1,38 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: di-mandate-plan
+  objects: 7
+  fluents: 1
+  actions: 7
+  goals:   7
+
+plan length: 7
+
+- [ ] 1. run_p1()
+- [ ] 2. run_p4()
+- [ ] 3. run_p5()
+- [ ] 4. run_p2()
+- [ ] 5. run_p6()
+- [ ] 6. run_p3()
+- [ ] 7. run_p7()
+
+---
+actions:
+- name: run_p1
+  parameters: []
+- name: run_p4
+  parameters: []
+- name: run_p5
+  parameters: []
+- name: run_p2
+  parameters: []
+- name: run_p6
+  parameters: []
+- name: run_p3
+  parameters: []
+- name: run_p7
+  parameters: []
+domain: di-mandate-plan
+engine: tamer
+plan_length: 7
+status: SOLVED_SATISFICING

@@ -1,0 +1,198 @@
+# Structure artifact — issue #2249
+# Phase decomposition, dependency DAG, skill+task selection
+
+phases:
+  - id: phase_1
+    name: "generic DI principle section"
+    concern: "add generic 'Dependency Injection (generic mandate)' section to 080-code-standards.md stating the generic principle (use a DI approach, not framework X)"
+    scs:
+      - SC-1
+    items:
+      - SC-1: item-01 (generic DI principle section added to 080-code-standards.md)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_2
+    name: "curated three-tier framework table"
+    concern: "add advisory per-language framework table with Clear standard / Contested / Non-idiomatic tiers"
+    scs:
+      - SC-2
+    items:
+      - SC-2: item-02 (curated three-tier framework table added to 080-code-standards.md)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_3
+    name: "selection guidance"
+    concern: "add selection guidance: framework choice driven by code analysis and spec requirements, not a fixed pin; combinations allowed when warranted"
+    scs:
+      - SC-3
+    items:
+      - SC-3: item-03 (selection guidance added to 080-code-standards.md)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_4
+    name: "HTML/CSS exclusion"
+    concern: "add explicit HTML/CSS exclusion — markup and styling are not programming languages; DI guidance does not apply"
+    scs:
+      - SC-4
+    items:
+      - SC-4: item-04 (HTML/CSS exclusion added to 080-code-standards.md)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_5
+    name: "INDEX.md DI trigger patterns"
+    concern: "update INDEX.md 080-code-standards.md row with DI trigger patterns (dependency injection, di, inject, container)"
+    scs:
+      - SC-5
+    items:
+      - SC-5: item-05 (INDEX.md DI trigger patterns added)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_6
+    name: "behavioral enforcement test artifact generation"
+    concern: "add behavioral enforcement test under tests-v2/behaviors/ dispatching a real-domain prompt via opencode run, producing session.yaml"
+    scs:
+      - SC-6
+    items:
+      - SC-6: item-06 (behavioral enforcement test added under tests-v2/behaviors/)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_7
+    name: "clean-room session.yaml evaluation"
+    concern: "clean-room sub-agent evaluates session.yaml confirming DI-mandate compliance across one Clear-standard and one Contested/Non-idiomatic language, plus the HTML/CSS exclusion"
+    scs:
+      - SC-7
+    items:
+      - SC-7: item-07 (clean-room session.yaml evaluation)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "The framework table lives in the same new section; the section's generic principle must be documented first."
+    - from: phase_1
+      to: phase_3
+      rationale: "Selection guidance references the generic principle in the same section."
+    - from: phase_2
+      to: phase_3
+      rationale: "Selection guidance references the curated framework table."
+    - from: phase_1
+      to: phase_4
+      rationale: "The HTML/CSS exclusion is part of the same new section."
+    - from: phase_4
+      to: phase_5
+      rationale: "INDEX.md triggers route to a fully documented section (principle + table + guidance + exclusion)."
+    - from: phase_5
+      to: phase_6
+      rationale: "The behavioral test verifies the fully-documented mandate; the test runs after the doc and routing exist."
+    - from: phase_6
+      to: phase_7
+      rationale: "Clean-room evaluation reads the session.yaml artifact produced by SC-6."
+
+triplet_colocation:
+  status: VERIFIED
+  notes: "All SC-1..7 have RED/GREEN/COMMIT steps assigned to a single phase (SC-1 -> phase_1, SC-2 -> phase_2, SC-3 -> phase_3, SC-4 -> phase_4, SC-5 -> phase_5, SC-6 -> phase_6, SC-7 -> phase_7). No split triplets."
+
+cross_phase_dependency:
+  status: VERIFIED
+  notes: "No RED test in phase X depends on SC output committed in phase Y where Y > X. The dependency chain is strictly forward (phase_1 -> phase_2/3/4 -> phase_5 -> phase_6 -> phase_7); each phase's RED depends only on output committed within the same or an earlier phase. No forward RED dependency."
+
+skill_task_selection:
+  - phase: phase_1
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-1"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_2
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-2"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_3
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-3"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_4
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-4"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_5
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-5"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_6
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-6"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_7
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-7"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
