@@ -47,15 +47,15 @@ phase_count: 7
 
 ## Phase Table
 
-| Phase | Name | SCs | Depends On | Dispatch |
-|-------|------|-----|-----------|----------|
-| 1 | Re-scope 020 inline-work rule | SC-1 | — | test-driven-development, verification-before-completion |
-| 2 | Delete false carve-out | SC-2 | 1 | test-driven-development, verification-before-completion |
-| 3 | Re-justify mechanisms (§1.1) | SC-3 | 1 | test-driven-development, verification-before-completion |
-| 4 | Re-justify 000-critical-rules.md | SC-4 | 1, 2, 3 | test-driven-development, verification-before-completion |
-| 5 | Re-justify 36 skill cards | SC-5 | 4 | test-driven-development, verification-before-completion |
-| 6 | Eliminate self-contradiction | SC-6 | 1, 2, 3, 4, 5 | test-driven-development, verification-before-completion |
-| 7 | Preserve delegation / distinguish costs | SC-7 | 1, 2, 3, 4, 5, 6 | verification-before-completion |
+| Phase | Skill | Task | Target | SCs | Depends On |
+|-------|-------|------|--------|-----|------------|
+| 1 — Re-scope 020 inline-work rule | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | `.opencode/guidelines/020-go-prohibitions.md` | SC-1 | — |
+| 2 — Delete false carve-out | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | `.opencode/guidelines/020-go-prohibitions.md` | SC-2 | 1 |
+| 3 — Re-justify mechanisms (§1.1) | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | `.opencode/guidelines/020-go-prohibitions.md` §1.1 | SC-3 | 1 |
+| 4 — Re-justify 000-critical-rules.md | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | `.opencode/guidelines/000-critical-rules.md` | SC-4 | 1, 2, 3 |
+| 5 — Re-justify 36 skill cards | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | 36 DISPATCH_GATE skill cards | SC-5 | 4 |
+| 6 — Eliminate self-contradiction | `test-driven-development` | `red`, `green`, `phase-4`, `verify` | All affected files | SC-6 | 1, 2, 3, 4, 5 |
+| 7 — Preserve delegation / distinguish costs | `verification-before-completion` | `verify` | All affected files (verification only) | SC-7 | 1, 2, 3, 4, 5, 6 |
 
 ---
 
@@ -236,3 +236,11 @@ These steps run once after the last phase.
 ---
 
 🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-10T20:40:13-0400 | `plan_created` | Plan file `.opencode/.issues/2263/plan.md`, 7 phases |
