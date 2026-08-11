@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2264/spec.md
+code_paths:
+  - id: P1
+    sc: SC-1
+    path: .opencode/hooks/pre-commit
+    entry: Gate 2 loop over SUBMODULE_PATHS
+    notes: Line 54 REMOTE_SHA derivation must use per-submodule SUBMODULE_TRUNK
+  - id: P2
+    sc: SC-2
+    path: .opencode/hooks/pre-commit
+    entry: Gate 2 trunk extraction
+    notes: Fallback assignment when SUBMODULE_TRUNK is empty
+  - id: P3
+    sc: SC-3
+    path: .opencode/hooks/pre-commit
+    entry: stale-pointer comparison
+    notes: Behavioral verification for different-trunk submodule (SharedPojos trunk=main)
+  - id: P4
+    sc: SC-4
+    path: .opencode/hooks/pre-commit
+    entry: stale-pointer comparison
+    notes: Regression check for shared-trunk submodule (master)
+  - id: P5
+    sc: SC-5
+    path: .opencode/commands/submodule-tag-prework.md
+    entry: trunk-detection references
+    notes: Update doc to describe per-submodule lookup and parent-trunk fallback
+  - id: P6
+    sc: SC-6
+    path: .opencode/hooks/pre-commit
+    entry: stale-pointer comparison
+    notes: Two-submodule verification (SharedPojos main + shared-trunk master)
+  - id: P7
+    sc: SC-7
+    path: .opencode repository
+    entry: repository-wide grep
+    notes: Enumerate and remediate SKIP_STALE_POINTER_CHECK=1 invocations

@@ -1,0 +1,115 @@
+spec_path: .opencode/.issues/2264/spec.md
+interfaces:
+  - id: I1
+    module: .opencode/hooks/pre-commit
+    boundary: Gate 2 stale-pointer check
+    change: Per-submodule SUBMODULE_TRUNK extraction replacing parent DEFAULT_BRANCH
+    compatibility: Reuses existing git/sed tooling already present at line 36; no new external dependencies
+  - id: I2
+    module: .opencode/hooks/pre-commit
+    boundary: parent-trunk fallback
+    change: SUBMODULE_TRUNK falls back to DEFAULT_BRANCH only when lookup fails
+    compatibility: Preserves current behavior for unconfigured submodule remotes
+  - id: I3
+    module: .opencode/commands/submodule-tag-prework.md
+    boundary: documentation
+    change: Describe per-submodule lookup and parent-trunk fallback
+    compatibility: Documentation-only; no runtime interface impact
+dependency_contract:
+  spec: .opencode/.issues/2264/spec.md
+  generated: 2026-08-11
+  variables:
+    phase_1:
+      type: bool
+      description: "Per-submodule trunk lookup in pre-commit Gate 2 — SC-1"
+    phase_2:
+      type: bool
+      description: "Parent-trunk fallback on lookup failure — SC-2"
+    phase_3:
+      type: bool
+      description: "Different-trunk submodule no longer falsely flagged — SC-3"
+    phase_4:
+      type: bool
+      description: "Shared-trunk submodule no regression — SC-4"
+    phase_5:
+      type: bool
+      description: "Documentation references updated — SC-5"
+    phase_6:
+      type: bool
+      description: "Verify against two known-different-trunk submodules — SC-6"
+    phase_7:
+      type: bool
+      description: "Bug-only override uses removed / non-bug rationale comments — SC-7"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_3, phase_1)"
+    - "z3.Implies(phase_4, phase_1)"
+    - "z3.Implies(phase_5, phase_1)"
+    - "z3.Implies(phase_6, phase_3)"
+    - "z3.Implies(phase_6, phase_4)"
+    - "z3.Implies(phase_7, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/hooks/pre-commit
+      scs:
+        - SC-1
+    phase_2:
+      files:
+        - .opencode/hooks/pre-commit
+      scs:
+        - SC-2
+    phase_3:
+      files:
+        - .opencode/hooks/pre-commit
+      scs:
+        - SC-3
+    phase_4:
+      files:
+        - .opencode/hooks/pre-commit
+      scs:
+        - SC-4
+    phase_5:
+      files:
+        - .opencode/commands/submodule-tag-prework.md
+      scs:
+        - SC-5
+    phase_6:
+      files:
+        - .opencode/hooks/pre-commit
+      scs:
+        - SC-6
+    phase_7:
+      files:
+        - .opencode/ (repository-wide override-use search)
+      scs:
+        - SC-7
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "The fallback assignment operates on the SUBMODULE_TRUNK variable introduced by SC-1 (same-file edit coherence)"
+    - from: phase_1
+      to: phase_3
+      rationale: "The different-trunk behavioral test verifies the per-submodule lookup from SC-1"
+    - from: phase_1
+      to: phase_4
+      rationale: "The shared-trunk regression test verifies the per-submodule lookup from SC-1"
+    - from: phase_1
+      to: phase_5
+      rationale: "The documentation describes the per-submodule lookup introduced by SC-1"
+    - from: phase_3
+      to: phase_6
+      rationale: "The two-submodule verification test builds on the different-trunk test (SC-3)"
+    - from: phase_4
+      to: phase_6
+      rationale: "The two-submodule verification test builds on the shared-trunk regression test (SC-4)"
+    - from: phase_1
+      to: phase_7
+      rationale: "Override hygiene is assessed only after the per-submodule lookup fix exists"
+  notes:
+    - "One phase per SC (7 phases), aligned to the spec's Items 1-7."
+    - "SC-1 (per-submodule lookup) is foundational; SC-2 through SC-5 and SC-7 all depend on it."
+    - "SC-6 is a behavioral verification that builds on both SC-3 (different-trunk) and SC-4 (shared-trunk)."
+    - "SC-7 is a repository-wide override-use audit gated on the lookup fix being present."

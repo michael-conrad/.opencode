@@ -125,6 +125,7 @@ Rationale: each submodule has its own remote with its own HEAD branch. The hook 
 - R-5. The pre-push hook Gate 2 SHALL remain unchanged (separate hook file, separate issue if applicable).
 - R-6. The `awk substr` bug from #2258 SHALL remain out of scope (already closed/remediated).
 - R-7. The fix SHALL be verified against at least 2 submodules with known-different trunks.
+- R-8. Any documentation references to the trunk-detection logic SHALL be updated to reflect the per-submodule trunk lookup.
 
 ## Items
 
@@ -203,6 +204,7 @@ Rationale: each submodule has its own remote with its own HEAD branch. The hook 
 | R-5 | SC-4 | Phase 1 |
 | R-6 | SC-1, SC-3, SC-4 | Phase 1 |
 | R-7 | SC-6 | Phase 1 |
+| R-8 | SC-5 | Phase 1 |
 
 ## Documentation Sources
 
@@ -255,3 +257,4 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 - **2026-08-11** — Added Success Criteria (SC) table and Requirements section to the retroactively-imported spec. The spec was frontmatter-only; the body content (Problem, Scope, Approach, Impact, Evidence) was preserved from `remote.md` and the SC table was derived from that content so the writing-plans analyze gate (previously BLOCKED with `NO_SUCCESS_CRITERIA`) can proceed. Authorized by: revision request for issue 2264.
 - **2026-08-11** — Structural validation revision. Removed the `etc.` escape-hatch from SC-2 (replaced with an exhaustive four-condition enumeration of lookup failure); added required sections (Alternatives Considered & Why Discarded, Key Design Decisions, User Intent / Original Prompt, Items, Dependencies, Traceability, Documentation Sources, Enforcement Gate, Edge Cases); added a Cost Frame section with per-SC dark-prose-007 cost-frame language; added the Documentation Sources column (5th) to the SC table; reworked SC-7 to a deterministic, non-judgment criterion enumerating the check and the legitimate-rationale condition. All prior substantive content preserved verbatim. Authorized by: revision request for issue 2264.
+- **2026-08-11** — Traceability revision. Added requirement R-8 ("Any documentation references to the trunk-detection logic SHALL be updated to reflect the per-submodule trunk lookup") and mapped SC-5 to R-8 in the Traceability table, resolving the orphan-SC traceability gap flagged by spec validation. No existing requirement or SC was weakened or removed; all prior substantive content preserved verbatim. Authorized by: revision request for issue 2264.

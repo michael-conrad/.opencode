@@ -1,0 +1,198 @@
+# Structure artifact — issue #2264
+# Phase decomposition, dependency DAG, skill+task selection
+
+phases:
+  - id: phase_1
+    name: "per-submodule trunk lookup"
+    concern: "Gate 2 derives REMOTE_SHA from each submodule's own HEAD branch"
+    scs:
+      - SC-1
+    items:
+      - SC-1: item-01 (replace line 54 with SUBMODULE_TRUNK extraction from git -C "$sp" remote show origin)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_2
+    name: "parent-trunk fallback"
+    concern: "empty SUBMODULE_TRUNK resolves to DEFAULT_BRANCH on lookup failure"
+    scs:
+      - SC-2
+    items:
+      - SC-2: item-02 (add fallback assignment [ -z "$SUBMODULE_TRUNK" ] && SUBMODULE_TRUNK="$DEFAULT_BRANCH")
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_3
+    name: "different-trunk submodule not falsely flagged"
+    concern: "behavioral test: submodule trunk=main, parent trunk=master, staged pointer at own tip passes"
+    scs:
+      - SC-3
+    items:
+      - SC-3: item-03 (behavioral test against different-trunk submodule)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_4
+    name: "shared-trunk submodule no regression"
+    concern: "behavioral test: submodule sharing parent trunk continues to pass"
+    scs:
+      - SC-4
+    items:
+      - SC-4: item-04 (shared-trunk regression test)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_5
+    name: "documentation references updated"
+    concern: "submodule-tag-prework.md describes per-submodule lookup and parent fallback"
+    scs:
+      - SC-5
+    items:
+      - SC-5: item-05 (update .opencode/commands/submodule-tag-prework.md trunk-detection references)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_6
+    name: "two-submodule behavioral verification"
+    concern: "verify against SharedPojos (main) and a shared-trunk submodule (master)"
+    scs:
+      - SC-6
+    items:
+      - SC-6: item-06 (two-submodule behavioral verification test)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_7
+    name: "bug-only override uses removed"
+    concern: "repository-wide SKIP_STALE_POINTER_CHECK=1 audit; no use attributable solely to this bug"
+    scs:
+      - SC-7
+    items:
+      - SC-7: item-07 (override-use remediation)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "The fallback assignment operates on the SUBMODULE_TRUNK variable introduced by SC-1 (same-file edit coherence)"
+    - from: phase_1
+      to: phase_3
+      rationale: "The different-trunk behavioral test verifies the per-submodule lookup from SC-1"
+    - from: phase_1
+      to: phase_4
+      rationale: "The shared-trunk regression test verifies the per-submodule lookup from SC-1"
+    - from: phase_1
+      to: phase_5
+      rationale: "The documentation describes the per-submodule lookup introduced by SC-1"
+    - from: phase_3
+      to: phase_6
+      rationale: "The two-submodule verification test builds on the different-trunk test (SC-3)"
+    - from: phase_4
+      to: phase_6
+      rationale: "The two-submodule verification test builds on the shared-trunk regression test (SC-4)"
+    - from: phase_1
+      to: phase_7
+      rationale: "Override hygiene is assessed only after the per-submodule lookup fix exists"
+
+triplet_colocation:
+  status: VERIFIED
+  notes: "All SC-1..7 have RED/GREEN/COMMIT steps assigned to a single phase (one phase per SC, aligned to spec Items 1-7). No split triplets."
+
+cross_phase_dependency:
+  status: VERIFIED
+  notes: "No RED test in a later phase depends on output committed in a later phase. Phase 6 depends on phase 3 and phase 4 (both earlier). All dependency edges point forward (lower to higher phase number). No forward RED dependency."
+
+skill_task_selection:
+  - phase: phase_1
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-1"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_2
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-2"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_3
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-3"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_4
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-4"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_5
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-5"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_6
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-6"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_7
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-7"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"

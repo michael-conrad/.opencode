@@ -1,0 +1,11 @@
+spec_path: .opencode/.issues/2264/spec.md
+affected_files:
+  - path: .opencode/hooks/pre-commit
+    exists: true
+    change: MODIFY
+    notes: Gate 2 stale-pointer check, line 54 trunk lookup fix
+  - path: .opencode/commands/submodule-tag-prework.md
+    exists: true
+    change: MODIFY
+    notes: Documentation references to trunk-detection logic (SC-5)
+verified_at: 2026-08-11

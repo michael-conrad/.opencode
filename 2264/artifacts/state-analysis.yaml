@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2264/spec.md
+state_transitions:
+  - id: S1
+    sc: SC-1
+    from: parent DEFAULT_BRANCH used for submodule REMOTE_SHA
+    to: per-submodule SUBMODULE_TRUNK used for submodule REMOTE_SHA
+    trigger: Gate 2 iterates over staged submodule
+  - id: S2
+    sc: SC-2
+    from: SUBMODULE_TRUNK empty (lookup failure)
+    to: SUBMODULE_TRUNK set to DEFAULT_BRANCH (parent fallback)
+    trigger: "no HEAD branch: line, non-zero exit, empty extraction"
+  - id: S3
+    sc: SC-3
+    from: different-trunk submodule falsely flagged stale
+    to: different-trunk submodule allowed at own trunk tip
+    trigger: per-submodule trunk lookup applied
+  - id: S4
+    sc: SC-4
+    from: shared-trunk submodule passes
+    to: shared-trunk submodule passes (no regression)
+    trigger: per-submodule trunk lookup applied
+  - id: S5
+    sc: SC-5
+    from: docs describe parent-trunk lookup
+    to: docs describe per-submodule lookup and parent fallback
+    trigger: documentation update
+  - id: S6
+    sc: SC-6
+    from: different-trunk + shared-trunk combination blocks SharedPojos
+    to: both submodules pass without false positives
+    trigger: two-submodule behavioral verification
+  - id: S7
+    sc: SC-7
+    from: SKIP_STALE_POINTER_CHECK override attributable to this bug
+    to: no override attributable solely to this bug
+    trigger: repository-wide override remediation

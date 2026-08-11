@@ -1,0 +1,82 @@
+# Planning problem — issue #2264
+# Per-submodule trunk lookup fix; 7 phases, sequential ordering enforced by preconditions
+domain: submodule-trunk-fix
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+  - name: p4
+    type: phase
+  - name: p5
+    type: phase
+  - name: p6
+    type: phase
+  - name: p7
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: run_p1
+    params: []
+    preconditions:
+      - not done(p1)
+    effects:
+      - done(p1)
+  - name: run_p2
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p2)
+    effects:
+      - done(p2)
+  - name: run_p3
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p3)
+    effects:
+      - done(p3)
+  - name: run_p4
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p4)
+    effects:
+      - done(p4)
+  - name: run_p5
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p5)
+    effects:
+      - done(p5)
+  - name: run_p6
+    params: []
+    preconditions:
+      - done(p3)
+      - done(p4)
+      - not done(p6)
+    effects:
+      - done(p6)
+  - name: run_p7
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p7)
+    effects:
+      - done(p7)
+init: []
+goals:
+  - done(p1)
+  - done(p2)
+  - done(p3)
+  - done(p4)
+  - done(p5)
+  - done(p6)
+  - done(p7)

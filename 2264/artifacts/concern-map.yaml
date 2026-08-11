@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2264/spec.md
+concerns:
+  - id: C1
+    name: trunk-lookup
+    description: Per-submodule trunk branch resolution in Gate 2
+    scs: [SC-1, SC-2]
+    phase_boundary: Phase 1
+  - id: C2
+    name: stale-pointer-behavior
+    description: Behavioral verification that different-trunk and shared-trunk submodules pass without false positives
+    scs: [SC-3, SC-4, SC-6]
+    phase_boundary: Phase 1
+  - id: C3
+    name: documentation
+    description: Update trunk-detection documentation references
+    scs: [SC-5]
+    phase_boundary: Phase 1
+  - id: C4
+    name: override-hygiene
+    description: Ensure SKIP_STALE_POINTER_CHECK overrides carry non-bug rationale or are removed
+    scs: [SC-7]
+    phase_boundary: Phase 1

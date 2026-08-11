@@ -1,0 +1,16 @@
+spec_path: .opencode/.issues/2264/spec.md
+sc_count: 7
+created: 2026-08-11
+scope_summary:
+  - MODIFY .opencode/hooks/pre-commit Gate 2 per-submodule trunk lookup with parent-trunk fallback
+  - MODIFY .opencode/commands/submodule-tag-prework.md documentation references
+  - Verify behavioral pass for different-trunk and shared-trunk submodules
+  - Remediate SKIP_STALE_POINTER_CHECK override uses attributable to this bug
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled

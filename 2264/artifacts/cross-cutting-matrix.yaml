@@ -1,0 +1,23 @@
+spec_path: .opencode/.issues/2264/spec.md
+matrix:
+  - sc: SC-1
+    spans_concerns: [C1]
+    notes: Core per-submodule trunk lookup change
+  - sc: SC-2
+    spans_concerns: [C1]
+    notes: Fallback within trunk-lookup concern
+  - sc: SC-3
+    spans_concerns: [C1, C2]
+    notes: Trunk lookup change enables behavioral pass for different-trunk submodule
+  - sc: SC-4
+    spans_concerns: [C1, C2]
+    notes: Trunk lookup change must preserve shared-trunk behavior
+  - sc: SC-5
+    spans_concerns: [C3]
+    notes: Documentation only
+  - sc: SC-6
+    spans_concerns: [C1, C2]
+    notes: Cross-submodule behavioral verification
+  - sc: SC-7
+    spans_concerns: [C4]
+    notes: Repository-wide override hygiene, independent of hook code change

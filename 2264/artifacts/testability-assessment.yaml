@@ -1,0 +1,23 @@
+spec_path: .opencode/.issues/2264/spec.md
+assessments:
+  - sc: SC-1
+    declared_evidence: string
+    verification_method: grep .opencode/hooks/pre-commit assert SUBMODULE_TRUNK derived from submodule HEAD branch
+  - sc: SC-2
+    declared_evidence: string
+    verification_method: grep .opencode/hooks/pre-commit assert fallback line fires only on empty SUBMODULE_TRUNK
+  - sc: SC-3
+    declared_evidence: behavioral
+    verification_method: run pre-commit Gate 2 against different-trunk submodule (SharedPojos trunk=main)
+  - sc: SC-4
+    declared_evidence: behavioral
+    verification_method: run pre-commit Gate 2 against shared-trunk submodule (master)
+  - sc: SC-5
+    declared_evidence: string
+    verification_method: grep documentation for per-submodule lookup and parent-trunk fallback references
+  - sc: SC-6
+    declared_evidence: behavioral
+    verification_method: run pre-commit Gate 2 against both SharedPojos (main) and shared-trunk (master)
+  - sc: SC-7
+    declared_evidence: string
+    verification_method: grep -r SKIP_STALE_POINTER_CHECK=1 across .opencode repository
