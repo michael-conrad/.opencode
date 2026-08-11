@@ -24,7 +24,7 @@ variables:
     description: "Behavioral enforcement test artifact generation (session.yaml) — SC-6"
   phase_7:
     type: bool
-    description: "Clean-room session.yaml evaluation confirming DI-mandate compliance — SC-7"
+    description: "Clean-room session.yaml evaluation confirming DI-mandate compliance — CONCERN-7 — SC-7"
 
 preconditions:
   - "z3.Implies(phase_2, phase_1)"

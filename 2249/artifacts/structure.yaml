@@ -106,7 +106,7 @@ phases:
 
   - id: phase_7
     name: "clean-room session.yaml evaluation"
-    concern: "clean-room sub-agent evaluates session.yaml confirming DI-mandate compliance across one Clear-standard and one Contested/Non-idiomatic language, plus the HTML/CSS exclusion"
+    concern: "CONCERN-7: clean-room sub-agent evaluates session.yaml confirming DI-mandate compliance across one Clear-standard and one Contested/Non-idiomatic language, plus the HTML/CSS exclusion"
     scs:
       - SC-7
     items:

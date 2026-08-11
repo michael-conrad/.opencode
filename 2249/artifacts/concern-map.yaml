@@ -23,9 +23,13 @@ concern_map:
       boundary: DI-related patterns route agents to the section.
       affected_area: INDEX.md row update
     - id: CONCERN-6
-      name: Behavioral enforcement
-      boundary: Verify agents apply the DI mandate across languages via opencode run + clean-room evaluation.
-      affected_area: tests-v2/behaviors/ new test
+      name: Behavioral enforcement — artifact generation
+      boundary: Dispatch a real-domain prompt via opencode run producing session.yaml that records agent tool calls and decisions; the prompt requires designing a solution/unit test where a DI approach exists.
+      affected_area: tests-v2/behaviors/ new test (artifact generation)
+    - id: CONCERN-7
+      name: Behavioral enforcement — clean-room evaluation
+      boundary: A clean-room sub-agent evaluates the session.yaml artifact and confirms the agent applied the DI mandate (selected a DI approach rather than hand-rolling manual wiring), covering at least one Clear-standard and one Contested/Non-idiomatic language, plus the HTML/CSS exclusion.
+      affected_area: tests-v2/behaviors/ new test (clean-room evaluation)
   concern_boundary_annotations:
     - No item crosses an architectural concern boundary. All items are within the single "agent-facing coding standards" concern.
-    - The behavioral enforcement test is a verification concern that supports the mandate but does not introduce a second implementation concern.
+    - The behavioral enforcement test decomposes into two distinct verification phases (artifact generation and clean-room evaluation). CONCERN-6 and CONCERN-7 are separate verification concerns — each phase addresses exactly one concern.
