@@ -171,7 +171,7 @@ A "why" question, a complaint about redundancy, or any interpretive inference is
 
 ### [critical-rules-XXX] CRITICAL VIOLATION — Dispatching SKILL.md to sub-agents — category error
 
-Dispatching SKILL.md content (the skill card) to a sub-agent via `task()` is a category error. The skill card contains orchestrator-level routing instructions (Trigger Dispatch Table, DISPATCH_GATE protocol, Invocation section, Orchestrator Entry Criteria) that a sub-agent cannot execute. Sub-agents cannot call `task()`, cannot follow Trigger Dispatch Tables, and cannot satisfy Orchestrator Entry Criteria.
+Dispatching SKILL.md content (the skill card) to a sub-agent via `task()` is a category error. The skill card contains orchestrator-level routing instructions (Trigger Dispatch Table, DISPATCH_GATE protocol, Invocation section, Orchestrator Entry Criteria) that a sub-agent cannot execute. Sub-agents cannot call `task()`, cannot follow Trigger Dispatch Tables, and cannot satisfy Orchestrator Entry Criteria. This rule is a direct consequence of the allocation-by-context-cost model: the skill card is small, necessary, routing-relevant metadata that the orchestrator must hold in its own context, while the task card is the execution procedure that the sub-agent's disposable context consumes. Sending the skill card to a sub-agent wastes sub-agent context on routing metadata the sub-agent cannot act on — the opposite of allocation-by-context-cost.
 
 The skill card (SKILL.md) tells the orchestrator WHAT to dispatch. The task card (tasks/<name>.md) tells the sub-agent HOW to execute. Dispatching the skill card to a sub-agent means the sub-agent receives instructions about dispatching — which it cannot do.
 
