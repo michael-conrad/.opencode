@@ -75,6 +75,20 @@ The following project-specific code structure rules are enforced in this reposit
 - **Usage patterns**: Declare a container class that registers each dependency as a provider (e.g., `ConfigProvider`, `SecretsProvider`) and wires them into the service and its callers. Services declare their dependencies in their constructor; the container supplies them at composition time. Follow the container-first pattern — define the wiring graph once in the container and let the container resolve dependencies for all consumers.
 - **Carveout for `.opencode/` infrastructure tools**: The DI mandate applies to application/service code only. It does NOT apply to infrastructure tooling under `.opencode/`. Scripts and tools in `.opencode/tools/`, `.opencode/scripts/`, and `.opencode/skills/*/scripts/` are exempt — they may use simple, direct wiring appropriate to their scope.
 
+## Dependency Injection (generic mandate)
+
+- **The enforceable rule is "use a DI approach," not "use framework X."** Agents MUST approach problem solving and unit tests from the point of view of having an available DI approach of some worth, and use it rather than hand-rolling manual wiring where such an approach exists. This generic principle applies across all programming languages and is a superset of the Python-specific `dependency-injector` mandate above — Python remains in the "Clear standard" tier with `dependency-injector`.
+- **Curated per-language framework table (explicitly advisory):** The table below is advisory guidance, not an enforcement pin. Tier placement reflects ecosystem idiom, not a mandate to adopt the framework. Use a DI approach where one is idiomatic; where the table marks a tier "guidance-only", hand-rolled wiring or a framework-free approach is acceptable.
+
+| Tier | Languages / Frameworks |
+| -- | -- |
+| Clear standard | Python (`dependency-injector`), C#/.NET (built-in `Microsoft.Extensions.DependencyInjection`), Java (Spring; Dagger for GWT-style), Angular/Vue/Svelte (built-in) |
+| Contested | Kotlin (Koin/Hilt), Scala (MacWire/Guice/ZIO), Dart/Flutter (get_it/provider/Riverpod), TypeScript (tsyringe/InversifyJS) |
+| Non-idiomatic and guidance-only | Go, Rust, C++, Swift, Ruby, React (Context/hooks), Web Components |
+
+- **Selection guidance:** Framework choice is driven by code analysis and spec requirements, not a fixed pin. Combinations of DI approaches are allowed when the framework table documents two or more idiomatic DI options for the same language.
+- **HTML/CSS exclusion:** Markup and styling are not programming languages, and DI guidance does not apply. Do not attempt a DI approach on HTML/CSS.
+
 ## Print Statements & Output
 
 - **NO narration/signal prints**: Never add print statements that narrate code changes, signal feature updates, or announce implementation details. Print statements are for data output and user-facing information only.
