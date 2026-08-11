@@ -31,3 +31,41 @@ date: 2026-08-10
 ### Internal-Only Interfaces
 - All affected interfaces are internal to the .opencode framework (agent-facing instruction-model). No external/public API is affected.
 - The behavioral enforcement tests (tests-v2/behaviors/) that assert the "never inline" absolute are internal test interfaces — they must be updated to assert the context-economy model (SC-6).
+
+## dependency_contract
+
+dependency_contract:
+  phase_order:
+    - phase: 1
+      name: Re-scope 020-go-prohibitions.md inline-work rule to allocation-by-context-cost
+      depends_on: []
+      scs: [SC-1]
+    - phase: 2
+      name: Delete false carve-out and replace with truthful context-economy justification
+      depends_on: [1]
+      scs: [SC-2]
+    - phase: 3
+      name: Re-justify mechanisms (result-contract frugality, DISPATCH_GATE, clean-room) under context-economy
+      depends_on: [1]
+      scs: [SC-3]
+    - phase: 4
+      name: Re-justify 000-critical-rules.md critical-rules-XXX under context-economy
+      depends_on: [1, 2, 3]
+      scs: [SC-4]
+    - phase: 5
+      name: Re-justify 36 skill cards' DISPATCH_GATE Orchestrator Entry Criteria
+      depends_on: [4]
+      scs: [SC-5]
+    - phase: 6
+      name: Eliminate self-contradiction (behavioral cross-file check)
+      depends_on: [1, 2, 3, 4, 5]
+      scs: [SC-6]
+    - phase: 7
+      name: Preserve delegation mechanism and distinguish cost-blind from context-cost
+      depends_on: [1, 2, 3, 4, 5, 6]
+      scs: [SC-7]
+  intra_phase_dependencies:
+    - phase: 1
+      order:
+        - "SC-1 (rule re-scope) must precede SC-2/SC-3 within 020-go-prohibitions.md so the carve-out replacement and mechanism re-justification build on the re-scoped rule"
+  notes: "Phases 1-3 edit the same file (020-go-prohibitions.md); SC-1 must precede SC-2 and SC-3 for edit coherence. Phase 4 (000-critical-rules.md) requires the re-scoped 020 (Phases 1-3). Phase 5 (skill cards) aligns DISPATCH_GATE sections to the re-scoped critical-rules-XXX from Phase 4. Phase 6 is the behavioral cross-file contradiction check over all prior phases. Phase 7 is a verification-only guard (delegation preservation) that runs after all file updates."
