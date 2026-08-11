@@ -1,0 +1,27 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+code_path_inventory:
+  phases:
+    - phase: "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+      files:
+        - path: .opencode/guidelines/000-critical-rules.md
+          reason: Canonical critical-rules file — the stacked-PR rule must be added here to be enforceable
+          changes: Add critical-rules-PR-ORG rule with "Stacked PR Is the Only Valid Organization" bright-line text
+        - path: .opencode/skills/git-workflow-pr/SKILL.md
+          reason: Source of the rule text (line 89) and the cross-reference (line 74) that must resolve
+          changes: Rule text promoted to canonical location; cross-reference verified to resolve
+      new_files: []
+    - phase: "Phase 2: Add behavioral enforcement test"
+      files:
+        - path: .opencode/tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md
+          reason: Fixture spec SC-4 requires stacked-pr-organization.sh — the new test satisfies it
+          changes: No change to fixture; SC-4 now has a matching scenario script
+      new_files:
+        - path: .opencode/tests-v2/behaviors/stacked-pr-organization.sh
+          purpose: Behavioral enforcement test dispatching a real-domain prompt via opencode run, asserting single-branch/single-PR creation
+    - phase: "Phase 3: Fix cross-reference"
+      files:
+        - path: .opencode/skills/git-workflow-pr/SKILL.md
+          reason: Line 74 cross-reference must point to the actual rule location
+          changes: Ensure Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md) resolves to the real rule
+      new_files: []

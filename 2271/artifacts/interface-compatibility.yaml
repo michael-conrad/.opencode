@@ -1,0 +1,26 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+interface_compatibility:
+  interfaces:
+    - name: .opencode/guidelines/000-critical-rules.md critical-rules-PR-ORG rule
+      status: new
+      compatibility: additive
+      consumers:
+        - All agents loading 000-critical-rules.md (Tier 1 enforcement)
+        - git-workflow-pr/SKILL.md line 74 Read [critical-rules-PR-ORG] cross-reference
+        - Behavioral test stacked-pr-organization.sh (SC-2)
+      note: Additive — no existing rule is removed or renamed
+    - name: .opencode/skills/git-workflow-pr/SKILL.md line 74 cross-reference
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - Agents following the Read [critical-rules-PR-ORG] link to the canonical rule
+      note: Reference now resolves to a real rule after Phase 1
+    - name: .opencode/tests-v2/behaviors/stacked-pr-organization.sh
+      status: new
+      compatibility: internal_only
+      consumers:
+        - CI pipeline
+        - test-enforcement.sh
+        - Fixture spec 100-stacked-branch-for-pr SC-4
+      note: New behavioral enforcement test

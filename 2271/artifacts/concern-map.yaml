@@ -1,0 +1,28 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+concern_map:
+  phases:
+    - phase: "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+      primary_concern: Add the stacked-PR rule to the canonical critical-rules file so it is enforceable
+      boundaries:
+        - In scope: Add critical-rules-PR-ORG rule to .opencode/guidelines/000-critical-rules.md
+        - In scope: Preserve the existing rule text from git-workflow-pr/SKILL.md line 89
+        - Out of scope: Writing the behavioral test (Phase 2)
+        - Out of scope: Fixing the cross-reference (Phase 3)
+      separation_rationale: The canonical rule must exist before the behavioral test can reference it and before the cross-reference can resolve to it
+    - phase: "Phase 2: Add behavioral enforcement test"
+      primary_concern: Add stacked-pr-organization.sh behavioral test that enforces single-branch/single-PR creation
+      boundaries:
+        - In scope: Create .opencode/tests-v2/behaviors/stacked-pr-organization.sh
+        - In scope: Dispatch a real-domain prompt via opencode run requiring multi-issue implementation under one for_pr authorization
+        - In scope: Assert exactly one feature branch and one PR (stacked commits, one per issue)
+        - Out of scope: Promoting the canonical rule (Phase 1)
+        - Out of scope: Fixing the cross-reference (Phase 3)
+      separation_rationale: The behavioral test is the enforcement gate — it must be added after the canonical rule exists so the rule is testable
+    - phase: "Phase 3: Fix cross-reference"
+      primary_concern: Ensure git-workflow-pr/SKILL.md line 74 cross-reference resolves to the actual rule location
+      boundaries:
+        - In scope: Verify/fix the Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md) reference
+        - Out of scope: Promoting the canonical rule (Phase 1)
+        - Out of scope: Writing the behavioral test (Phase 2)
+      separation_rationale: The cross-reference can only resolve once the rule exists in the canonical location (Phase 1)

@@ -1,0 +1,19 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - name: "Z3 model: dependency invariants"
+    result: SAT
+    details: "Contract satisfiable; invariant phase_2_done -> phase_1_done and phase_3_done -> phase_1_done hold"
+  - name: "Z3 check: state consistency"
+    result: SAT
+    details: "State-analysis consistent with contract preconditions, postconditions, and invariants"
+  - name: "Plan: phase ordering"
+    result: SOLVED_SATISFICING
+    details: "3-step plan generated achieving all 3 phase goals"
+planner_result:
+  engine: tamer
+  plan_length: 3
+  actions:
+    - implement-phase-1(phase-1)
+    - implement-phase-1(phase-2)
+    - implement-phase-1(phase-3)

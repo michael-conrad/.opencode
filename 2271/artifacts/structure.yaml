@@ -1,0 +1,40 @@
+phases:
+  - number: 1
+    name: "Promote critical-rules-PR-ORG to canonical location"
+    scs:
+      - "SC-1"
+    concern: "canonical-rule"
+    skill: "test-driven-development"
+    task: "red"
+    dispatch: "sub-agent"
+    context:
+      - ".opencode/guidelines/000-critical-rules.md: add critical-rules-PR-ORG rule with 'Stacked PR Is the Only Valid Organization' bright-line text"
+      - "Rule text sourced from .opencode/skills/git-workflow-pr/SKILL.md line 89"
+  - number: 2
+    name: "Add behavioral enforcement test"
+    scs:
+      - "SC-2"
+    concern: "behavioral-enforcement"
+    skill: "test-driven-development"
+    task: "green"
+    dispatch: "sub-agent"
+    context:
+      - ".opencode/tests-v2/behaviors/stacked-pr-organization.sh: new behavioral test dispatching a real-domain prompt via opencode run"
+      - "Assert exactly one feature branch and one PR (stacked commits, one per issue)"
+      - "Satisfies fixture spec 100-stacked-branch-for-pr SC-4"
+  - number: 3
+    name: "Fix cross-reference"
+    scs:
+      - "SC-3"
+    concern: "cross-reference"
+    skill: "test-driven-development"
+    task: "green"
+    dispatch: "sub-agent"
+    context:
+      - ".opencode/skills/git-workflow-pr/SKILL.md: ensure line 74 Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md) resolves to the actual rule"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+    - from: 1
+      to: 3

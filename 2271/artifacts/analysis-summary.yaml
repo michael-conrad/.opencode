@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2271/spec.md
+approval_status: approved
+approval_labels:
+- approved-for-for_pr
+sc_count: 3
+artifacts:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_boundary_findings:
+- .opencode/guidelines/000-critical-rules.md: exists
+- .opencode/skills/git-workflow-pr/SKILL.md: exists
+- .opencode/tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md: exists
+- .opencode/tests-v2/behaviors/stacked-pr-organization.sh: missing (SC-2 target behavioral test not yet created)
+finding_summary: "Spec approved (approved-for-for_pr) with 3 SCs. All 7 analytical artifacts were missing and have been backfilled from the spec body in retroactive mode. All referenced scope files exist; stacked-pr-organization.sh is missing as expected (it is the deliverable of SC-2)."

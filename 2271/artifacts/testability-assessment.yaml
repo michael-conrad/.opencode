@@ -1,0 +1,27 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+testability_assessment:
+  phases:
+    - phase: "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+      test_strategy: string
+      key_test_scenarios:
+        - "SC-1: grep 000-critical-rules.md for critical-rules-PR-ORG — must be present"
+        - "SC-1: grep 000-critical-rules.md for 'Stacked PR Is the Only Valid Organization' bright-line text"
+      testability_concerns:
+        - "String evidence only — presence of the rule text is the verification"
+        - "SC-1 requires both the rule ID and the bright-line text to be present"
+    - phase: "Phase 2: Add behavioral enforcement test"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "SC-2: Run stacked-pr-organization.sh via with-test-home; clean-room sub-agent reads session.yaml and confirms single-branch/single-PR creation"
+      testability_concerns:
+        - "SC-2 is behavioral — requires actual opencode run execution against a real AI model"
+        - "Behavioral test timeout risk — may need increased timeout for model inference"
+        - "Model availability dependency — test requires a working AI model"
+        - "Scope-limited execution via with-test-home mitigates flakiness"
+    - phase: "Phase 3: Fix cross-reference"
+      test_strategy: string
+      key_test_scenarios:
+        - "SC-3: grep confirms the referenced rule exists at the referenced path (git-workflow-pr/SKILL.md line 74 → 000-critical-rules.md)"
+      testability_concerns:
+        - "String evidence only — the cross-reference resolving to a real rule is the verification"

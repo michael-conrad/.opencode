@@ -1,0 +1,30 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+state_analysis:
+  phases:
+    - phase: "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+      state_transitions:
+        - from: "critical-rules-PR-ORG rule absent from 000-critical-rules.md (grep count = 0)"
+          to: "critical-rules-PR-ORG rule present in 000-critical-rules.md"
+          trigger: Add the rule with "Stacked PR Is the Only Valid Organization" bright-line text
+          invariant: Rule text matches the existing text in git-workflow-pr/SKILL.md line 89
+        - from: "Stacked-PR rule enforced only by prose in the skill card"
+          to: "Stacked-PR rule enforced as a Tier 1 critical rule"
+          trigger: Promote rule to canonical critical-rules location
+          invariant: Rule is enforceable, not just documented
+    - phase: "Phase 2: Add behavioral enforcement test"
+      state_transitions:
+        - from: "No stacked-pr-organization.sh scenario script exists"
+          to: "stacked-pr-organization.sh exists and passes"
+          trigger: Create behavioral enforcement test dispatching a real-domain prompt via opencode run
+          invariant: Test asserts exactly one feature branch and one PR (stacked commits, one per issue)
+        - from: "Fixture spec 100-stacked-branch-for-pr SC-4 has no matching scenario script"
+          to: "Fixture SC-4 has a matching scenario script"
+          trigger: Add stacked-pr-organization.sh
+          invariant: Fixture spec becomes fully testable
+    - phase: "Phase 3: Fix cross-reference"
+      state_transitions:
+        - from: "git-workflow-pr/SKILL.md line 74 cross-reference is dangling (target rule absent)"
+          to: "git-workflow-pr/SKILL.md line 74 cross-reference resolves to the actual rule"
+          trigger: Verify/fix the Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md) reference
+          invariant: The referenced rule exists at the referenced path

@@ -1,0 +1,28 @@
+contract_version: "1.0"
+issue: 2271
+variables:
+  phase_1_done:
+    type: bool
+  phase_2_done:
+    type: bool
+  phase_3_done:
+    type: bool
+preconditions:
+  - "z3.Not(phase_1_done)"
+  - "z3.Not(phase_2_done)"
+  - "z3.Not(phase_3_done)"
+invariants:
+  - "z3.Implies(phase_2_done, phase_1_done)"
+  - "z3.Implies(phase_3_done, phase_1_done)"
+phases:
+  - number: 1
+    name: "Promote critical-rules-PR-ORG to canonical location"
+    depends_on: []
+  - number: 2
+    name: "Add behavioral enforcement test"
+    depends_on:
+      - 1
+  - number: 3
+    name: "Fix cross-reference"
+    depends_on:
+      - 1

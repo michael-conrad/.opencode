@@ -2,7 +2,7 @@ title: '[BUG] Regression — agent created multiple concurrent PRs for one for_p
   instead of a single stacked PR'
 status: open
 labels:
-- approved-for-for_pr
+- spec-cleared
 body: '## Problem
 
   During implementation of a single `for_pr` authorization covering issues #2249 and
@@ -114,5 +114,5 @@ body: '## Problem
 
   '
 created_at: '2026-08-11T18:22:58+00:00'
-updated_at: '2026-08-11T18:38:00+00:00'
+updated_at: '2026-08-11T18:48:56+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2271

@@ -1,0 +1,47 @@
+domain: stacked-pr-enforcement
+types:
+  - name: pipeline_phase
+objects:
+  - name: phase-1
+    type: pipeline_phase
+  - name: phase-2
+    type: pipeline_phase
+  - name: phase-3
+    type: pipeline_phase
+fluents:
+  - name: phase-done
+    params:
+      - name: p
+        type: pipeline_phase
+actions:
+  - name: implement-phase-1
+    params:
+      - name: p
+        type: pipeline_phase
+    preconditions:
+      - not phase-done(p)
+    effects:
+      - phase-done(p)
+  - name: implement-phase-2
+    params:
+      - name: p
+        type: pipeline_phase
+    preconditions:
+      - phase-done(phase-1)
+      - not phase-done(p)
+    effects:
+      - phase-done(p)
+  - name: implement-phase-3
+    params:
+      - name: p
+        type: pipeline_phase
+    preconditions:
+      - phase-done(phase-1)
+      - not phase-done(p)
+    effects:
+      - phase-done(p)
+init: []
+goals:
+  - phase-done(phase-1)
+  - phase-done(phase-2)
+  - phase-done(phase-3)

@@ -1,0 +1,22 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+cross_cutting_matrix:
+  concerns:
+    - concern: Stacked-PR rule canonicalization
+      affects_phases:
+        - "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+        - "Phase 3: Fix cross-reference"
+      description: The critical-rules-PR-ORG rule must exist in the canonical location (Phase 1) before the cross-reference in git-workflow-pr/SKILL.md can resolve (Phase 3). SC-1 and SC-3 both depend on the rule being present.
+      coordination_required: true
+    - concern: Behavioral enforcement gate
+      affects_phases:
+        - "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+        - "Phase 2: Add behavioral enforcement test"
+      description: SC-2's behavioral test enforces the rule that SC-1 adds. The canonical rule must exist before the behavioral test can meaningfully enforce it. The fixture spec 100-stacked-branch-for-pr SC-4 is satisfied by the new test.
+      coordination_required: true
+    - concern: Cross-reference integrity
+      affects_phases:
+        - "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+        - "Phase 3: Fix cross-reference"
+      description: SC-3 requires the Read [critical-rules-PR-ORG] link to resolve. This is only possible after Phase 1 adds the rule to the canonical location. Phase 3 verifies/fixes the reference.
+      coordination_required: true

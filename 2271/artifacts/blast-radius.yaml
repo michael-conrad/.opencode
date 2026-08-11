@@ -1,0 +1,40 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2271
+generated_at: "2026-08-11T18:45:00Z"
+blast_radius:
+  phases:
+    - phase: "Phase 1: Promote critical-rules-PR-ORG to canonical location"
+      affected_components:
+        - component: .opencode/guidelines/000-critical-rules.md
+          impact: direct
+          description: Add critical-rules-PR-ORG rule with "Stacked PR Is the Only Valid Organization" bright-line text
+          ripple_effects:
+            - All agents loading 000-critical-rules.md now see the stacked-PR rule as a Tier 1 critical rule
+            - The rule becomes enforceable, not just prose in the skill card
+        - component: .opencode/skills/git-workflow-pr/SKILL.md
+          impact: indirect
+          description: Line 89 rule text is promoted to canonical location; line 74 cross-reference must resolve
+          ripple_effects:
+            - SKILL.md line 74 Read [critical-rules-PR-ORG] link now resolves to a real rule
+      risk_level: low
+    - phase: "Phase 2: Add behavioral enforcement test"
+      affected_components:
+        - component: .opencode/tests-v2/behaviors/stacked-pr-organization.sh
+          impact: direct
+          description: New behavioral enforcement test dispatching a real-domain prompt via opencode run
+          ripple_effects:
+            - CI and test-enforcement.sh gain a new scenario
+            - Fixture spec 100-stacked-branch-for-pr SC-4 now has a matching scenario script
+        - component: .opencode/tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md
+          impact: indirect
+          description: Fixture SC-4 requires stacked-pr-organization.sh — now satisfied
+          ripple_effects:
+            - Fixture spec becomes fully testable
+      risk_level: medium
+    - phase: "Phase 3: Fix cross-reference"
+      affected_components:
+        - component: .opencode/skills/git-workflow-pr/SKILL.md
+          impact: direct
+          description: Ensure line 74 cross-reference points to the actual rule location
+          ripple_effects:
+            - Agents following the Read [critical-rules-PR-ORG] link reach the real rule
+      risk_level: low
