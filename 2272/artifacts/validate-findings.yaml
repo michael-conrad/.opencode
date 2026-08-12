@@ -16,69 +16,69 @@ categories:
     checks:
       - name: phase_table
         status: PASS
-        detail: "Phase table present with columns Phase | Skill | Task | Target | SCs | Depends On (plan.md)."
+        detail: "Phase table present in plan.md with required columns Phase | Skill | Task | Target | SCs | Depends On (3 rows: Phase 1, Phase 2, Phase 3)."
       - name: phase_procedure_numbered_steps
         status: PASS
-        detail: "Each phase file (plan-01, plan-02, plan-03) has a Step-by-step section with numbered checkbox steps (Phase 1: steps 5-11, Phase 2: steps 12-18, Phase 3: steps 19-33)."
+        detail: "Each phase has a procedure with numbered checkbox steps: Phase 1 steps 5-11 (plan-01), Phase 2 steps 12-18 (plan-02), Phase 3 steps 19-33 (plan-03). Global pre-implementation steps 1-4 in plan.md."
       - name: exit_criteria_sc_mapping
         status: PASS
-        detail: "Exit Criteria section (C1-C4) maps SC-1..SC-4: C1->SC-1, C2->SC-2, C3->SC-3, C4->SC-4."
+        detail: "Exit Criteria section (C1-C4) maps to SCs: C1->SC-1, C2->SC-2, C3->SC-3, C4->SC-4."
 
   category_2_skill_task_validity:
     status: PASS
     checks:
       - name: dispatch_strings_match_reference_card
         status: PASS
-        detail: "All dispatch strings match implementation-workflow.md: red/green/phase-4 (test-driven-development), verify (verification-before-completion), audit (audit), structural-checks (finishing-a-development-branch), pre-pr-gate (verification-before-completion), review-prep/create-pr (git-workflow-pr), exec-summary (completion-core). Checkpoint commits and Z3 check are inline per reference card commit-inline/z3-check ownership."
+        detail: "All dispatch strings match implementation-workflow.md reference card: pre-regression (phase-0, step 3), pre-regression-verify (step 4), red (steps 5/12/19), green (steps 6/13/20), post-regression (phase-4, steps 8/15/22), verify (steps 9/16/23), audit DiMo (step 26), structural-checks (step 28), pre-pr-gate (step 29), regression-check (phase-4, step 30), review-prep (step 31), create-pr (step 32), exec-summary (step 33). Inline steps (coherence gate, baseline check, checkpoint commits 10/17/24, Z3 check 27) are inline per reference card commit-inline/z3-check ownership."
 
   category_3_sc_coverage:
     status: PASS
     checks:
       - name: all_scs_covered
         status: PASS
-        detail: "SC-1 in Phase 1 (exit C1), SC-2 in Phase 2 (exit C2), SC-3 and SC-4 in Phase 3 (exit C3, C4). No SC uncovered."
+        detail: "SC-1 in Phase 1 (exit C1), SC-2 in Phase 2 (exit C2), SC-3 and SC-4 in Phase 3 (exit C3, C4). All 4 SCs from sc-summary.yaml appear in at least one phase's exit criteria. No SC uncovered."
       - name: triplet_split_detection
         status: PASS
-        detail: "No SC has RED/GREEN/COMMIT split across phases. SC-1 triplet (RED step 5, GREEN step 6, COMMIT step 10) in Phase 1; SC-2 triplet (12, 13, 17) in Phase 2; SC-3/SC-4 triplets (19, 20, 24) in Phase 3. Matches structure.yaml triplet_colocation: VERIFIED."
+        detail: "No SC has RED/GREEN/COMMIT split across phases. SC-1 triplet (RED step 5, GREEN step 6, COMMIT step 10) in Phase 1; SC-2 triplet (RED 12, GREEN 13, COMMIT 17) in Phase 2; SC-3/SC-4 triplets (RED 19, GREEN 20, COMMIT 24) in Phase 3. All triplets colocated within a single phase."
 
   category_4_concern_separation:
     status: PASS
     checks:
       - name: one_concern_per_phase
         status: PASS
-        detail: "Plan Phase 1 -> concern-map Phase 1 (verified-complete state); Phase 2 -> concern-map Phase 2 (PR-created state); Phase 3 -> concern-map Phase 3 (shared status-reconciliation rule)."
+        detail: "Plan Phase 1 -> concern-map Phase 1 (verified-complete state / audit skill); Phase 2 -> concern-map Phase 2 (PR-created state / git-workflow-pr skill); Phase 3 -> concern-map Phase 3 (shared status-reconciliation rule / documentation)."
       - name: no_duplicate_concerns
         status: PASS
-        detail: "No two phases share a concern; each plan phase maps to a distinct concern-map phase."
+        detail: "No two phases share a concern; each plan phase maps to a distinct concern-map phase. File sets are disjoint across phases 1 and 2; phase 3 is conditional on the guidelines concern."
 
   category_5_dag_validation:
     status: PASS
     checks:
       - name: no_cycles
         status: PASS
-        detail: "Edges phase_1->phase_2, phase_1->phase_3, phase_2->phase_3 — acyclic."
+        detail: "Contract edges phase_1->phase_2 (informational), phase_1->phase_3, phase_2->phase_3 — acyclic. No cycle present."
       - name: all_phases_reachable
         status: PASS
-        detail: "phase_1 is the start node (no incoming edges); phase_2 and phase_3 reachable from phase_1."
+        detail: "phase_1 is the start node (no incoming edges). phase_2 reachable via phase_1->phase_2; phase_3 reachable via phase_1->phase_3 and phase_2->phase_3."
       - name: no_orphan_phases
         status: PASS
-        detail: "Every phase has in/out edges; no isolated phases. Z3 solve model SAT + check SAT + planner SOLVED_SATISFICING (3-step plan run_p1 -> run_p2 -> run_p3)."
+        detail: "Every phase has at least one incoming or outgoing edge; no isolated phase. Z3 solve model SAT + solve check SAT + planner SOLVED_SATISFICING (3-step plan run_p1 -> run_p2 -> run_p3). Note: contract edge phase_1->phase_2 is informational (rationale states file sets are disjoint and phase 2 can proceed independently); solve preconditions only Implies(phase_3, phase_1) and Implies(phase_3, phase_2), and plan.md coherence gate describes DAG as edges phase_1->phase_3 and phase_2->phase_3 only. All three mechanical checks pass regardless of the informational edge."
 
   category_6_holistic_quality:
-    status: FAIL
+    status: PASS
     checks:
       - name: no_tbd_todo_placeholders
         status: PASS
-        detail: "grep for TBD|TODO|FIXME|XXX in plan.md and all plan-0X files returns zero matches."
+        detail: "grep for TBD|TODO|FIXME|XXX in plan.md and all plan-0X files returns zero matches (exit 1)."
       - name: checkbox_format_steps
         status: PASS
-        detail: "All 29 executable procedure steps use checkbox format '- [ ]'. Bullet lists (Files/Entry/Exit conditions) are informational, not steps."
+        detail: "All 37 executable procedure steps use checkbox format '- [ ]' (8 in plan.md including 4 global pre-implementation + 4 exit criteria; 7 in Phase 1; 7 in Phase 2; 15 in Phase 3). Bullet lists (Files, Entry/Exit conditions, Context blocks) are informational, not steps."
       - name: dispatch_mode_consistency
         status: PASS
-        detail: "Inline steps (Checkpoint commits, Z3 check) contain no dispatched sub-agent calls. Sub-agent steps (RED/GREEN/Post-regression/Verify/Audit/Structural/Pre-PR/Regression/Review-prep/Create-PR/Exec-summary) carry dispatch strings only. Clean-room steps (GREEN doublecheck, VbC) carry no dispatch strings. Consistent with reference card ownership."
+        detail: "Inline steps (coherence gate step 1, baseline check step 2, checkpoint commits 10/17/24, Z3 check step 27) contain no dispatched sub-agent calls. Sub-agent steps (pre-regression, pre-regression-verify, RED, GREEN, post-regression, verify, audit, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary) carry dispatch strings only. Clean-room steps (GREEN doublecheck 7/14/21, VbC 11/18/25) carry no dispatch strings. Consistent with reference card ownership."
       - name: pre_implementation_steps_present
-        status: FAIL
-        detail: "Step numbering starts at 5 in Phase 1; steps 1-4 are absent. create.md step 6 mandates pre-implementation steps (coherence gate, baseline check) written once at the start of the plan before any phase. Phase entry conditions reference 'Coherence gate and baseline check passed (pre-implementation steps)' and 'Pre-regression and pre-regression-verify passed' but no corresponding steps exist in the plan body. The plan is not self-contained per create.md."
+        status: PASS
+        detail: "Global Pre-Implementation Steps section present in plan.md with steps 1-4: coherence gate (step 1), baseline check (step 2), pre-regression (step 3), pre-regression verify (step 4). Global numbering starts at step 5 in Phase 1, consistent with the plan's stated convention. Phase entry conditions referencing 'Coherence gate and baseline check passed' and 'Pre-regression and pre-regression-verify passed' are backed by concrete steps in the plan body. Plan is self-contained per create.md."
 
-overall_status: FAIL
-summary: "Categories 1-5 PASS. Category 6 FAIL: plan omits mandatory pre-implementation steps (coherence gate, baseline check) — step numbering starts at 5 with steps 1-4 absent, though phase entry conditions reference them. Route to revise."
+overall_status: PASS
+summary: "All 6 categories PASS. Plan self-contained: pre-implementation steps 1-4 present, 37 checkbox steps across plan.md + 3 phase files, all dispatch strings valid against implementation-workflow reference card, SC-1..SC-4 covered with no triplet splits, concerns cleanly separated, DAG acyclic/reachable/no-orphans (contract edge phase_1->phase_2 is informational; solve SAT confirms phases 1-2 independent), no TBD/TODO, dispatch mode consistent. Route to completion."
