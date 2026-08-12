@@ -211,3 +211,9 @@ dispatch:
 - [ ] C4. The agent names are exactly `vision-agent` and `visual-design-agent` — no suffix (SC-4)
 - [ ] C5. Pre-existing `.opencode/agents/steps-value-analysis.md` is unchanged (regression invariant)
 - [ ] C6. All four content-verification tests pass (SC-1 string, SC-2 string, SC-3 structural, SC-4 string)
+
+## lifecycle_events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-12T07:20:40Z | `plan_created` | Plan file: `.opencode/.issues/2268/plan.md`, 4 phases |

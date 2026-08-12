@@ -5,6 +5,11 @@ title: "Remove branch-finishing sub-issue creation mandate; protect PR autoclose
 authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 4
+lifecycle_events:
+  - timestamp: "2026-08-12T07:20:53Z"
+    event: plan_created
+    plan_path: ".opencode/.issues/2283/plan.md"
+    phase_count: 4
 dispatch:
   - phase: 1
     skill: test-driven-development
