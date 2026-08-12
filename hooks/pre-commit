@@ -51,7 +51,9 @@ if [ -z "$SKIP_STALE_POINTER_CHECK" ] && [ -f ".gitmodules" ]; then
 
       if [ -n "$STAGED_SHA" ]; then
         # Get remote trunk tip SHA for this submodule
-        REMOTE_SHA=$(git -C "$sp" rev-parse "origin/$DEFAULT_BRANCH" 2>/dev/null || true)
+        SUBMODULE_TRUNK=$(git -C "$sp" remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+        [ -z "$SUBMODULE_TRUNK" ] && SUBMODULE_TRUNK="$DEFAULT_BRANCH"
+        REMOTE_SHA=$(git -C "$sp" rev-parse "origin/$SUBMODULE_TRUNK" 2>/dev/null || true)
         if [ -n "$REMOTE_SHA" ] && [ "$STAGED_SHA" != "$REMOTE_SHA" ]; then
           echo ""
           echo ""

@@ -10,13 +10,14 @@ Tag submodules at trunk tip BEFORE feature branch creation. Uses the unified tag
 
 1. `git checkout "$DEFAULT_BRANCH" && git pull` — Sync main branch to trunk tip
 2. For each submodule path in `.gitmodules`:
-   a. `cd <path> && git checkout "$DEFAULT_BRANCH" && git pull` — Sync submodule to trunk tip
-   b. Capture SHA: `CURRENT_SHA=$(git rev-parse HEAD)`
-   c. Resolve suffix: `SUBMODULE_SUFFIX=$(basename <path>)` (e.g., `.opencode` → `-opencode`)
-   d. **Idempotent check:** `git tag --points-at "$CURRENT_SHA" | grep -q "<parent-repo>/$ISSUE-"` — if match exists, skip tagging (duplicate prevention)
-   e. `git tag -a "<parent-repo>/<issue-number>-<submodule>" -m "Pre-work: <path> at trunk tip for issue #<issue-number>"` — Tag BEFORE branch creation
-   f. `git push origin "<parent-repo>/<issue-number>-<submodule>"`
-   g. Verify: `git ls-remote --tags origin "<parent-repo>/<issue-number>-<submodule>"` shows the SHA
+   a. Resolve the submodule's own trunk: `SUBMODULE_TRUNK=$(git -C <path> remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` — each submodule is an independent repository with its own remote `HEAD branch:` line, which may differ from the parent's trunk (e.g. `SharedPojos` uses `main` while the parent uses `master`). Fall back to the parent trunk when the lookup fails: `[ -z "$SUBMODULE_TRUNK" ] && SUBMODULE_TRUNK="$DEFAULT_BRANCH"`.
+   b. `cd <path> && git checkout "$SUBMODULE_TRUNK" && git pull` — Sync submodule to its own trunk tip
+   c. Capture SHA: `CURRENT_SHA=$(git rev-parse HEAD)`
+   d. Resolve suffix: `SUBMODULE_SUFFIX=$(basename <path>)` (e.g., `.opencode` → `-opencode`)
+   e. **Idempotent check:** `git tag --points-at "$CURRENT_SHA" | grep -q "<parent-repo>/$ISSUE-"` — if match exists, skip tagging (duplicate prevention)
+   f. `git tag -a "<parent-repo>/<issue-number>-<submodule>" -m "Pre-work: <path> at trunk tip for issue #<issue-number>"` — Tag BEFORE branch creation
+   g. `git push origin "<parent-repo>/<issue-number>-<submodule>"`
+   h. Verify: `git ls-remote --tags origin "<parent-repo>/<issue-number>-<submodule>"` shows the SHA
 
 ## Tag Naming Reference
 
