@@ -1,5 +1,5 @@
 # Solve output — issue #2268
-# Z3 + planner verification results from research task
+# Z3 + planner verification results from research task (revise-loop re-run 2026-08-12)
 
 solve_model:
   command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2268/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3, phase_4)"

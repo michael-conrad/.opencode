@@ -70,6 +70,13 @@ dispatch:
 
 ---
 
+## Pre-Implementation (global)
+
+- [ ] 1. **Coherence gate (**clean-room**).** Verify the spec SCs match the phase decomposition in `structure.yaml` (4 phases, one SC per phase) and the dependency DAG has no cycles. **→ all SCs**
+- [ ] 2. **Baseline check (**clean-room**).** Verify feature branch exists, `.opencode/agents/` contains only the pre-existing `steps-value-analysis.md`, and neither new card file exists. **→ SC-1, SC-2**
+
+---
+
 ## Phase Details
 
 ### Phase 1 — Create vision-agent card
@@ -91,6 +98,18 @@ dispatch:
 
 **Cost frame:** Verifying the card file matches the spec block exactly costs one content comparison. Skipping means a card with wrong frontmatter or body ships and fails the sub-agent discovery load at first use.
 
+**Steps:**
+- [ ] 3. **RED (**sub-agent**).** Write content-verification test `test-2268-sc1-vision-agent-card.sh` asserting `.opencode/agents/vision-agent.md` matches the exact spec #2268 "File 1" frontmatter and body (fails — file doesn't exist yet). **→ SC-1**
+- [ ] 4. **GREEN (**sub-agent**).** Create `.opencode/agents/vision-agent.md` with the exact frontmatter (description, mode: subagent, model: ollama-cloud/qwen3.5:397b-cloud, temperature: 0.3, top_p: 0.8, top_k: 20, options, permission edit/bash/webfetch deny) and exact body from the spec. **→ SC-1**
+- [ ] 5. **GREEN doublecheck (**clean-room**).** Verify the file content matches the spec "File 1" block character-for-character and the content-verification test passes. **→ SC-1**
+- [ ] 6. **Checkpoint commit (**inline**).** Commit the card file and its content-verification test together as one atomic slice.
+
+#### Phase 1 VbC
+
+- [ ] 7. **VbC (**clean-room**).** Run `bash .opencode/tests-v2/test-2268-sc1-vision-agent-card.sh`; assert the test passes and the file content matches the spec exactly. **→ SC-1**
+
+**Concern transition:** Leaving vision-agent card creation → entering visual-design-agent card creation. Phase 2 is independent (disjoint file). Phases 3 and 4 depend on this phase's output.
+
 ### Phase 2 — Create visual-design-agent card
 
 | Field | Value |
@@ -109,6 +128,18 @@ dispatch:
 - sc_ids: [SC-2]
 
 **Cost frame:** Verifying the card file matches the spec block exactly costs one content comparison. Skipping means a card with a wrong permission model or body ships and breaks generation behavior at first use.
+
+**Steps:**
+- [ ] 8. **RED (**sub-agent**).** Write content-verification test `test-2268-sc2-visual-design-agent-card.sh` asserting `.opencode/agents/visual-design-agent.md` matches the exact spec #2268 "File 2" frontmatter and body (fails — file doesn't exist yet). **→ SC-2**
+- [ ] 9. **GREEN (**sub-agent**).** Create `.opencode/agents/visual-design-agent.md` with the exact frontmatter (description, mode: subagent, model: ollama-cloud/qwen3.5:397b-cloud, temperature: 0.8, top_p: 1.0, top_k: 40, options, permission edit allow / bash allowlist) and exact body from the spec. **→ SC-2**
+- [ ] 10. **GREEN doublecheck (**clean-room**).** Verify the file content matches the spec "File 2" block character-for-character and the content-verification test passes. **→ SC-2**
+- [ ] 11. **Checkpoint commit (**inline**).** Commit the card file and its content-verification test together as one atomic slice.
+
+#### Phase 2 VbC
+
+- [ ] 12. **VbC (**clean-room**).** Run `bash .opencode/tests-v2/test-2268-sc2-visual-design-agent-card.sh`; assert the test passes and the file content matches the spec exactly. **→ SC-2**
+
+**Concern transition:** Leaving visual-design-agent card creation → entering card validation. Phase 3 depends on both Phase 1 and Phase 2 outputs.
 
 ### Phase 3 — Validate both cards
 
@@ -129,6 +160,18 @@ dispatch:
 
 **Cost frame:** Parsing both frontmatter blocks costs two reads. Skipping means a structurally invalid card (wrong mode or unprefixed model) is discovered only when a consumer tries to load the sub-agent and it silently falls back to the wrong model.
 
+**Steps:**
+- [ ] 13. **RED (**sub-agent**).** Write content-verification test `test-2268-sc3-valid-sub-agent-cards.sh` asserting both files parse as valid opencode sub-agent cards, each contains `mode: subagent`, and each model ID starts with the `ollama-cloud/` provider prefix (fails — files don't exist yet). **→ SC-3**
+- [ ] 14. **GREEN (**sub-agent**).** Confirm both card files exist with valid frontmatter; if any frontmatter field, mode value, or model ID is incorrect, correct it to match the spec. **→ SC-3**
+- [ ] 15. **GREEN doublecheck (**clean-room**).** Run the content-verification test; assert both files parse as valid sub-agent cards and model IDs are provider-prefixed. **→ SC-3**
+- [ ] 16. **Checkpoint commit (**inline**).** Commit the validation test (and any frontmatter corrections) as one atomic slice.
+
+#### Phase 3 VbC
+
+- [ ] 17. **VbC (**clean-room**).** Run `bash .opencode/tests-v2/test-2268-sc3-valid-sub-agent-cards.sh`; assert the test passes, confirming both files are valid sub-agent cards with `mode: subagent` and provider-prefixed model IDs. **→ SC-3**
+
+**Concern transition:** Leaving card validation → entering agent-name verification. Phase 4 depends on both Phase 1 and Phase 2 outputs.
+
 ### Phase 4 — Verify agent names
 
 | Field | Value |
@@ -147,6 +190,16 @@ dispatch:
 - sc_ids: [SC-4]
 
 **Cost frame:** Listing the directory and comparing filenames costs one `ls`. Skipping means a suffixed filename ships, the agent is never discovered by its canonical name, and downstream routing references break.
+
+**Steps:**
+- [ ] 18. **RED (**sub-agent**).** Write content-verification test `test-2268-sc4-agent-names.sh` asserting `.opencode/agents/` contains exactly `vision-agent.md` and `visual-design-agent.md` as the new agent cards with no suffix, and that `steps-value-analysis.md` is present and unmodified (fails — files don't exist yet). **→ SC-4**
+- [ ] 19. **GREEN (**sub-agent**).** Confirm both files are named exactly `vision-agent.md` and `visual-design-agent.md`; if any file carries a suffix, rename it to the canonical name. **→ SC-4**
+- [ ] 20. **GREEN doublecheck (**clean-room**).** Run the content-verification test; assert both names are exact with no suffix and `steps-value-analysis.md` is untouched. **→ SC-4**
+- [ ] 21. **Checkpoint commit (**inline**).** Commit the name-verification test (and any rename) as one atomic slice.
+
+#### Phase 4 VbC
+
+- [ ] 22. **VbC (**clean-room**).** Run `bash .opencode/tests-v2/test-2268-sc4-agent-names.sh`; assert the test passes, confirming both agent names are exact with no suffix and `steps-value-analysis.md` is unchanged. **→ SC-4**
 
 ---
 

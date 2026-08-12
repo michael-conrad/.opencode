@@ -3,6 +3,11 @@ plan_schema_version: 1
 issue: 2267
 title: "Replace no-op mergeability trigger with local merge-base check"
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
+lifecycle_events:
+  - timestamp: "2026-08-12T07:12:01Z"
+    event: plan_created
+    plan_path: ".opencode/.issues/2267/plan.md"
+    phase_count: 3
 ---
 
 # Plan — Issue 2267

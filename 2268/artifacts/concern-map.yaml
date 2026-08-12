@@ -1,47 +1,55 @@
 artifact_name: concern-map
 generated_at: 2026-08-12
 source: "Spec #2268 (spec.md)"
-content:
-  description: "Map of concerns to phases for adding two sub-agent cards"
-  phases:
-    - phase: 1
-      name: "Create vision-agent card"
-      concern: "Write .opencode/agents/vision-agent.md with exact frontmatter and body from the spec"
-      scs:
-        - SC-1
-      dependencies: []
-      dispatch: "item-level (per-SC)"
-      key_deliverables:
-        - ".opencode/agents/vision-agent.md created with exact spec content"
-    - phase: 2
-      name: "Create visual-design-agent card"
-      concern: "Write .opencode/agents/visual-design-agent.md with exact frontmatter and body from the spec"
-      scs:
-        - SC-2
-      dependencies: []
-      dispatch: "item-level (per-SC)"
-      key_deliverables:
-        - ".opencode/agents/visual-design-agent.md created with exact spec content"
-    - phase: 3
-      name: "Validate both agent cards"
-      concern: "Verify both cards are valid opencode sub-agent cards and names carry no suffix"
-      scs:
-        - SC-3
-        - SC-4
-      dependencies:
-        - "Phases 1 and 2 complete"
-      dispatch: "item-level (per-SC)"
-      key_deliverables:
-        - "Both files parse as valid sub-agent cards (frontmatter, mode: subagent, provider-prefixed model)"
-        - "Agent names exactly vision-agent and visual-design-agent (no suffix)"
-  concern_to_phase_mapping:
-    "Create vision-agent card": 1
-    "Create visual-design-agent card": 2
-    "Validate agent cards": 3
-  phase_independence:
-    description: "Phases 1 and 2 are independent and parallelizable. Phase 3 depends on both."
-    independent_phases:
-      - 1
-      - 2
-    prerequisite_phases: []
-    dependent_phase: 3
+description: "Map of concerns to phases for adding two sub-agent cards"
+phases:
+  - phase: 1
+    name: "Create vision-agent card"
+    concern: "Write .opencode/agents/vision-agent.md with exact frontmatter and body from the spec"
+    scs:
+      - SC-1
+    dependencies: []
+    dispatch: "item-level (per-SC)"
+    key_deliverables:
+      - ".opencode/agents/vision-agent.md created with exact spec content"
+  - phase: 2
+    name: "Create visual-design-agent card"
+    concern: "Write .opencode/agents/visual-design-agent.md with exact frontmatter and body from the spec"
+    scs:
+      - SC-2
+    dependencies: []
+    dispatch: "item-level (per-SC)"
+    key_deliverables:
+      - ".opencode/agents/visual-design-agent.md created with exact spec content"
+  - phase: 3
+    name: "Validate both agent cards"
+    concern: "Verify both cards are valid opencode sub-agent cards — frontmatter fields, mode: subagent, provider-prefixed model ID"
+    scs:
+      - SC-3
+    dependencies:
+      - "Phases 1 and 2 complete"
+    dispatch: "item-level (per-SC)"
+    key_deliverables:
+      - "Both files parse as valid sub-agent cards (frontmatter, mode: subagent, provider-prefixed model)"
+  - phase: 4
+    name: "Verify agent names"
+    concern: "Verify agent names are exactly vision-agent and visual-design-agent with no suffix"
+    scs:
+      - SC-4
+    dependencies:
+      - "Phases 1 and 2 complete"
+    dispatch: "item-level (per-SC)"
+    key_deliverables:
+      - "Agent names exactly vision-agent and visual-design-agent (no suffix)"
+concern_to_phase_mapping:
+  "Create vision-agent card": 1
+  "Create visual-design-agent card": 2
+  "Validate both agent cards": 3
+  "Verify agent names": 4
+phase_independence:
+  description: "Phases 1 and 2 are independent and parallelizable. Phases 3 and 4 depend on both."
+  independent_phases:
+    - 1
+    - 2
+  prerequisite_phases: []
+  dependent_phase: 3
