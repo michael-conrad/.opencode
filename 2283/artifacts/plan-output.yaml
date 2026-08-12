@@ -1,0 +1,18 @@
+# Plan output — issue #2283
+# Planner result from research task step 12
+
+domain: subissue-creation-at-branch-finishing
+engine: tamer
+plan_length: 3
+status: SOLVED_SATISFICING
+plan:
+  - run_p1()
+  - run_p2()
+  - run_p3()
+actions:
+  - name: run_p1
+    parameters: []
+  - name: run_p2
+    parameters: []
+  - name: run_p3
+    parameters: []

@@ -1,0 +1,33 @@
+# Solve output — issue #2283
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2283/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3)"
+  status: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+    phase_3: true
+  interpretation: "Goal state (all 3 phases complete) is satisfiable under the contract preconditions (Implies(phase_2, phase_1), Implies(phase_3, phase_2))."
+
+solve_check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2283/dependency-contract.yaml --state-path .opencode/.issues/2283/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+    phase_2: false
+    phase_3: false
+  interpretation: "Initial state analysis (all phases false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2283/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 3
+  plan:
+    - run_p1
+    - run_p2
+    - run_p3
+  interpretation: "Planner produced a 3-step sequential plan run_p1 -> run_p2 -> run_p3, enforcing the phase DAG: phase_1 (branch-finishing gate removal, SC-1/SC-2) first, phase_2 (behavioral enforcement test, SC-3) depends on phase_1, phase_3 (PR autoclose + plan-content protection, SC-4/SC-5) depends on phase_2."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING

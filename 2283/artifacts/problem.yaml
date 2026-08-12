@@ -1,0 +1,41 @@
+# Planning problem — issue #2283
+# Sub-issue creation at branch finishing; 3 phases, sequential ordering enforced by preconditions
+domain: subissue-creation-at-branch-finishing
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: run_p1
+    params: []
+    preconditions:
+      - not done(p1)
+    effects:
+      - done(p1)
+  - name: run_p2
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p2)
+    effects:
+      - done(p2)
+  - name: run_p3
+    params: []
+    preconditions:
+      - done(p2)
+      - not done(p3)
+    effects:
+      - done(p3)
+init: []
+goals:
+  - done(p1)
+  - done(p2)
+  - done(p3)
