@@ -29,3 +29,64 @@ content:
       skill_api: "NONE"
       task_api: "NONE"
       user_facing: "ADDITIVE — two new optional sub-agents become available"
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Create .opencode/agents/vision-agent.md — SC-1"
+    phase_2:
+      type: bool
+      description: "Create .opencode/agents/visual-design-agent.md — SC-2"
+    phase_3:
+      type: bool
+      description: "Validate both files are valid opencode sub-agent cards — SC-3"
+    phase_4:
+      type: bool
+      description: "Verify agent names are exactly vision-agent and visual-design-agent — SC-4"
+  preconditions:
+    - "z3.Implies(phase_3, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+    - "z3.Implies(phase_4, phase_1)"
+    - "z3.Implies(phase_4, phase_2)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/agents/vision-agent.md
+      scs:
+        - SC-1
+    phase_2:
+      files:
+        - .opencode/agents/visual-design-agent.md
+      scs:
+        - SC-2
+    phase_3:
+      files:
+        - .opencode/agents/vision-agent.md
+        - .opencode/agents/visual-design-agent.md
+      scs:
+        - SC-3
+    phase_4:
+      files:
+        - .opencode/agents/vision-agent.md
+        - .opencode/agents/visual-design-agent.md
+      scs:
+        - SC-4
+  edges:
+    - from: phase_1
+      to: phase_3
+      rationale: "SC-3 validity check requires vision-agent.md to exist (SC-1 output)."
+    - from: phase_2
+      to: phase_3
+      rationale: "SC-3 validity check requires visual-design-agent.md to exist (SC-2 output)."
+    - from: phase_1
+      to: phase_4
+      rationale: "SC-4 name check requires vision-agent.md to exist (SC-1 output)."
+    - from: phase_2
+      to: phase_4
+      rationale: "SC-4 name check requires visual-design-agent.md to exist (SC-2 output)."
+  notes:
+    - "Phases 1 and 2 are independent — disjoint files, no ordering dependency between them."
+    - "Phases 3 and 4 are validation phases that depend on both creation phases (SC-3 and SC-4 operate on both files)."
+    - "No structure.yaml exists for this issue; the phase decomposition is derived directly from the spec's SC-1..SC-4."
