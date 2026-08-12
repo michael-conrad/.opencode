@@ -169,6 +169,18 @@ Deleting a tracked file from the repository is a destructive operation equivalen
 A "why" question, a complaint about redundancy, or any interpretive inference is NEVER authorization to delete files. The agent MUST NOT run `git rm` or delete tracked files without both spec and authorization.
 
 
+### [critical-rules-PR-ORG] CRITICAL VIOLATION — Stacked PR Is the Only Valid Organization
+Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch with one commit per issue. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
+
+An authorization scope that halts before PR creation declares `pr_strategy: none`. An authorization scope that creates PRs declares `pr_strategy: stacked`. There is no third option.
+
+Bright-line companion:
+
+PR organization IS branch organization. Stacked PR IS the only valid organization.
+Every authorization scope declares exactly one strategy: stacked or none.
+Creating N branches for N issues IS a critical violation — Period.
+
+
 ### [critical-rules-XXX] CRITICAL VIOLATION — Dispatching SKILL.md to sub-agents — category error
 
 Dispatching SKILL.md content (the skill card) to a sub-agent via `task()` is a category error. The skill card contains orchestrator-level routing instructions (Trigger Dispatch Table, DISPATCH_GATE protocol, Invocation section, Orchestrator Entry Criteria) that a sub-agent cannot execute. Sub-agents cannot call `task()`, cannot follow Trigger Dispatch Tables, and cannot satisfy Orchestrator Entry Criteria. This rule is a direct consequence of the allocation-by-context-cost model: the skill card is small, necessary, routing-relevant metadata that the orchestrator must hold in its own context, while the task card is the execution procedure that the sub-agent's disposable context consumes. Sending the skill card to a sub-agent wastes sub-agent context on routing metadata the sub-agent cannot act on — the opposite of allocation-by-context-cost.
