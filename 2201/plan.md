@@ -5,6 +5,13 @@ title: "Create gb-cli skill for GitBucket CLI operations"
 authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 6
+dispatch:
+  - test-driven-development
+  - verification-before-completion
+  - audit
+  - finishing-a-development-branch
+  - git-workflow-pr
+  - completion-core
 ---
 
 # Implementation Plan — #2201 — Create gb-cli skill for GitBucket CLI operations
