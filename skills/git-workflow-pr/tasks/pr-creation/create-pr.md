@@ -318,6 +318,8 @@ If `mergeable` is `null` (mergeability computation not yet complete):
 2. **Conflict check:** If `base.sha` matches remote base tip but `mergeable` is still `null`, the PR may have a conflict that GitHub hasn't computed yet — proceed to Step 7.2.4.
 3. **Pending computation:** If neither stale base nor conflict is confirmed, the mergeability computation is still pending — proceed to Step 7.2.4.
 
+The `mergeable` field is advisory. Mergeability is authoritatively determined locally in Step 7.2.4 via `git merge-base --is-ancestor origin/<target> HEAD`; the result is reported as **verified-locally**.
+
 If `mergeable` is `false`: Report to user that the PR has a merge conflict. Include the conflicting files from `git diff origin/<target>...HEAD --name-only --diff-filter=U`.
 
 If `mergeable` is `true`: Confirm mergeability and proceed.
@@ -339,14 +341,19 @@ git push --force-with-lease origin HEAD:<branch_name>
 
 **Note:** Force push is authorized here because the PR is not yet merged and the branch has not been shared with other developers. The rebase ensures the PR is up-to-date with the latest base changes.
 
-#### Step 7.2.4: Trigger Mergeability Computation
+#### Step 7.2.4: Determine Mergeability Locally
 
-If `updated_at` equals `created_at` (PR has never been updated since creation), the mergeability computation may not have triggered. Trigger it by:
+Mergeability is authoritatively determined by the local ancestry check. Ensure the base ref is current, then run:
 
-1. **Comment method:** Add a comment to the PR via `github_add_issue_comment` with a no-op message (e.g., "Triggering mergeability check").
-2. **No-op push method (fallback):** If commenting is insufficient, push a no-op change: `git commit --allow-empty -m "trigger mergeability" && git push origin HEAD:<branch_name>`.
+```bash
+git fetch origin <target>
+git merge-base --is-ancestor origin/<target> HEAD
+```
 
-After triggering, wait 15 seconds and re-read the PR's `mergeable` field via `github_pull_request_read(method=get, pullNumber=<N>)`. If still `null`, report to user that mergeability computation is pending.
+- **Exit 0:** `origin/<target>` is an ancestor of `HEAD` — the PR is mergeable. Report **verified-locally**.
+- **Non-zero exit:** The branches have diverged — report a conflict. Include the conflicting files from `git diff origin/<target>...HEAD --name-only --diff-filter=U`.
+
+This is a purely local, read-only determination — no API mutation is used to trigger mergeability computation.
 
 #### Step 7.2.5: Report Mergeability Diagnosis
 
@@ -356,10 +363,10 @@ After triggering, wait 15 seconds and re-read the PR's `mergeable` field via `gi
 **Mergeability Diagnosis:**
 - State: open
 - Merged: false
-- Mergeable: true|false|null
+- Mergeable: true|false|null (advisory)
 - Base SHA match: yes|no (rebased if stale)
-- Computation triggered: yes|no (if updated_at == created_at)
-- Action required: <none|rebase needed|conflict resolution|wait for computation>
+- Mergeability: verified-locally (via `git merge-base --is-ancestor origin/<target> HEAD`)
+- Action required: <none|rebase needed|conflict resolution>
 ```
 
 This diagnosis is included in the executive summary report (Step 7.5).

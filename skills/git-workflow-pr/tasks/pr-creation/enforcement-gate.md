@@ -189,14 +189,14 @@ gh pr list --head <branch_name> --state open --json number,html_url
 For OPEN PRs, check `mergeable` attribute:
 - `True` / `"clean"` → Proceed
 - `False` / `"dirty"` → Classify and resolve conflicts per `conflict-resolution` skill
-- `None` / `"unknown"` → Wait and retry, or check locally
+- `None` / `"unknown"` → Wait and retry, or determine mergeability locally via `git merge-base --is-ancestor origin/<target> HEAD` (exit 0 = mergeable)
 
 **For AI-objective conflicts (imports, whitespace, additive):** Auto-resolve.
 **For AI-subjective conflicts (logical, architectural, intent):** HALT and request developer input.
 
 ### Step 1.5e: Post-Creation Mergeability Gate Reference
 
-The pre-creation gate acknowledges that a **post-creation mergeability check** runs after PR creation (see `pr-creation/create-pr.md` Step 3). This post-creation gate verifies the PR transitions to a mergeable state and does NOT remain in a terminal "PR is open" status. SC-5 (no terminal "PR is open" status) is enforced at the post-creation gate, not at this pre-creation gate.
+The pre-creation gate acknowledges that a **post-creation mergeability check** runs after PR creation (see `pr-creation/create-pr.md` Step 7.2.4). This post-creation gate verifies the PR transitions to a mergeable state and does NOT remain in a terminal "PR is open" status. SC-5 (no terminal "PR is open" status) is enforced at the post-creation gate, not at this pre-creation gate.
 
 **Pre-creation gate responsibility:** Ensure all pre-conditions pass so the post-creation mergeability check has a valid starting state.
 **Post-creation gate responsibility:** Verify the PR becomes mergeable and report status.
