@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "The no-op comment trigger (github_add_issue_comment with a no-op message) SHALL be removed from create-pr.md Step 7.2.4"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The empty-push fallback (git commit --allow-empty -m \"trigger mergeability\" && git push) SHALL be removed from create-pr.md Step 7.2.4"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Step 7.2.4 SHALL use the authoritative local check git merge-base --is-ancestor origin/<target> HEAD (exit 0 = mergeable) as the mergeability determination, and the mergeable: null path (Step 7.2.2) and diagnosis output (Step 7.2.5) SHALL report verified-locally instead of the removed trigger, with the 7.2.x step numbers kept stable"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "enforcement-gate.md Step 1.5d/e SHALL be aligned so the pre-creation None/unknown path explicitly names the local merge-base check and the Step 1.5e cross-reference to the post-creation check remains valid"
+    evidence_type: "string"
+    plan_item: 4
