@@ -107,7 +107,10 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] No stale worktrees remaining from the merged branch
 
 ### Sub-Issue Linkage Verification
-- [ ] If the plan has multiple phases, verify that `get_sub_issues` count on the plan issue matches the number of phases in the plan body. If counts don't match, run `issue-operations --task link-sub-issue` to create missing linkages before proceeding to review-prep
+- [ ] Sub-issues are NEVER created at branch-finishing time — plan-phase sub-issues are created before implementation only,
+  never retrospectively at finishing
+- [ ] If plan-phase sub-issues exist, treat them as read-only references — do NOT create, link, or modify them at finishing
+  time
 ```
 
 ## What Skills MUST Check

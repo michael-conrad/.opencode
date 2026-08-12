@@ -42,6 +42,7 @@ Arbiter role for the verification-audit chain. Reads all upstream artifacts — 
 - `next_step` determined: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
 - `judgment.yaml` written to `./tmp/{issue-N}/artifacts/verification-audit/judgment.yaml`
 - No re-evaluation, no new evidence, no overruling of upstream roles
+- Ticket status checked after PASS verdict: current status read via `./.opencode/tools/local-issues read --number <repo>#<N>`; review/PR-ready label or status transition applied via `./.opencode/tools/local-issues update --number <repo>#<N> --labels approved-for-review` only when the ticket is still in a pre-verification state
 
 ## Procedure
 
@@ -219,7 +220,18 @@ Write the assembled judgment structure to `./tmp/{issue-N}/artifacts/verificatio
 - [ ] 2. Write `judgment.yaml` with the complete judgment structure
 - [ ] 3. Verify the file was written and is non-empty
 
-### Step 8: Return Frugal Result Contract
+### Step 8: Ticket Status Reconciliation
+
+After an overall PASS verdict, BEFORE reporting the PASS verdict, read the ticket's current status and update it to reflect the verified-complete state if an update is warranted. **The read is a mandatory precondition for any update. You MUST perform the `local-issues read` first and record the current status and labels from its output before any decision — you may NOT assume, recall, or infer the ticket's status from earlier context, memory, or conversation. If you have not just performed a successful `local-issues read` in this step, you MUST NOT perform an update, and you MUST NOT report completion.**
+
+> **MANDATORY — do NOT skip.** This step runs via the `local-issues` CLI (`.opencode/tools/local-issues`) against the local `.issues/` worktree. It does NOT require a git remote, GitHub credentials, or a remote issue tracker. A local-only repo, a test environment, or a missing/absent remote is NOT a valid reason to skip the status read and update. If the ticket is in a pre-verification state and the verdict is PASS, you MUST perform BOTH the read and the update. Skipping this step makes the audit result INVALID (see Completion Dependency Chain).
+
+- [ ] 1. **Read current ticket status — MUST run first** — Execute the `local-issues` read command now and base the update decision ONLY on its output: `./.opencode/tools/local-issues read --number <repo>#<N>` (the `--number` flag is required; the qualified `<repo>#<N>` form is accepted for reads, and a bare `--number <N>` also works when the repo qualifier is unknown). Capture and record the current `status` field and the labels array from the actual command output.
+- [ ] 2. **Evaluate whether an update is warranted** — Using ONLY the status and labels read in step 1, an update is warranted when the ticket is still in a pre-verification state: `status: open` combined with the absence of a review/PR-ready marker (e.g., no `approved-for-review`, `approved-for-pr`, or equivalent review/PR-ready label in the labels array).
+- [ ] 3. **Update only when warranted and PASS** — When `overall_verdict == PASS` AND step 2 determined an update is warranted, transition the ticket to the verified-complete state: apply the review/PR-ready label (e.g., `approved-for-review`) via the `local-issues` CLI: `./.opencode/tools/local-issues update --number <repo>#<N> --labels approved-for-review` (the `--number` flag is required and mutations MUST use the qualified `{repo}#{N}` form). Confirm the update succeeded (exit 0, `updated: true`).
+- [ ] 4. **Skip when already correct** — When the read in step 1 shows the ticket already carries the review/PR-ready marker, or `overall_verdict != PASS`, do NOT update the ticket status. **An already-present review/PR-ready label is a skip condition — do NOT re-apply it.** A FAIL verdict leaves the ticket in its current state pending remediation. When skipping, record the reason in the result contract, citing the label observed in the step 1 read.
+
+### Step 9: Return Frugal Result Contract
 
 Return only routing-significant data:
 
@@ -231,6 +243,9 @@ overall_verdict: "PASS | FAIL"
 next_step: "proceed | remediate then re-audit"
 all_criteria_pass: false | true
 remediation_required: false | true
+status_checked: false | true
+status_updated: false | true
+ticket_status: "<current ticket status or label state>"
 ```
 
 ## Result Contract
@@ -243,6 +258,9 @@ overall_verdict: "PASS | FAIL"
 next_step: "proceed | remediate then re-audit"
 all_criteria_pass: false | true
 remediation_required: false | true
+status_checked: false | true
+status_updated: false | true
+ticket_status: "<current ticket status or label state>"
 ```
 
 ## Error Handling
@@ -277,7 +295,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 5. Compute Aggregate Judgment → INVALID if skipped
 - [ ] 6. Assemble judgment.yaml → INVALID if skipped
 - [ ] 7. Write judgment.yaml → INVALID if skipped
-- [ ] 8. Return Frugal Result Contract → INVALID if skipped
+- [ ] 8. Ticket Status Reconciliation → INVALID if skipped
+- [ ] 9. Return Frugal Result Contract → INVALID if skipped
 
 ## Cross-References
 

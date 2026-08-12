@@ -28,6 +28,7 @@ When the agent needs to create a pull request, squash commits to a single commit
    - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: {branch_name}, spec_summary: {spec_summary}, is_release: {is_release}"`
    - Context: `{branch_name, spec_summary, is_release}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+   - On completion, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Step 9 Ticket Status Reconciliation in `tasks/pr-creation.md`).
 
 ### Prepare for review
 
@@ -64,6 +65,7 @@ When the agent needs to run idempotent completion steps to ensure mandatory chec
    - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: {workflow_state}"`
    - Context: `{workflow_state}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+   - After the completion summary is produced, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Ticket Status Reconciliation in `tasks/completion.md`).
 
 ## Cross-References
 

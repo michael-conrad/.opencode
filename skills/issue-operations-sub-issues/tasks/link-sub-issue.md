@@ -59,9 +59,9 @@ Check parent issue comments for structured sub-issue list comments.
 **Local platform (sub-skill implementation):**
 Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M, type: "links"}`.
 
-### Step 3: Extract Phase Prose from Plan Body
+### Step 3: Reference Plan File (Metadata Only)
 
-Read the full plan issue body and locate the section for the target phase. Extract all prose that a sub-agent needs to implement this phase independently.
+Sub-issue bodies are metadata-only: phase name/description plus the local plan file path. Plan phase prose (Field/Value tables, Context YAML blocks, Procedure steps) lives ONLY in the local `.issues/{M}/plan.md` spec folder and MUST NEVER be copied into public sub-issue bodies.
 
 ### Step 4: Create Sub-Issue (Platform Routing)
 
@@ -80,18 +80,18 @@ sub_issue = issue-operations -> update-issue (
     owner=<github.owner>,
     repo=<github.repo>,
     title=f"[Task: #{M}] {phase_description}",
-    body=f"**Parent Plan:** #{M}\n\n{phase_prose}",
+    body=f"**Phase:** {phase_description} — plan file: `.issues/{M}/plan.md`",
     labels=["task"]
 )
 ```
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-gb issue create -t "[Task: #<M>] <phase_description>" -R <github.owner>/<github.repo> --body "**Parent Plan:** #<M>\n\n<phase_prose>" --label task
+gb issue create -t "[Task: #<M>] <phase_description>" -R <github.owner>/<github.repo> --body "**Phase:** <phase_description> — plan file: \`.issues/<M>/plan.md\`" --label task
 ```
 
 **Local platform (sub-skill implementation):**
-Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: #<M>] <phase_description>", body: "**Parent Plan:** #<M>\n\n<phase_prose>", labels: ["task"]}`.
+Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: #<M>] <phase_description>", body: "**Phase:** <phase_description> — plan file: \`.issues/<M>/plan.md\`", labels: ["task"]}`.
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
 
