@@ -1,0 +1,30 @@
+spec_path: .opencode/.issues/2267/spec.md
+issue_number: 2267
+repo: .opencode
+approval_status: approved
+approval_label: approved-for-for_pr
+sc_count: 4
+sc_ids:
+- SC-1
+- SC-2
+- SC-3
+- SC-4
+artifact_presence:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+scope_boundary_findings:
+- file: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+  exists: true
+- file: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+  exists: true
+- file: .opencode/skills/git-workflow-pr/tasks/review-prep/push-and-cleanup.md
+  exists: true
+notes:
+- All 7 analytical artifacts are missing; backfill task required before research/create.
+- Spec defines 4 success criteria (SC-1 through SC-4), all string evidence type.
+- Scope is limited to two task files (create-pr.md, enforcement-gate.md); push-and-cleanup.md referenced only as out-of-scope.
