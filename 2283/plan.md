@@ -48,7 +48,7 @@ These steps run once before any phase begins.
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
 | 1 — Branch-finishing gate removal | `test-driven-development` | `red` | `.opencode/skills/finishing-a-development-branch/tasks/checklist.md`, `operating-protocol.md` | SC-1, SC-2 | — |
-| 2 — Behavioral enforcement | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/` (new scenario script) | SC-3 | 1 |
+| 2 — Behavioral enforcement | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2283-sc3-no-subissue-creation.sh` (new) | SC-3 | 1 |
 | 3 — PR autoclose + plan-content protection | `test-driven-development` | `red` | `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md`, `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` | SC-4, SC-5 | 2 |
 
 ---
@@ -84,7 +84,7 @@ These steps run once before any phase begins.
 | Depends On | 1 |
 
 **Context:**
-- files_to_modify: `.opencode/tests-v2/behaviors/<scenario>.sh` (new artifact-only generator)
+- files_to_modify: `.opencode/tests-v2/behaviors/2283-sc3-no-subissue-creation.sh` (new artifact-only generator)
 - sc_ids: SC-3
 - evidence_type: behavioral
 - scenario: agent running the branch-finishing checklist on a fully-implemented multi-phase plan creates zero sub-issues — clean-room `session.yaml` stderr confirms zero `link-sub-issue` / sub-issue creation calls

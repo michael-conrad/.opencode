@@ -3,7 +3,7 @@
 **Concern:** Add a behavioral enforcement test proving an agent running the branch-finishing checklist on a fully-implemented multi-phase plan creates zero sub-issues (SC-3).
 
 **Files:**
-- `.opencode/tests-v2/behaviors/<scenario>.sh` (new artifact-only generator)
+- `.opencode/tests-v2/behaviors/2283-sc3-no-subissue-creation.sh` (new artifact-only generator)
 - `.opencode/tests-v2/with-test-home` (invoked for isolation, unchanged)
 - `tmp/behavioral-evidence-<scenario>-.../session.yaml` (generated artifacts)
 
