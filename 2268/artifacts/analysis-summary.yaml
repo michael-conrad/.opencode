@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2268/spec.md
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 4
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+artifact_presence:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+scope_boundary_findings:
+  - target: .opencode/agents/vision-agent.md
+    exists: false
+    note: new deliverable per SC-1; directory .opencode/agents/ exists
+  - target: .opencode/agents/visual-design-agent.md
+    exists: false
+    note: new deliverable per SC-2; directory .opencode/agents/ exists
+  - target: .opencode/agents/
+    exists: true
+    note: contains existing steps-value-analysis.md; no conflict with new files
