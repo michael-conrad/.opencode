@@ -121,7 +121,7 @@ git rebase origin/<target>
 
 ```python
 sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
-autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
+autoclose_issues = [<parent>]  <!-- Sub-issues are NEVER swept into autoclose (SC-4 #2283) — only the parent issue autocloses on PR merge. Sub-issues that exist for other reasons (tracking, pre-implementation) must not be closed by PR merge. -->
 ```
 
 **Scope-dependent PR strategy:**
@@ -398,7 +398,7 @@ This diagnosis is included in the executive summary report (Step 7.5).
 | Spec Type | PR Body Format |
 | -- | -- |
 | Single-task | `Fixes #<parent>` (or `Fixes owner/repo#<parent>` for cross-repo) |
-| Multi-task | `Fixes #<parent>` AND `Fixes #<child>` for each sub-issue (use `owner/repo#N` for cross-repo) |
+| Multi-task | `Fixes #<parent>` AND `Implements #<child>` for each sub-issue (use `owner/repo#N` for cross-repo) |
 | Work | `## Work Items\n\n#<issue1>\n#<issue2>\n\nFixes #<parent1>\nFixes owner/repo#<child1>` |
 
 ### Common Issues
