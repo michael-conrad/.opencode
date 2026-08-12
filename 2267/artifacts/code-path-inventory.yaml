@@ -1,0 +1,24 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2267
+generated_at: "2026-08-12T02:30:00Z"
+code_path_inventory:
+  phases:
+    - phase: "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+      files:
+        - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+          reason: Primary file containing the no-op mergeability trigger mechanism in Step 7.2.4
+          changes: Remove github_add_issue_comment no-op trigger and git commit --allow-empty empty-push fallback; replace with git merge-base --is-ancestor origin/<target> HEAD; re-route Step 7.2.2 mergeable:null path and Step 7.2.5 diagnosis to verified-locally
+      new_files: []
+    - phase: "Phase 2: Align enforcement-gate.md pre-creation gate"
+      files:
+        - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+          reason: Pre-creation gate that must align with the post-creation mergeability check
+          changes: Align Step 1.5d None/unknown path to explicitly name the local merge-base check; verify Step 1.5e cross-reference to the post-creation check remains valid
+      new_files: []
+    - phase: "Phase 3: Behavioral enforcement tests"
+      files:
+        - path: .opencode/tests-v2/behaviors/
+          reason: Behavioral enforcement test directory for agent behavior verification
+          changes: Add behavioral tests asserting the agent no longer posts a trigger comment and instead reports verified-locally
+      new_files:
+        - path: .opencode/tests-v2/behaviors/git-workflow-pr-no-op-trigger.sh
+          purpose: Behavioral enforcement test verifying agent does not post a no-op mergeability trigger comment and reports verified-locally

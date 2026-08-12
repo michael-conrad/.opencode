@@ -1,0 +1,31 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2267
+generated_at: "2026-08-12T02:30:00Z"
+testability_assessment:
+  phases:
+    - phase: "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+      test_strategy: string
+      key_test_scenarios:
+        - "SC-1: grep create-pr.md Step 7.2.4 for github_add_issue_comment — must be absent"
+        - "SC-2: grep create-pr.md Step 7.2.4 for --allow-empty — must be absent"
+        - "SC-3: grep create-pr.md for merge-base --is-ancestor — present in Step 7.2.4; grep for verified-locally — present in Step 7.2.2/7.2.5; grep for 'Computation triggered' — absent"
+      testability_concerns:
+        - "String evidence only — no behavioral verification of agent actions at this phase"
+        - "SC-3 requires both presence (merge-base, verified-locally) and absence (Computation triggered) checks"
+        - "Step 7.2.x numbers must stay stable per SC-3"
+    - phase: "Phase 2: Align enforcement-gate.md pre-creation gate"
+      test_strategy: string
+      key_test_scenarios:
+        - "SC-4: grep enforcement-gate.md Step 1.5d for merge-base — present; grep Step 1.5e for the post-creation check reference — present and valid"
+      testability_concerns:
+        - "String evidence only — verifies file content alignment, not agent behavior"
+        - "Step 1.5e cross-reference validity requires checking the referenced location exists"
+    - phase: "Phase 3: Behavioral enforcement tests"
+      test_strategy: behavioral
+      key_test_scenarios:
+        - "Behavioral: opencode run with PR-creation prompt — assert agent does NOT post a no-op trigger comment (github_add_issue_comment with no-op message absent from stderr)"
+        - "Behavioral: opencode run with PR-creation prompt — assert agent reports verified-locally instead of the removed trigger"
+      testability_concerns:
+        - "Behavioral evidence required — actual opencode run against real AI model"
+        - "Behavioral test timeout risk — may need increased timeout"
+        - "Model availability dependency — test requires a working AI model"
+        - "Behavioral tests must not be weakened to structural/string evidence"

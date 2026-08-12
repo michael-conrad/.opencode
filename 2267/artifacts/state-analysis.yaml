@@ -1,0 +1,38 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2267
+generated_at: "2026-08-12T02:30:00Z"
+state_analysis:
+  phases:
+    - phase: "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+      state_transitions:
+        - from: "Step 7.2.4 posts a no-op comment via github_add_issue_comment to trigger mergeability computation"
+          to: "Step 7.2.4 runs git merge-base --is-ancestor origin/<target> HEAD as the authoritative local check"
+          trigger: Remove no-op comment trigger and empty-push fallback; replace with local ancestry test
+          invariant: Exit 0 = target tip is ancestor of PR head (mergeable); non-zero = divergence (report conflict)
+        - from: "Step 7.2.2 mergeable:null path proceeds to the trigger mechanism (Step 7.2.4)"
+          to: "Step 7.2.2 mergeable:null path reports verified-locally after the local merge-base check"
+          trigger: Re-route the null path to the local ancestry test
+          invariant: Conflict detection preserved via git diff origin/<target>...HEAD --name-only --diff-filter=U on non-zero exit
+        - from: "Step 7.2.5 diagnosis includes 'Computation triggered: yes|no' line"
+          to: "Step 7.2.5 diagnosis reports verified-locally and drops the 'Computation triggered' line"
+          trigger: Update diagnosis output to reflect the removed trigger mechanism
+          invariant: Executive summary no longer references a computation trigger that no longer exists
+    - phase: "Phase 2: Align enforcement-gate.md pre-creation gate"
+      state_transitions:
+        - from: "Step 1.5d None/unknown path says 'Wait and retry, or check locally'"
+          to: "Step 1.5d None/unknown path explicitly names the local merge-base check"
+          trigger: Align pre-creation gate with the post-creation local check
+          invariant: Pre-creation and post-creation gates agree on the mergeability determination method
+        - from: "Step 1.5e cross-reference to the post-creation check"
+          to: "Step 1.5e cross-reference to the post-creation check remains valid"
+          trigger: Verify the cross-reference after Phase 1 changes
+          invariant: The reference points to the correct post-creation check location
+    - phase: "Phase 3: Behavioral enforcement tests"
+      state_transitions:
+        - from: "No behavioral test for the no-op trigger removal"
+          to: "Behavioral test exists and passes asserting the agent does not post a trigger comment"
+          trigger: Create and run behavioral enforcement test
+          invariant: Test verifies agent behavior, not just file content
+        - from: "No behavioral test for verified-locally reporting"
+          to: "Behavioral test exists and passes asserting the agent reports verified-locally"
+          trigger: Create and run behavioral enforcement test
+          invariant: Test verifies the agent reports verified-locally instead of the removed trigger

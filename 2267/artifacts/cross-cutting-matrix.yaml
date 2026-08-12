@@ -1,0 +1,27 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2267
+generated_at: "2026-08-12T02:30:00Z"
+cross_cutting_matrix:
+  concerns:
+    - concern: Local merge-base ancestry check as authoritative mergeability determination
+      affects_phases:
+        - "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+        - "Phase 2: Align enforcement-gate.md pre-creation gate"
+      description: The local git merge-base --is-ancestor origin/<target> HEAD check is the central replacement mechanism. Phase 1 wires it into create-pr.md Step 7.2.4, Phase 2 aligns the pre-creation gate to reference it.
+      coordination_required: true
+    - concern: verified-locally reporting consistency
+      affects_phases:
+        - "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+        - "Phase 2: Align enforcement-gate.md pre-creation gate"
+      description: Both the mergeable:null path (Step 7.2.2) and the diagnosis output (Step 7.2.5) must report verified-locally, and the pre-creation gate must name the same local check. Consistent terminology across both files.
+      coordination_required: true
+    - concern: Step number stability (7.2.x)
+      affects_phases:
+        - "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+        - "Phase 2: Align enforcement-gate.md pre-creation gate"
+      description: SC-3/SC-4 require the 7.2.x step numbers to stay stable to prevent cross-reference drift. Phase 1 keeps step numbers, Phase 2 verifies the Step 1.5e reference remains valid.
+      coordination_required: true
+    - concern: Behavioral test integrity
+      affects_phases:
+        - "Phase 3: Behavioral enforcement tests"
+      description: Behavioral tests must assert agent behavior (no trigger comment, verified-locally reporting) — not just file content. Must not be weakened to structural/string evidence.
+      coordination_required: false

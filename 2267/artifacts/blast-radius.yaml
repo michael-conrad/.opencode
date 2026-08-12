@@ -1,0 +1,43 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2267
+generated_at: "2026-08-12T02:30:00Z"
+blast_radius:
+  phases:
+    - phase: "Phase 1: Remove no-op mergeability trigger from create-pr.md"
+      affected_components:
+        - component: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+          impact: direct
+          description: Remove no-op comment trigger (github_add_issue_comment) and empty-push fallback (git commit --allow-empty) from Step 7.2.4
+          ripple_effects:
+            - Agents no longer post useless "Triggering mergeability check" comments on new PRs
+            - No more pointless empty commits created by the --allow-empty push fallback
+            - PR history stays clean — no clutter for humans to clean up
+        - component: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md Step 7.2.2
+          impact: direct
+          description: Re-route mergeable:null path to report verified-locally instead of proceeding to the removed trigger
+          ripple_effects:
+            - The null path now runs the local merge-base ancestry check
+            - Conflict detection preserved via git diff origin/<target>...HEAD --diff-filter=U on non-zero exit
+        - component: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md Step 7.2.5
+          impact: direct
+          description: Diagnosis output reports verified-locally and drops the "Computation triggered: yes|no" line
+          ripple_effects:
+            - Executive summary no longer references a computation trigger that no longer exists
+      risk_level: low
+    - phase: "Phase 2: Align enforcement-gate.md pre-creation gate"
+      affected_components:
+        - component: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+          impact: direct
+          description: Align Step 1.5d/e so the pre-creation None/unknown path explicitly names the local merge-base check and the Step 1.5e cross-reference to the post-creation check remains valid
+          ripple_effects:
+            - Pre-creation gate and post-creation gate stay consistent on mergeability determination method
+            - Step 1.5e cross-reference to create-pr.md post-creation check remains valid
+      risk_level: low
+    - phase: "Phase 3: Behavioral enforcement tests"
+      affected_components:
+        - component: .opencode/tests-v2/behaviors/
+          impact: direct
+          description: Add behavioral enforcement tests asserting the agent no longer posts a trigger comment and instead reports verified-locally
+          ripple_effects:
+            - CI pipeline runs new behavioral tests
+            - Tests verify agent behavior, not just file content
+      risk_level: low

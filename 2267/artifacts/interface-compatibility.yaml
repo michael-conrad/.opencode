@@ -1,0 +1,47 @@
+spec: https://github.com/michael-conrad/.opencode/issues/2267
+generated_at: "2026-08-12T02:30:00Z"
+interface_compatibility:
+  interfaces:
+    - name: create-pr.md Step 7.2.4 (mergeability trigger mechanism)
+      status: modified
+      compatibility: breaking_change
+      consumers:
+        - Agents executing the PR-creation procedure in git-workflow-pr
+        - enforcement-gate.md Step 1.5e cross-reference to the post-creation check
+        - Note: github_add_issue_comment no-op trigger and git commit --allow-empty fallback removed; replaced with git merge-base --is-ancestor origin/<target> HEAD
+    - name: create-pr.md Step 7.2.2 (mergeable:null path)
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - Agents diagnosing mergeable:null status
+        - Note: Re-routed to report verified-locally instead of proceeding to the removed trigger; conflict detection preserved
+    - name: create-pr.md Step 7.2.5 (mergeability diagnosis output)
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - Executive summary report (Step 7.5)
+        - Note: Reports verified-locally, drops "Computation triggered: yes|no" line
+    - name: enforcement-gate.md Step 1.5d (pre-creation None/unknown path)
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - Agents running the pre-creation gate
+        - Note: Explicitly names the local merge-base check
+    - name: enforcement-gate.md Step 1.5e (post-creation gate reference)
+      status: modified
+      compatibility: backward_compatible
+      consumers:
+        - Agents running the pre-creation gate
+        - Note: Cross-reference to the post-creation check remains valid
+    - name: review-prep/push-and-cleanup.md:178 (merge-base check)
+      status: unchanged
+      compatibility: backward_compatible
+      consumers:
+        - Agents running review-prep push-and-cleanup
+        - Note: Out of scope — different semantics (base-SHA equality check, not ancestry test)
+    - name: git-workflow-pr/SKILL.md (Trigger Dispatch Table)
+      status: unchanged
+      compatibility: backward_compatible
+      consumers:
+        - All orchestrators dispatching git-workflow-pr tasks
+        - Note: Out of scope — only the two task files change
