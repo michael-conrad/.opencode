@@ -1,0 +1,102 @@
+# Structure artifact — issue #2272
+# Phase decomposition, dependency DAG, skill+task selection
+# Ticket status-check-and-update reconciliation for audit + git-workflow-pr skills
+
+phases:
+  - id: phase_1
+    name: "audit skill status reconciliation"
+    concern: "After an implementation audit returns a PASS verdict, the agent checks the ticket's current status and updates it to reflect the verified-complete state if warranted"
+    scs:
+      - SC-1
+    items:
+      - id: item-01
+        sc: SC-1
+        description: "audit skill workflow gains a status-check-and-update step after PASS verdict (ticket moved from open/approved-for-implementation to review/PR-ready when warranted)"
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_2
+    name: "git-workflow-pr status reconciliation"
+    concern: "When an implementation-for-PR workflow completes, the agent checks the ticket's current status and updates it to reflect the PR-created state if warranted"
+    scs:
+      - SC-2
+    items:
+      - id: item-02
+        sc: SC-2
+        description: "git-workflow-pr skill workflows gain a status-check-and-update step on completion (ticket transitioned to PR-created/for_pr state when warranted)"
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_3
+    name: "shared status-check discipline and documentation"
+    concern: "The agent performs a status check (reads current ticket status) before reporting completion of an implementation audit or implementation-for-PR, skipping the update only when the status is already correct; and the behavior is documented in the audit and git-workflow-pr skills so the agent is instructed to perform it"
+    scs:
+      - SC-3
+      - SC-4
+    items:
+      - id: item-03
+        sc: SC-3
+        description: "behavioral test asserting agent reads current ticket status before reporting completion in both audit and implementation-for-PR workflows, skipping the update only when already correct"
+      - id: item-04
+        sc: SC-4
+        description: "document status-check-and-update in audit and git-workflow-pr skills; add cross-cutting guideline only if per-skill mandates are insufficient"
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_3
+      rationale: "SC-3 (status check before reporting completion) behavioral test for the audit path requires the phase_1 status-check-and-update step in the audit skill; SC-4 documentation references the audit skill workflow"
+    - from: phase_2
+      to: phase_3
+      rationale: "SC-3 behavioral test for the implementation-for-PR path requires the phase_2 status-check-and-update step in git-workflow-pr; SC-4 documentation references the git-workflow-pr workflow"
+
+triplet_colocation:
+  status: VERIFIED
+  notes: "All SC-1..4 have RED/GREEN/COMMIT steps assigned to a single phase (SC-1 -> phase_1, SC-2 -> phase_2, SC-3 + SC-4 -> phase_3). The interface-compatibility dependency_contract lists SC-3 and SC-4 in both phase_1 and phase_2 (shared pattern), which would be a TRIPLET_SPLIT; resolved by anchoring each shared SC's triplet in phase_3 only."
+
+cross_phase_dependency:
+  status: VERIFIED
+  notes: "phase_1 RED (SC-1) and phase_2 RED (SC-2) depend on no output from later phases. phase_3 RED (SC-3) depends on status-check-and-update steps committed in phase_1 (audit) and phase_2 (git-workflow-pr), both Y < X — no forward RED dependency."
+
+skill_task_selection:
+  - phase: phase_1
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-1"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_2
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-2"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_3
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-3 and SC-4"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"

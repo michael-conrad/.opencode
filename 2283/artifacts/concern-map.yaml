@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2283/spec.md
+concerns:
+  - id: branch_finishing_gate
+    name: Branch-Finishing Sub-Issue Gate Removal
+    description: "Remove/rewrite the Sub-Issue Linkage Verification section in checklist.md and the sub-issue closure readiness gates in operating-protocol.md so branch finishing NEVER creates or verifies plan-phase sub-issues."
+    phase: 1
+    scs:
+      - SC-1
+      - SC-2
+  - id: behavioral_enforcement
+    name: Behavioral Enforcement Test
+    description: "Add a behavioral test proving an agent running the branch-finishing checklist on an implemented multi-phase plan creates zero sub-issues."
+    phase: 2
+    scs:
+      - SC-3
+  - id: pr_autoclose
+    name: PR Merge Autoclose Protection
+    description: "Fix create-pr.md autoclose so plan-phase sub-issues are not auto-closed on PR merge."
+    phase: 3
+    scs:
+      - SC-4
+  - id: plan_content_protection
+    name: Plan Content Confidentiality
+    description: "Prevent plan phase prose from being posted to public issue bodies; plan files live only in the local .issues/{N}/ spec folder."
+    phase: 3
+    scs:
+      - SC-5
+phase_boundaries:
+  phase_1:
+    entry: spec approved
+    exit: checklist.md has no link-sub-issue creation mandate at finishing time; operating-protocol.md has no sub-issue closure readiness gate
+    scs: [SC-1, SC-2]
+  phase_2:
+    entry: phase 1 complete
+    exit: behavioral test exists and passes proving zero sub-issue creation
+    scs: [SC-3]
+  phase_3:
+    entry: phase 2 complete
+    exit: create-pr.md does not sweep plan-phase sub-issues into autoclose; plan content not posted to public issue bodies
+    scs: [SC-4, SC-5]

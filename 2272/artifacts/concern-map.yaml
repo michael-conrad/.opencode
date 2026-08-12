@@ -1,0 +1,28 @@
+# Concern map — issue #2272
+# Concern boundaries and separation per phase
+
+## Phase 1: audit skill status reconciliation (concern: verified-complete state)
+concerns:
+  - Status check: read current ticket status before reporting audit completion.
+  - Status update: transition ticket to review/PR-ready state when audit PASS warrants it.
+  - Skip logic: only skip the update when the status is already correct.
+boundary:
+  - Phase 1 touches ONLY the audit skill card and its task files. No git-workflow-pr changes.
+
+## Phase 2: git-workflow-pr status reconciliation (concern: PR-created state)
+concerns:
+  - Status check: read current ticket status before reporting PR workflow completion.
+  - Status update: transition ticket to PR-created state when PR creation warrants it.
+  - Skip logic: only skip the update when the status is already correct.
+boundary:
+  - Phase 2 touches ONLY the git-workflow-pr skill card and its task files. No audit skill changes.
+
+## Phase 3: cross-cutting guideline (concern: shared status-reconciliation rule)
+concerns:
+  - Determine whether a cross-cutting guideline is needed to cover both skills uniformly.
+  - If needed, add the rule to .opencode/guidelines/.
+boundary:
+  - Phase 3 is conditional — only fires if Phases 1 and 2 do not fully cover the behavior.
+separation:
+  - Phase 1 = audit skill, Phase 2 = git-workflow-pr skill, Phase 3 = guidelines (conditional).
+    Cleanly separated by file set; no overlap.

@@ -1,0 +1,48 @@
+# State analysis — issue #2272
+# State machine transitions per phase
+
+## Phase 1 state machine (audit skill status reconciliation)
+
+states:
+  - AUDIT_RUNNING: verification-audit 4-step DiMo chain in progress.
+  - AUDIT_PASS: arbiter writes judgment.yaml with PASS verdict.
+  - STATUS_CHECKED: agent reads current ticket status before reporting completion.
+  - STATUS_UPDATED: ticket transitioned to review/PR-ready state (label/status applied).
+  - COMPLETED: audit completion reported with reconciled ticket status.
+
+transitions:
+  - AUDIT_RUNNING -> AUDIT_PASS : arbiter returns PASS verdict (item-01)
+  - AUDIT_PASS -> STATUS_CHECKED : agent reads current ticket status (item-02)
+  - STATUS_CHECKED -> STATUS_UPDATED : update warranted, apply review/PR-ready label or transition status (item-03)
+  - STATUS_CHECKED -> COMPLETED : status already correct, skip update (item-03 skip path)
+  - STATUS_UPDATED -> COMPLETED : report completion with reconciled status (item-04)
+
+## Phase 2 state machine (git-workflow-pr status reconciliation)
+
+states:
+  - PR_WORKFLOW_RUNNING: PR creation / post-implementation workflow in progress.
+  - PR_CREATED: PR created with structured body and compare URL.
+  - STATUS_CHECKED: agent reads current ticket status before reporting completion.
+  - STATUS_UPDATED: ticket transitioned to PR-created state (label/status applied).
+  - COMPLETED: PR workflow completion reported with reconciled ticket status.
+
+transitions:
+  - PR_WORKFLOW_RUNNING -> PR_CREATED : pr-creation task creates PR (item-01)
+  - PR_CREATED -> STATUS_CHECKED : agent reads current ticket status (item-02)
+  - STATUS_CHECKED -> STATUS_UPDATED : update warranted, apply PR-created label or transition status (item-03)
+  - STATUS_CHECKED -> COMPLETED : status already correct, skip update (item-03 skip path)
+  - STATUS_UPDATED -> COMPLETED : report completion with reconciled status (item-04)
+
+## Phase 3 state machine (cross-cutting guideline, conditional)
+
+states:
+  - PER_SKILL_MANDATES: Phases 1 and 2 implemented per-skill status reconciliation.
+  - COVERAGE_ASSESSED: coverage of SC-4 evaluated across both skills.
+  - GUIDELINE_ADDED: cross-cutting rule added to .opencode/guidelines/ (only if coverage insufficient).
+  - DONE: all SCs satisfied.
+
+transitions:
+  - PER_SKILL_MANDATES -> COVERAGE_ASSESSED : evaluate whether per-skill mandates fully cover SC-4
+  - COVERAGE_ASSESSED -> GUIDELINE_ADDED : coverage insufficient, add cross-cutting guideline
+  - COVERAGE_ASSESSED -> DONE : coverage sufficient, no guideline needed
+  - GUIDELINE_ADDED -> DONE : guideline added and documented

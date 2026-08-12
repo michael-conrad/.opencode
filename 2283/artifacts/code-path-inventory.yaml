@@ -1,0 +1,33 @@
+spec_path: .opencode/.issues/2283/spec.md
+code_paths:
+  phase_1_branch_finishing_gate:
+    - path: ".opencode/skills/finishing-a-development-branch/tasks/checklist.md line 109-110 → Sub-Issue Linkage Verification section"
+      sc: SC-1
+      description: "Unconditional 'run issue-operations --task link-sub-issue to create missing linkages' mandate — remove or replace with a no-create rule"
+    - path: ".opencode/skills/finishing-a-development-branch/tasks/operating-protocol.md line 15 → item 6 'Plan sub-issue closure verification'"
+      sc: SC-2
+      description: "Readiness gate requiring plan sub-issue closure verification — remove or replace"
+    - path: ".opencode/skills/finishing-a-development-branch/tasks/operating-protocol.md line 24 → exit criteria 'Plan sub-issues verified'"
+      sc: SC-2
+      description: "Exit criterion requiring plan sub-issue verification — remove or replace"
+  phase_2_behavioral_enforcement:
+    - path: ".opencode/tests-v2/behaviors/<new scenario>.sh"
+      sc: SC-3
+      description: "New behavioral enforcement test — run branch-finishing checklist via opencode run (with-test-home) on fully-implemented multi-phase plan, assert zero link-sub-issue / sub-issue creation calls in session.yaml stderr"
+    - path: ".opencode/skills/finishing-a-development-branch/tasks/checklist.md (behavioral test target)"
+      sc: SC-3
+      description: "Behavioral test target — the agent under test executes the modified checklist"
+  phase_3_pr_autoclose:
+    - path: ".opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md lines 123-124 → autoclose_issues collection"
+      sc: SC-4
+      description: "autoclose_issues = [<parent>] + [sub['number'] for sub in sub_issues] sweeps plan-phase sub-issues into PR merge autoclose — remove sub-issue collection or gate it"
+  phase_3_plan_content_protection:
+    - path: ".opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md line 83 → body=f'**Parent Plan:** #{M}\\n\\n{phase_prose}'"
+      sc: SC-5
+      description: "Sub-issue body composition copies plan phase prose into public issue bodies — stop posting plan content"
+    - path: ".opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md line 90 → gb issue create with '**Parent Plan:** #<M>' body"
+      sc: SC-5
+      description: "GitBucket path same defect — plan phase prose in public issue body"
+    - path: ".opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md line 94 → platforms/local creation.md routing"
+      sc: SC-5
+      description: "Local platform routing passes phase_prose to creation — must not post plan content to public trackers"

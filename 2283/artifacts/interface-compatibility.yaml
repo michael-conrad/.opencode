@@ -1,0 +1,91 @@
+spec_path: .opencode/.issues/2283/spec.md
+interfaces:
+  - name: finishing-a-development-branch checklist gate
+    description: "Sub-Issue Linkage Verification section in checklist.md — the gate that currently mandates link-sub-issue creation"
+    operations:
+      - "get_sub_issues count on plan issue"
+      - "issue-operations --task link-sub-issue (creation)"
+    consumers:
+      - .opencode/skills/finishing-a-development-branch/tasks/operating-protocol.md (readiness gates)
+    compatibility: "Removal/replacement must keep the checklist's other gates intact; SC-1 and SC-2 change is coordinated between checklist.md and operating-protocol.md"
+  - name: operating-protocol readiness gates
+    description: "Readiness gates and exit criteria in operating-protocol.md that require plan sub-issue closure verification"
+    operations:
+      - "Plan sub-issue closure verification (item 6)"
+      - "Plan sub-issues verified (exit criteria)"
+    consumers:
+      - Branch-finishing pipeline (checklist.md completion gate)
+    compatibility: "Removing sub-issue verification must not weaken other readiness checks (commit verification, VbC, audit)"
+  - name: PR-creation autoclose
+    description: "autoclose_issues collection in create-pr.md that sweeps sub-issues into PR merge autoclose"
+    operations:
+      - "autoclose_issues = [<parent>] + [sub['number'] for sub in sub_issues]"
+    consumers:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md (merge flow)
+    compatibility: "Parent issue autoclose must be preserved; only plan-phase sub-issue collection is removed/gated. Sub-issues that exist for legitimate tracking must not be swept."
+  - name: link-sub-issue body composition
+    description: "Sub-issue body construction that copies plan phase prose into public issue bodies"
+    operations:
+      - "body=f'**Parent Plan:** #{M}\\n\\n{phase_prose}'"
+      - "gb issue create --body '**Parent Plan:** #<M>\\n\\n<phase_prose>'"
+    consumers:
+      - .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md (creation flow)
+    compatibility: "If sub-issue creation remains available for pre-implementation tracking, the body must not contain plan phase prose — body content must be metadata-only"
+  - name: behavioral test harness
+    description: ".opencode/tests-v2 harness for behavioral enforcement tests (with-test-home, session.yaml stderr evaluation)"
+    operations:
+      - "bash .opencode/tests-v2/with-test-home opencode run '<prompt>'"
+      - "clean-room session.yaml stderr assertion (assert_stderr_pattern_present / absent)"
+    consumers:
+      - New behavioral test for SC-3
+    compatibility: "Test scenario must dispatch the modified checklist.md; assertions target zero link-sub-issue / sub-issue creation calls"
+boundary_notes:
+  - api_capability_preserved: "The issue-operations-sub-issues skill API capability is explicitly out of scope (spec Out of scope section) — only the finishing-time mandate, autoclose sweep, and plan-prose body composition are modified."
+  - cascade_model_preserved: "The multi-task authorization cascade model is out of scope — pre-implementation tracking sub-issues remain valid."
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Branch-finishing gate removal — SC-1, SC-2"
+    phase_2:
+      type: bool
+      description: "Behavioral enforcement test — SC-3"
+    phase_3:
+      type: bool
+      description: "PR autoclose + plan-content protection — SC-4, SC-5"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+        - .opencode/skills/finishing-a-development-branch/tasks/operating-protocol.md
+      scs:
+        - SC-1
+        - SC-2
+    phase_2:
+      files:
+        - .opencode/tests-v2/behaviors/<scenario>.sh
+      scs:
+        - SC-3
+    phase_3:
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+        - .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md
+      scs:
+        - SC-4
+        - SC-5
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "SC-3 behavioral test exercises the SC-1-modified checklist (cross-cutting concern no_subissue_creation_at_finishing); Phase 2 entry requires Phase 1 complete (concern-map phase_boundaries)."
+    - from: phase_2
+      to: phase_3
+      rationale: "Phase 3 entry requires Phase 2 complete (concern-map phase_boundaries)."
+  notes:
+    - "SC-3 RED depends on SC-1 output (phase 1 < phase 2) — forward dependency, not a violation"
+    - "SC-5 overlaps SC-1 only insofar as removing the link-sub-issue mandate eliminates the primary leak path (cross-cutting concern plan_content_confidentiality) — soft overlap, not an ordering dependency; phase_3 item-4/item-5 are gated by the phase-2-complete boundary only."
+    - "Phase 1 and Phase 2 touch disjoint file sets (skill task files vs. test harness); the phase_1 → phase_2 dependency is semantic (test targets modified checklist), not file-overlap driven."

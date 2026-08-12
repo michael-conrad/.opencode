@@ -1,0 +1,32 @@
+spec_path: .opencode/.issues/2283/spec.md
+approval_status: approved
+approved_label: approved-for-pr
+sc_count: 5
+artifact_presence:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_boundary_findings:
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    status: EXISTS
+  - path: .opencode/skills/finishing-a-development-branch/tasks/operating-protocol.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md
+    status: EXISTS
+  - path: .opencode/tests-v2/
+    status: EXISTS
+backfill_summary: >-
+  All 7 analytical artifacts were missing and backfilled from the spec body.
+  Scope boundaries verified: checklist.md (line 109-110 Sub-Issue Linkage
+  Verification mandate), operating-protocol.md (lines 15, 24 sub-issue closure
+  readiness gates), create-pr.md (lines 123-124 autoclose_issues sweep), and
+  link-sub-issue.md (lines 83, 90, 94 plan prose body composition) all exist.
+  Concern map decomposed the 5 SCs into 4 concern groups across 3 phases.
+  Testability: SC-3 is the only behavioral SC; SC-1/2/4/5 are string greps.
+blocker_reason: null

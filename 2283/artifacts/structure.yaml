@@ -1,0 +1,80 @@
+spec_path: .opencode/.issues/2283/spec.md
+phases:
+  - id: 1
+    name: branch_finishing_gate
+    description: "Remove/rewrite the Sub-Issue Linkage Verification gate in checklist.md and the sub-issue closure readiness gates in operating-protocol.md so branch finishing NEVER creates or verifies plan-phase sub-issues."
+    scs:
+      - SC-1
+      - SC-2
+    items:
+      - item_id: item-1
+        sc_id: SC-1
+        red: "grep checklist.md for 'link-sub-issue' creation mandate → present (RED fails)"
+        green: "Remove/replace Sub-Issue Linkage Verification section in checklist.md with a no-create rule"
+        verify: "grep checklist.md for 'link-sub-issue' → absent or replaced with no-create rule"
+        commit: "git add checklist.md && git commit"
+      - item_id: item-2
+        sc_id: SC-2
+        red: "grep operating-protocol.md for 'sub-issue' closure verification → present (RED fails)"
+        green: "Remove 'Plan sub-issue closure verification' (item 6) and 'Plan sub-issues verified' (exit criteria) from operating-protocol.md"
+        verify: "grep operating-protocol.md for 'sub-issue' → absent or replaced"
+        commit: "git add operating-protocol.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "orchestrator commit-inline"
+  - id: 2
+    name: behavioral_enforcement
+    description: "Add a behavioral test proving an agent running the branch-finishing checklist on an implemented multi-phase plan creates zero sub-issues."
+    scs:
+      - SC-3
+    items:
+      - item_id: item-3
+        sc_id: SC-3
+        red: "Behavioral test (tests-v2/behaviors/<scenario>.sh) asserting zero link-sub-issue / sub-issue creation calls → fails because current checklist mandates creation"
+        green: "Behavioral test passes against the SC-1-modified checklist (no sub-issue creation at finishing time)"
+        verify: "bash .opencode/tests-v2/with-test-home opencode run '<branch-finishing prompt on fully-implemented multi-phase plan>' → clean-room session.yaml stderr confirms zero link-sub-issue / sub-issue creation calls"
+        commit: "git add tests-v2/behaviors/<scenario>.sh && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "orchestrator commit-inline"
+  - id: 3
+    name: pr_autoclose_and_plan_content_protection
+    description: "Fix create-pr.md autoclose so plan-phase sub-issues are not auto-closed on PR merge; prevent plan phase prose from being posted to public issue bodies."
+    scs:
+      - SC-4
+      - SC-5
+    items:
+      - item_id: item-4
+        sc_id: SC-4
+        red: "grep create-pr.md for 'autoclose_issues' sub-issue collection → present (RED fails)"
+        green: "Remove or gate sub-issue collection in autoclose_issues in create-pr.md (lines 123-124); preserve parent autoclose"
+        verify: "grep create-pr.md for 'autoclose_issues' → sub-issue collection removed or gated"
+        commit: "git add create-pr.md && git commit"
+      - item_id: item-5
+        sc_id: SC-5
+        red: "grep link-sub-issue.md for plan phase prose body composition ('Parent Plan', 'Field | Value') → present (RED fails)"
+        green: "Stop composing plan phase prose into sub-issue bodies in link-sub-issue.md (lines 83, 90, 94); body content metadata-only"
+        verify: "grep public issue bodies for plan phase markers (e.g., 'Parent Plan', 'Field | Value') → absent"
+        commit: "git add link-sub-issue.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "orchestrator commit-inline"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "SC-3 behavioral test exercises the SC-1-modified checklist (cross-cutting concern no_subissue_creation_at_finishing)"
+    - from: 2
+      to: 3
+      reason: "Phase 3 entry requires phase 2 complete (concern-map phase_boundaries)"
+  triplet_co_location: verified
+  cross_phase_dependency: verified
+  notes:
+    - "SC-3 RED depends on SC-1 output (phase 1 < phase 2) — forward dependency, not a violation"
+    - "SC-5 overlaps SC-1 only insofar as removing the link-sub-issue mandate eliminates the primary leak path (cross-cutting concern plan_content_confidentiality)"

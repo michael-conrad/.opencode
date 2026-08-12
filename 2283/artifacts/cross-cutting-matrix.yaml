@@ -1,0 +1,34 @@
+spec_path: .opencode/.issues/2283/spec.md
+cross_cutting_concerns:
+  - concern: no_subissue_creation_at_finishing
+    description: "SC-1 and SC-3 both target the branch-finishing checklist behavior — the gate text removal (SC-1) and the behavioral proof of zero creation (SC-3) must be consistent: the test exercises the modified checklist."
+    affected_scs:
+      - SC-1
+      - SC-3
+    affected_phases:
+      - 1
+      - 2
+  - concern: subissue_tracking_preserved
+    description: "Sub-issues may exist for legitimate pre-implementation tracking (per Out of scope). SC-2 (remove closure verification), SC-3 (zero creation at finishing), and SC-4 (no autoclose sweep) must not break pre-implementation tracking sub-issues — they only prohibit creation/verification/autoclose at finishing/merge time."
+    affected_scs:
+      - SC-2
+      - SC-3
+      - SC-4
+    affected_phases:
+      - 1
+      - 2
+      - 3
+  - concern: plan_content_confidentiality
+    description: "SC-5 is the root-cause fix for the content leak — plan phase prose must never reach public issue bodies. It overlaps SC-1/SC-2 only insofar as removing the link-sub-issue mandate (SC-1) eliminates the primary leak path; the link-sub-issue task itself must also stop composing plan prose."
+    affected_scs:
+      - SC-1
+      - SC-5
+    affected_phases:
+      - 1
+      - 3
+  - concern: behavioral_test_harness
+    description: "SC-3's behavioral test depends on the .opencode/tests-v2 harness (with-test-home, session.yaml stderr evaluation) — harness readiness gates SC-3 verification and is independent of the checklist.md text change."
+    affected_scs:
+      - SC-3
+    affected_phases:
+      - 2

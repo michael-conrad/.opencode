@@ -1,0 +1,11 @@
+# Cross-cutting matrix — issue #2272
+# Cross-cutting concerns matrix
+
+| Concern | Phase 1 (audit skill) | Phase 2 (git-workflow-pr) | Phase 3 (guideline, conditional) |
+|---------|----------------------|---------------------------|----------------------------------|
+| Ticket status reconciliation | HIGH — SC-1, SC-3: status check + update after PASS verdict | HIGH — SC-2, SC-3: status check + update after PR workflow | MEDIUM — fallback if per-skill mandates insufficient |
+| Skip-when-correct logic | HIGH — SC-3: only skip update when status already correct | HIGH — SC-3: only skip update when status already correct | MEDIUM — shared rule if needed |
+| Skill card documentation | HIGH — SC-4: audit skill must document the behavior | HIGH — SC-4: git-workflow-pr skill must document the behavior | MEDIUM — guideline documents cross-cutting rule |
+| .opencode submodule discipline | HIGH — all edited files in submodule; pointer update needed for parent changes | HIGH — all edited files in submodule | HIGH — guideline files in submodule |
+| Behavioral evidence | HIGH — SC-1/2/3/4 evidence type is behavioral; agent must be observed checking/updating status | HIGH — same behavioral evidence requirement | MEDIUM — guideline enforcement test |
+| Authorization semantics | MEDIUM — approved-for-* label handling must not be altered | MEDIUM — for_pr scope handling must not be altered | LOW — no authorization change |

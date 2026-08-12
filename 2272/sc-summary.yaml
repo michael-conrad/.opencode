@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "When an implementation audit completes with a PASS verdict, the agent checks the ticket's current status and updates it to reflect the verified-complete state (e.g. applies a review/PR-ready label or transitions status) if an update is warranted"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "When an implementation-for-PR workflow completes, the agent checks the ticket's current status and updates it to reflect the PR-created state if an update is warranted"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "The agent performs a status check (reads current ticket status) before reporting completion of an implementation audit or implementation-for-PR, and only skips the update when the status is already correct"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The status-check-and-update behavior is documented in the relevant skill(s) (audit, git-workflow-pr) so the agent is instructed to perform it"
+    evidence_type: "behavioral"
+    plan_item: 4

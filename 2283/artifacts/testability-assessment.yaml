@@ -1,0 +1,32 @@
+spec_path: .opencode/.issues/2283/spec.md
+scs:
+  - id: SC-1
+    evidence_type: string
+    verification_method: "grep checklist.md for 'link-sub-issue' → absent or replaced with a no-create rule"
+    testable: true
+    test_type: grep
+  - id: SC-2
+    evidence_type: string
+    verification_method: "grep operating-protocol.md for 'sub-issue' → absent or replaced"
+    testable: true
+    test_type: grep
+  - id: SC-3
+    evidence_type: behavioral
+    verification_method: "bash .opencode/tests-v2/with-test-home opencode run '<branch-finishing prompt on fully-implemented multi-phase plan>' → clean-room session.yaml stderr evaluation confirms zero link-sub-issue / sub-issue creation calls"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-4
+    evidence_type: string
+    verification_method: "grep create-pr.md for 'autoclose_issues' → sub-issue collection removed or gated"
+    testable: true
+    test_type: grep
+  - id: SC-5
+    evidence_type: string
+    verification_method: "grep public issue bodies for plan phase markers (e.g., 'Parent Plan', 'Field | Value') → absent"
+    testable: true
+    test_type: grep
+platform_testing_notes:
+  - "SC-3 is the only behavioral test — requires opencode run via with-test-home and clean-room session.yaml stderr evaluation per .opencode/tests-v2/AGENTS.md"
+  - "SC-1, SC-2, SC-4 are string greps over task files — no test harness needed"
+  - "SC-5 is a repository-wide grep for plan phase markers in public issue bodies — targets the link-sub-issue body composition flow"
+  - "SC-3's behavioral test is the only runtime-behavioral SC; all others are structural/string and verified by grep"

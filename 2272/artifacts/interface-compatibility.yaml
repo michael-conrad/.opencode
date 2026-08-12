@@ -1,0 +1,91 @@
+# Interface compatibility — issue #2272
+# Interface compatibility analysis per phase
+spec: .opencode/.issues/2272/spec.md
+generated: 2026-08-12
+
+## Phase 1: audit skill status reconciliation
+interfaces:
+  - audit SKILL.md "Run an audit" workflow <-> verification-audit task files
+    - classification: MODIFIED (add status-check-and-update step after PASS verdict)
+    - backward compatible: YES (verdict semantics unchanged; step is additive)
+    - breaking: NO
+    - internal only: YES
+  - audit completion path <-> ticket status (issue-operations label/status transitions)
+    - classification: NEW (status reconciliation step added)
+    - backward compatible: YES (only updates status when warranted; skips when already correct)
+    - breaking: NO
+
+## Phase 2: git-workflow-pr status reconciliation
+interfaces:
+  - git-workflow-pr SKILL.md workflows <-> pr-creation / post-implementation / completion task files
+    - classification: MODIFIED (add status-check-and-update step)
+    - backward compatible: YES (PR creation authorization and stacked PR strategy unchanged)
+    - breaking: NO
+    - internal only: YES
+  - PR workflow completion path <-> ticket status (issue-operations label/status transitions)
+    - classification: NEW (status reconciliation step added)
+    - backward compatible: YES (only updates status when warranted; skips when already correct)
+    - breaking: NO
+
+## Phase 3: cross-cutting guideline (conditional)
+interfaces:
+  - .opencode/guidelines/ <-> audit + git-workflow-pr skills
+    - classification: NEW (only if per-skill mandates insufficient)
+    - backward compatible: YES
+    - breaking: NO
+    - internal only: YES
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Audit skill status reconciliation — SC-1, SC-3, SC-4"
+    phase_2:
+      type: bool
+      description: "git-workflow-pr status reconciliation — SC-2, SC-3, SC-4"
+    phase_3:
+      type: bool
+      description: "Cross-cutting guideline — conditional, only if Phases 1-2 insufficient"
+  preconditions:
+    - "z3.Implies(phase_3, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/audit/SKILL.md
+        - .opencode/skills/audit/tasks/verification-audit-arbiter.md
+        - .opencode/skills/audit/tasks/completion.md
+      scs:
+        - SC-1
+        - SC-3
+        - SC-4
+    phase_2:
+      files:
+        - .opencode/skills/git-workflow-pr/SKILL.md
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+        - .opencode/skills/git-workflow-pr/tasks/post-implementation.md
+        - .opencode/skills/git-workflow-pr/tasks/completion.md
+      scs:
+        - SC-2
+        - SC-3
+        - SC-4
+    phase_3:
+      files:
+        - .opencode/guidelines/
+      scs:
+        - SC-4
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Both phases implement the same status-check-and-update pattern in different skills; SC-3 (status check before completion) is shared. Phase 2 can proceed independently of Phase 1 since file sets are disjoint."
+    - from: phase_1
+      to: phase_3
+      rationale: "Phase 3 (cross-cutting guideline) only fires if Phase 1's per-skill mandate is insufficient."
+    - from: phase_2
+      to: phase_3
+      rationale: "Phase 3 (cross-cutting guideline) only fires if Phase 2's per-skill mandate is insufficient."
+  notes:
+    - "Phases 1 and 2 touch disjoint file sets — no same-file edit conflicts; the dependency is informational (shared SC-3 pattern), not file-overlap driven."
+    - "Phase 3 is conditional and depends on both Phase 1 and Phase 2 coverage assessment."

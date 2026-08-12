@@ -1,0 +1,28 @@
+# Code path inventory — issue #2272
+# Code paths touched by each phase
+
+## Phase 1: audit skill status reconciliation
+paths (read+edit; no execution):
+  - .opencode/skills/audit/SKILL.md -> "Run an audit" workflow -> verification-audit 4-step DiMo chain
+    (investigator -> validator -> evaluator -> arbiter) -> arbiter writes judgment.yaml with PASS verdict
+  - .opencode/skills/audit/tasks/verification-audit-arbiter.md -> PASS verdict path -> completion reporting
+  - .opencode/skills/audit/tasks/completion.md -> lifecycle event append / summary report
+invariants:
+  - Audit verdict semantics unchanged; only a status-check-and-update step is added after PASS.
+  - Skill cards use Read[Text](path) cross-reference pattern; description field semantic-routing constraints.
+
+## Phase 2: git-workflow-pr status reconciliation
+paths (read+edit; no execution):
+  - .opencode/skills/git-workflow-pr/SKILL.md -> "Create a PR" / "Perform post-implementation tasks" workflows
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation.md -> PR-created state transition point
+  - .opencode/skills/git-workflow-pr/tasks/post-implementation.md -> completion reporting path
+  - .opencode/skills/git-workflow-pr/tasks/completion.md -> lifecycle completion path
+invariants:
+  - PR creation authorization (for_pr scope) unchanged; only status reconciliation added.
+  - Stacked PR strategy (one branch, N commits, one PR) unchanged.
+
+## Phase 3: cross-cutting guideline (conditional)
+paths (read+edit; no execution):
+  - .opencode/guidelines/ (candidate file for cross-cutting status-reconciliation rule)
+invariants:
+  - Guideline changes require spec-first workflow; this phase is conditional on Phases 1-2 coverage.

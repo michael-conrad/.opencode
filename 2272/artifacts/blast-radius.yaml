@@ -1,0 +1,32 @@
+# Blast radius — issue #2272
+# Affected components and ripple effects per phase
+
+## Phase 1: audit skill status-check-and-update mandate
+affected:
+  - .opencode/skills/audit/SKILL.md (add status-check-and-update step to verification-audit workflow)
+  - .opencode/skills/audit/tasks/verification-audit-arbiter.md (candidate — PASS verdict path)
+  - .opencode/skills/audit/tasks/completion.md (candidate — completion reporting path)
+ripple:
+  - Downstream consumers of audit PASS verdicts: verification-before-completion gate, ticket lifecycle
+    tracking, downstream pipeline routing (review/PR-ready state).
+  - No change to audit verdict semantics — only adds a status reconciliation step after PASS.
+
+## Phase 2: git-workflow-pr skill status-check-and-update mandate
+affected:
+  - .opencode/skills/git-workflow-pr/SKILL.md (add status-check-and-update step to PR workflows)
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation.md (candidate — PR-created state)
+  - .opencode/skills/git-workflow-pr/tasks/post-implementation.md (candidate — completion reporting path)
+  - .opencode/skills/git-workflow-pr/tasks/completion.md (candidate — lifecycle completion path)
+ripple:
+  - Downstream consumers: approval-gate authorization flow (approved-for-* label handling),
+    issue-operations label transitions, PR lifecycle tracking.
+
+## Phase 3: cross-cutting guideline (if needed)
+affected:
+  - .opencode/guidelines/ (candidate — cross-cutting status-reconciliation rule)
+ripple:
+  - All skills that report terminal completion states; guideline is the fallback if per-skill
+    mandates are insufficient.
+
+## Cross-repo
+  - All affected files live in the .opencode submodule. A submodule pointer update accompanies any parent-repo change.

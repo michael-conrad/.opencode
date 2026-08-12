@@ -1,0 +1,56 @@
+# Dependency contract — issue #2272
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Audit skill status reconciliation — SC-1, SC-3, SC-4"
+  phase_2:
+    type: bool
+    description: "git-workflow-pr status reconciliation — SC-2, SC-3, SC-4"
+  phase_3:
+    type: bool
+    description: "Cross-cutting guideline — conditional, only if Phases 1-2 insufficient"
+preconditions:
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/audit/SKILL.md
+      - .opencode/skills/audit/tasks/verification-audit-arbiter.md
+      - .opencode/skills/audit/tasks/completion.md
+    scs:
+      - SC-1
+      - SC-3
+      - SC-4
+  phase_2:
+    files:
+      - .opencode/skills/git-workflow-pr/SKILL.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/post-implementation.md
+      - .opencode/skills/git-workflow-pr/tasks/completion.md
+    scs:
+      - SC-2
+      - SC-3
+      - SC-4
+  phase_3:
+    files:
+      - .opencode/guidelines/
+    scs:
+      - SC-4
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Both phases implement the same status-check-and-update pattern in different skills; SC-3 (status check before completion) is shared. Phase 2 can proceed independently of Phase 1 since file sets are disjoint."
+  - from: phase_1
+    to: phase_3
+    rationale: "Phase 3 (cross-cutting guideline) only fires if Phase 1's per-skill mandate is insufficient."
+  - from: phase_2
+    to: phase_3
+    rationale: "Phase 3 (cross-cutting guideline) only fires if Phase 2's per-skill mandate is insufficient."
+notes:
+  - "Phases 1 and 2 touch disjoint file sets — no same-file edit conflicts; the dependency is informational (shared SC-3 pattern), not file-overlap driven."
+  - "Phase 3 is conditional and depends on both Phase 1 and Phase 2 coverage assessment."

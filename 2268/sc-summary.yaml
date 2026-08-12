@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "A file .opencode/agents/vision-agent.md exists with the exact frontmatter and body specified below."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "A file .opencode/agents/visual-design-agent.md exists with the exact frontmatter and body specified below."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Both files are valid opencode sub-agent cards (correct frontmatter fields, mode: subagent, provider-prefixed model ID)."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The agent names are exactly vision-agent and visual-design-agent (no suffix)."
+    evidence_type: "string"
+    plan_item: 4

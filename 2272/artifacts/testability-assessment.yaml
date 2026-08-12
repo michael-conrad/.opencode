@@ -1,0 +1,50 @@
+# Testability assessment — issue #2272
+# Test strategy per phase
+
+## Phase 1: audit skill status reconciliation
+test_strategy: behavioral (agent must be observed checking and updating ticket status during audit workflows)
+how:
+  - Behavioral enforcement test: send a real-domain prompt via `opencode run` that triggers an
+    implementation audit completing with a PASS verdict; inspect stderr output for agent actions
+    (status read, status update, label application) — not stdout prose recall.
+  - Assertions use stderr-based helpers (assert_stderr_pattern_present / assert_stderr_pattern_absent_all_models).
+  - RED: assert agent does NOT check/update ticket status after PASS verdict (current behavior).
+  - GREEN: after skill change, assert agent DOES check/update ticket status.
+verification:
+  - Clean-room sub-agent evaluates the live test output (session.yaml / captured stderr) against SC-1, SC-3.
+  - Any `opencode run` must route through `bash .opencode/tests-v2/with-test-home opencode run ...`;
+    bash tool timeout >= 600000ms.
+pass_definition:
+  - Agent reads current ticket status before reporting audit completion (SC-3).
+  - Agent updates ticket status to review/PR-ready state when PASS verdict warrants it (SC-1).
+  - Agent skips the update only when status is already correct (SC-3 skip path).
+
+## Phase 2: git-workflow-pr status reconciliation
+test_strategy: behavioral (agent must be observed checking and updating ticket status during PR workflows)
+how:
+  - Behavioral enforcement test: send a real-domain prompt that triggers an implementation-for-PR
+    workflow completing with a PR created; inspect stderr output for agent actions
+    (status read, status update, label application).
+  - Assertions use stderr-based helpers.
+  - RED: assert agent does NOT check/update ticket status after PR workflow (current behavior).
+  - GREEN: after skill change, assert agent DOES check/update ticket status.
+verification:
+  - Clean-room sub-agent evaluates the live test output against SC-2, SC-3.
+  - Any `opencode run` must route through `bash .opencode/tests-v2/with-test-home opencode run ...`;
+    bash tool timeout >= 600000ms.
+pass_definition:
+  - Agent reads current ticket status before reporting PR workflow completion (SC-3).
+  - Agent updates ticket status to PR-created state when PR creation warrants it (SC-2).
+  - Agent skips the update only when status is already correct (SC-3 skip path).
+
+## Phase 3: cross-cutting guideline (conditional)
+test_strategy: behavioral (if guideline added, enforcement test asserts agent follows the cross-cutting rule)
+how:
+  - Behavioral enforcement test asserting the agent performs status reconciliation per the guideline.
+pass_definition:
+  - Agent follows the cross-cutting status-reconciliation rule in both audit and PR workflows.
+
+## Evidence type note
+  - Spec declares evidence type: behavioral. All SCs (SC-1 through SC-4) are behavioral —
+    the agent must be observed checking and updating ticket status during audit/PR workflows.
+    Structural/string evidence is EVIDENCE_TYPE_MISMATCH for these SCs.

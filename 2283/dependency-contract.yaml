@@ -1,0 +1,99 @@
+spec_path: .opencode/.issues/2283/spec.md
+contract_type: dependency_contract
+description: >-
+  Dependency relationships between the phases and items of the plan for issue
+  2283 (sub-issue creation at branch finishing). Derived from structure.yaml
+  dependency_dag, concern-map.yaml phase_boundaries, and cross-cutting-matrix.yaml.
+phases:
+  - id: 1
+    name: branch_finishing_gate
+    items:
+      - item-1
+      - item-2
+    depends_on: []
+    reason: "Root phase — no upstream dependencies. Removes the link-sub-issue creation mandate (SC-1) and the sub-issue closure readiness gates (SC-2)."
+  - id: 2
+    name: behavioral_enforcement
+    items:
+      - item-3
+    depends_on:
+      - phase: 1
+        reason: "SC-3 behavioral test exercises the SC-1-modified checklist (cross-cutting concern no_subissue_creation_at_finishing). Phase 2 entry requires phase 1 complete (concern-map phase_boundaries)."
+  - id: 3
+    name: pr_autoclose_and_plan_content_protection
+    items:
+      - item-4
+      - item-5
+    depends_on:
+      - phase: 2
+        reason: "Phase 3 entry requires phase 2 complete (concern-map phase_boundaries)."
+items:
+  - item_id: item-1
+    sc_id: SC-1
+    phase: 1
+    depends_on: []
+    reason: "No upstream dependencies — removes the Sub-Issue Linkage Verification gate in checklist.md."
+  - item_id: item-2
+    sc_id: SC-2
+    phase: 1
+    depends_on: []
+    reason: "No upstream dependencies — removes sub-issue closure readiness gates in operating-protocol.md. Coordinated with item-1 (interface-compatibility: SC-1 and SC-2 change is coordinated between checklist.md and operating-protocol.md) but not order-dependent."
+  - item_id: item-3
+    sc_id: SC-3
+    phase: 2
+    depends_on:
+      - item-1
+    reason: "Behavioral test asserts zero link-sub-issue creation against the SC-1-modified checklist — the test target is the modified checklist.md (code-path-inventory phase_2_behavioral_enforcement). Forward dependency, not a violation (structure.yaml dependency_dag notes)."
+  - item_id: item-4
+    sc_id: SC-4
+    phase: 3
+    depends_on:
+      - phase: 2
+    reason: "Phase boundary dependency — phase 3 entry requires phase 2 complete. No item-level dependency on item-1/2/3 content; create-pr.md autoclose fix is independent of the checklist gate text."
+  - item_id: item-5
+    sc_id: SC-5
+    phase: 3
+    depends_on:
+      - phase: 2
+    reason: "Phase boundary dependency — phase 3 entry requires phase 2 complete. Soft overlap with item-1 (cross-cutting concern plan_content_confidentiality: removing the link-sub-issue mandate eliminates the primary leak path) but not an ordering dependency — link-sub-issue.md body composition is fixed independently."
+cross_cutting_dependencies:
+  - concern: no_subissue_creation_at_finishing
+    items:
+      - item-1
+      - item-3
+    type: consistency
+    description: "SC-1 gate text removal and SC-3 behavioral proof must be consistent — the test exercises the modified checklist."
+  - concern: subissue_tracking_preserved
+    items:
+      - item-2
+      - item-3
+      - item-4
+    type: constraint
+    description: "SC-2/SC-3/SC-4 must not break legitimate pre-implementation tracking sub-issues (out of scope)."
+  - concern: plan_content_confidentiality
+    items:
+      - item-1
+      - item-5
+    type: overlap
+    description: "SC-5 is the root-cause fix for the content leak; SC-1 removal of the link-sub-issue mandate eliminates the primary leak path. Not an ordering dependency."
+  - concern: behavioral_test_harness
+    items:
+      - item-3
+    type: prerequisite
+    description: "SC-3 depends on the .opencode/tests-v2 harness (with-test-home, session.yaml stderr evaluation) — harness readiness gates SC-3 verification and is independent of the checklist.md text change."
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "SC-3 behavioral test exercises the SC-1-modified checklist (cross-cutting concern no_subissue_creation_at_finishing)"
+    - from: 2
+      to: 3
+      reason: "Phase 3 entry requires phase 2 complete (concern-map phase_boundaries)"
+  item_edges:
+    - from: item-1
+      to: item-3
+      reason: "SC-3 behavioral test target is the SC-1-modified checklist.md"
+  notes:
+    - "SC-3 RED depends on SC-1 output (phase 1 < phase 2) — forward dependency, not a violation"
+    - "SC-5 overlaps SC-1 only insofar as removing the link-sub-issue mandate eliminates the primary leak path (cross-cutting concern plan_content_confidentiality) — soft overlap, not an ordering dependency"
+    - "item-4 (SC-4) and item-5 (SC-5) have no item-level ordering dependency on item-1/2/3 content; only the phase-2-complete boundary gates them"

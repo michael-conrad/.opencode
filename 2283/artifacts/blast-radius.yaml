@@ -1,0 +1,29 @@
+spec_path: .opencode/.issues/2283/spec.md
+phase_1_branch_finishing_gate:
+  affected_files:
+    - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    - .opencode/skills/finishing-a-development-branch/tasks/operating-protocol.md
+  description: "Remove or rewrite the unconditional Sub-Issue Linkage Verification gate in checklist.md (line 110) and the sub-issue closure readiness gates in operating-protocol.md (lines 15, 24). No sub-issues are ever created at branch-finishing time."
+  risk: medium
+  rollback: "Restore the removed gate text and readiness-check lines"
+phase_2_pr_autoclose:
+  affected_files:
+    - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+  description: "Fix PR-creation autoclose so plan-phase sub-issues are not swept into autoclose_issues on merge (create-pr.md lines 123-124)."
+  risk: medium
+  rollback: "Restore the sub-issue collection in autoclose_issues"
+phase_3_plan_content_protection:
+  affected_files:
+    - .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md
+  description: "Prevent plan phase prose (Field/Value tables, Context YAML blocks, Procedure steps) from being posted to public issue bodies."
+  risk: low
+  rollback: "Restore any removed body-composition logic"
+behavioral_test:
+  affected_files:
+    - .opencode/tests-v2/
+    - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+  description: "Add a behavioral enforcement test asserting zero link-sub-issue / sub-issue creation calls when running the branch-finishing checklist on a fully-implemented multi-phase plan."
+  risk: low
+  rollback: "Remove the behavioral test scenario"
+out_of_scope:
+  description: "issue-operations-sub-issues skill API capability and the multi-task authorization cascade model are explicitly out of scope."

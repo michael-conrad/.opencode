@@ -1,0 +1,33 @@
+spec_path: .opencode/.issues/2283/spec.md
+state_machine:
+  name: subissue_creation_at_branch_finishing
+  states:
+    - name: plan_created
+      description: "Plan written with N phases (pre-implementation). Sub-issue tracking for phase execution MAY be created here (legitimate pre-implementation tracking)."
+      entry_action: "link-sub-issue allowed (tracking only)"
+    - name: implementation_complete
+      description: "Phases implemented, verified, audited. Sub-issue count may or may not match phase count — NO new sub-issues may be created."
+      entry_action: "zero link-sub-issue creation (SC-1/SC-2); sub-issues are read-only references if present"
+    - name: branch_finishing
+      description: "Checklist gate + operating protocol readiness. Sub-Issue Linkage Verification gate must NOT fire for creation; closure verification must NOT be a readiness gate."
+      entry_action: "no sub-issue creation (SC-1); no closure verification gate (SC-2)"
+    - name: pr_merge
+      description: "PR merged. autoclose_issues must NOT include plan-phase sub-issues."
+      entry_action: "parent autoclose only; plan-phase sub-issues excluded (SC-4)"
+  transitions:
+    - from: plan_created
+      to: implementation_complete
+      trigger: all phases implemented and verified
+      action: "sub-issue creation window closes — retrospective creation is noise"
+    - from: implementation_complete
+      to: branch_finishing
+      trigger: finishing-a-development-branch dispatch
+      action: "checklist gate rewritten as no-create rule; operating-protocol readiness gates drop sub-issue closure verification"
+    - from: branch_finishing
+      to: pr_merge
+      trigger: PR created and merged
+      action: "autoclose excludes plan-phase sub-issues"
+  forbidden_states:
+    - description: "Creating retrospective sub-issues for already-implemented plan phases at branch-finishing time (SC-1, SC-3)"
+    - description: "Auto-closing plan-phase sub-issues on PR merge (SC-4)"
+    - description: "Posting plan phase prose (Field/Value tables, Context YAML blocks, Procedure steps) to public issue bodies (SC-5)"
