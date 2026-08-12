@@ -1,0 +1,32 @@
+> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2267/
+
+## Problem
+
+The `git-workflow-pr` skill's PR-creation procedure (`.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` Step 7.2.4) instructs posting a **no-op comment** on a new PR (with an empty-push fallback) to "trigger GitBucket's mergeability computation" whenever the PR API reports `mergeable: null`. This is useless noise: mergeability is authoritatively determined locally via `git merge-base --is-ancestor origin/<target> HEAD`. The no-op comment adds no information, leaves clutter for humans to clean up, and the `--allow-empty` push creates a pointless empty commit. Repeated useless comments were observed on NewsRxUI PR #18, Patents PR #22, and Patents PR #23.
+
+## Scope
+
+- Remove the no-op comment trigger (`github_add_issue_comment` with no-op message) from `create-pr.md` Step 7.2.4.
+- Remove the empty-push fallback (`git commit --allow-empty -m "trigger mergeability" && git push`) from `create-pr.md` Step 7.2.4.
+- Replace Step 7.2.4's trigger mechanism with the authoritative local check `git merge-base --is-ancestor origin/<target> HEAD` (exit 0 = mergeable).
+- Re-route `mergeable: null` (Step 7.2.2) and the diagnosis output (Step 7.2.5) to report **verified-locally** instead of the removed trigger.
+- Align `enforcement-gate.md` Step 1.5d/e so the pre-creation `None/unknown` path explicitly names the local merge-base check and the Step 1.5e cross-reference to the post-creation check remains valid.
+
+**Out of scope:**
+
+- Changing the `mergeable: false` conflict-reporting path (Step 7.2.2 false branch).
+- Modifying `git-workflow-pr/SKILL.md` routing (Trigger Dispatch Table) — only the two task files change.
+- Reusing the different-semantics merge-base check in `review-prep/push-and-cleanup.md:178` (that is a base-SHA equality check, not the ancestry test).
+- Fixing the pre-existing latent reference drift in `enforcement-gate.md` Step 1.5e ("create-pr.md Step 3" vs actual Step 7.2) — flagged to developer, corrected only if within SC-4 consistency scope.
+
+## Approach
+
+Replace the no-op-comment/empty-push "trigger mergeability" mechanism (Step 7.2.4) with the local ancestry test as the authoritative mergeability determination. When `mergeable` is `null`, after the stale-base check (Step 7.2.3) is excluded, run `git merge-base --is-ancestor origin/<target> HEAD`; exit 0 indicates the target tip is an ancestor of the PR head (mergeable), non-zero indicates divergence (report conflict). The diagnosis (Step 7.2.5) reports **verified-locally** and drops the "Computation triggered: yes|no" line. This is a purely local, read-only determination — no API mutation replaces the removed comment, consistent with API-mutation discipline. The `mergeable` field becomes advisory; the local ancestry check is authoritative.
+
+## Impact
+
+- **Risk:** Mergeability misreported when local refs are stale. **Mitigation:** the check runs after a `git fetch origin <target>` is implied by the stale-base step; instruction text will require a current base.
+- **Risk:** Agents interpret "verified-locally" as permission to skip conflict detection. **Mitigation:** the non-zero exit path explicitly reports a conflict with `git diff origin/<target>...HEAD --name-only --diff-filter=U`, preserving current false-path behavior.
+- **Risk:** Cross-reference drift if step numbers shift. **Mitigation:** SC-3/SC-4 keep `7.2.x` step numbers stable and verify the Step 1.5e reference.
+- **Dependencies:** None beyond existing git tooling in the skill deck.
+- **Call to action:** Approve this spec to implement the two task-file edits and add behavioral enforcement tests asserting the agent no longer posts a trigger comment and instead reports verified-locally.
