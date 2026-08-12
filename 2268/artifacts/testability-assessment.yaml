@@ -1,0 +1,54 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-12
+source: "Spec #2268 (spec.md)"
+content:
+  description: "Test coverage assessment for adding two sub-agent cards"
+  sc_evidence_types:
+    - sc_id: SC-1
+      evidence_type: string
+      verification_method: "File content comparison — verify .opencode/agents/vision-agent.md matches the exact spec block"
+      phase: 1
+    - sc_id: SC-2
+      evidence_type: string
+      verification_method: "File content comparison — verify .opencode/agents/visual-design-agent.md matches the exact spec block"
+      phase: 2
+    - sc_id: SC-3
+      evidence_type: structural
+      verification_method: "Parse frontmatter of both files; verify mode: subagent and provider-prefixed model ID (ollama-cloud/qwen3.5:397b-cloud)"
+      phase: 3
+    - sc_id: SC-4
+      evidence_type: string
+      verification_method: "Filenames exactly vision-agent.md and visual-design-agent.md (no suffix); steps-value-analysis.md untouched"
+      phase: 3
+  content_verification_tests:
+    exact_content_match:
+      count: 2
+      description: "One content comparison per file — diff each card against the exact spec block"
+      phases:
+        - phase: 1
+          test: "vision-agent.md matches spec File 1 block exactly"
+        - phase: 2
+          test: "visual-design-agent.md matches spec File 2 block exactly"
+  structural_tests:
+    card_validity:
+      count: 1
+      description: "Verify both files parse as valid opencode sub-agent cards"
+      phases:
+        - phase: 3
+          test: "Frontmatter fields present, mode: subagent, provider-prefixed model"
+          assertion: "mode == subagent; model starts with ollama-cloud/"
+  string_tests:
+    name_no_suffix:
+      count: 1
+      description: "Verify agent names carry no suffix"
+      phases:
+        - phase: 3
+          test: "ls .opencode/agents/ shows exactly vision-agent.md and visual-design-agent.md as new cards"
+          assertion: "No suffix; steps-value-analysis.md present and unmodified"
+  test_suite_summary:
+    total_content_verification_tests: 2
+    total_structural_tests: 1
+    total_string_tests: 1
+    total_tests: 4
+    test_execution_strategy:
+      - "String and structural tests only — no behavioral tests required (pure file-add, no runtime behavior change)"

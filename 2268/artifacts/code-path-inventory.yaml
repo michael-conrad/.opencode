@@ -1,0 +1,37 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-12
+source: "Spec #2268 (spec.md)"
+content:
+  description: "All code paths affected by adding two sub-agent cards, organized by SC"
+  sc1_vision_agent:
+    path: ".opencode/agents/vision-agent.md"
+    sc: SC-1
+    change: "New file — frontmatter (description, mode: subagent, model: ollama-cloud/qwen3.5:397b-cloud, temperature: 0.3, top_p: 0.8, top_k: 20, options, permission edit/bash/webfetch deny) plus body per spec"
+    before: "Does not exist"
+    after: "Exists with exact spec content"
+  sc2_visual_design_agent:
+    path: ".opencode/agents/visual-design-agent.md"
+    sc: SC-2
+    change: "New file — frontmatter (description, mode: subagent, model: ollama-cloud/qwen3.5:397b-cloud, temperature: 0.8, top_p: 1.0, top_k: 40, options, permission edit allow / bash allowlist) plus body per spec"
+    before: "Does not exist"
+    after: "Exists with exact spec content"
+  sc3_validation_paths:
+    frontmatter_fields:
+      - "description"
+      - "mode: subagent"
+      - "model (provider-prefixed: ollama-cloud/qwen3.5:397b-cloud)"
+      - "temperature"
+      - "top_p"
+      - "top_k"
+      - "options"
+      - "permission"
+    validation_targets:
+      - "Parse both .opencode/agents/*.md files as valid opencode sub-agent cards"
+      - "Verify mode: subagent present in both"
+      - "Verify model IDs are provider-prefixed (ollama-cloud/...)"
+  sc4_name_validation:
+    path: ".opencode/agents/"
+    validation_targets:
+      - "Agent names exactly vision-agent and visual-design-agent"
+      - "No suffix appended to either filename"
+      - "steps-value-analysis.md (pre-existing) is not an agent card and must not be renamed"

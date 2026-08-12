@@ -1,0 +1,31 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-12
+source: "Spec #2268 (spec.md)"
+content:
+  description: "Interface boundaries and compatibility analysis for adding two sub-agent cards"
+  regression_invariants:
+    - invariant: "Pre-existing .opencode/agents/steps-value-analysis.md MUST remain unchanged"
+      verification: "Structural check — file untouched by this change"
+    - invariant: "No other .opencode/ directory content MAY be modified by this change"
+      verification: "Structural check — diff scoped to the two new files only"
+  interface_boundaries:
+    agent_discovery:
+      status: "ADDITIVE"
+      description: "opencode discovers sub-agent cards by scanning .opencode/agents/; adding two files is purely additive"
+      rationale: "New files are discovered automatically; no existing card references change"
+    agent_names:
+      status: "UNCHANGED_NAMES"
+      description: "vision-agent and visual-design-agent are new names with no collision with the existing steps-value-analysis.md"
+      rationale: "steps-value-analysis.md is a documentation file, not an agent card"
+    model_reference:
+      status: "NEW"
+      description: "Both cards reference ollama-cloud/qwen3.5:397b-cloud"
+      rationale: "Provider-prefixed model ID per SC-3; requires the model to be available at runtime"
+    permission_models:
+      status: "UNCHANGED"
+      description: "Existing permission configurations in other agent cards are not affected"
+      rationale: "Each card carries its own permission block"
+    external_interface_impact:
+      skill_api: "NONE"
+      task_api: "NONE"
+      user_facing: "ADDITIVE — two new optional sub-agents become available"

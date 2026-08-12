@@ -1,0 +1,29 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-12
+source: "Spec #2268 (spec.md)"
+content:
+  description: "Cross-cutting concerns across the two agent card additions, mapped to SCs"
+  cross_cutting_concerns:
+    - sc_id: SC-3
+      name: "Valid sub-agent card format (frontmatter, mode: subagent, provider-prefixed model)"
+      evidence_type: structural
+      verification_method: "Parse both .opencode/agents/*.md files; verify frontmatter fields present, mode: subagent, and model ID prefixed with ollama-cloud/"
+      phases_affected:
+        - 3
+      verification_gate: post-implementation
+      remediation: "Correct frontmatter fields, mode value, or model ID to match spec"
+      phase_3_application: "Verify both cards parse as valid sub-agent cards"
+    - sc_id: SC-4
+      name: "Exact agent names — no suffix"
+      evidence_type: string
+      verification_method: "Check filenames are exactly vision-agent.md and visual-design-agent.md in .opencode/agents/"
+      phases_affected:
+        - 3
+      verification_gate: post-implementation
+      remediation: "Rename files to remove any suffix"
+      phase_3_application: "Verify names match exactly, steps-value-analysis.md untouched"
+  cross_cutting_verification_gates:
+    - gate: post-implementation
+      scs:
+        - SC-3
+        - SC-4

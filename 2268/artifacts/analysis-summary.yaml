@@ -8,13 +8,13 @@ sc_ids:
   - SC-3
   - SC-4
 artifact_presence:
-  blast-radius.yaml: missing
-  concern-map.yaml: missing
-  code-path-inventory.yaml: missing
-  cross-cutting-matrix.yaml: missing
-  interface-compatibility.yaml: missing
-  state-analysis.yaml: missing
-  testability-assessment.yaml: missing
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
 scope_boundary_findings:
   - target: .opencode/agents/vision-agent.md
     exists: false
@@ -25,3 +25,7 @@ scope_boundary_findings:
   - target: .opencode/agents/
     exists: true
     note: contains existing steps-value-analysis.md; no conflict with new files
+backfill_notes:
+  - All 7 analytical artifacts were missing and backfilled from the spec body on 2026-08-12 via writing-plans backfill task.
+  - Blast radius is purely additive: 2 new files in .opencode/agents/, no modifications, no deletions, no changes outside the directory.
+  - Evidence types per SC: SC-1/SC-2 string (exact content match), SC-3 structural (card validity), SC-4 string (name no-suffix).

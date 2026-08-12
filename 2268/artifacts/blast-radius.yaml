@@ -1,0 +1,23 @@
+artifact_name: blast-radius
+generated_at: 2026-08-12
+source: "Spec #2268 (spec.md)"
+content:
+  description: "All files and directories affected by adding two sub-agent cards to .opencode/agents/"
+  new_files:
+    - path: ".opencode/agents/vision-agent.md"
+      change: "Created — read-only visual analysis / design-review specialist sub-agent card (SC-1)"
+    - path: ".opencode/agents/visual-design-agent.md"
+      change: "Created — visual design / front-end generation producer sub-agent card (SC-2)"
+  existing_directory:
+    - path: ".opencode/agents/"
+      change: "Unchanged — contains existing steps-value-analysis.md; no conflict with new files"
+  unchanged_files:
+    - path: ".opencode/agents/steps-value-analysis.md"
+      reason: "Pre-existing analysis doc; not touched by this spec"
+  no_affected_outside_agents:
+    description: "No changes outside .opencode/agents/. No skills, guidelines, configs, or tests are modified."
+  total_file_count:
+    created: 2
+    modified: 0
+    deleted: 0
+    total_affected: 2
