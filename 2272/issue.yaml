@@ -2,7 +2,9 @@ title: '[SPEC-FIX] Agent does not update ticket status during implementation aud
   or implementation-for-PR'
 status: open
 labels:
-- needs-approval
+- approved-for-pr
 body: ''
 created_at: '2026-08-12T05:51:22+00:00'
-updated_at: '2026-08-12T05:51:22+00:00'
+updated_at: '2026-08-12T05:51:37+00:00'
+github_url: '2272'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2272
