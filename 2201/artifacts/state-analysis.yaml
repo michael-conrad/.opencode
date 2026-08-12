@@ -1,0 +1,158 @@
+artifact_name: state-analysis
+generated_at: 2026-08-12
+source: "Spec #2201"
+content:
+  description: "State transitions for all files and directories affected by the gb-cli skill creation"
+  transitions:
+    - entity: ".opencode/skills/gb-cli/"
+      before: "Does not exist"
+      after: "Exists with SKILL.md and tasks/ (11 task cards)"
+      phase: 2
+    - entity: ".opencode/skills/gb-cli/SKILL.md"
+      before: "Does not exist"
+      after: "Exists — routing-only skill card with YAML frontmatter (name gb-cli, agent-intent description <=1024 chars, license MIT, compatibility opencode), Overview, Mandatory Task Discipline, Workflows section with dispatch contracts, Cross-References, SPDX/Provenance/byline headers"
+      phase: 2
+    - entity: ".opencode/skills/gb-cli/tasks/authenticate.md"
+      before: "Does not exist"
+      after: "Exists — gb auth status/login/config, version check >= 0.6.1, TOOL_MISSING BLOCKED"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/create-pr.md"
+      before: "Does not exist"
+      after: "Exists — gb pr create/view, no merge, references git-workflow for branch ops"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/triage-issues.md"
+      before: "Does not exist"
+      after: "Exists — gb issue list/view/edit/comment/close"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/review-pr.md"
+      before: "Does not exist"
+      after: "Exists — gb pr list/diff/comment/view, no merge"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/manage-repo.md"
+      before: "Does not exist"
+      after: "Exists — gb repo list/view/create/fork/delete"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/manage-labels.md"
+      before: "Does not exist"
+      after: "Exists — gb label list/view/create/edit/delete, post-creation label mutation limitation documented"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/manage-milestones.md"
+      before: "Does not exist"
+      after: "Exists — gb milestone list/view/create/edit/delete"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/search-investigate.md"
+      before: "Does not exist"
+      after: "Exists — iterative listing + client-side filter, no native search API limitation documented"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/api-requests.md"
+      before: "Does not exist"
+      after: "Exists — gb api <endpoint> passthrough"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/completion.md"
+      before: "Does not exist"
+      after: "Exists — gb completion -s bash/zsh/fish/powershell"
+      phase: 3
+    - entity: ".opencode/skills/gb-cli/tasks/common-workflows.md"
+      before: "Does not exist"
+      after: "Exists — end-to-end workflow examples"
+      phase: 3
+    - entity: ".opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml"
+      before: "Does not exist"
+      after: "Exists — per-workflow applicability assessment (APPLIES/REVISED/DISCARDED + rationale) from Phase 1 investigation (SC-17)"
+      phase: 1
+    - entity: ".opencode/skills/git-workflow/SKILL.md"
+      before: "No gb-cli reference"
+      after: "Adds gb-cli cross-reference entry"
+      phase: 4
+    - entity: ".opencode/skills/issue-operations/SKILL.md"
+      before: "No gb-cli reference"
+      after: "Adds gb-cli cross-reference entry"
+      phase: 4
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md"
+      before: "Standalone gb CLI command coverage; description does not indicate delegation"
+      after: "Adds gb-cli cross-reference; description updated to indicate delegation to gb-cli for workflow-level operations"
+      phase: 6
+    - entity: ".opencode/skills/release-promoter/SKILL.md"
+      before: "No gb-cli reference"
+      after: "Adds gb-cli cross-reference entry"
+      phase: 4
+    - entity: ".opencode/AGENTS.md"
+      before: "gb CLI documented in tool section without gb-cli skill reference"
+      after: "gb-cli added to gb CLI tool documentation section"
+      phase: 4
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/tool-detection.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; platform routing retained"
+      phase: 6
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; platform routing retained"
+      phase: 6
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/session-integration.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; session credential handling retained"
+      phase: 6
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; issue CRUD routing retained"
+      phase: 6
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; error recovery patterns retained"
+      phase: 6
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; label routing retained"
+      phase: 6
+    - entity: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/repository-operations.md"
+      before: "Contains duplicated gb CLI command reference tables"
+      after: "Duplicated tables removed; workflow-level gb command sequences replaced with gb-cli cross-references; repo routing retained"
+      phase: 6
+    - entity: ".opencode/tests-v2/behaviors/gb-cli-skill-discovery.sh"
+      before: "Does not exist"
+      after: "Exists — behavioral test for gb-cli skill discovery (SC-10)"
+      phase: 5
+    - entity: ".opencode/tests-v2/behaviors/gb-cli-auth-check.sh"
+      before: "Does not exist"
+      after: "Exists — behavioral test for gb auth status check"
+      phase: 5
+    - entity: ".opencode/tests-v2/behaviors/gb-cli-merge-prohibition.sh"
+      before: "Does not exist"
+      after: "Exists — behavioral test for gb pr merge prohibition"
+      phase: 5
+  checkpoint_tags:
+    - tag: "feature/2201-gb-cli/checkpoint/phase-1-main"
+      phase: 1
+      description: "After Phase 1 investigation: gb-workflow-applicability.yaml artifact produced"
+    - tag: "feature/2201-gb-cli/checkpoint/phase-2-main"
+      phase: 2
+      description: "After SKILL.md creation: gb-cli directory + routing-only SKILL.md"
+    - tag: "feature/2201-gb-cli/checkpoint/phase-3-main"
+      phase: 3
+      description: "After task cards creation: 11 task cards with canonical structure"
+    - tag: "feature/2201-gb-cli/checkpoint/phase-4-main"
+      phase: 4
+      description: "After cross-reference integration: gb-cli references in 4 SKILL.md files + AGENTS.md"
+    - tag: "feature/2201-gb-cli/checkpoint/phase-5-main"
+      phase: 5
+      description: "After behavioral tests: 3 behavioral test scripts PASS"
+    - tag: "feature/2201-gb-cli/checkpoint/phase-6-main"
+      phase: 6
+      description: "After gitbucket-api adaptation: delegation in place, no duplicated gb command tables"
+  solve_state:
+    state_file: "{project_root}/tmp/2201/state/"
+    contract_path: "skills/implementation-pipeline/pipeline-state-machine.yaml"
+    phase_variables:
+      - name: phase_1
+        value: pending
+      - name: phase_2
+        value: pending
+      - name: phase_3
+        value: pending
+      - name: phase_4
+        value: pending
+      - name: phase_5
+        value: pending
+      - name: phase_6
+        value: pending
+    verification: "solve check after each phase update"

@@ -1,0 +1,97 @@
+artifact_name: blast-radius
+generated_at: 2026-08-12
+source: "Spec #2201"
+content:
+  description: "All files and directories affected by the gb-cli skill creation across 6 phases"
+  new_skill_files:
+    - path: ".opencode/skills/gb-cli/SKILL.md"
+      change: "Created — routing-only skill card with YAML frontmatter, Workflows section"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/authenticate.md"
+      change: "Created — auth task card (auth status/login/config)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/create-pr.md"
+      change: "Created — PR creation task card (gb pr create/view, no merge)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/triage-issues.md"
+      change: "Created — issue triage task card (gb issue list/view/edit/comment/close)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/review-pr.md"
+      change: "Created — PR review task card (gb pr list/diff/comment/view)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/manage-repo.md"
+      change: "Created — repo management task card (gb repo list/view/create/fork/delete)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/manage-labels.md"
+      change: "Created — label management task card (gb label list/view/create/edit/delete)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/manage-milestones.md"
+      change: "Created — milestone management task card (gb milestone list/view/create/edit/delete)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/search-investigate.md"
+      change: "Created — search/investigation task card (iterative listing + client-side filter)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/api-requests.md"
+      change: "Created — API passthrough task card (gb api <endpoint>)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/completion.md"
+      change: "Created — shell completion task card (gb completion -s)"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/skills/gb-cli/tasks/common-workflows.md"
+      change: "Created — common workflows task card with end-to-end examples"
+      status: NEW_TARGET_ABSENT
+  modified_skill_files:
+    - path: ".opencode/skills/git-workflow/SKILL.md"
+      change: "Add gb-cli cross-reference entry"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/SKILL.md"
+      change: "Add gb-cli cross-reference entry"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md"
+      change: "Add gb-cli cross-reference, update description to indicate delegation"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/tool-detection.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/session-integration.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/issue-operations/platforms/gitbucket-api/tasks/repository-operations.md"
+      change: "Delegate workflow-level gb command sequences to gb-cli; retain platform routing"
+      status: EXISTS
+    - path: ".opencode/skills/release-promoter/SKILL.md"
+      change: "Add gb-cli cross-reference entry"
+      status: EXISTS
+    - path: ".opencode/AGENTS.md"
+      change: "Add gb-cli to gb CLI tool documentation section"
+      status: EXISTS
+  new_test_files:
+    - path: ".opencode/tests-v2/behaviors/gb-cli-skill-discovery.sh"
+      change: "Created — behavioral test: agent dispatches gb-cli skill on gb CLI intent"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/tests-v2/behaviors/gb-cli-auth-check.sh"
+      change: "Created — behavioral test: gb auth status checked before gb operations"
+      status: NEW_TARGET_ABSENT
+    - path: ".opencode/tests-v2/behaviors/gb-cli-merge-prohibition.sh"
+      change: "Created — behavioral test: gb pr merge not called"
+      status: NEW_TARGET_ABSENT
+  investigation_artifact_target:
+    - path: ".opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml"
+      change: "Created — per-workflow applicability assessment from Phase 1 investigation (SC-17)"
+      status: NEW_TARGET_ABSENT
+  total_file_count:
+    created: 16
+    modified: 12
+    total_affected: 28

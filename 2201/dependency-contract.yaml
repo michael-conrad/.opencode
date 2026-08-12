@@ -1,0 +1,189 @@
+schema_version: "1.0"
+issue_number: 2201
+project_root: /home/muksihs/git/opencode-config
+issues_prefix: .opencode/.issues
+variables:
+  phase_1:
+    type: bool
+    description: "Local GitBucket investigation — SC-17"
+  phase_2:
+    type: bool
+    description: "Skill directory and SKILL.md creation — SC-1, SC-2, SC-3, SC-4, SC-5"
+  phase_3:
+    type: bool
+    description: "Task cards creation — SC-6, SC-7, SC-8, SC-9, SC-11, SC-12, SC-13"
+  phase_4:
+    type: bool
+    description: "Cross-reference integration — SC-18"
+  phase_5:
+    type: bool
+    description: "Behavioral enforcement tests — SC-10"
+  phase_6:
+    type: bool
+    description: "gitbucket-api adaptation — SC-19, SC-20"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+  - "z3.Implies(phase_4, phase_2)"
+  - "z3.Implies(phase_5, phase_2)"
+  - "z3.Implies(phase_5, phase_3)"
+  - "z3.Implies(phase_6, phase_2)"
+  - "z3.Implies(phase_6, phase_3)"
+invariants: []
+postconditions: []
+phases:
+  - id: 1
+    name: Local GitBucket investigation
+    depends_on: []
+    preconditions:
+      - "gb CLI v0.6.1 installed and authenticated (gb auth status succeeds)"
+      - "Local test GitBucket instance available"
+    postconditions:
+      - ".opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml exists with per-workflow applicability assessment (APPLIES/REVISED/DISCARDED + rationale)"
+    items:
+      - item: 1
+        sc: SC-17
+        evidence_type: string
+  - id: 2
+    name: Skill directory and SKILL.md creation
+    depends_on:
+      - 1
+    preconditions:
+      - "Phase 1 complete (workflow applicability assessment produced)"
+      - "No existing gb-cli skill in .opencode/skills/ (verified ABSENT)"
+    postconditions:
+      - ".opencode/skills/gb-cli/SKILL.md exists with valid YAML frontmatter (name gb-cli, agent-intent description <=1024 chars, license MIT, compatibility opencode)"
+      - "SKILL.md uses routing-only template (no procedure text, only Workflows section with dispatch contracts)"
+    items:
+      - item: 2
+        sc: SC-1
+        evidence_type: structural
+      - item: 3
+        sc: SC-2
+        evidence_type: string
+      - item: 4
+        sc: SC-3
+        evidence_type: string
+      - item: 5
+        sc: SC-4
+        evidence_type: string
+      - item: 6
+        sc: SC-5
+        evidence_type: string
+  - id: 3
+    name: Task cards creation
+    depends_on:
+      - 2
+    preconditions:
+      - "Phase 2 complete (SKILL.md exists with Workflows section referencing task cards)"
+    postconditions:
+      - "11 task cards exist in .opencode/skills/gb-cli/tasks/ (authenticate, create-pr, triage-issues, review-pr, manage-repo, manage-labels, manage-milestones, search-investigate, api-requests, completion, common-workflows)"
+      - "Each task card follows canonical structure (Purpose, Task Discipline, Entry Criteria, Procedure, Exit Criteria, Result Contract)"
+      - "No gb command duplicates git-workflow task cards for PR creation, branch management, or commit operations"
+      - "gb auth status verification is an entry criterion for all auth-requiring operations"
+      - "gb pr merge prohibited with CRITICAL VIOLATION block"
+      - "All task cards include SPDX-FileCopyrightText, Provenance, and AI co-authored byline headers"
+    items:
+      - item: 7
+        sc: SC-6
+        evidence_type: structural
+      - item: 8
+        sc: SC-7
+        evidence_type: string
+      - item: 9
+        sc: SC-8
+        evidence_type: semantic
+      - item: 10
+        sc: SC-9
+        evidence_type: string
+      - item: 11
+        sc: SC-11
+        evidence_type: string
+      - item: 12
+        sc: SC-12
+        evidence_type: structural
+      - item: 13
+        sc: SC-13
+        evidence_type: string
+      - item: 14
+        sc: SC-14
+        evidence_type: string
+      - item: 15
+        sc: SC-15
+        evidence_type: string
+      - item: 16
+        sc: SC-16
+        evidence_type: string
+  - id: 4
+    name: Cross-reference integration
+    depends_on:
+      - 2
+    preconditions:
+      - "Phase 2 complete (gb-cli skill exists)"
+    postconditions:
+      - "gb-cli cross-references appear in git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files"
+      - ".opencode/AGENTS.md gb CLI tool documentation section references gb-cli skill"
+    items:
+      - item: 17
+        sc: SC-18
+        evidence_type: string
+  - id: 5
+    name: Behavioral enforcement tests
+    depends_on:
+      - 2
+      - 3
+    preconditions:
+      - "Phase 2 complete (gb-cli skill exists for discovery test)"
+      - "Phase 3 complete (task cards exist for auth check and merge prohibition tests)"
+    postconditions:
+      - "3 behavioral test scripts exist in .opencode/tests-v2/behaviors/ (gb-cli-skill-discovery.sh, gb-cli-auth-check.sh, gb-cli-merge-prohibition.sh)"
+      - "gb-cli entry appears in <available_skills> after deployment"
+    items:
+      - item: 18
+        sc: SC-10
+        evidence_type: behavioral
+  - id: 6
+    name: gitbucket-api adaptation
+    depends_on:
+      - 2
+      - 3
+    preconditions:
+      - "Phase 2 complete (gb-cli SKILL.md exists as delegation target)"
+      - "Phase 3 complete (gb-cli task cards exist as delegation references)"
+    postconditions:
+      - "gitbucket-api SKILL.md description updated to indicate delegation to gb-cli for workflow-level operations"
+      - "7 gitbucket-api task files have duplicated gb CLI command reference tables removed or replaced with cross-references to gb-cli"
+      - "Platform-specific routing logic retained in gitbucket-api task files"
+    items:
+      - item: 19
+        sc: SC-19
+        evidence_type: semantic
+      - item: 20
+        sc: SC-20
+        evidence_type: string
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Workflow applicability assessment (Phase 1) determines the dispatch contracts in the SKILL.md Workflows section (Phase 2)"
+  - from: phase_2
+    to: phase_3
+    rationale: "SKILL.md Workflows section (Phase 2) references the task cards created in Phase 3"
+  - from: phase_2
+    to: phase_4
+    rationale: "gb-cli skill must exist (Phase 2) before other skills can cross-reference it (Phase 4)"
+  - from: phase_2
+    to: phase_5
+    rationale: "gb-cli skill must exist (Phase 2) before behavioral discovery test can verify it appears in available_skills (Phase 5)"
+  - from: phase_3
+    to: phase_5
+    rationale: "Task cards must exist (Phase 3) before behavioral tests for auth checks and merge prohibition can run (Phase 5)"
+  - from: phase_2
+    to: phase_6
+    rationale: "gitbucket-api delegation (Phase 6) requires gb-cli SKILL.md to exist as the delegation target (Phase 2)"
+  - from: phase_3
+    to: phase_6
+    rationale: "gitbucket-api task files delegate workflow-level gb command sequences to gb-cli task cards (Phase 3)"
+notes:
+  - "Phases are strictly sequential per concern-map phase_independence — each phase depends on the previous, with Phase 4/5/6 additionally gated on Phase 2/3 outputs."
+  - "Phase 4 (cross-references) and Phase 5 (behavioral tests) are independent of each other — no edge between them."
+  - "Phase 6 (gitbucket-api adaptation) is the terminal phase, depending on both the gb-cli skill card (Phase 2) and task cards (Phase 3)."

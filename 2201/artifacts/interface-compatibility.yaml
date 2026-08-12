@@ -1,0 +1,173 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-12
+source: "Spec #2201"
+content:
+  description: "Interface boundaries and compatibility analysis for the gb-cli skill creation"
+  regression_invariants:
+    - invariant: "Existing gitbucket-api sub-skill keeps its platform-scoped routing role (issue/PR/label/repo CRUD routing, owner/repo resolution, auth verification, error recovery)"
+      verification: "gitbucket-api task files retain platform-specific routing logic after adaptation (SC-20)"
+    - invariant: "git-workflow skill remains the sole owner of git operations (branch, commit, merge, PR creation via git)"
+      verification: "SC-8 — no gb command in gb-cli task cards duplicates git-workflow procedures"
+    - invariant: "issue-operations dispatcher remains the entry point for issue platform routing"
+      verification: "issue-operations/SKILL.md unchanged except added gb-cli cross-reference"
+    - invariant: "release-promoter retains its release workflow ownership"
+      verification: "release-promoter/SKILL.md unchanged except added gb-cli cross-reference"
+    - invariant: "gb pr merge remains human-only (critical-rules-merge)"
+      verification: "SC-13 — CRITICAL VIOLATION block in create-pr and review-pr task cards"
+    - invariant: "New gb-cli skill must not create naming/path conflicts in .opencode/skills/"
+      verification: "Phase 2 conflict check — no existing gb-cli directory (verified ABSENT in blast-radius)"
+  interface_boundaries:
+    skill_calls:
+      status: "ADDED"
+      description: "skill({name: 'gb-cli'}) becomes a new entry point for gb CLI workflows"
+      affected_skills:
+        - gb-cli (new)
+        - git-workflow (cross-reference)
+        - issue-operations (cross-reference)
+        - gitbucket-api (delegation target)
+        - release-promoter (cross-reference)
+    task_calls:
+      status: "ADDED"
+      description: "task(..., prompt: 'execute <workflow> from gb-cli') dispatches to gb-cli task cards (authenticate, create-pr, triage-issues, review-pr, manage-repo, manage-labels, manage-milestones, search-investigate, api-requests, completion, common-workflows)"
+    delegation_contract:
+      status: "NEW"
+      description: "gitbucket-api delegates workflow-level gb command sequences to gb-cli task cards"
+      details:
+        - "gitbucket-api SKILL.md description updated to indicate delegation"
+        - "7 gitbucket-api task files retain platform routing but reference gb-cli task cards for gb command sequences"
+      precedence: "gb-cli is the PRIMARY entry point for gb workflows (SC-19)"
+    git_operation_boundary:
+      status: "UNCHANGED"
+      description: "git operations (branch, commit, merge) remain owned by git-workflow; gb-cli create-pr/review-pr task cards reference git-workflow for branch operations"
+      rationale: "Prevents command duplication per SC-8"
+    available_skills_discovery:
+      status: "AUTO"
+      description: "opencode auto-discovers skills in .opencode/skills/ — gb-cli appears in <available_skills> after deployment (SC-10)"
+      requirement: "Valid YAML frontmatter (name, description <=1024 chars, license, compatibility)"
+  external_interface_impact:
+    skill_api: "ADDITIVE — new gb-cli skill; no existing skill removed"
+    task_api: "ADDITIVE — new gb-cli task cards; no existing task removed"
+    cross_references: "MINOR — gitbucket-api/git-workflow/issue-operations/release-promoter SKILL.md files gain gb-cli references; gitbucket-api description updated"
+    user_facing: "NONE — no user-facing API changes; gitbucket-api behavior preserved through delegation"
+    test_suite: "ADDITIVE — 3 new behavioral tests in .opencode/tests-v2/behaviors/"
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Local GitBucket investigation — SC-17"
+    phase_2:
+      type: bool
+      description: "Skill directory and SKILL.md creation — SC-1, SC-2, SC-3, SC-4, SC-5"
+    phase_3:
+      type: bool
+      description: "Task cards creation — SC-6, SC-7, SC-8, SC-9, SC-11, SC-12, SC-13"
+    phase_4:
+      type: bool
+      description: "Cross-reference integration — SC-18"
+    phase_5:
+      type: bool
+      description: "Behavioral enforcement tests — SC-10"
+    phase_6:
+      type: bool
+      description: "gitbucket-api adaptation — SC-19, SC-20"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+    - "z3.Implies(phase_4, phase_2)"
+    - "z3.Implies(phase_5, phase_2)"
+    - "z3.Implies(phase_5, phase_3)"
+    - "z3.Implies(phase_6, phase_2)"
+    - "z3.Implies(phase_6, phase_3)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml
+      scs:
+        - SC-17
+    phase_2:
+      files:
+        - .opencode/skills/gb-cli/SKILL.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+    phase_3:
+      files:
+        - .opencode/skills/gb-cli/tasks/authenticate.md
+        - .opencode/skills/gb-cli/tasks/create-pr.md
+        - .opencode/skills/gb-cli/tasks/triage-issues.md
+        - .opencode/skills/gb-cli/tasks/review-pr.md
+        - .opencode/skills/gb-cli/tasks/manage-repo.md
+        - .opencode/skills/gb-cli/tasks/manage-labels.md
+        - .opencode/skills/gb-cli/tasks/manage-milestones.md
+        - .opencode/skills/gb-cli/tasks/search-investigate.md
+        - .opencode/skills/gb-cli/tasks/api-requests.md
+        - .opencode/skills/gb-cli/tasks/completion.md
+        - .opencode/skills/gb-cli/tasks/common-workflows.md
+      scs:
+        - SC-6
+        - SC-7
+        - SC-8
+        - SC-9
+        - SC-11
+        - SC-12
+        - SC-13
+    phase_4:
+      files:
+        - .opencode/skills/git-workflow/SKILL.md
+        - .opencode/skills/issue-operations/SKILL.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+        - .opencode/skills/release-promoter/SKILL.md
+        - .opencode/AGENTS.md
+      scs:
+        - SC-18
+    phase_5:
+      files:
+        - .opencode/tests-v2/behaviors/gb-cli-skill-discovery.sh
+        - .opencode/tests-v2/behaviors/gb-cli-auth-check.sh
+        - .opencode/tests-v2/behaviors/gb-cli-merge-prohibition.sh
+      scs:
+        - SC-10
+    phase_6:
+      files:
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/tool-detection.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/session-integration.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+        - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/repository-operations.md
+      scs:
+        - SC-19
+        - SC-20
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Workflow applicability assessment (Phase 1) determines the dispatch contracts in the SKILL.md Workflows section (Phase 2)"
+    - from: phase_2
+      to: phase_3
+      rationale: "SKILL.md Workflows section (Phase 2) references the task cards created in Phase 3"
+    - from: phase_2
+      to: phase_4
+      rationale: "gb-cli skill must exist (Phase 2) before other skills can cross-reference it (Phase 4)"
+    - from: phase_2
+      to: phase_5
+      rationale: "gb-cli skill must exist (Phase 2) before behavioral discovery test can verify it appears in available_skills (Phase 5)"
+    - from: phase_3
+      to: phase_5
+      rationale: "Task cards must exist (Phase 3) before behavioral tests for auth checks and merge prohibition can run (Phase 5)"
+    - from: phase_2
+      to: phase_6
+      rationale: "gitbucket-api delegation (Phase 6) requires gb-cli SKILL.md to exist as the delegation target (Phase 2)"
+    - from: phase_3
+      to: phase_6
+      rationale: "gitbucket-api task files delegate workflow-level gb command sequences to gb-cli task cards (Phase 3)"
+  notes:
+    - "Phases are strictly sequential per concern-map phase_independence — each phase depends on the previous, with Phase 4/5/6 additionally gated on Phase 2/3 outputs."
+    - "Phase 4 (cross-references) and Phase 5 (behavioral tests) are independent of each other — no edge between them."
+    - "Phase 6 (gitbucket-api adaptation) is the terminal phase, depending on both the gb-cli skill card (Phase 2) and task cards (Phase 3)."
