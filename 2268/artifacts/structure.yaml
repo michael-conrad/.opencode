@@ -1,0 +1,120 @@
+# Structure artifact — issue #2268
+# Phase decomposition, dependency DAG, skill+task selection
+
+phases:
+  - id: phase_1
+    name: "create vision-agent card"
+    concern: "SC-1 — create .opencode/agents/vision-agent.md with exact frontmatter and body"
+    scs:
+      - SC-1
+    items:
+      - SC-1: item-01 (create .opencode/agents/vision-agent.md with exact frontmatter and body from spec)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_2
+    name: "create visual-design-agent card"
+    concern: "SC-2 — create .opencode/agents/visual-design-agent.md with exact frontmatter and body"
+    scs:
+      - SC-2
+    items:
+      - SC-2: item-02 (create .opencode/agents/visual-design-agent.md with exact frontmatter and body from spec)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_3
+    name: "validate both cards"
+    concern: "SC-3 — both files are valid opencode sub-agent cards (frontmatter fields, mode: subagent, provider-prefixed model ID)"
+    scs:
+      - SC-3
+    items:
+      - SC-3: item-03 (validate both card files for frontmatter correctness, mode: subagent, provider-prefixed model)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_4
+    name: "verify agent names"
+    concern: "SC-4 — agent names are exactly vision-agent and visual-design-agent (no suffix)"
+    scs:
+      - SC-4
+    items:
+      - SC-4: item-04 (verify agent name fields exactly vision-agent and visual-design-agent)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_3
+      rationale: "SC-3 validity check requires vision-agent.md to exist (SC-1 output)."
+    - from: phase_2
+      to: phase_3
+      rationale: "SC-3 validity check requires visual-design-agent.md to exist (SC-2 output)."
+    - from: phase_1
+      to: phase_4
+      rationale: "SC-4 name check requires vision-agent.md to exist (SC-1 output)."
+    - from: phase_2
+      to: phase_4
+      rationale: "SC-4 name check requires visual-design-agent.md to exist (SC-2 output)."
+
+triplet_colocation:
+  status: VERIFIED
+  notes: "All SC-1..4 have RED/GREEN/COMMIT steps assigned to a single phase (one phase per SC, aligned to sc-summary plan_items 1-4). No split triplets."
+
+cross_phase_dependency:
+  status: VERIFIED
+  notes: "No RED test in a later phase depends on SC output committed in a later phase. Phase 3 and phase 4 depend on phase 1 and phase 2 (both earlier). All dependency edges point forward (lower to higher phase number). No forward RED dependency."
+
+skill_task_selection:
+  - phase: phase_1
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-1"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_2
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-2"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_3
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-3"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"
+  - phase: phase_4
+    per_sc_cycle: "RED -> GREEN -> COMMIT per SC-4"
+    red: "execute red task from test-driven-development"
+    green: "execute green task from test-driven-development"
+    commit_inline: "orchestrator git add + commit"
+    verify: "execute verify task from verification-before-completion"

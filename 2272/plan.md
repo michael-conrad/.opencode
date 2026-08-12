@@ -5,6 +5,16 @@ title: "Ticket status-check-and-update reconciliation for audit + git-workflow-p
 authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 3
+dispatch:
+  - phase: 1
+    skill: test-driven-development
+    task: red
+  - phase: 2
+    skill: test-driven-development
+    task: red
+  - phase: 3
+    skill: test-driven-development
+    task: red
 ---
 
 # Implementation Plan — #2272 — Ticket Status-Check-and-Update Reconciliation
