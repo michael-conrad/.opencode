@@ -4,7 +4,7 @@ issue: 2283
 title: "Remove branch-finishing sub-issue creation mandate; protect PR autoclose and plan content confidentiality"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 3
+phase_count: 4
 dispatch:
   - phase: 1
     skill: test-driven-development
@@ -15,6 +15,9 @@ dispatch:
   - phase: 3
     skill: test-driven-development
     task: red
+  - phase: 4
+    skill: test-driven-development
+    task: red
 ---
 
 # Implementation Plan — #2283 — Remove Branch-Finishing Sub-Issue Creation Mandate
@@ -23,7 +26,7 @@ dispatch:
 
 **Goal:** Eliminate the branch-finishing checklist's unconditional plan-phase sub-issue creation mandate, remove the sub-issue closure readiness gates, add a behavioral test proving zero sub-issue creation at finishing time, prevent PR-merge autoclose from sweeping plan-phase sub-issues, and stop posting plan phase prose to public issue bodies.
 
-**Architecture:** Three-phase sequential change across four skill/task files and the behavioral test harness. Phase 1 (SC-1, SC-2) rewrites the Sub-Issue Linkage Verification gate in `checklist.md` into a no-create rule and removes the sub-issue closure readiness gates from `operating-protocol.md`. Phase 2 (SC-3) adds a behavioral enforcement test that proves an agent running the modified checklist on a fully-implemented multi-phase plan creates zero sub-issues — it depends on Phase 1 because it exercises the SC-1-modified checklist. Phase 3 (SC-4, SC-5) gates the PR-merge autoclose sweep in `create-pr.md` so plan-phase sub-issues are never auto-closed, and removes plan phase prose composition from `link-sub-issue.md` so plan content never reaches public issue bodies. The phase DAG (1 → 2 → 3) is acyclic and Z3-SAT validated. Each SC maps to exactly one item; no item covers multiple SCs.
+**Architecture:** Four-phase sequential change across four skill/task files and the behavioral test harness. Phase 1 (SC-1, SC-2) rewrites the Sub-Issue Linkage Verification gate in `checklist.md` into a no-create rule and removes the sub-issue closure readiness gates from `operating-protocol.md`. Phase 2 (SC-3) adds a behavioral enforcement test that proves an agent running the modified checklist on a fully-implemented multi-phase plan creates zero sub-issues — it depends on Phase 1 because it exercises the SC-1-modified checklist. Phase 3 (SC-4) gates the PR-merge autoclose sweep in `create-pr.md` so plan-phase sub-issues are never auto-closed. Phase 4 (SC-5) removes plan phase prose composition from `link-sub-issue.md` so plan content never reaches public issue bodies. Each phase addresses exactly one concern from the concern-map artifact. The phase DAG (1 → 2 → 3 → 4) is acyclic and Z3-SAT validated. Each SC maps to exactly one item; no item covers multiple SCs.
 
 **Files (sub-folder references):**
 - `.opencode/skills/finishing-a-development-branch/tasks/checklist.md`
@@ -38,7 +41,7 @@ dispatch:
 
 These steps run once before any phase begins.
 
-- [ ] **P1. Coherence gate (**clean-room**).** Verify the plan is coherent with the spec: every SC (SC-1, SC-2, SC-3, SC-4, SC-5) is mapped to exactly one item, no item covers multiple SCs, the phase DAG (Phase 1 → Phase 2 → Phase 3) is acyclic and Z3-SAT validated, and no superseding/stale spec exists. **→ all SCs**
+- [ ] **P1. Coherence gate (**clean-room**).** Verify the plan is coherent with the spec: every SC (SC-1, SC-2, SC-3, SC-4, SC-5) is mapped to exactly one item, no item covers multiple SCs, the phase DAG (Phase 1 → Phase 2 → Phase 3 → Phase 4) is acyclic and Z3-SAT validated, and no superseding/stale spec exists. **→ all SCs**
 - [ ] **P2. Baseline check (**sub-agent**).** Verify the working tree is at trunk tip with zero pending changes and no stale `tmp/.behavior-run.lock`. Confirm the target files exist (`finishing-a-development-branch/tasks/checklist.md`, `finishing-a-development-branch/tasks/operating-protocol.md`, `git-workflow-pr/tasks/pr-creation/create-pr.md`, `issue-operations-sub-issues/tasks/link-sub-issue.md`, `tests-v2/with-test-home`) and confirm the current defect lines: `checklist.md` Sub-Issue Linkage Verification section (link-sub-issue creation mandate), `operating-protocol.md` sub-issue closure readiness gates, `create-pr.md` `autoclose_issues` sub-issue sweep, `link-sub-issue.md` plan prose body composition. **→ all SCs**
 
 ---
@@ -49,7 +52,8 @@ These steps run once before any phase begins.
 |-------|-------|------|--------|-----|------------|
 | 1 — Branch-finishing gate removal | `test-driven-development` | `red` | `.opencode/skills/finishing-a-development-branch/tasks/checklist.md`, `operating-protocol.md` | SC-1, SC-2 | — |
 | 2 — Behavioral enforcement | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2283-sc3-no-subissue-creation.sh` (new) | SC-3 | 1 |
-| 3 — PR autoclose + plan-content protection | `test-driven-development` | `red` | `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md`, `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` | SC-4, SC-5 | 2 |
+| 3 — PR autoclose protection | `test-driven-development` | `red` | `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` | SC-4 | 2 |
+| 4 — Plan-content protection | `test-driven-development` | `red` | `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` | SC-5 | 3 |
 
 ---
 
@@ -92,23 +96,41 @@ These steps run once before any phase begins.
 
 **Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Running the behavioral test costs minutes of execution time; skipping means a regression that reintroduces retrospective sub-issue creation ships undetected.
 
-### Phase 3 — PR Autoclose + Plan-Content Protection
+### Phase 3 — PR Autoclose Protection
 
 | Field | Value |
 |-------|-------|
 | Skill | `test-driven-development` |
 | Task | `red` |
-| Target | `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md`, `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` |
-| SCs | SC-4, SC-5 |
+| Target | `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` |
+| SCs | SC-4 |
 | Depends On | 2 |
 
 **Context:**
-- files_to_modify: `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` (`autoclose_issues` collection), `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` (sub-issue body composition)
-- sc_ids: SC-4, SC-5
-- behavior: PR-merge autoclose excludes plan-phase sub-issues (parent autoclose preserved); sub-issue bodies are metadata-only — plan phase prose (Field/Value tables, Context YAML blocks, Procedure steps) is never posted to public issue bodies
+- files_to_modify: `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` (`autoclose_issues` collection)
+- sc_ids: SC-4
+- behavior: PR-merge autoclose excludes plan-phase sub-issues (parent autoclose preserved)
 - constraints: issue-operations-sub-issues API capability and the multi-task authorization cascade model remain unchanged (out of scope)
 
-**Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Verifying the autoclose gate and body composition costs one grep per file; skipping means legitimate tracking sub-issues are silently closed on PR merge and plan content keeps leaking to the public tracker.
+**Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Verifying the autoclose gate costs one grep of `create-pr.md`; skipping means legitimate tracking sub-issues are silently closed on PR merge, erasing tracking state.
+
+### Phase 4 — Plan-Content Protection
+
+| Field | Value |
+|-------|-------|
+| Skill | `test-driven-development` |
+| Task | `red` |
+| Target | `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` |
+| SCs | SC-5 |
+| Depends On | 3 |
+
+**Context:**
+- files_to_modify: `.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md` (sub-issue body composition)
+- sc_ids: SC-5
+- behavior: sub-issue bodies are metadata-only — plan phase prose (Field/Value tables, Context YAML blocks, Procedure steps) is never posted to public issue bodies
+- constraints: issue-operations-sub-issues API capability remains unchanged (out of scope)
+
+**Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Verifying the body composition costs one grep of `link-sub-issue.md`; skipping means plan content keeps leaking to the public tracker, exposing internal plan artifacts.
 
 ---
 
@@ -119,4 +141,4 @@ These steps run once before any phase begins.
 - [ ] C3. A behavioral enforcement test verifies an agent running the branch-finishing checklist on a fully-implemented multi-phase plan creates zero sub-issues (SC-3).
 - [ ] C4. `git-workflow-pr/tasks/pr-creation/create-pr.md` does not auto-close plan-phase sub-issues on PR merge; parent autoclose preserved (SC-4).
 - [ ] C5. Plan content (phase tables, context YAML, procedure steps) is not posted to public issue bodies; plan files live only in the local `.issues/{N}/` spec folder (SC-5).
-- [ ] C6. All five SCs map to exactly one item each; no item covers multiple SCs; the phase DAG (1 → 2 → 3) is acyclic and Z3-SAT validated.
+- [ ] C6. All five SCs map to exactly one item each; no item covers multiple SCs; the phase DAG (1 → 2 → 3 → 4) is acyclic and Z3-SAT validated.

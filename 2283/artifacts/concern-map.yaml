@@ -22,7 +22,7 @@ concerns:
   - id: plan_content_protection
     name: Plan Content Confidentiality
     description: "Prevent plan phase prose from being posted to public issue bodies; plan files live only in the local .issues/{N}/ spec folder."
-    phase: 3
+    phase: 4
     scs:
       - SC-5
 phase_boundaries:
@@ -36,5 +36,9 @@ phase_boundaries:
     scs: [SC-3]
   phase_3:
     entry: phase 2 complete
-    exit: create-pr.md does not sweep plan-phase sub-issues into autoclose; plan content not posted to public issue bodies
-    scs: [SC-4, SC-5]
+    exit: create-pr.md does not sweep plan-phase sub-issues into autoclose
+    scs: [SC-4]
+  phase_4:
+    entry: phase 3 complete
+    exit: plan content not posted to public issue bodies
+    scs: [SC-5]
