@@ -1,0 +1,75 @@
+spec_path: .opencode/.issues/2201/spec.md
+approval_status: approved
+approval_label: approved-for-for_pr
+sc_count: 20
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
+  - SC-8
+  - SC-9
+  - SC-10
+  - SC-11
+  - SC-12
+  - SC-13
+  - SC-14
+  - SC-15
+  - SC-16
+  - SC-17
+  - SC-18
+  - SC-19
+  - SC-20
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - path: .opencode/skills/gb-cli/SKILL.md
+    status: NEW_TARGET_ABSENT
+    note: Expected new file; correctly absent (no conflict)
+  - path: .opencode/skills/git-workflow/SKILL.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/SKILL.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/tool-detection.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/session-integration.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+    status: EXISTS
+  - path: .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/repository-operations.md
+    status: EXISTS
+  - path: .opencode/skills/release-promoter/SKILL.md
+    status: EXISTS
+  - path: .opencode/AGENTS.md
+    status: EXISTS
+  - path: .opencode/tests-v2/behaviors/gb-cli-skill-discovery.sh
+    status: NEW_TARGET_ABSENT
+    note: Expected new file; correctly absent (no conflict)
+  - path: .opencode/tests-v2/behaviors/gb-cli-auth-check.sh
+    status: NEW_TARGET_ABSENT
+    note: Expected new file; correctly absent (no conflict)
+  - path: .opencode/tests-v2/behaviors/gb-cli-merge-prohibition.sh
+    status: NEW_TARGET_ABSENT
+    note: Expected new file; correctly absent (no conflict)
+findings:
+  - type: MISSING_ARTIFACTS
+    detail: All 7 analytical artifacts missing from .opencode/.issues/2201/artifacts/ (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment). Backfill required before plan creation.
+  - type: SC_COUNT_MISMATCH
+    detail: sc-summary.yaml lists 13 SCs; spec.md defines 20 SCs (SC-1..SC-20). sc-summary.yaml is stale and must be regenerated during backfill.
