@@ -1,0 +1,76 @@
+# Structure artifact — issue #2267
+# Phase decomposition, dependency DAG, skill+task selection
+
+phases:
+  - id: phase_1
+    name: "Remove no-op mergeability trigger from create-pr.md"
+    concern: "SC-1, SC-2, SC-3 — remove the no-op comment trigger (github_add_issue_comment) and empty-push fallback (git commit --allow-empty) from Step 7.2.4, replace with git merge-base --is-ancestor origin/<target> HEAD, re-route mergeable:null path and diagnosis output to verified-locally"
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    items:
+      - SC-1: item-01 (remove github_add_issue_comment no-op trigger from create-pr.md Step 7.2.4)
+      - SC-2: item-02 (remove git commit --allow-empty empty-push fallback from create-pr.md Step 7.2.4)
+      - SC-3: item-03 (replace with git merge-base --is-ancestor origin/<target> HEAD; re-route Step 7.2.2 mergeable:null path and Step 7.2.5 diagnosis to verified-locally; keep 7.2.x step numbers stable)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_2
+    name: "Align enforcement-gate.md pre-creation gate"
+    concern: "SC-4 — align enforcement-gate.md Step 1.5d/e so the pre-creation None/unknown path explicitly names the local merge-base check and the Step 1.5e cross-reference to the post-creation check remains valid"
+    scs:
+      - SC-4
+    items:
+      - SC-4: item-04 (align enforcement-gate.md Step 1.5d None/unknown path to name the local merge-base check; verify Step 1.5e cross-reference to post-creation check remains valid)
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+  - id: phase_3
+    name: "Add behavioral enforcement tests"
+    concern: "Behavioral tests — add behavioral enforcement test asserting the agent does not post a no-op trigger comment and instead reports verified-locally (spec call to action; no numbered SC)"
+    scs: []
+    items:
+      - "behavioral: item-05 (create .opencode/tests-v2/behaviors/git-workflow-pr-no-op-trigger.sh asserting no trigger comment posted and verified-locally reported)"
+    skill_task:
+      skill: test-driven-development
+      task: "execute red task from test-driven-development"
+    skill_task_green:
+      skill: test-driven-development
+      task: "execute green task from test-driven-development"
+    skill_task_verify:
+      skill: verification-before-completion
+      task: "execute verify task from verification-before-completion"
+
+dag_edges:
+  - from: phase_1
+    to: phase_2
+  - from: phase_1
+    to: phase_3
+  - from: phase_2
+    to: phase_3
+
+triplet_colocation:
+  status: PASS
+  detail: "All SCs have RED/GREEN/verify/commit steps assigned to the same phase (SC-1..SC-3 in phase_1, SC-4 in phase_2). No splits detected."
+
+cross_phase_dependency:
+  status: PASS
+  detail: "No RED test depends on SC output from a later phase. Phase 2 RED depends on Phase 1 output (SC-4 names the Phase 1 local merge-base check, committed in phase_1). Phase 3 depends on phases 1 and 2 outputs."
+
+skill_task_selection:
+  detail: "Each phase maps to test-driven-development red/green daisy-chain per the implementation-workflow reference card. Per-item RED/GREEN/verify/commit cycles enforced."

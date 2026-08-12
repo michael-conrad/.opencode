@@ -1,0 +1,11 @@
+actions:
+- name: run_p1
+  parameters: []
+- name: run_p2
+  parameters: []
+- name: run_p3
+  parameters: []
+domain: mergeability-check
+engine: tamer
+plan_length: 3
+status: SOLVED_SATISFICING
