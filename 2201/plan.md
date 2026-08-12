@@ -12,6 +12,11 @@ dispatch:
   - finishing-a-development-branch
   - git-workflow-pr
   - completion-core
+lifecycle_events:
+  - timestamp: 2026-08-12T23:39:24Z
+    event: plan_created
+    plan_path: .opencode/.issues/2201/plan.md
+    phase_count: 6
 ---
 
 # Implementation Plan — #2201 — Create gb-cli skill for GitBucket CLI operations
