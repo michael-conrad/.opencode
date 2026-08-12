@@ -89,6 +89,17 @@ dispatch:
 
 ---
 
+## Global Pre-Implementation Steps
+
+These steps run once before any phase. Global sequential numbering across all phase files starts at step 5 in Phase 1.
+
+- [ ] 1. **Pre-implementation — coherence gate (**inline**).** Verify the spec, structure artifact, and plan are mutually consistent: SC-1 maps to Phase 1, SC-2 maps to Phase 2, SC-3 and SC-4 map to Phase 3, and the phase DAG is acyclic (edges phase_1→phase_3 and phase_2→phase_3 only). If any inconsistency is found, HALT and report. **→ global pre-gate**
+- [ ] 2. **Pre-implementation — baseline check (**inline**).** Verify the affected skill directories exist (`.opencode/skills/audit/`, `.opencode/skills/git-workflow-pr/`) and the working tree is on a feature branch with no uncommitted changes. Confirm the feature branch was created before any file modification. **→ global pre-gate**
+- [ ] 3. **Pre-regression (**sub-agent**).** Dispatch `task(..., prompt: "execute phase-0 task from test-driven-development")`. Run regression test patterns to establish the baseline before the RED phase. **→ global pre-gate**
+- [ ] 4. **Pre-regression verify (**sub-agent**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Verify the pre-regression results. **→ global pre-gate**
+
+---
+
 ## Exit Criteria
 
 - [ ] C1. Audit skill workflow gains a status-check-and-update step after a PASS verdict (SC-1)
