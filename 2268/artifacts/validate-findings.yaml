@@ -1,0 +1,64 @@
+overall_status: FAIL
+issue: 2268
+generated_at: 2026-08-12
+categories:
+  - name: "Structural validation"
+    status: FAIL
+    checks:
+      - name: "plan.md has phase table with required columns"
+        result: PASS
+        details: "Phase table has columns Phase, Skill, Task, Target, SCs, Depends On for all 4 phases"
+      - name: "Each phase has procedure section with numbered steps"
+        result: FAIL
+        details: "Phase Details sections contain only Context blocks (target_file, source, evidence_type, verification_test, sc_ids) and Cost frame statements. No numbered checkbox steps (RED/GREEN/COMMIT cycle) are present in any phase procedure section."
+      - name: "Exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        details: "Exit Criteria section has C1-C6 mapping to SC-1 through SC-4 plus regression invariants"
+  - name: "Skill+task validity"
+    status: PASS
+    checks:
+      - name: "All skill+task references match implementation-workflow reference card"
+        result: PASS
+        details: "All 4 phases dispatch to test-driven-development/red, which is a valid entry in the implementation-workflow reference card RED-GREEN Daisy-Chain table"
+  - name: "SC coverage"
+    status: PASS
+    checks:
+      - name: "Every SC from spec appears in at least one phase"
+        result: PASS
+        details: "SC-1 in phase 1, SC-2 in phase 2, SC-3 in phase 3, SC-4 in phase 4. All 4 SCs covered."
+      - name: "Triplet split detection (RED/GREEN/COMMIT in same phase)"
+        result: PASS
+        details: "Each phase covers exactly one SC, so no SC has RED/GREEN/COMMIT steps split across phases"
+  - name: "Concern separation"
+    status: FAIL
+    checks:
+      - name: "Each phase addresses exactly one concern from the concern-map artifact"
+        result: FAIL
+        details: "Concern-map artifact defines 3 phases: phase 1 (Create vision-agent card, SC-1), phase 2 (Create visual-design-agent card, SC-2), phase 3 (Validate both agent cards, SC-3+SC-4). The plan has 4 phases, splitting the concern-map's phase 3 concern 'Validate both agent cards' into plan phase 3 (Validate both cards, SC-3) and plan phase 4 (Verify agent names, SC-4)."
+      - name: "No two phases address the same concern"
+        result: FAIL
+        details: "Plan phases 3 and 4 both address the concern-map's single 'Validate both agent cards' concern. The concern-map artifact is inconsistent with the plan's 4-phase structure (dependency contract and solve output use 4 phases)."
+  - name: "DAG validation"
+    status: PASS
+    checks:
+      - name: "Dependency contract DAG has no cycles"
+        result: PASS
+        details: "Edges: phase_1->phase_3, phase_2->phase_3, phase_1->phase_4, phase_2->phase_4. No cycles. Z3 solve status SAT."
+      - name: "All phases reachable from start node"
+        result: PASS
+        details: "phase_1 and phase_2 are start nodes (no incoming edges); phase_3 and phase_4 reachable from both"
+      - name: "No orphan phases"
+        result: PASS
+        details: "phase_1 and phase_2 have outgoing edges; phase_3 and phase_4 have incoming edges. No orphans."
+  - name: "Holistic quality"
+    status: FAIL
+    checks:
+      - name: "No TBD/TODO placeholders"
+        result: PASS
+        details: "No TBD/TODO placeholder patterns found in plan body"
+      - name: "All steps use checkbox format"
+        result: FAIL
+        details: "Phase sections contain no checkbox steps at all — only Context bullet lists and Cost frame paragraphs. The only checkboxes are in the Exit Criteria section."
+      - name: "Dispatch mode consistency"
+        result: FAIL
+        details: "Frontmatter dispatch array declares test-driven-development/red for all 4 phases, but the plan body contains no dispatched steps (no (**sub-agent**) or (**inline**) indicators). The per-task cycle steps required by the implementation-workflow reference card are absent."
