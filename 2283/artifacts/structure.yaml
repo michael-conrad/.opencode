@@ -42,11 +42,10 @@ phases:
       verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
       commit: "orchestrator commit-inline"
   - id: 3
-    name: pr_autoclose_and_plan_content_protection
-    description: "Fix create-pr.md autoclose so plan-phase sub-issues are not auto-closed on PR merge; prevent plan phase prose from being posted to public issue bodies."
+    name: pr_autoclose
+    description: "Fix create-pr.md autoclose so plan-phase sub-issues are not auto-closed on PR merge."
     scs:
       - SC-4
-      - SC-5
     items:
       - item_id: item-4
         sc_id: SC-4
@@ -54,6 +53,17 @@ phases:
         green: "Remove or gate sub-issue collection in autoclose_issues in create-pr.md (lines 123-124); preserve parent autoclose"
         verify: "grep create-pr.md for 'autoclose_issues' → sub-issue collection removed or gated"
         commit: "git add create-pr.md && git commit"
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "orchestrator commit-inline"
+  - id: 4
+    name: plan_content_protection
+    description: "Prevent plan phase prose from being posted to public issue bodies; plan files live only in the local .issues/{N}/ spec folder."
+    scs:
+      - SC-5
+    items:
       - item_id: item-5
         sc_id: SC-5
         red: "grep link-sub-issue.md for plan phase prose body composition ('Parent Plan', 'Field | Value') → present (RED fails)"
@@ -73,6 +83,9 @@ dependency_dag:
     - from: 2
       to: 3
       reason: "Phase 3 entry requires phase 2 complete (concern-map phase_boundaries)"
+    - from: 3
+      to: 4
+      reason: "Phase 4 entry requires phase 3 complete (concern-map phase_boundaries)"
   triplet_co_location: verified
   cross_phase_dependency: verified
   notes:

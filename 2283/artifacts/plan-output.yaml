@@ -3,16 +3,19 @@
 
 domain: subissue-creation-at-branch-finishing
 engine: tamer
-plan_length: 3
+plan_length: 4
 status: SOLVED_SATISFICING
 plan:
   - run_p1()
   - run_p2()
   - run_p3()
+  - run_p4()
 actions:
   - name: run_p1
     parameters: []
   - name: run_p2
     parameters: []
   - name: run_p3
+    parameters: []
+  - name: run_p4
     parameters: []

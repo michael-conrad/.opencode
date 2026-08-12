@@ -52,10 +52,14 @@ dependency_contract:
       description: "Behavioral enforcement test — SC-3"
     phase_3:
       type: bool
-      description: "PR autoclose + plan-content protection — SC-4, SC-5"
+      description: "PR autoclose protection — SC-4"
+    phase_4:
+      type: bool
+      description: "Plan-content protection — SC-5"
   preconditions:
     - "z3.Implies(phase_2, phase_1)"
     - "z3.Implies(phase_3, phase_2)"
+    - "z3.Implies(phase_4, phase_3)"
   invariants: []
   postconditions: []
   phases:
@@ -74,9 +78,12 @@ dependency_contract:
     phase_3:
       files:
         - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-        - .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md
       scs:
         - SC-4
+    phase_4:
+      files:
+        - .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md
+      scs:
         - SC-5
   edges:
     - from: phase_1
@@ -85,7 +92,11 @@ dependency_contract:
     - from: phase_2
       to: phase_3
       rationale: "Phase 3 entry requires Phase 2 complete (concern-map phase_boundaries)."
+    - from: phase_3
+      to: phase_4
+      rationale: "Phase 4 entry requires Phase 3 complete (concern-map phase_boundaries)."
   notes:
     - "SC-3 RED depends on SC-1 output (phase 1 < phase 2) — forward dependency, not a violation"
-    - "SC-5 overlaps SC-1 only insofar as removing the link-sub-issue mandate eliminates the primary leak path (cross-cutting concern plan_content_confidentiality) — soft overlap, not an ordering dependency; phase_3 item-4/item-5 are gated by the phase-2-complete boundary only."
+    - "SC-5 overlaps SC-1 only insofar as removing the link-sub-issue mandate eliminates the primary leak path (cross-cutting concern plan_content_confidentiality) — soft overlap, not an ordering dependency; phase_4 item-5 is gated by the phase-3-complete boundary only."
     - "Phase 1 and Phase 2 touch disjoint file sets (skill task files vs. test harness); the phase_1 → phase_2 dependency is semantic (test targets modified checklist), not file-overlap driven."
+    - "Phase 3 and Phase 4 touch disjoint file sets (create-pr.md vs. link-sub-issue.md); phase_3 → phase_4 dependency is ordering-only (concern-map phase_boundaries), not file-overlap driven."

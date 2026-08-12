@@ -1,5 +1,10 @@
 ---
 plan_schema_version: "1.0"
+lifecycle_events:
+  - timestamp: "2026-08-12T07:20:42Z"
+    event: plan_created
+    plan_path: .opencode/.issues/2272/plan.md
+    phase_count: 3
 issue: 2272
 title: "Ticket status-check-and-update reconciliation for audit + git-workflow-pr skills"
 authorization_scope: for_pr
