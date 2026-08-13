@@ -68,7 +68,7 @@ Affected files and impact zones from the blast-radius artifact:
 
 ## Pre-Implementation Steps
 
-- [ ] 1. **Coherence gate (**inline**).** Verify the spec is coherent: all 20 SCs map to exactly one phase, the phase DAG is acyclic, and the dependency contract is SAT (verified by `solve-output.yaml` — `solve_status: SAT`, plan length 6). If any check fails, HALT and report.
+- [ ] 1. **Coherence gate (**inline**).** Verify the spec is coherent: all 22 SCs map to exactly one phase, the phase DAG is acyclic, and the dependency contract is SAT (verified by `solve-output.yaml` — `solve_status: SAT`, plan length 6). If any check fails, HALT and report.
 - [ ] 2. **Baseline check (**inline**).** Verify the feature branch exists, the working tree is clean, and the `.opencode` submodule is on `$DEFAULT_BRANCH` at the remote tracking tip. Verify `gb --version` reports `>= 0.6.1` and `gb auth status` succeeds. Verify no existing `gb-cli` skill directory in `.opencode/skills/`. If any check fails, HALT and report.
 
 ---
@@ -80,9 +80,9 @@ Affected files and impact zones from the blast-radius artifact:
 | 1 — Local GitBucket investigation | `test-driven-development` | `green` | `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` | SC-17 | — |
 | 2 — Skill directory and SKILL.md creation | `test-driven-development` | `green` | `.opencode/skills/gb-cli/SKILL.md` | SC-1, SC-2, SC-3, SC-4, SC-5 | 1 |
 | 3 — Task cards creation | `test-driven-development` | `green` | `.opencode/skills/gb-cli/tasks/` | SC-6, SC-7, SC-8, SC-9, SC-11, SC-12, SC-13, SC-14, SC-15, SC-16 | 2 |
-| 4 — Cross-reference integration | `test-driven-development` | `green` | 4 SKILL.md files + `.opencode/AGENTS.md` | SC-18 | 2 |
+| 4 — Cross-reference integration | `test-driven-development` | `green` | 4 SKILL.md files + `.opencode/AGENTS.md` | SC-18a, SC-18b | 2 |
 | 5 — Behavioral enforcement tests | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/` | SC-10 | 2, 3 |
-| 6 — gitbucket-api adaptation | `test-driven-development` | `green` | `.opencode/skills/issue-operations/platforms/gitbucket-api/` | SC-19, SC-20 | 2, 3 |
+| 6 — gitbucket-api adaptation | `test-driven-development` | `green` | `.opencode/skills/issue-operations/platforms/gitbucket-api/` | SC-19a, SC-19b, SC-20 | 2, 3 |
 
 ---
 
@@ -155,7 +155,7 @@ headers: [SPDX-FileCopyrightText, Provenance, Co-authored with AI]
 | Skill | `test-driven-development` |
 | Task | `green` |
 | Target | `.opencode/skills/git-workflow/SKILL.md`, `.opencode/skills/issue-operations/SKILL.md`, `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`, `.opencode/skills/release-promoter/SKILL.md`, `.opencode/AGENTS.md` |
-| SCs | SC-18 |
+| SCs | SC-18a, SC-18b |
 | Depends On | 2 |
 
 **Context:**
@@ -191,7 +191,7 @@ timeout: ">= 600s"
 | Skill | `test-driven-development` |
 | Task | `green` |
 | Target | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` + 7 task files |
-| SCs | SC-19, SC-20 |
+| SCs | SC-19a, SC-19b, SC-20 |
 | Depends On | 2, 3 |
 
 **Context:**
@@ -208,16 +208,16 @@ retain: "platform-specific routing logic (owner/repo resolution, auth verificati
 - [ ] C1. `.opencode/skills/gb-cli/SKILL.md` exists with `name: gb-cli` frontmatter, agent-intent description ≤ 1024 chars, routing-only template (SC-1, SC-2, SC-3, SC-4, SC-5)
 - [ ] C2. 11 task cards exist in `.opencode/skills/gb-cli/tasks/` with canonical 6-section structure, auth entry criteria, merge prohibition, and required headers (SC-6, SC-7, SC-8, SC-9, SC-11, SC-12, SC-13, SC-14, SC-15, SC-16)
 - [ ] C3. `gb-cli` appears in `<available_skills>` after deployment (SC-10)
-- [ ] C4. Cross-references to `gb-cli` appear in git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files (SC-18)
+- [ ] C4. Cross-references to `gb-cli` appear in git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files (SC-18a, SC-18b)
 - [ ] C5. Phase 1 investigation artifact exists with per-workflow applicability assessment (SC-17)
-- [ ] C6. `gitbucket-api` delegates to `gb-cli` for workflow-level operations; 7 task files have duplicated gb CLI command tables removed/replaced (SC-19, SC-20)
+- [ ] C6. `gitbucket-api` delegates to `gb-cli` for workflow-level operations; 7 task files have duplicated gb CLI command tables removed/replaced (SC-19a, SC-19b, SC-20)
 
 ---
 
 ## Post-Implementation Steps
 
 - [ ] 3. **Structural checks (**sub-agent**).** Dispatch `task(..., prompt: "execute checklist task from finishing-a-development-branch")`. Run lint, typecheck, and markdown format checks on all modified files.
-- [ ] 4. **Verification (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Verify all 20 SCs against their declared evidence types. Any FAIL blocks completion.
+- [ ] 4. **Verification (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Verify all 22 SCs against their declared evidence types. Any FAIL blocks completion.
 - [ ] 5. **Audit (**clean-room**).** Dispatch `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")`, followed by validator, evaluator, arbiter in sequence. Adversarial audit of the deliverable.
 - [ ] 6. **Z3 check (**inline**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` to verify phase state transitions.
 - [ ] 7. **Pre-PR gate (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Reads all SC verdicts, BLOCKs if any FAIL.

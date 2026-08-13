@@ -14,13 +14,13 @@ variables:
     description: "Task cards creation — SC-6, SC-7, SC-8, SC-9, SC-11, SC-12, SC-13"
   phase_4:
     type: bool
-    description: "Cross-reference integration — SC-18"
+    description: "Cross-reference integration — SC-18a, SC-18b"
   phase_5:
     type: bool
     description: "Behavioral enforcement tests — SC-10"
   phase_6:
     type: bool
-    description: "gitbucket-api adaptation — SC-19, SC-20"
+    description: "gitbucket-api adaptation — SC-19a, SC-19b, SC-20"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
   - "z3.Implies(phase_3, phase_2)"
@@ -125,7 +125,10 @@ phases:
       - ".opencode/AGENTS.md gb CLI tool documentation section references gb-cli skill"
     items:
       - item: 17
-        sc: SC-18
+        sc: SC-18a
+        evidence_type: string
+      - item: 18
+        sc: SC-18b
         evidence_type: string
   - id: 5
     name: Behavioral enforcement tests
@@ -139,7 +142,7 @@ phases:
       - "3 behavioral test scripts exist in .opencode/tests-v2/behaviors/ (gb-cli-skill-discovery.sh, gb-cli-auth-check.sh, gb-cli-merge-prohibition.sh)"
       - "gb-cli entry appears in <available_skills> after deployment"
     items:
-      - item: 18
+      - item: 19
         sc: SC-10
         evidence_type: behavioral
   - id: 6
@@ -155,10 +158,13 @@ phases:
       - "7 gitbucket-api task files have duplicated gb CLI command reference tables removed or replaced with cross-references to gb-cli"
       - "Platform-specific routing logic retained in gitbucket-api task files"
     items:
-      - item: 19
-        sc: SC-19
-        evidence_type: semantic
       - item: 20
+        sc: SC-19a
+        evidence_type: semantic
+      - item: 21
+        sc: SC-19b
+        evidence_type: semantic
+      - item: 22
         sc: SC-20
         evidence_type: string
 edges:
