@@ -87,6 +87,16 @@ No application module or executable code path is affected. The canonical copy of
 
 **Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Verifying the cross-ref count costs one grep search; skipping means the duplicated cross-ref ships and the next reader follows a redundant reference.
 
+**Procedure (per-item TDD cycle → SC-1):**
+- [ ] 3. **RED (**sub-agent**).** Write a failing grep assertion that the first cross-ref line in `.opencode/guidelines/091-incremental-build.md` contains exactly one reference to `000-critical-rules.md`. **→ SC-1**
+- [ ] 4. **GREEN (**sub-agent**).** Remove the first instance of the `000-critical-rules.md` cross-reference from the first cross-ref line, keeping exactly one. Preserve the `tests-v2/behaviors/tier1-mandate-enforcement.sh` reference and all surrounding text. **→ SC-1**
+- [ ] 5. **GREEN doublecheck (**clean-room**).** Verify the cross-ref count on the first line is exactly one and that no surrounding text was reworded or restructured. **→ SC-1**
+- [ ] 6. **Checkpoint commit (**inline**).** Commit the deduplicated cross-ref line.
+
+#### Phase 1 VbC
+
+- [ ] 7. **VbC (**clean-room**).** Verify SC-1 string evidence: grep confirms the first cross-ref line contains exactly one `000-critical-rules.md` reference. **→ SC-1**
+
 ### Phase 2 — Remove Paragraph After Anti-Patterns List
 
 | Field | Value |
@@ -105,6 +115,16 @@ No application module or executable code path is affected. The canonical copy of
 - constraints: no restructuring, no rewording of surrounding text; `020-go-prohibitions.md` is untouched
 
 **Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Verifying the paragraph's absence costs one grep search; skipping means the duplicated paragraph ships and the drift risk between `091-incremental-build.md` and `020-go-prohibitions.md` persists.
+
+**Procedure (per-item TDD cycle → SC-2):**
+- [ ] 8. **RED (**sub-agent**).** Write a failing grep assertion that the paragraph beginning "Implementation work is measured ONLY by whether tested verified correct code operations pass..." is absent from `.opencode/guidelines/091-incremental-build.md`. **→ SC-2**
+- [ ] 9. **GREEN (**sub-agent**).** Remove the "Implementation work is measured ONLY by whether tested verified correct code operations pass..." paragraph from `.opencode/guidelines/091-incremental-build.md`. Leave `020-go-prohibitions.md` untouched. **→ SC-2**
+- [ ] 10. **GREEN doublecheck (**clean-room**).** Verify the paragraph is absent and that no surrounding text was reworded or restructured. **→ SC-2**
+- [ ] 11. **Checkpoint commit (**inline**).** Commit the paragraph removal.
+
+#### Phase 2 VbC
+
+- [ ] 12. **VbC (**clean-room**).** Verify SC-2 string evidence: grep confirms the "tested verified correct code operations" paragraph is absent from the target file. **→ SC-2**
 
 ### Phase 3 — Remove Symbolic Rules Below Line
 
@@ -125,6 +145,16 @@ No application module or executable code path is affected. The canonical copy of
 
 **Cost frame:** Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric. Verifying the dead reference's absence costs one grep search; skipping means the dead reference ships and the next reader follows a stale pointer.
 
+**Procedure (per-item TDD cycle → SC-3):**
+- [ ] 13. **RED (**sub-agent**).** Write a failing grep assertion that the line "Symbolic rules below — the prose above this line replaces the previous ~200 lines of advisory text" is absent from `.opencode/guidelines/091-incremental-build.md`. **→ SC-3**
+- [ ] 14. **GREEN (**sub-agent**).** Remove the "Symbolic rules below — the prose above this line replaces the previous ~200 lines of advisory text" line from `.opencode/guidelines/091-incremental-build.md`. **→ SC-3**
+- [ ] 15. **GREEN doublecheck (**clean-room**).** Verify the dead reference line is absent and that no surrounding text was reworded or restructured. **→ SC-3**
+- [ ] 16. **Checkpoint commit (**inline**).** Commit the dead reference line removal.
+
+#### Phase 3 VbC
+
+- [ ] 17. **VbC (**clean-room**).** Verify SC-3 string evidence: grep confirms the "Symbolic rules below" line is absent from the target file. **→ SC-3**
+
 ---
 
 ## Exit Criteria
@@ -138,12 +168,20 @@ No application module or executable code path is affected. The canonical copy of
 
 ## Post-Implementation Steps
 
-- [ ] 3. **Structural checks (**sub-agent**).** Dispatch `task(..., prompt: "execute checklist task from finishing-a-development-branch")`. Run lint, typecheck, and markdown format checks on the modified file.
-- [ ] 4. **Verification (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Verify all 3 SCs against their declared string evidence types. Any FAIL blocks completion.
-- [ ] 5. **Audit (**clean-room**).** Dispatch `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")`, followed by validator, evaluator, arbiter in sequence. Adversarial audit of the deliverable.
-- [ ] 6. **Z3 check (**inline**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` to verify phase state transitions.
-- [ ] 7. **Pre-PR gate (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Reads all SC verdicts, BLOCKs if any FAIL.
-- [ ] 8. **Regression check (**sub-agent**).** Dispatch `task(..., prompt: "execute phase-4 task from test-driven-development")`. Final regression check before PR.
-- [ ] 9. **Review-prep (**sub-agent**).** Dispatch `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare PR review context.
-- [ ] 10. **Create PR (**sub-agent**).** Dispatch `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request.
-- [ ] 11. **Exec summary (**sub-agent**).** Dispatch `task(..., prompt: "execute completion task from completion-core")`. Generate completion executive summary.
+- [ ] 18. **Structural checks (**sub-agent**).** Dispatch `task(..., prompt: "execute checklist task from finishing-a-development-branch")`. Run lint, typecheck, and markdown format checks on the modified file.
+- [ ] 19. **Verification (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Verify all 3 SCs against their declared string evidence types. Any FAIL blocks completion.
+- [ ] 20. **Audit (**clean-room**).** Dispatch `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")`, followed by validator, evaluator, arbiter in sequence. Adversarial audit of the deliverable.
+- [ ] 21. **Z3 check (**inline**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` to verify phase state transitions.
+- [ ] 22. **Pre-PR gate (**clean-room**).** Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Reads all SC verdicts, BLOCKs if any FAIL.
+- [ ] 23. **Regression check (**sub-agent**).** Dispatch `task(..., prompt: "execute phase-4 task from test-driven-development")`. Final regression check before PR.
+- [ ] 24. **Review-prep (**sub-agent**).** Dispatch `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare PR review context.
+- [ ] 25. **Create PR (**sub-agent**).** Dispatch `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request.
+- [ ] 26. **Exec summary (**sub-agent**).** Dispatch `task(..., prompt: "execute completion task from completion-core")`. Generate completion executive summary.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-13T20:51:16Z | `plan_created` | Plan file `.opencode/.issues/2133/plan.md`, 3 phases |
