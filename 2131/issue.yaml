@@ -7,222 +7,99 @@ body: '# [SPEC] Compact 080-code-standards.md — generalize project-specific ru
   move testing procedure to skill card
 
 
-  ## Objective
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2131/
 
 
-  Reorganize `080-code-standards.md` by moving testing procedure to the `test-driven-development`
-  skill card, removing sections duplicated in `000-critical-rules.md`, and generalizing
-  project-specific references — without losing any semantic constraints.
+  ## Implementation Status
 
 
-  ## Status Determination: OBSOLETE — Compaction Substantially Complete
+  **IMPLEMENTED — COMPLETED via PR #2238.**
 
 
-  **This spec is OBSOLETE.** A live-filesystem audit (4-role DiMo chain) confirmed
-  that the compaction work this spec proposes is **substantially already done** in
-  the live files. The spec''s original premise — that a full Enforcement Test Mandate
-  section and a Behavioral RED/GREEN section exist in `080-code-standards.md` and
-  need to be moved/removed — is **false**. The spec must be closed as obsolete.
+  This spec was implemented and completed by PR #2238 (branch `feature/2131-compact-080`,
+  merged to `main` on 2026-08-03, merge commit `98a6098a`). The compaction of `080-code-standards.md`
+  proposed by this spec — generalizing project-specific references (REQ-1), moving
+  the Enforcement Test Mandate to the `test-driven-development` skill card (REQ-2),
+  removing the Behavioral RED/GREEN section (REQ-3), keeping the Test Integrity Mandate
+  in 080 (REQ-4), and retaining all universal keep sections (REQ-5) — was fully executed
+  by that PR. All 9 success criteria (SC-1 through SC-9) were verified **PASS**. The
+  issue is closed as **completed**.
 
 
-  ### Verified Live State (evidence from live filesystem)
+  This spec is a valid, actionable spec that was implemented — it is NOT obsolete
+  and was NOT based on a false premise.
 
 
-  | Claim in original spec | Live reality (verified) |
+  ## Problem
 
-  |------------------------|------------------------|
 
-  | Enforcement Test Mandate is a full section at lines 418-573 of 080 | `080-code-standards.md`
-  is **663 lines**. The Enforcement Test Mandate is a **cross-reference** at line
-  438-440: `Read [the Enforcement Test Mandate in test-driven-development/SKILL.md](skills/test-driven-development/SKILL.md).`
-  It is NOT a full section. |
+  `080-code-standards.md` conflates multiple concerns in a single file: project-specific
+  rules (parsing pipeline, ConfigurationManager), testing procedure that belongs in
+  the `test-driven-development` skill card, and sections duplicated in `000-critical-rules.md`
+  (Behavioral RED/GREEN). The file''s sprawl is a symptom of missing concern boundaries,
+  not a size problem.
 
-  | A "Behavioral RED/GREEN as Primary Enforcement Gate" section exists at lines 574-604
-  of 080 | **NO such section exists.** Section headers of 080: Scope, Typing, Design
-  Principles, Modern Python, Libraries & Packages, Dependency Injection, Dependency
-  Injection (generic mandate), Print Statements & Output, Linting & Static Analysis,
-  Tool Selection by File Type, Numbering, AI Co-Authored Attribution, Co-Authored
-  With AI, Provenance Headers, Enforcement Test Mandate, Cross-Reference Standards,
-  YAML Standard, Mandatory Triple Co-Application, Parameter Naming Convention. |
 
-  | 000-critical-rules.md has an 080 reference at line 922 | `000-critical-rules.md`
-  is **396 lines** with **NO 080 cross-reference**. |
+  ## Scope
 
-  | Enforcement Test Mandate needs to be moved to test-driven-development skill card
-  | The destination **ALREADY CONTAINS** the Enforcement Test Mandate at `test-driven-development/SKILL.md`
-  line 179 (`## Enforcement Test Mandate for Guideline and Skill Changes`). The move
-  is already done. |
 
-  | Parsing Logic Changes references `src/commons/parsing/`, `0100_ingest_xml.ipynb`
-  | **No "Parsing Logic Changes" section exists in 080.** The Pipeline Rerun Constraint
-  (lines 20-25) is already generalized — no project-specific paths. |
+  - Generalize project-specific references in Parsing Logic Changes and Libraries
+  & Packages to universal language (REQ-1)
 
-  | Libraries & Packages references NLTK, ConfigurationManager, project-config.ini
-  | **Already generalized.** Libraries & Packages (lines 60-68) uses "domain-appropriate
-  libraries" and "project-provided abstractions for data file paths" — no NLTK, no
-  ConfigurationManager, no project-config.ini. |
+  - Move the Enforcement Test Mandate from 080 to the `test-driven-development` skill
+  card (REQ-2)
 
+  - Remove the Behavioral RED/GREEN section from 080, with normative content preserved
+  in the moved Enforcement Test Mandate (REQ-3)
 
-  ### Conclusion
+  - Keep the Test Integrity Mandate in 080 (REQ-4)
 
+  - Keep all universal keep sections in 080 with content intact (REQ-5)
 
-  Every proposed action in the original spec is already reflected in the live files:
 
+  **Out of scope:**
 
-  - **REQ-1 (Generalize Parsing Logic Changes and Libraries & Packages):** Already
-  done — both sections are already generalized.
+  - Full rewrite of 080 from scratch
 
-  - **REQ-2 (Move Enforcement Test Mandate to test-driven-development skill card):**
-  Already done — the skill card contains it at line 179; 080 retains only a cross-reference
-  at line 438.
+  - Splitting 080 into multiple separate files
 
-  - **REQ-3 (Remove Behavioral RED/GREEN section):** Nothing to remove — the section
-  does not exist in 080.
+  - Removing any normative content without a destination that preserves it
 
-  - **REQ-4 (Test Integrity Mandate remains in 080):** Already true — present at line
-  553.
 
-  - **REQ-5 (All keep sections remain):** Already true.
+  ## Approach
 
 
-  **No substantive compaction work remains.** The spec is obsolete and should be closed.
-  No re-scoping to "genuine remaining gaps" is warranted because no genuine gaps were
-  found — the compaction this spec describes has already been completed in the live
-  files.
+  Compaction of `080-code-standards.md` driven by concern-boundary enforcement rather
+  than file size. Project-specific references (parsing pipeline, ConfigurationManager,
+  NLTK) are generalized to universal language. The Enforcement Test Mandate testing
+  procedure is moved to the `test-driven-development` skill card. The Behavioral RED/GREEN
+  section, which restates the Enforcement Test Mandate, is removed with its normative
+  content preserved in the moved section. Every move/removal is gated by semantic
+  analysis verifying no constraint loss (SC-7, SC-8, SC-9), plus a lobotomization
+  gate running behavioral enforcement tests before and after. Test Integrity Mandate
+  stays in 080 because only a summary exists in 000.
 
 
-  ## Requirements
+  ## Impact
 
 
-  | ID | Requirement | Status |
+  - **Risk — content loss:** Removed section''s normative content must be preserved
+  in the moved Enforcement Test Mandate. *Mitigation:* SC-4, SC-9 verify removal is
+  safe via string + semantic evidence.
 
-  |----|-------------|--------|
+  - **Risk — lobotomization during move:** Moving content between files can silently
+  drop constraints. *Mitigation:* Phase 3.5 lobotomization gate runs behavioral tests;
+  SC-7, SC-8, SC-9 provide semantic verification of constraint preservation.
 
-  | REQ-1 | Generalize project-specific references in Parsing Logic Changes and Libraries
-  & Packages | ALREADY DONE — no work remains |
+  - **Risk — cross-reference staleness:** Internal cross-references in 080 may point
+  to removed sections. *Mitigation:* SC-9(c) requires cross-reference audit.
 
-  | REQ-2 | Move Enforcement Test Mandate to test-driven-development skill card with
-  no constraint loss | ALREADY DONE — skill card line 179; 080 cross-ref line 438
-  |
 
-  | REQ-3 | Remove Behavioral RED/GREEN section from 080 | NOT APPLICABLE — section
-  does not exist in 080 |
-
-  | REQ-4 | Test Integrity Mandate remains in 080 (only summary exists in 000) | ALREADY
-  TRUE — 080 line 553 |
-
-  | REQ-5 | All keep sections remain in 080 with content intact | ALREADY TRUE |
-
-
-  ## Proposed Solution
-
-
-  No implementation is proposed. The compaction described by this spec is already
-  present in the live files. The correct disposition is to **close this spec as obsolete**
-  — no code, guideline, or skill-card changes are required.
-
-
-  ## Traceability
-
-
-  | Requirement | Success Criteria | Phase |
-
-  |-------------|-----------------|-------|
-
-  | REQ-1 | SC-1, SC-2, SC-7 | Phase 1 |
-
-  | REQ-2 | SC-3, SC-8 | Phase 2 |
-
-  | REQ-3 | SC-4, SC-9 | Phase 3 (content preserved in moved Enforcement Test Mandate)
-  |
-
-  | REQ-4 | SC-5 | Phase 3 (no-op) |
-
-  | REQ-5 | SC-6 | Phase 4 |
-
-
-  ## Success Criteria
-
-
-  | ID | Criterion | Evidence Type |
-
-  |----|-----------|---------------|
-
-  | SC-1 | Parsing Logic Changes generalized (no project-specific paths) | string
-  + semantic |
-
-  | SC-2 | Libraries & Packages generalized (no project-specific names) | string +
-  semantic |
-
-  | SC-3 | Enforcement Test Mandate moved to test-driven-development skill card |
-  string + semantic |
-
-  | SC-4 | Behavioral RED/GREEN section removed from 080 | string + semantic |
-
-  | SC-5 | Test Integrity Mandate remains in 080 with content intact | string + semantic
-  |
-
-  | SC-6 | All keep sections remain in 080 with content intact | string + semantic
-  |
-
-  | SC-7 | No constraint loss in generalized Parsing Logic Changes | semantic |
-
-  | SC-8 | No constraint loss in moved Enforcement Test Mandate | semantic |
-
-  | SC-9 | No constraint loss in removed Behavioral RED/GREEN section | semantic |
-
-
-  > **Note on SCs:** The SCs are retained for traceability to the original spec. However,
-  the live-filesystem audit confirms each SC is already satisfied by the current state
-  of the files (see the Verified Live State table above). No implementation is required
-  to satisfy them.
-
-
-  ## Implementation Plan
-
-
-  - **Phase 1** (REQ-1): Generalize Parsing Logic Changes and Libraries & Packages
-  sections — **ALREADY DONE, no work**
-
-  - **Phase 2** (REQ-2): Move Enforcement Test Mandate to test-driven-development
-  skill card — **ALREADY DONE, no work**
-
-  - **Phase 3** (REQ-3, REQ-4): Remove Behavioral RED/GREEN section; verify Test Integrity
-  Mandate stays in 080 — **NOT APPLICABLE / ALREADY TRUE, no work**
-
-  - **Phase 3.5** (REQ-2, REQ-3): Lobotomization gate — run behavioral enforcement
-  tests to verify no constraint loss — **no change to test, no work**
-
-  - **Phase 4** (REQ-5): Verify all keep sections remain — **ALREADY TRUE, no work**
-
-
-  **Disposition:** Close this spec as obsolete. No implementation is required.
-
-
-  ---
-
-
-  Authoritative spec folder: `.opencode/.issues/2131/`
-
-
-  ## Change Control
-
-
-  | Date | Change | Reason | Authorized By |
-
-  |------|--------|--------|---------------|
-
-  | 2026-08-13 | Rewrote spec to document OBSOLETE determination. Corrected fabricated
-  file-state claims (Enforcement Test Mandate full section at 418-573, Behavioral
-  RED/GREEN section at 574-604, 000 line-922 080 reference). Verified live state of
-  080-code-standards.md (663 lines), 000-critical-rules.md (396 lines), and test-driven-development/SKILL.md
-  (Enforcement Test Mandate at line 179). Determined all proposed compaction is already
-  complete. | SPEC AUDIT FAILED — holistic gate DRAFT. Audit found the spec''s core
-  premise is false: the compaction is substantially already done in the live files.
-  | Spec audit (4-role DiMo chain) |
+  **Dependencies:** None. **Call to action:** Closed as completed — all 9 SCs verified
+  PASS via PR #2238.
 
   '
 created_at: '2026-07-25T04:18:29+00:00'
-updated_at: '2026-08-13T13:36:38+00:00'
+updated_at: '2026-08-13T13:38:49+00:00'
 closed_at: '2026-08-13T13:36:38+00:00'
 close_reason: completed

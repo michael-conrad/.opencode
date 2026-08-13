@@ -14,6 +14,14 @@ labels: [spec]
 | **Alternatives Considered & Why Discarded** | See Alternatives Considered section below. |
 | **Key Design Decisions** | (1) Compaction preserves all normative content — no content is removed without verification that it exists in the destination. (2) Semantic analysis gates every move/removal — grep-only verification is insufficient for constraint-preservation. (3) Test Integrity Mandate stays in 080 because only a summary exists in 000. |
 
+## Implementation Status
+
+**IMPLEMENTED — COMPLETED via PR #2238.**
+
+This spec was implemented and completed by PR michael-conrad/.opencode#2238 (branch `feature/2131-compact-080`, merged to `main` on 2026-08-03, merge commit `98a6098a`). The compaction of `080-code-standards.md` proposed by this spec — generalizing project-specific references (REQ-1), moving the Enforcement Test Mandate to the `test-driven-development` skill card (REQ-2), removing the Behavioral RED/GREEN section (REQ-3), keeping the Test Integrity Mandate in 080 (REQ-4), and retaining all universal keep sections (REQ-5) — was fully executed by that PR. All 9 success criteria (SC-1 through SC-9) were verified **PASS**. The issue is closed as **completed**.
+
+This spec is a valid, actionable spec that was implemented — it is NOT obsolete and was NOT based on a false premise.
+
 ## Objective
 
 Reorganize `080-code-standards.md` by moving testing procedure to the `test-driven-development` skill card, removing sections duplicated in `000-critical-rules.md`, and generalizing project-specific references — without losing any semantic constraints.
@@ -156,5 +164,6 @@ This spec's success criteria are an all-or-nothing gate: ALL 9 SCs (SC-1 through
 | 2026-07-31 | Added Objective section; added REQ references to phase headings | Validation findings: missing Objective section, phase headings lacked REQ references | spec-creation pipeline |
 | 2026-07-31 | Added Intent and Executive Summary (5-field preamble), Edge Cases section, Documentation Sources section, All-or-Nothing Gate statement; tightened SC-6/7/8/9 wording to remove open-ended quality terms and implicit behavior | Spec-audit FAIL findings: SC-8 (edge cases), SC-9/SC-DET (determinism), SC-11 (doc sources), SC-12 (preamble), SC-14 (gate statement), research_adequacy (edge case analysis) | spec-creation pipeline |
 | 2026-07-31 | Fixed REQ-3, SC-4, SC-9 to reference moved Enforcement Test Mandate (not 000) — 000 only has a cross-reference to 080; fixed issue.yaml to match; added Cost-Frame Language Note, Recency Check section; converted Implementation Plan to canonical `- [ ] N.` checklist format; aligned SC-6 criterion/verification method wording | Spec-audit FAIL findings: SC-6 misalignment, SC-DET determinism, SC-PIPELINE-GATES checklist format, SC-13 cost-frame, research_adequacy.recency_check, gap_analysis.missing_coverage | spec-creation pipeline |
+| 2026-08-13 | Corrected the spec's disposition. Removed the erroneous "OBSOLETE determination" framing and all language claiming the spec was non-actionable or based on a false premise. Restored/confirmed the spec's original valid content (Problem, Requirements REQ-1..REQ-5, Proposed Solution, Success Criteria SC-1..SC-9, Traceability, Files Affected). Added an Implementation Status note documenting that the spec was a valid spec that was IMPLEMENTED via PR #2238 (michael-conrad/.opencode#2238, merged 2026-08-03, all 9 SCs verified PASS). | Revision request: correct the spec's disposition — the OBSOLETE determination was wrong; the spec was implemented and completed, not obsolete or non-actionable | Michael Conrad (developer) |
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
