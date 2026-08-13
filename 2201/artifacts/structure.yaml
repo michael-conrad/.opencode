@@ -1,0 +1,214 @@
+schema_version: "1.0"
+issue_number: 2201
+phases:
+  - id: 1
+    name: Local GitBucket investigation
+    scs:
+      - SC-17
+    items:
+      - item: 1
+        sc: SC-17
+        description: Investigate against local test GitBucket instance; produce per-workflow applicability assessment artifact (APPLIES/REVISED/DISCARDED + rationale) at .opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml
+        files:
+          - .opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 2
+    name: Skill directory and SKILL.md creation
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+    items:
+      - item: 2
+        sc: SC-1
+        description: Create .opencode/skills/gb-cli/SKILL.md (file exists)
+        files:
+          - .opencode/skills/gb-cli/SKILL.md
+      - item: 3
+        sc: SC-2
+        description: name field in frontmatter matches directory name gb-cli
+        files:
+          - .opencode/skills/gb-cli/SKILL.md
+      - item: 4
+        sc: SC-3
+        description: description field <= 1024 characters
+        files:
+          - .opencode/skills/gb-cli/SKILL.md
+      - item: 5
+        sc: SC-4
+        description: SKILL.md uses routing-only template (no procedure text, only Workflows section with dispatch contracts)
+        files:
+          - .opencode/skills/gb-cli/SKILL.md
+      - item: 6
+        sc: SC-5
+        description: Description field uses agent-intent format (no 'Load via skill() when', 'User phrases:', or 'Dispatch when')
+        files:
+          - .opencode/skills/gb-cli/SKILL.md
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 3
+    name: Task cards creation
+    scs:
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-11
+      - SC-12
+      - SC-13
+      - SC-14
+      - SC-15
+      - SC-16
+    items:
+      - item: 7
+        sc: SC-6
+        description: Create task card files for workflows determined by Phase 1 investigation (authenticate, create-pr, triage-issues, review-pr, manage-repo, manage-labels, manage-milestones, search-investigate, api-requests, completion, common-workflows)
+        files:
+          - .opencode/skills/gb-cli/tasks/
+      - item: 8
+        sc: SC-7
+        description: Each task card follows canonical structure (Purpose, Task Discipline, Entry Criteria, Procedure, Exit Criteria, Result Contract)
+        files:
+          - .opencode/skills/gb-cli/tasks/
+      - item: 9
+        sc: SC-8
+        description: No gb command in gb-cli task cards duplicates git-workflow task cards for PR creation, branch management, or commit operations
+        files:
+          - .opencode/skills/gb-cli/tasks/
+          - .opencode/skills/git-workflow/tasks/
+      - item: 10
+        sc: SC-9
+        description: Task cards include gb auth status verification as entry criterion for all auth-requiring gb operations
+        files:
+          - .opencode/skills/gb-cli/tasks/
+      - item: 11
+        sc: SC-11
+        description: Skill covers all gb CLI commands from the capability manifest, organized into workflow-based task cards
+        files:
+          - .opencode/skills/gb-cli/tasks/
+      - item: 12
+        sc: SC-12
+        description: Include common-workflows task card with end-to-end workflow examples
+        files:
+          - .opencode/skills/gb-cli/tasks/common-workflows.md
+      - item: 13
+        sc: SC-13
+        description: Explicitly prohibit gb pr merge with CRITICAL VIOLATION block (per critical-rules-merge)
+        files:
+          - .opencode/skills/gb-cli/tasks/create-pr.md
+          - .opencode/skills/gb-cli/tasks/review-pr.md
+      - item: 14
+        sc: SC-14
+        description: All task cards include SPDX-FileCopyrightText header
+        files:
+          - .opencode/skills/gb-cli/tasks/
+      - item: 15
+        sc: SC-15
+        description: All task cards include Provenance header
+        files:
+          - .opencode/skills/gb-cli/tasks/
+      - item: 16
+        sc: SC-16
+        description: All task cards include AI co-authored byline
+        files:
+          - .opencode/skills/gb-cli/tasks/
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 4
+    name: Cross-reference integration
+    scs:
+      - SC-18
+    items:
+      - item: 17
+        sc: SC-18
+        description: Add gb-cli cross-references to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files; update .opencode/AGENTS.md gb CLI tool documentation section
+        files:
+          - .opencode/skills/git-workflow/SKILL.md
+          - .opencode/skills/issue-operations/SKILL.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+          - .opencode/skills/release-promoter/SKILL.md
+          - .opencode/AGENTS.md
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+  - id: 5
+    name: Behavioral enforcement tests
+    scs:
+      - SC-10
+    items:
+      - item: 18
+        sc: SC-10
+        description: Create and pass behavioral enforcement tests (gb-cli-skill-discovery.sh, gb-cli-auth-check.sh, gb-cli-merge-prohibition.sh) verifying gb-cli appears in available_skills
+        files:
+          - .opencode/tests-v2/behaviors/gb-cli-skill-discovery.sh
+          - .opencode/tests-v2/behaviors/gb-cli-auth-check.sh
+          - .opencode/tests-v2/behaviors/gb-cli-merge-prohibition.sh
+    skill_task: "red from test-driven-development (SC-10)"
+    dispatch_string: 'task(..., prompt: "execute red from test-driven-development. Read `test-driven-development/tasks/red.md` first")'
+
+  - id: 6
+    name: gitbucket-api adaptation
+    scs:
+      - SC-19
+      - SC-20
+    items:
+      - item: 19
+        sc: SC-19
+        description: gb-cli takes precedence for gb workflows; gitbucket-api sub-skill delegates to gb-cli for workflow-level operations; update gitbucket-api SKILL.md description to indicate delegation
+        files:
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md
+      - item: 20
+        sc: SC-20
+        description: Remove or replace duplicated gb CLI command reference tables in the 7 gitbucket-api task files with cross-references to gb-cli; retain platform routing
+        files:
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/tool-detection.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/session-integration.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/label-operations.md
+          - .opencode/skills/issue-operations/platforms/gitbucket-api/tasks/repository-operations.md
+    skill_task: "green from test-driven-development"
+    dispatch_string: 'task(..., prompt: "execute green from test-driven-development. Read `test-driven-development/tasks/green.md` first")'
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "Workflow applicability assessment (Phase 1) determines the dispatch contracts in the SKILL.md Workflows section (Phase 2)"
+    - from: 2
+      to: 3
+      reason: "SKILL.md Workflows section (Phase 2) references the task cards created in Phase 3"
+    - from: 2
+      to: 4
+      reason: "gb-cli skill must exist (Phase 2) before other skills can cross-reference it (Phase 4)"
+    - from: 2
+      to: 5
+      reason: "gb-cli skill must exist (Phase 2) before behavioral discovery test can verify it appears in available_skills (Phase 5)"
+    - from: 3
+      to: 5
+      reason: "Task cards must exist (Phase 3) before behavioral tests for auth checks and merge prohibition can run (Phase 5)"
+    - from: 2
+      to: 6
+      reason: "gitbucket-api delegation (Phase 6) requires gb-cli SKILL.md to exist as the delegation target (Phase 2)"
+    - from: 3
+      to: 6
+      reason: "gitbucket-api task files delegate workflow-level gb command sequences to gb-cli task cards (Phase 3)"
+
+triplet_co_location:
+  status: PASS
+  details: "All 20 SCs have RED, GREEN, and COMMIT steps within the same phase"
+
+cross_phase_dependency:
+  status: PASS
+  details: "No RED test depends on SC output from a later phase"
+
+skill_task_selection:
+  source: "skills/writing-plans/reference/implementation-workflow.md"
+  note: "All phases use green-phase dispatch for file modifications. Phase 5 SC-10 uses red-phase for behavioral test creation. Each item within a phase gets its own RED/GREEN/verify/commit cycle per the per-item TDD mandate."

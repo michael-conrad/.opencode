@@ -1,0 +1,71 @@
+schema_version: "1.0"
+issue_number: 2201
+validation_status: PASS
+validated_at: 2026-08-12
+categories:
+  - category: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - check: "plan.md has phase table with all required columns (Phase, Skill, Task, Target, SCs, Depends On)"
+        result: PASS
+      - check: "Each phase has a procedure section with numbered steps (split phase files plan-01..06 with Step-by-step checkbox steps)"
+        result: PASS
+      - check: "Exit criteria section exists with SC-to-phase mapping (C1-C6)"
+        result: PASS
+  - category: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - check: "All phase table skill+task pairs exist in implementation-workflow reference card"
+        result: PASS
+        detail: "test-driven-development/green (P1, P2, P3, P4, P6), test-driven-development/red (P5) — both valid per reference card"
+      - check: "Post-implementation dispatch strings match reference card"
+        result: PASS
+        detail: "finishing-a-development-branch/checklist, verification-before-completion/verify, audit/verification-audit, git-workflow-pr/review-prep + create, completion-core/completion, test-driven-development/phase-4 — all valid"
+  - category: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - check: "Every SC from spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "SC-17 (P1), SC-1..5 (P2), SC-6,7,8,9,11,12,13,14,15,16 (P3), SC-18 (P4), SC-10 (P5), SC-19,20 (P6) — all 20 SCs covered"
+      - check: "Triplet split detection — no SC has RED/GREEN/COMMIT steps split across phases"
+        result: PASS
+        detail: "Each SC is assigned to exactly one phase; each phase file contains its own complete RED/GREEN/COMMIT cycle"
+  - category: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - check: "Each phase addresses exactly one concern from the concern-map artifact"
+        result: PASS
+      - check: "No two phases address the same concern"
+        result: PASS
+        detail: "P1 investigation, P2 SKILL.md creation, P3 task cards, P4 cross-references, P5 behavioral tests, P6 gitbucket-api delegation — 1:1 with concern-map"
+  - category: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - check: "Dependency contract DAG has no cycles"
+        result: PASS
+        detail: "Edges: 1->2, 2->3, 2->4, 2->5, 3->5, 2->6, 3->6 — acyclic"
+      - check: "All phases reachable from the start node"
+        result: PASS
+        detail: "All phases reachable from phase_1"
+      - check: "No orphan phases (no incoming or outgoing edges)"
+        result: PASS
+        detail: "phase_1 is start (no incoming), phase_6 is terminal (no outgoing), all others have both incoming and outgoing edges"
+  - category: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - check: "No TBD/TODO placeholders in the plan body"
+        result: PASS
+      - check: "All steps use checkbox format"
+        result: PASS
+      - check: "Dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
+        result: PASS
+        detail: "RED/GREEN steps are sub-agent, GREEN doublecheck and VbC are clean-room, checkpoint commits are inline — consistent with reference card commit-inline pattern"
+observations:
+  - "dependency-contract.yaml phase 3 description field lists 7 SCs (SC-6, SC-7, SC-8, SC-9, SC-11, SC-12, SC-13) while the items list and plan.md phase table list all 10 (including SC-14, SC-15, SC-16). The items list is complete and the plan covers all SCs, so this is a non-blocking description-field abbreviation, not a coverage or DAG defect."
+overall_status: PASS
