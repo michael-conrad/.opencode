@@ -5,6 +5,9 @@ title: "Broaden 090-data-integrity.md with a 6-category general data integrity f
 authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 3
+dispatch:
+  - test-driven-development
+  - verification-before-completion
 ---
 
 # Implementation Plan — #2132 — Broaden 090-data-integrity.md with a general data integrity framework
@@ -135,3 +138,9 @@ verification:
 - [ ] C11. Behavioral test confirms agent raises `ValueError` (exact type) on missing required data, not a default/placeholder/fallback (SC-11)
 - [ ] C12. Behavioral test confirms agent derives entity references from runtime sources, not hardcoded constants (SC-12)
 - [ ] C13. Clean-room sub-agent confirms all 6 enumerated specific rules present in the new file, each reported present/absent (SC-13)
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-13T12:54:00Z | plan_created | Plan file: `.opencode/.issues/2132/plan.md`, phase count: 3 |
