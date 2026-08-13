@@ -1,0 +1,29 @@
+# Analysis Summary — Issue 2132
+# Backfill performed in retroactive mode (2026-08-13) because spec-creation did not produce
+# analytical artifacts.
+
+spec_path: .opencode/.issues/2132/spec.md
+issues_prefix: .opencode/.issues
+issue_number: 2132
+mode: retroactive
+
+sc_count: 13
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+  analysis-summary.yaml: backfilled
+
+scope_summary: >-
+  Single-file revision of .opencode/guidelines/090-data-integrity.md (96 lines at backfill time).
+  The revision preserves all existing rules verbatim, removes 4 project-specific references
+  (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date), and adds 6 new data integrity categories
+  (data validation at system boundaries, serialization integrity, data classification, migration
+  integrity, audit trail, data retention). Evidence types: 9 string, 3 behavioral, 1 semantic.
+  No application code paths exist; the affected artifact is a guideline document consumed by AI
+  agents. All 7 analytical artifacts were absent and have been backfilled.

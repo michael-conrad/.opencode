@@ -1,0 +1,31 @@
+# Code Path Inventory — Issue 2132
+# This issue revises a guideline document, not application code. The affected file is a
+# Markdown guideline consumed by AI agents at session load. There is no executable code path.
+
+affected_file: .opencode/guidelines/090-data-integrity.md
+
+file_type: guideline (Markdown, tier 1, load_when: sub-agent)
+
+code_paths: []
+
+guideline_sections_implied_by_scs:
+  SC-1: 6 category section headers (Data Validation at System Boundaries, Serialization Integrity,
+        Data Classification, Migration Integrity, Audit Trail, Data Retention)
+  SC-2: absence of pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date
+  SC-3: preserved rules — no synthetic data, fail fast, no hardcoded IDs, batch ops, tqdm, cross-references
+  SC-4: boundary-validation concepts — structure, types, constraints, missing data, entity resolution
+  SC-5: serialization concepts — versioning, backward compat, traceability
+  SC-6: classification concepts — sensitivity levels, production data restrictions
+  SC-7: migration concepts — reversibility, verification, sampling
+  SC-8: audit concepts — traceability, authorization, documented changes
+  SC-9: retention policy per classification
+  SC-10: refusal of synthetic/fabricated data (behavioral)
+  SC-11: raise ValueError on missing required data (behavioral)
+  SC-12: dynamic entity reference derivation (behavioral)
+  SC-13: preservation of 6 enumerated specific rules (semantic, sub-agent comparison)
+
+verification_notes: >-
+  Because the deliverable is a document, "code path inventory" is interpreted as the set of
+  guideline sections and concepts the revision must establish. No executable paths exist in this
+  artifact; verification is grep-based (SC-1 through SC-9), behavioral (SC-10 through SC-12),
+  and semantic (SC-13).

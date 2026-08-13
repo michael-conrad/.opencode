@@ -1,0 +1,37 @@
+# Interface Compatibility — Issue 2132
+# Check interface boundaries between affected modules. This issue revises a single guideline
+# document; there are no application modules with programmatic interfaces. The relevant
+# "interfaces" are the guideline file's own structural cross-references and its external
+# dependency on the behavioral test harness.
+
+affected_file: .opencode/guidelines/090-data-integrity.md
+
+module_interfaces: []
+
+cross_reference_interfaces:
+  - interface: cross-reference to .opencode/guidelines/200-errors.md
+    status: preserved
+    note: >-
+      The spec preserves the cross-reference to 200-errors.md ("Cross-References" section) as an
+      independent navigation aid. No change to the referenced file's interface.
+  - interface: cross-reference to .opencode/guidelines/070-environment.md
+    status: preserved
+    note: >-
+      Production Data Protection section references 070-environment.md. Preserved verbatim.
+  - interface: error handling series 200-203 (raise, don't return)
+    status: preserved
+    note: >-
+      Closing cross-reference to the error handling series is preserved verbatim.
+
+behavioral_harness_dependency:
+  - interface: .opencode/tests-v2/with-test-home
+    status: required
+    note: >-
+      Required to execute behavioral verification of SC-10, SC-11, SC-12 (opencode run via
+      with-test-home wrapper). Verified present at backfill time (22148 bytes).
+
+compatibility_notes: >-
+  The revision is strictly additive to a single Markdown guideline. No programmatic module
+  boundaries change. The only interface compatibility concerns are (a) preserving existing
+  cross-references verbatim and (b) the external dependency on the behavioral test harness for
+  the 3 behavioral SCs, which is available.

@@ -1,0 +1,49 @@
+# Cross-Cutting Matrix — Issue 2132
+# Identify success criteria that span multiple concerns. Because the deliverable is a single
+# guideline file revised in place, SCs that touch the same file sections or that share the
+# preserve/remove/add operations are cross-cutting.
+
+scs_spanning_multiple_concerns:
+  - id: SC-1
+    concerns: [content_revision, presence_verification]
+    note: >-
+      The 6 category headers are created in Phase 1 (content_revision) and verified present in
+      Phase 3 (presence_verification).
+  - id: SC-2
+    concerns: [content_revision, absence_verification]
+    note: >-
+      Project-specific references are removed in Phase 1 (content_revision) and their absence is
+      verified in Phase 2 (absence_verification).
+  - id: SC-3
+    concerns: [content_revision, behavioral_enforcement]
+    note: >-
+      Preservation of existing rules is a content action in Phase 1 (content_revision) and is also
+      the basis of the semantic preservation check SC-13 (behavioral_enforcement).
+  - id: SC-4
+    concerns: [content_revision, presence_verification]
+  - id: SC-5
+    concerns: [content_revision, presence_verification]
+  - id: SC-6
+    concerns: [content_revision, presence_verification]
+  - id: SC-7
+    concerns: [content_revision, presence_verification]
+  - id: SC-8
+    concerns: [content_revision, presence_verification]
+  - id: SC-9
+    concerns: [content_revision, presence_verification]
+
+non_cross_cutting_scs:
+  - id: SC-10
+    concern: behavioral_enforcement
+  - id: SC-11
+    concern: behavioral_enforcement
+  - id: SC-12
+    concern: behavioral_enforcement
+  - id: SC-13
+    concern: behavioral_enforcement
+
+coordination_notes: >-
+  The preserve/remove/add operations all act on the same single file (.opencode/guidelines/
+  090-data-integrity.md). They must be applied in a coordinated manner within Phase 1 so that
+  preservation (SC-3) and addition of categories (SC-1, SC-4..SC-9) coexist without removing
+  battle-tested rules, and removal (SC-2) targets only project-specific references.

@@ -1,0 +1,31 @@
+# Blast Radius Analysis — Issue 2132
+# Scope: revise .opencode/guidelines/090-data-integrity.md
+# Affected file verification performed at backfill time (2026-08-13): file exists (96 lines).
+
+files_affected:
+  - path: .opencode/guidelines/090-data-integrity.md
+    exists: true
+    type: guideline (Markdown)
+    revision: revised — preserve existing rules verbatim, remove project-specific references, add 6 new categories
+    project_specific_references_present_at_backfill:
+      - pubmed_data_2
+      - SEED_PM_IDS
+      - MeSH
+      - discovery_date
+
+blast_radius_summary: >-
+  The change is confined to a single guideline file: .opencode/guidelines/090-data-integrity.md.
+  The file is revised in place. No source code, tests, skills, or tools are modified. No other
+  guideline file is touched. The blast radius is one file, with the content revision being
+  strictly additive (6 new categories) plus removal of 4 project-specific reference strings.
+
+propagation_scope:
+  consumers: >-
+    Agents that load the 090-data-integrity guideline (tier 1, load_when: sub-agent). The
+    revision broadens the rule vocabulary so the data integrity principles apply beyond the
+    PubMed pipeline project; it does not add or remove any enforcement surface.
+  external_artifacts: none
+  runtime_behavior: >-
+    SC-10, SC-11, SC-12 are behavioral (agent refusal on synthetic data, ValueError on missing
+    required data, dynamic entity derivation). SC-13 is semantic (sub-agent rule-preservation
+    check). These test agent runtime behavior induced by the guideline content.

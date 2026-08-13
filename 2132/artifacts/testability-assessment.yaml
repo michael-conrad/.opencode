@@ -1,0 +1,62 @@
+# Testability Assessment — Issue 2132
+# Assign evidence types to each SC. Evidence types and verification methods are taken directly
+# from the spec's Success Criteria table.
+
+scs:
+  - id: SC-1
+    evidence_type: string
+    verification_method: grep for each category header
+  - id: SC-2
+    evidence_type: string
+    verification_method: grep for absence of each project-specific reference
+  - id: SC-3
+    evidence_type: string
+    verification_method: grep for each preserved rule
+  - id: SC-4
+    evidence_type: string
+    verification_method: grep for each boundary-validation concept
+  - id: SC-5
+    evidence_type: string
+    verification_method: grep for each serialization concept
+  - id: SC-6
+    evidence_type: string
+    verification_method: grep for each classification concept
+  - id: SC-7
+    evidence_type: string
+    verification_method: grep for each migration concept
+  - id: SC-8
+    evidence_type: string
+    verification_method: grep for each audit concept
+  - id: SC-9
+    evidence_type: string
+    verification_method: grep for retention policy
+  - id: SC-10
+    evidence_type: behavioral
+    verification_method: opencode run via with-test-home; verify agent refuses with explicit decline message
+  - id: SC-11
+    evidence_type: behavioral
+    verification_method: opencode run via with-test-home; verify agent raises ValueError, not a default/placeholder/fallback
+  - id: SC-12
+    evidence_type: behavioral
+    verification_method: opencode run via with-test-home; verify dynamic derivation, not hardcoded IDs
+  - id: SC-13
+    evidence_type: semantic
+    verification_method: clean-room sub-agent reads old and new file; reports each of 6 enumerated rules present/absent
+
+evidence_type_summary:
+  string: 9 (SC-1 through SC-9)
+  behavioral: 3 (SC-10, SC-11, SC-12)
+  semantic: 1 (SC-13)
+
+infrastructure_required:
+  - name: opencode run via with-test-home
+    used_by: [SC-10, SC-11, SC-12]
+    status: available (.opencode/tests-v2/with-test-home exists)
+  - name: git history access to pre-revision file
+    used_by: [SC-13]
+    status: available (file tracked in git)
+
+note: >-
+  Per critical-rules-BEH-EV, the 3 behavioral SCs (SC-10, SC-11, SC-12) require behavioral
+  evidence via opencode run. If a behavioral test cannot execute or remains inconsistent after up
+  to 3 retries, the result is FAIL with remediation — never reclassified as an infrastructure issue.

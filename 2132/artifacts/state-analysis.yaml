@@ -1,0 +1,45 @@
+# State Analysis — Issue 2132
+# Identify state transitions required by each SC. The deliverable is a guideline document; the
+# relevant state is the file's content state (pre-revision vs post-revision) and the pipeline's
+# verification state (absence/presence gates).
+
+artifact_state: guideline_file_content
+
+states:
+  - id: PRE_REVISION
+    description: >-
+      File contains existing rules plus 4 project-specific references (pubmed_data_2, SEED_PM_IDS,
+      MeSH, discovery_date) and no broader categories. This is the git-tracked baseline (96 lines).
+    scs_at_this_state: []
+
+  - id: REVISED
+    description: >-
+      File preserved existing rules verbatim, removed all 4 project-specific references, and added
+      6 new category sections plus updated cross-references. This is the target deliverable state.
+    required_sc_transitions: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+
+  - id: ABSENCE_VERIFIED
+    description: >-
+      Post-revision verification gate confirming zero project-specific reference matches remain.
+    gate_for: SC-2 (Phase 2)
+    transitions_from: REVISED
+
+  - id: PRESENCE_VERIFIED
+    description: >-
+      Post-revision verification gate confirming all 6 category headers and their required concepts
+      are present with correct scope.
+    gate_for: SC-1, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9 (Phase 3)
+    transitions_from: REVISED
+
+behavioral_states:
+  - id: AGENT_COMPLIANCE
+    description: >-
+      Behavioral state where the agent, when prompted, refuses synthetic data (SC-10), raises
+      ValueError on missing required data (SC-11), and derives entity references dynamically (SC-12),
+      and a sub-agent confirms all 6 specific rules preserved (SC-13).
+    verification_method: opencode run via with-test-home + clean-room sub-agent
+
+state_transition_diagram: >-
+  PRE_REVISION --(Phase 1: revise)--> REVISED --(Phase 2)--> ABSENCE_VERIFIED
+                                  REVISED --(Phase 3)--> PRESENCE_VERIFIED
+                                  REVISED --(behavioral runs)--> AGENT_COMPLIANCE
