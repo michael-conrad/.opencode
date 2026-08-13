@@ -1,0 +1,17 @@
+artifact_name: analysis-summary
+generated_at: 2026-08-13
+source: "Spec #2132 spec.md (retroactive backfill)"
+mode: retroactive
+content:
+  spec_path: ".opencode/.issues/2132/spec.md"
+  sc_count: 13
+  requirement_count: 7
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: "Single-file revision of .opencode/guidelines/090-data-integrity.md (96 lines, verified present). Additive change: preserve existing battle-tested rules, add 6 new data integrity category sections, remove project-specific references (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date). 3 phases: (1) revise file, (2) verify project-specific refs removed, (3) verify 6 categories present. Evidence mix: 9 string SCs (SC-1–SC-9), 3 behavioral SCs (SC-10–SC-12, via with-test-home opencode run), 1 semantic SC (SC-13, clean-room sub-agent)."

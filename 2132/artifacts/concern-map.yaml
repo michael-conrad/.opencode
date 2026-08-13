@@ -1,0 +1,47 @@
+artifact_name: concern-map
+generated_at: 2026-08-13
+source: "Spec #2132 spec.md (retroactive backfill)"
+mode: retroactive
+content:
+  description: "Map of the 13 SCs to the 3 implementation phases for the 090-data-integrity.md revision."
+  phases:
+    - phase: 1
+      name: "Revise file: preserve existing rules, add 6 new categories, update cross-references"
+      concern: "Additive revision of the guideline content (REQ-1–REQ-7)"
+      scs:
+        - SC-1
+        - SC-3
+        - SC-13
+      dependencies: []
+      key_deliverables:
+        - "6 new category sections added after Long-Running Tasks section"
+        - "Cross-References section updated"
+        - "Existing rules preserved verbatim"
+    - phase: 2
+      name: "Verify all project-specific references removed"
+      concern: "Removal verification of stale project-specific references (SC-2, REQ-7)"
+      scs:
+        - SC-2
+        - SC-10
+        - SC-11
+        - SC-12
+      dependencies:
+        - "Phase 1 (file must be revised first)"
+      key_deliverables:
+        - "grep for pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date returns zero matches"
+        - "Behavioral refusals for synthetic data, missing data, hardcoded IDs"
+    - phase: 3
+      name: "Verify all 6 categories present with correct scope"
+      concern: "Presence and scope-coverage verification of the 6 categories (REQ-1–REQ-6)"
+      scs:
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8
+        - SC-9
+      dependencies:
+        - "Phase 1 (categories must exist first)"
+      key_deliverables:
+        - "grep for each category header confirms presence"
+        - "grep for each concept confirms scope coverage"

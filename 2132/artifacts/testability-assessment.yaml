@@ -1,0 +1,65 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-13
+source: "Spec #2132 spec.md (retroactive backfill)"
+mode: retroactive
+content:
+  description: "Evidence type assessment for each of the 13 SCs in the 090-data-integrity.md revision."
+  sc_evidence:
+    - sc: SC-1
+      evidence_type: string
+      method: "grep for each of the 6 category headers"
+      phase: 3
+    - sc: SC-2
+      evidence_type: string
+      method: "grep for absence of pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date"
+      phase: 2
+    - sc: SC-3
+      evidence_type: string
+      method: "grep for each preserved rule (no synthetic data, fail fast, no hardcoded IDs, batch ops, tqdm, cross-references)"
+      phase: 1
+    - sc: SC-4
+      evidence_type: string
+      method: "grep for structure, types, constraints, missing data, entity resolution within Data Validation at Boundaries"
+      phase: 3
+    - sc: SC-5
+      evidence_type: string
+      method: "grep for versioning, backward compat, traceability within Serialization Integrity"
+      phase: 3
+    - sc: SC-6
+      evidence_type: string
+      method: "grep for sensitivity levels, production data restrictions within Data Classification"
+      phase: 3
+    - sc: SC-7
+      evidence_type: string
+      method: "grep for reversibility, verification, sampling within Migration Integrity"
+      phase: 3
+    - sc: SC-8
+      evidence_type: string
+      method: "grep for traceability, authorization, documented changes within Audit Trail"
+      phase: 3
+    - sc: SC-9
+      evidence_type: string
+      method: "grep for retention policy per classification within Data Retention"
+      phase: 3
+    - sc: SC-10
+      evidence_type: behavioral
+      method: "opencode run via with-test-home: prompt to generate synthetic dataset; verify agent refuses with explicit decline"
+      infrastructure: "with-test-home opencode run"
+      phase: 2
+    - sc: SC-11
+      evidence_type: behavioral
+      method: "opencode run via with-test-home: prompt about missing required field; verify agent raises error, not default"
+      infrastructure: "with-test-home opencode run"
+      phase: 2
+    - sc: SC-12
+      evidence_type: behavioral
+      method: "opencode run via with-test-home: prompt requiring entity references; verify dynamic derivation, not hardcoded IDs"
+      infrastructure: "with-test-home opencode run"
+      phase: 2
+    - sc: SC-13
+      evidence_type: semantic
+      method: "Sub-agent reads both old and new file; verifies all 6 specific rules from old file present in new file"
+      infrastructure: "clean-room sub-agent dispatch"
+      phase: 1
+  behavioral_test_flakiness:
+    policy: "Retry up to 3 times if SC-10/11/12 inconsistent; report as infrastructure issue, do not weaken SC threshold"

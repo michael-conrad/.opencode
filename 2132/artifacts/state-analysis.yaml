@@ -1,0 +1,23 @@
+artifact_name: state-analysis
+generated_at: 2026-08-13
+source: "Spec #2132 spec.md (retroactive backfill)"
+mode: retroactive
+content:
+  description: "State transitions for the 090-data-integrity.md revision."
+  transitions:
+    - entity: ".opencode/guidelines/090-data-integrity.md"
+      before: "96 lines — project-specific PubMed pipeline rules (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date) plus 6 general sections"
+      after: "Preserved specific rules + 6 new category sections (Data Validation at Boundaries, Serialization Integrity, Data Classification, Migration Integrity, Audit Trail, Data Retention); project-specific references removed"
+      phase: 1
+    - entity: "Project-specific references (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date)"
+      before: "Present in file"
+      after: "Removed (SC-2, Phase 2)"
+      phase: 2
+    - entity: "6 category sections"
+      before: "Absent"
+      after: "Present with correct scope (SC-1, SC-4–SC-9, Phase 3)"
+      phase: 3
+    - entity: "Existing battle-tested rules"
+      before: "Present"
+      after: "Preserved verbatim (SC-3, SC-13)"
+      phase: 1
