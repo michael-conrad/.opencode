@@ -69,7 +69,7 @@ Create a new `gb-cli` skill at `.opencode/skills/gb-cli/` using the `gh-cli` ski
 | SC-15 | All task cards include Provenance header | `string` | grep each task card for "Provenance:" |
 | SC-16 | All task cards include AI co-authored byline | `string` | grep each task card for "Co-authored with AI" |
 | SC-17 | Phase 1 investigation produces a per-workflow applicability assessment artifact documenting which gh-cli workflows apply to gb, which need revision, and which are discarded, with rationale for each decision | `string` | Artifact file exists at `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` with entries for each gh-cli workflow |
-| SC-18 | Cross-references to `gb-cli` appear in `git-workflow`, `issue-operations`, `gitbucket-api`, and `release-promoter` SKILL.md files | `string` | grep each SKILL.md for `gb-cli` cross-reference entry |
+| SC-18 | Cross-references to `gb-cli` appear in `git-workflow`, `issue-operations`, `gitbucket-api`, and `release-promoter` SKILL.md files, and the `.opencode/AGENTS.md` gb CLI tool documentation section references the `gb-cli` skill | `string` | grep each SKILL.md and `.opencode/AGENTS.md` for `gb-cli` cross-reference entry |
 | SC-19 | `gb-cli` skill takes precedence for `gb` workflows; `gitbucket-api` sub-skill delegates to `gb-cli` for workflow-level operations | `semantic` | Sub-agent reads both `gb-cli` SKILL.md and `gitbucket-api` SKILL.md, confirms that `gb-cli` is the primary entry point for `gb` workflows and `gitbucket-api` delegates to it |
 | SC-20 | The 7 `gitbucket-api` task files have duplicated `gb` CLI command reference tables removed or replaced with cross-references to `gb-cli` | `string` | grep the 7 `gitbucket-api` task files for `gb` CLI command reference tables — confirm they are removed or replaced with cross-references to `gb-cli` |
 
@@ -96,7 +96,7 @@ Each SC's evidence type is chosen based on defect-discovery-latency (DDL) cost:
 | SC-15 | `string` | Provenance header presence is a deterministic text pattern — grep for "Provenance:" catches missing headers. |
 | SC-16 | `string` | AI co-authored byline presence is a deterministic text pattern — grep for "Co-authored with AI" catches missing bylines. |
 | SC-17 | `string` | Artifact file existence and content is a text-pattern check — grep for workflow entries with rationale. |
-| SC-18 | `string` | Cross-reference text is a deterministic pattern — grep for "gb-cli" in target SKILL.md files (git-workflow, issue-operations, gitbucket-api, release-promoter) catches missing entries. |
+| SC-18 | `string` | Cross-reference text is a deterministic pattern — grep for "gb-cli" in target SKILL.md files (git-workflow, issue-operations, gitbucket-api, release-promoter) and `.opencode/AGENTS.md` catches missing entries. |
 | SC-19 | `semantic` | Precedence and delegation require understanding the relationship between two skills — a sub-agent must read both SKILL.md files and judge whether `gb-cli` is primary and `gitbucket-api` delegates correctly. |
 | SC-20 | `string` | Duplicated command reference tables are deterministic text patterns — grep for `gb` command reference patterns in the 7 task files catches remaining duplication. |
 
@@ -141,7 +141,7 @@ All SCs (SC-1 through SC-20) must pass verification for this spec to be consider
 | 11 | SC-13 | Add `gb pr merge` prohibition with CRITICAL VIOLATION block |
 | 12 | SC-14, SC-15, SC-16 | Add SPDX-FileCopyrightText, Provenance, and AI co-authored byline to all files |
 | 13 | SC-10 | Create and pass behavioral enforcement tests for skill discovery |
-| 14 | SC-18 | Add `gb-cli` cross-references to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files |
+| 14 | SC-18 | Add `gb-cli` cross-references to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files and update `.opencode/AGENTS.md` gb CLI tool documentation section to reference `gb-cli` |
 | 15 | SC-19 | Adapt `gitbucket-api` SKILL.md to delegate to `gb-cli` for workflow-level operations, update description to indicate delegation |
 | 16 | SC-20 | Audit 7 `gitbucket-api` task files, remove duplicated `gb` CLI command reference tables, replace workflow-level `gb` command sequences with cross-references to `gb-cli` |
 
@@ -303,3 +303,4 @@ Create task cards organized by real agent workflows, adapted from gh-cli referen
 | 2026-07-30 | Consistency fix: SC-16/Item 14/Affected Files now list all 4 cross-reference targets (git-workflow, issue-operations, gitbucket-api, release-promoter). Traceability fix: SC-6 mapped to R4 and R5. Structural fix: Phase 5 heading now includes (REQ R12). AGENTS.md separated from cross-references in Affected Files. | Validation findings: consistency FAIL (SC-16 vs R11 vs Affected Files mismatch), traceability FAIL (SC-6 no requirement mapping), structural FAIL (Phase 5 heading missing REQ R12) | Spec revision pipeline |
 | 2026-07-30 | Traceability fix: added R13 (common-workflows task card), mapped SC-12 to R13. Atomicity fix: decomposed SC-14 into SC-14 (SPDX), SC-15 (Provenance), SC-16 (byline). Renumbered SC-15→SC-17, SC-16→SC-18. Updated all cross-references (Items, Traceability, Cost-Frame, Enforcement Gate, Phase REQ references). | Validation findings: traceability FAIL (SC-12 no requirement mapping), atomicity FAIL (SC-14 compound) | Spec revision pipeline |
 | 2026-07-30 | Added R16 (gb-cli precedence), R17 (gitbucket-api adaptation), SC-19 (gb-cli takes precedence), SC-20 (gitbucket-api task files adapted), Phase 6 (gitbucket-api sub-skill adaptation), Items 15-16, updated Traceability, Cost-Frame, Enforcement Gate, Affected Files, and Not Included section. | Developer feedback: gitbucket-api sub-skill must delegate to gb-cli for workflow-level operations rather than duplicating gb CLI commands | Spec revision pipeline |
+| 2026-08-12 | Extended SC-18 criterion text to include `.opencode/AGENTS.md` (gb CLI tool documentation section must reference the gb-cli skill). Updated Cost-Frame justification and Item 14 for consistency. | Pre-PR gate VERIFICATION-GAP: SC-18 criterion covered only the 4 SKILL.md files while the Affected Files section and plan Phase 4 also target `.opencode/AGENTS.md`; non-substantive SC wording fix — no scope, evidence type, or implementation intent changes | Spec revision pipeline |
