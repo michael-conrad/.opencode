@@ -1,0 +1,27 @@
+# SC Summary — #2133 — Clean up three semantic defects in 091-incremental-build.md
+# Generated: research phase of writing-plans
+
+scs:
+  - id: SC-1
+    description: Only one cross-ref to 000-critical-rules.md in the first cross-ref line
+    evidence_type: string
+    phase: 1
+    item: ITEM-1
+    location: .opencode/guidelines/091-incremental-build.md first cross-ref line
+    change: Remove first instance of the cross-ref, keep one
+
+  - id: SC-2
+    description: Remove "Implementation work is measured" paragraph
+    evidence_type: string
+    phase: 2
+    item: ITEM-2
+    location: .opencode/guidelines/091-incremental-build.md paragraph after Anti-Patterns list
+    change: Remove the paragraph from 091-incremental-build.md
+
+  - id: SC-3
+    description: Remove "Symbolic rules below" line
+    evidence_type: string
+    phase: 3
+    item: ITEM-3
+    location: .opencode/guidelines/091-incremental-build.md symbolic rules below line
+    change: Remove the "Symbolic rules below" line

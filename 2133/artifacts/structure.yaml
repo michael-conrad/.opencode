@@ -1,0 +1,43 @@
+issue: 2133
+artifact: structure
+mode: retroactive
+phases:
+  - id: phase_1
+    scs:
+      - SC-1
+    items:
+      - ITEM-1
+    concern: Deduplicate first cross-ref line (000-critical-rules.md) in 091-incremental-build.md
+    skill: test-driven-development
+    task_red: "execute red task from test-driven-development"
+    task_green: "execute green task from test-driven-development"
+    task_verify: "execute verify task from verification-before-completion"
+  - id: phase_2
+    scs:
+      - SC-2
+    items:
+      - ITEM-2
+    concern: Remove duplicated 'tested verified correct code operations' paragraph from 091-incremental-build.md
+    skill: test-driven-development
+    task_red: "execute red task from test-driven-development"
+    task_green: "execute green task from test-driven-development"
+    task_verify: "execute verify task from verification-before-completion"
+  - id: phase_3
+    scs:
+      - SC-3
+    items:
+      - ITEM-3
+    concern: Remove dead 'Symbolic rules below' line from 091-incremental-build.md
+    skill: test-driven-development
+    task_red: "execute red task from test-driven-development"
+    task_green: "execute green task from test-driven-development"
+    task_verify: "execute verify task from verification-before-completion"
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "First cross-ref line deduplicated (SC-1) before paragraph removal (SC-2)"
+  - from: phase_2
+    to: phase_3
+    rationale: "Paragraph removed (SC-2) before dead symbolic-rules line removal (SC-3)"
+triplet_co_location: PASS
+cross_phase_dependency: PASS

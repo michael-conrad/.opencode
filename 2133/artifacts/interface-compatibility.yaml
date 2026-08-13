@@ -9,3 +9,46 @@ interfaces:
     compatibility: preserved
     note: The cross-reference to 000-critical-rules.md is retained (one instance kept); only the duplicate is removed
 summary: No interface boundary is broken. The single affected file's references to other guidelines remain valid. No other modules are touched.
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Deduplicate first cross-ref line — remove first instance of the 000-critical-rules.md cross-ref, keep one — SC-1"
+    phase_2:
+      type: bool
+      description: "Remove paragraph after Anti-Patterns list — remove the 'tested verified correct code operations' paragraph — SC-2"
+    phase_3:
+      type: bool
+      description: "Remove symbolic rules below line — remove the dead 'Symbolic rules below' reference — SC-3"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/guidelines/091-incremental-build.md
+      scs:
+        - SC-1
+    phase_2:
+      files:
+        - .opencode/guidelines/091-incremental-build.md
+      scs:
+        - SC-2
+    phase_3:
+      files:
+        - .opencode/guidelines/091-incremental-build.md
+      scs:
+        - SC-3
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "The first cross-ref line must be deduplicated (Phase 1) before the paragraph removal (Phase 2) proceeds"
+    - from: phase_2
+      to: phase_3
+      rationale: "The paragraph must be removed (Phase 2) before the dead 'Symbolic rules below' line removal (Phase 3) proceeds"
+  notes:
+    - "Phases are strictly sequential (1 → 2 → 3), each removing one defective line from the same single file. Each phase maps 1:1 to one SC and one item with its own RED/GREEN/verify/commit cycle."
+    - "All three SCs are string evidence type, statically testable via grep. No runtime behavior changes; no interface boundary is broken."
