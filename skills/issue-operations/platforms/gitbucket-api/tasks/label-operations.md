@@ -4,6 +4,8 @@
 
 GitBucket label operations using the `gb` CLI tool.
 
+**Delegation:** Workflow-level label operations (list/create/view/edit/delete repository labels, issue-level label mutation) are delegated to the `gb-cli` skill task cards. This task retains label routing logic: the post-creation label mutation capability via `gb api` passthrough and the repository label command surface. Read [the gb-cli manage-labels task card](../../../../gb-cli/tasks/manage-labels.md) for workflow-level label sequences.
+
 ## TOOL_MISSING Detection
 
 ```bash
@@ -13,103 +15,43 @@ if ! command -v gb &>/dev/null; then
 fi
 ```
 
-## Add Labels to Issue
+## Issue-Level Label Mutation (Post-Creation)
 
 **✅ WORKING: issue-level label mutation via `gb api` passthrough**
 
 The GitBucket API endpoint `POST /repos/{owner}/{repo}/issues/{number}/labels` applies labels to the issue. Use `gb api` passthrough with a JSON body containing the `labels` array.
 
-### CLI
+### Add Labels to Issue
 
 ```bash
 # ✅ WORKING: Add labels to an existing issue via gb api passthrough
 echo '{"labels":["bug"]}' | gb api "repos/org/project/issues/14/labels" -R org/project -X POST -i -
 ```
 
-## Replace All Labels
-
-**✅ WORKING: issue-level label mutation via `gb api` passthrough**
-
-The GitBucket API endpoint `PUT /repos/{owner}/{repo}/issues/{number}/labels` replaces all labels on the issue. Use `gb api` passthrough with a JSON body containing the `labels` array.
-
-### CLI
+### Replace All Labels
 
 ```bash
 # ✅ WORKING: Replace all labels on an existing issue via gb api passthrough
 echo '{"labels":["priority","review"]}' | gb api "repos/org/project/issues/14/labels" -R org/project -X PUT -i -
 ```
 
-## Remove Specific Label
-
-**✅ WORKING: issue-level label mutation via `gb api` passthrough**
-
-The GitBucket API endpoint `DELETE /repos/{owner}/{repo}/issues/{number}/labels/{name}` removes a specific label from the issue. Use `gb api` passthrough.
-
-### CLI
+### Remove Specific Label
 
 ```bash
 # ✅ WORKING: Remove a specific label from an existing issue via gb api passthrough
 gb api "repos/org/project/issues/14/labels/bug" -R org/project -X DELETE -i -
 ```
 
-## Remove All Labels
-
-**✅ WORKING: issue-level label mutation via `gb api` passthrough**
-
-The GitBucket API endpoint `DELETE /repos/{owner}/{repo}/issues/{number}/labels` removes all labels from the issue. Use `gb api` passthrough.
-
-### CLI
+### Remove All Labels
 
 ```bash
 # ✅ WORKING: Remove all labels from an existing issue via gb api passthrough
 gb api "repos/org/project/issues/14/labels" -R org/project -X DELETE -i -
 ```
 
-## Repository Labels
+## Repository Label Routing
 
-### List Labels
-
-```bash
-gb label list -R org/project
-```
-
-### Create Label
-
-```bash
-gb label create bug --color fc2929 --description "Broken behavior" -R org/project
-```
-
-### View Label
-
-```bash
-gb label view bug -R org/project
-```
-
-### Edit Label
-
-```bash
-gb label edit bug --name defect --color cc0000 --description "Confirmed defect" -R org/project
-```
-
-### Delete Label
-
-```bash
-gb label delete bug --yes -R org/project
-```
-
-## Tool Selection
-
-| Operation | gb Command | Status |
-|-----------|------------|--------|
-| Add labels | `gb api "repos/O/R/issues/{number}/labels" -X POST` | ✅ WORKING |
-| Replace labels | `gb api "repos/O/R/issues/{number}/labels" -X PUT` | ✅ WORKING |
-| Remove label | `gb api "repos/O/R/issues/{number}/labels/{name}" -X DELETE` | ✅ WORKING |
-| Remove all labels | `gb api "repos/O/R/issues/{number}/labels" -X DELETE` | ✅ WORKING |
-| List labels | `gb label list -R O/R` | ✅ |
-| Create label | `gb label create <name> --color <hex> -R O/R` | ✅ |
-| View label | `gb label view <name> -R O/R` | ✅ |
-| Edit label | `gb label edit <name> -R O/R` | ✅ |
-| Delete label | `gb label delete <name> --yes -R O/R` | ✅ |
+Repository label operations (list/create/view/edit/delete) are delegated to the `gb-cli` manage-labels task card. Read [the gb-cli manage-labels task card](../../../../gb-cli/tasks/manage-labels.md).
 
 ## Error Handling
 

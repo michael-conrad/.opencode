@@ -114,7 +114,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## Cross-References
 
-Skills: `version-manager`, `changelog-generator`, `git-workflow`, `gh-cli` (gh release commands for release creation and asset upload). Guidelines: `080-code-standards.md`.
+Skills: `version-manager`, `changelog-generator`, `git-workflow`, `gh-cli` (gh release commands for release creation and asset upload), `gb-cli` (gb release commands for GitBucket releases). Guidelines: `080-code-standards.md`.
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->

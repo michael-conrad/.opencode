@@ -103,7 +103,7 @@ When the agent needs to resolve git conflicts during a rebase, merge, or cherry-
 
 ## Cross-References
 
-Sub-skills: `git-workflow-branch`, `git-workflow-commit`, `git-workflow-pr`, `git-workflow-cleanup`, `git-workflow-conflict`. Skills: `conflict-resolution`, `using-git-worktrees`, `pre-analysis`, `gh-cli` (gh-specific PR operations). Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+Sub-skills: `git-workflow-branch`, `git-workflow-commit`, `git-workflow-pr`, `git-workflow-cleanup`, `git-workflow-conflict`. Skills: `conflict-resolution`, `using-git-worktrees`, `pre-analysis`, `gh-cli` (gh-specific PR operations), `gb-cli` (gb-specific GitBucket PR operations). Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
 ### [critical-rules-016] Wrong Chat Output at Halt Points
 A halt without structured output leaves the developer guessing what happened, what was produced, and what to do next. Professional engineers always produce: Summary → Outcome → Blockers (if applicable) → URL (if applicable) → Byline. Amateurs vanish without telling anyone what they did. Read [git-workflow skill](skills/git-workflow/SKILL.md).
