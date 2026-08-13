@@ -4,6 +4,8 @@
 
 Repository management operations using the `gb` CLI tool.
 
+**Delegation:** Workflow-level repository operations (create/fork/list/view/clone/delete, branch status checks, PR workflows, health checks, fork sync, releases) are delegated to the `gb-cli` skill task cards. This task retains repo routing logic: default branch resolution and the core `gb repo` command surface. Read [the gb-cli manage-repo task card](../../../../gb-cli/tasks/manage-repo.md) for workflow-level repository sequences.
+
 ## Default Branch Resolution
 
 ```bash
@@ -48,83 +50,20 @@ gb repo list username
 gb api repos/org/project/branches -R org/project
 ```
 
-### List Pull Requests
+## Workflow-Level Delegation
 
-```bash
-gb pr list -R org/project --state open
-```
+Chained repository workflows (branch status before PR, stale branch detection, health check, fork sync, release from milestone) are delegated to the `gb-cli` skill task cards:
 
-### Get Pull Request
+| Workflow | gb-cli Task Card |
+|----------|------------------|
+| Repository management (create/fork/list/view/clone/delete) | `gb-cli/tasks/manage-repo.md` |
+| PR creation | `gb-cli/tasks/create-pr.md` |
+| PR review | `gb-cli/tasks/review-pr.md` |
+| Search and investigation | `gb-cli/tasks/search-investigate.md` |
+| API passthrough (releases, branches) | `gb-cli/tasks/api-requests.md` |
+| End-to-end workflows | `gb-cli/tasks/common-workflows.md` |
 
-```bash
-gb pr view 42 -R org/project
-```
-
-## Chained Operations
-
-### Workflow 1: Check Branch Status Before Creating PR
-
-```bash
-# Step 1: Check if branch exists
-gb api repos/org/project/branches -R org/project
-
-# Step 2: Check for existing PRs for this branch
-gb pr list -R org/project --state open
-
-# Step 3: Create new PR (if no existing PR found)
-gb pr create -t "Feature: feature/oauth2" --head feature/oauth2 -B "$DEFAULT_BRANCH" -R org/project --body "## Description\n\nImplements OAuth2 authentication."
-```
-
-### Workflow 2: Find Stale Branches
-
-```bash
-# List all branches
-gb api repos/org/project/branches -R org/project
-# Then filter out protected branches (main, master, $DEFAULT_BRANCH) and identify stale ones
-```
-
-### Workflow 3: Repository Health Check
-
-```bash
-# Check for required labels
-gb label list -R org/project
-
-# Check for open PRs
-gb pr list -R org/project --state open
-
-# Get repository info
-gb repo view org/project
-
-# Check branches
-gb api repos/org/project/branches -R org/project
-```
-
-### Workflow 4: Sync Fork with Upstream
-
-```bash
-# Get repository info
-gb repo view org/fork-repo
-# Check if it's a fork and get upstream info from response
-```
-
-### Workflow 5: Create Release from Milestone
-
-```bash
-# Note: Release/milestone operations require gb api passthrough
-# gb api repos/org/project/releases -X POST --input body.json
-```
-
-## Complete API Reference
-
-| Operation | gb Command | Returns |
-|-----------|------------|---------|
-| Get repository | `gb repo view O/R` | JSON |
-| List own repos | `gb repo list` | JSON array |
-| List user repos | `gb repo list <user>` | JSON array |
-| List branches | `gb api repos/O/R/branches -R O/R` | JSON array |
-| List PRs | `gb pr list -R O/R [--state ...]` | JSON array |
-| Get PR | `gb pr view <N> -R O/R` | JSON |
-| Create PR | `gb pr create -t "<title>" --head <b> -B <b> -R O/R [--body ...]` | JSON |
+Read [the gb-cli skill](../../../../gb-cli/SKILL.md) for the full workflow dispatch contracts.
 
 ## Source Code
 

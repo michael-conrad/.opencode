@@ -191,7 +191,7 @@ When a bug is reported via GitHub Issue or developer message:
 
 ## Cross-References
 
-Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `audit --task concern-separation`, `gh-cli` (gh issue commands for issue triage workflows). Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `audit --task concern-separation`, `gh-cli` (gh issue commands for issue triage workflows), `gb-cli` (gb issue/PR commands for GitBucket workflows). Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
 
 

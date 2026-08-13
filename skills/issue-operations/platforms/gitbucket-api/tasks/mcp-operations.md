@@ -4,6 +4,8 @@
 
 GitBucket operations use the `gb` CLI tool. This replaces both MCP tools and the old `gitbucket-api` Python tool for all operations.
 
+**Delegation:** Workflow-level `gb` command sequences (issue triage, PR creation/review, label/milestone/repository management, search, API requests) are delegated to the `gb-cli` skill task cards. This task retains platform-scoped routing: tool detection, auth verification, error classification, and the tool-selection decision tree. Read [the gb-cli skill](../../../../gb-cli/SKILL.md) for workflow-level command coverage.
+
 ## TOOL_MISSING Detection
 
 Before any `gb` command, verify the tool is available:
@@ -31,58 +33,29 @@ if ! printf '%s\n' "0.6.1" "$GB_VERSION" | sort -V | head -1 | grep -q "^0.6.1$"
 fi
 ```
 
-## CLI Command Reference
+## Workflow-Level Delegation
 
-| Operation | gb Command | Status |
-|-----------|------------|--------|
-| Get issue | `gb issue view <number> -R owner/repo` | ✅ |
-| Create issue | `gb issue create -t "<title>" -R owner/repo [--body "..."] [--label l1,l2]` | ✅ |
-| Edit issue | `gb issue edit <number> -R owner/repo [--title ...] [--add-label ...] [--remove-label ...]` | ✅ (web fallback) |
-| Close issue | `gb issue close <number> -R owner/repo` | ✅ |
-| Reopen issue | `gb issue reopen <number> -R owner/repo` | ✅ |
-| Add comment | `gb issue comment <number> -b "<body>" -R owner/repo` | ✅ |
-| List issues | `gb issue list -R owner/repo [--state open\|closed\|all]` | ✅ |
-| Get repository | `gb repo view owner/repo` | ✅ |
-| List repos | `gb repo list [owner]` | ✅ |
-| Create repo | `gb repo create <name> [-g group]` | ✅ |
-| List branches | `gb api repos/owner/repo/branches -R owner/repo` | ✅ (passthrough) |
-| List PRs | `gb pr list -R owner/repo [--state open\|closed\|all]` | ✅ |
-| Get PR | `gb pr view <number> -R owner/repo` | ✅ |
-| Create PR | `gb pr create -t "<title>" --head <branch> -B <base> -R owner/repo` | ✅ |
-| Edit PR | `gb pr edit <number> -R owner/repo [--add-assignee ...]` | ✅ |
-| Merge PR | `gb pr merge <number> -R owner/repo` | ✅ |
-| Close PR | `gb pr close <number> -R owner/repo` | ✅ |
-| PR diff | `gb pr diff <number> -R owner/repo` | ✅ |
-| PR comment | `gb pr comment <number> -b "<body>" -R owner/repo` | ✅ |
-| List labels | `gb label list -R owner/repo` | ✅ |
-| Create label | `gb label create <name> --color <hex> [--description "..."] -R owner/repo` | ✅ |
-| View label | `gb label view <name> -R owner/repo` | ✅ |
-| Edit label | `gb label edit <name> -R owner/repo [--name ...] [--color ...] [--description ...]` | ✅ |
-| Delete label | `gb label delete <name> --yes -R owner/repo` | ✅ |
-| Get current user | `gb auth status` | ✅ |
-| Validate auth | `gb auth status` | ✅ |
-| API passthrough | `gb api <endpoint> [-X method] [--input ...]` | ✅ |
+Workflow-level `gb` operations are delegated to the `gb-cli` skill task cards:
 
-## CLI-First Workflow
+| Workflow | gb-cli Task Card |
+|----------|------------------|
+| Issue triage (list/view/edit/comment/close) | `gb-cli/tasks/triage-issues.md` |
+| PR creation | `gb-cli/tasks/create-pr.md` |
+| PR review | `gb-cli/tasks/review-pr.md` |
+| Repository management | `gb-cli/tasks/manage-repo.md` |
+| Label management | `gb-cli/tasks/manage-labels.md` |
+| Milestone management | `gb-cli/tasks/manage-milestones.md` |
+| Search and investigation | `gb-cli/tasks/search-investigate.md` |
+| API passthrough | `gb-cli/tasks/api-requests.md` |
+| Authentication | `gb-cli/tasks/authenticate.md` |
 
-**For all operations:**
-
-```bash
-# Create issue
-gb issue create -t "Bug fix" -R org/project --body "Description" --label bug,enhancement
-
-# Get issue
-gb issue view 14 -R org/project
-
-# List issues
-gb issue list -R org/project --state open
-```
+Read [the gb-cli skill](../../../../gb-cli/SKILL.md) for the full workflow dispatch contracts.
 
 ## Tool Selection Decision Tree
 
 ```
-Is operation in gb command table?
-    ├─ YES → Use gb subcommand
+Is operation a workflow-level gb operation?
+    ├─ YES → Delegate to gb-cli task card
     │         ├─ Success → Return result
     │         └─ Failure → Log error, check auth with gb auth status
     └─ NO → Use gb api passthrough
@@ -114,21 +87,7 @@ gb issue create -t "Test" -R org/project
 
 ## Label Operations (Post-Creation Label Mutation Works)
 
-GitBucket supports adding and changing labels after issue creation via `gb` subcommands or `gb api` passthrough:
-
-```bash
-# ✅ WORKS: Set labels during issue creation
-gb issue create -t "Bug report" -R org/project --body "Description" --label bug,enhancement
-
-# ✅ WORKS: Add labels after creation
-gb issue edit <number> -R org/project --add-label urgent
-
-# ✅ WORKS: Remove labels after creation
-gb issue edit <number> -R org/project --remove-label bug
-
-# ✅ WORKS: Replace labels after creation via gb api passthrough
-gb api "repos/org/project/issues/<number>/labels" -X PUT --input '{"labels":["bug"]}' -R org/project
-```
+GitBucket supports adding and changing labels after issue creation via `gb` subcommands or `gb api` passthrough. Workflow-level label operations are delegated to the `gb-cli` manage-labels task card. Read [the gb-cli manage-labels task card](../../../../gb-cli/tasks/manage-labels.md).
 
 ## Admin Operations
 

@@ -157,7 +157,7 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 ## `gb` CLI Tool — GitBucket Operations
 
-This repo uses the [`gb` CLI](https://github.com/Masahiro-Obuchi/gitbucket-cli-rs) (v0.6.1) for all GitBucket API operations. The `gb` tool replaces the previous bespoke `gitbucket-api` Python tool.
+This repo uses the [`gb` CLI](https://github.com/Masahiro-Obuchi/gitbucket-cli-rs) (v0.6.1) for all GitBucket API operations. The `gb` tool replaces the previous bespoke `gitbucket-api` Python tool. Agents performing `gb` workflows MUST dispatch the [`gb-cli` skill](skills/gb-cli/SKILL.md) — it is the canonical entry point for all `gb` command operations.
 
 ### Install by Platform
 

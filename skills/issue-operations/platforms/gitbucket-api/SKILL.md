@@ -1,6 +1,6 @@
 ---
 name: gitbucket-api
-description: "GitBucket platform operations via the gb CLI tool for multi-platform issue management. Load via skill() when GitBucket platform operations are needed. Also load when routing issue operations to GitBucket via the gb CLI tool, or when GitBucket-specific API capabilities are required. GitBucket operations without platform awareness fail silently. Platform-aware routing is REQUIRED. User phrases: GitBucket operations, gb CLI, GitBucket API, platform routing"
+description: "GitBucket platform operations via the gb CLI tool for multi-platform issue management. Delegates workflow-level gb operations to the gb-cli skill. Load via skill() when GitBucket platform operations are needed. Also load when routing issue operations to GitBucket via the gb CLI tool, or when GitBucket-specific API capabilities are required. GitBucket operations without platform awareness fail silently. Platform-aware routing is REQUIRED. User phrases: GitBucket operations, gb CLI, GitBucket API, platform routing"
 license: MIT
 compatibility: opencode
 ---
@@ -10,6 +10,8 @@ compatibility: opencode
 ## Overview
 
 GitBucket platform implementation using the `gb` CLI tool. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the router passes GitBucket operations here when `github.platform=gitbucket`.
+
+**Delegation:** Workflow-level `gb` operations (issue triage, PR creation/review, label management, milestone management, repository management, search/investigation, API requests) are delegated to the `gb-cli` skill. This sub-skill retains platform-scoped routing: owner/repo resolution, auth verification, error recovery, and GitBucket-specific API capabilities. Read [the gb-cli skill](../../../gb-cli/SKILL.md) for workflow-level gb command coverage.
 
 ## Worktree Mode
 
@@ -29,7 +31,7 @@ See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check
 ## Capability Manifest (gb CLI v0.6.1)
 
 | Operation | Supported | gb Command |
-|----------|-----------|------------|
+| -- | -- | -- |
 | Create issue | ✅ | `gb issue create -t "<title>" -R O/R [--body ...] [--label ...]` |
 | List issues | ✅ | `gb issue list -R O/R [--state ...]` |
 | Get issue | ✅ | `gb issue view <N> -R O/R` |
@@ -71,7 +73,7 @@ See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check
 ## Tasks
 
 | Task | Purpose |
-|------|---------|
+| -- | -- |
 | `issue-operations` | Issue CRUD patterns, create/update/list workarounds |
 | `label-operations` | Label CRUD, auto-creation, post-creation label mutation via `gb api` passthrough |
 | `error-recovery` | Error handling, retry logic, credential failures |
@@ -84,7 +86,7 @@ See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check
 ### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
+| -- | -- | -- | -- | -- |
 | `issue-operations` | When GitBucket issue CRUD patterns are needed | Operation type, issue data, github.owner, github.repo | Implementation context, agent memory | NO |
 | `label-operations` | When GitBucket label CRUD is needed | Label name, color, github.owner, github.repo | Implementation context, agent memory | NO |
 | `error-recovery` | When GitBucket error handling/retry is needed | Error details, retry context | Implementation context, agent memory | NO |
@@ -104,7 +106,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read tasks/issue-operations.md then execute step 1" | "execute issue-operations task from gitbucket-api" |
 | Preloaded step sequences | "Step 1: call gb issue create. Step 2: add labels." | "execute issue-operations task from gitbucket-api" |
 | Preloaded expected outcomes | "Return { issue_number, html_url }" | Let sub-agent define its own result contract |
@@ -137,6 +139,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the task routing table above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -148,6 +151,7 @@ Exclusions (MUST NOT be in prompt):
 Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -174,7 +178,7 @@ GitBucket API supports labels via creation and post-creation mutation through `g
 GitBucket API supports 5 spec lifecycle labels that track spec maturity through the review pipeline. These are distinct from `approved-for-*` authorization labels — lifecycle labels describe spec maturity, while authorization labels describe implementation permission.
 
 | Label | Meaning | Applied When |
-| ----- | ------- | ------------ |
+| -- | -- | -- |
 | `spec-draft` | Spec is in draft state, being written or revised | After spec creation or revision |
 | `spec-needs-research` | Spec requires investigation before review | On triage when research is needed |
 | `spec-under-review` | Spec is under active audit/review | When audit of the spec begins |
@@ -196,6 +200,8 @@ gb auth status
 **Use `gb` CLI for all GitBucket operations.** The CLI handles authentication, response parsing, and error handling. See task files for command-specific patterns.
 
 **CRITICAL: Agent MUST use the `gb` CLI for ALL API calls on GitBucket platform. If a needed command is missing, use `gb api` passthrough. NEVER fall back to inline `requests` scripts or `python -c` strings.**
+
+**Delegation:** Workflow-level `gb` command sequences (issue triage, PR creation/review, label/milestone/repository management, search, API requests) are delegated to the `gb-cli` skill task cards. This sub-skill retains platform-scoped routing logic only — owner/repo resolution, auth verification, and error recovery. Read [the gb-cli skill](../../../gb-cli/SKILL.md) for workflow-level command coverage.
 
 ### Command Reference
 
@@ -249,6 +255,6 @@ All `list` endpoints return arrays, NOT objects. Use `--json --no-pager` flags f
 | Guideline | Section |
 | Router | `../../SKILL.md` (issue-operations) |
 | GitHub platform | `../github-mcp/SKILL.md` |
+| gb-cli | `../../../gb-cli/SKILL.md` (workflow-level gb command coverage) |
 | Session init plugin | GitBucket detection and credentials |
 | `reference/` | OpenAPI v4.42.1 specification |
-

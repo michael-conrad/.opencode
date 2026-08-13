@@ -1,5 +1,9 @@
 # GitBucket Error Recovery
 
+## Overview
+
+Error recovery patterns for GitBucket operations. This task retains platform-scoped error recovery: authentication errors, endpoint errors, token validation, and fallback strategy. Workflow-level operations that fail are re-dispatched through the `gb-cli` skill task cards. Read [the gb-cli skill](../../../../gb-cli/SKILL.md) for workflow-level command coverage.
+
 ## Common Errors
 
 | Error | Cause | Solution |
@@ -101,3 +105,4 @@ If GitBucket API fails:
 - [ ] 3. Check repository exists and is accessible — `gb repo view owner/repo`
 - [ ] 4. Fall back to GitBucket web UI for operations not supported by API
 - [ ] 5. Use `gb api` passthrough for operations without dedicated subcommands
+- [ ] 6. Re-dispatch the failed workflow-level operation through the `gb-cli` skill task card. Read [the gb-cli skill](../../../../gb-cli/SKILL.md).

@@ -32,6 +32,16 @@ if ! printf '%s\n' "0.6.1" "$GB_VERSION" | sort -V | head -1 | grep -q "^0.6.1$"
 fi
 ```
 
+## Authentication Verification
+
+Verify the authenticated session before any workflow-level operation:
+
+```bash
+gb auth status
+```
+
+If authentication fails, delegate to the gb-cli authenticate task card. Read [the gb-cli authenticate task card](../../../../gb-cli/tasks/authenticate.md).
+
 ## Exit Criteria
 
 - gb CLI confirmed available
