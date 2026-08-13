@@ -31,6 +31,10 @@ Create a new `gb-cli` skill at `.opencode/skills/gb-cli/` using the `gh-cli` ski
 - Post-creation label mutation documented as broken (per gitbucket-api capability manifest)
 - No native search API — use iterative listing + client-side filter
 
+### User Intent / Original Prompt
+
+Create a dedicated `gb-cli` skill for the GitBucket CLI (`gb`), analogous to the `gh-cli` skill from .opencode#2191, with workflow-based task cards covering the full `gb` CLI command surface (authentication, issues, pull requests, labels, milestones, repositories, API passthrough, shell completion, and common end-to-end workflows), and integrate it into the skill deck so agents route GitBucket operations through it.
+
 ## Preconditions
 
 - `gb` CLI v0.6.1 installed and authenticated (`gb auth status` succeeds)
@@ -50,59 +54,61 @@ Create a new `gb-cli` skill at `.opencode/skills/gb-cli/` using the `gh-cli` ski
 
 ## Success Criteria
 
-| ID | Criterion | Evidence Type | Verification Method |
-|----|-----------|---------------|---------------------|
-| SC-1 | File exists at `.opencode/skills/gb-cli/SKILL.md` | `structural` | `ls .opencode/skills/gb-cli/SKILL.md` returns success |
-| SC-2 | `name` field in frontmatter matches directory name `gb-cli` | `string` | grep frontmatter for `name: gb-cli` |
-| SC-3 | `description` field ≤ 1024 characters | `string` | Verify with `wc -c` that description does not exceed 1024 characters |
-| SC-4 | SKILL.md uses the routing-only template (no procedure text, only Workflows section with dispatch contracts) | `string` | grep for prohibited content patterns (no "Entry Criteria", "Procedure", "Operating Protocol" sections) |
-| SC-5 | Description field uses agent-intent format (describes what agent needs to DO, not what user SAYS) — no "Load via skill() when", "User phrases:", or "Dispatch when" | `string` | grep description for prohibited meta-instruction patterns |
-| SC-6 | Task cards exist for the workflows determined by Phase 1 investigation (expected: authenticate, create-pr, triage-issues, review-pr, manage-repo, manage-labels, manage-milestones, search-investigate, api-requests, completion, common-workflows) | `structural` | `ls .opencode/skills/gb-cli/tasks/` shows task files matching Phase 1 investigation output |
-| SC-7 | Each task card follows canonical structure: Purpose, Task Discipline, Entry Criteria, Procedure, Exit Criteria, Result Contract | `string` | grep each task card for all 6 required sections |
-| SC-8 | No `gb` command in gb-cli task cards that also appears in git-workflow task cards for PR creation, branch management, or commit operations | `semantic` | Sub-agent reads both gb-cli and git-workflow task cards, confirms no duplicate procedure steps |
-| SC-9 | Task cards include `gb auth status` verification as an entry criterion for all gb operations that require authentication | `string` | grep all task cards for "auth status" or "auth" in Entry Criteria |
-| SC-10 | A `gb-cli` entry appears in `<available_skills>` after deployment (opencode discovers it from the directory) | `behavioral` | `opencode run` with prompt that triggers gb CLI intent, verify skill appears in available_skills via stderr |
-| SC-11 | The skill covers all gb CLI commands from the capability manifest, organized into workflow-based task cards determined by Phase 1 investigation | `string` | grep task cards for each gb command category across the task cards |
-| SC-12 | The skill includes a "Common Workflows" section or task card with end-to-end workflow examples adapted from the gh-cli reference and validated against local GitBucket instance | `structural` | File exists with workflow examples |
-| SC-13 | The skill explicitly prohibits `gb pr merge` (delegating merge to human-only per critical-rules-merge) with a critical violation block | `string` | grep for "pr merge" prohibition or "critical-rules-merge" reference |
-| SC-14 | All task cards include SPDX-FileCopyrightText header | `string` | grep each task card for "SPDX-FileCopyrightText" |
-| SC-15 | All task cards include Provenance header | `string` | grep each task card for "Provenance:" |
-| SC-16 | All task cards include AI co-authored byline | `string` | grep each task card for "Co-authored with AI" |
-| SC-17 | Phase 1 investigation produces a per-workflow applicability assessment artifact documenting which gh-cli workflows apply to gb, which need revision, and which are discarded, with rationale for each decision | `string` | Artifact file exists at `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` with entries for each gh-cli workflow |
-| SC-18 | Cross-references to `gb-cli` appear in `git-workflow`, `issue-operations`, `gitbucket-api`, and `release-promoter` SKILL.md files, and the `.opencode/AGENTS.md` gb CLI tool documentation section references the `gb-cli` skill | `string` | grep each SKILL.md and `.opencode/AGENTS.md` for `gb-cli` cross-reference entry |
-| SC-19 | `gb-cli` skill takes precedence for `gb` workflows; `gitbucket-api` sub-skill delegates to `gb-cli` for workflow-level operations | `semantic` | Sub-agent reads both `gb-cli` SKILL.md and `gitbucket-api` SKILL.md, confirms that `gb-cli` is the primary entry point for `gb` workflows and `gitbucket-api` delegates to it |
-| SC-20 | The 7 `gitbucket-api` task files have duplicated `gb` CLI command reference tables removed or replaced with cross-references to `gb-cli` | `string` | grep the 7 `gitbucket-api` task files for `gb` CLI command reference tables — confirm they are removed or replaced with cross-references to `gb-cli` |
+| ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
+|----|-----------|---------------|---------------------|-----------------------|
+| SC-1 | File exists at `.opencode/skills/gb-cli/SKILL.md` | `structural` | `ls .opencode/skills/gb-cli/SKILL.md` returns success | `.opencode/skills/gb-cli/SKILL.md` (target path) |
+| SC-2 | `name` field in frontmatter matches directory name `gb-cli` | `string` | grep frontmatter for `name: gb-cli` | `.opencode/reference/skill-card-schema.md` (name constraint) |
+| SC-3 | `description` field ≤ 1024 characters | `string` | Verify with `wc -c` that description does not exceed 1024 characters | `.opencode/reference/skill-card-schema.md` (description constraint) |
+| SC-4 | SKILL.md uses the routing-only template (no procedure text, only Workflows section with dispatch contracts) | `string` | grep for prohibited content patterns (no "Entry Criteria", "Procedure", "Operating Protocol" sections) | `.opencode/skills/gh-cli/SKILL.md` (routing-only template reference) |
+| SC-5 | Description field uses agent-intent format (describes what agent needs to DO, not what user SAYS) — no "Load via skill() when", "User phrases:", or "Dispatch when" | `string` | grep description for prohibited meta-instruction patterns | `.opencode/reference/skill-card-description-standards.md` (description-as-semantic-router format) |
+| SC-6 | Task cards exist for all 11 workflows from the Phase 1 investigation: authenticate, create-pr, triage-issues, review-pr, manage-repo, manage-labels, manage-milestones, search-investigate, api-requests, completion, common-workflows | `structural` | `ls .opencode/skills/gb-cli/tasks/` shows all 11 task files | `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` (Phase 1 workflow set) |
+| SC-7 | Each task card follows canonical structure: Purpose, Task Discipline, Entry Criteria, Procedure, Exit Criteria, Result Contract | `string` | grep each task card for all 6 required sections | `.opencode/reference/task-card-structure-standards.md` (canonical task card structure) |
+| SC-8 | No `gb` command in gb-cli task cards that also appears in git-workflow task cards for PR creation, branch management, or commit operations | `semantic` | Sub-agent reads both gb-cli and git-workflow task cards, confirms no duplicate procedure steps | `.opencode/skills/git-workflow/tasks/` (git-workflow task cards) |
+| SC-9 | Task cards include `gb auth status` verification as an entry criterion for all gb operations that require authentication | `string` | grep all task cards for "auth status" or "auth" in Entry Criteria | `.opencode/AGENTS.md` (gb auth requirement) |
+| SC-10 | A `gb-cli` entry appears in `<available_skills>` after deployment (opencode discovers it from the directory) | `behavioral` | `opencode run` with prompt that triggers gb CLI intent, verify skill appears in available_skills via stderr | `.opencode/tests-v2/behaviors/` (behavioral test harness) |
+| SC-11 | The skill covers all gb CLI commands from the capability manifest, organized into workflow-based task cards determined by Phase 1 investigation | `string` | grep task cards for each gb command category across the task cards | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` (capability manifest) |
+| SC-12 | The skill includes a "Common Workflows" section or task card with end-to-end workflow examples adapted from the gh-cli reference and validated against local GitBucket instance | `structural` | File exists with workflow examples | `.opencode/skills/gb-cli/tasks/common-workflows.md` (target file) |
+| SC-13 | The skill explicitly prohibits `gb pr merge` (delegating merge to human-only per critical-rules-merge) with a critical violation block | `string` | grep for "pr merge" prohibition or "critical-rules-merge" reference | `.opencode/guidelines/000-critical-rules.md` (critical-rules-merge) |
+| SC-14 | All task cards include SPDX-FileCopyrightText header | `string` | grep each task card for "SPDX-FileCopyrightText" | `.opencode/reference/task-card-structure-standards.md` (SPDX header standard) |
+| SC-15 | All task cards include Provenance header | `string` | grep each task card for "Provenance:" | `.opencode/reference/task-card-structure-standards.md` (Provenance header standard) |
+| SC-16 | All task cards include AI co-authored byline | `string` | grep each task card for "Co-authored with AI" | `.opencode/guidelines/080-code-standards.md` (AI co-authored attribution) |
+| SC-17 | Phase 1 investigation produces a per-workflow applicability assessment artifact documenting which gh-cli workflows apply to gb, which need revision, and which are discarded, with rationale for each decision | `string` | Artifact file exists at `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` with entries for each gh-cli workflow | `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` (target artifact) |
+| SC-18a | Cross-references to `gb-cli` appear in `git-workflow`, `issue-operations`, `gitbucket-api`, and `release-promoter` SKILL.md files | `string` | grep each of the 4 SKILL.md files for `gb-cli` cross-reference entry | `.opencode/skills/git-workflow/SKILL.md`, `.opencode/skills/issue-operations/SKILL.md`, `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`, `.opencode/skills/release-promoter/SKILL.md` |
+| SC-18b | The `.opencode/AGENTS.md` gb CLI tool documentation section references the `gb-cli` skill | `string` | grep `.opencode/AGENTS.md` gb CLI tool documentation section for `gb-cli` skill reference | `.opencode/AGENTS.md` (gb CLI tool documentation section) |
+| SC-19a | `gb-cli` skill takes precedence as the primary entry point for `gb` workflows | `semantic` | Sub-agent reads both `gb-cli` SKILL.md and `gitbucket-api` SKILL.md, confirms that `gb-cli` is the primary entry point for `gb` workflows | `.opencode/skills/gb-cli/SKILL.md`, `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` |
+| SC-19b | `gitbucket-api` sub-skill delegates to `gb-cli` for workflow-level operations | `semantic` | Sub-agent reads both `gb-cli` SKILL.md and `gitbucket-api` SKILL.md, confirms that `gitbucket-api` delegates workflow-level operations to `gb-cli` | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`, `.opencode/skills/gb-cli/SKILL.md` |
+| SC-20 | The 7 `gitbucket-api` task files have duplicated `gb` CLI command reference tables removed or replaced with cross-references to `gb-cli` | `string` | grep the 7 `gitbucket-api` task files for `gb` CLI command reference tables — confirm they are removed or replaced with cross-references to `gb-cli` | `.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/` (7 task files) |
 
-### Cost-Frame Justification
+### Cost Frame
 
-Each SC's evidence type is chosen based on defect-discovery-latency (DDL) cost:
+Cost is measured in defect-discovery-latency (DDL), not tool calls. Correctness is the only metric — there is no score for tool-call economy.
 
-| SC | Evidence Type | DDL Justification |
-|----|---------------|-------------------|
-| SC-1 | `structural` | File existence is a static property — `ls` catches absence at the earliest gate. |
-| SC-2 | `string` | Frontmatter field value is a deterministic text pattern — grep catches mismatch instantly. |
-| SC-3 | `string` | Character count is a deterministic boundary check — `wc -c` verifies in <1s. |
-| SC-4 | `string` | Prohibited section patterns are deterministic text patterns — grep catches violations instantly. |
-| SC-5 | `string` | Same rationale as SC-4: prohibited meta-instruction patterns are deterministic text matches. |
-| SC-6 | `structural` | File count is a static property — `ls` verifies in <1s. |
-| SC-7 | `string` | Section header presence is a deterministic text pattern — grep catches missing sections instantly. |
-| SC-8 | `semantic` | Overlap detection requires understanding what each command does in context — a sub-agent must read both skill's task cards and judge whether procedures overlap. |
-| SC-9 | `string` | Entry criterion text is a deterministic pattern — grep for "auth status" catches missing auth checks. |
-| SC-10 | `behavioral` | Skill discovery is a runtime behavior — the agent must actually run and the skill must appear in available_skills. Only behavioral testing catches the runtime failure. |
-| SC-11 | `string` | Command category coverage is a text-pattern check — grep for each category name across task cards. |
-| SC-12 | `structural` | Workflow example count is a static property — counting sections in a file verifies in <1s. |
-| SC-13 | `string` | Prohibition text is a deterministic pattern — grep for "pr merge" or "critical-rules-merge" catches missing prohibition. |
-| SC-14 | `string` | SPDX header presence is a deterministic text pattern — grep for "SPDX-FileCopyrightText" catches missing headers. |
-| SC-15 | `string` | Provenance header presence is a deterministic text pattern — grep for "Provenance:" catches missing headers. |
-| SC-16 | `string` | AI co-authored byline presence is a deterministic text pattern — grep for "Co-authored with AI" catches missing bylines. |
-| SC-17 | `string` | Artifact file existence and content is a text-pattern check — grep for workflow entries with rationale. |
-| SC-18 | `string` | Cross-reference text is a deterministic pattern — grep for "gb-cli" in target SKILL.md files (git-workflow, issue-operations, gitbucket-api, release-promoter) and `.opencode/AGENTS.md` catches missing entries. |
-| SC-19 | `semantic` | Precedence and delegation require understanding the relationship between two skills — a sub-agent must read both SKILL.md files and judge whether `gb-cli` is primary and `gitbucket-api` delegates correctly. |
-| SC-20 | `string` | Duplicated command reference tables are deterministic text patterns — grep for `gb` command reference patterns in the 7 task files catches remaining duplication. |
+- **SC-1 (`structural`):** Verifying the SKILL.md file exists costs one `ls` call at the earliest gate. Skipping means a missing skill file ships and breaks skill discovery at runtime, costing 1000× more in diagnose-fix-reverify rework.
+- **SC-2 (`string`):** Verifying the frontmatter `name` field matches the directory costs one grep call. Skipping means the skill is undiscoverable under the wrong name, surfacing only when dispatch routing fails.
+- **SC-3 (`string`):** Verifying the description length costs one `wc -c` call in <1s. Skipping means an over-long description is truncated by skill routing, losing dispatch-critical intent.
+- **SC-4 (`string`):** Verifying the routing-only template costs one grep for prohibited sections. Skipping means the skill card carries procedure text the orchestrator cannot route, producing dispatch failures at every entry.
+- **SC-5 (`string`):** Verifying agent-intent description format costs one grep for meta-instruction patterns. Skipping means the description routes on user-utterance framing instead of agent intent, misrouting skill dispatch.
+- **SC-6 (`structural`):** Verifying all 11 task card files exist costs one `ls` call in <1s. Skipping means a missing workflow task card surfaces only when a workflow dispatch fails at runtime.
+- **SC-7 (`string`):** Verifying each task card has all 6 canonical sections costs one grep per file. Skipping means task cards without canonical structure produce execution gaps the agent discovers mid-procedure.
+- **SC-8 (`semantic`):** Verifying no command overlap costs a sub-agent read of both skills' task cards. Skipping means duplicate gb/git commands drift out of sync and the agent executes stale procedures.
+- **SC-9 (`string`):** Verifying the `gb auth status` entry criterion costs one grep across task cards. Skipping means unauthenticated gb operations fail at runtime after the workflow has already started.
+- **SC-10 (`behavioral`):** Verifying skill discovery costs one `opencode run` execution. Skipping means an undiscoverable skill is "implemented but unreachable" — the costliest possible failure mode, found only in production.
+- **SC-11 (`string`):** Verifying gb command category coverage costs one grep per category across task cards. Skipping means uncovered gb commands force the agent back to general bash knowledge.
+- **SC-12 (`structural`):** Verifying the common-workflows file exists costs one `ls` call. Skipping means end-to-end examples are absent and agents improvise multi-step workflows.
+- **SC-13 (`string`):** Verifying the `gb pr merge` prohibition costs one grep for "pr merge" or "critical-rules-merge". Skipping means an agent could invoke the human-only merge operation.
+- **SC-14 (`string`):** Verifying the SPDX header costs one grep per task card. Skipping means provenance tracking is lost across task cards.
+- **SC-15 (`string`):** Verifying the Provenance header costs one grep per task card. Skipping means origin classification is absent from AI-generated task cards.
+- **SC-16 (`string`):** Verifying the AI co-authored byline costs one grep per task card. Skipping means attribution requirements are violated silently.
+- **SC-17 (`string`):** Verifying the applicability assessment artifact costs one grep for per-workflow entries with rationale. Skipping means Phase 1 applicability decisions are undocumented and unreviewable.
+- **SC-18a (`string`):** Verifying the `gb-cli` cross-references in 4 SKILL.md files costs one grep per file. Skipping means the skill is orphaned from its routing neighbors and never discovered from related skills.
+- **SC-18b (`string`):** Verifying the `.opencode/AGENTS.md` gb CLI section references the skill costs one grep. Skipping means the documented tool has no skill entry point, and agents fall back to general bash knowledge.
+- **SC-19a (`semantic`):** Verifying `gb-cli` precedence costs a sub-agent read of both SKILL.md files. Skipping means agents route gb workflows through `gitbucket-api` and get issue-scoped patterns for workflow operations.
+- **SC-19b (`semantic`):** Verifying `gitbucket-api` delegation costs a sub-agent read of both SKILL.md files. Skipping means two skills drift with conflicting gb command coverage that fails at runtime.
+- **SC-20 (`string`):** Verifying the duplicated command tables are removed costs one grep across the 7 task files. Skipping means duplication persists and the two skills diverge in command references.
 
 ### Enforcement Gate
 
-All SCs (SC-1 through SC-20) must pass verification for this spec to be considered complete. A single FAIL means the entire implementation is incomplete.
+All SCs (SC-1 through SC-17, SC-18a, SC-18b, SC-19a, SC-19b, SC-20) must pass verification for this spec to be considered complete. A single FAIL means the entire implementation is incomplete.
 
 ## Requirements
 
@@ -119,7 +125,7 @@ All SCs (SC-1 through SC-20) must pass verification for this spec to be consider
 11. Phase 1 SHALL produce a per-workflow applicability assessment artifact
 12. The skill SHALL cover all gb CLI commands from the capability manifest
 13. The skill SHALL include a common-workflows task card with end-to-end workflow examples
-14. Cross-references SHALL be added to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files
+14. Cross-references SHALL be added to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files, and the `.opencode/AGENTS.md` gb CLI tool documentation section SHALL reference the `gb-cli` skill
 15. Behavioral enforcement tests SHALL verify skill discovery, auth checks, and merge prohibition
 16. The `gb-cli` skill SHALL take precedence as the primary entry point for all `gb` CLI workflows; the `gitbucket-api` sub-skill SHALL delegate to `gb-cli` for workflow-level operations
 17. The 7 `gitbucket-api` task files SHALL be adapted to remove duplicated `gb` CLI command reference tables and replace workflow-level `gb` command sequences with cross-references to `gb-cli` task cards, retaining only platform-specific routing logic
@@ -141,8 +147,8 @@ All SCs (SC-1 through SC-20) must pass verification for this spec to be consider
 | 11 | SC-13 | Add `gb pr merge` prohibition with CRITICAL VIOLATION block |
 | 12 | SC-14, SC-15, SC-16 | Add SPDX-FileCopyrightText, Provenance, and AI co-authored byline to all files |
 | 13 | SC-10 | Create and pass behavioral enforcement tests for skill discovery |
-| 14 | SC-18 | Add `gb-cli` cross-references to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files and update `.opencode/AGENTS.md` gb CLI tool documentation section to reference `gb-cli` |
-| 15 | SC-19 | Adapt `gitbucket-api` SKILL.md to delegate to `gb-cli` for workflow-level operations, update description to indicate delegation |
+| 14 | SC-18a, SC-18b | Add `gb-cli` cross-references to git-workflow, issue-operations, gitbucket-api, and release-promoter SKILL.md files and update `.opencode/AGENTS.md` gb CLI tool documentation section to reference `gb-cli` |
+| 15 | SC-19a, SC-19b | Adapt `gitbucket-api` SKILL.md to delegate to `gb-cli` for workflow-level operations, update description to indicate delegation |
 | 16 | SC-20 | Audit 7 `gitbucket-api` task files, remove duplicated `gb` CLI command reference tables, replace workflow-level `gb` command sequences with cross-references to `gb-cli` |
 
 ## Dependencies
@@ -171,10 +177,26 @@ All SCs (SC-1 through SC-20) must pass verification for this spec to be consider
 | R11 (investigation artifact) | SC-17 | Phase 1 |
 | R12 (command coverage) | SC-11 | Phase 3 |
 | R13 (common-workflows task card) | SC-12 | Phase 3 |
-| R14 (cross-references) | SC-18 | Phase 4 |
+| R14 (cross-references) | SC-18a, SC-18b | Phase 4 |
 | R15 (behavioral tests) | SC-10 | Phase 5 |
-| R16 (gb-cli precedence) | SC-19 | Phase 6 |
+| R16 (gb-cli precedence) | SC-19a, SC-19b | Phase 6 |
 | R17 (gitbucket-api adaptation) | SC-20 | Phase 6 |
+
+## Documentation Sources
+
+| Source | Type | Location | Verification |
+|--------|------|----------|-------------|
+| `.opencode/AGENTS.md` | config | `.opencode/AGENTS.md` — gb CLI tool documentation section | Verified via grep for `gb-cli` skill reference in the gb CLI section (2026-08-12) |
+| gh-cli skill (reference template) | skill card | `.opencode/skills/gh-cli/SKILL.md` and `.opencode/skills/gh-cli/tasks/` | Read — routing-only template and task card structure reference from .opencode#2191 |
+| gitbucket-api sub-skill (capability manifest) | skill card | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` | Read — documents gb CLI command coverage and label mutation limitation |
+| gitbucket-api task files | skill task cards | `.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/` (7 files) | Read — adaptation targets for removing duplicated gb CLI command tables |
+| Phase 1 applicability assessment | investigation artifact | `.opencode/.issues/2201/artifacts/gb-workflow-applicability.yaml` | Read — per-workflow APPLIES/REVISED/DISCARDED classification with rationale |
+| skill-card-schema | reference | `.opencode/reference/skill-card-schema.md` | Read — frontmatter constraints (name, description, license) |
+| skill-card-description-standards | reference | `.opencode/reference/skill-card-description-standards.md` | Read — description field as semantic router, agent-intent format |
+| task-card-structure-standards | reference | `.opencode/reference/task-card-structure-standards.md` | Read — canonical task card structure and header requirements |
+| critical-rules-merge | guideline | `.opencode/guidelines/000-critical-rules.md` — critical-rules-merge | Read — human-only merge prohibition grounding for the `gb pr merge` prohibition |
+| gb CLI v0.6.1 | tool | `/home/muksihs/.local/bin/gb` | Verified via `gb --version` → 0.6.1; `gb <command> --help` per command during Phase 1 |
+| GitBucket test instance | infrastructure | Local instance (port 33905) | Verified via live gb commands in Phase 1 investigation (per gb-workflow-applicability.yaml) |
 
 ## Approach
 
@@ -304,3 +326,4 @@ Create task cards organized by real agent workflows, adapted from gh-cli referen
 | 2026-07-30 | Traceability fix: added R13 (common-workflows task card), mapped SC-12 to R13. Atomicity fix: decomposed SC-14 into SC-14 (SPDX), SC-15 (Provenance), SC-16 (byline). Renumbered SC-15→SC-17, SC-16→SC-18. Updated all cross-references (Items, Traceability, Cost-Frame, Enforcement Gate, Phase REQ references). | Validation findings: traceability FAIL (SC-12 no requirement mapping), atomicity FAIL (SC-14 compound) | Spec revision pipeline |
 | 2026-07-30 | Added R16 (gb-cli precedence), R17 (gitbucket-api adaptation), SC-19 (gb-cli takes precedence), SC-20 (gitbucket-api task files adapted), Phase 6 (gitbucket-api sub-skill adaptation), Items 15-16, updated Traceability, Cost-Frame, Enforcement Gate, Affected Files, and Not Included section. | Developer feedback: gitbucket-api sub-skill must delegate to gb-cli for workflow-level operations rather than duplicating gb CLI commands | Spec revision pipeline |
 | 2026-08-12 | Extended SC-18 criterion text to include `.opencode/AGENTS.md` (gb CLI tool documentation section must reference the gb-cli skill). Updated Cost-Frame justification and Item 14 for consistency. | Pre-PR gate VERIFICATION-GAP: SC-18 criterion covered only the 4 SKILL.md files while the Affected Files section and plan Phase 4 also target `.opencode/AGENTS.md`; non-substantive SC wording fix — no scope, evidence type, or implementation intent changes | Spec revision pipeline |
+| 2026-08-12 | Added "User Intent / Original Prompt" to the preamble (6th required field). Added Documentation Sources column to the SC table and a Documentation Sources section. Restructured the Cost Frame to add the computation frame ("cost is measured in defect-discovery-latency, not tool calls"), per-SC action + skipping cost, and the identity anchor ("correctness is the only metric"). Reworded SC-6 to state the 11-task-card set deterministically (removed the "expected:" hedge). Decomposed SC-18 into SC-18a (4 SKILL.md cross-references) and SC-18b (AGENTS.md reference); decomposed SC-19 into SC-19a (gb-cli precedence) and SC-19b (gitbucket-api delegation). Updated Items, Traceability, Enforcement Gate, and Cost Frame to match. | Spec validation FAIL with 5 hard structural defects: (1) dark-prose-007 cost-frame incomplete — missing computation frame, skipping cost, and identity anchor; (2) Documentation Sources section and SC table column missing; (3) preamble missing "User Intent / Original Prompt" field; (4) SC-6 determinism — "expected:" hedge; (5) compound SCs — SC-18 and SC-19. Non-substantive structural fixes — no scope, evidence type, or implementation intent changes; SC-18 AGENTS.md coverage preserved via SC-18b | Spec revision pipeline |
