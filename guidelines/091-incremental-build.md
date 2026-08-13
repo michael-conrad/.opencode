@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Incremental Build Discipline
 
-**Read [§Monolithic Implementation](000-critical-rules.md). Also covered by [tests-v2/behaviors/tier1-mandate-enforcement.sh](tests-v2/behaviors/tier1-mandate-enforcement.sh) for the overarching incremental build discipline.** Read [§Monolithic Implementation](000-critical-rules.md) for the critical violation.
+**Read [§Monolithic Implementation](000-critical-rules.md). Also covered by [tests-v2/behaviors/tier1-mandate-enforcement.sh](tests-v2/behaviors/tier1-mandate-enforcement.sh) for the overarching incremental build discipline.**
 
 ## Mandate
 
@@ -43,10 +43,6 @@ An item is a single success criterion (SC) from the spec. Each SC gets its own R
 - Batching items — combining separate concerns
 - Merging without tests
 - Phase-scoped over-verification — testing other phases' deliverables
-
-> **Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count, byte-dispatch formulas) are NOT valid proxies for implementation complexity.**
-
-**Symbolic rules below** — the prose above this line replaces the previous ~200 lines of advisory text.
 
 ### [critical-rules-042] Monolithic Implementation — skipping item decomposition
 Professional engineers decompose work into testable items and build one per TDD cycle (RED → GREEN → REFACTOR → COMMIT). Amateurs batch everything into single monolithic changes — then wonder why review catches half of it wrong.
