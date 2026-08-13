@@ -1,0 +1,128 @@
+# Structure Artifact — Issue 2132
+# Written by writing-plans research task (2026-08-13).
+# Phase decomposition, dependency DAG, and skill+task selection per phase.
+
+issue_number: 2132
+sc_count: 13
+
+phases:
+  - id: phase_1
+    name: "Content revision"
+    description: >-
+      Revise .opencode/guidelines/090-data-integrity.md: preserve existing rules verbatim, remove
+      4 project-specific references (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date), add 6 new
+      data integrity categories, update cross-references. All 13 SCs have their RED/GREEN/COMMIT
+      cycles here (one item per SC).
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+      - SC-11
+      - SC-12
+      - SC-13
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - step: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - step: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m <message>"
+
+  - id: phase_2
+    name: "Absence verification gate"
+    description: >-
+      Post-revision verification gate confirming zero project-specific reference matches remain
+      (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date). Verifies SC-2.
+    scs:
+      - SC-2
+    skill_task_selection:
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+
+  - id: phase_3
+    name: "Presence and scope verification gate"
+    description: >-
+      Post-revision verification gate confirming all 6 category headers and required concepts are
+      present with correct scope. Verifies SC-1, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9.
+    scs:
+      - SC-1
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+    skill_task_selection:
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "File must be revised (Phase 1) before its absence of project-specific references can be verified (Phase 2)"
+    - from: phase_1
+      to: phase_3
+      rationale: "The 6 category sections must exist (Phase 1) before their presence and scope can be verified (Phase 3)"
+  notes:
+    - "Phases 2 and 3 both depend on Phase 1 and are independent of each other (disjoint verification sets). They run sequentially after Phase 1 in either order; neither may be skipped."
+    - "Behavioral SCs (SC-10, SC-11, SC-12) and semantic SC-13 are created as rule content in Phase 1 and verified post-revision via opencode run (with-test-home) and a clean-room sub-agent respectively."
+
+item_mapping:
+  - sc_id: SC-1
+    plan_item: 1
+    phase: phase_1
+  - sc_id: SC-2
+    plan_item: 2
+    phase: phase_1
+  - sc_id: SC-3
+    plan_item: 3
+    phase: phase_1
+  - sc_id: SC-4
+    plan_item: 4
+    phase: phase_1
+  - sc_id: SC-5
+    plan_item: 5
+    phase: phase_1
+  - sc_id: SC-6
+    plan_item: 6
+    phase: phase_1
+  - sc_id: SC-7
+    plan_item: 7
+    phase: phase_1
+  - sc_id: SC-8
+    plan_item: 8
+    phase: phase_1
+  - sc_id: SC-9
+    plan_item: 9
+    phase: phase_1
+  - sc_id: SC-10
+    plan_item: 10
+    phase: phase_1
+  - sc_id: SC-11
+    plan_item: 11
+    phase: phase_1
+  - sc_id: SC-12
+    plan_item: 12
+    phase: phase_1
+  - sc_id: SC-13
+    plan_item: 13
+    phase: phase_1
+
+triplet_co_location: verified
+cross_phase_dependency: verified

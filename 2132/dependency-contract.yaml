@@ -1,0 +1,67 @@
+# Dependency Contract — Issue 2132
+# Extracted from interface-compatibility.yaml dependency_contract section by writing-plans research task.
+
+variables:
+  phase_1:
+    type: bool
+    description: "Content revision — preserve existing rules verbatim, remove 4 project-specific references, add 6 new categories, update cross-references — SC-1 through SC-13 (all content created here)"
+  phase_2:
+    type: bool
+    description: "Absence verification gate — verify zero project-specific reference matches remain — SC-2"
+  phase_3:
+    type: bool
+    description: "Presence and scope verification — verify all 6 category headers and required concepts present — SC-1, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9"
+
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+
+invariants: []
+postconditions: []
+
+phases:
+  phase_1:
+    files:
+      - .opencode/guidelines/090-data-integrity.md
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+      - SC-10
+      - SC-11
+      - SC-12
+      - SC-13
+  phase_2:
+    files:
+      - .opencode/guidelines/090-data-integrity.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/guidelines/090-data-integrity.md
+    scs:
+      - SC-1
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+      - SC-8
+      - SC-9
+
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "File must be revised (Phase 1) before its absence of project-specific references can be verified (Phase 2)"
+  - from: phase_1
+    to: phase_3
+    rationale: "The 6 category sections must exist (Phase 1) before their presence and scope can be verified (Phase 3)"
+
+notes:
+  - "Phases 2 and 3 both depend on Phase 1 and are independent of each other (disjoint verification sets: Phase 2 checks absence, Phase 3 checks presence). They run sequentially after Phase 1 in either order; neither may be skipped."
+  - "Behavioral SCs (SC-10, SC-11, SC-12) and semantic SC-13 are created as rule content in Phase 1 and verified post-revision via opencode run (with-test-home) and a clean-room sub-agent respectively. Their verification depends on Phase 1 content but is not a numbered phase in the spec's Implementation Plan."

@@ -1,29 +1,33 @@
 # Analysis Summary — Issue 2132
-# Backfill performed in retroactive mode (2026-08-13) because spec-creation did not produce
-# analytical artifacts.
+# Written by writing-plans analyze task (2026-08-13).
 
 spec_path: .opencode/.issues/2132/spec.md
 issues_prefix: .opencode/.issues
 issue_number: 2132
-mode: retroactive
 
+approval_status: approved-for-pr
 sc_count: 13
 
 artifact_status:
-  blast-radius.yaml: backfilled
-  concern-map.yaml: backfilled
-  code-path-inventory.yaml: backfilled
-  cross-cutting-matrix.yaml: backfilled
-  interface-compatibility.yaml: backfilled
-  state-analysis.yaml: backfilled
-  testability-assessment.yaml: backfilled
-  analysis-summary.yaml: backfilled
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present (dependency_contract section backfilled)
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+  sc-summary.yaml: backfilled
+  analysis-summary.yaml: present
+
+scope_boundary_findings:
+  - path: .opencode/guidelines/090-data-integrity.md
+    exists: true
+    type: guideline (Markdown)
+    revision: revised — preserve existing rules verbatim, remove project-specific references, add 6 new categories
 
 scope_summary: >-
-  Single-file revision of .opencode/guidelines/090-data-integrity.md (96 lines at backfill time).
-  The revision preserves all existing rules verbatim, removes 4 project-specific references
-  (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date), and adds 6 new data integrity categories
-  (data validation at system boundaries, serialization integrity, data classification, migration
-  integrity, audit trail, data retention). Evidence types: 9 string, 3 behavioral, 1 semantic.
-  No application code paths exist; the affected artifact is a guideline document consumed by AI
-  agents. All 7 analytical artifacts were absent and have been backfilled.
+  Spec exists and is approved (approved-for-pr). 13 success criteria defined. All 7 analytical
+  artifacts present. Single affected file (.opencode/guidelines/090-data-integrity.md) verified
+  to exist (96 lines). No scope boundary violations found. Backfill (2026-08-13): added the
+  dependency_contract section to interface-compatibility.yaml and created sc-summary.yaml mapping
+  SC-1..SC-13 to plan items 1..13 (one item per SC).

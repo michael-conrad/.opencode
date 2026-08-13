@@ -1,0 +1,58 @@
+# SC Summary — Issue 2132
+# Maps each success criterion to its plan item (one item per SC, per spec Items section).
+# Item numbers follow the spec's Items section (Item 1..Item 13, one per SC).
+
+sc_count: 13
+scs:
+  - id: "SC-1"
+    description: "File contains 6 data integrity categories"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "No remaining project-specific references (pubmed_data_2, SEED_PM_IDS, MeSH, discovery_date)"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Existing specific rules preserved (no synthetic data, fail fast, no hardcoded IDs, batch ops, tqdm, cross-references)"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Data validation at boundaries covers structure, types, constraints, missing data, entity resolution"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Serialization integrity covers versioning, backward compat, traceability"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Data classification covers sensitivity levels, production data restrictions"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Migration integrity covers reversibility, verification, sampling"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Audit trail covers traceability, authorization, documented changes"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Data retention covers retention policies per classification"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Agent refuses to generate synthetic/fabricated data with explicit decline message"
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: "Agent raises ValueError (exact type) on missing required data, not a default/placeholder/fallback"
+    evidence_type: "behavioral"
+    plan_item: 11
+  - id: "SC-12"
+    description: "Agent derives entity references from runtime sources, not hardcoded constants"
+    evidence_type: "behavioral"
+    plan_item: 12
+  - id: "SC-13"
+    description: "No specific failure-mode rules lost; sub-agent verifies each of 6 enumerated rules present/absent"
+    evidence_type: "semantic"
+    plan_item: 13

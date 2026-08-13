@@ -1,0 +1,31 @@
+# Solve Output — Issue 2132
+# Written by writing-plans research task (2026-08-13).
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+checks:
+  model:
+    query: "z3.And(phase_1, phase_2, phase_3)"
+    result: SAT
+    assignment:
+      phase_1: true
+      phase_2: true
+      phase_3: true
+  check:
+    state_path: .opencode/.issues/2132/artifacts/state-analysis.yaml
+    result: SAT
+    assignment:
+      phase_1: false
+      phase_2: false
+      phase_3: false
+
+planner:
+  engine: tamer
+  problem_path: .opencode/.issues/2132/artifacts/problem.yaml
+  result: SOLVED_SATISFICING
+  plan_length: 3
+  plan:
+    - complete_phase(phase_1)
+    - complete_phase(phase_2)
+    - complete_phase(phase_3)

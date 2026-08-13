@@ -1,0 +1,15 @@
+---
+actions:
+- name: complete_phase
+  parameters:
+  - phase_1
+- name: complete_phase
+  parameters:
+  - phase_2
+- name: complete_phase
+  parameters:
+  - phase_3
+domain: data-integrity-guideline-revision
+engine: tamer
+plan_length: 3
+status: SOLVED_SATISFICING
