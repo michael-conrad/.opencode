@@ -1,0 +1,14 @@
+issue: 2133
+artifact: analysis-summary
+mode: retroactive
+spec_path: .opencode/.issues/2133/spec.md
+sc_count: 3
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_summary: Single-file cleanup of .opencode/guidelines/091-incremental-build.md removing three defective lines (duplicated cross-ref, duplicated paragraph, dead compaction note). No restructuring, no rewording, no scope expansion. No downstream impact. All three SCs are string evidence type, statically testable via grep, and map 1:1 to three phases.

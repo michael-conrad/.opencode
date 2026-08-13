@@ -1,0 +1,29 @@
+issue: 2133
+artifact: concern-map
+mode: retroactive
+concerns:
+  - id: C1
+    name: cross-reference deduplication
+    description: Remove the duplicated 000-critical-rules.md cross-reference on the first cross-ref line of the opening paragraph
+    scs: [SC-1]
+    phase: Phase 1
+  - id: C2
+    name: paragraph deduplication
+    description: Remove the "Implementation work is measured ONLY by whether tested verified correct code operations pass..." paragraph duplicated from 020-go-prohibitions.md
+    scs: [SC-2]
+    phase: Phase 2
+  - id: C3
+    name: dead-reference removal
+    description: Remove the "Symbolic rules below — the prose above this line replaces the previous ~200 lines" compaction note left after the text it described was removed
+    scs: [SC-3]
+    phase: Phase 3
+phase_boundaries:
+  - phase: Phase 1
+    concern: C1
+    sc: SC-1
+  - phase: Phase 2
+    concern: C2
+    sc: SC-2
+  - phase: Phase 3
+    concern: C3
+    sc: SC-3

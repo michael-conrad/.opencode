@@ -1,0 +1,17 @@
+issue: 2133
+artifact: state-analysis
+mode: retroactive
+state_transitions:
+  - sc: SC-1
+    from: first cross-ref line contains two 000-critical-rules.md references
+    to: first cross-ref line contains exactly one 000-critical-rules.md reference
+    idempotent: true
+  - sc: SC-2
+    from: "tested verified correct code operations" paragraph present in 091-incremental-build.md
+    to: "tested verified correct code operations" paragraph absent from 091-incremental-build.md
+    idempotent: true
+  - sc: SC-3
+    from: "Symbolic rules below" line present in 091-incremental-build.md
+    to: "Symbolic rules below" line absent from 091-incremental-build.md
+    idempotent: true
+summary: All three transitions are one-way removals (present -> absent). Each is idempotent: if the target is already absent, the transition is a no-op and the SC verification (grep for absence) still runs and must pass. No state is re-added.

@@ -1,0 +1,11 @@
+issue: 2133
+artifact: interface-compatibility
+mode: retroactive
+interfaces:
+  - boundary: .opencode/guidelines/091-incremental-build.md <-> .opencode/guidelines/020-go-prohibitions.md
+    compatibility: preserved
+    note: The canonical "tested verified correct code operations" paragraph remains in 020-go-prohibitions.md; removing the duplicate from 091-incremental-build.md eliminates drift risk without altering the canonical copy
+  - boundary: .opencode/guidelines/091-incremental-build.md <-> .opencode/guidelines/000-critical-rules.md
+    compatibility: preserved
+    note: The cross-reference to 000-critical-rules.md is retained (one instance kept); only the duplicate is removed
+summary: No interface boundary is broken. The single affected file's references to other guidelines remain valid. No other modules are touched.

@@ -1,0 +1,20 @@
+issue: 2133
+artifact: code-path-inventory
+mode: retroactive
+code_paths:
+  - sc: SC-1
+    target: .opencode/guidelines/091-incremental-build.md
+    location: first cross-ref line in the opening paragraph
+    operation: remove first instance of "Read [§Monolithic Implementation](000-critical-rules.md)", keep one
+    verification: grep count of '000-critical-rules' on the first cross-ref line == 1
+  - sc: SC-2
+    target: .opencode/guidelines/091-incremental-build.md
+    location: paragraph after the Anti-Patterns list
+    operation: remove the "Implementation work is measured ONLY by whether tested verified correct code operations pass..." paragraph
+    verification: grep for absence of 'tested verified correct code operations'
+  - sc: SC-3
+    target: .opencode/guidelines/091-incremental-build.md
+    location: "Symbolic rules below" line
+    operation: remove the "Symbolic rules below — the prose above this line replaces the previous ~200 lines" line
+    verification: grep for absence of 'Symbolic rules below'
+notes: Content is identified by semantic description, never by line number. Each removal is idempotent; if target is absent, verification still runs and must pass.

@@ -1,0 +1,17 @@
+issue: 2133
+artifact: cross-cutting-matrix
+mode: retroactive
+matrix:
+  - sc: SC-1
+    concern: C1
+    spans_multiple_concerns: false
+    note: Confined to the first cross-ref line; no overlap with C2 or C3
+  - sc: SC-2
+    concern: C2
+    spans_multiple_concerns: false
+    note: Confined to the paragraph after the Anti-Patterns list; no overlap with C1 or C3
+  - sc: SC-3
+    concern: C3
+    spans_multiple_concerns: false
+    note: Confined to the "Symbolic rules below" line; no overlap with C1 or C2
+summary: No SC spans multiple concerns. Each SC maps 1:1 to a single concern and a single phase. No cross-cutting interactions.

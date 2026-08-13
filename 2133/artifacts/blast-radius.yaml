@@ -1,0 +1,13 @@
+issue: 2133
+artifact: blast-radius
+mode: retroactive
+affected_files:
+  - path: .opencode/guidelines/091-incremental-build.md
+    exists: true
+    change: remove three defective lines (duplicated cross-ref, duplicated paragraph, dead compaction note)
+    downstream_impact: none
+downstream_references:
+  - file: .opencode/guidelines/020-go-prohibitions.md
+    relationship: canonical copy of the "tested verified correct code operations" paragraph; NOT modified by this spec
+    impact: none
+scope_summary: Single-file cleanup. No other files reference the removed content. No downstream impact.
