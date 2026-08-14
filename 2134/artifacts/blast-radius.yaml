@@ -1,0 +1,13 @@
+# Blast Radius — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+affected_files:
+  - path: .opencode/guidelines/117-session-trigger-behavior.md
+    action: rewrite
+    verified: EXISTS
+    impact: Primary deliverable — complete rewrite of the guideline content.
+no_other_affected_files:
+  - Note: Spec explicitly excludes session_context_triggers.py changes (handled by spec #426), behavioral enforcement test creation (handled separately), and 020-go-prohibitions.md modifications.
+scope:
+  type: single-file documentation rewrite
+  ownership_repo: .opencode (github.com/michael-conrad/.opencode)
+  concern: Guideline content for agent self-simulation prohibition and session-trigger handling

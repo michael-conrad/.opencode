@@ -1,0 +1,24 @@
+# Cross-Cutting Matrix — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+cross_cutting_scs:
+  - sc: SC-2
+    spans: [concern-self-simulation-prohibition]
+    notes: Covers all 5 mechanisms within the single Self-Simulation Prohibition section; owns the authorization boundary and carve-out language.
+  - sc: SC-9
+    spans: [concern-narrow-existing]
+    notes: Cross-cuts the three narrowed sections (No-Echo, Trigger Map, Suppression) — verifies semantic preservation across all of them.
+  - sc: SC-1
+    spans: [concern-self-simulation-prohibition]
+    notes: Section presence underpins all other self-simulation checks.
+  - sc: SC-10
+    spans: [concern-self-simulation-prohibition]
+    notes: Carve-out coverage is part of the same section as SC-1/SC-2, verified by V-SC-10.
+phase_crossing_notes:
+  - Phase 4 verification spans all SCs (SC-1..SC-10) and all prior phases — it is the integration gate.
+single_concern_scs:
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
+  - SC-8

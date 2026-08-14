@@ -1,0 +1,53 @@
+# Code Path Inventory — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+code_paths_implied_by_sc:
+  - sc: SC-1
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Self-Simulation Prohibition section
+    action: create
+    evidence: grep for 'Self-Simulation' in rewritten guideline
+  - sc: SC-2
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Prohibition section covering 5 UNAUTHORIZED mechanisms + authorized-pipeline carve-out (three-way distinction)
+    action: create
+    evidence: V-SC-2 checklist (7 checks: shell, file, comment, tool output, session trigger, authorization boundary, carve-out)
+  - sc: SC-3
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Session Trigger No-Echo section (narrowed)
+    action: narrow
+    evidence: grep for 'No-Echo'
+  - sc: SC-4
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Trigger Behavior Map (2 triggers: pair_mode_resume, nested_opencode_fatal)
+    action: narrow
+    evidence: grep for 'pair_mode_resume' and 'nested_opencode_fatal'
+  - sc: SC-5
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Suppression Rule section
+    action: preserve
+    evidence: grep for 'Suppression Rule'
+  - sc: SC-6
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Removal of non-actionable historical records (purged triggers list, spec #426 reference, per-turn guard reference)
+    action: remove
+    evidence: V-SC-6 checklist
+  - sc: SC-7
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Removal of stale cross-references (session_context_triggers.py, session-enforcement.ts, non-preloaded files)
+    action: remove
+    evidence: V-SC-7 checklist
+  - sc: SC-8
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Removal of standalone 000-critical-rules.md cross-reference
+    action: remove
+    evidence: V-SC-8 checklist
+  - sc: SC-9
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Semantic preservation of original actionable instructions (no-echo, trigger map, suppression)
+    action: verify
+    evidence: V-SC-9 checklist
+  - sc: SC-10
+    target_file: .opencode/guidelines/117-session-trigger-behavior.md
+    path: Authorization carve-out coverage (4 categories)
+    action: verify
+    evidence: V-SC-10 checklist

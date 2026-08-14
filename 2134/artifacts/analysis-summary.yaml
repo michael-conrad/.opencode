@@ -1,0 +1,23 @@
+# Analysis Summary — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+spec_path: .opencode/.issues/2134/spec.md
+sc_count: 10
+phase_count: 4
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_summary: >
+  Single-file documentation rewrite of .opencode/guidelines/117-session-trigger-behavior.md.
+  Four phases: (1) write new Self-Simulation Prohibition section covering 5 UNAUTHORIZED mechanisms
+  plus authorization boundary and authorized-pipeline carve-out; (2) narrow existing No-Echo,
+  Trigger Behavior Map (2 triggers), and Suppression Rule sections preserving semantic force;
+  (3) remove non-actionable historical records and stale cross-references; (4) verify all SCs.
+  10 success criteria total: SC-1, SC-3, SC-4, SC-5 are string-verified; SC-2, SC-6, SC-7, SC-8,
+  SC-9, SC-10 are semantically verified via clean-room checklists (V-SC-2, V-SC-6..10).
+  Ownership: .opencode repo. No code/interface changes; only guideline content.
+backfill_timestamp: 2026-08-13

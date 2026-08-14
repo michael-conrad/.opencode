@@ -1,0 +1,22 @@
+# Interface Compatibility — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+interface_boundaries:
+  - boundary: guideline-file-content
+    file: .opencode/guidelines/117-session-trigger-behavior.md
+    status: COMPATIBLE
+    notes: Rewrite of a single guideline file. Content is loaded via the opencode.jsonc instructions array (Tier 1 files loaded upfront) and triggered via frontmatter trigger_on/load_when fields. Rewrite must preserve frontmatter contract (name/trigger_on/load_when) and produce only agent-facing instructions.
+  - boundary: cross-references-to-preloaded-context
+    file: opencode.jsonc instructions array + guideline frontmatter load_when
+    status: CONSTRAINED
+    notes: SC-7 and SC-8 require that any cross-reference target only files preloaded in agent context. Cross-references to session_context_triggers.py, session-enforcement.ts, and standalone 000-critical-rules.md are incompatible and MUST be removed.
+  - boundary: relationship-to-020-go-prohibitions.md
+    file: .opencode/guidelines/020-go-prohibitions.md
+    status: NON-OVERLAPPING
+    notes: Shell output prohibition (echo/printf ban) lives in 020 and is NOT duplicated in 117. 117 covers the conceptual framework for all self-simulation mechanisms; no interface conflict.
+  - boundary: session_context_triggers.py
+    file: .opencode/scripts/session_context_triggers.py
+    status: NOT-MODIFIED
+    notes: Explicitly out of scope — handled by spec #426. No interface change.
+compatibility_conclusions:
+  - Single-file rewrite; no code interface changes.
+  - The only compatibility constraint is that the rewritten guideline keep its frontmatter contract and restrict cross-references to preloaded context.

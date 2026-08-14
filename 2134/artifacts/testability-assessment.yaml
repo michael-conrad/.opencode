@@ -1,0 +1,47 @@
+# Testability Assessment — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+evidence_types:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep for 'Self-Simulation' in rewritten guideline
+    cost_frame: one grep call
+  - sc: SC-2
+    evidence_type: semantic
+    verification_method: clean-room sub-agent runs Verification Checklist V-SC-2 (7 checks)
+    cost_frame: minutes of execution time
+  - sc: SC-3
+    evidence_type: string
+    verification_method: grep for 'No-Echo'
+    cost_frame: one grep call
+  - sc: SC-4
+    evidence_type: string
+    verification_method: grep for 'pair_mode_resume' and 'nested_opencode_fatal'
+    cost_frame: one grep call
+  - sc: SC-5
+    evidence_type: string
+    verification_method: grep for 'Suppression Rule'
+    cost_frame: one grep call
+  - sc: SC-6
+    evidence_type: semantic
+    verification_method: clean-room sub-agent runs Verification Checklist V-SC-6 (4 checks)
+    cost_frame: minutes of execution time
+  - sc: SC-7
+    evidence_type: semantic
+    verification_method: clean-room sub-agent runs Verification Checklist V-SC-7 (3 checks)
+    cost_frame: minutes of execution time
+  - sc: SC-8
+    evidence_type: semantic
+    verification_method: clean-room sub-agent runs Verification Checklist V-SC-8 (1 check)
+    cost_frame: minutes of execution time
+  - sc: SC-9
+    evidence_type: semantic
+    verification_method: clean-room sub-agent runs Verification Checklist V-SC-9 (4 checks, comparing original vs rewritten)
+    cost_frame: minutes of execution time
+  - sc: SC-10
+    evidence_type: semantic
+    verification_method: clean-room sub-agent runs Verification Checklist V-SC-10 (4 checks)
+    cost_frame: minutes of execution time
+notes:
+  - String SCs (SC-1, SC-3, SC-4, SC-5) cost one grep call each.
+  - Semantic SCs (SC-2, SC-6, SC-7, SC-8, SC-9, SC-10) require clean-room sub-agent checklist runs.
+  - All SCs are documentation-content checks; there is no unit-test or code-execution harness for a guideline rewrite.

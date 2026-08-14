@@ -1,0 +1,28 @@
+# Concern Map — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+concern_groups:
+  - id: concern-self-simulation-prohibition
+    name: Self-Simulation Prohibition (new)
+    phase: 1
+    scs: [SC-1, SC-2, SC-10]
+    description: Write the new section prohibiting unauthorized self-simulation, covering all 5 mechanisms, the authorization boundary, and the authorized-pipeline carve-out (three-way distinction).
+  - id: concern-narrow-existing
+    name: Narrow existing sections (No-Echo, Trigger Map, Suppression)
+    phase: 2
+    scs: [SC-3, SC-4, SC-5, SC-9]
+    description: Narrow the existing Session Trigger No-Echo, Trigger Behavior Map, and Suppression Rule sections as specific cases of the new prohibition, preserving semantic force.
+  - id: concern-remove-stale
+    name: Remove non-actionable historical records and stale cross-references
+    phase: 3
+    scs: [SC-6, SC-7, SC-8]
+    description: Remove purged triggers list, spec #426 reference, per-turn guard reference, and stale cross-references to non-preloaded files.
+  - id: concern-verify
+    name: Verify all sections present and semantic preservation
+    phase: 4
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
+    description: Confirm all SCs pass via the defined verification checklists (V-SC-2, V-SC-6..10) and grep checks (SC-1, SC-3, SC-4, SC-5).
+phase_boundary_map:
+  - {phase: 1, concerns: [concern-self-simulation-prohibition]}
+  - {phase: 2, concerns: [concern-narrow-existing]}
+  - {phase: 3, concerns: [concern-remove-stale]}
+  - {phase: 4, concerns: [concern-verify]}

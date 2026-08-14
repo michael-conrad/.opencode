@@ -1,0 +1,36 @@
+# State Analysis — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+state_transitions_required_by_sc:
+  - sc: SC-1
+    from: original guideline (no Self-Simulation section)
+    to: rewritten guideline containing Self-Simulation Prohibition section
+  - sc: SC-2
+    from: prohibition absent or incomplete
+    to: prohibition covers 5 UNAUTHORIZED mechanisms + authorization boundary + authorized-pipeline carve-out
+  - sc: SC-3
+    from: No-Echo section as standalone
+    to: No-Echo section narrowed as a specific case of the Self-Simulation Prohibition
+  - sc: SC-4
+    from: Trigger Behavior Map (possibly with purged triggers)
+    to: Trigger Behavior Map with exactly 2 triggers (pair_mode_resume, nested_opencode_fatal)
+  - sc: SC-5
+    from: Suppression Rule present
+    to: Suppression Rule preserved
+  - sc: SC-6
+    from: contains non-actionable historical records (purged triggers list, spec #426 reference, per-turn guard reference)
+    to: no non-actionable historical records
+  - sc: SC-7
+    from: stale cross-references present (session_context_triggers.py, session-enforcement.ts)
+    to: stale cross-references absent
+  - sc: SC-8
+    from: standalone 000-critical-rules.md reference present
+    to: standalone 000-critical-rules.md reference absent
+  - sc: SC-9
+    from: original actionable instructions present
+    to: original actionable instructions preserved with equivalent semantic force
+  - sc: SC-10
+    from: carve-out incomplete
+    to: carve-out covers all 4 categories (spec->plan->impl, task tracking files, spec/plan files, authorization-gated project items)
+terminal_state:
+  description: All SC-1..SC-10 PASS; rewritten guideline fully covers both self-simulation prohibition and preserved session-trigger instructions.
+  gate: SC Enforcement Gate — a single FAIL blocks the entire spec; partial implementation not permitted.
