@@ -11,6 +11,15 @@ labels: [spec]
 - **Approach Chosen**: Complete rewrite of `130-authority-source.md` establishing a dual-authority principle, 6 rules, and relocation of 3 superseded sections to target files (spec-creation SKILL.md, 065-verification-honesty.md).
 - **Alternatives Considered**: (1) Minimal patch — add a note that specs are authoritative for intent while keeping "code wins" for state. Rejected because the contradiction would cause confusion. (2) Single-authority (spec wins) — rejected because code is the only reliable source for current state. (3) Dual-authority — chosen as the correct model.
 - **Key Design Decisions**: (1) Spec is authoritative for intent, code for state — neither wins absolutely. (2) Removed sections go to spec-creation SKILL.md (Superseding Issues + Plan Audit) and 065-verification-honesty.md (Verification First). (3) Semantic preservation is verified by clean-room sub-agent with content checklists, not grep.
+- **User Intent / Original Prompt**: Rewrite `130-authority-source.md` so the spec is authoritative for intent and the code is authoritative for current state — replacing the "code wins" framing with a dual-authority model — and relocate the three superseded sections (Superseding Issues + Overlap Detection Checklist, Verification First, Plan Audit Code Deep Dive) to their target files without content loss. This is the original request behind issue #2135 that motivated the rewrite.
+
+## Not Included
+
+- **[Behavioral change to `010-approval-gate.md`]** — Rule 2 (spec before code) restates the existing approval-gate mandate; the gate and approval-gate-006 semantics are unchanged.
+- **[Changes to guidelines other than `130-authority-source.md` and `065-verification-honesty.md`]** — The rewrite touches only the authority-source guideline; 065 receives the relocated Verification First content and nothing else.
+- **[Changes to `spec-creation/SKILL.md` beyond the relocated sections]** — The skill card receives the Superseding Issues + Overlap Detection Checklist and Plan Audit Code Deep Dive content only; its pipeline structure is untouched.
+- **[New guidelines, skills, or tooling]** — The fix relocates existing content; nothing new is authored.
+- **[Behavioral enforcement tests]** — The change is static documentation content (guideline rewrite + content relocation); verification is string/semantic per the evidence-type taxonomy, not behavioral `opencode run` tests.
 
 ## Problem
 
@@ -43,22 +52,22 @@ Complete rewrite establishing a dual-authority model:
 ### Remove
 
 - Rule 2 (Superseding Issues + Overlap Detection Checklist) — move to `spec-creation` skill card
-- Rule 6 (Verification First) — already in 065
+- Rule 6 (Verification First) — move to `065-verification-honesty.md`
 - Rule 8 (Plan Audit Code Deep Dive) — move to `spec-creation` skill card (alongside Superseding Issues content)
 
 ## Requirements
 
 | ID | Requirement | Source |
 |----|-------------|--------|
-| REQ-1 | Spec for intent, code for state — When a spec makes an incorrect claim about current code behavior, revise the spec to match reality. When code fails to implement the spec's intent, fix the code. | Rule 1 |
-| REQ-2 | Spec before code — Every code change requires an approved spec. | Rule 2 |
-| REQ-3 | Documentation Drift Protocol — When spec and code diverge on matters of fact, update the spec to reflect current state as an administrative sync. | Rule 3 |
-| REQ-4 | Spec revision revokes plan approval — Substantive spec revision revokes linked plan approvals per approval-gate-006. | Rule 4 |
-| REQ-5 | Suppression of Reactive Remediation — Do not change code to match a spec that is wrong about current state; fix the spec first. | Rule 5 |
-| REQ-6 | Verification against spec — Before claiming completion, verify the code implements the spec's success criteria. | Rule 6 |
-| REQ-7 | Dual-authority principle — The spec is authoritative for intent; the code is authoritative for current state. Neither wins absolutely. | Principle |
-| REQ-8 | Removed sections preservation — All semantic content from removed sections (Superseding Issues, Verification First, Plan Audit Code Deep Dive) is preserved in target locations. | Remove |
-| REQ-9 | No mechanical compaction — Only semantic analysis determines what stays or goes; word count, line count, or quantitative metrics are not compaction targets. | Risks |
+| REQ-1 | The rewritten guideline SHALL state that the spec is authoritative for intent and the code is authoritative for current state. When the spec makes an incorrect claim about current code behavior, the spec SHALL be revised to match reality. When code fails to implement the spec's intent, the code SHALL be fixed. | Rule 1 |
+| REQ-2 | The rewritten guideline SHALL state that every code change requires an approved spec. | Rule 2 |
+| REQ-3 | The rewritten guideline SHALL define the Documentation Drift Protocol: when spec and code diverge on matters of fact, the spec SHALL be updated to reflect current state as an administrative sync, not a code change. | Rule 3 |
+| REQ-4 | The rewritten guideline SHALL state that a substantive spec revision revokes linked plan approvals per approval-gate-006. | Rule 4 |
+| REQ-5 | The rewritten guideline SHALL prohibit reactive remediation: code SHALL NOT be changed to match a spec that is wrong about current state; the spec SHALL be fixed first. | Rule 5 |
+| REQ-6 | The rewritten guideline SHALL require verification against the spec: before claiming completion, the code SHALL be verified against the spec's success criteria, with the spec as the benchmark. | Rule 6 |
+| REQ-7 | The rewritten guideline SHALL establish the dual-authority principle: the spec is authoritative for intent, the code is authoritative for current state, and neither wins absolutely. | Principle |
+| REQ-8 | All semantic content from the removed sections (Superseding Issues, Verification First, Plan Audit Code Deep Dive) SHALL be preserved in their target locations (spec-creation SKILL.md, 065-verification-honesty.md). | Remove |
+| REQ-9 | The rewrite SHALL NOT use word count, line count, or any quantitative metric as a compaction target; only semantic analysis SHALL determine what stays or goes. | Risks |
 
 ## Traceability
 
@@ -79,22 +88,167 @@ Complete rewrite establishing a dual-authority model:
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | Dual-authority principle stated (spec for intent, code for state) | string | grep for 'spec is authoritative for intent' |
-| SC-2 | Rule 1: Spec for intent, code for state | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'spec is authoritative for intent' is present, (b) the phrase 'code is authoritative for current state' is present, (c) a statement that when spec and code diverge on matters of fact, the spec is updated to match reality. Cost: one sub-agent dispatch + two file reads. |
-| SC-3 | Rule 2: Spec before code | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'every code change requires an approved spec' is present, (b) grep for absence of the following exception phrases in the rule's section: 'unless', 'except when', 'may be skipped', 'optionally'. Cost: one sub-agent dispatch + one file read. |
-| SC-4 | Rule 3: Documentation Drift Protocol | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'Documentation Drift Protocol' is present, (b) a statement that updating the spec to match code state is an administrative sync (not a code change). Cost: one sub-agent dispatch + one file read. |
-| SC-5 | Rule 4: Spec revision revokes plan approval | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'spec revision revokes plan approval' is present, (b) a reference to approval-gate-006 is present. Cost: one sub-agent dispatch + one file read. |
-| SC-6 | Rule 5: Suppression of Reactive Remediation | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'Suppression of Reactive Remediation' is present, (b) a statement that code must not be changed to match a spec that is wrong about current state. Cost: one sub-agent dispatch + one file read. |
-| SC-7 | Rule 6: Verification against spec | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'Verification against spec' is present, (b) a statement that the spec is the benchmark and code is measured against it. Cost: one sub-agent dispatch + one file read. |
-| SC-8a | Superseding Issues section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Superseding Issues + Overlap Detection Checklist section is absent from the original location. Cost: one sub-agent dispatch + one file read. |
-| SC-8b | Superseding Issues content present in spec-creation SKILL.md | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Superseding Issues + Overlap Detection Checklist content is present in the target location. Cost: one sub-agent dispatch + one file read. |
-| SC-9a | Verification First section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Verification First section is absent from the original location. Cost: one sub-agent dispatch + one file read. |
-| SC-9b | Verification First content present in 065-verification-honesty.md | semantic | Clean-room sub-agent reads 065-verification-honesty.md and verifies the Verification First content is present in the target location. Cost: one sub-agent dispatch + one file read. |
-| SC-10a | Plan Audit Code Deep Dive section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Plan Audit Code Deep Dive section is absent from the original location. Cost: one sub-agent dispatch + one file read. |
-| SC-10b | Plan Audit content present in spec-creation SKILL.md | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Plan Audit Code Deep Dive content is present. Cost: one sub-agent dispatch + one file read. |
-| SC-11a | Superseding Issues semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, and verifies ALL of the following content items from the original Superseding Issues section are present in spec-creation SKILL.md: (a) the four-tier classification (FULL-SUPERSESSION, PARTIAL-OVERLAP, CONFLICT-RISK, INDEPENDENT), (b) the overlap detection checklist items (file-level search, symbol-level search, concern boundary comparison), (c) the evidence artifacts recording format. Cost: one sub-agent dispatch + two file reads. |
-| SC-11b | Verification First semantic preservation | semantic | Clean-room sub-agent reads both source (065-verification-honesty.md) and original (130-authority-source.md) files, and verifies ALL of the following content items from the original Verification First section are present in 065-verification-honesty.md: (a) the requirement to verify filename/symbol existence before use in tool calls, (b) the Drift Protocol trigger condition (if the file does not exist, trigger the Drift Protocol). Cost: one sub-agent dispatch + two file reads. |
-| SC-11c | Plan Audit semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, and verifies ALL of the following content items from the original Plan Audit Code Deep Dive section are present in spec-creation SKILL.md: (a) the requirement to follow mandatory code deep dive when auditing plans, (b) the requirement to ground every audit finding in the actual filesystem and source code. Cost: one sub-agent dispatch + two file reads. |
-| SC-12 | Rewrite does not use word count, line count, or any quantitative metric as a compaction target | semantic | Clean-room sub-agent reads the final guideline file and verifies NONE of the following mechanical compaction artifacts are present: (a) grep for absence of 'removed for length', 'truncated', 'compacted to fit', 'shortened for size', 'abbreviated for space' in the file, (b) clean-room sub-agent reads the file and verifies no content-free section headers (a heading with no body text below it) exist. Cost: one sub-agent dispatch + one file read. |
+| SC-2 | Rule 1: Spec for intent, code for state | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'spec is authoritative for intent' is present, (b) the phrase 'code is authoritative for current state' is present, (c) a statement that when spec and code diverge on matters of fact, the spec is updated to match reality. |
+| SC-3 | Rule 2: Spec before code | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'every code change requires an approved spec' is present, (b) grep for absence of the following exception phrases in the rule's section: 'unless', 'except when', 'may be skipped', 'optionally'. |
+| SC-4 | Rule 3: Documentation Drift Protocol | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'Documentation Drift Protocol' is present, (b) a statement that updating the spec to match code state is an administrative sync (not a code change). |
+| SC-5 | Rule 4: Spec revision revokes plan approval | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'spec revision revokes plan approval' is present, (b) a reference to approval-gate-006 is present. |
+| SC-6 | Rule 5: Suppression of Reactive Remediation | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'Suppression of Reactive Remediation' is present, (b) a statement that code must not be changed to match a spec that is wrong about current state. |
+| SC-7 | Rule 6: Verification against spec | semantic | Clean-room sub-agent reads guideline and verifies ALL of: (a) the phrase 'Verification against spec' is present, (b) a statement that the spec is the benchmark and code is measured against it. |
+| SC-8a | Superseding Issues section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Superseding Issues + Overlap Detection Checklist section is absent from the original location. |
+| SC-8b | Superseding Issues content present in spec-creation SKILL.md | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Superseding Issues + Overlap Detection Checklist content is present in the target location. |
+| SC-9a | Verification First section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Verification First section is absent from the original location. |
+| SC-9b | Verification First content present in 065-verification-honesty.md | semantic | Clean-room sub-agent reads 065-verification-honesty.md and verifies the Verification First content is present in the target location. |
+| SC-10a | Plan Audit Code Deep Dive section absent from 130-authority-source.md | semantic | Clean-room sub-agent reads 130-authority-source.md and confirms the Plan Audit Code Deep Dive section is absent from the original location. |
+| SC-10b | Plan Audit content present in spec-creation SKILL.md | semantic | Clean-room sub-agent reads spec-creation SKILL.md and verifies the Plan Audit Code Deep Dive content is present. |
+| SC-11a | Superseding Issues semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, and verifies ALL of the following content items from the original Superseding Issues section are present in spec-creation SKILL.md: (a) the four-tier classification (FULL-SUPERSESSION, PARTIAL-OVERLAP, CONFLICT-RISK, INDEPENDENT), (b) the overlap detection checklist items (file-level search, symbol-level search, concern boundary comparison), (c) the evidence artifacts recording format. |
+| SC-11b | Verification First semantic preservation | semantic | Clean-room sub-agent reads both source (065-verification-honesty.md) and original (130-authority-source.md) files, and verifies ALL of the following content items from the original Verification First section are present in 065-verification-honesty.md: (a) the requirement to verify filename/symbol existence before use in tool calls, (b) the Drift Protocol trigger condition (if the file does not exist, trigger the Drift Protocol). |
+| SC-11c | Plan Audit semantic preservation | semantic | Clean-room sub-agent reads both source (spec-creation SKILL.md) and original (130-authority-source.md) files, and verifies ALL of the following content items from the original Plan Audit Code Deep Dive section are present in spec-creation SKILL.md: (a) the requirement to follow mandatory code deep dive when auditing plans, (b) the requirement to ground every audit finding in the actual filesystem and source code. |
+| SC-12 | Rewrite does not use word count, line count, or any quantitative metric as a compaction target | semantic | Clean-room sub-agent reads the final guideline file and verifies NONE of the following mechanical compaction artifacts are present: (a) grep for absence of 'removed for length', 'truncated', 'compacted to fit', 'shortened for size', 'abbreviated for space' in the file, (b) clean-room sub-agent reads the file and verifies no content-free section headers (a heading with no body text below it) exist. |
+
+## Items
+
+Per-SC decomposition: each of the 17 SCs maps to exactly one item below. Each item is a RED/GREEN/verify/commit cycle executed within the phases of the Implementation Plan. SC-12's single item (Item 17) spans the Phase 4 and Phase 5 verification gates — it remains one item.
+
+### Item 1 (SC-1): Dual-authority principle
+
+- RED: grep for 'spec is authoritative for intent' in 130-authority-source.md finds no match — the principle is absent before the rewrite.
+- GREEN: Write the dual-authority principle into the rewritten guideline (Phase 1).
+- verify: grep for 'spec is authoritative for intent' in 130-authority-source.md (SC-1 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (principle section).
+
+### Item 2 (SC-2): Rule 1 — Spec for intent, code for state
+
+- RED: Clean-room sub-agent reads 130-authority-source.md and fails at least one of the three Rule 1 content assertions — content absent pre-change.
+- GREEN: Write Rule 1 with all three content elements (Phase 2).
+- verify: Clean-room sub-agent read with the three enumerated content assertions (SC-2 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (rules section).
+
+### Item 3 (SC-3): Rule 2 — Spec before code
+
+- RED: Clean-room sub-agent confirms 'every code change requires an approved spec' is absent, or any of the forbidden exception phrases is present.
+- GREEN: Write Rule 2 stating the mandate without exception phrases (Phase 2).
+- verify: Clean-room sub-agent read plus grep for absence of 'unless', 'except when', 'may be skipped', 'optionally' (SC-3 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (rules section).
+
+### Item 4 (SC-4): Rule 3 — Documentation Drift Protocol
+
+- RED: 'Documentation Drift Protocol' phrase absent from 130-authority-source.md.
+- GREEN: Write Rule 3 with the administrative-sync statement (Phase 2).
+- verify: Clean-room sub-agent read with the two enumerated content assertions (SC-4 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (rules section).
+
+### Item 5 (SC-5): Rule 4 — Spec revision revokes plan approval
+
+- RED: 'spec revision revokes plan approval' phrase absent from 130-authority-source.md.
+- GREEN: Write Rule 4 with the approval-gate-006 reference (Phase 2).
+- verify: Clean-room sub-agent read with the two enumerated content assertions (SC-5 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (rules section).
+
+### Item 6 (SC-6): Rule 5 — Suppression of Reactive Remediation
+
+- RED: 'Suppression of Reactive Remediation' phrase absent from 130-authority-source.md.
+- GREEN: Write Rule 5 with the no-code-change-to-match-wrong-spec statement (Phase 2).
+- verify: Clean-room sub-agent read with the two enumerated content assertions (SC-6 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (rules section).
+
+### Item 7 (SC-7): Rule 6 — Verification against spec
+
+- RED: 'Verification against spec' phrase absent from 130-authority-source.md.
+- GREEN: Write Rule 6 with the spec-as-benchmark statement (Phase 2).
+- verify: Clean-room sub-agent read with the two enumerated content assertions (SC-7 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md` (rules section).
+
+### Item 8 (SC-8a): Superseding Issues absent from 130-authority-source.md
+
+- RED: Clean-room sub-agent reads 130-authority-source.md and finds the Superseding Issues + Overlap Detection Checklist section still present.
+- GREEN: Remove the section from 130-authority-source.md (Phase 3).
+- verify: Clean-room sub-agent read confirming the section is absent from the original location (SC-8a verification method).
+- commit: `.opencode/guidelines/130-authority-source.md`.
+
+### Item 9 (SC-8b): Superseding Issues content present in spec-creation SKILL.md
+
+- RED: Clean-room sub-agent reads spec-creation SKILL.md and finds the Superseding Issues + Overlap Detection Checklist content absent.
+- GREEN: Relocate the content to spec-creation SKILL.md (Phase 3).
+- verify: Clean-room sub-agent read verifying the content is present in the target location (SC-8b verification method).
+- commit: `.opencode/skills/spec-creation/SKILL.md`.
+
+### Item 10 (SC-9a): Verification First absent from 130-authority-source.md
+
+- RED: Clean-room sub-agent reads 130-authority-source.md and finds the Verification First section still present.
+- GREEN: Remove the section from 130-authority-source.md (Phase 3).
+- verify: Clean-room sub-agent read confirming the section is absent from the original location (SC-9a verification method).
+- commit: `.opencode/guidelines/130-authority-source.md`.
+
+### Item 11 (SC-9b): Verification First content present in 065-verification-honesty.md
+
+- RED: Clean-room sub-agent reads 065-verification-honesty.md and finds the Verification First content absent.
+- GREEN: Relocate the content to 065-verification-honesty.md (Phase 3).
+- verify: Clean-room sub-agent read verifying the content is present in the target location (SC-9b verification method).
+- commit: `.opencode/guidelines/065-verification-honesty.md`.
+
+### Item 12 (SC-10a): Plan Audit Code Deep Dive absent from 130-authority-source.md
+
+- RED: Clean-room sub-agent reads 130-authority-source.md and finds the Plan Audit Code Deep Dive section still present.
+- GREEN: Remove the section from 130-authority-source.md (Phase 3).
+- verify: Clean-room sub-agent read confirming the section is absent from the original location (SC-10a verification method).
+- commit: `.opencode/guidelines/130-authority-source.md`.
+
+### Item 13 (SC-10b): Plan Audit content present in spec-creation SKILL.md
+
+- RED: Clean-room sub-agent reads spec-creation SKILL.md and finds the Plan Audit Code Deep Dive content absent.
+- GREEN: Relocate the content to spec-creation SKILL.md (Phase 3).
+- verify: Clean-room sub-agent read verifying the Plan Audit Code Deep Dive content is present (SC-10b verification method).
+- commit: `.opencode/skills/spec-creation/SKILL.md`.
+
+### Item 14 (SC-11a): Superseding Issues semantic preservation
+
+- RED: Clean-room sub-agent compares source (spec-creation SKILL.md) and original (130-authority-source.md) and finds at least one of the three content items (four-tier classification, overlap detection checklist, evidence artifacts recording format) missing.
+- GREEN: Restore any missing content in the target location (Phase 5 verification gate).
+- verify: Clean-room sub-agent two-file comparison per SC-11a verification method.
+- commit: `.opencode/skills/spec-creation/SKILL.md` (plus 130-authority-source.md if restoration requires it).
+
+### Item 15 (SC-11b): Verification First semantic preservation
+
+- RED: Clean-room sub-agent compares source (065-verification-honesty.md) and original (130-authority-source.md) and finds at least one of the two content items (filename/symbol existence verification, Drift Protocol trigger condition) missing.
+- GREEN: Restore any missing content in the target location (Phase 5 verification gate).
+- verify: Clean-room sub-agent two-file comparison per SC-11b verification method.
+- commit: `.opencode/guidelines/065-verification-honesty.md` (plus 130-authority-source.md if restoration requires it).
+
+### Item 16 (SC-11c): Plan Audit semantic preservation
+
+- RED: Clean-room sub-agent compares source (spec-creation SKILL.md) and original (130-authority-source.md) and finds at least one of the two content items (mandatory code deep dive requirement, filesystem-grounding requirement) missing.
+- GREEN: Restore any missing content in the target location (Phase 5 verification gate).
+- verify: Clean-room sub-agent two-file comparison per SC-11c verification method.
+- commit: `.opencode/skills/spec-creation/SKILL.md` (plus 130-authority-source.md if restoration requires it).
+
+### Item 17 (SC-12): No mechanical compaction metrics
+
+- RED: grep for 'removed for length', 'truncated', 'compacted to fit', 'shortened for size', 'abbreviated for space' in the final guideline finds a match, or a clean-room sub-agent finds a content-free section header.
+- GREEN: Remove the compaction artifact and restore the truncated content; ensure no content-free section headers remain (Phase 4 / Phase 5 verification gates).
+- verify: Absence grep plus clean-room sub-agent content-free-header check (SC-12 verification method).
+- commit: `.opencode/guidelines/130-authority-source.md`.
+
+## Cost Frame
+
+Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only success metric — no score for speed, brevity, or economy.
+
+- **SC-1**: Verifying the dual-authority phrase costs one grep over a single file — seconds of bounded delay. Skipping costs hours to days when the 'code wins' contradiction ships to review and the rewrite's central principle is missing.
+- **SC-2**: Verifying Rule 1's three content elements costs one clean-room sub-agent read of one file — minutes of bounded delay. Skipping costs the intent/state distinction eroding silently, discovered at review 10x-100x later.
+- **SC-3**: Verifying the spec-before-code phrase and the absence of the four exception phrases costs one sub-agent read plus one absence grep. Skipping lets an exception phrase weaken the spec-before-code mandate — a gate regression discovered at review.
+- **SC-4**: Verifying the Documentation Drift Protocol phrase and the administrative-sync statement costs one sub-agent read. Skipping leaves the drift protocol under-specified, and agents treat spec updates as code changes — a workflow defect discovered at review.
+- **SC-5**: Verifying the revoke-on-revision statement and the approval-gate-006 reference costs one sub-agent read. Skipping leaves plan-approval revocation unstated, and a revised spec is implemented under a stale approval — a process-integrity defect discovered at review.
+- **SC-6**: Verifying the reactive-remediation prohibition costs one sub-agent read. Skipping permits code-first remediation against a spec that is wrong about current state — a scope violation discovered at review.
+- **SC-7**: Verifying the spec-as-benchmark statement costs one sub-agent read. Skipping lets completion claims pass without spec verification — a verification-honesty defect discovered at review.
+- **SC-8a**: Verifying the Superseding Issues section is absent from the original location costs one sub-agent read. Skipping leaves duplicate conflicting guidance in two files — a drift defect discovered at review.
+- **SC-8b**: Verifying the Superseding Issues content is present in spec-creation SKILL.md costs one sub-agent read. Skipping loses the relocation silently — REQ-8 content loss discovered at review.
+- **SC-9a**: Verifying the Verification First section is absent from the original location costs one sub-agent read. Skipping leaves duplicate guidance in two files — a drift defect discovered at review.
+- **SC-9b**: Verifying the Verification First content is present in 065-verification-honesty.md costs one sub-agent read. Skipping loses the relocation silently — REQ-8 content loss discovered at review.
+- **SC-10a**: Verifying the Plan Audit Code Deep Dive section is absent from the original location costs one sub-agent read. Skipping leaves duplicate guidance in two files — a drift defect discovered at review.
+- **SC-10b**: Verifying the Plan Audit content is present in spec-creation SKILL.md costs one sub-agent read. Skipping loses the relocation silently — REQ-8 content loss discovered at review.
+- **SC-11a**: Verifying Superseding Issues semantic preservation costs one sub-agent read of two files. Skipping permits content loss that grep cannot detect — discovered at review 10x-100x later.
+- **SC-11b**: Verifying Verification First semantic preservation costs one sub-agent read of two files. Skipping permits content loss that grep cannot detect — discovered at review 10x-100x later.
+- **SC-11c**: Verifying Plan Audit semantic preservation costs one sub-agent read of two files. Skipping permits content loss that grep cannot detect — discovered at review 10x-100x later.
+- **SC-12**: Verifying the absence of mechanical-compaction artifacts costs one absence grep plus one sub-agent read. Skipping permits truncated content and content-free headers — content loss discovered by readers weeks later.
 
 ## SC Enforcement Gate
 
@@ -144,6 +298,12 @@ The following edge cases are defined for the implementation:
 
 - None.
 
+## Change Control
+
+- 2026-08-13: Corrected Remove section entry for Rule 6 (Verification First) — changed "already in 065" to "move to `065-verification-honesty.md`". The prior claim was factually false (live grep confirms no Verification First content in 065-verification-honesty.md) and contradicted REQ-8, SC-9b, and Phase 3 sub-step. Fixes HOLISTIC-2 (Internal Consistency) and HOLISTIC-7 (Provenance) audit FAILs. No SCs, requirements, phases, or other content altered. Authorized by spec-audit revision pipeline (issue 2135).
+- 2026-08-13: Applied structural revision per spec-audit re-audit (verdict 2026-08-14; holistic gate 11/11 PASS, 6 narrow-criteria FAILs, all SPEC_INCOMPLETE). Added: (1) User Intent / Original Prompt preamble field (SC-1/SC-12); (2) '## Not Included' section with exclusion rationale (SEC-2); (3) RFC 2119 SHALL phrasing for REQ-1..REQ-9 (SEC-4); (4) '## Items' section with 17 per-SC items, one SC per item, each with RED/GREEN/verify/commit cycles (SEC-5); (5) '## Cost Frame' section per cost-model-standards dark-prose-007 — DDL computation frame, correctness-only identity anchor, action cost + consequence and skipping cost + consequence for all 17 SCs (SC-13). Also removed the embedded 'Cost: one sub-agent dispatch + ...' annotations from the Verification Method column — the prohibited tool-call/roundtrip framing per cost-model-standards; the verification method procedures themselves are unchanged. No SC definitions, requirements semantics, phases, or success criteria content altered. Authorized by spec-audit revision pipeline (issue 2135).
+
 ---
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)
