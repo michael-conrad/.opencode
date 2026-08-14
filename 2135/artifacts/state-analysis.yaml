@@ -1,0 +1,79 @@
+# State Analysis — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+note: >
+  The system state is the content state of the three affected markdown files. Each SC
+  drives a content-state transition (absent -> present, or present -> absent) or is a
+  pure verification gate with no state change.
+state_transitions_by_sc:
+  - sc: SC-1
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Dual-authority principle statement (spec authoritative for intent, code authoritative for current state)
+  - sc: SC-2
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Rule 1 (spec for intent, code for state) with all three content elements
+  - sc: SC-3
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Rule 2 (spec before code) without exception phrases
+  - sc: SC-4
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Rule 3 (Documentation Drift Protocol) with administrative-sync statement
+  - sc: SC-5
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Rule 4 (spec revision revokes plan approval) with approval-gate-006 reference
+  - sc: SC-6
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Rule 5 (Suppression of Reactive Remediation) with no-code-change-to-match-wrong-spec statement
+  - sc: SC-7
+    file: .opencode/guidelines/130-authority-source.md
+    transition: absent -> present
+    element: Rule 6 (Verification against spec) with spec-as-benchmark statement
+  - sc: SC-8a
+    file: .opencode/guidelines/130-authority-source.md
+    transition: present -> absent
+    element: Superseding Issues + Overlap Detection Checklist section removed from original location
+  - sc: SC-8b
+    file: .opencode/skills/spec-creation/SKILL.md
+    transition: absent -> present
+    element: Superseding Issues + Overlap Detection Checklist content present in target
+  - sc: SC-9a
+    file: .opencode/guidelines/130-authority-source.md
+    transition: present -> absent
+    element: Verification First section removed from original location
+  - sc: SC-9b
+    file: .opencode/guidelines/065-verification-honesty.md
+    transition: absent -> present
+    element: Verification First content present in target
+  - sc: SC-10a
+    file: .opencode/guidelines/130-authority-source.md
+    transition: present -> absent
+    element: Plan Audit Code Deep Dive section removed from original location
+  - sc: SC-10b
+    file: .opencode/skills/spec-creation/SKILL.md
+    transition: absent -> present
+    element: Plan Audit Code Deep Dive content present in target
+  - sc: SC-11a
+    file: .opencode/skills/spec-creation/SKILL.md (vs 130-authority-source.md)
+    transition: no_state_change (verification gate)
+    element: Semantic preservation of Superseding Issues content across relocation boundary
+  - sc: SC-11b
+    file: .opencode/guidelines/065-verification-honesty.md (vs 130-authority-source.md)
+    transition: no_state_change (verification gate)
+    element: Semantic preservation of Verification First content across relocation boundary
+  - sc: SC-11c
+    file: .opencode/skills/spec-creation/SKILL.md (vs 130-authority-source.md)
+    transition: no_state_change (verification gate)
+    element: Semantic preservation of Plan Audit content across relocation boundary
+  - sc: SC-12
+    file: .opencode/guidelines/130-authority-source.md
+    transition: no_state_change (verification gate)
+    element: No mechanical compaction artifacts; no content-free section headers
+state_invariants:
+  - The relocation SCs are paired (SC-8a/8b, SC-9a/9b, SC-10a/10b): a section must be absent from 130-authority-source.md AND present in its target file. Both halves must hold for the relocation to be complete.
+  - Semantic preservation (SC-11a/11b/11c) is a Phase 5 integration gate — content must survive the relocation with no loss.
+  - No intermediate state is committed: the rewrite and relocations are verified as a whole before completion (SC Enforcement Gate).

@@ -1,0 +1,88 @@
+# Code Path Inventory — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+code_paths_implied_by_sc:
+  - sc: SC-1
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Dual-authority principle statement
+    action: create
+    evidence: grep for 'spec is authoritative for intent' in rewritten guideline
+  - sc: SC-2
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Rule 1 (spec for intent, code for state) — all three content elements
+    action: create
+    evidence: clean-room sub-agent verifies (a) 'spec is authoritative for intent', (b) 'code is authoritative for current state', (c) statement that on factual divergence the spec is updated to match reality
+  - sc: SC-3
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Rule 2 (spec before code) without exception phrases
+    action: create
+    evidence: clean-room sub-agent verifies 'every code change requires an approved spec' + absence grep for 'unless', 'except when', 'may be skipped', 'optionally' in rule's section
+  - sc: SC-4
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Rule 3 (Documentation Drift Protocol)
+    action: create
+    evidence: clean-room sub-agent verifies 'Documentation Drift Protocol' + administrative-sync statement
+  - sc: SC-5
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Rule 4 (spec revision revokes plan approval)
+    action: create
+    evidence: clean-room sub-agent verifies 'spec revision revokes plan approval' + approval-gate-006 reference
+  - sc: SC-6
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Rule 5 (Suppression of Reactive Remediation)
+    action: create
+    evidence: clean-room sub-agent verifies 'Suppression of Reactive Remediation' + no-code-change-to-match-wrong-spec statement
+  - sc: SC-7
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Rule 6 (Verification against spec)
+    action: create
+    evidence: clean-room sub-agent verifies 'Verification against spec' + spec-as-benchmark statement
+  - sc: SC-8a
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Superseding Issues + Overlap Detection Checklist section — absent from original location
+    action: remove
+    evidence: clean-room sub-agent read confirming section absent from 130-authority-source.md
+  - sc: SC-8b
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: Superseding Issues + Overlap Detection Checklist content — present in target
+    action: relocate-content-in
+    evidence: clean-room sub-agent read verifying content present in spec-creation SKILL.md
+  - sc: SC-9a
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Verification First section — absent from original location
+    action: remove
+    evidence: clean-room sub-agent read confirming section absent from 130-authority-source.md
+  - sc: SC-9b
+    target_file: .opencode/guidelines/065-verification-honesty.md
+    path: Verification First content — present in target
+    action: relocate-content-in
+    evidence: clean-room sub-agent read verifying content present in 065-verification-honesty.md
+  - sc: SC-10a
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: Plan Audit Code Deep Dive section — absent from original location
+    action: remove
+    evidence: clean-room sub-agent read confirming section absent from 130-authority-source.md
+  - sc: SC-10b
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: Plan Audit Code Deep Dive content — present in target
+    action: relocate-content-in
+    evidence: clean-room sub-agent read verifying content present in spec-creation SKILL.md
+  - sc: SC-11a
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: Superseding Issues semantic preservation — four-tier classification, overlap detection checklist, evidence recording format
+    action: verify
+    evidence: clean-room sub-agent two-file comparison per SC-11a (spec-creation SKILL.md vs 130-authority-source.md)
+  - sc: SC-11b
+    target_file: .opencode/guidelines/065-verification-honesty.md
+    path: Verification First semantic preservation — filename/symbol existence verification, Drift Protocol trigger condition
+    action: verify
+    evidence: clean-room sub-agent two-file comparison per SC-11b (065-verification-honesty.md vs 130-authority-source.md)
+  - sc: SC-11c
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: Plan Audit semantic preservation — mandatory code deep dive requirement, filesystem grounding requirement
+    action: verify
+    evidence: clean-room sub-agent two-file comparison per SC-11c (spec-creation SKILL.md vs 130-authority-source.md)
+  - sc: SC-12
+    target_file: .opencode/guidelines/130-authority-source.md
+    path: No mechanical compaction artifacts — absence of 'removed for length', 'truncated', 'compacted to fit', 'shortened for size', 'abbreviated for space'; no content-free section headers
+    action: verify
+    evidence: absence grep + clean-room sub-agent content-free-header check

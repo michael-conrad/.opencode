@@ -1,0 +1,38 @@
+# Interface Compatibility — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+note: >
+  All three affected files are markdown documentation/skill artifacts, not code modules.
+  There are no code-level function/module interfaces. The interface boundaries are the
+  content contracts between the source guideline and the two target files receiving
+  relocated content, plus the cross-reference surface of the rewritten guideline.
+interface_boundaries:
+  - boundary: 130-authority-source.md -> spec-creation/SKILL.md (content relocation)
+    direction: one-way content move
+    contract:
+      - Superseding Issues + Overlap Detection Checklist section moves to spec-creation SKILL.md.
+      - Plan Audit Code Deep Dive section moves to spec-creation SKILL.md (alongside Superseding Issues content).
+      - Semantic content MUST be preserved: four-tier classification (FULL-SUPERSESSION, PARTIAL-OVERLAP, CONFLICT-RISK, INDEPENDENT), overlap detection checklist items (file-level search, symbol-level search, concern boundary comparison), evidence artifacts recording format.
+      - spec-creation SKILL.md pipeline structure MUST remain untouched — only the relocated sections are added (SC-8b, SC-10b).
+    compatibility_check: SC-8b, SC-10b, SC-11a, SC-11c
+  - boundary: 130-authority-source.md -> 065-verification-honesty.md (content relocation)
+    direction: one-way content move
+    contract:
+      - Verification First section moves to 065-verification-honesty.md.
+      - Semantic content MUST be preserved: requirement to verify filename/symbol existence before use in tool calls, Drift Protocol trigger condition (if the file does not exist, trigger the Drift Protocol).
+      - Nothing else in 065-verification-honesty.md changes (SC-9b).
+    compatibility_check: SC-9b, SC-11b
+  - boundary: rewritten 130-authority-source.md cross-reference surface
+    direction: internal consistency of rewritten guideline
+    contract:
+      - The rewritten guideline must not reference the removed sections (Superseding Issues, Verification First, Plan Audit Code Deep Dive) as if they still exist in the file.
+      - The rewritten guideline must not retain the old "code wins" single-authority framing that contradicts the new dual-authority model.
+      - Cross-reference breakage mitigation: grep for 'code wins' and 'code is the only absolute source of truth' across the codebase (Risks section).
+    compatibility_check: SC-1, SC-2, SC-12
+  - boundary: approval-gate-006 reference (Rule 4)
+    direction: external reference into approval-gate skill
+    contract:
+      - Rule 4 references approval-gate-006 for spec-revision-revokes-plan-approval semantics.
+      - The reference is to an existing rule identifier in the approval-gate skill; it is a citation, not a content move.
+    compatibility_check: SC-5
+no_code_interface_conflicts:
+  - No function signatures, class definitions, or module imports are affected. The change is static documentation content; verification is string/semantic per the evidence-type taxonomy (Not Included section).

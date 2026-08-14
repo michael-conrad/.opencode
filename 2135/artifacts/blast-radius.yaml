@@ -1,0 +1,21 @@
+# Blast Radius — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+affected_files:
+  - path: .opencode/guidelines/130-authority-source.md
+    action: rewrite
+    verified: EXISTS
+    impact: Primary deliverable — complete rewrite replacing "code wins" single-authority framing with dual-authority model (spec authoritative for intent, code authoritative for current state), 6 rules, and removal of 3 superseded sections.
+  - path: .opencode/skills/spec-creation/SKILL.md
+    action: relocate-content-in
+    verified: EXISTS
+    impact: Receives Superseding Issues + Overlap Detection Checklist and Plan Audit Code Deep Dive content relocated from 130-authority-source.md. Pipeline structure untouched — only the relocated sections are added.
+  - path: .opencode/guidelines/065-verification-honesty.md
+    action: relocate-content-in
+    verified: EXISTS
+    impact: Receives Verification First content relocated from 130-authority-source.md. Nothing else changes in this file.
+no_other_affected_files:
+  - Note: Spec explicitly excludes 010-approval-gate.md (Rule 2 restates existing mandate; gate and approval-gate-006 semantics unchanged), all other guidelines, new guidelines/skills/tooling, and behavioral enforcement tests (static documentation content; verification is string/semantic per evidence-type taxonomy).
+scope:
+  type: guideline rewrite + two-file content relocation
+  ownership_repo: .opencode (github.com/michael-conrad/.opencode)
+  concern: Authority-source guideline content — dual-authority principle, 6 rules, relocation of superseded sections with semantic preservation

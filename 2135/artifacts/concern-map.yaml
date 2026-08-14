@@ -1,0 +1,34 @@
+# Concern Map — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+concern_groups:
+  - id: concern-dual-authority-principle
+    name: Dual-authority principle (new)
+    phase: 1
+    scs: [SC-1]
+    description: Write the dual-authority principle into the rewritten guideline — spec authoritative for intent, code authoritative for current state, neither wins absolutely.
+  - id: concern-six-rules
+    name: Six rules (new)
+    phase: 2
+    scs: [SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+    description: Write Rules 1-6 (spec for intent/code for state, spec before code, Documentation Drift Protocol, spec revision revokes plan approval, Suppression of Reactive Remediation, Verification against spec) into the rules section.
+  - id: concern-relocation
+    name: Remove superseded sections and relocate content
+    phase: 3
+    scs: [SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b]
+    description: Remove Superseding Issues + Overlap Detection Checklist, Verification First, and Plan Audit Code Deep Dive from 130-authority-source.md; relocate their content to spec-creation SKILL.md and 065-verification-honesty.md without content loss.
+  - id: concern-verify-rules
+    name: Verify rules present and removed content absent
+    phase: 4
+    scs: [SC-12]
+    description: Verify all 6 rules present in rewritten guideline; verify no mechanical compaction artifacts (no 'removed for length'/'truncated'/'compacted to fit'/'shortened for size'/'abbreviated for space', no content-free section headers).
+  - id: concern-semantic-preservation
+    name: Clean-room semantic preservation audit
+    phase: 5
+    scs: [SC-11a, SC-11b, SC-11c, SC-12]
+    description: Clean-room sub-agent compares relocated content in target files against original 130-authority-source.md content — verify four-tier classification, overlap detection checklist, evidence recording format, filename/symbol verification requirement, Drift Protocol trigger condition, mandatory code deep dive, filesystem grounding — plus final no-compaction-artifact check.
+phase_boundary_map:
+  - {phase: 1, concerns: [concern-dual-authority-principle]}
+  - {phase: 2, concerns: [concern-six-rules]}
+  - {phase: 3, concerns: [concern-relocation]}
+  - {phase: 4, concerns: [concern-verify-rules]}
+  - {phase: 5, concerns: [concern-semantic-preservation]}

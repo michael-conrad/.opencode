@@ -1,0 +1,30 @@
+# Analysis Summary — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+mode: retroactive
+sc_count: 17
+artifact_status:
+  blast-radius.yaml: existing
+  concern-map.yaml: existing
+  code-path-inventory.yaml: existing
+  cross-cutting-matrix.yaml: existing
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope:
+  type: guideline rewrite + two-file content relocation
+  ownership_repo: .opencode (github.com/michael-conrad/.opencode)
+  affected_files:
+    - .opencode/guidelines/130-authority-source.md (rewrite)
+    - .opencode/skills/spec-creation/SKILL.md (relocate-content-in)
+    - .opencode/guidelines/065-verification-honesty.md (relocate-content-in)
+  concern: Authority-source guideline content — dual-authority principle, 6 rules, relocation of superseded sections with semantic preservation
+  phases: 5 (principle, six rules, relocation, verification, semantic preservation audit)
+  requirements: REQ-1 through REQ-9 (RFC 2119 SHALL form)
+  success_criteria: SC-1 through SC-12 (17 per-SC items)
+summary: >
+  All 7 analytical artifacts are present and derived from the CURRENT revised spec body
+  (2026-08-13 structural revision). Four artifacts (blast-radius, concern-map,
+  code-path-inventory, cross-cutting-matrix) were already regenerated from the revised
+  spec and verified consistent. Three artifacts (interface-compatibility, state-analysis,
+  testability-assessment) were backfilled in this run. The analysis summary records the
+  artifact status per the backfill task contract.

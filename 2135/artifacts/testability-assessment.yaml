@@ -1,0 +1,82 @@
+# Testability Assessment — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+note: >
+  All 17 SCs are static documentation-content changes (guideline rewrite + content
+  relocation). Per the Not Included section, no behavioral enforcement tests are
+  required — verification is string/semantic per the evidence-type taxonomy.
+  No `opencode run` behavioral tests are needed for any SC.
+testability_by_sc:
+  - sc: SC-1
+    evidence_type: string
+    method: grep for 'spec is authoritative for intent' in rewritten guideline
+    testable: true
+  - sc: SC-2
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying (a) 'spec is authoritative for intent', (b) 'code is authoritative for current state', (c) statement that on factual divergence the spec is updated to match reality
+    testable: true
+  - sc: SC-3
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying 'every code change requires an approved spec' + absence grep for 'unless', 'except when', 'may be skipped', 'optionally' in rule's section
+    testable: true
+  - sc: SC-4
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying 'Documentation Drift Protocol' + administrative-sync statement
+    testable: true
+  - sc: SC-5
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying 'spec revision revokes plan approval' + approval-gate-006 reference
+    testable: true
+  - sc: SC-6
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying 'Suppression of Reactive Remediation' + no-code-change-to-match-wrong-spec statement
+    testable: true
+  - sc: SC-7
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying 'Verification against spec' + spec-as-benchmark statement
+    testable: true
+  - sc: SC-8a
+    evidence_type: semantic
+    method: clean-room sub-agent read confirming Superseding Issues + Overlap Detection Checklist section absent from 130-authority-source.md
+    testable: true
+  - sc: SC-8b
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying Superseding Issues + Overlap Detection Checklist content present in spec-creation SKILL.md
+    testable: true
+  - sc: SC-9a
+    evidence_type: semantic
+    method: clean-room sub-agent read confirming Verification First section absent from 130-authority-source.md
+    testable: true
+  - sc: SC-9b
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying Verification First content present in 065-verification-honesty.md
+    testable: true
+  - sc: SC-10a
+    evidence_type: semantic
+    method: clean-room sub-agent read confirming Plan Audit Code Deep Dive section absent from 130-authority-source.md
+    testable: true
+  - sc: SC-10b
+    evidence_type: semantic
+    method: clean-room sub-agent read verifying Plan Audit Code Deep Dive content present in spec-creation SKILL.md
+    testable: true
+  - sc: SC-11a
+    evidence_type: semantic
+    method: clean-room sub-agent two-file comparison (spec-creation SKILL.md vs 130-authority-source.md) verifying four-tier classification, overlap detection checklist, evidence recording format
+    testable: true
+  - sc: SC-11b
+    evidence_type: semantic
+    method: clean-room sub-agent two-file comparison (065-verification-honesty.md vs 130-authority-source.md) verifying filename/symbol existence verification, Drift Protocol trigger condition
+    testable: true
+  - sc: SC-11c
+    evidence_type: semantic
+    method: clean-room sub-agent two-file comparison (spec-creation SKILL.md vs 130-authority-source.md) verifying mandatory code deep dive requirement, filesystem grounding requirement
+    testable: true
+  - sc: SC-12
+    evidence_type: semantic
+    method: absence grep for 'removed for length', 'truncated', 'compacted to fit', 'shortened for size', 'abbreviated for space' + clean-room sub-agent content-free-header check
+    testable: true
+behavioral_test_requirement: none
+behavioral_test_rationale: >
+  The change is static documentation content (guideline rewrite + content relocation).
+  No runtime agent behavior is altered. Verification is string/semantic per the
+  evidence-type taxonomy — behavioral `opencode run` tests are explicitly excluded
+  (Not Included section).

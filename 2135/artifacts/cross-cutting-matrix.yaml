@@ -1,0 +1,35 @@
+# Cross-Cutting Matrix — Issue 2135: Rewrite 130-authority-source.md (dual-authority model)
+spec: .opencode/.issues/2135/spec.md
+cross_cutting_scs:
+  - sc: SC-12
+    spans: [concern-verify-rules, concern-semantic-preservation]
+    notes: Single item (Item 17) spans the Phase 4 and Phase 5 verification gates — the no-compaction check runs at both gates. It is one item, not two.
+  - sc: SC-8b
+    spans: [concern-relocation]
+    notes: Presence of Superseding Issues content in spec-creation SKILL.md (SC-8b) pairs with absence from 130-authority-source.md (SC-8a) — same content, two files, one relocation operation.
+  - sc: SC-9b
+    spans: [concern-relocation]
+    notes: Presence of Verification First content in 065-verification-honesty.md (SC-9b) pairs with absence from 130-authority-source.md (SC-9a) — same content, two files, one relocation operation.
+  - sc: SC-10b
+    spans: [concern-relocation]
+    notes: Presence of Plan Audit content in spec-creation SKILL.md (SC-10b) pairs with absence from 130-authority-source.md (SC-10a) — same content, two files, one relocation operation.
+  - sc: SC-11a
+    spans: [concern-semantic-preservation]
+    notes: Two-file comparison (spec-creation SKILL.md vs 130-authority-source.md) — checks semantic preservation of Superseding Issues content across the relocation boundary.
+  - sc: SC-11b
+    spans: [concern-semantic-preservation]
+    notes: Two-file comparison (065-verification-honesty.md vs 130-authority-source.md) — checks semantic preservation of Verification First content across the relocation boundary.
+  - sc: SC-11c
+    spans: [concern-semantic-preservation]
+    notes: Two-file comparison (spec-creation SKILL.md vs 130-authority-source.md) — checks semantic preservation of Plan Audit content across the relocation boundary.
+phase_crossing_notes:
+  - Phase 5 semantic preservation audit spans all relocation SCs (SC-11a, SC-11b, SC-11c) plus SC-12 — it is the integration gate.
+  - Phase 4 verification covers the six-rules concern (SC-2..SC-7) implicitly through SC-12's rule-presence check; SC-12 is the only SC listed in Phase 4 in the Traceability table.
+single_concern_scs:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
