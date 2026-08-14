@@ -1,0 +1,96 @@
+artifact_name: concern-map
+generated_at: 2026-08-13
+source: "Spec #2135 body (spec.md)"
+content:
+  description: "Map of concerns to the 5 phases for the dual-authority rewrite of 130-authority-source.md"
+  phases:
+    - phase: 1
+      name: "Write new dual-authority principle"
+      concern: "C1"
+      scs:
+        - SC-1
+      dependencies: []
+      dispatch: "item-level (per-item TDD cycle)"
+      key_deliverables:
+        - "SC-1: Dual-authority principle stated in 130-authority-source.md — spec authoritative for intent, code authoritative for current state, neither wins absolutely"
+    - phase: 2
+      name: "Write 6 new rules"
+      concern: "C2"
+      scs:
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+      dependencies:
+        - 1
+      dispatch: "item-level (per-item TDD cycle)"
+      key_deliverables:
+        - "SC-2: Rule 1 — Spec for intent, code for state"
+        - "SC-3: Rule 2 — Spec before code (no exception phrases)"
+        - "SC-4: Rule 3 — Documentation Drift Protocol (administrative sync, not code change)"
+        - "SC-5: Rule 4 — Spec revision revokes plan approval (approval-gate-006 reference)"
+        - "SC-6: Rule 5 — Suppression of Reactive Remediation"
+        - "SC-7: Rule 6 — Verification against spec (spec is the benchmark)"
+    - phase: 3
+      name: "Remove superseded rules and relocate content"
+      concern: "C3"
+      scs:
+        - SC-8a
+        - SC-8b
+        - SC-9a
+        - SC-9b
+        - SC-10a
+        - SC-10b
+      dependencies:
+        - 1
+        - 2
+      dispatch: "item-level (per-item TDD cycle)"
+      key_deliverables:
+        - "SC-8a/SC-8b: Superseding Issues + Overlap Detection Checklist absent from 130-authority-source.md, present in spec-creation SKILL.md"
+        - "SC-9a/SC-9b: Verification First absent from 130-authority-source.md, present in 065-verification-honesty.md"
+        - "SC-10a/SC-10b: Plan Audit Code Deep Dive absent from 130-authority-source.md, present in spec-creation SKILL.md"
+    - phase: 4
+      name: "Verify all 6 rules present and removed content absent"
+      concern: "C4"
+      scs:
+        - SC-12
+      dependencies:
+        - 1
+        - 2
+        - 3
+      dispatch: "item-level (per-item TDD cycle)"
+      key_deliverables:
+        - "SC-12: Final guideline free of mechanical compaction artifacts (no 'removed for length'/'truncated'/'compacted to fit'/'shortened for size'/'abbreviated for space', no content-free section headers)"
+    - phase: 5
+      name: "Clean-room semantic audit — verify no content loss"
+      concern: "C5"
+      scs:
+        - SC-11a
+        - SC-11b
+        - SC-11c
+        - SC-12
+      dependencies:
+        - 3
+        - 4
+      dispatch: "item-level (per-item TDD cycle)"
+      key_deliverables:
+        - "SC-11a: Superseding Issues semantic preservation (four-tier classification, overlap detection checklist items, evidence artifacts format) verified in spec-creation SKILL.md against original"
+        - "SC-11b: Verification First semantic preservation (filename/symbol existence check, Drift Protocol trigger condition) verified in 065-verification-honesty.md against original"
+        - "SC-11c: Plan Audit semantic preservation (mandatory code deep dive, grounds-in-filesystem requirement) verified in spec-creation SKILL.md against original"
+        - "SC-12 (re-verified): No content loss via mechanical compaction in final guideline"
+  concern_to_phase_mapping:
+    "C1 (dual-authority principle rewrite)": 1
+    "C2 (six-rule rewrite)": 2
+    "C3 (section removal + content relocation)": 3
+    "C4 (mechanical-compaction prohibition)": 4
+    "C5 (semantic preservation audit)": 5
+  phase_independence:
+    description: "Sequential pipeline — each phase depends on the previous; no parallelization possible"
+    independent_phases: []
+    dependent_phases:
+      - 2
+      - 3
+      - 4
+      - 5

@@ -1,0 +1,47 @@
+artifact_name: blast-radius
+generated_at: 2026-08-13
+source: "Spec #2135 body (spec.md)"
+content:
+  description: "All files affected by the dual-authority rewrite of 130-authority-source.md (spec authoritative for intent, code authoritative for state)"
+  blast_radius: "DOCUMENTATION — 3 files in a single repo (michael-conrad/.opencode), 2 guideline files rewritten/extended and 1 skill card extended. No code, config, or runtime surface affected."
+  affected_files:
+    - path: ".opencode/guidelines/130-authority-source.md"
+      change: "Rewrite — replace single-authority 'code wins' framing with dual-authority principle (spec for intent, code for state); replace 8 rules with 6 rules (SC-2..SC-7); remove superseded sections: Rule 2 (Superseding Issues + Overlap Detection Checklist), Rule 6 (Verification First), Rule 8 (Plan Audit Code Deep Dive)"
+      status: EXISTS
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8a
+        - SC-9a
+        - SC-10a
+        - SC-12
+    - path: ".opencode/skills/spec-creation/SKILL.md"
+      change: "Modify — receive relocated content: Superseding Issues + Overlap Detection Checklist (from Rule 2) and Plan Audit Code Deep Dive (from Rule 8)"
+      status: EXISTS
+      scs:
+        - SC-8b
+        - SC-10b
+        - SC-11a
+        - SC-11c
+    - path: ".opencode/guidelines/065-verification-honesty.md"
+      change: "Modify — receive relocated Verification First content (from Rule 6)"
+      status: EXISTS
+      scs:
+        - SC-9b
+        - SC-11b
+  cross_reference_scan:
+    description: "Files elsewhere referencing the old 'code wins' framing are at risk of breakage after the rewrite"
+    scan_scope: "grep for 'code wins' and 'code is the only absolute source of truth' across the codebase"
+    risk: "References to the old single-authority framing must be reconciled with the dual-authority model"
+    scs:
+      - SC-8a
+      - SC-9a
+      - SC-10a
+  no_change:
+    - "No code changes, no runtime state transitions, no database/API surface changes"
+    - "No files deleted; removed content is relocated, not discarded (REQ-8 semantic preservation)"

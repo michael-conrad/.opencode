@@ -1,0 +1,48 @@
+spec_path: .opencode/.issues/2135/spec.md
+spec_body_source: .opencode/.issues/2135/remote.md
+approval_status: "open — labels: [spec]; no approved-for-* label present"
+sc_count: 17
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
+  - SC-8a
+  - SC-8b
+  - SC-9a
+  - SC-9b
+  - SC-10a
+  - SC-10b
+  - SC-11a
+  - SC-11b
+  - SC-11c
+  - SC-12
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: .opencode/guidelines/130-authority-source.md
+    status: EXISTS
+    role: Rewrite target — dual-authority principle (SC-1), 6 new rules (SC-2..SC-7), removed sections (SC-8a, SC-9a, SC-10a), compaction prohibition (SC-12)
+  - file: .opencode/skills/spec-creation/SKILL.md
+    status: EXISTS
+    role: Receives Superseding Issues + Overlap Detection Checklist (SC-8b, SC-11a) and Plan Audit Code Deep Dive (SC-10b, SC-11c)
+  - file: .opencode/guidelines/065-verification-honesty.md
+    status: EXISTS
+    role: Receives Verification First content (SC-9b, SC-11b)
+scope_all_files_exist: true
+backfill_notes:
+  - Artifacts directory did not exist — all 7 artifacts backfilled from spec body (mode: retroactive)
+  - 17 SC entries (SC-1..SC-12 with letter-suffixed variants 8a-11c); evidence types per spec table: SC-1 string, SC-2..SC-12 semantic
+  - 5 phases per spec Implementation Plan: P1 principle (SC-1), P2 rules (SC-2..SC-7), P3 removal+relocation (SC-8a..SC-10b), P4 compaction verification (SC-12), P5 semantic audit (SC-11a/b/c + SC-12)
+  - SC-12 spans Phase 4 and Phase 5 (traceability table); relocation SCs are absence/presence pairs across source and target files
+  - Affected files verified EXISTS in the .opencode submodule checkout
+  - Current 130-authority-source.md confirmed: 8 rules, Rule 2 = Superseding Issues, Rule 6 = Verification First, Rule 8 = Plan Audit Code Deep Dive — matches spec Remove section
