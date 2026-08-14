@@ -385,12 +385,11 @@ body: "---\nremote_issue: 2135\nremote_url: https://github.com/michael-conrad/.o
   \ RED/GREEN/verify/commit cycles (SEC-5); (5) '## Cost Frame' section per cost-model-standards\
   \ dark-prose-007 — DDL computation frame, correctness-only identity anchor, action\
   \ cost + consequence and skipping cost + consequence for all 17 SCs (SC-13). Also\
-  \ removed the embedded 'Cost: one sub-agent dispatch + ...' annotations from the\
-  \ Verification Method column — the prohibited tool-call/roundtrip framing per cost-model-standards;\
-  \ the verification method procedures themselves are unchanged. No SC definitions,\
-  \ requirements semantics, phases, or success criteria content altered. Authorized\
-  \ by spec-audit revision pipeline (issue 2135).\n\n---\n\n\U0001F916 Co-authored\
-  \ with AI: OpenCode (deepseek-v4-flash)\n\U0001F916 Co-authored with AI: OpenCode\
-  \ (deepseek-v4-flash-free)\n"
+  \ removed the embedded per-SC cost annotations from the Verification Method column\
+  \ — the prohibited tool-call/roundtrip cost framing per cost-model-standards; the\
+  \ verification method procedures themselves are unchanged. No SC definitions, requirements\
+  \ semantics, phases, or success criteria content altered. Authorized by spec-audit\
+  \ revision pipeline (issue 2135).\n\n---\n\n\U0001F916 Co-authored with AI: OpenCode\
+  \ (deepseek-v4-flash)\n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash-free)\n"
 created_at: '2026-07-25T04:33:36+00:00'
-updated_at: '2026-08-14T03:09:46+00:00'
+updated_at: '2026-08-14T03:10:32+00:00'
