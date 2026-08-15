@@ -1,0 +1,34 @@
+issue: 2135
+artifact: solve-output
+mode: retroactive
+solve_status: DONE
+model_query: "z3.And(phase_1, phase_2, phase_3, phase_4, phase_5)"
+model_result: SAT
+model_assignment:
+  phase_1: true
+  phase_2: true
+  phase_3: true
+  phase_4: true
+  phase_5: true
+check_status: SAT
+check_state_path: .opencode/.issues/2135/artifacts/solver-state.yaml
+check_result: "SAT (+ postconditions + invariants) — phase_1=True, phase_2=True, phase_3=True, phase_4=True, phase_5=True"
+plan_status: SOLVED_SATISFICING
+plan_engine: tamer
+plan_problem: .opencode/.issues/2135/artifacts/problem.yaml
+plan_length: 5
+plan_steps:
+  - complete_phase_1()
+  - complete_phase_2()
+  - complete_phase_3()
+  - complete_phase_4()
+  - complete_phase_5()
+pddl_status: CONVERTED
+pddl_output: .opencode/.issues/2135/artifacts/pddl
+planner_result: "SOLVED_SATISFICING — 5-step sequential plan complete_phase_1 -> complete_phase_2 -> complete_phase_3 -> complete_phase_4 -> complete_phase_5"
+notes:
+  - "Task-card procedure commands in writing-plans/tasks/research.md steps 10-12 use CLI forms that do not match current solve/plan tool signatures. Resolved using actual tool interfaces."
+  - "solve model: --contract-path + --query (not --query sat). solve check: --state-path + --contract-path (requires a solver-format state file, not the analysis artifact). plan plan: --problem <problem.yaml> (not --contract-path/--output)."
+  - "A solver state file was initialized via 'solve state init' + 'solve state update' with all five phase variables set to True, then 'solve check' returned SAT."
+  - "A unified-planning problem.yaml was derived from the dependency-contract (5 fluents, 5 actions with dependency preconditions, goal = all phases complete). 'plan plan' returned SOLVED_SATISFICING with a 5-step sequential plan. PDDL conversion via 'plan pddl --direction to-pddl --input <problem.yaml>' also succeeded."
+  - "Planning step IS applicable: the sequential dependency (phase_1 -> phase_2 -> phase_3 -> phase_4 -> phase_5) is a real planning search problem, and the planner confirmed a valid 5-step plan."

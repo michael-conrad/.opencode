@@ -1,0 +1,38 @@
+domain: authority-source-rewrite
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+  - name: phase_4
+  - name: phase_5
+actions:
+  - name: complete_phase_1
+    effects:
+      - phase_1
+  - name: complete_phase_2
+    preconditions:
+      - phase_1
+    effects:
+      - phase_2
+  - name: complete_phase_3
+    preconditions:
+      - phase_2
+    effects:
+      - phase_3
+  - name: complete_phase_4
+    preconditions:
+      - phase_3
+    effects:
+      - phase_4
+  - name: complete_phase_5
+    preconditions:
+      - phase_4
+    effects:
+      - phase_5
+init: []
+goals:
+  - phase_1
+  - phase_2
+  - phase_3
+  - phase_4
+  - phase_5

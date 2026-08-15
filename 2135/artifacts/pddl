@@ -1,0 +1,43 @@
+(define (domain authority-source-rewrite-domain)
+ (:requirements :strips)
+ (:predicates 
+             (phase_1)
+             (phase_2)
+             (phase_3)
+             (phase_4)
+             (phase_5)
+ )
+ (:action complete_phase_1
+  :parameters ()
+  :effect (and (phase_1)))
+ (:action complete_phase_2
+  :parameters ()
+  :precondition (and (phase_1))
+  :effect (and (phase_2)))
+ (:action complete_phase_3
+  :parameters ()
+  :precondition (and (phase_2))
+  :effect (and (phase_3)))
+ (:action complete_phase_4
+  :parameters ()
+  :precondition (and (phase_3))
+  :effect (and (phase_4)))
+ (:action complete_phase_5
+  :parameters ()
+  :precondition (and (phase_4))
+  :effect (and (phase_5)))
+)
+
+(define (problem authority-source-rewrite-problem)
+ (:domain authority-source-rewrite-domain)
+ (:init
+ )
+ (:goal (and 
+           (phase_1)
+           (phase_2)
+           (phase_3)
+           (phase_4)
+           (phase_5)
+        )
+ )
+)
