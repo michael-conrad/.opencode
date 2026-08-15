@@ -1,0 +1,35 @@
+# Problem — Issue 2134: Rewrite 117-session-trigger-behavior.md
+# Models the phase dependency DAG from dependency-contract.yaml
+domain: issue-2134-phase-dag
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+  - name: phase_4
+actions:
+  - name: do-phase-1
+    effects:
+      - phase_1
+  - name: do-phase-2
+    preconditions:
+      - phase_1
+    effects:
+      - phase_2
+  - name: do-phase-3
+    preconditions:
+      - phase_2
+    effects:
+      - phase_3
+  - name: do-phase-4
+    preconditions:
+      - phase_1
+      - phase_2
+      - phase_3
+    effects:
+      - phase_4
+init: []
+goals:
+  - phase_1
+  - phase_2
+  - phase_3
+  - phase_4

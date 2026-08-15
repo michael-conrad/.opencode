@@ -1,0 +1,32 @@
+# Solve Output — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  model:
+    status: SAT
+    query: "z3.BoolVal(True)"
+    model:
+      phase_1: false
+      phase_2: false
+      phase_3: false
+      phase_4: false
+  check:
+    status: SAT
+    state_path: .opencode/.issues/2134/artifacts/state-analysis.yaml
+    model:
+      phase_1: false
+      phase_2: false
+      phase_3: false
+      phase_4: false
+    postconditions_invariants: SAT
+planner:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 4
+  plan:
+    - do-phase-1
+    - do-phase-2
+    - do-phase-3
+    - do-phase-4
+  output_path: .opencode/.issues/2134/artifacts/plan-output.yaml

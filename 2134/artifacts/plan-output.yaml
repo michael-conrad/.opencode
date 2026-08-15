@@ -1,0 +1,13 @@
+actions:
+- name: do-phase-1
+  parameters: []
+- name: do-phase-2
+  parameters: []
+- name: do-phase-3
+  parameters: []
+- name: do-phase-4
+  parameters: []
+domain: issue-2134-phase-dag
+engine: tamer
+plan_length: 4
+status: SOLVED_SATISFICING
