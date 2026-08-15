@@ -85,3 +85,11 @@ Verification is session-scoped: a fact verified once in the current session MAY 
 - Follow the Pre-Response Factual Claim Gate procedure before making any factual claim
 - Treat verification as mandatory work, not optional confirmation
 
+## Verification First
+
+Before using a filename or symbol from a plan or document in a tool call, command, or code edit, verify its existence using the appropriate tool (`ls`, `search_project`, etc.). If it does not exist, trigger the Drift Protocol. This does not apply when merely discussing or quoting a filename from a document.
+
+---
+
+*Co-authored with AI: OpenCode (deepseek-v4-flash)*
+

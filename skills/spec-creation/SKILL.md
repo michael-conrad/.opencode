@@ -108,4 +108,50 @@ Removing or weakening a success criterion from a spec to evade implementation is
 
 Required behavior: If an SC is structurally valid and the agent cannot implement it, report BLOCKED with root cause and HALT. The agent must NOT modify the spec, remove the SC, add a new change to "fix" the SC by changing what it tests, or create a dependent spec to offload the SC. The remediation-first protocol applies: attempt to implement before concluding impossibility.
 
+## Superseding Issues and Overlap Detection
+
+Before implementing OR revising any spec, check for superseding issues and staleness:
+
+**Superseding Issues**: Later GitHub Issues that may supersede, invalidate, or contradict the active spec. Implementation of a superseded spec is wasted work.
+
+- Query all open `[SPEC]` issues and check for conflicting/overlapping objectives
+- Look for `[SPEC-FIX]` or `[SPEC-ENHANCEMENT]` issues that may render the active spec obsolete
+- If a later issue exists, SILENTLY HALT and report the conflict — do NOT proceed with superseded spec
+
+**Staleness from Implemented Specs**: Other specs that were implemented while this spec was pending, making the active spec stale or partially obsolete.
+
+- Check for merged PRs that implemented related functionality
+- Check if referenced code locations have been modified since spec creation
+- Check if referenced dependencies/libraries have changed
+- Check if the problem statement still applies (may have been fixed by another implementation)
+- If staleness detected, REVISE the spec before implementation:
+  1. Update problem statement if context changed
+  2. Update affected files/lines if code locations changed
+  3. Update success criteria if requirements shifted
+  4. Update dependencies if integration points changed
+  5. Report the revision and HALT — wait for approval before proceeding
+- NEVER implement a stale spec as-is — always revise first
+
+**Overlap Detection Checklist (MANDATORY when checking for superseding issues):**
+
+Title/objective comparison alone is insufficient. Before classifying overlap, perform the following checklist:
+
+- [ ] **File-level search:** Extract all file paths mentioned in the active spec's affected-files or file_references sections. For each open `[SPEC]`/`[SPEC-FIX]` issue, and for each local `.issues/{N}/plan.md` file, compare file paths. Shared files → potential overlap.
+- [ ] **Symbol-level search:** Extract all function, class, and module names referenced in the active spec body. For each overlapping open issue, compare symbol names. Shared symbols → potential overlap.
+- [ ] **Concern boundary comparison:** Extract the concern area each phase addresses (what problem each phase solves). For each overlapping open issue, compare concern boundaries. Shared concerns → potential overlap.
+- [ ] **Four-tier classification:** Based on file, symbol, and concern overlap, classify using:
+  - **FULL-SUPERSESSION:** Another spec's scope entirely covers this spec's scope → HALT, report full scope overlap, recommend using existing spec
+  - **PARTIAL-OVERLAP:** Specs share files/symbols but have different core concerns → Surface to developer, suggest scoping to avoid overlap
+  - **CONFLICT-RISK:** Same files modified with conflicting intent → HALT, suggest coordination
+  - **INDEPENDENT:** No meaningful overlap → Proceed normally
+- [ ] **Evidence artifacts:** For each overlap classification, record: `{Check: overlap search, Tool: github_list_issues + srclight_get_dependents, Result: shared files/symbols/concerns, Classification: FULL-SUPERSESSION|PARTIAL-OVERLAP|CONFLICT-RISK|INDEPENDENT, Action: HALT|surface|surface|proceed}`
+
+## Plan Audit Code Deep Dive
+
+When auditing or updating any plan, strictly follow the mandatory code deep dive and verification requirements defined in `docs/specs/how-to-write-good-spec-ai-agents.md`. Ground every plan audit finding in the actual filesystem and source code, not in remembered or stored state.
+
+---
+
+*Co-authored with AI: OpenCode (deepseek-v4-flash)*
+
 
