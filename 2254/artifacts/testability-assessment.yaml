@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2254/spec.md
+scs:
+  - id: SC-25
+    evidence_type: string
+    verification_method: "grep all task cards in spec-creation and audit for numbered-checkbox procedure steps; assert no plain numbered lists remain in Procedure sections"
+    testable: true
+    test_type: grep
+  - id: SC-32
+    evidence_type: behavioral
+    verification_method: "opencode run (with-test-home): dispatch the remediated spec-creation pipeline (analyze → create → validate) end-to-end against the test gitbucket instance and assert correct output (valid spec, no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings)"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-33
+    evidence_type: behavioral
+    verification_method: "opencode run (with-test-home): dispatch the remediated audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) end-to-end against a fixture spec and assert a valid verdict with each role dispatching to the correct split task card with a complete dispatch contract"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-34
+    evidence_type: string
+    verification_method: "verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance, sequenced incrementally"
+    testable: true
+    test_type: test_setup_inspection
+platform_testing_notes:
+  - "SC-32 and SC-33 are behavioral and MUST run via opencode run with the with-test-home wrapper per AGENTS.md — never direct opencode run"
+  - "SC-32 and SC-33 require the test gitbucket instance provisioned by BEHAVIOR_NEEDS_REMOTE / __ensure_gitbucket in behaviors/helpers.sh"
+  - "SC-34 is a string/structural test (setup inspection) — the evidence type was corrected from behavioral to string per the change-control entry"
+  - "SC-25 is a string grep test over spec-creation and audit task cards"
+  - "If SC-32/SC-33 cannot execute (model unavailable, gitbucket provisioning failure), report FAIL per the functional/behavioral test substitution prohibition"

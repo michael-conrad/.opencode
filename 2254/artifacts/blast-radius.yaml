@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2254/spec.md
+phase_21_create_md_procedure_format:
+  affected_files:
+    - skills/spec-creation/tasks/create.md
+    - skills/audit/tasks/*.md
+  description: "Convert plain numbered lists in create.md Procedure sub-steps (Step 3, Step 3.1, Step 3.2, Step 6, Step 7) to numbered-checkbox lists per task-card-structure-standards.md. Also verifies all spec-creation and audit task-card Procedures conform."
+  risk: low
+  rollback: "Revert create.md Procedure sub-step formatting"
+phase_27_functional_spec_creation_pipeline:
+  affected_files:
+    - skills/spec-creation/SKILL.md
+    - skills/spec-creation/tasks/*.md
+    - tests-v2/behaviors/2254-sc32-functional-spec-creation-pipeline.sh
+    - tests-v2/with-test-home
+    - tests-v2/behaviors/helpers.sh
+  description: "Run the remediated spec-creation pipeline (analyze → create → validate) end-to-end against a fixture problem in the shared test home with the test gitbucket instance; assert valid spec with no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings."
+  risk: medium
+  rollback: "Behavioral test only — no production code change; revert test script/fixtures"
+phase_28_functional_audit_dimo_chain:
+  affected_files:
+    - skills/audit/SKILL.md
+    - skills/audit/tasks/*.md
+    - tests-v2/behaviors/2254-sc33-audit-dimo-chain.sh
+    - tests-v2/with-test-home
+    - tests-v2/behaviors/helpers.sh
+  description: "Run the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) end-to-end against a fixture spec in the shared test home; assert valid verdict with each role dispatching to the correct split task card with a complete dispatch contract."
+  risk: medium
+  rollback: "Behavioral test only — no production code change; revert test script/fixtures"
+phase_29_shared_test_home:
+  affected_files:
+    - tests-v2/behaviors/2254-sc34-shared-test-home.sh
+    - tests-v2/behaviors/helpers.sh
+    - tests-v2/with-test-home
+  description: "Verify the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced incrementally (SC-32 spec becomes the SC-33 fixture)."
+  risk: low
+  rollback: "Test setup inspection only — no production code change"
+cross_repo_impact:
+  - repo: michael-conrad/.opencode
+    impact: "All affected files are in the .opencode submodule (skills/, reference/, tools/impl/skildeck/, tests-v2/). No root repo files affected."
+    affected_files: []

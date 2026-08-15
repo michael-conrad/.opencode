@@ -1,0 +1,43 @@
+spec_path: .opencode/.issues/2254/spec.md
+interfaces:
+  - name: task_card_procedure_format
+    description: "Canonical numbered-checkbox Procedure format defined by task-card-structure-standards.md"
+    operations:
+      - "Procedure sections use `- [ ] N.` numbered-checkbox lists"
+      - "No plain numbered lists in Procedure sections"
+    consumers:
+      - skills/spec-creation/tasks/create.md
+      - skills/spec-creation/tasks/*.md
+      - skills/audit/tasks/*.md
+    compatibility: "skildeck-lint enforces rules R1-R5 including numbered-checkbox workflow and markdown-link correctness"
+  - name: with_test_home_infrastructure
+    description: "Shared test home wrapper that isolates opencode XDG state and provisions the test gitbucket instance"
+    operations:
+      - "bash .opencode/tests-v2/with-test-home opencode run '<message>'"
+      - "BEHAVIOR_NEEDS_REMOTE / __ensure_gitbucket provisioning"
+    consumers:
+      - tests-v2/behaviors/2254-sc32-functional-spec-creation-pipeline.sh
+      - tests-v2/behaviors/2254-sc33-audit-dimo-chain.sh
+      - tests-v2/behaviors/2254-sc34-shared-test-home.sh
+    compatibility: "with-test-home must be run from within the repo; standalone binary copied to $TEST_HOME/bin/opencode; PATH prefixed"
+  - name: spec_creation_dispatch_contract
+    description: "Dispatch strings and task-card routing in spec-creation SKILL.md/task cards consumed by the pipeline"
+    operations:
+      - "analyze → create → validate dispatch sequence"
+      - "Canonical dispatch strings from the implementation-workflow reference card"
+    consumers:
+      - skills/spec-creation/SKILL.md
+      - skills/spec-creation/tasks/*.md
+    compatibility: "No deprecated dispatch strings; no missing task cards; no broken cross-references"
+  - name: audit_dimo_role_chain
+    description: "Audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) with split task cards and dispatch contracts"
+    operations:
+      - "Each role dispatches to its correct split task card"
+      - "Each dispatch carries a complete dispatch contract"
+    consumers:
+      - skills/audit/SKILL.md
+      - skills/audit/tasks/*.md
+    compatibility: "No role mis-routing; no missing task cards; complete dispatch contracts"
+boundary_notes:
+  - scope_boundary: "All affected files are in the .opencode submodule. No application src/ runtime code changes (R-15)."
+  - behavioral_vs_string: "SC-32 and SC-33 are behavioral (opencode run with-test-home); SC-25 and SC-34 are string (grep / test setup inspection)."

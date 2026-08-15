@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2254/spec.md
+code_paths:
+  phase_21_create_md_procedure_format:
+    - path: "skills/spec-creation/tasks/create.md → Procedure Step 3, Step 3.1, Step 3.2, Step 6, Step 7"
+      sc: SC-25
+      description: "Convert plain numbered lists in create.md Procedure sub-steps to numbered-checkbox lists (`- [ ] N.`)"
+    - path: "grep all task cards in spec-creation and audit for numbered-checkbox procedure steps"
+      sc: SC-25
+      description: "Assert no plain numbered lists remain in Procedure sections (verification)"
+  phase_27_functional_spec_creation_pipeline:
+    - path: "tests-v2/behaviors/2254-sc32-functional-spec-creation-pipeline.sh"
+      sc: SC-32
+      description: "Behavioral test: dispatch the remediated spec-creation pipeline (analyze → create → validate) end-to-end against a fixture problem in the shared test home with the test gitbucket instance"
+    - path: "skills/spec-creation/SKILL.md + skills/spec-creation/tasks/*.md"
+      sc: SC-32
+      description: "The remediated pipeline that must dispatch correctly (no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings)"
+    - path: "tests-v2/with-test-home + tests-v2/behaviors/helpers.sh"
+      sc: SC-32
+      description: "Shared test home infrastructure and gitbucket provisioning used by the behavioral test"
+  phase_28_functional_audit_dimo_chain:
+    - path: "tests-v2/behaviors/2254-sc33-audit-dimo-chain.sh"
+      sc: SC-33
+      description: "Behavioral test: dispatch the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) end-to-end against a fixture spec in the shared test home"
+    - path: "skills/audit/SKILL.md + skills/audit/tasks/*.md"
+      sc: SC-33
+      description: "The remediated audit chain that must dispatch each role to the correct split task card with a complete dispatch contract"
+    - path: "tests-v2/with-test-home + tests-v2/behaviors/helpers.sh"
+      sc: SC-33
+      description: "Shared test home infrastructure and gitbucket provisioning used by the behavioral test"
+  phase_29_shared_test_home:
+    - path: "tests-v2/behaviors/2254-sc34-shared-test-home.sh"
+      sc: SC-34
+      description: "Verify the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced incrementally"
+    - path: "tests-v2/with-test-home + tests-v2/behaviors/helpers.sh"
+      sc: SC-34
+      description: "Shared with-test-home infrastructure with the gitbucket instance (BEHAVIOR_NEEDS_REMOTE / __ensure_gitbucket)"

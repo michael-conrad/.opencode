@@ -1,0 +1,43 @@
+spec_path: .opencode/.issues/2254/spec.md
+concerns:
+  - id: create_md_procedure_format
+    name: create.md Procedure Format Conformance
+    description: Convert plain numbered lists in create.md Procedure sub-steps to numbered-checkbox lists per the canonical task-card format
+    phase: 21
+    scs:
+      - SC-25
+  - id: functional_spec_creation_pipeline
+    name: Functional Spec-Creation Pipeline
+    description: Prove the remediated spec-creation pipeline works end-to-end when dispatched
+    phase: 27
+    scs:
+      - SC-32
+  - id: functional_audit_dimo_chain
+    name: Functional Audit DiMo Chain
+    description: Prove the remediated audit 4-role chain works end-to-end when dispatched
+    phase: 28
+    scs:
+      - SC-33
+  - id: shared_test_home
+    name: Shared Test Home with GitBucket
+    description: Ensure spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced incrementally
+    phase: 29
+    scs:
+      - SC-34
+phase_boundaries:
+  phase_21:
+    entry: spec approved; create.md Procedure sub-steps use plain numbered lists
+    exit: all task-card Procedures in spec-creation and audit use numbered-checkbox lists; no plain numbered lists remain in Procedure sections
+    scs: [SC-25]
+  phase_27:
+    entry: phase 21 complete (create.md format conformant)
+    exit: spec-creation pipeline dispatches end-to-end against the test gitbucket instance producing a valid spec with no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings
+    scs: [SC-32]
+  phase_28:
+    entry: phase 27 complete (spec-creation pipeline verified)
+    exit: audit DiMo 4-role chain dispatches end-to-end producing a valid verdict with each role dispatching to the correct split task card with a complete dispatch contract
+    scs: [SC-33]
+  phase_29:
+    entry: phases 27 and 28 complete (both behavioral tests exist and pass)
+    exit: spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced incrementally
+    scs: [SC-34]

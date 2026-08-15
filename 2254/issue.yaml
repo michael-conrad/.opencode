@@ -1,9 +1,8 @@
 labels:
 - approved-for-pr
-- spec-cleared
 github_url: https://github.com/michael-conrad/.opencode/issues/2254
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
-updated_at: '2026-08-15T16:46:53+00:00'
+updated_at: '2026-08-15T20:46:05+00:00'
 body: '> **Full spec and artifacts: [`2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2254)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.

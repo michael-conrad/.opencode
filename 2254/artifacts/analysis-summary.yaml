@@ -1,0 +1,68 @@
+spec_path: .opencode/.issues/2254/spec.md
+approval_status: approved
+sc_count: 4
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: skills/spec-creation/tasks/create.md
+    status: EXISTS
+    role: SC-25 — convert Procedure sub-steps (Step 3, 3.1, 3.2, 6, 7) to numbered-checkbox
+  - file: skills/spec-creation/SKILL.md
+    status: EXISTS
+    role: SC-32 — remediated spec-creation pipeline dispatch
+  - file: skills/spec-creation/tasks/*.md
+    status: EXISTS
+    role: SC-25 (Procedure format) + SC-32 (pipeline dispatch)
+  - file: skills/audit/SKILL.md
+    status: EXISTS
+    role: SC-33 — remediated audit DiMo chain dispatch
+  - file: skills/audit/tasks/*.md
+    status: EXISTS
+    role: SC-25 (Procedure format) + SC-33 (role dispatch)
+  - file: reference/task-card-structure-standards.md
+    status: EXISTS
+    role: Defines the numbered-checkbox Procedure format SC-25 conforms to
+  - file: reference/skill-card-description-standards.md
+    status: EXISTS
+    role: Reference standard (already satisfied on disk)
+  - file: reference/spec-structure-standards.md
+    status: EXISTS
+    role: Reference standard (already satisfied on disk)
+  - file: reference/holistic-dimensions.yaml
+    status: EXISTS
+    role: Reference standard (already satisfied on disk)
+  - file: skills/issue-operations-core/tasks/creation.md
+    status: EXISTS
+    role: Reference (already satisfied on disk — issues-data URL template)
+  - file: tools/impl/skildeck/
+    status: EXISTS
+    role: skildeck linter enforcing format rules R1-R5 (SC-25 conformance)
+  - file: tests-v2/with-test-home
+    status: EXISTS
+    role: Shared test home infrastructure (SC-32, SC-33, SC-34)
+  - file: tests-v2/behaviors/helpers.sh
+    status: EXISTS
+    role: gitbucket provisioning (BEHAVIOR_NEEDS_REMOTE / __ensure_gitbucket) (SC-32, SC-33, SC-34)
+  - file: tests-v2/behaviors/2254-sc32-functional-spec-creation-pipeline.sh
+    status: EXISTS
+    role: SC-32 behavioral test script
+  - file: tests-v2/behaviors/2254-sc33-audit-dimo-chain.sh
+    status: EXISTS
+    role: SC-33 behavioral test script
+  - file: tests-v2/behaviors/2254-sc34-shared-test-home.sh
+    status: EXISTS
+    role: SC-34 test setup inspection script
+backfill_notes:
+  - All 7 analytical artifacts were missing and have been backfilled from the spec body
+  - Active SC set is 4 SCs (SC-25, SC-32, SC-33, SC-34); the drift-repair and format SCs (SC-1..SC-18, SC-23, SC-24, SC-26..SC-31, SC-35..SC-37) are already satisfied on disk and removed from the active set
+  - Phase mapping: SC-25 → Phase 21, SC-32 → Phase 27, SC-33 → Phase 28, SC-34 → Phase 29 (per the 29-phase plan)
+  - Evidence types: SC-25 string, SC-32 behavioral, SC-33 behavioral, SC-34 string
+  - Behavioral tests (SC-32, SC-33) require with-test-home wrapper + test gitbucket instance
+  - Cross-cutting concerns: numbered-checkbox procedure consistency, shared test home infrastructure, behavioral test sequencing, no deprecated dispatch strings, no application src/ changes
+  - All affected files verified to exist on disk

@@ -1,0 +1,48 @@
+spec_path: .opencode/.issues/2254/spec.md
+cross_cutting_concerns:
+  - concern: numbered_checkbox_procedure_consistency
+    description: "SC-25 requires every task-card Procedure in spec-creation AND audit to use numbered-checkbox lists. The format must be consistent across both skill sets and conform to task-card-structure-standards.md."
+    affected_scs:
+      - SC-25
+    affected_phases:
+      - 21
+  - concern: shared_test_home_infrastructure
+    description: "SC-32, SC-33, and SC-34 all depend on the shared with-test-home infrastructure and the test gitbucket instance. SC-34 guarantees the shared home so SC-32 and SC-33 can build incrementally (SC-32's spec becomes SC-33's fixture)."
+    affected_scs:
+      - SC-32
+      - SC-33
+      - SC-34
+    affected_phases:
+      - 27
+      - 28
+      - 29
+  - concern: behavioral_test_sequencing
+    description: "SC-32 (spec-creation pipeline) must complete before SC-33 (audit DiMo chain) so the spec created by SC-32 becomes the fixture audited by SC-33. SC-34 guarantees this incremental sequencing via the shared test home."
+    affected_scs:
+      - SC-32
+      - SC-33
+      - SC-34
+    affected_phases:
+      - 27
+      - 28
+      - 29
+  - concern: no_deprecated_dispatch_strings
+    description: "SC-32 and SC-33 both assert no deprecated dispatch strings and no mis-routing. The dispatch strings in spec-creation and audit SKILL.md/task cards must be consistent with the implementation-workflow reference card."
+    affected_scs:
+      - SC-32
+      - SC-33
+    affected_phases:
+      - 27
+      - 28
+  - concern: no_application_src_changes
+    description: "R-15 confines all changes to agent-facing skill/reference markdown and the skildeck linter under .opencode/tools/impl/skildeck/. No application src/ runtime code changes. Applies to all SCs."
+    affected_scs:
+      - SC-25
+      - SC-32
+      - SC-33
+      - SC-34
+    affected_phases:
+      - 21
+      - 27
+      - 28
+      - 29

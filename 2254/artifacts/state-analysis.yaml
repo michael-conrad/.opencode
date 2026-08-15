@@ -1,0 +1,49 @@
+spec_path: .opencode/.issues/2254/spec.md
+state_machine:
+  name: spec_skills_remediation_verification
+  states:
+    - name: create_md_nonconformant
+      description: "create.md Procedure sub-steps use plain numbered lists (Step 3, Step 3.1, Step 3.2, Step 6, Step 7)"
+      entry_action: "none — initial state"
+      applied_by:
+        - skills/spec-creation/tasks/create.md (current on-disk state)
+    - name: create_md_conformant
+      description: "create.md Procedure sub-steps use numbered-checkbox lists per task-card-structure-standards.md"
+      entry_action: "convert plain numbered lists to numbered-checkbox lists (SC-25)"
+      applied_by:
+        - skills/spec-creation/tasks/create.md (after SC-25 remediation)
+    - name: spec_creation_pipeline_verified
+      description: "spec-creation pipeline dispatches end-to-end producing a valid spec"
+      entry_action: "run 2254-sc32-functional-spec-creation-pipeline.sh behavioral test (SC-32)"
+      applied_by:
+        - tests-v2/behaviors/2254-sc32-functional-spec-creation-pipeline.sh
+    - name: audit_dimo_chain_verified
+      description: "audit DiMo 4-role chain dispatches end-to-end producing a valid verdict"
+      entry_action: "run 2254-sc33-audit-dimo-chain.sh behavioral test (SC-33)"
+      applied_by:
+        - tests-v2/behaviors/2254-sc33-audit-dimo-chain.sh
+    - name: shared_test_home_verified
+      description: "spec-creation and audit behavioral tests share a common test home with test project + gitbucket instance"
+      entry_action: "verify test setup uses shared with-test-home infrastructure (SC-34)"
+      applied_by:
+        - tests-v2/behaviors/2254-sc34-shared-test-home.sh
+  transitions:
+    - from: create_md_nonconformant
+      to: create_md_conformant
+      trigger: SC-25 remediation (convert Procedure sub-steps to numbered-checkbox)
+      action: "edit create.md Procedure sub-steps"
+    - from: create_md_conformant
+      to: spec_creation_pipeline_verified
+      trigger: SC-32 behavioral test
+      action: "run spec-creation pipeline end-to-end against fixture in shared test home"
+    - from: spec_creation_pipeline_verified
+      to: audit_dimo_chain_verified
+      trigger: SC-33 behavioral test
+      action: "run audit DiMo 4-role chain end-to-end against fixture spec"
+    - from: [spec_creation_pipeline_verified, audit_dimo_chain_verified]
+      to: shared_test_home_verified
+      trigger: SC-34 test setup inspection
+      action: "verify shared with-test-home infrastructure + gitbucket instance, incremental sequencing"
+  forbidden_states:
+    - description: "No application src/ runtime code changes (R-15)"
+    - description: "No bifurcated/backwards-compat paths in agent-facing instructions (R-17)"
