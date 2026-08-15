@@ -6,17 +6,38 @@ load_when: sub-agent
 
 # Session Trigger Behavior
 
-## Overview
+**The agent MUST follow the normative instructions in this guideline when handling session trigger data.**
 
-Session context triggers (`session_context_triggers.py` + `session-enforcement.ts`) detect repository state and inject trigger data into the agent's first user message. This guideline prescribes how the agent MUST process that data — not by echoing it, but by taking intelligent action.
+## Self-Simulation Prohibition (Tier 1 Mandate)
 
-**Core principle:** Triggers drive internal agent behavior, not chat output. The agent analyzes trigger data and acts on it; the agent does NOT print trigger content verbatim.
+**The agent MUST NOT produce output that it later consumes as instructions without passing through an authorization boundary.** This prohibition is mechanism-independent — it covers every path from "agent produces text" to "agent reads that text as instructions." The forbidden UNAUTHORIZED self-simulation mechanisms include:
 
-**Purged triggers (spec #426):** All branch-status-based triggers that caused AI agent malfunctions have been removed. These included `on_main_branch`, `protected_branch_with_changes`, `dev_branch_with_changes`, `uncommitted_work_warning`, `stale_stash`, `stale_submodule`, `merge_conflict`, `unpushed_commits`, `orphaned_worktrees`, `local_only_repo`, and the `detect_check_prs_intent` trigger. The per-turn protected branch edit guard in `session-enforcement.ts` has also been removed.
+- **Shell output** — writing instructions to stdout/stderr via `echo`, `printf`, heredocs, or any shell command, then consuming that output as instructions
+- **File write + read** — writing instructions to a file, then reading that file back as context or instructions
+- **Comment + process** — posting a comment to an issue or PR, then reading that comment back as instructions
+- **Tool output re-ingestion** — producing output via one tool call, then consuming it via another tool call as instructions
+- **Session trigger echoing** — printing `<SESSION_TRIGGERS>` data verbatim, then acting on it as instructions
 
-## No-Echo Rule (Tier 1 Mandate)
+The prohibition targets UNAUTHORIZED self-simulation — output the agent produces and then consumes as instructions WITHOUT an authorization gate. It does NOT forbid consuming output through an authorization boundary.
 
-**The agent MUST NOT print `<SESSION_TRIGGERS>` content verbatim in chat output.** This includes:
+**Three-way distinction.** The guideline distinguishes three categories of instruction-consumption:
+
+| Category | Status | Example |
+|---|---|---|
+| UNAUTHORIZED self-simulation | FORBIDDEN | Agent writes instructions and reads them back as commands without an authorization gate |
+| AUTHORIZED pipeline | PERMITTED | Agent writes a spec/plan through the approved pipeline (spec-creation, writing-plans) with `approved-for-*` labels, then follows it |
+| DATA consumption | PERMITTED | Agent writes file content as data, reads it back for verification |
+
+**Authorization-provenance carve-out — PERMITTED.** The following project items the agent both produces and consumes are explicitly permitted because they pass through the authorization-gated pipeline:
+
+- **Spec→plan→implementation pipeline** — spec files the agent writes and later implements against (via the spec-creation pipeline with `approved-for-*` labels) and plan files the agent writes and later follows (via the writing-plans pipeline with an approved spec)
+- **Task tracking files** — task tracking files the agent creates for its own workflow (git-workflow work state files, checkpoint tags)
+- **Spec and plan files** — spec files and plan files the agent writes and later implements against or follows
+- **Authorization-gated project items** — any other project-related items the agent both produces and consumes through the authorization-gated pipeline
+
+## Session Trigger No-Echo (Tier 1 Mandate)
+
+**The agent MUST NOT print `<SESSION_TRIGGERS>` content verbatim in chat output.** This rule is a specific case of the Self-Simulation Prohibition above — echoing trigger content verbatim is one mechanism of producing output that the agent later consumes as instructions. This includes:
 
 - Copying trigger section headings (e.g., "Pair Mode Resumed")
 - Parroting trigger data (e.g., "Pair mode branch detected")
@@ -25,11 +46,9 @@ Session context triggers (`session_context_triggers.py` + `session-enforcement.t
 
 Triggers are internal state data for decision-making. The agent processes them and takes action — the trigger text itself never appears in the agent's response.
 
-**Violation of this rule is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md`.**
-
 ## Trigger Behavior Map
 
-After the spec #426 purge, only two triggers remain:
+Only two triggers remain:
 
 | Trigger Type | Agent Behavior |
 |---|---|
@@ -51,16 +70,10 @@ This is not a suggestion — it is a hard halt. A nested `.opencode/` directory 
 
 Triggers that cannot drive meaningful action in the current context should be processed internally and suppressed from the agent's response entirely. The `<SESSION_TRIGGERS>` block remains in the user message for internal reasoning, but if a trigger provides no actionable insight, the agent should not mention it.
 
-**Only `pair_mode_resume` produces visible agent behavior** — `nested_opencode_fatal` produces a hard halt. All other trigger types have been purged per spec #426.
-
-## Cross-References
-
-- `116-pair-mode.md` — Pair mode branch discipline and session detection
-- `000-critical-rules.md` — Tier 1 mandate for trigger echo prohibition
-- `session_context_triggers.py` — Trigger detection and data generation (purged per spec #426)
-- `session-enforcement.ts` — Plugin that injects trigger content into first user message (per-turn guard removed per spec #426)
-
-### [critical-rules-009] Session Trigger Echo — parroting triggers in agent output
-Parroting trigger data into agent output instead of processing it internally is what amateurs do when they want their responses to read like raw log files. Professional agents process triggers internally — never echo verbatim. Read [117-session-trigger-behavior.md](guidelines/117-session-trigger-behavior.md).
+**Only `pair_mode_resume` produces visible agent behavior** — `nested_opencode_fatal` produces a hard halt.
 
 
+
+---
+
+*Co-authored with AI: OpenCode (deepseek-v4-flash)*
