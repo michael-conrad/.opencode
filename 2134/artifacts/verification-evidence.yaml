@@ -1,0 +1,56 @@
+# Verification Evidence — Issue 2134: Rewrite 117-session-trigger-behavior.md
+issue: 2134
+target_file: .opencode/guidelines/117-session-trigger-behavior.md
+verification_date: 2026-08-15
+sc_evidence:
+  SC-1:
+    evidence_type: string
+    method: grep 'Self-Simulation'
+    result: PASS
+    location: line 11
+  SC-2:
+    evidence_type: semantic
+    method: V-SC-2 checklist (7 checks)
+    result: PASS
+    detail: 5 mechanisms (shell, file, comment, tool output, session trigger) at lines 15-19; authorization boundary at line 13; carve-out at lines 31-36
+  SC-3:
+    evidence_type: string
+    method: grep 'No-Echo'
+    result: PASS
+    location: line 38
+  SC-4:
+    evidence_type: string
+    method: grep 'pair_mode_resume' + 'nested_opencode_fatal'
+    result: PASS
+    location: lines 55, 56
+  SC-5:
+    evidence_type: string
+    method: grep 'Suppression Rule'
+    result: PASS
+    location: line 69
+  SC-6:
+    evidence_type: semantic
+    method: V-SC-6 checklist (4 checks)
+    result: PASS
+    detail: no purged-trigger list, no #426, no per-turn guard; every section has MUST/SHOULD
+  SC-7:
+    evidence_type: semantic
+    method: V-SC-7 checklist (3 checks)
+    result: PASS
+    detail: no session_context_triggers.py, no session-enforcement.ts, no non-preloaded refs
+  SC-8:
+    evidence_type: semantic
+    method: V-SC-8 checklist (1 check)
+    result: PASS
+    detail: standalone 000-critical-rules.md reference absent
+  SC-9:
+    evidence_type: semantic
+    method: V-SC-9 checklist (4 checks, original vs rewritten)
+    result: PASS
+    detail: no-echo (line 40), pair_mode_resume (line 55), nested_opencode_fatal (lines 56, 58-67), suppression (line 71) preserved
+  SC-10:
+    evidence_type: semantic
+    method: V-SC-10 checklist (4 checks)
+    result: PASS
+    detail: spec→plan→impl (line 33), task tracking (line 34), spec/plan files (line 35), auth-gated items (line 36)
+overall: PASS

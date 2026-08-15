@@ -3,8 +3,8 @@ labels:
 - spec-cleared
 github_url: https://github.com/michael-conrad/.opencode/issues/2254
 remote_url: https://github.com/michael-conrad/.opencode/issues/2254
-updated_at: '2026-08-15T14:51:56+00:00'
-body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2254)**
+updated_at: '2026-08-15T16:46:53+00:00'
+body: '> **Full spec and artifacts: [`2254/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2254)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
 
@@ -17,46 +17,29 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   ## Problem
 
 
-  A history-grounded read-only audit of the spec-writer (`spec-creation`) and spec-auditor
-  (`audit`) skill card sets and the consolidated reference standards (`.opencode/reference/`)
-  identified internal-consistency drifts between what each card declares (dispatch
-  format, structural sections, role naming, task references, evidence-type taxonomy
-  source, validation criteria) and the actual on-disk reality. A subsequent brainstorming
-  session expanded the scope to a total remediation of both skills plus the reference
-  standards, adding six new requirement areas: numbered-checkbox Workflows format
-  with execution-mode sub-bullets, numbered-checkbox task-card Procedure format with
-  fat-task-card splitting, dispatch-contract completeness, skildeck linter enforcement,
-  markdown link verification, and workflow clarity. These drifts and format gaps cause
-  agents to dispatch tasks with deprecated formats, resolve cross-references to non-existent
-  files, read the taxonomy from a redirect source, evaluate against a divergent dimension
-  set, and route to tasks whose cards do not exist — every spec created or audited
-  through the drifted cards inherits the defect.
+  This spec was originally scoped as a total remediation of the spec-writer (`spec-creation`)
+  and spec-auditor (`audit`) skill card sets plus the consolidated `.opencode/reference/`
+  standards, addressing internal-consistency drifts, format gaps, linter enforcement,
+  markdown-link correctness, and functional end-to-end verification. A spec-audit
+  FAIL (5 of 11 holistic dimensions: Implementability, Internal Consistency, Testability,
+  Provenance, Correctness) found that the spec''s stated current on-disk state contradicts
+  the actual state. Re-verification during this revision confirms and extends the
+  finding: **the drift-repair and format remediation described by the original SC
+  set (SC-1..SC-18, SC-23..SC-31, SC-35..SC-37) is already complete on disk.** The
+  defects those SCs claimed to fix do not exist — `audit/tasks/` has no subdirectories
+  and all role-card `name:` fields already match filenames, there are no monolithic
+  cross-references, the subdirectory tasks are already flat files, `behavioral-sc-evaluator.md`
+  does not exist, the skill cards and reference docs already use the numbered-checkbox
+  format with execution-mode sub-bullets, the skildeck linter already enforces the
+  format rules, and the issues-data URL template is already corrected.
 
 
-  A further revision adds mandatory functional end-to-end verification. The drift-repair
-  and format SCs prove the remediated cards are well-formed on disk, but they do not
-  prove the remediated skills actually work when dispatched. The goal is a working
-  set of spec skills. New behavioral SCs run the remediated spec-creation pipeline
-  and the audit DiMo 4-role chain end-to-end against a fixture in a shared test home
-  with a test gitbucket instance, asserting correct output — no mis-routing, no missing
-  task cards, no broken cross-references, no deprecated dispatch strings.
-
-
-  A further revision adds the dependency prerequisite: the two reference docs that
-  define these formats — skill-card-description-standards.md §7 (Workflows) and task-card-structure-standards.md
-  (Procedure) — still define the OLD plain numbered-list format, so they must be updated
-  to the new numbered-checkbox format (with the execution-mode indicator, the clean-room
-  unit mandate, and the dispatch-contract completeness requirement) BEFORE the skill
-  cards can conform and BEFORE the linter can enforce it.
-
-
-  A further revision adds root-cause prevention for the broken issues-data URL template.
-  The spec''s own blockquote URL was found broken (used `.issues/N/` prefix returning
-  404; correct is `N/` at the issues-data root, verified 200). The symptom was fixed
-  in this spec''s body, but the TEMPLATE that generates the bad URL still exists in
-  issue-operations-core/tasks/creation.md Step 5 and will recur in every future spec.
-  SC-37 fixes the root cause: the URL template and `{{SPEC_PATH}}` value are corrected
-  to drop the erroneous `.issues/` prefix, so the defect cannot regenerate.
+  The actual remaining remediation, re-grounded in the current on-disk state, is:
+  (1) a residual format-conformance gap in `spec-creation/tasks/create.md`, whose
+  Procedure sub-steps still use plain numbered lists instead of the canonical numbered-checkbox
+  format; and (2) functional end-to-end verification proving the remediated skills
+  actually work when dispatched — the drift-repair and format SCs prove the cards
+  are well-formed on disk, but not that they work when run.
 
 
   ## Scope
@@ -65,42 +48,31 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
   **In scope:**
 
 
-  - Repair all internal-consistency drifts in `spec-creation` and `audit` skill cards
-  and the consolidated `.opencode/reference/` standards
+  - Fix the residual format-conformance gap in `spec-creation/tasks/create.md` — convert
+  the plain numbered lists in its Procedure sub-steps (Step 3, Step 3.1, Step 3.2,
+  Step 6, Step 7) to the canonical numbered-checkbox format (SC-25)
 
-  - Convert both main skill card Workflows sections to numbered checkbox lists with
-  sub-bullets for prompt string, parameters/context, and execution-mode indicator
+  - Run the functional end-to-end spec-creation pipeline (analyze → create → validate)
+  against a fixture in the shared test home with a test gitbucket instance, asserting
+  correct output with no mis-routing, no missing task cards, no broken cross-references,
+  and no deprecated dispatch strings (SC-32)
 
-  - Convert task card Procedure sections to numbered checkbox lists; split fat task
-  cards whose procedures would require internal sub-agent dispatch
+  - Run the functional end-to-end audit DiMo 4-role chain (investigator → validator
+  → evaluator → arbiter) against a fixture spec in the shared test home, asserting
+  a valid verdict with each role dispatching to the correct split task card with a
+  complete dispatch contract (SC-33)
 
-  - Update the two reference docs that define these formats — skill-card-description-standards.md
-  §7 (Workflows) and task-card-structure-standards.md (Procedure) — to the numbered-checkbox
-  format with the execution-mode indicator, the clean-room unit mandate, and the dispatch-contract
-  completeness requirement
-
-  - Verify dispatch-contract completeness so every workflow Context sub-bullet supplies
-  every parameter a task card needs
-
-  - Extend the skildeck linter (`.opencode/tools/impl/skildeck/`) to enforce the new
-  format rules
-
-  - Verify all markdown links in the two skills, reference docs, and issue-operations-core/tasks/creation.md
-  resolve to real targets with correct relative paths and `Read [Text](path)` wording
-
-  - Make workflows explicitly orchestrator step-by-step with explicit inline-vs-dispatch
-  decisions
-
-  - Add functional behavioral SCs that run the remediated spec-creation pipeline and
-  audit DiMo 4-role chain end-to-end against a fixture in a shared test home with
-  a test gitbucket instance, proving the skills work
-
-  - Fix the root-cause issues-data URL template defect in issue-operations-core/tasks/creation.md
-  Step 5 (SC-37) so the broken `.issues/N/` URL cannot regenerate in future specs
+  - Ensure the spec-creation and audit behavioral tests share a common test home with
+  a test project and test gitbucket instance, sequenced so later tests build upon
+  the state created by earlier tests (SC-34)
 
 
   **Out of scope:**
 
+
+  - The already-complete drift-repair and format remediation (SC-1..SC-18, SC-23,
+  SC-24, SC-26..SC-31, SC-35..SC-37) — removed from the active SC set and recorded
+  in the change-control history
 
   - Application `src/` code changes (excluded; only agent-facing markdown and the
   skildeck linter are in scope)
@@ -109,91 +81,28 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2254/`](https://github.c
 
   - Behavioral test suite changes beyond what the SCs require
 
-  - Reformatting other skills'' Workflows/task-card formats (exception: issue-operations-core/tasks/creation.md
-  IS in scope for SC-37, confined to the URL template and `{{SPEC_PATH}}` value)
-
 
   ## Approach
 
 
-  Apply exactly ONE prescriptive resolution per finding, each mapped one-to-one to
-  a success criterion. Consolidate the evidence-type taxonomy into one canonical reference
-  document loaded dynamically by both validate and audit. Convert the audit SKILL.md
-  to a Workflows section with 4 DiMo steps. Remove the redundant Task Files table
-  from spec-creation. Repair role-card frontmatter names and Task headings. Repoint
-  broken cross-references. Update stale reference-doc task names. Flatten three subdirectory
-  audit tasks. Correct completion routing. Rewrite the audit description. Remove the
-  redundant behavioral-sc-evaluator.md. Make a missing evidence-type declaration a
-  hard FAIL. For the expanded scope: convert both Workflows sections to numbered-checkbox
-  format with execution-mode sub-bullets, convert task card Procedures to numbered-checkbox
-  format and split fat task cards, update the two reference docs (skill-card-description-standards.md
-  §7, task-card-structure-standards.md) to the new numbered-checkbox format with the
-  execution-mode indicator, the clean-room unit mandate, and the dispatch-contract
-  completeness requirement, verify dispatch-contract completeness, extend the skildeck
-  linter to enforce the new format rules, verify markdown links, and make workflows
-  explicitly orchestrator step-by-step. For the functional end-to-end scope: add behavioral
-  SCs that run the remediated spec-creation pipeline (analyze → create → validate)
-  and the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter)
-  end-to-end against a fixture in a shared test home with a test gitbucket instance,
-  asserting correct output. For the root-cause prevention scope: fix the erroneous
-  `.issues/` path prefix in the issues-data blockquote URL template in issue-operations-core/tasks/creation.md
-  Step 5 (SC-37), so the corrected `tree/issues-data/N/` URL cannot regenerate the
-  broken `.issues/N/` link. Evidence types: linter changes and the functional end-to-end
-  tests are behavioral; format checks (including the reference-doc updates SC-35,
-  SC-36) are string; task-card clean-room and dispatch-contract completeness are semantic.
+  Re-ground the spec''s problem statement and success criteria in the verified on-disk
+  state. Remove the already-satisfied drift-repair and format SCs (SC-1..SC-18, SC-23,
+  SC-24, SC-26..SC-31, SC-35..SC-37) from the active SC set. Retain only the actual
+  remaining remediation: SC-25 (residual `create.md` Procedure format gap, string
+  evidence), SC-32..SC-33 (functional end-to-end verification, behavioral evidence),
+  and SC-34 (shared test home with gitbucket instance, string evidence). Fix the traceability
+  table''s phase numbering to match the 29-phase implementation plan and analytical
+  artifacts (Phase 21 for SC-25, Phase 27/28/29 for SC-32/33/34). Apply exactly one
+  prescriptive resolution per retained SC, each mapped one-to-one to a success criterion.
 
 
   ## Impact
 
 
-  **Top risks:**
-
-
-  - **Linter extension changes runtime behavior** — mitigated by behavioral evidence
-  (opencode run against a violating fixture)
-
-  - **Fat task cards remain unexecutable by sub-agents** — mitigated by the clean-room
-  split (SC-26) and dispatch-contract completeness (SC-27)
-
-  - **Format rules documented but not enforced** — mitigated by skildeck linter enforcement
-  (SC-28)
-
-  - **Reference docs keep defining the old format** — mitigated by SC-35/SC-36 updating
-  skill-card-description-standards.md §7 and task-card-structure-standards.md to the
-  new numbered-checkbox format before the skill cards and linter conform
-
-  - **Remediated skills well-formed but not proven to work** — mitigated by functional
-  end-to-end behavioral tests (SC-32, SC-33) running the spec-creation pipeline and
-  audit DiMo chain against a fixture in a shared test home with a test gitbucket instance
-
-  - **Broken issues-data URL regenerates in every future spec** — mitigated by the
-  root-cause template fix (SC-37) in issue-operations-core/tasks/creation.md Step
-  5
-
-
-  **Key dependencies:** `.opencode/reference/` consolidated standards (now remediation
-  targets in scope for the format update), DiMo 4-role audit dispatch, skill-card-description-standards.md
-  §7, task-card-structure-standards.md, the skildeck linter, the `with-test-home`
-  + GitBucket test infrastructure, and issue-operations-core/tasks/creation.md (URL
-  template root-cause fix).
-
-
-  **Call to action:** Review and approve the expanded spec for total remediation of
-  the spec-writer and spec-auditor skills plus the consolidated reference standards,
-  including the reference-doc format updates, functional end-to-end verification of
-  the remediated skills, and the root-cause URL template fix.
-
-
-  ---
-
-
-  <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-
-  <!-- SPDX-License-Identifier: MIT -->
-
-  <!-- Provenance: AI-generated -->
-
-
-  Co-authored with AI: OpenCode (deepseek-v4-flash)
+  The spec now accurately reflects the actual on-disk state. The remaining work is
+  precisely scoped to the residual `create.md` format gap and the functional proof
+  that the remediated spec-creation and audit skills work when dispatched end-to-end
+  — the difference between a working set of spec skills and a well-formed set of spec
+  cards.
 
   '

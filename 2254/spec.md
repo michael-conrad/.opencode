@@ -63,7 +63,7 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | SC-25 | Every task card Procedure section in `spec-creation` and `audit` SHALL use numbered checkbox lists (`- [ ] N.`), including the Procedure sub-steps of `spec-creation/tasks/create.md` (Step 3, Step 3.1, Step 3.2, Step 6, Step 7 currently use plain numbered lists). | string | grep all task cards in spec-creation and audit for numbered checkbox procedure steps; assert no plain numbered lists remain in Procedure sections |
 | SC-32 | Dispatching the full spec-creation pipeline (analyze → create → validate) against a fixture problem in the shared test home SHALL produce a valid spec with no mis-routing, no missing task cards, no broken cross-references, and no deprecated dispatch strings. | behavioral | opencode run (with-test-home): dispatch the remediated spec-creation pipeline end-to-end against the test gitbucket instance and assert correct output |
 | SC-33 | Dispatching the audit DiMo 4-role chain (investigator → validator → evaluator → arbiter) against a fixture spec in the shared test home SHALL produce a valid verdict, with each role dispatching to the correct split task card with a complete dispatch contract. | behavioral | opencode run (with-test-home): dispatch the remediated audit chain end-to-end and assert correct output |
-| SC-34 | The spec-creation and audit behavioral tests SHALL share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion. | behavioral | verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance |
+| SC-34 | The spec-creation and audit behavioral tests SHALL share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion. | string | verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance |
 
 ## 4. Requirements
 
@@ -102,12 +102,12 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 
 - RED: verify the spec-creation and audit behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance, sequenced incrementally — fails if no shared test home / gitbucket instance
 - GREEN: Ensure the spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced so later tests build upon the state created by earlier tests in an incremental fashion
-- verify: behavioral test setup check (shared with-test-home infrastructure with the gitbucket instance)
+- verify: test setup inspection (string check — shared with-test-home infrastructure with the gitbucket instance)
 - commit: behavioral test scripts (`2254-sc34-shared-test-home.sh`), fixtures
 
 ## 6. Dependencies
 
-- **Infrastructure: `with-test-home` + GitBucket instance** — Relationship: the functional behavioral SCs (SC-32, SC-33, SC-34) depend on the shared test home with a test project and the test gitbucket instance provisioned by `BEHAVIOR_NEEDS_REMOTE`. Status: satisfied (`.opencode/tests-v2/with-test-home` and `__ensure_gitbucket` in `behaviors/helpers.sh` exist; the SC-32/SC-33/SC-34 behavioral test scripts exist).
+- **Infrastructure: `with-test-home` + GitBucket instance** — Relationship: the functional end-to-end SCs (SC-32, SC-33, SC-34) depend on the shared test home with a test project and the test gitbucket instance provisioned by `BEHAVIOR_NEEDS_REMOTE`. Status: satisfied (`.opencode/tests-v2/with-test-home` and `__ensure_gitbucket` in `behaviors/helpers.sh` exist; the SC-32/SC-33/SC-34 behavioral test scripts exist).
 - **Reference: `task-card-structure-standards.md`** — Relationship: defines the numbered-checkbox task-card Procedure format that SC-25 conforms to. Status: satisfied (the reference doc already specifies the numbered-checkbox Procedure format with the clean-room unit and dispatch-contract completeness mandates).
 - **Tool: skildeck linter (`.opencode/tools/impl/skildeck/`)** — Relationship: enforces the numbered-checkbox format rules that SC-25 conforms to. Status: satisfied (skildeck-lint enforces rules R1-R5).
 
@@ -120,7 +120,7 @@ A history-grounded read-only audit of the spec-writer and spec-audit skill card 
 | R-29 | SC-33 | Phase 28 |
 | R-30 | SC-34 | Phase 29 |
 | R-15 | SC-25, SC-32, SC-33, SC-34 | All |
-| R-16 | SC-32, SC-33, SC-34 | Phase 27, Phase 28, Phase 29 |
+| R-16 | SC-32, SC-33 | Phase 27, Phase 28 |
 | R-17 | SC-25, SC-32, SC-33, SC-34 | All |
 
 ## 8. Documentation Sources
@@ -152,7 +152,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-25: Verifying the create.md Procedure format costs one grep search. Skipping means a task card keeps a non-canonical procedure format that diverges from the reference standard.
 - SC-32: Running the functional spec-creation pipeline behavioral test costs minutes of execution time. Skipping means the remediated spec-creation pipeline is never proven to work end-to-end — a mis-routing, a missing task card, a broken cross-reference, or a deprecated dispatch string ships undetected and every spec created through the pipeline inherits the defect.
 - SC-33: Running the functional audit DiMo chain behavioral test costs minutes of execution time. Skipping means the remediated audit chain is never proven to work end-to-end — a role mis-routing to a missing task card or carrying an incomplete dispatch contract ships undetected and every audit verdict inherits the defect.
-- SC-34: Verifying the shared test home with the gitbucket instance costs a behavioral test setup check. Skipping means the functional tests run in isolation without shared state, so the incremental build-up (the spec created by SC-32 becomes the fixture audited by SC-33) is lost and the remote API for remote-stub/issue-creation tests is unavailable.
+- SC-34: Verifying the shared test home with the gitbucket instance costs a test setup inspection (string check). Skipping means the functional tests run in isolation without shared state, so the incremental build-up (the spec created by SC-32 becomes the fixture audited by SC-33) is lost and the remote API for remote-stub/issue-creation tests is unavailable.
 
 ## 11. Edge Cases
 
@@ -166,6 +166,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
+| 2026-08-15 | Corrected SC-34's declared evidence type from `behavioral` to `string` to resolve the validate EVIDENCE_TYPE_MISMATCH. SC-34's verification method (verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance) is a setup/config inspection, not test execution with output inspection — per the canonical evidence-type taxonomy this is string/structural, not behavioral. The SC criterion and verification method are unchanged; only the declared evidence type was corrected to match the actual method. Updated R-16 traceability (SC-34 removed from the behavioral mapping), the traceability table, the Cost Frame, and Item 34 to be internally consistent. | spec-creation validate returned FAIL on SC-34 evidence-type mismatch (EVIDENCE_TYPE_MISMATCH) | spec-creation revision pipeline |
 | 2026-08-15 | Re-grounded the spec in the verified on-disk state following a spec-audit FAIL. Removed the already-satisfied drift-repair and format SCs (SC-1..SC-18, SC-23, SC-24, SC-26..SC-31, SC-35..SC-37) from the active SC set; retained only the actual remaining remediation: SC-25 (residual `create.md` Procedure plain-numbered-list format gap) and SC-32..SC-34 (functional end-to-end verification). Rewrote the Problem Statement to acknowledge the drift-repair and format remediation is already complete on disk. Removed the fabricated SC-8/SC-10/SC-12/SC-14 claims (audit/tasks/ has no subdirectories, all role-card `name:` fields already match filenames, no monolithic cross-references, behavioral-sc-evaluator.md does not exist). Fixed the traceability table phase numbering from Phase 1..7 to the 29-phase plan (Phase 21 for SC-25, Phase 27/28/29 for SC-32/33/34). Updated Requirements, Items, Dependencies, Documentation Sources, Cost Frame, and Edge Cases to match the re-grounded SC set. | Spec-audit FAIL (5 of 11 holistic dimensions: Implementability, Internal Consistency, Testability, Provenance, Correctness): the spec's stated current on-disk state contradicts actual state. SC-8/SC-10/SC-12/SC-14 claim to fix defects that do not exist on disk; the traceability table uses Phase 1..7 while the analytical artifacts and plan use Phase 1..29. The spec must be revised so its problem statement and SCs accurately reflect the actual on-disk state. | spec-creation revision pipeline |
 
 ---
