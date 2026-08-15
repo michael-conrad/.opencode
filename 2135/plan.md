@@ -8,19 +8,34 @@ phase_count: 5
 dispatch:
   - phase: 1
     skill: test-driven-development
-    tasks: [red, green, verify]
+    tasks: [red, green]
+  - phase: 1
+    skill: verification-before-completion
+    tasks: [verify]
   - phase: 2
     skill: test-driven-development
-    tasks: [red, green, verify]
+    tasks: [red, green]
+  - phase: 2
+    skill: verification-before-completion
+    tasks: [verify]
   - phase: 3
     skill: test-driven-development
-    tasks: [red, green, verify]
+    tasks: [red, green]
+  - phase: 3
+    skill: verification-before-completion
+    tasks: [verify]
   - phase: 4
     skill: test-driven-development
-    tasks: [red, green, verify]
+    tasks: [red, green]
+  - phase: 4
+    skill: verification-before-completion
+    tasks: [verify]
   - phase: 5
     skill: test-driven-development
-    tasks: [red, green, verify]
+    tasks: [red, green]
+  - phase: 5
+    skill: verification-before-completion
+    tasks: [verify]
 ---
 
 # Implementation Plan — #2135 — Rewrite 130-authority-source.md
@@ -42,11 +57,16 @@ dispatch:
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — Dual-authority principle | `test-driven-development` | `red`, `green`, `verify` | `.opencode/guidelines/130-authority-source.md` | SC-1 | — |
-| 2 — Six rules | `test-driven-development` | `red`, `green`, `verify` | `.opencode/guidelines/130-authority-source.md` | SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | 1 |
-| 3 — Relocate superseded sections | `test-driven-development` | `red`, `green`, `verify` | `.opencode/guidelines/130-authority-source.md`, `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md` | SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b | 2 |
-| 4 — No mechanical compaction | `test-driven-development` | `red`, `green`, `verify` | `.opencode/guidelines/130-authority-source.md` | SC-12 | 3 |
-| 5 — Clean-room semantic audit | `test-driven-development` | `red`, `green`, `verify` | `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md`, `.opencode/guidelines/130-authority-source.md` | SC-11a, SC-11b, SC-11c, SC-12 | 4 |
+| 1 — Dual-authority principle | `test-driven-development` | `red`, `green` | `.opencode/guidelines/130-authority-source.md` | SC-1 | — |
+| 1 — Dual-authority principle | `verification-before-completion` | `verify` | `.opencode/guidelines/130-authority-source.md` | SC-1 | 1 |
+| 2 — Six rules | `test-driven-development` | `red`, `green` | `.opencode/guidelines/130-authority-source.md` | SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | 1 |
+| 2 — Six rules | `verification-before-completion` | `verify` | `.opencode/guidelines/130-authority-source.md` | SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 | 2 |
+| 3 — Relocate superseded sections | `test-driven-development` | `red`, `green` | `.opencode/guidelines/130-authority-source.md`, `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md` | SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b | 2 |
+| 3 — Relocate superseded sections | `verification-before-completion` | `verify` | `.opencode/guidelines/130-authority-source.md`, `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md` | SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b | 3 |
+| 4 — No mechanical compaction | `test-driven-development` | `red`, `green` | `.opencode/guidelines/130-authority-source.md` | SC-12 | 3 |
+| 4 — No mechanical compaction | `verification-before-completion` | `verify` | `.opencode/guidelines/130-authority-source.md` | SC-12 | 4 |
+| 5 — Clean-room semantic audit | `test-driven-development` | `red`, `green` | `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md`, `.opencode/guidelines/130-authority-source.md` | SC-11a, SC-11b, SC-11c, SC-12 | 4 |
+| 5 — Clean-room semantic audit | `verification-before-completion` | `verify` | `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md`, `.opencode/guidelines/130-authority-source.md` | SC-11a, SC-11b, SC-11c, SC-12 | 5 |
 
 ---
 
@@ -56,7 +76,7 @@ dispatch:
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
+| Skill | `test-driven-development` (`red`, `green`), `verification-before-completion` (`verify`) |
 | Task | `red`, `green`, `verify` |
 | Target | `.opencode/guidelines/130-authority-source.md` |
 | SCs | SC-1 |
@@ -69,11 +89,17 @@ sc_ids: [SC-1]
 principle_phrase: "spec is authoritative for intent"
 ```
 
+**Procedure:**
+1. **RED (**sub-agent**).** Grep for `spec is authoritative for intent` in `130-authority-source.md`; confirm no match (principle absent pre-change). **→ SC-1**
+2. **GREEN (**sub-agent**).** Write the dual-authority principle into `130-authority-source.md`. **→ SC-1**
+3. **Verify (**clean-room**).** Grep for `spec is authoritative for intent` in `130-authority-source.md`; confirm present. **→ SC-1**
+4. **Commit (**inline**).** `git add .opencode/guidelines/130-authority-source.md && git commit -m "..."` — principle section. **→ SC-1**
+
 ### Phase 2 — Six rules
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
+| Skill | `test-driven-development` (`red`, `green`), `verification-before-completion` (`verify`) |
 | Task | `red`, `green`, `verify` |
 | Target | `.opencode/guidelines/130-authority-source.md` |
 | SCs | SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 |
@@ -98,11 +124,17 @@ rules:
     sc: SC-7
 ```
 
+**Procedure:**
+1. **RED (**sub-agent**).** Clean-room sub-agent reads `130-authority-source.md` and fails at least one content assertion for each of the six rules (content absent pre-change). **→ SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
+2. **GREEN (**sub-agent**).** Write the six rules into `130-authority-source.md` with all required content elements. **→ SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
+3. **Verify (**clean-room**).** Clean-room sub-agent reads `130-authority-source.md` and verifies the enumerated content assertions for each rule (SC-2 through SC-7 verification methods). **→ SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
+4. **Commit (**inline**).** `git add .opencode/guidelines/130-authority-source.md && git commit -m "..."` — rules section. **→ SC-2, SC-3, SC-4, SC-5, SC-6, SC-7**
+
 ### Phase 3 — Relocate superseded sections
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
+| Skill | `test-driven-development` (`red`, `green`), `verification-before-completion` (`verify`) |
 | Task | `red`, `green`, `verify` |
 | Target | `.opencode/guidelines/130-authority-source.md`, `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md` |
 | SCs | SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b |
@@ -128,11 +160,17 @@ relocations:
     sc_present: SC-10b
 ```
 
+**Procedure:**
+1. **RED (**sub-agent**).** Clean-room sub-agent reads `130-authority-source.md` and finds the three superseded sections still present (SC-8a/SC-9a/SC-10a RED conditions). **→ SC-8a, SC-9a, SC-10a**
+2. **GREEN (**sub-agent**).** Remove the three superseded sections from `130-authority-source.md` and relocate their content to the target files (`spec-creation/SKILL.md`, `065-verification-honesty.md`). **→ SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b**
+3. **Verify (**clean-room**).** Clean-room sub-agent reads the source and target files and verifies the sections are absent from the original location and present in the target locations (SC-8a/8b, SC-9a/9b, SC-10a/10b verification methods). **→ SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b**
+4. **Commit (**inline**).** `git add .opencode/guidelines/130-authority-source.md .opencode/skills/spec-creation/SKILL.md .opencode/guidelines/065-verification-honesty.md && git commit -m "..."`. **→ SC-8a, SC-8b, SC-9a, SC-9b, SC-10a, SC-10b**
+
 ### Phase 4 — No mechanical compaction
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
+| Skill | `test-driven-development` (`red`, `green`), `verification-before-completion` (`verify`) |
 | Task | `red`, `green`, `verify` |
 | Target | `.opencode/guidelines/130-authority-source.md` |
 | SCs | SC-12 |
@@ -150,11 +188,17 @@ forbidden_phrases:
   - "abbreviated for space"
 ```
 
+**Procedure:**
+1. **RED (**sub-agent**).** Grep for the forbidden compaction phrases in the final guideline; confirm a match, or clean-room sub-agent finds a content-free section header. **→ SC-12**
+2. **GREEN (**sub-agent**).** Remove the compaction artifact and restore truncated content; ensure no content-free section headers remain. **→ SC-12**
+3. **Verify (**clean-room**).** Absence grep for the forbidden phrases plus clean-room sub-agent content-free-header check (SC-12 verification method). **→ SC-12**
+4. **Commit (**inline**).** `git add .opencode/guidelines/130-authority-source.md && git commit -m "..."`. **→ SC-12**
+
 ### Phase 5 — Clean-room semantic audit
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
+| Skill | `test-driven-development` (`red`, `green`), `verification-before-completion` (`verify`) |
 | Task | `red`, `green`, `verify` |
 | Target | `.opencode/skills/spec-creation/SKILL.md`, `.opencode/guidelines/065-verification-honesty.md`, `.opencode/guidelines/130-authority-source.md` |
 | SCs | SC-11a, SC-11b, SC-11c, SC-12 |
@@ -167,6 +211,12 @@ target_spec_creation: .opencode/skills/spec-creation/SKILL.md
 target_065: .opencode/guidelines/065-verification-honesty.md
 sc_ids: [SC-11a, SC-11b, SC-11c, SC-12]
 ```
+
+**Procedure:**
+1. **RED (**sub-agent**).** Clean-room sub-agent compares source (target files) and original (`130-authority-source.md`) and finds at least one content item missing for SC-11a/11b/11c, or a compaction artifact for SC-12. **→ SC-11a, SC-11b, SC-11c, SC-12**
+2. **GREEN (**sub-agent**).** Restore any missing content in the target locations; remove any compaction artifact. **→ SC-11a, SC-11b, SC-11c, SC-12**
+3. **Verify (**clean-room**).** Clean-room sub-agent two-file comparison per SC-11a/11b/11c verification methods plus SC-12 absence grep and content-free-header check. **→ SC-11a, SC-11b, SC-11c, SC-12**
+4. **Commit (**inline**).** `git add .opencode/skills/spec-creation/SKILL.md .opencode/guidelines/065-verification-honesty.md .opencode/guidelines/130-authority-source.md && git commit -m "..."`. **→ SC-11a, SC-11b, SC-11c, SC-12**
 
 ---
 

@@ -1,0 +1,74 @@
+issue: 2135
+artifact: validate-findings
+plan: .opencode/.issues/2135/plan.md
+overall_status: FAIL
+categories:
+  - id: 1
+    name: Structural validation
+    checks:
+      - name: phase_table_columns
+        result: PASS
+        detail: "plan.md has a phase table with all required columns (Phase, Skill, Task, Target, SCs, Depends On)."
+      - name: phase_procedure_numbered_steps
+        result: FAIL
+        detail: "Each Phase Details section contains only a Field/Value table and a Context YAML block. No phase has a procedure section with numbered steps as required by the validate task (Category 1)."
+      - name: exit_criteria_sc_mapping
+        result: PASS
+        detail: "Exit Criteria section exists with C1-C5 mapping to SC-1, SC-2..SC-7, SC-8a..SC-10b, SC-11a..SC-11c, SC-12."
+  - id: 2
+    name: Skill+task validity
+    checks:
+      - name: skill_task_references_valid
+        result: FAIL
+        detail: "Plan dispatch table and phase table assign the `verify` task to skill `test-driven-development` (tasks: [red, green, verify]). The implementation-workflow reference card assigns `verify` to `verification-before-completion`, not `test-driven-development`. `red` and `green` are correctly owned by `test-driven-development`."
+  - id: 3
+    name: SC coverage
+    checks:
+      - name: all_scs_covered
+        result: PASS
+        detail: "All SCs (SC-1 through SC-12 including 8a/8b, 9a/9b, 10a/10b, 11a/11b/11c) appear in at least one phase's exit criteria."
+      - name: triplet_split_detection
+        result: PASS
+        detail: "No SC has RED/GREEN/COMMIT steps split across phases. SC-12's RED/GREEN/COMMIT triplet is co-located in Phase 4; its Phase 5 appearance is a verification gate, not a triplet split (consistent with dependency-contract notes)."
+  - id: 4
+    name: Concern separation
+    checks:
+      - name: one_concern_per_phase
+        result: PASS
+        detail: "Each phase addresses exactly one concern from concern-map.yaml: Phase 1=dual-authority-principle, Phase 2=six-rules, Phase 3=relocation, Phase 4=verify-rules, Phase 5=semantic-preservation."
+      - name: no_duplicate_concerns
+        result: PASS
+        detail: "No two phases address the same concern."
+  - id: 5
+    name: DAG validation
+    checks:
+      - name: no_cycles
+        result: PASS
+        detail: "Dependency contract edges phase_1->phase_2->phase_3->phase_4->phase_5 form a strict linear chain; no cycles."
+      - name: all_phases_reachable
+        result: PASS
+        detail: "All five phases are reachable from the start node phase_1."
+      - name: no_orphan_phases
+        result: PASS
+        detail: "No orphan phases; each phase has incoming/outgoing edges consistent with the linear chain."
+  - id: 6
+    name: Holistic quality
+    checks:
+      - name: no_tbd_todo
+        result: PASS
+        detail: "No TBD/TODO placeholders found in the plan body."
+      - name: checkbox_steps
+        result: PASS
+        detail: "Exit criteria use checkbox format."
+      - name: dispatch_mode_consistency
+        result: PASS
+        detail: "All phases are clean-room dispatched via test-driven-development; no inline/dispatched mixing detected."
+findings:
+  - category: 1
+    severity: FAIL
+    reason: "MISSING_PHASE_PROCEDURE_STEPS"
+    detail: "Phase Details sections (Phase 1-5) lack numbered procedure steps. Each phase only has a Field/Value table and a Context YAML block. The validate task requires each phase to have a procedure section with numbered steps."
+  - category: 2
+    severity: FAIL
+    reason: "INVALID_SKILL_TASK_REFERENCE"
+    detail: "The `verify` task is attributed to skill `test-driven-development` in both the plan frontmatter dispatch table and the phase table. Per the implementation-workflow reference card, `verify` is owned by `verification-before-completion`, not `test-driven-development`."
