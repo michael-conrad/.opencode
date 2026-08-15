@@ -1,126 +1,120 @@
-# State Analysis — Issue #2254
-# Generated: 2026-08-10
-# Provenance: AI-generated
-
-spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
-
-## State Transitions
-
-### spec-creation dispatch surface
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Deprecated execute X from Y strings; Task Files table present; plain numbered-list Workflows | As-is | SC-1, SC-2, SC-23, SC-31 implemented |
-| REMEDIATED | Canonical dispatch format; no Task Files table; numbered-checkbox Workflows with execution-mode sub-bullets; explicit orchestrator steps | Phase 1/6 complete | Stable |
-
-### analyze task issue anchoring
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Accepts unbound/placeholder issue number | As-is | SC-17 implemented |
-| ANCHORED | BLOCKs on unbound/placeholder issue number | SC-17 implemented | Stable |
-
-### create task exec-summary body
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Non-canonical remote body, no forward-reference blockquote | As-is | SC-19, SC-20 implemented |
-| CANONICAL | Exec-summary body format (Spec Reference Blockquote, Problem, Scope, Approach, Impact) + issues-data forward-reference | SC-19, SC-20 implemented | Stable |
-
-### audit dispatch surface
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | TDT/Invocation/Tasks sections; deprecated DiMo dispatch strings; divergent description | As-is | SC-3..SC-7 implemented |
-| WORKFLOWS-ONLY | Single Workflows section with 4 DiMo steps; canonical dispatch; canonical description | SC-3..SC-7 implemented | Stable |
-
-### audit role task cards
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Mismatched frontmatter/headings; subdirectory task sets; dangling refs; redundant evaluator | As-is | SC-8..SC-14 implemented |
-| FLAT | Flat role files with matching names/headings; repointed refs; removed redundant evaluator; correct completion routing | SC-8..SC-14 implemented | Stable |
-
-### task-card format and clean-room unit
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Plain numbered-list Procedures; some fat task cards requiring internal dispatch | As-is | SC-25, SC-26, SC-36 implemented |
-| NUMBERED-CHECKBOX | Numbered-checkbox Procedures; no fat task cards; dispatch-contract complete | SC-25..SC-27, SC-36 implemented | Stable |
-
-### taxonomy/dimension source
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Citations to redirect source; hardcoded dimension set | As-is | SC-15, SC-18 implemented |
-| CANONICAL | Single canonical taxonomy reference; dynamic 11-dimension loading | SC-15, SC-18 implemented | Stable |
-
-### linter enforcement
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Linter does not enforce new format rules | As-is | SC-28 implemented |
-| ENFORCING | Linter enforces numbered-checkbox workflow, execution-mode, clean-room, dispatch-contract, markdown links | SC-28 implemented | Stable |
-
-### functional verification
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Skills well-formed but not proven to work end-to-end | As-is | SC-32..SC-34 implemented |
-| VERIFIED | spec-creation pipeline and audit DiMo chain run end-to-end against fixture in shared test home with gitbucket | SC-32..SC-34 implemented | Stable |
-
-### issues-data URL template
-
-| State | Description | Entry Condition | Exit Condition |
-|-------|-------------|-----------------|----------------|
-| CURRENT | Erroneous `.issues/N/` path prefix; broken URL regenerates | As-is | SC-37 implemented |
-| FIXED | `tree/issues-data/N/` with `{{SPEC_PATH}}` = `N/`; no `.issues/` prefix | SC-37 implemented | Stable |
-
-## Dependency Order
-
-```
-Reference doc format updates (SC-35, SC-36)
-  └── Skill-card Workflows/task-card conformance (SC-23, SC-24, SC-25, SC-26, SC-27)
-        └── Linter enforcement (SC-28)
-Drift repair (SC-1..SC-22)
-  └── issue-operations-core URL fix (SC-37) — root-cause, prevents recurrence
-Functional behavioral tests (SC-32, SC-33, SC-34)
-  └── shared test home + gitbucket (SC-34 prerequisite)
-```
-
-## Invariant Checks
-
-| Invariant | Check | Verifying SC |
-|-----------|-------|-------------|
-| No deprecated execute X from Y strings in spec-creation | grep spec-creation/SKILL.md | SC-1 |
-| No Task Files table in spec-creation | grep spec-creation/SKILL.md | SC-2 |
-| audit has single Workflows section with 4 DiMo steps | grep audit/SKILL.md | SC-3 |
-| No TDT/Invocation/Tasks in audit | grep audit/SKILL.md | SC-4 |
-| Canonical dispatch format in audit | grep audit/SKILL.md | SC-5, SC-6 |
-| Canonical description in audit | semantic sub-agent read | SC-7 |
-| Role-card name/heading match filename | per-file frontmatter/heading check | SC-8, SC-9 |
-| Cross-references repointed to role-split files | grep | SC-10 |
-| Reference task names updated | grep | SC-11 |
-| Subdirectory tasks flattened, stub indexes removed | file-structure check | SC-12 |
-| Completion routing corrected | grep | SC-13 |
-| behavioral-sc-evaluator.md removed | file-absence check | SC-14 |
-| Taxonomy citations at single canonical source | grep | SC-15 |
-| Missing type is hard FAIL | semantic sub-agent read | SC-16 |
-| analyze BLOCKs on unbound issue number | behavioral test (opencode run) | SC-17 |
-| 11 dimensions loaded dynamically | grep | SC-18 |
-| create routes canonical exec-summary body | grep | SC-19, SC-20 |
-| Post-push reconciliation sequenced | grep | SC-21 |
-| revise regenerates exec-summary body | grep | SC-22 |
-| Numbered-checkbox Workflows format in both SKILL.md | grep + linter | SC-23, SC-24 |
-| Numbered-checkbox Procedure in all task cards | grep + linter | SC-25 |
-| No fat task cards | semantic read + linter | SC-26 |
-| Dispatch contracts complete | semantic read | SC-27 |
-| Linter enforces all format rules | behavioral test (opencode run) | SC-28 |
-| Markdown links resolve, correct paths, Read [Text](path) | link-resolution check | SC-29a, SC-29b, SC-29c |
-| Workflows explicit orchestrator steps | grep | SC-31 |
-| Full spec-creation pipeline works end-to-end | behavioral test (opencode run) | SC-32 |
-| Audit DiMo chain works end-to-end | behavioral test (opencode run) | SC-33 |
-| Shared test home + gitbucket, incremental | behavioral setup check | SC-34 |
-| Reference doc Workflows numbered-checkbox spec | grep reference doc | SC-35 |
-| Reference doc Procedure numbered-checkbox + mandates | grep reference doc | SC-36 |
-| issues-data URL template has no `.issues/` prefix | grep creation.md | SC-37 |
+# State Analysis — Issue 2254: Remediate spec-creation and audit skill cards + reference standards
+spec: .opencode/.issues/2254/spec.md
+state_transitions_required_by_sc:
+  - sc: SC-1
+    from: spec-creation/SKILL.md uses deprecated 'execute X from Y' dispatch strings
+    to: spec-creation/SKILL.md uses canonical dispatch prompt format for all task() dispatches
+  - sc: SC-2
+    from: spec-creation/SKILL.md contains a '## Task Files' table
+    to: spec-creation/SKILL.md has no Task Files table
+  - sc: SC-3
+    from: audit/SKILL.md has non-single or differently-structured Workflows section
+    to: audit/SKILL.md uses a single Workflows section with 4 DiMo steps
+  - sc: SC-4
+    from: audit/SKILL.md contains Trigger Dispatch Table, Tasks, or Invocation sections
+    to: audit/SKILL.md has no TDT/Invocation/Tasks sections
+  - sc: SC-5
+    from: audit/SKILL.md uses non-canonical dispatch format
+    to: audit/SKILL.md uses canonical dispatch prompt format
+  - sc: SC-6
+    from: audit/SKILL.md contains deprecated 'execute <task> DiMo <role> from audit' strings
+    to: audit/SKILL.md has no deprecated DiMo dispatch strings
+  - sc: SC-7
+    from: audit/SKILL.md description frontmatter has meta-instructions (Load via skill() when, Also load when, User phrases:)
+    to: audit/SKILL.md description is canonical agent-intent format
+  - sc: SC-8
+    from: "audit role-card frontmatter name mismatches filename (40 defective files: 24 stale + 4 empty flat + 12 empty subdirectory)"
+    to: every audit role-card frontmatter name matches filename
+  - sc: SC-9
+    from: audit role-card '# Task:' heading mismatches filename
+    to: every audit role-card '# Task:' heading matches filename
+  - sc: SC-10
+    from: broken cross-references to monolithic role-task files (tasks/spec-audit.md, tasks/plan-fidelity.md)
+    to: cross-references repointed to role-split files, including in reference/holistic-dimensions.yaml
+  - sc: SC-11
+    from: reference/skill-card-description-standards.md uses stale task names (inspect/decompose/write/check/file)
+    to: reference/skill-card-description-standards.md uses actual task names (analyze/create/validate/revise)
+  - sc: SC-12
+    from: three subdirectory audit tasks (closure-verification/, coherence-extraction/, spec-summary/) with stub index files
+    to: three subdirectory tasks flattened to flat role files, stub index files removed
+  - sc: SC-13
+    from: audit/tasks/completion.md references dangling 'approval-gate --task verify-authorization'
+    to: audit/tasks/completion.md routes to the actual 3-step verify-authorization workflow
+  - sc: SC-14
+    from: audit/tasks/behavioral-sc-evaluator.md present
+    to: audit/tasks/behavioral-sc-evaluator.md removed
+  - sc: SC-15
+    from: evidence-type taxonomy citations point at divergent/redirect sources
+    to: evidence-type taxonomy citations point at the single canonical reference document, loaded dynamically
+  - sc: SC-16
+    from: missing evidence-type declaration defaults to string/warn/backwards-compat tier
+    to: missing evidence-type declaration is hard FAIL routed to remediation
+  - sc: SC-17
+    from: spec-creation/tasks/analyze.md proceeds with unbound/placeholder issue number
+    to: spec-creation/tasks/analyze.md BLOCKs on unbound/placeholder issue number
+  - sc: SC-18
+    from: spec-creation/tasks/validate.md loads hardcoded divergent holistic dimension list
+    to: spec-creation/tasks/validate.md loads 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml
+  - sc: SC-19
+    from: spec-creation/tasks/create.md does not route remote issue body to canonical exec-summary format
+    to: spec-creation/tasks/create.md routes remote issue body to canonical exec-summary body format (Spec Reference Blockquote, Problem, Scope, Approach, Impact)
+  - sc: SC-20
+    from: spec-creation/tasks/create.md lacks forward-reference Spec Reference Blockquote link
+    to: spec-creation/tasks/create.md includes forward-reference Spec Reference Blockquote link to issues-data branch URL
+  - sc: SC-21
+    from: create task does not sequence post-push reconciliation
+    to: create task sequences post-push reconciliation after issue-operations/platforms/local/tasks/push-artifacts.md
+  - sc: SC-22
+    from: spec-creation/tasks/revise.md does not regenerate exec-summary body on revision
+    to: spec-creation/tasks/revise.md regenerates exec-summary remote issue body on revision
+  - sc: SC-23
+    from: spec-creation/SKILL.md Workflows uses plain numbered-list format
+    to: spec-creation/SKILL.md Workflows uses numbered-checkbox lists with sub-bullets for prompt string, parameters/context, execution-mode indicator
+  - sc: SC-24
+    from: audit/SKILL.md Workflows uses plain numbered-list format
+    to: audit/SKILL.md Workflows uses numbered-checkbox lists with sub-bullets
+  - sc: SC-25
+    from: task card Procedures in spec-creation and audit use plain numbered-list format
+    to: task card Procedures use numbered-checkbox lists
+  - sc: SC-26
+    from: fat task cards require internal sub-agent dispatch
+    to: no task card procedure requires internal sub-agent dispatch; fat cards split into multiple task cards dispatched as separate workflow steps
+  - sc: SC-27
+    from: SKILL.md workflow Context sub-bullet does not supply all task card Dispatch Contract/Entry Criteria parameters
+    to: for every task card, the workflow Context sub-bullet supplies every parameter in the task card's Dispatch Contract and Entry Criteria
+  - sc: SC-28
+    from: skildeck linter does not enforce the new format rules
+    to: skildeck linter enforces numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, markdown link correctness
+  - sc: SC-29a
+    from: some markdown links in the two skills, reference docs, and issue-operations-core/tasks/creation.md resolve to non-existent targets
+    to: all markdown links resolve to real targets
+  - sc: SC-29b
+    from: some markdown links use incorrect relative paths
+    to: all markdown links use correct relative paths
+  - sc: SC-29c
+    from: some markdown links do not follow the Read [Text](path) pattern
+    to: all markdown links follow the Read [Text](path) cross-reference pattern
+  - sc: SC-31
+    from: workflows in the two SKILL.md files do not clearly indicate orchestrator step-by-step execution
+    to: workflows clearly indicate orchestrator step-by-step execution with explicit execution-mode sub-bullets
+  - sc: SC-32
+    from: remediated spec-creation pipeline not proven to work end-to-end
+    to: dispatching the full spec-creation pipeline (analyze → create → validate) against a fixture produces a valid spec with no mis-routing, no missing task cards, no broken cross-references, no deprecated dispatch strings
+  - sc: SC-33
+    from: remediated audit DiMo chain not proven to work end-to-end
+    to: dispatching the audit DiMo 4-role chain against a fixture produces a valid verdict with each role dispatching to the correct split task card with a complete dispatch contract
+  - sc: SC-34
+    from: spec-creation and audit behavioral tests run in isolated test homes with no shared state
+    to: spec-creation and audit behavioral tests share a common test home with a test project and test gitbucket instance, sequenced incrementally
+  - sc: SC-35
+    from: reference/skill-card-description-standards.md §7 specifies plain numbered-list Workflows format
+    to: reference/skill-card-description-standards.md §7 specifies numbered-checkbox Workflows with execution-mode sub-bullet
+  - sc: SC-36
+    from: reference/task-card-structure-standards.md specifies plain numbered-list Procedure without clean-room unit or dispatch-contract completeness
+    to: reference/task-card-structure-standards.md specifies numbered-checkbox Procedure, clean-room unit mandate, and dispatch-contract completeness requirement
+  - sc: SC-37
+    from: issue-operations-core/tasks/creation.md Step 5 emits broken .issues/N/ blockquote URL with {{SPEC_PATH}} = .issues/N/
+    to: issue-operations-core/tasks/creation.md Step 5 emits correct tree/issues-data/N/ URL with {{SPEC_PATH}} = N/
+terminal_state:
+  description: All SC-1..SC-37 PASS; the remediated spec-creation and audit skill cards plus reference standards are internally consistent, conform to the numbered-checkbox format, and are proven to work end-to-end via the functional behavioral tests. The issues-data URL template defect cannot regenerate.
+  gate: SC Enforcement Gate — a single FAIL blocks the entire spec; partial implementation not permitted.

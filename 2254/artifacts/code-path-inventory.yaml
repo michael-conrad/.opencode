@@ -1,72 +1,193 @@
-# Code Path Inventory — Issue #2254
-# Generated: 2026-08-10
-# Provenance: AI-generated
-
-spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
-
-## Code Paths Affected
-
-### Path 1: spec-creation dispatch surface
-- **Files**: `.opencode/skills/spec-creation/SKILL.md`
-- **Trigger**: Orchestrator dispatches spec-creation tasks
-- **Change**: Canonical dispatch prompt format; remove Task Files table; convert Workflows to numbered-checkbox format with execution-mode sub-bullets; explicit orchestrator step-by-step
-- **Behavioral impact**: Tasks dispatch with canonical prompt format; deprecated strings removed; workflow steps explicitly inline-vs-dispatched
-- **Verification**: SC-1, SC-2 (string), SC-23 (string), SC-31 (string)
-
-### Path 2: spec-creation task cards (analyze, create, validate, revise)
-- **Files**: `.opencode/skills/spec-creation/tasks/{analyze,create,validate,revise}.md`
-- **Trigger**: Spec-creation pipeline dispatch of each task
-- **Change**: analyze blocks on unbound issue number; create routes exec-summary body + forward-reference blockquote; post-push reconciliation sequenced; revise regenerates body; all Procedures to numbered-checkbox format
-- **Behavioral impact**: Analyze rejects placeholder issue numbers; remote bodies conform to canonical exec-summary format; revised specs ship fresh bodies
-- **Verification**: SC-17 (behavioral), SC-19, SC-20, SC-21, SC-22 (string), SC-25 (string), SC-26 (semantic), SC-27 (semantic)
-
-### Path 3: audit dispatch surface
-- **Files**: `.opencode/skills/audit/SKILL.md`
-- **Trigger**: Orchestrator dispatches audit DiMo chain
-- **Change**: Single Workflows section with 4 DiMo steps; remove TDT/Invocation/Tasks sections; canonical dispatch format; rewrite description; convert Workflows to numbered-checkbox format
-- **Behavioral impact**: Audit dispatches through Workflows-only surface; roles dispatch via canonical strings; description routes skill selection correctly
-- **Verification**: SC-3, SC-4, SC-5, SC-6 (string), SC-7 (semantic), SC-24 (string), SC-31 (string)
-
-### Path 4: audit role task cards
-- **Files**: `.opencode/skills/audit/tasks/*-role.md`, `completion.md`, removed `behavioral-sc-evaluator.md`, removed subdirectory sets + stub indexes
-- **Trigger**: Audit DiMo 4-role chain dispatch
-- **Change**: Repair frontmatter names and Task headings; repoint cross-references; flatten subdirectory tasks; correct completion routing; remove redundant evaluator; split fat task cards; numbered-checkbox Procedures
-- **Behavioral impact**: Roles dispatch to correctly-named split task cards; completion routes correctly; no dangling verify-authorization
-- **Verification**: SC-8, SC-9, SC-10, SC-12, SC-13, SC-14 (string), SC-25 (string), SC-26 (semantic), SC-33 (behavioral)
-
-### Path 5: reference standards and taxonomy
-- **Files**: `.opencode/reference/spec-structure-standards.md`, `holistic-dimensions.yaml`, `skill-card-description-standards.md`, `task-card-structure-standards.md`, `cost-model-standards.md`
-- **Trigger**: Skill-card conformance, linter enforcement, taxonomy/dimension resolution
-- **Change**: Update stale task names; consolidate taxonomy citations to single canonical reference; update Workflows/Procedure format definitions to numbered-checkbox with execution-mode indicator, clean-room unit mandate, dispatch-contract completeness
-- **Behavioral impact**: Cards conform to reference format; linter has canonical rules to enforce; validate/audit read taxonomy and dimensions from canonical source
-- **Verification**: SC-11, SC-15, SC-18 (string), SC-35, SC-36 (string)
-
-### Path 6: issue-operations-core creation
-- **Files**: `.opencode/skills/issue-operations-core/tasks/creation.md`
-- **Trigger**: Issue creation generating issues-data blockquote URL
-- **Change**: Correct `.issues/` path prefix; `{{SPEC_PATH}}` = `N/` (not `.issues/N/`)
-- **Behavioral impact**: New specs get correct `tree/issues-data/N/` URL; broken URL cannot regenerate
-- **Verification**: SC-37 (string), SC-29a/29b/29c (string — verified target)
-
-### Path 7: skildeck linter
-- **Files**: `.opencode/tools/impl/skildeck/`
-- **Trigger**: Skill-card and task-card format validation
-- **Change**: Enforce numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, markdown link correctness
-- **Behavioral impact**: Format defects are flagged by linter, not just documented
-- **Verification**: SC-28 (behavioral)
-
-### Path 8: functional behavioral test harness
-- **Files**: `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/behaviors/helpers.sh`, behavioral test scripts + fixtures
-- **Trigger**: Functional end-to-end verification (spec-creation pipeline and audit DiMo chain)
-- **Change**: Shared test home with test project + test gitbucket instance; incremental sequencing; new behavioral test scripts
-- **Behavioral impact**: Proven working skills, not just well-formed
-- **Verification**: SC-32, SC-33, SC-34 (behavioral)
-
-## Unaffected Paths
-
-| Path | Why Unaffected |
-|------|----------------|
-| Application `src/` code | Excluded from scope (R-15) |
-| Other skills / guidelines | No content changes |
-| Test infrastructure beyond behavioral | Existing tests unchanged |
-| Git workflow | No changes |
+# Code Path Inventory — Issue 2254: Remediate spec-creation and audit skill cards + reference standards
+spec: .opencode/.issues/2254/spec.md
+code_paths_implied_by_sc:
+  - sc: SC-1
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: task() dispatch prompt strings
+    action: convert
+    evidence: grep spec-creation/SKILL.md for absence of 'execute .* from' and presence of canonical format
+  - sc: SC-2
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: Task Files table
+    action: remove
+    evidence: grep spec-creation/SKILL.md for absence of '## Task Files'
+  - sc: SC-3
+    target_file: .opencode/skills/audit/SKILL.md
+    path: Workflows section (4 DiMo steps)
+    action: restructure
+    evidence: grep audit/SKILL.md for Workflows section
+  - sc: SC-4
+    target_file: .opencode/skills/audit/SKILL.md
+    path: Trigger Dispatch Table, Tasks, Invocation sections
+    action: remove
+    evidence: grep audit/SKILL.md for absence of TDT/Invocation/Tasks sections
+  - sc: SC-5
+    target_file: .opencode/skills/audit/SKILL.md
+    path: task() dispatch prompt strings
+    action: convert
+    evidence: grep audit/SKILL.md for presence of canonical format
+  - sc: SC-6
+    target_file: .opencode/skills/audit/SKILL.md
+    path: deprecated DiMo dispatch strings
+    action: remove
+    evidence: grep audit/SKILL.md for absence of 'execute .* DiMo .* from audit'
+  - sc: SC-7
+    target_file: .opencode/skills/audit/SKILL.md
+    path: description frontmatter
+    action: rewrite
+    evidence: sub-agent reads frontmatter and verifies canonical agent-intent format
+  - sc: SC-8
+    target_file: .opencode/skills/audit/tasks/*-role.md
+    path: frontmatter name field
+    action: repair
+    evidence: for each audit/tasks/*-role.md, verify frontmatter name == basename
+  - sc: SC-9
+    target_file: .opencode/skills/audit/tasks/*-role.md
+    path: "# Task: heading"
+    action: repair
+    evidence: for each audit/tasks/*-role.md, verify '# Task:' heading == basename
+  - sc: SC-10
+    target_file: .opencode/skills/audit/tasks/ + .opencode/reference/holistic-dimensions.yaml
+    path: cross-references to monolithic role-task files
+    action: repoint
+    evidence: grep audit/tasks and reference/holistic-dimensions.yaml for absence of monolithic refs and presence of role-split refs
+  - sc: SC-11
+    target_file: .opencode/reference/skill-card-description-standards.md
+    path: stale reference-doc task names
+    action: update
+    evidence: grep reference/skill-card-description-standards.md for absence of stale names and presence of actual names
+  - sc: SC-12
+    target_file: .opencode/skills/audit/tasks/
+    path: subdirectory tasks (closure-verification/, coherence-extraction/, spec-summary/) + stub index files
+    action: flatten
+    evidence: verify the three subdirectories are flat files and stub files are absent
+  - sc: SC-13
+    target_file: .opencode/skills/audit/tasks/completion.md
+    path: completion routing
+    action: correct
+    evidence: grep audit/tasks/completion.md for correct routing and absence of dangling reference
+  - sc: SC-14
+    target_file: .opencode/skills/audit/tasks/behavioral-sc-evaluator.md
+    path: redundant evaluator file
+    action: remove
+    evidence: verify audit/tasks/behavioral-sc-evaluator.md is absent
+  - sc: SC-15
+    target_file: .opencode/skills/spec-creation/tasks/validate.md + audit role cards
+    path: evidence-type taxonomy citations
+    action: consolidate
+    evidence: grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation
+  - sc: SC-16
+    target_file: .opencode/reference/spec-structure-standards.md
+    path: missing evidence-type declaration rule
+    action: harden
+    evidence: sub-agent reads reference/spec-structure-standards.md and verifies the missing-type rule is hard FAIL
+  - sc: SC-17
+    target_file: .opencode/skills/spec-creation/tasks/analyze.md
+    path: issue-number anchoring precondition
+    action: add
+    evidence: "opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK"
+  - sc: SC-18
+    target_file: .opencode/skills/spec-creation/tasks/validate.md
+    path: holistic dimensions loading
+    action: convert
+    evidence: grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml
+  - sc: SC-19
+    target_file: .opencode/skills/spec-creation/tasks/create.md
+    path: remote issue body routing to exec-summary format
+    action: add
+    evidence: grep spec-creation/tasks/create.md for a reference to the canonical exec-summary body format / creation.md Step 5
+  - sc: SC-20
+    target_file: .opencode/skills/spec-creation/tasks/create.md
+    path: forward-reference Spec Reference Blockquote link
+    action: add
+    evidence: grep spec-creation/tasks/create.md for the forward-reference Spec Reference Blockquote / issues-data link
+  - sc: SC-21
+    target_file: .opencode/skills/spec-creation/tasks/create.md
+    path: post-push reconciliation sequencing
+    action: add
+    evidence: grep spec-creation/tasks/create.md for the post-push reconciliation sequenced after push-artifacts.md
+  - sc: SC-22
+    target_file: .opencode/skills/spec-creation/tasks/revise.md
+    path: exec-summary body regeneration on revision
+    action: add
+    evidence: grep spec-creation/tasks/revise.md for exec-summary body regeneration on revision
+  - sc: SC-23
+    target_file: .opencode/skills/spec-creation/SKILL.md
+    path: Workflows section numbered-checkbox format
+    action: convert
+    evidence: grep spec-creation/SKILL.md for numbered checkbox workflow steps and execution-mode sub-bullets
+  - sc: SC-24
+    target_file: .opencode/skills/audit/SKILL.md
+    path: Workflows section numbered-checkbox format
+    action: convert
+    evidence: grep audit/SKILL.md for numbered checkbox workflow steps and execution-mode sub-bullets
+  - sc: SC-25
+    target_file: .opencode/skills/spec-creation/tasks/ + .opencode/skills/audit/tasks/
+    path: task card Procedure sections
+    action: convert
+    evidence: grep all task cards in spec-creation and audit for numbered checkbox procedure steps
+  - sc: SC-26
+    target_file: .opencode/skills/spec-creation/tasks/ + .opencode/skills/audit/tasks/
+    path: fat task cards requiring internal sub-agent dispatch
+    action: split
+    evidence: sub-agent reads all task cards and verifies no procedure requires internal dispatch
+  - sc: SC-27
+    target_file: .opencode/skills/spec-creation/SKILL.md + .opencode/skills/audit/SKILL.md + task cards
+    path: dispatch-contract completeness
+    action: verify
+    evidence: sub-agent cross-references each task card's Dispatch Contract/Entry Criteria against the SKILL.md workflow Context sub-bullet
+  - sc: SC-28
+    target_file: .opencode/tools/impl/skildeck/
+    path: linter format enforcement rules
+    action: extend
+    evidence: "opencode run (with-test-home): run skildeck lint against a fixture violating each new rule and assert the linter flags it"
+  - sc: SC-29a
+    target_file: .opencode/skills/spec-creation/SKILL.md, .opencode/skills/audit/SKILL.md, reference docs, issue-operations-core/tasks/creation.md
+    path: markdown link resolution
+    action: verify
+    evidence: verify all markdown links resolve to existing files
+  - sc: SC-29b
+    target_file: .opencode/skills/spec-creation/SKILL.md, .opencode/skills/audit/SKILL.md, reference docs, issue-operations-core/tasks/creation.md
+    path: markdown link relative paths
+    action: verify
+    evidence: verify all markdown links use correct relative paths from their containing file
+  - sc: SC-29c
+    target_file: .opencode/skills/spec-creation/SKILL.md, .opencode/skills/audit/SKILL.md, reference docs, issue-operations-core/tasks/creation.md
+    path: markdown link Read [Text](path) wording
+    action: verify
+    evidence: verify all markdown links follow the Read [Text](path) wording
+  - sc: SC-31
+    target_file: .opencode/skills/spec-creation/SKILL.md + .opencode/skills/audit/SKILL.md
+    path: workflow clarity (orchestrator step-by-step + execution-mode sub-bullets)
+    action: add
+    evidence: grep the two SKILL.md files for orchestrator-step framing and execution-mode sub-bullets
+  - sc: SC-32
+    target_file: behavioral test (spec-creation pipeline end-to-end)
+    path: functional spec-creation pipeline dispatch
+    action: add
+    evidence: "opencode run (with-test-home): dispatch the remediated spec-creation pipeline end-to-end against the test gitbucket instance and assert correct output"
+  - sc: SC-33
+    target_file: behavioral test (audit DiMo 4-role chain end-to-end)
+    path: functional audit DiMo chain dispatch
+    action: add
+    evidence: "opencode run (with-test-home): dispatch the remediated audit chain end-to-end and assert correct output"
+  - sc: SC-34
+    target_file: behavioral test setup (shared test home + gitbucket)
+    path: shared test home infrastructure
+    action: add
+    evidence: verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance
+  - sc: SC-35
+    target_file: .opencode/reference/skill-card-description-standards.md
+    path: Workflows section numbered-checkbox specification
+    action: update
+    evidence: grep reference/skill-card-description-standards.md for the numbered-checkbox Workflows specification and execution-mode sub-bullet
+  - sc: SC-36
+    target_file: .opencode/reference/task-card-structure-standards.md
+    path: task-card Procedure numbered-checkbox specification + clean-room unit mandate + dispatch-contract completeness
+    action: update
+    evidence: grep reference/task-card-structure-standards.md for the numbered-checkbox Procedure format, the clean-room unit mandate, and the dispatch-contract completeness requirement
+  - sc: SC-37
+    target_file: .opencode/skills/issue-operations-core/tasks/creation.md
+    path: issues-data blockquote URL template (Step 5) + {{SPEC_PATH}} value
+    action: correct
+    evidence: grep issue-operations-core/tasks/creation.md for the corrected URL template without the .issues/ prefix and the corrected {{SPEC_PATH}} value

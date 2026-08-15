@@ -1,50 +1,93 @@
-# Concern Map — Issue #2254
-# Generated: 2026-08-10
-# Provenance: AI-generated
-
-spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
-
-## Concerns
-
-| Concern | Description | Location (current) | Location (proposed) | Enforcement Point |
-|---------|-------------|-------------------|---------------------|-------------------|
-| spec-creation dispatch format | Canonical dispatch prompt format, no deprecated execute X from Y strings | spec-creation/SKILL.md | Same — corrected | Dispatch gate (routing) |
-| spec-creation task routing | Remove redundant Task Files table | spec-creation/SKILL.md | Removed | Skill-card validation |
-| analyze issue anchoring | BLOCK on unbound/placeholder issue number | spec-creation/tasks/analyze.md | Precondition added | Analyze dispatch |
-| dynamic dimension loading | Load 11 holistic dimensions dynamically | spec-creation/tasks/validate.md | Dynamic from reference/holistic-dimensions.yaml | Validate dispatch |
-| create exec-summary body | Route remote issue body to canonical exec-summary format + forward-reference blockquote | spec-creation/tasks/create.md | Canonical body format + issues-data link | Create dispatch |
-| post-push reconciliation | Sequence reconciliation after push-artifacts | spec-creation pipeline | Sequenced | Post-push |
-| revise exec-summary regeneration | Regenerate remote exec-summary body on revision | spec-creation/tasks/revise.md | Regenerated | Revise dispatch |
-| issues-data URL root-cause | Fix erroneous `.issues/` path prefix in issues-data blockquote URL template at the source | issue-operations-core/tasks/creation.md Step 5 | `tree/issues-data/N/` with `{{SPEC_PATH}}` = `N/` | Root-cause fix (SC-37) |
-| audit workflow structure | Single Workflows section with 4 DiMo steps; remove TDT/Invocation/Tasks | audit/SKILL.md | Workflows-only | Skill-card validation |
-| audit description rewrite | Rewrite audit description frontmatter to canonical agent-intent format | audit/SKILL.md | Canonical agent-intent format | Skill-card validation |
-| audit dispatch format | Canonical dispatch format; no deprecated DiMo strings | audit/SKILL.md | Corrected | Dispatch gate (routing) |
-| audit role-card naming | Frontmatter name + Task heading match filename | audit/tasks/*-role.md | Repaired | Skill-card validation |
-| audit cross-reference repoints | Repoint broken refs to role-split files | audit tasks + reference | Repointed | Cross-reference verification |
-| audit flattening | Flatten 3 subdirectory task sets to flat role files; remove stub index files | audit/tasks/ | Flattened | File-structure check |
-| completion routing | Correct completion task routing; repoint dangling verify-authorization | audit/tasks/completion.md | Corrected | Completion dispatch |
-| redundant evaluator removal | Remove behavioral-sc-evaluator.md | audit/tasks/behavioral-sc-evaluator.md | Removed | File-absence check |
-| taxonomy source consolidation | Evidence-type taxonomy citations point at single canonical reference, loaded dynamically | validate, audit, reference | Consolidated | Taxonomy resolution |
-| missing-type rule | Missing evidence-type declaration is hard FAIL | spec-creation/tasks/analyze.md | Hard FAIL routed to remediation | Analyze/validate |
-| reference task names | Update stale reference-doc task names to analyze/create/validate/revise | reference/spec-structure-standards.md | Updated | Cross-reference verification |
-| numbered-checkbox Workflows format | Numbered checkbox lists with sub-bullets for prompt, params, execution-mode | skill-card-description-standards.md §7, spec-creation/audit SKILL.md | Numbered-checkbox | Skill-card format validation + linter |
-| numbered-checkbox task-card Procedure | Numbered checkbox lists; clean-room unit; dispatch-contract completeness | task-card-structure-standards.md, task cards | Numbered-checkbox | Task-card format validation + linter |
-| fat task-card splitting | No task-card procedure requires internal sub-agent dispatch | spec-creation/audit task cards | Split | Clean-room unit validation |
-| dispatch-contract completeness | Workflow Context supplies every task-card parameter | workflow Context + task cards | Verified complete | Semantic validation |
-| linter enforcement | skildeck linter enforces all new format rules | .opencode/tools/impl/skildeck/ | Extended | Linter run |
-| markdown link correctness | Links resolve to real targets, correct relative paths, Read [Text](path) wording | two skills + reference docs + issue-operations-core | Verified | Link-resolution check |
-| workflow clarity | Orchestrator step-by-step execution with explicit inline-vs-dispatch decisions | two main SKILL.md Workflows | Explicit | Workflow readability |
-| functional spec-creation pipeline | Full pipeline runs end-to-end against fixture in shared test home | behavioral tests | Added | Behavioral test (opencode run) |
-| functional audit DiMo chain | 4-role chain dispatches correctly end-to-end | behavioral tests | Added | Behavioral test (opencode run) |
-| shared test home + gitbucket | Shared test home with test project + test gitbucket instance, incremental sequencing | with-test-home + helpers.sh | Provisioned | Behavioral test setup |
-
-## Concern Separation
-
-| Separation | Status |
-|------------|--------|
-| spec-creation vs audit skill remediation | Distinct phases (Phase 1/3/4/5 vs Phase 2) |
-| Drift repair vs format conformance | Format SCs (SC-23..SC-31) separated in Phase 6 from drift SCs |
-| Functional verification vs format/structural | Behavioral SCs (SC-32..SC-34) in Phase 7 |
-| Reference-doc format dependency | SC-35/SC-36 (Phase 6) are dependency prerequisites for SC-23/SC-24/SC-25/SC-28 |
-| Root-cause fix | SC-37 (Phase 7) prevents issues-data URL recurrence |
-| Audit description rewrite | SC-7 (Phase 9) is a distinct semantic concern from audit workflow structure (SC-3/SC-4, Phase 8) |
+# Concern Map — Issue 2254: Remediate spec-creation and audit skill cards + reference standards
+spec: .opencode/.issues/2254/spec.md
+concern_groups:
+  - id: concern-spec-creation-skill
+    name: spec-creation SKILL.md format remediation
+    phase: 1, 2
+    scs: [SC-1, SC-2]
+    description: Convert spec-creation/SKILL.md to canonical dispatch prompt format (no deprecated execute X from Y), remove Task Files table.
+  - id: concern-spec-creation-tasks
+    name: spec-creation task card behavior remediation
+    phase: 3, 4, 5, 6
+    scs: [SC-17, SC-18, SC-19, SC-20, SC-21]
+    description: analyze BLOCKs on unbound issue number; validate loads 11 dimensions dynamically; create routes exec-summary body + forward-reference blockquote; post-push reconciliation sequencing.
+  - id: concern-url-root-cause
+    name: issues-data URL root-cause fix
+    phase: 7
+    scs: [SC-37]
+    description: Correct the erroneous .issues/ path prefix in the issues-data blockquote URL template in issue-operations-core/tasks/creation.md Step 5; {{SPEC_PATH}} = N/.
+  - id: concern-audit-skill
+    name: audit SKILL.md structure remediation
+    phase: 8, 9, 10
+    scs: [SC-3, SC-4, SC-5, SC-6, SC-7]
+    description: Single Workflows section with 4 DiMo steps; remove TDT/Invocation/Tasks sections; canonical dispatch format; no deprecated DiMo strings; canonical agent-intent description.
+  - id: concern-audit-role-cards
+    name: audit role-card repair
+    phase: 11, 12, 13, 14
+    scs: [SC-8, SC-9, SC-10, SC-12, SC-14]
+    description: Repair role-card frontmatter names and Task headings; flatten subdirectory tasks; remove redundant evaluator; repoint cross-references including holistic-dimensions.yaml.
+  - id: concern-reference-standards
+    name: reference standards updates
+    phase: 15, 16, 17
+    scs: [SC-11, SC-15, SC-16]
+    description: Update stale reference-doc task names; consolidate evidence-type taxonomy citations to single canonical reference; missing evidence-type is hard FAIL.
+  - id: concern-completion-revise
+    name: completion routing and revise exec-summary
+    phase: 18, 19
+    scs: [SC-13, SC-22]
+    description: Correct completion task routing; revise regenerates exec-summary remote issue body.
+  - id: concern-format
+    name: numbered-checkbox format + clean-room unit + dispatch-contract
+    phase: 20, 21, 22, 23
+    scs: [SC-23, SC-24, SC-25, SC-26, SC-27, SC-35, SC-36]
+    description: Convert Workflows and task-card Procedures to numbered-checkbox lists with execution-mode sub-bullets; split fat task cards for clean-room unit; verify dispatch-contract completeness; update the two reference docs that define the format.
+  - id: concern-linter
+    name: skildeck linter enforcement
+    phase: 24
+    scs: [SC-28]
+    description: Extend skildeck linter to enforce numbered-checkbox workflow format, execution-mode sub-bullet, task-card clean-room unit, dispatch-contract completeness, markdown link correctness.
+  - id: concern-links
+    name: markdown link correctness
+    phase: 25
+    scs: [SC-29a, SC-29b, SC-29c]
+    description: All markdown links in the two skills, reference docs, and issue-operations-core/tasks/creation.md resolve to real targets, use correct relative paths, and follow the Read [Text](path) pattern.
+  - id: concern-workflow-clarity
+    name: workflow clarity
+    phase: 26
+    scs: [SC-31]
+    description: Workflows clearly indicate orchestrator step-by-step execution with explicit execution-mode sub-bullets.
+  - id: concern-functional
+    name: functional end-to-end behavioral tests
+    phase: 27, 28, 29
+    scs: [SC-32, SC-33, SC-34]
+    description: Run remediated spec-creation pipeline and audit DiMo 4-role chain end-to-end against a fixture in a shared test home with test gitbucket instance.
+phase_boundary_map:
+  - {phase: 1, concerns: [concern-spec-creation-skill]}
+  - {phase: 2, concerns: [concern-spec-creation-skill]}
+  - {phase: 3, concerns: [concern-spec-creation-tasks]}
+  - {phase: 4, concerns: [concern-spec-creation-tasks]}
+  - {phase: 5, concerns: [concern-spec-creation-tasks]}
+  - {phase: 6, concerns: [concern-spec-creation-tasks]}
+  - {phase: 7, concerns: [concern-url-root-cause]}
+  - {phase: 8, concerns: [concern-audit-skill]}
+  - {phase: 9, concerns: [concern-audit-skill]}
+  - {phase: 10, concerns: [concern-audit-skill]}
+  - {phase: 11, concerns: [concern-audit-role-cards]}
+  - {phase: 12, concerns: [concern-audit-role-cards]}
+  - {phase: 13, concerns: [concern-audit-role-cards]}
+  - {phase: 14, concerns: [concern-audit-role-cards]}
+  - {phase: 15, concerns: [concern-reference-standards]}
+  - {phase: 16, concerns: [concern-reference-standards]}
+  - {phase: 17, concerns: [concern-reference-standards]}
+  - {phase: 18, concerns: [concern-completion-revise]}
+  - {phase: 19, concerns: [concern-completion-revise]}
+  - {phase: 20, concerns: [concern-format]}
+  - {phase: 21, concerns: [concern-format]}
+  - {phase: 22, concerns: [concern-format]}
+  - {phase: 23, concerns: [concern-format]}
+  - {phase: 24, concerns: [concern-linter]}
+  - {phase: 25, concerns: [concern-links]}
+  - {phase: 26, concerns: [concern-workflow-clarity]}
+  - {phase: 27, concerns: [concern-functional]}
+  - {phase: 28, concerns: [concern-functional]}
+  - {phase: 29, concerns: [concern-functional]}

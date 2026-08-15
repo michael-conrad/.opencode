@@ -1,78 +1,46 @@
-# Testability Assessment — Issue #2254
-# Generated: 2026-08-10
-# Provenance: AI-generated
-
-spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
-
-## SC Testability
-
-| SC | Evidence Type | Testable? | Test Method | Difficulty |
-|----|---------------|-----------|-------------|------------|
-| SC-1 | `string` | ✅ Yes | grep spec-creation/SKILL.md for canonical dispatch format, absence of deprecated execute X from Y strings | Trivial |
-| SC-2 | `string` | ✅ Yes | grep for absence of Task Files table in spec-creation/SKILL.md | Trivial |
-| SC-3 | `string` | ✅ Yes | grep audit/SKILL.md for single Workflows section with 4 DiMo steps | Trivial |
-| SC-4 | `string` | ✅ Yes | grep for absence of TDT/Invocation/Tasks sections in audit/SKILL.md | Trivial |
-| SC-5 | `string` | ✅ Yes | grep audit/SKILL.md for canonical dispatch format (positive) | Trivial |
-| SC-6 | `string` | ✅ Yes | grep audit/SKILL.md for absence of deprecated DiMo dispatch strings (negative) | Trivial |
-| SC-7 | `semantic` | ✅ Yes | clean-room sub-agent read of audit description for canonical agent-intent format | Low |
-| SC-8 | `string` | ✅ Yes | per-file frontmatter check: role-card name matches filename | Low |
-| SC-9 | `string` | ✅ Yes | per-file heading check: role-card Task heading matches filename | Low |
-| SC-10 | `string` | ✅ Yes | grep for cross-references repointed to role-split files, including holistic-dimensions.yaml | Trivial |
-| SC-11 | `string` | ✅ Yes | grep reference docs for updated analyze/create/validate/revise task names | Trivial |
-| SC-12 | `string` | ✅ Yes | file-structure check: subdirectory tasks flattened, stub index files removed | Low |
-| SC-13 | `string` | ✅ Yes | grep completion task routing corrected, dangling verify-authorization repointed | Trivial |
-| SC-14 | `string` | ✅ Yes | file-absence check: behavioral-sc-evaluator.md removed | Trivial |
-| SC-15 | `string` | ✅ Yes | grep taxonomy citations at single canonical reference, loaded dynamically | Trivial |
-| SC-16 | `semantic` | ✅ Yes | clean-room sub-agent read: missing evidence-type declaration is hard FAIL routed to remediation | Low |
-| SC-17 | `behavioral` | ✅ Yes | opencode run (with-test-home): analyze task BLOCKs on unbound/placeholder issue number | Medium — requires model |
-| SC-18 | `string` | ✅ Yes | grep validate task loads 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml | Trivial |
-| SC-19 | `string` | ✅ Yes | grep create task routes remote issue body to canonical exec-summary body format | Trivial |
-| SC-20 | `string` | ✅ Yes | grep create task includes forward-reference Spec Reference Blockquote / issues-data link | Trivial |
-| SC-21 | `string` | ✅ Yes | grep post-push reconciliation sequenced after push-artifacts.md | Trivial |
-| SC-22 | `string` | ✅ Yes | grep revise task regenerates exec-summary remote issue body on revision | Trivial |
-| SC-23 | `string` | ✅ Yes | grep spec-creation/SKILL.md Workflows uses numbered-checkbox lists with sub-bullets + execution-mode indicator | Trivial |
-| SC-24 | `string` | ✅ Yes | grep audit/SKILL.md Workflows uses numbered-checkbox lists with sub-bullets + execution-mode indicator | Trivial |
-| SC-25 | `string` | ✅ Yes | grep every spec-creation/audit task-card Procedure uses numbered-checkbox lists | Low |
-| SC-26 | `semantic` | ✅ Yes | clean-room sub-agent read: no task-card procedure requires internal sub-agent dispatch; fat cards split | Low |
-| SC-27 | `semantic` | ✅ Yes | clean-room sub-agent read: workflow Context supplies every task-card Dispatch Contract/Entry Criteria parameter | Low |
-| SC-28 | `behavioral` | ✅ Yes | opencode run: skildeck linter enforces numbered-checkbox workflow, execution-mode, clean-room, dispatch-contract, markdown link correctness | Medium — requires model + linter run |
-| SC-29a | `string` | ✅ Yes | link-resolution check: markdown links resolve to real targets | Trivial |
-| SC-29b | `string` | ✅ Yes | link-resolution check: markdown links use correct relative paths | Trivial |
-| SC-29c | `string` | ✅ Yes | link-wording check: markdown links follow Read [Text](path) wording | Trivial |
-| SC-31 | `string` | ✅ Yes | grep workflows in both SKILL.md clearly indicate orchestrator step-by-step with explicit execution-mode sub-bullets | Trivial |
-| SC-32 | `behavioral` | ✅ Yes | opencode run (with-test-home): full spec-creation pipeline against fixture produces valid spec, no mis-routing/missing cards/broken refs/deprecated strings | Medium — requires model + shared test home + gitbucket |
-| SC-33 | `behavioral` | ✅ Yes | opencode run (with-test-home): audit DiMo 4-role chain against fixture produces valid verdict, correct task cards + complete dispatch contract | Medium — requires model + shared test home + gitbucket |
-| SC-34 | `behavioral` | ✅ Yes | behavioral test setup check: shared test home + test project + test gitbucket instance, incremental sequencing | Medium — requires setup infrastructure |
-| SC-35 | `string` | ✅ Yes | grep reference/skill-card-description-standards.md for numbered-checkbox Workflows spec + execution-mode sub-bullet | Trivial |
-| SC-36 | `string` | ✅ Yes | grep reference/task-card-structure-standards.md for numbered-checkbox Procedure + clean-room unit + dispatch-contract completeness mandates | Trivial |
-| SC-37 | `string` | ✅ Yes | grep issue-operations-core/tasks/creation.md for absence of `.issues/` prefix and `{{SPEC_PATH}}` = `N/` | Trivial |
-
-## Test Infrastructure Requirements
-
-| Requirement | For SCs | Available? |
-|-------------|---------|------------|
-| grep | SC-1..SC-6, SC-10..SC-15, SC-18..SC-25, SC-29a/b/c, SC-31, SC-35..SC-37 | ✅ Yes |
-| Clean-room sub-agent read | SC-7, SC-16, SC-26, SC-27 (semantic) | ✅ Yes (task() dispatch) |
-| Per-file frontmatter/heading/structure checks | SC-8, SC-9, SC-12, SC-14 | ✅ Yes |
-| opencode run (with-test-home) | SC-17, SC-28, SC-32, SC-33 | ✅ Yes |
-| Shared test home + gitbucket (with-test-home + __ensure_gitbucket) | SC-32, SC-33, SC-34 | ✅ Yes |
-| Link-resolution/wording checks | SC-29a, SC-29b, SC-29c | ✅ Yes |
-| skildeck linter execution | SC-28 | ✅ Yes (.opencode/tools/impl/skildeck/) |
-
-## Test Gating
-
-| Gate | SCs Verified | When |
-|------|-------------|------|
-| Pre-implementation (RED) | SC-17, SC-28, SC-32, SC-33 (behavioral tests exist and fail) | Before any file change |
-| Post-implementation (string grep) | SC-1..SC-6, SC-10..SC-15, SC-18..SC-25, SC-29a/b/c, SC-31, SC-35..SC-37 | After file changes |
-| Post-implementation (semantic) | SC-7, SC-16, SC-26, SC-27 | After file changes |
-| Post-implementation (behavioral) | SC-17, SC-28, SC-32, SC-33, SC-34 | After file changes |
-
-## Risk to Testability
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Model unavailable for behavioral tests | SC-17, SC-28, SC-32, SC-33 cannot run | Per 065-verification-honesty.md: FAIL is the only valid outcome; attempt remediation (alternative model, timeout increase) |
-| Stale test assertions | Behavioral tests pass when they should fail | RED phase must confirm tests fail before change |
-| Semantic inspector misjudgment | SC-7, SC-16, SC-26, SC-27 false PASS/FAIL | Clean-room sub-agent with no context preloading |
-| Shared test home not provisioned | SC-32, SC-33, SC-34 cannot run | Ensure with-test-home + __ensure_gitbucket are exercised |
+# Testability Assessment — Issue 2254: Remediate spec-creation and audit skill cards + reference standards
+spec: .opencode/.issues/2254/spec.md
+evidence_types:
+  - { sc: SC-1, evidence_type: string, verification_method: "grep spec-creation/SKILL.md for absence of 'execute .* from' and presence of canonical format", cost_frame: "one grep call" }
+  - { sc: SC-2, evidence_type: string, verification_method: "grep spec-creation/SKILL.md for absence of '## Task Files'", cost_frame: "one grep call" }
+  - { sc: SC-3, evidence_type: string, verification_method: "grep audit/SKILL.md for Workflows section", cost_frame: "one grep call" }
+  - { sc: SC-4, evidence_type: string, verification_method: "grep audit/SKILL.md for absence of TDT/Invocation/Tasks sections", cost_frame: "one grep call" }
+  - { sc: SC-5, evidence_type: string, verification_method: "grep audit/SKILL.md for presence of canonical format", cost_frame: "one grep call" }
+  - { sc: SC-6, evidence_type: string, verification_method: "grep audit/SKILL.md for absence of 'execute .* DiMo .* from audit'", cost_frame: "one grep call" }
+  - { sc: SC-7, evidence_type: semantic, verification_method: "sub-agent reads audit/SKILL.md frontmatter and verifies canonical agent-intent format", cost_frame: "minutes of execution time" }
+  - { sc: SC-8, evidence_type: string, verification_method: "for each audit/tasks/*-role.md, verify frontmatter name == basename", cost_frame: "scripted scan of ~40 role-card files" }
+  - { sc: SC-9, evidence_type: string, verification_method: "for each audit/tasks/*-role.md, verify '# Task:' heading == basename", cost_frame: "scripted scan of ~40 role-card files" }
+  - { sc: SC-10, evidence_type: string, verification_method: "grep audit/tasks and reference/holistic-dimensions.yaml for absence of monolithic refs and presence of role-split refs", cost_frame: "a few grep calls" }
+  - { sc: SC-11, evidence_type: string, verification_method: "grep reference/skill-card-description-standards.md for absence of stale names and presence of actual names", cost_frame: "one grep call" }
+  - { sc: SC-12, evidence_type: string, verification_method: "verify the three subdirectories are flat files and stub files are absent", cost_frame: "file-existence check" }
+  - { sc: SC-13, evidence_type: string, verification_method: "grep audit/tasks/completion.md for correct routing and absence of dangling reference", cost_frame: "one grep call" }
+  - { sc: SC-14, evidence_type: string, verification_method: "verify audit/tasks/behavioral-sc-evaluator.md is absent", cost_frame: "file-existence check" }
+  - { sc: SC-15, evidence_type: string, verification_method: "grep spec-creation/tasks/validate.md and audit role cards for canonical reference citation", cost_frame: "a few grep calls" }
+  - { sc: SC-16, evidence_type: semantic, verification_method: "sub-agent reads reference/spec-structure-standards.md and verifies the missing-type rule is hard FAIL", cost_frame: "minutes of execution time" }
+  - { sc: SC-17, evidence_type: behavioral, verification_method: "opencode run (with-test-home): dispatch analyze with unbound/placeholder issue_number and assert BLOCK", cost_frame: "opencode run against real model" }
+  - { sc: SC-18, evidence_type: string, verification_method: "grep spec-creation/tasks/validate.md for dynamic load of reference/holistic-dimensions.yaml", cost_frame: "one grep call" }
+  - { sc: SC-19, evidence_type: string, verification_method: "grep spec-creation/tasks/create.md for a reference to the canonical exec-summary body format / creation.md Step 5", cost_frame: "one grep call" }
+  - { sc: SC-20, evidence_type: string, verification_method: "grep spec-creation/tasks/create.md for the forward-reference Spec Reference Blockquote / issues-data link", cost_frame: "one grep call" }
+  - { sc: SC-21, evidence_type: string, verification_method: "grep spec-creation/tasks/create.md for the post-push reconciliation sequenced after push-artifacts.md", cost_frame: "one grep call" }
+  - { sc: SC-22, evidence_type: string, verification_method: "grep spec-creation/tasks/revise.md for exec-summary body regeneration on revision", cost_frame: "one grep call" }
+  - { sc: SC-23, evidence_type: string, verification_method: "grep spec-creation/SKILL.md for numbered checkbox workflow steps and execution-mode sub-bullets", cost_frame: "one grep call" }
+  - { sc: SC-24, evidence_type: string, verification_method: "grep audit/SKILL.md for numbered checkbox workflow steps and execution-mode sub-bullets", cost_frame: "one grep call" }
+  - { sc: SC-25, evidence_type: string, verification_method: "grep all task cards in spec-creation and audit for numbered checkbox procedure steps", cost_frame: "scripted scan of task cards" }
+  - { sc: SC-26, evidence_type: semantic, verification_method: "sub-agent reads all task cards in spec-creation and audit and verifies no procedure requires internal dispatch", cost_frame: "minutes of execution time" }
+  - { sc: SC-27, evidence_type: semantic, verification_method: "sub-agent cross-references each task card's Dispatch Contract/Entry Criteria against the SKILL.md workflow Context sub-bullet", cost_frame: "minutes of execution time" }
+  - { sc: SC-28, evidence_type: behavioral, verification_method: "opencode run (with-test-home): run skildeck lint against a fixture violating each new rule and assert the linter flags it", cost_frame: "opencode run against real model" }
+  - { sc: SC-29a, evidence_type: string, verification_method: "verify all markdown links in the two skills, reference docs, and issue-operations-core/tasks/creation.md resolve to existing files", cost_frame: "link-resolution scan" }
+  - { sc: SC-29b, evidence_type: string, verification_method: "verify all markdown links use correct relative paths from their containing file", cost_frame: "link-resolution scan" }
+  - { sc: SC-29c, evidence_type: string, verification_method: "verify all markdown links follow the Read [Text](path) wording", cost_frame: "link-resolution scan" }
+  - { sc: SC-31, evidence_type: string, verification_method: "grep the two SKILL.md files for orchestrator-step framing and execution-mode sub-bullets", cost_frame: "one grep call" }
+  - { sc: SC-32, evidence_type: behavioral, verification_method: "opencode run (with-test-home): dispatch the remediated spec-creation pipeline end-to-end against the test gitbucket instance and assert correct output", cost_frame: "opencode run against real model" }
+  - { sc: SC-33, evidence_type: behavioral, verification_method: "opencode run (with-test-home): dispatch the remediated audit chain end-to-end and assert correct output", cost_frame: "opencode run against real model" }
+  - { sc: SC-34, evidence_type: behavioral, verification_method: "verify the behavioral test setup uses the shared with-test-home infrastructure with the gitbucket instance", cost_frame: "opencode run against real model" }
+  - { sc: SC-35, evidence_type: string, verification_method: "grep reference/skill-card-description-standards.md for the numbered-checkbox Workflows specification and execution-mode sub-bullet", cost_frame: "one grep call" }
+  - { sc: SC-36, evidence_type: string, verification_method: "grep reference/task-card-structure-standards.md for the numbered-checkbox Procedure format, the clean-room unit mandate, and the dispatch-contract completeness requirement", cost_frame: "one grep call" }
+  - { sc: SC-37, evidence_type: string, verification_method: "grep issue-operations-core/tasks/creation.md for the corrected URL template without the .issues/ prefix and the corrected {{SPEC_PATH}} value", cost_frame: "one grep call" }
+notes:
+  - "String SCs (the majority) cost one grep call or a scripted scan each."
+  - "Semantic SCs (SC-7, SC-16, SC-26, SC-27) require clean-room sub-agent analytical judgment."
+  - "Behavioral SCs (SC-17, SC-28, SC-32, SC-33, SC-34) require opencode run against a real model in the shared with-test-home + gitbucket environment — no grep/static substitution is permitted."
+  - "Evidence-type taxonomy is sourced from the single canonical reference document (SC-15)."

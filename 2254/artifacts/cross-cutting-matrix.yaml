@@ -1,33 +1,82 @@
-# Cross-Cutting Matrix — Issue #2254
-# Generated: 2026-08-10
-# Provenance: AI-generated
-
-spec: "Remediate spec-creation and audit skill cards plus reference standards — drift repair, numbered-checkbox formats, linter enforcement, markdown link verification, workflow clarity, and functional end-to-end verification"
-
-## Cross-Cutting Concerns
-
-| Concern | Affected Files | SC Coverage | Risk |
-|---------|---------------|-------------|------|
-| Canonical dispatch format | spec-creation/SKILL.md, audit/SKILL.md | SC-1, SC-5, SC-6 | RISK-1 (deprecated strings persist) |
-| Numbered-checkbox Workflows format | skill-card-description-standards.md, spec-creation/SKILL.md, audit/SKILL.md | SC-23, SC-24, SC-31, SC-35 | RISK-2 (cards conform to format reference forbids) |
-| Numbered-checkbox task-card Procedure + clean-room unit | task-card-structure-standards.md, all spec-creation/audit task cards | SC-25, SC-26, SC-36 | RISK-3 (fat task cards unexecutable) |
-| Dispatch-contract completeness | workflow Context, task cards | SC-27 | RISK-4 (sub-agent fabricates parameters) |
-| Linter enforcement | skildeck linter, both SKILL.md, task cards, reference docs | SC-28 | RISK-5 (format defects recur silently) |
-| Markdown link correctness | both skills, reference docs, issue-operations-core | SC-29a, SC-29b, SC-29c | RISK-6 (dangling links) |
-| Evidence-type taxonomy source | validate, audit, reference docs | SC-15, SC-18 | RISK-7 (redirect source) |
-| Functional verification | with-test-home, helpers.sh, behavioral tests | SC-32, SC-33, SC-34 | RISK-8 (skills well-formed but broken) |
-| issues-data URL template | issue-operations-core/tasks/creation.md | SC-37, SC-29a/29b/29c | RISK-9 (broken URL recurrence) |
-
-## Interaction Matrix
-
-| | Dispatch format | Workflows format | Task-card format | Dispatch-contract | Linter | Markdown links | Taxonomy | Functional | URL template |
-|---|---|---|---|---|---|---|---|---|---|
-| Dispatch format | — | Shared SKILL.md | Independent | Independent | Enforced | Independent | Independent | Verified end-to-end | Independent |
-| Workflows format | Shared SKILL.md | — | Reference-defined | Independent | Enforced | Independent | Independent | Verified | Independent |
-| Task-card format | Independent | Reference-defined | — | Contract-supplied | Enforced | Independent | Independent | Verified | Independent |
-| Dispatch-contract | Independent | Independent | Contract-supplied | — | Enforced | Independent | Independent | Verified | Independent |
-| Linter | Enforces | Enforces | Enforces | Enforces | — | Enforces links | Independent | Independent | Independent |
-| Markdown links | Independent | Independent | Independent | Independent | Enforced | — | Independent | Verified | SC-37 target |
-| Taxonomy | Independent | Independent | Independent | Independent | Independent | Independent | — | Verified | Independent |
-| Functional | Verifies | Verifies | Verifies | Verifies | Independent | Verifies | Verifies | — | Independent |
-| URL template | Independent | Independent | Independent | Independent | Independent | SC-29a/b/c target | Independent | Independent | — |
+# Cross-Cutting Matrix — Issue 2254: Remediate spec-creation and audit skill cards + reference standards
+spec: .opencode/.issues/2254/spec.md
+cross_cutting_scs:
+  - sc: SC-10
+    spans: [concern-audit-role-cards, concern-reference-standards]
+    notes: Cross-references repointed in both audit/tasks and reference/holistic-dimensions.yaml — spans the role-card repair and reference standards concerns.
+  - sc: SC-15
+    spans: [concern-spec-creation-tasks, concern-audit-role-cards, concern-reference-standards]
+    notes: Evidence-type taxonomy citations consolidated in spec-creation validate AND audit role cards, pointing at the single canonical reference doc.
+  - sc: SC-18
+    spans: [concern-spec-creation-tasks, concern-reference-standards]
+    notes: validate.md loads 11 holistic dimensions dynamically from reference/holistic-dimensions.yaml — couples the task card to the reference doc.
+  - sc: SC-19
+    spans: [concern-spec-creation-tasks, concern-url-root-cause]
+    notes: create.md routes remote issue body to the canonical exec-summary format defined in issue-operations-core/tasks/creation.md Step 5 — the same file SC-37 corrects.
+  - sc: SC-20
+    spans: [concern-spec-creation-tasks, concern-url-root-cause]
+    notes: create.md's forward-reference Spec Reference Blockquote / issues-data link depends on the URL template that SC-37 corrects.
+  - sc: SC-22
+    spans: [concern-spec-creation-tasks, concern-completion-revise]
+    notes: revise.md regenerates the exec-summary body — spans task behavior and the exec-summary lifecycle.
+  - sc: SC-23
+    spans: [concern-spec-creation-skill, concern-format]
+    notes: spec-creation Workflows numbered-checkbox format depends on reference/skill-card-description-standards.md §7 (SC-35) defining the format.
+  - sc: SC-24
+    spans: [concern-audit-skill, concern-format]
+    notes: audit Workflows numbered-checkbox format depends on reference/skill-card-description-standards.md §7 (SC-35) defining the format.
+  - sc: SC-25
+    spans: [concern-format, concern-spec-creation-tasks, concern-audit-role-cards]
+    notes: Task-card Procedure numbered-checkbox format spans all spec-creation and audit task cards, defined by reference/task-card-structure-standards.md (SC-36).
+  - sc: SC-26
+    spans: [concern-format, concern-spec-creation-tasks, concern-audit-role-cards]
+    notes: Fat task-card splitting applies across all spec-creation and audit task cards; the clean-room unit mandate is defined in reference/task-card-structure-standards.md (SC-36).
+  - sc: SC-27
+    spans: [concern-format, concern-spec-creation-skill, concern-audit-skill]
+    notes: Dispatch-contract completeness cross-references each task card's Dispatch Contract/Entry Criteria against the SKILL.md workflow Context sub-bullet.
+  - sc: SC-28
+    spans: [concern-linter, concern-format, concern-links]
+    notes: Linter enforces the numbered-checkbox format (SC-23/24/25), clean-room unit (SC-26), dispatch-contract completeness (SC-27), and markdown link correctness (SC-29a/29b/29c).
+  - sc: SC-29a
+    spans: [concern-links, concern-url-root-cause]
+    notes: Markdown link resolution includes issue-operations-core/tasks/creation.md — the file SC-37 corrects, so the corrected link is verified against the issues-data branch structure.
+  - sc: SC-29b
+    spans: [concern-links, concern-url-root-cause]
+    notes: Relative-path correctness includes issue-operations-core/tasks/creation.md as a verified target.
+  - sc: SC-29c
+    spans: [concern-links, concern-url-root-cause]
+    notes: Read [Text](path) wording includes issue-operations-core/tasks/creation.md as a verified target.
+  - sc: SC-31
+    spans: [concern-workflow-clarity, concern-spec-creation-skill, concern-audit-skill]
+    notes: Workflow clarity applies to both SKILL.md files, making the execution-mode inline-vs-dispatch decision explicit.
+  - sc: SC-32
+    spans: [concern-functional, concern-spec-creation-skill, concern-spec-creation-tasks, concern-format, concern-links]
+    notes: Functional spec-creation pipeline test depends on all prior spec-creation remediation phases (1, 2, 3, 4, 5, 6, 7, 19, 20, 21, 22, 23, 24, 25, 26).
+  - sc: SC-33
+    spans: [concern-functional, concern-audit-skill, concern-audit-role-cards, concern-format, concern-links]
+    notes: Functional audit DiMo chain test depends on all prior audit remediation phases (8-18, 20-26).
+phase_crossing_notes:
+  - Phase 20 (numbered-checkbox Workflows) depends on Phases 1, 2, 8, 9, 10 — it reformats the SKILL.md files already remediated in those phases.
+  - Phase 21 (numbered-checkbox task-card Procedure) depends on Phases 3, 4, 5, 6, 11, 12, 14 — it reformats the task cards remediated in those phases.
+  - Phases 27 and 28 (functional end-to-end) are the integration gates spanning all prior remediation phases plus Phase 29 (shared test home).
+single_concern_scs:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+  - SC-6
+  - SC-7
+  - SC-8
+  - SC-9
+  - SC-11
+  - SC-12
+  - SC-13
+  - SC-14
+  - SC-16
+  - SC-17
+  - SC-21
+  - SC-34
+  - SC-35
+  - SC-36
+  - SC-37
