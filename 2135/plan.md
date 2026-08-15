@@ -36,6 +36,11 @@ dispatch:
   - phase: 5
     skill: verification-before-completion
     tasks: [verify]
+lifecycle_events:
+  - timestamp: 2026-08-15T03:02:20Z
+    event: plan_created
+    plan_path: .opencode/.issues/2135/plan.md
+    phase_count: 5
 ---
 
 # Implementation Plan — #2135 — Rewrite 130-authority-source.md
