@@ -1,0 +1,86 @@
+# Validation Findings — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+plan: .opencode/.issues/2134/plan.md
+dependency_contract: .opencode/.issues/2134/dependency-contract.yaml
+concern_map: .opencode/.issues/2134/artifacts/concern-map.yaml
+solve_output: .opencode/.issues/2134/artifacts/solve-output.yaml
+implementation_workflow_ref: .opencode/skills/writing-plans/reference/implementation-workflow.md
+overall_status: PASS
+
+categories:
+  - id: category-1-structural
+    name: Structural validation
+    checks:
+      - id: C1-1
+        description: "plan.md has a phase table with all required columns (Phase, Skill, Task, Target, SCs, Depends On)"
+        result: PASS
+        evidence: "Phase Table at plan.md lines 30-35 lists all six columns (Phase, Skill, Task, Target, SCs, Depends On)"
+      - id: C1-2
+        description: "Each phase has a procedure section with numbered steps"
+        result: PASS
+        evidence: "Phase 1 (plan.md lines 58-67) has 9 numbered steps; Phase 2 (lines 86-98) has 12; Phase 3 (lines 116-125) has 9; Phase 4 (lines 142-152) has 10. Each phase enumerates the RED/GREEN/COMMIT per-task cycle steps per SC"
+      - id: C1-3
+        description: "Exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        evidence: "Exit Criteria (plan.md lines 156-167) maps C1-C10 to SC-1..SC-10"
+  - id: category-2-skill-task-validity
+    name: Skill+task validity
+    checks:
+      - id: C2-1
+        description: "Every skill+task reference matches a valid entry in implementation-workflow.md"
+        result: PASS
+        evidence: "Phase 1-3 use test-driven-development task red/green; Phase 4 uses verification-before-completion task verify. Phase 4 procedure also references audit, solve check (z3-check), finishing-a-development-branch checklist (structural-checks), verification-before-completion verify (pre-pr-gate), test-driven-development phase-4 (regression-check), git-workflow-pr review-prep/create, completion-core completion (exec-summary). All match the implementation-workflow reference card"
+  - id: category-3-sc-coverage
+    name: SC coverage
+    checks:
+      - id: C3-1
+        description: "Every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        evidence: "Union of phase SCs = {SC-1,SC-2,SC-10} + {SC-3,SC-4,SC-5,SC-9} + {SC-6,SC-7,SC-8} = all 10 SCs. Phase 4 covers SC-1..SC-10"
+      - id: C3-2
+        description: "No SC has RED/GREEN/COMMIT steps split across phases (triplet split detection)"
+        result: PASS
+        evidence: "Each SC's RED/GREEN/COMMIT lives in its producing phase (SC-1,2,10 in Phase 1; SC-3,4,5,9 in Phase 2; SC-6,7,8 in Phase 3). Phase 4 is verification-only (verify task), not RED/GREEN. No triplet split"
+  - id: category-4-concern-separation
+    name: Concern separation
+    checks:
+      - id: C4-1
+        description: "Each phase addresses exactly one concern from the concern-map artifact"
+        result: PASS
+        evidence: "concern-map.yaml phase_boundary_map: Phase 1→concern-self-simulation-prohibition, Phase 2→concern-narrow-existing, Phase 3→concern-remove-stale, Phase 4→concern-verify. Plan phase SC sets match each concern's scs"
+      - id: C4-2
+        description: "No two phases address the same concern"
+        result: PASS
+        evidence: "Four distinct concerns mapped one-to-one to four phases"
+  - id: category-5-dag-validation
+    name: DAG validation
+    checks:
+      - id: C5-1
+        description: "Dependency contract DAG has no cycles"
+        result: PASS
+        evidence: "dependency-contract.yaml edges: 1→2, 2→3, 1→4, 2→4, 3→4. Acyclic"
+      - id: C5-2
+        description: "All phases reachable from the start node"
+        result: PASS
+        evidence: "Phase 2 (1→2), Phase 3 (2→3), Phase 4 (1→4) all reachable from phase_1"
+      - id: C5-3
+        description: "No orphan phases (no incoming or outgoing edges)"
+        result: PASS
+        evidence: "Phase 1 has outgoing; Phase 2 incoming+outgoing; Phase 3 incoming+outgoing; Phase 4 incoming. No orphans"
+  - id: category-6-holistic-quality
+    name: Holistic quality
+    checks:
+      - id: C6-1
+        description: "No TBD/TODO placeholders in the plan body"
+        result: PASS
+        evidence: "No TBD/TODO tokens present in plan.md"
+      - id: C6-2
+        description: "All steps use checkbox format"
+        result: PASS
+        evidence: "Pre-Implementation steps (plan.md lines 23-24) and Exit Criteria (lines 158-167) use '- [ ]' checkbox format"
+      - id: C6-3
+        description: "Dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
+        result: PASS
+        evidence: "Phases 1-4 are clean-room (dispatched red/green/verify). No inline steps within phases. Pre-Implementation inline steps (coherence gate, baseline check) are pre-implementation, not phase steps"
+
+findings: []
