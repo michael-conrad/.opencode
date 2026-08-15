@@ -1,0 +1,64 @@
+# Structure — Issue 2134: Rewrite 117-session-trigger-behavior.md
+spec: .opencode/.issues/2134/spec.md
+phase_count: 4
+phases:
+  - id: phase-1
+    name: Write new Self-Simulation Prohibition section
+    scs: [SC-1, SC-2, SC-10]
+    items:
+      - {item: 1, sc: SC-1, evidence_type: string, verification: grep for 'Self-Simulation'}
+      - {item: 2, sc: SC-2, evidence_type: semantic, verification: V-SC-2 checklist (7 checks)}
+      - {item: 10, sc: SC-10, evidence_type: semantic, verification: V-SC-10 checklist (4 checks)}
+    skill_task:
+      red: {skill: test-driven-development, dispatch: "execute red task from test-driven-development"}
+      green: {skill: test-driven-development, dispatch: "execute green task from test-driven-development"}
+      verify: {skill: verification-before-completion, dispatch: "execute verify task from verification-before-completion"}
+      commit: {skill: orchestrator, dispatch: "git add <files> && git commit -m <message>"}
+  - id: phase-2
+    name: Narrow existing sections (No-Echo, Trigger Map, Suppression)
+    scs: [SC-3, SC-4, SC-5, SC-9]
+    items:
+      - {item: 3, sc: SC-3, evidence_type: string, verification: grep for 'No-Echo'}
+      - {item: 4, sc: SC-4, evidence_type: string, verification: grep for 'pair_mode_resume' and 'nested_opencode_fatal'}
+      - {item: 5, sc: SC-5, evidence_type: string, verification: grep for 'Suppression Rule'}
+      - {item: 9, sc: SC-9, evidence_type: semantic, verification: V-SC-9 checklist (4 checks, original vs rewritten)}
+    skill_task:
+      red: {skill: test-driven-development, dispatch: "execute red task from test-driven-development"}
+      green: {skill: test-driven-development, dispatch: "execute green task from test-driven-development"}
+      verify: {skill: verification-before-completion, dispatch: "execute verify task from verification-before-completion"}
+      commit: {skill: orchestrator, dispatch: "git add <files> && git commit -m <message>"}
+  - id: phase-3
+    name: Remove non-actionable historical records and stale cross-references
+    scs: [SC-6, SC-7, SC-8]
+    items:
+      - {item: 6, sc: SC-6, evidence_type: semantic, verification: V-SC-6 checklist (4 checks)}
+      - {item: 7, sc: SC-7, evidence_type: semantic, verification: V-SC-7 checklist (3 checks)}
+      - {item: 8, sc: SC-8, evidence_type: semantic, verification: V-SC-8 checklist (1 check)}
+    skill_task:
+      red: {skill: test-driven-development, dispatch: "execute red task from test-driven-development"}
+      green: {skill: test-driven-development, dispatch: "execute green task from test-driven-development"}
+      verify: {skill: verification-before-completion, dispatch: "execute verify task from verification-before-completion"}
+      commit: {skill: orchestrator, dispatch: "git add <files> && git commit -m <message>"}
+  - id: phase-4
+    name: Verify all sections present and semantic preservation
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
+    items:
+      - {item: verify-all, sc: SC-1..SC-10, evidence_type: mixed, verification: integration gate — re-run all grep + V-SC checklists}
+    skill_task:
+      verify: {skill: verification-before-completion, dispatch: "execute verify task from verification-before-completion"}
+      audit: {skill: audit, dispatch: "execute verification-audit DiMo investigator from audit"}
+      z3_check: {skill: orchestrator, dispatch: ".opencode/tools/solve check --state-path ... --contract-path ..."}
+      pre_pr_gate: {skill: verification-before-completion, dispatch: "execute verify task from verification-before-completion"}
+dependency_dag:
+  edges:
+    - {from: phase-1, to: phase-2, reason: "Phase 2 narrows existing sections as specific cases of the new Self-Simulation Prohibition written in Phase 1"}
+    - {from: phase-2, to: phase-3, reason: "Phase 3 removes stale content after Phase 2 narrows the sections that contain it"}
+    - {from: phase-1, to: phase-4, reason: "Phase 4 verifies SC-1, SC-2, SC-10 produced in Phase 1"}
+    - {from: phase-2, to: phase-4, reason: "Phase 4 verifies SC-3, SC-4, SC-5, SC-9 produced in Phase 2"}
+    - {from: phase-3, to: phase-4, reason: "Phase 4 verifies SC-6, SC-7, SC-8 produced in Phase 3"}
+triplet_co_location:
+  status: PASS
+  notes: Each SC's RED/GREEN/COMMIT steps are assigned to the same phase. No TRIPLET_SPLIT.
+cross_phase_dependency:
+  status: PASS
+  notes: Phase 4 is a verification-only integration gate; no RED test in a later phase depends on SC output from an even later phase. No CROSS_PHASE_DEP.

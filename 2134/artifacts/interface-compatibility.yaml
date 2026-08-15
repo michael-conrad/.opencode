@@ -20,3 +20,82 @@ interface_boundaries:
 compatibility_conclusions:
   - Single-file rewrite; no code interface changes.
   - The only compatibility constraint is that the rewritten guideline keep its frontmatter contract and restrict cross-references to preloaded context.
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Write new Self-Simulation Prohibition section — SC-1, SC-2, SC-10"
+    phase_2:
+      type: bool
+      description: "Narrow existing sections (No-Echo, Trigger Map, Suppression) — SC-3, SC-4, SC-5, SC-9"
+    phase_3:
+      type: bool
+      description: "Remove non-actionable historical records and stale cross-references — SC-6, SC-7, SC-8"
+    phase_4:
+      type: bool
+      description: "Verify all sections present and semantic preservation — SC-1..SC-10"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+    - "z3.Implies(phase_4, phase_1)"
+    - "z3.Implies(phase_4, phase_2)"
+    - "z3.Implies(phase_4, phase_3)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/guidelines/117-session-trigger-behavior.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-10
+    phase_2:
+      files:
+        - .opencode/guidelines/117-session-trigger-behavior.md
+      scs:
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-9
+    phase_3:
+      files:
+        - .opencode/guidelines/117-session-trigger-behavior.md
+      scs:
+        - SC-6
+        - SC-7
+        - SC-8
+    phase_4:
+      files:
+        - .opencode/guidelines/117-session-trigger-behavior.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8
+        - SC-9
+        - SC-10
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Phase 2 narrows existing sections as specific cases of the new Self-Simulation Prohibition written in Phase 1"
+    - from: phase_2
+      to: phase_3
+      rationale: "Phase 3 removes stale content after Phase 2 narrows the sections that contain it"
+    - from: phase_1
+      to: phase_4
+      rationale: "Phase 4 verifies SC-1, SC-2, SC-10 produced in Phase 1"
+    - from: phase_2
+      to: phase_4
+      rationale: "Phase 4 verifies SC-3, SC-4, SC-5, SC-9 produced in Phase 2"
+    - from: phase_3
+      to: phase_4
+      rationale: "Phase 4 verifies SC-6, SC-7, SC-8 produced in Phase 3"
+  notes:
+    - "Phases 1-3 are sequential (1 → 2 → 3), each rewriting/narrowing sections of the single guideline file. Phase 4 is a verification-only integration gate over all 10 SCs."
+    - "The dependency contract is derived from the structure.yaml dependency DAG built during the research phase."
