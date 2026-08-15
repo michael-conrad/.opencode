@@ -4,95 +4,29 @@ tier: 1
 load_when: sub-agent
 ---
 
-# Guideline 10: Code as Authoritative Source
+# Guideline 10: Dual Authority — Spec for Intent, Code for State
 
 ## Principle
 
-The current state of the filesystem (the code) is the only absolute source of truth. Documentation, plans, and session
-history are secondary and potentially transient or outdated.
+The spec is authoritative for intent — what the system should do. The spec defines requirements, success criteria, and behavior. The code is authoritative for current state — what the system actually does. The code is the implementation of the spec. Neither wins absolutely. When spec and code diverge, they converge through revision: the spec is revised to match reality when it misstates current behavior, and the code is revised to implement the spec's intent when it falls short.
 
 ## Rules
 
-1. **Code Priority**: If a discrepancy is found between the code (including filenames, structure, and logic) and any
-   non-code source (plans, docs, user prompts referencing old states), the **code wins**.
+1. **Spec for intent, code for state**: The spec is authoritative for intent — what the system should do. The code is authoritative for current state — what the system actually does. When a spec makes an incorrect claim about current code behavior, revise the spec to match reality. When code fails to implement the spec's intent, fix the code. When spec and code diverge on matters of fact, the spec is updated to match reality.
 
-2. **Check for Superseding Issues AND Staleness First**: Before implementing OR revising any spec, check for:
+2. **Spec before code**: The spec-before-code mandate is a Tier 1 requirement enforced by the approval gate: every code change requires an approved spec. The spec defines what to build; the code implements it.
 
-    **Superseding Issues**: Later GitHub Issues that may supersede, invalidate, or contradict the active spec.
-    Implementation of a superseded spec is wasted work.
+3. **Documentation Drift Protocol**: When spec and code diverge on matters of fact — the spec describes behavior the code does not have, or the code has behavior the spec does not describe — update the spec to reflect current state. Updating the spec to match code state is an administrative sync, not a code change. After syncing the spec, STOP and report the synchronization.
 
-    - Query all open `[SPEC]` issues and check for conflicting/overlapping objectives
-    - Look for `[SPEC-FIX]` or `[SPEC-ENHANCEMENT]` issues that may render the active spec obsolete
-    - If a later issue exists, SILENTLY HALT and report the conflict — do NOT proceed with superseded spec
+4. **Spec revision revokes plan approval**: The principle is that spec revision revokes plan approval — a substantive spec revision revokes linked plan approvals. If a spec is revised (substantive change to intent), linked plan approvals are revoked per approval-gate-006.
 
-    **Staleness from Implemented Specs**: Other specs that were implemented while this spec was pending,
-    making the active spec stale or partially obsolete.
+5. **Suppression of Reactive Remediation**: Do not change code to match a spec that is wrong about current state. Code must not be changed to match a spec that is wrong about current state. Fix the spec first, then decide if the code needs changing. Remediation must be driven by technical bugs, explicit architectural requests, or approved feature additions — never by documentation drift.
 
-    - Check for merged PRs that implemented related functionality
-    - Check if referenced code locations have been modified since spec creation
-    - Check if referenced dependencies/libraries have changed
-    - Check if the problem statement still applies (may have been fixed by another implementation)
-    - If staleness detected, REVISE the spec before implementation:
-      1. Update problem statement if context changed
-      2. Update affected files/lines if code locations changed
-      3. Update success criteria if requirements shifted
-      4. Update dependencies if integration points changed
-      5. Report the revision and HALT — wait for approval before proceeding
-    - NEVER implement a stale spec as-is — always revise first
-
-    **Overlap Detection Checklist (MANDATORY when checking for superseding issues):**
-
-    Title/objective comparison alone is insufficient. Before classifying overlap, perform the following checklist:
-
-    - [ ] **File-level search:** Extract all file paths mentioned in the active spec's affected-files or file_references sections. For each open `[SPEC]`/`[SPEC-FIX]` issue, and for each local `.issues/{N}/plan.md` file, compare file paths. Shared files → potential overlap.
-    - [ ] **Symbol-level search:** Extract all function, class, and module names referenced in the active spec body. For each overlapping open issue, compare symbol names. Shared symbols → potential overlap.
-    - [ ] **Concern boundary comparison:** Extract the concern area each phase addresses (what problem each phase solves). For each overlapping open issue, compare concern boundaries. Shared concerns → potential overlap.
-    - [ ] **Four-tier classification:** Based on file, symbol, and concern overlap, classify using:
-      - **FULL-SUPERSESSION:** Another spec's scope entirely covers this spec's scope → HALT, report full scope overlap, recommend using existing spec
-      - **PARTIAL-OVERLAP:** Specs share files/symbols but have different core concerns → Surface to developer, suggest scoping to avoid overlap
-      - **CONFLICT-RISK:** Same files modified with conflicting intent → HALT, suggest coordination
-      - **INDEPENDENT:** No meaningful overlap → Proceed normally
-    - [ ] **Evidence artifacts:** For each overlap classification, record: `{Check: overlap search, Tool: github_list_issues + srclight_get_dependents, Result: shared files/symbols/concerns, Classification: FULL-SUPERSESSION|PARTIAL-OVERLAP|CONFLICT-RISK|INDEPENDENT, Action: HALT|surface|surface|proceed}`
-
-3. **Documentation Drift Protocol**:
-
-   - When drift is detected, you MUST NOT "fix" the code to match the documentation or plan.
-   - Instead, you MUST update the plan/documentation to reflect the reality of the code. Updating
-     plan/documentation to reflect code reality is exempt from the approval gate (treated as a synchronization
-     administrative action, not a code change).
-   - **CRITICAL: This exemption applies ONLY to spec files in GitHub Issues. It does NOT apply
-     to `.opencode/guidelines/` modifications — those require full spec-first workflow.**
-   - After syncing the documentation, STOP and report the synchronization.
-
-4. **Always Update Specs to Reflect Reality**: Specs must match current code/implementation state. If drift is detected:
-
-   - Specs are secondary to code — code is the authoritative source
-   - Update the spec to reflect reality (treating as administrative sync, not implementation)
-   - Report the synchronization and HALT
-   - **This exemption applies ONLY to spec/plan files, NOT to `.opencode/guidelines/`**
-
-5. **Suppression of Reactive Remediation**:
-
-   - Explicitly forbidden: Proposing or applying code changes solely to make the code conform to an expectation derived
-     from a non-code source.
-   - Remediation must only be driven by technical bugs, explicit architectural requests, or approved feature additions,
-     never by documentation drift.
-
-6. **Verification First**: Before using a filename or symbol from a plan or document in a tool call, command, or code
-   edit, verify its existence using the appropriate tool (`ls`, `search_project`, etc.). If it does not exist, trigger
-   the Drift Protocol. This does not apply when merely discussing or quoting a filename from a document.
-
-7. **Deep Dive Before Declaring Missing**: When analysis identifies a seemingly missing component (e.g., email delivery,
-   a utility class, a service integration), do NOT assume it is absent. Perform a thorough search of the codebase —
-   using `srclight_search_symbols`, `grep`, and directory exploration — before concluding the component
-   is missing. The component may already exist under a different name, module, or abstraction. Only after a genuine deep
-   dive may you declare it missing and propose adding it.
-
-8. **Plan Audit Requires Code Deep Dive**: When auditing or updating any plan, strictly follow the mandatory code deep
-   dive and verification requirements defined in `docs/specs/how-to-write-good-spec-ai-agents.md`. Ground every plan
-   audit finding in the actual filesystem and source code, not in remembered or stored state.
+6. **Verification against spec**: Before claiming completion, verify the code implements the spec's success criteria. The spec is the benchmark; the code is measured against it.
 
 ### [critical-rules-010] Implementing Stale or Superseded Specs
 Professional engineers check for superseding open issues before implementing — stale specs produce wasted work. Amateurs implement whatever spec they find first — then wonder why their output is obsolete before the PR is opened.
 
+---
 
+*Co-authored with AI: OpenCode (deepseek-v4-flash)*
