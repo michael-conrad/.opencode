@@ -1,7 +1,7 @@
 issue: 2135
 artifact: validate-findings
 plan: .opencode/.issues/2135/plan.md
-overall_status: FAIL
+overall_status: PASS
 categories:
   - id: 1
     name: Structural validation
@@ -10,8 +10,8 @@ categories:
         result: PASS
         detail: "plan.md has a phase table with all required columns (Phase, Skill, Task, Target, SCs, Depends On)."
       - name: phase_procedure_numbered_steps
-        result: FAIL
-        detail: "Each Phase Details section contains only a Field/Value table and a Context YAML block. No phase has a procedure section with numbered steps as required by the validate task (Category 1)."
+        result: PASS
+        detail: "Each Phase Details section (Phase 1-5) has a Procedure section with numbered steps (RED, GREEN, Verify, Commit)."
       - name: exit_criteria_sc_mapping
         result: PASS
         detail: "Exit Criteria section exists with C1-C5 mapping to SC-1, SC-2..SC-7, SC-8a..SC-10b, SC-11a..SC-11c, SC-12."
@@ -19,8 +19,8 @@ categories:
     name: Skill+task validity
     checks:
       - name: skill_task_references_valid
-        result: FAIL
-        detail: "Plan dispatch table and phase table assign the `verify` task to skill `test-driven-development` (tasks: [red, green, verify]). The implementation-workflow reference card assigns `verify` to `verification-before-completion`, not `test-driven-development`. `red` and `green` are correctly owned by `test-driven-development`."
+        result: PASS
+        detail: "red/green are owned by test-driven-development and verify is owned by verification-before-completion in both the frontmatter dispatch table and the phase table — all match the implementation-workflow reference card."
   - id: 3
     name: SC coverage
     checks:
@@ -59,16 +59,8 @@ categories:
         detail: "No TBD/TODO placeholders found in the plan body."
       - name: checkbox_steps
         result: PASS
-        detail: "Exit criteria use checkbox format."
+        detail: "Execution steps in phase files (plan-01..plan-05) and exit criteria use checkbox format with dispatch indicators."
       - name: dispatch_mode_consistency
         result: PASS
-        detail: "All phases are clean-room dispatched via test-driven-development; no inline/dispatched mixing detected."
-findings:
-  - category: 1
-    severity: FAIL
-    reason: "MISSING_PHASE_PROCEDURE_STEPS"
-    detail: "Phase Details sections (Phase 1-5) lack numbered procedure steps. Each phase only has a Field/Value table and a Context YAML block. The validate task requires each phase to have a procedure section with numbered steps."
-  - category: 2
-    severity: FAIL
-    reason: "INVALID_SKILL_TASK_REFERENCE"
-    detail: "The `verify` task is attributed to skill `test-driven-development` in both the plan frontmatter dispatch table and the phase table. Per the implementation-workflow reference card, `verify` is owned by `verification-before-completion`, not `test-driven-development`."
+        detail: "RED/GREEN dispatched via test-driven-development, verify dispatched clean-room via verification-before-completion, checkpoint commits inline — consistent dispatch indicators across all phases."
+findings: []
