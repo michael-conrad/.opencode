@@ -1,9 +1,3 @@
----
-name: spec-summary-investigator
-description: "Generate initial PR/spec consistency analysis. Fetches the PR, loads the spec, and produces the initial evidence artifact."
-license: MIT
-compatibility: opencode
----
 
 # Task: spec-summary-investigator
 

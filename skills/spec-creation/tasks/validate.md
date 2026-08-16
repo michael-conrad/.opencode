@@ -1,4 +1,4 @@
-# Task: validate — Spec verification pipeline
+# Task: validate
 
 ## Category
 
@@ -72,9 +72,9 @@ Run the 11-dimension holistic self-check and structural validation (SC completen
   Read [cost-model-standards.md](reference/cost-model-standards.md) and load the evidence-type taxonomy (the "Tiered Cost Table by Evidence Type" section lists the four valid types). When the canonical taxonomy changes, update the reference file — this task always reflects it.
 
   For each SC, verify:
-  1. The declared evidence type is one of the valid types in the canonical reference
-  2. The verification method matches the evidence type per the canonical reference
-  3. The verification method is specific enough to produce a PASS/FAIL verdict
+- [ ] 1. The declared evidence type is one of the valid types in the canonical reference
+- [ ] 2. The verification method matches the evidence type per the canonical reference
+- [ ] 3. The verification method is specific enough to produce a PASS/FAIL verdict
 
   Flag any mismatch as FAIL with `EVIDENCE_TYPE_MISMATCH` classification.
 
@@ -86,9 +86,9 @@ Run the 11-dimension holistic self-check and structural validation (SC completen
   - **Testability-assessment alignment:** Verify the spec's verification methods match the testability-assessment artifact
 
   For each artifact, check:
-  1. The artifact file exists and is non-empty
-  2. The spec's claims are consistent with the artifact's findings
-  3. Any discrepancies are flagged as warnings (not hard FAIL — artifacts may be preliminary)
+- [ ] 1. The artifact file exists and is non-empty
+- [ ] 2. The spec's claims are consistent with the artifact's findings
+- [ ] 3. Any discrepancies are flagged as warnings (not hard FAIL — artifacts may be preliminary)
 
 ### Step 4: Produce verdict
 

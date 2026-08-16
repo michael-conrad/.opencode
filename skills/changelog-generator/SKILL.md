@@ -50,10 +50,10 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `since-last-release` | `task(..., prompt: "execute since-last-release task from changelog-generator")` |
-| `date-range` | `task(..., prompt: "execute date-range task from changelog-generator with --from DATE --to DATE")` |
-| `backfill` | `task(..., prompt: "execute backfill task from changelog-generator")` |
-| `completion` | `task(..., prompt: "execute completion task from changelog-generator")` |
+| `since-last-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/since-last-release.md](.opencode/skills/changelog-generator/tasks/since-last-release.md). "))` |
+| `date-range` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/date-range.md](.opencode/skills/changelog-generator/tasks/date-range.md). from_date: ", from_date, ", to_date: ", to_date))` |
+| `backfill` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/backfill.md](.opencode/skills/changelog-generator/tasks/backfill.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/completion.md](.opencode/skills/changelog-generator/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "changelog-generator"})` ``
 

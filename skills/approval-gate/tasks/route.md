@@ -1,9 +1,3 @@
----
-name: route
-description: "Scope-aware auto-route to the next skill based on authorization scope and halt_at boundary."
-provenance: AI-generated
----
-
 # Task: route
 
 ## Purpose

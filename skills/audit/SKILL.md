@@ -62,9 +62,11 @@ When any audit produces a FAIL verdict, the following remediation procedure MUST
 
 ## Workflows
 
+**The orchestrator does NOT read task cards.** Each step below is dispatched to a clean-room sub-agent via `task()`. The sub-agent independently discovers and reads the task card file. The orchestrator receives only the result contract — it never loads task card content.
+
 The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an inline orchestrator action where marked). The `Execution mode` sub-bullet on every step makes the inline-vs-dispatch decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()`; `inline` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
 
-The orchestrator dispatches each audit as a 4-step DiMo chain — one `task()` call per role, in sequence (Investigator → Validator → Evaluator → Arbiter). Each role is a clean-room sub-agent dispatched via `task(subagent_type="general")`. The orchestrator reads the task cards it dispatches via the `Read [Text](path)` pattern; it does NOT execute audit analysis inline.
+The orchestrator dispatches each audit as a 4-step DiMo chain — one `task()` call per role, in sequence (Investigator → Validator → Evaluator → Arbiter). Each role is a clean-room sub-agent dispatched via `task(subagent_type="general")`. The orchestrator does NOT read task cards — the sub-agent independently discovers and reads the task card.
 
 **DISPATCH GATE — Inline execution is FORBIDDEN.** Every audit role MUST be dispatched to a clean-room sub-agent via `task()`. Reading a role task file and executing its steps inline in the orchestrator context means every quality gate in that role was silently bypassed.
 
@@ -72,29 +74,33 @@ The orchestrator dispatches each audit as a 4-step DiMo chain — one `task()` c
 
 ### Run an audit
 
-- [ ] 1. **Investigator** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-investigator.md](.opencode/skills/audit/tasks/<task>-investigator.md)")`
-  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
-  - **Returns:** `{status, artifact_path, finding_summary}` — writes `evidence.yaml` with raw evidence and initial findings
+- [ ] 1. **Investigator** — Collects raw evidence and initial findings from the audit target
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [audit/tasks/<audit-type>-investigator.md](.opencode/skills/audit/tasks/<audit-type>-investigator.md). spec_local_dir: ", spec_local_dir, ", artifact_evidence_dir: ", artifact_evidence_dir, ", spec_issue_number: ", spec_issue_number, ", file_paths_changed: ", file_paths_changed))`
+  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description}`
+  - **Returns:** `{status, artifact_path, summary}` — writes `evidence.yaml` with raw evidence and initial findings
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2. **Validator** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-validator.md](.opencode/skills/audit/tasks/<task>-validator.md)")`
-  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
-  - **Returns:** `{status, artifact_path, finding_summary}` — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
+- [ ] 2. **Validator** — Validates collected evidence and produces structured reasoning
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [audit/tasks/<audit-type>-validator.md](.opencode/skills/audit/tasks/<audit-type>-validator.md). spec_local_dir: ", spec_local_dir, ", artifact_evidence_dir: ", artifact_evidence_dir, ", spec_issue_number: ", spec_issue_number, ", evidence_path: ", evidence_path))`
+  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, evidence_path}`
+  - **Returns:** `{status, artifact_path, summary}` — reads `evidence.yaml`, writes `reasoning.yaml` with validated evidence
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 3. **Evaluator** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-evaluator.md](.opencode/skills/audit/tasks/<task>-evaluator.md)")`
-  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
-  - **Returns:** `{status, artifact_path, finding_summary}` — reads `evidence.yaml` + `reasoning.yaml`, writes `verdict.yaml` with per-criterion PASS/FAIL
+- [ ] 3. **Evaluator** — Evaluates validated evidence against criteria and produces per-criterion PASS/FAIL verdicts
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [audit/tasks/<audit-type>-evaluator.md](.opencode/skills/audit/tasks/<audit-type>-evaluator.md). spec_local_dir: ", spec_local_dir, ", artifact_evidence_dir: ", artifact_evidence_dir, ", spec_issue_number: ", spec_issue_number, ", evidence_path: ", evidence_path, ", reasoning_path: ", reasoning_path))`
+  - **Context passed:** `{spec_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, evidence_path, reasoning_path, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
+  - **Returns:** `{status, artifact_path, summary}` — reads `evidence.yaml` + `reasoning.yaml`, writes `verdict.yaml` with per-criterion PASS/FAIL
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 4. **Arbiter** — Dispatch `task(..., prompt: "Follow the instructions in [audit/tasks/<task>-arbiter.md](.opencode/skills/audit/tasks/<task>-arbiter.md)")`
-  - **Context passed:** `{spec_local_dir, plan_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, github.repo, guideline_paths, document_section, source_data_paths, target_files, file_paths_changed, vbc_artifact_path, failure_description, pr_number, blast_radius_path, concern_map_path, code_path_inventory_path, cross_cutting_matrix_path, interface_compatibility_path, state_analysis_path, testability_assessment_path}`
-  - **Returns:** `{status, artifact_path, finding_summary}` — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`. On an overall PASS verdict, the arbiter MUST read the ticket's current status via `local-issues read` BEFORE reporting the PASS verdict, then updates it to the verified-complete state (review/PR-ready label or status transition) when an update is warranted — via the `local-issues` CLI (`./.opencode/tools/local-issues read --number <repo>#<N>` / `update --number <repo>#<N> --labels approved-for-review`), which operates on the local `.issues/` worktree and requires no git remote or remote issue tracker. The arbiter MUST NOT update without first reading; it skips the update ONLY when the ticket status is already correct (the read shows it already carries the review/PR-ready marker) or `overall_verdict != PASS`. A FAIL verdict leaves the ticket unchanged pending remediation.
+- [ ] 4. **Arbiter** — Produces final judgment from all artifacts and updates ticket status on PASS verdict
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [audit/tasks/<audit-type>-arbiter.md](.opencode/skills/audit/tasks/<audit-type>-arbiter.md). spec_local_dir: ", spec_local_dir, ", artifact_evidence_dir: ", artifact_evidence_dir, ", spec_issue_number: ", spec_issue_number, ", file_paths_changed: ", file_paths_changed))`
+  - **Context passed:** `{spec_local_dir, artifact_evidence_dir, spec_issue_number, github.owner, guideline_paths, document_section, source_data_paths, file_paths_changed, vbc_artifact_path}`
+  - **Returns:** `{status, artifact_path, summary}` — reads all artifacts, writes `judgment.yaml` with final judgment and `next_step`. On an overall PASS verdict, the arbiter MUST read the ticket's current status via `local-issues read` BEFORE reporting the PASS verdict, then updates it to the verified-complete state (review/PR-ready label or status transition) when an update is warranted — via the `local-issues` CLI (`./.opencode/tools/local-issues read --number <repo>#<N>` / `update --number <repo>#<N> --labels approved-for-review`), which operates on the local `.issues/` worktree and requires no git remote or remote issue tracker. The arbiter MUST NOT update without first reading; it skips the update ONLY when the ticket status is already correct (the read shows it already carries the review/PR-ready marker) or `overall_verdict != PASS`. A FAIL verdict leaves the ticket unchanged pending remediation.
   - **Execution mode:** sub-agent dispatch
 
 Artifact directory: `./tmp/{issue-N}/artifacts/{task-name}/`
 
-No audit dispatches to a single monolithic task file. The orchestrator dispatches 4 sequential `task()` calls, one per DiMo role. Dispatch contracts carry `spec_local_dir` and `artifact_evidence_dir`. Auditors independently discover SCs and evidence from these directories; the orchestrator does NOT read task files for execution.
+No audit dispatches to a single monolithic task file. The orchestrator dispatches 4 sequential `task()` calls, one per DiMo role. Dispatch contracts carry `spec_local_dir` and `artifact_evidence_dir`. Auditors independently discover SCs and evidence from these directories; the orchestrator does NOT read task cards — each sub-agent discovers its task card independently.
 
 
 ### Audit Auto-Fix Exemption

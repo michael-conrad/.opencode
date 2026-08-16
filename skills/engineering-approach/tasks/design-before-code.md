@@ -1,10 +1,3 @@
----
-skill: engineering-approach
-task: design-before-code
-type: discipline-enforcing
-license: MIT
----
-
 # Task: design-before-code
 
 ## Purpose

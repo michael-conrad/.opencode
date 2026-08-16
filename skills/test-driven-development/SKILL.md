@@ -72,7 +72,7 @@ Read [the TDD cycle diagram](skills/test-driven-development/tasks/operating-prot
 
 | Task | Call via task() |
 
-| (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
+| (use task name) | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [test-driven-development/tasks/<task>.md](.opencode/skills/test-driven-development/tasks/<task>.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "test-driven-development"})` ``
 

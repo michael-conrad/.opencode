@@ -1,4 +1,4 @@
-# Task: analyze — Pre-spec analysis pipeline
+# Task: analyze
 
 ## Category
 
@@ -61,13 +61,13 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 
 - [ ] 5.1. Generate the 7 analytical artifacts consumed by `writing-plans`:
 
-  1. **Blast radius** — Affected components and ripple effects per phase
-  2. **Concern map** — Concern boundaries and separation per phase
-  3. **Code path inventory** — Code paths touched by each phase
-  4. **Cross-cutting matrix** — Cross-cutting concerns matrix
-  5. **Interface compatibility** — Interface compatibility analysis (unchanged, modified, new, removed; backward compatible, breaking, internal only)
-  6. **State analysis** — State machine transitions per phase
-  7. **Testability assessment** — Test strategy per phase (unit, integration, behavioral, mixed)
+- [ ] 1. **Blast radius** — Affected components and ripple effects per phase
+- [ ] 2. **Concern map** — Concern boundaries and separation per phase
+- [ ] 3. **Code path inventory** — Code paths touched by each phase
+- [ ] 4. **Cross-cutting matrix** — Cross-cutting concerns matrix
+- [ ] 5. **Interface compatibility** — Interface compatibility analysis (unchanged, modified, new, removed; backward compatible, breaking, internal only)
+- [ ] 6. **State analysis** — State machine transitions per phase
+- [ ] 7. **Testability assessment** — Test strategy per phase (unit, integration, behavioral, mixed)
 
 - [ ] 5.2. Write each artifact to `{project_root}/tmp/{issue_number}/artifacts/{name}.yaml`.
 

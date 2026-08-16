@@ -33,7 +33,7 @@ Issue Comment Gatekeeper. Focus: substantiveness check, byline format, platform-
 
 | Task | Call via task() |
 |------|-----------------|
-| `comment` | `task(..., prompt: "execute comment task from issue-operations-comments")` |
+| `comment` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-comments/tasks/comment.md](.opencode/skills/issue-operations-comments/tasks/comment.md). "))` |
 
 ## DISPATCH_GATE
 

@@ -1,10 +1,3 @@
----
-name: create
-purpose: "Write self-contained plan with full implementation-workflow reference card per task"
-entry_gate: structure_artifact
-returns: "{status, artifact_path, finding_summary}"
----
-
 # Task: create
 
 ## Purpose

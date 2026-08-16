@@ -1,4 +1,4 @@
-# Task: revise — Spec revision pipeline
+# Task: revise
 
 ## Category
 
@@ -29,9 +29,9 @@ Revise an existing spec based on validation findings or revision requests. Updat
 
 - [ ] 3.1. For each validation finding or revision request:
 
-  1. Identify the spec section(s) that need revision
-  2. Apply the fix (correct SC wording, add missing sections, fix evidence types, update traceability, etc.)
-  3. Do NOT change the spec's scope, requirements, or success criteria beyond what the findings require
+- [ ] 1. Identify the spec section(s) that need revision
+- [ ] 2. Apply the fix (correct SC wording, add missing sections, fix evidence types, update traceability, etc.)
+- [ ] 3. Do NOT change the spec's scope, requirements, or success criteria beyond what the findings require
 
 ### Step 4: Update change control
 
@@ -44,7 +44,7 @@ Revise an existing spec based on validation findings or revision requests. Updat
 
 ### Step 5: Regenerate exec-summary remote issue body
 
-- [ ] 5.1. When a remote API is available, regenerate the exec-summary remote issue body from the revised spec. Route the regenerated body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5, so the remote body reflects the revised spec content (Spec Reference Blockquote, Problem, Scope, Approach, Impact). Do NOT leave a stale exec-summary body that contradicts the authoritative local spec.
+- [ ] 5.1. When a remote API is available, regenerate the exec-summary remote issue body from the revised spec. Route the regenerated body to the canonical exec-summary body format defined in [skills/issue-operations-core/tasks/creation.md](skills/issue-operations-core/tasks/creation.md) Step 5, so the remote body reflects the revised spec content (Spec Reference Blockquote, Problem, Scope, Approach, Impact). Do NOT leave a stale exec-summary body that contradicts the authoritative local spec.
 
 ### Step 6: Write revised local spec
 

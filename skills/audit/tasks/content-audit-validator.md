@@ -1,9 +1,3 @@
----
-name: content-audit-validator
-description: "Validator role for the content-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -437,7 +431,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/content-audit-investigator.md` — Investigator role (produces evidence.yaml consumed by this task)
-- `tasks/content-audit.md` — Evaluator role (consumes reasoning.yaml produced by this task)
+- `tasks/content-audit-evaluator.md` — Evaluator role (consumes reasoning.yaml produced by this task)
 - `verification-enforcement/tasks/verify.md` — pre-generation verification gate that dispatches content-audit
 - `verification-enforcement/tasks/revisit.md` — post-generation resolution of UNVERIFIED markers
 - `000-critical-rules.md` — behavioral evidence mandate, clean-room protocol

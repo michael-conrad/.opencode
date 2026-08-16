@@ -1,4 +1,4 @@
-# Task: create — Spec production pipeline
+# Task: create
 
 ## Category
 
@@ -68,8 +68,8 @@ Each SC gets a `plan_item` number instead of a phase group. Items are numbered s
 
 When a remote API is available (github.platform is not `local`):
 
-1. Create a minimal remote issue with `[SPEC]` prefix and `needs-approval` label to establish the issue number
-2. Extract the `html_url` from the API response
+- [ ] 1. Create a minimal remote issue with `[SPEC]` prefix and `needs-approval` label to establish the issue number
+- [ ] 2. Extract the `html_url` from the API response
 
 When no remote API is available (local-only mode), use the local issue number directly.
 
@@ -77,23 +77,23 @@ When no remote API is available (local-only mode), use the local issue number di
 
 The `needs-approval` and `spec-draft` labels MUST be written to the local `{issues_prefix}/{N}/issue.yaml` labels array via `./.opencode/tools/local-issues update <repo>#<N> --labels needs-approval,spec-draft`. This is the **primary canonical source** for the label state — it MUST be written regardless of remote API success.
 
-1. Write `needs-approval` and `spec-draft` to the local `issue.yaml` labels array via `local-issues update --labels`
-2. If this local write fails: return BLOCKED with `LOCAL_LABEL_WRITE_FAILED` — the pipeline MUST NOT proceed without the canonical local record
-3. Verify the local canonical write by reading back the labels array via `./.opencode/tools/local-issues read-labels --number <repo>#<N>`
+- [ ] 1. Write `needs-approval` and `spec-draft` to the local `issue.yaml` labels array via `local-issues update --labels`
+- [ ] 2. If this local write fails: return BLOCKED with `LOCAL_LABEL_WRITE_FAILED` — the pipeline MUST NOT proceed without the canonical local record
+- [ ] 3. Verify the local canonical write by reading back the labels array via `./.opencode/tools/local-issues read-labels --number <repo>#<N>`
 
 ### Step 3.2: Apply `spec-draft` label to remote (SECONDARY — best-effort, never blocking)
 
 When a remote API is available, apply the `spec-draft` label to the newly created issue to mark it as a draft spec. This is best-effort/secondary only — if the remote write fails, log the failure and continue; it MUST NOT block the pipeline. The local `issue.yaml` remains the canonical source.
 
-1. Use the platform's label API to add `spec-draft` to the issue
-2. The `spec-draft` label indicates the spec is in draft state and has not yet been reviewed
-3. If the remote label write fails (e.g., GitBucket label limitation, API error), report the gap as a known limitation and proceed — the local `issue.yaml` is canonical
+- [ ] 1. Use the platform's label API to add `spec-draft` to the issue
+- [ ] 2. The `spec-draft` label indicates the spec is in draft state and has not yet been reviewed
+- [ ] 3. If the remote label write fails (e.g., GitBucket label limitation, API error), report the gap as a known limitation and proceed — the local `issue.yaml` is canonical
 
 ### Step 4: Write full spec to remote issue body
 
 When a remote API is available, write the full assembled spec to the remote issue body using the platform's update API.
 
-Route the remote issue body to the canonical exec-summary body format defined in [issue-operations-core/tasks/creation.md](issue-operations-core/tasks/creation.md) Step 5. The remote issue body MUST contain the following sections in order:
+Route the remote issue body to the canonical exec-summary body format defined in [skills/issue-operations-core/tasks/creation.md](skills/issue-operations-core/tasks/creation.md) Step 5. The remote issue body MUST contain the following sections in order:
 
 - [ ] 1. **Spec Reference Blockquote** (mandatory — top of body, before all other content) — the forward-reference link pointing to the issues-data branch URL:
 
@@ -127,10 +127,10 @@ Include the GitHub URL blockquote at the top of the local spec:
 
 Copy analytical artifacts from the analysis step to the issue's artifact directory:
 
-1. Source: `tmp/{issue_number}/artifacts/`
-2. Destination: `{project_root}/{path}/.issues/{issue_number}/artifacts/`
-3. Use `shutil.copytree` or equivalent to copy the full artifact directory
-4. If the source directory does not exist, log a warning and continue (artifacts may have been cleaned up)
+- [ ] 1. Source: `tmp/{issue_number}/artifacts/`
+- [ ] 2. Destination: `{project_root}/{path}/.issues/{issue_number}/artifacts/`
+- [ ] 3. Use `shutil.copytree` or equivalent to copy the full artifact directory
+- [ ] 4. If the source directory does not exist, log a warning and continue (artifacts may have been cleaned up)
 
 This ensures analytical artifacts are preserved alongside the spec for downstream consumers (auditors, plan creators).
 
@@ -142,10 +142,10 @@ This ensures analytical artifacts are preserved alongside the spec for downstrea
 
 ### Step 7: Hand off post-push reconciliation to the reconcile-push task
 
-After [issue-operations/platforms/local/tasks/push-artifacts.md](issue-operations/platforms/local/tasks/push-artifacts.md) runs and returns the `artifact_url`, the post-push reconciliation of the Spec Reference Blockquote / artifact URL is performed by the separate `reconcile-push` task card. This task does NOT dispatch `push-artifacts` or `reconcile-push` internally — the orchestrator dispatches each as a separate workflow step.
+After [skills/issue-operations/platforms/local/tasks/push-artifacts.md](skills/issue-operations/platforms/local/tasks/push-artifacts.md) runs and returns the `artifact_url`, the post-push reconciliation of the Spec Reference Blockquote / artifact URL is performed by the separate `reconcile-push` task card. This task does NOT dispatch `push-artifacts` or `reconcile-push` internally — the orchestrator dispatches each as a separate workflow step.
 
-1. Record the `artifact_url` returned by `push-artifacts` in the result contract for the orchestrator to pass to the `reconcile-push` step.
-2. Do NOT call `task()` or `skill()` from within this task — sub-agents cannot dispatch sub-agents. The orchestrator sequences the `reconcile-push` step after this task completes.
+- [ ] 1. Record the `artifact_url` returned by `push-artifacts` in the result contract for the orchestrator to pass to the `reconcile-push` step.
+- [ ] 2. Do NOT call `task()` or `skill()` from within this task — sub-agents cannot dispatch sub-agents. The orchestrator sequences the `reconcile-push` step after this task completes.
 
 ## Exit Criteria
 

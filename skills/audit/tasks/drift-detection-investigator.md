@@ -1,9 +1,3 @@
----
-name: drift-detection-investigator
-description: "Investigator role for the drift-detection chain. Collects raw evidence about documentation-code drift by reading spec requirements and scanning code implementation. Writes evidence.yaml with initial findings. Does NOT evaluate or judge."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -348,7 +342,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/drift-detection.md` — Evaluator role (consumes this Investigator's evidence.yaml)
+- `tasks/drift-detection-evaluator.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - `000-critical-rules.md` — spec-code alignment
 - `130-authority-source.md` — code as authoritative source
 

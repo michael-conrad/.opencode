@@ -1,9 +1,3 @@
----
-name: concern-separation-investigator
-description: "Collect raw evidence about concern boundaries and scope isolation from spec and plan files. Reads phase structure, extracts symbols, traces dependencies, and records findings without evaluation. Writes `evidence.yaml` as the sole output artifact."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -331,7 +325,7 @@ summary: "Evidence collected: {N} phases, {M} symbols, {K} cross-phase overlaps,
 
 ## Cross-References
 
-- `tasks/concern-separation.md` — Evaluator role (consumes this evidence)
+- `tasks/concern-separation-evaluator.md` — Evaluator role (consumes this evidence)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 

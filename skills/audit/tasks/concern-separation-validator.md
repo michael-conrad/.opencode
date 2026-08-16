@@ -1,9 +1,3 @@
----
-name: concern-separation-validator
-description: "Validate every evidence item in the Investigator's `evidence.yaml` against live source data. Reads the Investigator's raw evidence, cross-checks each claim against spec files, plan files, and srclight symbol data, and writes `reasoning.yaml` with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -433,7 +427,7 @@ summary: "Evidence validated: {N} items checked, {M} VALIDATED, {K} UNVERIFIED, 
 ## Cross-References
 
 - `tasks/concern-separation-investigator.md` — Investigator role (produces evidence.yaml)
-- `tasks/concern-separation.md` — Evaluator role (consumes reasoning.yaml)
+- `tasks/concern-separation-evaluator.md` — Evaluator role (consumes reasoning.yaml)
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement
 

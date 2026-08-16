@@ -45,8 +45,8 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `prepare` | `task(..., prompt: "execute prepare task from requesting-code-review")` |
-| `request` | `task(..., prompt: "execute request task from requesting-code-review")` |
+| `prepare` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [requesting-code-review/tasks/prepare.md](.opencode/skills/requesting-code-review/tasks/prepare.md). "))` |
+| `request` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [requesting-code-review/tasks/request.md](.opencode/skills/requesting-code-review/tasks/request.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "requesting-code-review"})` ``
 

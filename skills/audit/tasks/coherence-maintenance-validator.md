@@ -1,9 +1,3 @@
----
-name: coherence-maintenance-validator
-description: "Validator role for the coherence-maintenance chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -713,7 +707,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/coherence-maintenance-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
-- `tasks/coherence-maintenance.md` — Evaluator role (consumes this Validator's reasoning.yaml)
+- `tasks/coherence-maintenance-evaluator.md` — Evaluator role (consumes this Validator's reasoning.yaml)
 - `tasks/coherence-extraction-investigator.md` — baseline generation (prerequisite for the Investigator)
 - `000-critical-rules.md` — coherence maintenance requirement
 

@@ -35,8 +35,8 @@ Sub-Issue Manager. Focus: parent-child relationships, authorization cascade, clo
 
 | Task | Call via task() |
 |------|-----------------|
-| `link-sub-issue` | `task(..., prompt: "execute link-sub-issue task from issue-operations-sub-issues")` |
-| `read-sub-issues` | `task(..., prompt: "execute read-sub-issues task from issue-operations-sub-issues")` |
+| `link-sub-issue` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sub-issues/tasks/link-sub-issue.md](.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md). "))` |
+| `read-sub-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sub-issues/tasks/read-sub-issues.md](.opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md). "))` |
 
 ## DISPATCH_GATE
 

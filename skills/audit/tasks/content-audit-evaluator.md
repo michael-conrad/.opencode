@@ -1,9 +1,3 @@
----
-name: content-audit-evaluator
-description: "Evaluator role for the content-audit chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each claim, and writes verdict.yaml with per-claim PASS/FAIL/FABRICATED verdicts. Produces judgments, not just evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->

@@ -86,12 +86,12 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | Task | Call via task() |
 |------|-----------------|
-| `contract` | `task(..., prompt: "execute contract task from solve")` |
-| `state` | `task(..., prompt: "execute state task from solve")` |
-| `check` | `task(..., prompt: "execute check task from solve")` |
-| `model` | `task(..., prompt: "execute model task from solve")` |
-| `prove` | `task(..., prompt: "execute prove task from solve")` |
-| `fallback` | `task(..., prompt: "execute fallback task from solve")` |
+| `contract` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [solve/tasks/contract.md](.opencode/skills/solve/tasks/contract.md). "))` |
+| `state` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [solve/tasks/state.md](.opencode/skills/solve/tasks/state.md). "))` |
+| `check` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [solve/tasks/check.md](.opencode/skills/solve/tasks/check.md). "))` |
+| `model` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [solve/tasks/model.md](.opencode/skills/solve/tasks/model.md). "))` |
+| `prove` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [solve/tasks/prove.md](.opencode/skills/solve/tasks/prove.md). "))` |
+| `fallback` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [solve/tasks/fallback.md](.opencode/skills/solve/tasks/fallback.md). "))` |
 
 **CLI equivalent:** `/.opencode/tools/solve <subcommand> [args]`
 

@@ -1,9 +1,3 @@
----
-name: drift-detection-evaluator
-description: "Evaluator role for the drift-detection chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -515,7 +509,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 - `tasks/drift-detection-investigator.md` — Investigator role (produces the `evidence.yaml` consumed by this task)
 - `tasks/drift-detection-validator.md` — upstream reasoning role role (produces the `reasoning.yaml` consumed by this task)
-- `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
+- `tasks/drift-detection-arbiter.md` — Main drift-detection task (orchestrator-level dispatch)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — spec-code alignment
 - Read [130-authority-source.md](guidelines/130-authority-source.md) — code as authoritative source
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable

@@ -53,10 +53,10 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `init` | `task(..., prompt: "execute init task from skill-creator")` |
-| `package` | `task(..., prompt: "execute package task from skill-creator")` |
-| `validate` | `task(..., prompt: "execute validate task from skill-creator")` |
-| `fragment-management` | `task(..., prompt: "execute fragment-management task from skill-creator")` |
+| `init` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/init.md](.opencode/skills/skill-creator/tasks/init.md). "))` |
+| `package` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/package.md](.opencode/skills/skill-creator/tasks/package.md). "))` |
+| `validate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/validate.md](.opencode/skills/skill-creator/tasks/validate.md). "))` |
+| `fragment-management` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/fragment-management.md](.opencode/skills/skill-creator/tasks/fragment-management.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "skill-creator"})` ``
 

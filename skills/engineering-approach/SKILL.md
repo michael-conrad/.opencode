@@ -50,10 +50,10 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `verify-understanding` | `task(..., prompt: "execute verify-understanding task from engineering-approach")` |
-| `design-before-code` | `task(..., prompt: "execute design-before-code task from engineering-approach")` |
-| `verify-before-complete` | `task(..., prompt: "execute verify-before-complete task from engineering-approach")` |
-| `completion` | `task(..., prompt: "execute completion task from engineering-approach")` |
+| `verify-understanding` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/verify-understanding.md](.opencode/skills/engineering-approach/tasks/verify-understanding.md). "))` |
+| `design-before-code` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/design-before-code.md](.opencode/skills/engineering-approach/tasks/design-before-code.md). "))` |
+| `verify-before-complete` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/verify-before-complete.md](.opencode/skills/engineering-approach/tasks/verify-before-complete.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/completion.md](.opencode/skills/engineering-approach/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "engineering-approach"})` ``
 

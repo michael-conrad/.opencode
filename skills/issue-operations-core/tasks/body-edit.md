@@ -1,8 +1,3 @@
----
-name: body-edit
-triggers_on: body edit, edit body, edit issue body, update issue body
----
-
 # Task: body-edit
 
 ## Purpose

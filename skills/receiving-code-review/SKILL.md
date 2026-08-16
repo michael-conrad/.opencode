@@ -47,9 +47,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `address` | `task(..., prompt: "execute address task from receiving-code-review")` |
-| `respond` | `task(..., prompt: "execute respond task from receiving-code-review")` |
-| `completion` | `task(..., prompt: "execute completion task from receiving-code-review")` |
+| `address` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [receiving-code-review/tasks/address.md](.opencode/skills/receiving-code-review/tasks/address.md). "))` |
+| `respond` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [receiving-code-review/tasks/respond.md](.opencode/skills/receiving-code-review/tasks/respond.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [receiving-code-review/tasks/completion.md](.opencode/skills/receiving-code-review/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "receiving-code-review"})` ``
 

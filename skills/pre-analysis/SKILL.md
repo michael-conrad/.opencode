@@ -102,8 +102,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | Task | Call via task() |
 
-| `analyze` | `task(..., prompt: "execute analyze task from pre-analysis")` |
-| `completion` | `task(..., prompt: "execute completion task from pre-analysis")` |
+| `analyze` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [pre-analysis/tasks/analyze.md](.opencode/skills/pre-analysis/tasks/analyze.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [pre-analysis/tasks/completion.md](.opencode/skills/pre-analysis/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "pre-analysis"})` ``
 

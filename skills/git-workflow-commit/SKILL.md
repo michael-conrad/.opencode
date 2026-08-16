@@ -24,28 +24,31 @@ Commit management sub-skill of git-workflow. Handles implementation commits, com
 
 When the agent needs to implement changes and commit them with a structured message during the implementation phase.
 
-1. **Implementation** — Implements changes and commits with a structured message.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/implementation.md](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: {branch_name}, worktree.path: {worktree.path}"`
-   - Context: `{branch_name, worktree.path}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Implementation** — Implements changes and commits with a structured message
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-commit/tasks/implementation.md](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
+  - **Context passed:** `{branch_name, worktree.path}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Prepare a commit message
 
 When the agent needs to prepare a commit message from the diff and spec context (read-only analysis, no commit executed).
 
-1. **Commit prep** — Prepares a commit message from the diff and spec context.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/commit-prep.md](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: {branch_name}, diff_summary: {diff_summary}"`
-   - Context: `{branch_name, diff_summary}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Commit prep** — Prepares a commit message from the diff and spec context
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-commit/tasks/commit-prep.md](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: ", branch_name, ", diff_summary: ", diff_summary))`
+  - **Context passed:** `{branch_name, diff_summary}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Make a pair mode commit
 
 When the agent needs to make a WIP commit in pair mode with developer attribution.
 
-1. **Pair commit** — Makes a WIP commit in pair mode with developer attribution.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/pair-commit.md](.opencode/skills/git-workflow-commit/tasks/pair-commit.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Pair commit** — Makes a WIP commit in pair mode with developer attribution
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-commit/tasks/pair-commit.md](.opencode/skills/git-workflow-commit/tasks/pair-commit.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ## Cross-References
 

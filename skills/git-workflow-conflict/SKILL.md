@@ -24,10 +24,11 @@ Conflict resolution sub-skill of git-workflow. Handles rebase-pending conflict r
 
 When the agent needs to resolve git conflicts during a rebase, merge, or cherry-pick operation, rebase pending PRs onto the updated default branch, or classify conflicts by tier.
 
-1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-conflict/tasks/rebase-pending.md](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: {branch_name}, worktree.path: {worktree.path}"`
-   - Context: `{branch_name, worktree.path}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-conflict/tasks/rebase-pending.md](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
+  - **Context passed:** `{branch_name, worktree.path}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ## Cross-References
 

@@ -1,9 +1,3 @@
----
-name: guideline-audit-validator
-description: "Validator role for the guideline-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -847,7 +841,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/guideline-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
-- `tasks/guideline-audit.md` — Evaluator role (consumes this task's reasoning.yaml)
+- `tasks/guideline-audit-evaluator.md` — Evaluator role (consumes this task's reasoning.yaml)
 - `000-critical-rules.md` — guideline standards and critical rule definitions
 - `065-verification-honesty.md` — live verification requirement
 - `080-code-standards.md` — enforcement test mandate

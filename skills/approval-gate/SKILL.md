@@ -40,9 +40,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Canonical Dispatch String |
 |------|--------------------------|
-| `resolve-scope` | `task(..., prompt: "execute resolve-scope from approval-gate. Read \`approval-gate/tasks/resolve-scope.md\` first")` |
-| `apply-label` | `task(..., prompt: "execute apply-label from approval-gate. Read \`approval-gate/tasks/apply-label.md\` first")` |
-| `route` | `task(..., prompt: "execute route from approval-gate. Read \`approval-gate/tasks/route.md\` first")` |
+| `resolve-scope` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [approval-gate/tasks/resolve-scope.md](.opencode/skills/approval-gate/tasks/resolve-scope.md). issue_number: ", issue_number, ", authorization_scope: ", authorization_scope))` |
+| `apply-label` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [approval-gate/tasks/apply-label.md](.opencode/skills/approval-gate/tasks/apply-label.md). issue_number: ", issue_number, ", authorization_scope: ", authorization_scope))` |
+| `route` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [approval-gate/tasks/route.md](.opencode/skills/approval-gate/tasks/route.md). authorization_scope: ", authorization_scope, ", halt_at: ", halt_at, ", pipeline_phase: ", pipeline_phase))` |
 
 ## Persona
 
@@ -56,20 +56,23 @@ All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_nu
 
 ### Verify authorization (3-step path)
 
-1. **Resolve scope** — Parse authorization text and resolve scope/halt_at
-   - Prompt: `"Read \`approval-gate/tasks/resolve-scope.md\` and follow its instructions. Issue: {issue_number}."`
-   - Context: `{issue_number, issues_prefix, project_root}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Resolve scope** — Parses authorization text and resolves scope/halt_at
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [approval-gate/tasks/resolve-scope.md](.opencode/skills/approval-gate/tasks/resolve-scope.md). issue_number: ", issue_number))`
+  - **Context passed:** `{issue_number, issues_prefix, project_root}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-2. **Apply label** — Write authorization-scope label
-   - Prompt: `"Read \`approval-gate/tasks/apply-label.md\` and follow its instructions. Issue: {issue_number}."`
-   - Context: `{issue_number, issues_prefix, project_root}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 2. **Apply label** — Writes authorization-scope label
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [approval-gate/tasks/apply-label.md](.opencode/skills/approval-gate/tasks/apply-label.md). issue_number: ", issue_number))`
+  - **Context passed:** `{issue_number, issues_prefix, project_root}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-3. **Route** — Scope-aware auto-route to next skill
-   - Prompt: `"Read \`approval-gate/tasks/route.md\` and follow its instructions. Issue: {issue_number}."`
-   - Context: `{issue_number, issues_prefix, project_root}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 3. **Route** — Scope-aware auto-route to next skill
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [approval-gate/tasks/route.md](.opencode/skills/approval-gate/tasks/route.md). issue_number: ", issue_number, ", authorization_scope: ", authorization_scope, ", halt_at: ", halt_at, ", pipeline_phase: ", pipeline_phase))`
+  - **Context passed:** `{issue_number, issues_prefix, project_root}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ## Authorization Scope Model
 

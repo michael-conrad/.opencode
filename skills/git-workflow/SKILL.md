@@ -25,81 +25,93 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 
 When the agent needs to create a feature branch before implementation work, sync submodules, verify trunk tip, or set up a pair mode branch.
 
-1. **Verify trunk tip** — Verifies that parent repo and submodules are at trunk tip with clean working trees.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/trunk-tip-verification.md](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Verify trunk tip** — Verifies that parent repo and submodules are at trunk tip with clean working trees
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/trunk-tip-verification.md](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-2. **Submodule sync** — Syncs dirty submodule pointers to latest trunk tip.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/submodule-sync.md](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: {branch_name}, submodule_paths: {submodule_paths}"`
-   - Context: `{branch_name, submodule_paths}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 2. **Submodule sync** — Syncs dirty submodule pointers to latest trunk tip
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/submodule-sync.md](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: ", branch_name, ", submodule_paths: ", submodule_paths))`
+  - **Context passed:** `{branch_name, submodule_paths}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-3. **Pre-work** — Creates the feature branch and sets up the working environment.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pre-work.md](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 3. **Pre-work** — Creates the feature branch and sets up the working environment
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/pre-work.md](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-4. **Pre-commit pointer check** — Verifies submodule pointers are staged before commit.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pre-commit-pointer-check.md](.opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 4. **Pre-commit pointer check** — Verifies submodule pointers are staged before commit
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/pre-commit-pointer-check.md](.opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-5. **Provenance** — Verifies provenance of submodule state.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/provenance.md](.opencode/skills/git-workflow-branch/tasks/provenance.md). submodule_path: {submodule_path}"`
-   - Context: `{submodule_path}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 5. **Provenance** — Verifies provenance of submodule state
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/provenance.md](.opencode/skills/git-workflow-branch/tasks/provenance.md). submodule_path: ", submodule_path))`
+  - **Context passed:** `{submodule_path}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Implement changes and commit
 
 When the agent needs to implement changes and commit them with a structured message.
 
-1. **Implementation** — Implements changes and commits with a structured message.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/implementation.md](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Implementation** — Implements changes and commits with a structured message
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-commit/tasks/implementation.md](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-2. **Commit prep** — Prepares a commit message from the diff and spec context.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-commit/tasks/commit-prep.md](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: {branch_name}, diff_summary: {diff_summary}"`
-   - Context: `{branch_name, diff_summary}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 2. **Commit prep** — Prepares a commit message from the diff and spec context
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-commit/tasks/commit-prep.md](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: ", branch_name, ", diff_summary: ", diff_summary))`
+  - **Context passed:** `{branch_name, diff_summary}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Create a PR
 
 When the agent needs to create a PR, prepare for review, or run post-implementation and completion tasks after implementation.
 
-1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
-2. **Pr-creation** — Creates a pull request with a structured body and compare URL.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: {branch_name}, spec_summary: {spec_summary}, is_release: {is_release}"`
-   - Context: `{branch_name, spec_summary, is_release}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+- [ ] 2. **Pr-creation** — Creates a pull request with a structured body and compare URL
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
+  - **Context passed:** `{branch_name, spec_summary, is_release}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+  - **Execution mode:** sub-agent dispatch
 
-3. **Completion** — Runs PR lifecycle completion, final status, and URL reporting.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: {workflow_state}"`
-   - Context: `{workflow_state}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 3. **Completion** — Runs PR lifecycle completion, final status, and URL reporting
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
+  - **Context passed:** `{workflow_state}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Clean up after a PR merge
 
 When the agent needs to clean up after a PR merge — delete merged branches, close issues, sync trunk — or when a "pr merged" event or "check prs" request is detected.
 
-1. **Cleanup** — Deletes merged branches, closes issues, and syncs trunk.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-cleanup/tasks/cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merge_status: {pr_merge_status}, branch_name: {branch_name}"`
-   - Context: `{pr_merge_status, branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Cleanup** — Deletes merged branches, closes issues, and syncs trunk
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-cleanup/tasks/cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merge_status: ", pr_merge_status, ", branch_name: ", branch_name))`
+  - **Context passed:** `{pr_merge_status, branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Resolve a rebase, merge, or cherry-pick conflict
 
 When the agent needs to resolve git conflicts during a rebase, merge, or cherry-pick operation, rebase pending PRs onto the updated default branch, or classify conflicts by tier.
 
-1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-conflict/tasks/rebase-pending.md](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: {branch_name}"`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-conflict/tasks/rebase-pending.md](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ## Cross-References
 

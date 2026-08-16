@@ -51,11 +51,11 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `classify` | `task(..., prompt: "execute classify task from sync-guidelines")` |
-| `sync-push` | `task(..., prompt: "execute sync-push task from sync-guidelines")` |
-| `sync-pull` | `task(..., prompt: "execute sync-pull task from sync-guidelines")` |
-| `issue-format` | `task(..., prompt: "execute issue-format task from sync-guidelines")` |
-| `completion` | `task(..., prompt: "execute completion task from sync-guidelines")` |
+| `classify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/classify.md](.opencode/skills/sync-guidelines/tasks/classify.md). "))` |
+| `sync-push` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/sync-push.md](.opencode/skills/sync-guidelines/tasks/sync-push.md). "))` |
+| `sync-pull` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/sync-pull.md](.opencode/skills/sync-guidelines/tasks/sync-pull.md). "))` |
+| `issue-format` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/issue-format.md](.opencode/skills/sync-guidelines/tasks/issue-format.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/completion.md](.opencode/skills/sync-guidelines/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "sync-guidelines"})` ``
 

@@ -105,7 +105,7 @@ An agent claiming a model is unavailable MUST produce tool-call evidence before 
 
 ### Pattern (b): Claiming "Too Slow" as Justification for Skipping Behavioral Testing
 
-Read [§1 ALWAYS DO](020-go-prohibitions.md) — Cost-blind verification: resource cost is NEVER a factor in verification decisions. "This would take too long" is not an acceptable reason to skip or substitute behavioral verification. Correctness is the only metric — there is no score for tool-call economy.
+Read [§1 ALWAYS DO](guidelines/020-go-prohibitions.md) — Cost-blind verification: resource cost is NEVER a factor in verification decisions. "This would take too long" is not an acceptable reason to skip or substitute behavioral verification. Correctness is the only metric — there is no score for tool-call economy.
 
 **Remediation-first protocol (minimum 2 steps before FAIL):**
 1. Increase timeout configuration (BEHAVIOR_TIMEOUT, BEHAVIOR_SEMANTIC_TIMEOUT)
@@ -115,7 +115,7 @@ Read [§1 ALWAYS DO](020-go-prohibitions.md) — Cost-blind verification: resour
 
 ### Pattern (c): Claiming Behavioral Testing "Not Needed" for Runtime-Behavioral Changes
 
-Read [§Test Integrity Mandate](080-code-standards.md) — removing or weakening behavioral assertions is a CRITICAL VIOLATION. When a change affects runtime behavior (agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results), behavioral testing is not optional — it is the only sufficient evidence type. Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior is an automatic uplift to `behavioral`.
+Read [§Test Integrity Mandate](guidelines/080-code-standards.md) — removing or weakening behavioral assertions is a CRITICAL VIOLATION. When a change affects runtime behavior (agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results), behavioral testing is not optional — it is the only sufficient evidence type. Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior is an automatic uplift to `behavioral`.
 
 **Remediation-first protocol (minimum 2 steps before FAIL):**
 1. Reclassify evidence type from `structural`/`string` to `behavioral` per the substrate classification
