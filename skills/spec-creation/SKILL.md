@@ -22,32 +22,34 @@ analyze → create → validate → (revise → validate)* → done
 
 ## Workflows
 
+**The orchestrator does NOT read task cards.** Each step below is dispatched to a clean-room sub-agent via `task()`. The sub-agent independently discovers and reads the task card file. The orchestrator receives only the result contract — it never loads task card content.
+
 The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an inline orchestrator action where marked). The `Execution mode` sub-bullet on every step makes the inline-vs-dispatch decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()`; `inline` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
 
 ### Create a new spec
 
-- [ ] 1. **analyze** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md)")`
+- [ ] 1. **analyze** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root))`
   - **Context passed:** `{issue_number, project_root}`
   - **Returns:** `{status, analysis_artifact_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2. **create** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md)")`
+- [ ] 2. **create** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md). issue_number: ", issue_number, ", analysis_artifact_path: ", analysis_artifact_path, ", project_root: ", project_root))`
   - **Context passed:** `{issue_number, analysis_artifact_path, project_root}`
   - **Returns:** `{status, spec_path, issue_url, artifact_url, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2.1. **reconcile-push** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/reconcile-push.md](.opencode/skills/spec-creation/tasks/reconcile-push.md)")`
+- [ ] 2.1. **reconcile-push** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/reconcile-push.md](.opencode/skills/spec-creation/tasks/reconcile-push.md). issue_number: ", issue_number, ", artifact_url: ", artifact_url, ", project_root: ", project_root))`
   - **Context passed:** `{issue_number, artifact_url, project_root}`
   - **Returns:** `{status, issue_url, finding_summary}`
   - **Execution mode:** sub-agent dispatch
   - Runs after `create` returns the `artifact_url` from `push-artifacts`; reconciles the Spec Reference Blockquote / artifact URL in the remote issue body.
 
-- [ ] 3. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
+- [ ] 3. **validate** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). issue_number: ", issue_number, ", spec_path: ", spec_path))`
   - **Context passed:** `{issue_number, spec_path}`
   - **Returns:** `{status, verdicts: [{check_name, result}], finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 4. **If validate returns FAIL:** Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)")`
+- [ ] 4. **If validate returns FAIL:** Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). issue_number: ", issue_number, ", spec_path: ", spec_path, ", validation_findings: ", validation_findings))`
   - **Context passed:** `{issue_number, spec_path, validation_findings}`
   - **Returns:** `{status, spec_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
@@ -70,12 +72,12 @@ The tier counter resets when validate returns PASS (successful exit from the loo
 
 ### Revise an existing spec
 
-- [ ] 1. **revise** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)")`
+- [ ] 1. **revise** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). issue_number: ", issue_number, ", spec_path: ", spec_path, ", revision_reason: ", revision_reason))`
   - **Context passed:** `{issue_number, spec_path, revision_reason}`
   - **Returns:** `{status, spec_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2. **validate** — Dispatch `task(..., prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)")`
+- [ ] 2. **validate** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). issue_number: ", issue_number, ", spec_path: ", spec_path))`
   - **Context passed:** `{issue_number, spec_path}`
   - **Returns:** `{status, verdicts, finding_summary}`
   - **Execution mode:** sub-agent dispatch

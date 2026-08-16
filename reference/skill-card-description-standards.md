@@ -190,9 +190,9 @@ orchestrator
   → skill({name: "..."})
     → SKILL.md auto-loaded into orchestrator context
   → orchestrator reads Workflows section
-  → task(..., prompt: "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}")
+  → task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). context_1: ", value_1))
     → child session created
-    → subagent reads tasks/<name>.md via file tools
+    → subagent reads tasks/<name>.md via file tools (orchestrator does NOT read task cards)
     → subagent executes procedure
     → subagent returns result contract
   → orchestrator receives result contract
@@ -303,15 +303,16 @@ When the agent needs to produce a specification document from a problem statemen
 
 ### Base Prompt Format
 
-The base prompt MUST use natural language and MUST include the discovery directive:
+The base prompt MUST use the canonical `task()` format:
 
 ```
-Dispatch a sub-agent with the prompt "Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}"
+task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). context_1: ", value_1, ", context_2: ", value_2))
 ```
 
-- **Natural language** — not coded dispatch strings like "execute X from Y"
+- **Canonical format** — uses `task(subagent_type="general", prompt: concat(...))` syntax
 - **Discovery directive** — tells the subagent which file to read (required because `task()` does not auto-load task cards)
-- **Context data** — provides the context the subagent needs for its work (e.g., `{issue_number, project_root}`)
+- **Context values** — passed as `concat()` arguments after the discovery directive, formatted as `name: ", value`
+- **Orchestrator does NOT read task cards** — the sub-agent discovers the task card independently
 
 ### What the Workflows Section Replaces
 

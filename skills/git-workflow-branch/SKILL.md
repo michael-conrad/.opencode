@@ -25,17 +25,17 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 When the agent needs to create a feature branch before any implementation work, syncing submodules and verifying trunk tip first.
 
 1. **Verify trunk tip** — Verifies that parent repo and submodules are at trunk tip with clean working trees.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/trunk-tip-verification.md](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: {branch_name}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/trunk-tip-verification.md](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: ", branch_name))`
    - Context: `{branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Sync submodules** — Syncs dirty submodule pointers to latest trunk tip.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/submodule-sync.md](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: {branch_name}, submodule_paths: {submodule_paths}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/submodule-sync.md](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: ", branch_name, ", submodule_paths: ", submodule_paths))`
    - Context: `{branch_name, submodule_paths}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 3. **Pre-work** — Creates the feature branch and sets up the working environment.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pre-work.md](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: {branch_name}, worktree.path: {worktree.path}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/pre-work.md](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
    - Context: `{branch_name, worktree.path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -44,12 +44,12 @@ When the agent needs to create a feature branch before any implementation work, 
 When the agent needs to set up a pair mode branch or resume a pair mode session.
 
 1. **Pair pre-work** — Sets up a pair mode branch and workspace.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pair-pre-work.md](.opencode/skills/git-workflow-branch/tasks/pair-pre-work.md). branch_name: {branch_name}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/pair-pre-work.md](.opencode/skills/git-workflow-branch/tasks/pair-pre-work.md). branch_name: ", branch_name))`
    - Context: `{branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Pair mode resume** — Resumes a pair mode session from saved state.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pair-mode-resume.md](.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md). branch_name: {branch_name}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/pair-mode-resume.md](.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md). branch_name: ", branch_name))`
    - Context: `{branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -58,7 +58,7 @@ When the agent needs to set up a pair mode branch or resume a pair mode session.
 When the agent needs to verify submodule pointers are staged alongside non-submodule changes before committing.
 
 1. **Pre-commit pointer check** — Verifies submodule pointers are staged before commit.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/pre-commit-pointer-check.md](.opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md). branch_name: {branch_name}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/pre-commit-pointer-check.md](.opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md). branch_name: ", branch_name))`
    - Context: `{branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -67,7 +67,7 @@ When the agent needs to verify submodule pointers are staged alongside non-submo
 When the agent needs to create provenance tracking issues and PRs in submodule repositories after push operations.
 
 1. **Provenance** — Verifies provenance of submodule state.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/provenance.md](.opencode/skills/git-workflow-branch/tasks/provenance.md). submodule_path: {submodule_path}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/provenance.md](.opencode/skills/git-workflow-branch/tasks/provenance.md). submodule_path: ", submodule_path))`
    - Context: `{submodule_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -76,7 +76,7 @@ When the agent needs to create provenance tracking issues and PRs in submodule r
 When the agent needs to enforce the git operating protocol and tag conventions.
 
 1. **Operating protocol** — Enforces operating protocol and tag conventions.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-branch/tasks/operating-protocol.md](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md). branch_name: {branch_name}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-branch/tasks/operating-protocol.md](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md). branch_name: ", branch_name))`
    - Context: `{branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 

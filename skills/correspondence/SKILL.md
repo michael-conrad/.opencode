@@ -46,8 +46,8 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `draft` | `task(..., prompt: "execute draft task from correspondence")` |
-| `completion` | `task(..., prompt: "execute completion task from correspondence")` |
+| `draft` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [correspondence/tasks/draft.md](.opencode/skills/correspondence/tasks/draft.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [correspondence/tasks/completion.md](.opencode/skills/correspondence/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "correspondence"})` ``
 

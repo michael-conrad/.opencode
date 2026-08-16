@@ -51,10 +51,10 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 | Task | Call via task() |
 
-| `verify` | `task(..., prompt: "execute verify task from verification-enforcement")` |
-| `revisit` | `task(..., prompt: "execute revisit task from verification-enforcement")` |
-| `enforce` | `task(..., prompt: "execute enforce task from verification-enforcement")` |
-| `completion` | `task(..., prompt: "execute completion task from verification-enforcement")` |
+| `verify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/verify.md](.opencode/skills/verification-enforcement/tasks/verify.md). "))` |
+| `revisit` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/revisit.md](.opencode/skills/verification-enforcement/tasks/revisit.md). "))` |
+| `enforce` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/enforce.md](.opencode/skills/verification-enforcement/tasks/enforce.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/completion.md](.opencode/skills/verification-enforcement/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "verification-enforcement"})` ``
 

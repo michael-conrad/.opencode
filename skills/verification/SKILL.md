@@ -49,8 +49,8 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 | Task | Call via task() |
 
-| `verify` | `task(..., prompt: "execute verify task from verification")` |
-| `completion` | `task(..., prompt: "execute completion task from verification")` |
+| `verify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification/tasks/verify.md](.opencode/skills/verification/tasks/verify.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification/tasks/completion.md](.opencode/skills/verification/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "verification"})` ``
 

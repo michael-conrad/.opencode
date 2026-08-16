@@ -85,24 +85,24 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 | Task | Sub-Skill | Canonical Dispatch String |
 |------|-----------|--------------------------|
-| `pre-creation` | `issue-operations-core` | `task(..., prompt: "execute pre-creation from issue-operations-core. Read \`issue-operations-core/tasks/pre-creation.md\` first")` |
-| `creation` | `issue-operations-core` | `task(..., prompt: "execute creation from issue-operations-core. Read \`issue-operations-core/tasks/creation.md\` first")` |
-| `comment` | `issue-operations-comments` | `task(..., prompt: "execute comment from issue-operations-comments. Read \`issue-operations-comments/tasks/comment.md\` first")` |
-| `close` | `issue-operations-core` | `task(..., prompt: "execute close from issue-operations-core. Read \`issue-operations-core/tasks/close.md\` first")` |
-| `link-sub-issue` | `issue-operations-sub-issues` | `task(..., prompt: "execute link-sub-issue from issue-operations-sub-issues. Read \`issue-operations-sub-issues/tasks/link-sub-issue.md\` first")` |
-| `verify-merge` | `issue-operations-core` | `task(..., prompt: "execute verify-merge from issue-operations-core. Read \`issue-operations-core/tasks/verify-merge.md\` first")` |
-| `completion` | `issue-operations-core` | `task(..., prompt: "execute completion from issue-operations-core. Read \`issue-operations-core/tasks/completion.md\` first")` |
-| `read-issue` | `issue-operations-core` | `task(..., prompt: "execute read-issue from issue-operations-core. Read \`issue-operations-core/tasks/read-issue.md\` first")` |
-| `read-comments` | `issue-operations-core` | `task(..., prompt: "execute read-comments from issue-operations-core. Read \`issue-operations-core/tasks/read-comments.md\` first")` |
-| `read-labels` | `issue-operations-core` | `task(..., prompt: "execute read-labels from issue-operations-core. Read \`issue-operations-core/tasks/read-labels.md\` first")` |
-| `read-sub-issues` | `issue-operations-sub-issues` | `task(..., prompt: "execute read-sub-issues from issue-operations-sub-issues. Read \`issue-operations-sub-issues/tasks/read-sub-issues.md\` first")` |
-| `list-issues` | `issue-operations-core` | `task(..., prompt: "execute list-issues from issue-operations-core. Read \`issue-operations-core/tasks/list-issues.md\` first")` |
-| `search-issues` | `issue-operations-core` | `task(..., prompt: "execute search-issues from issue-operations-core. Read \`issue-operations-core/tasks/search-issues.md\` first")` |
-| `update-issue` | `issue-operations-core` | `task(..., prompt: "execute update-issue from issue-operations-core. Read \`issue-operations-core/tasks/update-issue.md\` first")` |
-| `sync-pull-to-local` | `issue-operations-sync` | `task(..., prompt: "execute sync-pull-to-local from issue-operations-sync. Read \`issue-operations-sync/tasks/sync-pull-to-local.md\` first")` |
-| `sync-from-remote` | `issue-operations-sync` | `task(..., prompt: "execute sync-from-remote from issue-operations-sync. Read \`issue-operations-sync/tasks/sync-from-remote.md\` first")` |
-| `import-remote` | `issue-operations-sync` | `task(..., prompt: "execute import-remote from issue-operations-sync. Read \`issue-operations-sync/tasks/import-remote.md\` first")` |
-| `push-artifacts` | `local (platform)` | `task(..., prompt: "execute push-artifacts from local. Read \`issue-operations/platforms/local/tasks/push-artifacts.md\` first")` |
+| `pre-creation` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/pre-creation.md](.opencode/skills/issue-operations-core/tasks/pre-creation.md). "))` |
+| `creation` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/creation.md](.opencode/skills/issue-operations-core/tasks/creation.md). "))` |
+| `comment` | `issue-operations-comments` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-comments/tasks/comment.md](.opencode/skills/issue-operations-comments/tasks/comment.md). "))` |
+| `close` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/close.md](.opencode/skills/issue-operations-core/tasks/close.md). "))` |
+| `link-sub-issue` | `issue-operations-sub-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sub-issues/tasks/link-sub-issue.md](.opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md). "))` |
+| `verify-merge` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/verify-merge.md](.opencode/skills/issue-operations-core/tasks/verify-merge.md). "))` |
+| `completion` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/completion.md](.opencode/skills/issue-operations-core/tasks/completion.md). "))` |
+| `read-issue` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/read-issue.md](.opencode/skills/issue-operations-core/tasks/read-issue.md). "))` |
+| `read-comments` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/read-comments.md](.opencode/skills/issue-operations-core/tasks/read-comments.md). "))` |
+| `read-labels` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/read-labels.md](.opencode/skills/issue-operations-core/tasks/read-labels.md). "))` |
+| `read-sub-issues` | `issue-operations-sub-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sub-issues/tasks/read-sub-issues.md](.opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md). "))` |
+| `list-issues` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/list-issues.md](.opencode/skills/issue-operations-core/tasks/list-issues.md). "))` |
+| `search-issues` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/search-issues.md](.opencode/skills/issue-operations-core/tasks/search-issues.md). "))` |
+| `update-issue` | `issue-operations-core` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/update-issue.md](.opencode/skills/issue-operations-core/tasks/update-issue.md). "))` |
+| `sync-pull-to-local` | `issue-operations-sync` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/sync-pull-to-local.md](.opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md). "))` |
+| `sync-from-remote` | `issue-operations-sync` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/sync-from-remote.md](.opencode/skills/issue-operations-sync/tasks/sync-from-remote.md). "))` |
+| `import-remote` | `issue-operations-sync` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/import-remote.md](.opencode/skills/issue-operations-sync/tasks/import-remote.md). "))` |
+| `push-artifacts` | `local (platform)` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations/platforms/local/tasks/push-artifacts.md](.opencode/skills/issue-operations/platforms/local/tasks/push-artifacts.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "issue-operations"})` ``
 

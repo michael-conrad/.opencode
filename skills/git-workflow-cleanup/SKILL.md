@@ -25,7 +25,7 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 When the agent needs to clean up after a PR merge — delete merged branches, close issues, sync trunk — or when a "pr merged" event or "check prs" request is detected.
 
 1. **Cleanup** — Deletes merged branches, closes issues, and syncs trunk.
-   - Prompt: `Dispatch the cleanup executor sub-agent with "execute cleanup task from git-workflow-cleanup". pr_merge_status: {pr_merge_status}, branch_name: {branch_name}`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-cleanup/tasks/cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merge_status: ", pr_merge_status, ", branch_name: ", branch_name))`
    - Context: `{pr_merge_status, branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
    - **Executor note:** The cleanup executor IS the dispatched sub-agent. It performs the cleanup work directly (as the executor) and returns a structured result contract. It MUST NOT re-dispatch itself via `task()` — a sub-agent's `task` tool is denied by its permission config. Any sub-task routing described in the task cards (e.g., submodule trunk restore) is performed inline by the executor.
@@ -35,7 +35,7 @@ When the agent needs to clean up after a PR merge — delete merged branches, cl
 When the agent needs to clean up a pair mode branch after a merge.
 
 1. **Pair cleanup** — Cleans up a pair mode branch after merge.
-   - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [git-workflow-cleanup/tasks/pair-cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md). branch_name: {branch_name}"`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-cleanup/tasks/pair-cleanup.md](.opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md). branch_name: ", branch_name))`
    - Context: `{branch_name}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 

@@ -100,7 +100,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | Task | Call via task() |
 
-| `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
+| `selection-guide` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [mcp-tool-usage/tasks/selection-guide.md](.opencode/skills/mcp-tool-usage/tasks/selection-guide.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "mcp-tool-usage"})` ``
 

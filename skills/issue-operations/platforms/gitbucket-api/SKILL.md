@@ -107,11 +107,11 @@ Every sub-agent MUST independently discover scope and produce its own result con
 
 | Violation | Forbidden Pattern | Correct Pattern |
 | -- | -- | -- |
-| Preloaded file paths | "Read tasks/issue-operations.md then execute step 1" | "execute issue-operations task from gitbucket-api" |
-| Preloaded step sequences | "Step 1: call gb issue create. Step 2: add labels." | "execute issue-operations task from gitbucket-api" |
+| Preloaded file paths | "Read tasks/issue-operations.md then execute step 1" | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gitbucket-api/tasks/issue-operations.md](.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md). ")) |
+| Preloaded step sequences | "Step 1: call gb issue create. Step 2: add labels." | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gitbucket-api/tasks/issue-operations.md](.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md). ")) |
 | Preloaded expected outcomes | "Return { issue_number, html_url }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The issue was just drafted so we need to..." | Pure objective, no narrative |
-| Missing task file discovery directive | "execute issue-operations task from gitbucket-api" without task file path | "execute issue-operations task from gitbucket-api. Read \`issue-operations/platforms/gitbucket-api/tasks/issue-operations.md\` first" |
+| Missing task file discovery directive | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gitbucket-api/tasks/issue-operations.md](.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/issue-operations.md). ")) without task file path | "execute issue-operations task from gitbucket-api. Read \`issue-operations/platforms/gitbucket-api/tasks/issue-operations.md\` first" |
 
 #### Required: Sub-agent Task File Discovery Directive
 

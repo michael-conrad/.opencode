@@ -52,9 +52,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `prepare` | `task(..., prompt: "execute prepare task from finishing-a-development-branch")` |
-| `checklist` | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
-| `completion` | `task(..., prompt: "execute completion task from finishing-a-development-branch")` |
+| `prepare` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [finishing-a-development-branch/tasks/prepare.md](.opencode/skills/finishing-a-development-branch/tasks/prepare.md). "))` |
+| `checklist` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [finishing-a-development-branch/tasks/checklist.md](.opencode/skills/finishing-a-development-branch/tasks/checklist.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [finishing-a-development-branch/tasks/completion.md](.opencode/skills/finishing-a-development-branch/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "finishing-a-development-branch"})` ``
 

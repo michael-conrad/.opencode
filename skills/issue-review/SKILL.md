@@ -54,12 +54,12 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 | Task | Call via task() |
 |------|----------|
-| `gather` | `task(..., prompt: "execute gather task from issue-review")` |
-| `triage` | `task(..., prompt: "execute triage task from issue-review")` |
-| `analyze-and-spec` | `task(..., prompt: "execute analyze-and-spec task from issue-review")` |
-| `audit` | `task(..., prompt: "execute audit task from issue-review")` |
-| `qa` | `task(..., prompt: "execute qa task from issue-review")` |
-| `completion` | `task(..., prompt: "execute completion task from issue-review")` |
+| `gather` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/gather.md](.opencode/skills/issue-review/tasks/gather.md). "))` |
+| `triage` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/triage.md](.opencode/skills/issue-review/tasks/triage.md). "))` |
+| `analyze-and-spec` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/analyze-and-spec.md](.opencode/skills/issue-review/tasks/analyze-and-spec.md). "))` |
+| `audit` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/audit.md](.opencode/skills/issue-review/tasks/audit.md). "))` |
+| `qa` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/qa.md](.opencode/skills/issue-review/tasks/qa.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/completion.md](.opencode/skills/issue-review/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "issue-review"})` ``
 

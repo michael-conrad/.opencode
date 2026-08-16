@@ -65,11 +65,11 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 | Task | Call via task() |
 
-| `verify` | `task(..., prompt: "execute verify task from verification-before-completion")` |
-| `structural-verify` | `task(..., prompt: "execute structural-verify task from verification-before-completion")` |
-| `collect` | `task(..., prompt: "execute collect task from verification-before-completion")` |
-| `behavioral-test-evaluation` | `task(..., prompt: "execute behavioral-test-evaluation task from verification-before-completion")` |
-| `completion` | `task(..., prompt: "execute completion task from verification-before-completion")` |
+| `verify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-before-completion/tasks/verify.md](.opencode/skills/verification-before-completion/tasks/verify.md). "))` |
+| `structural-verify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-before-completion/tasks/structural-verify.md](.opencode/skills/verification-before-completion/tasks/structural-verify.md). "))` |
+| `collect` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-before-completion/tasks/collect.md](.opencode/skills/verification-before-completion/tasks/collect.md). "))` |
+| `behavioral-test-evaluation` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-before-completion/tasks/behavioral-test-evaluation.md](.opencode/skills/verification-before-completion/tasks/behavioral-test-evaluation.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-before-completion/tasks/completion.md](.opencode/skills/verification-before-completion/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "verification-before-completion"})` ``
 

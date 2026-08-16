@@ -585,7 +585,10 @@ def lint_skill_workflows_prompts(base_dir: Path) -> list[LintFinding]:
 
     global_ignore = _load_skilldeck_ignore(skills_dir / "reference")
 
-    canonical_prefix = 'Dispatch a sub-agent with the prompt "Follow the instructions in ['
+    canonical_prefixes = [
+        'Dispatch a sub-agent with the prompt "Follow the instructions in [',
+        'task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [',
+    ]
     link_re = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
     for skill_dir in sorted(skills_dir.iterdir()):
@@ -645,8 +648,8 @@ def lint_skill_workflows_prompts(base_dir: Path) -> list[LintFinding]:
                 ))
                 continue
 
-            # Rule 2: must start with the canonical dispatch prefix
-            if not prompt.startswith(canonical_prefix):
+            # Rule 2: must start with one of the canonical dispatch prefixes
+            if not any(prompt.startswith(p) for p in canonical_prefixes):
                 findings.append(LintFinding(
                     severity="error", category="skill-workflows",
                     source=rel, rule_id="non-canonical-prompt",

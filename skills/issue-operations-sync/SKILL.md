@@ -37,9 +37,9 @@ Issue Sync Manager. Focus: bidirectional reconciliation, spec.md mirror mandate,
 
 | Task | Call via task() |
 |------|-----------------|
-| `sync-from-remote` | `task(..., prompt: "execute sync-from-remote task from issue-operations-sync")` |
-| `sync-pull-to-local` | `task(..., prompt: "execute sync-pull-to-local task from issue-operations-sync")` |
-| `import-remote` | `task(..., prompt: "execute import-remote task from issue-operations-sync")` |
+| `sync-from-remote` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/sync-from-remote.md](.opencode/skills/issue-operations-sync/tasks/sync-from-remote.md). "))` |
+| `sync-pull-to-local` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/sync-pull-to-local.md](.opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md). "))` |
+| `import-remote` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/import-remote.md](.opencode/skills/issue-operations-sync/tasks/import-remote.md). "))` |
 
 ## DISPATCH_GATE
 

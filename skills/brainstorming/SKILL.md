@@ -63,11 +63,11 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 | Task | Call via task() |
 
-| `explore` | `task(..., prompt: "execute explore task from brainstorming")` |
-| `top-down-analysis` | `task(..., prompt: "execute top-down-analysis task from brainstorming")` |
-| `enforcement` | `task(..., prompt: "execute enforcement task from brainstorming")` |
-| `cross-scope` | `task(..., prompt: "execute cross-scope task from brainstorming")` |
-| `completion` | `task(..., prompt: "execute completion task from brainstorming")` |
+| `explore` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/explore.md](.opencode/skills/brainstorming/tasks/explore.md). "))` |
+| `top-down-analysis` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/top-down-analysis.md](.opencode/skills/brainstorming/tasks/top-down-analysis.md). "))` |
+| `enforcement` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/enforcement.md](.opencode/skills/brainstorming/tasks/enforcement.md). "))` |
+| `cross-scope` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/cross-scope.md](.opencode/skills/brainstorming/tasks/cross-scope.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/completion.md](.opencode/skills/brainstorming/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "brainstorming"})` ``
 

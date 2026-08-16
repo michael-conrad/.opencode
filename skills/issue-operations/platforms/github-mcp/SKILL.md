@@ -118,11 +118,11 @@ Every sub-agent MUST independently discover scope and produce its own result con
 
 | Violation | Forbidden Pattern | Correct Pattern |
 |-----------|-------------------|-----------------|
-| Preloaded file paths | "Read tasks/creation.md then execute step 1" | "execute creation task from github-mcp" |
-| Preloaded step sequences | "Step 1: call github_issue_write. Step 2: add labels." | "execute creation task from github-mcp" |
+| Preloaded file paths | "Read tasks/creation.md then execute step 1" | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [github-mcp/tasks/creation.md](.opencode/skills/issue-operations/platforms/github-mcp/tasks/creation.md). ")) |
+| Preloaded step sequences | "Step 1: call github_issue_write. Step 2: add labels." | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [github-mcp/tasks/creation.md](.opencode/skills/issue-operations/platforms/github-mcp/tasks/creation.md). ")) |
 | Preloaded expected outcomes | "Return { issue_number, html_url }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The issue was just drafted so we need to..." | Pure objective, no narrative |
-| Missing task file discovery directive | "execute creation task from github-mcp" without task file path | "execute creation task from github-mcp. Read \`issue-operations/platforms/github-mcp/tasks/creation.md\` first" |
+| Missing task file discovery directive | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [github-mcp/tasks/creation.md](.opencode/skills/issue-operations/platforms/github-mcp/tasks/creation.md). ")) without task file path | "execute creation task from github-mcp. Read \`issue-operations/platforms/github-mcp/tasks/creation.md\` first" |
 
 #### Required: Sub-agent Task File Discovery Directive
 

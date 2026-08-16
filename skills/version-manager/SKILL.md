@@ -48,9 +48,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 |------|----------------|
-| `discover` | `task(..., prompt: "execute discover from version-manager. Read \`version-manager/tasks/discover.md\` first")` |
-| `bump` | `task(..., prompt: "execute bump from version-manager. Read \`version-manager/tasks/bump.md\` first")` |
-| `completion` | `task(..., prompt: "execute completion from version-manager. Read \`version-manager/tasks/completion.md\` first")` |
+| `discover` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [version-manager/tasks/discover.md](.opencode/skills/version-manager/tasks/discover.md). "))` |
+| `bump` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [version-manager/tasks/bump.md](.opencode/skills/version-manager/tasks/bump.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [version-manager/tasks/completion.md](.opencode/skills/version-manager/tasks/completion.md). "))` |
 
 ## Operating Protocol
 
