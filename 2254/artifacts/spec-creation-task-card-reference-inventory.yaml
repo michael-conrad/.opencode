@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# spec-creation task-card reference inventory — Phase 16 (prep for SC-39).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/tasks/create.md,
+#         .opencode/skills/spec-creation/tasks/revise.md
+#
+# Enumerates the 3 references from spec-creation task cards to
+# issue-operations task files. Each reference's on-disk link_text omits the
+# `skills/` prefix, so the target does NOT resolve to a real on-disk file.
+# SC-39 requires the `skills/` prefix so the references resolve to
+# .opencode/skills/issue-operations-core/tasks/creation.md and
+# .opencode/skills/issue-operations/platforms/local/tasks/push-artifacts.md.
+#
+# has_skills_prefix:
+#   - true:  the link_text carries the correct `skills/` prefix (SC-39 satisfied)
+#   - false: the link_text omits the `skills/` prefix (SC-39 defect)
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+reference_count: 3
+references_list:
+  - source: spec-creation/tasks/create.md
+    link_text: issue-operations-core/tasks/creation.md
+    target: .opencode/skills/issue-operations-core/tasks/creation.md
+    has_skills_prefix: false
+  - source: spec-creation/tasks/create.md
+    link_text: issue-operations/platforms/local/tasks/push-artifacts.md
+    target: .opencode/skills/issue-operations/platforms/local/tasks/push-artifacts.md
+    has_skills_prefix: false
+  - source: spec-creation/tasks/revise.md
+    link_text: issue-operations-core/tasks/creation.md
+    target: .opencode/skills/issue-operations-core/tasks/creation.md
+    has_skills_prefix: false
