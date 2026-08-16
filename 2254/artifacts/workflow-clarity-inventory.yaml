@@ -1,0 +1,107 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Workflow clarity verification artifact — Phase 26 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Targets: .opencode/skills/spec-creation/SKILL.md,
+#          .opencode/skills/audit/SKILL.md
+#
+# Verifies both Workflows sections are explicitly orchestrator step-by-step with
+# execution-mode sub-bullets per step (prep for SC-32, SC-33).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+artifact_type: workflow-clarity-inventory
+issue_number: 2254
+phase: 26
+target_skills:
+  - .opencode/skills/spec-creation/SKILL.md
+  - .opencode/skills/audit/SKILL.md
+
+skills:
+  - name: spec-creation
+    file: .opencode/skills/spec-creation/SKILL.md
+    workflows_preamble_present: true
+    workflows_preamble: >-
+      The orchestrator follows the steps below step-by-step, in order. Each
+      step is a clean-room `task()` dispatch (or an inline orchestrator action
+      where marked). The `Execution mode` sub-bullet on every step makes the
+      inline-vs-dispatch decision explicit: `sub-agent dispatch` means the
+      orchestrator dispatches a clean-room sub-agent via `task()`; `inline`
+      means the orchestrator performs the action in its own context. The
+      orchestrator waits for each result contract before dispatching the next
+      step.
+    workflow_variants:
+      - name: Create a new spec
+        workflow_steps: 5
+        step_details:
+          - step: analyze
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: create
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: reconcile-push
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: validate
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: revise
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+        step_5_validation_result:
+          inline_step: "step 5 (If validate returns PASS: Report spec_path and issue_url)"
+          execution_mode: inline
+          has_execution_mode: true
+      - name: Revise an existing spec
+        workflow_steps: 2
+        step_details:
+          - step: revise
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: validate
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+        step_3_inline:
+          description: If validate returns FAIL -> step 1. If PASS -> ready.
+          execution_mode: inline
+          has_execution_mode: true
+    all_steps_have_execution_mode: true
+
+  - name: audit
+    file: .opencode/skills/audit/SKILL.md
+    workflows_preamble_present: true
+    workflows_preamble: >-
+      The orchestrator follows the steps below step-by-step, in order. Each
+      step is a clean-room `task()` dispatch (or an inline orchestrator action
+      where marked). The `Execution mode` sub-bullet on every step makes the
+      inline-vs-dispatch decision explicit: `sub-agent dispatch` means the
+      orchestrator dispatches a clean-room sub-agent via `task()`; `inline`
+      means the orchestrator performs the action in its own context. The
+      orchestrator waits for each result contract before dispatching the next
+      step.
+    workflow_variants:
+      - name: Run an audit
+        workflow_steps: 4
+        step_details:
+          - step: investigator
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: validator
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: evaluator
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+          - step: arbiter
+            execution_mode: sub-agent dispatch
+            has_execution_mode: true
+    all_steps_have_execution_mode: true
+
+conclusion: >-
+  Both Workflows sections comply: every checkbox step has an explicit
+  Execution-mode sub-bullet (sub-agent dispatch or inline), and each Workflows
+  section carries a preamble explaining the step-by-step orchestator-discipline
+  pattern. Phase 26 is GREEN.
