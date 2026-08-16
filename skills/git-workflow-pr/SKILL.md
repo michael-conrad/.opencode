@@ -24,48 +24,53 @@ Pull request management sub-skill of git-workflow. Handles PR creation, review p
 
 When the agent needs to create a pull request, squash commits to a single commit, push the branch, and create the PR targeting `$DEFAULT_BRANCH`.
 
-1. **Pr-creation** — Creates a pull request with a structured body and compare URL.
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
-   - Context: `{branch_name, spec_summary, is_release}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
-   - On completion, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Step 9 Ticket Status Reconciliation in `tasks/pr-creation.md`).
+- [ ] 1. **Pr-creation** — Creates a pull request with a structured body and compare URL
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
+  - **Context passed:** `{branch_name, spec_summary, is_release}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+  - **Execution mode:** sub-agent dispatch
+  - On completion, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Step 9 Ticket Status Reconciliation in `tasks/pr-creation.md`).
 
 ### Prepare for review
 
 When the agent needs to generate a GitHub compare URL for developer review after implementation completes.
 
-1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context.
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: ", branch_name))`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Create a pair mode PR
 
 When the agent needs to create a PR from a pair mode branch.
 
-1. **Pair-pr-creation** — Creates a PR from a pair mode branch.
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pair-pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md). branch_name: ", branch_name))`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+- [ ] 1. **Pair-pr-creation** — Creates a PR from a pair mode branch
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pair-pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Perform post-implementation tasks
 
 When the agent needs to push the feature branch, generate a compare URL, and report completion after implementation.
 
-1. **Post-implementation** — Pushes the feature branch, generates a compare URL, and reports completion.
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/post-implementation.md](.opencode/skills/git-workflow-pr/tasks/post-implementation.md). branch_name: ", branch_name))`
-   - Context: `{branch_name}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
+- [ ] 1. **Post-implementation** — Pushes the feature branch, generates a compare URL, and reports completion
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/post-implementation.md](.opencode/skills/git-workflow-pr/tasks/post-implementation.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Complete the workflow
 
 When the agent needs to run idempotent completion steps to ensure mandatory checks run regardless of where the workflow halted.
 
-1. **Completion** — Runs PR lifecycle completion, final status, and URL reporting.
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
-   - Context: `{workflow_state}`
-   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
-   - After the completion summary is produced, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Ticket Status Reconciliation in `tasks/completion.md`).
+- [ ] 1. **Completion** — Runs PR lifecycle completion, final status, and URL reporting
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
+  - **Context passed:** `{workflow_state}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+  - After the completion summary is produced, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Ticket Status Reconciliation in `tasks/completion.md`).
 
 ## Cross-References
 

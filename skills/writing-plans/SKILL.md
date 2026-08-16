@@ -16,42 +16,128 @@ Generate and validate implementation plans from approved specs. Flat architectur
 
 ### Create a plan from an approved spec
 
-| Step | Action | Context | Returns | On Failure |
-|------|--------|---------|---------|------------|
-| handoff | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/handoff.md](.opencode/skills/writing-plans/tasks/handoff.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| analyze | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/analyze.md](.opencode/skills/writing-plans/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| research | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| create | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/create.md](.opencode/skills/writing-plans/tasks/create.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| validate | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
-| If validate returns FAIL | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/revise.md](.opencode/skills/writing-plans/tasks/revise.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Max 3 iterations, then HALT |
-| (continue loop) research | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
-| (continue loop) validate | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Return to revise step |
-| If validate returns PASS | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/completion.md](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
+- [ ] 1. **handoff** — Verifies authorization via approval-gate before plan creation pipeline begins
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/handoff.md](.opencode/skills/writing-plans/tasks/handoff.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 2. **analyze** — Verifies spec exists locally, checks approval from issue.yaml labels, validates analytical artifacts exist
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/analyze.md](.opencode/skills/writing-plans/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 3. **research** — Decomposes SCs into phases, builds dependency DAG, selects skill+task, runs Z3 constraint solving
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 4. **create** — Writes self-contained plan with full implementation-workflow reference card per-task cycle
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/create.md](.opencode/skills/writing-plans/tasks/create.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 5. **validate** — Runs structural validation, skill+task validity, SC coverage check, and holistic quality gate
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 6. **If validate returns FAIL:** Revises plan from validation findings (max 3 iterations, then HALT)
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/revise.md](.opencode/skills/writing-plans/tasks/revise.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+  - Then continue loop: return to step 3 (research) then step 5 (validate)
+
+- [ ] 7. **If validate returns PASS:** Runs lifecycle event append, execution strategy determination, and summary report
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/completion.md](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Revise an existing plan
 
-| Step | Action | Context | Returns | On Failure |
-|------|--------|---------|---------|------------|
-| handoff | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/handoff.md](.opencode/skills/writing-plans/tasks/handoff.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| revise | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/revise.md](.opencode/skills/writing-plans/tasks/revise.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| research | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Return to revise step |
-| validate | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
-| If validate returns FAIL | return to revise step | — | — | Max 3 iterations, then HALT |
-| If validate returns PASS | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/completion.md](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
+- [ ] 1. **handoff** — Verifies authorization via approval-gate before plan revision pipeline begins
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/handoff.md](.opencode/skills/writing-plans/tasks/handoff.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 2. **revise** — Revises plan content from revision reason
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/revise.md](.opencode/skills/writing-plans/tasks/revise.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 3. **research** — Re-decomposes SCs into phases, builds dependency DAG, selects skill+task
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 4. **validate** — Runs structural validation, skill+task validity, SC coverage check, and holistic quality gate
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 5. **If validate returns FAIL:** Return to step 2 (revise) — max 3 iterations, then HALT
+  - **Execution mode:** inline
+
+- [ ] 6. **If validate returns PASS:** Runs lifecycle event append, execution strategy determination, and summary report
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/completion.md](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
 ### Retroactive plan (spec exists, no artifacts)
 
-| Step | Action | Context | Returns | On Failure |
-|------|--------|---------|---------|------------|
-| handoff | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/handoff.md](.opencode/skills/writing-plans/tasks/handoff.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| backfill | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/backfill.md](.opencode/skills/writing-plans/tasks/backfill.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| research | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| create | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/create.md](.opencode/skills/writing-plans/tasks/create.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | HALT |
-| validate | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
-| If validate returns FAIL | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/revise.md](.opencode/skills/writing-plans/tasks/revise.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Max 3 iterations, then HALT |
-| (continue loop) research | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
-| (continue loop) validate | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | Return to revise step |
-| If validate returns PASS | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/completion.md](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))` | `{issue_number, project_root, issues_prefix}` | `{status, artifact_path, finding_summary}` | — |
+- [ ] 1. **handoff** — Verifies authorization via approval-gate before plan creation pipeline begins
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/handoff.md](.opencode/skills/writing-plans/tasks/handoff.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 2. **backfill** — Generates missing analytical artifacts from spec body when spec-creation did not produce them
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/backfill.md](.opencode/skills/writing-plans/tasks/backfill.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 3. **research** — Decomposes SCs into phases, builds dependency DAG, selects skill+task, runs Z3 constraint solving
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/research.md](.opencode/skills/writing-plans/tasks/research.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 4. **create** — Writes self-contained plan with full implementation-workflow reference card per-task cycle
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/create.md](.opencode/skills/writing-plans/tasks/create.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 5. **validate** — Runs structural validation, skill+task validity, SC coverage check, and holistic quality gate
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/validate.md](.opencode/skills/writing-plans/tasks/validate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 6. **If validate returns FAIL:** Revises plan from validation findings (max 3 iterations, then HALT)
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/revise.md](.opencode/skills/writing-plans/tasks/revise.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
+  - Then continue loop: return to step 3 (research) then step 5 (validate)
+
+- [ ] 7. **If validate returns PASS:** Runs lifecycle event append, execution strategy determination, and summary report
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [writing-plans/tasks/completion.md](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`
+  - **Context passed:** `{issue_number, project_root, issues_prefix}`
+  - **Returns:** `{status, artifact_path, finding_summary}`
+  - **Execution mode:** sub-agent dispatch
 
 ## Task Cards
 

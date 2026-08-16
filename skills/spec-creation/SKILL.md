@@ -28,28 +28,32 @@ The orchestrator follows the steps below step-by-step, in order. Each step is a 
 
 ### Create a new spec
 
-- [ ] 1. **analyze** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+- [ ] 1. **analyze** — Runs pre-spec inspection, requirements extraction, decomposition, and analytical artifact generation
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root))`
   - **Context passed:** `{issue_number, project_root}`
   - **Returns:** `{status, analysis_artifact_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2. **create** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md). issue_number: ", issue_number, ", analysis_artifact_path: ", analysis_artifact_path, ", project_root: ", project_root))`
+- [ ] 2. **create** — Assembles the spec document, writes remote issue, and writes local spec file
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md). issue_number: ", issue_number, ", analysis_artifact_path: ", analysis_artifact_path, ", project_root: ", project_root))`
   - **Context passed:** `{issue_number, analysis_artifact_path, project_root}`
   - **Returns:** `{status, spec_path, issue_url, artifact_url, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2.1. **reconcile-push** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/reconcile-push.md](.opencode/skills/spec-creation/tasks/reconcile-push.md). issue_number: ", issue_number, ", artifact_url: ", artifact_url, ", project_root: ", project_root))`
+- [ ] 2.1. **reconcile-push** — Reconciles the Spec Reference Blockquote / artifact URL in the remote issue body after create returns the artifact_url
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/reconcile-push.md](.opencode/skills/spec-creation/tasks/reconcile-push.md). issue_number: ", issue_number, ", artifact_url: ", artifact_url, ", project_root: ", project_root))`
   - **Context passed:** `{issue_number, artifact_url, project_root}`
   - **Returns:** `{status, issue_url, finding_summary}`
   - **Execution mode:** sub-agent dispatch
-  - Runs after `create` returns the `artifact_url` from `push-artifacts`; reconciles the Spec Reference Blockquote / artifact URL in the remote issue body.
 
-- [ ] 3. **validate** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). issue_number: ", issue_number, ", spec_path: ", spec_path))`
+- [ ] 3. **validate** — Runs holistic self-check and structural validation on the spec
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). issue_number: ", issue_number, ", spec_path: ", spec_path))`
   - **Context passed:** `{issue_number, spec_path}`
   - **Returns:** `{status, verdicts: [{check_name, result}], finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 4. **If validate returns FAIL:** Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). issue_number: ", issue_number, ", spec_path: ", spec_path, ", validation_findings: ", validation_findings))`
+- [ ] 4. **If validate returns FAIL:** Revise the spec to address validation findings
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). issue_number: ", issue_number, ", spec_path: ", spec_path, ", validation_findings: ", validation_findings))`
   - **Context passed:** `{issue_number, spec_path, validation_findings}`
   - **Returns:** `{status, spec_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
@@ -72,12 +76,14 @@ The tier counter resets when validate returns PASS (successful exit from the loo
 
 ### Revise an existing spec
 
-- [ ] 1. **revise** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). issue_number: ", issue_number, ", spec_path: ", spec_path, ", revision_reason: ", revision_reason))`
+- [ ] 1. **revise** — Revises the spec content based on revision reason or validation findings
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md). issue_number: ", issue_number, ", spec_path: ", spec_path, ", revision_reason: ", revision_reason))`
   - **Context passed:** `{issue_number, spec_path, revision_reason}`
   - **Returns:** `{status, spec_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2. **validate** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). issue_number: ", issue_number, ", spec_path: ", spec_path))`
+- [ ] 2. **validate** — Runs holistic self-check and structural validation on the revised spec
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md). issue_number: ", issue_number, ", spec_path: ", spec_path))`
   - **Context passed:** `{issue_number, spec_path}`
   - **Returns:** `{status, verdicts, finding_summary}`
   - **Execution mode:** sub-agent dispatch
