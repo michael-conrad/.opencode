@@ -69,17 +69,17 @@ check_fail() {
 }
 
 # Extract the on-disk Context passed to a given spec-creation task from the
-# Workflows section of SKILL.md. For each `Dispatch task(...)` step whose
-# prompt references `spec-creation/tasks/<task>.md`, capture the following
-# `**Context passed:**` value. Returns the sorted unique union of params
-# across both workflows (space-separated). Live, independent of the artifact.
+# Workflows section of SKILL.md. For each step whose `**Prompt:**` references
+# `spec-creation/tasks/<task>.md`, capture the following `**Context passed:**`
+# value. Returns the sorted unique union of params across both workflows
+# (space-separated). Live, independent of the artifact.
 on_disk_context() {
     local task="$1"
     awk -v t="$task" '
         /^### (Create a new spec|Revise an existing spec)/ { in_workflow=1; next }
         /^### / { in_workflow=0 }
-        in_workflow && /Dispatch/ && index($0, "spec-creation/tasks/" t ".md") { cur=t }
-        in_workflow && cur==t && /Context passed:/ {
+        in_workflow && index($0, "spec-creation/tasks/" t ".md") { cur=t }
+        in_workflow && cur==t && /Context passed:/ && /^  - \*\*Context passed:\*\*/ {
             match($0, /\{[^}]*\}/)
             s=substr($0, RSTART+1, RLENGTH-2)
             gsub(/,/, " ", s)

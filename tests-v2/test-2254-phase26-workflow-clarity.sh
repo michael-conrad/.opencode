@@ -150,15 +150,17 @@ check_workflow_clarity() {
 
     # Also detect if the header preamble exists (the descriptive text below
     # ## Workflows that explains the step-by-step, orchestator-discipline
-    # pattern). The preamble is the first non-empty, non-heading line after
-    # ## Workflows — it should describe execution-mode sub-bullets.
+    # pattern). The preamble spans the first non-empty, non-heading lines after
+    # ## Workflows — it may be multiple paragraphs. Check up to 5 lines for
+    # execution-mode or orchestrator-step references.
     local has_preamble=false
-    local preamble_line
-    preamble_line=$(awk '
+    local preamble_lines
+    preamble_lines=$(awk '
         /^## Workflows/ { found=1; next }
-        found && /^[^#]/ && !/^\s*$/ { print; exit }
+        found && /^## [A-Za-z]/ && !/^## Workflows/ { exit }
+        found && /^[^#]/ && !/^\s*$/ { print; count++; if (count>=5) exit }
     ' "$skill_file" 2>/dev/null) || true
-    if echo "$preamble_line" | grep -qiE 'execution.?mode|orchestrator.*step.*step|inline.*dispatch'; then
+    if echo "$preamble_lines" | grep -qiE 'execution.?mode|orchestrator.*step.*step|inline.*dispatch|orchestrator does NOT read task cards'; then
         has_preamble=true
     fi
 
