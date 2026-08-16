@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# spec-creation task-card surface inventory — Phase 18 (prep).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/tasks/*.md
+#
+# Surface inventory of the 5 spec-creation task cards (analyze, create,
+# reconcile-push, revise, validate), confirming:
+#   (1) headings match filenames,
+#   (2) no internal sub-agent dispatch (exit criterion presence/missing),
+#   (3) role/name consistency.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+task_card_count: 5
+task_cards:
+  - analyze
+  - create
+  - reconcile-push
+  - revise
+  - validate
+
+headings_match_filenames: true
+heading_mismatch_count: 0
+
+heading_verification_rule: >
+  Each task card's `# Task:` heading MUST equal the card's filename (without
+  the `.md` extension). A mismatch indicates the card's heading does not
+  identify the card by its canonical name.
+
+no_internal_subagent_dispatch:
+  description: >
+    Whether each task card records the "No internal sub-agent dispatch
+    performed — this task executes its steps directly" exit criterion. Cards
+    that execute their steps directly (create, reconcile-push) record it;
+    cards that delegate to sub-agents (analyze, revise, validate) do not.
+  has_exit_criterion:
+    - create
+    - reconcile-push
+  missing_exit_criterion:
+    - analyze
+    - revise
+    - validate
+
+role_name_consistency: true

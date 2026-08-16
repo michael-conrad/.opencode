@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# spec-creation SKILL.md link inventory — Phase 15 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/SKILL.md
+#
+# Enumerates the 6 inventoried links in spec-creation/SKILL.md: the 5
+# markdown task-card links plus the broken backtick reference
+# `docs/specs/how-to-write-good-spec-ai-agents.md` (SC-38).
+#
+# resolution_status:
+#   - resolved:   the target path resolves to a real on-disk file
+#   - unresolved: the target path does not resolve to a real on-disk file
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+link_count: 6
+links_list:
+  - target: .opencode/skills/spec-creation/tasks/analyze.md
+    link_text: spec-creation/tasks/analyze.md
+    resolution_status: resolved
+  - target: .opencode/skills/spec-creation/tasks/create.md
+    link_text: spec-creation/tasks/create.md
+    resolution_status: resolved
+  - target: .opencode/skills/spec-creation/tasks/reconcile-push.md
+    link_text: spec-creation/tasks/reconcile-push.md
+    resolution_status: resolved
+  - target: .opencode/skills/spec-creation/tasks/revise.md
+    link_text: spec-creation/tasks/revise.md
+    resolution_status: resolved
+  - target: .opencode/skills/spec-creation/tasks/validate.md
+    link_text: spec-creation/tasks/validate.md
+    resolution_status: resolved
+  - target: docs/specs/how-to-write-good-spec-ai-agents.md
+    link_text: docs/specs/how-to-write-good-spec-ai-agents.md
+    resolution_status: unresolved

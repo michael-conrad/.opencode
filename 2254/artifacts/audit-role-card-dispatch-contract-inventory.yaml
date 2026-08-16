@@ -1,0 +1,113 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card dispatch contract inventory — Phase 5 (prep for SC-41).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Enumerates each of the 48 audit role cards' accepted Dispatch Contract
+# params, matching the on-disk `## Dispatch Contract` section of each card.
+# A role card with no `## Dispatch Contract` section is inventoried with an
+# empty accepted_params set.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+role_split_cards: 48
+dispatch_contracts:
+  - card: closure-verification-arbiter.md
+    accepted_params: []
+  - card: coherence-extraction-arbiter.md
+    accepted_params: []
+  - card: coherence-maintenance-arbiter.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: concern-separation-arbiter.md
+    accepted_params: [artifact_evidence_dir, spec_local_dir]
+  - card: content-audit-arbiter.md
+    accepted_params: [artifact_evidence_dir, document_section, source_data_paths]
+  - card: drift-detection-arbiter.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir]
+  - card: guideline-audit-arbiter.md
+    accepted_params: [artifact_evidence_dir, github.owner, guideline_paths]
+  - card: plan-fidelity-arbiter.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: spec-audit-arbiter.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir]
+  - card: spec-summary-arbiter.md
+    accepted_params: []
+  - card: test-quality-audit-arbiter.md
+    accepted_params: [artifact_evidence_dir, file_paths_changed, github.owner, spec_issue_number, spec_local_dir, vbc_artifact_path]
+  - card: verification-audit-arbiter.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir]
+  - card: closure-verification-evaluator.md
+    accepted_params: []
+  - card: coherence-extraction-evaluator.md
+    accepted_params: []
+  - card: coherence-maintenance-evaluator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: concern-separation-evaluator.md
+    accepted_params: [artifact_evidence_dir, evidence_path, reasoning_path, spec_local_dir]
+  - card: content-audit-evaluator.md
+    accepted_params: [artifact_evidence_dir, document_section, source_data_paths]
+  - card: drift-detection-evaluator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir, target_files]
+  - card: guideline-audit-evaluator.md
+    accepted_params: [artifact_evidence_dir, github.owner, guideline_paths]
+  - card: plan-fidelity-evaluator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: spec-audit-evaluator.md
+    accepted_params: [artifact_evidence_dir, blast_radius_path, code_path_inventory_path, concern_map_path, cross_cutting_matrix_path, failure_description, github.owner, interface_compatibility_path, spec_issue_number, spec_local_dir, state_analysis_path, testability_assessment_path]
+  - card: spec-summary-evaluator.md
+    accepted_params: []
+  - card: test-quality-audit-evaluator.md
+    accepted_params: [artifact_evidence_dir, file_paths_changed, github.owner, spec_issue_number, spec_local_dir, vbc_artifact_path]
+  - card: verification-audit-evaluator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir]
+  - card: closure-verification-investigator.md
+    accepted_params: []
+  - card: coherence-extraction-investigator.md
+    accepted_params: []
+  - card: coherence-maintenance-investigator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: concern-separation-investigator.md
+    accepted_params: [artifact_evidence_dir, plan_local_dir, spec_local_dir]
+  - card: content-audit-investigator.md
+    accepted_params: [artifact_evidence_dir, document_section, source_data_paths]
+  - card: drift-detection-investigator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir, target_files]
+  - card: guideline-audit-investigator.md
+    accepted_params: [artifact_evidence_dir, github.owner, guideline_paths]
+  - card: plan-fidelity-investigator.md
+    accepted_params: [artifact_evidence_dir, spec_local_dir]
+  - card: spec-audit-investigator.md
+    accepted_params: [artifact_evidence_dir, failure_description, github.owner, spec_issue_number, spec_local_dir]
+  - card: spec-summary-investigator.md
+    accepted_params: []
+  - card: test-quality-audit-investigator.md
+    accepted_params: [artifact_evidence_dir, file_paths_changed, github.owner, spec_issue_number, spec_local_dir, vbc_artifact_path]
+  - card: verification-audit-investigator.md
+    accepted_params: [artifact_evidence_dir, spec_issue_number, spec_local_dir]
+  - card: closure-verification-validator.md
+    accepted_params: []
+  - card: coherence-extraction-validator.md
+    accepted_params: []
+  - card: coherence-maintenance-validator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: concern-separation-validator.md
+    accepted_params: [artifact_evidence_dir, evidence_path, plan_local_dir, spec_local_dir]
+  - card: content-audit-validator.md
+    accepted_params: [artifact_evidence_dir, document_section, github.owner, source_data_paths]
+  - card: drift-detection-validator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir, target_files]
+  - card: guideline-audit-validator.md
+    accepted_params: [artifact_evidence_dir, github.owner, guideline_paths]
+  - card: plan-fidelity-validator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_local_dir]
+  - card: spec-audit-validator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir]
+  - card: spec-summary-validator.md
+    accepted_params: []
+  - card: test-quality-audit-validator.md
+    accepted_params: [artifact_evidence_dir, file_paths_changed, github.owner, spec_issue_number, spec_local_dir, vbc_artifact_path]
+  - card: verification-audit-validator.md
+    accepted_params: [artifact_evidence_dir, github.owner, spec_issue_number, spec_local_dir]

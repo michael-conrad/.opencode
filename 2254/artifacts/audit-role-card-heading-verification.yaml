@@ -1,0 +1,78 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card heading/name verification — Phase 3 (prep).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Confirms each audit role-split card's `# Task:` heading matches its filename.
+# Depends on Phase 1 (the audit role-card surface inventory artifact exists).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+verified_cards: 48
+heading_mismatches: 0
+
+verification_rule: >
+  Each role-split card's `# Task:` heading MUST equal the card's filename
+  (without the `.md` extension). A mismatch indicates the card's heading does
+  not identify the card by its canonical name.
+
+role_split_card_suffixes:
+  - arbiter
+  - evaluator
+  - investigator
+  - validator
+
+verified_cards_list:
+  - closure-verification-arbiter
+  - closure-verification-evaluator
+  - closure-verification-investigator
+  - closure-verification-validator
+  - coherence-extraction-arbiter
+  - coherence-extraction-evaluator
+  - coherence-extraction-investigator
+  - coherence-extraction-validator
+  - coherence-maintenance-arbiter
+  - coherence-maintenance-evaluator
+  - coherence-maintenance-investigator
+  - coherence-maintenance-validator
+  - concern-separation-arbiter
+  - concern-separation-evaluator
+  - concern-separation-investigator
+  - concern-separation-validator
+  - content-audit-arbiter
+  - content-audit-evaluator
+  - content-audit-investigator
+  - content-audit-validator
+  - drift-detection-arbiter
+  - drift-detection-evaluator
+  - drift-detection-investigator
+  - drift-detection-validator
+  - guideline-audit-arbiter
+  - guideline-audit-evaluator
+  - guideline-audit-investigator
+  - guideline-audit-validator
+  - plan-fidelity-arbiter
+  - plan-fidelity-evaluator
+  - plan-fidelity-investigator
+  - plan-fidelity-validator
+  - spec-audit-arbiter
+  - spec-audit-evaluator
+  - spec-audit-investigator
+  - spec-audit-validator
+  - spec-summary-arbiter
+  - spec-summary-evaluator
+  - spec-summary-investigator
+  - spec-summary-validator
+  - test-quality-audit-arbiter
+  - test-quality-audit-evaluator
+  - test-quality-audit-investigator
+  - test-quality-audit-validator
+  - verification-audit-arbiter
+  - verification-audit-evaluator
+  - verification-audit-investigator
+  - verification-audit-validator
+
+heading_mismatch_details: []

@@ -1,0 +1,120 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card split verification — Phase 9 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Confirms the audit role cards are organized as role-split cards
+# (investigator/validator/evaluator/arbiter). Depends on Phase 1
+# (audit-role-card-surface-inventory.yaml), which enumerates the 48
+# role-split cards on disk. Each enumerated card's role suffix is
+# verified to match the on-disk filename.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+role_split_cards: 48
+role_split_card_suffixes:
+- arbiter
+- evaluator
+- investigator
+- validator
+
+role_split_cards_list:
+  - name: closure-verification-arbiter.md
+    role: arbiter
+  - name: closure-verification-evaluator.md
+    role: evaluator
+  - name: closure-verification-investigator.md
+    role: investigator
+  - name: closure-verification-validator.md
+    role: validator
+  - name: coherence-extraction-arbiter.md
+    role: arbiter
+  - name: coherence-extraction-evaluator.md
+    role: evaluator
+  - name: coherence-extraction-investigator.md
+    role: investigator
+  - name: coherence-extraction-validator.md
+    role: validator
+  - name: coherence-maintenance-arbiter.md
+    role: arbiter
+  - name: coherence-maintenance-evaluator.md
+    role: evaluator
+  - name: coherence-maintenance-investigator.md
+    role: investigator
+  - name: coherence-maintenance-validator.md
+    role: validator
+  - name: concern-separation-arbiter.md
+    role: arbiter
+  - name: concern-separation-evaluator.md
+    role: evaluator
+  - name: concern-separation-investigator.md
+    role: investigator
+  - name: concern-separation-validator.md
+    role: validator
+  - name: content-audit-arbiter.md
+    role: arbiter
+  - name: content-audit-evaluator.md
+    role: evaluator
+  - name: content-audit-investigator.md
+    role: investigator
+  - name: content-audit-validator.md
+    role: validator
+  - name: drift-detection-arbiter.md
+    role: arbiter
+  - name: drift-detection-evaluator.md
+    role: evaluator
+  - name: drift-detection-investigator.md
+    role: investigator
+  - name: drift-detection-validator.md
+    role: validator
+  - name: guideline-audit-arbiter.md
+    role: arbiter
+  - name: guideline-audit-evaluator.md
+    role: evaluator
+  - name: guideline-audit-investigator.md
+    role: investigator
+  - name: guideline-audit-validator.md
+    role: validator
+  - name: plan-fidelity-arbiter.md
+    role: arbiter
+  - name: plan-fidelity-evaluator.md
+    role: evaluator
+  - name: plan-fidelity-investigator.md
+    role: investigator
+  - name: plan-fidelity-validator.md
+    role: validator
+  - name: spec-audit-arbiter.md
+    role: arbiter
+  - name: spec-audit-evaluator.md
+    role: evaluator
+  - name: spec-audit-investigator.md
+    role: investigator
+  - name: spec-audit-validator.md
+    role: validator
+  - name: spec-summary-arbiter.md
+    role: arbiter
+  - name: spec-summary-evaluator.md
+    role: evaluator
+  - name: spec-summary-investigator.md
+    role: investigator
+  - name: spec-summary-validator.md
+    role: validator
+  - name: test-quality-audit-arbiter.md
+    role: arbiter
+  - name: test-quality-audit-evaluator.md
+    role: evaluator
+  - name: test-quality-audit-investigator.md
+    role: investigator
+  - name: test-quality-audit-validator.md
+    role: validator
+  - name: verification-audit-arbiter.md
+    role: arbiter
+  - name: verification-audit-evaluator.md
+    role: evaluator
+  - name: verification-audit-investigator.md
+    role: investigator
+  - name: verification-audit-validator.md
+    role: validator

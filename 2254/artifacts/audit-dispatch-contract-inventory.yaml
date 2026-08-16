@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit dispatch-contract inventory — Phase 11 (prep for SC-41).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/SKILL.md
+#
+# Enumerates the `Run an audit` Workflows dispatch contracts. The dispatch
+# union is the set of Context params passed to each role in the `Run an
+# audit` Workflows section (21 params). Each role's accepted subset is the
+# union of the `## Dispatch Contract` params accepted by that role's task
+# cards on disk.
+#
+# Post-SC-41 (Phase 23) state: each role's Context passed is reduced to its
+# accepted subset, and the orphan params (`pr_number`, `github.repo`) are
+# removed from the dispatch union. No param in the dispatch union is accepted
+# by no task card (`orphan_params: []`).
+#
+# Depends on Phase 5 (the audit role-card dispatch-contract inventory) and
+# Phase 10 (the audit workflow inventory).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+dispatch_union:
+  - artifact_evidence_dir
+  - blast_radius_path
+  - code_path_inventory_path
+  - concern_map_path
+  - cross_cutting_matrix_path
+  - document_section
+  - evidence_path
+  - failure_description
+  - file_paths_changed
+  - github.owner
+  - guideline_paths
+  - interface_compatibility_path
+  - plan_local_dir
+  - reasoning_path
+  - source_data_paths
+  - spec_issue_number
+  - spec_local_dir
+  - state_analysis_path
+  - target_files
+  - testability_assessment_path
+  - vbc_artifact_path
+dispatch_union_size: 21
+role_contracts:
+  - role: investigator
+    accepted_params: [artifact_evidence_dir, document_section, failure_description, file_paths_changed, github.owner, guideline_paths, plan_local_dir, source_data_paths, spec_issue_number, spec_local_dir, target_files, vbc_artifact_path]
+  - role: validator
+    accepted_params: [artifact_evidence_dir, document_section, evidence_path, file_paths_changed, github.owner, guideline_paths, plan_local_dir, source_data_paths, spec_issue_number, spec_local_dir, target_files, vbc_artifact_path]
+  - role: evaluator
+    accepted_params: [artifact_evidence_dir, blast_radius_path, code_path_inventory_path, concern_map_path, cross_cutting_matrix_path, document_section, evidence_path, failure_description, file_paths_changed, github.owner, guideline_paths, interface_compatibility_path, reasoning_path, source_data_paths, spec_issue_number, spec_local_dir, state_analysis_path, target_files, testability_assessment_path, vbc_artifact_path]
+  - role: arbiter
+    accepted_params: [artifact_evidence_dir, document_section, file_paths_changed, github.owner, guideline_paths, source_data_paths, spec_issue_number, spec_local_dir, vbc_artifact_path]
+orphan_params: []

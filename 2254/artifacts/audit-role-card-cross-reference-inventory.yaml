@@ -1,0 +1,86 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card cross-reference inventory — Phase 4 (prep for SC-40).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Maps each of the 17 monolithic references (to non-existent `tasks/<domain>.md`
+# files) to the actual role-split card it should point to. The correct target is
+# derived from the on-disk reference's role description:
+#   - "Evaluator role" -> the `-evaluator.md` card for the domain
+#   - "Main task" / "orchestrator-level dispatch" -> the `-arbiter.md` card
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+total: 17
+
+mappings:
+  - source: coherence-maintenance-investigator.md
+    monolithic_target: tasks/coherence-maintenance.md
+    correct_target: coherence-maintenance-evaluator.md
+  - source: coherence-maintenance-validator.md
+    monolithic_target: tasks/coherence-maintenance.md
+    correct_target: coherence-maintenance-evaluator.md
+  - source: concern-separation-investigator.md
+    monolithic_target: tasks/concern-separation.md
+    correct_target: concern-separation-evaluator.md
+  - source: concern-separation-validator.md
+    monolithic_target: tasks/concern-separation.md
+    correct_target: concern-separation-evaluator.md
+  - source: content-audit-investigator.md
+    monolithic_target: tasks/content-audit.md
+    correct_target: content-audit-evaluator.md
+  - source: content-audit-validator.md
+    monolithic_target: tasks/content-audit.md
+    correct_target: content-audit-evaluator.md
+  - source: drift-detection-arbiter.md
+    monolithic_target: tasks/drift-detection.md
+    correct_target: drift-detection-arbiter.md
+  - source: drift-detection-evaluator.md
+    monolithic_target: tasks/drift-detection.md
+    correct_target: drift-detection-arbiter.md
+  - source: drift-detection-investigator.md
+    monolithic_target: tasks/drift-detection.md
+    correct_target: drift-detection-evaluator.md
+  - source: drift-detection-validator.md
+    monolithic_target: tasks/drift-detection.md
+    correct_target: drift-detection-evaluator.md
+  - source: guideline-audit-investigator.md
+    monolithic_target: tasks/guideline-audit.md
+    correct_target: guideline-audit-evaluator.md
+  - source: guideline-audit-validator.md
+    monolithic_target: tasks/guideline-audit.md
+    correct_target: guideline-audit-evaluator.md
+  - source: test-quality-audit-arbiter.md
+    monolithic_target: tasks/test-quality-audit.md
+    correct_target: test-quality-audit-arbiter.md
+  - source: test-quality-audit-investigator.md
+    monolithic_target: tasks/test-quality-audit.md
+    correct_target: test-quality-audit-evaluator.md
+  - source: test-quality-audit-validator.md
+    monolithic_target: tasks/test-quality-audit.md
+    correct_target: test-quality-audit-evaluator.md
+  - source: verification-audit-investigator.md
+    monolithic_target: tasks/verification-audit.md
+    correct_target: verification-audit-evaluator.md
+  - source: verification-audit-validator.md
+    monolithic_target: tasks/verification-audit.md
+    correct_target: verification-audit-evaluator.md
+
+domains:
+  coherence-maintenance:
+    count: 2
+  concern-separation:
+    count: 2
+  content-audit:
+    count: 2
+  drift-detection:
+    count: 4
+  guideline-audit:
+    count: 2
+  test-quality-audit:
+    count: 3
+  verification-audit:
+    count: 2

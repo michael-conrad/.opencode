@@ -1,0 +1,121 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card clean-room unit verification — Phase 8 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Clean-room unit verification that no audit role card dispatches sub-agents
+# internally. Per the plan's Execution Model, sub-agents CANNOT dispatch
+# sub-agents (`task: deny` is hardcoded). A role card's Procedure SHALL NOT
+# require the role sub-agent to dispatch another sub-agent internally.
+#
+# Each of the 48 audit role-split cards is enumerated with its
+# internal_subagent_dispatch status, matching the on-disk `## Procedure`
+# section of the card. A card whose Procedure contains an imperative internal
+# sub-agent dispatch instruction (a `task()` call dispatching another
+# sub-agent, or an imperative "dispatch a sub-agent" / "dispatch another
+# sub-agent" directive) is inventoried as `true`; a card whose Procedure
+# contains no such imperative instruction is inventoried as `false`.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+role_split_cards: 48
+clean_room_unit_verifications:
+  - card: closure-verification-arbiter.md
+    internal_subagent_dispatch: false
+  - card: closure-verification-evaluator.md
+    internal_subagent_dispatch: false
+  - card: closure-verification-investigator.md
+    internal_subagent_dispatch: false
+  - card: closure-verification-validator.md
+    internal_subagent_dispatch: false
+  - card: coherence-extraction-arbiter.md
+    internal_subagent_dispatch: false
+  - card: coherence-extraction-evaluator.md
+    internal_subagent_dispatch: false
+  - card: coherence-extraction-investigator.md
+    internal_subagent_dispatch: false
+  - card: coherence-extraction-validator.md
+    internal_subagent_dispatch: false
+  - card: coherence-maintenance-arbiter.md
+    internal_subagent_dispatch: false
+  - card: coherence-maintenance-evaluator.md
+    internal_subagent_dispatch: false
+  - card: coherence-maintenance-investigator.md
+    internal_subagent_dispatch: false
+  - card: coherence-maintenance-validator.md
+    internal_subagent_dispatch: false
+  - card: concern-separation-arbiter.md
+    internal_subagent_dispatch: false
+  - card: concern-separation-evaluator.md
+    internal_subagent_dispatch: false
+  - card: concern-separation-investigator.md
+    internal_subagent_dispatch: false
+  - card: concern-separation-validator.md
+    internal_subagent_dispatch: false
+  - card: content-audit-arbiter.md
+    internal_subagent_dispatch: false
+  - card: content-audit-evaluator.md
+    internal_subagent_dispatch: false
+  - card: content-audit-investigator.md
+    internal_subagent_dispatch: false
+  - card: content-audit-validator.md
+    internal_subagent_dispatch: false
+  - card: drift-detection-arbiter.md
+    internal_subagent_dispatch: false
+  - card: drift-detection-evaluator.md
+    internal_subagent_dispatch: false
+  - card: drift-detection-investigator.md
+    internal_subagent_dispatch: false
+  - card: drift-detection-validator.md
+    internal_subagent_dispatch: false
+  - card: guideline-audit-arbiter.md
+    internal_subagent_dispatch: false
+  - card: guideline-audit-evaluator.md
+    internal_subagent_dispatch: false
+  - card: guideline-audit-investigator.md
+    internal_subagent_dispatch: false
+  - card: guideline-audit-validator.md
+    internal_subagent_dispatch: false
+  - card: plan-fidelity-arbiter.md
+    internal_subagent_dispatch: false
+  - card: plan-fidelity-evaluator.md
+    internal_subagent_dispatch: false
+  - card: plan-fidelity-investigator.md
+    internal_subagent_dispatch: false
+  - card: plan-fidelity-validator.md
+    internal_subagent_dispatch: false
+  - card: spec-audit-arbiter.md
+    internal_subagent_dispatch: false
+  - card: spec-audit-evaluator.md
+    internal_subagent_dispatch: false
+  - card: spec-audit-investigator.md
+    internal_subagent_dispatch: false
+  - card: spec-audit-validator.md
+    internal_subagent_dispatch: false
+  - card: spec-summary-arbiter.md
+    internal_subagent_dispatch: false
+  - card: spec-summary-evaluator.md
+    internal_subagent_dispatch: false
+  - card: spec-summary-investigator.md
+    internal_subagent_dispatch: false
+  - card: spec-summary-validator.md
+    internal_subagent_dispatch: false
+  - card: test-quality-audit-arbiter.md
+    internal_subagent_dispatch: false
+  - card: test-quality-audit-evaluator.md
+    internal_subagent_dispatch: false
+  - card: test-quality-audit-investigator.md
+    internal_subagent_dispatch: false
+  - card: test-quality-audit-validator.md
+    internal_subagent_dispatch: false
+  - card: verification-audit-arbiter.md
+    internal_subagent_dispatch: false
+  - card: verification-audit-evaluator.md
+    internal_subagent_dispatch: false
+  - card: verification-audit-investigator.md
+    internal_subagent_dispatch: false
+  - card: verification-audit-validator.md
+    internal_subagent_dispatch: false

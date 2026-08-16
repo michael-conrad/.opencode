@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# spec-creation dispatch-contract inventory — Phase 20 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/SKILL.md
+#
+# Enumerates the Context passed to each spec-creation task in the `Create a
+# new spec` and `Revise an existing spec` Workflows sections. Each task's
+# `context_passed` subset is the sorted unique union of the on-disk
+# `**Context passed:**` values for that task across both workflows.
+# `issue_number` is passed to every spec-creation task.
+#
+# Depends on Phase 19 (the spec-creation workflow inventory artifact
+# enumerating the Workflows steps and their Context passed).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+dispatch_contract_name: spec-creation
+task_contracts:
+  - task: analyze
+    context_passed: [issue_number, project_root]
+  - task: create
+    context_passed: [analysis_artifact_path, issue_number, project_root]
+  - task: reconcile-push
+    context_passed: [artifact_url, issue_number, project_root]
+  - task: validate
+    context_passed: [issue_number, spec_path]
+  - task: revise
+    context_passed: [issue_number, revision_reason, spec_path, validation_findings]
+issue_number_passed_to_all: true

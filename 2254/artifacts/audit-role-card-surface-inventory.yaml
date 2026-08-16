@@ -1,0 +1,133 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card surface inventory — Phase 1 (prep for SC-40).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Enumerates the role-split cards on disk and the monolithic references that
+# point to non-existent monolithic task files (tasks/<domain>.md) which were
+# split into role cards (arbiter/evaluator/investigator/validator).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+role_split_cards: 48
+role_split_card_suffixes:
+  - arbiter
+  - evaluator
+  - investigator
+  - validator
+
+role_split_cards_list:
+  - closure-verification-arbiter.md
+  - closure-verification-evaluator.md
+  - closure-verification-investigator.md
+  - closure-verification-validator.md
+  - coherence-extraction-arbiter.md
+  - coherence-extraction-evaluator.md
+  - coherence-extraction-investigator.md
+  - coherence-extraction-validator.md
+  - coherence-maintenance-arbiter.md
+  - coherence-maintenance-evaluator.md
+  - coherence-maintenance-investigator.md
+  - coherence-maintenance-validator.md
+  - concern-separation-arbiter.md
+  - concern-separation-evaluator.md
+  - concern-separation-investigator.md
+  - concern-separation-validator.md
+  - content-audit-arbiter.md
+  - content-audit-evaluator.md
+  - content-audit-investigator.md
+  - content-audit-validator.md
+  - drift-detection-arbiter.md
+  - drift-detection-evaluator.md
+  - drift-detection-investigator.md
+  - drift-detection-validator.md
+  - guideline-audit-arbiter.md
+  - guideline-audit-evaluator.md
+  - guideline-audit-investigator.md
+  - guideline-audit-validator.md
+  - plan-fidelity-arbiter.md
+  - plan-fidelity-evaluator.md
+  - plan-fidelity-investigator.md
+  - plan-fidelity-validator.md
+  - spec-audit-arbiter.md
+  - spec-audit-evaluator.md
+  - spec-audit-investigator.md
+  - spec-audit-validator.md
+  - spec-summary-arbiter.md
+  - spec-summary-evaluator.md
+  - spec-summary-investigator.md
+  - spec-summary-validator.md
+  - test-quality-audit-arbiter.md
+  - test-quality-audit-evaluator.md
+  - test-quality-audit-investigator.md
+  - test-quality-audit-validator.md
+  - verification-audit-arbiter.md
+  - verification-audit-evaluator.md
+  - verification-audit-investigator.md
+  - verification-audit-validator.md
+
+monolithic_references:
+  total: 17
+  description: >
+    References to non-existent monolithic task files (tasks/<domain>.md) that
+    were split into role cards. Each reference points to a file that does not
+    exist on disk; the correct target is the role-split card set for the domain.
+  domains:
+    coherence-maintenance:
+      count: 2
+      references:
+        - source: coherence-maintenance-investigator.md
+          target: tasks/coherence-maintenance.md
+        - source: coherence-maintenance-validator.md
+          target: tasks/coherence-maintenance.md
+    concern-separation:
+      count: 2
+      references:
+        - source: concern-separation-investigator.md
+          target: tasks/concern-separation.md
+        - source: concern-separation-validator.md
+          target: tasks/concern-separation.md
+    content-audit:
+      count: 2
+      references:
+        - source: content-audit-investigator.md
+          target: tasks/content-audit.md
+        - source: content-audit-validator.md
+          target: tasks/content-audit.md
+    drift-detection:
+      count: 4
+      references:
+        - source: drift-detection-arbiter.md
+          target: tasks/drift-detection.md
+        - source: drift-detection-evaluator.md
+          target: tasks/drift-detection.md
+        - source: drift-detection-investigator.md
+          target: tasks/drift-detection.md
+        - source: drift-detection-validator.md
+          target: tasks/drift-detection.md
+    guideline-audit:
+      count: 2
+      references:
+        - source: guideline-audit-investigator.md
+          target: tasks/guideline-audit.md
+        - source: guideline-audit-validator.md
+          target: tasks/guideline-audit.md
+    test-quality-audit:
+      count: 3
+      references:
+        - source: test-quality-audit-arbiter.md
+          target: tasks/test-quality-audit.md
+        - source: test-quality-audit-investigator.md
+          target: tasks/test-quality-audit.md
+        - source: test-quality-audit-validator.md
+          target: tasks/test-quality-audit.md
+    verification-audit:
+      count: 2
+      references:
+        - source: verification-audit-investigator.md
+          target: tasks/verification-audit.md
+        - source: verification-audit-validator.md
+          target: tasks/verification-audit.md

@@ -1,0 +1,114 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card Procedure-format inventory — Phase 7 (prep for SC-25).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Enumerates each of the 48 audit role-split cards' Procedure format:
+#   - numbered-checkbox: the `## Procedure` section uses only numbered-checkbox
+#     markers (`- [ ] N.`).
+#   - plain-numbered-list: the `## Procedure` section contains a plain numbered
+#     list item (`N. ` at line start).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+role_split_cards: 48
+procedure_formats:
+  - card: closure-verification-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: coherence-extraction-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: coherence-maintenance-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: concern-separation-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: content-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: drift-detection-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: guideline-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: plan-fidelity-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: spec-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: spec-summary-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: test-quality-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: verification-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: closure-verification-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: coherence-extraction-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: coherence-maintenance-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: concern-separation-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: content-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: drift-detection-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: guideline-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: plan-fidelity-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: spec-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: spec-summary-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: test-quality-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: verification-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: closure-verification-investigator.md
+    procedure_format: numbered-checkbox
+  - card: coherence-extraction-investigator.md
+    procedure_format: numbered-checkbox
+  - card: coherence-maintenance-investigator.md
+    procedure_format: numbered-checkbox
+  - card: concern-separation-investigator.md
+    procedure_format: numbered-checkbox
+  - card: content-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: drift-detection-investigator.md
+    procedure_format: numbered-checkbox
+  - card: guideline-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: plan-fidelity-investigator.md
+    procedure_format: numbered-checkbox
+  - card: spec-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: spec-summary-investigator.md
+    procedure_format: numbered-checkbox
+  - card: test-quality-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: verification-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: closure-verification-validator.md
+    procedure_format: numbered-checkbox
+  - card: coherence-extraction-validator.md
+    procedure_format: numbered-checkbox
+  - card: coherence-maintenance-validator.md
+    procedure_format: numbered-checkbox
+  - card: concern-separation-validator.md
+    procedure_format: numbered-checkbox
+  - card: content-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: drift-detection-validator.md
+    procedure_format: numbered-checkbox
+  - card: guideline-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: plan-fidelity-validator.md
+    procedure_format: numbered-checkbox
+  - card: spec-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: spec-summary-validator.md
+    procedure_format: numbered-checkbox
+  - card: test-quality-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: verification-audit-validator.md
+    procedure_format: numbered-checkbox

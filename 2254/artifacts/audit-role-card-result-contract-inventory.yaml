@@ -1,0 +1,114 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card result-contract inventory — Phase 6 (prep for SC-42).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Enumerates each of the 48 audit role cards' Result Contract field names
+# (the `## Result Contract`, `## Output`, or `Return Frugal Result Contract`
+# yaml block). A role card with no Result Contract block is inventoried with
+# an empty field_names set.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+role_split_cards: 48
+
+result_contracts:
+  - card: closure-verification-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, remediation_required, status, summary]
+  - card: closure-verification-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, status, summary]
+  - card: closure-verification-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: closure-verification-validator.md
+    field_names: [artifact_path, status, summary]
+  - card: coherence-extraction-arbiter.md
+    field_names: [artifact_path, remediation_required, status, summary]
+  - card: coherence-extraction-evaluator.md
+    field_names: [artifact_path, baseline_path, status, summary]
+  - card: coherence-extraction-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: coherence-extraction-validator.md
+    field_names: [artifact_path, status, summary]
+  - card: coherence-maintenance-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, next_step, overall_judgment, remediation_required, status, summary]
+  - card: coherence-maintenance-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: coherence-maintenance-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: coherence-maintenance-validator.md
+    field_names: [artifact_path, status, summary]
+  - card: concern-separation-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, next_step, overall_verdict, remediation_required, status, summary]
+  - card: concern-separation-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: concern-separation-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: concern-separation-validator.md
+    field_names: [artifact_path, status, summary]
+  - card: content-audit-arbiter.md
+    field_names: [all_claims_pass, artifact_path, final_judgment, next_step, remediation_required, status, summary]
+  - card: content-audit-evaluator.md
+    field_names: [all_claims_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: content-audit-investigator.md
+    field_names: [artifact_path, claim_count, domains_covered, source_file_count, status, summary]
+  - card: content-audit-validator.md
+    field_names: [artifact_path, claims_validated, issue_count, source_files_validated, status, summary, total_claims, total_source_files]
+  - card: drift-detection-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, next_step, overall_judgment, remediation_required, status, summary]
+  - card: drift-detection-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: drift-detection-investigator.md
+    field_names: [artifact_path, function_comparison_count, spec_file_count, status, summary, target_file_count, untracked_file_count]
+  - card: drift-detection-validator.md
+    field_names: [artifact_path, overall_validation_status, status, summary]
+  - card: guideline-audit-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, final_judgment, next_step, remediation_required, status, summary]
+  - card: guideline-audit-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: guideline-audit-investigator.md
+    field_names: [ambiguity_marker_count, artifact_path, conflict_indicator_count, cross_reference_count, file_count, rule_block_count, status, summary]
+  - card: guideline-audit-validator.md
+    field_names: [artifact_path, overall_validation_status, status, summary]
+  - card: plan-fidelity-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, next_step, overall_verdict, remediation_required, status, summary]
+  - card: plan-fidelity-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: plan-fidelity-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: plan-fidelity-validator.md
+    field_names: [artifact_path, status, summary]
+  - card: spec-audit-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, final_judgment, next_step, remediation_required, status, summary]
+  - card: spec-audit-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, holistic_status, needs_clean_room, remediation_required, status, summary]
+  - card: spec-audit-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: spec-audit-validator.md
+    field_names: [artifact_path, overall_validation_status, status, summary]
+  - card: spec-summary-arbiter.md
+    field_names: [artifact_path, remediation_required, status, summary]
+  - card: spec-summary-evaluator.md
+    field_names: [artifact_path, overall_verdict, status, summary]
+  - card: spec-summary-investigator.md
+    field_names: [artifact_path, status, summary]
+  - card: spec-summary-validator.md
+    field_names: [artifact_path, status, summary]
+  - card: test-quality-audit-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, final_judgment, next_step, remediation_required, status, summary]
+  - card: test-quality-audit-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: test-quality-audit-investigator.md
+    field_names: [artifact_path, git_history_available, sc_count, status, summary, test_file_count, test_function_count, vbc_available]
+  - card: test-quality-audit-validator.md
+    field_names: [artifact_path, sections_validated, status, summary, total_items_validated, total_mismatches, total_unverifiable, total_validated]
+  - card: verification-audit-arbiter.md
+    field_names: [all_criteria_pass, artifact_path, next_step, overall_verdict, remediation_required, status, status_checked, status_updated, summary, ticket_status]
+  - card: verification-audit-evaluator.md
+    field_names: [all_criteria_pass, artifact_path, needs_clean_room, remediation_required, status, summary]
+  - card: verification-audit-investigator.md
+    field_names: [artifact_path, behavioral_sc_count, evidence_artifact_count, missing_evidence_count, sc_count, status, summary]
+  - card: verification-audit-validator.md
+    field_names: [artifact_path, artifacts_validated, issue_count, scs_validated, status, summary, total_artifacts, total_scs]

@@ -1,0 +1,134 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Task-card format conformance inventory — Phase 22 (prep, after SC-25/SC-43).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/tasks/*.md and .opencode/skills/audit/tasks/*.md
+#
+# Records each spec-creation and audit task card's Procedure format:
+#   - numbered-checkbox: the `## Procedure` section uses only numbered-checkbox
+#     markers (`- [ ] N.`).
+#   - plain-numbered-list: the `## Procedure` section contains a plain numbered
+#     list item (`N. ` at line start).
+#
+# Per SC-25/SC-43, all task-card Procedures use the canonical numbered-checkbox
+# format. No plain numbered list remains in any Procedure section.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+task_cards: 55
+procedure_formats:
+  - card: spec-creation/tasks/analyze.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/create.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/reconcile-push.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/revise.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/validate.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/closure-verification-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/closure-verification-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/closure-verification-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/closure-verification-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-extraction-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-extraction-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-extraction-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-extraction-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-maintenance-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-maintenance-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-maintenance-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/coherence-maintenance-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/completion.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/concern-separation-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/concern-separation-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/concern-separation-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/concern-separation-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/content-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/content-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/content-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/content-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/drift-detection-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/drift-detection-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/drift-detection-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/drift-detection-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/guideline-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/guideline-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/guideline-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/guideline-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/plan-fidelity-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/plan-fidelity-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/plan-fidelity-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/plan-fidelity-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/pr-body-audit.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-summary-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-summary-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-summary-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/spec-summary-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/test-quality-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/test-quality-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/test-quality-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/test-quality-audit-validator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/verification-audit-arbiter.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/verification-audit-evaluator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/verification-audit-investigator.md
+    procedure_format: numbered-checkbox
+  - card: audit/tasks/verification-audit-validator.md
+    procedure_format: numbered-checkbox
+
+plain_numbered_list_count: 0
+plain_numbered_lists: []

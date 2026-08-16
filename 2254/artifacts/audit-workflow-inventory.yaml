@@ -1,0 +1,121 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit workflow inventory — Phase 10 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/SKILL.md
+#
+# Enumerates the `Run an audit` Workflows section steps in order. Each step is
+# a clean-room `task()` dispatch (DiMo role). Depends on Phase 1 (the audit
+# role-card surface inventory enumerating the 48 role-split cards).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+workflow_name: Run an audit
+workflow_steps: 4
+workflow_steps_list:
+  - role: investigator
+    dispatch_prompt: "Follow the instructions in [audit/tasks/<task>-investigator.md](.opencode/skills/audit/tasks/<task>-investigator.md)"
+    context_passed:
+      - spec_local_dir
+      - plan_local_dir
+      - artifact_evidence_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+      - guideline_paths
+      - document_section
+      - source_data_paths
+      - target_files
+      - file_paths_changed
+      - vbc_artifact_path
+      - failure_description
+      - pr_number
+      - blast_radius_path
+      - concern_map_path
+      - code_path_inventory_path
+      - cross_cutting_matrix_path
+      - interface_compatibility_path
+      - state_analysis_path
+      - testability_assessment_path
+    returns: "{status, artifact_path, finding_summary} — writes evidence.yaml with raw evidence and initial findings"
+    execution_mode: sub-agent dispatch
+  - role: validator
+    dispatch_prompt: "Follow the instructions in [audit/tasks/<task>-validator.md](.opencode/skills/audit/tasks/<task>-validator.md)"
+    context_passed:
+      - spec_local_dir
+      - plan_local_dir
+      - artifact_evidence_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+      - guideline_paths
+      - document_section
+      - source_data_paths
+      - target_files
+      - file_paths_changed
+      - vbc_artifact_path
+      - failure_description
+      - pr_number
+      - blast_radius_path
+      - concern_map_path
+      - code_path_inventory_path
+      - cross_cutting_matrix_path
+      - interface_compatibility_path
+      - state_analysis_path
+      - testability_assessment_path
+    returns: "{status, artifact_path, finding_summary} — reads evidence.yaml, writes reasoning.yaml with validated evidence"
+    execution_mode: sub-agent dispatch
+  - role: evaluator
+    dispatch_prompt: "Follow the instructions in [audit/tasks/<task>-evaluator.md](.opencode/skills/audit/tasks/<task>-evaluator.md)"
+    context_passed:
+      - spec_local_dir
+      - plan_local_dir
+      - artifact_evidence_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+      - guideline_paths
+      - document_section
+      - source_data_paths
+      - target_files
+      - file_paths_changed
+      - vbc_artifact_path
+      - failure_description
+      - pr_number
+      - blast_radius_path
+      - concern_map_path
+      - code_path_inventory_path
+      - cross_cutting_matrix_path
+      - interface_compatibility_path
+      - state_analysis_path
+      - testability_assessment_path
+    returns: "{status, artifact_path, finding_summary} — reads evidence.yaml + reasoning.yaml, writes verdict.yaml with per-criterion PASS/FAIL"
+    execution_mode: sub-agent dispatch
+  - role: arbiter
+    dispatch_prompt: "Follow the instructions in [audit/tasks/<task>-arbiter.md](.opencode/skills/audit/tasks/<task>-arbiter.md)"
+    context_passed:
+      - spec_local_dir
+      - plan_local_dir
+      - artifact_evidence_dir
+      - spec_issue_number
+      - github.owner
+      - github.repo
+      - guideline_paths
+      - document_section
+      - source_data_paths
+      - target_files
+      - file_paths_changed
+      - vbc_artifact_path
+      - failure_description
+      - pr_number
+      - blast_radius_path
+      - concern_map_path
+      - code_path_inventory_path
+      - cross_cutting_matrix_path
+      - interface_compatibility_path
+      - state_analysis_path
+      - testability_assessment_path
+    returns: "{status, artifact_path, finding_summary} — reads all artifacts, writes judgment.yaml with final judgment and next_step"
+    execution_mode: sub-agent dispatch

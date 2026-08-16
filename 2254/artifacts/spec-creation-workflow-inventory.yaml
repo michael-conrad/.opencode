@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# spec-creation workflow inventory — Phase 19 (prep, no SC).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/SKILL.md
+#
+# Enumerates the spec-creation Workflows section steps in order. Each step is
+# a clean-room `task()` dispatch (or an inline orchestrator action where
+# marked). Depends on Phase 18 (the spec-creation task-card surface inventory
+# enumerating the 5 task cards: analyze, create, reconcile-push, validate,
+# revise).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+workflow_name: spec-creation
+workflows:
+- name: Create a new spec
+  workflow_steps: 5
+  workflow_steps_list:
+  - step: analyze
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/analyze.md](.opencode/skills/spec-creation/tasks/analyze.md)"
+    context_passed: "{issue_number, project_root}"
+    returns: "{status, analysis_artifact_path, finding_summary}"
+    execution_mode: sub-agent dispatch
+  - step: create
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/create.md](.opencode/skills/spec-creation/tasks/create.md)"
+    context_passed: "{issue_number, analysis_artifact_path, project_root}"
+    returns: "{status, spec_path, issue_url, artifact_url, finding_summary}"
+    execution_mode: sub-agent dispatch
+  - step: reconcile-push
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/reconcile-push.md](.opencode/skills/spec-creation/tasks/reconcile-push.md)"
+    context_passed: "{issue_number, artifact_url, project_root}"
+    returns: "{status, issue_url, finding_summary}"
+    execution_mode: sub-agent dispatch
+  - step: validate
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)"
+    context_passed: "{issue_number, spec_path}"
+    returns: "{status, verdicts: [{check_name, result}], finding_summary}"
+    execution_mode: sub-agent dispatch
+  - step: revise
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)"
+    context_passed: "{issue_number, spec_path, validation_findings}"
+    returns: "{status, spec_path, finding_summary}"
+    execution_mode: sub-agent dispatch
+- name: Revise an existing spec
+  workflow_steps: 2
+  workflow_steps_list:
+  - step: revise
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/revise.md](.opencode/skills/spec-creation/tasks/revise.md)"
+    context_passed: "{issue_number, spec_path, revision_reason}"
+    returns: "{status, spec_path, finding_summary}"
+    execution_mode: sub-agent dispatch
+  - step: validate
+    dispatch_prompt: "Follow the instructions in [spec-creation/tasks/validate.md](.opencode/skills/spec-creation/tasks/validate.md)"
+    context_passed: "{issue_number, spec_path}"
+    returns: "{status, verdicts, finding_summary}"
+    execution_mode: sub-agent dispatch

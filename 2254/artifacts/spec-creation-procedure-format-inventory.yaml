@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Spec-creation task-card Procedure-format inventory — Phase 17 (prep for SC-25).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/spec-creation/tasks/*.md
+#
+# Enumerates each spec-creation task card's Procedure format:
+#   - numbered-checkbox: the `## Procedure` section uses only numbered-checkbox
+#     markers (`- [ ] N.`).
+#   - plain-numbered-list: the `## Procedure` section contains a plain numbered
+#     list item (`N. ` at line start).
+#
+# Per SC-25, spec-creation/tasks/create.md currently uses plain numbered lists
+# for its Procedure sub-steps (Step 3, Step 3.1, Step 3.2, Step 6, Step 7).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+task_cards: 5
+procedure_formats:
+  - card: spec-creation/tasks/analyze.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/create.md
+    procedure_format: plain-numbered-list
+  - card: spec-creation/tasks/reconcile-push.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/revise.md
+    procedure_format: numbered-checkbox
+  - card: spec-creation/tasks/validate.md
+    procedure_format: numbered-checkbox
+
+plain_numbered_list_count: 5
+plain_numbered_lists:
+  - card: spec-creation/tasks/create.md
+    procedure_sub_steps:
+      - step: "Step 3"
+        title: "Create remote issue stub"
+        format: plain-numbered-list
+      - step: "Step 3.1"
+        title: "Record labels in local issue.yaml as PRIMARY CANONICAL"
+        format: plain-numbered-list
+      - step: "Step 3.2"
+        title: "Apply spec-draft label to remote (SECONDARY)"
+        format: plain-numbered-list
+      - step: "Step 6"
+        title: "Copy analytical artifacts"
+        format: plain-numbered-list
+      - step: "Step 7"
+        title: "Hand off post-push reconciliation to the reconcile-push task"
+        format: plain-numbered-list

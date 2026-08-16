@@ -1,0 +1,71 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit role-card frontmatter inventory — Phase 2 (prep for SC-43).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/tasks/*.md
+#
+# Post-SC-43 state: SC-43 removed the YAML frontmatter from all 48 audit role
+# cards. The on-disk state now has ZERO cards carrying YAML frontmatter (first
+# line `---`). This inventory records the accurate post-SC-43 state.
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+frontmatter_cards: 0
+
+frontmatter_cards_list: []
+
+non_frontmatter_cards: 50
+
+non_frontmatter_cards_list:
+  - closure-verification-arbiter.md
+  - closure-verification-evaluator.md
+  - closure-verification-investigator.md
+  - closure-verification-validator.md
+  - coherence-extraction-arbiter.md
+  - coherence-extraction-evaluator.md
+  - coherence-extraction-investigator.md
+  - coherence-extraction-validator.md
+  - coherence-maintenance-arbiter.md
+  - coherence-maintenance-evaluator.md
+  - coherence-maintenance-investigator.md
+  - coherence-maintenance-validator.md
+  - concern-separation-arbiter.md
+  - concern-separation-evaluator.md
+  - concern-separation-investigator.md
+  - concern-separation-validator.md
+  - content-audit-arbiter.md
+  - content-audit-evaluator.md
+  - content-audit-investigator.md
+  - content-audit-validator.md
+  - drift-detection-arbiter.md
+  - drift-detection-evaluator.md
+  - drift-detection-investigator.md
+  - drift-detection-validator.md
+  - guideline-audit-arbiter.md
+  - guideline-audit-evaluator.md
+  - guideline-audit-investigator.md
+  - guideline-audit-validator.md
+  - plan-fidelity-arbiter.md
+  - plan-fidelity-evaluator.md
+  - plan-fidelity-investigator.md
+  - plan-fidelity-validator.md
+  - spec-audit-arbiter.md
+  - spec-audit-evaluator.md
+  - spec-audit-investigator.md
+  - spec-audit-validator.md
+  - spec-summary-arbiter.md
+  - spec-summary-evaluator.md
+  - spec-summary-investigator.md
+  - spec-summary-validator.md
+  - test-quality-audit-arbiter.md
+  - test-quality-audit-evaluator.md
+  - test-quality-audit-investigator.md
+  - test-quality-audit-validator.md
+  - verification-audit-arbiter.md
+  - verification-audit-evaluator.md
+  - verification-audit-investigator.md
+  - verification-audit-validator.md
+  - completion.md
+  - pr-body-audit.md

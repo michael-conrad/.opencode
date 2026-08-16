@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Audit Returns-contract inventory — Phase 12 (prep for SC-42).
+# Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
+# Target: .opencode/skills/audit/SKILL.md
+#
+# Enumerates the `Run an audit` Workflows Returns fields and cross-references
+# them against the role cards' Result Contract field names. Post-SC-42
+# (Phase 23), the Workflows Returns use `summary` for every role, matching the
+# role cards' Result Contracts — there is no mismatch (`mismatch: none`,
+# `returns_mismatch: none`).
+#
+# Depends on Phase 6 (the audit role-card result-contract inventory) and
+# Phase 10 (the audit workflow inventory).
+#
+# Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
+
+workflow_name: Run an audit
+returns_contracts:
+  - role: investigator
+    workflow_returns: [status, artifact_path, summary]
+    task_card_result_contract_fields: [ambiguity_marker_count, artifact_path, behavioral_sc_count, claim_count, conflict_indicator_count, cross_reference_count, domains_covered, evidence_artifact_count, file_count, function_comparison_count, git_history_available, missing_evidence_count, rule_block_count, sc_count, source_file_count, spec_file_count, status, summary, target_file_count, test_file_count, test_function_count, untracked_file_count, vbc_available]
+    mismatch: none
+  - role: validator
+    workflow_returns: [status, artifact_path, summary]
+    task_card_result_contract_fields: [artifact_path, artifacts_validated, claims_validated, issue_count, overall_validation_status, scs_validated, sections_validated, source_files_validated, status, summary, total_artifacts, total_claims, total_items_validated, total_mismatches, total_scs, total_source_files, total_unverifiable, total_validated]
+    mismatch: none
+  - role: evaluator
+    workflow_returns: [status, artifact_path, summary]
+    task_card_result_contract_fields: [all_claims_pass, all_criteria_pass, artifact_path, baseline_path, holistic_status, needs_clean_room, overall_verdict, remediation_required, status, summary]
+    mismatch: none
+  - role: arbiter
+    workflow_returns: [status, artifact_path, summary]
+    task_card_result_contract_fields: [all_claims_pass, all_criteria_pass, artifact_path, final_judgment, next_step, overall_judgment, overall_verdict, remediation_required, status, status_checked, status_updated, summary, ticket_status]
+    mismatch: none
+returns_mismatch: none
