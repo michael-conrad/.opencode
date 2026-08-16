@@ -1,9 +1,3 @@
----
-name: plan-fidelity-evaluator
-description: "Evaluator role for the plan-fidelity chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion against validated evidence, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->

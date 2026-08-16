@@ -1,9 +1,3 @@
----
-name: research
-description: Decompose SCs into phases, build dependency DAG, select skill+task from implementation-workflow reference card, run Z3 constraint solving
-provenance: AI-generated
----
-
 # Task: research
 
 ## Purpose

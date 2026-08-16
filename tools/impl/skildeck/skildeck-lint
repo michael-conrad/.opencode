@@ -907,6 +907,312 @@ def _check_dispatch_contract(
     return findings
 
 
+def _resolve_task_card_link(target: str, base_dir: Path, skills_dir: Path, skill_dir: Path, task_file: Path) -> bool:
+    """Resolve a task-card markdown link target against the candidate roots that
+    the deck uses. Returns True if any candidate resolves to an existing file."""
+    candidates = [
+        (base_dir.parent / target).resolve(),  # repo-root-relative (.opencode/...)
+        (base_dir / target).resolve(),        # .opencode/ dir-relative
+        (skills_dir / target).resolve(),      # skills/ dir-relative
+        (skill_dir / target).resolve(),       # skill dir-relative
+        (task_file.parent / target).resolve(),  # task card dir-relative
+    ]
+    return any(c.exists() for c in candidates)
+
+
+def lint_task_card_links(base_dir: Path) -> list[LintFinding]:
+    """SC-44: flag broken markdown-link targets across task cards.
+
+    A task-card body link that resolves to a non-existent file is a defect:
+    the sub-agent cannot follow the reference. Only task-card bodies are
+    scanned here; SKILL.md Workflows dispatch links are covered by R5.
+    """
+    import re
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    global_ignore = _load_skilldeck_ignore(skills_dir / "reference")
+    link_re = re.compile(r"\]\(([^)]+)\)")
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        dir_ignore = _load_skilldeck_ignore(skill_dir)
+        all_ignore = global_ignore | dir_ignore
+        if _is_ignored(skill_dir, all_ignore, base_dir):
+            continue
+
+        tasks_dir = skill_dir / "tasks"
+        if not (tasks_dir.exists() and tasks_dir.is_dir()):
+            continue
+        rel = str(skill_dir.relative_to(base_dir))
+
+        for task_file in sorted(tasks_dir.glob("*.md")):
+            ttext = task_file.read_text()
+            for m in link_re.finditer(ttext):
+                target = m.group(1)
+                if target.startswith(("http://", "https://")):
+                    continue
+                if not target.endswith(".md"):
+                    continue
+                if "<" in target or "{" in target:
+                    continue
+                if not _resolve_task_card_link(target, base_dir, skills_dir, skill_dir, task_file):
+                    findings.append(LintFinding(
+                        severity="error", category="skill-format",
+                        source=f"{rel}/tasks/{task_file.name}", rule_id="task-card-link-broken",
+                        message=f"Task-card markdown link target does not exist: '{target}'"
+                    ))
+    return findings
+
+
+def lint_task_card_frontmatter(base_dir: Path) -> list[LintFinding]:
+    """SC-45: flag task cards that carry YAML frontmatter.
+
+    Per task-card-structure-standards.md §1, task cards do NOT get YAML
+    frontmatter — only SKILL.md files do. A task card whose first line is '---'
+    carries frontmatter and must be flagged.
+    """
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    global_ignore = _load_skilldeck_ignore(skills_dir / "reference")
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        dir_ignore = _load_skilldeck_ignore(skill_dir)
+        all_ignore = global_ignore | dir_ignore
+        if _is_ignored(skill_dir, all_ignore, base_dir):
+            continue
+
+        tasks_dir = skill_dir / "tasks"
+        if not (tasks_dir.exists() and tasks_dir.is_dir()):
+            continue
+        rel = str(skill_dir.relative_to(base_dir))
+
+        for task_file in sorted(tasks_dir.glob("*.md")):
+            lines = task_file.read_text().split("\n")
+            if lines and lines[0].strip() == "---":
+                findings.append(LintFinding(
+                    severity="error", category="skill-format",
+                    source=f"{rel}/tasks/{task_file.name}", rule_id="task-card-frontmatter",
+                    message="Task card carries YAML frontmatter (task cards must not have YAML frontmatter)"
+                ))
+    return findings
+
+
+def _parse_returns_fields(raw: str) -> set[str]:
+    """Parse the top-level field names of a Workflows 'Returns:' contract.
+
+    Handles nested structures like '{status, verdicts: [{check_name, result}],
+    finding_summary}' — only the top-level names (status, verdicts,
+    finding_summary) are extracted; nested keys inside '{...}' blocks are
+    ignored because they are structure detail, not top-level result fields.
+    """
+    import re
+    fields: set[str] = set()
+    for item in _split_top_level(raw):
+        item = item.strip()
+        if not item:
+            continue
+        name = item.split(":", 1)[0].strip().lstrip("{").strip()
+        if re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name):
+            fields.add(name)
+    return fields
+
+
+def _split_top_level(raw: str) -> list[str]:
+    """Split a '{...}' contract on top-level commas, keeping nested '{...}'
+    groups intact so nested fields are not split into pseudo top-level tokens.
+    """
+    parts: list[str] = []
+    depth = 0
+    current: list[str] = []
+    for ch in raw:
+        if ch == "{":
+            depth += 1
+            current.append(ch)
+        elif ch == "}":
+            depth = max(0, depth - 1)
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        parts.append("".join(current))
+    return parts
+
+
+def _result_contract_fields(body: str) -> set[str]:
+    """Extract the field names of a task card's Result Contract body.
+
+    Handles both YAML key blocks (status:, artifact_path:) and plain
+    comma/space lists (status, summary).
+    """
+    import re
+    fields: set[str] = set()
+    yaml_re = re.compile(r"^(\w+):", re.MULTILINE)
+    for k in yaml_re.findall(body):
+        fields.add(k)
+    for line in body.splitlines():
+        for tok in re.split(r"[,\s]+", line.strip()):
+            if re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", tok):
+                fields.add(tok)
+    return fields
+
+
+def _check_dispatch_contract_completeness(
+    rel: str,
+    step_label: str | None,
+    step_context: set[str] | None,
+    step_returns: set[str] | None,
+    dispatch_target: str | None,
+    skill_dir: Path,
+) -> list[LintFinding]:
+    """SC-46: flag dispatch-contract completeness defects for a workflow step.
+
+    B1: over-supplied/unconsumed Context params — a param passed in the step's
+      'Context passed:' that the dispatched task card's Dispatch Contract does
+      not accept.
+    B2: result-contract field-name mismatch — a field in the step's 'Returns:'
+      that does not match the dispatched task card's Result Contract field names.
+    """
+    import re
+    if not step_label or not dispatch_target:
+        return []
+    if "<" in dispatch_target or "{" in dispatch_target:
+        return []  # template link (e.g., <task>-investigator.md) — cannot resolve
+    task_path = (skill_dir / "tasks" / Path(dispatch_target).name).resolve()
+    if not task_path.exists():
+        task_path = (Path(rel).parent.parent / dispatch_target).resolve()
+    if not task_path.exists():
+        task_path = Path("/").joinpath(*dispatch_target.split("/")).resolve()
+        if not task_path.exists():
+            return []
+    ttext = task_path.read_text()
+
+    findings: list[LintFinding] = []
+
+    dc_match = re.search(r"^## Dispatch Contract\s*$(.*?)(?=^## |\Z)", ttext, re.MULTILINE | re.DOTALL)
+    accepted: set[str] = set()
+    if dc_match:
+        param_re = re.compile(r"`([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)*)`")
+        for line in dc_match.group(1).splitlines():
+            mm = param_re.search(line)
+            if mm:
+                accepted.add(mm.group(1).split(".")[0])
+
+    if step_context is not None and dc_match is not None:
+        for param in sorted(step_context):
+            if param not in accepted:
+                findings.append(LintFinding(
+                    severity="error", category="skill-format",
+                    source=rel, rule_id="dispatch-contract-over-supplied",
+                    message=f"Workflow step '{step_label}' Context supplies '{param}' which is not accepted by {task_path.name} Dispatch Contract (over-supplied/unconsumed)"
+                ))
+
+    rc_match = re.search(r"^## Result Contract\s*$(.*?)(?=^## |\Z)", ttext, re.MULTILINE | re.DOTALL)
+    if step_returns is not None and rc_match is not None:
+        rc_fields = _result_contract_fields(rc_match.group(1))
+        for field in sorted(step_returns):
+            if field not in rc_fields:
+                findings.append(LintFinding(
+                    severity="error", category="skill-format",
+                    source=rel, rule_id="dispatch-contract-result-mismatch",
+                    message=f"Workflow step '{step_label}' Returns field '{field}' does not match {task_path.name} Result Contract field names"
+                ))
+    return findings
+
+
+def lint_dispatch_contract_completeness(base_dir: Path) -> list[LintFinding]:
+    """SC-46: enforce dispatch-contract completeness across workflow steps.
+
+    For every Workflows dispatch step that dispatches a task card, flag
+    over-supplied/unconsumed Context params (B1) and result-contract field-name
+    mismatches (B2).
+    """
+    import re
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    global_ignore = _load_skilldeck_ignore(skills_dir / "reference")
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        dir_ignore = _load_skilldeck_ignore(skill_dir)
+        all_ignore = global_ignore | dir_ignore
+        if _is_ignored(skill_dir, all_ignore, base_dir):
+            continue
+
+        skmd = skill_dir / "SKILL.md"
+        if not skmd.exists():
+            continue
+        rel = str(skmd.relative_to(base_dir))
+        text = skmd.read_text()
+        lines = text.split("\n")
+
+        in_workflows = False
+        current_step = None
+        step_context = None
+        step_returns = None
+        step_dispatch_target = None
+
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("## Workflows"):
+                in_workflows = True
+                continue
+            if in_workflows and stripped.startswith("## "):
+                in_workflows = False
+                continue
+            if not in_workflows:
+                continue
+            if re.match(r"^- \[ \] [0-9]", stripped):
+                findings.extend(_check_dispatch_contract_completeness(
+                    rel, current_step, step_context, step_returns, step_dispatch_target, skill_dir))
+                current_step = stripped
+                step_context = None
+                step_returns = None
+                step_dispatch_target = None
+                m = re.search(r"\]\(([^)]+)\)", stripped)
+                if m:
+                    step_dispatch_target = m.group(1)
+                continue
+            if "Context passed:" in stripped:
+                m = re.search(r"\{([^}]*)\}", stripped)
+                if m:
+                    step_context = set(p.strip() for p in m.group(1).split(",") if p.strip())
+                continue
+            if "Returns:" in stripped:
+                m = re.search(r"\{([^}]*)\}", stripped)
+                if m:
+                    step_returns = _parse_returns_fields(m.group(1))
+                continue
+            if "prompt:" in stripped.lower() or "Prompt" in stripped:
+                m = re.search(r"\]\(([^)]+)\)", stripped)
+                if m:
+                    step_dispatch_target = m.group(1)
+                continue
+
+        findings.extend(_check_dispatch_contract_completeness(
+            rel, current_step, step_context, step_returns, step_dispatch_target, skill_dir))
+
+    return findings
+
+
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -943,6 +1249,9 @@ def main() -> None:
     findings.extend(lint_skill_deck_completeness(base_dir))
     findings.extend(lint_skill_workflows_prompts(base_dir))
     findings.extend(lint_skill_card_format_rules(base_dir))
+    findings.extend(lint_task_card_links(base_dir))
+    findings.extend(lint_task_card_frontmatter(base_dir))
+    findings.extend(lint_dispatch_contract_completeness(base_dir))
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))

@@ -1,9 +1,3 @@
----
-name: spec-audit-evaluator
-description: "Evaluator role for the spec-audit chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -64,8 +58,8 @@ Evaluator role for the spec-audit chain. Reads `evidence.yaml` (Investigator) an
 
 At the start of the audit, apply the `spec-under-review` label to the spec issue to indicate it is currently under review:
 
-1. Use the platform's label API to add `spec-under-review` to the spec issue identified by `spec_issue_number`
-2. The `spec-under-review` label indicates the spec is actively being audited
+- [ ] 1. Use the platform's label API to add `spec-under-review` to the spec issue identified by `spec_issue_number`
+- [ ] 2. The `spec-under-review` label indicates the spec is actively being audited
 
 ### Step 1: Pre-Flight Validation Gate
 
@@ -155,9 +149,9 @@ Evaluate the spec against all 11 holistic dimensions. This gate runs BEFORE narr
   - Proceed to narrow criteria (Steps 5+)
   - Record `holistic_status: PASS` in the verdict
   - Apply `spec-passed-review` label and remove `spec-under-review`:
-    1. Use the platform's label API to add `spec-passed-review` to the spec issue identified by `spec_issue_number`
-    2. Use the platform's label API to remove `spec-under-review` from the spec issue
-    3. The `spec-passed-review` label indicates the spec has passed audit review
+    - [ ] 1. Use the platform's label API to add `spec-passed-review` to the spec issue identified by `spec_issue_number`
+    - [ ] 2. Use the platform's label API to remove `spec-under-review` from the spec issue
+    - [ ] 3. The `spec-passed-review` label indicates the spec has passed audit review
 
 Record results:
 

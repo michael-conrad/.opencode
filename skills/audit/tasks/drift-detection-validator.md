@@ -1,9 +1,3 @@
----
-name: drift-detection-validator
-description: "Validator role for the drift-detection chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -472,7 +466,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 ## Cross-References
 
 - `tasks/drift-detection-investigator.md` — Investigator role (produces the `evidence.yaml` consumed by this task)
-- `tasks/drift-detection.md` — Evaluator role (consumes this task's `reasoning.yaml`)
+- `tasks/drift-detection-evaluator.md` — Evaluator role (consumes this task's `reasoning.yaml`)
 - `000-critical-rules.md` — spec-code alignment
 - `130-authority-source.md` — code as authoritative source
 

@@ -1,9 +1,3 @@
----
-name: apply-label
-description: "Apply approved-for-<scope> label to the issue and remove needs-approval label."
-provenance: AI-generated
----
-
 # Task: apply-label
 
 ## Purpose

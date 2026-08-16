@@ -1,9 +1,3 @@
----
-name: coherence-extraction-investigator
-description: "Generate baseline coherence state from guidelines and skills. Captures current rule-behavior alignment for later drift detection."
-license: MIT
-compatibility: opencode
----
 
 # Task: coherence-extraction-investigator
 

@@ -1,9 +1,3 @@
----
-name: coherence-maintenance-investigator
-description: "Investigator role for the coherence-maintenance chain. Reads the codebase and collects raw evidence about codebase coherence after changes. Writes evidence.yaml with baseline data, current state, and raw diff data. Does NOT evaluate or judge."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -385,7 +379,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/coherence-maintenance.md` — Evaluator role (consumes this Investigator's evidence.yaml)
+- `tasks/coherence-maintenance-evaluator.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - `tasks/coherence-extraction-investigator.md` — baseline generation (prerequisite for this task)
 - `000-critical-rules.md` — coherence maintenance requirement
 

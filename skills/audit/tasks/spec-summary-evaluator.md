@@ -1,9 +1,3 @@
----
-name: spec-summary-evaluator
-description: "Evaluate PR/spec consistency against criteria. Reads `reasoning.yaml` (Validator), evaluates each criterion, and writes `verdict.yaml`."
-license: MIT
-compatibility: opencode
----
 
 # Task: spec-summary-evaluator
 

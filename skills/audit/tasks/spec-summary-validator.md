@@ -1,9 +1,3 @@
----
-name: spec-summary-validator
-description: "Validate evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of each evidence item."
-license: MIT
-compatibility: opencode
----
 
 # Task: spec-summary-validator
 

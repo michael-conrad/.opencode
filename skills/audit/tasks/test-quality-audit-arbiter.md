@@ -1,9 +1,3 @@
----
-name: test-quality-audit-arbiter
-description: "Arbiter role for the test-quality-audit chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -383,7 +377,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/test-quality-audit-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/test-quality-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
-- `tasks/test-quality-audit.md` — Main task file (orchestrator-level test-quality-audit)
+- `tasks/test-quality-audit-arbiter.md` — Main task file (orchestrator-level test-quality-audit)
 - Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 - Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
 - Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)

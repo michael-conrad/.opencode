@@ -1,9 +1,3 @@
----
-name: guideline-audit-investigator
-description: "Investigator role for the guideline-audit chain. Reads guideline files and collects raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. Writes evidence.yaml — does NOT evaluate or judge."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -528,7 +522,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 ## Cross-References
 
-- `tasks/guideline-audit.md` — Evaluator role (consumes this Investigator's evidence.yaml)
+- `tasks/guideline-audit-evaluator.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — guideline standards and critical rule definitions
 - Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live verification requirement
 - Read [080-code-standards.md](guidelines/080-code-standards.md) — enforcement test mandate

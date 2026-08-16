@@ -1,9 +1,3 @@
----
-name: spec-summary-arbiter
-description: "Provide resolution paths and recommendations based on the Evaluator's verdict. Reads `verdict.yaml` (Evaluator) and produces the final result contract."
-license: MIT
-compatibility: opencode
----
 
 # Task: spec-summary-arbiter
 

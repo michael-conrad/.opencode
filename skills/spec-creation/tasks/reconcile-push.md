@@ -1,4 +1,4 @@
-# Task: reconcile-push — Post-push reconciliation of the Spec Reference Blockquote
+# Task: reconcile-push
 
 ## Category
 

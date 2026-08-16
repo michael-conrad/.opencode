@@ -1,9 +1,3 @@
----
-name: verification-audit-evaluator
-description: "Evaluator role for the verification-audit chain. Reads evidence.yaml and reasoning.yaml from upstream roles, evaluates each criterion, and writes verdict.yaml with per-criterion PASS/FAIL verdicts. Produces judgments, not just evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -133,11 +127,11 @@ For each SC, produce a binary PASS or FAIL verdict. The evaluation follows a str
 
 #### Decision Tree
 
-1. **SC not found in spec** → FAIL. Reason: `SC_NOT_IN_SPEC`.
-2. **Evidence status is "missing"** → FAIL. Reason: `MISSING_EVIDENCE`.
-3. **Evidence artifacts exist but are unreadable** → FAIL. Reason: `UNREADABLE_EVIDENCE`.
-4. **Evidence type gap detected** (e.g., structural evidence for behavioral SC) → FAIL. Reason: `EVIDENCE_TYPE_MISMATCH`.
-5. **Evidence type compliance satisfied, evidence present and readable** → Evaluate the evidence content against the SC criterion.
+- [ ] 1. **SC not found in spec** → FAIL. Reason: `SC_NOT_IN_SPEC`.
+- [ ] 2. **Evidence status is "missing"** → FAIL. Reason: `MISSING_EVIDENCE`.
+- [ ] 3. **Evidence artifacts exist but are unreadable** → FAIL. Reason: `UNREADABLE_EVIDENCE`.
+- [ ] 4. **Evidence type gap detected** (e.g., structural evidence for behavioral SC) → FAIL. Reason: `EVIDENCE_TYPE_MISMATCH`.
+- [ ] 5. **Evidence type compliance satisfied, evidence present and readable** → Evaluate the evidence content against the SC criterion.
 
 #### Evidence Content Evaluation
 

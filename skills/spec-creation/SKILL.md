@@ -148,7 +148,7 @@ Title/objective comparison alone is insufficient. Before classifying overlap, pe
 
 ## Plan Audit Code Deep Dive
 
-When auditing or updating any plan, strictly follow the mandatory code deep dive and verification requirements defined in `docs/specs/how-to-write-good-spec-ai-agents.md`. Ground every plan audit finding in the actual filesystem and source code, not in remembered or stored state.
+When auditing or updating any plan, strictly follow the mandatory code deep dive and verification requirements defined in the [spec-creation](skills/spec-creation/SKILL.md) and [audit](skills/audit/SKILL.md) skills. Ground every plan audit finding in the actual filesystem and source code, not in remembered or stored state.
 
 ---
 

@@ -1,9 +1,3 @@
----
-name: spec-audit-validator
-description: "Validator role for the spec-audit chain. Reads evidence.yaml from the Investigator, validates each evidence item against source data, and writes reasoning.yaml with validated evidence. Does NOT evaluate or judge — validates and supports the evidence."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -49,9 +43,9 @@ Validator role for the spec-audit chain. Reads `evidence.yaml` produced by the I
 
 When validation completes successfully, apply the `spec-passed-review` label and remove `spec-under-review`:
 
-1. Use the platform's label API to add `spec-passed-review` to the spec issue identified by `spec_issue_number`
-2. Use the platform's label API to remove `spec-under-review` from the spec issue
-3. The `spec-passed-review` label indicates the spec has passed audit review
+- [ ] 1. Use the platform's label API to add `spec-passed-review` to the spec issue identified by `spec_issue_number`
+- [ ] 2. Use the platform's label API to remove `spec-under-review` from the spec issue
+- [ ] 3. The `spec-passed-review` label indicates the spec has passed audit review
 
 ### Step 1: Pre-Flight Validation Gate
 

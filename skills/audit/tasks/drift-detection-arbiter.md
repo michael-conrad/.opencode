@@ -1,9 +1,3 @@
----
-name: drift-detection-arbiter
-description: "Arbiter role for the drift-detection chain. Reads all upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml) and produces the final judgment.yaml with final judgment and next_step. Synthesizes, does not evaluate."
-license: MIT
-compatibility: opencode
----
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
@@ -485,7 +479,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 - `tasks/drift-detection-investigator.md` — Investigator role (produces the evidence.yaml consumed by this task)
 - `tasks/drift-detection-validator.md` — Validator role (produces the reasoning.yaml consumed by this task)
 - `tasks/drift-detection-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
-- `tasks/drift-detection.md` — Main drift-detection task (orchestrator-level dispatch)
+- `tasks/drift-detection-arbiter.md` — Main drift-detection task (orchestrator-level dispatch)
 - `000-critical-rules.md` — spec-code alignment, hard failure discipline
 - `130-authority-source.md` — code as authoritative source
 - `065-verification-honesty.md` — live-source verification mandate, hard failure discipline

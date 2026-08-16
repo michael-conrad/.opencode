@@ -1,10 +1,3 @@
----
-skill: engineering-approach
-task: completion
-type: discipline-enforcing
-license: MIT
----
-
 # Task: completion
 
 ## Purpose

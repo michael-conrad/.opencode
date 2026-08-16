@@ -1,9 +1,3 @@
----
-name: resolve-scope
-description: "Parse authorization text and resolve scope/halt_at from verb-prefix patterns. Returns resolved scope, halt_at, and authorization status."
-provenance: AI-generated
----
-
 # Task: resolve-scope
 
 ## Purpose

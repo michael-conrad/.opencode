@@ -1,10 +1,3 @@
----
-skill: engineering-approach
-task: verify-before-complete
-type: discipline-enforcing
-license: MIT
----
-
 # Task: verify-before-complete
 
 ## Purpose
