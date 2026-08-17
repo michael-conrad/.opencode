@@ -1,0 +1,7 @@
+title: '[SPEC] Test framework must never use project root as a git-mutating target'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-08-17T02:15:53+00:00'
+updated_at: '2026-08-17T02:15:53+00:00'
