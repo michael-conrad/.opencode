@@ -124,6 +124,20 @@ root cause: the spec-creation validate task lacks decomposition criteria enforce
 
 > **Enforcement gate:** All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.
 
+## Cost Frame
+
+Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
+
+- **SC-1:** Verifying validate.md inlines the 4-criteria checklist costs one grep search. Skipping means a monolithic SC passes validate and ships to plan creation, where decomposition costs exponentially more to unwind.
+- **SC-2:** Verifying each criterion uses imperative binary PASS/FAIL branches costs one grep search. Skipping means prose guidance passes string check but fails to enforce behavior, surfacing as a behavioral defect downstream.
+- **SC-3:** Verifying the atomicity trigger-word sub-check costs one grep search. Skipping means an SC bundling `and`/`or`/comma lists reaches implementation and is discovered as a monolithic defect at PR review.
+- **SC-4:** Verifying the binary verifiability disjunctive and vague-term sub-checks costs one grep search. Skipping means an SC with gray-area verifiability ships and is only caught when the implementation cannot be evaluated as PASS or FAIL.
+- **SC-5:** Verifying the PR-gate viability check references the meta RED/GREEN principle costs one grep search. Skipping means an SC requiring multiple PR merges is not decomposed and blocks a clean single-PR review.
+- **SC-6:** Verifying the inline copy includes the cross-reference comment costs one grep search. Skipping means the inline copy drifts from the master reference and future audits cannot locate the authoritative source.
+- **SC-7:** Verifying the decomposition check is skipped for single-SC/single-file specs costs one grep search. Skipping means the skip condition is absent and single-concern specs are spuriously flagged, forcing needless decomposition work.
+- **SC-8:** Running the monolithic-SC behavioral test costs minutes of execution time. Skipping means a monolithic SC passes validate and ships, where the defect costs 1000× more to fix in production.
+- **SC-9:** Running the atomic-SC behavioral test costs minutes of execution time. Skipping means the decomposition criteria are not verified to accept valid atomic SCs, risking false rejection of compliant specs.
+
 ## Change Control
 
 | Date | What Changed | Why | Authorized By |
@@ -132,3 +146,4 @@ root cause: the spec-creation validate task lacks decomposition criteria enforce
 | 2026-08-16 | Replaced deferral-language Dependencies section with concrete dependency table naming issue #2118, the relationship, and satisfied status | Spec-audit finding (2) Escape Hatches — deferral language permitted short-circuiting decomposition work | spec-audit remediation |
 | 2026-08-16 | Added Traceability section mapping each SC to Phase 2 and its root cause, plus a phase mapping table | Spec-audit finding (3) Traceability — all 9 SCs were orphan SCs with no phase mapping | spec-audit remediation |
 | 2026-08-16 | Added Not Included, Documentation Sources, and Enforcement Gate sections | Verify spec against spec-structure-standards and current code base | spec-audit remediation |
+| 2026-08-16 | Added "Cost Frame" section with per-SC cost-frame statements for all 9 SCs following the dark-prose-007 pattern | Validation FAILED on dark-prose-007 cost-frame conformance and Completeness — spec lacked the required "## Cost Frame" section (spec-structure-standards §10) | spec-audit remediation |
