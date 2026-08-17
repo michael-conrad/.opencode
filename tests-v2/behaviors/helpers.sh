@@ -59,6 +59,31 @@ __find_project_root() {
 
 PARENT_REPO_DIR="$(__find_project_root "$BEHAVIOR_HELPERS_DIR")"
 
+# --- Live-root mutation guard ---
+
+# SC-2: Detect when a git-mutating target resolves to the live repo and BLOCK with
+# a clear diagnostic before mutating. The live repo is $PARENT_REPO_DIR (the repo
+# containing .opencode/), also reachable as $PROJECT_DIR / $project_root. A target
+# that resolves to any of these paths is the live repo and MUST NOT be mutated.
+# A legitimate isolated target (e.g. $TEST_PROJECT / $attempt_workdir inside the
+# test home) is NOT the live repo and passes through unblocked.
+__assert_not_live_root() {
+    local target="$1"
+    if [ -z "$target" ]; then
+        echo "BLOCKED: git-mutating target is empty — refusing to operate on an unresolved path" >&2
+        return 1
+    fi
+    local resolved
+    resolved="$(cd "$target" 2>/dev/null && pwd || echo "$target")"
+    local live_root
+    live_root="$(cd "$PARENT_REPO_DIR" 2>/dev/null && pwd || echo "$PARENT_REPO_DIR")"
+    if [ "$resolved" = "$live_root" ]; then
+        echo "BLOCKED: git-mutating target '$target' resolves to the live repo ($live_root) — refusing to mutate the live project root" >&2
+        return 1
+    fi
+    return 0
+}
+
 # --- GitBucket container provisioning ---
 
 GITBUCKET_PID_FILE=""
@@ -263,14 +288,12 @@ __ensure_gitbucket() {
         -d '{"name":"test-repo"}' >/dev/null 2>&1 || true
     echo "  [gitbucket] test repo created via API" >&2
 
-    # Wire origin on the test project
-    local test_project="${TEST_PROJECT:-$project_root}"
-    if git -C "$test_project" remote get-url origin &>/dev/null; then
-        git -C "$test_project" remote remove origin 2>/dev/null || true
-    fi
-    git -C "$test_project" remote add origin "http://root:${GB_TOKEN}@localhost:${port}/git/root/test-repo.git" 2>/dev/null || true
-    git -C "$test_project" push -u origin main 2>/dev/null || true
-    echo "  [gitbucket] test repo wired as origin" >&2
+    # SC-3: remote-wiring is deliberately NOT performed here. This function is a
+    # pure provisioner (JDK, GitBucket, token, test repo) — it performs NO git-mutating
+    # operation. The GitBucket origin is wired by behavior_run() against the validated
+    # isolated attempt_workdir AFTER that isolated repo is established (helpers.sh
+    # lines 645-654). Keeping remote-wiring out of __ensure_gitbucket() ensures the
+    # block cannot run before an isolated target exists and cannot hit the live repo.
 }
 
 __reset_gitbucket() {
@@ -612,6 +635,8 @@ behavior_run() {
         if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ -n "${GITBUCKET_PORT:-}" ]; then
             local gb_port="${GITBUCKET_PORT}"
             local gb_token="${GB_TOKEN:-root}"
+            # SC-2: guard the git-mutating target — abort if it resolves to the live repo.
+            __assert_not_live_root "$attempt_workdir" || return 1
             git -C "$attempt_workdir" remote add origin "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" 2>/dev/null || true
             git -C "$attempt_workdir" push -u origin main 2>/dev/null || true
             echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2

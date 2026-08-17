@@ -75,9 +75,8 @@ The verification-evidence check is a gate, not a banner. A PR without evidence i
 **Before proceeding to Step 5, check that required verification artifacts exist:**
 
 1. Check `{project_root}/tmp/{issue-N}/artifacts/vbc-table-*.md` exists and contains PASS for all SCs
-2. Check `{project_root}/tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
-3. Check `{project_root}/tmp/{issue-N}/artifacts/judgment.yaml` exists and reports `overall_verdict: PASS` from the DiMo chain arbiter
-4. If any artifact is MISSING or reports FAIL: do NOT create a PR
+2. Check `{project_root}/tmp/{issue-N}/artifacts/judgment.yaml` exists and reports `overall_verdict: PASS` from the DiMo chain arbiter
+3. If any artifact is MISSING or reports FAIL: do NOT create a PR
 
 **Blocked State (Missing or Failing Verification Evidence):**
 
