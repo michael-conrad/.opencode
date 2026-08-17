@@ -33,21 +33,21 @@ These definitions summarize the master reference file
 `audit/reference/decomposition-criteria.md` (the authoritative source). Each
 criterion uses an imperative binary decision tree with explicit PASS/FAIL branches.
 
-- **Atomicity:** Each SC MUST represent exactly one atomic concern. A non-atomic SC
+- **Atomicity:** Each SC SHALL represent exactly one atomic concern. A non-atomic SC
   bundles multiple concerns and cannot be verified independently. FAIL if the SC
   contains coordinating conjunctions (`and`, `or`) or comma-separated lists.
-- **Single deliverable:** Each SC MUST produce exactly one deliverable (file,
+- **Single deliverable:** Each SC SHALL produce exactly one deliverable (file,
   function, config change). FAIL if the SC spans multiple files or multiple
   independent deliverables.
-- **Binary verifiability:** Each SC MUST be verifiable as PASS or FAIL with no gray
+- **Binary verifiability:** Each SC SHALL be verifiable as PASS or FAIL with no gray
   area. FAIL if the SC contains disjunctive patterns (`either/or`, `alternatively`,
   `one of`) or vague terms (`should`, `could`, `ideally`, `as appropriate`).
-- **PR-gate viability:** Each SC MUST be deliverable as a single, independently
+- **PR-gate viability:** Each SC SHALL be deliverable as a single, independently
   reviewable PR. FAIL if the SC requires unreviewed dependencies or spans multiple
   RED/GREEN cycles.
 - **Meta RED/GREEN principle:** Each spec is a **RED** — it defines what must be
   true. Each PR merge is a **GREEN** — it makes that truth permanent. An SC that
-  requires multiple PR merges to satisfy is not PR-gate viable and MUST be
+  requires multiple PR merges to satisfy is not PR-gate viable and SHALL be
   decomposed into sub-SCs.
 
 ## Success Criteria
@@ -57,12 +57,13 @@ criterion uses an imperative binary decision tree with explicit PASS/FAIL branch
 | SC-1 | `spec-creation/tasks/validate.md` includes inline decomposition criteria checklist for 4 spec-level criteria: atomicity, single deliverable, binary verifiability, PR-gate viability | string | grep for each criterion in validate.md |
 | SC-2 | Each criterion uses imperative binary decision tree format with explicit PASS/FAIL branches (not prose guidance) | string | grep for PASS/FAIL branching |
 | SC-3 | Atomicity check includes trigger-word sub-check (and, or, comma-separated lists → FAIL) | string | grep for trigger word sub-check |
-| SC-4 | Binary verifiability check includes disjunctive pattern sub-check (either/or, alternatively, one of → FAIL) and vague term sub-check (should, could, ideally, as appropriate → FAIL) | string | grep for disjunctive and vague term sub-checks |
-| SC-5 | PR-gate viability check references meta RED/GREEN principle | string | grep for RED/GREEN reference |
-| SC-6 | Inline copy includes cross-reference comment: 'See audit/reference/decomposition-criteria.md for master definition' | string | grep for cross-reference |
-| SC-7 | Decomposition check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file | string | grep for trigger condition |
-| SC-8 | Behavioral test: spec with monolithic SC containing 'and' submitted to validate returns FAIL with correct reason | behavioral | opencode run with assertion |
-| SC-9 | Behavioral test: spec with single atomic SC submitted to validate returns PASS for decomposition criteria | behavioral | opencode run with assertion |
+| SC-4 | Binary verifiability check includes disjunctive pattern sub-check (either/or, alternatively, one of → FAIL) | string | grep for disjunctive pattern sub-check |
+| SC-5 | Binary verifiability check includes vague term sub-check (should, could, ideally, as appropriate → FAIL) | string | grep for vague term sub-check |
+| SC-6 | PR-gate viability check references meta RED/GREEN principle | string | grep for RED/GREEN reference |
+| SC-7 | Inline copy includes cross-reference comment: 'See audit/reference/decomposition-criteria.md for master definition' | string | grep for cross-reference |
+| SC-8 | Decomposition check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file | string | grep for trigger condition |
+| SC-9 | Behavioral test: spec with monolithic SC containing 'and' submitted to validate returns FAIL with correct reason | behavioral | opencode run with assertion |
+| SC-10 | Behavioral test: spec with single atomic SC submitted to validate returns PASS for decomposition criteria | behavioral | opencode run with assertion |
 
 ## Not Included
 
@@ -100,20 +101,27 @@ root cause: the spec-creation validate task lacks decomposition criteria enforce
 | SC-1 | Phase 2 | validate.md lacks decomposition criteria checklist |
 | SC-2 | Phase 2 | validate.md lacks binary PASS/FAIL decision-tree format |
 | SC-3 | Phase 2 | validate.md atomicity check lacks trigger-word sub-check |
-| SC-4 | Phase 2 | validate.md binary verifiability check lacks disjunctive/vague-term sub-checks |
-| SC-5 | Phase 2 | validate.md PR-gate viability check lacks meta RED/GREEN reference |
-| SC-6 | Phase 2 | validate.md inline copy lacks cross-reference to master reference |
-| SC-7 | Phase 2 | validate.md decomposition check lacks skip condition for single-SC/single-file specs |
-| SC-8 | Phase 2 | validate.md monolithic SC not rejected by decomposition criteria |
-| SC-9 | Phase 2 | validate.md atomic SC not accepted by decomposition criteria |
+| SC-4 | Phase 2 | validate.md binary verifiability check lacks disjunctive-pattern sub-check |
+| SC-5 | Phase 2 | validate.md binary verifiability check lacks vague-term sub-check |
+| SC-6 | Phase 2 | validate.md PR-gate viability check lacks meta RED/GREEN reference |
+| SC-7 | Phase 2 | validate.md inline copy lacks cross-reference to master reference |
+| SC-8 | Phase 2 | validate.md decomposition check lacks skip condition for single-SC/single-file specs |
+| SC-9 | Phase 2 | validate.md monolithic SC not rejected by decomposition criteria |
+| SC-10 | Phase 2 | validate.md atomic SC not accepted by decomposition criteria |
 
 ### Phase Mapping
 
 | Phase | SCs |
 |-------|-----|
-| Phase 2 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9 |
+| Phase 2 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10 |
 
 ## Documentation Sources
+
+Per the canonical spec-structure-standards reference, the Success Criteria table uses
+exactly 4 columns (ID, Criterion, Evidence Type, Verification Method) and
+Documentation Sources is a separate section. This spec follows that structure — the
+SC table does not include a Documentation Sources column; external sources are
+documented here.
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
@@ -131,12 +139,13 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-1:** Verifying validate.md inlines the 4-criteria checklist costs one grep search. Skipping means a monolithic SC passes validate and ships to plan creation, where decomposition costs exponentially more to unwind.
 - **SC-2:** Verifying each criterion uses imperative binary PASS/FAIL branches costs one grep search. Skipping means prose guidance passes string check but fails to enforce behavior, surfacing as a behavioral defect downstream.
 - **SC-3:** Verifying the atomicity trigger-word sub-check costs one grep search. Skipping means an SC bundling `and`/`or`/comma lists reaches implementation and is discovered as a monolithic defect at PR review.
-- **SC-4:** Verifying the binary verifiability disjunctive and vague-term sub-checks costs one grep search. Skipping means an SC with gray-area verifiability ships and is only caught when the implementation cannot be evaluated as PASS or FAIL.
-- **SC-5:** Verifying the PR-gate viability check references the meta RED/GREEN principle costs one grep search. Skipping means an SC requiring multiple PR merges is not decomposed and blocks a clean single-PR review.
-- **SC-6:** Verifying the inline copy includes the cross-reference comment costs one grep search. Skipping means the inline copy drifts from the master reference and future audits cannot locate the authoritative source.
-- **SC-7:** Verifying the decomposition check is skipped for single-SC/single-file specs costs one grep search. Skipping means the skip condition is absent and single-concern specs are spuriously flagged, forcing needless decomposition work.
-- **SC-8:** Running the monolithic-SC behavioral test costs minutes of execution time. Skipping means a monolithic SC passes validate and ships, where the defect costs 1000× more to fix in production.
-- **SC-9:** Running the atomic-SC behavioral test costs minutes of execution time. Skipping means the decomposition criteria are not verified to accept valid atomic SCs, risking false rejection of compliant specs.
+- **SC-4:** Verifying the binary verifiability disjunctive-pattern sub-check costs one grep search. Skipping means an SC with a disjunctive pattern ships and is only caught when the implementation cannot be evaluated as PASS or FAIL.
+- **SC-5:** Verifying the binary verifiability vague-term sub-check costs one grep search. Skipping means an SC with a vague term ships and is only caught when the implementation cannot be evaluated as PASS or FAIL.
+- **SC-6:** Verifying the PR-gate viability check references the meta RED/GREEN principle costs one grep search. Skipping means an SC requiring multiple PR merges is not decomposed and blocks a clean single-PR review.
+- **SC-7:** Verifying the inline copy includes the cross-reference comment costs one grep search. Skipping means the inline copy drifts from the master reference and future audits cannot locate the authoritative source.
+- **SC-8:** Verifying the decomposition check is skipped for single-SC/single-file specs costs one grep search. Skipping means the skip condition is absent and single-concern specs are spuriously flagged, forcing needless decomposition work.
+- **SC-9:** Running the monolithic-SC behavioral test costs minutes of execution time. Skipping means a monolithic SC passes validate and ships, where the defect costs 1000× more to fix in production.
+- **SC-10:** Running the atomic-SC behavioral test costs minutes of execution time. Skipping means the decomposition criteria are not verified to accept valid atomic SCs, risking false rejection of compliant specs.
 
 ## Change Control
 
@@ -147,3 +156,6 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-16 | Added Traceability section mapping each SC to Phase 2 and its root cause, plus a phase mapping table | Spec-audit finding (3) Traceability — all 9 SCs were orphan SCs with no phase mapping | spec-audit remediation |
 | 2026-08-16 | Added Not Included, Documentation Sources, and Enforcement Gate sections | Verify spec against spec-structure-standards and current code base | spec-audit remediation |
 | 2026-08-16 | Added "Cost Frame" section with per-SC cost-frame statements for all 9 SCs following the dark-prose-007 pattern | Validation FAILED on dark-prose-007 cost-frame conformance and Completeness — spec lacked the required "## Cost Frame" section (spec-structure-standards §10) | spec-audit remediation |
+| 2026-08-16 | Converted normative MUST to SHALL in the Decomposition Criteria Definitions section (5 occurrences) | Validation FAILED on SHALL language conformance — definitions section used MUST as normative language instead of SHALL | spec-audit remediation |
+| 2026-08-16 | Documented Documentation Sources resolution: SC table keeps exactly 4 columns (ID, Criterion, Evidence Type, Verification Method); external sources documented in the separate Documentation Sources section per canonical spec-structure-standards | Validation FAILED on Documentation Sources conformance — SC table lacked a Documentation Sources column; resolved in favor of the canonical reference | spec-audit remediation |
+| 2026-08-16 | Split SC-4 into two SCs (SC-4 disjunctive pattern sub-check, SC-5 vague term sub-check); renumbered subsequent SCs (SC-5→SC-6, SC-6→SC-7, SC-7→SC-8, SC-8→SC-9, SC-9→SC-10); updated Traceability table, Cost Frame section, and Phase Mapping to match | Validation FAILED on Compound-SC detection — SC-4 bundled two independently verifiable claims | spec-audit remediation |
