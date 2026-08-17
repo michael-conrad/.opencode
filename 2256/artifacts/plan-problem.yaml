@@ -1,0 +1,48 @@
+domain: plan-skill-remediation
+fluents:
+  - name: phase_P0
+  - name: phase_P1
+  - name: phase_P3
+  - name: phase_P4
+  - name: phase_P5
+  - name: phase_P6
+actions:
+  - name: do_P0
+    preconditions: []
+    effects:
+      - phase_P0
+  - name: do_P1
+    preconditions:
+      - phase_P0
+    effects:
+      - phase_P1
+  - name: do_P3
+    preconditions:
+      - phase_P0
+    effects:
+      - phase_P3
+  - name: do_P4
+    preconditions:
+      - phase_P0
+    effects:
+      - phase_P4
+  - name: do_P5
+    preconditions:
+      - phase_P0
+      - phase_P1
+    effects:
+      - phase_P5
+  - name: do_P6
+    preconditions:
+      - phase_P0
+      - phase_P4
+    effects:
+      - phase_P6
+init: []
+goals:
+  - phase_P0
+  - phase_P1
+  - phase_P3
+  - phase_P4
+  - phase_P5
+  - phase_P6

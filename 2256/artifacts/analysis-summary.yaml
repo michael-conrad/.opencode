@@ -1,7 +1,9 @@
 # Analysis Summary — Issue 2256
-# Backfill summary for the analytical artifacts directory.
+# Plan skill card remediation: split canon, tool invocations, plan/solve scope,
+# plan-fidelity basis, writing-plans consistency.
 
 spec_path: ".opencode/.issues/2256/spec.md"
+approval_status: "approved-for-for_pr"
 sc_count: 25
 
 artifacts:
@@ -14,11 +16,11 @@ artifacts:
   - name: "cross-cutting-matrix.yaml"
     status: "existing"
   - name: "interface-compatibility.yaml"
-    status: "backfilled"
+    status: "existing"
   - name: "state-analysis.yaml"
-    status: "backfilled"
+    status: "existing"
   - name: "testability-assessment.yaml"
-    status: "backfilled"
+    status: "existing"
 
 scope_summary:
   affected_files: 14
@@ -33,6 +35,13 @@ scope_summary:
     - "unified-planning / Z3 solver internals (REQ-NON-1)"
     - "spec-creation skill changes (REQ-NON-2)"
     - "new runtime features (R-21)"
+
+scope_boundary_findings:
+  - "All 14 affected files verified to exist in the codebase at analysis time."
+  - "plan-artifact-format.md exists (RED-state file to be deleted by SC-1a)."
+  - "All 4 plan-fidelity task files exist (evaluator, arbiter, investigator, validator)."
+  - "All 9 writing-plans output contract templates exist."
+  - "tools/solve and tools/plan exist and are out of scope (R-20)."
 
 backfill_notes:
   - "All 14 affected files verified to exist in the codebase at backfill time."

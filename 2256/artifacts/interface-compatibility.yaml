@@ -53,3 +53,122 @@ interface_invariants:
   - "tools/solve and tools/plan CLI interfaces MUST remain unchanged (R-20)."
   - "No src/ code changes (R-19)."
   - "No new runtime features (R-21)."
+
+dependency_contract:
+  variables:
+    phase_P0:
+      type: bool
+      description: "Analytical artifacts generation — SC-19"
+    phase_P1:
+      type: bool
+      description: "Plan-structure authority consolidation — SC-1a, SC-1b, SC-1c, SC-2, SC-3"
+    phase_P3:
+      type: bool
+      description: "Plan/solve scope and ownership — SC-8, SC-9"
+    phase_P4:
+      type: bool
+      description: "Tool invocation remediation — SC-4, SC-5, SC-6, SC-7"
+    phase_P5:
+      type: bool
+      description: "Plan-fidelity audit model — SC-10a, SC-10b"
+    phase_P6:
+      type: bool
+      description: "Writing-plans internal consistency — SC-11, SC-12, SC-13, SC-14, SC-15, SC-16a, SC-16b, SC-16c, SC-16d, SC-17, SC-18"
+  preconditions:
+    - "z3.Implies(phase_P1, phase_P0)"
+    - "z3.Implies(phase_P3, phase_P0)"
+    - "z3.Implies(phase_P4, phase_P0)"
+    - "z3.Implies(phase_P5, phase_P0)"
+    - "z3.Implies(phase_P6, phase_P0)"
+    - "z3.Implies(phase_P5, phase_P1)"
+    - "z3.Implies(phase_P6, phase_P4)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_P0:
+      files:
+        - ".opencode/.issues/2256/artifacts/*"
+      scs:
+        - SC-19
+    phase_P1:
+      files:
+        - ".opencode/reference/plan-structure-standards.md"
+        - ".opencode/skills/writing-plans/reference/plan-artifact-format.md"
+        - ".opencode/skills/writing-plans/SKILL.md"
+        - ".opencode/skills/writing-plans/tasks/create.md"
+      scs:
+        - SC-1a
+        - SC-1b
+        - SC-1c
+        - SC-2
+        - SC-3
+    phase_P3:
+      files:
+        - ".opencode/skills/plan/SKILL.md"
+        - ".opencode/skills/solve/SKILL.md"
+      scs:
+        - SC-8
+        - SC-9
+    phase_P4:
+      files:
+        - ".opencode/skills/writing-plans/tasks/research.md"
+      scs:
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+    phase_P5:
+      files:
+        - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+      scs:
+        - SC-10a
+        - SC-10b
+    phase_P6:
+      files:
+        - ".opencode/skills/writing-plans/SKILL.md"
+        - ".opencode/skills/writing-plans/tasks/create.md"
+        - ".opencode/skills/writing-plans/tasks/completion.md"
+        - ".opencode/skills/writing-plans/tasks/handoff.md"
+        - ".opencode/skills/writing-plans/tasks/research.md"
+        - ".opencode/skills/writing-plans/contracts/*-output.yaml"
+      scs:
+        - SC-11
+        - SC-12
+        - SC-13
+        - SC-14
+        - SC-15
+        - SC-16a
+        - SC-16b
+        - SC-16c
+        - SC-16d
+        - SC-17
+        - SC-18
+  edges:
+    - from: phase_P0
+      to: phase_P1
+      rationale: "P0 (SC-19) generates the seven analytical artifacts retroactively so the artifact cross-reference check can run; P1's plan-structure authority consolidation is verified against that analytical baseline."
+    - from: phase_P0
+      to: phase_P3
+      rationale: "P0 (SC-19) generates the analytical artifacts (including interface-compatibility) that document the plan/solve scope collision; P3's scope resolution is verified against that baseline."
+    - from: phase_P0
+      to: phase_P4
+      rationale: "P0 (SC-19) generates the analytical artifacts (including interface-compatibility) that document the broken tool invocations; P4's remediation is verified against that baseline."
+    - from: phase_P0
+      to: phase_P5
+      rationale: "P0 (SC-19) generates the analytical artifacts (including interface-compatibility) that document the phantom clean-room basis; P5's single-plan model is verified against that baseline."
+    - from: phase_P0
+      to: phase_P6
+      rationale: "P0 (SC-19) generates the analytical artifacts (including interface-compatibility) that document the writing-plans internal inconsistencies; P6's fixes are verified against that baseline."
+    - from: phase_P1
+      to: phase_P5
+      rationale: "P1 (SC-1b) establishes plan-structure-standards.md as the single canonical plan-structure authority; P5's plan-fidelity tasks (SC-10a/10b) read plan-structure-standards.md, so the single authority MUST be established before plan-fidelity evaluates against it."
+    - from: phase_P4
+      to: phase_P6
+      rationale: "P4 (SC-4/5/6/7) and P6 (SC-17) both edit the cross-cutting file writing-plans/tasks/research.md; P6 SC-17 depends on P4's corrected tool invocations and BLOCK gate being in place before the sc-summary path fix is verified."
+  notes:
+    - "P4 and P6 both edit writing-plans/tasks/research.md (cross-cutting file). P4 fixes the tool invocations (SC-4/5/6) and adds the BLOCK gate (SC-7); P6 fixes the sc-summary.yaml path (SC-17). P6 MUST run after P4 to avoid conflicting edits to the same file and because SC-17's verification depends on the corrected invocations."
+    - "P1 MUST complete before P5 because plan-fidelity (SC-10a/10b) reads plan-structure-standards.md as the single canonical authority; the split authority must be resolved first."
+    - "P0 (SC-19) is foundational: all seven analytical artifacts must exist before the artifact cross-reference check can run, and every other phase's verification depends on that baseline."
